@@ -1,0 +1,22 @@
+{
+	"announcement":{
+		"title":"Annonce Twitchat",
+		"subtitle":"Envoyer une annonce aux utilisateur·ices Twitchat",
+		"param_title":"Titre",
+		"param_dateStart":"Date de début",
+		"param_dateEnd":"Date de fin (optionnel)",
+		"param_text":"Message",
+		"param_versionMax":"Version max de Twitchat (optionnel)",
+		"param_important":"Notification importante (sera envoyée aux personne déjà en live)",
+		"postBt":"Publier",
+		"list":"Liste des annonces",
+		"create_confirm":{
+			"title":"Publier l'annonce ?",
+			"description":"Les utilisateur·ices de Twitchat verront l'annonce appraître à partir de la date spécifiée."
+		},
+		"delete_confirm":{
+			"title":"Supprimer l'annonce ?",
+			"description":"Cette action est irreversible."
+		}
+	}
+}

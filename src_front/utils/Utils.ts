@@ -741,4 +741,19 @@ export default class Utils {
 			.replace(/^-+/, '')          // Remove hyphens at the beginning of the string
 			.replace(/-+$/, '');         // Remove hyphens at the end of the string
 	}
+
+	/**
+	 * Compare 2 semantic version number like "1.23.456"
+	 * @param v1 
+	 * @param v2 
+	 * @returns true if v1 is greater than v2
+	 */
+	public static compareSementicVersion(v1:string, v2:string):boolean {
+		const [major1, minor1, patch1] = v1.split(".").map(Number);
+		const [major2, minor2, patch2] = v2.split(".").map(Number);
+
+		if (major1 !== major2) return major1 > major2;
+		if (minor1 !== minor2) return minor1 > minor2;
+		return patch1 > patch2;
+	}
 }

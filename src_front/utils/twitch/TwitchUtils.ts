@@ -1164,11 +1164,7 @@ export default class TwitchUtils {
 			await this.onRateLimit(res.headers);
 			return await this.setStreamInfos(channelId, title, categoryID, tags);
 		}
-		if(res.status == 204) {
-			return true;
-		}else{
-			return false;
-		}
+		return res.status == 204;
 	}
 
 	/**

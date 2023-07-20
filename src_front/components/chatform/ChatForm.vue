@@ -29,6 +29,19 @@
 						</div>
 					</div>
 
+					<div class="announcement" v-if="announcement">
+						<button class="closeBt" type="button" @click="closeAnnouncement()"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<div class="content">
+							<span class="title">
+								<Icon name="alert" />
+								<ChatMessageChunksParser :chunks="announcementTitle" />
+							</span>
+							<span class="message">
+								<ChatMessageChunksParser :chunks="announcementMessage" />
+							</span>
+						</div>
+					</div>
+
 					<!-- using @input instead of v-model so it works properly on mobile -->
 					<input type="text"
 						ref="input"
@@ -268,7 +281,9 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import EventSub from '@/utils/twitch/EventSub';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -279,6 +294,7 @@ import EventSub from '@/utils/twitch/EventSub';
 		TimerCountDownInfo,
 		CommunityBoostInfo,
 		AutocompleteChatForm,
+		ChatMessageChunksParser,
 	},
 	emits: [
 		"pins",
@@ -322,7 +338,9 @@ export default class ChatForm extends Vue {
 	public trackedUserCount = 0;
 	public channelId:string = "";
 	public onlineUsersTooltip:string = "";
+	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
+	private announcementInterval:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	
 	public get maxLength():number {
@@ -339,6 +357,16 @@ export default class ChatForm extends Vue {
 
 	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
 		return this.$store('stream').currentStreamInfo[this.$store("auth").twitch.user.id];
+	}
+
+	public get announcementTitle():TwitchDataTypes.ParseMessageChunk[] {
+		const title = this.announcement!.title[this.$i18n.locale] || this.announcement!.title["en"];
+		return TwitchUtils.parseMessageToChunks(title, undefined, true);
+	}
+
+	public get announcementMessage():TwitchDataTypes.ParseMessageChunk[] {
+		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"];
+		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
@@ -398,6 +426,14 @@ export default class ChatForm extends Vue {
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 		this.channelId = StoreProxy.auth.twitch.user.id;
 		this.onUpdateTrackedUserList();
+		//Leave some time to open transition to complete before showing announcements
+		setTimeout(()=> {
+			this.loadAnnouncements();
+		}, 2000);
+		//Check for new announcements every 30min
+		this.announcementInterval = setInterval(()=> {
+			this.loadAnnouncements(true);
+		}, 10 * 60 * 1000);
 	}
 
 	public async mounted():Promise<void> {
@@ -443,6 +479,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public beforeUnmount():void {
+		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
 	}
@@ -453,6 +490,48 @@ export default class ChatForm extends Vue {
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void {
 		this.$store("params").openModal(modal);
+	}
+
+	public async closeAnnouncement():Promise<void> {
+		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
+		history[this.announcement!.id] = true;
+		DataStore.set(DataStore.ANNOUNCEMENTS_READ, history);
+		this.announcement = null
+	}
+
+	/**
+	 * Loads potential twitchat announcements from server
+	 */
+	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
+		const options = {
+			method:"GET",
+			headers: {
+				"Content-Type": "application/json",
+				"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
+				'App-Version': import.meta.env.PACKAGE_VERSION,
+			}
+		}
+		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
+		const res = await fetch(Config.instance.API_PATH+"/announcements", options);
+		if(res.status == 200) {
+			const json:TwitchatDataTypes.TwitchatAnnouncementData[] = await res.json() || [];
+			for (let i = 0; i < json.length; i++) {
+				const a = json[i];
+				//Check if announcement already read
+				if(history[a.id] === true) continue;
+				//Check if version is valid
+				if(a.versionMax) {
+					const currentVersion = import.meta.env.PACKAGE_VERSION;
+					if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
+				}
+				//Check if within date frame
+				if(Date.now() < new Date(a.dateStart).getTime()) continue;
+				if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
+				//Allow only important alerts if requested
+				if(onlyImportant && a.important !== true) continue;
+				this.announcement = json[i];
+			}
+		}
 	}
 
 	/**
@@ -816,7 +895,7 @@ export default class ChatForm extends Vue {
 			background-color: var(--color-alert);
 			.inputForm {
 				.inputHolder {
-					.replyTo {
+					.replyTo, .announcement {
 						background-color: var(--color-alert);
 					}
 				}
@@ -858,13 +937,13 @@ export default class ChatForm extends Vue {
 				flex-grow: 1;
 				flex-basis: 150px;
 				
-				.replyTo {
+				.replyTo, .announcement {
 					top: -.25em;
 					width:100%;
 					position: absolute;
 					transform: translateY(-100%);
-					background-color: var(--color-dark-light);
-					color: var(--color-light);
+					background-color: var(--background-color-secondary);
+					color: var(--color-text);
 					border-top-left-radius: .5em;
 					border-top-right-radius: .5em;
 					box-shadow: 0 -5px 5px rgba(0,0,0,.5);
@@ -896,6 +975,40 @@ export default class ChatForm extends Vue {
 						.message {
 							opacity: .8;
 							margin-left: .25em;
+							line-height: 1.25em;
+						}
+					}
+					&.announcement {
+						border: 1px dashed var(--color-secondary);
+						border-bottom: none;
+						padding: 1em;
+						.closeBt{
+							position: absolute;
+							top: 0;
+							right: 0;
+							width: 1.75em;
+							height: 1.75em;
+						}
+						.content {
+							padding: 0;
+							font-size: 1rem;
+							display: flex;
+							flex-direction: column;
+							overflow: auto;
+							white-space: normal;
+							text-overflow: unset;
+							.title {
+								font-weight: bold;
+								font-size: 1.5em;
+								margin-bottom: .5em;
+								padding-bottom: .5em;
+								border-bottom: 5px solid var(--color-secondary);
+								width: fit-content;
+								.icon {
+									height: 1em;
+									margin-right: .5em;
+								}
+							}
 						}
 					}
 				}

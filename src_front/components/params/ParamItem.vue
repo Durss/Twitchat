@@ -46,7 +46,7 @@
 					@input="$emit('input')">
 			</div>
 			
-			<div v-if="paramData.type == 'string' || paramData.type == 'password'" class="holder text">
+			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime'" class="holder text">
 				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
@@ -68,7 +68,7 @@
 						v-autofocus="autofocus"
 						:name="paramData.fieldName"
 						:id="'text'+key"
-						:type="paramData.type"
+						:type="paramData.type == 'datetime'? 'datetime-local' : paramData.type"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						autocomplete="new-password"

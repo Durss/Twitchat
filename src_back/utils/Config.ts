@@ -93,6 +93,13 @@ export default class Config {
 		});
 	}
 
+	public static get ANNOUNCEMENTS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../announcements.json"),
+			prod: path.join(__dirname, "../../announcements.json"),
+		});
+	}
+
 	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map

@@ -1,9 +1,12 @@
 <template>
 	<div class="pinedmessages sidePanel">
 		<div class="head">
-			<i18n-t scope="global" tag="h1" keypath="pin.title" :plural="$store('chat').pinedMessages.length">
-				<template #COUNT>{{ $store('chat').pinedMessages.length }}</template>
-			</i18n-t>
+			<div class="title">
+				<Icon name="save" />
+				<i18n-t scope="global" tag="h1" keypath="pin.title" :plural="$store('chat').pinedMessages.length">
+					<template #COUNT>{{ $store('chat').pinedMessages.length }}</template>
+				</i18n-t>
+			</div>
 			<CloseButton @click="close()" />
 		</div>
 		<div class="content">
@@ -44,9 +47,11 @@ import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 import StoreProxy from '@/store/StoreProxy';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		CloseButton,
 		ChatMessage,
@@ -122,6 +127,7 @@ export default class PinedMessages extends AbstractSidePanel {
 
 		.list {
 			padding: .5em;
+			max-width: 100%;
 
 			.messageItem {
 				display: flex;
@@ -129,12 +135,8 @@ export default class PinedMessages extends AbstractSidePanel {
 				align-items: center;
 				position: relative;
 				gap: .25em;
-
-				.message {
-					flex-grow: 1;
-					flex-shrink: 0;
-					color: var(--color-light);
-				}
+				width: 100%;
+				max-width: 100%;
 
 				.button {
 					width: fit-content;

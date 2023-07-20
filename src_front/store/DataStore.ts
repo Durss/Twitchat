@@ -68,6 +68,7 @@ export default class DataStore {
 	public static ULULE_GOALS:string = "ululeGoals";
 	public static ULULE_TITLE:string = "ululeTitle";
 	public static ULULE_CURRENCY:string = "ululeCurrency";
+	public static ANNOUNCEMENTS_READ:string = "announcementsRead";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -90,6 +91,7 @@ export default class DataStore {
 		this.TOOLTIP_AUTO_OPEN,
 		this.POLL_DEFAULT_DURATION,
 		this.PREDICTION_DEFAULT_DURATION,
+		this.ANNOUNCEMENTS_READ,
 	]
 	
 	

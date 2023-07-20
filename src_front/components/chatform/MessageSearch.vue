@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="head">
 			<div class="title">
-				<img src="@/assets/icons/search.svg" alt="search" class="icon">
+				<Icon name="search" />
 				<i18n-t scope="global" tag="h1" keypath="search.title">
 					<template #COUNT><span class="count" v-if="messages.length > 0"> | {{messages.length}}</span></template>
 				</i18n-t>
@@ -11,6 +11,7 @@
 			<i18n-t scope="global" class="description" tag="span" keypath="search.subtitle">
 				<template #SEARCH><span class="search">{{search}}</span></template>
 			</i18n-t>
+			
 			<CloseButton @click="close()" />
 		</div>
 
