@@ -313,6 +313,8 @@
 			"sub_gift_recipient_id": "Recipients user IDs",
 			"sub_gift_count": "Subgifts count",
 			"bits": "Number of bits",
+			"my_stream_title": "My stream title",
+			"my_stream_category": "My stream category",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
 			"stream_viewers": "Viewers count",

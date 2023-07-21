@@ -291,88 +291,104 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(scenesDone[scene.name] == true) continue;
 			scenesDone[scene.name] = true;
 
+			console.log("Get scene", scene.name);
 			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
-			let items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
+			console.log("Scene done");
+			let items:{parent:string, item:OBSSourceItem, parentTransform?:SourceTransform}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
 
 			//Parse all scene sources
 			for (let i=0; i < items.length; i++) {
 				const source = items[i]
 				sourceDone[source.item.sourceName] = true;
 				
+				console.log("GET", source.parent, source.item.sceneItemId, source.item.sourceName);
+				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+				console.log("Done");
+				if(!sourceTransform.globalScaleX) {
+					sourceTransform.globalScaleX = 1;
+					sourceTransform.globalScaleY = 1;
+					sourceTransform.globalRotation = 0;
+				}
+
 				if(source.item.isGroup) {
 					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.item.sourceName});
 					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
-					items = items.concat( groupItems.map(v=>{ return {parent:source.item.sourceName, item:v}}) );
-				}else{
-					
-					let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
-					if(!sourceTransform.globalScaleX) {
-						sourceTransform.globalScaleX = 1;
-						sourceTransform.globalScaleY = 1;
-						sourceTransform.globalRotation = 0;
-					}
-					
-					//Compute the center of the source on the local space
-					let coords = this.getSourceCenterFromTransform(sourceTransform);
-					sourceTransform.globalCenterX = coords.cx;
-					sourceTransform.globalCenterY = coords.cy;
+					console.log("Parent", sourceTransform);
+					items = items.concat( groupItems.map(v=>{ return {parent:source.item.sourceName, item:v, parentTransform:sourceTransform}}) );
+				}
+				
+				//Compute the center of the source on the local space
+				let coords = this.getSourceCenterFromTransform(sourceTransform);
+				sourceTransform.globalCenterX = coords.cx;
+				sourceTransform.globalCenterY = coords.cy;
 
-					if(scene.parentTransform) {
-						//Apply parent rotation
-						const pt = scene.parentTransform;
-						let rotated = Utils.rotatePointAround(
-														{
-															x:sourceTransform.globalCenterX + pt.globalCenterX! - canvasW/2,
-															y:sourceTransform.globalCenterY + pt.globalCenterY! - canvasH/2,
-														},
-														{x:pt.globalCenterX!, y:pt.globalCenterY!},
-														pt.rotation
-														);
-						sourceTransform.globalCenterX = rotated.x;
-						sourceTransform.globalCenterY = rotated.y;
+				if(scene.parentTransform || source.parentTransform) {
+					//Apply parent rotation
+					const pt = (scene.parentTransform || source.parentTransform)!;
+					let rotated = Utils.rotatePointAround(
+													{
+														x:sourceTransform.globalCenterX + pt.globalCenterX! - canvasW/2,
+														y:sourceTransform.globalCenterY + pt.globalCenterY! - canvasH/2,
+													},
+													{x:pt.globalCenterX!, y:pt.globalCenterY!},
+													pt.rotation
+													);
+					sourceTransform.globalCenterX = rotated.x;
+					sourceTransform.globalCenterY = rotated.y;
 
-						//Propagate scale and rotation to children
-						sourceTransform.rotation += pt.rotation;
-						sourceTransform.globalRotation = sourceTransform.rotation;
-						sourceTransform.globalScaleX! *= pt.globalScaleX!;
-						sourceTransform.globalScaleY! *= pt.globalScaleY!;
+					//Propagate scale and rotation to children
+					sourceTransform.rotation += pt.rotation;
+					sourceTransform.globalRotation = sourceTransform.rotation;
+					sourceTransform.globalScaleX! *= pt.globalScaleX!;
+					sourceTransform.globalScaleY! *= pt.globalScaleY!;
 
-						//Apply parent scale
-						const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
-						sourceTransform.globalCenterX = scaled.x;
-						sourceTransform.globalCenterY = scaled.y;
-					}
-	
-					//Is it a source?
-					if(source.item.sourceType == "OBS_SOURCE_TYPE_INPUT") {
-						itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
-						let px = sourceTransform.globalCenterX!;
-						let py = sourceTransform.globalCenterY!;
-						const hw = (sourceTransform.width * sourceTransform.globalScaleX!) / 2
-						const hh = (sourceTransform.height * sourceTransform.globalScaleY!) / 2
-						const angle_rad = sourceTransform.rotation * Math.PI / 180;
-						const cos_angle = Math.cos(angle_rad);
-						const sin_angle = Math.sin(angle_rad);
-						sourceTransform.globalRotation = sourceTransform.rotation;
-						sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
-						sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
-						sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
-						sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
+					//Apply parent scale
+					const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
+					sourceTransform.globalCenterX = scaled.x;
+					sourceTransform.globalCenterY = scaled.y;
+				}
+
+				//Is it a source?
+				if(source.item.sourceType == "OBS_SOURCE_TYPE_INPUT"
+				|| source.item.sourceType == "OBS_SOURCE_TYPE_SCENE"
+				|| source.item.isGroup) {
+					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
+					let px = sourceTransform.globalCenterX!;
+					let py = sourceTransform.globalCenterY!;
+					const hw = (sourceTransform.width * sourceTransform.globalScaleX!) / 2
+					const hh = (sourceTransform.height * sourceTransform.globalScaleY!) / 2
+					const angle_rad = sourceTransform.rotation * Math.PI / 180;
+					const cos_angle = Math.cos(angle_rad);
+					const sin_angle = Math.sin(angle_rad);
+					sourceTransform.globalRotation = sourceTransform.rotation;
+					sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
+					sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
+					sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
+					sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
+					if(!source.item.isGroup) {
 						transforms.push({transform:sourceTransform, sceneName:source.parent, source:source.item});
-					
-					}else
-					//If it's a scene item, add it to the scene list
-					if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-						itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
-						sourceTransform.globalScaleX = sourceTransform.scaleX;
-						sourceTransform.globalScaleY = sourceTransform.scaleY;
-						sceneList.push( {
-										name:source.item.sourceName,
-										parentScene:source.parent,
-										parentItemId:source.item.sceneItemId,
-										parentTransform:sourceTransform,
-									} );
 					}
+				
+				}
+				//If it's a scene item, add it to the scene list
+				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" && !source.item.isGroup) {
+					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
+					sourceTransform.globalScaleX = sourceTransform.scaleX;
+					sourceTransform.globalScaleY = sourceTransform.scaleY;
+					sceneList.push( {
+									name:source.item.sourceName,
+									parentScene:source.parent,
+									parentItemId:source.item.sceneItemId,
+									parentTransform:sourceTransform,
+								} );
+				}
+
+				//FIXME items within group are not placed properly, group's transform offset isn't applied to its children
+				if(source.item.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.item.sourceName});
+					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
+					console.log("Parent", sourceTransform);
+					items = items.concat( groupItems.map(v=>{ return {parent:source.item.sourceName, item:v, parentTransform:sourceTransform}}) );
 				}
 			}
 		}

@@ -6,6 +6,7 @@
 		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
 		<OverlayCounter v-if="overlay=='counter'" />
 		<OverlayUlule v-if="overlay=='ulule'" />
+		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
 	</div>
 </template>
 
@@ -20,12 +21,14 @@ import OverlayUlule from '@/components/overlays/OverlayUlule.vue';
 import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 
 @Component({
 	components:{
 		OverlayUlule,
 		OverlayTimer,
 		OverlayCounter,
+		OverlayHeatDebug,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
 		OverlayChatHighlight,

@@ -15,7 +15,6 @@ const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
-const HeatClickDebug = () => import('@/views/HeatClickDebug.vue');
 const HeatDebugPopout = () => import('@/views/HeatDebugPopout.vue');
 const RemoteVoiceControl = () => import('@/views/RemoteVoiceControl.vue');
 
@@ -165,17 +164,6 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/overlay/:id(.*)',
 		name: 'overlay',
 		component: Overlay,
-		meta: {
-			needAuth:false,
-			public:true,
-			noBG:true,
-			overflow:false,
-		}
-	},
-	{
-		path: '/heatclick',
-		name: 'heatclick',
-		component: HeatClickDebug,
 		meta: {
 			needAuth:false,
 			public:true,

@@ -58,7 +58,8 @@ import CloseButton from '../CloseButton.vue';
 	components:{
 		Button,
 		CloseButton,
-	}
+	},
+	emits:["close"]
 })
 export default class LiveFollowings extends AbstractSidePanel {
 

@@ -11,7 +11,7 @@
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
 		<section v-if="connecting" class="card-item">
-			<Icon class="loader" name="loader" />
+			<Icon class="item center" name="loader" />
 			<div class="item center">{{ $t("goxlr.connecting") }}</div>
 		</section>
 
@@ -69,8 +69,10 @@ export default class ParamsGoXLR extends Vue {
 	public toggleState():void {
 		if(this.param_enabled.value === true) {
 			this.connect();
+			console.log("Connect");
 		} else {
 			this.connected = false;
+			console.log("Disconnect");
 			GoXLRSocket.instance.disconnect();
 		}
 	}
@@ -88,20 +90,85 @@ export default class ParamsGoXLR extends Vue {
 			res = true;
 		}catch(error) {}
 
+		console.log("RES", res);
 		this.connected = res;
 		if(res) {
 			// this.populate();
-		}
-		if(!res) {
-			this.connecting = false;
+		}else{
 			this.connectionFailed = true;
 		}
+		this.connecting = false;
 	}
 }
 </script>
 
 <style scoped lang="less">
 .paramsgoxlr{
+	.fadeHolder {
+		transition: opacity .2s;
+	}
+
+	section {
+		
+		.item {
+			&:not(:first-child) {
+				margin-top: .5em;
+			}
+			&.splitter {
+				margin: .5em 0 1em 0;
+			}
+			&.label {
+				i {
+					font-size: .8em;
+				}
+				.icon {
+					width: 1.2em;
+					max-height: 1.2em;
+					margin-right: .5em;
+					margin-bottom: 2px;
+					display: inline;
+					vertical-align: middle;
+				}
+				p {
+					display: inline;
+				}
+			}
+			&.small {
+				font-size: .8em;
+			}
+			&.center {
+				display: block;
+				margin-left: auto;
+				margin-right: auto;
+				text-align: center;
+			}
+			&.shrinkInput {
+				:deep(.inputHolder) {
+					max-width: 150px;
+				}
+				:deep(input) {
+					max-width: 150px;
+				}
+			}
+			&.param {
+				margin-top: 0;
+				:deep(.icon) {
+					width: 2em;
+					height: 2em;
+				}
+				:deep(.content) {
+					align-items: center;
+				}
+			}
+			&.users {
+				padding-left: 1em;
+			}
+		}
+
+		&.error {
+			text-align: center;
+		}
+	}
 	
 }
 </style>

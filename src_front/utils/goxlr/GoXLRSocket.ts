@@ -88,6 +88,8 @@ export default class GoXLRSocket {
 		if(this.connected) {
 			this._socket.close();
 		}
+		this._status = null;
+		this._connecting = false;
 		this.connected = false;
 	}
 

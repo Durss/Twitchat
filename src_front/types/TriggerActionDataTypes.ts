@@ -912,11 +912,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (k in map) {
 		let entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
+			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
 		}
 		
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
+			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.my_stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1) {

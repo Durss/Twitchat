@@ -207,6 +207,8 @@ export const storeHeat = defineStore('heat', {
 
 					//Click is outside overlay, ingore it
 					if(!isInside) continue;
+
+					console.log("CLICKED SOURCE", rect);
 					
 					const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
 					clone.obsSource = rect.source.sourceName;
@@ -264,6 +266,33 @@ export const storeHeat = defineStore('heat', {
 						}
 					}
 				}
+
+				const rectPoints:number[][] = [];
+				rects.sources.forEach(v => {
+					const points = [
+						v.transform.globalTL!.x,
+						v.transform.globalTL!.y,
+						v.transform.globalTR!.x,
+						v.transform.globalTR!.y,
+						v.transform.globalBR!.x,
+						v.transform.globalBR!.y,
+						v.transform.globalBL!.x,
+						v.transform.globalBL!.y,
+					]
+					rectPoints.push(points);
+				});
+
+				//Send click info to browser source
+				OBSWebsocket.instance.socket.call("CallVendorRequest", {
+					requestType:"emit_event",
+					vendorName:"obs-browser",
+					requestData:{
+						event_name:"heat-rects",
+						//Sending as string because vendor request doesn't seem to handle array of numbers.
+						//I receive an empty array on the other side
+						event_data:{rects:JSON.stringify(rectPoints)},
+					}
+				});
 			}
 		}
 
