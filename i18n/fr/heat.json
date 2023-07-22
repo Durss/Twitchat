@@ -22,7 +22,9 @@
 			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Ulule"
 		},
 		"debug":{
-			"description": "Heat ne fonctionne que lorsque vous êtes en live. Afin de pouvoir faire des tests sans lancer un live, cliquez dans la zone ci-dessous pour simuler une interaction."
+			"description": "Heat ne fonctionne que lorsque vous êtes en live. Afin de pouvoir faire des tests sans lancer un live, cliquez dans la zone ci-dessous pour simuler une interaction.",
+			"popout": "Ouvrir dans une fenêtre séparée",
+			"obs": "Recalculer la position des sources OBS. Leurs position n'est recalculée que toutes les 30s par défaut. Cliquez pour forcer cette mise à jour si vous avez déplacé une source."
 		},
 		"areas":{
 			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",

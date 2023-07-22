@@ -2,6 +2,7 @@ import { EventDispatcher } from "@/events/EventDispatcher";
 import HeatEvent from "@/events/HeatEvent";
 import StoreProxy from "@/store/StoreProxy";
 import { reactive } from "vue";
+import OBSWebsocket from "../OBSWebsocket";
 
 /**
 * Created : 21/06/2023 
@@ -136,11 +137,15 @@ export default class HeatSocket extends EventDispatcher {
 	*******************/
 
 	private initialize():void {
-		//Create a global method that can be called from a popup
+		//Create a global methods that can be called from a popup
 		//@ts-ignore
 		window.simulateHeatClick = (x:number,y:number, altKey:boolean, ctrlKey:boolean, shiftKey:boolean):void => {
 			const uid = StoreProxy.auth.twitch.user.id;
 			this.fireEvent(uid, x,y, altKey, ctrlKey, shiftKey, true);
+		};
+		//@ts-ignore
+		window.clearOBSCache = ():void => {
+			OBSWebsocket.instance.clearSourceTransformCache();
 		};
 	}
 }

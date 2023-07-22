@@ -39,7 +39,8 @@ export default class OverlayHeatDebug extends Vue {
 			for (let i = 0; i < rects.length; i++) {
 				const rect = rects[i];
 				ctx.beginPath();
-				ctx.lineWidth = 2;
+				// ctx.lineWidth = Math.random() * 20;
+				ctx.lineWidth = 4;
 				ctx.strokeStyle = colors[i%colors.length];
 				ctx.moveTo(rect[0], rect[1]);
 				for (let j = 2; j < rect.length; j += 2) {

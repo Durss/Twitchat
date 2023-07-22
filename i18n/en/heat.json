@@ -22,7 +22,9 @@
 			"description": "Send a message when Ulule overlay is clicked"
 		},
 		"debug":{
-			"description": "Heat only works when you're live. To help you test things without going live, click on the area bellow to simulate an interaction."
+			"description": "Heat only works when you're live. To help you test things without going live, click on the area bellow to simulate an interaction.",
+			"popout": "Open in new window",
+			"obs": "Compute OBS sources positions. These positions are refreshed only every 30s. If you moved a source, click here to get fresh positions."
 		},
 		"areas":{
 			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",

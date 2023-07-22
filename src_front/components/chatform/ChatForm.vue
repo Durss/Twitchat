@@ -429,7 +429,6 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		console.log(SpotifyHelper.instance.currentTrack);
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 

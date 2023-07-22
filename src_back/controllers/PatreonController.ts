@@ -281,6 +281,7 @@ export default class PatreonController extends AbstractController {
 		if(!offset) this.members = [];
 
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns/"+this.campaignId+"/members");
+		url.searchParams.append("include", "currently_entitled_tiers");
 		url.searchParams.append("fields[member]", "full_name,is_follower,last_charge_date,last_charge_status,lifetime_support_cents,currently_entitled_amount_cents,patron_status");
 		url.searchParams.append("fields[tier]", "amount_cents,created_at,description,discord_role_ids,edited_at,patron_count,published,published_at,requires_shipping,title,url");
 		url.searchParams.append("fields[address]", "addressee,city,line_1,line_2,phone_number,postal_code,state");
@@ -306,7 +307,10 @@ export default class PatreonController extends AbstractController {
 			if(verbose)Logger.info("Patreon: "+json.data.length+" members loaded");
 			// console.log(json);
 			const next = json.meta.pagination?.cursors?.next;
+
+			//Only keep active patrons
 			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
+			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0)
 			.map(v =>{
 				const member:PatreonMember = {
 					id:v.id,
@@ -342,16 +346,22 @@ export default class PatreonController extends AbstractController {
 		};
 
 		const result = await fetch(url, options);
-		const json = await result.json();
-		if(json.errors) {
+		if(result.status != 200) {
 			Logger.error("Patreon: campaign list failed");
-			console.log(json.errors[0].detail);
-			this.logout();
+			console.log(await result.text());
+
 		}else{
-			if(json.data?.length === 0) {
-				Logger.error("Patreon: no campaign found");
+			const json = await result.json();
+			if(json.errors) {
+				Logger.error("Patreon: campaign list failed");
+				console.log(json.errors[0].detail);
+				this.logout();
 			}else{
-				this.campaignId = json.data[0].id;
+				if(json.data?.length === 0) {
+					Logger.error("Patreon: no campaign found");
+				}else{
+					this.campaignId = json.data[0].id;
+				}
 			}
 		}
 	}

@@ -1,15 +1,21 @@
 <template>
 	<div class="heatdebugpopout" ref="areaHolder">
-		<div ref="area" class="area" @click="onClickArea" @mousemove="mouseMoveHandler">
+		<div ref="area" class="area" @click="onClickArea" @contextmenu="onClickArea" @mousemove="mouseMoveHandler">
 			<div class="cursor" ref="cursor"></div>
 		</div>
 		<div v-for="click in clicks" class="click" :style="getClickStyles(click)" :key="click.id"></div>
+			<div class="ctas">
+				<button class="fsBt" @click="goFullscreen()" v-tooltip="$t('heat.debug.popout')" v-if="!isPopout"><img src="@/assets/icons/newtab.svg" alt=""></button>
+				<button class="cacheBt" @click="clearOBSCache()" v-tooltip="$t('heat.debug.obs')" v-if="obsConnected"><img src="@/assets/icons/obs.svg" alt=""></button>
+			</div>
 	</div>
 </template>
 
 <script lang="ts">
+import DataStore from '@/store/DataStore';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
+import { e } from 'mathjs';
 import { watch, type StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 
@@ -19,10 +25,15 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class HeatDebugPopout extends Vue {
 
+	public isPopout:boolean = false;
 	public clicks:ClickData[] = [];
+
+	private debugInterval:number = -1;
 	private obsScreener:number = -1;
+	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public mounted():void {
+		this.isPopout = this.$route.name == "heatDebug";
 		if(OBSWebsocket.instance.connected){
 			this.refreshImage();
 		}else{
@@ -30,10 +41,14 @@ export default class HeatDebugPopout extends Vue {
 				this.refreshImage();
 			});
 		}
+		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keydown", this.keyupHandler);
 	}
 
 	public beforeUnmount():void {
 		clearTimeout(this.obsScreener);
+		clearTimeout(this.debugInterval);
+		document.removeEventListener("keydown", this.keyupHandler);
 	}
 
 	public getClickStyles(data:ClickData):StyleValue {
@@ -52,6 +67,10 @@ export default class HeatDebugPopout extends Vue {
 	}
 
 	public onClickArea(event:MouseEvent):void {
+		if(event.type == "contextmenu") {
+			event.preventDefault();
+			this.clearOBSCache();
+		}
 		const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
 		let px = event.clientX - bounds.x;
 		let py = event.clientY - bounds.y;
@@ -73,6 +92,48 @@ export default class HeatDebugPopout extends Vue {
 
 		if(window.opener?.simulateHeatClick) {
 			window.opener.simulateHeatClick(px, py, event.altKey, event.ctrlKey, event.shiftKey);
+		}
+	}
+
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+
+	public goFullscreen():void {
+		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;
+		const url = new URL(document.location.origin + this.$router.resolve({name:"heatDebug"}).href);
+		
+		const port = DataStore.get(DataStore.OBS_PORT);
+		const pass = DataStore.get(DataStore.OBS_PASS);
+		const ip = DataStore.get(DataStore.OBS_IP);
+		if(port) url.searchParams.append("obs_port", port);
+		if(pass) url.searchParams.append("obs_pass", pass);
+		if(ip) url.searchParams.append("obs_ip", ip);
+
+		window.open(url, "heatDebug", params);
+	}
+
+	public clearOBSCache():void {
+		OBSWebsocket.instance.clearSourceTransformCache()
+		if(window.opener?.clearOBSCache) {
+			window.opener.clearOBSCache();
+		}
+	}
+
+	/**
+	 * Show a debug field on CTRL+ALT+D
+	 * @param e 
+	 */
+	private onKeyUp(e:KeyboardEvent):void {
+		clearInterval(this.debugInterval);
+		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+			const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
+			this.debugInterval = setInterval(()=>{
+				console.log("ok");
+				this.clearOBSCache();
+				this.onClickArea(new MouseEvent("click", {
+					clientX:bounds.left,
+					clientY:bounds.top,
+				}))
+			}, 100);
 		}
 	}
 
@@ -125,6 +186,23 @@ interface ClickData {
 		&:hover {
 			.cursor {
 				display: block !important;
+			}
+		}
+	}
+
+	.ctas {
+		position: absolute;
+		top: .5em;
+		right: .5em;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		button {
+			cursor: pointer;
+			width: 1em;
+			height: 1em;
+			img {
+				width: 100%;
 			}
 		}
 	}

@@ -149,7 +149,6 @@ const routes: Array<RouteRecordRaw> = [
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-				console.log(sPatreon);
 				sPatreon.setPatreonAuthResult(params);
 			}else{
 				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );

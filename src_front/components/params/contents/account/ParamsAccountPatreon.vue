@@ -10,7 +10,7 @@
 			</div>
 			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">
 				<template #LINK>
-					<a href="https://www.patreon.com/durss" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -18,7 +18,7 @@
 		<template v-else-if="!connected">
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
 				<template #LINK>
-					<a href="https://www.patreon.com/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
+					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("patreon.info_link") }}</a>
 				</template>
 			</i18n-t>
 			
