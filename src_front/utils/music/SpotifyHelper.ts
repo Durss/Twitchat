@@ -46,6 +46,7 @@ export default class SpotifyHelper {
 
 
 	public get clientSecret():string { return this._clientSecret; }
+	public get isPlaying():boolean { return this._isPlaying; }
 
 	public get clientID():string {
 		return this._clientID;

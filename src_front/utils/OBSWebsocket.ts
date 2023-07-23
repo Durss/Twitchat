@@ -305,8 +305,8 @@ export default class OBSWebsocket extends EventDispatcher {
 				
 				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
 				if(!sourceTransform.globalScaleX) {
-					sourceTransform.globalScaleX = 1;
-					sourceTransform.globalScaleY = 1;
+					sourceTransform.globalScaleX = sourceTransform.scaleX;
+					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
 
@@ -368,10 +368,6 @@ export default class OBSWebsocket extends EventDispatcher {
 				//If it's a scene item, add it to the scene list
 				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
-					if(!source.item.isGroup) {
-						sourceTransform.globalScaleX = sourceTransform.scaleX;
-						sourceTransform.globalScaleY = sourceTransform.scaleY;
-					}
 					sceneList.push( {
 									name:source.item.sourceName,
 									parentScene:source.parent,

@@ -22,13 +22,14 @@ export default class OverlayHeatDebug extends Vue {
 		canvas.height = document.body.clientHeight;
 
 		//@ts-ignore
-		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
+		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, scaleX:number, scaleY:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
 			const hash = await Utils.sha256(document.location.href)
 			if(event.detail.page != hash) return;
 			
 			const pointer = this.$refs.pointer as HTMLDivElement;
 			pointer.style.left = (event.detail.x * document.body.clientWidth) + "px";
 			pointer.style.top = (event.detail.y * document.body.clientHeight) + "px";
+			pointer.style.transform = "translate(-50%, -50%) scale("+(1/event.detail.scaleX)+", "+(1/event.detail.scaleY)+")";
 			
 		});
 		//@ts-ignore

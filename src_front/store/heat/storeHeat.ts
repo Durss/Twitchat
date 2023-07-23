@@ -10,6 +10,7 @@ import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/ty
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 export const storeHeat = defineStore('heat', {
 	state: () => ({
@@ -208,7 +209,6 @@ export const storeHeat = defineStore('heat', {
 					//Click is outside overlay, ingore it
 					if(!isInside) continue;
 
-					console.log("CLICKED SOURCE", rect);
 					
 					const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
 					clone.obsSource = rect.source.sourceName;
@@ -217,7 +217,7 @@ export const storeHeat = defineStore('heat', {
 					if(rect.source.inputKind == "browser_source") {
 						let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
 						const url:string = settings.inputSettings.url as string;
-
+						
 						//Compute click position relative to the browser source
 						const rotatedClick = Utils.rotatePointAround({x, y},
 																{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
@@ -236,12 +236,14 @@ export const storeHeat = defineStore('heat', {
 							vendorName:"obs-browser",
 							requestData:{
 								event_name:"heat-click",
-								event_data:{x:percentX, y:percentY, uid:user.id, login:user.login, testMode:event.testMode, alt:event.alt, ctrl:event.ctrl, shift:event.shift, page:await Utils.sha256(url)},
+								event_data:{x:percentX, y:percentY, scaleX:rect.transform.globalScaleX!, scaleY:rect.transform.globalScaleY!, uid:user.id, login:user.login, testMode:event.testMode, alt:event.alt, ctrl:event.ctrl, shift:event.shift, page:await Utils.sha256(url)},
 							}
 						});
 
 						//Spotify overlay
-						if(url.indexOf(spotifyRoute) > -1 && StoreProxy.chat.botMessages.heatSpotify.enabled) {
+						if(url.indexOf(spotifyRoute) > -1
+						&& StoreProxy.chat.botMessages.heatSpotify.enabled
+						&& SpotifyHelper.instance.isPlaying) {
 							//If anon users are not allowed, skip
 							if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
 							//If user is banned, skip
