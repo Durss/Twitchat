@@ -350,8 +350,8 @@ export default class OBSWebsocket extends EventDispatcher {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
 					let px = sourceTransform.globalCenterX!;
 					let py = sourceTransform.globalCenterY!;
-					const hw = (sourceTransform.width * sourceTransform.globalScaleX!) / 2
-					const hh = (sourceTransform.height * sourceTransform.globalScaleY!) / 2
+					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2
+					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2
 					const angle_rad = sourceTransform.rotation * Math.PI / 180;
 					const cos_angle = Math.cos(angle_rad);
 					const sin_angle = Math.sin(angle_rad);
@@ -363,8 +363,8 @@ export default class OBSWebsocket extends EventDispatcher {
 					if(!source.item.isGroup) {
 						transforms.push({transform:sourceTransform, sceneName:source.parent, source:source.item});
 					}
-				
 				}
+				
 				//If it's a scene item, add it to the scene list
 				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
