@@ -52,13 +52,14 @@
 					</template>
 				</i18n-t>
 
-				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
+				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)">
 					<TTButton class="triggerBt"
+						:premium="e.premium === true"
 						:disabled="disabledEntry(e)"
 						v-tooltip="disabledEntry(e)? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
 						<template #icon>
-							<img :src="getIcon(e)">
+							<img :src="getTriggerIcon(e)">
 						</template>
 						{{ $t(e.labelKey!) }}
 					</TTButton>
@@ -147,10 +148,19 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerTypeDefinition):string {
+	public getTriggerIcon(e:TriggerTypeDefinition):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
 		return this.$image("icons/"+e.icon+".svg");
+	}
+
+	/**
+	 * Gets a trigger's classes
+	 */
+	public getTriggerClasses(e:TriggerTypeDefinition):string[] {
+		const res:string[] = ["item"];
+		if(e.beta) res.push("beta");
+		return res;
 	}
 
 	public isMusicCategory(category:TriggerEventTypeCategory):boolean {

@@ -1,3 +1,4 @@
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { reactive } from "vue";
@@ -37,6 +38,27 @@ export default class GoXLRSocket {
 
 	public get status():GoXLRTypes.Mixer|null { return this._status? this._status.mixers[this._deviceId] : null; }
 	
+	public get fxEnabled():boolean { return this.status?.effects.is_enabled || false; }
+	
+	public get fxSelectedIndex():number { return parseInt(this.status?.effects.active_preset.replace(/\D/gi, "") || "1") - 1; }
+
+	/**
+	 * Sets the currently active preset index (0->5)
+	 * @param name
+	 */
+	public set activeEffectPreset(index:number) {
+		const name = ["Preset1","Preset2","Preset3","Preset4","Preset5","Preset6"][index];
+		this.execCommand("SetActiveEffectPreset", name);
+	}
+
+	/**
+	 * Gets the currently active preset index (0->5)
+	 * @param name
+	 */
+	public get activeEffectPreset():number {
+		return parseInt(this.status?.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
+	}
+	
 	
 	
 	/******************
@@ -46,6 +68,8 @@ export default class GoXLRSocket {
 		if(this.connected) return Promise.resolve();
 		if(this._connecting) return Promise.resolve();
 		this._connecting = true;
+		DataStore.set(DataStore.GOXLR_IP, ip);
+		DataStore.set(DataStore.GOXLR_PORT, port);
 		return new Promise((resolve, reject) => {
 			this._initResolver = resolve;
 			this._socket = new WebSocket(`ws://${ip}:${port}/api/websocket`);
@@ -179,12 +203,6 @@ export default class GoXLRSocket {
 	public setEchoTempo(bpm:number):Promise<unknown> { return this.execCommand("SetEchoTempo", bpm); }
 
 	/**
-	 * Sets the currently active preset
-	 * @param name
-	 */
-	public setActiveEffectPreset(name:"Preset1"|"Preset2"|"Preset3"|"Preset4"|"Preset5"|"Preset6"):Promise<unknown> { return this.execCommand("SetActiveEffectPreset", name); }
-
-	/**
 	 * Enable/Disable FX
 	 * @param enabled
 	 */
@@ -249,7 +267,7 @@ export default class GoXLRSocket {
 			console.log(result.Status);
 			this._deviceId = Object.keys(result.Status.mixers)[0];
 			if(!this._deviceId) {
-				StoreProxy.main.alert("No GoXLR device found");
+				console.error("🎤 No GoXLR device found");
 			}else{
 				console.error("🎤 GoXLR device ID is", this._deviceId);
 			}
@@ -260,7 +278,7 @@ export default class GoXLRSocket {
 				this._autoReconnect = true;
 				this._initResolver();
 			}
-			this._status = result.Status;
+			this._status = reactive(result.Status);
 		});
 
 		this._socket.send(JSON.stringify({id, data:"GetStatus"}));

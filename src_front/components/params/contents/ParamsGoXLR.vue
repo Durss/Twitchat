@@ -16,14 +16,16 @@
 		</section>
 
 		<div class="fadeHolder" :style="holderStyles">
+			<GoXLRConnectForm />
 
-			<section class="card-item alert error" v-if="connectionFailed && !connected" @click="connectionFailed = false">
-				<div class="item">{{ $t("goxlr.connect_failed") }}</div>
+			<section class="card-item alert error" v-if="connected && noDevice">
+				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
-			<template v-if="connected">
-				Connected !
-			</template>
+			<section class="card-item info">
+				<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
+				<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
+			</section>
 
 		</div>
 	</div>
@@ -35,24 +37,27 @@ import { Component, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import Icon from '@/components/Icon.vue';
+import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
+import Button from '@/components/Button.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
 		Icon,
+		Button,
 		Splitter,
 		ParamItem,
+		GoXLRConnectForm,
 		PermissionsForm,
 	},
 	emits:[],
 })
 export default class ParamsGoXLR extends Vue {
 
-	public connected:boolean = false;
 	public connecting:boolean = false;
-	public connectionFailed:boolean = false;
 
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
 
@@ -63,41 +68,29 @@ export default class ParamsGoXLR extends Vue {
 		};
 	}
 
+	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
+
+	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
+
+	public mounted():void {
+		this.param_enabled.value = DataStore.get(DataStore.GOXLR_ENABLED) === "true";
+	}
+
+	/**
+	 * Called when clicking triggers button
+	 */
+	public openTriggers():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+	}
+
 	/**
 	 * Called when toggling the "enabled" state
 	 */
 	public toggleState():void {
-		if(this.param_enabled.value === true) {
-			this.connect();
-			console.log("Connect");
-		} else {
-			this.connected = false;
-			console.log("Disconnect");
+		DataStore.set(DataStore.GOXLR_ENABLED, this.param_enabled.value);
+		if(this.param_enabled.value !== true) {
 			GoXLRSocket.instance.disconnect();
 		}
-	}
-
-	/**
-	 * Connect to Voicemod
-	 */
-	public async connect():Promise<void> {
-		this.connected = false;
-		this.connecting = true;
-		this.connectionFailed = false;
-		let res = false;
-		try {
-			await GoXLRSocket.instance.connect();
-			res = true;
-		}catch(error) {}
-
-		console.log("RES", res);
-		this.connected = res;
-		if(res) {
-			// this.populate();
-		}else{
-			this.connectionFailed = true;
-		}
-		this.connecting = false;
 	}
 }
 </script>
@@ -106,6 +99,10 @@ export default class ParamsGoXLR extends Vue {
 .paramsgoxlr{
 	.fadeHolder {
 		transition: opacity .2s;
+		width: 100%;
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
 	}
 
 	section {
@@ -167,6 +164,15 @@ export default class ParamsGoXLR extends Vue {
 
 		&.error {
 			text-align: center;
+		}
+
+		&.info {
+			p:first-of-type {
+				display: inline;
+			}
+			.triggersBt {
+				margin: auto;
+			}
 		}
 	}
 	

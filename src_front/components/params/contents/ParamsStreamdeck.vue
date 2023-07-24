@@ -74,7 +74,7 @@ export default class ParamsStreamdeck extends Vue implements IParameterContent {
 <style scoped lang="less">
 .paramsstreamdeck{
 	ol {
-		gap: .5em;
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
 		list-style-position: inside;

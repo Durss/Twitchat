@@ -131,7 +131,9 @@
 				"action_stream_infos": "Changer les infos de stream",
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
 				"action_vibrate": "Vibrer téléphone",
-				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder."
+				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder.",
+				"action_goxlr": "Contrôler la GoXLR",
+				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -284,7 +286,8 @@
 			"timer": "Évènements temporels",
 			"obs": "OBS",
 			"misc": "Autres",
-			"count": "Compteurs"
+			"count": "Compteurs",
+			"goxlr": "GoXLR"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -379,7 +382,8 @@
 			"heat_key_alt": "Touche ALT enfoncée ?",
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
-			"clip_url": "URL du clip"
+			"clip_url": "URL du clip",
+			"goxlr_preset_index":"Preset index (1 -> 6)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -739,6 +743,30 @@
 				"label": "Clip créé",
 				"description": "Actions à exécuter lorsque quelqu'un clip est créé depuis Twitchat {INFO}",
 				"description_info": "(appelé seulement lorsqu'un clip est créé via la commande /clip depuis Twitchat)"
+			},
+			"GOXLR_FX_ENABLED": {
+				"label": "FX activé",
+				"description": "Actions à executer lorsque l'option GoXLR FX est activé"
+			},
+			"GOXLR_FX_DISABLED": {
+				"label": "FX désactivé",
+				"description": "Actions à executer lorsque l'option GoXLR FX est désactivé"
+			},
+			"GOXLR_COUGH_PRESSED": {
+				"label": "Boutton mute appuyé",
+				"description": "Actions à executer lorsque le bouton GoXLR mute est appuyé"
+			},
+			"GOXLR_COUGH_RELEASED": {
+				"label": "Boutton mute relâché",
+				"description": "Actions à executer lorsque le bouton GoXLR mute est relâché"
+			},
+			"GOXLR_BLEEP_PRESSED": {
+				"label": "Boutton !{'@'}#$?* appuyé",
+				"description": "Actions à executer lorsque le bouton GoXLR !{'@'}#$?* est appuyé"
+			},
+			"GOXLR_BLEEP_RELEASED": {
+				"label": "Boutton !{'@'}#$?* relâché",
+				"description": "Actions à executer lorsque le bouton GoXLR !{'@'}#$?* est relâché"
 			}
 		},
 		"musicEvents": {

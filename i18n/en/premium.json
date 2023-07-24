@@ -6,6 +6,7 @@
 		"early_donor2":"Although it would be very appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
 		"early_donor2_link":"Patreon",
 		"features_title":"Premium features",
+		"restricted_access":"This feature requires premium membership",
 		"features":[
 			"Control your GoXLR from chat commands, channel point rewards, ...",
 			"Disable the \"twitchat.fr\" link sent every 2h on your chat"

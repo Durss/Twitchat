@@ -4,6 +4,18 @@
 		"header_link":"GoXLR-Utility",
 		"connecting":"connecting to GoXLR-Utility...",
 		"connect_failed":"Unable to connect to GoXLR-Utility",
-		"params_title":"Parameters"
+		"params_title":"Parameters",
+		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
+		"triggersBt":"Create triggers",
+		"infos":[
+			"Once your GoXLR connected you can control it from the triggers or execute actions when using some of its buttons.",
+			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, ...",
+			"Or you can show an OBS source when mute or !{'@'}#$?* button is pressed."
+		],
+		"connect_form":{
+			"title":"Credentials",
+			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured. If you want to connect to a remote desktop you must use an https tunnel (like Ngrok). Come ask for help on {LINK} if you don't know how to do that. If your GoXLR is on this computer, set 127.0.0.1 as IP.",
+			"ip_security_link":"Discord"
+		}
 	}
 }

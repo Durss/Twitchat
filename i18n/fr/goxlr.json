@@ -4,7 +4,18 @@
 		"header_link":"GoXLR-Utility",
 		"connecting":"connexion à GoXLR-Utility...",
 		"connect_failed":"Impossible de se connecter à GoXLR-Utility",
-		"allowed_users":"Personnes autorisées à utiliser les commandes:",
-		"params_title":"Paramètres"
+		"params_title":"Paramètres",
+		"no_device":"Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
+		"triggersBt":"Créer des triggers",
+		"infos":[
+			"Une fois votre GoXLR connectée vous pouvez la contrôler depuis les triggers ou effectuer des actions automatiques lorsque vous utilisez l'un de ses boutons.",
+			"Vous pouvez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
+			"Ou encore afficher une source OBS lorsque vous appuyez sur le bouton mute ou !{'@'}#$?*."
+		],
+		"connect_form":{
+			"title":"Identifiants de connexion",
+			"ip_security":"Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée. Si vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok). Venez de l'aide sur {LINK} si vous ne savez pas comment faire. Si votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
+			"ip_security_link":"Discord"
+		}
 	}
 }

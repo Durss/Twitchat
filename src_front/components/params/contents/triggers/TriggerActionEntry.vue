@@ -104,6 +104,11 @@
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
 				
+				<Button class="button" @click.capture="selectActionType('goxlr')"
+					icon="goxlr" premium
+					:disabled="!goxlrEnabled"
+					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
+				
 				<Button class="button" @click="selectActionType('trigger')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
 				
@@ -136,6 +141,7 @@
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
+		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -156,10 +162,10 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -168,7 +174,9 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
+import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -178,11 +186,10 @@ import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
+import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
-import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 @Component({
 	components:{
@@ -202,6 +209,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 		TriggerActionDelayEntry,
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
+		TriggerActionGoXLREntry,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
@@ -233,6 +241,7 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
@@ -355,7 +364,6 @@ export default class TriggerActionEntry extends Vue {
 	 * @param type 
 	 */
 	public selectActionType(type:TriggerActionStringTypes):void {
-		console.log(type);
 		switch(type) {
 			case "poll": {
 				if(!this.canCreatePoll) {
@@ -384,6 +392,12 @@ export default class TriggerActionEntry extends Vue {
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
 					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
+					return;
+				}break
+			}
+			case "goxlr": {
+				if(!this.goxlrEnabled) {
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.GOXLR);
 					return;
 				}break
 			}

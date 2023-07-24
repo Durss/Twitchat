@@ -133,7 +133,6 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-	align-self: flex-start;
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
 

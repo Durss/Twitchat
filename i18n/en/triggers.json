@@ -132,7 +132,9 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value."
+				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
+				"action_goxlr": "Control GoXLR",
+				"action_goxlr_tt": "You need to connect your GoXLR"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -284,7 +286,8 @@
 			"timer": "Temporal events",
 			"obs": "OBS",
 			"misc": "Miscellaneous",
-			"count": "Counters"
+			"count": "Counters",
+			"goxlr": "GoXLR"
 		},
 		"placeholders": {
 			"trigger_name":"Current trigger name",
@@ -379,7 +382,8 @@
 			"heat_key_alt": "Is ALT key pressed ?",
 			"heat_key_shift": "Is SHIFT key pressed ?",
 			"heat_key_ctrl": "Is CTRL key pressed ?",
-			"clip_url": "Clip URL"
+			"clip_url": "Clip URL",
+			"goxlr_preset_index":"Preset index (1 -> 6)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -735,8 +739,32 @@
 			},
 			"CLIP_CREATED": {
 				"label": "Clip created",
-				"description": "Actions to execute when a a clip is created from Twitchat {INFO}",
+				"description": "Actions to execute when a clip is created from Twitchat {INFO}",
 				"description_info": "(only called after using /clip command from Twitchat)"
+			},
+			"GOXLR_FX_ENABLED": {
+				"label": "FX enabled",
+				"description": "Actions to execute when GoXLR effect is enabled"
+			},
+			"GOXLR_FX_DISABLED": {
+				"label": "FX disabled",
+				"description": "Actions to execute when GoXLR effect is disabled"
+			},
+			"GOXLR_COUGH_PRESSED": {
+				"label": "Cough (mute) button pressed",
+				"description": "Actions to execute when GoXLR cough (mute) button is pressed"
+			},
+			"GOXLR_COUGH_RELEASED": {
+				"label": "Cough (mute) button released",
+				"description": "Actions to execute when GoXLR cough (mute) button is released"
+			},
+			"GOXLR_BLEEP_PRESSED": {
+				"label": "!{'@'}#$?* button pressed",
+				"description": "Actions to execute when GoXLR !{'@'}#$?* button is pressed"
+			},
+			"GOXLR_BLEEP_RELEASED": {
+				"label": "!{'@'}#$?* button released",
+				"description": "Actions to execute when GoXLR !{'@'}#$?* button is released"
 			}
 		},
 		"musicEvents": {

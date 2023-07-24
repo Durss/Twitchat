@@ -26,6 +26,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionTriggerToggleData
 								| TriggerActionChatSuggestionsData
 								| TriggerActionVibrateData
+								| TriggerActionGoXLRData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -219,6 +220,7 @@ export const TriggerEventTypeCategories:{[key:string]:TriggerEventTypeCategory} 
 	OBS:		{id:10, labelKey:"triggers.categories.obs", icon:"obs"},
 	MISC:		{id:11, labelKey:"triggers.categories.misc", icon:"broadcast"},
 	COUNTER:	{id:12, labelKey:"triggers.categories.count", icon:"count"},
+	GOXLR:		{id:13, labelKey:"triggers.categories.goxlr", icon:"goxlr"},
 } as const;
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -227,6 +229,7 @@ export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataLi
 	labelKey:string;
 	icon:string;
 	beta?:boolean;
+	premium?:boolean;
 	disabled?:boolean;
 	disabledReasonLabelKey?:string;
 	noToggle?:boolean;
@@ -388,6 +391,30 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 	pattern:string;
 }
 
+export interface TriggerActionGoXLRData extends TriggerActionData{
+	type:"goxlr";
+	/**
+	 * Action type to execute
+	 */
+	action?:"fx" | "cough" | "bleep" | "fxpreset";
+	/**
+	 * Should FX be enabled ?
+	 */
+	fxEnabled?:boolean;
+	/**
+	 * Should cough be enabled ?
+	 */
+	coughEnabled?:boolean;
+	/**
+	 * Should bleep be enabled ?
+	 */
+	bleepEnabled?:boolean;
+	/**
+	 * Index of the preset (0-5)
+	 */
+	presetIndex?:number;
+}
+
 export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;
 export type TriggerActionCountDataAction = typeof TriggerActionCountDataActionList[number];
 export interface TriggerActionCountData extends TriggerActionData{
@@ -547,6 +574,12 @@ export const TriggerTypes = {
 	FOLLOWED_STREAM_OFFLINE:"81",
 	HEAT_CLICK:"82",
 	CLIP_CREATED:"83",
+	GOXLR_FX_ENABLED:"84",
+	GOXLR_FX_DISABLED:"85",
+	GOXLR_BLEEP_PRESSED:"86",
+	GOXLR_BLEEP_RELEASED:"87",
+	GOXLR_COUGH_PRESSED:"88",
+	GOXLR_COUGH_RELEASED:"89",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -898,6 +931,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CLIP", descKey:'triggers.placeholders.clip_url', pointer:"clipUrl", numberParsable:false, isUserID:false},
 	];
 
+	map[TriggerTypes.GOXLR_FX_DISABLED] =
+	map[TriggerTypes.GOXLR_FX_ENABLED] = [
+		{tag:"PRESET_INDEX", descKey:'triggers.placeholders.goxlr_preset_index', pointer:"preset", numberParsable:true, isUserID:false},
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -1048,6 +1086,12 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_PRESSED.label", value:TriggerTypes.GOXLR_BLEEP_PRESSED, descriptionKey:"triggers.events.GOXLR_BLEEP_PRESSED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_RELEASED.label", value:TriggerTypes.GOXLR_BLEEP_RELEASED, descriptionKey:"triggers.events.GOXLR_BLEEP_RELEASED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone_mute", labelKey:"triggers.events.GOXLR_COUGH_PRESSED.label", value:TriggerTypes.GOXLR_COUGH_PRESSED, descriptionKey:"triggers.events.GOXLR_COUGH_PRESSED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone", labelKey:"triggers.events.GOXLR_COUGH_RELEASED.label", value:TriggerTypes.GOXLR_COUGH_RELEASED, descriptionKey:"triggers.events.GOXLR_COUGH_RELEASED.description"},
 	];
 	return eventsCache;
 }

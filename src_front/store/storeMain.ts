@@ -24,6 +24,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -650,6 +651,17 @@ export const storeMain = defineStore("main", {
 				sVoice.setVoicemodParams(JSON.parse(voicemodParams));
 				if(sVoice.voicemodParams.enabled) {
 					VoicemodWebSocket.instance.connect();
+				}
+			}
+
+			//Init goxlr
+			const goxlrEnabled = DataStore.get(DataStore.GOXLR_ENABLED);
+			if(goxlrEnabled === "true") {
+				const ip = DataStore.get(DataStore.GOXLR_IP);
+				const port = DataStore.get(DataStore.GOXLR_PORT);
+				console.log("GOXLR", ip, port);
+				if(ip && port) {
+					GoXLRSocket.instance.connect(ip, parseInt(port));
 				}
 			}
 
