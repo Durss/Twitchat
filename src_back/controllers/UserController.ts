@@ -159,7 +159,15 @@ export default class UserController extends AbstractController {
 		//Test data format
 		try {
 			const clone = JSON.parse(JSON.stringify(body));
-			// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
+			
+			const success = schemaValidator(body);
+			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
+			if(!success) {
+				//Save schema errors if any
+				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
+			}else if(fs.existsSync(errorsFilePath)) {
+				fs.unlinkSync(errorsFilePath);
+			}
 	
 			//schemaValidator() is supposed to tell if the format is valid or not.
 			//Because we enabled "removeAdditional" option, no error will be thrown
@@ -167,14 +175,16 @@ export default class UserController extends AbstractController {
 			//V9+ of the lib is supposed to allow us to retrieve the removed props,
 			//but it doesn't yet. As a workaround we use JSONPatch that compares
 			//the JSON before and after validation.
-			//This is not the most efficient way to do this, but we have no much
-			//other choice for now.
-			schemaValidator(body);
+			//This is not the most efficient way to do this, but I found no better
+			//way to log these errors for now
 			const diff = JsonPatch.compare(clone, body, false);
+			const cleanupFilePath = Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json";
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data");
 				console.log(diff);
-				fs.writeFileSync(Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+				fs.writeFileSync(cleanupFilePath, JSON.stringify(diff), "utf-8");
+			}else if(fs.existsSync(cleanupFilePath)) {
+				fs.unlinkSync(cleanupFilePath);
 			}
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 

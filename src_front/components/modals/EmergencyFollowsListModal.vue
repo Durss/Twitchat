@@ -159,7 +159,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
 		follow.loading = true;
-		await TwitchUtils.banUser(follow.user, follow.channel_id, undefined, "Banned from Twitchat after an emergency on " + Utils.formatDate(new Date()));
+		await TwitchUtils.banUser(follow.user, follow.channel_id, undefined, "Automatically banned by Twitchat emergency mode on " + Utils.formatDate(new Date()));
 		follow.loading = false;
 	}
 		
@@ -179,9 +179,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 	public async removeEntry(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		const list = this.followers;
-		const index = list.findIndex(v=> v.id == follow.id);
-		list.splice(index, 1);
+		this.$store("emergency").ignoreEmergencyFollower(follow);
 	}
 		
 	public async banAll():Promise<void> {
@@ -263,6 +261,8 @@ export default class EmergencyFollowsListModal extends Vue {
 		max-width: 600px;
 		
 		& > .icon {
+			margin: auto;
+			width: 3em;
 			height: 3em;
 		}
 

@@ -141,7 +141,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 41;
+		let latestVersion = 42;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -264,6 +264,13 @@ export default class DataStore {
 		}
 		if(v==40) {
 			this.enableHypeChatFilters(data);
+			v = 41;
+		}
+		if(v==41) {
+			if(DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)){
+				//Fix typing for AJV
+				DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
+			}
 			v = latestVersion;
 		}
 

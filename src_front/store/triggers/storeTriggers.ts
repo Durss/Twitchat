@@ -35,36 +35,6 @@ export const storeTriggers = defineStore('triggers', {
 
 	actions: {
 		addTrigger(data:TriggerData) {
-			//remove incomplete entries
-			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
-				return actions.filter(v=> {
-					if(v.type == null) return false;
-					if(v.type == "obs") return true;//v.sourceName?.length > 0;
-					if(v.type == "chat") return true;//v.text?.length > 0;
-					if(v.type == "music") return true;
-					if(v.type == "tts") return true;
-					if(v.type == "raffle") return true;
-					if(v.type == "raffle_enter") return true;
-					if(v.type == "bingo") return true;
-					if(v.type == "voicemod") return true;
-					if(v.type == "highlight") return true;
-					if(v.type == "trigger") return true;
-					if(v.type == "http") return true;
-					if(v.type == "ws") return true;
-					if(v.type == "poll") return true;
-					if(v.type == "prediction") return true;
-					if(v.type == "count") return true;
-					if(v.type == "random") return true;
-					if(v.type == "stream_infos") return true;
-					if(v.type == "delay") return true;
-					//@ts-ignore
-					console.warn("Trigger action type not whitelisted on store : "+v.type);
-					return false;
-				})
-
-			}
-			data.actions = cleanEmptyActions(data.actions);
-
 			//If it is a schedule trigger add it to the scheduler
 			if(data.type === TriggerTypes.SCHEDULE) {
 				SchedulerHelper.instance.scheduleTrigger(data);
@@ -93,8 +63,44 @@ export const storeTriggers = defineStore('triggers', {
 		},
 
 		saveTriggers():void {
-			DataStore.set(DataStore.TRIGGERS, this.triggerList);
-			TriggerActionHandler.instance.populate(this.triggerList);
+			//remove incomplete entries
+			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
+				return actions.filter(v=> {
+					if(v.type == null) return false;
+					if(v.type == "obs") return true;//v.sourceName?.length > 0;
+					if(v.type == "chat") return true;//v.text?.length > 0;
+					if(v.type == "music") return true;
+					if(v.type == "tts") return true;
+					if(v.type == "raffle") return true;
+					if(v.type == "raffle_enter") return true;
+					if(v.type == "bingo") return true;
+					if(v.type == "voicemod") return true;
+					if(v.type == "highlight") return true;
+					if(v.type == "trigger") return true;
+					if(v.type == "http") return true;
+					if(v.type == "ws") return true;
+					if(v.type == "poll") return true;
+					if(v.type == "prediction") return true;
+					if(v.type == "count") return true;
+					if(v.type == "random") return true;
+					if(v.type == "stream_infos") return true;
+					if(v.type == "delay") return true;
+					if(v.type == "goxlr") return true;
+					//@ts-ignore
+					console.warn("Trigger action type not whitelisted on store : "+v.type);
+					return false;
+				})
+
+			}
+			
+			const list = JSON.parse(JSON.stringify(this.triggerList));
+			list.forEach((data:TriggerData)=> {
+				data.actions = cleanEmptyActions(data.actions);
+			})
+
+
+			DataStore.set(DataStore.TRIGGERS, list);
+			TriggerActionHandler.instance.populate(list);
 		},
 
 		renameOBSSource(oldName:string, newName:string):void {

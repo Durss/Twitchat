@@ -159,10 +159,27 @@ export const storeEmergency = defineStore('emergency', {
 			PublicAPI.instance.broadcast(TwitchatEvent.EMERGENCY_MODE, {enabled:enable});
 		},
 
+		ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
+			const index = this.follows.findIndex(v=>v.id == payload.id);
+			if(index > -1) {
+				this.follows.splice(index, 1);
+			}
+			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
+		},
+
 		addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
 			payload.followbot = true;
 			this.follows.push(payload);
-			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
+			const saved:TwitchatDataTypes.EmergencyFollowEntryData[] = this.follows.map(entry => {
+				return {
+					platform:entry.platform,
+					channelId:entry.channel_id,
+					uid:entry.user.id,
+					login:entry.user.login,
+					date:entry.date,
+				}
+			});
+			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, saved);
 		},
 
 		clearEmergencyFollows() {

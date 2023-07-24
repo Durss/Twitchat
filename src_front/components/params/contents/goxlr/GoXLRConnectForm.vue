@@ -12,10 +12,13 @@
 			@click.capture="clickConnect()"
 			:disabled="!isPremium"
 			v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</Button>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
+			<div class="card-item alert message" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
 		</form>
-		<Button class="disconnectBt" type="button" v-else
-		@click="disconnect()" alert>{{ $t("global.disconnect") }}</Button>
+		<template v-else>
+			<div class="message">{{ $t("goxlr.connect_success") }}</div>
+			<Button class="disconnectBt" type="button"
+			@click="disconnect()" alert>{{ $t("global.disconnect") }}</Button>
+		</template>
 	</ToggleBlock>
 </template>
 
@@ -93,6 +96,7 @@ export default class GoXLRConnectForm extends Vue {
 	
 	.disconnectBt {
 		margin: auto;
+		margin-top: .5em;
 		display: flex;
 	}
 
@@ -101,7 +105,7 @@ export default class GoXLRConnectForm extends Vue {
 		display: flex;
 		flex-direction: column;
 	}
-	.error {
+	.message {
 		text-align: center;
 	}
 }

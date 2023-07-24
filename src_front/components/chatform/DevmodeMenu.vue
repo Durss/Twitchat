@@ -49,8 +49,8 @@
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
-			<Button small @click="simulateFollowbotItem()" icon="block">Follow bot item</Button>
-			<Button small @click="simulateFollowbotRaid()" icon="block">Follow bot raid</Button>
+			<Button small @click="simulateFollowbotItem()" icon="follow">Follow bot item</Button>
+			<Button small @click="simulateFollowbotRaid()" icon="follow">Follow bot raid</Button>
 			<Button small @click="simulateEvent('shoutout')" icon="shoutout">Send shoutout</Button>
 			<Button small @click="simulateEvent('shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
 			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>

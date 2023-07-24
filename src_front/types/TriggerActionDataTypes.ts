@@ -391,28 +391,19 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 	pattern:string;
 }
 
+
+export const TriggerActionGoXLRDataActionList = ["fx_on", "fx_off", "cough_on", "cough_off", "bleep_on", "bleep_off"] as const;
+export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[keyof typeof TriggerActionGoXLRDataActionList];
 export interface TriggerActionGoXLRData extends TriggerActionData{
 	type:"goxlr";
 	/**
 	 * Action type to execute
 	 */
-	action?:"fx" | "cough" | "bleep" | "fxpreset";
-	/**
-	 * Should FX be enabled ?
-	 */
-	fxEnabled?:boolean;
-	/**
-	 * Should cough be enabled ?
-	 */
-	coughEnabled?:boolean;
-	/**
-	 * Should bleep be enabled ?
-	 */
-	bleepEnabled?:boolean;
+	action:TriggerActionGoXLRDataAction;
 	/**
 	 * Index of the preset (0-5)
 	 */
-	presetIndex?:number;
+	fxPresetIndex?:number;
 }
 
 export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;

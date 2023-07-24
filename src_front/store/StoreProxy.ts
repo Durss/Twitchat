@@ -591,6 +591,11 @@ export interface IEmergencyActions {
 	 */
 	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
 	/**
+	 * Removes a follower from the emergency follow
+	 * @param payload 
+	 */
+	ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
+	/**
 	 * Clear the emergency followers list
 	 */
 	clearEmergencyFollows():void;

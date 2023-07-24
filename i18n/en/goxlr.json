@@ -4,18 +4,35 @@
 		"header_link":"GoXLR-Utility",
 		"connecting":"connecting to GoXLR-Utility...",
 		"connect_failed":"Unable to connect to GoXLR-Utility",
+		"connect_success":"Twitchat is connected to GoXLR-Utility",
 		"params_title":"Parameters",
 		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
 		"triggersBt":"Create triggers",
 		"infos":[
-			"Once your GoXLR connected you can control it from the triggers or execute actions when using some of its buttons.",
-			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, ...",
-			"Or you can show an OBS source when mute or !{'@'}#$?* button is pressed."
+			"Once your GoXLR is connected you can control it or execute actions when using some of its buttons thanks to the Triggers system.",
+			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",
+			"Or you can show an OBS source when mute or !@#$?* button is pressed."
 		],
 		"connect_form":{
 			"title":"Credentials",
 			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured. If you want to connect to a remote desktop you must use an https tunnel (like Ngrok). Come ask for help on {LINK} if you don't know how to do that. If your GoXLR is on this computer, set 127.0.0.1 as IP.",
 			"ip_security_link":"Discord"
+		},
+		"trigger": {
+			"param_action":"Action type",
+			"param_fxPreset":"FX preset to enable",
+			"param_fxPreset1": "Preset 1",
+			"param_fxPreset2": "Preset 2",
+			"param_fxPreset3": "Preset 3",
+			"param_fxPreset4": "Preset 4",
+			"param_fxPreset5": "Preset 5",
+			"param_fxPreset6": "Preset 6",
+			"action_fx_on": "Enable FX",
+			"action_fx_off": "Disable FX",
+			"action_cough_on": "Mute",
+			"action_cough_off": "Unmute",
+			"action_bleep_on": "Enable !{'@'}#$?*",
+			"action_bleep_off": "Disable !{'@'}#$?*"
 		}
 	}
 }

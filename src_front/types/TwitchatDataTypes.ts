@@ -1218,6 +1218,25 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
+	 * Represents info about an automod event
+	 */
+	export interface AutomodData {
+		words: string[];
+		reasons:string[];
+	}
+
+	/**
+	 * Represents a raw emergency follow entry
+	 */
+	export interface EmergencyFollowEntryData {
+		platform:ChatPlatform;
+		uid:string;
+		channelId:string;
+		login:string;
+		date:number;
+	}
+
+	/**
 	 * Represents an emote
 	 */
 	export interface Emote {

@@ -56,9 +56,9 @@ export default class ContextMenuHelper {
 		
 		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 			//Make sure the hint message is not sent anymore
-			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, "true")
+			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
 		}
-
+		
 		const options:CMTypes.MenuItem[]= [];
 		const user = message.user;
 
