@@ -7,12 +7,12 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { type TriggerActionGoXLRData, type TriggerActionGoXLRDataAction, type TriggerData, TriggerActionGoXLRDataActionList } from '@/types/TriggerActionDataTypes';
+import { TriggerActionGoXLRDataActionList, type TriggerActionGoXLRData, type TriggerActionGoXLRDataAction } from '@/types/TriggerActionDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 @Component({
 	components:{
@@ -25,9 +25,6 @@ export default class TriggerActionGoXLREntry extends AbstractTriggerActionEntry 
 
 	@Prop
 	declare action:TriggerActionGoXLRData;
-
-	@Prop
-	declare triggerData:TriggerData;
 
 	public param_action:TwitchatDataTypes.ParameterData<TriggerActionGoXLRDataAction> = {type:"list", value:"fx_on", labelKey:"goxlr.trigger.param_action"}
 	public param_fxPreset:TwitchatDataTypes.ParameterData<number> = {type:"list", value:0, labelKey:"goxlr.trigger.param_fxPreset"}

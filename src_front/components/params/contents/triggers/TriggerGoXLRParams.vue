@@ -1,6 +1,7 @@
 <template>
 	<div class="triggergoxlrparams">
-		<GoXLRUI />
+		<GoXLRUI v-model="triggerData.goxlrButtons" />
+		<p>{{ triggerData.goxlrButtons }}</p>
 	</div>
 </template>
 
@@ -19,6 +20,12 @@ export default class TriggerGoXLRParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
+
+	public mounted():void {
+		if(!this.triggerData.goxlrButtons) {
+			this.triggerData.goxlrButtons = [];
+		}
+	}
 
 }
 </script>

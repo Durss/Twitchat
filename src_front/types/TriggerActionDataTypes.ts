@@ -2,6 +2,7 @@ import StoreProxy from "@/store/StoreProxy";
 import Config from "../utils/Config";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
+import type { GoXLRTypes } from "./GoXLRTypes";
 
 
 export type TriggerActionTypes =  TriggerActionEmptyData
@@ -90,6 +91,10 @@ export interface TriggerData {
 	 * Counter ID for counters related events
 	 */
 	counterId?:string;
+	/**
+	 * List of GoXLR buttons that should start this trigger
+	 */
+	goxlrButtons?:GoXLRTypes.ButtonTypesData[];
 	/**
 	 * Execution queue for this trigger
 	 */

@@ -1,19 +1,22 @@
 <template>
 	<div :class="classes">
 		<div class="img" v-html="svg" v-if="svg && !error" ref="svgHolder"></div>
-		<div v-else>An error occured loading interface</div>
+		<div v-else>An error occured loading GoXLR interface</div>
 	</div>
 </template>
 
 <script lang="ts">
 import { GoXLRTypes } from '@/types/GoXLRTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
-	emits:["click"],
+	emits:["click", "change", "update:modelValue"],
 })
 export default class GoXLRUI extends Vue {
+
+	@Prop({type:[String], default: []})
+	public modelValue!:GoXLRTypes.ButtonTypesData[];
 
 	public svg:string = "";
 	public error:boolean = false;
@@ -78,6 +81,8 @@ export default class GoXLRUI extends Vue {
 				this.selectedButtons.splice(index, 1);
 			}
 	
+			this.$emit("change");
+			this.$emit("update:modelValue", this.selectedButtons);
 			this.setSelectionStates();
 		}
 	}
@@ -85,6 +90,7 @@ export default class GoXLRUI extends Vue {
 	private setSelectionStates():void {
 		const holder = this.$refs.svgHolder as HTMLDivElement;
 
+		//Unselect everything
 		for (let i = 0; i < GoXLRTypes.ButtonTypes.length; i++) {
 			const t = GoXLRTypes.ButtonTypes[i];
 			let item = holder.querySelector(".selection #"+t.split("_")[0]) as HTMLElement|null;
@@ -99,6 +105,7 @@ export default class GoXLRUI extends Vue {
 			}
 		}
 
+		//Select requested parts
 		for (let i = 0; i < this.selectedButtons.length; i++) {
 			const bt = this.selectedButtons[i];
 			let item = holder.querySelector(".selection #"+bt.split("_")[0]) as HTMLElement|null;
