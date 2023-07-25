@@ -461,7 +461,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).fxIndex = Utils.pickRand([0,1,2,3,4,5]);
 					}
 
-					TriggerActionHandler.instance.execute(m, true);
+					TriggerActionHandler.instance.execute(m, true, trigger.id);
 				}, false);
 			}
 		}
