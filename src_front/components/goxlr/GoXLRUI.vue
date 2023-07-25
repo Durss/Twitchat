@@ -95,6 +95,7 @@ export default class GoXLRUI extends Vue {
 			item = holder.querySelector(".area"+t.split("_").map(v=> " #"+v).join("")) as HTMLElement|null;
 			if(item) {
 				item.style.fill = "initial"
+				item.style.color = "inherit"
 			}
 		}
 
@@ -108,6 +109,7 @@ export default class GoXLRUI extends Vue {
 			item = holder.querySelector(".area"+bt.split("_").map(v=> " #"+v).join("")) as HTMLElement|null;
 			if(item) {
 				item.style.fill = "var(--color-secondary)";
+				item.style.color = "var(--color-light)";
 			}
 		}
 	}
@@ -121,7 +123,7 @@ export default class GoXLRUI extends Vue {
 		:deep(svg) {
 			user-select: none;
 			pointer-events: none;
-			color: white;
+			color: var(--color-primary-light);
 			width: 100%;
 			height: auto;
 			.selection {
