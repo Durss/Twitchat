@@ -9,6 +9,7 @@
 		"restricted_access":"Cette fonctionnalité nécessite d'être member premium",
 		"features":[
 			"Controlez votre GoXLR depuis des commandes tchat, récompenses de points de chaine, ...",
+			"Effectuez des actions personnalisées lorsque vous utilisez un bouton de votre GoXLR (ex: afficher une source OBS lorsque vous utilisez le bouton cough)",
 			"Désactivez le lien vers \"twitchat.fr\" envoyé toutes les 2h dans votre chat"
 		]
 	}

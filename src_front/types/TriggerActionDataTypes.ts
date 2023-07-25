@@ -946,7 +946,14 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.GOXLR_FX_DISABLED] =
 	map[TriggerTypes.GOXLR_FX_ENABLED] = [
-		{tag:"PRESET_INDEX", descKey:'triggers.placeholders.goxlr_preset_index', pointer:"preset", numberParsable:true, isUserID:false},
+		{tag:"PRESET_INDEX", descKey:'triggers.placeholders.goxlr_preset_index', pointer:"fxIndex", numberParsable:true, isUserID:false},
+		{tag:"FX_ENABLED", descKey:'triggers.placeholders.goxlr_fxenabled', pointer:"enabled", numberParsable:false, isUserID:false},
+	];
+
+	map[TriggerTypes.GOXLR_BUTTON_PRESSED] =
+	map[TriggerTypes.GOXLR_BUTTON_RELEASED] = [
+		{tag:"BUTTON_ID", descKey:'triggers.placeholders.goxlr_button_id', pointer:"button", numberParsable:false, isUserID:false},
+		{tag:"IS_PRESSED", descKey:'triggers.placeholders.goxlr_pressed', pointer:"pressed", numberParsable:false, isUserID:false},
 	];
 
 	const counters = StoreProxy.counters.counterList;
@@ -1089,7 +1096,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.STREAM_OFFLINE.label", value:TriggerTypes.STREAM_OFFLINE, descriptionKey:"triggers.events.STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE},
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.label", value:TriggerTypes.FOLLOWED_STREAM_ONLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.label", value:TriggerTypes.FOLLOWED_STREAM_OFFLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.disabled_reason"},
-		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description"},
+		{beta:true, category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"minus", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
@@ -1100,10 +1107,10 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_PRESET_SELECT.label", value:TriggerTypes.GOXLR_FX_PRESET_SELECT, descriptionKey:"triggers.events.GOXLR_FX_PRESET_SELECT.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_BUTTON_RELEASED.label", value:TriggerTypes.GOXLR_BUTTON_RELEASED, descriptionKey:"triggers.events.GOXLR_BUTTON_RELEASED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"release", labelKey:"triggers.events.GOXLR_BUTTON_RELEASED.label", value:TriggerTypes.GOXLR_BUTTON_RELEASED, descriptionKey:"triggers.events.GOXLR_BUTTON_RELEASED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON},
 		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_PRESSED.label", value:TriggerTypes.GOXLR_BLEEP_PRESSED, descriptionKey:"triggers.events.GOXLR_BLEEP_PRESSED.description"},
 		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_RELEASED.label", value:TriggerTypes.GOXLR_BLEEP_RELEASED, descriptionKey:"triggers.events.GOXLR_BLEEP_RELEASED.description"},
 		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone_mute", labelKey:"triggers.events.GOXLR_COUGH_PRESSED.label", value:TriggerTypes.GOXLR_COUGH_PRESSED, descriptionKey:"triggers.events.GOXLR_COUGH_PRESSED.description"},

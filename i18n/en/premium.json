@@ -9,6 +9,7 @@
 		"restricted_access":"This feature requires premium membership",
 		"features":[
 			"Control your GoXLR from chat commands, channel point rewards, ...",
+			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",
 			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
 		]
 	}

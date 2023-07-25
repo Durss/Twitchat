@@ -383,7 +383,11 @@
 			"heat_key_shift": "Is SHIFT key pressed ?",
 			"heat_key_ctrl": "Is CTRL key pressed ?",
 			"clip_url": "Clip URL",
-			"goxlr_preset_index":"Preset index (1 -> 6)"
+			"goxlr_button_id":"Id of the button",
+			"goxlr_pressed":"Is button pressed",
+			"goxlr_preset_index":"Preset index (1 -> 6)",
+			"goxlr_fxenabled":"FX enabled"
+
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -749,6 +753,14 @@
 			"GOXLR_FX_DISABLED": {
 				"label": "FX disabled",
 				"description": "Actions to execute when GoXLR effect is disabled"
+			},
+			"GOXLR_BUTTON_PRESSED": {
+				"label": "Button pressed",
+				"description": "Actions to execute when a GoXLR button is pressed"
+			},
+			"GOXLR_BUTTON_RELEASED": {
+				"label": "Button released",
+				"description": "Actions to execute when a GoXLR button is released"
 			},
 			"GOXLR_COUGH_PRESSED": {
 				"label": "Cough (mute) button pressed",

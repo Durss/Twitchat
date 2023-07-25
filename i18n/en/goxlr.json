@@ -21,6 +21,7 @@
 			"ip_security_link":"Discord"
 		},
 		"trigger": {
+			"select_button":"Select which buttons should execute that trigger in the interface bellow",
 			"param_action":"Action type",
 			"param_fxPreset":"FX preset to enable",
 			"param_fxPreset1": "Preset 1",

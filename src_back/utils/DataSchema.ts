@@ -130,7 +130,12 @@ import Ajv from "ajv";
 					obsScene:{type:"string", maxLength:200},
 					obsInput:{type:"string", maxLength:200},
 					obsFilter:{type:"string", maxLength:200},
-					goxlrButtons:{type:"string", maxLength:300},
+					goxlrButtons:{
+						type:"array",
+						minItems:0,
+						maxItems:24,
+						items: {type:"string", maxLength:20},
+					},
 					counterId: {type:"string", maxLength:50},
 					queue: {type:"string", maxLength:100},
 					conditions: { $ref: "#/definitions/conditionGroup" },

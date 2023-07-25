@@ -67,23 +67,24 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, type TriggerActionData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import SchedulerHelper from '@/utils/SchedulerHelper';
+import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import SchedulerHelper from '@/utils/SchedulerHelper';
 
 @Component({
 	components:{
@@ -437,6 +438,27 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.SHOUTOUT_IN || triggerEvent.value == TriggerTypes.SHOUTOUT_OUT) {
 						//Force proper "received" state
 						(m as TwitchatDataTypes.MessageShoutoutData).received = (triggerEvent.value == TriggerTypes.SHOUTOUT_IN);
+					}else
+
+					if(triggerEvent.value == TriggerTypes.HEAT_CLICK) {
+						//Force proper heat click target
+						if(trigger.heatClickSource == "area" && trigger.heatAreaIds) {
+							(m as TwitchatDataTypes.MessageHeatClickData).areaId = Utils.pickRand(trigger.heatAreaIds);
+						}
+						if(trigger.heatClickSource == "obs" && trigger.heatObsSource) {
+							(m as TwitchatDataTypes.MessageHeatClickData).obsSource = trigger.obsSource;
+						}
+					}else
+
+					if(triggerEvent.value == TriggerTypes.GOXLR_BUTTON_PRESSED || triggerEvent.value == TriggerTypes.GOXLR_BUTTON_RELEASED) {
+						//Force a button
+						(m as TwitchatDataTypes.MessageGoXLRButtonData).button = Utils.pickRand(trigger.goxlrButtons!);
+						(m as TwitchatDataTypes.MessageGoXLRButtonData).pressed = triggerEvent.value == TriggerTypes.GOXLR_BUTTON_PRESSED;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED || triggerEvent.value == TriggerTypes.GOXLR_FX_DISABLED) {
+						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).enabled = triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED;
+						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).fxIndex = Utils.pickRand([0,1,2,3,4,5]);
 					}
 
 					TriggerActionHandler.instance.execute(m, true);

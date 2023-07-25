@@ -51,7 +51,7 @@
 			/>
 
 			<TriggerGoXLRParams
-				v-if="isGoXLRTrigger"
+				v-if="isGoXLRButtonTrigger"
 				:obsSources="obsSources"
 				:triggerData="triggerData"
 			/>
@@ -218,10 +218,10 @@ export default class TriggerActionList extends Vue {
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
 	public get isHeatTrigger():boolean { return this.triggerData.type === TriggerTypes.HEAT_CLICK; }
 	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }
-	public get isGoXLRTrigger():boolean {
+	public get isGoXLRButtonTrigger():boolean {
 		const list:TriggerTypesValue[] = [
-			TriggerTypes.GOXLR_FX_ENABLED,
-			TriggerTypes.GOXLR_FX_DISABLED,
+			TriggerTypes.GOXLR_BUTTON_PRESSED,
+			TriggerTypes.GOXLR_BUTTON_RELEASED,
 		]
 		return list.indexOf(this.triggerData.type) > -1;
 	}

@@ -1,3 +1,5 @@
+import { EventDispatcher } from "@/events/EventDispatcher";
+import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import DataStore from "@/store/DataStore";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { reactive } from "vue";
@@ -5,7 +7,7 @@ import { reactive } from "vue";
 /**
 * Created : 06/07/2023 
 */
-export default class GoXLRSocket {
+export default class GoXLRSocket extends EventDispatcher {
 
 	private static _instance:GoXLRSocket;
 	
@@ -21,7 +23,7 @@ export default class GoXLRSocket {
 	private _status:GoXLRTypes.Status | null = null;
 	
 	constructor() {
-	
+		super();
 	}
 	
 	/********************
@@ -246,12 +248,27 @@ export default class GoXLRSocket {
 		const json:any = JSON.parse(event.data);
 
 		if(json.Error) {
-			console.error("🎤 GoXLR error status", json);
+			console.error("🎤 GoXLR error", json);
 		}else
 		if (json.id && this._idToPromiseResolver[json.id]) {
 			//Resolve related promise
 			this._idToPromiseResolver[json.id](json.data);
 			delete this._idToPromiseResolver[json.id];
+		}
+		if(json.id && json.data?.Patch) {
+			for (let i = 0; i < json.data.Patch.length; i++) {
+				const patch = json.data.Patch[i];
+				const path = patch.path as string;
+				const chunks = path.split("/");
+				for (let j = 0; j < chunks.length; j++) {
+					const c = chunks[j];
+					if(c == "button_down") {
+						const isPressed = patch.value == true;
+						const type = isPressed? GoXLRSocketEvent.BUTTON_PRESSED : GoXLRSocketEvent.BUTTON_RELEASED;
+						this.dispatchEvent(new GoXLRSocketEvent(type, chunks[j+1] as GoXLRTypes.ButtonTypesData));
+					}
+				}
+			}
 		}
 	}
 

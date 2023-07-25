@@ -9,6 +9,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import { watch, type UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import { GoXLRTypes } from '@/types/GoXLRTypes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
@@ -1064,6 +1065,50 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						message:userMessage,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK: {
+					const m:TwitchatDataTypes.MessageHeatClickData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						alt:Math.random() > .8,
+						shift:Math.random() > .8,
+						ctrl:Math.random() > .8,
+						anonymous:false,
+						user,
+						channel_id:user.id,
+						coords:{x:Math.random()*100, y:Math.random()*100},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON: {
+					const m:TwitchatDataTypes.MessageGoXLRButtonData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						button:Utils.pickRand((GoXLRTypes.ButtonTypes as unknown) as GoXLRTypes.ButtonTypesData[]),
+						pressed:Math.random() > .5,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE: {
+					const m:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						enabled:Math.random() > .5,
+						fxIndex:Utils.pickRand([0,1,2,3,4,5]),
 					};
 					data = m;
 					break;

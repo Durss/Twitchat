@@ -1,5 +1,6 @@
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
+import type { GoXLRTypes } from "./GoXLRTypes";
 
 export namespace TwitchatDataTypes {
 
@@ -1358,12 +1359,14 @@ export namespace TwitchatDataTypes {
 		MUSIC_STOP:"music_stop",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
+		GOXLR_BUTTON:"goxlr_button",
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
+		GOXLR_FX_STATE:"goxlr_fx_state",
 		STREAM_OFFLINE:"stream_offline",
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
@@ -1427,6 +1430,7 @@ export namespace TwitchatDataTypes {
 		music_start:false,
 		subscription:true,
 		autoban_join:true,
+		goxlr_button:false,
 		raid_started:false,
 		room_settings:true,
 		stream_online:true,
@@ -1435,6 +1439,7 @@ export namespace TwitchatDataTypes {
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
+		goxlr_fx_state:false,
 		obs_stop_stream:false,
 		user_watch_streak:true,
 		hype_train_start:false,
@@ -1549,6 +1554,8 @@ export namespace TwitchatDataTypes {
 									| MessageWatchStreakData
 									| MessageHypeChatData
 									| MessageHeatClickData
+									| MessageGoXLRButtonData
+									| MessageGoXLRFXEnableChangeData
 	;
 	
 	/**
@@ -3015,6 +3022,38 @@ export namespace TwitchatDataTypes {
 		 * Clicked OBS source
 		 */
 		obsSource?:string;
+	}
+
+	/**
+	 * Represents a hype chat message
+	 * These messages are also sent as standard messages
+	 */
+	export interface MessageGoXLRButtonData extends AbstractTwitchatMessage {
+		type:"goxlr_button";
+		/**
+		 * Button pressed/released
+		 */
+		button:GoXLRTypes.ButtonTypesData;
+		/**
+		 * Is button pressed ?
+		 */
+		pressed:boolean;
+	}
+
+	/**
+	 * Represents a hype chat message
+	 * These messages are also sent as standard messages
+	 */
+	export interface MessageGoXLRFXEnableChangeData extends AbstractTwitchatMessage {
+		type:"goxlr_fx_state";
+		/**
+		 * Is button pressed ?
+		 */
+		enabled:boolean;
+		/**
+		 * Enabled/disabled FX index (0->5)
+		 */
+		fxIndex:number;
 	}
 
 }

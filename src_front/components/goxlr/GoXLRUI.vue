@@ -15,7 +15,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 })
 export default class GoXLRUI extends Vue {
 
-	@Prop({type:[String], default: []})
+	@Prop({default: []})
 	public modelValue!:GoXLRTypes.ButtonTypesData[];
 
 	public svg:string = "";
@@ -31,6 +31,7 @@ export default class GoXLRUI extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		this.selectedButtons = this.modelValue;
 		
 		const imgRes = await fetch(this.$image("goxlr/goxlr.svg"));
 		if(imgRes.status <200 || imgRes.status > 204) {
@@ -46,6 +47,9 @@ export default class GoXLRUI extends Vue {
 
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		this.$el.addEventListener("click", this.clickHandler);
+		
+		await this.$nextTick();
+		this.setSelectionStates();
 	}
 	
 	public beforeUnmout():void {
@@ -54,36 +58,31 @@ export default class GoXLRUI extends Vue {
 	
 	public onClick(e:MouseEvent):void {
 		let target = e.target as HTMLElement;
-		const ids:string[] = [];
+		let id:GoXLRTypes.ButtonTypesData|null = null;
 		//Get button ID
 		while(!target.getAttribute("id") && target != this.$el) {
 			target = target.parentElement as HTMLElement;
 		}
 		if(target.id){
-			ids.push(target.id);
+			// ids.push(target.id);
 	
-			//Get category ID if any
-			if(target != this.$el) {
-				target = target.parentElement as HTMLElement
-				while(!target.getAttribute("id") && target != this.$el) {
-					target = target.parentElement as HTMLElement;
-				}
-			}
 			if(target.id != "GoXLR"){
-				ids.unshift(target.id);
+				id = target.id as GoXLRTypes.ButtonTypesData;
 			}
 
-			const fullID = ids.join("_") as GoXLRTypes.ButtonTypesData;
-			const index = this.selectedButtons.indexOf(fullID);
-			if(index == -1) {
-				this.selectedButtons.push(fullID);
-			}else{
-				this.selectedButtons.splice(index, 1);
+			if(id != null) {
+				// const fullID = ids.join("_") as GoXLRTypes.ButtonTypesData;
+				const index = this.selectedButtons.indexOf(id);
+				if(index == -1) {
+					this.selectedButtons.push(id);
+				}else{
+					this.selectedButtons.splice(index, 1);
+				}
+		
+				this.$emit("change");
+				this.$emit("update:modelValue", this.selectedButtons);
+				this.setSelectionStates();
 			}
-	
-			this.$emit("change");
-			this.$emit("update:modelValue", this.selectedButtons);
-			this.setSelectionStates();
 		}
 	}
 
@@ -93,12 +92,12 @@ export default class GoXLRUI extends Vue {
 		//Unselect everything
 		for (let i = 0; i < GoXLRTypes.ButtonTypes.length; i++) {
 			const t = GoXLRTypes.ButtonTypes[i];
-			let item = holder.querySelector(".selection #"+t.split("_")[0]) as HTMLElement|null;
+			let item = holder.querySelector(".selection #"+t) as HTMLElement|null;
 			if(item) {
 				item.style.display = "none";
 			}
 
-			item = holder.querySelector(".area"+t.split("_").map(v=> " #"+v).join("")) as HTMLElement|null;
+			item = holder.querySelector(".area #"+t) as HTMLElement|null;
 			if(item) {
 				item.style.fill = "initial"
 				item.style.color = "inherit"
@@ -108,12 +107,12 @@ export default class GoXLRUI extends Vue {
 		//Select requested parts
 		for (let i = 0; i < this.selectedButtons.length; i++) {
 			const bt = this.selectedButtons[i];
-			let item = holder.querySelector(".selection #"+bt.split("_")[0]) as HTMLElement|null;
+			let item = holder.querySelector(".selection #"+bt) as HTMLElement|null;
 			if(item) {
 				item.style.display = "block";
 			}
 
-			item = holder.querySelector(".area"+bt.split("_").map(v=> " #"+v).join("")) as HTMLElement|null;
+			item = holder.querySelector(".area #"+bt) as HTMLElement|null;
 			if(item) {
 				item.style.fill = "var(--color-secondary)";
 				item.style.color = "var(--color-light)";
@@ -135,7 +134,7 @@ export default class GoXLRUI extends Vue {
 			height: auto;
 			.selection {
 				.presets {
-					#Preset1, #Preset2, #Preset3, #Preset4, #Preset5, #Preset6 {
+					#EffectSelect1, #EffectSelect2, #EffectSelect3, #EffectSelect4, #EffectSelect5, #EffectSelect6 {
 						display: none;
 					}
 				}
@@ -148,17 +147,18 @@ export default class GoXLRUI extends Vue {
 					display: none;
 				}
 				.channels {
-					#Channel1, #Channel2, #Channel3, #Channel4 {
+					#Fader1Mute, #Fader2Mute, #Fader3Mute, #Fader4Mute {
 						display: none;
 					}
 				}
 			}
 
 			.area {
-				#Mute, #Bleep,
+				#Cough, #Bleep,
 				#BottomRight, #BottomLeft, #TopLeft, #TopRight, #Clear,
 				#BankA, #BankB, #BankC,
-				#Preset1, #Preset2, #Preset3, #Preset4, #Preset5, #Preset6,
+				#Fader1Mute, #Fader2Mute, #Fader3Mute, #Fader4Mute,
+				#EffectSelect1, #EffectSelect2, #EffectSelect3, #EffectSelect4, #EffectSelect5, #EffectSelect6,
 				#Megaphone, #Robot, #HardTune, #FX {
 					cursor: pointer;
 					pointer-events: all;

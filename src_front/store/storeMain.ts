@@ -1,7 +1,8 @@
+import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 import HeatEvent from '@/events/HeatEvent';
 import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
-import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData, TriggerEventPlaceholders } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
@@ -12,7 +13,9 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -23,8 +26,6 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -473,6 +474,40 @@ export const storeMain = defineStore("main", {
 				HeatSocket.instance.addEventListener(HeatEvent.CLICK, async (event:HeatEvent):Promise<void> => {
 					StoreProxy.heat.handleClickEvent(event);
 				});
+
+				/**
+				 * Handle GoXLR button events (press/release)
+				 */
+				function onGoXLRButton(event:GoXLRSocketEvent):void {
+					const message:TwitchatDataTypes.MessageGoXLRButtonData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						pressed:event.type == GoXLRSocketEvent.BUTTON_PRESSED,
+						button:event.button!,
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+					}
+					TriggerActionHandler.instance.execute(message);
+				}
+				HeatSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
+				HeatSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
+				
+				/**
+				 * Handle GoXLR FX state
+				 */
+				function onGoXLRFx(event:GoXLRSocketEvent):void {
+					const message:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						fxIndex:event.fxIndex!,
+						enabled:event.type == GoXLRSocketEvent.FX_ENABLED,
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+					}
+					TriggerActionHandler.instance.execute(message);
+				}
+				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
+				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
 
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
 					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );

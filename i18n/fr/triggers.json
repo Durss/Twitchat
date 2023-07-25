@@ -383,7 +383,10 @@
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
-			"goxlr_preset_index":"Preset index (1 -> 6)"
+			"goxlr_button_id":"Id du boutton",
+			"goxlr_pressed":"Boutton pressé ou relâché",
+			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
+			"goxlr_fxenabled":"FX actif ou non"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -751,6 +754,14 @@
 			"GOXLR_FX_DISABLED": {
 				"label": "FX désactivé",
 				"description": "Actions à executer lorsque l'option GoXLR FX est désactivé"
+			},
+			"GOXLR_BUTTON_PRESSED": {
+				"label": "Boutton appuyé",
+				"description": "Actions à executer lorsqu'un bouton GoXLR est appuyé"
+			},
+			"GOXLR_BUTTON_RELEASED": {
+				"label": "Boutton relâché",
+				"description": "Actions à executer lorsqu'un bouton GoXLR est relâché"
 			},
 			"GOXLR_COUGH_PRESSED": {
 				"label": "Boutton cough appuyé",

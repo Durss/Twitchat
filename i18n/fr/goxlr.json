@@ -21,6 +21,7 @@
 			"ip_security_link":"Discord"
 		},
 		"trigger": {
+			"select_button":"Sélectionnez les boutons devant exécuter ce trigger dans l'interface ci-dessous",
 			"param_action":"Type d'action",
 			"param_fxPreset":"Preset de FX à activer",
 			"param_fxPreset1": "Preset 1",

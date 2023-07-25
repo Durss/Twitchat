@@ -368,6 +368,20 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON:{
+				const eventType = message.pressed? TriggerTypes.GOXLR_BUTTON_PRESSED : TriggerTypes.GOXLR_BUTTON_RELEASED;
+				if(await this.executeTriggersByType(eventType, message, testMode, message.button)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE:{
+				const eventType = message.enabled? TriggerTypes.GOXLR_FX_ENABLED : TriggerTypes.GOXLR_FX_DISABLED;
+				if(await this.executeTriggersByType(eventType, message, testMode)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
 				let type:TriggerTypesValue = message.added > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
 				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
@@ -525,6 +539,15 @@ export default class TriggerActionHandler {
 						}
 					}
 					break;
+				}
+				
+				case TriggerTypes.GOXLR_BUTTON_PRESSED:
+				case TriggerTypes.GOXLR_BUTTON_RELEASED: {
+					if(t.goxlrButtons) {
+						for (let i = 0; i < t.goxlrButtons.length; i++) {
+							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.goxlrButtons[i]);
+						}
+					}
 				}
 			}
 

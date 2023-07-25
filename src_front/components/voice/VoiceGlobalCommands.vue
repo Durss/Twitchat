@@ -16,7 +16,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 
@@ -29,6 +29,7 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class VoiceGlobalCommands extends Vue {
 
+	@Prop()
 	public modelValue:VoiceAction[] = [];
 
 	public items:TwitchatDataTypes.ParameterData<string>[] = [];
