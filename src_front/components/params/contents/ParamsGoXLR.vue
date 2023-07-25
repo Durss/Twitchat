@@ -28,6 +28,12 @@
 			</section>
 
 		</div>
+		
+		<i18n-t scope="global" class="donate" tag="div" keypath="goxlr.donate">
+			<template #LINK>
+				<a href="https://ko-fi.com/frostycoolslug" target="_blank">{{ $t("goxlr.donate_link") }}</a>
+			</template>
+		</i18n-t>
 	</div>
 </template>
 
@@ -174,6 +180,13 @@ export default class ParamsGoXLR extends Vue {
 				margin: auto;
 			}
 		}
+	}
+
+	.donate {
+		text-align: center;
+		font-style: italic;
+		text-decoration: none;
+		line-height: 1.25em;
 	}
 	
 }

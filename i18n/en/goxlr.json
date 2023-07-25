@@ -2,6 +2,8 @@
 	"goxlr":{
 		"header":"Control your GoXLR from Twitchat. Requires {LINK}.",
 		"header_link":"GoXLR-Utility",
+		"donate":"🎁 Please consider {LINK} for their massive open-source work on GoXLR-Utility",
+		"donate_link":"donating to FrostyCoolSlug",
 		"connecting":"connecting to GoXLR-Utility...",
 		"connect_failed":"Unable to connect to GoXLR-Utility",
 		"connect_success":"Twitchat is connected to GoXLR-Utility",
@@ -11,7 +13,7 @@
 		"infos":[
 			"Once your GoXLR is connected you can control it or execute actions when using some of its buttons thanks to the Triggers system.",
 			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",
-			"Or you can show an OBS source when mute or !@#$?* button is pressed."
+			"Or you can show an OBS source when mute or bleep button is pressed."
 		],
 		"connect_form":{
 			"title":"Credentials",
