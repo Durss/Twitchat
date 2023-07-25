@@ -32,7 +32,8 @@
 			"action_cough_on": "Mute",
 			"action_cough_off": "Unmute",
 			"action_bleep_on": "Enable !{'@'}#$?*",
-			"action_bleep_off": "Disable !{'@'}#$?*"
+			"action_bleep_off": "Disable !{'@'}#$?*",
+			"action_sample_play": "Play sample"
 		}
 	}
 }

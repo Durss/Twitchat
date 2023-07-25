@@ -106,8 +106,7 @@ export default class GoXLRDebug extends Vue {
 
 	public setActivePreset(index:number):void {
 		this.selectedPresetIndex = index;
-		const name = ["Preset1","Preset2","Preset3","Preset4","Preset5","Preset6"][index] as "Preset1"|"Preset2"|"Preset3"|"Preset4"|"Preset5"|"Preset6";
-		GoXLRSocket.instance.setActiveEffectPreset(name);
+		GoXLRSocket.instance.activeEffectPreset = index;
 	}
 
 	public toggleFX():void {

@@ -392,8 +392,16 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 }
 
 
-export const TriggerActionGoXLRDataActionList = ["fx_on", "fx_off", "cough_on", "cough_off", "bleep_on", "bleep_off"] as const;
-export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[keyof typeof TriggerActionGoXLRDataActionList];
+export const TriggerActionGoXLRDataActionList = [
+	{code:"fx_on", mini:false}, 
+	{code:"fx_off", mini:false}, 
+	{code:"cough_on", mini:true}, 
+	{code:"cough_off", mini:true}, 
+	// {code:"bleep_on", mini:true}, 
+	// {code:"bleep_off", mini:true}, 
+	// {code:"sample_play", mini:false},
+] as const;
+export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[number]['code'];
 export interface TriggerActionGoXLRData extends TriggerActionData{
 	type:"goxlr";
 	/**
@@ -567,10 +575,19 @@ export const TriggerTypes = {
 	CLIP_CREATED:"83",
 	GOXLR_FX_ENABLED:"84",
 	GOXLR_FX_DISABLED:"85",
-	GOXLR_BLEEP_PRESSED:"86",
-	GOXLR_BLEEP_RELEASED:"87",
-	GOXLR_COUGH_PRESSED:"88",
-	GOXLR_COUGH_RELEASED:"89",
+	GOXLR_BUTTON_PRESSED:"86",
+	GOXLR_BUTTON_RELEASED:"87",
+	// GOXLR_COUGH_PRESSED:"88",
+	// GOXLR_COUGH_RELEASED:"89",
+	// GOXLR_BLEEP_PRESSED:"90",
+	// GOXLR_BLEEP_RELEASED:"91",
+	// GOXLR_MUTE_FADER:"92",
+	// GOXLR_UNMUTE_FADER:"93",
+	// GOXLR_LONG_PRESS_FADER:"94",
+	// GOXLR_FX_PRESET_SELECT:"95",
+	// GOXLR_PRESS_SAMPLE_BUTTON:"96",
+	// GOXLR_RELEASE_SAMPLE_BUTTON:"97",
+	// GOXLR_SAMPLE_COMPLETE:"98",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -855,8 +872,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.STREAM_OFFLINE] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"info.user.displayName", numberParsable:false, isUserID:false},
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"info.user.id", numberParsable:false, isUserID:true},
-		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"info.user.title", numberParsable:false, isUserID:false},
-		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"info.user.category", numberParsable:false, isUserID:false},
+		{tag:"TITLE", descKey:'triggers.placeholders.stream_title', pointer:"info.title", numberParsable:false, isUserID:false},
+		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"info.category", numberParsable:false, isUserID:false},
 	];
 	
 	
@@ -1077,12 +1094,21 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_PRESET_SELECT.label", value:TriggerTypes.GOXLR_FX_PRESET_SELECT, descriptionKey:"triggers.events.GOXLR_FX_PRESET_SELECT.description"},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description"},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_PRESSED.label", value:TriggerTypes.GOXLR_BLEEP_PRESSED, descriptionKey:"triggers.events.GOXLR_BLEEP_PRESSED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_RELEASED.label", value:TriggerTypes.GOXLR_BLEEP_RELEASED, descriptionKey:"triggers.events.GOXLR_BLEEP_RELEASED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone_mute", labelKey:"triggers.events.GOXLR_COUGH_PRESSED.label", value:TriggerTypes.GOXLR_COUGH_PRESSED, descriptionKey:"triggers.events.GOXLR_COUGH_PRESSED.description"},
-		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone", labelKey:"triggers.events.GOXLR_COUGH_RELEASED.label", value:TriggerTypes.GOXLR_COUGH_RELEASED, descriptionKey:"triggers.events.GOXLR_COUGH_RELEASED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description"},
+		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_BUTTON_RELEASED.label", value:TriggerTypes.GOXLR_BUTTON_RELEASED, descriptionKey:"triggers.events.GOXLR_BUTTON_RELEASED.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_PRESSED.label", value:TriggerTypes.GOXLR_BLEEP_PRESSED, descriptionKey:"triggers.events.GOXLR_BLEEP_PRESSED.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_bleep", labelKey:"triggers.events.GOXLR_BLEEP_RELEASED.label", value:TriggerTypes.GOXLR_BLEEP_RELEASED, descriptionKey:"triggers.events.GOXLR_BLEEP_RELEASED.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone_mute", labelKey:"triggers.events.GOXLR_COUGH_PRESSED.label", value:TriggerTypes.GOXLR_COUGH_PRESSED, descriptionKey:"triggers.events.GOXLR_COUGH_PRESSED.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"microphone", labelKey:"triggers.events.GOXLR_COUGH_RELEASED.label", value:TriggerTypes.GOXLR_COUGH_RELEASED, descriptionKey:"triggers.events.GOXLR_COUGH_RELEASED.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"mute", labelKey:"triggers.events.GOXLR_MUTE_FADER.label", value:TriggerTypes.GOXLR_MUTE_FADER, descriptionKey:"triggers.events.GOXLR_MUTE_FADER.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"unmute", labelKey:"triggers.events.GOXLR_UNMUTE_FADER.label", value:TriggerTypes.GOXLR_UNMUTE_FADER, descriptionKey:"triggers.events.GOXLR_UNMUTE_FADER.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_LONG_PRESS_FADER.label", value:TriggerTypes.GOXLR_LONG_PRESS_FADER, descriptionKey:"triggers.events.GOXLR_LONG_PRESS_FADER.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_PRESS_SAMPLE_BUTTON.label", value:TriggerTypes.GOXLR_PRESS_SAMPLE_BUTTON, descriptionKey:"triggers.events.GOXLR_PRESS_SAMPLE_BUTTON.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"release", labelKey:"triggers.events.GOXLR_RELEASE_SAMPLE_BUTTON.label", value:TriggerTypes.GOXLR_RELEASE_SAMPLE_BUTTON, descriptionKey:"triggers.events.GOXLR_RELEASE_SAMPLE_BUTTON.description"},
+		// {premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"play", labelKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.label", value:TriggerTypes.GOXLR_SAMPLE_COMPLETE, descriptionKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.description"},
 	];
 	return eventsCache;
 }

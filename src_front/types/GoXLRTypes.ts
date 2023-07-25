@@ -498,4 +498,12 @@ export namespace GoXLRTypes {
 		samples: unknown;
 		icons: string[];
 	}
+
+	export const ButtonTypes = ["Channel1_Mute", "Channel2_Mute", "Channel3_Mute", "Channel4_Mute",
+								"Preset1", "Preset2", "Preset3", "Preset4", "Preset5", "Preset6",
+								"BankA", "BankB", "BankC",
+								"Megaphone", "Robot", "HardTune", "FX", 
+								"Bleep", "Mute",
+								"TopLeft", "BottomLeft", "BottomRight", "TopRight", "Clear"] as const;
+	export type ButtonTypesData = typeof ButtonTypes[number];
 }

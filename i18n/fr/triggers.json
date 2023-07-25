@@ -753,20 +753,48 @@
 				"description": "Actions à executer lorsque l'option GoXLR FX est désactivé"
 			},
 			"GOXLR_COUGH_PRESSED": {
-				"label": "Boutton mute appuyé",
-				"description": "Actions à executer lorsque le bouton GoXLR mute est appuyé"
+				"label": "Boutton cough appuyé",
+				"description": "Actions à executer lorsque le bouton GoXLR cough est appuyé"
 			},
 			"GOXLR_COUGH_RELEASED": {
-				"label": "Boutton mute relâché",
-				"description": "Actions à executer lorsque le bouton GoXLR mute est relâché"
+				"label": "Boutton cough relâché",
+				"description": "Actions à executer lorsque le bouton GoXLR cough est relâché"
 			},
 			"GOXLR_BLEEP_PRESSED": {
-				"label": "Boutton !{'@'}#$?* appuyé",
-				"description": "Actions à executer lorsque le bouton GoXLR !{'@'}#$?* est appuyé"
+				"label": "Boutton bleep appuyé",
+				"description": "Actions à executer lorsque le bouton GoXLR bleep est appuyé"
 			},
 			"GOXLR_BLEEP_RELEASED": {
-				"label": "Boutton !{'@'}#$?* relâché",
-				"description": "Actions à executer lorsque le bouton GoXLR !{'@'}#$?* est relâché"
+				"label": "Boutton bleep relâché",
+				"description": "Actions à executer lorsque le bouton GoXLR bleep est relâché"
+			},
+			"GOXLR_MUTE_FADER": {
+				"label": "Mute fader",
+				"description": "Actions à executer lorsque le bouton mute d'un fader GoXLR est activé"
+			},
+			"GOXLR_UNMUTE_FADER": {
+				"label": "Unmute fader",
+				"description": "Actions à executer lorsque le bouton mute d'un fader GoXLR est désactivé"
+			},
+			"GOXLR_LONG_PRESS_FADER": {
+				"label": "Mute fader appui long",
+				"description": "Actions à executer lorsqu'un appui long est effectué sur le bouton mute d'un fader GoXLR"
+			},
+			"GOXLR_PRESS_SAMPLE_BUTTON": {
+				"label": "Bouton sampler enfoncé",
+				"description": "Actions à executer lorsqu'un bouton du sampler GoXLR est enfoncé"
+			},
+			"GOXLR_RELEASE_SAMPLE_BUTTON": {
+				"label": "Bouton sampler relâché",
+				"description": "Actions à executer lorsqu'un bouton du sampler GoXLR est relâché"
+			},
+			"GOXLR_SAMPLE_COMPLETE": {
+				"label": "Lecture d'un sample terminée",
+				"description": "Actions à executer lorsque la lecture d'un sample GoXLR se termine"
+			},
+			"GOXLR_FX_PRESET_SELECT": {
+				"label": "Sélection d'un preset",
+				"description": "Actions à executer lorsqu'un bouton de preset d'effet GoXLR est activé"
 			}
 		},
 		"musicEvents": {

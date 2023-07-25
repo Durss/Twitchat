@@ -31,8 +31,9 @@
 			"action_fx_off": "Désactiver FX",
 			"action_cough_on": "Mute",
 			"action_cough_off": "Unmute",
-			"action_bleep_on": "Activer !{'@'}#$?*",
-			"action_bleep_off": "Désactiver !{'@'}#$?*"
+			"action_bleep_on": "Activer bleep",
+			"action_bleep_off": "Désactiver bleep",
+			"action_sample_play": "Jouer un sample"
 		}
 	}
 }

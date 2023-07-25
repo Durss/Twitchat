@@ -49,6 +49,12 @@
 				:obsSources="obsSources"
 				:triggerData="triggerData"
 			/>
+
+			<TriggerGoXLRParams
+				v-if="isGoXLRTrigger"
+				:obsSources="obsSources"
+				:triggerData="triggerData"
+			/>
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
@@ -85,7 +91,7 @@
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
-			handle=".orderBt"
+			handle=".header"
 			:animation="250"
 			:dragoverBubble="true">
 				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
@@ -115,22 +121,23 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TabMenu from '@/components/TabMenu.vue';
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
+import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 import TriggerActionEntry from './TriggerActionEntry.vue';
+import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
-import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
-import TabMenu from '@/components/TabMenu.vue';
-import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
+import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 
 @Component({
 	components:{
@@ -139,8 +146,9 @@ import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 		draggable,
 		ParamItem,
 		TriggerActionEntry,
+		TriggerGoXLRParams,
 		TriggerConditionList,
-		TriggerActionHeatParams: TriggerActionHeatParams,
+		TriggerActionHeatParams,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,
@@ -210,6 +218,13 @@ export default class TriggerActionList extends Vue {
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
 	public get isHeatTrigger():boolean { return this.triggerData.type === TriggerTypes.HEAT_CLICK; }
 	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }
+	public get isGoXLRTrigger():boolean {
+		const list:TriggerTypesValue[] = [
+			TriggerTypes.GOXLR_FX_ENABLED,
+			TriggerTypes.GOXLR_FX_DISABLED,
+		]
+		return list.indexOf(this.triggerData.type) > -1;
+	}
 	public get listClasses():string[] {
 		const res = ["list"];
 		if(this.hasCondition && !this.matchingCondition) res.push("alert");

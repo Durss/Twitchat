@@ -1,5 +1,4 @@
 import DataStore from "@/store/DataStore";
-import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { reactive } from "vue";
 
@@ -37,6 +36,8 @@ export default class GoXLRSocket {
 	}
 
 	public get status():GoXLRTypes.Mixer|null { return this._status? this._status.mixers[this._deviceId] : null; }
+
+	public get isGoXLRMini():boolean { return this.status?.hardware.device_type == "Mini"; }
 	
 	public get fxEnabled():boolean { return this.status?.effects.is_enabled || false; }
 	
@@ -92,14 +93,14 @@ export default class GoXLRSocket {
 						this.connect(ip, port);
 					}catch(error) {
 						console.log(error);
-						reject();
+						reject(error);
 					}
 				}
 			}
 		
 			this._socket.onerror = (e) => {
 				this._connecting = false;
-				reject();
+				reject(e);
 			}
 		});
 	}

@@ -163,6 +163,7 @@ export default class UserController extends AbstractController {
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
 			if(!success) {
+				Logger.error(schemaValidator.errors.length+" validation error(s) for user"+userInfo.login);
 				//Save schema errors if any
 				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
 			}else if(fs.existsSync(errorsFilePath)) {
