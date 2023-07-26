@@ -1446,7 +1446,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		let res = src;
 		if(!res) return "";
 		let subEvent_regSafe = "";
@@ -1558,14 +1558,9 @@ export default class TriggerActionHandler {
 					try {
 						//Dynamically search for the requested prop's value within the object
 						for (let i = 0; i < chunks.length; i++) {
-							let isArray = false;
-							//key ends by [] it's because it's an array
-							if(/\[\]$/g.test(chunks[i])){
-								chunks[i] = chunks[i].replace("[]", "");
-								isArray = true;
-							}
+							if(chunks[i] === "0") continue;//Skip array index selector
 							root = (root as {[key:string]:unknown})[chunks[i]];
-							if(isArray) {
+							if(Array.isArray(root)) {
 								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
 								break;
 							}
