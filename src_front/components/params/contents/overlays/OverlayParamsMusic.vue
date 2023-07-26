@@ -3,7 +3,7 @@
 		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
 		<input class="primary" type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-			<div>{{ $t("overlay.music_common.css") }}</div>
+			<div class="head">{{ $t("overlay.music_common.css") }}</div>
 			<ul class="cssStructure">
 				<li>#music_holder { ... }</li>
 				<li>#music_cover { ... }</li>

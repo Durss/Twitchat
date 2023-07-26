@@ -1384,6 +1384,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
+		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
 		HYPE_TRAIN_APPROACHING:"hype_train_approaching",
 		HYPE_TRAIN_COOLED_DOWN:"hype_train_cooled_down",
@@ -1453,6 +1454,7 @@ export namespace TwitchatDataTypes {
 		hype_train_progress:false,
 		hype_train_complete:false,
 		music_added_to_queue:false,
+		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
 		hype_train_approaching:false,
@@ -1556,6 +1558,7 @@ export namespace TwitchatDataTypes {
 									| MessageHeatClickData
 									| MessageGoXLRButtonData
 									| MessageGoXLRFXEnableChangeData
+									| MessageGoXLRSampleCompleteData
 	;
 	
 	/**
@@ -3025,8 +3028,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a hype chat message
-	 * These messages are also sent as standard messages
+	 * Represents a GoXLR button press/release
 	 */
 	export interface MessageGoXLRButtonData extends AbstractTwitchatMessage {
 		type:"goxlr_button";
@@ -3041,8 +3043,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a hype chat message
-	 * These messages are also sent as standard messages
+	 * Represents a GoXLR FX state change
 	 */
 	export interface MessageGoXLRFXEnableChangeData extends AbstractTwitchatMessage {
 		type:"goxlr_fx_state";
@@ -3054,6 +3055,21 @@ export namespace TwitchatDataTypes {
 		 * Enabled/disabled FX index (0->5)
 		 */
 		fxIndex:number;
+	}
+
+	/**
+	 * Represents a GoXLR sample playback complete
+	 */
+	export interface MessageGoXLRSampleCompleteData extends AbstractTwitchatMessage {
+		type:"goxlr_sample_complete";
+		/**
+		 * Active bank when starting the sample
+		 */
+		bank:Extract<GoXLRTypes.ButtonTypesData, "BankA" | "BankB" | "BankC">;
+		/**
+		 * Sampler button that started the sample
+		 */
+		buttonId:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
 	}
 
 }

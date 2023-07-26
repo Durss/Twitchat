@@ -1113,6 +1113,19 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE: {
+					const m:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						buttonId:Utils.pickRand(["TopLeft", "BottomLeft", "BottomRight", "TopRight"]),
+						bank:Utils.pickRand(["BankA", "BankB", "BankC"]),
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;

@@ -64,47 +64,7 @@
       <polygon points="0 386.24 19.48 399.76 19.48 392.98 0 373.51 0 386.24" style="fill: #040404;"/>
       <polygon points="9.61 49.01 47.08 12.23 635.84 12.23 672.6 49.01 672.6 363.98 635.84 400.74 47.08 400.74 9.61 363.98 9.61 49.01" style="fill: url(#BaseplateGradient);"/>
     </g>
-    <g class="faceplate">
-      <g class="overlays">
-        <g class="cough">
-          <polygon points="558.72 377.97 559.5 377.97 569.98 388.49 618.72 388.49 618.72 389.24 569.24 389.24 558.72 378.76 558.72 377.97" style="fill: #565656;"/>
-          <rect x="556.83" y="244.52" width=".77" height="131.23" style="fill: #565656;"/>
-          <polygon points="558.72 241.5 559.5 241.5 569.98 231 638.21 231 638.21 230.18 569.24 230.24 558.72 240.74 558.72 241.5" style="fill: #565656;"/>
-        </g>
-        <g class="sampler">
-          <polygon points="294.72 377.97 294.72 378.76 304.5 389.24 546 389.24 555.74 378.76 555.74 377.97 554.98 377.97 545.25 388.49 305.24 388.49 295.48 377.97 294.72 377.97" style="fill: #565656;"/>
-          <polygon points="292.84 375.74 293.6 375.74 293.6 242.99 303.72 233.23 303.72 232.52 302.98 232.52 292.84 242.24 292.84 375.74" style="fill: #565656;"/>
-          <polygon points="554.98 241.5 545.25 231 306.74 231 306.74 230.24 546 230.24 555.74 240.74 555.74 241.5 554.98 241.5" style="fill: #565656;"/>
-          <text transform="translate(444.74 386.04) scale(1.01 1)" style="fill: #565656; font-family: Roboto; font-size: 9.75px;">Sampler</text>
-        </g>
-        <g class="effects">
-          <text transform="translate(446.98 227.82) scale(1.05 1)" style="fill: #565656; font-family: Roboto; font-size: 9.59px;">Effects</text>
-          <polygon points="292.84 45 293.6 45 293.6 218.28 303.72 227.99 303.72 228.76 302.98 228.76 292.84 218.99 292.84 45" style="fill: #565656;"/>
-        </g>
-        <g class="mixer">
-          <polygon points="64.49 388.49 281.22 388.49 290.98 377.97 291.71 377.97 291.71 378.76 281.98 389.24 64.49 389.24 64.49 388.49" style="fill: #565656;"/>
-          <text transform="translate(150.71 386.26) scale(.97 1)" style="fill: #565656; font-family: Roboto; font-size: 9.17px;">Mixer</text>
-        </g>
-      </g>
-      <g id="Logo">
-        <path d="m492.57,28.83h13.78s3.26.7,3.26,3.46v3.21c0,1.85-1.62,3.84-3.26,3.84s-.57.69-.57.69c0,0,3.83,2.26,3.83,3.42v2.45h-3.26v-1.75c-.05-1.39-3.99-4.12-5.84-4.12s-4.74,0-4.74,0v-2.65h5.97l3.28-.03c1.33,0,1.33-1.9,1.33-1.94v-1.97s0-2.03-1.33-2.03h-9.25v14.49h-3.21v-17.06Z" style="fill: #fff;"/>
-        <path d="m475.01,28.65h3.32v11.2s-.32,3.93,3.93,3.93,9.19,0,9.19,0v2.63h-9.19s-7.25.79-7.25-6.56v-11.2Z" style="fill: #fff;"/>
-        <path fill="currentColor" d="m471.53,24.56c.54-.54,1.42-.54,1.96,0,.54.54.54,1.42,0,1.96l-8.98,8.98c-.54.54-1.42.54-1.96,0-.54-.54-.54-1.42,0-1.96l8.98-8.98Zm-24.08,0c-.54.54-.54,1.42,0,1.96l8.98,8.98c.54.54,1.42.54,1.96,0,.54-.54.54-1.42,0-1.96l-8.98-8.98c-.54-.54-1.42-.54-1.96,0Zm15.11,15.11c-.54.54-.54,1.42,0,1.96l8.98,8.98c.54.54,1.42.54,1.96,0,.54-.54.54-1.42,0-1.96l-8.98-8.98c-.54-.54-1.42-.54-1.96,0h0Zm-4.17,0c-.54-.54-1.42-.54-1.96,0l-8.98,8.98c-.54.54-.54,1.42,0,1.96.54.54,1.42.54,1.96,0l8.98-8.98c.54-.54.54-1.42,0-1.96h0Z" style="fill-rule: evenodd;"/>
-        <path d="m437.08,28.61c-4.88,0-8.84,3.96-8.84,8.84s3.96,8.84,8.84,8.84,8.84-3.96,8.84-8.84-3.96-8.84-8.84-8.84Zm0,14.84c-3.3,0-5.98-2.68-5.98-5.98s2.68-5.98,5.98-5.98,5.98,2.68,5.98,5.98-2.68,5.98-5.98,5.98Z" style="fill: #fff;"/>
-        <path d="m418.55,42.86h5.95v-3.93h-5.3v-2.64h7.92v9.87h-5.25s-2.17,0-3.32,0c-4.6,0-7.87-3.51-7.87-6.55,0-.67,0-3.34,0-3.94s.35-7.29,7.87-7.29h8.57v3.27h-8.57s-4.59,0-4.59,4.02v3.27c0,3.93,4.59,3.93,4.59,3.93" style="fill: #fff;"/>
-        <g style="fill: none; isolation: isolate;">
-          <path d="m438.6,58.54c-1.24,0-1.83-.62-1.83-1.85v-3.84h1.41v3.71c0,.5.24.77.72.77h4.13v-4.47h1.37v5.69h-5.8Z" style="fill: #fff;"/>
-          <path d="m448.61,58.54v-4.48h-3.11v-1.21h7.62v1.21h-3.13v4.48h-1.38Z" style="fill: #fff;"/>
-          <path d="m454.19,58.54v-5.69h1.39v5.69h-1.39Z" style="fill: #fff;"/>
-          <path d="m458.73,58.54c-1.25,0-1.83-.61-1.83-1.85v-3.84h1.39v3.71c0,.5.24.77.73.77h4.47v1.22h-4.76Z" style="fill: #fff;"/>
-          <path d="m464.59,58.54v-5.69h1.39v5.69h-1.39Z" style="fill: #fff;"/>
-          <path d="m470.16,58.54v-4.48h-3.11v-1.21h7.62v1.21h-3.13v4.48h-1.38Z" style="fill: #fff;"/>
-          <path d="m479.22,58.54v-1.86l-3.88-3.83h1.79l2.81,2.82,2.8-2.82h1.71l-3.84,3.85v1.84h-1.39Z" style="fill: #fff;"/>
-        </g>
-      </g>
-    </g>
     <g class="selection">
-      <path id="Cough" d="m640.2,388.46l15.6-15.6c.27-.27.42-.63.42-1.02v-139.8c0-.79-.64-1.44-1.44-1.44h-84.61c-.38,0-.75.15-1.01.42l-11.53,11.53c-.27.27-.42.63-.42,1.02v132.35c0,.38.16.75.42,1.02l11.53,11.53c.27.27.63.42,1.02.42h69.01c.38,0,.75-.15,1.02-.42Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
       <g class="channels">
         <rect id="Fader4Mute" x="217.73" y="40.96" width="61" height="347.92" rx="2.44" ry="2.44" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
         <rect id="Fader3Mute" x="157.21" y="40.96" width="61" height="347.92" rx="2.44" ry="2.44" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
@@ -204,7 +164,7 @@
           </g>
         </g>
         <g class="encoders">
-          <g class="gender">
+          <g id="gender">
             <g class="base">
               <circle cx="514.12" cy="174.63" r="31.88" style="fill: url(#GenderEncoderBaseGradient);"/>
               <g class="level">
@@ -236,9 +196,9 @@
               <line x1="514.12" y1="190.8" x2="514.12" y2="186.03" style="fill: currentColor; stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             </g>
             <circle cx="514.12" cy="174.63" r="12" style="fill: url(#GenderEncoderTopGradient);"/>
-            <text transform="translate(500.13 216.13) scale(1.05 1)" style="fill: #565656; font-family: Roboto; font-size: 9.59px;">Gender</text>
+            <text transform="translate(500.13 216.13) scale(1.05 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.59px;">Gender</text>
           </g>
-          <g class="echo">
+          <g id="echo">
             <g class="base">
               <circle cx="406.12" cy="174.63" r="31.88" style="fill: url(#EchoEncoderBaseGradient);"/>
               <g class="level">
@@ -270,9 +230,9 @@
               <line x1="406.12" y1="190.8" x2="406.12" y2="186.03" style="fill: backgroundColor; stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             </g>
             <circle cx="406.12" cy="174.63" r="12" style="fill: url(#EchoEncoderTopGradient);"/>
-            <text transform="translate(396.71 216.13) scale(1.05 1)" style="fill: #565656; font-family: Roboto; font-size: 9.59px;">Echo</text>
+            <text transform="translate(396.71 216.13) scale(1.05 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.59px;">Echo</text>
           </g>
-          <g class="pitch">
+          <g id="pitch">
             <g class="base">
               <circle cx="514.12" cy="86.63" r="31.88" style="fill: url(#PitchEncoderBaseGradient);"/>
               <g class="level">
@@ -304,9 +264,9 @@
               <line x1="514.12" y1="102.8" x2="514.12" y2="98.03" style="fill: currentColor; stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             </g>
             <circle cx="514.12" cy="86.63" r="12" style="fill: url(#PitchEncoderTopGradient);"/>
-            <text transform="translate(504.11 128.13) scale(1.05 1)" style="fill: #565656; font-family: Roboto; font-size: 9.59px;">Pitch</text>
+            <text transform="translate(504.11 128.13) scale(1.05 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.59px;">Pitch</text>
           </g>
-          <g class="reverb">
+          <g id="reverb">
             <g class="base">
               <circle cx="406.12" cy="86.63" r="31.88" style="fill: url(#ReverbEncoderBaseGradient);"/>
               <g class="level">
@@ -338,7 +298,7 @@
               <line x1="406.12" y1="102.8" x2="406.12" y2="98.03" style="fill: currentColor; stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             </g>
             <circle cx="406.12" cy="86.63" r="12" style="fill: url(#ReverbEncoderTopGradient);"/>
-            <text transform="translate(392.55 128.13) scale(1.05 1)" style="fill: #565656; font-family: Roboto; font-size: 9.59px;">Reverb</text>
+            <text transform="translate(392.55 128.13) scale(1.05 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.59px;">Reverb</text>
           </g>
         </g>
       </g>
@@ -674,6 +634,45 @@
             <rect x="41.22" y="343.51" width="48.01" height="27" rx="1.68" ry="1.68" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             <path d="m65.56,351.4c.29.13.48.42.48.74v9.74c0,.32-.19.61-.48.74s-.63.08-.87-.13l-3.42-3.04h-1.72c-.9,0-1.62-.73-1.62-1.62v-1.62c0-.9.73-1.62,1.62-1.62h1.72l3.42-3.04c.24-.21.58-.26.87-.13Zm3.14,3.35l1.4,1.4,1.4-1.4c.24-.24.62-.24.86,0s.24.62,0,.86l-1.4,1.4,1.4,1.4c.24.24.24.62,0,.86s-.62.24-.86,0l-1.4-1.4-1.4,1.4c-.24.24-.62.24-.86,0s-.24-.62,0-.86l1.4-1.4-1.4-1.4c-.24-.24-.24-.62,0-.86s.62-.24.86,0Z" style="fill: currentColor;"/>
           </g>
+        </g>
+      </g>
+    </g>
+	<g id="Logo">
+	<path d="m492.57,28.83h13.78s3.26.7,3.26,3.46v3.21c0,1.85-1.62,3.84-3.26,3.84s-.57.69-.57.69c0,0,3.83,2.26,3.83,3.42v2.45h-3.26v-1.75c-.05-1.39-3.99-4.12-5.84-4.12s-4.74,0-4.74,0v-2.65h5.97l3.28-.03c1.33,0,1.33-1.9,1.33-1.94v-1.97s0-2.03-1.33-2.03h-9.25v14.49h-3.21v-17.06Z" style="fill: #fff;"/>
+	<path d="m475.01,28.65h3.32v11.2s-.32,3.93,3.93,3.93,9.19,0,9.19,0v2.63h-9.19s-7.25.79-7.25-6.56v-11.2Z" style="fill: #fff;"/>
+	<path fill="currentColor" d="m471.53,24.56c.54-.54,1.42-.54,1.96,0,.54.54.54,1.42,0,1.96l-8.98,8.98c-.54.54-1.42.54-1.96,0-.54-.54-.54-1.42,0-1.96l8.98-8.98Zm-24.08,0c-.54.54-.54,1.42,0,1.96l8.98,8.98c.54.54,1.42.54,1.96,0,.54-.54.54-1.42,0-1.96l-8.98-8.98c-.54-.54-1.42-.54-1.96,0Zm15.11,15.11c-.54.54-.54,1.42,0,1.96l8.98,8.98c.54.54,1.42.54,1.96,0,.54-.54.54-1.42,0-1.96l-8.98-8.98c-.54-.54-1.42-.54-1.96,0h0Zm-4.17,0c-.54-.54-1.42-.54-1.96,0l-8.98,8.98c-.54.54-.54,1.42,0,1.96.54.54,1.42.54,1.96,0l8.98-8.98c.54-.54.54-1.42,0-1.96h0Z" style="fill-rule: evenodd;"/>
+	<path d="m437.08,28.61c-4.88,0-8.84,3.96-8.84,8.84s3.96,8.84,8.84,8.84,8.84-3.96,8.84-8.84-3.96-8.84-8.84-8.84Zm0,14.84c-3.3,0-5.98-2.68-5.98-5.98s2.68-5.98,5.98-5.98,5.98,2.68,5.98,5.98-2.68,5.98-5.98,5.98Z" style="fill: #fff;"/>
+	<path d="m418.55,42.86h5.95v-3.93h-5.3v-2.64h7.92v9.87h-5.25s-2.17,0-3.32,0c-4.6,0-7.87-3.51-7.87-6.55,0-.67,0-3.34,0-3.94s.35-7.29,7.87-7.29h8.57v3.27h-8.57s-4.59,0-4.59,4.02v3.27c0,3.93,4.59,3.93,4.59,3.93" style="fill: #fff;"/>
+	<g style="fill: none; isolation: isolate;">
+		<path d="m438.6,58.54c-1.24,0-1.83-.62-1.83-1.85v-3.84h1.41v3.71c0,.5.24.77.72.77h4.13v-4.47h1.37v5.69h-5.8Z" style="fill: #fff;"/>
+		<path d="m448.61,58.54v-4.48h-3.11v-1.21h7.62v1.21h-3.13v4.48h-1.38Z" style="fill: #fff;"/>
+		<path d="m454.19,58.54v-5.69h1.39v5.69h-1.39Z" style="fill: #fff;"/>
+		<path d="m458.73,58.54c-1.25,0-1.83-.61-1.83-1.85v-3.84h1.39v3.71c0,.5.24.77.73.77h4.47v1.22h-4.76Z" style="fill: #fff;"/>
+		<path d="m464.59,58.54v-5.69h1.39v5.69h-1.39Z" style="fill: #fff;"/>
+		<path d="m470.16,58.54v-4.48h-3.11v-1.21h7.62v1.21h-3.13v4.48h-1.38Z" style="fill: #fff;"/>
+		<path d="m479.22,58.54v-1.86l-3.88-3.83h1.79l2.81,2.82,2.8-2.82h1.71l-3.84,3.85v1.84h-1.39Z" style="fill: #fff;"/>
+	</g>
+	</g>
+    <g class="faceplate">
+      <g class="overlays">
+        <g class="cough">
+          <polygon points="558.72 377.97 559.5 377.97 569.98 388.49 618.72 388.49 618.72 389.24 569.24 389.24 558.72 378.76 558.72 377.97" style="fill: #565656;"/>
+          <rect x="556.83" y="244.52" width=".77" height="131.23" style="fill: #565656;"/>
+          <polygon points="558.72 241.5 559.5 241.5 569.98 231 638.21 231 638.21 230.18 569.24 230.24 558.72 240.74 558.72 241.5" style="fill: #565656;"/>
+        </g>
+        <g class="sampler">
+          <polygon points="294.72 377.97 294.72 378.76 304.5 389.24 546 389.24 555.74 378.76 555.74 377.97 554.98 377.97 545.25 388.49 305.24 388.49 295.48 377.97 294.72 377.97" style="fill: #565656;"/>
+          <polygon points="292.84 375.74 293.6 375.74 293.6 242.99 303.72 233.23 303.72 232.52 302.98 232.52 292.84 242.24 292.84 375.74" style="fill: #565656;"/>
+          <polygon points="554.98 241.5 545.25 231 306.74 231 306.74 230.24 546 230.24 555.74 240.74 555.74 241.5 554.98 241.5" style="fill: #565656;"/>
+          <text transform="translate(444.74 386.04) scale(1.01 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.75px;">Sampler</text>
+        </g>
+        <g class="effects">
+          <text transform="translate(446.98 227.82) scale(1.05 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.59px;">Effects</text>
+          <polygon points="292.84 45 293.6 45 293.6 218.28 303.72 227.99 303.72 228.76 302.98 228.76 292.84 218.99 292.84 45" style="fill: #565656;"/>
+        </g>
+        <g class="mixer">
+          <polygon points="64.49 388.49 281.22 388.49 290.98 377.97 291.71 377.97 291.71 378.76 281.98 389.24 64.49 389.24 64.49 388.49" style="fill: #565656;"/>
+          <text transform="translate(150.71 386.26) scale(.97 1)" style="fill: #ccc; font-family: Roboto; font-size: 9.17px;">Mixer</text>
         </g>
       </g>
     </g>

@@ -22,11 +22,18 @@
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
+			<div class="card-item">
+				Scroll any chat column by using one of the four knobs.
+				Select a knob and give it a chat column index to scroll.
+				If you want that knob to control chat only when on a specific FX preset, select a preset as well
+				<GoXLRUI knobMode />
+			</div>
+
+
 			<section class="card-item info">
 				<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
 				<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
 			</section>
-
 		</div>
 		
 		<i18n-t scope="global" class="donate" tag="div" keypath="goxlr.donate">
@@ -49,11 +56,13 @@ import Icon from '@/components/Icon.vue';
 import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
+import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
 
 @Component({
 	components:{
 		Icon,
 		Button,
+		GoXLRUI,
 		Splitter,
 		ParamItem,
 		GoXLRConnectForm,

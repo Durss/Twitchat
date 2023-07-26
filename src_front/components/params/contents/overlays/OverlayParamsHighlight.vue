@@ -7,7 +7,7 @@
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 			<input class="primary" type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
 			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
-				<div>{{ $t("overlay.highlight.css") }}</div>
+				<div class="head">{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>
 					<li class="sublist">
@@ -323,6 +323,9 @@ export default class OverlayParamsHighlight extends Vue {
 
 		.cssToggle {
 			width: 100%;
+			.head {
+				margin-bottom: .5em;
+			}
 			.cssPositionning {
 				margin-left: .6em;
 			}

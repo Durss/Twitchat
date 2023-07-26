@@ -762,49 +762,9 @@
 				"label": "Button released",
 				"description": "Actions to execute when a GoXLR button is released"
 			},
-			"GOXLR_COUGH_PRESSED": {
-				"label": "Cough (mute) button pressed",
-				"description": "Actions to execute when GoXLR cough (mute) button is pressed"
-			},
-			"GOXLR_COUGH_RELEASED": {
-				"label": "Cough (mute) button released",
-				"description": "Actions to execute when GoXLR cough (mute) button is released"
-			},
-			"GOXLR_BLEEP_PRESSED": {
-				"label": "Bleep button pressed",
-				"description": "Actions to execute when GoXLRbleep!{'@'}#$?* button is pressed"
-			},
-			"GOXLR_BLEEP_RELEASED": {
-				"label": "Bleep button released",
-				"description": "Actions to execute when GoXLR bleep button is released"
-			},
-			"GOXLR_MUTE_FADER": {
-				"label": "Mute fader",
-				"description": "Actions to execute when the mute button of the GoXLR is enabled"
-			},
-			"GOXLR_UNMUTE_FADER": {
-				"label": "Unmute fader",
-				"description": "Actions to execute when the mute button of the GoXLR is disabled"
-			},
-			"GOXLR_LONG_PRESS_FADER": {
-				"label": "Long press mute fader",
-				"description": "Actions to execute when a long press is detected on a GoXLR fader's mute button"
-			},
-			"GOXLR_PRESS_SAMPLE_BUTTON": {
-				"label": "Sampler button pressed",
-				"description": "Actions to execute when the sampler button of the GoXLR is pressed"
-			},
-			"GOXLR_RELEASE_SAMPLE_BUTTON": {
-				"label": "Sampler button released",
-				"description": "Actions to execute when the sampler button of the GoXLR is released"
-			},
 			"GOXLR_SAMPLE_COMPLETE": {
 				"label": "Sample playback complete",
-				"description": "Actions to execute when a GoXLR sample playback completes"
-			},
-			"GOXLR_FX_PRESET_SELECT": {
-				"label": "FX preset selected",
-				"description": "Actions to execute when a GoXLR FX preset button is enabled"
+				"description": "Actions to execute when a GoXLR sample playback complete"
 			}
 		},
 		"musicEvents": {

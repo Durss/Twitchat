@@ -23,8 +23,11 @@
 			</div>
 		</template>
 		
-		<div v-else>
-			<ParamItem noBackground :paramData="param_obsSources" v-model="triggerData.heatObsSource" />
+		<ParamItem v-else-if="obsConnect" noBackground :paramData="param_obsSources" v-model="triggerData.heatObsSource" />
+
+		<div v-else class="card-item alert error">
+			<p v-html="$t('heat.need_OBS')"></p>
+			<Button @click="openOBSParams()" alert light icon="obs">{{ $t("heat.need_OBS_connectBt") }}</Button>
 		</div>
 
 		<ParamItem noBackground :paramData="param_allowAnon" v-model="triggerData.heatAllowAnon" />
@@ -49,6 +52,7 @@ import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -73,6 +77,8 @@ export default class TriggerActionHeatParams extends Vue {
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
+
+	public get obsConnect():boolean { return OBSWebsocket.instance.connected; }
 
 	public beforeMount():void {
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
@@ -143,6 +149,10 @@ export default class TriggerActionHeatParams extends Vue {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
 	}
 
+	public openOBSParams():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+	}
+
 }
 </script>
 
@@ -180,6 +190,13 @@ export default class TriggerActionHeatParams extends Vue {
 
 	.permissions {
 		align-self: center;
+	}
+
+	.error {
+		text-align: center;
+		button {
+			margin-top: .5em;
+		}
 	}
 }
 </style>

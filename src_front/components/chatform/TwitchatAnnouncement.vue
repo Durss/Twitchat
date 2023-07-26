@@ -102,7 +102,11 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 			this.param_text.push({type:"string", value:"", storage:v, longText:true, label:v.toUpperCase()+" "+this.$t("announcement.param_text")});
 		});
 		this.param_versionMax.value = import.meta.env.PACKAGE_VERSION;
-		this.loadAnnouncements();
+
+		//Wait for emotes to be loaded to make sure they get parsed
+		TwitchUtils.getEmotes().then(()=> {
+			this.loadAnnouncements();
+		})
 	}
 
 	public async loadAnnouncements():Promise<void> {

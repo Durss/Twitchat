@@ -21,6 +21,10 @@ export default class GoXLRSocket extends EventDispatcher {
 	private _idToPromiseResolver:{[id:number]:<T>(data:T) => void} = {};
 	private _deviceId:string = "";
 	private _status:GoXLRTypes.Status | null = null;
+	private _currentFXIndex:number = 0;
+	private _buttonStates:Partial<{[key in GoXLRTypes.ButtonTypesData]:boolean|number}> = {};
+	private _pitchMode:"Narrow"|"Medium"|"Wide" = "Narrow";
+	private _genderMode:"Narrow"|"Medium"|"Wide" = "Narrow";
 	
 	constructor() {
 		super();
@@ -43,10 +47,8 @@ export default class GoXLRSocket extends EventDispatcher {
 	
 	public get fxEnabled():boolean { return this.status?.effects.is_enabled || false; }
 	
-	public get fxSelectedIndex():number { return parseInt(this.status?.effects.active_preset.replace(/\D/gi, "") || "1") - 1; }
-
 	/**
-	 * Sets the currently active preset index (0->5)
+	 * Sets the currently active preset index (0 <-> 5)
 	 * @param name
 	 */
 	public set activeEffectPreset(index:number) {
@@ -55,12 +57,10 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
-	 * Gets the currently active preset index (0->5)
+	 * Gets the currently active preset index (0 <-> 5)
 	 * @param name
 	 */
-	public get activeEffectPreset():number {
-		return parseInt(this.status?.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
-	}
+	public get activeEffectPreset():number { return this._currentFXIndex; }
 	
 	
 	
@@ -121,19 +121,85 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
+	 * Enable/Disable FX
+	 * @param enabled
+	 */
+	public setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
+
+	/**
+	 * Set the value of a rotary button in eprcent.
+	 * 
+	 * Actual values for reverb and echo knobs:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * 0 => 100
+	 * 
+	 * 
+	 * Actual values for pitch knob:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * Narrow:	-12 => 12
+	 * Wide:	-24 => 24
+	 * Narrow + hard tune:	-12, 0 or 12
+	 * Wide + hard tune:	-24, 0 or 24
+	 * 
+	 * 
+	 * Actual values for gender knob:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * Narrow:	-12 => 12
+	 * Medium:	-25 => 25
+	 * Wide:	-50 => 50
+	 * 
+	 * @param id
+	 * @param percent
+	 */
+	public setRotaryValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, percent:number):Promise<unknown> {
+		const idToCommand:Partial<{[key in GoXLRTypes.ButtonTypesData]:GoXLRCommands}> = {
+			gender:"SetGenderAmount",
+			echo:"SetEchoAmount",
+			pitch:"SetPitchAmount",
+			reverb:"SetReverbAmount",
+		}
+		const cmd = idToCommand[id];
+		if(!cmd) return Promise.reject();
+		let min = 0;
+		let max = 100;
+		//Define custom ranges for pitch and gender depending on configurations.
+		if(id === "pitch") {
+			if(this._pitchMode == "Narrow") {
+				min = -12;
+				max = 12;
+				//If HardTune is enabled it restrict possible values to only 3
+				if(this._buttonStates.HardTune) percent = Math.round(percent*2)/2;
+			}
+			if(this._pitchMode == "Wide") {
+				min = -24;
+				max = 24;
+				//If HardTune is enabled it restrict possible values to only 5
+				if(this._buttonStates.HardTune) percent = Math.round(percent*4)/4;
+			}
+		}
+		if(id === "gender") {
+			if(this._pitchMode == "Narrow") {
+				min = -12;
+				max = 12;
+			}
+			if(this._pitchMode == "Medium") {
+				min = -25;
+				max = 25;
+			}
+			if(this._pitchMode == "Wide") {
+				min = -50;
+				max = 50;
+			}
+		}
+		let value = Math.round(percent * (max - min) + min);
+		return this.execCommand(cmd, value);
+	}
+
+	/**
 	 * Sets the gender style
 	 * @param style 
 	 */
 	public setGenderStyle(style:"Narrow"|"Medium"|"Wide"):Promise<unknown> { return this.execCommand("SetGenderStyle", style); }
-
-	/**
-	 * Sets the gender effect amount
-	 * Between -12 and 12 for "Narrow" style
-	 * Between -25 and 25 for "Medium" style
-	 * Between -50 and 50 for "Wide" style
-	 * @param style 
-	 */
-	public setGenderAmount(style:number):Promise<unknown> { return this.execCommand("SetGenderAmount", style); }
 
 	/**
 	 * Sets the echo effect amount
@@ -141,13 +207,6 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param style 
 	 */
 	public setEchoStyle(style:"Quarter"|"Eighth"|"MultiTap"|"Triplet"|"PingPong"|"ClassicSlap"):Promise<unknown> { return this.execCommand("SetEchoStyle", style); }
-
-	/**
-	 * Sets the echo effect amount
-	 * Between 0 and 100
-	 * @param amount 
-	 */
-	public setEchoAmount(amount:number):Promise<unknown> { return this.execCommand("SetEchoAmount", amount); }
 
 	/**
 	 * Sets the echo effect left delay in milliseconds
@@ -204,12 +263,6 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param bmp
 	 */
 	public setEchoTempo(bpm:number):Promise<unknown> { return this.execCommand("SetEchoTempo", bpm); }
-
-	/**
-	 * Enable/Disable FX
-	 * @param enabled
-	 */
-	public setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
 	
 	
 	
@@ -262,10 +315,35 @@ export default class GoXLRSocket extends EventDispatcher {
 				const chunks = path.split("/");
 				for (let j = 0; j < chunks.length; j++) {
 					const c = chunks[j];
+
+					//Handle FX enable/disable
+					if(c == "effects" && chunks[j+1] === "is_enabled") {
+						const isEnabled = patch.value == true;
+						const type = isEnabled? GoXLRSocketEvent.FX_ENABLED : GoXLRSocketEvent.FX_DISABLED;
+						this.dispatchEvent(new GoXLRSocketEvent(type, this._currentFXIndex));
+					}
+
+					//Handle button press/release
 					if(c == "button_down") {
 						const isPressed = patch.value == true;
 						const type = isPressed? GoXLRSocketEvent.BUTTON_PRESSED : GoXLRSocketEvent.BUTTON_RELEASED;
-						this.dispatchEvent(new GoXLRSocketEvent(type, chunks[j+1] as GoXLRTypes.ButtonTypesData));
+						const buttonId = chunks[j+1] as GoXLRTypes.ButtonTypesData;
+						this._buttonStates[buttonId] = isPressed;
+						this.dispatchEvent(new GoXLRSocketEvent(type, buttonId));
+					}
+					
+					//Handle rotary buttons
+					if(["echo","gender","reverb","pitch"].indexOf(c)) {
+						const value = patch.value;
+						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ROTARY, c as GoXLRTypes.ButtonTypesData, value));
+					}
+
+					//Handle sampler playback complete
+					if(c == "sampler" && path.indexOf("is_playing") > -1) {
+						if(patch.value === true) continue;
+						const bankId = "Bank"+chunks[j+2] as Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">;
+						const buttonId = chunks[j+3] as Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
+						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, bankId, buttonId));
 					}
 				}
 			}
@@ -294,6 +372,41 @@ export default class GoXLRSocket extends EventDispatcher {
 				this._connecting = false;
 				this.connected = true;
 				this._autoReconnect = true;
+				const mixer = result.Status.mixers[this._deviceId];
+				if(mixer) {
+					this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
+					//Initialize buttons states
+					this._buttonStates.Bleep = mixer.button_down.Bleep;
+					this._buttonStates.Cough = mixer.button_down.Cough;
+					this._buttonStates.BankA = mixer.button_down.SamplerSelectA;
+					this._buttonStates.BankB = mixer.button_down.SamplerSelectB;
+					this._buttonStates.BankC = mixer.button_down.SamplerSelectA;
+					this._buttonStates.BottomLeft = mixer.button_down.SamplerBottomLeft;
+					this._buttonStates.BottomRight = mixer.button_down.SamplerBottomRight;
+					this._buttonStates.TopLeft = mixer.button_down.SamplerTopLeft;
+					this._buttonStates.TopRight = mixer.button_down.SamplerTopRight;
+					this._buttonStates.EffectSelect1 = mixer.button_down.EffectSelect1;
+					this._buttonStates.EffectSelect2 = mixer.button_down.EffectSelect2;
+					this._buttonStates.EffectSelect3 = mixer.button_down.EffectSelect3;
+					this._buttonStates.EffectSelect4 = mixer.button_down.EffectSelect4;
+					this._buttonStates.EffectSelect5 = mixer.button_down.EffectSelect5;
+					this._buttonStates.EffectSelect6 = mixer.button_down.EffectSelect6;
+					this._buttonStates.Fader1Mute = mixer.button_down.Fader1Mute;
+					this._buttonStates.Fader2Mute = mixer.button_down.Fader2Mute;
+					this._buttonStates.Fader3Mute = mixer.button_down.Fader3Mute;
+					this._buttonStates.Fader4Mute = mixer.button_down.Fader4Mute;
+					this._buttonStates.FX = mixer.button_down.EffectFx;
+					this._buttonStates.HardTune = mixer.button_down.EffectHardTune;
+					this._buttonStates.Robot = mixer.button_down.EffectRobot;
+					this._buttonStates.Megaphone = mixer.button_down.EffectMegaphone;
+					this._buttonStates.Clear = mixer.button_down.SamplerClear;
+					this._buttonStates.pitch = mixer.effects.current.pitch.amount;
+					this._buttonStates.gender = mixer.effects.current.gender.amount;
+					this._buttonStates.reverb = mixer.effects.current.reverb.amount;
+					this._buttonStates.echo = mixer.effects.current.echo.amount;
+					this._genderMode = mixer.effects.current.gender.style as "Narrow"|"Medium"|"Wide";
+					this._pitchMode = mixer.effects.current.pitch.style as "Narrow"|"Medium"|"Wide";
+				}
 				this._initResolver();
 			}
 			this._status = reactive(result.Status);

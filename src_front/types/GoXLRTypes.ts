@@ -504,6 +504,7 @@ export namespace GoXLRTypes {
 								"BankA", "BankB", "BankC",
 								"Megaphone", "Robot", "HardTune", "FX", 
 								"Bleep", "Cough",
+								"gender", "echo", "reverb", "pitch",
 								"TopLeft", "BottomLeft", "BottomRight", "TopRight", "Clear"] as const;
 	export type ButtonTypesData = typeof ButtonTypes[number];
 }

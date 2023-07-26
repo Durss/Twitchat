@@ -13,6 +13,8 @@
 		"click_source_obs":"An OBS source",
 		"click_source_area":"A custom area",
 		"obs_source":"OBS source",
+		"need_OBS":"This features needs you to connect with OBS.",
+		"need_OBS_connectBt":"Connect with OBS",
 		"overlay_spotify": {
 			"title": "Spotify overlay",
 			"description": "Send a message when Spotify overlay is clicked"
