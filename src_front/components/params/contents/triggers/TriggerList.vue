@@ -4,7 +4,7 @@
 
 		<SwitchButton v-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
-		<div class="list" v-show="filterState === false">
+		<div class="list" v-show="filterState === false" v-if="renderedList">
 			<template v-for="item in flatTriggerList">
 				<TriggerListItem
 					v-if="buildIndex >= item.index"
@@ -19,7 +19,7 @@
 			</template>
 		</div>
 		
-		<div class="list category" v-show="filterState === true" v-if="noEdit === false">
+		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="[cat.icon]">
@@ -73,6 +73,8 @@ export default class TriggerList extends Vue {
 	public triggerId!:string|null;
 
 	public filterState:boolean = true;
+	public renderedList:boolean = true;
+	public renderedCat:boolean = true;
 	public triggerCategories:TriggerListCategoryEntry[] = [];
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
@@ -139,6 +141,13 @@ export default class TriggerList extends Vue {
 	 * Populates the triggers list
 	 */
 	private populateTriggers():void {
+		if(!this.renderedList) {
+			this.renderedList = this.filterState === false;
+		}
+		if(!this.renderedCat) {
+			this.renderedCat = !this.renderedList;
+		}
+
 		//List all available trigger types
 		this.triggerTypeToInfo = {};
 		this.triggerCategories = [];
