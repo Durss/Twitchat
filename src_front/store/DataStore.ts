@@ -104,7 +104,7 @@ export default class DataStore {
 		this.ANNOUNCEMENTS_READ,
 		this.GOXLR_IP,
 		this.GOXLR_PORT,
-	]
+	];
 	
 	
 	/********************
@@ -267,10 +267,7 @@ export default class DataStore {
 			v = 41;
 		}
 		if(v==41) {
-			if(DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)){
-				//Fix typing for AJV
-				DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
-			}
+			this.fixCommandsBlockListDefaultValue(data);
 			v = latestVersion;
 		}
 
@@ -857,7 +854,6 @@ export default class DataStore {
 				data[DataStore.VOICEMOD_PARAMS] = voicemod;
 			}
 		}
-
 	}
 
 	/**
@@ -1250,5 +1246,22 @@ export default class DataStore {
 		cols.forEach(v=>v.filters.hype_chat = true);
 		data[DataStore.CHAT_COLUMNS_CONF] = cols;
 
+	}
+
+	/**
+	 * For some users the "commandsBlockList" value is "" instead of []
+	 */
+	private static fixCommandsBlockListDefaultValue(data:any):void {
+		const confs:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+		if(confs) {
+			for (let i = 0; i < confs.length; i++) {
+				const c = confs[i];
+				//@ts-ignore
+				if(c.commandsBlockList == "")  c.commandsBlockList = [];
+				//@ts-ignore
+				if(c.userBlockList == "")  c.userBlockList = [];
+			}
+			data[DataStore.CHAT_COLUMNS_CONF] = confs;
+		}
 	}
 }

@@ -223,7 +223,7 @@ import Ajv from "ajv";
 								text: {type:"string", maxLength:500},
 								url: {type:"string", maxLength:1000},
 								mediaPath: {type:"string", maxLength:1000},
-								type: {type:"string", maxLength:50},
+								type: {type:"string", maxLength:50, nullable: true},
 								musicAction: {type:"string", maxLength:3},
 								track: {type:"string", maxLength:500},
 								confirmMessage: {type:"string", maxLength:500},
@@ -554,7 +554,7 @@ import Ajv from "ajv";
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"integer", minimum:-1, maximum:10},
-		rightClickHintPrompt: {type:"boolean"},
+		rightClickHintPrompt: {type:"string", maxLength:5},
 		triggerSortType: {type:"string", maxLength:20},
 		ululeProject: {type:"string", maxLength:200},
 		ululeGoals: {type:"string", maxLength:200},
@@ -855,7 +855,7 @@ import Ajv from "ajv";
 				properties:{
 					id: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:50},
-					placeholderKey: {type:"string", maxLength:15},
+					placeholderKey: {type:"string", maxLength:30},
 					value: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[
