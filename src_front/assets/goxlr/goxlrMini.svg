@@ -1,0 +1,379 @@
+
+<svg id= "GoXLR" data-name="Layer 2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 321.12 419.82">
+  <defs>
+    <!-- Baseplate -->
+    <linearGradient id="BaseplateGradient" x1="161.83" y1="11.33" x2="161.83" y2="396.56" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1d1d1d"/>
+      <stop offset=".7" stop-color="#1d1d1d"/>
+      <stop offset="1" stop-color="#212121"/>
+    </linearGradient>
+
+    <linearGradient id="Fader1Gradient" x1="68.47" x2="68.47" xlink:href="#Fader4Gradient"/>
+    <linearGradient id="Fader2Gradient" x1="130.38" x2="130.38" xlink:href="#Fader4Gradient"/>
+    <linearGradient id="Fader3Gradient" x1="192.22" x2="192.22" xlink:href="#Fader4Gradient"/>
+    <linearGradient id="Fader4Gradient" x1="254.13" y1="223.89" x2="254.13" y2="283.2" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#8a8a89"/>
+      <stop offset=".13" stop-color="#646464"/>
+      <stop offset=".17" stop-color="#949494"/>
+      <stop offset=".21" stop-color="#494949"/>
+      <stop offset=".48" stop-color="#707070"/>
+      <stop offset=".49" stop-color="#666"/>
+      <stop offset=".5" stop-color="#5e5e5e"/>
+      <stop offset=".51" stop-color="#686868"/>
+      <stop offset=".52" stop-color="#737373"/>
+      <stop offset=".77" stop-color="#6d6d6d"/>
+      <stop offset=".81" stop-color="#878787"/>
+      <stop offset=".84" stop-color="#4c4c4c"/>
+      <stop offset="1" stop-color="#515151"/>
+    </linearGradient>
+  </defs>
+  <g id="GoXLR">
+    <g id="backplate">
+      <polygon points="0 380.94 43.62 419.82 277.5 419.82 321.12 380.94 321.12 13.43 307.53 0 13.57 0 0 13.43 0 380.94" style="fill: #282828;"/>
+      <polygon points="278.21 407.76 321.12 366.06 321.12 13.43 307.53 0 13.57 0 0 13.43 0 366.06 42.9 407.76 278.21 407.76" style="fill: #222;"/>
+      <polygon points="11.58 361.7 47.56 397.2 273.61 397.2 309.47 361.7 309.47 17.06 303.02 10.6 18.08 10.6 11.58 17.06 11.58 361.7"/>
+      <rect x="43.62" y="408.51" width="233.87" height="11.31" style="fill: #040404;"/>
+      <polygon points="0 369.64 20.74 390.12 20.03 392.97 2.85 378.11 0 379.54 0 369.64" style="fill: #040404;"/>
+      <polygon points="321.12 369.64 300.39 390.12 301.08 392.97 318.28 378.11 321.12 379.54 321.12 369.64" style="fill: #040404;"/>
+      <polygon points="13.41 361.18 49.26 396.56 274.51 396.56 310.24 361.18 310.24 17.76 303.82 11.33 19.89 11.33 13.41 17.76 13.41 361.18" style="fill: url(#BaseplateGradient);"/>
+    </g>
+    <g id="faceplate">
+      <g id="Logo">
+        <path d="m203.07,29.72h17.93s4.24.91,4.24,4.5v4.17c0,2.4-2.1,4.99-4.24,4.99s-.74.89-.74.89c0,0,4.98,2.93,4.98,4.45v3.19h-4.24v-2.28c-.06-1.81-5.19-5.36-7.59-5.36s-6.17,0-6.17,0v-3.44h7.76l4.27-.04c1.73,0,1.73-2.47,1.73-2.53v-2.56s0-2.63-1.73-2.63h-12.03v18.84h-4.17v-22.19Z" style="fill: #fff;"/>
+        <path d="m180.23,29.49h4.32v14.56s-.41,5.11,5.11,5.11,11.95,0,11.95,0v3.42h-11.95s-9.43,1.03-9.43-8.53v-14.56Z" style="fill: #fff;"/>
+        <path d="m175.7,24.17c.7-.7,1.84-.7,2.55,0,.7.7.7,1.84,0,2.55l-11.67,11.67c-.7.7-1.84.7-2.55,0-.7-.7-.7-1.84,0-2.55l11.67-11.67Zm-31.32,0c-.7.7-.7,1.84,0,2.55l11.67,11.67c.7.7,1.84.7,2.55,0,.7-.7.7-1.84,0-2.55l-11.67-11.67c-.7-.7-1.84-.7-2.55,0Zm19.64,19.64c-.7.7-.7,1.84,0,2.55l11.67,11.67c.7.7,1.84.7,2.55,0,.7-.7.7-1.84,0-2.55l-11.67-11.67c-.7-.7-1.84-.7-2.55,0h0Zm-5.42,0c-.7-.7-1.84-.7-2.55,0l-11.67,11.67c-.7.7-.7,1.84,0,2.55.7.7,1.84.7,2.55,0l11.67-11.67c.7-.7.7-1.84,0-2.55h0Z" style="fill: currentColor; fill-rule: evenodd;"/>
+        <path d="m130.91,29.44c-6.35,0-11.49,5.15-11.49,11.49s5.15,11.49,11.49,11.49,11.49-5.15,11.49-11.49-5.15-11.49-11.49-11.49Zm0,19.3c-4.29,0-7.77-3.48-7.77-7.77s3.48-7.77,7.77-7.77,7.77,3.48,7.77,7.77-3.48,7.77-7.77,7.77Z" style="fill: #fff;"/>
+        <path d="m106.81,47.97h7.74v-5.11h-6.89v-3.44h10.3v12.83h-6.83s-2.82,0-4.32,0c-5.98,0-10.24-4.56-10.24-8.52,0-.87,0-4.35,0-5.13s.45-9.48,10.24-9.48h11.15v4.25h-11.15s-5.98,0-5.98,5.23v4.26c0,5.11,5.98,5.11,5.98,5.11" style="fill: #fff;"/>
+      </g>
+      <g style="fill: none; isolation: isolate;">
+        <g style="fill: none; isolation: isolate;">
+          <path d="m131.29,391.13c-1.76,0-2.6-.89-2.6-2.64v-5.47h2v5.28c0,.72.34,1.09,1.03,1.09h5.88v-6.37h1.95v8.11h-8.26Z" style="fill: #fff;"/>
+          <path d="m144.91,391.13v-6.38h-4.43v-1.73h10.84v1.73h-4.45v6.38h-1.96Z" style="fill: #fff;"/>
+          <path d="m152.23,391.13v-8.11h1.97v8.11h-1.97Z" style="fill: #fff;"/>
+          <path d="m158.08,391.13c-1.77,0-2.6-.87-2.6-2.64v-5.47h1.97v5.28c0,.72.34,1.09,1.04,1.09h6.36v1.74h-6.78Z" style="fill: #fff;"/>
+          <path d="m165.79,391.13v-8.11h1.97v8.11h-1.97Z" style="fill: #fff;"/>
+          <path d="m173.1,391.13v-6.38h-4.43v-1.73h10.84v1.73h-4.45v6.38h-1.96Z" style="fill: #fff;"/>
+          <path d="m185.38,391.13v-2.65l-5.52-5.46h2.54l4,4.01,3.99-4.01h2.44l-5.47,5.49v2.62h-1.97Z" style="fill: #fff;"/>
+        </g>
+      </g>
+    </g>
+    <g class="selection">
+      <g id="channels">
+        <rect id="Fader4Mute" x="222.8" y="61.93" width="61.91" height="278.7" rx="2.47" ry="2.47" style="fill: rgba(255, 255, 255, .15); stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <rect id="Fader3Mute" x="160.96" y="61.93" width="61.84" height="278.7" rx="2.47" ry="2.47" style="fill: rgba(255, 255, 255, .15); stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <path id="Fader2Mute" d="m158.48,340.63l-56.97-.02c-1.37,0-2.47-1.11-2.47-2.47V64.4c0-1.37,1.11-2.47,2.47-2.47h56.97c1.37,0,2.47,1.11,2.47,2.47v273.75c0,1.37-1.11,2.47-2.47,2.47Z" style="fill: rgba(255, 255, 255, .15); stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <path id="Fader1Mute" d="m39.61,340.61l56.97-.02c1.37,0,2.47-1.11,2.47-2.47V64.4c0-1.37-1.11-2.47-2.47-2.47h-56.97c-1.37,0-2.47,1.11-2.47,2.47v273.74c0,1.37,1.11,2.47,2.47,2.47Z" style="fill: rgba(255, 255, 255, .15); stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+      </g>
+    </g>
+    <g class="area">
+      <g class="cough">
+        <g id="Cough">
+          <rect x="196.53" y="346.07" width="52.9" height="29.9" rx="1.37" ry="1.37" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+          <path d="m216.26,354.88c-.25-.19-.61-.15-.8.1-.19.25-.15.61.1.8l14.08,11.03c.25.19.61.15.8-.1s.15-.61-.1-.8l-3.75-2.94s-.02-.03,0-.04c.35-.61.55-1.32.55-2.08v-.95c0-.32-.25-.57-.57-.57s-.57.25-.57.57v.95c0,.5-.12.98-.34,1.4l-.42-.33v-4.71c0-1.21-.87-2.33-2.08-2.44-1.35-.12-2.49.95-2.49,2.27v1.29l-4.4-3.45Zm7.26,10.11c.49-.07.94-.22,1.36-.43l-1.01-.8s-.02,0-.03,0c-.34.1-.71.15-1.09.12-1.63-.1-2.85-1.58-2.85-3.21h0s0-.04-.01-.04l-1.11-.88s-.02.09-.02.14v.95c0,2.12,1.57,3.87,3.61,4.15v.8h-1.14c-.32,0-.57.25-.57.57s.25.57.57.57h3.42c.32,0,.57-.25.57-.57s-.25-.57-.57-.57h-1.14v-.8Z" style="fill: currentColor;"/>
+        </g>
+        <g id="Bleep">
+          <rect x="72.8" y="346.07" width="52.9" height="29.9" rx="1.37" ry="1.37" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+          <text transform="translate(85.84 364.02)" style="fill: currentColor; font-family: ropa-sans-regular; font-size: 9px;"><tspan x="0" y="0">!@#$?*</tspan></text>
+        </g>
+      </g>
+      <g class="mixer">
+        <g id="Channel4">
+          <g class="rail">
+            <path d="m253.84,267.61h-.22c-2.01,0-3.63-1.63-3.63-3.63V98.76c0-2.01,1.63-3.63,3.63-3.63h0c2,0,3.63,1.62,3.63,3.63l.22,165.21c0,2.01-1.62,3.64-3.63,3.64Z" style="fill: #0c0c0c;"/>
+            <line x1="253.93" y1="99.64" x2="253.93" y2="263.8" style="fill: none; stroke: #000; stroke-miterlimit: 10;"/>
+            <rect id="Fader" x="240.3" y="223.89" width="27.66" height="59.31" rx="2.38" ry="2.38" style="fill: url(#Fader4Gradient);"/>
+          </g>
+          <g class="level">
+            <g id="Level1">
+              <rect x="268.77" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="229" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level2">
+              <rect x="229" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level3">
+              <rect x="229" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level4">
+              <rect x="229" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level5">
+              <rect x="229" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level6">
+              <rect x="229" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level7">
+              <rect x="229" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level8">
+              <rect x="229" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level9">
+              <rect x="229" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level10">
+              <rect x="229" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level11">
+              <rect x="229" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level12">
+              <rect x="229" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level13">
+              <rect x="229" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level14">
+              <rect x="229" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level15">
+              <rect x="229" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="268.77" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+          </g>
+          <g id="Fader4Mute">
+            <rect x="228.59" y="306.84" width="50.34" height="28.31" rx="1.68" ry="1.68" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+            <path d="m254.11,315.11c.31.14.5.44.5.78v10.21c0,.34-.2.64-.5.78s-.66.08-.91-.14l-3.59-3.19h-1.8c-.94,0-1.7-.76-1.7-1.7v-1.7c0-.94.76-1.7,1.7-1.7h1.8l3.59-3.19c.25-.22.61-.28.91-.14Zm3.3,3.52l1.46,1.46,1.46-1.46c.25-.25.65-.25.9,0s.25.65,0,.9l-1.46,1.46,1.46,1.46c.25.25.25.65,0,.9s-.65.25-.9,0l-1.46-1.46-1.46,1.46c-.25.25-.65.25-.9,0s-.25-.65,0-.9l1.46-1.46-1.46-1.46c-.25-.25-.25-.65,0-.9s.65-.25.9,0Z" style="fill: currentColor;"/>
+          </g>
+          <text transform="translate(240.82 76.66) scale(1.05 1)" style="fill: #565656; font-family: ropa-sans-regular; font-size: 9px;"><tspan x="0" y="0">System</tspan></text>
+        </g>
+        <g id="Channel3">
+          <g class="rail">
+            <path d="m191.93,267.61h-.22c-2.01,0-3.63-1.63-3.63-3.63V98.76c0-2.01,1.63-3.63,3.63-3.63h0c2,0,3.63,1.62,3.63,3.63l.22,165.21c0,2.01-1.62,3.64-3.63,3.64Z" style="fill: #0c0c0c;"/>
+            <line x1="192.02" y1="99.64" x2="192.02" y2="263.8" style="fill: none; stroke: #000; stroke-miterlimit: 10;"/>
+            <rect id="Fader" x="178.39" y="223.89" width="27.66" height="59.31" rx="2.38" ry="2.38" style="fill: url(#Fader3Gradient);"/>
+          </g>
+          <g class="level">
+            <g id="Level1">
+              <rect x="206.85" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="167.09" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level2">
+              <rect x="167.09" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level3">
+              <rect x="167.09" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level4">
+              <rect x="167.09" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level5">
+              <rect x="167.09" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level6">
+              <rect x="167.09" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level7">
+              <rect x="167.09" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level8">
+              <rect x="167.09" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level9">
+              <rect x="167.09" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level10">
+              <rect x="167.09" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level11">
+              <rect x="167.09" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level12">
+              <rect x="167.09" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level13">
+              <rect x="167.09" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level14">
+              <rect x="167.09" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level15">
+              <rect x="167.09" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="206.85" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+          </g>
+          <g id="Fader3Mute">
+            <rect x="166.68" y="306.84" width="50.34" height="28.31" rx="1.68" ry="1.68" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+            <path d="m192.2,315.11c.31.14.5.44.5.78v10.21c0,.34-.2.64-.5.78s-.66.08-.91-.14l-3.59-3.19h-1.8c-.94,0-1.7-.76-1.7-1.7v-1.7c0-.94.76-1.7,1.7-1.7h1.8l3.59-3.19c.25-.22.61-.28.91-.14Zm3.3,3.52l1.46,1.46,1.46-1.46c.25-.25.65-.25.9,0s.25.65,0,.9l-1.46,1.46,1.46,1.46c.25.25.25.65,0,.9s-.65.25-.9,0l-1.46-1.46-1.46,1.46c-.25.25-.65.25-.9,0s-.25-.65,0-.9l1.46-1.46-1.46-1.46c-.25-.25-.25-.65,0-.9s.65-.25.9,0Z" style="fill: currentColor;"/>
+          </g>
+          <text transform="translate(181.9 76.66) scale(1.05 1)" style="fill: #565656; font-family: ropa-sans-regular; font-size: 9px;"><tspan x="0" y="0">Music</tspan></text>
+        </g>
+        <g id="Channel2">
+          <g class="rail">
+            <path d="m130.08,267.61h-.22c-2.01,0-3.63-1.63-3.63-3.63V98.76c0-2.01,1.63-3.63,3.63-3.63h0c2,0,3.63,1.62,3.63,3.63l.22,165.21c0,2.01-1.62,3.64-3.63,3.64Z" style="fill: #0c0c0c;"/>
+            <line x1="130.18" y1="99.64" x2="130.18" y2="263.8" style="fill: none; stroke: #000; stroke-miterlimit: 10;"/>
+            <rect id="Fader" x="116.55" y="223.89" width="27.66" height="59.31" rx="2.38" ry="2.38" style="fill: url(#Fader2Gradient);"/>
+          </g>
+          <g class="level">
+            <g id="Level1">
+              <rect x="145.01" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="105.24" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level2">
+              <rect x="105.24" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level3">
+              <rect x="105.24" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level4">
+              <rect x="105.24" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level5">
+              <rect x="105.24" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level6">
+              <rect x="105.24" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level7">
+              <rect x="105.24" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level8">
+              <rect x="105.24" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level9">
+              <rect x="105.24" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level10">
+              <rect x="105.24" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level11">
+              <rect x="105.24" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level12">
+              <rect x="105.24" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level13">
+              <rect x="105.24" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level14">
+              <rect x="105.24" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level15">
+              <rect x="105.24" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="145.01" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+          </g>
+          <g id="Fader2Mute">
+            <rect x="104.83" y="306.84" width="50.34" height="28.31" rx="1.68" ry="1.68" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+            <path d="m130.35,315.11c.31.14.5.44.5.78v10.21c0,.34-.2.64-.5.78s-.66.08-.91-.14l-3.59-3.19h-1.8c-.94,0-1.7-.76-1.7-1.7v-1.7c0-.94.76-1.7,1.7-1.7h1.8l3.59-3.19c.25-.22.61-.28.91-.14Zm3.3,3.52l1.46,1.46,1.46-1.46c.25-.25.65-.25.9,0s.25.65,0,.9l-1.46,1.46,1.46,1.46c.25.25.25.65,0,.9s-.65.25-.9,0l-1.46-1.46-1.46,1.46c-.25.25-.65.25-.9,0s-.25-.65,0-.9l1.46-1.46-1.46-1.46c-.25-.25-.25-.65,0-.9s.65-.25.9,0Z" style="fill: currentColor;"/>
+          </g>
+          <text transform="translate(122.09 76.66) scale(1.05 1)" style="fill: #565656; font-family: ropa-sans-regular; font-size: 9px;"><tspan x="0" y="0">Chat</tspan></text>
+        </g>
+        <g id="Channel1">
+          <g class="rail">
+            <path d="m68.17,267.61h-.22c-2.01,0-3.63-1.63-3.63-3.63V98.76c0-2.01,1.63-3.63,3.63-3.63h0c2,0,3.63,1.62,3.63,3.63l.22,165.21c0,2.01-1.62,3.64-3.63,3.64Z" style="fill: #0c0c0c;"/>
+            <line x1="68.27" y1="99.64" x2="68.27" y2="263.8" style="fill: none; stroke: #000; stroke-miterlimit: 10;"/>
+            <rect id="Fader" x="54.63" y="223.89" width="27.66" height="59.31" rx="2.38" ry="2.38" style="fill: url(#Fader1Gradient);"/>
+          </g>
+          <g class="level">
+            <g id="Level1">
+              <rect x="83.1" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="43.33" y="250.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level2">
+              <rect x="43.33" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="239.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level3">
+              <rect x="43.33" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="229.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level4">
+              <rect x="43.33" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="218.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level5">
+              <rect x="43.33" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="208.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level6">
+              <rect x="43.33" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="197.84" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level7">
+              <rect x="43.33" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="187.34" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level8">
+              <rect x="43.33" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="176.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level9">
+              <rect x="43.33" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="166.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level10">
+              <rect x="43.33" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="155.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level11">
+              <rect x="43.33" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="145.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level12">
+              <rect x="43.33" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="134.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level13">
+              <rect x="43.33" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="124.35" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level14">
+              <rect x="43.33" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="113.85" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+            <g id="Level15">
+              <rect x="43.33" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+              <rect x="83.1" y="103.36" width="10.5" height="6.02" style="fill: currentColor;"/>
+            </g>
+          </g>
+          <g id="Fader1Mute">
+            <rect x="42.92" y="306.84" width="50.34" height="28.31" rx="1.68" ry="1.68" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+            <path d="m68.44,315.11c.31.14.5.44.5.78v10.21c0,.34-.2.64-.5.78s-.66.08-.91-.14l-3.59-3.19h-1.8c-.94,0-1.7-.76-1.7-1.7v-1.7c0-.94.76-1.7,1.7-1.7h1.8l3.59-3.19c.25-.22.61-.28.91-.14Zm3.3,3.52l1.46,1.46,1.46-1.46c.25-.25.65-.25.9,0s.25.65,0,.9l-1.46,1.46,1.46,1.46c.25.25.25.65,0,.9s-.65.25-.9,0l-1.46-1.46-1.46,1.46c-.25.25-.65.25-.9,0s-.25-.65,0-.9l1.46-1.46-1.46-1.46c-.25-.25-.25-.65,0-.9s.65-.25.9,0Z" style="fill: currentColor;"/>
+          </g>
+          <text transform="translate(62.24 76.66) scale(1.05 1)" style="fill: #565656; font-family: ropa-sans-regular; font-size: 9px;"><tspan x="0" y="0">Mic</tspan></text>
+        </g>
+      </g>
+    </g>
+  </g>
+</svg>

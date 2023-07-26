@@ -15,7 +15,7 @@
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
@@ -27,7 +27,7 @@
 					</div>
 
 					<div class="announcement" v-if="announcement">
-						<button class="closeBt" type="button" @click="closeAnnouncement()"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="closeAnnouncement()"><Icon name="cross"/></button>
 						<div class="content">
 							<span class="title">
 								<Icon name="alert" />
@@ -958,7 +958,7 @@ export default class ChatForm extends Vue {
 						height: 1.5em;
 						min-width: 1.5em;
 						min-height: 1.5em;
-						img {
+						.icon {
 							display: block;
 							width: 100%;
 							height: 100%;

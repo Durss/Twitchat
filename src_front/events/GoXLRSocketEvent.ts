@@ -19,7 +19,7 @@ export default class GoXLRSocketEvent extends Event {
 	 * BUTTON_PRESSED
 	 * BUTTON_RELEASED
 	 */
-	public button?:GoXLRTypes.ButtonTypesData;
+	public buttonId?:GoXLRTypes.ButtonTypesData;
 	/**
 	 * Enabled/disabled FX index (0->5)
 	 * Only for those events:
@@ -44,13 +44,13 @@ export default class GoXLRSocketEvent extends Event {
 	 * Only for those events:
 	 * SAMPLE_PLAYBACK_COMPLETE
 	 */
-	public bankId?:number;
+	public bankId?:Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">;
 	/**
 	 * Contains the id of the sampler button that started playback
 	 * Only for those events:
 	 * SAMPLE_PLAYBACK_COMPLETE
 	 */
-	public buttonId?:number;
+	public samplerButtonId?:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
 	
 	constructor(eventType:"ROTARY", rotaryId:GoXLRTypes.ButtonTypesData, rotaryValue:number);
 	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">);
@@ -64,7 +64,7 @@ export default class GoXLRSocketEvent extends Event {
 		}
 
 		if(["BUTTON_PRESSED","BUTTON_RELEASED"].indexOf(event) > -1) {
-			this.button = params[1];
+			this.buttonId = params[1];
 		}
 
 		if(event == "ROTARY") {
@@ -74,7 +74,7 @@ export default class GoXLRSocketEvent extends Event {
 
 		if(event == "SAMPLE_PLAYBACK_COMPLETE") {
 			this.bankId = params[1];
-			this.buttonId = params[2];
+			this.samplerButtonId = params[2];
 		}
 	}
 	

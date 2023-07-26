@@ -17,19 +17,20 @@
 
 		<div class="fadeHolder" :style="holderStyles">
 			<GoXLRConnectForm />
+		</div>
 
+		<div class="fadeHolder" :style="subholderStyles">
 			<section class="card-item alert error" v-if="connected && noDevice">
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
-			<div class="card-item">
+			<div class="card-item" v-if="!noDevice && !isGoXLRMini">
 				Scroll any chat column by using one of the four knobs.
 				Select a knob and give it a chat column index to scroll.
 				If you want that knob to control chat only when on a specific FX preset, select a preset as well
-				<GoXLRUI knobMode />
+				<GoXLRUI knobMode childMode />
 			</div>
-
-
+	
 			<section class="card-item info">
 				<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
 				<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
@@ -83,9 +84,16 @@ export default class ParamsGoXLR extends Vue {
 		};
 	}
 
-	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
+	public get subholderStyles():StyleValue {
+		return {
+			opacity:this.connected === true && !this.connecting? 1 : .35,
+			pointerEvents:this.connected === true && !this.connecting? "all" : "none",
+		};
+	}
 
+	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
 	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
+	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public mounted():void {
 		this.param_enabled.value = DataStore.get(DataStore.GOXLR_ENABLED) === "true";

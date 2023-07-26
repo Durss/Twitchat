@@ -107,6 +107,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 @Component({
 	components:{
@@ -143,6 +144,8 @@ export default class TriggerCreateForm extends Vue {
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 
+	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
+
 	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
 
 	/**
@@ -177,6 +180,7 @@ export default class TriggerCreateForm extends Vue {
 
 	public beforeMount():void {
 		const triggers = TriggerTypesDefinitionList().concat();
+		//Create button/display data for all available triggers
 		this.triggerTypeList = triggers.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
@@ -186,6 +190,8 @@ export default class TriggerCreateForm extends Vue {
 				isCategory:false,
 			}
 		});
+		
+		//Remove affiliates-only triggers if not affiliate or partner
 		if(!this.$store("auth").twitch.user.is_affiliate && !this.$store("auth").twitch.user.is_partner) {
 			this.triggerTypeList = this.triggerTypeList.filter(v=> {
 				return v.value != TriggerTypes.REWARD_REDEEM
@@ -193,7 +199,13 @@ export default class TriggerCreateForm extends Vue {
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 			})
 		}
+
+		//Remove GoXLR Full specifi triggers if a mini is connected
+		if(this.isGoxlrMini) {
+			this.triggerTypeList = this.triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
+		}
 		
+		//Extract available trigger categories
 		let currCat = this.triggerTypeList[0].trigger!.category;
 		let catEvents:TriggerTypeDefinition[] = [];
 		for (let i = 0; i < this.triggerTypeList.length; i++) {
@@ -212,6 +224,7 @@ export default class TriggerCreateForm extends Vue {
 			currCat = ev.trigger.category
 		}
 
+		//Add cetegories in the trigger list at the proper places
 		let prevCategrory:TriggerEventTypeCategoryID|null = null;
 		for (let i = 0; i < this.triggerTypeList.length; i++) {
 			const t = this.triggerTypeList[i];

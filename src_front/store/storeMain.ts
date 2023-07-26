@@ -484,7 +484,7 @@ export const storeMain = defineStore("main", {
 						date:Date.now(),
 						platform:"twitchat",
 						pressed:event.type == GoXLRSocketEvent.BUTTON_PRESSED,
-						button:event.button!,
+						button:event.buttonId!,
 						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
 					}
 					TriggerActionHandler.instance.execute(message);
@@ -508,6 +508,17 @@ export const storeMain = defineStore("main", {
 				}
 				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
 				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
+				HeatSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
+					const message:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
+						bank:e.bankId!,
+						buttonId:e.samplerButtonId!,
+					}
+					TriggerActionHandler.instance.execute(message);
+				});
 
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
 					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );

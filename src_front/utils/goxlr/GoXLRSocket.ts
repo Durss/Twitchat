@@ -43,7 +43,7 @@ export default class GoXLRSocket extends EventDispatcher {
 
 	public get status():GoXLRTypes.Mixer|null { return this._status? this._status.mixers[this._deviceId] : null; }
 
-	public get isGoXLRMini():boolean { return this.status?.hardware.device_type == "Mini"; }
+	public get isGoXLRMini():boolean { return this.status?.hardware.device_type == "Mini" || true; }
 	
 	public get fxEnabled():boolean { return this.status?.effects.is_enabled || false; }
 	
@@ -127,7 +127,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	public setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
 
 	/**
-	 * Set the value of a rotary button in eprcent.
+	 * Set the value of a rotary button in percent.
 	 * 
 	 * Actual values for reverb and echo knobs:
 	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -138,8 +138,8 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
 	 * Narrow:	-12 => 12
 	 * Wide:	-24 => 24
-	 * Narrow + hard tune:	-12, 0 or 12
-	 * Wide + hard tune:	-24, 0 or 24
+	 * Narrow + hard tune:	[-12, 0, 12]
+	 * Wide + hard tune:	[-24, -12, 0, 12, 24]
 	 * 
 	 * 
 	 * Actual values for gender knob:

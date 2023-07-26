@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="goxlrconnectform" :title="$t('goxlr.connect_form.title')">
+	<ToggleBlock class="goxlrconnectform" :title="$t('goxlr.connect_form.title')" :open="opened">
 		<form @submit.prevent="connect()" v-if="!connected">
 			<ParamItem :paramData="param_ip" @change="onIpChange()" />
 			<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
@@ -43,6 +43,7 @@ import PatreonHelper from '@/utils/patreon/PatreonHelper';
 export default class GoXLRConnectForm extends Vue {
 
 	public error:boolean = false;
+	public opened:boolean = true;
 	public fxEnabled:boolean = false;
 	public connecting:boolean = false;
 	public securityWarning:boolean = false;
@@ -70,6 +71,10 @@ export default class GoXLRConnectForm extends Vue {
 			this.selectedPresetIndex = parseInt(state.effects.active_preset.replace(/\D/gi, ""));
 		}
 		this.connecting = false;
+	}
+
+	public beforeMount():void {
+		this.opened = !this.connected;
 	}
 
 	public disconnect():void {

@@ -26,6 +26,9 @@ export default class GoXLRUI extends Vue {
 	@Prop({type:Boolean, default:false})
 	public samplerMode!:boolean;
 
+	@Prop({type:Boolean, default:false})
+	public childMode!:boolean;
+
 	public svg:string = "";
 	public error:boolean = false;
 
@@ -43,20 +46,10 @@ export default class GoXLRUI extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		this.allowedButtons = [...GoXLRTypes.ButtonTypes];
 		this.selectedButtons = this.modelValue;
-
-		if(this.knobMode !== false) {
-			this.allowedButtons = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6", 
-									"echo", "gender", "pitch", "reverb"];
-		}
-
-		if(this.samplerMode !== false) {
-			this.allowedButtons = ["BankA", "BankB", "BankC", 
-									"TopLeft", "TopRight", "BottomLeft", "BottomRight", "Clear"];
-		}
 		
-		const imgRes = await fetch(this.$image("goxlr/goxlr.svg"));
+		const name = GoXLRSocket.instance.isGoXLRMini? "goxlrMini" : "goxlr";
+		const imgRes = await fetch(this.$image("goxlr/"+name+".svg"));
 		if(imgRes.status <200 || imgRes.status > 204) {
 			this.error = true;
 		}else{
@@ -96,7 +89,7 @@ export default class GoXLRUI extends Vue {
 			//A button is pressed or release, set its highlight state accordingly
 			case GoXLRSocketEvent.BUTTON_PRESSED:
 			case GoXLRSocketEvent.BUTTON_RELEASED: {
-				const bt = e.button!;
+				const bt = e.buttonId!;
 				const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
 				if(!item) return;
 				if(e.type == GoXLRSocketEvent.BUTTON_PRESSED) {
@@ -140,12 +133,12 @@ export default class GoXLRUI extends Vue {
 			if(id != null) {
 
 				//Unselect any previously selected FX preset if in knobMode
-				if(this.knobMode !== false && id?.indexOf("EffectSelect") === 0) {
+				if((this.knobMode !== false || this.childMode !== false) && id?.indexOf("EffectSelect") === 0) {
 					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("EffectSelect") || v == id);
 				}
 
 				//Unselect any previously selected bank  if in knobMode
-				if(this.samplerMode !== false && id?.indexOf("Bank") === 0) {
+				if((this.samplerMode !== false || this.childMode !== false) && id?.indexOf("Bank") === 0) {
 					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("Bank") || v == id);
 				}
 
@@ -169,6 +162,25 @@ export default class GoXLRUI extends Vue {
 	 */
 	private setButtonStates():void {
 		const holder = this.$refs.svgHolder as HTMLDivElement;
+		this.allowedButtons = [...GoXLRTypes.ButtonTypes];
+
+		if(this.knobMode !== false) {
+			this.allowedButtons = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
+			if(this.childMode === false || /EffectSelect[0-9]/.test(this.selectedButtons.join(","))) {
+				this.allowedButtons.push("echo", "gender", "pitch", "reverb");
+			}
+		}else if(!/EffectSelect[0-9]/.test(this.selectedButtons.join(","))) {
+			this.allowedButtons = this.allowedButtons.filter(v=> v != "echo" && v != "gender" && v != "pitch" && v != "reverb");
+		}
+
+		if(this.samplerMode !== false) {
+			this.allowedButtons = ["BankA", "BankB", "BankC"];
+			if(this.childMode === false || /Bank(A|B|C)/.test(this.selectedButtons.join(","))) {
+				this.allowedButtons.push("TopLeft", "TopRight", "BottomLeft", "BottomRight", "Clear");
+			}
+		}else if(!/Bank(A|B|C)/.test(this.selectedButtons.join(","))) {
+			this.allowedButtons = this.allowedButtons.filter(v=> v != "TopLeft" && v != "TopRight" && v != "BottomLeft" && v != "BottomRight" && v != "Clear");
+		}
 		
 		//Set "disabled" class to buttons not on the "allowedButtons" list
 		for (let i = 0; i < GoXLRTypes.ButtonTypes.length; i++) {
@@ -223,6 +235,7 @@ export default class GoXLRUI extends Vue {
 			color: var(--color-primary-light);
 			width: 100%;
 			height: auto;
+			max-height: 400px;
 			.selection {
 				.presets {
 					#EffectSelect1, #EffectSelect2, #EffectSelect3, #EffectSelect4, #EffectSelect5, #EffectSelect6 {
@@ -258,7 +271,7 @@ export default class GoXLRUI extends Vue {
 						fill: #333;
 					}
 
-					&.selected {
+					&.selected:not(.disabled) {
 						color:var(--color-light);
 						fill:var(--color-secondary);
 						background-color:var(--color-secondary);
