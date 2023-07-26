@@ -525,6 +525,13 @@ export default class ChatForm extends Vue {
 				if(onlyImportant && a.important !== true) continue;
 				this.announcement = json[i];
 			}
+			//Remove ids from old deleted messages to avoid keeping useless data on localstorage
+			Object.keys(history).forEach(id => {
+				if(json.findIndex(v=>v.id == id) == -1) {
+					delete history[id];
+				}
+			});
+			DataStore.set(DataStore.ANNOUNCEMENTS_READ, history);
 		}
 	}
 
