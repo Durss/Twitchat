@@ -67,7 +67,7 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	 public onPlaceholderUpdate(placeholders:ITriggerPlaceholder[]):void {
+	 public onPlaceholderUpdate(placeholders:ITriggerPlaceholder<any>[]):void {
 		if(!this.vmConnected) return;
 
 		//Add an entry per voice filter

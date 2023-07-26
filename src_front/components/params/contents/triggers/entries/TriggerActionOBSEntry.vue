@@ -82,7 +82,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		return /\{[^ }]+\}/gi.test(this.media_conf.value);
 	} 
 
-	public getHelpers(key:TriggerTypesValue):ITriggerPlaceholder[] { return TriggerEventPlaceholders(key); }
+	public getHelpers(key:TriggerTypesValue):ITriggerPlaceholder<any>[] { return TriggerEventPlaceholders(key); }
 
 	public get classes():string[] {
 		const res = ["triggeractionobsentry", "triggerActionForm"];
@@ -264,7 +264,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.text_conf.placeholderList	= list;
 		this.url_conf.placeholderList	= list;
 		this.media_conf.placeholderList	= list;

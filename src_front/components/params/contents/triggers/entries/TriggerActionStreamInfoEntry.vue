@@ -44,7 +44,7 @@ export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionE
 	public branded:boolean = false;
 	public labels:{id:string, enabled:boolean}[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
-	public placeholderList:ITriggerPlaceholder[] = [];
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	public async beforeMount():Promise<void> {
 		if(this.action.categoryId) {
@@ -74,7 +74,7 @@ export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionE
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.placeholderList = list;
 	}
 

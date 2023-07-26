@@ -56,7 +56,7 @@ export default class TriggerActionHighlightEntry extends AbstractTriggerActionEn
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.message_conf.placeholderList = list;
 	}
 

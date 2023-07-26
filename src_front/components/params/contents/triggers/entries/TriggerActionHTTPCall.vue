@@ -59,7 +59,7 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 	public securityError:boolean = false;
-	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
+	public parameters:{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] = [];
 	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
 	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
@@ -93,7 +93,7 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.parameters = list.map(v=> {
 			return  {
 				placeholder:v,

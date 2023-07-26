@@ -14,7 +14,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	protected placeholders:ITriggerPlaceholder[] = [];
+	protected placeholders:ITriggerPlaceholder<any>[] = [];
 
 	private placeholderIdCache:string[] = [];
 
@@ -101,7 +101,7 @@ export default class AbstractTriggerActionEntry extends Vue {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		//override
 	}
 

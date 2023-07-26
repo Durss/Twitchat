@@ -57,7 +57,7 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 	@Prop
 	declare triggerData:TriggerData;
 
-	private userPLaceholders:ITriggerPlaceholder[] = [];
+	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
 
 	public param_counters:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.count.select_label", value:[], listValues:[]}
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.count.value_label", value:"", maxLength:100, icon:"add"}
@@ -153,7 +153,7 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.userPLaceholders = list.filter(v=>v.numberParsable !== true)
 		this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}

@@ -109,7 +109,7 @@ export default class ParamsHeat extends Vue {
 	 * Show a debug field on CTRL+ALT+D
 	 * @param e 
 	 */
-	private onKeyUp(e:KeyboardEvent):void {
+	public onKeyUp(e:KeyboardEvent):void {
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
 			this.debugMode = !this.debugMode;
 			e.preventDefault();

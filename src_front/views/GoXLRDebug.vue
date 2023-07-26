@@ -93,7 +93,7 @@ export default class GoXLRDebug extends Vue {
 	}
 
 	public setGenderAmount():void {
-		GoXLRSocket.instance.setGenderAmount(this.param_genderAmount.value);
+		GoXLRSocket.instance.setRotaryValue("gender", this.param_genderAmount.value);
 	}
 
 	public setEchoStyle():void {
@@ -101,7 +101,7 @@ export default class GoXLRDebug extends Vue {
 	}
 
 	public setEchoAmount():void {
-		GoXLRSocket.instance.setEchoAmount(this.param_echoAmount.value);
+		GoXLRSocket.instance.setRotaryValue("echo", this.param_echoAmount.value);
 	}
 
 	public setActivePreset(index:number):void {
