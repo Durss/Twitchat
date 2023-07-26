@@ -489,8 +489,8 @@ export const storeMain = defineStore("main", {
 					}
 					TriggerActionHandler.instance.execute(message);
 				}
-				HeatSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
-				HeatSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
 				
 				/**
 				 * Handle GoXLR FX state
@@ -506,9 +506,9 @@ export const storeMain = defineStore("main", {
 					}
 					TriggerActionHandler.instance.execute(message);
 				}
-				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
-				HeatSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
-				HeatSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
 					const message:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
 						id:Utils.getUUID(),
 						date:Date.now(),

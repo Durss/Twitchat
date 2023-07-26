@@ -3065,11 +3065,11 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Active bank when starting the sample
 		 */
-		bank:Extract<GoXLRTypes.ButtonTypesData, "BankA" | "BankB" | "BankC">;
+		bank:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA" | "SamplerSelectB" | "SamplerSelectC">;
 		/**
 		 * Sampler button that started the sample
 		 */
-		buttonId:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
+		buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
 	}
 
 }

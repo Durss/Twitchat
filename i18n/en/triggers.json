@@ -384,7 +384,6 @@
 			"heat_key_ctrl": "Is CTRL key pressed ?",
 			"clip_url": "Clip URL",
 			"goxlr_button_id":"Id of the button",
-			"goxlr_pressed":"Is button pressed",
 			"goxlr_preset_index":"Preset index (1 -> 6)",
 			"goxlr_fxenabled":"FX enabled"
 

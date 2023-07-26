@@ -501,10 +501,10 @@ export namespace GoXLRTypes {
 
 	export const ButtonTypes = ["Fader1Mute", "Fader2Mute", "Fader3Mute", "Fader4Mute",
 								"EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6",
-								"BankA", "BankB", "BankC",
-								"Megaphone", "Robot", "HardTune", "FX", 
+								"SamplerSelectA", "SamplerSelectB", "SamplerSelectC",
+								"EffectMegaphone", "EffectRobot", "EffectHardTune", "EffectFx", 
 								"Bleep", "Cough",
 								"gender", "echo", "reverb", "pitch",
-								"TopLeft", "BottomLeft", "BottomRight", "TopRight", "Clear"] as const;
+								"SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight", "SamplerClear"] as const;
 	export type ButtonTypesData = typeof ButtonTypes[number];
 }

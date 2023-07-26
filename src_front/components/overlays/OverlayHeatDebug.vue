@@ -25,6 +25,8 @@ export default class OverlayHeatDebug extends Vue {
 		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, scaleX:number, scaleY:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
 			const hash = await Utils.sha256(document.location.href)
 			if(event.detail.page != hash) return;
+
+			console.log("CLIOCK");
 			
 			const pointer = this.$refs.pointer as HTMLDivElement;
 			pointer.style.left = (event.detail.x * document.body.clientWidth) + "px";
@@ -34,6 +36,9 @@ export default class OverlayHeatDebug extends Vue {
 		});
 		//@ts-ignore
 		window.addEventListener("heat-rects", async (event:{detail:{rects:string}}):Promise<void> => {
+
+			console.log("RECT");
+			
 			ctx.clearRect(0,0,canvas.width,canvas.height);
 			const rects = JSON.parse(event.detail.rects) as number[][];
 			const colors = ["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"];

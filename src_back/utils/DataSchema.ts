@@ -137,7 +137,12 @@ import Ajv from "ajv";
 						items: {type:"string", maxLength:20},
 					},
 					counterId: {type:"string", maxLength:50},
-					queue: {type:"string", maxLength:100},
+					queue: {
+						anyOf:[
+							{type:"string", maxLength:100},
+							{type:"boolean"},
+						]
+					},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					heatAllowAnon: {type:"boolean"},
@@ -554,7 +559,12 @@ import Ajv from "ajv";
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
 		donorLevel: {type:"integer", minimum:-1, maximum:10},
-		rightClickHintPrompt: {type:"string", maxLength:5},
+		rightClickHintPrompt: {
+			anyOf:[
+				{type:"string", maxLength:5},
+				{type:"boolean"},
+			]
+		},
 		triggerSortType: {type:"string", maxLength:20},
 		ululeProject: {type:"string", maxLength:200},
 		ululeGoals: {type:"string", maxLength:200},

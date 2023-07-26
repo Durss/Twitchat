@@ -1120,8 +1120,8 @@ export const storeDebug = defineStore('debug', {
 						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
 						date:Date.now(),
 						id:Utils.getUUID(),
-						buttonId:Utils.pickRand(["TopLeft", "BottomLeft", "BottomRight", "TopRight"]),
-						bank:Utils.pickRand(["BankA", "BankB", "BankC"]),
+						buttonId:Utils.pickRand(["SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight"]),
+						bank:Utils.pickRand(["SamplerSelectA", "SamplerSelectB", "SamplerSelectC"]),
 					};
 					data = m;
 					break;

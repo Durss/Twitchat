@@ -80,9 +80,9 @@
         <path id="EffectSelect6" d="m295.67,214.14h65.7c1.35,0,2.44,1.09,2.44,2.44v11.58c0,1.35,1.09,2.44,2.44,2.44h287.54c1.35,0,2.44-1.09,2.44-2.44V39.23c0-.65-.26-1.27-.71-1.72l-15.02-15.03c-.46-.46-1.08-.71-1.73-.71h-272.52c-1.35,0-2.44,1.09-2.44,2.44v158.18c0,1.35-1.09,2.44-2.44,2.44h-65.7c-1.35,0-2.44,1.09-2.44,2.44v24.44c0,1.35,1.09,2.44,2.44,2.44Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
       </g>
       <g class="sampler">
-        <path id="BankA" d="m295.69,246.94h65.67c1.35,0,2.45-1.1,2.45-2.45v-11.44c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-97.65c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45v-34.47c0-1.35,1.1-2.45,2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
-        <path id="BankB" d="m293.23,323.23v-34.46c0-1.35,1.1-2.45,2.45-2.45h65.67c1.35,0,2.45-1.1,2.45-2.45v-50.82c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-58.29c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
-        <path id="BankC" d="m293.23,362.61v-34.47c0-1.35,1.1-2.45,2.45-2.45h65.67c1.35,0,2.45-1.1,2.45-2.45v-90.19c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-18.91c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <path id="SamplerSelectA" d="m295.69,246.94h65.67c1.35,0,2.45-1.1,2.45-2.45v-11.44c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-97.65c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45v-34.47c0-1.35,1.1-2.45,2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <path id="SamplerSelectB" d="m293.23,323.23v-34.46c0-1.35,1.1-2.45,2.45-2.45h65.67c1.35,0,2.45-1.1,2.45-2.45v-50.82c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-58.29c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
+        <path id="SamplerSelectC" d="m293.23,362.61v-34.47c0-1.35,1.1-2.45,2.45-2.45h65.67c1.35,0,2.45-1.1,2.45-2.45v-90.19c0-1.35,1.1-2.45,2.45-2.45h178.28c.68,0,1.32.28,1.79.77l10.22,10.89c.43.45.66,1.05.66,1.68v131.6c0,.62-.23,1.22-.66,1.68l-10.23,10.89c-.46.49-1.11.77-1.79.77h-178.28c-1.35,0-2.45-1.1-2.45-2.45v-18.91c0-1.35-1.1-2.45-2.45-2.45h-65.67c-1.35,0-2.45-1.1-2.45-2.45Z" style="fill: #3f3f3f; stroke: rgba(36, 255, 255, .5); stroke-miterlimit: 10;"/>
       </g>
     </g>
     <g class="area">
@@ -97,42 +97,42 @@
         </g>
       </g>
       <g class="sampler">
-        <path id="BottomRight" d="m468.47,338.25h29c1.52,0,2.75-1.23,2.75-2.75v-19.27c0-1.52,1.23-2.75,2.75-2.75h35.01c1.52,0,2.75,1.23,2.75,2.75v50c0,1.52-1.23,2.75-2.75,2.75h-69.5c-1.52,0-2.75-1.23-2.75-2.75v-25.24c0-1.52,1.23-2.75,2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
-        <path id="BottomLeft" d="m449.49,338.25h-29.76c-1.52,0-2.75-1.23-2.75-2.75v-19.27c0-1.52-1.23-2.75-2.75-2.75h-35.03c-1.52,0-2.75,1.23-2.75,2.75v50c0,1.52,1.23,2.75,2.75,2.75h70.28c1.52,0,2.75-1.23,2.75-2.75v-25.24c0-1.52-1.23-2.75-2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
-        <path id="TopRight" d="m465.73,245.76v25.25c0,1.52,1.23,2.75,2.75,2.75h29c1.52,0,2.75,1.23,2.75,2.75v19.26c0,1.52,1.23,2.75,2.75,2.75h35.01c1.52,0,2.75-1.23,2.75-2.75v-50c0-1.52-1.23-2.75-2.75-2.75h-69.5c-1.52,0-2.75,1.23-2.75,2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
-        <path id="TopLeft" d="m379.21,243.01h70.28c1.52,0,2.75,1.23,2.75,2.75v25.25c0,1.52-1.23,2.75-2.75,2.75h-29.76c-1.52,0-2.75,1.23-2.75,2.75v19.26c0,1.52-1.23,2.75-2.75,2.75h-35.03c-1.52,0-2.75-1.23-2.75-2.75v-50c0-1.52,1.23-2.75,2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
-        <g id="Clear">
+        <path id="SamplerBottomRight" d="m468.47,338.25h29c1.52,0,2.75-1.23,2.75-2.75v-19.27c0-1.52,1.23-2.75,2.75-2.75h35.01c1.52,0,2.75,1.23,2.75,2.75v50c0,1.52-1.23,2.75-2.75,2.75h-69.5c-1.52,0-2.75-1.23-2.75-2.75v-25.24c0-1.52,1.23-2.75,2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+        <path id="SamplerBottomLeft" d="m449.49,338.25h-29.76c-1.52,0-2.75-1.23-2.75-2.75v-19.27c0-1.52-1.23-2.75-2.75-2.75h-35.03c-1.52,0-2.75,1.23-2.75,2.75v50c0,1.52,1.23,2.75,2.75,2.75h70.28c1.52,0,2.75-1.23,2.75-2.75v-25.24c0-1.52-1.23-2.75-2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+        <path id="SamplerTopRight" d="m465.73,245.76v25.25c0,1.52,1.23,2.75,2.75,2.75h29c1.52,0,2.75,1.23,2.75,2.75v19.26c0,1.52,1.23,2.75,2.75,2.75h35.01c1.52,0,2.75-1.23,2.75-2.75v-50c0-1.52-1.23-2.75-2.75-2.75h-69.5c-1.52,0-2.75,1.23-2.75,2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+        <path id="SamplerTopLeft" d="m379.21,243.01h70.28c1.52,0,2.75,1.23,2.75,2.75v25.25c0,1.52-1.23,2.75-2.75,2.75h-29.76c-1.52,0-2.75,1.23-2.75,2.75v19.26c0,1.52-1.23,2.75-2.75,2.75h-35.03c-1.52,0-2.75-1.23-2.75-2.75v-50c0-1.52,1.23-2.75,2.75-2.75Z" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
+        <g id="SamplerClear">
           <rect x="431.98" y="288.76" width="54" height="34.5" rx="2.75" ry="2.75" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
           <text transform="translate(448.38 309.51)" style="fill: currentColor; font-family: Roboto; font-size: 11px;">Clear</text>
         </g>
-        <g id="BankA">
+        <g id="SamplerSelectA">
           <rect x="310.48" y="253.5" width="36" height="26.26" rx="1.67" ry="1.67" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
           <text transform="translate(325.29 270.13)" style="fill: currentColor; font-family: Roboto; font-size: 12px;">A</text>
         </g>
-        <g id="BankB">
+        <g id="SamplerSelectB">
           <rect x="310.48" y="292.88" width="36" height="26.26" rx="1.67" ry="1.67" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
           <text transform="translate(325.31 309.51)" style="fill: currentColor; font-family: Roboto; font-size: 12px;">B</text>
         </g>
-        <g id="BankC">
+        <g id="SamplerSelectC">
           <rect x="310.48" y="332.24" width="36" height="26.26" rx="1.67" ry="1.67" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
           <text transform="translate(325.6 348.87)" style="fill: currentColor; font-family: Roboto; font-size: 12px;">C</text>
         </g>
       </g>
       <g class="effects">
         <g class="buttons">
-          <g id="Megaphone">
+          <g id="EffectMegaphone">
             <rect x="572.22" y="44.24" width="69" height="26.26" rx="3.16" ry="3.16" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             <text transform="translate(580.64 60.87)" style="fill: currentColor; font-family: Roboto; font-size: 10px;">Megaphone</text>
           </g>
-          <g id="Robot">
+          <g id="EffectRobot">
             <rect x="572.22" y="84" width="69" height="26.24" rx="3.16" ry="3.16" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             <text transform="translate(595.18 100.62)" style="fill: currentColor; font-family: Roboto; font-size: 10px;">Robot</text>
           </g>
-          <g id="HardTune">
+          <g id="EffectHardTune">
             <rect x="572.22" y="122.99" width="69" height="26.27" rx="3.16" ry="3.16" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             <text transform="translate(586.84 139.62)" style="fill: currentColor; font-family: Roboto; font-size: 10px;">Hardtune</text>
           </g>
-          <g id="FX">
+          <g id="EffectFx">
             <rect x="572.22" y="162.74" width="69" height="42.74" rx="3.16" ry="3.16" style="stroke: currentColor; stroke-miterlimit: 10; stroke-width: 2px;"/>
             <text transform="translate(601.85 187.62)" style="fill: currentColor; font-family: Roboto; font-size: 10px;">FX</text>
           </g>

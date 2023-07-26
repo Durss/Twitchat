@@ -959,7 +959,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.GOXLR_BUTTON_PRESSED] =
 	map[TriggerTypes.GOXLR_BUTTON_RELEASED] = [
 		{tag:"BUTTON_ID", descKey:'triggers.placeholders.goxlr_button_id', pointer:"button", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRButtonData>,
-		{tag:"IS_PRESSED", descKey:'triggers.placeholders.goxlr_pressed', pointer:"pressed", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRButtonData>,
 	];
 
 	const counters = StoreProxy.counters.counterList;

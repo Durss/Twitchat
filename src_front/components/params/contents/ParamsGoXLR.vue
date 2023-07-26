@@ -35,6 +35,8 @@
 				<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
 				<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
 			</section>
+
+			<!-- <Button @click="testEvent()">Test</Button> -->
 		</div>
 		
 		<i18n-t scope="global" class="donate" tag="div" keypath="goxlr.donate">
@@ -58,6 +60,8 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 import Button from '@/components/Button.vue';
 import DataStore from '@/store/DataStore';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
+import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -92,7 +96,7 @@ export default class ParamsGoXLR extends Vue {
 	}
 
 	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
-	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
+	public get noDevice():boolean { return GoXLRSocket.instance.status != null; }
 	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public mounted():void {
@@ -114,6 +118,12 @@ export default class ParamsGoXLR extends Vue {
 		if(this.param_enabled.value !== true) {
 			GoXLRSocket.instance.disconnect();
 		}
+	}
+
+	public async testEvent():Promise<void> {
+		GoXLRSocket.instance.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.BUTTON_PRESSED, "EffectMegaphone"))
+		await Utils.promisedTimeout(200);
+		GoXLRSocket.instance.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.BUTTON_RELEASED, "EffectMegaphone"))
 	}
 }
 </script>

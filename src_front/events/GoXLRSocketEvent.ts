@@ -44,21 +44,22 @@ export default class GoXLRSocketEvent extends Event {
 	 * Only for those events:
 	 * SAMPLE_PLAYBACK_COMPLETE
 	 */
-	public bankId?:Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">;
+	public bankId?:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">;
 	/**
 	 * Contains the id of the sampler button that started playback
 	 * Only for those events:
 	 * SAMPLE_PLAYBACK_COMPLETE
 	 */
-	public samplerButtonId?:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
+	public samplerButtonId?:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
 	
 	constructor(eventType:"ROTARY", rotaryId:GoXLRTypes.ButtonTypesData, rotaryValue:number);
-	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">);
+	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">);
 	constructor(eventType:"FX_ENABLED"|"FX_DISABLED", fxIndex:number);
 	constructor(eventType:"BUTTON_PRESSED"|"BUTTON_RELEASED", button?:GoXLRTypes.ButtonTypesData);
 	constructor(...params:any[]) {
 		const event = params[0];
 		super(event);
+
 		if(["FX_ENABLED","FX_DISABLED"].indexOf(event) > -1) {
 			this.fxIndex = params[1];
 		}

@@ -384,7 +384,6 @@
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
 			"goxlr_button_id":"Id du boutton",
-			"goxlr_pressed":"Boutton pressé ou relâché",
 			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
 			"goxlr_fxenabled":"FX actif ou non"
 		},

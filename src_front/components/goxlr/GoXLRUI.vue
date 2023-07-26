@@ -66,15 +66,17 @@ export default class GoXLRUI extends Vue {
 		this.$el.addEventListener("click", this.clickHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, this.goxlrHandler);
+		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ROTARY, this.goxlrHandler);
 		
 		await this.$nextTick();
 		this.setButtonStates();
 	}
 	
-	public beforeUnmout():void {
+	public beforeUnmount():void {
 		this.$el.removeEventListener("click", this.clickHandler);
 		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrHandler);
 		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.BUTTON_RELEASED, this.goxlrHandler);
+		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.ROTARY, this.goxlrHandler);
 	}
 
 	/**
@@ -84,6 +86,7 @@ export default class GoXLRUI extends Vue {
 	 * @param e 
 	 */
 	public onGoXLREvent(e:GoXLRSocketEvent):void {
+		console.log('EVENT', e);
 		const holder = this.$refs.svgHolder as HTMLDivElement;
 		switch(e.type) {
 			//A button is pressed or release, set its highlight state accordingly
@@ -91,6 +94,7 @@ export default class GoXLRUI extends Vue {
 			case GoXLRSocketEvent.BUTTON_RELEASED: {
 				const bt = e.buttonId!;
 				const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
+				console.log("ITEM", item);
 				if(!item) return;
 				if(e.type == GoXLRSocketEvent.BUTTON_PRESSED) {
 					item.classList.add("highlight");
@@ -174,12 +178,12 @@ export default class GoXLRUI extends Vue {
 		}
 
 		if(this.samplerMode !== false) {
-			this.allowedButtons = ["BankA", "BankB", "BankC"];
-			if(this.childMode === false || /Bank(A|B|C)/.test(this.selectedButtons.join(","))) {
-				this.allowedButtons.push("TopLeft", "TopRight", "BottomLeft", "BottomRight", "Clear");
+			this.allowedButtons = ["SamplerSelectA", "SamplerSelectB", "SamplerSelectC"];
+			if(this.childMode === false || /SamplerSelect(A|B|C)/.test(this.selectedButtons.join(","))) {
+				this.allowedButtons.push("SamplerTopLeft", "SamplerTopRight", "SamplerBottomLeft", "SamplerBottomRight", "SamplerClear");
 			}
 		}else if(!/Bank(A|B|C)/.test(this.selectedButtons.join(","))) {
-			this.allowedButtons = this.allowedButtons.filter(v=> v != "TopLeft" && v != "TopRight" && v != "BottomLeft" && v != "BottomRight" && v != "Clear");
+			this.allowedButtons = this.allowedButtons.filter(v=> v != "SamplerTopLeft" && v != "SamplerTopRight" && v != "SamplerBottomLeft" && v != "SamplerBottomRight" && v != "SamplerClear");
 		}
 		
 		//Set "disabled" class to buttons not on the "allowedButtons" list
@@ -260,11 +264,11 @@ export default class GoXLRUI extends Vue {
 			.area {
 				#gender, #echo, #pitch, #reverb,
 				#Cough, #Bleep,
-				#BottomRight, #BottomLeft, #TopLeft, #TopRight, #Clear,
-				#BankA, #BankB, #BankC,
+				#SamplerBottomRight, #SamplerBottomLeft, #SamplerTopLeft, #SamplerTopRight, #SamplerClear,
+				#SamplerSelectA, #SamplerSelectB, #SamplerSelectC,
 				#Fader1Mute, #Fader2Mute, #Fader3Mute, #Fader4Mute,
 				#EffectSelect1, #EffectSelect2, #EffectSelect3, #EffectSelect4, #EffectSelect5, #EffectSelect6,
-				#Megaphone, #Robot, #HardTune, #FX {
+				#EffectMegaphone, #EffectRobot, #EffectHardTune, #EffectFx {
 					cursor: pointer;
 					pointer-events: all;
 					&:hover {

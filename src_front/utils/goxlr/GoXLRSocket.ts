@@ -12,6 +12,9 @@ export default class GoXLRSocket extends EventDispatcher {
 	private static _instance:GoXLRSocket;
 	
 	public connected: boolean = false;
+	public status:GoXLRTypes.Mixer|null = null; 
+	public isGoXLRMini:boolean = false; 
+	public fxEnabled:boolean = false; 
 	
 	private _initResolver!: Function;
 	private _connecting!: boolean;
@@ -40,12 +43,6 @@ export default class GoXLRSocket extends EventDispatcher {
 		}
 		return GoXLRSocket._instance;
 	}
-
-	public get status():GoXLRTypes.Mixer|null { return this._status? this._status.mixers[this._deviceId] : null; }
-
-	public get isGoXLRMini():boolean { return this.status?.hardware.device_type == "Mini" || true; }
-	
-	public get fxEnabled():boolean { return this.status?.effects.is_enabled || false; }
 	
 	/**
 	 * Sets the currently active preset index (0 <-> 5)
@@ -168,13 +165,13 @@ export default class GoXLRSocket extends EventDispatcher {
 				min = -12;
 				max = 12;
 				//If HardTune is enabled it restrict possible values to only 3
-				if(this._buttonStates.HardTune) percent = Math.round(percent*2)/2;
+				if(this._buttonStates.EffectHardTune) percent = Math.round(percent*2)/2;
 			}
 			if(this._pitchMode == "Wide") {
 				min = -24;
 				max = 24;
 				//If HardTune is enabled it restrict possible values to only 5
-				if(this._buttonStates.HardTune) percent = Math.round(percent*4)/4;
+				if(this._buttonStates.EffectHardTune) percent = Math.round(percent*4)/4;
 			}
 		}
 		if(id === "gender") {
@@ -321,7 +318,7 @@ export default class GoXLRSocket extends EventDispatcher {
 						const isEnabled = patch.value == true;
 						const type = isEnabled? GoXLRSocketEvent.FX_ENABLED : GoXLRSocketEvent.FX_DISABLED;
 						this.dispatchEvent(new GoXLRSocketEvent(type, this._currentFXIndex));
-					}
+					}else
 
 					//Handle button press/release
 					if(c == "button_down") {
@@ -330,19 +327,19 @@ export default class GoXLRSocket extends EventDispatcher {
 						const buttonId = chunks[j+1] as GoXLRTypes.ButtonTypesData;
 						this._buttonStates[buttonId] = isPressed;
 						this.dispatchEvent(new GoXLRSocketEvent(type, buttonId));
-					}
+					}else
 					
-					//Handle rotary buttons
-					if(["echo","gender","reverb","pitch"].indexOf(c)) {
+					//Handle rotary buttons1
+					if(["echo","gender","reverb","pitch"].indexOf(c) > -1 && chunks[j+1] === "amount") {
 						const value = patch.value;
 						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ROTARY, c as GoXLRTypes.ButtonTypesData, value));
-					}
+					}else
 
 					//Handle sampler playback complete
 					if(c == "sampler" && path.indexOf("is_playing") > -1) {
 						if(patch.value === true) continue;
-						const bankId = "Bank"+chunks[j+2] as Extract<GoXLRTypes.ButtonTypesData, "BankA"|"BankB"|"BankC">;
-						const buttonId = chunks[j+3] as Extract<GoXLRTypes.ButtonTypesData, "TopLeft"|"TopRight"|"BottomLeft"|"BottomRight">;
+						const bankId = "SamplerSelect"+chunks[j+2] as Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">;
+						const buttonId = "Sampler"+chunks[j+3] as Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
 						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, bankId, buttonId));
 					}
 				}
@@ -365,26 +362,20 @@ export default class GoXLRSocket extends EventDispatcher {
 			if(!this._deviceId) {
 				console.error("🎤 No GoXLR device found");
 			}else{
-				console.error("🎤 GoXLR device ID is", this._deviceId);
-			}
-			//If no status was loaded yet, execute init promise resolver
-			if(!this._status) {
-				this._connecting = false;
-				this.connected = true;
-				this._autoReconnect = true;
+				console.log("🎤 GoXLR device ID is", this._deviceId);
 				const mixer = result.Status.mixers[this._deviceId];
 				if(mixer) {
 					this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
 					//Initialize buttons states
 					this._buttonStates.Bleep = mixer.button_down.Bleep;
 					this._buttonStates.Cough = mixer.button_down.Cough;
-					this._buttonStates.BankA = mixer.button_down.SamplerSelectA;
-					this._buttonStates.BankB = mixer.button_down.SamplerSelectB;
-					this._buttonStates.BankC = mixer.button_down.SamplerSelectA;
-					this._buttonStates.BottomLeft = mixer.button_down.SamplerBottomLeft;
-					this._buttonStates.BottomRight = mixer.button_down.SamplerBottomRight;
-					this._buttonStates.TopLeft = mixer.button_down.SamplerTopLeft;
-					this._buttonStates.TopRight = mixer.button_down.SamplerTopRight;
+					this._buttonStates.SamplerSelectA = mixer.button_down.SamplerSelectA;
+					this._buttonStates.SamplerSelectB = mixer.button_down.SamplerSelectB;
+					this._buttonStates.SamplerSelectC = mixer.button_down.SamplerSelectA;
+					this._buttonStates.SamplerBottomLeft = mixer.button_down.SamplerBottomLeft;
+					this._buttonStates.SamplerBottomRight = mixer.button_down.SamplerBottomRight;
+					this._buttonStates.SamplerTopLeft = mixer.button_down.SamplerTopLeft;
+					this._buttonStates.SamplerTopRight = mixer.button_down.SamplerTopRight;
 					this._buttonStates.EffectSelect1 = mixer.button_down.EffectSelect1;
 					this._buttonStates.EffectSelect2 = mixer.button_down.EffectSelect2;
 					this._buttonStates.EffectSelect3 = mixer.button_down.EffectSelect3;
@@ -395,11 +386,11 @@ export default class GoXLRSocket extends EventDispatcher {
 					this._buttonStates.Fader2Mute = mixer.button_down.Fader2Mute;
 					this._buttonStates.Fader3Mute = mixer.button_down.Fader3Mute;
 					this._buttonStates.Fader4Mute = mixer.button_down.Fader4Mute;
-					this._buttonStates.FX = mixer.button_down.EffectFx;
-					this._buttonStates.HardTune = mixer.button_down.EffectHardTune;
-					this._buttonStates.Robot = mixer.button_down.EffectRobot;
-					this._buttonStates.Megaphone = mixer.button_down.EffectMegaphone;
-					this._buttonStates.Clear = mixer.button_down.SamplerClear;
+					this._buttonStates.EffectFx = mixer.button_down.EffectFx;
+					this._buttonStates.EffectHardTune = mixer.button_down.EffectHardTune;
+					this._buttonStates.EffectRobot = mixer.button_down.EffectRobot;
+					this._buttonStates.EffectMegaphone = mixer.button_down.EffectMegaphone;
+					this._buttonStates.SamplerClear = mixer.button_down.SamplerClear;
 					this._buttonStates.pitch = mixer.effects.current.pitch.amount;
 					this._buttonStates.gender = mixer.effects.current.gender.amount;
 					this._buttonStates.reverb = mixer.effects.current.reverb.amount;
@@ -407,6 +398,15 @@ export default class GoXLRSocket extends EventDispatcher {
 					this._genderMode = mixer.effects.current.gender.style as "Narrow"|"Medium"|"Wide";
 					this._pitchMode = mixer.effects.current.pitch.style as "Narrow"|"Medium"|"Wide";
 				}
+				this.status = this._status? this._status.mixers[this._deviceId] : null;
+				this.isGoXLRMini = this.status?.hardware.device_type == "Mini";
+				this.fxEnabled = this.status?.effects.is_enabled || false;
+			}
+			//If no status was loaded yet, execute init promise resolver
+			if(!this._status) {
+				this._connecting = false;
+				this.connected = true;
+				this._autoReconnect = true;
 				this._initResolver();
 			}
 			this._status = reactive(result.Status);

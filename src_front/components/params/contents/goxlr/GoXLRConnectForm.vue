@@ -53,7 +53,7 @@ export default class GoXLRConnectForm extends Vue {
 
 	public get connected():boolean { return GoXLRSocket.instance.connected; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get isPremium():boolean { return PatreonHelper.instance.isMember; }
+	public get isPremium():boolean { return PatreonHelper.instance.isMember && this.$store("auth").twitch.user.donor.earlyDonor; }
 
 	public async connect():Promise<void> {
 		if(!this.isPremium) return;

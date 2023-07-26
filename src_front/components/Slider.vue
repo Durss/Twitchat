@@ -78,7 +78,7 @@ export default class Slider extends Vue {
 		watch(()=>this.max, ()=> this.updateLimit());
 	}
 	
-	public beforeUnmout():void {
+	public beforeUnmount():void {
 		document.removeEventListener("pointerup", this.mouseUpHandler)
 		document.removeEventListener("pointermove", this.mouseMoveHandler)
 	}
