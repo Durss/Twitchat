@@ -169,12 +169,11 @@ export const storeUsers = defineStore('users', {
 			if(!user) {
 				//Create user if enough given info
 				if(id && login) {
-					if(!displayName) displayName = login;
 					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform,
 						id:id ?? "",
 						login:login ?? "",
-						displayName:displayName ?? "",
+						displayName: displayName ?? login ?? "",
 						displayNameOriginal:displayName ?? "",
 						pronouns:null,
 						pronounsLabel:false,
@@ -235,10 +234,11 @@ export const storeUsers = defineStore('users', {
 			//This is to avoid updating "displayName" accessors everywhere on the app.
 			Object.defineProperty(user, 'displayName', {
 				set: function(name) {
-					this.originalDisplayName = name;
+					(this as TwitchatDataTypes.TwitchatUser).displayNameOriginal = name;
 				},
 				get: function() {
-					return StoreProxy.users.customUsernames[this.id]?.name || this.originalDisplayName || this.login
+					const ref = (this as TwitchatDataTypes.TwitchatUser);
+					return StoreProxy.users.customUsernames[ref.id]?.name || ref.displayNameOriginal || ref.login
 				}}
 			);
 			
