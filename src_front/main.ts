@@ -32,7 +32,7 @@ import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -230,7 +230,8 @@ function buildApp() {
 	StoreProxy.image = image;
 	StoreProxy.main = storeMain();
 	StoreProxy.account = storeAccount();
-	StoreProxy.auth = storeAuth();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.auth = (storeAuth() as unknown) as IAuthState & IAuthGetters & IAuthActions & { $state: IAuthState; $reset:()=>void };
 	StoreProxy.automod = storeAutomod();
 	StoreProxy.bingo = storeBingo();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters

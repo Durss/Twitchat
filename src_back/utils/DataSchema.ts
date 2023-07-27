@@ -137,12 +137,7 @@ import Ajv from "ajv";
 						items: {type:"string", maxLength:20},
 					},
 					counterId: {type:"string", maxLength:50},
-					queue: {
-						anyOf:[
-							{type:"string", maxLength:100},
-							{type:"boolean"},
-						]
-					},
+					queue: {type:"string", maxLength:100, nullable:true},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					heatAllowAnon: {type:"boolean"},
@@ -879,7 +874,7 @@ import Ajv from "ajv";
 				properties:{
 					id: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:50},
-					placeholderKey: {type:"string", maxLength:30},
+					placeholderKey: {type:"string", maxLength:50},
 					value: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[

@@ -1411,7 +1411,7 @@ export interface IUsersActions {
 	 * Adds a custom badge to the given user
 	 * @returns false if user has used all the non premium slots
 	 */
-	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId:string):boolean;
+	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId?:string):boolean;
 	/**
 	 * Removes a custom badge from the given user
 	 */

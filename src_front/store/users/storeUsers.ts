@@ -869,7 +869,7 @@ export const storeUsers = defineStore('users', {
 			return true;
 		},
 
-		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId:string):boolean {
+		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId?:string):boolean {
 			let id = "";
 			//add badge to global list if necessary
 			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
@@ -886,6 +886,10 @@ export const storeUsers = defineStore('users', {
 			}
 
 			if(user) {
+				if(!channelId) {
+					throw new Error("Trying to set a badge to a user without giving it the channel ID");
+					return false;
+				}
 				if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
 				//Add badge to the user if necessary
 				if(this.customUserBadges[user.id].findIndex(v => v.id == id) == -1) {
@@ -894,7 +898,7 @@ export const storeUsers = defineStore('users', {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given"));
 						return false;
 					}
-					this.customUserBadges[user.id].push({id, platform:user.platform, channel:channelId});
+					this.customUserBadges[user.id].push({id, platform:user.platform, channel:channelId!});
 				}
 				DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 			}
