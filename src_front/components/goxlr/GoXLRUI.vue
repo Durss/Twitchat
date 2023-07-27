@@ -1,6 +1,7 @@
 <template>
 	<div :class="classes">
-		<div class="img" v-html="svg" v-if="svg && !error" ref="svgHolder"></div>
+		<Icon name="loader" class="loader" v-if="loading" />
+		<div class="img" v-html="svg" v-else-if="svg && !error" ref="svgHolder"></div>
 		<div v-else>An error occured loading GoXLR interface</div>
 	</div>
 </template>
@@ -10,9 +11,12 @@ import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon
+	},
 	emits:["click", "change", "update:modelValue"],
 })
 export default class GoXLRUI extends Vue {
@@ -31,6 +35,7 @@ export default class GoXLRUI extends Vue {
 
 	public svg:string = "";
 	public error:boolean = false;
+	public loading:boolean = true;
 
 	private allowedButtons:GoXLRTypes.ButtonTypesData[] = [];
 	private selectedButtons:GoXLRTypes.ButtonTypesData[] = [];
@@ -60,6 +65,8 @@ export default class GoXLRUI extends Vue {
 			.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
 			.replace(/>\s+</g, '><');//cleanup spaces between tags
 		}
+
+		this.loading = false;
 
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		this.goxlrHandler = (e:GoXLRSocketEvent) => this.onGoXLREvent(e);
@@ -142,8 +149,8 @@ export default class GoXLRUI extends Vue {
 				}
 
 				//Unselect any previously selected bank  if in knobMode
-				if((this.samplerMode !== false || this.childMode !== false) && id?.indexOf("Bank") === 0) {
-					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("Bank") || v == id);
+				if((this.samplerMode !== false || this.childMode !== false) && id?.indexOf("SamplerSelect") === 0) {
+					this.selectedButtons = this.selectedButtons.filter(v=>v.indexOf("SamplerSelect") || v == id);
 				}
 
 				// const fullID = ids.join("_") as GoXLRTypes.ButtonTypesData;
@@ -154,8 +161,8 @@ export default class GoXLRUI extends Vue {
 					this.selectedButtons.splice(index, 1);
 				}
 		
-				this.$emit("change");
 				this.$emit("update:modelValue", this.selectedButtons);
+				this.$emit("change");
 				this.setButtonStates();
 			}
 		}
@@ -231,6 +238,12 @@ export default class GoXLRUI extends Vue {
 
 <style scoped lang="less">
 .goxlrui{
+	.loader {
+		margin: auto;
+		display: block;
+		width: fit-content;
+	}
+
 	.img {
 		width: 100%;
 		:deep(svg) {

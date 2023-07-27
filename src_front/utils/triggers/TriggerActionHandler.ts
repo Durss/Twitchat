@@ -19,6 +19,7 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import GoXLRSocket from "../goxlr/GoXLRSocket";
 
 /**
 * Created : 22/04/2022 
@@ -1306,6 +1307,34 @@ export default class TriggerActionHandler {
 						let pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
 						logStep.messages.push({date:Date.now(), value:"Vibrate device with pattern \""+step.pattern+"\" => \"["+pattern+"]\""});
 						window.navigator.vibrate(pattern);
+					}
+				}else
+
+				//Handle mobile device vibration action
+				if(step.type == "goxlr") {
+					logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action});
+					switch(step.action) {
+						case "cough_on":
+						case "cough_off": {
+							GoXLRSocket.instance.setCoughState(step.action == "cough_on");
+							break;
+						}
+						case "fx_on":
+						case "fx_off": {
+							if(step.fxPresetIndex && step.fxPresetIndex > -1) {
+								logStep.messages.push({date:Date.now(), value:"GoXLR set active preset index \""+step.fxPresetIndex});
+								await GoXLRSocket.instance.setActiveFxPreset(step.fxPresetIndex);
+							}
+							GoXLRSocket.instance.setFXEnabled(step.action == "fx_on");
+							break;
+						}
+						case "sample_play": {
+							if(step.sampleIndex) {
+								logStep.messages.push({date:Date.now(), value:"GoXLR play sample at \""+step.sampleIndex[0] + " "+ step.sampleIndex[1]});
+								GoXLRSocket.instance.playSample(step.sampleIndex[0], step.sampleIndex[1]);
+							}
+							break;
+						}
 					}
 				}else
 

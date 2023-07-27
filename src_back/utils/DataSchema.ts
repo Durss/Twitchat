@@ -254,7 +254,13 @@ import Ajv from "ajv";
 								topic: {type:"string", maxLength:255},
 								pattern: {type:"string", maxLength:15},
 								branded:{type:"boolean"},
-								fxPresetIndex:{type:"integer", minimum:0, maximum:5},
+								fxPresetIndex:{type:"integer", minimum:-1, maximum:5},
+								sampleIndex:{
+									type:"array",
+									minItems:0,
+									maxItems:2,
+									items:{type:"string", maxLength:20},
+								},
 								labels:{
 									type:"array",
 									minItems:0,

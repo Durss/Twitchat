@@ -414,9 +414,7 @@ export const TriggerActionGoXLRDataActionList = [
 	{code:"fx_off", mini:false}, 
 	{code:"cough_on", mini:true}, 
 	{code:"cough_off", mini:true}, 
-	// {code:"bleep_on", mini:true}, 
-	// {code:"bleep_off", mini:true}, 
-	// {code:"sample_play", mini:false},
+	{code:"sample_play", mini:false},
 ] as const;
 export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[number]['code'];
 export interface TriggerActionGoXLRData extends TriggerActionData{
@@ -429,6 +427,10 @@ export interface TriggerActionGoXLRData extends TriggerActionData{
 	 * Index of the preset (0-5)
 	 */
 	fxPresetIndex?:number;
+	/**
+	 * Target of the sample to play
+	 */
+	sampleIndex?:["A"|"B"|"C", "BottomLeft"|"BottomRight"|"TopLeft"|"TopRight"];
 }
 
 export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;

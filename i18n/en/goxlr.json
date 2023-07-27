@@ -19,24 +19,6 @@
 			"title":"Credentials",
 			"ip_security":"Due to web browsers security, if you set an IP other than \"127.0.0.1\" or \"localhost\" the connection must be secured. If you want to connect to a remote desktop you must use an https tunnel (like Ngrok). Come ask for help on {LINK} if you don't know how to do that. If your GoXLR is on this computer, set 127.0.0.1 as IP.",
 			"ip_security_link":"Discord"
-		},
-		"trigger": {
-			"select_button":"Select which buttons should execute that trigger in the interface bellow",
-			"param_action":"Action type",
-			"param_fxPreset":"FX preset to enable",
-			"param_fxPreset1": "Preset 1",
-			"param_fxPreset2": "Preset 2",
-			"param_fxPreset3": "Preset 3",
-			"param_fxPreset4": "Preset 4",
-			"param_fxPreset5": "Preset 5",
-			"param_fxPreset6": "Preset 6",
-			"action_fx_on": "Enable FX",
-			"action_fx_off": "Disable FX",
-			"action_cough_on": "Mute",
-			"action_cough_off": "Unmute",
-			"action_bleep_on": "Enable !{'@'}#$?*",
-			"action_bleep_off": "Disable !{'@'}#$?*",
-			"action_sample_play": "Play sample"
 		}
 	}
 }

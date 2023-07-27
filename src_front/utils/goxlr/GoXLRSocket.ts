@@ -121,7 +121,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * Enable/Disable FX
 	 * @param enabled
 	 */
-	public setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
+	public async setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
 
 	/**
 	 * Set the value of a rotary button in percent.
@@ -148,7 +148,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param id
 	 * @param percent
 	 */
-	public setRotaryValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, percent:number):Promise<unknown> {
+	public async setRotaryValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, percent:number):Promise<unknown> {
 		const idToCommand:Partial<{[key in GoXLRTypes.ButtonTypesData]:GoXLRCommands}> = {
 			gender:"SetGenderAmount",
 			echo:"SetEchoAmount",
@@ -191,6 +191,25 @@ export default class GoXLRSocket extends EventDispatcher {
 		let value = Math.round(percent * (max - min) + min);
 		return this.execCommand(cmd, value);
 	}
+
+	/**
+	 * Play a sample
+	 * @param bank 
+	 * @param sample 
+	 */
+	public async playSample(bank:"A"|"B"|"C", sample:"BottomLeft"|"TopLeft"|"BottomRight"|"TopRight"):Promise<unknown> { return this.execCommand("PlaySampleByIndex", [bank, sample, 0]); }
+
+	/**
+	 * Sets the cough state
+	 * @param state 
+	 */
+	public async setCoughState(state:boolean):Promise<unknown> { return this.execCommand("SetCoughIsHold", state); }
+
+	/**
+	 * Set active FX preset
+	 * @param index 0->5
+	 */
+	public async setActiveFxPreset(index:number):Promise<unknown> { return this.execCommand("SetActiveEffectPreset", "Preset"+(index+1)); }
 
 	/**
 	 * Sets the gender style

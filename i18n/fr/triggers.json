@@ -272,6 +272,24 @@
 				"select_area":"Selectionnez une ou plusieurs zones à cliquer pour déclencher ce trigger",
 				"no_area":"Vous n'avez créé aucune zone cliquable",
 				"create_areaBt":"Créer des zones cliquable"
+			},
+			"goxlr": {
+				"select_button":"Sélectionnez les boutons devant exécuter ce trigger dans l'interface ci-dessous",
+				"param_action":"Type d'action",
+				"param_fxPreset":"Preset de FX à activer",
+				"param_fxPreset_keep": "Ne pas changer",
+				"param_fxPreset1": "Preset 1",
+				"param_fxPreset2": "Preset 2",
+				"param_fxPreset3": "Preset 3",
+				"param_fxPreset4": "Preset 4",
+				"param_fxPreset5": "Preset 5",
+				"param_fxPreset6": "Preset 6",
+				"action_fx_on": "Activer FX",
+				"action_fx_off": "Désactiver FX",
+				"action_cough_on": "Mute",
+				"action_cough_off": "Unmute",
+				"action_sample_play": "Jouer un sample",
+				"select_sampler": "Sélectionnez le sample à jouer dans l'interface"
 			}
 		},
 		"categories": {

@@ -19,24 +19,6 @@
 			"title":"Identifiants de connexion",
 			"ip_security":"Dû à des restrictions de sécurité de la part des navigateurs web, utiliser une IP autre que \"127.0.0.1\" ou \"localhost\" nécessite une connexion sécurisée. Si vous souhaitez vous connecter à un PC distant vous devrez utiliser un tunnel https (ex: Ngrok). Venez de l'aide sur {LINK} si vous ne savez pas comment faire. Si votre GoXLR est sur cet ordinateur, mettez 127.0.0.1 comme IP.",
 			"ip_security_link":"Discord"
-		},
-		"trigger": {
-			"select_button":"Sélectionnez les boutons devant exécuter ce trigger dans l'interface ci-dessous",
-			"param_action":"Type d'action",
-			"param_fxPreset":"Preset de FX à activer",
-			"param_fxPreset1": "Preset 1",
-			"param_fxPreset2": "Preset 2",
-			"param_fxPreset3": "Preset 3",
-			"param_fxPreset4": "Preset 4",
-			"param_fxPreset5": "Preset 5",
-			"param_fxPreset6": "Preset 6",
-			"action_fx_on": "Activer FX",
-			"action_fx_off": "Désactiver FX",
-			"action_cough_on": "Mute",
-			"action_cough_off": "Unmute",
-			"action_bleep_on": "Activer bleep",
-			"action_bleep_off": "Désactiver bleep",
-			"action_sample_play": "Jouer un sample"
 		}
 	}
 }

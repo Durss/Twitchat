@@ -272,6 +272,24 @@
 				"select_area":"Select one or multiple areas to be clicked to execute this trigger",
 				"no_area":"You created no clickable area",
 				"create_areaBt":"Create clickable areas"
+			},
+			"goxlr": {
+				"select_button":"Select which buttons should execute that trigger in the interface bellow",
+				"param_action":"Action type",
+				"param_fxPreset":"FX preset to enable",
+				"param_fxPreset_keep": "Keep current",
+				"param_fxPreset1": "Preset 1",
+				"param_fxPreset2": "Preset 2",
+				"param_fxPreset3": "Preset 3",
+				"param_fxPreset4": "Preset 4",
+				"param_fxPreset5": "Preset 5",
+				"param_fxPreset6": "Preset 6",
+				"action_fx_on": "Enable FX",
+				"action_fx_off": "Disable FX",
+				"action_cough_on": "Mute",
+				"action_cough_off": "Unmute",
+				"action_sample_play": "Play sample",
+				"select_sampler": "Select the sampler button to play bellow"
 			}
 		},
 		"categories": {
