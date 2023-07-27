@@ -16,6 +16,7 @@ export default class PatreonController extends AbstractController {
 	private campaignId:string = "";
 	private members:string[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
+	private smsWarned:boolean = false;
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -196,6 +197,7 @@ export default class PatreonController extends AbstractController {
 				await this.getCampaignID();
 				await this.refreshPatrons(this.isFirstAuth);
 				this.isFirstAuth = false;
+				this.smsWarned = false;
 
 				//Schedule token refresh
 				clearTimeout(this.tokenRefresh);
@@ -217,11 +219,14 @@ export default class PatreonController extends AbstractController {
 			
 
 			//Send myself an SMS to alert me it's down
-			const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
-			urlSms.searchParams.append("user", Config.credentials.sms_uid);
-			urlSms.searchParams.append("pass", Config.credentials.sms_token);
-			urlSms.searchParams.append("msg", "Patreon authentication is down server-side! click this to re auth"+authUrl.href);
-			fetch(urlSms, {method:"GET"});
+			if(!this.smsWarned) {
+				const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
+				urlSms.searchParams.append("user", Config.credentials.sms_uid);
+				urlSms.searchParams.append("pass", Config.credentials.sms_token);
+				urlSms.searchParams.append("msg", "Patreon authentication is down server-side! click this to re auth"+authUrl.href);
+				fetch(urlSms, {method:"GET"});
+				this.smsWarned = true;
+			}
 		}
 
 	}
