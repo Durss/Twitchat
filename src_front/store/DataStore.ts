@@ -141,7 +141,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 42;
+		let latestVersion = 43;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -268,6 +268,10 @@ export default class DataStore {
 		}
 		if(v==41) {
 			this.fixCommandsBlockListDefaultValue(data);
+			v = 42;
+		}
+		if(v==42) {
+			this.resetCustomUsernames(data);
 			v = latestVersion;
 		}
 
@@ -1262,6 +1266,37 @@ export default class DataStore {
 				if(c.userBlockList == "")  c.userBlockList = [];
 			}
 			data[DataStore.CHAT_COLUMNS_CONF] = confs;
+		}
+	}
+
+	/**
+	 * I changed custom user names data format during beta
+	 */
+	private static resetCustomUsernames(data:any):void {
+		const confs:{[key:string]:string} = data[DataStore.CUSTOM_USERNAMES];
+		if(confs) {
+			for (const uid in confs) {
+				//If the value is just a string (the user name) delete it.
+				//I changed data format to be an object with the platform and channel id
+				if(typeof confs[uid] == "string") {
+					delete confs[uid];
+				}
+			}
+			data[DataStore.CUSTOM_USERNAMES] = confs;
+		}
+
+		//Remove all user references with no badges.
+		//I added auto cleanup on update later
+		const badges:{[key:string]:unknown[]} = data[DataStore.CUSTOM_USER_BADGES];
+		if(badges) {
+			for (const uid in badges) {
+				//If the value is just a string (the user name) delete it.
+				//I changed data format to be an object with the platform and channel id
+				if(badges[uid].length == 0) {
+					delete badges[uid];
+				}
+			}
+			data[DataStore.CUSTOM_USER_BADGES] = badges;
 		}
 	}
 }

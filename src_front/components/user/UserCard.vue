@@ -23,7 +23,7 @@
 			<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 		</div>
 
-		<div class="holder" ref="holder" v-else-if="!loading && !error && !manageBadges">
+		<div class="holder" ref="holder" v-else-if="!loading && !error && !manageBadges && !manageUserNames">
 			<CloseButton aria-label="close" @click="close()" />
 			<div class="head">
 				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
@@ -31,11 +31,11 @@
 					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 				</a>
 				<div class="title">
-					<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" />
+					<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channelId" />
 					
 					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 
-					<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" />
+					<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channelId" />
 					
 					<template v-if="!edittingLogin">
 						<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
@@ -50,9 +50,9 @@
 						<Button type="submit" icon="checkmark"></Button>
 					</form>
 				</div>
-				<span v-if="user.displayName != user.displayNameOriginal" class="pronouns">({{ user.displayNameOriginal }})</span>
+				<span v-if="user.displayName != user.displayNameOriginal" class="originalName">({{ user.displayNameOriginal }})</span>
 				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
-				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
+				<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 			</div>
 			
 			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
@@ -140,6 +140,10 @@
 		<div class="holder" ref="holder" v-else-if="manageBadges">
 			<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
 		</div>
+
+		<div class="holder" ref="holder" v-else-if="manageUserNames">
+			<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
+		</div>
 	</div>
 </template>
 
@@ -162,6 +166,7 @@ import ChatModTools from '../messages/components/ChatModTools.vue';
 import CustomUserBadges from './CustomUserBadges.vue';
 import CustomBadgeSelector from './CustomBadgeSelector.vue';
 import CustomBadgesManager from './CustomBadgesManager.vue';
+import CustomUserNameManager from './CustomUserNameManager.vue';
 
 @Component({
 	components:{
@@ -172,6 +177,7 @@ import CustomBadgesManager from './CustomBadgesManager.vue';
 		CustomUserBadges,
 		CustomBadgeSelector,
 		CustomBadgesManager,
+		CustomUserNameManager,
 	}
 })
 export default class UserCard extends Vue {
@@ -183,6 +189,7 @@ export default class UserCard extends Vue {
 	public loadingFollowings:boolean = true;
 	public edittingLogin:boolean = true;
 	public manageBadges:boolean = false;
+	public manageUserNames:boolean = false;
 	public customLogin:string = "";
 	public createDate:string = "";
 	public followDate:string = "";
@@ -340,13 +347,14 @@ export default class UserCard extends Vue {
 		this.customLogin = "";
 		this.edittingLogin = false;
 		this.manageBadges = false;
+		this.manageUserNames = false;
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.temporary;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
-				this.customLogin = this.$store("users").customUsernames[u.id] || u.display_name;
+				this.customLogin = this.$store("users").customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;
 				user.avatarPath = u.profile_image_url;
@@ -463,7 +471,9 @@ export default class UserCard extends Vue {
 	 */
 	public submitCustomLogin():void {
 		this.edittingLogin = false;
-		this.$store("users").setCustomUsername(this.user!, this.customLogin);
+		if(!this.$store("users").setCustomUsername(this.user!, this.customLogin, this.channelId)) {
+			this.manageUserNames = true;
+		}
 		//Update customLogin from the actual displayname.
 		//If clearing the custom login, the real display name is loaded back to the
 		//"displayName" getter .
@@ -660,8 +670,9 @@ export default class UserCard extends Vue {
 				}
 			}
 
-			.pronouns {
+			.pronouns, .originalName {
 				font-style: italic;
+				margin-bottom: .25em;
 			}
 
 			.live {
@@ -688,7 +699,7 @@ export default class UserCard extends Vue {
 				}
 			}
 
-			.subtitle {
+			.userID {
 				font-size: .7em;
 				cursor: copy;
 				z-index: 1;

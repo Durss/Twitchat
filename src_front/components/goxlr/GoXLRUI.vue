@@ -182,7 +182,7 @@ export default class GoXLRUI extends Vue {
 			if(this.childMode === false || /SamplerSelect(A|B|C)/.test(this.selectedButtons.join(","))) {
 				this.allowedButtons.push("SamplerTopLeft", "SamplerTopRight", "SamplerBottomLeft", "SamplerBottomRight", "SamplerClear");
 			}
-		}else if(!/Bank(A|B|C)/.test(this.selectedButtons.join(","))) {
+		}else if(!/SamplerSelect(A|B|C)/.test(this.selectedButtons.join(","))) {
 			this.allowedButtons = this.allowedButtons.filter(v=> v != "SamplerTopLeft" && v != "SamplerTopRight" && v != "SamplerBottomLeft" && v != "SamplerBottomRight" && v != "SamplerClear");
 		}
 		

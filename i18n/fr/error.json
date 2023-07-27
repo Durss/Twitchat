@@ -55,6 +55,9 @@
 		},
 		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
 		"patreon_disconected": "Votre compte Patreon a été deconnecté",
-		"badge_file_loading_failed": "Une erreur a eu lieu lors du chargement de l'image"
+		"badge_file_loading_failed": "Une erreur a eu lieu lors du chargement de l'image",
+		"max_custom_usernames": "Vous avez atteint le maximum de 10 noms d'utilisateur personnalisés que vous pouvez définir. Devenez premium pour en définir jusqu'à 10000.",
+		"max_custom_badges": "Vous avez atteint le maximum de 3 badges personnalisés que vous pouvez créer. Devenez premium pour en créer jusqu'à 100.",
+		"max_custom_badges_given": "Vous avez atteint le maximum de 30 utilisateurices avec un badge personnalisé. Devenez premium pour attribuer des badges personnalisés jusqu'à 10000 utilisateurices."
 	}
 }

@@ -167,6 +167,8 @@ type EnvName = "dev" | "prod";
 
 interface Credentials {
 	server_port:number;
+	sms_uid?:string;
+	sms_token?:string;
 
 	admin_ids: string[];
 	csrf_key: string;

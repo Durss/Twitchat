@@ -16,6 +16,11 @@ export default class PatreonController extends AbstractController {
 	private campaignId:string = "";
 	private members:string[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
+
+	//If a user chooses to make a "custom pledge", they're not attributed to any
+	//actual tier. This represents the minimum amount (in cents) they should give
+	//to still be considered a member
+	private MIN_AMOUNT:number = 200;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -183,7 +188,7 @@ export default class PatreonController extends AbstractController {
 				console.log(json.error);
 				this.logout();
 			}else{
-				const token:PatreonToken = json;
+				token = json;
 				if(this.isFirstAuth){
 					Logger.success("Patreon: API ready");
 				}
@@ -199,14 +204,24 @@ export default class PatreonController extends AbstractController {
 				}, token.expires_in - 60000);
 			}
 
-		}else{
-			const url = new URL("https://www.patreon.com/oauth2/authorize");
-			url.searchParams.append("response_type", "code");
-			url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
-			url.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
-			url.searchParams.append("scope", this.localScopes);
-			url.searchParams.append("state", "");
-			Logger.warn("Please connect to patreon !", url.href);
+		}
+		
+		if(!token){
+			const authUrl = new URL("https://www.patreon.com/oauth2/authorize");
+			authUrl.searchParams.append("response_type", "code");
+			authUrl.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
+			authUrl.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
+			authUrl.searchParams.append("scope", this.localScopes);
+			authUrl.searchParams.append("state", "");
+			Logger.warn("Please connect to patreon !", authUrl.href);
+			
+
+			//Send myself an SMS to alert me it's down
+			const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
+			urlSms.searchParams.append("user", Config.credentials.sms_uid);
+			urlSms.searchParams.append("pass", Config.credentials.sms_token);
+			urlSms.searchParams.append("msg", "Patreon authentication is down server-side! click this to re auth"+authUrl.href);
+			fetch(urlSms, {method:"GET"});
 		}
 
 	}
@@ -310,7 +325,7 @@ export default class PatreonController extends AbstractController {
 
 			//Only keep active patrons
 			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
-			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0)
+			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0 || v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT)
 			.map(v =>{
 				const member:PatreonMember = {
 					id:v.id,

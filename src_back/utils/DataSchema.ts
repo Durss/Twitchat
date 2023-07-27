@@ -575,33 +575,47 @@ import Ajv from "ajv";
 		customUsernames: {
 			type:"object",
 			additionalProperties: false,
-			maxProperties:1000,
+			maxProperties:10000,
 			patternProperties: {
-			  ".{1,20}": {type: "string", maxLength:25}
+			  ".{1,20}": {
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					name:{type: "string", maxLength:25},
+					channel: {type:"string", maxLength:50},
+					platform: {type:"string", maxLength:15},
+				}
+			}
 			},
 		},
 		customBadgeList: {
-			type:"object",
-			additionalProperties: false,
-			maxProperties:100,
-			patternProperties: {
-				".{40}": {type: "string", maxLength:6000}
-			},
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id:{type: "string", maxLength:40},
+					img:{type: "string", maxLength:6000},
+				}
+			}
 		},
 		customUserBadges: {
 			type:"object",
 			additionalProperties: false,
-			maxProperties:1000,
+			maxProperties:10000,
 			patternProperties: {
 			  ".{1,10}": {
 					type:"array",
 					minItems:0,
-					maxItems:100,
+					maxItems:20,
 					items:{
 						type:"object",
 						additionalProperties: false,
 						properties: {
 							id: {type:"string", maxLength:40},
+							channel: {type:"string", maxLength:50},
 							platform: {type:"string", maxLength:15},
 						},
 					},

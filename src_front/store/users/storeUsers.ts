@@ -8,9 +8,9 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
-import DataStore from '../DataStore';
 
 interface BatchItem {
 	channelId?:string;
@@ -238,7 +238,7 @@ export const storeUsers = defineStore('users', {
 					this.originalDisplayName = name;
 				},
 				get: function() {
-					return StoreProxy.users.customUsernames[this.id] || this.originalDisplayName || this.login
+					return StoreProxy.users.customUsernames[this.id]?.name || this.originalDisplayName || this.login
 				}}
 			);
 			
@@ -845,22 +845,40 @@ export const storeUsers = defineStore('users', {
 			}
 		},
 
-		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void {
+		removeCustomUsername(uid:string):void {
+			delete this.customUsernames[uid];
+			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		},
+
+		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean {
 			name = name.trim();
 			if(!name) {
 				delete this.customUsernames[user.id];
 			}else{
-				this.customUsernames[user.id] = name;
+				//User can give up to 10 custom user names if not premium
+				if(!this.customUsernames[user.id]
+				&& !StoreProxy.auth.isPremium
+				&& Object.keys(this.customUsernames).length >= 10) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_usernames"));
+					return false;
+				}
+				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
 			}
 			
 			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+			return true;
 		},
 
-		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string):void {
+		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId:string):boolean {
 			let id = "";
 			//add badge to global list if necessary
 			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
 			if(existingIndex == -1) {
+				//User can create up to 3 custom badges if not premium
+				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= 3) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges"));
+					return false;
+				}
 				id = Utils.getUUID();
 				this.customBadgeList.push({id, img});
 			}else{
@@ -870,13 +888,19 @@ export const storeUsers = defineStore('users', {
 			if(user) {
 				if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
 				//Add badge to the user if necessary
-				if(this.customUserBadges[user.id].findIndex(v => v.id == id)==-1) {
-					this.customUserBadges[user.id].push({id, platform:"twitch"});
+				if(this.customUserBadges[user.id].findIndex(v => v.id == id) == -1) {
+					//User can give badges to 30 users max if not premium
+					if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= 30) {
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given"));
+						return false;
+					}
+					this.customUserBadges[user.id].push({id, platform:user.platform, channel:channelId});
 				}
 				DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 			}
 
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+			return true;
 		},
 
 		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string):void {
@@ -884,6 +908,9 @@ export const storeUsers = defineStore('users', {
 
 			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
 			this.customUserBadges[user.id].splice(index, 1);
+			if(this.customUserBadges[user.id].length === 0) {
+				delete this.customUserBadges[user.id];
+			}
 
 			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 		},

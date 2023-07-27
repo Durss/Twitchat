@@ -43,8 +43,11 @@ import Button from '../Button.vue';
 })
 export default class CustomBadgeSelector extends Vue {
 
-	@Prop()
+	@Prop
 	public user!:TwitchatDataTypes.TwitchatUser;
+
+	@Prop
+	public channelId!:string;
 
 	/**
 	 * Called when selecting a file for a custom badge
@@ -57,13 +60,13 @@ export default class CustomBadgeSelector extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			this.$store("users").addCustomBadge(this.user!, base64Img);
+			this.$store("users").addCustomBadge(this.user!, base64Img, this.channelId);
 			input.value = "";
 		});
 	}
 
 	public addBadge(image:string):void {
-		this.$store("users").addCustomBadge(this.user!, image);
+		this.$store("users").addCustomBadge(this.user!, image, this.channelId);
 	}
 
 }

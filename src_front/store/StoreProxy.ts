@@ -239,6 +239,7 @@ export type IAuthState = {
 }
 
 export interface IAuthGetters {
+	isPremium:boolean;
 }
 
 export interface IAuthActions {
@@ -1189,12 +1190,12 @@ export interface IUsersState {
 	 * Contains custom user names used for display on place of the actual username
 	 * Associates a user ID to a custom display name
 	 */
-	customUsernames:{[key:string]:string};
+	customUsernames:{[key:string]:{ name:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}};
 	/**
 	 * Contains custom user badges references.
 	 * Associates a user ID to custom badge ID from the customBadgeList array
 	 */
-	customUserBadges:{[key:string]:{platform:TwitchatDataTypes.ChatPlatform, id:string}[]};
+	customUserBadges:{[key:string]:{platform:TwitchatDataTypes.ChatPlatform, id:string, channel:string}[]};
 	/**
 	 * Contains custom user badges
 	 */
@@ -1395,15 +1396,22 @@ export interface IUsersActions {
 	 */
 	executePendingShoutouts():void;
 	/**
+	 * Deletes a custom user name
+	 * @param uid 
+	 */
+	removeCustomUsername(uid:string):void;
+	/**
 	 * Defines a custom username to the given user
 	 * @param user 
 	 * @param name 
+	 * @returns false if user has used all the non premium slots
 	 */
-	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string):void;
+	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean;
 	/**
 	 * Adds a custom badge to the given user
+	 * @returns false if user has used all the non premium slots
 	 */
-	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string):void;
+	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId:string):boolean;
 	/**
 	 * Removes a custom badge from the given user
 	 */

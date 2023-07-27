@@ -23,6 +23,9 @@ export default class CustomUserBadges extends Vue {
 	@Prop()
 	public tooltip!:string;
 
+	@Prop
+	public channelId!:string;
+
 	public get badges():{id:string, img:string}[] {
 		const res:{id:string, img:string}[] = [];
 		const badges = this.$store("users").customUserBadges[this.user.id];

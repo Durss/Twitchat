@@ -1,7 +1,7 @@
 {
 	"premium":{
 		"header":"Support Twitchat and unlock premium features",
-		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially some features are exclusive to people supporting me on Patreon monthly.",
+		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially some features are exclusive to people supporting me monthly on Patreon at any tier.",
 		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
 		"early_donor2":"Although it would be very appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
 		"early_donor2_link":"Patreon",
@@ -10,6 +10,9 @@
 		"features":[
 			"Control your GoXLR from chat commands, channel point rewards, ...",
 			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",
+			"Customize the name of up to 10000 of your viewers (limited to 10 otherwise)",
+			"Create up to 100 custom badges (limited to 3 otherwise)",
+			"Give a custom badge to up to 10000 users (limited to 30 otherwise)",
 			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
 		]
 	}

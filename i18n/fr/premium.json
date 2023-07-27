@@ -10,6 +10,9 @@
 		"features":[
 			"Controlez votre GoXLR depuis des commandes tchat, récompenses de points de chaine, ...",
 			"Effectuez des actions personnalisées lorsque vous utilisez un bouton de votre GoXLR (ex: afficher une source OBS lorsque vous utilisez le bouton cough)",
+			"Personnalisez le pseudo de 10000 de vos viewers (limité à 10 autrement)",
+			"Créez jusqu'à 100 badges personnalisés (limtié à 3 autrement)",
+			"Attribuez des badges personnalisés à 10000 de vos viewers (limité à 30 autrement)",
 			"Désactivez le lien vers \"twitchat.fr\" envoyé toutes les 2h dans votre chat"
 		]
 	}

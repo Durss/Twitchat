@@ -14,6 +14,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
+import PatreonHelper from "@/utils/patreon/PatreonHelper";
 
 let refreshTokenTO:number = -1;
 
@@ -31,9 +32,10 @@ export const storeAuth = defineStore('auth', {
 	
 	
 	getters: {
-	} as IAuthGetters
-	& ThisType<UnwrapRef<IAuthState> & _StoreWithGetters<IAuthGetters> & PiniaCustomProperties>
-	& _GettersTree<IAuthState>,
+		
+		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
+
+	},
 	
 	
 	
