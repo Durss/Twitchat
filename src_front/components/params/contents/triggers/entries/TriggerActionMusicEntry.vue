@@ -19,7 +19,7 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -70,9 +70,8 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-
 		this.track_conf.placeholderList = list;
-		this.confirmSongRequest_conf.placeholderList = list.concat(TriggerActionPlaceholders("music"));
+		this.confirmSongRequest_conf.placeholderList = list.concat(TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
 		this.playlist_conf.placeholderList = list;
 	}
 

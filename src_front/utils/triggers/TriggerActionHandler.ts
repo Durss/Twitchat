@@ -1557,6 +1557,19 @@ export default class TriggerActionHandler {
 								value = counter.value.toString();
 							}
 						}
+	
+					/**
+					 * If the placeholder requests for currently playing music track
+					 */
+					}else if(pointer.indexOf("__current_track__") == 0) {
+						const pointer = h.pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
+						switch(pointer) {
+							case "title": value = SpotifyHelper.instance.currentTrack.title; break;
+							case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
+							case "album": value = SpotifyHelper.instance.currentTrack.album; break;
+							case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
+							case "url": value = SpotifyHelper.instance.currentTrack.url; break;
+						}
 					}
 				}else{
 
@@ -1574,24 +1587,8 @@ export default class TriggerActionHandler {
 						if(typeof root === "number") root = root.toString();
 						value = root as string;
 					}catch(error) {
-						
-						/**
-						 * If the placeholder requests for the current track and we're ending up here
-						 * this means that the message does not contain the actual track.
-						 * In this case we go get the currently playing track
-						 */
-						if(h.tag.toLowerCase().indexOf("current_track") == 0) {
-							//That replace() is dirty but I'm too lazy to do that in a more generic way :(
-							const pointer = h.pointer.replace('track.', '') as TwitchatDataTypes.MusicTrackDataKeys
-							if(SpotifyHelper.instance.connected && SpotifyHelper.instance.currentTrack) {
-								value = SpotifyHelper.instance.currentTrack[pointer]?.toString();
-							}
-							if(!value) value = "-none-";
-							
-						}else{
-							console.warn("Unable to find pointer for helper", h);
-							value = "";
-						}
+						console.warn("Unable to find pointer for helper", h);
+						value = "";
 					}
 				}
 
