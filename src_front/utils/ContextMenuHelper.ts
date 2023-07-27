@@ -1,15 +1,15 @@
+import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
+import TwitchatEvent from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ContextMenu from "@imengyu/vue3-context-menu";
 import type * as CMTypes from "@imengyu/vue3-context-menu";
-import TwitchUtils from "./twitch/TwitchUtils";
-import { TwitchScopes } from "./twitch/TwitchScopes";
+import ContextMenu from "@imengyu/vue3-context-menu";
 import { h, reactive, type RendererElement, type RendererNode, type VNode } from "vue";
-import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
 import PublicAPI from "./PublicAPI";
-import TwitchatEvent from "@/events/TwitchatEvent";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
+import { TwitchScopes } from "./twitch/TwitchScopes";
+import TwitchUtils from "./twitch/TwitchUtils";
 
 /**
 * Created : 07/04/2023 
@@ -347,8 +347,9 @@ export default class ContextMenuHelper {
 		options.forEach(v=> {
 			v.clickableWhenHasChildren = true;
 		})
+		
 		const menu = reactive({
-			theme: 'mac dark',
+			theme: 'mac '+StoreProxy.main.theme,
 			x: px,
 			y: py,
 			items: options,
