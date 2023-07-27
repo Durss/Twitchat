@@ -39,7 +39,7 @@ import Button from '../Button.vue';
 		Icon,
 		Button,
 	},
-	emits:["manageBadges"],
+	emits:["manageBadges", "limitReached"],
 })
 export default class CustomBadgeSelector extends Vue {
 
@@ -66,7 +66,9 @@ export default class CustomBadgeSelector extends Vue {
 	}
 
 	public addBadge(image:string):void {
-		this.$store("users").addCustomBadge(this.user!, image, this.channelId);
+		if(!this.$store("users").addCustomBadge(this.user!, image, this.channelId)) {
+			this.$emit("limitReached");
+		}
 	}
 
 }

@@ -6,7 +6,7 @@
 
 		<div class="list">
 			<div class="user" v-for="u, key in $store('users').customUsernames">
-				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(key as string)"><Icon name="trash" theme="alert" /></button>
+				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(key as string)"><Icon name="cross" theme="alert" /></button>
 				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ $store("users").getUserFrom(u.platform, u.channel, key as string).displayNameOriginal }}</span>
 				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ u.name }})</span>
 			</div>
@@ -84,6 +84,7 @@ export default class CustomUserNameManager extends Vue {
 				height: 1em;
 				width: 1em;
 				vertical-align: middle;
+				margin-right: 2px;
 				.icon {
 					width: 100%;
 					height: 100%;

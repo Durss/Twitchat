@@ -171,7 +171,7 @@ interface ClickData {
 	background-position: center center;
 	width: 100%;
 	aspect-ratio: 16/9;
-	background-color: var(--color-primary);
+	background-color: var(--color-text-inverse);
 	
 	.area {
 		cursor: none;

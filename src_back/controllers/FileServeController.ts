@@ -93,9 +93,10 @@ export default class FileServeController extends AbstractController {
 		if(!super.adminGuard(request, response)) return;
 
 		const body:any = request.body;
+		console.log(body);
 		const dateStart:number = body.dateStart || Date.now();
 		const dateEnd:number = body.dateEnd;
-		const important:boolean = body.important === "true";
+		const important:boolean = body.important === true;
 		const title:{[key:string]:string} = body.title;
 		const text:{[key:string]:string} = body.text;
 		const versionMax:string = body.versionMax || "";

@@ -15,6 +15,7 @@
 		"obs_source":"Source OBS",
 		"need_OBS":"Cette fonctionnalité requiert de lier Twitchat à OBS.",
 		"need_OBS_connectBt":"Lier OBS",
+		"max_screen_reached":"Vous avez atteint le maximum de {COUNT} écrans Heat que vous pouvez créer",
 		"overlay_spotify": {
 			"title": "Overlay Spotify",
 			"description": "Envoyer un message lorsque quelqu'un clique sur l'overlay Spotify"

@@ -146,6 +146,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				dateStart:new Date(this.param_dateStart.value).getTime(),
 				dateEnd:new Date(this.param_dateEnd.value).getTime(),
 				versionMax:this.param_versionMax.value,
+				important:this.param_important.value,
 			};
 			const options = {
 				method:"POST",

@@ -27,6 +27,11 @@ export default class Config {
 	// public TWITCH_SHOUTOUT_COOLDOWN = 10000;
 	// public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60000;
 	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("08-02-2023 00:00:00");
+	public MAX_CUSTOM_USERNAMES = 10;
+	public MAX_CUSTOM_BADGES = 3;
+	public MAX_CUSTOM_BADGES_ATTRIBUTION = 30;
+	public MAX_CUSTOM_HEAT_SCREENS = 2;
+	public MAX_CUSTOM_HEAT_SCREENS_PREMIUM = 100;
 	
 	private _serverConfig!:ServerConfig;
 	

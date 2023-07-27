@@ -23,14 +23,13 @@
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import Button from '@/components/Button.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import Config from '@/utils/Config';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
 
 @Component({
 	components:{
@@ -53,7 +52,7 @@ export default class GoXLRConnectForm extends Vue {
 
 	public get connected():boolean { return GoXLRSocket.instance.connected; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get isPremium():boolean { return PatreonHelper.instance.isMember && this.$store("auth").twitch.user.donor.earlyDonor; }
+	public get isPremium():boolean { return this.$store("auth").isPremium; }
 
 	public async connect():Promise<void> {
 		if(!this.isPremium) return;

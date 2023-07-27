@@ -24,7 +24,9 @@
 						@duplicate="duplicateScreen" />
 				</template>
 				<template #footer>
-					<Button slot="footer" class="item" icon="add" @click="createScreen"></Button>
+					<Button slot="footer" class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></Button>
+					<Button slot="footer" class="item" icon="premium" premium big @click="openPremium()" v-else-if="!$store('auth').isPremium"></Button>
+					<div class="card-item secondary" v-else>{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
 				</template>
 			</draggable>
 
@@ -34,6 +36,7 @@
 </template>
 
 <script lang="ts">
+import Config from '@/utils/Config';
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
@@ -56,6 +59,12 @@ import draggable from 'vuedraggable';
 export default class HeatScreenList extends Vue {
 
 	public currentScreen:HeatScreen|null = null;
+
+	public get maxScreens():number { return Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM }
+	public get canCreateScreens():boolean {
+		return (!this.$store('auth').isPremium && this.$store('heat').screenList.length < Config.instance.MAX_CUSTOM_HEAT_SCREENS)
+		|| this.$store('heat').screenList.length < this.maxScreens;
+	}
 
 	public async beforeMount():Promise<void> {
 	}
@@ -86,6 +95,13 @@ export default class HeatScreenList extends Vue {
 	 */
 	public duplicateScreen(id:string):void {
 		this.$store("heat").duplicateScreen(id);
+	}
+
+	/**
+	 * Called when clicking duplicate button
+	 */
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -121,6 +137,14 @@ export default class HeatScreenList extends Vue {
 				width: 30%;
 				min-width: 100px;
 				aspect-ratio: 16/9;
+
+				&.button {
+					:deep(.icon) {
+						height: 2em;
+						width: 2em;
+						max-width: 2em;
+					}
+				}
 			}
 		}
 	}

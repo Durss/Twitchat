@@ -15,6 +15,7 @@
 		"obs_source":"OBS source",
 		"need_OBS":"This features needs you to connect with OBS.",
 		"need_OBS_connectBt":"Connect with OBS",
+		"max_screen_reached":"You reached the maximum of {COUNT} screen you can create",
 		"overlay_spotify": {
 			"title": "Spotify overlay",
 			"description": "Send a message when Spotify overlay is clicked"

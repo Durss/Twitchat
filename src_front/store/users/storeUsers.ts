@@ -858,8 +858,8 @@ export const storeUsers = defineStore('users', {
 				//User can give up to 10 custom user names if not premium
 				if(!this.customUsernames[user.id]
 				&& !StoreProxy.auth.isPremium
-				&& Object.keys(this.customUsernames).length >= 10) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_usernames"));
+				&& Object.keys(this.customUsernames).length >= Config.instance.MAX_CUSTOM_USERNAMES) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
 					return false;
 				}
 				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
@@ -875,8 +875,8 @@ export const storeUsers = defineStore('users', {
 			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
 			if(existingIndex == -1) {
 				//User can create up to 3 custom badges if not premium
-				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= 3) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges"));
+				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= Config.instance.MAX_CUSTOM_BADGES) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges", {COUNT:Config.instance.MAX_CUSTOM_BADGES}));
 					return false;
 				}
 				id = Utils.getUUID();
@@ -894,8 +894,8 @@ export const storeUsers = defineStore('users', {
 				//Add badge to the user if necessary
 				if(this.customUserBadges[user.id].findIndex(v => v.id == id) == -1) {
 					//User can give badges to 30 users max if not premium
-					if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= 30) {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given"));
+					if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
 						return false;
 					}
 					this.customUserBadges[user.id].push({id, platform:user.platform, channel:channelId!});
@@ -934,6 +934,9 @@ export const storeUsers = defineStore('users', {
 				const index = userBadges[uid].findIndex(v=> v.id == badgeId);
 				if(index > -1) {
 					userBadges[uid].splice(index, 1);
+					if(userBadges[uid].length == 0) {
+						delete userBadges[uid];
+					}
 				}
 			}
 

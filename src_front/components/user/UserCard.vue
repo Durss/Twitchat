@@ -31,7 +31,7 @@
 					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 				</a>
 				<div class="title">
-					<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channelId" />
+					<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channelId" @limitReached="manageBadges = true" />
 					
 					<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 

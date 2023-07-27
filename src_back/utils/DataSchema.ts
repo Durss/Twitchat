@@ -912,27 +912,42 @@ import Ajv from "ajv";
 		},
 
 		heatScreens: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				id: {type:"string", maxLength:40},
-				enabled: {type:"boolean"},
-				activeOBSScene: {type:"string", maxLength:100},
-				areas: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						id: {type:"string", maxLength:40},
-						points: {
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					enabled: {type:"boolean"},
+					activeOBSScene: {type:"string", maxLength:100},
+					areas: {
+						type:"array",
+						minItems:0,
+						maxItems:100,
+						items:{
 							type:"object",
 							additionalProperties: false,
 							properties: {
-								x: {type:"number", minimum:0, maximum:1},
-								y: {type:"number", minimum:0, maximum:1},
+								id: {type:"string", maxLength:40},
+								points: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										properties: {
+											x: {type:"number", minimum:0, maximum:1},
+											y: {type:"number", minimum:0, maximum:1},
+										}
+									}
+								},
 							}
-						},
-					}
-				},
+						}
+					},
+				}
 			}
 		},
 	}
