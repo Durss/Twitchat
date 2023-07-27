@@ -945,8 +945,8 @@ import Ajv from "ajv";
 										type:"object",
 										additionalProperties: false,
 										properties: {
-											x: {type:"number", minimum:0, maximum:1},
-											y: {type:"number", minimum:0, maximum:1},
+											x: {type:"number", minimum:-10, maximum:10},
+											y: {type:"number", minimum:-10, maximum:10},
 										}
 									}
 								},

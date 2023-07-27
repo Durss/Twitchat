@@ -1491,7 +1491,7 @@ export default class TriggerActionHandler {
 
 		try {
 			// console.log("===== PARSE TEXT =====");
-			// console.log(eventType);
+			// console.log(trigger);
 			// console.log(message);
 			// console.log(src);
 			// console.log(subEvent);
@@ -1499,36 +1499,33 @@ export default class TriggerActionHandler {
 			let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
 			if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
 			// console.log(placeholders);
-			// console.log(helpers);
 			//No placeholders for this event type, just send back the source text
 			if(placeholders.length == 0) return res;
 
 			
-			for (const h of placeholders) {
-				const chunks:string[] = h.pointer.split(".");
-				let root = message as unknown;
+			for (const placeholder of placeholders) {
 				let value:string = "";
 				let cleanSubevent = true;
-				h.tag = h.tag.toUpperCase();
+				placeholder.tag = placeholder.tag.toUpperCase();
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
-				if(h.pointer.indexOf("__")==0) {
-					let pointer = h.pointer.toLowerCase();
+				if(placeholder.pointer.indexOf("__")==0) {
+					let pointer = placeholder.pointer.toLowerCase();
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
-						const pointer = h.pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
-						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointer]?.toString() || "";
-						if(!value) value = pointer == "viewers"? "0" : "-none-";
+						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
+						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
+						if(!value) value = pointerLocal == "viewers"? "0" : "-none-";
 
 					/**
 					 * If the placeholder requests for Ulule info
 					 */
 					}else if(pointer.indexOf("__ulule__") == 0 && ululeProject) {
-						const pointer = h.pointer.replace('__ulule__.', '');
-						switch(pointer) {
+						const pointerLocal = pointer.replace('__ulule__.', '');
+						switch(pointerLocal) {
 							case "url": value = ululeProject; break;
 							case "name": {
 								//This is a dirty duplicate of what's in OverlayParamsUlule.
@@ -1570,7 +1567,7 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for a counter's value
 					 */
 					}else if(pointer.indexOf("__counter__") == 0) {
-						const counterPH = h.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+						const counterPH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
 						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
 						if(counter) {
 							if(counter.perUser === true) {
@@ -1590,9 +1587,9 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for currently playing music track
 					 */
-					}else if(pointer.indexOf("__current_track__") == 0) {
-						const pointer = h.pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
-						switch(pointer) {
+					}else if(pointer.indexOf("__current_track__") == 0 && SpotifyHelper.instance.currentTrack) {
+						const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
+						switch(pointerLocal) {
 							case "title": value = SpotifyHelper.instance.currentTrack.title; break;
 							case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
 							case "album": value = SpotifyHelper.instance.currentTrack.album; break;
@@ -1601,22 +1598,25 @@ export default class TriggerActionHandler {
 						}
 					}
 				}else{
+					const chunks:string[] = placeholder.pointer.split(".");
+					let root = message as unknown;
 
 					//Dynamic parsing of the pointer
 					try {
 						//Dynamically search for the requested prop's value within the object
-						for (let i = 0; i < chunks.length; i++) {
-							if(chunks[i] === "0") continue;//Skip array index selector
+						const rebuilt:string[] = [];
+						chunks: for (let i = 0; i < chunks.length; i++) {
+							rebuilt.push(chunks[i])
 							root = (root as {[key:string]:unknown})[chunks[i]];
 							if(Array.isArray(root)) {
-								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+1]]).join(", ");
-								break;
+								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]]).join(", ");
+								break chunks;
 							}
 						}
 						if(typeof root === "number") root = root.toString();
 						value = root as string;
 					}catch(error) {
-						console.warn("Unable to find pointer for helper", h);
+						console.warn("Unable to find pointer for helper", placeholder);
 						value = "";
 					}
 				}
@@ -1633,7 +1633,7 @@ export default class TriggerActionHandler {
 					value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 				}
 				
-				res = res.replace(new RegExp("\\{"+h.tag+"\\}", "gi"), value ?? "");
+				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}
 
 			//Replace dynamic placeholders. These are user defined placeholders.
