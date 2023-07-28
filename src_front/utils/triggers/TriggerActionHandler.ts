@@ -1339,11 +1339,11 @@ export default class TriggerActionHandler {
 				if(step.type == "goxlr") {
 					logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action});
 					switch(step.action) {
-						case "cough_on":
-						case "cough_off": {
-							GoXLRSocket.instance.setCoughState(step.action == "cough_on");
-							break;
-						}
+						// case "cough_on":
+						// case "cough_off": {
+						// 	GoXLRSocket.instance.setCoughState(step.action == "cough_on");
+						// 	break;
+						// }
 						case "fx_on":
 						case "fx_off": {
 							if(step.fxPresetIndex && step.fxPresetIndex > -1) {

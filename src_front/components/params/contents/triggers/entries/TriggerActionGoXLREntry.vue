@@ -35,7 +35,7 @@ export default class TriggerActionGoXLREntry extends AbstractTriggerActionEntry 
 	declare action:TriggerActionGoXLRData;
 
 	public sampleTarget:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC"|"SamplerBottomLeft"|"SamplerBottomRight"|"SamplerTopLeft"|"SamplerTopRight">[] = [];
-	public param_action:TwitchatDataTypes.ParameterData<TriggerActionGoXLRDataAction> = {type:"list", value:"fx_on", labelKey:"triggers.actions.goxlr.param_action"}
+	public param_action:TwitchatDataTypes.ParameterData<TriggerActionGoXLRDataAction, string> = {type:"list", value:"fx_on", labelKey:"triggers.actions.goxlr.param_action"}
 	public param_fxPreset:TwitchatDataTypes.ParameterData<number> = {type:"list", value:0, labelKey:"triggers.actions.goxlr.param_fxPreset"}
 
 	public mounted():void {

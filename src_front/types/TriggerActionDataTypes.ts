@@ -421,10 +421,10 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 
 
 export const TriggerActionGoXLRDataActionList = [
-	{code:"fx_on", mini:false}, 
+	{code:"fx_on", mini:false} as {code:string, mini:boolean}, //The enforced type is only here to let the rest of the app know "mini" can also be true even though there are none yet
 	{code:"fx_off", mini:false}, 
-	{code:"cough_on", mini:true}, 
-	{code:"cough_off", mini:true}, 
+	// {code:"cough_on", mini:true}, 
+	// {code:"cough_off", mini:true}, 
 	{code:"sample_play", mini:false},
 ] as const;
 export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[number]['code'];
