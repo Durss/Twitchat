@@ -331,14 +331,25 @@ export interface TriggerActionBingoData extends TriggerActionData{
 	bingoData:TwitchatDataTypes.BingoConfig;
 }
 
+export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff"] as const;
+export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
 export interface TriggerActionVoicemodData extends TriggerActionData{
 	type:"voicemod";
 	/**
-	 * Voice ID to enabled when "voice" mode is selected
+	 * Type of action
+	 * @default "voice"
+	 */
+	action:TriggerActionVoicemodDataAction;
+	/**
+	 * Voice ID to enabled when "voice" action type is selected
 	 */
 	voiceID:string;
 	/**
-	 * Placeholder containing the voice name
+	 * Sound ID to to play when "sound" action type is selected
+	 */
+	soundID:string;
+	/**
+	 * Placeholder containing the voice or sound name
 	 */
 	placeholder:string
 }

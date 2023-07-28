@@ -16,9 +16,13 @@ export const storeVoice = defineStore('voice', {
 		},
 		
 		voicemodCurrentVoice:{
-			voiceID: "nofx",
+			id:"nofx",
 			friendlyName: "clean",
-			image:"",
+			bitmapChecksum:"",
+			enabled:true,
+			favorited:false,
+			isCustom:false,
+			isNew:false,
 		},
 
 		voicemodParams: {
@@ -51,12 +55,12 @@ export const storeVoice = defineStore('voice', {
 	actions: {
 		setVoiceLang(value:string) {
 			this.voiceLang = value
-			DataStore.set("voiceLang", value);
+			DataStore.set(DataStore.VOICEMOD_ACTIONS, value);
 		},
 
 		setVoiceActions(value:VoiceAction[]) {
 			this.voiceActions = value;
-			DataStore.set("voiceActions", value);
+			DataStore.set(DataStore.VOICEMOD_LANG, value);
 		},
 		
 		setVoicemodParams(payload:TwitchatDataTypes.VoicemodParamsData) {

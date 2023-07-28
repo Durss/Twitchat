@@ -90,6 +90,10 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		usersAllowed:[],
 		usersRefused:[],
 	}
+
+	private loadCount:number = 0;
+	private loadTotal:number = 0;
+	private voiceIdToCommand:{[key:string]:string} = {};
 	
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
@@ -115,6 +119,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 			this.connect();
 		} else {
 			this.connected = false;
+			this.connecting = false;
 			this.saveData();
 			VoicemodWebSocket.instance.disconnect();
 		}
@@ -134,11 +139,11 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		}catch(error) {}
 
 		this.connected = res;
+		this.connecting = false;
 		if(res) {
 			this.populate();
 		}
 		if(!res) {
-			this.connecting = false;
 			this.connectionFailed = true;
 		}
 	}
@@ -153,30 +158,20 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		const storeParams = this.$store("voice").voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
-		const voiceIdToCommand:{[key:string]:string} = {};
 		for (const key in storeParams.commandToVoiceID) {
-			voiceIdToCommand[ storeParams.commandToVoiceID[key] ] = key;
+			this.voiceIdToCommand[ storeParams.commandToVoiceID[key] ] = key;
 		}
 
-		let loadTotal = this.voices.length;
-		let loadCount = 0;
-		for (let i = 0; i < loadTotal; i++) {
+		this.loadTotal = this.voices.length;
+		this.loadCount = 0;
+		for (let i = 0; i < this.loadTotal; i++) {
 			const v = this.voices[i];
-			VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID).then((img:string)=>{
-				const data:TwitchatDataTypes.ParameterData<string> = {
-					type: "string",
-					storage: v,
-					label: v.friendlyName,
-					value: voiceIdToCommand[v.voiceID] ?? "",
-					placeholder: "!command",
-					maxLength: 50,
-					iconURL: "data:image/png;base64," + img
-				};
-				this.voiceParams.push( data );
-				if(++loadCount === loadTotal) {
-					this.saveData();
-					this.connecting = false;
-				}
+			if(!v.bitmapChecksum) {
+				this.addVoiceTolist(v);
+				continue;
+			}
+			VoicemodWebSocket.instance.getBitmapForVoice(v.id).then((img:string)=>{
+				this.addVoiceTolist(v, img);
 			});
 		}
 	}
@@ -191,7 +186,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 			const p = this.voiceParams[i];
 			const cmd = p.value.trim().toLowerCase();
 			if(cmd.length > 0) {
-				commandToVoiceID[cmd] = (p.storage as VoicemodTypes.Voice).voiceID;
+				commandToVoiceID[cmd] = (p.storage as VoicemodTypes.Voice).id;
 			}
 		}
 
@@ -209,6 +204,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	 */
 	private prefill():void {
 		const params:TwitchatDataTypes.VoicemodParamsData = this.$store("voice").voicemodParams;
+		this.param_enabled.value = this.$store("voice").voicemodParams.enabled === true;
 		if(params.enabled === true) {
 			this.param_enabled.value = true;
 			this.param_voiceIndicator.value = params.voiceIndicator;
@@ -220,6 +216,27 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 			this.permissions.all = storedPermissions?.all;
 			this.permissions.usersAllowed = storedPermissions?.usersAllowed;
 			this.permissions.usersRefused = storedPermissions?.usersRefused;
+		}
+	}
+
+	private addVoiceTolist(v:VoicemodTypes.Voice, img?:string):void {
+		const data:TwitchatDataTypes.ParameterData<string> = {
+			type: "string",
+			storage: v,
+			label: v.friendlyName,
+			value: this.voiceIdToCommand[v.id] ?? "",
+			placeholder: "!command",
+			maxLength: 50,
+			iconURL: img? "data:image/png;base64," + img : ""
+		};
+		this.voiceParams.push( data );
+		this.voiceParams.sort((a, b)=> {
+			if((a.storage as VoicemodTypes.Voice).friendlyName < (b.storage as VoicemodTypes.Voice).friendlyName) return -1;
+			if((a.storage as VoicemodTypes.Voice).friendlyName > (b.storage as VoicemodTypes.Voice).friendlyName) return 1;
+			return 0;
+		});
+		if(++this.loadCount === this.loadTotal) {
+			this.saveData();
 		}
 	}
 }

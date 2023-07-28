@@ -229,6 +229,7 @@ import Ajv from "ajv";
 								confirmMessage: {type:"string", maxLength:500},
 								playlist: {type:"string", maxLength:500},
 								voiceID: {type:"string", maxLength:100},
+								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},
 								method: {type:"string", maxLength:10},
 								addValue: {type:"string", maxLength:100},

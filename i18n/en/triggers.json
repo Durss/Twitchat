@@ -215,9 +215,13 @@
 			"voicemod": {
 				"header": "This feature needs you to {LINK}",
 				"header_link": "connect with Voicemod",
-				"param_voice": "Voice",
-				"tab_voice":"Specific voice",
-				"tab_random":"Random voice"
+				"param_voice": "Voice effect",
+				"param_sound": "Sound to play",
+				"param_action": "Action",
+				"param_action_voice": "Enable a filter",
+				"param_action_sound": "Play a sound",
+				"param_action_beepOn": "Start beep",
+				"param_action_beepOff": "Stop beep"
 			},
 			"http_ws": {
 				"url": "URL to call",

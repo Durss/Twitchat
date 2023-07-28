@@ -1056,21 +1056,46 @@ export default class TriggerActionHandler {
 				
 				//Handle voicemod action
 				if(step.type == "voicemod") {
-					if(step.voiceID) {
-						//Select a voice by its ID
-						logStep.messages.push({date:Date.now(), value:"Enable voicemod filter with ID \""+step.voiceID+"\""});
-						VoicemodWebSocket.instance.enableVoiceEffect(step.voiceID)
-					}else
-					if(step.placeholder) {
-						//Select a voice by its name
-						let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
-						voiceName = voiceName.toLowerCase().trim();
-						let voice = VoicemodWebSocket.instance.voices.find(v=> v.friendlyName.toLowerCase().trim() === voiceName);
-						if(voice) {
-							logStep.messages.push({date:Date.now(), value:"Enable voicemod filter \""+voice.friendlyName+"\""});
-							VoicemodWebSocket.instance.enableVoiceEffect(voice.voiceID);
-						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ No voicemod filter found with name \""+voiceName+"\""});
+					switch(step.action) {
+						case "beepOn":
+						case "beepOff":{
+							const state = step.action === "beepOn";
+							logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Set beep state to \""+state+"\""});
+							if(state) {
+								VoicemodWebSocket.instance.beepOn();
+							}else{
+								VoicemodWebSocket.instance.beepOff();
+							}
+							break;
+						}
+						case "sound":{
+							if(step.soundID) {
+								//Select a voice by its ID
+								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Play sound with ID \""+step.soundID+"\""});
+								VoicemodWebSocket.instance.playSound(undefined, step.soundID);
+							}else
+							if(step.placeholder) {
+								//Select a voice by its name
+								let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
+								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] play sound with name \""+voiceName+"\""});
+								VoicemodWebSocket.instance.playSound(voiceName);
+							}
+							break;
+						}
+
+						default:
+						case "voice": {
+							if(step.voiceID) {
+								//Select a voice by its ID
+								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Enable filter with ID \""+step.voiceID+"\""});
+								VoicemodWebSocket.instance.enableVoiceEffect(undefined, step.voiceID);
+							}else
+							if(step.placeholder) {
+								//Select a voice by its name
+								let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
+								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Enable filter with name \""+voiceName+"\""});
+								VoicemodWebSocket.instance.enableVoiceEffect(voiceName);
+							}
 						}
 					}
 				}else

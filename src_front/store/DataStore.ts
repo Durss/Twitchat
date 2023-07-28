@@ -46,6 +46,8 @@ export default class DataStore {
 	public static GREET_HISTORY:string = "greetHistory";
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
+	public static VOICEMOD_ACTIONS:string = "voiceActions";
+	public static VOICEMOD_LANG:string = "voiceLang";
 	public static AUTOMOD_PARAMS:string = "automodParams";
 	public static DONOR_LEVEL:string = "donorLevel";
 	public static TWITCHAT_AD_WARNED:string = "adWarned";

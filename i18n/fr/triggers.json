@@ -215,9 +215,13 @@
 			"voicemod": {
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter Voicemod",
-				"param_voice": "Voix",
-				"tab_voice":"Voix",
-				"tab_placeholder":"Voix aléatoire"
+				"param_voice": "Filtre de voix",
+				"param_sound": "Son à jouer",
+				"param_action": "Action",
+				"param_action_voice": "Activer un filtre",
+				"param_action_sound": "Jouer un son",
+				"param_action_beepOn": "Activer le beep",
+				"param_action_beepOff": "Désactiver le beep"
 			},
 			"http_ws": {
 				"url": "URL à appeler",

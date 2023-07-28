@@ -223,12 +223,12 @@
 
 			<transition name="slide">
 				<Button class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
-					secondary
-					v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.voiceID != 'nofx'"
-					v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
-					@click="resetVoiceEffect()">
-					<template #icon>
-						<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
+				secondary
+				v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.id != 'nofx'"
+				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
+				@click="resetVoiceEffect()">
+				<template #icon>
+					<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
 					</template>
 				</Button>
 			</transition>

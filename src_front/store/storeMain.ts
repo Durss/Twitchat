@@ -193,8 +193,8 @@ export const storeMain = defineStore("main", {
 
 					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
 						const v = VoicemodWebSocket.instance.voices[i];
-						if(v.voiceID == e.voiceID) {
-							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.voiceID);
+						if(v.id == e.voiceID) {
+							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.id);
 							v.image = img;
 							sVoice.voicemodCurrentVoice = v;
 						}
