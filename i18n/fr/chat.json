@@ -362,6 +362,9 @@
 		},
 		"watch_streak": {
 			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
+		},
+		"splitter": {
+			"label": "Nouveaux messages"
 		}
 	}
 }

@@ -389,6 +389,10 @@ export interface IChatGetters {
 
 export interface IChatActions {
 	/**
+	 * Preload message history from IndexedDB
+	 */
+	preloadMessageHistory():void;
+	/**
 	 * Sends a twitchat ad
 	 */
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;

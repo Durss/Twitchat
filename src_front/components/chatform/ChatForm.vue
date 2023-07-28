@@ -137,7 +137,7 @@
 						v-if="$store('chat').pinedMessages.length > 0"
 						:count="$store('chat').pinedMessages.length"
 						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
-						@click="$emit('pins')" />
+						@click="openModal('pins')" />
 				</transition>
 	
 				<transition name="blink">
@@ -253,10 +253,13 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import ApiController from '@/utils/ApiController';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -265,17 +268,14 @@ import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ButtonNotification from '../ButtonNotification.vue';
+import Icon from '../Icon.vue';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import ApiController from '@/utils/ApiController';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import Icon from '../Icon.vue';
+import Database from '@/store/Database';
 
 @Component({
 	components:{
@@ -289,16 +289,6 @@ import Icon from '../Icon.vue';
 		ChatMessageChunksParser,
 	},
 	emits: [
-		"pins",
-		"poll",
-		"pred",
-		"raffle",
-		"search",
-		"bingo",
-		"chatpoll",
-		"TTuserList",
-		"liveStreams",
-		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
 		"update:showChatUsers",
@@ -429,6 +419,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		Database.instance;//TODO remove
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 
@@ -639,10 +630,20 @@ export default class ChatForm extends Vue {
 		}else
 		
 		if(cmd == "/tenorgifload") {
-			//App version
 			console.log(this.$store("chat").messages);
 			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
+		}else
+		
+		if(cmd == "/dbtest") {
+			const messages = this.$store("chat").messages;
+			const message = messages[messages.length-1];
+			Database.instance.getMessageList().then(res => {
+				// console.log(res[0]);
+				// 	//@ts-ignore
+				// 	this.$store("chat").addFake(res[0]);
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+			});
 		}else
 		
 		if(cmd == "/raw") {

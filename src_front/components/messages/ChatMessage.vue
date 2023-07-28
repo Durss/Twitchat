@@ -68,6 +68,8 @@
 				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
 				v-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
 			
+			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
+
 			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
 				@click.stop.prevent="openUserCard(messageData.user)"
 				@mouseenter="hoverNickName($event)"

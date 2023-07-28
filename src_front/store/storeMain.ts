@@ -15,7 +15,6 @@ import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -25,6 +24,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
+import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 
 export const storeMain = defineStore("main", {
@@ -250,7 +250,12 @@ export const storeMain = defineStore("main", {
 			});
 			
 			if(authenticate) {
-				//Not not listen for these events on the overlays
+				//Only listen for these events if authenticated.
+				//This avoids them from being listened from the overlay or homepage where it's useless
+
+				Database.instance.connect().then(()=> {
+					StoreProxy.chat.preloadMessageHistory();
+				});
 				
 				/**
 				 * Called when a raffle animation (the wheel) completes

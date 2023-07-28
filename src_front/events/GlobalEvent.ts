@@ -11,6 +11,7 @@ export default class GlobalEvent extends Event {
 	public static UNTRACK_USER = "UNTRACK_USER";
 	public static PIN_MESSAGE = "PIN_MESSAGE";
 	public static UNPIN_MESSAGE = "UNPIN_MESSAGE";
+	public static RELOAD_MESSAGES = "RELOAD_MESSAGES";
 	
 	constructor(eventType:string, public data?:any) {
 		super(eventType);

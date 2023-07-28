@@ -1372,6 +1372,7 @@ export namespace TwitchatDataTypes {
 		FOLLOWBOT_LIST:"followbot_list",
 		COUNTER_UPDATE:"counter_update",
 		OBS_STOP_STREAM:"obs_stop_stream",
+		HISTORY_SPLITTER:"history_splitter",
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
@@ -1441,6 +1442,7 @@ export namespace TwitchatDataTypes {
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
 		goxlr_fx_state:false,
+		history_splitter:true,
 		obs_stop_stream:false,
 		user_watch_streak:true,
 		hype_train_start:false,
@@ -1559,6 +1561,7 @@ export namespace TwitchatDataTypes {
 									| MessageGoXLRButtonData
 									| MessageGoXLRFXEnableChangeData
 									| MessageGoXLRSampleCompleteData
+									| MessageHistorySplitterData
 	;
 	
 	/**
@@ -3070,6 +3073,13 @@ export namespace TwitchatDataTypes {
 		 * Sampler button that started the sample
 		 */
 		buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
+	}
+
+	/**
+	 * Represents a splitter between preloaded messages from IndexedDB and current session messages
+	 */
+	export interface MessageHistorySplitterData extends AbstractTwitchatMessage {
+		type:"history_splitter";
 	}
 
 }

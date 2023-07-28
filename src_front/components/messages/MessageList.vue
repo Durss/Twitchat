@@ -177,8 +177,7 @@ export default class MessageList extends Vue {
 	private publicApiEventHandler!: (e: TwitchatEvent) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
-	private updateMessageStateHandler!: (e: GlobalEvent) => void;
-	private trackUntrackUserHandler!: (e: GlobalEvent) => void;
+	private reloadListHandler!: (e: GlobalEvent) => void;
 
 	public get classes(): string[] {
 		let res = ["messagelist"];
@@ -222,15 +221,15 @@ export default class MessageList extends Vue {
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
-		this.updateMessageStateHandler = (e: GlobalEvent) => this.onUpdateMessageState(e);
-		this.trackUntrackUserHandler = (e: GlobalEvent) => this.onTrackUntrackUser(e);
+		this.reloadListHandler = (e: GlobalEvent) => this.fullListRefresh(false);
 
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		EventBus.instance.addEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.addEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
-		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.addEventListener(GlobalEvent.PIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNPIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
@@ -269,10 +268,11 @@ export default class MessageList extends Vue {
 
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.PIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNPIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
@@ -422,8 +422,9 @@ export default class MessageList extends Vue {
 		if(m.col != undefined && m.col != this.config.order) return false;
 		
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
+		let globalFlag = true;
 		if (m.deleted) {
-			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
+			globalFlag = this.config.messageFilters.deleted === true;
 		}
 
 		switch (m.type) {
@@ -460,90 +461,90 @@ export default class MessageList extends Vue {
 				//Second test for some types so deleted/automoded/... messages can still be
 				//displayed even if all the viewers/mod/vip/sub filters are off
 				if ((m.twitch_automod || m.twitch_isRestricted)) {
-					return this.config.messageFilters.automod !== false;
+					return this.config.messageFilters.automod !== false && globalFlag;
 				}
 				if (m.twitch_isSuspicious) {
-					return this.config.messageFilters.suspiciousUsers !== false;
+					return this.config.messageFilters.suspiciousUsers !== false && globalFlag;
 				}
 				if (m.is_short) {
-					return this.config.messageFilters.short !== false;
+					return this.config.messageFilters.short !== false && globalFlag;
 				}
 				if (m.message.trim().charAt(0) == "!") {
-					return this.config.messageFilters.commands !== false;
+					return this.config.messageFilters.commands !== false && globalFlag;
 				}
 
 				//User types filters
 				if(m.user.is_bot && m.bypassBotFilter !== true) {
-					return this.config.messageFilters.bots !== false;
+					return this.config.messageFilters.bots !== false && globalFlag;
 				}
 				const chanInfo = m.user.channelInfo[m.channel_id];
 				if(m.user.is_partner) {
-					return this.config.messageFilters.partners !== false;
+					return this.config.messageFilters.partners !== false && globalFlag;
 				}
 				if(chanInfo.is_moderator) {
-					return this.config.messageFilters.moderators !== false;
+					return this.config.messageFilters.moderators !== false && globalFlag;
 				}
 				if(chanInfo.is_vip) {
-					return this.config.messageFilters.vips !== false;
+					return this.config.messageFilters.vips !== false && globalFlag;
 				}
 				if(chanInfo.is_subscriber) {
-					return this.config.messageFilters.subs !== false;
+					return this.config.messageFilters.subs !== false && globalFlag;
 				}
 
-				return this.config.messageFilters.viewers !== false;
+				return this.config.messageFilters.viewers !== false && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-				return this.config.filters.whisper === true && await Utils.checkPermissions(this.config.whispersPermissions, m.user, m.channel_id);
+				return this.config.filters.whisper === true && await Utils.checkPermissions(this.config.whispersPermissions, m.user, m.channel_id) && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
-				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
+				return this.config.filters.message === true && this.config.messageFilters.viewers === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-				return this.config.filters.subscription === true;
+				return this.config.filters.subscription === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				return this.config.filters.reward === true;
+				return this.config.filters.reward === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION:{
-				return this.config.filters.prediction === true;
+				return this.config.filters.prediction === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
-				return this.config.filters.poll === true;
+				return this.config.filters.poll === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-				return this.config.filters.cheer === true;
+				return this.config.filters.cheer === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST:
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-				return this.config.filters.following === true;
+				return this.config.filters.following === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
-				return this.config.filters.raid === true;
+				return this.config.filters.raid === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
-				return this.config.filters.hype_train_summary === true;
+				return this.config.filters.hype_train_summary === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-				return this.config.filters.reward === true;
+				return this.config.filters.reward === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
-				return this.config.filters.raffle === true;
+				return this.config.filters.raffle === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				return this.config.filters.bingo === true;
+				return this.config.filters.bingo === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTDOWN: {
@@ -551,44 +552,44 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TIMER: {
-				return this.config.filters.countdown === true && !m.started;
+				return this.config.filters.countdown === true && !m.started && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN: {
-				return this.config.filters.hype_train_cooled_down === true;
+				return this.config.filters.hype_train_cooled_down === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION: {
-				return this.config.filters.community_challenge_contribution === true;
+				return this.config.filters.community_challenge_contribution === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE: {
-				return this.config.filters.community_boost_complete === true;
+				return this.config.filters.community_boost_complete === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.JOIN: {
-				return this.config.filters.join === true;
+				return this.config.filters.join === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
-				return this.config.filters.leave === true;
+				return this.config.filters.leave === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.BAN: {
-				return this.config.filters.ban === true;
+				return this.config.filters.ban === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
-				return this.config.filters.unban === true;
+				return this.config.filters.unban === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
-				return this.config.filters.hype_chat === true;
+				return this.config.filters.hype_chat === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PINNED:
 			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
-				return this.config.filters.pinned === true;
+				return this.config.filters.pinned === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN:
@@ -596,16 +597,16 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.CONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.DISCONNECT:
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
-				return this.config.filters.notice === true;
+				return this.config.filters.notice === true && globalFlag;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE: {
-				return this.config.filters.stream_online === true;
+				return this.config.filters.stream_online === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-				return this.config.filters.shoutout === true;
+				return this.config.filters.shoutout === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD: {
@@ -615,19 +616,23 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS: {
-				return this.config.filters.message === true && this.config.messageFilters.viewers === true;
+				return this.config.filters.message === true && this.config.messageFilters.viewers === true && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
-				return this.config.order == 0;
-			}
-
-			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
-				return true
+				return this.config.order == 0 && globalFlag;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
-				return this.config.filters.user_watch_streak !== false;
+				return this.config.filters.user_watch_streak !== false && globalFlag;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
+				return true;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
+				return true;
 			}
 
 			default: return false;
@@ -665,53 +670,6 @@ export default class MessageList extends Vue {
 			this.showLoadingGradient = false;
 			this.scrollToPrevMessage();
 		}
-	}
-
-	/**
-	 * Called when the state of a message is changed (pin/unpin)
-	 */
-	private onUpdateMessageState(e: GlobalEvent): void {
-		this.fullListRefresh(false);
-		// const message = e.data as TwitchatDataTypes.ChatMessageTypes
-		// const shouldShow = this.shouldShowMessage(message);
-		// const displayedIndex = this.filteredMessages.findIndex(v=>v.id == message.id);
-		// const pendingIndex = this.pendingMessages.findIndex(v=>v.id == message.id);
-		// const lockedIndex = this.lockedLiveMessages.findIndex(v=>v.id == message.id);
-		// if(!shouldShow) {
-		// 	if(pendingIndex > -1)  this.pendingMessages.splice(pendingIndex, 1);
-		// 	if(displayedIndex > -1)  this.filteredMessages.splice(displayedIndex, 1);
-		// 	if(lockedIndex > -1)  this.lockedLiveMessages.splice(lockedIndex, 1);
-		// }else{
-		// 	if(this.lockScroll) {
-		// 		if(pendingIndex == -1)  this.pendingMessages.push(message);
-		// 		if(lockedIndex == -1)  this.lockedLiveMessages.push(message);
-		// 	}else{
-		// 		if(displayedIndex == -1)  this.filteredMessages.push(message);
-		// 	}
-		// }
-	}
-
-	/**
-	 * Called when changing the tracking state of a user
-	 */
-	private onTrackUntrackUser(e: GlobalEvent): void {
-		this.fullListRefresh(false);
-		// const user = e.data as TwitchatDataTypes.TwitchatUser;
-		// const lists = [this.filteredMessages, this.pendingMessages, this.lockedLiveMessages];
-		// for (let i = 0; i < lists.length; i++) {
-		// 	const list = lists[i];
-		// 	for (let j = 0; j < list.length; j++) {
-		// 		const message = list[j];
-		// 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-		// 			const shouldShow = this.shouldShowMessage(message);
-		// 			if(!shouldShow) {
-		// 				list.splice(j, 1);
-		// 			}else{
-		// 				list.push(message);
-		// 			}
-		// 		}
-		// 	}
-		// }
 	}
 
 	/**

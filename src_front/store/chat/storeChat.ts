@@ -14,8 +14,9 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { JsonObject, JsonArray } from 'type-fest'
+import type { JsonArray, JsonObject } from 'type-fest'
 import { reactive, type UnwrapRef } from 'vue'
+import Database from '../Database'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
 //Don't make this reactive, it kills performances on the long run
@@ -560,6 +561,24 @@ export const storeChat = defineStore('chat', {
 
 
 	actions: {
+		preloadMessageHistory():void {
+			Database.instance.getMessageList().then(res=>{
+				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
+				}
+				res.push(splitter);
+				messageList.unshift(...res);
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+			})
+		},
+
+		addFake(message:TwitchatDataTypes.ChatMessageTypes):void {
+			messageList.push(message);
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
@@ -1170,6 +1189,7 @@ export const storeChat = defineStore('chat', {
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
+				Database.instance.addMessage(message);
 			
 				//Limit history size
 				while(messageList.length >= this.realHistorySize) {

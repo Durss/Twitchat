@@ -30,9 +30,9 @@ export default class AbstractChatMessage extends Vue {
 		const authenticatedUser = this.$store("auth").twitch.user;
 		return (
 					//If broadcaster of the channel... or
-					authenticatedUser.channelInfo[channelId].is_broadcaster ||
+					authenticatedUser.channelInfo[channelId]?.is_broadcaster ||
 					//If moderator on this channel and user to moderate isn't also a moderator
-					(authenticatedUser.channelInfo[channelId].is_moderator && !user.channelInfo[channelId].is_moderator)
+					(authenticatedUser.channelInfo[channelId]?.is_moderator && !user.channelInfo[channelId]?.is_moderator)
 				) &&
 				//If not self
 				user.id != authenticatedUser.id;
