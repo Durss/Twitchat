@@ -100,7 +100,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {

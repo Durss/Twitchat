@@ -49,7 +49,7 @@ export default class PatreonHelper {
 			this._token = JSON.parse(token);
 			await this.refreshToken();
 			if(this.connected) {
-				this.getIsMember();
+				await this.getIsMember();
 			}
 		}
 	}
@@ -59,6 +59,7 @@ export default class PatreonHelper {
 	 */
 	public disconnect():void {
 		this.connected = false;
+		this._isMember = false;
 		clearTimeout(this._refreshTimeout);
 		DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
 	}

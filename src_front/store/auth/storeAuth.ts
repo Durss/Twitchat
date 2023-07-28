@@ -202,6 +202,7 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
+				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				sRewards.loadRewards();
 
 				//Preload stream info
@@ -247,7 +248,7 @@ export const storeAuth = defineStore('auth', {
 				});
 
 				//Warn the user about the automatic "ad" message sent every 2h
-				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
+				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.isPremium) {
 					setTimeout(()=>{
 						if(this.twitch.user.donor.noAd) return;
 						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);

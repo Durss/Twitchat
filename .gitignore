@@ -8,7 +8,7 @@ node_modules
 credentials.json
 patreonToken.json
 announcements.json
-patreonToken.json
+patreonMembers.json
 earlyDonors.json
 donors
 beta

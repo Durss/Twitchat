@@ -174,7 +174,6 @@ export const storeMain = defineStore("main", {
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
 				SpotifyHelper.instance.connect();
-				PatreonHelper.instance.connect();
 				const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
 				if(cypherKey) {
 					this.cypherKey = cypherKey;

@@ -340,6 +340,7 @@ export default class PatreonController extends AbstractController {
 				return member;
 			});
 			this.members = this.members.concat(members);
+			// fs.writeFileSync(Config.PATREON_MEMBERS_PATH.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
 			fs.writeFileSync(Config.PATREON_MEMBERS_PATH, JSON.stringify(this.members), "utf-8");
 			if(next) {
 				//load next page

@@ -167,7 +167,7 @@ export default class Parameters extends Vue {
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
 	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
+	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
 	public get contentClose():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CLOSE; }
 	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
 	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }

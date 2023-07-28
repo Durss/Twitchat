@@ -100,7 +100,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public get canInstall():boolean { return this.$store("main").ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state || this.$store("auth").isPremium; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
