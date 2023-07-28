@@ -1427,12 +1427,14 @@ export default class TriggerActionHandler {
 										trackAdded:data,
 										message:messageLoc.message,
 										user:messageLoc.user,
+									};
+									const triggerAdded:TriggerActionDataTypes.TriggerData ={
+										type:TriggerTypes.TRACK_ADDED_TO_QUEUE,
+										actions:[],
+										enabled:true,
+										id:"0",
 									}
-									//First pass to inject track info
-									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, triggerData, step.confirmMessage, subEvent, false);
-									//Second pass to inject trigger specifics
-									//TODO was this necessary ? Not sure i understand what it's for
-									// chatMessage = await this.parseText(dynamicPlaceholders, actionPlaceholders, trigger, addedToQueueMessage, chatMessage, subEvent);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, triggerAdded, triggerData, step.confirmMessage, subEvent, false);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}
