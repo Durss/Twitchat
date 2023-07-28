@@ -562,6 +562,7 @@ export const storeChat = defineStore('chat', {
 
 	actions: {
 		preloadMessageHistory():void {
+			if(StoreProxy.params.features.saveHistory.value === false) return;
 			Database.instance.getMessageList().then(res=>{
 				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
 					id:Utils.getUUID(),
@@ -1189,7 +1190,9 @@ export const storeChat = defineStore('chat', {
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
-				Database.instance.addMessage(message);
+				if(StoreProxy.params.features.saveHistory.value === true) {
+					Database.instance.addMessage(message);
+				}
 			
 				//Limit history size
 				while(messageList.length >= this.realHistorySize) {

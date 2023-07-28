@@ -25,6 +25,7 @@ export const storeParams = defineStore('params', {
 			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
 			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment", example:"groupIdenticalMessage.gif"},
+			saveHistory: 				{save:true, type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history"},
 			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation"},
 			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause"},

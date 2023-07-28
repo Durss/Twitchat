@@ -163,6 +163,7 @@ export default class MessageList extends Vue {
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
+	private forceScrollDown = false;
 	private loadingOldMessage = false;
 	private scrollUpIndexOffset = -1;
 	private holderOffsetY = -1;
@@ -221,7 +222,7 @@ export default class MessageList extends Vue {
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
-		this.reloadListHandler = (e: GlobalEvent) => this.fullListRefresh(false);
+		this.reloadListHandler = (e: GlobalEvent) => this.fullListRefresh(e.type == GlobalEvent.RELOAD_MESSAGES);
 
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
@@ -346,7 +347,6 @@ export default class MessageList extends Vue {
 	public fullListRefresh(scrollToBottom:boolean = true): void {
 		if(this.customActivitiesDisplayed) return;
 
-
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
 			if(!this.lockScroll) {
@@ -394,7 +394,10 @@ export default class MessageList extends Vue {
 					this.virtualScrollY = el.scrollTop = maxScroll - 10;
 				}
 			}else if(scrollToBottom){
-				this.virtualScrollY = maxScroll;
+				this.forceScrollDown = true;
+				setTimeout(()=> {
+					this.forceScrollDown = false;
+				}, 1000);
 			}
 			// this.lockScroll = false;
 			this.replaceReadMarker();
@@ -1094,6 +1097,10 @@ export default class MessageList extends Vue {
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
+
+		if(this.forceScrollDown) {
+			this.virtualScrollY = maxScroll;
+		}
 
 		//Compute scroll offset before/after which point prev/next messages
 		//should be loaded
