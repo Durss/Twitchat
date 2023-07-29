@@ -1428,13 +1428,8 @@ export default class TriggerActionHandler {
 										message:messageLoc.message,
 										user:messageLoc.user,
 									};
-									const triggerAdded:TriggerActionDataTypes.TriggerData ={
-										type:TriggerTypes.TRACK_ADDED_TO_QUEUE,
-										actions:[],
-										enabled:true,
-										id:"0",
-									}
-									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, triggerAdded, triggerData, step.confirmMessage, subEvent, false);
+									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, triggerData, step.confirmMessage, subEvent, false);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}

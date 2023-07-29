@@ -320,7 +320,10 @@ export default class SpotifyHelper {
 		}else {
 			try {
 				const json = await res.json();
-				if(json.error.message) {
+				if(json.error.reason == "NO_ACTIVE_DEVICE") {
+					StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.no_device") );
+
+				}else if(json.error.message) {
 					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
