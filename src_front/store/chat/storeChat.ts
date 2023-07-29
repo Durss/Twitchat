@@ -673,7 +673,7 @@ export const storeChat = defineStore('chat', {
 			}
 
 			//Check if it's a greetable message
-			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+			if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
 				const mLoc = message as TwitchatDataTypes.GreetableMessage;
 				this.flagMessageAsFirstToday(mLoc, mLoc.user);
 			}
@@ -1189,9 +1189,33 @@ export const storeChat = defineStore('chat', {
 
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
-				messageList.push( message );
-				if(StoreProxy.params.features.saveHistory.value === true) {
-					Database.instance.addMessage(message);
+				let isMerged = false;
+				//If message is mergeable and merge feature is enabled
+				if(TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(message.type)
+				&& StoreProxy.params.features.mergeConsecutive.value == true) {
+					//Search on previous messages if one from the same user that's mergeable is found
+					const len = messageList.length;
+					for (let i = 1; i < 30; i++) {
+						const m = messageList[len - i];
+						if(TwitchatDataTypes.DisplayableMessageTypes[m.type]) {
+							if(m.type != message.type) break;//Prev displayable message isnt the same type, don't merge
+							if(m.deleted) break;//if message has been deleted, don't merge
+							const refCast = m as TwitchatDataTypes.MergeableMessage;
+							const messageCast = message as TwitchatDataTypes.MergeableMessage;
+							if(refCast.user.id === messageCast.user.id) {
+								if(!refCast.children) refCast.children = [];
+								refCast.children.push(message);
+								isMerged = true;
+								Database.instance.updateMessage(m);
+							}
+						}
+					}
+				}
+				if(!isMerged) {
+					messageList.push( message );
+					if(StoreProxy.params.features.saveHistory.value === true) {
+						Database.instance.addMessage(message);
+					}
 				}
 			
 				//Limit history size
@@ -1199,7 +1223,7 @@ export const storeChat = defineStore('chat', {
 					messageList.shift();
 				}
 	
-				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+				if(!isMerged) EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 			}
 
 			const e = Date.now();
@@ -1231,49 +1255,54 @@ export const storeChat = defineStore('chat', {
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
 				if(messageID == m.id && !m.deleted) {
-					m.deleted = true;
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
-					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
-					|| (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.is_ad)) {
-						//Called if closing an ad
-						messageList.splice(i, 1);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
-					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
-							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
-							}
-						}
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
-	
-						//Don't keep automod form message
-						if(m.twitch_automod) {
-							messageList.splice(i, 1);
-						}
-
-						if(deleter) {
-							m.deletedData = { deleter };
-						}
-						
-						if(callEndpoint && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							TwitchUtils.deleteMessages(m.channel_id, m.id);
-						}
-					}
-					
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					this.deleteMessageByReference(m, deleter, callEndpoint);
 					break;
 				}
 			}
+		},
+		
+		deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
+			message.deleted = true;
+			const i = messageList.findIndex(v=>v.id === message.id);
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {
+				//Called if closing an ad
+				messageList.splice(i, 1);
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
+			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const wsMessage = {
+					channel:message.channel_id,
+					message:message.message,
+					user:{
+						id:message.user.id,
+						login:message.user.login,
+						displayName:message.user.displayName,
+					}
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+
+				//Don't keep automod form message
+				if(message.twitch_automod) {
+					messageList.splice(i, 1);
+				}
+
+				if(deleter) {
+					message.deletedData = { deleter };
+				}
+				
+				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					TwitchUtils.deleteMessages(message.channel_id, message.id);
+				}
+			}
+			
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 		},
 
 		delUserMessages(uid:string, channelId:string) {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
 				&& mTyped.channel_id == channelId
@@ -1301,7 +1330,7 @@ export const storeChat = defineStore('chat', {
 		delChannelMessages(channelId:string, clearMode:boolean):void {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.channel_id == channelId
 				&& ((clearMode && !mTyped.cleared) || (!clearMode && !mTyped.deleted))) {

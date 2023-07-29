@@ -36,6 +36,7 @@
 		"shoutout_offline": "Vous devez être en live pour effectuer un shoutout",
 		"shoutout_pending": "Cette personne a déjà un shoutout en attente",
 		"spotify": {
+			"no_device": "[SPOTIFY] Afin que Twitchat puisse contrôler Spotify vous devez d'abord lancer une lecture manuellement.",
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
 		},

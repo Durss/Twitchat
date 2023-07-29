@@ -71,6 +71,7 @@
 		"ad_bot_info_title": "Can this message be sent by nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Yes<br><br>By default the message is posted with your account.<br>But you can configure any other bot to send that message if you wish.<br><br>Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.",
 		"saveHistory": "Save message history and load them back on start",
+		"mergeConsecutive": "Merge consecutive messages of a user",
 		"categories": {
 			"main": "Parameters",
 			"ad": "Parameters",

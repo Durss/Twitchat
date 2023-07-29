@@ -420,6 +420,13 @@ export interface IChatActions {
 	 */
 	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
+	 * Delete a message by its reference
+	 * @param messageID 
+	 * @param deleteData 
+	 * @param callEndpoint 
+	 */
+	deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	/**
 	 * Delete all messages of a channel
 	 * @param channelId 
 	 * @param clearMode if set to true, messages won't be flagged as deleted
@@ -790,7 +797,7 @@ export interface IParamsActions {
 	 * Open the specified modal
 	 * @param modal 
 	 */
-	openModal(modal:TwitchatDataTypes.ModalTypes):void;
+	openModal(modal:TwitchatDataTypes.ModalTypes, noToggle?:boolean):void;
 	/**
 	 * Closes currently opened modal
 	 */

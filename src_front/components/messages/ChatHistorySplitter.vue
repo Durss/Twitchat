@@ -16,7 +16,7 @@ import Icon from '../Icon.vue';
 		Icon,
 		Splitter,
 	},
-	emits:[],
+	emits:["onRead"],
 })
 export default class ChatHistorySplitter extends AbstractChatMessage {
 	

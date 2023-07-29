@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes"
-	@contextmenu="onContextMenu($event)"
+	@contextmenu="onContextMenu($event, messageData)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
 		<div v-if="automodReasons" class="automod">
@@ -94,6 +94,13 @@
 					<ChatMessageChunksParser :chunks="localMessageChunks" />
 				</span>
 				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
+			</span>
+			<span class="messageChildren" v-if="messageData.type == 'message' && messageData.children">
+				<span :class="getChildClasses(m)"
+				v-for="m in messageData.children"
+				@contextmenu.capture="onContextMenu($event, m)">
+					<ChatMessageChunksParser :chunks="m.message_chunks" />
+				</span>
 			</span>
 			
 			<br v-if="clipInfo">
@@ -240,6 +247,13 @@ export default class ChatMessage extends AbstractChatMessage {
 			if(spoilersEnabled && this.messageData.spoiler === true) res.push("spoiler");
 		}
 
+		return res;
+	}
+
+	public getChildClasses(message:TwitchatDataTypes.MessageChatData):string[] {
+		const res:string[] = [];
+		if(message.deleted) res.push("deleted");
+		if(message.spoiler) res.push("spoiler");
 		return res;
 	}
 
@@ -631,14 +645,18 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * 
 	 * @param e 
 	 */
-	public onContextMenu(e:MouseEvent|TouchEvent):void {
+	public onContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
+		console.log(e.target);
+		console.log(message.message);
 		if(this.contextMenuOff !== false) return;
 		if(e.target) {
 			const el = e.target as HTMLElement;
 			if(el.tagName == "A" && el.dataset.login === undefined) return;
 		}
 		if(window.getSelection()?.isCollapsed == false) return;
-		ContextMenuHelper.instance.messageContextMenu(e, this.messageData, this.canModerateMessage, this.canModerateUser_local);
+		const canModerate = this.canModerateMessage && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
+		ContextMenuHelper.instance.messageContextMenu(e, message, canModerate, this.canModerateUser_local);
+		e.stopPropagation();
 	}
 
 	/**
@@ -719,7 +737,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
-	&.deleted {
+	.deleted {
 		opacity: .35;
 		transition: opacity .2s;
 		&.censor {
@@ -877,7 +895,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		margin-right: .25em;
 	}
 
-	.message {
+	.messageChildren {
 		// position: relative;
 		word-break: break-word;
 		:deep(a) {
@@ -890,6 +908,42 @@ export default class ChatMessage extends AbstractChatMessage {
 			color: var(--color-light);
 			text-shadow: var(--text-shadow-contrast);
 			padding: 0px 5px;
+		}
+		span {
+			&::before {
+				content: " ∟";
+				display: inline-block;
+				position: relative;
+				font-size: 1em;
+				bottom: -.5em;
+				margin-right: -.5em;
+			}
+			&:hover {
+				outline: 1px solid var(--color-text-fade);
+			}
+		}
+
+		.spoiler {
+			color: rgba(0, 0, 0, 0);
+			@c1: var(--background-color-fadest);
+			@c2: var(--background-color-fader);
+			background-color: var(--background-color-fader);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+			&:hover {
+				color:unset;
+				-webkit-text-fill-color: unset;
+				background-color: transparent;
+				background-image: unset;
+			}
+			&:not(:hover):deep(.emote) {
+				opacity: 0;
+			}
+			&:not(:hover)>.message:deep(a) {
+				opacity: 0;
+			}
+			&:not(:hover)>.message:deep(svg) {
+				opacity: 0;
+			}
 		}
 	}
 

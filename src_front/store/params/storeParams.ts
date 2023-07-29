@@ -26,6 +26,7 @@ export const storeParams = defineStore('params', {
 			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
 			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment", example:"groupIdenticalMessage.gif"},
 			saveHistory: 				{save:true, type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history"},
+			mergeConsecutive:	 		{save:true, type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge"},
 			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation"},
 			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause"},
@@ -399,8 +400,8 @@ export const storeParams = defineStore('params', {
 			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
 		},
 
-		openModal(modal:TwitchatDataTypes.ModalTypes):void {
-			if(this.currentModal == modal) this.closeModal();
+		openModal(modal:TwitchatDataTypes.ModalTypes, noToggle:boolean = false):void {
+			if(this.currentModal == modal && !noToggle) this.closeModal();
 			else this.currentModal = modal;
 		},
 

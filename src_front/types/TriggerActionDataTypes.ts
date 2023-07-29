@@ -672,7 +672,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		map[trigger] = [];
 	}
 
-	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers"|"answersTo">;
+	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "answersTo" | "children">;
 
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 

@@ -364,7 +364,7 @@ export default class MessengerProxy {
 			const search = params.join(" ");
 			// this.$emit("search", search);
 			StoreProxy.chat.doSearchMessages(search);
-			StoreProxy.params.openModal("search")
+			StoreProxy.params.openModal("search", true);
 			return true;
 		}else
 

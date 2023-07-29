@@ -1614,6 +1614,11 @@ export namespace TwitchatDataTypes {
 		date:number;
 		platform:ChatPlatform;
 		/**
+		 * If this is set to true the message won't be displayed on main chat columns.
+		 * But they will be displayed on search results
+		 */
+		// hidden:boolean;
+		/**
 		 * true if message has been deleted
 		 */
 		deleted?:boolean;
@@ -1632,10 +1637,31 @@ export namespace TwitchatDataTypes {
 		col?:number;//Use this to send a message on a specific column index
 	}
 
-	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
-	
+	export type MergeableMessageTypes = Extract<ChatMessageTypes, {children?:ChatMessageTypes[]}>["type"];
 	//Ensure the object contains all requested keys
-	export const GreetableMessageTypesString:Record<GreetableMessageTypes, unknown> ={
+	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
+		message:true,
+	}
+	export interface MergeableMessage {
+		/**
+		 * When sending consecutive messages of the same tuype they are grouped together.
+		 * In this case the first one will contain the next ones in that "children" property.
+		 */
+		children?:ChatMessageTypes[];
+		/**
+		 * User that posted the message
+		 */
+		user: TwitchatUser;
+		/**
+		 * Tells if the message should be displayed or simply stored for some hidden logic
+		 * behind de scene (like deletign a message by its ID)
+		 */
+		hidden: boolean;
+	}
+
+	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
+	//Ensure the object contains all requested keys
+	export const GreetableMessageTypesString:Record<GreetableMessageTypes, boolean> ={
 		cheer:true,
 		reward:true,
 		message:true,
@@ -1643,7 +1669,6 @@ export namespace TwitchatDataTypes {
 		subscription:true,
 		user_watch_streak:true,
 	}
-
 	export interface GreetableMessage extends AbstractTwitchatMessage {
 		/**
 		 * Do not use this property.
@@ -1666,9 +1691,9 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * A regular user's message 
+	 * A regular user's message
 	 */
-	export interface MessageChatData extends GreetableMessage {
+	export interface MessageChatData extends GreetableMessage, MergeableMessage {
 		type:"message";
 		/**
 		 * Channel ID the message has been posted in
@@ -1721,6 +1746,10 @@ export namespace TwitchatDataTypes {
 		 * The message this message answers to if any
 		 */
 		answersTo?: MessageChatData;
+		/**
+		 * @see MergeableMessage
+		 */
+		children?: MessageChatData[];
 		/**
 		 * Is the message content cyphered ?
 		 */

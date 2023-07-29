@@ -107,11 +107,7 @@ export default class Database {
 
 		return new Promise((resolve, reject)=> {
 
-			const clone = JSON.parse(JSON.stringify(message, (key, value)=>{
-				if(key == "answers") return [];
-				if(key == "answersTo") return undefined;
-				return value;
-			})) as TwitchatDataTypes.ChatMessageTypes;
+			const clone = this.removeCircularReferences(message);
 	
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
 			.objectStore(Database.MESSAGES_TABLE)
@@ -134,6 +130,32 @@ export default class Database {
 					this.limitMessageCount();
 				}
 				resolve();
+			});
+		});
+	}
+
+	/**
+	 * Updates a message on the DB
+	 * @param message 
+	 */
+	public async updateMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
+		if(!this._db) return Promise.resolve();
+
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
+			.objectStore(Database.MESSAGES_TABLE)
+			.index("id")
+			.openCursor(IDBKeyRange.only(message.id))
+			.addEventListener("success", event => {
+				const pointer = (event.target as IDBRequest).result;
+				if(pointer) {
+					const clone = this.removeCircularReferences(message);
+					pointer.update(clone).addEventListener("success", ()=>{
+						resolve();
+					});
+				}else{
+					resolve();
+				}
 			});
 		});
 	}
@@ -165,5 +187,19 @@ export default class Database {
 				}
 			}
 		});
+	}
+
+	/**
+	 * Remove some props known for being potential source of circular references
+	 * @param value 
+	 */
+	private removeCircularReferences<T>(value:T):T {
+		const clone = JSON.parse(JSON.stringify(value, (key, value)=>{
+			if(key == "answers") return [];
+			if(key == "answersTo") return undefined;
+			return value;
+		}));
+
+		return clone;
 	}
 }
