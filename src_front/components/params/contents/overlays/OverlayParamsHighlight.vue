@@ -222,6 +222,7 @@ export default class OverlayParamsHighlight extends Vue {
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			is_short: false,
+			children:[],
 		}
 		this.$store("chat").highlightChatMessageOverlay(message);
 	}

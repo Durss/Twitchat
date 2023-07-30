@@ -601,6 +601,7 @@ export default class ChatForm extends Vue {
 		const params = this.message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		const sChat = this.$store("chat");
+		const isAdmin = this.$store("auth").twitch.user.is_admin === true;
 		let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|undefined;
 		let noticeMessage:string|undefined;
 		params.forEach((v, i) => { params[i] = v.trim() });
@@ -629,24 +630,21 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/tenorgifload") {
+		if(isAdmin && cmd == "/tenorgifload") {
 			console.log(this.$store("chat").messages);
 			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 		
-		if(cmd == "/dbtest") {
-			const messages = this.$store("chat").messages;
-			const message = messages[messages.length-1];
-			Database.instance.getMessageList().then(res => {
-				// console.log(res[0]);
-				// 	//@ts-ignore
-				// 	this.$store("chat").addFake(res[0]);
-				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
-			});
+		if(isAdmin && cmd == "/max1") {
+			this.$store("params").features.mergeConsecutive_maxSize.value = parseInt(params[0]);
 		}else
 		
-		if(cmd == "/raw") {
+		if(isAdmin && cmd == "/max2") {
+			this.$store("params").features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
+		}else
+		
+		if(isAdmin && cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
 				const json = JSON.parse(params.join(""));

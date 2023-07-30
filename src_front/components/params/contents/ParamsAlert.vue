@@ -123,6 +123,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			user: this.$store("users").getUserFrom("twitch", uid, uid),
 			answers: [],
+						children:[],
 			channel_id:uid,
 			message: str,
 			message_chunks: chunks,

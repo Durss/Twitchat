@@ -635,6 +635,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			answers:[],
 			message_html:"",
 			message_chunks:[],
+			children:[],
 			is_short:false,
 			raw_data:{tags, message}
 		};
@@ -704,6 +705,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message:data.message,
 				message_chunks:data.message_chunks,
 				message_html:data.message_html,
+				children:[],
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}

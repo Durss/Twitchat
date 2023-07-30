@@ -33,9 +33,11 @@ export default class AbstractChatMessage extends Vue {
 					authenticatedUser.channelInfo[channelId]?.is_broadcaster ||
 					//If moderator on this channel and user to moderate isn't also a moderator
 					(authenticatedUser.channelInfo[channelId]?.is_moderator && !user.channelInfo[channelId]?.is_moderator)
-				) &&
+				)
 				//If not self
-				user.id != authenticatedUser.id;
+				&& user.id != authenticatedUser.id
+				//If message is not older than 6h after. Passed this we cannot delete a message
+				&& Date.now() - this.messageData.date < 6 * 60 * 60000;
 	}
 
 	public beforeMount() {

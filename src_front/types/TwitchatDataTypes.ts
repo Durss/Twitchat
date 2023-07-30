@@ -1641,22 +1641,18 @@ export namespace TwitchatDataTypes {
 	//Ensure the object contains all requested keys
 	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
 		message:true,
+		reward:true,
 	}
 	export interface MergeableMessage {
 		/**
 		 * When sending consecutive messages of the same tuype they are grouped together.
 		 * In this case the first one will contain the next ones in that "children" property.
 		 */
-		children?:ChatMessageTypes[];
+		children: ChatMessageTypes[];
 		/**
 		 * User that posted the message
 		 */
 		user: TwitchatUser;
-		/**
-		 * Tells if the message should be displayed or simply stored for some hidden logic
-		 * behind de scene (like deletign a message by its ID)
-		 */
-		hidden: boolean;
 	}
 
 	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
@@ -1749,7 +1745,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * @see MergeableMessage
 		 */
-		children?: MessageChatData[];
+		children: MessageChatData[];
 		/**
 		 * Is the message content cyphered ?
 		 */
@@ -2122,7 +2118,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a reward redeem message
 	 */
-	export interface MessageRewardRedeemData extends GreetableMessage {
+	export interface MessageRewardRedeemData extends GreetableMessage, MergeableMessage {
 		channel_id: string;
 		type:"reward";
 		/**
@@ -2142,16 +2138,20 @@ export namespace TwitchatDataTypes {
 		};
 		/**
 		 * Optional message the reward requires the user to send when redeeming it
-		 */
+		*/
 		message?:string;
 		/**
 		 * Message splitted by chunks types (text, url and emote)
-		 */
+		*/
 		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
-		 */
+		*/
 		message_html?:string;
+		/**
+		 * @see MergeableMessage
+		 */
+		children:MessageRewardRedeemData[];
 	}
 
 	/**

@@ -403,6 +403,7 @@ export default class UserCard extends Vue {
 					message_chunks: [],
 					answers:[],
 					is_short:false,
+					children:[],
 				};
 			}else{
 				this.error = true;

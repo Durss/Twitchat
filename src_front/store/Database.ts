@@ -1,5 +1,6 @@
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from "./StoreProxy";
+import { reactive } from "vue";
 
 /**
 * Created : 28/07/2023 
@@ -10,12 +11,15 @@ export default class Database {
 
 	private static _instance:Database;
 
+	private DB_VERSION:number = 4;
+
 	private _dbConnection!:IDBOpenDBRequest;
 	private _messageStore!:IDBObjectStore;
 	private _db!:IDBDatabase;
 	private _cleanTimeout:number = -1;
 	private _maxRecords:number = 20000;
 	private _quotaWarned:boolean = false;
+	private _versionUpgraded:boolean = false;
 
 	
 	constructor() {
@@ -44,28 +48,34 @@ export default class Database {
 			var indexedDB:IDBFactory =
 			//@ts-ignore
 			window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
-			this._dbConnection = indexedDB.open("Twitchat", 3);
+			this._dbConnection = indexedDB.open("Twitchat", this.DB_VERSION);
 			this._dbConnection.onerror = (event) => {
 				console.log(event);
 				StoreProxy.main.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || (event.target as any)?.error?.message))
 			}
-			this._dbConnection.onsuccess = (event) => {
+			this._dbConnection.onsuccess = async (event) => {
 				if(event.type != "success") {
 					StoreProxy.main.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || event.type));
 					return;
 				}
 				this._db = (event.target as any)?.result;
-				this.limitMessageCount();
+				if(this._versionUpgraded) {
+					await this.clear();
+				}else{
+					await this.limitMessageCount();
+				}
 				resolve();
 			}
 			this._dbConnection.onupgradeneeded = (event) => {
 				this._db = (event.target as any)?.result;
 				
-				this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, {autoIncrement: true});
-				this._messageStore.createIndex("id", "id", { unique: true });
-				this._messageStore.transaction.oncomplete = (event) => {
-					//ignore
-				};
+				if(!this._db.objectStoreNames.contains(Database.MESSAGES_TABLE)) {
+					this._messageStore = this._db.createObjectStore(Database.MESSAGES_TABLE, {autoIncrement: true});
+					this._messageStore.createIndex("id", "id", { unique: true });
+						this._messageStore.transaction.oncomplete = (event) => {
+					}
+				}
+				this._versionUpgraded = (event.newVersion || 0) > event.oldVersion;
 			};
 		});
 	}
@@ -76,12 +86,15 @@ export default class Database {
 	public async getMessageList():Promise<TwitchatDataTypes.ChatMessageTypes[]> {
 		if(!this._db) return Promise.resolve([]);
 		return new Promise((resolve, reject)=> {
-			this._db.transaction(Database.MESSAGES_TABLE, "readonly")
+			const query = this._db.transaction(Database.MESSAGES_TABLE, "readonly")
 			.objectStore(Database.MESSAGES_TABLE)
-			.getAll()
-			.addEventListener("success", event => {
+			.getAll();
+			query.addEventListener("success", event => {
 				const result = (event.target as IDBRequest).result as TwitchatDataTypes.ChatMessageTypes[] || [];
 				resolve(result);
+			})
+			query.addEventListener("error", event => {
+				resolve([]);
 			});
 		});
 	}
@@ -124,7 +137,7 @@ export default class Database {
 			});
 			query.addEventListener("onabort", event => {
 				const error = (event.target as IDBRequest).error;
-				if (error && error.name == 'QuotaExceededError') {
+				if (error && error.name == 'QuotaExceededError' && !this._quotaWarned) {
 					this._quotaWarned = true;
 					StoreProxy.main.alert("[IndexedDB] Storage quota reached, cannot save new message in history");
 					this.limitMessageCount();
@@ -156,6 +169,23 @@ export default class Database {
 				}else{
 					resolve();
 				}
+			});
+		});
+	}
+
+	/**
+	 * Clears database content
+	 */
+	public async clear():Promise<void>{
+		if(!this._db) return Promise.resolve();
+
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
+			.objectStore(Database.MESSAGES_TABLE)
+			.clear()
+			.addEventListener("success", async (event) => {
+				console.log("[IndexedDB] message history cleared");
+				resolve();
 			});
 		});
 	}

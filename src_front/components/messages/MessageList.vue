@@ -109,16 +109,16 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import MessageListFilter from './components/MessageListFilter.vue';
-import MessageItem from './MessageItem.vue';
 import CloseButton from '../CloseButton.vue';
+import MessageItem from './MessageItem.vue';
+import MessageListFilter from './components/MessageListFilter.vue';
 
 @Component({
 	components: {
@@ -218,6 +218,11 @@ export default class MessageList extends Vue {
 			el.scrollTop = this.virtualScrollY = maxScroll;
 			this.computeMaxMessageCount();
 		});
+
+		watch(()=>this.$store("params").features.mergeConsecutive.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -330,7 +335,8 @@ export default class MessageList extends Vue {
 		if (this.pendingMessages.length == 0
 		&& el.scrollTop >= maxScroll - 50
 		&& !this.customActivitiesDisplayed) {
-			this.unlockListRefresh();
+			this.lockScroll = false;
+			this.virtualScrollY = -1;//Forces autoscroll to bottom
 		}
 	}
 
@@ -361,10 +367,15 @@ export default class MessageList extends Vue {
 			const messages = sChat.messages;
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
-			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
-			for (; i >= 0; i--) {
-				const m = messages[i];
+			let index = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
+			
+			for (; index >= 0; index--) {
+				
+				const m = messages[index];
 				if (await this.shouldShowMessage(m)) {
+					//Merge messages if necessary
+					if(await this.mergeWithPrevious(m, index-1, messages, true)) continue;
+
 					//Make sure message isn't pending for display
 					//This sometimes happens when stressing the list... Probably due
 					//the fact that the reference point ("scrollUpIndexOffset") is based
@@ -375,6 +386,7 @@ export default class MessageList extends Vue {
 					}
 
 					result.unshift(m);
+					// result.push(m);
 					if (result.length == this.maxMessages) break;
 				}
 			}
@@ -639,7 +651,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Called when a message is add
+	 * Called when a message is added
 	 */
 	private async onAddMessage(e: GlobalEvent): Promise<void> {
 		if(this.customActivitiesDisplayed) return;
@@ -648,6 +660,8 @@ export default class MessageList extends Vue {
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if (!await this.shouldShowMessage(m)) return;
+
+		if(await this.mergeWithPrevious(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
 		//add the new message to the pending list
@@ -697,42 +711,6 @@ export default class MessageList extends Vue {
 			}
 		}
 		this.fullListRefresh(false);
-
-		// //remove from displayed messages
-		// for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
-		// 	const m = this.filteredMessages[i];
-		// 	if (m.id == data.message.id) {
-		// 		if(data.force===true
-		// 		|| !this.shouldShowMessage(m)
-		// 		|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-		// 			if(m.markedAsRead) {
-		// 				m.markedAsRead = false;
-		// 				if(i>0) {
-		// 					const newMessage = this.filteredMessages[i-1];
-		// 					newMessage.markedAsRead = true;
-		// 					const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
-		// 					this.markedReadItem = div;
-		// 				}
-		// 			}
-		// 			this.filteredMessages.splice(i, 1);
-		// 		}
-		// 		return;
-		// 	}
-		// }
-
-		// //Check if it's in the pending messages
-		// for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
-		// 	const m = this.pendingMessages[i];
-		// 	if (m.id == data.message.id) return
-		// }
-
-		// if(this.shouldShowMessage(data.message) && data.message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-		// 	if(this.pendingMessages.length > 0) {
-		// 		this.pendingMessages.push(data.message);
-		// 	}else{
-		// 		this.filteredMessages.push(data.message);
-		// 	}
-		// }
 	}
 
 	/**
@@ -778,7 +756,6 @@ export default class MessageList extends Vue {
 						
 					//Moving read mark downward
 					}else if(count > 0){
-						console.log(messageList);
 						for (let i = currentMessageIndex; i < messageList.length; i++) {
 							const m = messageList[i];
 							if(await this.shouldShowMessage(m)) count --;
@@ -1171,10 +1148,6 @@ export default class MessageList extends Vue {
 		//to it after adding new messages
 		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
 		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
-		let lastMessRef:HTMLDivElement|undefined = undefined;
-		if (messRefs.length > 0) {
-			lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
-		}
 
 		//Add 5 messages
 		let addCount = 5;
@@ -1188,6 +1161,7 @@ export default class MessageList extends Vue {
 			//Message isn't supposed to be displayed, ignore it
 			if(!await this.shouldShowMessage(message!)) message = undefined;
 			else if(message) {
+				if(await this.mergeWithPrevious(message, undefined, this.pendingMessages)) continue;
 				//Add message
 				addCount --;
 				this.filteredMessages.push(message);
@@ -1537,6 +1511,76 @@ export default class MessageList extends Vue {
 			}
 			if(foundCount == toFindCount) break;
 		}
+	}
+	
+	/**
+	 * Attempt to merge consecutive messages of the same type and user
+	 * 
+	 * @returns true if the message has been merged
+	 */
+	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[], resetChildren:boolean = false):Promise<boolean> {
+		const isMergeable = TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(newMessage.type);
+		if(!isMergeable) return false;
+
+		const newCast = newMessage as TwitchatDataTypes.MergeableMessage;
+		//If merge option is disable, stop there and clean potential children
+		if(StoreProxy.params.features.mergeConsecutive.value == false) {
+			if(isMergeable) newCast.children.splice(0);
+			return false;
+		}
+		const maxSize = this.$store("params").features.mergeConsecutive_maxSize.value as number;
+		const maxSizeTotal = this.$store("params").features.mergeConsecutive_maxSizeTotal.value as number;
+		const minDuration = this.$store("params").features.mergeConsecutive_minDuration.value as number;
+
+		//If message size is higher than max allowed, don't merged
+		let newMessageSize = 0;
+		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			newMessageSize = newMessage.message.length;
+			newMessage.children.forEach(v=> newMessageSize += v.message.length);
+			if(newMessageSize > maxSize) return false;
+		}
+
+		//Message not mergeable, skip it
+		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
+		//No message to merge with
+		if(messageList.length < 2) return false;
+
+		if(indexOffset == undefined) indexOffset = messageList.length-1;
+		//Search for message to merge with
+		for (let i = indexOffset; i >= 0; i--) {
+			const prevMessage = messageList[i];
+			if(!await this.shouldShowMessage(prevMessage)) continue;
+			
+			//Check if prev message meets the condition to be merged witht the new one
+			if(prevMessage.type != newMessage.type) return false;//Prev displayable message isnt the same type, don't merge
+			if(prevMessage.deleted) return false;//if message has been deleted, don't merge
+
+			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
+			if(resetChildren) prevCast.children.splice(0);
+			if(prevCast.user.id !== newCast.user.id) return false;//Not the same user don't merge
+			
+			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				if((prevMessage.occurrenceCount || 0) > 1) return false;//don't merge messages with multiple occurences flag
+				//Get date of the latest children if any, or the date of the message
+				const prevDate = prevMessage.children.length > 0? prevMessage.children[prevMessage.children.length-1].date : prevMessage.date;
+				if(newMessage.date - prevDate > minDuration * 1000) return false;//Too much time elapsed between the 2 messages
+				let size = prevMessage.message.length;
+				prevMessage.children.forEach(v=> size += v.message.length);
+				//Parent message size is too big, don't merge
+				if(size + newMessageSize > maxSizeTotal) return false;
+			}
+			
+			//Merge with previous message
+			prevCast.children.push(newMessage);
+			
+			//If added child had children extract them to their new parent
+			if(newCast.children && newCast.children.length > 0) {
+				prevCast.children.push(...newCast.children);
+				newCast.children.splice(0);
+			}
+			return true;
+		}
+		return false;
 	}
 }
 

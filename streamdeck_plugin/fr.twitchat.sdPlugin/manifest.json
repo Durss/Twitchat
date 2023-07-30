@@ -457,6 +457,20 @@
 			"PropertyInspectorPath": "propertyInspector.html",
 			"SupportedInMultiActions": true,
 			"UUID": "fr.twitchat.action.send-message"
+		},
+		{
+			"Icon": "icons/MERGE_TOGGLE",
+			"Name": "Toggle merging",
+			"States": [
+				{
+					"Image": "icons/MERGE_TOGGLE",
+					"TitleAlignment": "bottom",
+					"FontSize": "10"
+				}
+			],
+			"PropertyInspectorPath": "propertyInspector.html",
+			"SupportedInMultiActions": true,
+			"UUID": "fr.twitchat.action.merge-toggle"
 		}
 	],
 	"Category":"Twitchat",
@@ -468,7 +482,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.5",
+	"Version": "2.6",
 	"OS": [
 		{
 			"Platform": "mac",

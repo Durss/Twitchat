@@ -564,14 +564,21 @@ export const storeChat = defineStore('chat', {
 		preloadMessageHistory():void {
 			if(StoreProxy.params.features.saveHistory.value === false) return;
 			Database.instance.getMessageList().then(res=>{
+				if(res.length === 0) return;
 				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 				}
+
 				res.push(splitter);
-				messageList.unshift(...res);
+				
+				//Force reactivity so merging feature works on old messages
+				for (let i = res.length-1; i >= 0; i--) {
+					messageList.unshift(reactive(res[i]));
+				}
+				
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
 			})
 		},
@@ -1189,33 +1196,9 @@ export const storeChat = defineStore('chat', {
 
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
-				let isMerged = false;
-				//If message is mergeable and merge feature is enabled
-				if(TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(message.type)
-				&& StoreProxy.params.features.mergeConsecutive.value == true) {
-					//Search on previous messages if one from the same user that's mergeable is found
-					const len = messageList.length;
-					for (let i = 1; i < 30; i++) {
-						const m = messageList[len - i];
-						if(TwitchatDataTypes.DisplayableMessageTypes[m.type]) {
-							if(m.type != message.type) break;//Prev displayable message isnt the same type, don't merge
-							if(m.deleted) break;//if message has been deleted, don't merge
-							const refCast = m as TwitchatDataTypes.MergeableMessage;
-							const messageCast = message as TwitchatDataTypes.MergeableMessage;
-							if(refCast.user.id === messageCast.user.id) {
-								if(!refCast.children) refCast.children = [];
-								refCast.children.push(message);
-								isMerged = true;
-								Database.instance.updateMessage(m);
-							}
-						}
-					}
-				}
-				if(!isMerged) {
-					messageList.push( message );
-					if(StoreProxy.params.features.saveHistory.value === true) {
-						Database.instance.addMessage(message);
-					}
+				messageList.push( message );
+				if(StoreProxy.params.features.saveHistory.value === true) {
+					Database.instance.addMessage(message);
 				}
 			
 				//Limit history size
@@ -1223,7 +1206,7 @@ export const storeChat = defineStore('chat', {
 					messageList.shift();
 				}
 	
-				if(!isMerged) EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 			}
 
 			const e = Date.now();

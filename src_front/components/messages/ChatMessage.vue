@@ -95,6 +95,7 @@
 				</span>
 				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 			</span>
+			
 			<span class="messageChildren" v-if="messageData.type == 'message' && messageData.children">
 				<span :class="getChildClasses(m)"
 				v-for="m in messageData.children"
@@ -245,6 +246,8 @@ export default class ChatMessage extends AbstractChatMessage {
 				if(censorDeletedMessages) res.push("censor");
 			}
 			if(spoilersEnabled && this.messageData.spoiler === true) res.push("spoiler");
+			if(message.children
+			&& message.children.length > 0)res.push("merged")
 		}
 
 		return res;
@@ -737,6 +740,12 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
+	&.merged {
+		.message, .messageChildren {
+			line-height: 1.75em !important;
+		}
+	}
+
 	.deleted {
 		opacity: .35;
 		transition: opacity .2s;
@@ -811,6 +820,12 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	.infoBadges, .noAutospoilBt {
 		margin-right: .4em;
+	}
+
+	.message {
+		.text {
+			word-break: break-all;
+		}
 	}
 
 	.userBadges {
@@ -911,12 +926,13 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 		span {
 			&::before {
-				content: " ∟";
-				display: inline-block;
+				content: "┕";
+				color: var(--color-secondary);
 				position: relative;
 				font-size: 1em;
-				bottom: -.5em;
-				margin-right: -.5em;
+				bottom: -.75em;
+				margin-right: -.25em;
+				margin-left: -.25em;
 			}
 			&:hover {
 				outline: 1px solid var(--color-text-fade);

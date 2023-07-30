@@ -223,6 +223,7 @@ export default class MessengerProxy {
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		const isAdmin = StoreProxy.auth.twitch.user.is_admin === true;
 		
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
@@ -244,6 +245,7 @@ export default class MessengerProxy {
 					user:me,
 					is_short:false,
 					answers:[],
+					children:[],
 				}
 				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);
 				return true;
@@ -305,17 +307,12 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/voice") {
-			//change voicemod voice
-			//TODO
-		}else
-
-		if(cmd == "/userlist") {
+		if(isAdmin && cmd == "/userlist") {
 			StoreProxy.params.openModal("TTuserList")
 			return true;
 		}else
 
-		if(cmd == "/logmessages") {
+		if(isAdmin && cmd == "/logmessages") {
 			console.log(StoreProxy.chat.messages)
 			return true;
 		}else
@@ -447,27 +444,27 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/logusers") {
+		if(isAdmin && cmd == "/logusers") {
 			console.log(StoreProxy.users.users);
 			return true;
 		}else
 
-		if(cmd == "/betaadd") {
+		if(isAdmin && cmd == "/betaadd") {
 			StoreProxy.admin.addBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
-		if(cmd == "/betadel") {
+		if(isAdmin && cmd == "/betadel") {
 			StoreProxy.admin.removeBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
-		if(cmd == "/betaclose") {
+		if(isAdmin && cmd == "/betaclose") {
 			StoreProxy.admin.removeAllBetaUser();
 			return true;
 		}else
 
-		if(cmd == "/betamigrate") {
+		if(isAdmin && cmd == "/betamigrate") {
 			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
@@ -542,7 +539,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 		
-		if(cmd == "/fakeso" || cmd == "/fakeshoutout") {
+		if(isAdmin && cmd == "/fakeso" || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
 			if(params[0] && params[0] != "true" && params[0] != "false") {
@@ -564,7 +561,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fakesolist") {
+		if(isAdmin && cmd == "/fakesolist") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
 				let user = Utils.pickRand(fakeUsers);
@@ -584,7 +581,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fake") {
+		if(isAdmin && cmd == "/fake") {
 			let forcedMessage = params.join(" ");
 
 			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
@@ -671,7 +668,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fakewhisper" || cmd == "/fakewhispers") {
+		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {
 			let count = parseInt(params[0]) || 1;
 			for (let i = 0; i < count; i++) {
 				StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
@@ -693,7 +690,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/userdata" || cmd == "/loaduserdata") {
+		if(isAdmin && (cmd == "/userdata" || cmd == "/loaduserdata")) {
 			if(params.length == 0) {
 				StoreProxy.main.alert(StoreProxy.i18n.t('error.user_param_missing'));
 			}else{

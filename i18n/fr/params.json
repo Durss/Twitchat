@@ -72,6 +72,9 @@
 		"ad_bot_info_content": "Oui<br><br>Par défaut le message est envoyé en votre nom.<br>Mais vous pouvez configurer ce message sur n'importe quel bot si vous préférez.<br><br>Twitchat n'enverra pas ce message tant qu'un message contenant <strong>twitchat.fr</strong> sera envoyé dans le tchat au moins toutes les 2h.",
 		"saveHistory": "Conserver l'historique des messages après rechargement",
 		"mergeConsecutive": "Fusionner les messages consécutifs d'une personne",
+		"mergeConsecutive_maxSize": "Ne pas fusionner le message s'il fait plus de {VALUE} caractères",
+		"mergeConsecutive_maxSizeTotal": "Longueur maximale totale des messages fusionnés",
+		"mergeConsecutive_minDuration": "Fusionner uniquement si moins de {VALUE}s séparent les messages",
 		"categories": {
 			"main": "Paramètres",
 			"ad": "Paramètres",

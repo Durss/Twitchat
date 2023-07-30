@@ -673,6 +673,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	}
 
 	type SafeMessage = Omit<TwitchatDataTypes.MessageChatData, "answers" | "answersTo" | "children">;
+	type SafeReward = Omit<TwitchatDataTypes.MessageRewardRedeemData, "children">;
 
 	map[TriggerTypes.ANY_MESSAGE] = 
 	map[TriggerTypes.FIRST_TODAY] = 
@@ -799,12 +800,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 	
 	map[TriggerTypes.REWARD_REDEEM] = [
-		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
-		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
-		{tag:"TITLE", descKey:'triggers.placeholders.reward_title', pointer:"reward.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
-		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
-		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
-		{tag:"MESSAGE", descKey:"triggers.placeholders.reward_message", pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRewardRedeemData>,
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeReward>,
+		{tag:"TITLE", descKey:'triggers.placeholders.reward_title', pointer:"reward.title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:"DESCRIPTION", descKey:'triggers.placeholders.reward_description', pointer:"reward.description", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:"COST", descKey:'triggers.placeholders.reward_cost', pointer:"reward.cost", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:"MESSAGE", descKey:"triggers.placeholders.reward_message", pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<SafeReward>,
 	];
 	
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [

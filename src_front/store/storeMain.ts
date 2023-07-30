@@ -297,6 +297,13 @@ export const storeMain = defineStore("main", {
 				});
 			
 				/**
+				 * Called when asking to toggle message merging
+				 */
+				PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {
+					StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
+				});
+			
+				/**
 				 * Called when music player is clicked on the unified overlay
 				 */
 				PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
