@@ -250,7 +250,7 @@ import Ajv from "ajv";
 								skipDisabled: {type:"boolean"},
 								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
-								title: {type:"string", maxLength:20},
+								title: {type:"string", maxLength:140},
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
 								pattern: {type:"string", maxLength:15},
