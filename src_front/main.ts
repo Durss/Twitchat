@@ -2,7 +2,7 @@ import { createPopper } from '@popperjs/core';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
-import { createApp } from 'vue';
+import { createApp, h, type DirectiveBinding, type VNode } from 'vue';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
@@ -49,6 +49,7 @@ import { setDefaultProps } from 'vue-tippy';
 import Icon from './components/Icon.vue';
 import { storeHeat } from './store/heat/storeHeat';
 import { storePatreon } from './store/patreon/storePatreon';
+import { divide } from 'mathjs';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -300,6 +301,30 @@ function buildApp() {
 					}
 				});
 			}
+		}
+	})
+	.directive('newflag', {
+		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string}>, vnode:VNode<any, any, { [key: string]: any; }>) {
+			if(binding && binding.value) {
+				const {date, id} = binding.value;
+				//Flag as new only for 1 month
+				if(Date.now() - date > 30 * 24 * 60 * 60000) return;
+
+				//Don't flag is already marked as read
+				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) ||"[]");
+				if(flagsDone.includes(id)) return;
+
+				el.classList.add("newFlag");
+
+				el.addEventListener("click", ()=>{
+					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) ||"[]");
+					flagsDone.push(id);
+					DataStore.set(DataStore.NEW_FLAGS, flagsDone);
+					el.classList.remove("newFlag");
+				});
+			}
+		},
+		beforeUnmount(el:HTMLElement, binding:unknown) {
 		}
 	});
 	app.config.globalProperties.$i18n = i18n;

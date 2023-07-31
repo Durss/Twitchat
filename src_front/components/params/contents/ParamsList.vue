@@ -1,7 +1,6 @@
 <template>
 	<div class="paramslist">
-		<div class="row" v-for="(p, key) in params" :key="key">
-
+		<div class="row" v-for="(p, key) in params" :key="key" v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
 			<div :class="getClasses(p, key as string)">
 				<ParamItem :paramData="p" noBackground>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="card-item alert info obsConnect">

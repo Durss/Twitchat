@@ -310,7 +310,6 @@ export default class ComponentList extends Vue {
 		const emotes = json[Object.keys(json)[0]].default;
 		TwitchUtils.loadEmoteSets("", [], emotes).then(()=> {
 			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss sit amet google.fr DinoDance", undefined, true);
-			console.log(this.messageChunks);
 		})
 	}
 	

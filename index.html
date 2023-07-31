@@ -140,7 +140,7 @@
 			//Stop spamming script refresh after 10 attempts
 			if(counter <= 10) {
 				setTimeout(()=>{
-					script.parentNode.removeChild(script);
+					script.parentElement.removeChild(script);
 					let s = document.createElement('script');
 					s.defer = true;
 					s.type = script.type;
@@ -327,7 +327,7 @@
 		let prevTs = Date.now();
 		//Animate loader
 		function renderFrame(ts) {
-			if(!loader.parentNode) return;//Loader removed from stage
+			if(!loader.parentElement) return;//Loader removed from stage
 
 			const timeScale = (60/1000) * (ts - prevTs);
 			prevTs = ts;
@@ -365,7 +365,7 @@
 			if(visibleCount > 0) {
 				requestAnimationFrame((ts)=>renderFrame(ts));
 			}else{
-				loader.parentNode.removeChild(loader);
+				loader.parentElement.removeChild(loader);
 			}
 		}
 

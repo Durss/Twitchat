@@ -14,24 +14,24 @@
 					<div class="search">
 						<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 					</div>
-					<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures">{{$t('params.categories.features')}}</Button>
-					<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance">{{$t('params.categories.appearance')}}</Button>
+					<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1690765812999, id:'params_chatfeatures'}">{{$t('params.categories.features')}}</Button>
+					<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1690765812999, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
 					<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
 					<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
-					<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers">{{$t('params.categories.triggers')}}</Button>
+					<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1690765812999, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
 					<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
 					<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
 					<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
 					<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
 					<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
-					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat">{{$t('params.categories.heat')}}</Button>
+					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat" v-newflag="{date:1690765812999, id:'params_heat'}">{{$t('params.categories.heat')}}</Button>
 					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
 					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
+					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1690765812999, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
 					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
-					<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" premium>{{$t('params.categories.premium')}}</Button>
+					<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1690765812999, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
 				</div>
 
 				<div class="automaticMessageHolder" v-if="isDonor && !closed">
@@ -403,6 +403,7 @@ export default class Parameters extends Vue {
 		width: fit-content;
 		border-right: 1px solid var(--splitter-color);
 		padding-right: 1em;
+		overflow-x: visible;
 		overflow-y: auto;
 		.head {
 			display:none;
@@ -417,8 +418,8 @@ export default class Parameters extends Vue {
 			gap: 10px;
 			&>.button {
 				flex-wrap: nowrap;
-				overflow: hidden;
 				&.beta {
+					overflow: hidden;
 					&::before {
 						content: "beta";
 						z-index: 1;

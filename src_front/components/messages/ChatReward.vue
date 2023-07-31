@@ -4,7 +4,7 @@
 
 		<div class="holder">
 			<div v-for="entry in rewardList" :key="entry.vo.id" class="item">
-				<img :src="icon" alt="reward" class="icon" :style="{backgroundColor:entry.vo.reward.color}">
+				<img :src="getIcon(entry.vo)" alt="reward" class="icon" :style="{backgroundColor:entry.vo.reward.color}">
 
 				<span class="card-item secondary count" v-if="entry.count > 1">x{{ entry.count }}</span>
 	
@@ -75,10 +75,10 @@ export default class ChatReward extends AbstractChatMessage {
 		return res;
 	}
 
-	public get icon():string {
+	public getIcon(reward:TwitchatDataTypes.MessageRewardRedeemData):string {
 		let icon = this.$image('icons/channelPoints.svg');
-		const img = this.messageData.reward.icon;
-		icon = img.hd ?? img.sd;
+		const img = reward.reward.icon;
+		icon = img.hd || img.sd || icon;
 		return icon;
 	}
 

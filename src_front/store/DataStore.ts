@@ -80,6 +80,7 @@ export default class DataStore {
 	public static GOXLR_ENABLED:string = "goxlrEnabled";
 	public static GOXLR_IP:string = "goxlrIp";
 	public static GOXLR_PORT:string = "goxlrPort";
+	public static NEW_FLAGS:string = "newFlags";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -106,6 +107,7 @@ export default class DataStore {
 		this.ANNOUNCEMENTS_READ,
 		this.GOXLR_IP,
 		this.GOXLR_PORT,
+		this.NEW_FLAGS,
 	];
 	
 	

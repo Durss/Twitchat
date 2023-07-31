@@ -1388,7 +1388,7 @@ export default class MessageList extends Vue {
 			let target = event.target as HTMLElement;
 			do {
 				if (target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
-				target = target.parentNode as HTMLElement;
+				target = target.parentElement as HTMLElement;
 			}while(target != document.body);
 		}
 		

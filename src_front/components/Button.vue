@@ -281,7 +281,7 @@ export default class Button extends Vue {
 			display: none;
 		}
 	}
-		overflow: hidden;
+	
 	.browse {
 		position: absolute;
 		top: -1em;

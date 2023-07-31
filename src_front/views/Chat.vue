@@ -348,7 +348,7 @@ export default class Chat extends Vue {
 
 			//Make sure the column holding modals is visible
 			if(this.panelsColumnTarget && value) {
-				const col = this.panelsColumnTarget.parentNode as HTMLDivElement;
+				const col = this.panelsColumnTarget.parentElement as HTMLDivElement;
 				const scrollable = this.$refs.scrollable as HTMLDivElement;
 				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth), y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2};
 				gsap.to(scrollable, {duration: .75, ease:"sine.inOut", scrollTo});

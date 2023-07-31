@@ -541,6 +541,7 @@ import Ajv from "ajv";
 		"p:showRewardsInfos": {type:"boolean"},
 		"p:censorDeletedMessages": {type:"boolean"},
 		"p:saveHistory": {type:"boolean"},
+		"p:highlightusernames": {type:"boolean"},
 		"p:mergeConsecutive": {type:"boolean"},
 		"p:mergeConsecutive_minDuration": {type:"boolean"},
 		"p:mergeConsecutive_maxSize": {type:"integer", minimum:1, maximum:500},

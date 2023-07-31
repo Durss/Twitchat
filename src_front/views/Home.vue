@@ -261,7 +261,7 @@ export default class Home extends Vue {
 
 	public onSelectAnchor(data:TwitchatDataTypes.AnchorData):void {
 		const offsetY = (window.innerHeight - data.div.getBoundingClientRect().height) / 2;
-		const scrollable = (this.$el as HTMLDivElement).parentNode;
+		const scrollable = (this.$el as HTMLDivElement).parentElement;
 		gsap.to(scrollable, {duration: 1, scrollTo: {y:data.div, offsetY}, ease:"sine.inOut"});
 	}
 
