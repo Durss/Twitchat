@@ -1538,6 +1538,7 @@ export default class MessageList extends Vue {
 			newMessageSize = newMessage.message.length;
 			newMessage.children.forEach(v=> newMessageSize += v.message.length);
 			if(newMessageSize > maxSize) return false;
+			if((newMessage.occurrenceCount || 0) > 1) return false;//don't merge messages with multiple occurences flag
 		}
 
 		//Message not mergeable, skip it

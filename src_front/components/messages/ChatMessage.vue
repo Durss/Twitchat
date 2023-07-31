@@ -96,9 +96,9 @@
 				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 			</span>
 			
-			<span class="messageChildren" v-if="messageData.type == 'message' && messageData.children">
+			<span class="messageChildren" v-if="messageData.type == 'message' && children">
 				<span :class="getChildClasses(m)"
-				v-for="m in messageData.children"
+				v-for="m in children"
 				@contextmenu.capture="onContextMenu($event, m)">
 					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
@@ -246,11 +246,16 @@ export default class ChatMessage extends AbstractChatMessage {
 				if(censorDeletedMessages) res.push("censor");
 			}
 			if(spoilersEnabled && this.messageData.spoiler === true) res.push("spoiler");
-			if(message.children
-			&& message.children.length > 0)res.push("merged")
+			if(this.children
+			&& this.children.length > 0)res.push("merged")
 		}
 
 		return res;
+	}
+
+	public get children():TwitchatDataTypes.MessageChatData[] {
+		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return []
+		return this.messageData.children.filter(v=>(v.occurrenceCount || 0) === 0);
 	}
 
 	public getChildClasses(message:TwitchatDataTypes.MessageChatData):string[] {
