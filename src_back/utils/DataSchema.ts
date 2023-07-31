@@ -279,7 +279,7 @@ import Ajv from "ajv";
 									type:"array",
 									minItems:0,
 									maxItems:20,
-									items:{type:"string", maxLength:10},
+									items:{type:"string", maxLength:25},
 								},
 								list: {
 									type:"array",

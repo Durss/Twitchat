@@ -48,6 +48,7 @@ export const storeParams = defineStore('params', {
 		appearance: {
 			splitViewVertical: 			{save:true, type:"boolean", value:false, labelKey:"params.splitViewVertical", id:21, icon:"layout", example:"verticalLayout.png"},
 			censorDeletedMessages: 		{save:true, type:"boolean", value:true, labelKey:"params.censorDeletedMessages", id:25, icon:"hide"},
+			highlightusernames: 		{save:true, type:"boolean", value:true, labelKey:"params.highlightusernames", id:44, icon:"user"},
 			highlightMods: 				{save:true, type:"boolean", value:true, labelKey:"params.highlightMods", id:9, icon:"mod"},
 			highlightMods_color:		{save:true, type:"color", value:"#00a865", labelKey:"params.highlightColor", id:29, parent:9},
 			highlightVips: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightVips", id:10, icon:"vip"},

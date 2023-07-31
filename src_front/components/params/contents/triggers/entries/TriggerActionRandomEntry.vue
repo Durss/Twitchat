@@ -34,7 +34,7 @@
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" />
+							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" :channel="$store('auth').twitch.user.id" platform="twitch" />
 						</span>
 
 						<textarea v-if="indexToEditState[index]"

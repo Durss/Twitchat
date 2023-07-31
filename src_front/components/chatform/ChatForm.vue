@@ -31,10 +31,10 @@
 						<div class="content">
 							<span class="title">
 								<Icon name="alert" />
-								<ChatMessageChunksParser :chunks="announcementTitle" />
+								<ChatMessageChunksParser :chunks="announcementTitle" :channel="$store('auth').twitch.user.id" platform="twitch" />
 							</span>
 							<span class="message">
-								<ChatMessageChunksParser :chunks="announcementMessage" />
+								<ChatMessageChunksParser :chunks="announcementMessage" :channel="$store('auth').twitch.user.id" platform="twitch" />
 							</span>
 						</div>
 					</div>

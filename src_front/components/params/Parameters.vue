@@ -1,8 +1,7 @@
 <template>
 	<div :class="classes" v-show="!closed">
 		<div class="menu">
-			<!-- v-if="content == contentMain && !search || content == contentAd"> -->
-				<div class="head">
+				<div class="head" v-if="content == contentMain && !search || content == contentAd">
 					<h1 class="title">{{$t('params.categories.'+content)}}</h1>
 					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 				</div>

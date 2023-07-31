@@ -228,11 +228,12 @@ export namespace TwitchDataTypes {
 		theme_mode: "light" | "dark";
 	}
 	export interface ParseMessageChunk {
-		type: "text" | "emote" | "cheermote" | "url" | "highlight";
+		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
+		value: string;
 		emote?: string;
 		emoteHD?: string;
 		href?: string;
-		value: string;
+		username?: string;
 	}
 
 	export interface Reward {

@@ -33,13 +33,13 @@
 						<Button class="deleteBt" icon="trash" alert @click="deleteAnnounce(a.id)"></Button>
 					</div>
 					<div class="infos">
-						<p class="title"><strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" /></strong></p>
+						<p class="title"><strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></strong></p>
 						<p class="date">
 							<span>{{ formatDate(a.dateStart) }}</span>
 							<span v-if="a.dateEnd" class="split">=&gt;</span>
 							<span v-if="a.dateEnd">{{ formatDate(a.dateEnd) }}</span>
 						</p>
-						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" /></p>
+						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></p>
 					</div>
 				</div>
 			</div>

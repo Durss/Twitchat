@@ -1,6 +1,11 @@
 <template>
 	<div class="componentlist">
 
+		<Splitter>Message parsing</Splitter>
+		<div class="card-item section message">
+			<ChatMessageChunksParser :chunks="messageChunks" v-if="messageChunks" channel="29961813" platform="twitch" />
+		</div>
+
 		<Splitter>Buttons</Splitter>
 
 		<div class="card-item section buttons">
@@ -224,7 +229,9 @@
 		<Splitter>Icons</Splitter>
 
 		<div class="card-item section icons">
-			<Icon name="errored icon" class="icon" />
+			<!-- Voluntary wrong icon name to show error state -->
+			<Icon name="voluntary_error" class="icon" />
+
 			<Icon v-for="(icon, index) in iconList"
 				class="icon"
 				:key="icon"
@@ -246,8 +253,11 @@ import SwitchButton from '@/components/SwitchButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 
@@ -264,6 +274,7 @@ import { useTippy } from 'vue-tippy';
 		ProgressBar,
 		SwitchButton,
 		ToggleButton,
+		ChatMessageChunksParser,
 	},
 	emits:[],
 })
@@ -276,6 +287,7 @@ export default class ComponentList extends Vue {
 	public disabled:boolean = false;
 	public progresses:number[] = [];
 	public iconList:string[] = [];
+	public messageChunks:TwitchDataTypes.ParseMessageChunk[] = [];
 
 	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
@@ -294,6 +306,12 @@ export default class ComponentList extends Vue {
 		let iconList = import.meta.glob("@/assets/icons/*.svg");
 		const keys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
 		this.iconList = keys;
+		const json = import.meta.globEager("@/utils/twitch/staticEmoteList.json");
+		const emotes = json[Object.keys(json)[0]].default;
+		TwitchUtils.loadEmoteSets("", [], emotes).then(()=> {
+			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss sit amet google.fr DinoDance", undefined, true);
+			console.log(this.messageChunks);
+		})
 	}
 	
 	public beforeUnmount():void {
@@ -358,7 +376,14 @@ export default class ComponentList extends Vue {
 		.icon {
 			width: 4em;
 			height: 4em;
+			:deep(svg) {
+				object-fit: cover;
+			}
 		}
+	}
+
+	.message {
+		color: var(--color-text);
 	}
 
 	.buttons {

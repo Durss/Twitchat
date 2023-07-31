@@ -34,6 +34,7 @@
 		"liveMessages":"Montrer les derniers messages lorsque le tchat est mis en pause",
 		"liveAlerts":"Être notifié·e lorsqu'une personne que vous suivez lance ou termine un live (délais de 5min)",
 		"censorDeletedMessages": "Censurer les messages supprimés",
+		"highlightusernames": "Rendre les {'@'}mentions cliquables",
 		"highlightMods": "Mettre en avant les Mods",
 		"highlightVips": "Mettre en avant les VIPs",
 		"highlightSubs": "Mettre en avant les Subs",

@@ -522,24 +522,28 @@ export default class TwitchUtils {
 	/**
 	 * Loads specified emotes sets
 	 */
-	public static async loadEmoteSets(channelId:string, sets:string[]):Promise<TwitchatDataTypes.Emote[]> {
+	public static async loadEmoteSets(channelId:string, sets:string[], staticEmotes?:TwitchDataTypes.Emote[]):Promise<TwitchatDataTypes.Emote[]> {
 		if(this.emotesCache.length > 0) return this.emotesCache;
-		const options = {
-			method:"GET",
-			headers: this.headers,
-		}
 		let emotes:TwitchatDataTypes.Emote[] = [];
 		let emotesTwitch:TwitchDataTypes.Emote[] = [];
-		do {
-			const params = sets.splice(0,25).join("&emote_set_id=");
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
-			const json = await res.json();
-			if(res.status == 200) {
-				emotesTwitch = emotesTwitch.concat(json.data);
-			}else{
-				throw(json);
+		if(!staticEmotes) {
+			const options = {
+				method:"GET",
+				headers: this.headers,
 			}
-		}while(sets.length > 0);
+			do {
+				const params = sets.splice(0,25).join("&emote_set_id=");
+				const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
+				const json = await res.json();
+				if(res.status == 200) {
+					emotesTwitch = emotesTwitch.concat(json.data);
+				}else{
+					throw(json);
+				}
+			}while(sets.length > 0);
+		}else{
+			emotesTwitch.push(...staticEmotes);
+		}
 
 		const uid2User:{[key:string]:TwitchatDataTypes.TwitchatUser} = {};//Avoid spamming store
 		
@@ -2540,7 +2544,7 @@ export default class TwitchUtils {
 		for (let i = 0; i < result.length; i++) {
 			const chunk = result[i];
 			if(chunk.type == "text") {
-				result.splice(i, 1);//Rmove source chunk
+				result.splice(i, 1);//Remove source chunk
 				let res = chunk.value.split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
@@ -2553,6 +2557,29 @@ export default class TwitchUtils {
 					if(islink) {
 						const href = !/^https?/gi.test(v)? "https://"+v : v;
 						node.href = href;
+					}
+					result.splice(i+subIndex, 0, node);
+					subIndex++;
+				})
+			}
+		}
+
+		//Parse username chunks
+		for (let i = 0; i < result.length; i++) {
+			const chunk = result[i];
+			if(chunk.type == "text") {
+				result.splice(i, 1);//Remove source chunk
+				let res = chunk.value.split(/(@[a-z0-9_]{3,25})/gi);
+				let subIndex = 0;
+				res.forEach(v=> {
+					//Add sub chunks to original resulting chunks
+					const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
+					const node:TwitchDataTypes.ParseMessageChunk = {
+						type:isUsername? "user" : "text",
+						value:v,
+					};
+					if(isUsername) {
+						node.username = v.substring(1);//Remove "@"
 					}
 					result.splice(i+subIndex, 0, node);
 					subIndex++;

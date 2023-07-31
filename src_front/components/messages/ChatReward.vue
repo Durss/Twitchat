@@ -21,7 +21,7 @@
 				</i18n-t>
 				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
 				<div class="quote" v-if="entry.vo.message_html">
-					<ChatMessageChunksParser :chunks="entry.vo.message_chunks" />
+					<ChatMessageChunksParser :chunks="entry.vo.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</div>
 			</div>
 		</div>

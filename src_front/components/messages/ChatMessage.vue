@@ -91,7 +91,7 @@
 			
 			<span class="message">
 				<span class="text">
-					<ChatMessageChunksParser :chunks="localMessageChunks" />
+					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
 				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
 			</span>
@@ -100,7 +100,7 @@
 				<span :class="getChildClasses(m)"
 				v-for="m in messageData.children"
 				@contextmenu.capture="onContextMenu($event, m)">
-					<ChatMessageChunksParser :chunks="m.message_chunks" />
+					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
 			</span>
 			
@@ -290,31 +290,8 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Set login color
 	 */
 	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
-		let colorStr = user.color ?? "#ffffff";
-		let color = 0xffffff;
-		if(user.color) {
-			color = parseInt(user.color.replace("#", ""), 16);
-		}
-		if(!Utils.isLightMode) {
-			const hsl = Utils.rgb2hsl(color);
-			const minL = .65;
-			if(hsl.l < minL) {
-				color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
-			}
-			colorStr = color.toString(16);
-		}else{
-			const hsl = Utils.rgb2hsl(color);
-			const maxL = .4;
-			const minS = 1;
-			if(hsl.l > maxL) {
-				color = Utils.hsl2rgb(hsl.h, Math.max(hsl.s, minS), Math.min(hsl.l, maxL));
-			}
-			colorStr = color.toString(16);
-		}
-		while(colorStr.length < 6) colorStr = "0"+colorStr;
-		colorStr = "#"+colorStr;
 		let res = {
-			color: colorStr,
+			color: Utils.getUserColor(user),
 		};
 		return res;
 	}

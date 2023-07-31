@@ -843,4 +843,35 @@ export default class Utils {
 		if (minor1 !== minor2) return minor1 > minor2;
 		return patch1 > patch2;
 	}
+
+	/**
+	 * Get a readable user's color
+	 * @param user 
+	 */
+	public static getUserColor(user:TwitchatDataTypes.TwitchatUser):string {
+		let colorStr = user.color ?? "#ffffff";
+		let color = 0xffffff;
+		if(user.color) {
+			color = parseInt(user.color.replace("#", ""), 16);
+		}
+		if(!Utils.isLightMode) {
+			const hsl = Utils.rgb2hsl(color);
+			const minL = .65;
+			if(hsl.l < minL) {
+				color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+			}
+			colorStr = color.toString(16);
+		}else{
+			const hsl = Utils.rgb2hsl(color);
+			const maxL = .4;
+			const minS = 1;
+			if(hsl.l > maxL) {
+				color = Utils.hsl2rgb(hsl.h, Math.max(hsl.s, minS), Math.min(hsl.l, maxL));
+			}
+			colorStr = color.toString(16);
+		}
+		while(colorStr.length < 6) colorStr = "0"+colorStr;
+		colorStr = "#"+colorStr;
+		return colorStr;
+	}
 }
