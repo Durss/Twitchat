@@ -222,9 +222,11 @@ export default class PubSub extends EventDispatcher {
 			message,
 			message_chunks: TwitchUtils.parseMessageToChunks(message),
 			message_html:message,
+			message_size:0,
 			twitch_isSuspicious:true,
 			is_short:false,
-		}
+		};
+		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 		StoreProxy.chat.addMessage(m)
 
 		//Flag mesage as low trust
@@ -344,6 +346,7 @@ export default class PubSub extends EventDispatcher {
 				message: localObj.body,
 				message_chunks: chunks,
 				message_html: TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
 			}
 			StoreProxy.chat.addMessage(whisper);
 
@@ -488,8 +491,10 @@ export default class PubSub extends EventDispatcher {
 					message:mess.content.text,
 					message_chunks:chunks,
 					message_html:TwitchUtils.messageChunksToHTML(chunks),
+					message_size:0,
 					is_short:false,
 				};
+				m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 				StoreProxy.chat.addMessage(m);
 			}
 
@@ -717,9 +722,11 @@ export default class PubSub extends EventDispatcher {
 				message:messageClean,
 				message_chunks:chunks,
 				message_html:messageHtml,
+				message_size:0,
 				twitch_automod:{ reasons, words },
 				is_short:false,
-			}
+			};
+			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 			StoreProxy.chat.addMessage(m);
 
 		}else 
@@ -794,9 +801,11 @@ export default class PubSub extends EventDispatcher {
 				message:localObj.message_content.text,
 				message_chunks:chunks,
 				message_html:TwitchUtils.messageChunksToHTML(chunks),
+				message_size:0,
 				twitch_isRestricted:true,
 				is_short:false,
-			}
+			};
+			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 			const users = await TwitchUtils.loadUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);

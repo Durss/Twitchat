@@ -297,7 +297,9 @@ export const storeUsers = defineStore('users', {
 				return user;
 			}
 
-			if(platform == "twitch" && user.temporary) {
+			const needCreationDate = user.created_at_ms == undefined;// && StoreProxy.params.features.recentAccountUserBadge.value === true;
+			if(platform == "twitch" && (user.temporary || needCreationDate)) {
+				
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
@@ -306,10 +308,11 @@ export const storeUsers = defineStore('users', {
 				const to = setTimeout((batchType:"id"|"login")=> {
 					
 					const batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
+					
 					//Remove items that might have been fullfilled externally
 					for (let i = 0; i < batch.length; i++) {
 						const item = batch[i];
-						if(!item.user.temporary) {
+						if(!item.user.temporary && !needCreationDate) {
 							if(item.cb) item.cb(item.user);
 							batch.splice(i,1);
 							i--;
@@ -357,6 +360,7 @@ export const storeUsers = defineStore('users', {
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
 								userLocal.avatarPath		= apiUser.profile_image_url;
+								userLocal.created_at_ms		= new Date(apiUser.created_at).getTime();
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;

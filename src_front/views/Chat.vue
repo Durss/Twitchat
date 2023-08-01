@@ -611,6 +611,7 @@ export default class Chat extends Vue {
 						message:"",
 						message_chunks:[],
 						message_html:"",
+						message_size:0,
 						user:me,
 						is_short:false,
 						answers:[],

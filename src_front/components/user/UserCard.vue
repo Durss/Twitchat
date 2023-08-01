@@ -105,7 +105,7 @@
 						<h2 class="title">{{ $t("usercard.messages") }}</h2>
 					</div>
 	
-					<div class="list">
+					<div class="list" ref="messagelist">
 						<div class="subholder" v-for="m in messageHistory" :key="m.id">
 							<MessageItem class="message"
 								disableConversation
@@ -278,26 +278,32 @@ export default class UserCard extends Vue {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
 		const uid:string = this.user.id;
-		for (let i = 0; i < this.$store("chat").messages.length; i++) {
+		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
 			const mess = this.$store("chat").messages[i];
 			if(!allowedTypes.includes(mess.type)) continue;
 			if(mess.type == "shoutout" && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if(mess.type == "following" && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if(mess.type == "subscription" && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if(mess.type == "cheer" && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}else if(mess.type == "reward" && mess.user.id == uid) {
-				messageList.push(mess);
+				messageList.unshift(mess);
 			}
-			if (messageList.length > 100) break;//Limit to 100 for perf reasons
+			if (messageList.length > 250) break;//Limit message count for perf reasons
 		}
+
+		this.$nextTick(()=>{
+			const messagelist = this.$refs.messagelist as HTMLDivElement |undefined;
+			if(!messagelist) return;
+			messagelist.scrollTop = messagelist.scrollHeight;
+		})
 		return messageList;
 	}
 
@@ -401,6 +407,7 @@ export default class UserCard extends Vue {
 					message: "",
 					message_html: "",
 					message_chunks: [],
+					message_size:0,
 					answers:[],
 					is_short:false,
 					children:[],

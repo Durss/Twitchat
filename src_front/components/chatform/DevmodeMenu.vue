@@ -162,6 +162,7 @@ export default class DevmodeMenu extends Vue {
 					m.message = str;
 					m.message_chunks = chunks;
 					m.message_html = str;
+					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					break;
 				}
 				case "gift":{

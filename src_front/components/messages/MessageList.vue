@@ -1535,7 +1535,12 @@ export default class MessageList extends Vue {
 		//If message size is higher than max allowed, don't merged
 		let newMessageSize = 0;
 		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			newMessageSize = newMessage.message.length;
+			newMessage.message_chunks.forEach(v=> {
+				//Emotes and cheermotes count as 2 chars
+				if(v.type == "emote" || v.type == "cheermote") newMessageSize += 2;
+				else newMessageSize += v.value.length;
+			});
+			// newMessageSize = newMessage.message.length;
 			newMessage.children.forEach(v=> newMessageSize += v.message.length);
 			if(newMessageSize > maxSize) return false;
 			if((newMessage.occurrenceCount || 0) > 1) return false;//don't merge messages with multiple occurences flag
@@ -1582,6 +1587,15 @@ export default class MessageList extends Vue {
 			return true;
 		}
 		return false;
+	}
+
+	private computeMessageSize(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):number {
+		let size = 0;
+		message.message_chunks.forEach(v=> {
+			if(v.type == "emote" || v.type == "cheermote") size += 1;
+			else size += v.value.length;
+		});
+		return size;
 	}
 }
 

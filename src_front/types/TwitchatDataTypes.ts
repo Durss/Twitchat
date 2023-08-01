@@ -284,8 +284,9 @@ export namespace TwitchatDataTypes {
 		CYPHERED: "cyphered",
 		NEW_USER: "new_user",
 		HYPE_CHAT: "hypeChat",
-		FIRST_MESSAGE_TODAY: "firstToday",
+		NEW_ACCOUNT: "new_account",
 		PRESENTATION: "presentation",
+		FIRST_MESSAGE_TODAY: "firstToday",
 		SUSPICIOUS_USER: "suspiciousUser",
 		RESTRICTED_USER: "restrictedUser",
 		EMERGENCY_BLOCKED: "emergencyBlocked",
@@ -297,6 +298,7 @@ export namespace TwitchatDataTypes {
 		type:MessageBadgeDataStringType;
 		label?:string;
 		tooltip?:string;
+		tooltipLabelParams?:{[key:string]:string};
 	}
 
 	/**
@@ -1002,6 +1004,10 @@ export namespace TwitchatDataTypes {
 		 * URL of the avatar
 		 */
 		avatarPath?:string;
+		/**
+		 * Account createion date
+		 */
+		created_at_ms?:number;
 		/**
 		 * Nickname chat color
 		 */
@@ -1713,6 +1719,10 @@ export namespace TwitchatDataTypes {
 		 */
 		message_html:string;
 		/**
+		 * Size of the message in chars (emotes/cheermotes count as 2 chars)
+		 */
+		message_size:number;
+		/**
 		 * All messages that answered to this message
 		 */
 		answers: MessageChatData[];
@@ -1859,6 +1869,10 @@ export namespace TwitchatDataTypes {
 		 * All emotes are replaced by HTML tags
 		 */
 		message_html:string;
+		/**
+		 * Textual size of the message. (emotes/cheermotes count as 2 chars)
+		 */
+		message_size:number;
 		/**
 		 * Is the message content cyphered ?
 		 */
@@ -2081,6 +2095,10 @@ export namespace TwitchatDataTypes {
 		 * Otional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
 		message_html?:string;
+		/**
+		 * Message textual size (emotes/cheermotes count as 2 chars)
+		 */
+		message_size:number;
 		/**
 		 * raw IRC data of the sub
 		 */

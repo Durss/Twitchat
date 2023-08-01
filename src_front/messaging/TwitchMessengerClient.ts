@@ -600,14 +600,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			months:typeof tags["msg-param-multimonth-duration"] == "string"? parseInt(tags["msg-param-multimonth-duration"]) : -1,
 			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : -1,
 			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
-			raw_data:{tags, methods, message}
+			raw_data:{tags, methods, message},
+			message_size:0,
 		}
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) || "1000")/1000) as (1|2|3);
 		if(message) {
 			const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 			res.message = message;
 			res.message_chunks = chunks;
-			res.message_html = TwitchUtils.messageChunksToHTML(res.message_chunks);
+			res.message_html = TwitchUtils.messageChunksToHTML(chunks);
+			res.message_size = TwitchUtils.computeMessageSize(chunks);
 		}
 		return res;
 	}
@@ -635,6 +637,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			answers:[],
 			message_html:"",
 			message_chunks:[],
+			message_size:0,
 			children:[],
 			is_short:false,
 			raw_data:{tags, message}

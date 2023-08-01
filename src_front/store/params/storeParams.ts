@@ -38,6 +38,7 @@ export const storeParams = defineStore('params', {
 			autoRemod: 					{save:true, type:"boolean", value:false, labelKey:"params.autoRemod", id:222, icon:"mod", twitch_scopes:[TwitchScopes.EDIT_MODS]},
 			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
 			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"sub", example:"firstUserBadge.png"},
+			recentAccountUserBadge: 	{save:true, type:"boolean", value:false, labelKey:"params.recentAccountUserBadge", id:229, icon:"date", storage:{vnew:{date:1690765812999, id:'params_chathistory'}}},
 			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket", example:"trackUser.png"},
 			raffleHighlightUserDuration:{save:true, type:"number", value:5, labelKey:"params.raffleHighlightUserDuration", id:223, icon:"timer", parent:218, min:1, max:60*24*30},
 			offlineEmoteOnly:			{save:true, type:"boolean", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},

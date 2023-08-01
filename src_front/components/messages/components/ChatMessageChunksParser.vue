@@ -7,7 +7,7 @@
 			<a class="login" v-if="$store('params').appearance.highlightusernames.value == true"
 			@click.stop="openProfile(chunk.username!)"
 			:style="getUserClasses(chunk.username!)"
-			target="_blank"><strong>{{ chunk.value }}</strong></a>
+			target="_blank">{{ chunk.value }}</a>
 			<template v-else>{{ chunk.value }}</template>
 		</template>
 		

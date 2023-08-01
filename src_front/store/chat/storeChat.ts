@@ -639,6 +639,7 @@ export const storeChat = defineStore('chat', {
 				m.message = str;
 				m.message_chunks = chunks;
 				m.message_html = TwitchUtils.messageChunksToHTML(chunks)
+				m.message_size = TwitchUtils.computeMessageSize(chunks);
 				m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
 				m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
 				m.user.color = "#bb8eff";
@@ -736,6 +737,7 @@ export const storeChat = defineStore('chat', {
 						const original = message.message;
 						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
 						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
+						message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
 						message.cyphered = message.message != original;
 					}
 
@@ -761,7 +763,7 @@ export const storeChat = defineStore('chat', {
 							}
 
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								//If highlight state isn't the same, skip it
 								if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
 								//Don't merge automoded
@@ -1268,6 +1270,7 @@ export const storeChat = defineStore('chat', {
 				//Don't keep automod form message
 				if(message.twitch_automod) {
 					messageList.splice(i, 1);
+					Database.instance.deleteMessage(message);
 				}
 
 				if(deleter) {

@@ -246,6 +246,7 @@ export default class MessengerProxy {
 					is_short:false,
 					answers:[],
 					children:[],
+					message_size:0,
 				}
 				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);
 				return true;
@@ -628,6 +629,7 @@ export default class MessengerProxy {
 							m.message = "Message "+(inc++);
 							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
 							m.message_html = m.message;
+							m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 							m.todayFirst = false;
 							m.twitch_isFirstMessage = false;
 							m.twitch_isSuspicious = false;

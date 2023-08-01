@@ -221,6 +221,7 @@ export default class OverlayParamsHighlight extends Vue {
 			message: text,
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
 			is_short: false,
 			children:[],
 		}

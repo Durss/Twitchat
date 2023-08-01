@@ -2591,6 +2591,20 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Computes the text size of a message.
+	 * Emotes and cheermotes count as 2 chars
+	 * @param message 
+	 */
+	public static computeMessageSize(messageChunks:TwitchDataTypes.ParseMessageChunk[]):number {
+		let size = 0;
+		messageChunks.forEach(v=> {
+			if(v.type == "emote" || v.type == "cheermote") size += 1;
+			else size += v.value.length;
+		});
+		return size;
+	}
+
+	/**
 	 * Replaces emotes by <img> tags and URL to <a> tags on the message
 	 */
 	public static messageChunksToHTML(chunks:TwitchDataTypes.ParseMessageChunk[]):string {

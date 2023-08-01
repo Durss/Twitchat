@@ -349,7 +349,11 @@
 				"firstToday": "1er message du jour",
 				"firstTimeChatter": "1er message sur cette chaîne",
 				"returningChatter": "A parlé dans le tchat au moins 2 fois au cours des 30 derniers jours",
-				"hypeChat": "Hype chat. Cette personne a payé pour ce message."
+				"hypeChat": "Hype chat. Cette personne a payé pour ce message",
+				"new_account": "Ce compte a été créé il y a {DURATION}",
+				"new_account_day": "J",
+				"new_account_hour": "H",
+				"new_account_minute": "M"
 			}
 		},
 		"scope_request": {

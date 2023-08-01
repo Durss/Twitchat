@@ -533,6 +533,7 @@ export default class EventSub {
 			months:1,
 			streakMonths:-1,
 			totalSubDuration:-1,
+			message_size:0,
 		}
 
 		if(renew.message) {
@@ -540,6 +541,7 @@ export default class EventSub {
 			message.message			= renew.message.text;
 			message.message_chunks	= chunks;
 			message.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			message.message_size	= TwitchUtils.computeMessageSize(message.message_chunks);
 		}
 		StoreProxy.chat.addMessage(message);
 	}

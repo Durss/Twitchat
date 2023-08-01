@@ -3,7 +3,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import Utils from '@/utils/Utils'
 import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
 import Chat from '@/views/Chat.vue'
-import ComponentList from '@/views/ComponentList.vue'
 import Home from '@/views/Home.vue'
 import Logout from '@/views/Logout.vue'
 import Sponsor from '@/views/Sponsor.vue'
@@ -15,6 +14,7 @@ const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
+const ComponentList = () => import('@/views/ComponentList.vue');
 const HeatDebugPopout = () => import('@/views/HeatDebugPopout.vue');
 const RemoteVoiceControl = () => import('@/views/RemoteVoiceControl.vue');
 

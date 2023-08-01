@@ -174,6 +174,31 @@ export default class Database {
 	}
 
 	/**
+	 * Deletes a message from the DB
+	 * @param message 
+	 */
+	public async deleteMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>{
+		if(!this._db) return Promise.resolve();
+
+		return new Promise((resolve, reject)=> {
+			this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
+			.objectStore(Database.MESSAGES_TABLE)
+			.index("id")
+			.openCursor(IDBKeyRange.only(message.id))
+			.addEventListener("success", event => {
+				const pointer = (event.target as IDBRequest).result;
+				if(pointer) {
+					pointer.delete().addEventListener("success", ()=>{
+						resolve();
+					});
+				}else{
+					resolve();
+				}
+			});
+		});
+	}
+
+	/**
 	 * Clears database content
 	 */
 	public async clear():Promise<void>{

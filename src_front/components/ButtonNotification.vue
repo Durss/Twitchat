@@ -1,6 +1,6 @@
 <template>
 	<div class="buttonnotification" @click="onClick($event)">
-		<Icon :name="icon" class="icon" />
+		<Icon :name="icon" class="icon" v-newflag="newflag" />
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
@@ -20,6 +20,9 @@ export default class ButtonNotification extends Vue {
 
 	@Prop({type:Number, default:0})
 	public count!:number;
+
+	@Prop({type:Object})
+	public newflag!:{date:number, id:string};
 
 	public onClick(event:MouseEvent):void {
 		gsap.fromTo(this.$el, {scaleX:.7}, {duration:1.4, scale:1, clearProps:"scaleX", ease:"elastic.out(2)"});
@@ -41,9 +44,16 @@ export default class ButtonNotification extends Vue {
 	position: relative;
 
 	.icon {
+		position: relative;
 		height: 1em;
 		width: 1em;
 		object-fit: contain;
+		&:before {
+			//Offset "new flag" for better readability
+			margin-left: -5px;
+		width: 7px;
+		height: 7px;
+		}
 	}
 
 	&:hover {

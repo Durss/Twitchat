@@ -128,6 +128,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			message: str,
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size: TwitchUtils.computeMessageSize(chunks),
 			is_short:false,
 		}
 		this.$store("main").executeChatAlert(message);

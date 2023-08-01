@@ -349,7 +349,11 @@
 				"firstToday":"First message today",
 				"firstTimeChatter":"First message on this channel",
 				"returningChatter":"This user chatted here twice in the last 30 days",
-				"hypeChat":"Hype chat. User paid for this message"
+				"hypeChat":"Hype chat. User paid for this message",
+				"new_account": "This account has been created {DURATION} ago",
+				"new_account_day": "D",
+				"new_account_hour": "H",
+				"new_account_minute": "M"
 			}
 		},
 		"scope_request": {

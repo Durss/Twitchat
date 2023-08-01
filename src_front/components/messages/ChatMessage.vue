@@ -378,6 +378,24 @@ export default class ChatMessage extends AbstractChatMessage {
 			});
 		}
 
+		//Creation date is loaded asynchronously, watch for it if requested
+		if(this.$store("params").features.recentAccountUserBadge.value === true) {
+			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
+				const age = Date.now() - (mess.user.created_at_ms || 0);
+				if(age < 7 * 24 * 60 * 60000) {
+					let label = "";
+					if(age > 24 * 60 * 60000)	label = Math.round(age/(24*60*60000)) + this.$t("chat.custom_badge.tooltip.new_account_day");
+					else if(age > 60 * 60000)	label = Math.round(age/(60 * 60000)) + this.$t("chat.custom_badge.tooltip.new_account_hour");
+					else						label = Math.round(age/60000) + this.$t("chat.custom_badge.tooltip.new_account_minute");
+					list.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_ACCOUNT, label, tooltipLabelParams:{DURATION:label}});
+				}
+			}
+			setRecentBadge(infoBadges);
+			if(this.messageData.user.created_at_ms == undefined) {
+				watch(()=>mess.user.created_at_ms, () => setRecentBadge(this.infoBadges))
+			}
+		}
+
 		this.canModerateUser_local = super.canModerateUser(this.messageData.user, this.messageData.channel_id);
 	
 		//Define message badges (these are different from user badges!)
@@ -392,22 +410,26 @@ export default class ChatMessage extends AbstractChatMessage {
 			if(mess.automod) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
 			}
+			
 			//Add "first day on your chat" badge
 			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
 			&& this.$store("params").features.firstUserBadge.value === true) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 			//Manage twitch automod content
-			if(!this.lightMode && mess.twitch_automod) {
+			if(mess.twitch_automod) {
 				this.automodReasons = mess.twitch_automod.reasons.join(", ");
+				highlightedWords.push(...mess.twitch_automod.words);
 			}
 			//Manage twitch automod content
-			if(!this.lightMode && mess.twitch_hypeChat) {
+			if(mess.twitch_hypeChat) {
 				this.hypeChat = mess.twitch_hypeChat;
 			}
 			
 			this.canModerateMessage = this.canModerateUser_local
 									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
+									//If message is not older than 6h after. Passed this we cannot delete a message
+									&& Date.now() - this.messageData.date < 6 * 60 * 60000;
 
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
@@ -631,8 +653,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
-		console.log(e.target);
-		console.log(message.message);
 		if(this.contextMenuOff !== false) return;
 		if(e.target) {
 			const el = e.target as HTMLElement;
@@ -806,7 +826,7 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	.message {
 		.text {
-			word-break: break-all;
+			word-break: break-word;
 		}
 	}
 

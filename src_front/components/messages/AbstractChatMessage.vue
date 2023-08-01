@@ -36,8 +36,6 @@ export default class AbstractChatMessage extends Vue {
 				)
 				//If not self
 				&& user.id != authenticatedUser.id
-				//If message is not older than 6h after. Passed this we cannot delete a message
-				&& Date.now() - this.messageData.date < 6 * 60 * 60000;
 	}
 
 	public beforeMount() {

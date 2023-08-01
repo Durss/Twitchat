@@ -69,9 +69,11 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
+						message_size:0,
 						user:from,
 						to
 					};
+					m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 					data = m;
 					break;
 				}
@@ -89,9 +91,11 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
+						message_size:0,
 						user:fakeUser,
 						is_short:false,
 					};
+					m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 					if(allowConversations) {
 						const messageList = StoreProxy.chat.messages;
 						if(messageList.length > 0 && Math.random() < .1) {
@@ -108,24 +112,6 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-
-				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-					const m:TwitchatDataTypes.MessageWhisperData = {
-						id:Utils.getUUID(),
-						platform:"twitch",
-						channel_id:uid,
-						date:Date.now(),
-						type,
-						message,
-						message_chunks:chunks,
-						message_html:TwitchUtils.messageChunksToHTML(chunks),
-						user:fakeUser,
-						to:user
-					};
-					data = m;
-					break;
-				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
@@ -138,6 +124,7 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_size:0,
 						user:fakeUser,
 						months: Math.random() > .75? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
@@ -148,6 +135,7 @@ export const storeDebug = defineStore('debug', {
 						is_resub:false,
 						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
+					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
 						fakeUser.channelInfo[uid].totalSubgifts = Math.floor(Math.random() * 1000);
 					}

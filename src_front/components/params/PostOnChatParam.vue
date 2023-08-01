@@ -176,8 +176,8 @@ export default class PostOnChatParam extends Vue {
 			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
 		}
 		
-		const message = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
-		const message_html = TwitchUtils.messageChunksToHTML(message);
+		const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
+		const message_html = TwitchUtils.messageChunksToHTML(chunks);
 		this.adPreview = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -190,8 +190,9 @@ export default class PostOnChatParam extends Vue {
 			twitch_announcementColor:announcementColor,
 			is_short:false,
 			message:rawMessage,
-			message_chunks:message,
+			message_chunks:chunks,
 			message_html,
+			message_size: TwitchUtils.computeMessageSize(chunks),
 		};
 	}
 }
