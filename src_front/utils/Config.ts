@@ -28,7 +28,7 @@ export default class Config {
 	public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60 * 60 * 1000;
 	// public TWITCH_SHOUTOUT_COOLDOWN = 10000;
 	// public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60000;
-	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("08-02-2023 00:00:00");
+	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("09-06-2023 10:00:00");
 	
 	private _serverConfig!:ServerConfig;
 	
