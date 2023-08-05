@@ -120,7 +120,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
-				u.channelInfo[u.id].online = true;
+				u.channelInfo[v.id].online = true;
 				
 				//Init stream info
 				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
@@ -645,6 +645,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+		data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
 		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 				
 		// If message is an answer, set original message's ref to the answer
@@ -708,6 +709,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message:data.message,
 				message_chunks:data.message_chunks,
 				message_html:data.message_html,
+				message_size:data.message_size,
 				children:[],
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));

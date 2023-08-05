@@ -1659,6 +1659,10 @@ export namespace TwitchatDataTypes {
 		 * User that posted the message
 		 */
 		user: TwitchatUser;
+		/**
+		 * Size of the message
+		 */
+		message_size:number;
 	}
 
 	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];

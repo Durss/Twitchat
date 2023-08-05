@@ -94,6 +94,8 @@ export default class Database {
 				resolve(result);
 			})
 			query.addEventListener("error", event => {
+				console.error("Get message list error");
+				console.error(event);
 				resolve([]);
 			});
 		});
@@ -133,6 +135,8 @@ export default class Database {
 				resolve();
 			});
 			query.addEventListener("error", event => {
+				console.error("Get message list error");
+				console.error(event);
 				reject();
 			});
 			query.addEventListener("onabort", event => {

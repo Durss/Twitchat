@@ -560,12 +560,15 @@ export default class ChatMessage extends AbstractChatMessage {
 		}else{
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
+			const childrenBckp = this.messageData.children;
 			//Remove data to avoid infinite JSON stringify recursion
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
+			this.messageData.children = [];
 			super.copyJSON();
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
+			this.messageData.children = childrenBckp;
 		}
 	}
 

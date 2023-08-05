@@ -11,6 +11,8 @@
 			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
+		<ParamItem :paramData="param_autospoil" @change="save()" />
+
 		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
@@ -21,39 +23,12 @@
 				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
 			</div>
 
-			<ParamItem :paramData="param_autospoil" @change="save()" />
-
 			<div class="card-item">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<PermissionsForm class="perms" v-model="chatCommandPerms" />
 			</div>
-		</section>
-
-		<Splitter class="splitter">{{ $t('spoiler.warning.title') }}</Splitter>
-
-		<section class="card-item secondary warning">
-
-			<div class="disclaimer">
-				<i18n-t scope="global" tag="div" keypath="spoiler.warning.head">
-					<template #CMD><mark>!spoiler</mark></template>
-				</i18n-t>
-				<i18n-t scope="global" tag="div" keypath="spoiler.warning.example">
-					<template #ANSWER><mark>{{ $t("spoiler.warning.example_2") }}</mark></template>
-					<template #ROOT><mark>{{ $t("spoiler.warning.example_1") }}</mark></template>
-				</i18n-t>
-			</div>
-			<ul>
-				<li>
-					<span>{{ $t("spoiler.warning.example_1") }}</span>
-					<ul>
-						<li>{{ $t("spoiler.warning.example_2") }}</li>
-						<li>{{ $t("spoiler.warning.example_3") }}</li>
-						<li>{{ $t("spoiler.warning.example_4") }}</li>
-					</ul>
-				</li>
-			</ul>
 		</section>
 	</div>
 </template>

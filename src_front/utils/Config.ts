@@ -26,7 +26,7 @@ export default class Config {
 	public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60 * 60 * 1000;
 	// public TWITCH_SHOUTOUT_COOLDOWN = 10000;
 	// public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60000;
-	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("08-02-2023 00:00:00");
+	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("09-06-2023 00:00:00");
 	public MAX_CUSTOM_USERNAMES = 10;
 	public MAX_CUSTOM_BADGES = 3;
 	public MAX_CUSTOM_BADGES_ATTRIBUTION = 30;
@@ -57,8 +57,8 @@ export default class Config {
 		if(this.IS_PROD) return [];
 		return [
 			// {platform:"twitch", login:"shakawah"},
-			// {platform:"twitch", login:"gom4rt"},
-			{platform:"twitch", login:"andythefrenchy"},
+			{platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"andythefrenchy"},
 		];
 	}
 

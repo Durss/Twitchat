@@ -124,6 +124,17 @@ export default class Config {
 		});
 	}
 
+
+	/**
+	 * Get if SMS warning for patreon requesting authentication is enabled
+	 */
+	public static get SMS_WARN_PATREON_AUTH(): boolean {
+		return this.getEnvData({
+			dev: false,
+			prod: true,
+		});
+	}
+
 	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map

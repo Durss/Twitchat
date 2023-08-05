@@ -1143,11 +1143,6 @@ export default class MessageList extends Vue {
 	 */
 	private async showNextPendingMessage():Promise<void> {
 		if (this.pendingMessages.length == 0) return;
-		
-		//Get last currently displayed message reference so we can scroll back
-		//to it after adding new messages
-		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
 
 		//Add 5 messages
 		let addCount = 5;
@@ -1528,22 +1523,14 @@ export default class MessageList extends Vue {
 			if(isMergeable) newCast.children.splice(0);
 			return false;
 		}
-		const maxSize = this.$store("params").features.mergeConsecutive_maxSize.value as number;
-		const maxSizeTotal = this.$store("params").features.mergeConsecutive_maxSizeTotal.value as number;
-		const minDuration = this.$store("params").features.mergeConsecutive_minDuration.value as number;
+		const maxSize		= this.$store("params").features.mergeConsecutive_maxSize.value as number;
+		const maxSizeTotal	= this.$store("params").features.mergeConsecutive_maxSizeTotal.value as number;
+		const minDuration	= this.$store("params").features.mergeConsecutive_minDuration.value as number;
 
 		//If message size is higher than max allowed, don't merged
-		let newMessageSize = 0;
 		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			newMessage.message_chunks.forEach(v=> {
-				//Emotes and cheermotes count as 2 chars
-				if(v.type == "emote" || v.type == "cheermote") newMessageSize += 2;
-				else newMessageSize += v.value.length;
-			});
-			// newMessageSize = newMessage.message.length;
-			newMessage.children.forEach(v=> newMessageSize += v.message.length);
-			if(newMessageSize > maxSize) return false;
-			if((newMessage.occurrenceCount || 0) > 1) return false;//don't merge messages with multiple occurences flag
+			if(newMessage.message_size > maxSize) return false;
+			if((newMessage.occurrenceCount || 0) > 0) return false;//don't merge messages with multiple occurences flag
 		}
 
 		//Message not mergeable, skip it
@@ -1566,14 +1553,14 @@ export default class MessageList extends Vue {
 			if(prevCast.user.id !== newCast.user.id) return false;//Not the same user don't merge
 			
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				if((prevMessage.occurrenceCount || 0) > 1) return false;//don't merge messages with multiple occurences flag
+				//don't merge messages with multiple occurences flag
+				if((prevMessage.occurrenceCount || 0) > 0) return false;
 				//Get date of the latest children if any, or the date of the message
 				const prevDate = prevMessage.children.length > 0? prevMessage.children[prevMessage.children.length-1].date : prevMessage.date;
-				if(newMessage.date - prevDate > minDuration * 1000) return false;//Too much time elapsed between the 2 messages
-				let size = prevMessage.message.length;
-				prevMessage.children.forEach(v=> size += v.message.length);
+				//Too much time elapsed between the 2 messages
+				if(newMessage.date - prevDate > minDuration * 1000) return false;
 				//Parent message size is too big, don't merge
-				if(size + newMessageSize > maxSizeTotal) return false;
+				if(TwitchUtils.computeMessageSize(prevMessage.message_chunks) + newCast.message_size > maxSizeTotal) return false;
 			}
 			
 			//Merge with previous message

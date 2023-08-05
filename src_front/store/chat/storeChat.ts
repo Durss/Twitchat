@@ -749,9 +749,9 @@ export const storeChat = defineStore('chat', {
 						for (let i = len-1; i > end; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-							if(m.user.id != message.user.id) continue;
 							if(message.type != m.type) continue;
-							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-20" more or less means "if message is still visible on screen"
+							if(m.user.id != message.user.id) continue;
+							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-0" more or less means "if message is still visible on screen"
 							if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
 							if(message.spoiler != m.spoiler) continue;
 							if(message.deleted != m.deleted) continue;
@@ -771,10 +771,12 @@ export const storeChat = defineStore('chat', {
 								if(message.twitch_automod || m.twitch_automod) continue;
 								//Don't merge answers to messages
 								if(message.answersTo || m.answersTo) continue;
+								m.children = [];
 							}
 							if(!m.occurrenceCount) m.occurrenceCount = 0;
 							//Remove message
 							messageList.splice(i, 1);
+							await Database.instance.deleteMessage(m);
 							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
 							m.occurrenceCount ++;
 							//Update timestamp

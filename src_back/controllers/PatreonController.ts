@@ -30,6 +30,15 @@ export default class PatreonController extends AbstractController {
 	/********************
 	* GETTER / SETTERS *
 	********************/
+	public get authURL():string {
+		const authUrl = new URL("https://www.patreon.com/oauth2/authorize");
+		authUrl.searchParams.append("response_type", "code");
+		authUrl.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
+		authUrl.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
+		authUrl.searchParams.append("scope", this.localScopes);
+		authUrl.searchParams.append("state", "");
+		return authUrl.href;
+	}
 	
 	
 	
@@ -168,8 +177,9 @@ export default class PatreonController extends AbstractController {
 	 * Refreshes the patrons list
 	 * @param request 
 	 * @param response 
+	 * @returns success of request
 	 */
-	public async authenticateLocal():Promise<void> {
+	public async authenticateLocal():Promise<boolean> {
 		let token:PatreonToken|null = null;
 		if(fs.existsSync(Config.PATREON_TOKEN_PATH)) {
 			token = JSON.parse(fs.readFileSync(Config.PATREON_TOKEN_PATH, "utf-8"));
@@ -188,6 +198,7 @@ export default class PatreonController extends AbstractController {
 				Logger.error("Patreon: authentication failed [invalid refresh token]");
 				console.log(json.error);
 				this.logout();
+				return false;
 			}else{
 				token = json;
 				if(this.isFirstAuth){
@@ -204,26 +215,21 @@ export default class PatreonController extends AbstractController {
 				this.tokenRefresh = setTimeout(()=>{
 					this.authenticateLocal();
 				}, token.expires_in - 60000);
+				
+				return true;
 			}
 
 		}
 		
 		if(!token){
-			const authUrl = new URL("https://www.patreon.com/oauth2/authorize");
-			authUrl.searchParams.append("response_type", "code");
-			authUrl.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
-			authUrl.searchParams.append("redirect_uri", Config.credentials.patreon_redirect_uri_server);
-			authUrl.searchParams.append("scope", this.localScopes);
-			authUrl.searchParams.append("state", "");
-			Logger.warn("Please connect to patreon !", authUrl.href);
+			Logger.warn("Please connect to patreon !", this.authURL);
 			
-
 			//Send myself an SMS to alert me it's down
-			if(!this.smsWarned) {
+			if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH) {
 				const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
 				urlSms.searchParams.append("user", Config.credentials.sms_uid);
 				urlSms.searchParams.append("pass", Config.credentials.sms_token);
-				urlSms.searchParams.append("msg", "Patreon authentication is down server-side! click this to re auth"+authUrl.href);
+				urlSms.searchParams.append("msg", "Patreon authentication is down server-side! Click to auth "+this.authURL);
 				fetch(urlSms, {method:"GET"});
 				this.smsWarned = true;
 			}
@@ -253,15 +259,21 @@ export default class PatreonController extends AbstractController {
 			response.status(500);
 			response.send({success:false, message:json.error});
 		}else{
-			response.header('Content-Type', 'application/json');
-			response.status(200);
-			response.send("Patreon: connection OK ! You can close this page");
-			
 			const token:PatreonToken = json;
 			json.expires_at = Date.now() + token.expires_in;
 			//Save token
 			fs.writeFileSync(Config.PATREON_TOKEN_PATH, JSON.stringify(json), "utf-8");
-			this.authenticateLocal();
+			if(await this.authenticateLocal()) {
+				response.header('Content-Type', 'text/html; charset=UTF-8');
+				response.status(200);
+				response.send("Patreon connection Done! You can close this page.");
+			}else{
+				
+				response.header('Content-Type', 'text/html; charset=UTF-8');
+				response.status(500);
+				response.send("Patreon authentication failed. <a href=\""+this.authURL+"\">Try again</a>");
+				response.send({success:false, message:"Authentication failed"});
+			}
 		}
 	}
 
