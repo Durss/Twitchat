@@ -55,12 +55,12 @@ export const storeVoice = defineStore('voice', {
 	actions: {
 		setVoiceLang(value:string) {
 			this.voiceLang = value
-			DataStore.set(DataStore.VOICEMOD_ACTIONS, value);
+			DataStore.set(DataStore.VOICE_BOT_LANG, value);
 		},
 
 		setVoiceActions(value:VoiceAction[]) {
 			this.voiceActions = value;
-			DataStore.set(DataStore.VOICEMOD_LANG, value);
+			DataStore.set(DataStore.VOICE_BOT_ACTIONS, value);
 		},
 		
 		setVoicemodParams(payload:TwitchatDataTypes.VoicemodParamsData) {
