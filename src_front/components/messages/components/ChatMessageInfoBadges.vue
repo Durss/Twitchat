@@ -88,7 +88,7 @@ export default class ChatMessageInfoBadges extends Vue {
 			background-color: var(--color-alert);
 		}
 
-		&.suspiciousUser {
+		&.suspiciousUser, &.new_account {
 			background-color: var(--color-secondary);
 			font-weight: bold;
 		}

@@ -1,5 +1,5 @@
 <template>
-	<div class="triggerlistitem">
+	<div class="triggerlistitem" v-newflag="{date:Date.now()+30 * 24 * 60 * 60000 - 10* 60000/* new flag stay for 30 days max, here we act like the 30 days past minus 10min */, id:'trigger_'+entryData.trigger.id}">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
@@ -68,7 +68,6 @@ export default class TriggerListItem extends Vue {
 
 <style scoped lang="less">
 .triggerlistitem{
-	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 	background-color: var(--background-color-fadest);
 	border-radius: .5em;
@@ -76,7 +75,13 @@ export default class TriggerListItem extends Vue {
 	display: flex;
 	flex-direction: row;
 	min-height: 1.5em;
-	overflow: hidden;
+	position: relative;
+	transition: background-color .1s;
+
+	&:hover {
+		background-color: var(--background-color-fader);
+	}
+	
 	.button {
 		display: flex;
 		flex-direction: row;
@@ -114,12 +119,6 @@ export default class TriggerListItem extends Vue {
 			.icon {
 				opacity: .35;
 			}
-		}
-	}
-	&>* {
-		transition: background-color .1s;
-		&:hover {
-			background-color: var(--background-color-fader);
 		}
 	}
 }

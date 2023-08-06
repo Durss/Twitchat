@@ -223,6 +223,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						user:Utils.pickRand(fakeUsers),
 						children:[],
+						message_size:0,
 						reward: {
 							id:reward.id,
 							cost:reward.cost,
@@ -236,7 +237,8 @@ export const storeDebug = defineStore('debug', {
 						let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 						m.message = message;
 						m.message_chunks = chunks;
-						m.message_html =TwitchUtils.messageChunksToHTML(chunks);
+						m.message_html = TwitchUtils.messageChunksToHTML(chunks);
+						m.message_size = TwitchUtils.computeMessageSize(chunks);
 					}
 					data = m;
 					break;

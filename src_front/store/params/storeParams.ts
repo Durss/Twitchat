@@ -20,7 +20,7 @@ export const storeParams = defineStore('params', {
 		currentModal:"",
 		greetThemAutoDelete: 600,
 		features: {
-			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show"},
+			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show", storage:{vnew:{date:1690765812999, id:'params_chatspoiler'}}},
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
@@ -38,7 +38,7 @@ export const storeParams = defineStore('params', {
 			autoRemod: 					{save:true, type:"boolean", value:false, labelKey:"params.autoRemod", id:222, icon:"mod", twitch_scopes:[TwitchScopes.EDIT_MODS]},
 			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
 			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"sub", example:"firstUserBadge.png"},
-			recentAccountUserBadge: 	{save:true, type:"boolean", value:false, labelKey:"params.recentAccountUserBadge", id:229, icon:"date", storage:{vnew:{date:1690765812999, id:'params_chathistory'}}},
+			recentAccountUserBadge: 	{save:true, type:"boolean", value:false, labelKey:"params.recentAccountUserBadge", id:229, icon:"date", storage:{vnew:{date:1690765812999, id:'params_chatrecentbadge'}}},
 			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket", example:"trackUser.png"},
 			raffleHighlightUserDuration:{save:true, type:"number", value:5, labelKey:"params.raffleHighlightUserDuration", id:223, icon:"timer", parent:218, min:1, max:60*24*30},
 			offlineEmoteOnly:			{save:true, type:"boolean", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},

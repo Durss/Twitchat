@@ -46,8 +46,8 @@ export default class DataStore {
 	public static GREET_HISTORY:string = "greetHistory";
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
-	public static VOICEMOD_ACTIONS:string = "voiceActions";
-	public static VOICEMOD_LANG:string = "voiceLang";
+	public static VOICE_BOT_ACTIONS:string = "voiceActions";
+	public static VOICE_BOT_LANG:string = "voiceLang";
 	public static AUTOMOD_PARAMS:string = "automodParams";
 	public static DONOR_LEVEL:string = "donorLevel";
 	public static TWITCHAT_AD_WARNED:string = "adWarned";
@@ -145,7 +145,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 43;
+		let latestVersion = 44;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -276,6 +276,10 @@ export default class DataStore {
 		}
 		if(v==42) {
 			this.resetCustomUsernames(data);
+			v = 43;
+		}
+		if(v==43) {
+			this.flagTriggersRead(data);
 			v = latestVersion;
 		}
 
@@ -1302,5 +1306,20 @@ export default class DataStore {
 			}
 			data[DataStore.CUSTOM_USER_BADGES] = badges;
 		}
+	}
+
+	/**
+	 * Flags all triggers as "read" to avoid showing "new" dot next to every
+	 * triggers that were aexisting until then.
+	 * After this, any new trigger created will get an orange dot next to them
+	 * to show they're new
+	 */
+	private static flagTriggersRead(data:any):void {
+		const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		triggers.forEach(v=> {
+			flagsDone.push("trigger_"+v.id);
+		});
+		DataStore.set(DataStore.NEW_FLAGS, flagsDone);
 	}
 }

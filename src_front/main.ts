@@ -311,13 +311,13 @@ function buildApp() {
 				if(Date.now() - date > 30 * 24 * 60 * 60000) return;
 
 				//Don't flag is already marked as read
-				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) ||"[]");
+				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
 				if(flagsDone.includes(id)) return;
 
 				el.classList.add("newFlag");
 
 				el.addEventListener("click", ()=>{
-					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) ||"[]");
+					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
 					flagsDone.push(id);
 					DataStore.set(DataStore.NEW_FLAGS, flagsDone);
 					el.classList.remove("newFlag");

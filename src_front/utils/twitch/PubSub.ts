@@ -847,6 +847,7 @@ export default class PubSub extends EventDispatcher {
 				},
 			},
 			children:[],
+			message_size:0,
 			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
 		};
 		// m.user.channelInfo[channelId].online = true;
@@ -855,6 +856,7 @@ export default class PubSub extends EventDispatcher {
 			m.message		= localObj.redemption.user_input;
 			m.message_chunks= chunks;
 			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			m.message_size	= TwitchUtils.computeMessageSize(chunks);
 		}
 		
 		StoreProxy.chat.addMessage(m);

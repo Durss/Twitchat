@@ -344,17 +344,24 @@ mark {
 	}
 }
 
-.newFlag::before {
-	content: "";
-	width: 10px;
-	height: 10px;
-	border-radius: 50%;
-	background-color: var(--color-secondary);
-	position: absolute;
-	z-index: 19999;
-	top: 0;
-	left: 0;
-	transform: translate(0, -50%);
+.newFlag {
+	&::before {
+		content: "";
+		width: 8px;
+		height: 8px;
+		border-radius: 50%;
+		background-color: var(--color-secondary);
+		position: absolute;
+		z-index: 100;
+		top: 0;
+		left: 0;
+		transform: translate(0, -50%);
+		transition: transform .2s;
+		transform-origin: center center;
+	}
+	&:hover::before {
+		transform: translate(0, -50%) scale(1.5);
+	}
 }
 
 #mx-menu-default-container {
