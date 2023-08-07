@@ -1,5 +1,5 @@
 <template>
-	<div class="triggerlistitem" v-newflag="{date:Date.now()+30 * 24 * 60 * 60000 - 10* 60000/* new flag stay for 30 days max, here we act like the 30 days past minus 10min */, id:'trigger_'+entryData.trigger.id}">
+	<div class="triggerlistitem" v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">

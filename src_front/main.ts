@@ -147,7 +147,7 @@ function buildApp() {
 	/**
 	 * Fast acces to Configs
 	 */
-	const config = ():Config => {
+	const getConfig = ():Config => {
 		return Config.instance;
 	}
 	
@@ -279,7 +279,7 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
-	.provide("$config", image)
+	.provide("$config", getConfig)
 	.provide("$image", image)
 	.provide("$store", storeAccess)
 	.provide("$confirm", confirm)
@@ -313,11 +313,12 @@ function buildApp() {
 		}
 	})
 	.directive('newflag', {
-		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string}>, vnode:VNode<any, any, { [key: string]: any; }>) {
+		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string, duration?:number}>, vnode:VNode<any, any, { [key: string]: any; }>) {
 			if(binding && binding.value) {
 				const {date, id} = binding.value;
+				const maxDuration = binding.value.duration || 30 * 24 * 60 * 60000;
 				//Flag as new only for 1 month
-				if(Date.now() - date > 30 * 24 * 60 * 60000) return;
+				if(Date.now() - date > maxDuration) return;
 
 				//Don't flag is already marked as read
 				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
@@ -338,7 +339,7 @@ function buildApp() {
 	});
 	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
-	app.config.globalProperties.$config = config;
+	app.config.globalProperties.$config = getConfig;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;

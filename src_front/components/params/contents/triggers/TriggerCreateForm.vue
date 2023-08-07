@@ -93,21 +93,20 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventTypeCategories, TriggerTypesDefinitionList, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
+import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
-import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 @Component({
 	components:{
@@ -488,6 +487,7 @@ export default class TriggerCreateForm extends Vue {
 				enabled:true,
 				id:Utils.getUUID(),
 				type:e.value,
+				created_at:Date.now(),
 			};
 
 			if(this.subtriggerList.length == 0) {
@@ -509,6 +509,7 @@ export default class TriggerCreateForm extends Vue {
 			enabled:true,
 			id:Utils.getUUID(),
 			type:this.selectedTriggerType.value,
+			created_at:Date.now(),
 		};
 
 		switch(this.selectedTriggerType.value) {

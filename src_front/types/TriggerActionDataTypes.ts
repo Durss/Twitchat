@@ -46,6 +46,10 @@ export type TriggerActionStringTypes = TriggerActionTypes["type"];
 export interface TriggerData {
 	id:string;
 	/**
+	 * Date at which the trigger have been created in milliseconds
+	 */
+	created_at?:number;
+	/**
 	 * Trigger type
 	 */
 	type:TriggerTypesValue;
