@@ -80,6 +80,7 @@ export const storeAuth = defineStore('auth', {
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {
+			window.setInitMessage("Twitch authentication");
 
 			try {
 	
@@ -116,6 +117,7 @@ export const storeAuth = defineStore('auth', {
 				//Validate access token
 				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
 				try {
+					window.setInitMessage("validating Twitch auth token");
 					userRes = await TwitchUtils.validateToken(twitchAuthResult.access_token);
 				}catch(error) { /*ignore*/ }
 
@@ -129,6 +131,7 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.expires_in		= userRes.expires_in;
 
 				if(Config.instance.BETA_MODE) {
+					window.setInitMessage("checking beta access permissions");
 					const res = await ApiController.call("beta/user", "GET", {uid:userRes.user_id});
 					if(res.status != 200 || res.json.data.beta !== true) {
 						if(cb) cb(false, true);
@@ -138,6 +141,7 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				// Load the current user data
+				window.setInitMessage("loading Twitch user info");
 				await new Promise((resolve)=> {
 					//Makes sure the pronoun param is properly set up so our pronouns
 					//are loaded if requested					
@@ -155,6 +159,7 @@ export const storeAuth = defineStore('auth', {
 
 				//Check if user is part of the donors nor an admin
 				try {
+					window.setInitMessage("loading Twitchat user info");
 					const res = await ApiController.call("user");
 
 					const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
@@ -178,10 +183,12 @@ export const storeAuth = defineStore('auth', {
 				const sRewards = StoreProxy.rewards;
 				
 				try {
+					window.setInitMessage("migrate local user data");
 					await DataStore.migrateLocalStorage();
 
 					//If asked to sync data with server, load them
 					if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+						window.setInitMessage("download remote user data");
 						if(!await DataStore.loadRemoteData()) {
 							//Force data sync popup to show up if remote
 							//data have been deleted

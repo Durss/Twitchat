@@ -279,7 +279,8 @@ export default class DataStore {
 			v = 43;
 		}
 		if(v==43) {
-			this.flagTriggersRead(data);
+			//Removed migration because it became useless
+			//Keeping this version for beta testers
 			v = latestVersion;
 		}
 
@@ -1306,20 +1307,5 @@ export default class DataStore {
 			}
 			data[DataStore.CUSTOM_USER_BADGES] = badges;
 		}
-	}
-
-	/**
-	 * Flags all triggers as "read" to avoid showing "new" dot next to every
-	 * triggers that were aexisting until then.
-	 * After this, any new trigger created will get an orange dot next to them
-	 * to show they're new
-	 */
-	private static flagTriggersRead(data:any):void {
-		const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
-		triggers.forEach(v=> {
-			flagsDone.push("trigger_"+v.id);
-		});
-		DataStore.set(DataStore.NEW_FLAGS, flagsDone);
 	}
 }

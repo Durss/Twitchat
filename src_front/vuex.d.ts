@@ -49,6 +49,7 @@ declare module '@vue/runtime-core' {
 declare global {
 	interface Window {
 		obsstudio?: any;
+		setInitMessage(message:string):void;
 	}
 	interface Array<T> {
 		findLastIndex(

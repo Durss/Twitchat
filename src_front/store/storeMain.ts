@@ -133,6 +133,7 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 
 			//Load app configs (cliend ID, scopes, ...)
+			window.setInitMessage("loading configs");
 			try {
 				const res = await ApiController.call("configs");
 				jsonConfigs = res.json;
@@ -553,10 +554,13 @@ export const storeMain = defineStore("main", {
 			
 			this.initComplete = true;
 			
+			window.setInitMessage("");
+			
 			callback(null);
 		},
 		
 		loadDataFromStorage() {
+			window.setInitMessage("load user data to memory");
 			/**
 			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
 			 * Don't do anything that could break if called multiple times!

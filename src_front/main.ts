@@ -83,6 +83,7 @@ const i18n = createI18n({
 //initializing stores data
 (async()=> {
 	try {
+		window.setInitMessage("loading labels");
 		const labelsRes = await fetch("/labels.json");
 		const labelsJSON = await labelsRes.json();
 		for (const lang in labelsJSON) {

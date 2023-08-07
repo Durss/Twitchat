@@ -46,6 +46,7 @@ export default class PatreonHelper {
 		const token	= DataStore.get(DataStore.PATREON_AUTH_TOKEN);
 		
 		if(token) {
+			window.setInitMessage("connect to patreon");
 			this._token = JSON.parse(token);
 			await this.refreshToken();
 			if(this.connected) {
