@@ -1,4 +1,5 @@
 import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState, IAccountActions, IAccountGetters, IAccountState, IAdminActions, IAdminGetters, IAdminState, IAuthActions, IAuthGetters, IAuthState, IAutomodActions, IAutomodGetters, IAutomodState, IBingoActions, IBingoGetters, IBingoState, IChatActions, IChatGetters, IChatState, IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState, ICountersActions, ICountersGetters, ICountersState, IDebugActions, IDebugGetters, IDebugState, IEmergencyActions, IEmergencyGetters, IEmergencyState, IHeatActions, IHeatGetters, IHeatState, IMainActions, IMainGetters, IMainState, IMusicActions, IMusicGetters, IMusicState, IOBSActions, IOBSGetters, IOBSState, IParamsActions, IParamsGetters, IParamsState, IPatreonActions, IPatreonGetters, IPatreonState, IPollActions, IPollGetters, IPollState, IPredictionActions, IPredictionGetters, IPredictionState, IRaffleActions, IRaffleGetters, IRaffleState, IRewardsActions, IRewardsGetters, IRewardsState, IStreamActions, IStreamGetters, IStreamState, ITimerActions, ITimerGetters, ITimerState, ITriggersActions, ITriggersGetters, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersGetters, IUsersState, IVoiceActions, IVoiceGetters, IVoiceState } from "./store/StoreProxy";
+import type Config from "./utils/Config";
 
 declare module '@vue/runtime-core' {
 	interface IStore {
@@ -34,6 +35,7 @@ declare module '@vue/runtime-core' {
 	interface ComponentCustomProperties {
 		$store: IStore,
 		$image: (path:string) => string,
+		$config: () => Config,
 		$placeDropdown: (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => void,
 		$overlayURL: (id:string, params?:{k:string, v:string}[]) => string,
 		$confirm: <T>(title: string,

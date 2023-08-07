@@ -89,19 +89,21 @@
 				<template #CHANNELS>{{userBannedOnChannels}}</template>
 			</i18n-t>
 			
-			<span class="message">
+			<span :class="getMessageClasses(messageData)">
 				<span class="text">
 					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
-				<span class="deleted" v-if="deletedMessage">{{deletedMessage}}</span>
+				<span class="deleted" v-if="getDeletedMessage(messageData)">{{getDeletedMessage(messageData)}}</span>
 			</span>
 			
-			<span class="messageChildren" v-if="messageData.type == 'message' && children">
-				<span :class="getChildClasses(m)"
-				v-for="m in children"
-				@contextmenu.capture="onContextMenu($event, m)">
+			<span :class="getChildMessageClasses(m)"
+			v-if="messageData.type == 'message' && children"
+			v-for="m in children"
+			@contextmenu.capture="onContextMenu($event, m)">
+				<span class="text">
 					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
+				<span class="deleted" v-if="getDeletedMessage(m)">{{getDeletedMessage(m)}}</span>
 			</span>
 			
 			<br v-if="clipInfo">
@@ -214,13 +216,13 @@ export default class ChatMessage extends AbstractChatMessage {
 	/**
 	* Get replacement text if message has been deleted
 	*/
-	public get deletedMessage():string {
-		if(this.messageData.type != "message") return "";
+	public getDeletedMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):string {
+		if(message.type != "message") return "";
 
 		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
-		if(this.messageData.deletedData) {
-			return censor ? this.$t("chat.message.deleted_by", {USER:this.messageData.deletedData.deleter.displayName}) : "";
-		}else if(this.messageData.deleted){
+		if(message.deletedData) {
+			return censor ? this.$t("chat.message.deleted_by", {USER:message.deletedData.deleter.displayName}) : "";
+		}else if(message.deleted){
 			return censor ? this.$t("chat.message.deleted") : "";
 		}
 		return "";
@@ -229,10 +231,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	public get classes():string[] {
 		const res					= this.staticClasses.concat();
 		const message				= this.messageData;
-		const sParams				= this.$store("params");
-		const spoilersEnabled		= sParams.features.spoilersEnabled.value === true;
-		const censorDeletedMessages	= sParams.appearance.censorDeletedMessages.value === true;
+		const censorDeletedMessages	= this.$store("params").appearance.censorDeletedMessages.value === true;
 
+		if(censorDeletedMessages)				res.push("censor");
 		if(this.hypeChat)						res.push("hypeChat");
 		if(this.automodReasons)					res.push("automod");
 		if(this.messageData.user.is_blocked)	res.push("blockedUser");
@@ -243,11 +244,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.deleted || message.cleared)	{
 				res.push("deleted");
-				if(censorDeletedMessages) res.push("censor");
 			}
-			if(spoilersEnabled && this.messageData.spoiler === true) res.push("spoiler");
-			if(this.children
-			&& this.children.length > 0)res.push("merged")
+			if(this.children && this.children.length > 0)res.push("merged")
 		}
 
 		return res;
@@ -258,10 +256,22 @@ export default class ChatMessage extends AbstractChatMessage {
 		return this.messageData.children.filter(v=>(v.occurrenceCount || 0) === 0);
 	}
 
-	public getChildClasses(message:TwitchatDataTypes.MessageChatData):string[] {
-		const res:string[] = [];
+	public getMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
+		const res:string[]		= ["message"];
+		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+
+		if(message.deleted)	res.push("deleted");
+		if(spoilersEnabled && message.spoiler === true) res.push("spoiler");
+
+		return res;
+	}
+
+	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData):string[] {
+		const res:string[] = ["messageChild"];
+		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+
 		if(message.deleted) res.push("deleted");
-		if(message.spoiler) res.push("spoiler");
+		if(spoilersEnabled && message.spoiler) res.push("spoiler");
 		return res;
 	}
 
@@ -746,25 +756,26 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	&.merged {
-		.message, .messageChildren {
+		.message, .messageChild {
 			line-height: 1.75em !important;
 		}
 	}
 
-	.deleted {
-		opacity: .35;
-		transition: opacity .2s;
-		&.censor {
-			.message {
+	&.censor {
+
+		&.deleted, .messageChild.deleted {
+			opacity: .35;
+			transition: opacity .2s;
+			.message, &.messageChild.deleted {
 				.text { display: none; }
 			}
-		}
-		&:hover{
-			opacity: 1;
-			text-decoration: none;
-			.message {
-				.text { display: inline; }
-				.deleted { display: none; }
+			&:hover{
+				opacity: 1;
+				text-decoration: none;
+				.message, &.messageChild {
+					.text { display: inline; }
+					.deleted { display: none; }
+				}
 			}
 		}
 	}
@@ -773,33 +784,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		color: var(--color-text);
 		background-color: var(--color-secondary-fader);
 		text-shadow: var(--text-shadow-contrast);
-	}
-
-	&.spoiler {
-		.message {
-			color: rgba(0, 0, 0, 0);
-			@c1: var(--background-color-fadest);
-			@c2: var(--background-color-fader);
-			background-color: var(--background-color-fader);
-			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-		}
-		&:hover {
-			.message {
-				color:unset;
-				-webkit-text-fill-color: unset;
-				background-color: transparent;
-				background-image: unset;
-			}
-		}
-		&:not(:hover):deep(.emote) {
-			opacity: 0;
-		}
-		&:not(:hover)>.message:deep(a) {
-			opacity: 0;
-		}
-		&:not(:hover)>.message:deep(svg) {
-			opacity: 0;
-		}
 	}
 
 	.icon {
@@ -915,7 +899,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		margin-right: .25em;
 	}
 
-	.messageChildren {
+	.messageChild {
 		// position: relative;
 		word-break: break-word;
 		:deep(a) {
@@ -929,7 +913,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			text-shadow: var(--text-shadow-contrast);
 			padding: 0px 5px;
 		}
-		span {
+		.text {
 			&::before {
 				content: "┕";
 				color: var(--color-secondary);
@@ -941,29 +925,6 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 			&:hover {
 				outline: 1px solid var(--color-text-fade);
-			}
-		}
-
-		.spoiler {
-			color: rgba(0, 0, 0, 0);
-			@c1: var(--background-color-fadest);
-			@c2: var(--background-color-fader);
-			background-color: var(--background-color-fader);
-			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
-			&:hover {
-				color:unset;
-				-webkit-text-fill-color: unset;
-				background-color: transparent;
-				background-image: unset;
-			}
-			&:not(:hover):deep(.emote) {
-				opacity: 0;
-			}
-			&:not(:hover)>.message:deep(a) {
-				opacity: 0;
-			}
-			&:not(:hover)>.message:deep(svg) {
-				opacity: 0;
 			}
 		}
 	}

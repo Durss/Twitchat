@@ -653,7 +653,6 @@ export default class MessageListFilter extends Vue {
 				}while(Math.random() > .5)
 
 				dataCast.twitch_automod = { reasons:["bullying"], words };
-				console.log("OFKDOFKDOKFDOK", words);
 			}else if(type == "deleted") {
 				dataCast.deleted = true;
 			}else if(type == "suspiciousUsers") {

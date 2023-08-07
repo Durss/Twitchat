@@ -1120,7 +1120,7 @@ export const storeChat = defineStore('chat', {
 
 				//Request to clear chat
 				case TwitchatDataTypes.TwitchatMessageType.CLEAR_CHAT: {
-					if(message.channel_id) this.delChannelMessages(message.channel_id, true);
+					if(message.channel_id) this.delChannelMessages(message.channel_id);
 					break;
 				}
 
@@ -1277,6 +1277,7 @@ export const storeChat = defineStore('chat', {
 
 				if(deleter) {
 					message.deletedData = { deleter };
+					Database.instance.updateMessage(message);
 				}
 				
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -1294,7 +1295,7 @@ export const storeChat = defineStore('chat', {
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
 				&& mTyped.channel_id == channelId
-				&& !mTyped.deleted) {
+				&& !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
@@ -1309,19 +1310,20 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					mTyped.deleted = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					mTyped.cleared = true;
+					Database.instance.updateMessage(m);
+					// mTyped.deleted = true;
+					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
 		},
 
-		delChannelMessages(channelId:string, clearMode:boolean):void {
+		delChannelMessages(channelId:string):void {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
 				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
-				if(mTyped.channel_id == channelId
-				&& ((clearMode && !mTyped.cleared) || (!clearMode && !mTyped.deleted))) {
+				if(mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
@@ -1336,12 +1338,8 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					if(clearMode) {
-						mTyped.cleared = true;
-					}else{
-						mTyped.deleted = true;
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
-					}
+					mTyped.cleared = true;
+					Database.instance.updateMessage(m);
 				}
 			}
 		},

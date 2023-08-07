@@ -50,6 +50,7 @@ import Icon from './components/Icon.vue';
 import { storeHeat } from './store/heat/storeHeat';
 import { storePatreon } from './store/patreon/storePatreon';
 import { divide } from 'mathjs';
+import Config from './utils/Config';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -141,6 +142,13 @@ function buildApp() {
 	 */
 	const image = (path:string):string => {
 		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
+	}
+	
+	/**
+	 * Fast acces to Configs
+	 */
+	const config = ():Config => {
+		return Config.instance;
 	}
 	
 	/**
@@ -271,6 +279,7 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
+	.provide("$config", image)
 	.provide("$image", image)
 	.provide("$store", storeAccess)
 	.provide("$confirm", confirm)
@@ -329,6 +338,7 @@ function buildApp() {
 	});
 	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
+	app.config.globalProperties.$config = config;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;

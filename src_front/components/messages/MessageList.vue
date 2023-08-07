@@ -1546,7 +1546,7 @@ export default class MessageList extends Vue {
 			
 			//Check if prev message meets the condition to be merged witht the new one
 			if(prevMessage.type != newMessage.type) return false;//Prev displayable message isnt the same type, don't merge
-			if(prevMessage.deleted) return false;//if message has been deleted, don't merge
+			// if(prevMessage.deleted) return false;//if message has been deleted, don't merge
 
 			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
 			if(resetChildren) prevCast.children.splice(0);

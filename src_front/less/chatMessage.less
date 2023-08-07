@@ -9,12 +9,41 @@
 	line-height: 1.25em;
 	padding: 4px;
 	transition: background-color .2s;
-	&.deleted {
-		opacity: .35;
+	.message.deleted, .messageChild.deleted {
 		text-decoration: line-through;
+		.text {
+			opacity: .35;
+		}
 		&:hover{
-			opacity: 1;
 			text-decoration: none;
+			.text {
+				opacity: 1;
+			}
+		}
+	}
+
+	.spoiler {
+		.text {
+			color: rgba(0, 0, 0, 0);
+			@c1: var(--background-color-fadest);
+			@c2: var(--background-color-fader);
+			background-color: var(--background-color-fader);
+			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+			&:hover {
+				color:unset;
+				-webkit-text-fill-color: unset;
+				background-color: transparent;
+				background-image: unset;
+			}
+			&:not(:hover):deep(.emote) {
+				opacity: 0;
+			}
+			&:not(:hover)>.message:deep(a) {
+				opacity: 0;
+			}
+			&:not(:hover)>.message:deep(svg) {
+				opacity: 0;
+			}
 		}
 	}
 
