@@ -28,7 +28,7 @@
 				Scroll any chat column by using one of the four knobs.
 				Select a knob and give it a chat column index to scroll.
 				If you want that knob to control chat only when on a specific FX preset, select a preset as well
-				<GoXLRUI childMode />
+				<GoXLRUI childMode knobMode />
 			</div>
 	
 			<section class="card-item info">

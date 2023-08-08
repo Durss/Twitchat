@@ -26,13 +26,13 @@
 					"icon":"elgato",
 					"image":"streamdeck.jpg",
 					"title":"Stream Deck™",
-					"description":"Scrollez le tchat, déplacez le marque apge, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
+					"description":"Scrollez le tchat, déplacez le marque-page, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
 				},
 				{
 					"icon":"show",
 					"image":"spoiler.png",
 					"title":"Commande de spoil",
-					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoiler.<br>Vos modérateurices peuvent spoiler les messages d'autres viewers"
+					"description":"Les messages débutant par <mark>||</mark> seront affichés comme des spoilers.<br>Vos modérateurices peuvent spoiler les messages d'autres viewers en répondant <mark>!spoiler</mark> à leur message"
 				},
 				{
 					"icon":"search",
@@ -62,7 +62,7 @@
 					"icon":"hand",
 					"image":"greet.png",
 					"title":"Saluez vos viewers",
-					"description":"Le 1er message de chaque viewer est conservé dans une liste pour ne pas oublier de saluer vos viewers"
+					"description":"Le 1er message de chaque viewer est conservé dans une liste pour ne pas oublier de les saluer"
 				},
 				{
 					"icon":"checkmark",
@@ -98,7 +98,7 @@
 					"icon":"spotify",
 					"image":"musicPlayer.png",
 					"title":"Spotify",
-					"description":"Lier Twitchat à Spotify pour afficher la musique en cours ou contrôler la lecture depuis des Triggers"
+					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
 				},
 				{
 					"icon":"voicemod",

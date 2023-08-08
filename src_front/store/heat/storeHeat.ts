@@ -158,7 +158,7 @@ export const storeHeat = defineStore('heat', {
 				//Parse all areas
 				for (let j = 0; j < s.areas.length; j++) {
 					const a = s.areas[j];
-					const isInside = Utils.isPointInsidePolygon({x:event.coordinates.x/100, y:event.coordinates.y/100}, a.points);
+					const isInside = Utils.isPointInsidePolygon({x:event.coordinates.x, y:event.coordinates.y}, a.points);
 					//If click is inside the area, execute the trigger
 					if(isInside){
 						const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
@@ -209,6 +209,7 @@ export const storeHeat = defineStore('heat', {
 					//Click is outside overlay, ingore it
 					if(!isInside) continue;
 
+					console.log("CLICKED OBS SOURCE", rect.source.sourceName);
 					
 					const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
 					clone.obsSource = rect.source.sourceName;

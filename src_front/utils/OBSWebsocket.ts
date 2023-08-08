@@ -6,6 +6,7 @@ import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 /**
 * Created : 29/03/2022 
@@ -282,8 +283,16 @@ export default class OBSWebsocket extends EventDispatcher {
 		const itemNameToTransform:{[key:string]:SourceTransform} = {};
 		const canvasW:number = videoSettings.baseWidth;
 		const canvasH:number = videoSettings.baseHeight;
+		const sourcesToWatch:string[] = [];
 
-		
+		StoreProxy.triggers.triggerList.forEach(v=> {
+			if(v.type == TriggerTypes.HEAT_CLICK && v.heatObsSource && v.enabled){
+				sourcesToWatch.push(v.heatObsSource);
+			}
+		});
+
+		if(sourcesToWatch.length === 0) return {canvas:{width:1920, height:1080}, sources:[]};
+
 		//Parse all scene items
 		for (let j = 0; j < sceneList.length; j++) {
 			const scene = sceneList[j];
@@ -302,7 +311,22 @@ export default class OBSWebsocket extends EventDispatcher {
 			for (let i=0; i < items.length; i++) {
 				const source = items[i];
 				sourceDone[source.item.sourceName] = true;
+
+				//If no trigger request for this source's events and if it's not a browser source or a group or a scene, ignore it
+				if(source.item.sourceType != "OBS_SOURCE_TYPE_SCENE"
+				&& !source.item.isGroup
+				&& source.item.inputKind != "browser_source"
+				&& !sourcesToWatch.includes(source.item.sourceName)) {
+					continue;
+				}
 				
+				//Ignore invisible items
+				const visibleRes = await this.obs.call("GetSceneItemEnabled", {
+					sceneName:source.parent,
+					sceneItemId:source.item.sceneItemId,
+				});
+				if(!visibleRes.sceneItemEnabled) continue;
+				 
 				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
 				if(!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;

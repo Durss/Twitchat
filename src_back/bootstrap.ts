@@ -30,8 +30,8 @@ async function start():Promise<void> {
 }
 
 fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
-fs.mkdirSync(Config.betaDataFolder, { recursive: true });
-fs.mkdirSync(Config.donorsDataFolder, { recursive: true });
+fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
 
 const server:FastifyInstance = Fastify({logger: false});
 server.register(import('fastify-raw-body'), {
