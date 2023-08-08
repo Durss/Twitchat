@@ -151,7 +151,7 @@ export default class Config {
 	 */
 	public static get BETA_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../beta/"),
+			dev: path.join(__dirname, "../../beta/"),
 			beta: path.join(__dirname, "../beta/"),
 			prod: path.join(__dirname, "../beta/"),
 		});
@@ -162,7 +162,7 @@ export default class Config {
 	 */
 	public static get DONORS_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../donors/"),
+			dev: path.join(__dirname, "../../donors/"),
 			beta: path.join(__dirname, "../../twitchat/donors/"),
 			prod: path.join(__dirname, "../donors/"),
 		});
