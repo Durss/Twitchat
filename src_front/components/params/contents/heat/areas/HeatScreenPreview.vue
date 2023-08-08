@@ -138,10 +138,16 @@ export default class HeatScreenPreview extends Vue {
 		:deep(polygon) {
 			cursor: pointer;
 			fill: var(--color-text);
-			fill: var(--color-alert-light);
+			fill: transparent;
+			stroke: var(--color-primary-light);
+			stroke-width: 1rem;
+			stroke-dasharray: 4rem;
 			opacity: .6;
 			&:hover {
-				fill: var(--color-alert-light);
+				fill: transparent;
+				stroke: var(--color-primary-light);
+				stroke-width: 1rem;
+				stroke-dasharray: 4rem;
 				opacity: 1;
 				stroke: var(--color-text);
 				stroke-width: 1rem;
@@ -149,6 +155,7 @@ export default class HeatScreenPreview extends Vue {
 			&.selected {
 				opacity: 1;
 				fill: var(--color-primary-light);
+				stroke: transparent;
 				&:hover {
 					fill: var(--color-primary-extralight);
 					opacity: 1;
