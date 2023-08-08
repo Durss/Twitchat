@@ -257,6 +257,7 @@ function buildApp() {
 	StoreProxy.rewards = storeRewards();
 	StoreProxy.stream = storeStream();
 	StoreProxy.timer = storeTimer();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };;
 	StoreProxy.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters

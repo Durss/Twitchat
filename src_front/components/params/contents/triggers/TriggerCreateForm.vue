@@ -27,7 +27,8 @@
 			:key="c.category.labelKey"
 			:title="$t(c.category.labelKey)"
 			:open="false"
-			:icons="[c.category.icon+'']">
+			:icons="[c.category.icon+'']"
+			:newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id} : undefined">
 				<i18n-t scope="global" tag="div" class="require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 				keypath="triggers.music.require">
@@ -52,7 +53,8 @@
 					</template>
 				</i18n-t>
 
-				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)">
+				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
+				v-newflag="e.newDate? {date:c.newDate, id:'triggerEvent_'+e.value} : undefined">
 					<TTButton class="triggerBt"
 						:premium="e.premium === true"
 						:disabled="disabledEntry(e)"
@@ -107,6 +109,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
+import { max } from 'mathjs';
 
 @Component({
 	components:{
@@ -131,13 +134,10 @@ export default class TriggerCreateForm extends Vue {
 	public needRewards = false;
 	public needObsConnect = false;
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
-	public selectedSubtriggerEntry:TriggerEntry|null = null;
-
-	public triggerTypeList:TriggerEntry[] = [];
 	public subtriggerList:TriggerEntry[] = [];
-	public actionList:TriggerActionTypes[] = [];
-	public temporaryTrigger:TriggerData|null = null;
-	public eventCategories:{category:TriggerEventTypeCategory, events:TriggerTypeDefinition[]}[] = [];
+	public eventCategories:TriggerCategory[] = [];
+	
+	private temporaryTrigger:TriggerData|null = null;
 
 	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
 
@@ -180,42 +180,45 @@ export default class TriggerCreateForm extends Vue {
 	public beforeMount():void {
 		const triggers = TriggerTypesDefinitionList().concat();
 		//Create button/display data for all available triggers
-		this.triggerTypeList = triggers.map( v=> {
+		let triggerTypeList:TriggerEntry[] = triggers.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
 				value:v.value,
 				trigger:v,
 				icon:this.$image('icons/'+v.icon+'.svg'),
 				isCategory:false,
+				newDate:v.newDate,
 			}
 		});
 		
 		//Remove affiliates-only triggers if not affiliate or partner
 		if(!this.$store("auth").twitch.user.is_affiliate && !this.$store("auth").twitch.user.is_partner) {
-			this.triggerTypeList = this.triggerTypeList.filter(v=> {
+			triggerTypeList = triggerTypeList.filter(v=> {
 				return v.value != TriggerTypes.REWARD_REDEEM
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 			})
 		}
 
-		//Remove GoXLR Full specifi triggers if a mini is connected
+		//Remove GoXLR Full specific triggers if a mini is connected
 		if(this.isGoxlrMini) {
-			this.triggerTypeList = this.triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
+			triggerTypeList = triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
 		}
 		
 		//Extract available trigger categories
-		let currCat = this.triggerTypeList[0].trigger!.category;
+		let currCat = triggerTypeList[0].trigger!.category;
 		let catEvents:TriggerTypeDefinition[] = [];
-		for (let i = 0; i < this.triggerTypeList.length; i++) {
-			const ev = this.triggerTypeList[i];
+		for (let i = 0; i < triggerTypeList.length; i++) {
+			const ev = triggerTypeList[i];
 			if(!ev.trigger) continue;
-			if(ev.trigger.category != currCat || i === this.triggerTypeList.length-1) {
-				if(i === this.triggerTypeList.length-1) catEvents.push(ev.trigger);
-				this.eventCategories.push({
+			if(ev.trigger.category != currCat || i === triggerTypeList.length-1) {
+				if(i === triggerTypeList.length-1) catEvents.push(ev.trigger);
+				const cat:TriggerCategory = {
 					category:catEvents[0].category,
 					events:catEvents,
-				});
+				};
+				console.log("new cat", cat.category.labelKey);
+				this.eventCategories.push(cat);
 				catEvents = [ev.trigger];
 			}else{
 				catEvents.push(ev.trigger);
@@ -223,20 +226,13 @@ export default class TriggerCreateForm extends Vue {
 			currCat = ev.trigger.category
 		}
 
-		//Add cetegories in the trigger list at the proper places
-		let prevCategrory:TriggerEventTypeCategoryID|null = null;
-		for (let i = 0; i < this.triggerTypeList.length; i++) {
-			const t = this.triggerTypeList[i];
-			if(t.trigger!.category.id != prevCategrory) {
-				this.triggerTypeList.splice(i, 0, {
-					label: this.$t(t.trigger!.category.labelKey),
-					value:"",
-					icon: this.$image('icons/'+t.trigger!.category.icon+'.svg'),
-					isCategory: true,
-				});
-				prevCategrory = t.trigger!.category.id;
-			}
-		}
+		this.eventCategories.forEach(v => {
+			let newDate = 0;
+			v.events.forEach(w => {
+				if(w.newDate) newDate = Math.max(newDate, w.newDate);
+			})
+			if(newDate > 0) v.newDate = newDate;
+		})
 
 		watch(()=>this.obsSources, ()=> {
 			if(this.selectedTriggerType) {
@@ -604,6 +600,13 @@ interface TriggerEntry{
 	trigger?:TriggerTypeDefinition;
 	isCategory:boolean;
 	icon:string;
+	newDate?:number;
+}
+
+interface TriggerCategory{
+	category:TriggerEventTypeCategory;
+	events:TriggerTypeDefinition[];
+	newDate?:number;
 }
 </script>
 
@@ -631,6 +634,7 @@ interface TriggerEntry{
 		gap: .5em;
 
 		.category{
+			position: relative;
 			width: 100%;
 			.require {
 				font-size: .8em;

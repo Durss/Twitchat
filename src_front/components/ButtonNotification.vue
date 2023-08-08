@@ -1,6 +1,6 @@
 <template>
-	<div class="buttonnotification" @click="onClick($event)">
-		<Icon :name="icon" class="icon" v-newflag="newflag" />
+	<div class="buttonnotification" @click="onClick($event)" v-newflag="newflag">
+		<Icon :name="icon" class="icon" />
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
@@ -42,6 +42,12 @@ export default class ButtonNotification extends Vue {
 	justify-content: center;
 	border-radius: var(--border-radius);
 	position: relative;
+
+	&::before {
+		//Offset "new flag" so it's closer to the icon
+		top: .25em;;
+		left: .25em;;
+	}
 
 	.icon {
 		position: relative;

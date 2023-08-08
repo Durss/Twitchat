@@ -39,6 +39,7 @@
 			<Button class="createBt"
 				v-if="showList && !showForm"
 				icon="add"
+				v-newflag="{date:1690765812999, id:'paramsparams_triggers'}"
 				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 			
 			<TriggerCreateForm
