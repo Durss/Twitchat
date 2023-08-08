@@ -297,7 +297,7 @@ export const storeUsers = defineStore('users', {
 				return user;
 			}
 
-			const needCreationDate = user.created_at_ms == undefined;// && StoreProxy.params.features.recentAccountUserBadge.value === true;
+			const needCreationDate = user.created_at_ms == undefined;// && StoreProxy.params.appearance.recentAccountUserBadge.value === true;
 			if(platform == "twitch" && (user.temporary || needCreationDate)) {
 				
 				//Wait half a second to let time to external code to populate the

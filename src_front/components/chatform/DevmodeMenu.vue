@@ -6,8 +6,8 @@
 			<Button small @click="simulateEvent('message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
 			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
@@ -18,6 +18,7 @@
 			<Button small @click="simulateEvent('message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
 			<Button small @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
+			<Button small @click="simulateEvent('message', 'recent')" icon="alert">Recent account</Button>
 			<Button small @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent('raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
 			<Button small @click="simulateEvent('raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
@@ -142,6 +143,7 @@ export default class DevmodeMenu extends Vue {
 				case "first":				(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "hypeChat": {
@@ -353,7 +355,8 @@ type Subaction = "first"
 				| "raidOffline"
 				| "ad"
 				| "hypeChat"
-				| "clip";
+				| "clip"
+				| "recent";
 
 </script>
 

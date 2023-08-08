@@ -104,14 +104,18 @@ export default class AbstractChatMessage extends Vue {
 			if(elapsed < 60000) {
 				this.time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
 			}else
-			if(elapsed < 60000 * 60) {
+			if(elapsed < 60 * 60000) {
 				const minutes = Math.floor(elapsed/60000);
 				this.time = Utils.toDigits(minutes) + ":";
 				this.time += Utils.toDigits( Math.round((elapsed - minutes*60000)/1000) );
-			}else{
-				const hours = Math.floor(elapsed/(60000*60));
+			}else
+			if(elapsed < 24 * 60 * 60000) {
+				const hours = Math.floor(elapsed/(60 * 60000));
 				this.time = hours + "h";
-				this.time += Utils.toDigits( Math.round((elapsed - hours*(60000*60))/60000) );
+				this.time += Utils.toDigits( Math.round((elapsed - hours*(60 * 60000))/60000) );
+			}else{
+				const days = Math.floor(elapsed/(24 * 60 * 60000));
+				this.time = days + this.$t("global.date_days");
 			}
 			
 			this.refreshTimeout = setTimeout(()=> {

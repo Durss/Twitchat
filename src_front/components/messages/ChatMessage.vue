@@ -389,7 +389,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		//Creation date is loaded asynchronously, watch for it if requested
-		if(this.$store("params").features.recentAccountUserBadge.value === true) {
+		if(this.$store("params").appearance.recentAccountUserBadge.value === true) {
 			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
 				const age = Date.now() - (mess.user.created_at_ms || 0);
 				if(age < 7 * 24 * 60 * 60000) {
@@ -423,7 +423,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			
 			//Add "first day on your chat" badge
 			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
-			&& this.$store("params").features.firstUserBadge.value === true) {
+			&& this.$store("params").appearance.firstUserBadge.value === true) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 			//Manage twitch automod content

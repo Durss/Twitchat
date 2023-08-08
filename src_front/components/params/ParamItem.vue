@@ -10,7 +10,7 @@
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
 			>
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 				
@@ -28,7 +28,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -47,7 +47,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime'" class="holder text">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -78,7 +78,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'color'" class="holder color">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -96,7 +96,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'slider'" class="holder slider">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -105,7 +105,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -122,7 +122,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
@@ -157,7 +157,7 @@
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
-				<Icon :theme="paramData.iconTheme" class="helpIcon" name="help" v-if="paramData.example"
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 				
