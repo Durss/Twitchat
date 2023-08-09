@@ -103,12 +103,16 @@ export default class StreamSummary extends AbstractSidePanel {
 	public async beforeMount():Promise<void> {
 
 		const res = await TwitchUtils.loadCurrentStreamInfo(undefined, ["pyka"]);
-		// const dateOffset = new Date("08/01/2023").getTime();//TODO comment
-		const dateOffset = new Date(res[0].started_at).getTime();
-
-		this.durationInterval = setInterval(()=> {
-			this.streamDuration = Utils.formatDuration(Date.now() - dateOffset);
-		})
+		let prevDate:number = 0;
+		let dateOffset:number|null = null;
+		if(res.length === 0) {
+			// const dateOffset = new Date("08/01/2023").getTime();//TODO comment
+			dateOffset = new Date(res[0].started_at).getTime();
+			
+			this.durationInterval = setInterval(()=> {
+				this.streamDuration = Utils.formatDuration(Date.now() - dateOffset!);
+			})
+		}
 
 		const userActivities:{[key:string]:UserActivities} = {};
 		const messages = this.$store("chat").messages;
@@ -117,7 +121,11 @@ export default class StreamSummary extends AbstractSidePanel {
 		
 		for (let i = messages.length-1; i >= 0; i--) {
 			const m = messages[i];
-			if(m.date < dateOffset) break;
+			if(dateOffset && m.date < dateOffset) break;
+			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 600000) {
+				this.streamDuration = Utils.formatDuration(messages[messages.length - 1].date - m.date);
+				break;
+			}
 			
 			switch(m.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {

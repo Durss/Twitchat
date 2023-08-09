@@ -470,6 +470,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(isAdmin && cmd == "/streamsummary") {
+			StoreProxy.params.openModal("streamSummary");
+			return true;
+		}else
+
 		if(cmd == "/greetduration") {
 			let duration = this.paramsToDuration(params[0]);
 			StoreProxy.params.setGreetThemAutoDelete(duration);
