@@ -102,7 +102,7 @@ export default class StreamSummary extends AbstractSidePanel {
 
 	public async beforeMount():Promise<void> {
 
-		const res = await TwitchUtils.loadCurrentStreamInfo(undefined, ["pyka"]);
+		const res = await TwitchUtils.loadCurrentStreamInfo([this.$store("auth").twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
 		if(res.length === 0) {
