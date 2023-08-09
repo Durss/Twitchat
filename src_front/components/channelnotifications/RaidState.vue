@@ -57,13 +57,13 @@
 					@click="copybannedUsers()">{{ $t('raid.copy_logins') }}</Button>
 			</div>
 		</ToggleBlock>
-
-		<Button icon="cross" alert @click="cancelRaid()">{{ $t('global.cancel') }}</Button>
 		
 		<div class="ctas">
 			<Button light @click="spamLink()">{{ $t('raid.spam_linkBt') }}</Button>
 			<Button light @click="openSummary()">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
+
+		<Button icon="cross" alert @click="cancelRaid()">{{ $t('global.cancel') }}</Button>
 
 	</div>
 </template>
