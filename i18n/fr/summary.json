@@ -4,6 +4,7 @@
 		"no_data": "On dirait qu'il ne s'est pas passé grand chose durant votre stream 😔.\r\nJe suis certain que le prochain sera mieux !",
 		"stream_duration": "Durée du stream:",
 		"data_messages":"Messages envoyés",
+		"data_emotes":"Emotes envoyées",
 		"data_chars":"Caractères envoyés",
 		"data_chatters":"Chatters",
 		"data_subPrime":"Sub prime",

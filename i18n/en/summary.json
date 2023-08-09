@@ -4,6 +4,7 @@
 		"no_data": "It seems nothing much happened during your stream 😔.\r\nI'm sure next one will be better!",
 		"stream_duration": "Stream duration:",
 		"data_messages":"Messages sent",
+		"data_emotes":"Emotes sent",
 		"data_chars":"Message chars sent",
 		"data_chatters":"Chatters",
 		"data_subPrime":"Sub prime",

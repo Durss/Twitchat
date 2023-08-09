@@ -24,6 +24,7 @@
 						<div class="data card-item" v-if="raidCount > 0"><span v-tooltip="$t('summary.data_raid')"><Icon name="raid" />{{ raidCount }}</span><small class="data" v-tooltip="$t('summary.data_raider')"><Icon name="user" />{{ raidViewerCount }}</small></div>
 						<div class="data card-item" v-tooltip="$t('summary.data_follow')" v-if="followCount > 0"><Icon name="follow" />{{ followCount }}</div>
 						<div class="data card-item" v-tooltip="$t('summary.data_messages')" v-if="messCount > 0"><Icon name="whispers" />{{ messCount }}</div>
+						<div class="data card-item" v-tooltip="$t('summary.data_emotes')" v-if="emoteCount > 0"><Icon name="emote" />{{ emoteCount }}</div>
 						<div class="data card-item" v-tooltip="$t('summary.data_chars')" v-if="charCount > 0"><Icon name="font" />{{ charCount }}</div>
 						<div class="data card-item" v-tooltip="$t('summary.data_chatters')" v-if="chatterCount > 0"><Icon name="user" />{{ chatterCount }}</div>
 						<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="rewardCount > 0"><Icon name="channelPoints" />{{ rewardCount }}</div>
@@ -46,6 +47,7 @@
 							<div class="data card-item" v-tooltip="$t('summary.data_hypeChat')" v-if="u.hypeChatCount > 0"><Icon name="hypeChat" />{{ u.hypeChatCount }} <small class="data" v-for="amount, key in u.hypeChats">{{amount}} {{ key }}</small></div>
 							<div class="data card-item" v-if="u.raidCount > 0"><span v-tooltip="$t('summary.data_raid')"><Icon name="raid" />{{ u.raidCount }}</span><small class="data" v-tooltip="$t('summary.data_raider')"><Icon name="user" />{{ u.raidViewerCount }}</small></div>
 							<div class="data card-item" v-tooltip="$t('summary.data_messages')" v-if="u.messCount > 0"><Icon name="whispers" />{{ u.messCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_emotes')" v-if="u.emoteCount > 0"><Icon name="emote" />{{ u.emoteCount }}</div>
 							<div class="data card-item" v-tooltip="$t('summary.data_chars')" v-if="u.charCount > 0"><Icon name="font" />{{ u.charCount }}</div>
 							<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="u.rewards > 0"><Icon name="channelPoints" />{{ u.rewards }}</div>
 						</div>
@@ -78,6 +80,7 @@ export default class StreamSummary extends AbstractSidePanel {
 	public streamDuration:string = "";
 	public messCount = 0;
 	public charCount = 0;
+	public emoteCount = 0;
 	public chatterCount = 0;
 	public subT1Count = 0;
 	public subT2Count = 0;
@@ -105,7 +108,7 @@ export default class StreamSummary extends AbstractSidePanel {
 		const res = await TwitchUtils.loadCurrentStreamInfo([this.$store("auth").twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
-		if(res.length === 0) {
+		if(res.length > 0) {
 			// const dateOffset = new Date("08/01/2023").getTime();//TODO comment
 			dateOffset = new Date(res[0].started_at).getTime();
 			
@@ -122,7 +125,8 @@ export default class StreamSummary extends AbstractSidePanel {
 		for (let i = messages.length-1; i >= 0; i--) {
 			const m = messages[i];
 			if(dateOffset && m.date < dateOffset) break;
-			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 600000) {
+			//If more than 4h past between the 2 messages, consider it's a different stream and stop there
+			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 600000) {
 				this.streamDuration = Utils.formatDuration(messages[messages.length - 1].date - m.date);
 				break;
 			}
@@ -130,12 +134,15 @@ export default class StreamSummary extends AbstractSidePanel {
 			switch(m.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 					const uid = m.user.id;
+					const emoteCount = m.message_chunks.filter(v=>v.type == "emote").length;
 					if(!userActivities[uid]) userActivities[uid] = this.getEmptyUserActivities(m.user);
 					this.messCount ++;
 					this.charCount += m.message.length;
+					this.emoteCount += emoteCount;
 					userActivities[uid].sortValue ++;
 					userActivities[uid].messCount ++;
 					userActivities[uid].charCount += m.message.length;
+					userActivities[uid].emoteCount += emoteCount;
 					if(!userParsed[uid]) {
 						this.chatterCount ++;
 						userParsed[uid] = true;
@@ -222,7 +229,13 @@ export default class StreamSummary extends AbstractSidePanel {
 					userActivities[uid].rewards ++;
 					userActivities[uid].sortValue += Math.round(m.reward.cost / 10);
 					if(m.message) {
+						const emoteCount = m.message_chunks!.filter(v=>v.type == "emote").length;
+						this.messCount ++;
+						this.charCount += m.message.length;
+						this.emoteCount += emoteCount;
 						userActivities[uid].messCount ++;
+						userActivities[uid].charCount += m.message.length;
+						userActivities[uid].emoteCount += emoteCount;
 					}
 					this.noData = false;
 					break;
@@ -319,6 +332,7 @@ interface UserActivities{
 	sortValue:number;
 	messCount:number;
 	charCount:number;
+	emoteCount:number;
 	subPrime:number;
 	subT1:number;
 	subT2:number;

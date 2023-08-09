@@ -470,7 +470,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(isAdmin && cmd == "/streamsummary") {
+		if(cmd == "/streamsummary") {
 			StoreProxy.params.openModal("streamSummary");
 			return true;
 		}else
