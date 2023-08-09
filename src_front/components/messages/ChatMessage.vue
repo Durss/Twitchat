@@ -185,6 +185,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	@Prop({type:Boolean, default:false})
 	public contextMenuOff!:boolean;
+
+	@Prop({type:Boolean, default:false})
+	public noMerge!:boolean;
 	
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
@@ -242,9 +245,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(!this.lightMode && this.messageData.user.is_tracked)	res.push("tracked");
 
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			if(message.deleted || message.cleared)	{
-				res.push("deleted");
-			}
+			if(message.cleared)	res.push("cleared");
+			if(message.deleted)	res.push("deleted");
 			if(this.children && this.children.length > 0)res.push("merged")
 		}
 
@@ -252,6 +254,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	public get children():TwitchatDataTypes.MessageChatData[] {
+		if(this.noMerge !== false) return [];
 		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return []
 		return this.messageData.children.filter(v=>(v.occurrenceCount || 0) === 0);
 	}
@@ -780,6 +783,14 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
+	&.cleared {
+		opacity: .35;
+		transition: opacity .2s;
+		&:hover{
+			opacity: 1;
+		}
+	}
+
 	&.tracked {
 		color: var(--color-text);
 		background-color: var(--color-secondary-fader);
@@ -876,6 +887,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	.occurrenceCount {
+		cursor: default;
 		display: inline-block;
 		background: var(--color-primary);
 		padding: .2em .4em;

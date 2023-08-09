@@ -13,7 +13,7 @@
 		
 		<tooltip v-else-if="(chunk.type == 'emote' || chunk.type == 'cheermote') && $store('params').appearance.showEmotes.value !== false"
 		:content="'<img src='+chunk.emoteHD+' width=\'112\' class=\'emote\'><br><center>'+chunk.value+'</center>'">
-			<img :src="chunk.emote" :class='chunk.type' :alt="chunk.value">
+			<img :src="chunk.emote" :class='chunk.type' :alt="chunk.value" loading="lazy">
 		</tooltip>
 
 		<template v-else-if="chunk.type == 'url'">

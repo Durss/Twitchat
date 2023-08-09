@@ -1,0 +1,26 @@
+{
+	"summary": {
+		"title": "Résumé du stream",
+		"no_data": "On dirait qu'il ne s'est pas passé grand chose durant votre stream 😔.\r\nJe suis certain que le prochain sera mieux !",
+		"stream_duration": "Durée du stream:",
+		"data_messages":"Messages envoyés",
+		"data_chars":"Caractères envoyés",
+		"data_chatters":"Chatters",
+		"data_subPrime":"Sub prime",
+		"data_subT1":"Sub T1",
+		"data_subT2":"Sub T2",
+		"data_subT3":"Sub T3",
+		"data_subgift":"Subgifts",
+		"data_bits":"Bits",
+		"data_follow":"Followers",
+		"data_rewards":"Récompenses de<br/>points de chaîne",
+		"data_hypeTrain":"Trains de la hype terminés",
+		"data_hypeChat":"Hype chats envoyés",
+		"data_raid":"Raids reçus",
+		"data_raider":"Raiders",
+		"data_poll":"Sondages",
+		"data_prediction":"Prédictions",
+		"data_bingo":"Bingos",
+		"data_raffle":"Tirages au sort"
+	}
+}

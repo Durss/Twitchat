@@ -30,9 +30,9 @@
 		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
 		alert medium :open="false"
 		:title="$tc('raid.banned_users_title', (bannedOnline.length + timedoutOnline.length), {COUNT:(bannedOnline.length + timedoutOnline.length)})">
-		<template #left_actions>
-			<img src="@/assets/icons/alert.svg" class="icon">
-		</template>
+			<template #left_actions>
+				<img src="@/assets/icons/alert.svg" class="icon">
+			</template>
 			<i18n-t scope="global" tag="div" keypath="raid.banned_users" class="head">
 				<template #USER>
 					<strong>{{ raidInfo.user.displayName }}</strong>
@@ -58,8 +58,12 @@
 			</div>
 		</ToggleBlock>
 
-		<Button icon="cross" alert
-			@click="cancelRaid()">{{ $t('global.cancel') }}</Button>
+		<Button icon="cross" alert @click="cancelRaid()">{{ $t('global.cancel') }}</Button>
+		
+		<div class="ctas">
+			<Button light @click="spamLink()">{{ $t('raid.spam_linkBt') }}</Button>
+			<Button light @click="openSummary()">{{ $t('raid.stream_summaryBt') }}</Button>
+		</div>
 
 	</div>
 </template>
@@ -72,6 +76,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { gsap } from 'gsap';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 @Component({
 	components:{
@@ -125,7 +130,7 @@ export default class RaidState extends Vue {
 			//Debug to add random banned users
 			//@ts-ignore
 			if(!u.channelInfo[me.id]) u.channelInfo[me.id] = {};
-			if(Math.random() > .75) {
+			if(Math.random() > .95) {
 				u.channelInfo[me.id].online = true;
 				u.channelInfo[me.id].is_banned = true;
 				u.channelInfo[me.id].lastActivityDate = Date.now() - 1000;
@@ -169,6 +174,16 @@ export default class RaidState extends Vue {
 		TwitchUtils.raidCancel();
 	}
 
+	public spamLink():void {
+		for (let i = 0; i < 10; i++) {
+			MessengerProxy.instance.sendMessage("https://twitch.tv/"+this.raidInfo.user.login, ["twitch"]);
+		}
+	}
+
+	public openSummary():void {
+		this.$store("params").openModal("streamSummary");
+	}
+
 	public openUserCard(u:TwitchatDataTypes.TwitchatUser):void {
 		this.$store("users").openUserCard(u);
 	}
@@ -186,7 +201,7 @@ export default class RaidState extends Vue {
 <style scoped lang="less">
 .raidstate{
 
-	.head {
+	&>.head {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -197,6 +212,7 @@ export default class RaidState extends Vue {
 		}
 
 		.userLink {
+			display: inline;
 			color: var(--color-text-light);
 			img {
 				height: 1em;
@@ -284,9 +300,15 @@ export default class RaidState extends Vue {
 			}
 		}
 		.ctas {
-			text-align: center;
 			margin-top: .5em;
 		}
+	}
+	.ctas {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		flex-wrap: wrap;
 	}
 }
 </style>

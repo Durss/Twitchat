@@ -45,9 +45,12 @@ export default class ChatReward extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
 
+	@Prop({type:Boolean, default:false})
+	public noMerge!:boolean;
+
 	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
 		const res = [this.messageData];
-		if(this.messageData.children) res.push(...this.messageData.children);
+		if(this.messageData.children && this.noMerge === false) res.push(...this.messageData.children);
 
 		const idCountDictionary :{[key:string]:number} = {};
 

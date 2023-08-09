@@ -7,6 +7,8 @@
 		"cant_force": "Twitch provides no API to start the raid before the timer ends sorry :(",
 		"emote_only": "Emote only",
 		"sub_only": "Sub only",
-		"follower_only": "Follower only"
+		"follower_only": "Follower only",
+		"spam_linkBt": "Spam link to channel",
+		"stream_summaryBt": "Stream summary"
 	}
 }

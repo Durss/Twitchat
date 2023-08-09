@@ -46,6 +46,8 @@
 			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
 			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
 			<TwitchatAnnouncement	class="popin" v-if="$store('params').currentModal == 'twitchatAnnouncement'" @close="$store('params').closeModal()" />
+			<StreamSummary			class="popin" v-if="$store('params').currentModal == 'streamSummary'" @close="$store('params').closeModal()" />
+			<UserCard				class="popin"  />
 		</Teleport>
 
 
@@ -117,8 +119,6 @@
 
 		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
-		<UserCard />
-
 		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').closeModal()" />
 
 		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').closeModal()" />
@@ -185,6 +185,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
+import StreamSummary from '@/components/chatform/StreamSummary.vue';
 
 @Component({
 	components:{
@@ -210,6 +211,7 @@ import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue
 		TriggersLogs,
 		TrackedUsers,
 		MessageSearch,
+		StreamSummary,
 		WhispersState,
 		Accessibility,
 		CommandHelper,
