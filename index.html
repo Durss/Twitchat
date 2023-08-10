@@ -67,10 +67,13 @@
 			align-items: flex-end;
 		}
 		#loader-init>.logo>svg {
-			height: 2em;
+			height: min(2em, 100vw/10);
 			opacity: 0;
 			cursor: pointer;
 			overflow: visible;
+		}
+		#loader-init>.logo>svg:hover {
+			z-index: 1;
 		}
 		#loader-init>.logo>svg>* {
 			pointer-events: none;
@@ -79,7 +82,7 @@
 			transform: translate(-60px, -60px);
 		}
 		#loader-init>.logo>svg.small {
-			height: 1.55em;
+			height: min(1.55em, 100vw/12);
 		}
 		#loader-init>.message {
 			font-size: .5em;
@@ -186,7 +189,7 @@
 		<div class="logo">
 			<svg class="letter t" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 182.4 260.3" xml:space="preserve"
-				onclick="bounceLetter(0, 10)" onmouseover="bounceLetter(0)">
+				onclick="bounceLetter(0, 7)" onmouseover="bounceLetter(0)">
 				<mask id="mask_t"><path d="m0,0S.3,212.59,0,233.59c-.1,9.5,3.3,17.3,10.2,23.8,8.2,7.5,100.89,44.1,109.29,51.7,4,3.7,11,7.6,18.6,7.6,27.1.3,53.3.1,79.9.2,12.5.6,21.5-8.2,21-20.8-.2-17.7-.2-35.7,0-53.5.1-5.3-1.2-9.8-3.9-13.3,2.6-3.3,4-7.6,4-12.6-.1-18.3,0-216.69,0-216.69H0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_t)">
 					<g class="translatable">
@@ -201,7 +204,7 @@
 			</svg>
 			<svg class="letter w small" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 288.7 204.2" xml:space="preserve"
-				onclick="bounceLetter(1, 10)" onmouseover="bounceLetter(1)">
+				onclick="bounceLetter(1, 7)" onmouseover="bounceLetter(1)">
 				<mask id="mask_w"><path d="m0,0s.04,104.36.1,123.7c0,6.4,2.9,13.5,7.6,18.5,3.9,4.1,105.39,104.99,109.19,108.99,6.3,6.5,13.9,9.7,23.3,9.7,58.6-.2,124.8,0,184.5-.2,12.6,0,20.7-8.1,20.7-20.6-.09-38.99,0-240.09,0-240.09H0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_w)">
 					<g class="translatable">
@@ -217,7 +220,7 @@
 			</svg>
 			<svg class="letter i" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 124.6 260.5" xml:space="preserve"
-				onclick="bounceLetter(2, 10)" onmouseover="bounceLetter(2)">
+				onclick="bounceLetter(2, 7)" onmouseover="bounceLetter(2)">
 				<mask id="mask_i"><path d="m181.19,0H0v211.3c28.35,40.95,93.09,105.79,105.59,105.79,18.2-.2,36.5-.2,54.7,0,12.6.4,21.1-7.9,20.9-20.7,0,0,0-296.39,0-296.39Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_i)">
 					<g class="translatable">
@@ -232,7 +235,7 @@
 			</svg>
 			<svg class="letter t" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 182.4 260.3" xml:space="preserve"
-				onclick="bounceLetter(3, 10)" onmouseover="bounceLetter(3)">
+				onclick="bounceLetter(3, 7)" onmouseover="bounceLetter(3)">
 				<mask id="mask_t"><path d="m0,0S.3,212.59,0,233.59c-.1,9.5,3.3,17.3,10.2,23.8,8.2,7.5,100.89,44.1,109.29,51.7,4,3.7,11,7.6,18.6,7.6,27.1.3,53.3.1,79.9.2,12.5.6,21.5-8.2,21-20.8-.2-17.7-.2-35.7,0-53.5.1-5.3-1.2-9.8-3.9-13.3,2.6-3.3,4-7.6,4-12.6-.1-18.3,0-216.69,0-216.69H0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_t)">
 					<g class="translatable">
@@ -247,7 +250,7 @@
 			</svg>
 			<svg class="letter c small" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 190.3 203.7" xml:space="preserve"
-				onclick="bounceLetter(4, 10)" onmouseover="bounceLetter(4)">
+				onclick="bounceLetter(4, 7)" onmouseover="bounceLetter(4)">
 				<mask id="mask_c"><path d="m246.96,159.99c-.1-13.8-.1-159.99-.1-159.99H0l.27,122.67v.03c0,7,2.6,13.9,6.9,18.4,8.3,8.7,102.49,102.69,111.99,111.49,5.1,4.7,12.3,7.7,18.9,7.7,17.7.1,76.6.2,88.4.2h.1c6.3,0,11.4-1.9,15.1-5.7,3.6-3.8,5.4-8.8,5.3-15-.3-17.8-.3-35.8,0-53.5v-.2c0-4.6-1.2-9.3-3.9-13.1,2.5-3.3,3.9-7.7,3.9-12.8v-.2h0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_c)">
 					<g class="translatable">
@@ -262,7 +265,7 @@
 			</svg>
 			<svg class="letter h" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 206.9 260.6" xml:space="preserve"
-				onclick="bounceLetter(5, 10)" onmouseover="bounceLetter(5)">
+				onclick="bounceLetter(5, 7)" onmouseover="bounceLetter(5)">
 				<mask id="mask_h"><path d="m263.29,0H0S.04,186.31,0,210.9c-.4,10.7,91.99,106.89,106.49,106.29,6.8,0,45.3-.3,55.6.1,2,0,7.7,0,12.6-4,3.4,2.6,7.7,3.9,12.8,3.9,18.6-.1,37.2-.1,55.8,0,12.3,0,20.2-7.9,20.2-20.2-.1-34.5-.2-296.99-.2-296.99h0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_h)">
 					<g class="translatable">
@@ -278,7 +281,7 @@
 			</svg>
 			<svg class="letter a small" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 225.4 212" xml:space="preserve"
-				onclick="bounceLetter(6, 10)" onmouseover="bounceLetter(6)">
+				onclick="bounceLetter(6, 7)" onmouseover="bounceLetter(6)">
 				<mask id="mask_a"><path d="m0,0v162.4c0,11.7,94.59,106.29,106.29,106.29h56.4c10.2,0,18.7-7.2,20.8-16.7,2.1,9.5,10.5,16.6,20.6,16.6h56.7c11.7,0,21.3-9.6,21.3-21.3V0H0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_a)">
 					<g class="translatable">
@@ -291,7 +294,7 @@
 			</svg>
 			<svg class="letter t" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				viewBox="0 0 182.4 260.3" xml:space="preserve"
-				onclick="bounceLetter(7, 10)" onmouseover="bounceLetter(7)">
+				onclick="bounceLetter(7, 7)" onmouseover="bounceLetter(7)">
 				<mask id="mask_t"><path d="m0,0S.3,212.59,0,233.59c-.1,9.5,3.3,17.3,10.2,23.8,8.2,7.5,100.89,44.1,109.29,51.7,4,3.7,11,7.6,18.6,7.6,27.1.3,53.3.1,79.9.2,12.5.6,21.5-8.2,21-20.8-.2-17.7-.2-35.7,0-53.5.1-5.3-1.2-9.8-3.9-13.3,2.6-3.3,4-7.6,4-12.6-.1-18.3,0-216.69,0-216.69H0Z" style="fill:#fff;"/></mask>
 				<g mask="url(#mask_t)">
 					<g class="translatable">
