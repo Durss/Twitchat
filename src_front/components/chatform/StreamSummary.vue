@@ -126,10 +126,11 @@ export default class StreamSummary extends AbstractSidePanel {
 			const m = messages[i];
 			if(dateOffset && m.date < dateOffset) break;
 			//If more than 4h past between the 2 messages, consider it's a different stream and stop there
-			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 600000) {
+			if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
 				this.streamDuration = Utils.formatDuration(messages[messages.length - 1].date - m.date);
 				break;
 			}
+			prevDate = m.date;
 			
 			switch(m.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
@@ -310,6 +311,7 @@ export default class StreamSummary extends AbstractSidePanel {
 			user,
 			sortValue:0,
 			messCount:0,
+			emoteCount:0,
 			charCount:0,
 			subPrime:0,
 			subT1:0,
