@@ -133,7 +133,9 @@
 				"action_vibrate": "Vibrer téléphone",
 				"custom_placeholder_example": "Utilisez le mot clé {PLACEHOLDER} dans le champ d'une action après celle-ci pour récupérer la valeur du placeholder.",
 				"action_goxlr": "Contrôler la GoXLR",
-				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres"
+				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",
+				"action_customBadges": "Badges personnalisés",
+				"action_customUsernames": "Pseudos personnalisés"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",

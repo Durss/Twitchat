@@ -134,7 +134,9 @@
 				"action_vibrate": "Vibrate phone",
 				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
-				"action_goxlr_tt": "You need to connect your GoXLR"
+				"action_goxlr_tt": "You need to connect your GoXLR",
+				"action_customBadges": "Custom user badges",
+				"action_customUsernames": "Custom usernames"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",

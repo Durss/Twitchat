@@ -1540,7 +1540,7 @@ export default class TriggerActionHandler {
 					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
 						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
-						if(!value) value = pointerLocal == "viewers"? "0" : "-none-";
+						if(!value) value = (pointerLocal == "viewers")? "0" : "-none-";
 
 					/**
 					 * If the placeholder requests for Ulule info

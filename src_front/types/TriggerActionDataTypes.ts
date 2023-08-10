@@ -39,6 +39,8 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionChatSuggestionsData
 								| TriggerActionVibrateData
 								| TriggerActionGoXLRData
+								| TriggerCustomBadges
+								| TriggerCustomUsernames
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -335,6 +337,17 @@ export interface TriggerActionBingoData extends TriggerActionData{
 	type:"bingo";
 	bingoData:TwitchatDataTypes.BingoConfig;
 }
+
+export interface TriggerCustomBadges extends TriggerActionData{
+	id:string;
+	type:"customBadges";
+}
+
+export interface TriggerCustomUsernames extends TriggerActionData{
+	id:string;
+	type:"customUsernames";
+}
+
 
 export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff"] as const;
 export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
@@ -987,6 +1000,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
 			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.my_stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
 		}
+		
+		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
+			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
+		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1) {
 			entry.push({tag:"ULULE_CAMPAIGN_NAME", descKey:'triggers.placeholders.ulule_campaign_name', pointer:"__ulule__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My ulule campaign"});
@@ -1002,10 +1019,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		
 		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1 && StoreProxy.main.currentOBSScene) {
 			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true, example:"OBS scene"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
-			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
 		}
 		
 

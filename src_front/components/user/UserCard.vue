@@ -41,7 +41,21 @@
 								<span class="label">{{user.displayName}}</span>
 								<span class="translation" v-if="translateUsername">({{user.login}})</span>
 							</a>
-							<button class="editLoginBt" @click="editLogin()" v-tooltip="$t('usercard.edit_loginBt_tt')"><Icon name="edit" theme="secondary" /></button>
+
+							<tooltip tag="button" interactive class="editLoginBt" @click="editLogin()">
+								<template #default>
+									<Icon name="edit" theme="secondary" />
+								</template>
+
+								<template #content>
+									<div style="text-align: center">
+										<div>{{ $t('usercard.edit_loginBt_tt') }}</div>
+										<div class="list" v-if="Object.keys($store('users').customUsernames).length > 0">
+											<Button light secondary small icon="edit" @click="manageUserNames = true">{{ $t("usercard.manage_usernamesBt") }}</Button>
+										</div>
+									</div>
+								</template>
+							</tooltip>
 						</template>
 						
 						<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
@@ -648,10 +662,10 @@ export default class UserCard extends Vue {
 				}
 	
 				.editLoginForm {
+					gap: 0;
 					font-size: 1rem;
 					display: flex;
 					flex-direction: row;
-	
 					.button {
 						border-top-left-radius: 0;
 						border-bottom-left-radius: 0;

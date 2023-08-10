@@ -109,6 +109,14 @@
 					:disabled="!goxlrEnabled"
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
 				
+				<Button class="button" @click.capture="selectActionType('customBadges')"
+					icon="badge"
+					:disabled="!goxlrEnabled">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('customUsernames')"
+					icon="user"
+					:disabled="!goxlrEnabled">{{ $t('triggers.actions.common.action_customUsernames') }}</Button>
+				
 				<Button class="button" @click="selectActionType('trigger')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
 				
@@ -338,6 +346,8 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );
 		if(this.action.type == "vibrate") icons.push( 'vibrate' );
+		if(this.action.type == "customBadges") icons.push( 'badge' );
+		if(this.action.type == "customUsernames") icons.push( 'user' );
 		return icons;
 	}
 
