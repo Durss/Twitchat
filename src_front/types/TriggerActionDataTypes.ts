@@ -40,7 +40,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionVibrateData
 								| TriggerActionGoXLRData
 								| TriggerCustomBadgesData
-								| TriggerCustomUsernamesData
+								| TriggerCustomUsernameData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -346,9 +346,10 @@ export interface TriggerCustomBadgesData extends TriggerActionData{
 	customBadgeDel:string[];
 }
 
-export interface TriggerCustomUsernamesData extends TriggerActionData{
+export interface TriggerCustomUsernameData extends TriggerActionData{
 	id:string;
-	type:"customUsernames";
+	type:"customUsername";
+	customUsername:string;
 	customUsernameUserSource:string;
 }
 

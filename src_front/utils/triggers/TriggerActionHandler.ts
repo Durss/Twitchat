@@ -788,6 +788,11 @@ export default class TriggerActionHandler {
 			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
 		}
 
+		let channel_id = StoreProxy.auth.twitch.user.id;
+		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+			channel_id = (message as TwitchatDataTypes.GreetableMessage).channel_id;
+		}
+
 		for (const step of actions) {
 			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
@@ -1188,7 +1193,6 @@ export default class TriggerActionHandler {
 						const ids = step.counters;
 						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
-								let user = c.perUser? this.extractUser(trigger, message) : undefined;
 								//Check if this step requests that this counter should update a user
 								//different than the default one (the one executing the command)
 								if(c.perUser
@@ -1197,43 +1201,14 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
-									//Convert placeholder to a string value
-									const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.counterUserSources[c.id].toUpperCase()+"}")
-									log.messages.push({date:Date.now(), value:"...extracted user is \""+login+"\""});
-									if(login) {
-										//Not ideal but if there are multiple users they're concatenated in
-										//a single coma seperated string (placeholder parsing is made for display :/).
-										//Here we split it on comas just in case there are multiple user names
-										let list = login.split(",");
-										for (let displayName of list) {
-											displayName = displayName.trim();
-											let channelId = StoreProxy.auth.twitch.user.id;
-											if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
-												channelId = (message as TwitchatDataTypes.GreetableMessage).channel_id;
-											}
-											//Load user details
-											await new Promise<void>((resolve, reject)=> {
-												//FIXME that hardcoded platform "twitch" will break if adding a new platform
-												//I can't just use "message.platform" as this contains "twitchat" for messages
-												//like raffle and bingo results. Full user loading only happens if "twitch"
-												//platform is specified, the user would remain in a temporary state otherwise
-												StoreProxy.users.getUserFrom("twitch", channelId, undefined, undefined, displayName, (userData)=>{
-													if(userData.errored || userData.temporary) {
-														log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
-														user = undefined;
-													}else{
-														user = userData;
-														log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
-													}
-													resolve();
-												});
-											});
-
-											if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
-											let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
-											if(user) logMessage += " (for @"+user.displayName+")";
-											logStep.messages.push({date:Date.now(), value:logMessage});
-										}
+									
+									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+									for (let i = 0; i < users.length; i++) {
+										const user = users[i];
+										if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
+										let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
+										if(user) logMessage += " (for @"+user.displayName+")";
+										logStep.messages.push({date:Date.now(), value:logMessage});
 									}
 
 								//Check if requested to edit all users of a counter
@@ -1250,7 +1225,7 @@ export default class TriggerActionHandler {
 
 								//Standard counter edition (either current user or a non-per-user counter)
 								}else{
-
+									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
 									let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
 									if(user) logMessage += " (for @"+user.displayName+")";
@@ -1487,48 +1462,53 @@ export default class TriggerActionHandler {
 
 				//Handle custom badges
 				if(step.type == "customBadges") {
-					const channel_id = StoreProxy.auth.twitch.user.id;//TODO make this value dynamic if possible
-					let user:TwitchatDataTypes.TwitchatUser|undefined;
+					let users:TwitchatDataTypes.TwitchatUser[] = [];
 					
 					//if requested to update badges of the user executing the trigger
 					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
-						user = this.extractUser(trigger, message);
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user) users.push(user);
 					}else{
-						//If requested to updated badges of a user from a placeholder
-						log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.customBadgeUserSource.toUpperCase()+"}\"..."})
-						//Convert placeholder to a string value
-						const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.customBadgeUserSource.toUpperCase()+"}")
-						
-						//Load user details
-						await new Promise<void>((resolve, reject)=> {
-							//FIXME that hardcoded platform "twitch" will break if adding a new platform
-							//I can't just use "message.platform" as this contains "twitchat" for messages
-							//like raffle and bingo results. Full user loading only happens if "twitch"
-							//platform is specified, the user would remain in a temporary state otherwise
-							StoreProxy.users.getUserFrom("twitch", channel_id, undefined, undefined, login.trim(), (userData)=>{
-								if(userData.errored || userData.temporary) {
-									log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
-									user = undefined;
-								}else{
-									user = userData;
-									log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
-								}
-								resolve();
-							});
-						})
+						users = await this.extractUserFromPlaceholder(channel_id, step.customBadgeUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 					}
-					if(user) {
-						step.customBadgeAdd.forEach(v=> {
-							if(StoreProxy.users.giveCustomBadge(user!, v, channel_id)) {
-								logStep.messages.push({date:Date.now(), value:"➕ Given badge \""+v+"\" to "+user!.login});
-							}else{
-								logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user!.login+". Limit reached."});
-							}
-						});
-						step.customBadgeDel.forEach(v=> {
-							StoreProxy.users.removeCustomBadge(user!, v, channel_id);
-							logStep.messages.push({date:Date.now(), value:"➖ Removed badge \""+v+"\" from "+user!.login});
-						});
+					if(users) {
+						for (let i = 0; i < users.length; i++) {
+							const user = users[i];
+							
+							step.customBadgeAdd.forEach(v=> {
+								if(StoreProxy.users.giveCustomBadge(user, v, channel_id)) {
+									logStep.messages.push({date:Date.now(), value:"➕ Given badge \""+v+"\" to "+user.login});
+								}else{
+									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user.login+". Limit reached."});
+								}
+							});
+							step.customBadgeDel.forEach(v=> {
+								StoreProxy.users.removeCustomBadge(user, v, channel_id);
+								logStep.messages.push({date:Date.now(), value:"➖ Removed badge \""+v+"\" from "+user.login});
+							});
+						}
+					}
+				}else
+
+				//Handle custom badges
+				if(step.type == "customUsername") {
+					let users:TwitchatDataTypes.TwitchatUser[] = [];
+					//if requested to update badges of the user executing the trigger
+					if(step.customUsernameUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
+						const user = this.extractUserFromTrigger(trigger, message);
+						if(user) users.push(user);
+					}else{
+						users = await this.extractUserFromPlaceholder(channel_id, step.customUsernameUserSource, dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+					}
+
+					const newUsername:string = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customUsername);
+					for (let i = 0; i < users.length; i++) {
+						const user = users[i];
+						if(StoreProxy.users.setCustomUsername(user, newUsername, channel_id)) {
+							logStep.messages.push({date:Date.now(), value:"✔ Set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ Failed to set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
+						}
 					}
 				}
 					
@@ -1642,7 +1622,7 @@ export default class TriggerActionHandler {
 						if(counter) {
 							if(counter.perUser === true) {
 								//If it's a per-user counter, get the user's value
-								let user = this.extractUser(trigger, message);
+								let user = this.extractUserFromTrigger(trigger, message);
 								if(user && counter.users && counter.users[user.id]) {
 									value = counter.users[user.id].toString();
 								}else{
@@ -1730,9 +1710,9 @@ export default class TriggerActionHandler {
 	}
 
 	/**
-	 * Extracts a user from a message based on the available placeholders
+	 * Extracts a user from a trigger message based on the available placeholders
 	 */
-	private extractUser(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes):TwitchatDataTypes.TwitchatUser|undefined {
+	private extractUserFromTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes):TwitchatDataTypes.TwitchatUser|undefined {
 		let user:TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		const helpers = TriggerEventPlaceholders(trigger.type);
 		const userIdHelper = helpers.find(v => v.isUserID === true);
@@ -1751,6 +1731,42 @@ export default class TriggerActionHandler {
 			}catch(error) {/*ignore*/}
 		}
 		return user;
+	}
+
+	/**
+	 * Converts a placeholder to a user by search a user from their display name
+	 */
+	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog):Promise<TwitchatDataTypes.TwitchatUser[]> {
+		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
+		
+		//Not ideal but if there are multiple users they're concatenated in
+		//a single coma seperated string (placeholder parsing is made for display :/).
+		//Here we split it on comas just in case there are multiple user names
+		let list = displayName.split(",");
+		const result:TwitchatDataTypes.TwitchatUser[] = [];
+		for (let displayName of list) {
+			//Load user details
+			const user = await new Promise<TwitchatDataTypes.TwitchatUser|undefined>((resolve, reject)=> {
+				//FIXME that hardcoded platform "twitch" will break if adding a new platform
+				//I can't just use "message.platform" as this contains "twitchat" for messages
+				//like raffle and bingo results. Full user loading only happens if "twitch"
+				//platform is specified, the user would remain in a temporary state otherwise
+				StoreProxy.users.getUserFrom("twitch", channel_id, undefined, undefined, displayName.trim(), (userData)=>{
+					let user:TwitchatDataTypes.TwitchatUser|undefined;
+					if(userData.errored || userData.temporary) {
+						log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+						user = undefined;
+					}else{
+						user = userData;
+						log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+					}
+					resolve(user);
+				});
+			});
+			if(user) result.push(user);
+		}
+
+		return result;
 	}
 
 	/**

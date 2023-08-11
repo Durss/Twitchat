@@ -239,7 +239,7 @@ import Ajv from "ajv";
 									type:"object",
 									additionalProperties: false,
 									patternProperties: {
-									  ".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
 									},
 								},
 								placeholder:{type:"string", maxLength:20},
@@ -312,6 +312,8 @@ import Ajv from "ajv";
 									maxItems:100,
 									items:{type:"string", maxLength:50},
 								},
+								customUsername:{type:"string", maxLength:50},
+								customUsernameUserSource:{type:"string", maxLength:50},
 								customBadgeUserSource:{type:"string", maxLength:50},
 								customBadgeAdd: {
 									type:"array",

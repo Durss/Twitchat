@@ -32,9 +32,11 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
 
-		const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
-		for (let i = 0; i < uids.length; i++) {
-			this.earlyDonors[uids[i]] = true;
+		if(fs.existsSync(Config.EARLY_TWITCHAT_DONORS)) {
+			const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
+			for (let i = 0; i < uids.length; i++) {
+				this.earlyDonors[uids[i]] = true;
+			}
 		}
 		
 		//Old endpoint URL.
@@ -163,7 +165,7 @@ export default class UserController extends AbstractController {
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
 			if(!success) {
-				Logger.error(schemaValidator.errors.length+" validation error(s) for user "+userInfo.login);
+				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login);
 				//Save schema errors if any
 				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
 			}else if(fs.existsSync(errorsFilePath)) {
@@ -178,7 +180,7 @@ export default class UserController extends AbstractController {
 			//the JSON before and after validation.
 			//This is not the most efficient way to do this, but I found no better
 			//way to log these errors for now
-			const diff = JsonPatch.compare(clone, body, false);
+			const diff = JsonPatch.compare(clone, body as any, false);
 			const cleanupFilePath = Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json";
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data");

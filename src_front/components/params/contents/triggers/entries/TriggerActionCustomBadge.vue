@@ -111,10 +111,6 @@ export default class TriggerActionCustomBadge extends AbstractTriggerActionEntry
 
 	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
 
-	public test() {
-		console.log("CLONE");
-	}
-
 	/**
 	 * Build user trigger source list
 	 */

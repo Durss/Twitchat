@@ -855,8 +855,8 @@ export const storeUsers = defineStore('users', {
 		},
 
 		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean {
-			name = name.trim();
-			if(!name) {
+			name = name.trim().substring(0, 25);
+			if(name.length == 0) {
 				delete this.customUsernames[user.id];
 			}else{
 				//User can give up to 10 custom user names if not premium

@@ -136,7 +136,7 @@
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
-				"action_customUsernames": "Custom usernames"
+				"action_customUsername": "Custom username"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -303,6 +303,10 @@
 				"badge_to_add": "Badges to add",
 				"badge_to_del": "Badges to remove",
 				"param_add_badgeBt": "Create badge"
+			},
+			"customUsername": {
+				"param_user": "Select user to edit username of",
+				"param_username": "New username (leave empty to reset)"
 			}
 		},
 		"categories": {

@@ -110,12 +110,10 @@
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('customBadges')"
-					icon="badge"
-					:disabled="!goxlrEnabled">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
+					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
 				
-				<Button class="button" @click.capture="selectActionType('customUsernames')"
-					icon="user"
-					:disabled="!goxlrEnabled">{{ $t('triggers.actions.common.action_customUsernames') }}</Button>
+				<Button class="button" @click.capture="selectActionType('customUsername')"
+					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</Button>
 				
 				<Button class="button" @click="selectActionType('trigger')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
@@ -151,6 +149,7 @@
 		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
 		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -200,6 +199,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
+import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 
 @Component({
 	components:{
@@ -225,6 +225,7 @@ import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
+		TriggerActionCustomUsername,
 		TriggerActionStreamInfoEntry,
 		TriggerActionVibratePhoneEntry,
 		TriggerActionTriggerToggleEntry,
@@ -350,7 +351,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "delay") icons.push( 'timer' );
 		if(this.action.type == "vibrate") icons.push( 'vibrate' );
 		if(this.action.type == "customBadges") icons.push( 'badge' );
-		if(this.action.type == "customUsernames") icons.push( 'user' );
+		if(this.action.type == "customUsername") icons.push( 'user' );
 		return icons;
 	}
 
