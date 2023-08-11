@@ -150,6 +150,7 @@
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
 		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -198,6 +199,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
 
 @Component({
 	components:{
@@ -218,6 +220,7 @@ import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
 		TriggerActionGoXLREntry,
+		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,

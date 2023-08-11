@@ -296,6 +296,13 @@
 				"action_cough_off": "Unmute",
 				"action_sample_play": "Play sample",
 				"select_sampler": "Select the sampler button to play bellow"
+			},
+			"customBadge": {
+				"param_user": "Select user to edit tags of",
+				"no_badge": "drag & drop badge here",
+				"badge_to_add": "Badges to add",
+				"badge_to_del": "Badges to remove",
+				"param_add_badgeBt": "Create badge"
 			}
 		},
 		"categories": {

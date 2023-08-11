@@ -182,30 +182,34 @@ export default class MessengerProxy {
 			
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
-				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				
-				//Split leave events by channels
-				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
-				for (let i = 0; i < this.leaveSpool.length; i++) {
-					const entry = this.leaveSpool[i];
-					if(!channels[entry.channelId]) channels[entry.channelId] = [];
-					channels[entry.channelId].push(entry.user);
+				try {
+					const d = e.data! as TwitchatDataTypes.MessageJoinData;
+					
+					//Split leave events by channels
+					const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
+					for (let i = 0; i < this.leaveSpool.length; i++) {
+						const entry = this.leaveSpool[i];
+						if(!channels[entry.channelId]) channels[entry.channelId] = [];
+						channels[entry.channelId].push(entry.user);
+					}
+					
+					//Send one message per channel
+					for (const channel in channels) {
+						this.onMessage(new MessengerClientEvent("LEAVE", {
+							platform:d.platform,
+							type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
+							id:Utils.getUUID(),
+							channel_id:channel,
+							date:Date.now(),
+							users:channels[channel],
+						}));
+						StoreProxy.users.flagOfflineUsers(channels[channel], channel);
+					}
+					
+					this.leaveSpool = [];
+				}catch(error) {
+					console.error(error);
 				}
-				
-				//Send one message per channel
-				for (const channel in channels) {
-					this.onMessage(new MessengerClientEvent("LEAVE", {
-						platform:d.platform,
-						type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
-						id:Utils.getUUID(),
-						channel_id:channel,
-						date:Date.now(),
-						users:channels[channel],
-					}));
-					StoreProxy.users.flagOfflineUsers(channels[channel], channel);
-				}
-				
-				this.leaveSpool = [];
 			}, 1000);
 		}
 	}

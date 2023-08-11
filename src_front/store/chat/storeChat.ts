@@ -1215,7 +1215,7 @@ export const storeChat = defineStore('chat', {
 
 			const e = Date.now();
 			// console.log(messageList.length, e-s);
-			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
+			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date, message);
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
 				//If it's a subgift, wait a little before proceeding as subgifts do not

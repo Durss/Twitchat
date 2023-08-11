@@ -1483,9 +1483,53 @@ export default class TriggerActionHandler {
 						console.error(error);
 						logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Exception: "+ error});
 					}
+				}else
+
+				//Handle custom badges
+				if(step.type == "customBadges") {
+					const channel_id = StoreProxy.auth.twitch.user.id;//TODO make this value dynamic if possible
+					let user = this.extractUser(trigger, message);
+					
+					if(step.customBadgeUserSource != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
+						log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.customBadgeUserSource.toUpperCase()+"}\"..."})
+						//Convert placeholder to a string value
+						const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.customBadgeUserSource.toUpperCase()+"}")
+						
+						//Load user details
+						await new Promise<void>((resolve, reject)=> {
+							//FIXME that hardcoded platform "twitch" will break if adding a new platform
+							//I can't just use "message.platform" as this contains "twitchat" for messages
+							//like raffle and bingo results. Full user loading only happens if "twitch"
+							//platform is specified, the user would remain in a temporary state otherwise
+							StoreProxy.users.getUserFrom("twitch", channel_id, undefined, undefined, login.trim(), (userData)=>{
+								if(userData.errored || userData.temporary) {
+									log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+									user = undefined;
+								}else{
+									user = userData;
+									log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+								}
+								resolve();
+							});
+						})
+					}
+					if(user) {
+						step.customBadgeAdd.forEach(v=> {
+							if(StoreProxy.users.giveCustomBadge(user!, v, channel_id)) {
+								logStep.messages.push({date:Date.now(), value:"➕ Given badge \""+v+"\" to "+user!.login});
+							}else{
+								logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user!.login+". Limit reached."});
+							}
+						});
+						step.customBadgeDel.forEach(v=> {
+							StoreProxy.users.removeCustomBadge(user!, v, channel_id);
+							logStep.messages.push({date:Date.now(), value:"➖ Removed badge \""+v+"\" from "+user!.login});
+						});
+					}
 				}
 					
 			}catch(error) {
+				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});

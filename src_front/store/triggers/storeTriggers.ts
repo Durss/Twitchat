@@ -86,7 +86,8 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "stream_infos") return true;
 					if(v.type == "delay") return true;
 					if(v.type == "goxlr") return true;
-					//@ts-ignore
+					if(v.type == "customBadges") return true;
+					if(v.type == "customUsernames") return true;
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
 				})

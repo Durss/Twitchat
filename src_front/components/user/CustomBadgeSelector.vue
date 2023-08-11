@@ -12,12 +12,12 @@
 				</Button>
 			</template>
 
-			<template #content>
+			<template #content v-if="noTooltip === false">
 				<div class="list" v-if="$store('users').customBadgeList.length > 0">
 					<Button light secondary small icon="edit" class="editBt"
 					@click="$emit('manageBadges')">{{ $t("usercard.manage_badgesBt") }}</Button>
 
-					<button class="badge" v-for="badge in $store('users').customBadgeList" :key="badge.id" @click="addBadge(badge.img)">
+					<button class="badge" v-for="badge in $store('users').customBadgeList" :key="badge.id" @click="addBadge(badge.id)">
 						<img :src="badge.img">
 					</button>
 				</div>
@@ -49,6 +49,9 @@ export default class CustomBadgeSelector extends Vue {
 	@Prop
 	public channelId!:string;
 
+	@Prop({type:Boolean, default:false})
+	public noTooltip!:boolean;
+
 	/**
 	 * Called when selecting a file for a custom badge
 	 * @param e 
@@ -60,13 +63,16 @@ export default class CustomBadgeSelector extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			this.$store("users").addCustomBadge(this.user!, base64Img, this.channelId);
+			const badgeId = this.$store("users").createCustomBadge(base64Img);
+			if(badgeId !== false) {
+				this.$store("users").giveCustomBadge(this.user!, badgeId as string, this.channelId);
+			}
 			input.value = "";
 		});
 	}
 
-	public addBadge(image:string):void {
-		if(!this.$store("users").addCustomBadge(this.user!, image, this.channelId)) {
+	public addBadge(id:string):void {
+		if(!this.$store("users").giveCustomBadge(this.user!, id as string, this.channelId)) {
 			this.$emit("limitReached");
 		}
 	}

@@ -296,6 +296,13 @@
 				"action_cough_off": "Unmute",
 				"action_sample_play": "Jouer un sample",
 				"select_sampler": "Sélectionnez le sample à jouer dans l'interface"
+			},
+			"customBadge": {
+				"param_user": "Sélectionnez la personne dont éditer les tags",
+				"no_badge": "drag & drop un badge ici",
+				"badge_to_add": "Badges à ajouter",
+				"badge_to_del": "Badges à retirer",
+				"param_add_badgeBt": "Créer un badge"
 			}
 		},
 		"categories": {

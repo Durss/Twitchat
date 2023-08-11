@@ -1418,14 +1418,10 @@ export interface IUsersActions {
 	 */
 	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean;
 	/**
-	 * Adds a custom badge to the given user
-	 * @returns false if user has used all the non premium slots
+	 * Create a new custom user badge
+	 * @returns false if user the maximum custom badges has been reached, otherwise returns the created badge ID
 	 */
-	addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId?:string):boolean;
-	/**
-	 * Removes a custom badge from the given user
-	 */
-	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string):void;
+	createCustomBadge(img:string):boolean|string;
 	/**
 	 * Update the image of the given custom badge
 	 * @param badgeId 
@@ -1437,6 +1433,15 @@ export interface IUsersActions {
 	 * Removes any references from users
 	 */
 	deleteCustomBadge(badgeId:string):void;
+	/**
+	 * Gives a custom badge to the given user
+	 * @returns false if the max users with custom badges is reached
+	 */
+	giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean;
+	/**
+	 * Removes a custom badge from the given user
+	 */
+	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void;
 }
 
 

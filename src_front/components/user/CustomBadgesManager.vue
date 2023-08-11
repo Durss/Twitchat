@@ -52,7 +52,7 @@ import Button from '../Button.vue';
 	components:{
 		Button,
 	},
-	emits:[],
+	emits:["close"],
 })
 export default class CustomBadgesManager extends Vue {
 
@@ -111,7 +111,7 @@ export default class CustomBadgesManager extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			this.$store("users").addCustomBadge(null, base64Img);
+			this.$store("users").createCustomBadge(base64Img);
 		});
 	}
 
@@ -160,7 +160,8 @@ export default class CustomBadgesManager extends Vue {
 	 * @param user 
 	 */
 	public removeBadgeFromUser(badgeId:string, user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").removeCustomBadge(user, badgeId);
+		const channelId = this.$store("auth").twitch.user.id;
+		this.$store("users").removeCustomBadge(user, badgeId, channelId);
 	}
 
 }

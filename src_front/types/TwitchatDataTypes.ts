@@ -1189,12 +1189,20 @@ export namespace TwitchatDataTypes {
 		id:TwitchatUserBadgeType;
 		title?:string;
 		version?:string;
-	}	
+	}
 
 	/**
 	 * Available user badge types
 	 */
 	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
+	
+	/**
+	 * Represents the info about a a custom user's badge
+	 */
+	export interface TwitchatCustomUserBadge {
+		id:string;
+		img:string;
+	}
 
 	/**
 	 * Contains info about outgoing raid (when we are raiding someone)

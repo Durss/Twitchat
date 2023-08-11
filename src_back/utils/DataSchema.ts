@@ -312,6 +312,19 @@ import Ajv from "ajv";
 									maxItems:100,
 									items:{type:"string", maxLength:50},
 								},
+								customBadgeUserSource:{type:"string", maxLength:50},
+								customBadgeAdd: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
+								customBadgeDel: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
 								raffleData: {
 									type: "object",
 									additionalProperties: false,

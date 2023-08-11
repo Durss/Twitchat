@@ -873,7 +873,7 @@ export const storeUsers = defineStore('users', {
 			return true;
 		},
 
-		addCustomBadge(user:TwitchatDataTypes.TwitchatUser|null, img:string, channelId?:string):boolean {
+		createCustomBadge(img:string):boolean|string {
 			let id = "";
 			//add badge to global list if necessary
 			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
@@ -889,38 +889,8 @@ export const storeUsers = defineStore('users', {
 				id = this.customBadgeList[existingIndex].id;
 			}
 
-			if(user) {
-				if(!channelId) {
-					throw new Error("Trying to set a badge to a user without giving it the channel ID");
-					return false;
-				}
-				if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
-				//Add badge to the user if necessary
-				if(this.customUserBadges[user.id].findIndex(v => v.id == id) == -1) {
-					//User can give badges to 30 users max if not premium
-					if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
-						return false;
-					}
-					this.customUserBadges[user.id].push({id, platform:user.platform, channel:channelId!});
-				}
-				DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
-			}
-
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
-			return true;
-		},
-
-		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string):void {
-			if(!this.customUserBadges[user.id]) return;
-
-			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
-			this.customUserBadges[user.id].splice(index, 1);
-			if(this.customUserBadges[user.id].length === 0) {
-				delete this.customUserBadges[user.id];
-			}
-
-			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			return id;
 		},
 
 		updateCustomBadgeImage(badgeId:string, img:string):void {
@@ -951,7 +921,34 @@ export const storeUsers = defineStore('users', {
 
 			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
-		}
+		},
+
+		giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean {
+			if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
+			//Add badge to the user if necessary
+			if(this.customUserBadges[user.id].findIndex(v => v.id == badgeId) == -1) {
+				//User can give badges to 30 users max if not premium
+				if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
+					return false;
+				}
+				this.customUserBadges[user.id].push({id:badgeId, platform:user.platform, channel:channelId!});
+			}
+			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			return true;
+		},
+
+		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void {
+			if(!this.customUserBadges[user.id]) return;
+
+			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
+			if(index > -1) this.customUserBadges[user.id].splice(index, 1);
+			if(this.customUserBadges[user.id].length === 0) {
+				delete this.customUserBadges[user.id];
+			}
+
+			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+		},
 
 	} as IUsersActions
 	& ThisType<IUsersActions

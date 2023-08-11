@@ -132,6 +132,10 @@ export default class TriggersLogs extends AbstractSidePanel {
 		gap: 1em;
 	}
 
+	.loader {
+		height: 2em;
+	}
+
 	.empty {
 		text-align: center;
 		font-style: italic;

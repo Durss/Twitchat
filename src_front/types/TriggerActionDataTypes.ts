@@ -39,8 +39,8 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionChatSuggestionsData
 								| TriggerActionVibrateData
 								| TriggerActionGoXLRData
-								| TriggerCustomBadges
-								| TriggerCustomUsernames
+								| TriggerCustomBadgesData
+								| TriggerCustomUsernamesData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -338,14 +338,18 @@ export interface TriggerActionBingoData extends TriggerActionData{
 	bingoData:TwitchatDataTypes.BingoConfig;
 }
 
-export interface TriggerCustomBadges extends TriggerActionData{
+export interface TriggerCustomBadgesData extends TriggerActionData{
 	id:string;
 	type:"customBadges";
+	customBadgeUserSource:string;
+	customBadgeAdd:string[];
+	customBadgeDel:string[];
 }
 
-export interface TriggerCustomUsernames extends TriggerActionData{
+export interface TriggerCustomUsernamesData extends TriggerActionData{
 	id:string;
 	type:"customUsernames";
+	customUsernameUserSource:string;
 }
 
 

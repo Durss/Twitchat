@@ -508,7 +508,7 @@ export default class UserCard extends Vue {
 	 * @param id 
 	 */
 	removeCustomBadge(id:string):void {
-		this.$store("users").removeCustomBadge(this.user!, id);
+		this.$store("users").removeCustomBadge(this.user!, id, this.channelId);
 	}
 
 	/**
