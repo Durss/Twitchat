@@ -1488,9 +1488,13 @@ export default class TriggerActionHandler {
 				//Handle custom badges
 				if(step.type == "customBadges") {
 					const channel_id = StoreProxy.auth.twitch.user.id;//TODO make this value dynamic if possible
-					let user = this.extractUser(trigger, message);
+					let user:TwitchatDataTypes.TwitchatUser|undefined;
 					
-					if(step.customBadgeUserSource != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
+					//if requested to update badges of the user executing the trigger
+					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
+						user = this.extractUser(trigger, message);
+					}else{
+						//If requested to updated badges of a user from a placeholder
 						log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.customBadgeUserSource.toUpperCase()+"}\"..."})
 						//Convert placeholder to a string value
 						const login = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.customBadgeUserSource.toUpperCase()+"}")
