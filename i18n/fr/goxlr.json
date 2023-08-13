@@ -11,8 +11,8 @@
 		"no_device":"Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
 		"triggersBt":"Créer des triggers",
 		"infos":[
-			"Une fois votre GoXLR connectée vous pouvez la contrôler depuis les Triggers. Vous pouvez également effectuer des actions personnalisés lorsque vous utilisez l'un de ses boutons depuis grâce aux évènement de Triggers dédiés.",
-			"Vous pouvez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
+			"Une fois votre GoXLR connectée vous pourrez la contrôler depuis les Triggers. Vous pourrez également effectuer des actions personnalisés lorsque vous utilisez l'un de ses boutons grâce aux évènement de Triggers dédiés.",
+			"Vous pourrez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",
 			"Ou encore afficher une source OBS lorsque vous appuyez sur le bouton mute ou bleep."
 		],
 		"connect_form":{

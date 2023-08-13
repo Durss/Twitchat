@@ -118,6 +118,8 @@ export default class ParamsAccountPatreon extends Vue {
 	gap: .5em;
 
 	.details{
+		white-space: pre-line;
+		text-align: center;
 		&.off {
 			color: var(--color-secondary);
 		}

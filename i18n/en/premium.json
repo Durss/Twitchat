@@ -3,10 +3,11 @@
 		"header":"Support Twitchat and unlock premium features",
 		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially some features are exclusive to people supporting me monthly on Patreon at any tier.",
 		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
-		"early_donor2":"Although it would be very appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
+		"early_donor2":"Although it would be much appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
 		"early_donor2_link":"Patreon",
-		"features_title":"Premium features",
+		"become_premiumBt":"Become premium",
 		"restricted_access":"This feature requires premium membership",
+		"features_title":"Premium features",
 		"features":[
 			"Control your GoXLR from chat commands, channel point rewards, bits, raids, ...",
 			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",

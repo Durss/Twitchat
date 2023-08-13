@@ -5,8 +5,9 @@
 		"early_donor1":"Pour vous remercier de me soutenir depuis les débuts de Twitchat, les fonctionnalités premium vous sont offertes 💝",
 		"early_donor2":"Bien que ce serait très apprécié, il ne vous est donc pas nécessaire de me soutenir mensuellement sur {LINK} pour avoir accès aux fonctionnalités premium.",
 		"early_donor2_link":"Patreon",
-		"features_title":"Fonctionnalités Premium",
+		"become_premiumBt":"Devenir premium",
 		"restricted_access":"Cette fonctionnalité nécessite d'être membre premium",
+		"features_title":"Fonctionnalités Premium",
 		"features":[
 			"Contrôlez votre GoXLR depuis des commandes tchat, récompenses de points de chaine, bits, raids, ...",
 			"Effectuez des actions personnalisées lorsque vous utilisez un bouton de votre GoXLR (ex: afficher une source OBS lorsque vous utilisez le bouton cough)",
