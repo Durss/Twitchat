@@ -49,7 +49,7 @@ export default class TenorController extends AbstractController {
 	
 				clearTimeout(this.timeout);
 				this.timeout = setTimeout(()=> {
-					this.queue.shift()();
+					this.queue.shift()!();
 				}, duration);
 			})
 
@@ -96,7 +96,7 @@ export default class TenorController extends AbstractController {
 		if(this.queue.length > 0) {
 			clearTimeout(this.timeout);
 			this.timeout = setTimeout(()=> {
-				this.queue.shift()();
+				this.queue.shift()!();
 			}, this.rateLimit);
 		}
 	}

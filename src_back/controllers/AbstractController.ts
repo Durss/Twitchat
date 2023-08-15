@@ -1,5 +1,4 @@
-import fastify, { FastifyReply, FastifyRequest } from "fastify";
-import { PassThrough } from "stream";
+import { FastifyReply, FastifyRequest } from "fastify";
 import Config from '../utils/Config';
 
 /**

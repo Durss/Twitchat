@@ -200,7 +200,7 @@ export default class PatreonController extends AbstractController {
 				this.logout();
 				return false;
 			}else{
-				token = json;
+				token = json as PatreonToken;
 				if(this.isFirstAuth){
 					Logger.success("Patreon: API ready");
 				}
@@ -225,7 +225,8 @@ export default class PatreonController extends AbstractController {
 			Logger.warn("Please connect to patreon !", this.authURL);
 			
 			//Send myself an SMS to alert me it's down
-			if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH) {
+			if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH
+			&& Config.credentials.sms_uid && Config.credentials.sms_token) {
 				const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
 				urlSms.searchParams.append("user", Config.credentials.sms_uid);
 				urlSms.searchParams.append("pass", Config.credentials.sms_token);
@@ -235,6 +236,7 @@ export default class PatreonController extends AbstractController {
 			}
 		}
 
+		return false;
 	}
 
 	/**
