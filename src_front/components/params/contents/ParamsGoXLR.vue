@@ -20,7 +20,7 @@
 				<GoXLRConnectForm />
 			</div>
 		</template>
-		<Button icon="premium" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
+		<Button icon="premium" @click="openPremium()" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
 
 		<!-- <div class="fadeHolder" :style="subholderStyles"> -->
 		<div class="fadeHolder">
@@ -118,6 +118,13 @@ export default class ParamsGoXLR extends Vue {
 		if(this.param_enabled.value !== true) {
 			GoXLRSocket.instance.disconnect();
 		}
+	}
+
+	/**
+	 * Opens the premium param page
+	 */
+	public openPremium():void{
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 }
 </script>

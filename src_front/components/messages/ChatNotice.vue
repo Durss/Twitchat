@@ -72,6 +72,7 @@ export default class ChatNotice extends AbstractChatMessage {
 	&:not(.emergency, .shield) {
 		.message {
 			font-style: italic;
+			font-weight: normal;
 			color: var(--color-secondary);
 		}
 	}
