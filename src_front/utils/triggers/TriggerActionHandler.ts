@@ -14,12 +14,12 @@ import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
+import GoXLRSocket from "../goxlr/GoXLRSocket";
 import type { SearchTrackItem } from "../music/SpotifyDataTypes";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import GoXLRSocket from "../goxlr/GoXLRSocket";
 
 /**
 * Created : 22/04/2022 
@@ -538,9 +538,10 @@ export default class TriggerActionHandler {
 				case TriggerTypes.COUNTER_MINED: keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId; break;
 				
 				case TriggerTypes.HEAT_CLICK: {
-					if(t.heatClickSource == "obs" && t.heatObsSource) {
+					if((!t.heatClickSource || t.heatClickSource == "obs") && t.heatObsSource) {
 						keys[0] += this.HASHMAP_KEY_SPLITTER + t.heatObsSource;
 					}else if(t.heatClickSource == "area" && t.heatAreaIds){
+						keys = [];
 						for (let i = 0; i < t.heatAreaIds.length; i++) {
 							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.heatAreaIds[i]);
 						}
@@ -551,6 +552,7 @@ export default class TriggerActionHandler {
 				case TriggerTypes.GOXLR_BUTTON_PRESSED:
 				case TriggerTypes.GOXLR_BUTTON_RELEASED: {
 					if(t.goxlrButtons) {
+						keys = [];
 						for (let i = 0; i < t.goxlrButtons.length; i++) {
 							keys.push(t.type + this.HASHMAP_KEY_SPLITTER + t.goxlrButtons[i]);
 						}
@@ -609,7 +611,6 @@ export default class TriggerActionHandler {
 		if(subEvent) key += this.HASHMAP_KEY_SPLITTER + subEvent;
 		key = key.toLowerCase();
 
-		
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
 		
@@ -1218,7 +1219,6 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources[c.id]
 								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
 									logStep.messages.push({date:Date.now(), value:"Update all users, \""+step.action+"\" "+value+" ("+text+")"});
-									console.log("counter", c);
 									for (const uid in c.users) {
 										StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
 									}

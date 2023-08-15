@@ -454,7 +454,7 @@ export default class TriggerActionList extends Vue {
 		.details {
 			display: block;
 			font-size: .9em;
-			opacity: .8;
+			opacity: .9;
 			line-height: 1.2em;
 		}
 

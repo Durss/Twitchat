@@ -209,8 +209,6 @@ export const storeHeat = defineStore('heat', {
 					//Click is outside overlay, ingore it
 					if(!isInside) continue;
 
-					console.log("CLICKED OBS SOURCE", rect.source.sourceName);
-					
 					const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
 					clone.obsSource = rect.source.sourceName;
 					TriggerActionHandler.instance.execute(clone, event.testMode);
