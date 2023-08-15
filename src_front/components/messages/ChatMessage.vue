@@ -511,7 +511,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			super.getHighlightOverPresence().then(res => {
 				this.highlightOverlayAvailable = res;
 				this.clipHighlightLoading = false;
-			 });
+			});
 			//Do it asynchronously to avoid blocking rendering
 			(async()=> {
 				let clip = await TwitchUtils.getClipById(clipId);
@@ -767,14 +767,10 @@ export default class ChatMessage extends AbstractChatMessage {
 	&.censor {
 
 		&.deleted, .messageChild.deleted {
-			opacity: .35;
-			transition: opacity .2s;
 			.message, &.messageChild.deleted {
 				.text { display: none; }
 			}
 			&:hover{
-				opacity: 1;
-				text-decoration: none;
 				.message, &.messageChild {
 					.text { display: inline; }
 					.deleted { display: none; }
@@ -783,7 +779,22 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
-	&.cleared {
+	&.deleted:not(.censor) {
+		
+		opacity: .35;
+		transition: opacity .2s;
+		.message, &.messageChild.deleted {
+			text-decoration: line-through;
+		}
+		&:hover{
+			opacity: 1;
+			.message, &.messageChild.deleted {
+				text-decoration: none;
+			}
+		}
+	}
+
+	&.cleared:not(.deleted) {
 		opacity: .35;
 		transition: opacity .2s;
 		&:hover{
