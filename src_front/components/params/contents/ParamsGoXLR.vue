@@ -16,30 +16,30 @@
 				<div class="item center">{{ $t("goxlr.connecting") }}</div>
 			</section>
 	
-			<div class="fadeHolder" :style="holderStyles">
-				<GoXLRConnectForm />
-			</div>
+			<GoXLRConnectForm />
 		</template>
 		<Button icon="premium" @click="openPremium()" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
 
-		<!-- <div class="fadeHolder" :style="subholderStyles"> -->
-		<div class="fadeHolder">
-			<section class="card-item alert error" v-if="connected && noDevice">
+		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
+		<!-- <div class="fadeHolder"> -->
+			<section class="card-item alert error" v-if="noDevice">
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
-			<div class="card-item" v-if="!noDevice && !isGoXLRMini &&  $store('auth').isPremium">
-				Scroll any chat column by using one of the four knobs.
-				Select a knob and give it a chat column index to scroll.
-				If you want that knob to control chat only when on a specific FX preset, select a preset as well
-				<GoXLRUI childMode knobMode />
-			</div>
-	
-			<section class="card-item info">
-				<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
-				<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
-			</section>
+			<ToggleBlock :icons="['scrollUp']" :title="$t('goxlr.scroll_info')">
+				<ParamItem class="item" :paramData="param_scrollChat" noBackground />
+				
+				<template v-if="param_scrollChat.value >= 0">
+					<div class="item center">{{ $t("goxlr.scroll_select_encoder") }}</div>
+					<GoXLRUI class="item" childMode knobMode v-model="knobSelection" @change="onGoXLRSelectionChange()" />
+				</template>
+			</ToggleBlock>
 		</div>
+		
+		<section class="card-item info">
+			<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
+			<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
+		</section>
 		
 		<i18n-t scope="global" class="donate" tag="div" keypath="goxlr.donate">
 			<template #LINK>
@@ -62,6 +62,9 @@ import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
+import Config from '@/utils/Config';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
@@ -70,6 +73,7 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 		GoXLRUI,
 		Splitter,
 		ParamItem,
+		ToggleBlock,
 		GoXLRConnectForm,
 		PermissionsForm,
 	},
@@ -78,8 +82,10 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 export default class ParamsGoXLR extends Vue {
 
 	public connecting:boolean = false;
+	public knobSelection:GoXLRTypes.ButtonTypesData[] = [];
 
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
+	public param_scrollChat:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1};
 
 	public get holderStyles():StyleValue {
 		return {
@@ -101,6 +107,13 @@ export default class ParamsGoXLR extends Vue {
 
 	public mounted():void {
 		this.param_enabled.value = DataStore.get(DataStore.GOXLR_ENABLED) === "true";
+		const cols:TwitchatDataTypes.ParameterDataListValue<number>[] = [
+			{value:-1, labelKey:"goxlr.param_chat_col"}
+		];
+		for (let i = 0; i < Config.instance.MAX_CHAT_COLUMNS; i++) {
+			cols.push({value:i, label:(i+1).toString()});
+		}
+		this.param_scrollChat.listValues = cols;
 	}
 
 	/**
@@ -126,6 +139,19 @@ export default class ParamsGoXLR extends Vue {
 	public openPremium():void{
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
+
+	/**
+	 * Called when selection changes on GoXLR UI
+	 */
+	public onGoXLRSelectionChange():void {
+		//Extract last knob ID
+		const knobs = this.knobSelection.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
+		const knob = knobs.pop();
+		//Remove all knob IDs and push the previously extracted one
+		const list = this.knobSelection.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+		if(knob) list.push(knob);
+		this.knobSelection = list;
+	}
 }
 </script>
 
@@ -139,7 +165,7 @@ export default class ParamsGoXLR extends Vue {
 		flex-direction: column;
 	}
 
-	section {
+	section, .toggleblock {
 		
 		.item {
 			&:not(:first-child) {
@@ -208,6 +234,14 @@ export default class ParamsGoXLR extends Vue {
 				margin: auto;
 			}
 		}
+		&.scroll {
+			margin: 0;
+		}
+	}
+	.icon {
+		height: 1em;
+		vertical-align: middle;
+		margin-right: .5em;
 	}
 
 	.donate {

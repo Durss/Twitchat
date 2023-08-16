@@ -12,6 +12,7 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -74,6 +75,11 @@ export default class GoXLRUI extends Vue {
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, this.goxlrHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ROTARY, this.goxlrHandler);
+
+		watch(()=> this.modelValue, ()=> {
+			this.selectedButtons = this.modelValue;
+			this.setButtonStates();
+		});
 		
 		await this.$nextTick();
 		this.setButtonStates();

@@ -481,19 +481,39 @@ export default class Button extends Vue {
 		.background{
 			background-color: var(--color-primary-extralight);
 		}
+		&:active {
+			.background{
+				background-color: var(--color-primary);
+			}
+		}
 		&.secondary {
 			.background{
 				background-color: var(--color-secondary-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-secondary);
+				}
 			}
 		}
 		&.alert {
 			.background{
 				background-color: var(--color-alert-extralight);
 			}
+			&:active {
+				.background{
+					background-color: var(--color-alert);
+				}
+			}
 		}
 		&.premium {
 			.background{
 				background-color: var(--color-premium-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-premium);
+				}
 			}
 		}
 	}

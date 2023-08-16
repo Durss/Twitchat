@@ -7,9 +7,11 @@
 		"connecting":"connexion à GoXLR-Utility...",
 		"connect_failed":"Impossible de se connecter à GoXLR-Utility",
 		"connect_success":"Twitchat est connecté à GoXLR-Utility",
-		"params_title":"Paramètres",
 		"no_device":"Aucun périphérique GoXLR n'est détecté par GoXLR-Utility",
 		"triggersBt":"Créer des triggers",
+		"param_chat_col":"Sélectionnez une colonne de tchat",
+		"scroll_info":"Faire défiler le tchat",
+		"scroll_select_encoder":"Sélectionnez l'encoder avec lequel faire défiler cette colonne",
 		"infos":[
 			"Une fois votre GoXLR connectée vous pouvez la contrôler depuis les Triggers. Vous pouvez également effectuer des actions personnalisés lorsque vous utilisez l'un de ses boutons grâce aux évènement de Triggers dédiés.",
 			"Vous pouvez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",

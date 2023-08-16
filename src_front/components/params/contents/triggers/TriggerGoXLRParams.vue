@@ -1,6 +1,6 @@
 <template>
 	<div class="triggergoxlrparams">
-		<div class="title"><Icon name="click" />{{ $t("goxlr.trigger.select_button") }}</div>
+		<div class="title"><Icon name="click" />{{ $t("triggers.actions.goxlr.select_button") }}</div>
 		<GoXLRUI v-model="triggerData.goxlrButtons" />
 	</div>
 </template>

@@ -237,54 +237,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 				// background-color: var(--color-secondary-fadest);
 			}
 
-
-			// @colorSize: .5em;
-			// &.highlightMods {
-			// 	border: 1px solid var(--highlight-mods);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-mods);
-			// 	}
-			// }
-			// &.highlightVips {
-			// 	border: 1px solid var(--highlight-vips);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-vips);
-			// 	}
-			// }
-			// &.highlightSubs {
-			// 	border: 1px solid var(--highlight-subs);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-subs);
-			// 	}
-			// }
-			// &.highlightPartners {
-			// 	border: 1px solid var(--highlight-partners);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-partners);
-			// 	}
-			// }
-			// &.highlightMentions {
-			// 	border: 1px solid var(--highlight-mention);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-mention);
-			// 	}
-			// }
-
 			.chatMessage {
 				background-color: var(--background-color-primary);
 				padding: 1em;
@@ -339,7 +291,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	
 			&.pronouns, &.spoiler, &.greetThem {
 				font-size: .8em;
-				opacity: .8;
+				opacity: .9;
 			}
 	
 		}

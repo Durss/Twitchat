@@ -88,6 +88,10 @@ export default class Config {
 	 * Maximum duration in ms during which an orange circle remains visible while not cicked
 	 */
 	public NEW_FLAG_DURATION = 30 * 24 * 60 * 60000;
+	/**
+	 * Maxium number of chat columns that can be created
+	 */
+	public MAX_CHAT_COLUMNS = 7;
 	
 	private _serverConfig!:ServerConfig;
 	

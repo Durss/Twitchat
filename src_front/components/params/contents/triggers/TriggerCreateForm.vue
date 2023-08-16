@@ -217,7 +217,6 @@ export default class TriggerCreateForm extends Vue {
 					category:catEvents[0].category,
 					events:catEvents,
 				};
-				console.log("new cat", cat.category.labelKey);
 				this.eventCategories.push(cat);
 				catEvents = [ev.trigger];
 			}else{
@@ -354,7 +353,6 @@ export default class TriggerCreateForm extends Vue {
 						isCategory:false,
 					};
 				});
-				console.log(list);
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_obs_scene");
 			}
@@ -367,7 +365,7 @@ export default class TriggerCreateForm extends Vue {
 				return;
 			}else{
 				this.needObsConnect = false;
-				//build list from obs sourcess
+				//build list from obs sources
 				const list = this.obsSources.map((v):TriggerEntry => {
 					return {
 						label:v.sourceName,

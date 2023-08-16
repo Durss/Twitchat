@@ -34,8 +34,8 @@ declare module '@vue/runtime-core' {
 
 	interface ComponentCustomProperties {
 		$store: IStore,
+		$config: Config,
 		$image: (path:string) => string,
-		$config: () => Config,
 		$placeDropdown: (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => void,
 		$overlayURL: (id:string, params?:{k:string, v:string}[]) => string,
 		$confirm: <T>(title: string,

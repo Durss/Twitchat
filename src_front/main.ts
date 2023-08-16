@@ -146,13 +146,6 @@ function buildApp() {
 	}
 	
 	/**
-	 * Fast acces to Configs
-	 */
-	const getConfig = ():Config => {
-		return Config.instance;
-	}
-	
-	/**
 	 * Opens up a confirm window so the user can confirm or cancel an action.
 	 */
 	const confirm = <T>(title: string,
@@ -281,7 +274,7 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
-	.provide("$config", getConfig)
+	.provide("$config", Config.instance)
 	.provide("$image", image)
 	.provide("$store", storeAccess)
 	.provide("$confirm", confirm)
@@ -341,7 +334,7 @@ function buildApp() {
 	});
 	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
-	app.config.globalProperties.$config = getConfig;
+	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;

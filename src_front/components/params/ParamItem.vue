@@ -639,6 +639,7 @@ export default class ParamItem extends Vue {
 		}
 		input, select, textarea {
 			width: 100%;
+			flex-basis: unset !important;
 		}
 	}
 
@@ -729,6 +730,7 @@ export default class ParamItem extends Vue {
 				margin: 0;
 				padding-right: 1em;
 				line-height: 1.1em;
+				white-space: pre-line;
 				cursor: pointer;
 			}
 			&.number, &.text {

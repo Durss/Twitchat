@@ -7,9 +7,11 @@
 		"connecting":"connecting to GoXLR-Utility...",
 		"connect_failed":"Unable to connect to GoXLR-Utility",
 		"connect_success":"Twitchat is connected to GoXLR-Utility",
-		"params_title":"Parameters",
 		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
 		"triggersBt":"Create triggers",
+		"param_chat_col":"Select a chat column index",
+		"scroll_info":"Scroll chat",
+		"scroll_select_encoder":"Select the encoder you want to scroll this column with",
 		"infos":[
 			"Once your GoXLR is connected you can control it or execute actions when using some of its buttons thanks to the Triggers system.",
 			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",

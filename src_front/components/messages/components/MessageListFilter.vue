@@ -12,7 +12,8 @@
 			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="{content:$t('global.tooltips.column_delete'), placement:'left' }">
 				<img src="@/assets/icons/cross.svg" alt="delete column" class="icon">
 			</button>
-			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }">
+			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
+			v-if="$store('params').chatColumnsConfig.length < $config.MAX_CHAT_COLUMNS">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
 			<button class="addBt" @click="moveColumn(-1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
