@@ -379,14 +379,20 @@
 		//Force bounce of letters on hover and click
 		function bounceLetter(index, scale) {
 			if(!scale) scale = 1
-			startTime[index] = Date.now();
+			startTime[index] = virtualDate;
 			directions[index] = -1;
 			offsetMax[index] = 25 * scale;
 		}
 
 		//Animate loader
-		function renderFrame() {
+		let virtualDate = Date.now();
+		let prevTs = 0;
+		function renderFrame(ts) {
 			if(!loader.parentElement) return;//Loader removed from stage
+
+			//Ignore lags
+			if(ts - prevTs < 100) virtualDate += ts - prevTs;
+			prevTs = ts;
 
 			for (let i = 0; i < lettersCount; i++) {
 				const l = letters[i];
@@ -399,28 +405,28 @@
 					offsetMax.push(25);
 					bounce.push(false);
 					directions.push(-1);
-					openAt.push(Date.now() + i * 50);
-					startTime.push(Date.now());
+					openAt.push(virtualDate + i * 50);
+					startTime.push(virtualDate);
 				}
 
 				//Delay letters animations
-				if(openAt[i] > Date.now()) continue;
+				if(openAt[i] > virtualDate) continue;
 
 				if(alphas[i] < 1) {
 					const fadeDuration = 500;
-					alphas[i] = Math.min(1, (Date.now() - openAt[i]) / fadeDuration);
+					alphas[i] = Math.min(1, (virtualDate - openAt[i]) / fadeDuration);
 					l.style.opacity = alphas[i];
 					if(alphas[i] > .5) {
 						bounce[i] = true;
 					}else{
-						startTime[i] = Date.now();
+						startTime[i] = virtualDate;
 					}
 				}
 
 				if(closing) {
 					//Fade out
 					const fadeDuration = 500;
-					alphas[i] = Math.max(0, 1-((Date.now() - closeAt[i]) / fadeDuration));
+					alphas[i] = Math.max(0, 1-((virtualDate - closeAt[i]) / fadeDuration));
 					l.style.opacity = alphas[i];
 					if(i == lettersCount - 1) {
 						loader.style.opacity = alphas[i];
@@ -429,12 +435,12 @@
 
 				//Bounce letters
 				const duration = 800;
-				const elapsed = Date.now() - startTime[i];
+				const elapsed = virtualDate - startTime[i];
 				let ease = easeOutElastic(elapsed, 0, 1, duration);
 				if(directions[i] == -1) ease = 1 - ease;
 				const pos = (ease * offsetMax[i]) + "px";
 				if(elapsed >= duration * .6) {
-					startTime[i] = Date.now();
+					startTime[i] = virtualDate;
 					directions[i] = -directions[i];
 					offsetMax[i] = 25;
 				}
@@ -454,13 +460,13 @@
 		if(showLoader) {
 			document.body.classList.add("bg");
 			loader.style.display = "block";
-			renderFrame();
+			renderFrame(0);
 		}
 
 		function closeInitLoader() {
 			closing = true;
 			for (let i = 0; i < closeAt.length; i++) {
-				closeAt[i] = Date.now() + i * 50;
+				closeAt[i] = virtualDate + i * 50;
 			}
 		}
 
