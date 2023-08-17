@@ -10,9 +10,6 @@
 			display: none !important;
 		}
 
-		.obsParams>.warning {
-			background-color: #8b0000;
-		}
 		.obsParams {
 			background-color: rgba(139, 0, 0,.25);
 			padding-bottom: 4px;
@@ -51,11 +48,8 @@
 
 		<hr>
 
-		<div id="obsParams" class="obsParams">
+		<form id="obsParams" class="obsParams" action="javascript:;" onsubmit="onConnect(event)">
 			<div class="sdpi-heading">OBS Websocket credentials</div>
-			<div class="sdpi-item warning">
-				<summary>Set your OBS-Websocket (v5+) credentials <i>(mandatory !)</i></summary>
-			</div>
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Port</div>
 				<input class="sdpi-item-value" value="4455" placeholder="4455" id="OBSWS_PORT">
@@ -69,7 +63,7 @@
 				<input class="sdpi-item-value" value="127.0.0.1" placeholder="127.0.0.1" id="OBSWS_IP">
 			</div>
 			<div class="sdpi-item">
-				<button class="sdpi-item-value" onclick="onConnect()">Connect</button>
+				<button class="sdpi-item-value" type="submit">Connect</button>
 			</div>
 			<div class="sdpi-item">
 				<details class="sdpi-item-value">
@@ -81,7 +75,7 @@
 					</p>
 				</details>
 			</div>
-		</div>
+		</form>
 
 		<div class="sdpi-heading hidden" data-chat-feed-read data-greet-feed-read>Parameters</div>
 
@@ -397,7 +391,8 @@
 			$PI.setSettings(settings);
 		}
 
-		function onConnect() {
+		function onConnect(event) {
+			event.preventDefault();
 			const port = document.getElementById("OBSWS_PORT").value;
 			const pass = document.getElementById("OBSWS_PASS").value;
 			const ip = document.getElementById("OBSWS_IP").value;
