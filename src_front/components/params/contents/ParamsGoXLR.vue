@@ -247,11 +247,6 @@ export default class ParamsGoXLR extends Vue {
 			margin: 0;
 		}
 	}
-	.icon {
-		height: 1em;
-		vertical-align: middle;
-		margin-right: .5em;
-	}
 
 	.donate {
 		text-align: center;

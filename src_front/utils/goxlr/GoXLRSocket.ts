@@ -238,6 +238,49 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
+	 * Get all possible values for the specified encoder.
+	 * Values can change depending on the "hard tune" state
+	 * @param id 
+	 */
+	public getEncoderPossibleValues(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">):number[] {
+		let min = 0;
+		let max = 100;
+		//Define custom ranges for pitch and gender depending on configurations.
+		if(id === "pitch") {
+			if(this._pitchMode == "Narrow") {
+				min = -12;
+				max = 12;
+				//If HardTune is enabled it restrict possible values to only 3
+				if(this._buttonStates.EffectHardTune) return [-12, 0, 12];
+			}
+			if(this._pitchMode == "Wide") {
+				min = -24;
+				max = 24;
+				//If HardTune is enabled it restrict possible values to only 5
+				if(this._buttonStates.EffectHardTune) return [-24, -12, 0, 12, 24];
+			}
+		}
+		if(id === "gender") {
+			if(this._genderMode == "Narrow") {
+				min = -12;
+				max = 12;
+			}
+			if(this._genderMode == "Medium") {
+				min = -25;
+				max = 25;
+			}
+			if(this._genderMode == "Wide") {
+				min = -50;
+				max = 50;
+			}
+		}
+
+		const res:number[] = [];
+		for (let i = min; i < max; i++) res.push(i);
+		return res;
+	}
+
+	/**
 	 * Play a sample
 	 * @param bank 
 	 * @param sample 

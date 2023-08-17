@@ -539,13 +539,20 @@ export const storeMain = defineStore("main", {
 					for (let i = 0; i < configs.length; i++) {
 						const column = configs[i];
 						if(column[0] == indexToButtonId[e.fxIndex!] && column[1] == e.encoderId!) {
-							const scrollBy = e.encoderValue! - e.prevEncoderValue!;
+							const id = e.encoderId!;
+							const value = e.encoderValue!;
+							const prevValue = e.prevEncoderValue!;
+							const values = GoXLRSocket.instance.getEncoderPossibleValues(id);
+							const index1 = values.indexOf(prevValue);
+							const index2 = values.indexOf(value);
+							const scroll = index1 - index2;
 							//Scroll chat column
-							PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy });
-							//Reset to prev value
-							GoXLRSocket.instance.setEncoderValue(e.encoderId!, e.prevEncoderValue!);
-							//TODO if prev value is min or max, set to min+1 or max-1 so we can scroll the other way
-							//TODO compute proper "scrollBy" value depending on min and max values for the related encoder
+							PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:scroll });
+							let resetValue = prevValue;
+							if(prevValue == values[0]) resetValue = values[1];
+							if(prevValue == values[values.length-1]) resetValue = values[values.length-12];
+							//Reset encoder value
+							GoXLRSocket.instance.setEncoderValue(id, resetValue);
 						}
 					}
 				});
