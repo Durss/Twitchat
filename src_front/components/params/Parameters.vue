@@ -6,41 +6,43 @@
 					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 				</div>
 			
-				<div class="automaticMessageHolder" v-if="!isDonor && !closed">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-				</div>
-
-				<div class="buttonList">
-					<div class="search">
-						<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+				<div class="scrollable">
+					<div class="automaticMessageHolder" v-if="!isDonor && !closed">
+						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 					</div>
-					<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1690765812999, id:'params_chatfeatures'}">{{$t('params.categories.features')}}</Button>
-					<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1690765812999, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
-					<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
-					<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
-					<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1690765812999, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
-					<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
-					<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
-					<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
-					<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
-					<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
-					<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat" v-newflag="{date:1690765812999, id:'params_heat'}">{{$t('params.categories.heat')}}</Button>
-					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
-					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1690765812999, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
-					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
-					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
-					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
-					<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1690765812999, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
+	
+					<div class="buttonList">
+						<div class="search">
+							<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+						</div>
+						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1690765812999, id:'params_chatfeatures'}">{{$t('params.categories.features')}}</Button>
+						<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1690765812999, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
+						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
+						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
+						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1690765812999, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
+						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
+						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
+						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
+						<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
+						<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
+						<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat" v-newflag="{date:1690765812999, id:'params_heat'}">{{$t('params.categories.heat')}}</Button>
+						<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
+						<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
+						<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1690765812999, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
+						<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
+						<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
+						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
+						<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1690765812999, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
+					</div>
+	
+					<div class="automaticMessageHolder" v-if="isDonor && !closed">
+						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+					</div>
+	
+					<ThemeSelector class="themeSelector" />
+	
+					<mark class="version">v {{appVersion}}</mark>
 				</div>
-
-				<div class="automaticMessageHolder" v-if="isDonor && !closed">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-				</div>
-
-				<ThemeSelector class="themeSelector" />
-
-				<mark class="version">v {{appVersion}}</mark>
 			</div>
 			
 		<div class="contentHolder">
@@ -402,60 +404,67 @@ export default class Parameters extends Vue {
 		gap: 1em;
 		width: fit-content;
 		border-right: 1px solid var(--splitter-color);
-		padding-right: 1em;
-		overflow-x: visible;
-		overflow-y: auto;
 		.head {
 			display:none;
 		}
-		.automaticMessageHolder {
-			display: none;
-		}
-		.buttonList {
+
+		.scrollable {
 			display: flex;
 			flex-direction: column;
-			justify-content: center;
-			gap: 10px;
-			&>.button {
-				flex-wrap: nowrap;
-				&.beta {
-					overflow: hidden;
-					&::before {
-						content: "beta";
-						z-index: 1;
-						position: absolute;
-						top: 2px;
-						right: -25px;
-						background-color: var(--color-alert);
-						color: var(--color-light);
-						padding: 5px 30px;
-						text-transform: uppercase;
-						font-size: .7em;
-						font-weight: bold;
-						transform: rotate(45deg);
+			gap: 1em;
+			overflow-x: visible;
+			overflow-y: auto;
+			padding-right: 1em;
+			.automaticMessageHolder {
+				display: none;
+			}
+			.buttonList {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				gap: 10px;
+				&>.button {
+					flex-wrap: nowrap;
+					&.beta {
+						overflow: hidden;
+						&::before {
+							content: "beta";
+							z-index: 1;
+							position: absolute;
+							top: 2px;
+							right: -25px;
+							background-color: var(--color-alert);
+							color: var(--color-light);
+							padding: 5px 30px;
+							text-transform: uppercase;
+							font-size: .7em;
+							font-weight: bold;
+							transform: rotate(45deg);
+						}
 					}
-				}
-
-				&.premiumIndicator {
-					:deep(.background) {
-						border-left: 3px solid var(--color-premium);
+	
+					&.premiumIndicator {
+						:deep(.background) {
+							border-left: 3px solid var(--color-premium);
+						}
 					}
 				}
 			}
-		}
-
-		.themeSelector {
-			display: block;
-			margin: 0 auto;
-			flex-shrink: 0;
-		}
-
-		.version {
-			display: block;
-			margin: 0 auto;
-			padding: .5em;
-			font-style: italic;
-			font-size: .8em;
+	
+			.themeSelector {
+				display: block;
+				margin: 0 auto;
+				flex-shrink: 0;
+			}
+	
+			.version {
+				display: block;
+				margin: 0 auto;
+				padding: .5em;
+				font-style: italic;
+				font-size: .8em;
+			}
 		}
 	}
 
@@ -543,52 +552,54 @@ export default class Parameters extends Vue {
 					display: block;
 				}
 			}
-			.automaticMessageHolder {
-				display: block !important;
-				margin: 0 auto;
-			}
-			.search {
-				// display: none;
-				width: 100%;
-				margin-bottom: 1em;
-				input {
-					// min-width: 250px;
-					width: 100%;
-					max-width: 250px;
-					margin: auto;
-					display: block;
+			.scrollable {
+				.automaticMessageHolder {
+					display: block !important;
+					margin: 0 auto;
 				}
-			}
-			.buttonList {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				gap: 4px;
-				width: 100%;
-				margin: auto;
-				&>.button {
-					width: 180px;
-					flex-direction: column;
-					border-radius: var(--border-radius);
-					:deep(.icon) {
-						height: 2em;
-						width: 2em;
-						max-height: unset;
-						max-width: unset;
-						object-fit: fill;
-						object-position: center center;
-						margin: 0 0 .5em 0;
+				.search {
+					// display: none;
+					width: 100%;
+					margin-bottom: 1em;
+					input {
+						// min-width: 250px;
+						width: 100%;
+						max-width: 250px;
+						margin: auto;
+						display: block;
 					}
-					:deep(.label) {
-						white-space: normal;
-					}
-					&.beta {
-						&::before {
-							top: 10px;
-							right: -50px;
-							padding: 5px 50px;
-							font-size: 18px;
+				}
+				.buttonList {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					justify-content: center;
+					gap: 4px;
+					width: 100%;
+					margin: auto;
+					&>.button {
+						width: 180px;
+						flex-direction: column;
+						border-radius: var(--border-radius);
+						:deep(.icon) {
+							height: 2em;
+							width: 2em;
+							max-height: unset;
+							max-width: unset;
+							object-fit: fill;
+							object-position: center center;
+							margin: 0 0 .5em 0;
+						}
+						:deep(.label) {
+							white-space: normal;
+						}
+						&.beta {
+							&::before {
+								top: 10px;
+								right: -50px;
+								padding: 5px 50px;
+								font-size: 18px;
+							}
 						}
 					}
 				}
@@ -618,28 +629,30 @@ export default class Parameters extends Vue {
 	}
 }
 
-@media only screen and (max-width: 410px) {
+@media only screen and (max-width: 420px) {
 	.parameters {
 		.menu {
 			margin: 0 auto;
-			.buttonList {
-				flex-direction: column;
-				flex-wrap: nowrap;
-				max-width: 250px;
-				&>.button {
-					width: unset;
-					flex-direction: unset;
-					:deep(.icon) {
-						height: 1em;
-						width: 1em;
-						margin: 0;
-					}
-					&.beta {
-						&::before {
-							top: 2px;
-							right: -25px;
-							padding: 5px 30px;
-							font-size: .7em;
+			.scrollable {
+				.buttonList {
+					flex-direction: column;
+					flex-wrap: nowrap;
+					max-width: 250px;
+					&>.button {
+						width: unset;
+						flex-direction: unset;
+						:deep(.icon) {
+							height: 1em;
+							width: 1em;
+							margin: 0;
+						}
+						&.beta {
+							&::before {
+								top: 2px;
+								right: -25px;
+								padding: 5px 30px;
+								font-size: .7em;
+							}
 						}
 					}
 				}
