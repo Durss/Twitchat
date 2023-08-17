@@ -1,6 +1,7 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import DataStore from "@/store/DataStore";
+import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { reactive } from "vue";
 
@@ -68,8 +69,7 @@ export default class GoXLRSocket extends EventDispatcher {
 		if(this.connected) return Promise.resolve();
 		if(this._connecting) return Promise.resolve();
 		this._connecting = true;
-		DataStore.set(DataStore.GOXLR_IP, ip);
-		DataStore.set(DataStore.GOXLR_PORT, port);
+		StoreProxy.params.setGoXLRConnectParams(ip, port);
 		return new Promise((resolve, reject) => {
 			this._initResolver = resolve;
 			this._socket = new WebSocket(`ws://${ip}:${port}/api/websocket`);
@@ -118,13 +118,21 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
+	 * Get a button's value
+	 * @param buttonId 
+	 */
+	public getButtonState(buttonId:GoXLRTypes.ButtonTypesData):boolean|number {
+		return this._buttonStates[buttonId] ?? false;
+	}
+
+	/**
 	 * Enable/Disable FX
 	 * @param enabled
 	 */
 	public async setFXEnabled(enabled:boolean):Promise<unknown> { return this.execCommand("SetFXEnabled", enabled); }
 
 	/**
-	 * Set the value of a rotary button in percent.
+	 * Set the value of a encoder button in percent.
 	 * 
 	 * Actual values for reverb and echo knobs:
 	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
@@ -148,7 +156,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param id
 	 * @param percent
 	 */
-	public async setRotaryValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, percent:number):Promise<unknown> {
+	public async setEncoderPercentValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, percent:number):Promise<unknown> {
 		const idToCommand:Partial<{[key in GoXLRTypes.ButtonTypesData]:GoXLRCommands}> = {
 			gender:"SetGenderAmount",
 			echo:"SetEchoAmount",
@@ -175,20 +183,57 @@ export default class GoXLRSocket extends EventDispatcher {
 			}
 		}
 		if(id === "gender") {
-			if(this._pitchMode == "Narrow") {
+			if(this._genderMode == "Narrow") {
 				min = -12;
 				max = 12;
 			}
-			if(this._pitchMode == "Medium") {
+			if(this._genderMode == "Medium") {
 				min = -25;
 				max = 25;
 			}
-			if(this._pitchMode == "Wide") {
+			if(this._genderMode == "Wide") {
 				min = -50;
 				max = 50;
 			}
 		}
 		let value = Math.round(percent * (max - min) + min);
+		return this.execCommand(cmd, value);
+	}
+
+	/**
+	 * Set the value of a encoder button.
+	 * 
+	 * Actual values for reverb and echo knobs:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * 0 => 100
+	 * 
+	 * 
+	 * Actual values for pitch knob:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * Narrow:	-12 => 12
+	 * Wide:	-24 => 24
+	 * Narrow + hard tune:	[-12, 0, 12]
+	 * Wide + hard tune:	[-24, -12, 0, 12, 24]
+	 * 
+	 * 
+	 * Actual values for gender knob:
+	 * ‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾‾
+	 * Narrow:	-12 => 12
+	 * Medium:	-25 => 25
+	 * Wide:	-50 => 50
+	 * 
+	 * @param id
+	 * @param value
+	 */
+	public async setEncoderValue(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">, value:number):Promise<unknown> {
+		const idToCommand:Partial<{[key in GoXLRTypes.ButtonTypesData]:GoXLRCommands}> = {
+			gender:"SetGenderAmount",
+			echo:"SetEchoAmount",
+			pitch:"SetPitchAmount",
+			reverb:"SetReverbAmount",
+		}
+		const cmd = idToCommand[id];
+		if(!cmd) return Promise.reject();
 		return this.execCommand(cmd, value);
 	}
 
@@ -348,10 +393,11 @@ export default class GoXLRSocket extends EventDispatcher {
 						this.dispatchEvent(new GoXLRSocketEvent(type, buttonId));
 					}else
 					
-					//Handle rotary buttons1
+					//Handle encoders
 					if(["echo","gender","reverb","pitch"].indexOf(c) > -1 && chunks[j+1] === "amount") {
 						const value = patch.value;
-						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ROTARY, c as GoXLRTypes.ButtonTypesData, value));
+						const bt = c as GoXLRTypes.ButtonTypesData;
+						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ENCODER, bt, value, this.getButtonState(bt) as number, this._currentFXIndex));
 					}else
 
 					//Handle sampler playback complete

@@ -10,7 +10,7 @@ export default class GoXLRSocketEvent extends Event {
 	public static BUTTON_RELEASED:"BUTTON_RELEASED" = "BUTTON_RELEASED";
 	public static FX_ENABLED:"FX_ENABLED" = "FX_ENABLED";
 	public static FX_DISABLED:"FX_DISABLED" = "FX_DISABLED";
-	public static ROTARY:"ROTARY" = "ROTARY";
+	public static ENCODER:"ENCODER" = "ENCODER";
 	public static SAMPLE_PLAYBACK_COMPLETE:"SAMPLE_PLAYBACK_COMPLETE" = "SAMPLE_PLAYBACK_COMPLETE";
 
 	/**
@@ -28,17 +28,23 @@ export default class GoXLRSocketEvent extends Event {
 	 */
 	public fxIndex?:number;
 	/**
-	 * Contains the ID of the rotary button used
+	 * Contains the ID of the encoder button used
 	 * Only for those events:
-	 * ROTARY
+	 * ENCODER
 	 */
-	public rotaryId?:number;
+	public encoderId?:Extract<GoXLRTypes.ButtonTypesData, "echo"|"pitch"|"reverb"|"gender">;
 	/**
-	 * Contains the value of the rotated rotary button
+	 * Contains the value of the rotated encoder button
 	 * Only for those events:
-	 * ROTARY
+	 * ENCODER
 	 */
-	public rotaryValue?:number;
+	public encoderValue?:number;
+	/**
+	 * Contains the previous value of the rotated encoder button
+	 * Only for those events:
+	 * ENCODER
+	 */
+	public prevEncoderValue?:number;
 	/**
 	 * Contains the id of the bank in which the sample is stored
 	 * Only for those events:
@@ -52,7 +58,7 @@ export default class GoXLRSocketEvent extends Event {
 	 */
 	public samplerButtonId?:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
 	
-	constructor(eventType:"ROTARY", rotaryId:GoXLRTypes.ButtonTypesData, rotaryValue:number);
+	constructor(eventType:"ENCODER", encoderId:GoXLRTypes.ButtonTypesData, encoderValue:number, prevEncoderValue:number, fxIndex:number);
 	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">);
 	constructor(eventType:"FX_ENABLED"|"FX_DISABLED", fxIndex:number);
 	constructor(eventType:"BUTTON_PRESSED"|"BUTTON_RELEASED", button?:GoXLRTypes.ButtonTypesData);
@@ -68,9 +74,11 @@ export default class GoXLRSocketEvent extends Event {
 			this.buttonId = params[1];
 		}
 
-		if(event == "ROTARY") {
-			this.rotaryId = params[1];
-			this.rotaryValue = params[2];
+		if(event == "ENCODER") {
+			this.encoderId = params[1];
+			this.encoderValue = params[2];
+			this.prevEncoderValue = params[3];
+			this.fxIndex = params[4];
 		}
 
 		if(event == "SAMPLE_PLAYBACK_COMPLETE") {

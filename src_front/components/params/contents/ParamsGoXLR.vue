@@ -16,7 +16,9 @@
 				<div class="item center">{{ $t("goxlr.connecting") }}</div>
 			</section>
 	
-			<GoXLRConnectForm />
+			<div class="fadeHolder" :style="holderStyles">
+				<GoXLRConnectForm />
+			</div>
 		</template>
 		<Button icon="premium" @click="openPremium()" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
 
@@ -26,10 +28,10 @@
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
-			<ToggleBlock :icons="['scrollUp']" :title="$t('goxlr.scroll_info')">
-				<ParamItem class="item" :paramData="param_scrollChat" noBackground />
+			<ToggleBlock :icons="['scroll']" :title="$t('goxlr.scroll_info')">
+				<ParamItem class="item" :paramData="param_chatColIndex" noBackground @change="onSelectChatColumnIndex()" />
 				
-				<template v-if="param_scrollChat.value >= 0">
+				<template v-if="param_chatColIndex.value >= 0">
 					<div class="item center">{{ $t("goxlr.scroll_select_encoder") }}</div>
 					<GoXLRUI class="item" childMode knobMode v-model="knobSelection" @change="onGoXLRSelectionChange()" />
 				</template>
@@ -52,8 +54,9 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Icon from '@/components/Icon.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
-import DataStore from '@/store/DataStore';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import type { StyleValue } from 'vue';
@@ -62,9 +65,6 @@ import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
-import type { GoXLRTypes } from '@/types/GoXLRTypes';
-import Config from '@/utils/Config';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
@@ -85,7 +85,7 @@ export default class ParamsGoXLR extends Vue {
 	public knobSelection:GoXLRTypes.ButtonTypesData[] = [];
 
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
-	public param_scrollChat:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1};
+	public param_chatColIndex:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 
 	public get holderStyles():StyleValue {
 		return {
@@ -106,14 +106,14 @@ export default class ParamsGoXLR extends Vue {
 	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public mounted():void {
-		this.param_enabled.value = DataStore.get(DataStore.GOXLR_ENABLED) === "true";
+		this.param_enabled.value = this.$store("params").goxlrConfig.enabled;
 		const cols:TwitchatDataTypes.ParameterDataListValue<number>[] = [
-			{value:-1, labelKey:"goxlr.param_chat_col"}
+			{value:-1, labelKey:"global.select_placeholder"}
 		];
-		for (let i = 0; i < Config.instance.MAX_CHAT_COLUMNS; i++) {
+		for (let i = 0; i < this.$store("params").chatColumnsConfig.length; i++) {
 			cols.push({value:i, label:(i+1).toString()});
 		}
-		this.param_scrollChat.listValues = cols;
+		this.param_chatColIndex.listValues = cols;
 	}
 
 	/**
@@ -127,10 +127,7 @@ export default class ParamsGoXLR extends Vue {
 	 * Called when toggling the "enabled" state
 	 */
 	public toggleState():void {
-		DataStore.set(DataStore.GOXLR_ENABLED, this.param_enabled.value);
-		if(this.param_enabled.value !== true) {
-			GoXLRSocket.instance.disconnect();
-		}
+		this.$store("params").setGoXLREnabled(this.param_enabled.value);
 	}
 
 	/**
@@ -138,6 +135,15 @@ export default class ParamsGoXLR extends Vue {
 	 */
 	public openPremium():void{
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
+	/**
+	 * Called when selecting a new chat column index
+	 */
+	public onSelectChatColumnIndex():void {
+		if(this.param_chatColIndex.value == -1) return;
+		const configs = this.$store("params").goxlrConfig;
+		this.knobSelection = configs.chatScrollSources[this.param_chatColIndex.value] || [];
 	}
 
 	/**
@@ -151,6 +157,9 @@ export default class ParamsGoXLR extends Vue {
 		const list = this.knobSelection.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
 		if(knob) list.push(knob);
 		this.knobSelection = list;
+
+		const index = this.param_chatColIndex.value;
+		this.$store("params").setGoXLRChatColScrollParams(index, list);
 	}
 }
 </script>

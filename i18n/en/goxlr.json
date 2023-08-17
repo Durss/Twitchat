@@ -9,13 +9,14 @@
 		"connect_success":"Twitchat is connected to GoXLR-Utility",
 		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
 		"triggersBt":"Create triggers",
-		"param_chat_col":"Select a chat column index",
-		"scroll_info":"Scroll chat",
-		"scroll_select_encoder":"Select the encoder you want to scroll this column with",
+		"param_chat_col":"Chat column",
+		"scroll_info":"Scroll chat with encoders",
+		"scroll_select_encoder":"Select an FX preset then the encoder you want to scroll the chat column with",
 		"infos":[
 			"Once your GoXLR is connected you can control it or execute actions when using some of its buttons thanks to the Triggers system.",
 			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",
-			"Or you can show an OBS source when mute or bleep button is pressed."
+			"Or you can show an OBS source when mute or bleep button is pressed.",
+			"You can also scroll any chat column from one of the 4 encoders."
 		],
 		"connect_form":{
 			"title":"Credentials",

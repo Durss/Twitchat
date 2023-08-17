@@ -596,7 +596,6 @@ import Ajv from "ajv";
 		ululeTitle: {type:"string", maxLength:100},
 		ululeCurrency: {type:"string", maxLength:2},
 		heatEnabled: {type:"boolean"},
-		goxlrEnabled: {type:"boolean"},
 		customUsernames: {
 			type:"object",
 			additionalProperties: false,
@@ -977,6 +976,27 @@ import Ajv from "ajv";
 							}
 						}
 					},
+				}
+			}
+		},
+
+		goxlrConfig: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				ip: {type:"string", maxLength:20},
+				port: {type:"integer", minimum:0, maximum:65535},
+				chatScrollSources: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type:"array",
+						minItems:0,
+						maxItems:2,
+						items:{type:"string", maxLength:30},
+					}
 				}
 			}
 		},

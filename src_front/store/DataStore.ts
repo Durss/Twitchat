@@ -77,10 +77,8 @@ export default class DataStore {
 	public static CUSTOM_BADGE_LIST:string = "customBadgeList";
 	public static CUSTOM_USER_BADGES:string = "customUserBadges";
 	public static ANNOUNCEMENTS_READ:string = "announcementsRead";
-	public static GOXLR_ENABLED:string = "goxlrEnabled";
-	public static GOXLR_IP:string = "goxlrIp";
-	public static GOXLR_PORT:string = "goxlrPort";
 	public static NEW_FLAGS:string = "newFlags";
+	public static GOXLR_CONFIG:string = "goxlrConfig";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -105,8 +103,6 @@ export default class DataStore {
 		this.PREDICTION_DEFAULT_DURATION,
 		this.PATREON_AUTH_TOKEN,
 		this.ANNOUNCEMENTS_READ,
-		this.GOXLR_IP,
-		this.GOXLR_PORT,
 		this.NEW_FLAGS,
 	];
 	
@@ -145,7 +141,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 44;
+		let latestVersion = 45;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -281,6 +277,10 @@ export default class DataStore {
 		if(v==43) {
 			//Removed migration because it became useless
 			//Keeping this version for beta testers
+			v = 44;
+		}
+		if(v==44) {
+			delete data["goxlrEnabled"];
 			v = latestVersion;
 		}
 

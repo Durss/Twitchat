@@ -1,4 +1,5 @@
 import type HeatEvent from "@/events/HeatEvent";
+import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
@@ -736,6 +737,31 @@ export interface IParamsState {
 	 * Chat columns definitions
 	 */
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
+	/**
+	 * GoXLR configurations
+	 */
+	goxlrConfig: {
+		/**
+		 * GoXLR socket enabled ?
+		 */
+		enabled:boolean,
+		/**
+		 * Socket IP
+		 */
+		ip:string,
+		/**
+		 * Socket port
+		 */
+		port:number,
+		/**
+		 * Contains an effect preset ID and an effect encoder ID for
+		 * every chat columns.
+		 * If requesting to scroll first chat column via "Gender"
+		 * encoder of the preset N°6 the first entry of this array
+		 * will contain this: ["EffectSelect6", "gender"]
+		 */
+		chatScrollSources:GoXLRTypes.ButtonTypesData[][],
+	}
 }
 
 export interface IParamsGetters {
@@ -801,6 +827,23 @@ export interface IParamsActions {
 	 * Closes currently opened modal
 	 */
 	closeModal():void;
+	/**
+	 * Set if Tiwtchat should automatically connect to GoXLR on startup
+	 * @param enabled 
+	 */
+	setGoXLREnabled(enabled:boolean):void;
+	/**
+	 * Set GoXLR connection params
+	 * @param ip 
+	 * @param port 
+	 */
+	setGoXLRConnectParams(ip:string, port:number):void;
+	/**
+	 * Sets the encoder that should control the given chat column
+	 * @param colIndex 
+	 * @param encoderPath 
+	 */
+	setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
 }
 
 

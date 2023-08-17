@@ -40,7 +40,7 @@ export default class GoXLRUI extends Vue {
 
 	private allowedButtons:GoXLRTypes.ButtonTypesData[] = [];
 	private selectedButtons:GoXLRTypes.ButtonTypesData[] = [];
-	private rotaryTimeouts:{[key:string]:number} = {};
+	private encoderTimeouts:{[key:string]:number} = {};
 	private clickHandler!:(e:MouseEvent) => void;
 	private goxlrHandler!:(e:GoXLRSocketEvent) => void;
 
@@ -74,7 +74,7 @@ export default class GoXLRUI extends Vue {
 		this.$el.addEventListener("click", this.clickHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrHandler);
 		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, this.goxlrHandler);
-		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ROTARY, this.goxlrHandler);
+		GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ENCODER, this.goxlrHandler);
 
 		watch(()=> this.modelValue, ()=> {
 			this.selectedButtons = this.modelValue;
@@ -89,7 +89,7 @@ export default class GoXLRUI extends Vue {
 		this.$el.removeEventListener("click", this.clickHandler);
 		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.BUTTON_PRESSED, this.goxlrHandler);
 		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.BUTTON_RELEASED, this.goxlrHandler);
-		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.ROTARY, this.goxlrHandler);
+		GoXLRSocket.instance.removeEventListener(GoXLRSocketEvent.ENCODER, this.goxlrHandler);
 	}
 
 	/**
@@ -116,14 +116,14 @@ export default class GoXLRUI extends Vue {
 				}
 			}
 
-			//Rotary button used. Highlight it and schedule an auto removal of the highlight
-			case GoXLRSocketEvent.ROTARY:{
-				const bt = e.rotaryId!;
+			//Encoder button used. Highlight it and schedule an auto removal of the highlight
+			case GoXLRSocketEvent.ENCODER:{
+				const bt = e.encoderId!;
 				const item = holder.querySelector(".area #"+bt) as HTMLElement|null;
 				if(!item) return;
 				item.classList.add("highlight");
-				clearTimeout(this.rotaryTimeouts[bt]);
-				this.rotaryTimeouts[bt] = setTimeout(()=> {
+				clearTimeout(this.encoderTimeouts[bt]);
+				this.encoderTimeouts[bt] = setTimeout(()=> {
 					item.classList.remove("highlight");
 				}, 500);
 			}

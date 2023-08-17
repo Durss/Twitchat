@@ -11,6 +11,8 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -216,6 +218,12 @@ export const storeParams = defineStore('params', {
 				}
 			}
 		],
+		goxlrConfig: {
+			enabled:false,
+			ip:"127.0.0.1",
+			port:14564,
+			chatScrollSources:[],
+		}
 	} as IParamsState),
 
 
@@ -411,6 +419,28 @@ export const storeParams = defineStore('params', {
 		},
 
 		closeModal():void { this.currentModal = "" },
+
+		setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void {
+			this.goxlrConfig.chatScrollSources[colIndex] = encoderPath;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
+
+		setGoXLREnabled(enabled:boolean):void {
+			this.goxlrConfig.enabled = enabled;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+			if(enabled === true) {
+				if(!this.goxlrConfig.ip || !this.goxlrConfig.port) return;
+				GoXLRSocket.instance.connect(this.goxlrConfig.ip, this.goxlrConfig.port);
+			}else{
+				GoXLRSocket.instance.disconnect();
+			}
+		},
+
+		setGoXLRConnectParams(ip:string, port:number):void {
+			this.goxlrConfig.ip = ip;
+			this.goxlrConfig.port = port;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

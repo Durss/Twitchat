@@ -533,6 +533,22 @@ export const storeMain = defineStore("main", {
 					}
 					TriggerActionHandler.instance.execute(message);
 				});
+				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ENCODER, (e:GoXLRSocketEvent)=>{
+					const configs = StoreProxy.params.goxlrConfig.chatScrollSources;
+					const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
+					for (let i = 0; i < configs.length; i++) {
+						const column = configs[i];
+						if(column[0] == indexToButtonId[e.fxIndex!] && column[1] == e.encoderId!) {
+							const scrollBy = e.encoderValue! - e.prevEncoderValue!;
+							//Scroll chat column
+							PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy });
+							//Reset to prev value
+							GoXLRSocket.instance.setEncoderValue(e.encoderId!, e.prevEncoderValue!);
+							//TODO if prev value is min or max, set to min+1 or max-1 so we can scroll the other way
+							//TODO compute proper "scrollBy" value depending on min and max values for the related encoder
+						}
+					}
+				});
 
 				if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
 					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
@@ -744,17 +760,6 @@ export const storeMain = defineStore("main", {
 				}
 			}
 
-			//Init goxlr
-			const goxlrEnabled = DataStore.get(DataStore.GOXLR_ENABLED);
-			if(goxlrEnabled === "true") {
-				const ip = DataStore.get(DataStore.GOXLR_IP);
-				const port = DataStore.get(DataStore.GOXLR_PORT);
-				console.log("GOXLR", ip, port);
-				if(ip && port) {
-					GoXLRSocket.instance.connect(ip, parseInt(port));
-				}
-			}
-
 			//Init trigger websocket
 			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
 			if(triggerSocketParams) {
@@ -816,6 +821,17 @@ export const storeMain = defineStore("main", {
 			const customBadgeListParams = DataStore.get(DataStore.CUSTOM_BADGE_LIST);
 			if(customBadgeListParams) {
 				sUsers.customBadgeList = JSON.parse(customBadgeListParams);
+			}
+
+			//Init goxlr params
+			const goXLRParams = DataStore.get(DataStore.GOXLR_CONFIG);
+			if(goXLRParams) {
+				sParams.goxlrConfig = JSON.parse(goXLRParams);
+				const ip = sParams.goxlrConfig.ip;
+				const port = sParams.goxlrConfig.port;
+				if(ip && port) {
+					GoXLRSocket.instance.connect(ip, port);
+				}
 			}
 			
 			//Reload devmode state
