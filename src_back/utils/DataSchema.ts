@@ -622,6 +622,7 @@ import Ajv from "ajv";
 				properties: {
 					id:{type: "string", maxLength:40},
 					img:{type: "string", maxLength:6000},
+					name:{type: "string", maxLength:50},
 				}
 			}
 		},

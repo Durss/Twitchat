@@ -22,9 +22,9 @@
 				<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 			</template>
 
-			<template v-else-if="!loading && !error && !manageBadges && !manageUserNames">
-				<CloseButton aria-label="close" @click="close()" />
-				<div class="header">
+			<template v-else-if="!loading && !error">
+				<CloseButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
+				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
 						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 						<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
@@ -68,9 +68,9 @@
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
+				<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
-				<div class="scrollable">
+				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
 					<div class="infoList">
 						<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
 						
@@ -151,11 +151,11 @@
 				</div>
 			</template>
 
-			<div class="holder" ref="holder" v-else-if="manageBadges">
+			<div class="holder" ref="holder" v-if="manageBadges">
 				<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
 			</div>
 
-			<div class="holder" ref="holder" v-else-if="manageUserNames">
+			<div class="holder" ref="holder" v-if="manageUserNames">
 				<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
 			</div>
 		</div>
@@ -220,8 +220,10 @@ export default class UserCard extends Vue {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public subState:TwitchDataTypes.Subscriber|null = null;
 	public subStateLoaded:boolean = false;
+	public messageHistory:TwitchatDataTypes.ChatMessageTypes[] = []
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
+	private messageBuildInterval:number = -1;
 
 	public get followingsDisabled():boolean {
 		//Necessary Twitch API endpoint to get the followings of a user
@@ -284,44 +286,6 @@ export default class UserCard extends Vue {
 		return label;
 	}
 
-	/**
-	 * Get users's message history
-	 */
-	public get messageHistory():TwitchatDataTypes.ChatMessageTypes[] {
-		if(!this.user) return [];
-
-		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
-		const uid:string = this.user.id;
-		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
-			const mess = this.$store("chat").messages[i];
-			if(!allowedTypes.includes(mess.type)) continue;
-			if(mess.type == "shoutout" && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if(mess.type == "following" && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if(mess.type == "subscription" && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if(mess.type == "cheer" && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}else if(mess.type == "reward" && mess.user.id == uid) {
-				messageList.unshift(mess);
-			}
-			if (messageList.length > 250) break;//Limit message count for perf reasons
-		}
-
-		this.$nextTick(()=>{
-			const messagelist = this.$refs.messagelist as HTMLDivElement |undefined;
-			if(!messagelist) return;
-			messagelist.scrollTop = messagelist.scrollHeight;
-		})
-		return messageList;
-	}
-
 	public getFormatedDate(f:TwitchDataTypes.FollowingOld):string {
 		return Utils.formatDate(new Date(f.followed_at));
 	}
@@ -345,6 +309,7 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.messageBuildInterval);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
@@ -427,6 +392,7 @@ export default class UserCard extends Vue {
 					is_short:false,
 					children:[],
 				};
+				this.loadHistory(u.id);
 			}else{
 				this.error = true;
 			}
@@ -577,6 +543,9 @@ export default class UserCard extends Vue {
 		}
 	}
 
+	/**
+	 * Detect ESC key to close window
+	 */
 	private onKeyUp(e:KeyboardEvent):void {
 		if(e.key == "Escape") {
 			if(this.edittingLogin) {
@@ -587,6 +556,51 @@ export default class UserCard extends Vue {
 			e.preventDefault();
 			e.stopPropagation();
 		}
+	}
+
+	/**
+	 * Build the message history chunk by chunk
+	 */
+	private loadHistory(uid:string):void {
+		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
+		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
+			const mess = this.$store("chat").messages[i];
+			if(!allowedTypes.includes(mess.type)) continue;
+			if(mess.type == "shoutout" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "following" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "subscription" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "cheer" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "reward" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}
+			if (messageList.length > 100) break;//Limit message count for perf reasons
+		}
+
+		//Build messages by batch to avoid lag on open
+		this.messageHistory = messageList.splice(-20);
+		clearInterval(this.messageBuildInterval);
+		this.messageBuildInterval = setInterval(()=> {
+			if(messageList.length == 0) clearInterval(this.messageBuildInterval);
+
+			this.messageHistory.unshift(...messageList.splice(-5));
+			
+			if(this.messageHistory.length < 30) {
+				this.$nextTick(()=>{
+					const messagelist = this.$refs.messagelist as HTMLDivElement |undefined;
+					if(!messagelist) return;
+					messagelist.scrollTop = messagelist.scrollHeight;
+				});
+			}
+		}, 50);
 	}
 
 }
@@ -606,7 +620,7 @@ export default class UserCard extends Vue {
 			text-align: center;
 		}
 	
-		&>.header {
+		&>.header, &>div>.header {
 			display: flex;
 			flex-direction: column;
 			align-items: center;

@@ -901,6 +901,18 @@ export const storeUsers = defineStore('users', {
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
 		},
 
+		updateCustomBadgeName(badgeId:string, name:string):void {
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList[index].name = name;
+				if(name.length === 0) {
+					delete this.customBadgeList[index].name;
+				}
+			}
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+
+		},
+
 		deleteCustomBadge(badgeId:string):void {
 			//Remove any reference of the badge from the users
 			const userBadges = this.customUserBadges;

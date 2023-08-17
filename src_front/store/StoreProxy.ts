@@ -1252,7 +1252,7 @@ export interface IUsersState {
 	/**
 	 * Contains custom user badges
 	 */
-	customBadgeList:{id:string, img:string}[];
+	customBadgeList:{id:string, img:string, name?:string}[];
 	/**
 	 * List of blocked users by platform
 	 */
@@ -1471,6 +1471,12 @@ export interface IUsersActions {
 	 * @param img 
 	 */
 	updateCustomBadgeImage(badgeId:string, img:string):void;
+	/**
+	 * Update the name of a custom badge
+	 * @param badgeId 
+	 * @param name 
+	 */
+	updateCustomBadgeName(badgeId:string, name:string):void;
 	/**
 	 * Deletes the given custom badge
 	 * Removes any references from users

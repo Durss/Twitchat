@@ -3,7 +3,7 @@
 		<img class="customUserBadge" v-for="badge in badges" :src="badge.img"
 		alt="custom badge"
 		@click="$emit('select', badge.id)"
-		v-tooltip="tooltip">
+		v-tooltip="tooltip || badge.name || ''">
 	</template>
 </template>
 
@@ -26,7 +26,7 @@ export default class CustomUserBadges extends Vue {
 	@Prop
 	public channelId!:string;
 
-	public get badges():{id:string, img:string}[] {
+	public get badges():{id:string, img:string, name?:string}[] {
 		const res:{id:string, img:string}[] = [];
 		const badges = this.$store("users").customUserBadges[this.user.id];
 		if(!badges) return [];

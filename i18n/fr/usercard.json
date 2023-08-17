@@ -25,6 +25,7 @@
 		"manage_badges":"Gestion des badges",
 		"manage_badgesBt":"Gérer",
 		"remove_badgesBt":"Retirer",
+		"badge_name_placeholder":"nom du badge... (optionnel)",
 		"delete_badge":"Supprimer le badge",
 		"delete_badge_confirm":{
 			"title":"Supprimer le badge ?",
