@@ -381,7 +381,6 @@
 			"timeout": "Timeout duration in seconds",
 			"start_date": "Formated start date",
 			"timer_duration": "Formated timer's final duration",
-			"countdown_duration": "Formated countdown's duration",
 			"countdown_end_date": "Formated end date",
 			"challenge_title": "Challenge title",
 			"challenge_description": "Challenge description",
@@ -420,7 +419,13 @@
 			"clip_url": "Clip URL",
 			"goxlr_button_id":"Id of the button",
 			"goxlr_preset_index":"Preset index (1 -> 6)",
-			"goxlr_fxenabled":"FX enabled"
+			"goxlr_fxenabled":"FX enabled",
+			"timer_value":"Timer's value in seconds",
+			"timer_value_formated":"Formated timer's value",
+			"countdown_value":"Countdown's remaining time in seconds",
+			"countdown_value_formated":"Formated countdown's remaining time",
+			"countdown_duration":"Countdown's duration in seconds",
+			"countdown_duration_formated": "Formated countdown's duration"
 
 		},
 		"events": {

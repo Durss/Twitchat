@@ -102,11 +102,15 @@ First create a `credentials.json` file on the root directory and fill in these v
 	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
+		"moderator:manage:announcements",
+		"moderator:manage:chat_messages",
+		"moderator:manage:shoutouts",
+		"whispers:read",
+		"user:manage:whispers",
+		"moderator:read:chatters",
 		"channel:read:redemptions",
 		"channel:manage:polls",
 		"channel:manage:predictions",
-		"moderator:manage:announcements",
-		"moderator:manage:chat_messages",
 		"moderator:manage:chat_settings",
 		"channel:moderate",
 		"moderation:read",
@@ -117,23 +121,39 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:hype_train",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
-		"channel:read:goals",
 		"user:read:follows",
+		"moderator:read:followers",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"moderator:manage:banned_users",
-		"whispers:read",
-		"user:manage:whispers",
 		"moderator:manage:automod",
-		"moderator:read:chatters",
-		"moderator:read:followers",
-		"moderator:manage:shield_mode"
+		"moderator:manage:shield_mode",
+		"clips:edit"
 	],
 	
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
-	"spotify_redirect_uri": "http://localhost:8080/spotify/auth"
+	"spotify_redirect_uri": "http://localhost:8080/spotify/auth",
+	
+	"patreon_client_id": "",
+	"patreon_client_secret": "",
+	"patreon_scopes": "identity identity.memberships",
+	"patreon_redirect_uri": "http://localhost:8080/patreon/auth",
+	
+	"patreon_my_uid": "",
+	"patreon_client_id_server": "",
+	"patreon_client_secret_server": "",
+	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
+	"patreon_webhook_secret": "9p",
+
+	"tenor_secret": "",
+
+	"paypal_client_id":"",
+	"paypal_client_secret":"",
+
+	"donors_remote_api_secret": "",
+	"contact_mail": ""
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\

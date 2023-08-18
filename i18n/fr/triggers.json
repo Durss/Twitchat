@@ -381,7 +381,6 @@
 			"timeout": "Duration du ban en secondes",
 			"start_date": "Date de début formatée",
 			"timer_duration": "Durée finale du Chronomètre",
-			"countdown_duration": "Durée du compte à rebours",
 			"countdown_end_date": "Date de fin du compte à rebours",
 			"challenge_title": "Titre du défi",
 			"challenge_description": "Description du défi",
@@ -420,7 +419,13 @@
 			"clip_url": "URL du clip",
 			"goxlr_button_id":"Id du boutton",
 			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
-			"goxlr_fxenabled":"FX actif ou non"
+			"goxlr_fxenabled":"FX actif ou non",
+			"timer_value":"Durée du timer en secondes",
+			"timer_value_formated":"Durée du timer formatée",
+			"countdown_value":"Durée restante du compte à rebours en secondes",
+			"countdown_value_formated":"Durée restante du compte à rebours formatée",
+			"countdown_duration":"Durée du compte à rebours en secondes",
+			"countdown_duration_formated": "Durée du compte à rebours formatée"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -1612,6 +1612,49 @@ export default class TriggerActionHandler {
 					}else if(pointer === "__command__") {
 						value = subEvent || "-none-";
 						cleanSubevent = false;
+						
+					/**
+					 * If the placeholder requests for the current timer value
+					 */
+					}else if(pointer.indexOf("__timer__") == 0) {
+						const pointerLocal = pointer.replace('__timer__.', '');
+						if(StoreProxy.timer.timerStartDate > -1) {
+							const start = StoreProxy.timer.timerStartDate;
+							const offset = StoreProxy.timer.timerOffset;
+							let ellapsed = Math.floor((Date.now() - start + offset)/1000)*1000;
+							if(pointerLocal == "value") {
+								value = Math.round(ellapsed / 1000).toString();
+							}else
+							if(pointerLocal == "value_formated") {
+								value = Utils.formatDuration(ellapsed);
+							}
+						}else{
+							value = "0";
+						}
+
+					/**
+					 * If the placeholder requests for the current countdown value
+					 */
+					}else if(pointer.indexOf("__countdown__") == 0) {
+						const pointerLocal = pointer.replace('__countdown__.', '');
+						if(StoreProxy.timer.countdown) {
+							const ellapsed = Date.now() - StoreProxy.timer.countdown.startAt_ms;
+							const remaining = Math.ceil((StoreProxy.timer.countdown.duration_ms - ellapsed)/1000)*1000;
+							if(pointerLocal == "value") {
+								value = Math.round(remaining / 1000).toString();
+							}else
+							if(pointerLocal == "value_formated") {
+								value = Utils.formatDuration(remaining);
+							}else
+							if(pointerLocal == "duration") {
+								value = Math.round(StoreProxy.timer.countdown.duration_ms / 1000).toString();
+							}else
+							if(pointerLocal == "duration_formated") {
+								value = Utils.formatDuration(StoreProxy.timer.countdown.duration_ms);
+							}
+						}else{
+							value = "0";
+						}
 	
 					/**
 					 * If the placeholder requests for a counter's value

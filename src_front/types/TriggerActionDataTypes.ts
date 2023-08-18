@@ -884,7 +884,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.COUNTDOWN_START] = [
 		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"countdown.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration', pointer:"countdown.duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formated', pointer:"countdown.duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	]; 
 	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
 	map[TriggerTypes.COUNTDOWN_STOP]!.push(
@@ -1022,8 +1022,20 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My trigger"});
 		}
 		
-		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1 && StoreProxy.main.currentOBSScene) {
+		if(entry.findIndex(v=>v.tag == "OBS_SCENE") == -1) {
 			entry.push({tag:"OBS_SCENE", descKey:"triggers.placeholders.obs_scene", pointer:"__obs__.scene", numberParsable:false, isUserID:false, globalTag:true, example:"OBS scene"});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "TIMER_VALUE") == -1) {
+			entry.push({tag:"TIMER", descKey:"triggers.placeholders.timer_value", pointer:"__timer__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({tag:"TIMER_F", descKey:"triggers.placeholders.timer_value_formated", pointer:"__timer__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "COUNTDOWN_VALUE") == -1) {
+			entry.push({tag:"COUNTDOWN_VALUE", descKey:"triggers.placeholders.countdown_value", pointer:"__countdown__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({tag:"COUNTDOWN_VALUE_F", descKey:"triggers.placeholders.countdown_value_formated", pointer:"__countdown__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+			entry.push({tag:"COUNTDOWN_DURATION", descKey:"triggers.placeholders.countdown_duration", pointer:"__countdown__.duration", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 		}
 		
 

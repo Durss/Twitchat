@@ -16,9 +16,9 @@
 				<div class="emoji">
 					<svg xmlns="http://www.w3.org/2000/svg" width="75mm" height="75mm" viewBox="0 0 212.6 212.6">
 						<circle cx="106.3" cy="106.3" r="106.3" style="fill:#ffdd67;" />
-						<path ref="browR" d="m170.8,48.82c-11.47-9.68-26.66-13.75-41.43-11.1-2.05.4-3.86-7.16-1.36-7.64,17.04-3.06,34.57,1.63,47.81,12.81,1.92,1.66-3.44,7.3-5.01,5.93Z"
+						<path class="eyebrow" ref="browR" d="m170.8,48.82c-11.47-9.68-26.66-13.75-41.43-11.1-2.05.4-3.86-7.16-1.36-7.64,17.04-3.06,34.57,1.63,47.81,12.81,1.92,1.66-3.44,7.3-5.01,5.93Z"
 							style="fill:#917524; transform-origin:176px 40px" />
-						<path ref="browL" d="m83.23,37.18c-14.77-2.65-29.96,1.42-41.43,11.1-1.57,1.38-6.92-4.27-5-5.93,13.23-11.17,30.76-15.87,47.81-12.81,2.49.48.68,8.04-1.37,7.64Z"
+						<path class="eyebrow" ref="browL" d="m83.23,37.18c-14.77-2.65-29.96,1.42-41.43,11.1-1.57,1.38-6.92-4.27-5-5.93,13.23-11.17,30.76-15.87,47.81-12.81,2.49.48.68,8.04-1.37,7.64Z"
 							style="fill:#917524; transform-origin: 36px 40px;" />
 					</svg>
 					<div class="eyeLBg" ref="eyeLBg"></div>
@@ -350,6 +350,10 @@ export default class ParamsDonate extends Vue {
 				.eyeRBg{
 					left:auto;
 					right: .4em;
+				}
+
+				.eyebrow {
+					transition: all .2s;
 				}
 
 				.mouthBg {
