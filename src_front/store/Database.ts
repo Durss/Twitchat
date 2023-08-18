@@ -115,6 +115,8 @@ export default class Database {
 			TwitchatDataTypes.TwitchatMessageType.CONNECT,
 			TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
 			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
+			TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST,
+			TwitchatDataTypes.TwitchatMessageType.ROOM_SETTINGS,
 			TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 		];
 		//Do not save above message types. They're useless to recover
