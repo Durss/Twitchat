@@ -24,7 +24,7 @@
 					</ToggleBlock>
 			
 					<p class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info')"></p>
-					<Button @click="openSponsor()" light icon="coin">{{ $t('params.ad_disableBt') }}</Button>
+					<Button @click="openDonate()" light icon="coin">{{ $t('params.ad_disableBt') }}</Button>
 				</template>
 			</div>
 	</div>
@@ -60,7 +60,6 @@ export default class ParamsTwitchatAd extends Vue {
 	public blink:boolean = false;
 	
 	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
@@ -117,8 +116,8 @@ export default class ParamsTwitchatAd extends Vue {
 		}});
 	}
 
-	public openSponsor():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.SPONSOR);
+	public openDonate():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 	}
 
 }

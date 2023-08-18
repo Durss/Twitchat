@@ -7,10 +7,10 @@
 				</div>
 				<div class="content" v-html="$t('chat.sponsor.head')"></div>
 				<div class="ctas">
-					<img @click.stop="openParamPage(contentSponsor)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
+					<img @click.stop="openParamPage(contentDonate)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
 					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
-					@click.stop="openParamPage(contentSponsor)">{{ $t('chat.sponsor.tipBt') }}</Button>
+					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</Button>
 				</div>
 			</div>
 	
@@ -67,7 +67,7 @@
 					<Button icon="edit"
 						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
 					<Button icon="follow"
-						@click="openParamPage(contentSponsor)">{{ $t('chat.adalert.donateBt') }}</Button>
+						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
 			</div>
 	
@@ -167,7 +167,7 @@ export default class ChatAd extends Vue {
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
+	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
 	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 

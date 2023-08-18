@@ -79,8 +79,6 @@
 				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
-				<!-- Used for direct link to sponsor content from chat ads -->
-				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -115,12 +113,14 @@ import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
 import ParamsConnexions from './contents/ParamsConnexions.vue';
 import ParamsCounters from './contents/ParamsCounters.vue';
+import ParamsDonate from './contents/ParamsDonate.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
 import ParamsGoXLR from './contents/ParamsGoXLR.vue';
 import ParamsHeat from './contents/ParamsHeat.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
+import ParamsPremium from './contents/ParamsPremium.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
 import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
@@ -129,8 +129,6 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
-import ParamsPremium from './contents/ParamsPremium.vue';
-import ParamsDonate from './contents/ParamsDonate.vue';
 
 @Component({
 	components:{
@@ -183,7 +181,6 @@ export default class Parameters extends Vue {
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get contentHeat():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.HEAT; }
 	public get contentVoicemod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; }
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
 	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
 	public get contentGoXLR():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.GOXLR; }
