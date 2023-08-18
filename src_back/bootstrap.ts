@@ -12,6 +12,7 @@ import MiddlewareController from './controllers/MiddlewareController';
 import UluleController from './controllers/UluleController';
 import PatreonController from './controllers/PatreonController';
 import TenorController from './controllers/TenorController';
+import PaypalController from './controllers/PaypalController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -48,6 +49,7 @@ server.register(import('fastify-raw-body'), {
 	new UluleController(server).initialize();
 	new PatreonController(server).initialize();
 	new TenorController(server).initialize();
+	new PaypalController(server).initialize();
 	
 	//Start server
 	start();

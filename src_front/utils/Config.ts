@@ -165,8 +165,16 @@ export default class Config {
 	public get PATREON_CLIENT_ID():string { return this._serverConfig.patreon_client_id; }
 	/**
 	 * Patreon app requested scopes
-	 */
+	*/
 	public get PATREON_SCOPES():string { return this._serverConfig.patreon_scopes; }
+	/**
+	 * Paypal app client ID
+	 */
+	public get PAYPAL_CLIENT_ID():string { return this._serverConfig.paypal_client_id; }
+	/**
+	 * Contact mail
+	 */
+	public get CONTACT_MAIL():string { return this._serverConfig.contact_mail; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -235,4 +243,6 @@ export interface ServerConfig {
 	spotify_scopes: string;
 	patreon_client_id: string;
 	patreon_scopes: string;
+	paypal_client_id: string;
+	contact_mail: string;
 }

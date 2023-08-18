@@ -84,6 +84,10 @@ export default class FileServeController extends AbstractController {
 			
 			patreon_client_id:Config.credentials.patreon_client_id,
 			patreon_scopes:Config.credentials.patreon_scopes,
+			
+			paypal_client_id:Config.credentials.paypal_client_id,
+			
+			contact_mail:Config.credentials.contact_mail,
 		}));
 	}
 

@@ -265,6 +265,10 @@ export interface IAuthActions {
 	 * @param scopes 
 	 */
 	requestTwitchScopes(scopes:TwitchScopesString[]):void;
+	/**
+	 * Loads the currently authenticated user donor state
+	 */
+	loadUserState():Promise<void>;
 }
 
 

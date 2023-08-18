@@ -167,6 +167,28 @@ export default class Config {
 			prod: path.join(__dirname, "../donors/"),
 		});
 	}
+	
+	/**
+	 * Paypal API endpoint
+	 */
+	public static get PAYPAL_ENDPOINT(): string {
+		return this.getEnvData({
+			dev: "https://api-m.sandbox.paypal.com",
+			beta: "https://api-m.paypal.com",
+			prod: "https://api-m.paypal.com",
+		});
+	}
+	
+	/**
+	 * External endpoint that manages donors through google sheet (not part of this repository)
+	 */
+	public static get DONORS_REMOTE_ENDPOINT(): string {
+		return this.getEnvData({
+			dev: "http://127.0.0.1:3025/",
+			beta: "http://127.0.0.1:3025/",
+			prod: "http://127.0.0.1:3025/",
+		});
+	}
 
 	/**
 	 * Extract a data from an hasmap depending on the current environment.
@@ -239,4 +261,11 @@ interface Credentials {
 	patreon_webhook_secret:string;
 
 	tenor_secret:string;
+
+	paypal_client_id:string;
+	paypal_client_secret:string;
+
+	donors_remote_api_secret:string;
+
+	contact_mail:string;
 }

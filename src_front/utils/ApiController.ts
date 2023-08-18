@@ -264,5 +264,20 @@ type ApiEndpoints =  {
 			message?:string,
 			data: TenorGif[],
 		}
+	},
+	"paypal/create_order": {
+		POST: {
+			success:boolean,
+			error?:string;
+			data: {orderId:string},
+		}
+	},
+	"paypal/complete_order": {
+		POST: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
+			data: {orderId:string},
+		}
 	}
 }

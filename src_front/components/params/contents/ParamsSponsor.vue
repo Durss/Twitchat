@@ -38,7 +38,7 @@
 			:subtitle="$t('sponsor.premium_subtitle')">
 				<p>{{ $t("sponsor.premium_details") }}</p>
 				<PremiumFeatureList class="premiumFeatureList" />
-				<Button class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" secondary>{{ $t("sponsor.donate_patreonBt") }}</Button>
+				<Button class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
 			</ToggleBlock>
 
 			<Button v-for="link in links" type="link" ref="button"
@@ -177,7 +177,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		margin-top: -1em;
 		gap: .5em;
 
-		.premium {
+		&>.premium {
 			width: 100%;
 			:deep(.header) {
 				padding: .75em 1em;

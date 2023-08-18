@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsstreamdeck parameterContent">
-		<Icon name="elgato" alt="overlay icon" class="icon" />
+		<Icon name="elgato" alt="stream deck logo" class="icon" />
 
 		<p class="head">{{ $t("streamdeck.header") }}</p>
 		

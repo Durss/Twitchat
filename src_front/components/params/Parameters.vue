@@ -32,6 +32,7 @@
 						<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 						<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
 						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
+						<Button icon="coin"			@click="openPage(contentDonate)"		:selected="content==contentDonate" v-newflag="{date:1690765812999, id:'params_donate'}" secondary>{{$t('params.categories.donate')}}</Button>
 						<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1690765812999, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
 					</div>
 	
@@ -77,6 +78,7 @@
 				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
 				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
+				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<!-- Used for direct link to sponsor content from chat ads -->
 				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
 
@@ -128,6 +130,7 @@ import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import ParamsPremium from './contents/ParamsPremium.vue';
+import ParamsDonate from './contents/ParamsDonate.vue';
 
 @Component({
 	components:{
@@ -141,6 +144,7 @@ import ParamsPremium from './contents/ParamsPremium.vue';
 		ParamsAbout,
 		ParamsAlert,
 		ParamsGoXLR,
+		ParamsDonate,
 		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
@@ -180,6 +184,7 @@ export default class Parameters extends Vue {
 	public get contentHeat():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.HEAT; }
 	public get contentVoicemod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; }
 	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
+	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
 	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
 	public get contentGoXLR():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.GOXLR; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }

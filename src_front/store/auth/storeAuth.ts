@@ -160,22 +160,7 @@ export const storeAuth = defineStore('auth', {
 				//Check if user is part of the donors nor an admin
 				try {
 					window.setInitMessage("loading Twitchat user info");
-					const res = await ApiController.call("user");
-
-					const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
-					const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
-					
-					this.twitch.user.donor.state		= res.json.data.isDonor === true;
-					this.twitch.user.donor.level		= res.json.data.level;
-					this.twitch.user.donor.upgrade		= res.json.data.level != prevLevel;
-					this.twitch.user.donor.earlyDonor	= res.json.data.isEarlyDonor === true;
-					if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
-
-					//Async loading of followers count to define if user is exempt
-					//from ads or not
-					TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
-						this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
-					})
+					await this.loadUserState();
 				}catch(error) {}
 	
 				const sMain = StoreProxy.main;
@@ -300,6 +285,25 @@ export const storeAuth = defineStore('auth', {
 		requestTwitchScopes(scopes:TwitchScopesString[]) {
 			this.newScopesToRequest = scopes;
 		},
+
+		async loadUserState():Promise<void> {
+			const res = await ApiController.call("user");
+
+			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
+			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
+			
+			this.twitch.user.donor.state		= res.json.data.isDonor === true;
+			this.twitch.user.donor.level		= res.json.data.level;
+			this.twitch.user.donor.upgrade		= res.json.data.level != prevLevel;
+			this.twitch.user.donor.earlyDonor	= res.json.data.isEarlyDonor === true;
+			if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
+
+			//Async loading of followers count to define if user is exempt
+			//from ads or not
+			TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
+				this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			})
+		}
 	} as IAuthActions
 	& ThisType<IAuthActions
 		& UnwrapRef<IAuthState>

@@ -1,9 +1,9 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
+		<!-- <ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
 			<ParamsSponsor />
-		</ToggleBlock>
+		</ToggleBlock> -->
 
 		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="false">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
