@@ -750,8 +750,15 @@ export default class EventSub {
 				message.info.live = true;
 				message.info.title = streamInfo.title;
 				message.info.category = streamInfo.game_name;
-				StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
+			}else{
+				//Fallback to channel info if API isn't synchronized yet
+				const [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id]);
+				message.info.started_at = Date.now();
+				message.info.live = true;
+				message.info.title = chanInfo.title;
+				message.info.category = chanInfo.game_name;
 			}
+			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 		}
 		StoreProxy.chat.addMessage(message);
 		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = streamInfo;
