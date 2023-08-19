@@ -564,6 +564,8 @@ export default class PrivacyPolicy extends Vue {
 				this.deleteDone = true;
 				DataStore.clear();
 			});
+		}).catch(()=>{
+			this.deletingData = false;
 		})
 	}
 
