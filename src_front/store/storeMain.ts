@@ -34,7 +34,10 @@ export const storeMain = defineStore("main", {
 		initComplete: false,
 		devmode: false,
 		ahsInstaller: null,
-		alertData:"",
+		alertData:{
+			message:"",
+			critical:false,
+		},
 		tooltip: "",
 		cypherKey: "",
 		cypherEnabled: false,
@@ -139,6 +142,7 @@ export const storeMain = defineStore("main", {
 				jsonConfigs = res.json;
 			}catch(error) {
 				this.alert("Unable to contact server :(");
+				console.log(error);
 				this.initComplete = true;
 				return;
 			}
@@ -872,7 +876,10 @@ export const storeMain = defineStore("main", {
 			}
 		},
 
-		alert(message:string) { this.alertData = message; },
+		alert(message:string, isCritical:boolean = false) {
+			this.alertData.message = message;
+			this.alertData.critical = isCritical;
+		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {
 			return <Promise<T|undefined>>new Promise((resolve, reject) => {

@@ -76,7 +76,13 @@ export interface IMainState {
 	/**
 	 * Current alert data (user alert() to populate)
 	 */
-	alertData: string;
+	alertData: {
+		message:string;
+		/**
+		 * defines if it's a critical error. It will remain on screen and won't be replacable
+		 */
+		critical:boolean;
+	};
 	/**
 	 * Current tooltip data to display
 	 */
@@ -141,8 +147,9 @@ export interface IMainActions {
 	/**
 	 * Opens up an alert at the top of the app on red bar
 	 * @param message 
+	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
 	 */
-	alert(message:string):void;
+	alert(message:string, isCritical?:boolean):void;
 	/**
 	 * Opens up a confirm window requesting the user to confirm or cancel
 	 * @param title 

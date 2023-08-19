@@ -179,7 +179,7 @@ export default class Login extends Vue {
 			if(code) {
 				const res = await ApiController.call("auth/CSRFToken", "POST", {token:csrfToken});
 				if(!res.json.success) {
-					this.$store("main").alert(res.json.message!);
+					if(res.json.message) this.$store("main").alert(res.json.message);
 					this.authenticating = false;
 				}else{
 					this.$store("auth").twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {

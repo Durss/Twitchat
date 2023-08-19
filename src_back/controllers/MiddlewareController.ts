@@ -34,7 +34,7 @@ export default class MiddlewareController extends AbstractController {
 			max: 5,
 			ban: 5,
 			global: true,
-			timeWindow: 3000,
+			timeWindow: 2000,
 			addHeaders:{
 				'x-ratelimit-limit': false,
 				'x-ratelimit-remaining': false,
@@ -43,10 +43,17 @@ export default class MiddlewareController extends AbstractController {
 			},
 			allowList: (request, key) => {
 				//Apply rate limit only to API endpoints
-				return !/\/api\//.test(request.url);
+				return !/\/api\//.test(request.url) && request.url != "/api/configs";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);
+			},
+			errorResponseBuilder: function (request, context) {
+				return {
+					code: 429,
+					error: 'Too Many Requests',
+					errorCode: 'RATE_LIMIT'
+				}
 			}
 		});
 		
@@ -75,7 +82,7 @@ export default class MiddlewareController extends AbstractController {
 		//A banned user rate limit duration is expanded as long as they keep
 		//trying to call any endpoint
 		this.server.addHook('onRequest', (request, response, done) => {
-			if(/^\/api/gi.test(request.url)) {
+			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
 				const ip = this.getIp(request);
 				//Check if user has a custom rate limit duration
 				if(Date.now() < this.customRateLimit[ip]) {
@@ -85,7 +92,7 @@ export default class MiddlewareController extends AbstractController {
 					}, 5000)
 					const date = this.expandCustomRateLimitDuration(request);
 					response.status(429);
-					response.send({success:false, error:"Banned until "+new Date(date).toISOString()+" after suspicious activity"});
+					response.send({success:false, errorCode:"RATE_LIMIT_BAN", error:"Banned until "+new Date(date).toISOString()+" after suspicious activity"});
 					return;
 				}else{
 					if(this.customRateLimit[ip]) {

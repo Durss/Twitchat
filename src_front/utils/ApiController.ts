@@ -53,14 +53,21 @@ export default class ApiController {
 			}
 		}
 		const res = await fetch(url, options);
-		if(res.status != 200 && attemptIndex < 5 && res.status != 401) {
-			await Utils.promisedTimeout(1000);
-			return this.call(endpoint, method, data, attemptIndex+1);
-		}
 		let json:any = {};
 		try {
 			json = await res.json();
 		}catch(error) {}
+		if(res.status == 429) {
+			if(json.errorCode == "RATE_LIMIT_BAN") {
+				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
+			}else{
+				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit") );
+			}
+		}else
+		if(res.status != 200 && attemptIndex < 5 && res.status != 401) {
+			await Utils.promisedTimeout(1000);
+			return this.call(endpoint, method, data, attemptIndex+1);
+		}
 		return {status:res.status, json};
 	}
 	
