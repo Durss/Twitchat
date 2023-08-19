@@ -163,10 +163,7 @@ export default class RaidState extends Vue {
 
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
-		if(seconds <= 0) {
-			this.$store("stream").setRaiding(undefined);
-			return;
-		}
+		if(seconds <= 0) return;
 		this.timeLeft = Utils.formatDuration(seconds);
 	}
 

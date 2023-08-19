@@ -66,7 +66,7 @@ export const storeStream = defineStore('stream', {
 			return false;
 		},
 
-		setRaiding(infos:TwitchatDataTypes.RaidInfo) {
+		setRaiding(infos?:TwitchatDataTypes.RaidInfo) {
 			if(!this.currentRaid && infos) {
 				const m:TwitchatDataTypes.MessageRaidStartData = {
 					date:Date.now(),

@@ -1007,7 +1007,7 @@ export interface IStreamActions {
 	 * Set outgoing raid info
 	 * @param infos 
 	 */
-	setRaiding(infos:TwitchatDataTypes.RaidInfo):void;
+	setRaiding(infos?:TwitchatDataTypes.RaidInfo):void;
 	/**
 	 * Called after a raid completed
 	 */

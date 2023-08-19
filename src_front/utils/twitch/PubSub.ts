@@ -531,7 +531,7 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.stream.setRaiding(m);
 
 		}else if(data.type == "raid_go_v2" ||data.type == "raid_cancel_v2") {
-			StoreProxy.stream.setRaiding(undefined);
+			StoreProxy.stream.setRaiding();
 
 
 
@@ -636,7 +636,7 @@ export default class PubSub extends EventDispatcher {
 				}
 
 				case "unraid": {
-					StoreProxy.stream.setRaiding(undefined);
+					StoreProxy.stream.setRaiding();
 					break;
 				}
 				
