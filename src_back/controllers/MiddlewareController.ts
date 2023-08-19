@@ -10,6 +10,10 @@ import * as mime from "mime-types";
 * Created : 22/02/2023 
 */
 export default class MiddlewareController extends AbstractController {
+
+	private customRateLimit:{[key:string]:number} = {};
+	private customRateLimitAttempts:{[key:string]:number} = {};
+	private customRateLimitTimeouts:{[key:string]:NodeJS.Timeout} = {};
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -26,26 +30,28 @@ export default class MiddlewareController extends AbstractController {
 	******************/
 	public async initialize():Promise<void> {
 		//Rate limiter
-		this.server.register(require('@fastify/rate-limit'), {
-			max: 10,
-			ban: 2,
+		await this.server.register(require('@fastify/rate-limit'), {
+			max: 5,
+			ban: 5,
+			global: true,
+			timeWindow: 3000,
 			addHeaders:{
 				'x-ratelimit-limit': false,
 				'x-ratelimit-remaining': false,
 				'x-ratelimit-reset': true,
 				'retry-after': false
 			},
-			timeWindow: '30000',
 			allowList: (request, key) => {
-				if(!/\/api\//.test(request.url)){
-					return true;
-				}
-				return false;
+				//Apply rate limit only to API endpoints
+				return !/\/api\//.test(request.url);
+			},
+			onBanReach: (request, key) => {
+				this.expandCustomRateLimitDuration(request);
 			}
 		});
 		
 		//CORS headers
-		this.server.register(require('@fastify/cors'), { 
+		await this.server.register(require('@fastify/cors'), { 
 			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/],
 			methods:['GET', 'PUT', 'POST', 'DELETE'],
 			decorateReply: true,
@@ -53,7 +59,7 @@ export default class MiddlewareController extends AbstractController {
 		})
 		
 		//Static files
-		this.server.register(require('@fastify/static'), {
+		await this.server.register(require('@fastify/static'), {
 			root: Config.PUBLIC_ROOT,
 			prefix: '/',
 			setHeaders:(response, path)=>{
@@ -64,11 +70,35 @@ export default class MiddlewareController extends AbstractController {
 				// res.setHeader("Set-Cookie", "cross-site-cookie=*; SameSite=None; Secure");
 			}
 		})
+
+		//Hook called on every request to refuse any request from a banned user
+		//A banned user rate limit duration is expanded as long as they keep
+		//trying to call any endpoint
+		this.server.addHook('onRequest', (request, response, done) => {
+			if(/^\/api/gi.test(request.url)) {
+				const ip = this.getIp(request);
+				//Check if user has a custom rate limit duration
+				if(Date.now() < this.customRateLimit[ip]) {
+					clearTimeout(this.customRateLimitTimeouts[ip]);
+					this.customRateLimitTimeouts[ip] = setTimeout(()=> {
+						Logger.warn("IP "+ip+" banned after x"+this.customRateLimitAttempts[ip]+" 404 calls until "+new Date(date).toISOString());
+					}, 5000)
+					const date = this.expandCustomRateLimitDuration(request);
+					response.status(429);
+					response.send({success:false, error:"Banned until "+new Date(date).toISOString()+" after suspicious activity"});
+					return;
+				}else{
+					if(this.customRateLimit[ip]) {
+						//Reset custom rate limit
+						delete this.customRateLimit[ip];
+						delete this.customRateLimitAttempts[ip];
+					}
+				}
+			}
+			done();
+		})
 		
-		
-		this.server.setNotFoundHandler({
-			preValidation: (request, response, done) => done(),
-			preHandler: (request, response, done) => done(),
+		await this.server.setNotFoundHandler({
 		}, (request:FastifyRequest, response:FastifyReply) => {
 			this.notFound(request, response);
 		});
@@ -81,9 +111,11 @@ export default class MiddlewareController extends AbstractController {
 	*******************/
 
 	private notFound(request:FastifyRequest, response:FastifyReply):void {
+		//Return 404 only for /api and /assets paths
 		if(/^\/api/gi.test(request.url) || /^\/assets/gi.test(request.url)) {
 			if(!/^(\/assets|.*\.js\.map)/gi.test(request.url)) {
-				Logger.warn("404: "+ request.url+" - From IP: "+request.headers["x-forwarded-for"]);
+				const ip = this.getIp(request);
+				Logger.warn("404: "+ request.url+" - From IP: "+ip);
 			}
 			response.code(404).send({success:false, error:"Not found"});
 			return;
@@ -108,5 +140,36 @@ export default class MiddlewareController extends AbstractController {
 		}
 	
 		response.send(stream);
+	}
+
+	/**
+	 * Get user IP from request
+	 * @param request 
+	 */
+	private getIp(request:FastifyRequest):string {
+		return request.headers['x-real-ip'] as string // nginx
+		|| request.headers['x-client-ip'] as string // apache
+		|| request.headers['x-forwarded-for'] as string // use this only if you trust the header
+		|| request.ip; // fallback to default
+	}
+
+	/**
+	 * Set or expand the custom rate limiting duration
+	 * After user exceeded their quota, this function is called to define a custom
+	 * rate limit duration. As long as the user keeps hitting 404 their ban
+	 * duration will be expanded.
+	 * 
+	 * @param request 
+	 */
+	private expandCustomRateLimitDuration(request:FastifyRequest):number {
+		if(!this.customRateLimit[this.getIp(request)]) {
+			this.customRateLimit[this.getIp(request)] = Date.now() + 5000;
+			this.customRateLimitAttempts[this.getIp(request)] = 0;
+		}
+		const attempts = ++this.customRateLimitAttempts[this.getIp(request)];
+
+		//Make custom rate limit duration exponential if user keeps trying
+		this.customRateLimit[this.getIp(request)] += Math.pow(attempts,3) * 1000;
+		return this.customRateLimit[this.getIp(request)];
 	}
 }
