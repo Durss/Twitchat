@@ -37,32 +37,38 @@
 						</div>
 
 						<svg class="cloud" ref="cloud" xmlns="http://www.w3.org/2000/svg" width="288.8px" height="225.3px" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 288.8 225.33">
-						<defs>
-							<linearGradient id="b" x1="-471.42" y1="738.94" x2="-469.92" y2="738.94"
-								gradientTransform="translate(-12608.79 8341.51) rotate(90) scale(17.26 -17.26)"
-								gradientUnits="userSpaceOnUse">
-								<stop offset="0" stop-color="#78c0e8" />
-								<stop offset="1" stop-color="#31a0d6" />
-							</linearGradient>
-						</defs>
-						<rect x="84.5" y="150.66" width="115.53" height="74.62" style="fill:url(#b);" />
-						<path
-							d="m272.63,100.77c31.35,19.04,10.04,65.78-24.33,57.6-7.32-.78-5.49-1.62-8.95,4.67-8.78,19.81-45.58,27.05-62.28,14.79-7.52-5.06-6.49-7.57-15.37-2.72-31.12,19.82-85.2,12.66-103.93-17.52C12.74,182.73-24.99,114.93,20.79,92.21.68,51.36,42.53,15.76,81.9,29.93c14.88-38.71,76.36-40.01,94.19-3.11,60.89-30.38,104.76,15.04,96.53,73.95Z"
-							style="fill:#d2edf7;" />
-						<path
-							d="m15.44,73.24c-.91-18.08,10.05-34.02,24.43-40.97-24.37,15.15-5.32,43.53-.77,61.3-11.11,12.67-22.75-2.26-23.66-20.34Z"
-							style="fill:#92cbeb;" />
-						<path
-							d="m286.64,138.14c-9.3,29.45-41.95,20.1-47.49,24.9-14.93,36.84-72.93,16.13-77.84,12.26-31.15,20.43-84.5,11.54-103.93-17.32-16.14,11.6-52.01,3.83-55.71-23.49,12.5,12.89,30.17,20.16,50.65,14.54-3.04-7.59-6.01-21.52-1.95-30.36,6.72,41.51,60.67,70.28,94.2,37.36,14.54-20.57,37.31-72.6,67.14-40.67,6.04,11.39-9.48,18.97-19.66,16.93-90.04,15.68,56.15,93.76,51.38-13.62,8.83,10.19,2.22,24.32,10.51,30.75,19.11,4.67,36.39-23.8,28.88-39.24,6.61,6.73,7.52,19.69,3.82,27.95Z"
-							style="fill:#78c0e8;" />
-						<path d="m155.16,5.91c41.47,19.32,20.46,75.07-1.77,46.18,7.16-11.32,13.53-33.74,1.77-46.18Z"
-							style="fill:#92cbeb;" />
-						<path
-							d="m264.92,87.91c-2.27,6.64-15.71,13.74-22.97,6.42,3.92-15.18,31.51-34.82,16.35-55.47,10.97,14.03,13.09,32.66,6.62,49.04Z"
-							style="fill:#92cbeb;" />
-						<path d="m165.59,225.33h-17.9c-5.81-44.96,23.74-44.81,17.9,0Z" style="fill:#039be5;" />
-						<path d="m129.78,225.33h-10.9c-4.44-58.17,15.37-57.85,10.9,0Z" style="fill:#039be5;" />
-					</svg>
+							<defs>
+								<linearGradient id="b" x1="-471.42" y1="738.94" x2="-469.92" y2="738.94"
+									gradientTransform="translate(-12608.79 8341.51) rotate(90) scale(17.26 -17.26)"
+									gradientUnits="userSpaceOnUse">
+									<stop offset="0" stop-color="#78c0e8" />
+									<stop offset="1" stop-color="#31a0d6" />
+								</linearGradient>
+							</defs>
+							<rect x="84.5" y="150.66" width="115.53" height="74.62" style="fill:url(#b);" />
+							<path
+								d="m272.63,100.77c31.35,19.04,10.04,65.78-24.33,57.6-7.32-.78-5.49-1.62-8.95,4.67-8.78,19.81-45.58,27.05-62.28,14.79-7.52-5.06-6.49-7.57-15.37-2.72-31.12,19.82-85.2,12.66-103.93-17.52C12.74,182.73-24.99,114.93,20.79,92.21.68,51.36,42.53,15.76,81.9,29.93c14.88-38.71,76.36-40.01,94.19-3.11,60.89-30.38,104.76,15.04,96.53,73.95Z"
+								style="fill:#d2edf7;" />
+							<path
+								d="m15.44,73.24c-.91-18.08,10.05-34.02,24.43-40.97-24.37,15.15-5.32,43.53-.77,61.3-11.11,12.67-22.75-2.26-23.66-20.34Z"
+								style="fill:#92cbeb;" />
+							<path
+								d="m286.64,138.14c-9.3,29.45-41.95,20.1-47.49,24.9-14.93,36.84-72.93,16.13-77.84,12.26-31.15,20.43-84.5,11.54-103.93-17.32-16.14,11.6-52.01,3.83-55.71-23.49,12.5,12.89,30.17,20.16,50.65,14.54-3.04-7.59-6.01-21.52-1.95-30.36,6.72,41.51,60.67,70.28,94.2,37.36,14.54-20.57,37.31-72.6,67.14-40.67,6.04,11.39-9.48,18.97-19.66,16.93-90.04,15.68,56.15,93.76,51.38-13.62,8.83,10.19,2.22,24.32,10.51,30.75,19.11,4.67,36.39-23.8,28.88-39.24,6.61,6.73,7.52,19.69,3.82,27.95Z"
+								style="fill:#78c0e8;" />
+							<path d="m155.16,5.91c41.47,19.32,20.46,75.07-1.77,46.18,7.16-11.32,13.53-33.74,1.77-46.18Z"
+								style="fill:#92cbeb;" />
+							<path
+								d="m264.92,87.91c-2.27,6.64-15.71,13.74-22.97,6.42,3.92-15.18,31.51-34.82,16.35-55.47,10.97,14.03,13.09,32.66,6.62,49.04Z"
+								style="fill:#92cbeb;" />
+							<path d="m165.59,225.33h-17.9c-5.81-44.96,23.74-44.81,17.9,0Z" style="fill:#039be5;" />
+							<path d="m129.78,225.33h-10.9c-4.44-58.17,15.37-57.85,10.9,0Z" style="fill:#039be5;" />
+						</svg>
+
+						<div class="question" ref="question">
+							<span>?</span>
+							<span>?</span>
+							<span>?</span>
+						</div>
 
 						<svg xmlns="http://www.w3.org/2000/svg" width="212px" height="212px" viewBox="0 0 212.6 212.6">
 							<circle cx="106.3" cy="106.3" r="106.3" style="fill:#ffdd67;" />
@@ -79,6 +85,11 @@
 						<div class="mouth" ref="mouth"></div>
 						<div class="tongue" ref="tongue"></div>
 						<div class="teeth" ref="teeth"></div>
+
+						<div class="dirtyEyes" ref="dirtyEyes">
+							<span>🍑</span>
+							<span>🍑</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -328,6 +339,8 @@ export default class ParamsDonate extends Vue {
 		const heart = this.$refs.heart as SVGPathElement[];
 		const cloud = this.$refs.cloud as SVGPathElement;
 		const flares = this.$refs.flares as SVGPathElement;
+		const question = this.$refs.question as SVGPathElement;
+		const dirtyEyes = this.$refs.dirtyEyes as SVGPathElement;
 		
 		const amazePercent = this.amount/50;
 		mouth.style.borderTopLeftRadius = Math.min(1, amazePercent)+"em";
@@ -382,6 +395,18 @@ export default class ParamsDonate extends Vue {
 		}else{
 			flares.style.transform = "scale(0)";
 			cloud.style.transform = "scale(0)";
+		}
+
+		if(this.amount == 42) {
+			question.style.transform = "scale(1)";
+		}else{
+			question.style.transform = "scale(0)";
+		}
+
+		if(this.amount == 69) {
+			dirtyEyes.style.transform = "scale(1)";
+		}else{
+			dirtyEyes.style.transform = "scale(0)";
 		}
 	}
 }
@@ -604,6 +629,44 @@ export default class ParamsDonate extends Vue {
 								top: -10%;
 							}
 						}
+					}
+
+					.question {
+						position: absolute;
+						bottom: 90%;
+						left: .2em;
+						font-weight: bold;
+						font-family: "Roboto";
+						font-size: 2em;
+						display: flex;
+						align-items: flex-end;
+						transition: all .2s;
+						transform-origin: bottom center;
+						span {
+							display: inline-block;
+						}
+						span:nth-child(1) {
+							font-size: .7em;
+							transform: rotate(-25deg);
+						}
+						span:nth-child(3) {
+							font-size: .7em;
+							transform: rotate(25deg);
+						}
+					}
+
+					.dirtyEyes {
+						position: absolute;
+						bottom: 90%;
+						left: .4em;
+						top: 1.5em;
+						font-weight: bold;
+						font-size: .8em;
+						display: flex;
+						align-items: flex-end;
+						transition: all .2s;
+						transform-origin: top center;
+						letter-spacing: .2em;
 					}
 				}
 			}
