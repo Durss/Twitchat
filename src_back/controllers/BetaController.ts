@@ -62,7 +62,7 @@ export default class BetaController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -124,7 +124,7 @@ export default class BetaController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}

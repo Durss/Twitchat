@@ -14,14 +14,14 @@
 			</ul>
 	
 			<p>
-				<strong>Questions or concerns?</strong> Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at twitchatofficial@gmail.com.
+				<strong>Questions or concerns?</strong> Reading this privacy notice will help you understand your privacy rights and choices. If you do not agree with our policies and practices, please do not use our Services. If you still have any questions or concerns, please contact us at {{ $config.CONTACT_MAIL }}.
 			</p>
 	
 			<h2>SUMMARY OF KEY POINTS</h2>
 	
 			<p><strong>This summary provides key points from our privacy notice, but you can find out more details about any of these topics by clicking the link following each key point or by using our <a href="#toc">table of contents</a> below to find the section you are looking for.</strong></p>
 	
-			<p><strong>What personal information do we process?</strong> When you visit, use, or navigate our Services, we may process personal information depending on how you interact with us and the Services, the choices you make, and the products and features you use. Learn more about <a href="#personalinfo">personal information you disclose to us</a>.</p>
+			<p><strong>What personal information do we process?</strong> When you visit, use, or navigate our Services, we may process personal information depending on how you interact with us and the Services, the choices you make, and the products and features you use. Learn more about <a href="#infocollect">personal information you disclose to us</a>.</p>
 	
 			<p><strong>Do we process any sensitive personal information?</strong> We do not process sensitive personal information.</p>
 	
@@ -35,7 +35,7 @@
 	
 			<p><strong>What are your rights?</strong> Depending on where you are located geographically, the applicable privacy law may mean you have certain rights regarding your personal information. Learn more about <a href="#privacyrights" target="_blank">your privacy rights</a>.</p>
 	
-			<p><strong>How do you exercise your rights?</strong> The easiest way to exercise your rights is by submitting a <a href="https://app.termly.io/notify/86338b66-786d-471e-952e-70f0dd74ba15" target="_blank">data subject access request</a>, or by contacting us. We will consider and act upon any request in accordance with applicable data protection laws.</p>
+			<p><strong>How do you exercise your rights?</strong> The easiest way to exercise your rights is by <a @click="openDataMnagerForm()" target="_blank">opening data management form</a>.</p>
 	
 			<p>Want to learn more about what we do with any information we collect? <a href="#toc">Review the privacy notice in full</a>.</p>
 	
@@ -72,6 +72,7 @@
 			<p><strong>Personal Information Provided by You.</strong> The personal information that we collect depends on the context of your interactions with us and the Services, the choices you make, and the products and features you use. The personal information we collect may include the following:</p>
 			<ul>
 				<li>Your Twitch user ID</li>
+				<li>Your Twitchat parameters</li>
 			</ul>
 	
 			<p><strong>Sensitive Information.</strong> We do not process sensitive information.</p>
@@ -180,7 +181,7 @@
 			<h2 id="infominors">8. DO WE COLLECT INFORMATION FROM MINORS?</h2>
 			<p><strong>In Short:</strong> We do not knowingly collect data from or market to children under 18 years of age.</p>
 
-			<p>We do not knowingly solicit data from or market to children under 18 years of age. By using the Services, you represent that you are at least 18 or that you are the parent or guardian of such a minor and consent to such minor dependent’s use of the Services. If we learn that personal information from users less than 18 years of age has been collected, we will deactivate the account and take reasonable measures to promptly delete such data from our records. If you become aware of any data we may have collected from children under age 18, please contact us at twitchatofficial@gmail.com.</p>
+			<p>We do not knowingly solicit data from or market to children under 18 years of age. By using the Services, you represent that you are at least 18 or that you are the parent or guardian of such a minor and consent to such minor dependent’s use of the Services. If we learn that personal information from users less than 18 years of age has been collected, we will deactivate the account and take reasonable measures to promptly delete such data from our records. If you become aware of any data we may have collected from children under age 18, please contact us at {{ $config.CONTACT_MAIL }}.</p>
 
 
 
@@ -208,7 +209,7 @@
 			</ul>
 			<p>Upon your request to terminate your account, we will deactivate or delete your account and information from our active databases. However, we may retain some information in our files to prevent fraud, troubleshoot problems, assist with any investigations, enforce our legal terms and/or comply with applicable legal requirements.</p>
 
-			<p>If you have questions or comments about your privacy rights, you may email us at twitchatofficial@gmail.com.</p>
+			<p>If you have questions or comments about your privacy rights, you may email us at {{ $config.CONTACT_MAIL }}.</p>
 
 
 
@@ -321,7 +322,7 @@
 
 			<p>More information about our data collection and sharing practices can be found in this privacy notice .</p>
 
-			<p>You may contact us by email at  twitchatofficial@gmail.com , or by referring to the contact details at the bottom of this document.</p>
+			<p>You may contact us by email at  {{ $config.CONTACT_MAIL }} , or by referring to the contact details at the bottom of this document.</p>
 
 			<p>If you are using an authorized agent to exercise your right to opt out we may deny a request if the authorized agent does not submit proof that they have been validly authorized to act on your behalf.</p>
 
@@ -377,7 +378,7 @@
 				<li>You may request to opt out from future selling or sharing of your personal information to third parties. Upon receiving an opt-out request, we will act upon the request as soon as feasibly possible, but no later than fifteen (15) days from the date of the request submission.</li>
 			</ul>
 
-			<p>To exercise these rights, you can contact us  by email at twitchatofficial@gmail.com , or by referring to the contact details at the bottom of this document. If you have a complaint about how we handle your data, we would like to hear from you.</p>
+			<p>To exercise these rights, you can contact us  by email at {{ $config.CONTACT_MAIL }} , or by referring to the contact details at the bottom of this document. If you have a complaint about how we handle your data, we would like to hear from you.</p>
 
 
 
@@ -413,13 +414,13 @@
 
 			<p class="underline">Exercise your rights provided under the Virginia CDPA</p>
 			<p>More information about our data collection and sharing practices can be found in this privacy notice .</p>
-			<p>You may contact us by email at twitchatofficial@gmail.com , by submitting a <a href="https://app.termly.io/notify/86338b66-786d-471e-952e-70f0dd74ba15" target="_blank">data subject access request</a>, or by referring to the contact details at the bottom of this document.</p>
+			<p>You may contact us by email at {{ $config.CONTACT_MAIL }}.</p>
 			<p>If you are using an authorized agent to exercise your rights, we may deny a request if the authorized agent does not submit proof that they have been validly authorized to act on your behalf.</p>
 			<p class="underline">Verification process</p>
 			<p>We may request that you provide additional information reasonably necessary to verify you and your consumer's request. If you submit the request through an authorized agent, we may need to collect additional information to verify your identity before processing your request.</p>
 			<p>Upon receiving your request, we will respond without undue delay, but in all cases, within forty-five (45) days of receipt. The response period may be extended once by forty-five (45) additional days when reasonably necessary. We will inform you of any such extension within the initial 45-day response period, together with the reason for the extension.</p>
 			<p class="underline">Right to appeal </p>
-			<p>If we decline to take action regarding your request, we will inform you of our decision and reasoning behind it. If you wish to appeal our decision, please email us at twitchatofficial@gmail.com . Within sixty (60) days of receipt of an appeal, we will inform you in writing of any action taken or not taken in response to the appeal, including a written explanation of the reasons for the decisions. If your appeal if denied, you may contact the <a href="Attorney General to submit a complaint" target="_blank">Attorney General to submit a complaint</a>.</p>
+			<p>If we decline to take action regarding your request, we will inform you of our decision and reasoning behind it. If you wish to appeal our decision, please email us at {{ $config.CONTACT_MAIL }} . Within sixty (60) days of receipt of an appeal, we will inform you in writing of any action taken or not taken in response to the appeal, including a written explanation of the reasons for the decisions. If your appeal if denied, you may contact the <a href="Attorney General to submit a complaint" target="_blank">Attorney General to submit a complaint</a>.</p>
 
 
 
@@ -434,32 +435,137 @@
 
 
 			<h2 id="contact">14. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
-			<p>If you have questions or comments about this notice, you may email us at twitchatofficial@gmail.com.</p>
+			<p>If you have questions or comments about this notice, you may email us at {{ $config.CONTACT_MAIL }}.</p>
 
 
 
 
 
 			<h2 id="request">15. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?</h2>
-			<p>Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, change that information, or delete it. To request to review, update, or delete your personal information, please fill out and submit a <a href="https://app.termly.io/notify/86338b66-786d-471e-952e-70f0dd74ba15" target="_blank">data subject access request</a>.</p>
+			<p>Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, change that information, or delete it. To request to review, update, or delete your personal information, please <a @click="openDataMnagerForm()" target="_blank">open data management form</a>.</p>
 			<p>This privacy policy was created using Termly's <a href="https://termly.io/products/privacy-policy-generator/" target="_blank">Privacy Policy Generator</a>.</p>
 		</div>
+
+		<div class="dataManager modal" v-if="showDataManager">
+			<div class="dimmer" @click="showDataManager = false"></div>
+			<div class="holder">
+				<div class="head">
+					<div class="title">Manage your personnal data</div>
+					<CloseButton @click="showDataManager = false" />
+				</div>
+				<div class="content" v-if="auhtenticating">
+					<Icon name="loader" class="loader" />
+				</div>
+				<div class="content" v-else-if="!auhtenticated">
+					<p class="card-item alert"><Icon name="alert" />You must be authenticated</p>
+					<Button class="loginBt"
+						ref="loginBt"
+						@click="showLoginForm = true; showDataManager = false;"
+						icon="twitch"
+					>{{ $t('home.loginBt') }}</Button>
+				</div>
+				<div class="content" v-else>
+					<p>Twitchat only keeps your parameters on its server. You cand download or delete them.</p>
+					<div class="ctas">
+						<Button @click="downloadData()" icon="download" :loading="downloadingData">Download your personnal data</Button>
+						<Button v-if="!showDeleteInput" @click="showDeleteInput=true" icon="trash" alert>Delete your personnal data</Button>
+						<p v-if="showDeleteInput && !deleteDone && !deletingData" class="instructions">Please write "<strong>DELETE MY DATA</strong>" bellow and submit</p>
+						<form v-if="showDeleteInput && !deleteDone && !deletingData" @submit.prevent="deleteData()">
+							<input type="text" placeholder="write DELETE MY DATA..." v-model="confirmation">
+							<Button type="submit" alert :disabled="confirmation.trim().toLowerCase() != 'delete my data'">DELETE</Button>
+						</form>
+						<Icon v-if="deletingData" class="loader" name="loader" />
+						<div v-if="deleteDone" class="card-item primary">Your data have been successfully deleted</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<Login v-show="showLoginForm" :show="showLoginForm" @close="showLoginForm = false; showDataManager = true;" />
 	</div>
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
+import CloseButton from '@/components/CloseButton.vue';
 import Icon from '@/components/Icon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
+import ApiController from '@/utils/ApiController';
 import { Component, Vue } from 'vue-facing-decorator';
+import Login from './Login.vue';
+import DataStore from '@/store/DataStore';
+import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
 		Icon,
+		Login,
+		Button,
+		CloseButton,
 		ThemeSelector,
 	},
 	emits:[],
 })
 export default class PrivacyPolicy extends Vue {
+
+	public confirmation:string = "";
+	public showDeleteInput:boolean = false;
+	public showDataManager:boolean = false;
+	public auhtenticating:boolean = true;
+	public auhtenticated:boolean = false;
+	public showLoginForm:boolean = false;
+	public downloadingData:boolean = false;
+	public deletingData:boolean = false;
+	public deleteDone:boolean = false;
+
+	public openDataMnagerForm():void {
+		this.showDataManager = true;
+		this.auhtenticating = true;
+		this.$store("auth").twitch_tokenRefresh(false)
+		.then(result => {
+			console.log("AUTH RESULT", result);
+			this.auhtenticated = result != undefined;
+			this.auhtenticating = false;
+			DataStore.set("redirect", this.$route.name, false);
+			console.log(this.$route.name);
+		}).catch(() => {
+			this.auhtenticated = false;
+			this.auhtenticating = false;
+		});
+	}
+
+	public downloadData():void {
+		this.downloadingData = true;
+		ApiController.call("user/data", "GET").then(async (result) => {
+			if(result.json.success) {
+				const data = JSON.stringify(result.json.data);
+				const blob = new Blob([data], { type: 'application/json' });
+				const url = window.URL.createObjectURL(blob);
+				const link = document.createElement('a');
+				link.href = url;
+				link.download = "twitchat_data.json";
+				link.click();
+				URL.revokeObjectURL(url);
+				await Utils.promisedTimeout(1000);
+			}else{
+				this.$store("main").alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
+			}
+			this.downloadingData = false;
+		});
+	}
+
+	public deleteData():void {
+		this.deletingData = true;
+		this.$confirm("Delete your data?",
+		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>This cannot be undone</strong>!")
+		.then(()=> {
+			ApiController.call("user/data", "DELETE").then(()=>{
+				this.deletingData = false;
+				this.deleteDone = true;
+				DataStore.clear();
+			});
+		})
+	}
 
 }
 </script>
@@ -469,6 +575,12 @@ export default class PrivacyPolicy extends Vue {
 	color: var(--color-text);
 	margin: 2em;
 
+	.loader {
+		margin:auto;
+		height: 2em;
+		display: block;
+	}
+
 	.themeSelector {
 		margin: auto;
 		display: block;
@@ -476,23 +588,24 @@ export default class PrivacyPolicy extends Vue {
 		margin-bottom: 1em;
 	}
 
-	.content {
+	&>.content {
 		line-height: 1.25em;
 		padding: 1em;
-	}
-
-	.head {
-		margin-bottom: 1em;
+		
+		&>.head {
+			margin-bottom: 1em;
+		}
+		
+	
+		&>p, &>ul {
+			margin-bottom: 1em;
+		}
 	}
 
 	h2 {
 		margin-top: 5em;
 		margin-bottom: .5em;
 		font-size: 1.25em;
-	}
-	
-	p, ul {
-		margin-bottom: 1em;
 	}
 
 	ul {
@@ -525,6 +638,46 @@ export default class PrivacyPolicy extends Vue {
 		}
 		.icon {
 			height: 1em;
+		}
+	}
+
+	.dataManager {
+		.content {
+			text-align: center;
+			.ctas {
+				margin-top: 1em;
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: center;
+				
+				form {
+					display: flex;
+					flex-direction: row;
+					input {
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+					}
+					.button {
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+					}
+				}
+			}
+
+			&>.alert {
+				width: auto;
+				margin: auto;
+				width: fit-content;
+				margin-bottom: 1em;
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+					vertical-align: middle;
+				}
+			}
 		}
 	}
 }

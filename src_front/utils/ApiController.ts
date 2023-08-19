@@ -53,7 +53,7 @@ export default class ApiController {
 			}
 		}
 		const res = await fetch(url, options);
-		if(res.status != 200 && attemptIndex < 5) {
+		if(res.status != 200 && attemptIndex < 5 && res.status != 401) {
 			await Utils.promisedTimeout(1000);
 			return this.call(endpoint, method, data, attemptIndex+1);
 		}
@@ -220,6 +220,9 @@ type ApiEndpoints =  {
 		POST: {
 			success:boolean,
 			message?:string,
+		},
+		DELETE: {
+			success:boolean,
 		},
 	},
 	"patreon/authenticate": {

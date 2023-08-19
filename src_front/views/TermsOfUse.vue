@@ -10,7 +10,7 @@
 			<h2>AGREEMENT TO OUR LEGAL TERMS</h2>
 			<p>We are François Dursus ("Company," "we," "us," "our"), a company registered in France at 115 rue de meaux, PARIS 75019.</p>
 			<p>We operate the website <a href="https://twitchat.fr" target="_blank">https://twitchat.fr</a> (the "Site"), as well as any other related products and services that refer or link to these legal terms (the "Legal Terms") (collectively, the "Services").</p>
-			<p>You can contact us by email at twitchatofficial@gmail.com.</p>
+			<p>You can contact us by email at {{ $config.CONTACT_MAIL }}.</p>
 			<p>These Legal Terms constitute a legally binding agreement made between you, whether personally or on behalf of an entity ("you"), and François Dursus, concerning your access to and use of the Services. You agree that by accessing the Services, you have read, understood, and agreed to be bound by all of these Legal Terms. IF YOU DO NOT AGREE WITH ALL OF THESE LEGAL TERMS, THEN YOU ARE EXPRESSLY PROHIBITED FROM USING THE SERVICES AND YOU MUST DISCONTINUE USE IMMEDIATELY.</p>
 			<p>Supplemental terms and conditions or documents that may be posted on the Services from time to time are hereby expressly incorporated herein by reference. We reserve the right, in our sole discretion, to make changes or modifications to these Legal Terms from time to time. We will alert you about any changes by updating the "Last updated" date of these Legal Terms, and you waive any right to receive specific notice of each such change. It is your responsibility to periodically review these Legal Terms to stay informed of updates. You will be subject to, and will be deemed to have been made aware of and to have accepted, the changes in any revised Legal Terms by your continued use of the Services after the date such revised Legal Terms are posted.</p>
 			<p>All users who are minors in the jurisdiction in which they reside (generally under the age of 18) must have the permission of, and be directly supervised by, their parent or guardian to use the Services. If you are a minor, you must have your parent or guardian read and agree to these Legal Terms prior to you using the Services.</p>
@@ -70,7 +70,7 @@
 			</ul>
 			<p>solely for your personal, non-commercial use or internal business purpose.</p>
 			<p>Except as set out in this section or elsewhere in our Legal Terms, no part of the Services and no Content or Marks may be copied, reproduced, aggregated, republished, uploaded, posted, publicly displayed, encoded, translated, transmitted, distributed, sold, licensed, or otherwise exploited for any commercial purpose whatsoever, without our express prior written permission.</p>
-			<p>If you wish to make any use of the Services, Content, or Marks other than as set out in this section or elsewhere in our Legal Terms, please address your request to: twitchatofficial@gmail.com. If we ever grant you the permission to post, reproduce, or publicly display any part of our Services or Content, you must identify us as the owners or licensors of the Services, Content, or Marks and ensure that any copyright or proprietary notice appears or is visible on posting, reproducing, or displaying our Content.</p>
+			<p>If you wish to make any use of the Services, Content, or Marks other than as set out in this section or elsewhere in our Legal Terms, please address your request to: {{ $config.CONTACT_MAIL }}. If we ever grant you the permission to post, reproduce, or publicly display any part of our Services or Content, you must identify us as the owners or licensors of the Services, Content, or Marks and ensure that any copyright or proprietary notice appears or is visible on posting, reproducing, or displaying our Content.</p>
 			<p>We reserve all rights not expressly granted to you in and to the Services, Content, and Marks.</p>
 			<p>Any breach of these Intellectual Property Rights will constitute a material breach of our Legal Terms and your right to use our Services will terminate immediately.</p>
 
@@ -281,7 +281,7 @@
 
 			<h2 id="contact">24. CONTACT US</h2>
 			<p>In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, please contact us at:</p>
-			<strong>twitchatofficial@gmail.com</strong>
+			<strong>{{ $config.CONTACT_MAIL }}</strong>
 
 			<p>These terms of use were created using Termly's <a href="https://termly.io/products/terms-and-conditions-generator/" target="_blank">Terms and Conditions Generator</a>.</p>
 

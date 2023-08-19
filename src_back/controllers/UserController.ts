@@ -30,7 +30,8 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
-		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
+		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
+		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
 		if(fs.existsSync(Config.EARLY_TWITCHAT_DONORS)) {
 			const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
@@ -60,7 +61,7 @@ export default class UserController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -112,7 +113,7 @@ export default class UserController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -136,12 +137,12 @@ export default class UserController extends AbstractController {
 	/**
 	 * Get/set a user's data
 	 */
-	private async setUserData(request:FastifyRequest, response:FastifyReply) {
+	private async postUserData(request:FastifyRequest, response:FastifyReply) {
 		const body:any = request.body;
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -203,6 +204,28 @@ export default class UserController extends AbstractController {
 			response.status(500);
 			response.send(JSON.stringify({message, success:false}));
 		}
+	}
+
+	/**
+	 * Delete a user's data
+	 */
+	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		if(!userInfo) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
+		//Delete user's data
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		fs.rmSync(userFilePath);
+		Logger.info("❌ User "+userInfo.login+" requested to delete their personal data.");
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
 	}
 
 	/**
