@@ -2,7 +2,7 @@
 	"account":{
 		"connected_as":"Connecté·e en tant que {USER}",
 		"donation_public":"Rend votre pseudo visible dans la liste des donateurices dans la section {LINK}",
-		"about_link":"À propos",
+		"about_link":"@:params.categories.donate",
 		"installBt":"Installer Twitchat",
 		"updatesBt":"Dernières mises à jour",
 		"erase_dataBt":"Effacer les paramètres locaux",

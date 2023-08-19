@@ -18,7 +18,6 @@ export default class EventSub {
 	private oldSocket!:WebSocket;
 	private reconnectTimeout!:number;
 	private keepalive_timeout_seconds!:number;
-	private raidTimeout:number = -1;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private connectURL:string = "";
 	
@@ -585,13 +584,7 @@ export default class EventSub {
 		const me = StoreProxy.auth.twitch.user;
 		if(event.from_broadcaster_user_id == me.id) {
 			//Raid complete
-			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-				clearTimeout(this.raidTimeout)
-				this.raidTimeout = setTimeout(() => {
-					OBSWebsocket.instance.stopStreaming();
-				}, 1000);
-			}
-			StoreProxy.stream.setRaiding(undefined);
+			StoreProxy.stream.onRaidComplete();
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);

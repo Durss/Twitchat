@@ -450,6 +450,7 @@ interface StarData {
 
 	&.premium {
 		.icon {
+			margin: auto;
 			margin-top: .5em;
 			width: 1.35em;
 			height: 1.35em;
@@ -457,8 +458,8 @@ interface StarData {
 
 		&.light {
 			.icon {
+				margin: auto;
 				margin-top: 0;
-				margin-left: 0;
 				width: 1em;
 				height: 1em;
 			}

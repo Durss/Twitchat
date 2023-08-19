@@ -144,6 +144,13 @@ export default class ParamsDonorList extends Vue {
 
 <style scoped lang="less">
 .paramsdonorlist{
+
+	.loader {
+		height: 2em;
+		margin: auto;
+		display: block;
+	}
+
 	.stats {
 		display: flex;
 		flex-direction: row;

@@ -1,16 +1,23 @@
 <template>
 	<div class="chatad chatMessage">
 		<div class="innerHolder">
-			<div v-if="isSponsor" class="card-item primary sponsor">
+			<div v-if="isDonate || isDonateReminder" class="card-item primary sponsor">
 				<div class="header">
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store('params').donationReminderEnabled" />
 					<div class="title">{{ $t('chat.sponsor.title') }}</div>
 				</div>
-				<div class="content" v-html="$t('chat.sponsor.head')"></div>
+				<div class="content" v-html="isDonateReminder? $t('chat.sponsor.head_reminder') : $t('chat.sponsor.head')"></div>
 				<div class="ctas">
 					<img @click.stop="openParamPage(contentDonate)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
 					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
 					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</Button>
+					
+					<template v-if="!isDonateReminder">
+						<Button v-if="!$store('params').donationReminderEnabled" secondary
+							@click.stop="$store('params').donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</Button>
+						<div v-else class="card-item secondary center">{{ $t("chat.sponsor.reminder_scheduled") }}</div>
+					</template>
 				</div>
 			</div>
 	
@@ -80,13 +87,13 @@
 					<img src="@/assets/icons/follow.svg" alt="heart" class="icon">
 					<div>{{ $t('chat.donor.info_1') }}</div>
 					<i18n-t scope="global" tag="div" keypath="chat.donor.info_2">
-						<template #LINK><a @click="openParamPage(contentAbout)">{{ $t('chat.donor.info_2_link') }}</a></template>
+						<template #LINK><a @click="openParamPage(contentDonate)">{{ $t('chat.donor.info_2_link') }}</a></template>
 					</i18n-t>
 					<div>{{ $t('chat.donor.info_3') }}</div>
 					<div class="card-item" v-if="madeDonationPublic">
 						<div>{{ $t('chat.donor.thanks') }}</div>
 						<i18n-t scope="global" tag="div" keypath="chat.donor.thanks_change">
-							<template #LINK><a @click="openParamPage(contentAccount)">{{ $t('chat.donor.thanks_change_link') }}</a></template>
+							<template #LINK><a @click="openParamPage(contentDonate)">{{ $t('chat.donor.thanks_change_link') }}</a></template>
 						</i18n-t>
 					</div>
 				</div>
@@ -151,7 +158,8 @@ export default class ChatAd extends Vue {
 	public loading:boolean = false;
 	public madeDonationPublic:boolean = false;
 
-	public get isSponsor():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.SPONSOR; }
+	public get isDonate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE; }
+	public get isDonateReminder():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER; }
 	public get isUpdate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
@@ -164,7 +172,6 @@ export default class ChatAd extends Vue {
 
 	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; } 
 	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; } 
-	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
@@ -295,6 +302,10 @@ export default class ChatAd extends Vue {
 				border-radius: .5em;
 				padding: 0 .25em;
 			}
+		}
+
+		.center {
+			text-align: center;
 		}
 	
 		.ctas {

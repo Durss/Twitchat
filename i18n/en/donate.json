@@ -9,6 +9,7 @@
 		"amount":"Amount",
 		"success":"Thank you for your {AMOUNT}€ donation 💝",
 		"success_details":"You can now disable the automatic message sent every 2h on your chat if you wish to",
-		"automatic_message":"Keep sending automatic message"
+		"automatic_message":"Keep sending automatic message",
+		"donors": "Donor list"
 	}
 }

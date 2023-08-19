@@ -746,12 +746,13 @@ export namespace TwitchatDataTypes {
 	 */
 	export const TwitchatAdTypes = {
 		NONE:-1,
-		SPONSOR:1,
+		DONATE:1,
 		UPDATES:2,
 		TIP_AND_TRICK:3,
 		DISCORD:4,
 		TWITCHAT_AD_WARNING:5,
 		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
+		DONATE_REMINDER:7,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 

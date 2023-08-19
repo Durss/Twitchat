@@ -20,6 +20,7 @@ export const storeParams = defineStore('params', {
 		currentParamSearch:"",
 		currentPageSubContent:"",
 		currentModal:"",
+		donationReminderEnabled:false,
 		greetThemAutoDelete: 600,
 		features: {
 			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show", storage:{vnew:{date:1690765812999, id:'params_chatspoiler'}}},

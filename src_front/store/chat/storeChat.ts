@@ -592,7 +592,7 @@ export const storeChat = defineStore('chat', {
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(StoreProxy.auth.twitch.user.donor.state!==true && !StoreProxy.auth.isPremium) {
-					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
+					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DONATE);
 				}
 				//Give more chances to have anything but the "sponsor" ad
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);

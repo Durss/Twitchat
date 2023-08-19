@@ -7,7 +7,7 @@
 			"Je peux le comprendre.",
 			"Puis-je te partager mon point de vue ?",
 			"<br>",
-			"Twitchat est créé par une seule personne <i>(<a href=\"http://twitch.tv/durss\" target=\"_blank\">coucou 👋</a>)</i> et a nécessité plus d'1 an de travail à temps plein à l'heure actuelle <i>(juillet 2023)</i>.",
+			"Twitchat est créé par une seule personne <i>(<a href=\"http://twitch.tv/durss\" target=\"_blank\">coucou 👋</a>)</i> et a nécessité plus d'1 an de travail à temps plein à l'heure actuelle <i>(août 2023)</i>.",
 			"<br>",
 			"J'offre ce travail à tout le monde mais ça me coûte du temps, et de l'argent. A part quelques rares dons <i>(sur lesquels je paye 30% de taxes)</i> Twitchat ne me rapporte pas d'argent.",
 			"Je ne suis <strong>pas</strong> sponsorisé par une marque, je ne collecte <strong>aucune</strong> donnée personnelle, et je ne mets aucune publicité à l'exception d'un lien vers Twitchat posté toutes les 2h.",
@@ -29,12 +29,12 @@
 			"Durss"
 		],
 		"why_title": "Pourquoi poster en mon nom ?",
-		"why_info": "Soyons honnêtes, si je postais avec un autre compte tout le monde le bannirait dans la foulée pour ne pas avoir les message.",
-		"angry": "Je parle déjà de Twitchat à mes viewers, je n'aime pas ce message intrusif!",
+		"why_info": "Soyons honnêtes, si je postais avec un autre compte tout le monde le bannirait dans la foulée pour ne pas avoir les messages.",
+		"angry": "Je parle déjà de Twitchat à mes viewers, je n'aime pas ce message intrusif !",
 		"angry_contents": [
 			"Et bien, merci.",
 			"Mais je n'ai aucun moyen de le savoir.",
-			"En revanche il est possible de personnaliser le message, et chaque fois que  \"twitchat.fr\" est envoyé dans le tchat <i>(par un viewer, un bot, ...)</i> le timer de 2h est remis à 0.",
+			"En revanche il est possible de personnaliser le message, et chaque fois que  \"twitchat.fr\" est envoyé dans le tchat <i>(par un viewer, un bot ou vous-même)</i> le timer de 2h est remis à 0.",
 			"Cela signifique que du moment qu'un lien vers twitchat est envoyé dans le tchat toutes les 2h, le message automatique ne sera pas envoyé."
 		]
 	}

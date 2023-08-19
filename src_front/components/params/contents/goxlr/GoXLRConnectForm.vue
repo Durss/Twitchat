@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="goxlrconnectform" :title="$t('goxlr.connect_form.title')" :open="opened">
+	<ToggleBlock class="goxlrconnectform" :title="$t('goxlr.connect_form.title')" :open="opened" :icons="['info']">
 		<form @submit.prevent="connect()" v-if="!connected">
 			<ParamItem :paramData="param_ip" @change="onIpChange()" />
 			<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">

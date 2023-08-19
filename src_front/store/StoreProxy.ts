@@ -726,6 +726,11 @@ export interface IParamsState {
 	 */
 	currentModal:TwitchatDataTypes.ModalTypes;
 	/**
+	 * Defines if a donate reminder should be posted when user ends
+	 * their stream (after raid and/or strem cut)
+	 */
+	donationReminderEnabled:boolean;
+	/**
 	 * Duration after which a 1st user message today is removed from the list
 	 */
 	greetThemAutoDelete:number;
@@ -1002,7 +1007,11 @@ export interface IStreamActions {
 	 * Set outgoing raid info
 	 * @param infos 
 	 */
-	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
+	setRaiding(infos:TwitchatDataTypes.RaidInfo):void;
+	/**
+	 * Called after a raid completed
+	 */
+	onRaidComplete():void;
 	/**
 	 * Update room settings
 	 * @param channelId 

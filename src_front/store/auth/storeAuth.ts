@@ -77,6 +77,7 @@ export const storeAuth = defineStore('auth', {
 				if(callback) callback(true);
 				return twitchAuthResult;
 			}
+			return;
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {

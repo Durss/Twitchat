@@ -235,8 +235,11 @@
 		"sponsor": {
 			"title": "💝 Support me 💝",
 			"head": "Are you enjoying Twitchat?<br>Twitchat took <strong>more than 1 year</strong> of full-time work with no revenue to create.<br>It is free for you to use but, <strong>if you can afford it</strong> any tip would make my day brighter!",
+			"head_reminder": "I hope your stream was awesome?<br>You requested to get a donation reminder at the end of your stream, here it is 😁!",
 			"tipBt_aria": "Open tip options",
-			"tipBt": "🌞 Make my day brighter 🌞"
+			"tipBt": "🌞 Make my day brighter 🌞",
+			"remind_meBt": "Remind me when i end my stream",
+			"reminder_scheduled": "You'll get a donation reminder after you raid a channel or end your stream 🙂"
 		},
 		"stream": {
 			"online": "Channel {USER} is now live.",
@@ -252,10 +255,11 @@
 			"contents": [
 				"Twitchat is free for you to use but:",
 				"A message sharing a link to Twitchat will be sent every 2 hours on your chat <strong>with your account</strong>.",
-				"You can send this message with a bot account.",
 				"<br>",
+				"You can send this message with a bot account.",
 				"You can customize the message on the Parameters menu.",
-				"Or you can donate any amount to remove it"
+				"<br>",
+				"Donate any amount to disable it."
 			],
 			"unacceptableBt": "😡😡😡 THAT'S UNACCEPTABLE 😡😡😡",
 			"customizeBt": "Customize message",
@@ -265,11 +269,11 @@
 			"title": "❤ Hey lovely donor ❤",
 			"info_1": "Thank you again for supporting Twitchat with your donation.",
 			"info_2": "A list of all the donor is visible by everyone under {LINK}",
-			"info_2_link": "About section",
+			"info_2_link": "@:params.categories.donate section",
 			"info_3": "Donation are anonymous by default but you can chose to make yours public if you wish!",
 			"thanks": "Thank you ❤.",
 			"thanks_change": "You can change your mind anytime under {LINK}",
-			"thanks_change_link": "Account section",
+			"thanks_change_link": "@:params.categories.donate section",
 			"publicBt": "Make my donation public",
 			"close_confirm": {
 				"info_1": "Are you sure you read the message?",

@@ -5,13 +5,13 @@
 			<ParamsSponsor />
 		</ToggleBlock> -->
 
-		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="true">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
 			<Button class="item" icon="discord" :href="discordURL" target="_blank" type="link">{{ $t('about.discordBt') }}</Button>
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="true">
 			<p class="item">{{ $t("about.api_content1") }}</p>
 			<p class="item">{{ $t("about.api_content2") }}</p>
 			<Button class="item" icon="github" :href="apiURL" target="_blank" type="link">{{ $t('about.documentationBt') }}</Button>
@@ -32,10 +32,6 @@
 			</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.donors')" :icons="['follow']">
-			<ParamsDonorList />
-		</ToggleBlock>
-
 		<div class="footer">
 			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
 			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
@@ -45,20 +41,18 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import Button from '@/components/Button.vue';
-import ParamsSponsor from './ParamsSponsor.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
-import ParamsDonorList from './ParamsDonorList.vue';
+import { Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
+import ParamsSponsor from './ParamsSponsor.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
 		ParamsSponsor,
-		ParamsDonorList,
 	}
 })
 export default class ParamsAbout extends Vue implements IParameterContent {

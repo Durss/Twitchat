@@ -136,7 +136,7 @@ export default class DevmodeMenu extends Vue {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
 				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;
 				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
-				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR; break;
+				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DONATE; break;
 				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
 				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
 				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;

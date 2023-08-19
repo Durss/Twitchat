@@ -9,6 +9,7 @@
 		"amount":"Montant",
 		"success":"Merci pour votre don de {AMOUNT}€ 💝",
 		"success_details":"Si vous le souhaitez, cous pouvez désormais désactiver le message automatique envoyé toutes les 2h dans votre tchat.",
-		"automatic_message":"Continuer à envoyer le message automatique"
+		"automatic_message":"Continuer à envoyer le message automatique",
+		"donors": "Donatrices et donateurs"
 	}
 }
