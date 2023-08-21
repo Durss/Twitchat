@@ -116,16 +116,9 @@ export default class OverlayParamsMusic extends Vue {
 
 <style scoped lang="less">
 .overlayparamsmusic{
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
-
-	&>label {
-		margin-bottom: .5em;
-	}
-	
-	ul {
-		margin-top: .5em;
-	}
 
 	.params {
 		width:100%;

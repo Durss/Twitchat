@@ -107,7 +107,7 @@ export default class OverlayParamsUlule extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
 
 		ul {
 			margin-top: .5em;

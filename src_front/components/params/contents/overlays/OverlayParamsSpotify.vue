@@ -71,7 +71,7 @@ export default class OverlayParamsSpotify extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1em;
+		gap: .5em;
 
 		.demoLink {
 			.demo {
