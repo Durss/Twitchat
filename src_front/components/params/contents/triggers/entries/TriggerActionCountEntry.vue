@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCountData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -52,7 +52,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 export default class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	declare action:TriggerActionCountData;
+	declare action:TriggerActionCounterData;
 
 	@Prop
 	declare triggerData:TriggerData;

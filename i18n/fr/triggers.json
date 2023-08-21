@@ -4,6 +4,7 @@
 		"header_select_trigger": "Choisissez un type d'événement parmi les {COUNT} disponibles",
 		"header_select_reward": "Choisissez une récompense de points de chaîne",
 		"header_select_counter": "Choisissez un compteur",
+		"header_select_value": "Choisissez une valeur",
 		"header_select_obs_scene": "Choisissez une scène OBS",
 		"header_select_obs_source": "Choisissez une source OBS",
 		"header_select_obs_input": "Choisissez l'entrée audio OBS",
@@ -45,6 +46,10 @@
 		"count": {
 			"require": "Cet événément nécessite de d'abord {URL}",
 			"require_url": "créer des compteurs"
+		},
+		"value": {
+			"require": "Cet événément nécessite de d'abord {URL}",
+			"require_url": "créer des valeurs"
 		},
 		"rewards": {
 			"require": "Cet événément nécessite de {URL}",
@@ -126,7 +131,7 @@
 				"action_poll": "Lancer un sondage",
 				"action_prediction": "Lancer une prédiction",
 				"action_count": "Modifier un compteur",
-				"action_countget": "Lire un compteur",
+				"action_value": "Modifier une valeur",
 				"action_random": "Valeur aléatoire",
 				"action_stream_infos": "Changer les infos de stream",
 				"action_stream_infos_tt": "Vous devez autoriser Twitchat à modifier vos informations de stream",
@@ -251,6 +256,11 @@
 				"user_source_everyone": "Toutes les personnes",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
+			"value": {
+				"value_label": "Valeur",
+				"select_label": "Valeurs à mettre à jour",
+				"select_placeholder": "Sélectionnez une valeur..."
+			},
 			"random": {
 				"min_label": "Valeur min (inclus)",
 				"max_label": "Valeur max (inclus)",
@@ -321,7 +331,7 @@
 			"timer": "Évènements temporels",
 			"obs": "OBS",
 			"misc": "Autres",
-			"count": "Compteurs",
+			"count_and_values": "Compteurs & Valeurs",
 			"goxlr": "GoXLR"
 		},
 		"placeholders": {
@@ -397,6 +407,7 @@
 			"counter_username": "Pseudo (pour les compteurs utilisateur)",
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
 			"counter_global_value": "Valeur du compteur {NAME}",
+			"value_global_value": "Valeur {NAME}",
 			"watch_streak": "Nombre de streams consécutifs vus",
 			"obs_scene": "Scène OBS courante",
 			"viewer_count": "Nombre de viewers",
@@ -805,6 +816,10 @@
 			"GOXLR_SAMPLE_COMPLETE": {
 				"label": "Lecture d'un sample terminée",
 				"description": "Actions à exécuter lorsque la lecture d'un sample GoXLR termine"
+			},
+			"VALUE_UPDATE": {
+				"label": "Valeur modifiée",
+				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée"
 			}
 		},
 		"musicEvents": {

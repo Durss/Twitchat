@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -82,6 +82,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "poll") return true;
 					if(v.type == "prediction") return true;
 					if(v.type == "count") return true;
+					if(v.type == "value") return true;
 					if(v.type == "random") return true;
 					if(v.type == "stream_infos") return true;
 					if(v.type == "delay") return true;
@@ -147,8 +148,8 @@ export const storeTriggers = defineStore('triggers', {
 		},
 
 		renameCounterPlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
-			//Search for any trigger linked to the renamed scene and any
-			//trigger action controling that scene and rename it
+			//Search for any trigger linked to the renamed counter and any
+			//trigger action updating that counter and rename it
 			for (let i = 0; i < this.triggerList.length; i++) {
 				const t = this.triggerList[i];
 				let json = JSON.stringify(t);
@@ -164,7 +165,31 @@ export const storeTriggers = defineStore('triggers', {
 				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				
 				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "gi"), "{"+newPlaceholderLoc.toUpperCase()+"}");
+				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
+				this.triggerList[i] = JSON.parse(json);
+			}
+			this.saveTriggers();
+		},
+
+		renameValuePlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
+			//Search for any trigger linked to the renamed value and any
+			//trigger action updating that value and rename it
+			for (let i = 0; i < this.triggerList.length; i++) {
+				const t = this.triggerList[i];
+				let json = JSON.stringify(t);
+				
+				//Is the old placeholder somewhere on the trigger data ?
+				if(json.toLowerCase().indexOf((VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
+
+				//Add placeholders prefix
+				let newPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
+				let oldPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
+				//Make it regex safe
+				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				
+				//Nuclear way to replace placeholders on trigger data
+				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
 				this.triggerList[i] = JSON.parse(json);
 			}
 			this.saveTriggers();

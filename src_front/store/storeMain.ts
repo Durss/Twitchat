@@ -604,6 +604,7 @@ export const storeMain = defineStore("main", {
 			const sParams = StoreProxy.params;
 			const sTriggers = StoreProxy.triggers;
 			const sAutomod = StoreProxy.automod;
+			const sValues = StoreProxy.values;
 			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
 			//Loading parameters from local storage and pushing them to current store
@@ -802,11 +803,16 @@ export const storeMain = defineStore("main", {
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
 			}
 
-			//Init automod
+			//Init counters
 			const countersParams = DataStore.get(DataStore.COUNTERS);
 			if(countersParams) {
 				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
-				// sCounters.counterList = JSON.parse(countersParams);
+			}
+
+			//Init values
+			const valuesParams = DataStore.get(DataStore.VALUES);
+			if(valuesParams) {
+				Utils.mergeRemoteObject(JSON.parse(valuesParams), (sValues.valueList as unknown) as JsonObject);
 			}
 
 			//Init heat screens

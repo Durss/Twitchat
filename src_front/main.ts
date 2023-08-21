@@ -51,6 +51,7 @@ import { storeHeat } from './store/heat/storeHeat';
 import { storePatreon } from './store/patreon/storePatreon';
 import { divide } from 'mathjs';
 import Config from './utils/Config';
+import { storeValues } from './store/storeValues/storeValues';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -192,7 +193,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon"|"values") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -221,6 +222,7 @@ function buildApp() {
 			case "rewards": return StoreProxy.rewards;
 			case "heat": return StoreProxy.heat;
 			case "patreon": return StoreProxy.patreon;
+			case "values": return StoreProxy.values;
 		}
 	}
 	
@@ -262,6 +264,7 @@ function buildApp() {
 	StoreProxy.counters = storeCounters();
 	StoreProxy.heat = storeHeat();
 	StoreProxy.patreon = storePatreon();
+	StoreProxy.values = storeValues();
 	StoreProxy.router = router;
 	
 	app.use(router)

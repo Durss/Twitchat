@@ -32,7 +32,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionWSData
 								| TriggerActionPollData
 								| TriggerActionPredictionData
-								| TriggerActionCountData
+								| TriggerActionCounterData
 								| TriggerActionRandomData
 								| TriggerActionStreamInfoData
 								| TriggerActionTriggerToggleData
@@ -41,6 +41,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionGoXLRData
 								| TriggerCustomBadgesData
 								| TriggerCustomUsernameData
+								| TriggerActionValueData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -108,6 +109,10 @@ export interface TriggerData {
 	 * Counter ID for counters related events
 	 */
 	counterId?:string;
+	/**
+	 * Counter ID for counters related events
+	 */
+	valueId?:string;
 	/**
 	 * List of GoXLR buttons that should start this trigger
 	 */
@@ -226,24 +231,24 @@ export interface SocketParams {
 export interface TriggerEventTypeCategory {
 	id:number,
 	labelKey:string;
-	icon:string;
+	icons:string[];
 };
 //Main trigger categories displayed on the parameter "Triggers" section
 export const TriggerEventTypeCategories:{[key:string]:TriggerEventTypeCategory} = {
-	GLOBAL:		{id:1, labelKey:"triggers.categories.global", icon:"whispers"},
-	TIMER:		{id:2, labelKey:"triggers.categories.timer", icon:"timer"},
-	TWITCHAT:	{id:3, labelKey:"triggers.categories.twitchat", icon:"twitchat"},
-	USER:		{id:4, labelKey:"triggers.categories.user", icon:"user"},
-	SUBITS:		{id:5, labelKey:"triggers.categories.subits", icon:"coin"},
-	MOD:		{id:6, labelKey:"triggers.categories.mod", icon:"mod"},
-	HYPETRAIN:	{id:7, labelKey:"triggers.categories.hypetrain", icon:"train"},
-	GAMES:		{id:8, labelKey:"triggers.categories.games", icon:"ticket"},
-	MUSIC:		{id:9, labelKey:"triggers.categories.music", icon:"spotify"},
-	OBS:		{id:10, labelKey:"triggers.categories.obs", icon:"obs"},
-	MISC:		{id:11, labelKey:"triggers.categories.misc", icon:"broadcast"},
-	COUNTER:	{id:12, labelKey:"triggers.categories.count", icon:"count"},
-	GOXLR:		{id:13, labelKey:"triggers.categories.goxlr", icon:"goxlr"},
-} as const;
+	GLOBAL:		{id:1, labelKey:"triggers.categories.global", icons:["whispers"]},
+	TIMER:		{id:2, labelKey:"triggers.categories.timer", icons:["timer"]},
+	TWITCHAT:	{id:3, labelKey:"triggers.categories.twitchat", icons:["twitchat"]},
+	USER:		{id:4, labelKey:"triggers.categories.user", icons:["user"]},
+	SUBITS:		{id:5, labelKey:"triggers.categories.subits", icons:["coin"]},
+	MOD:		{id:6, labelKey:"triggers.categories.mod", icons:["mod"]},
+	HYPETRAIN:	{id:7, labelKey:"triggers.categories.hypetrain", icons:["train"]},
+	GAMES:		{id:8, labelKey:"triggers.categories.games", icons:["ticket"]},
+	MUSIC:		{id:9, labelKey:"triggers.categories.music", icons:["spotify"]},
+	OBS:		{id:10, labelKey:"triggers.categories.obs", icons:["obs"]},
+	MISC:		{id:11, labelKey:"triggers.categories.misc", icons:["broadcast"]},
+	COUNTER:	{id:12, labelKey:"triggers.categories.count_and_values", icons:["count", "placeholder"]},
+	GOXLR:		{id:13, labelKey:"triggers.categories.goxlr", icons:["goxlr"]},
+};
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
 export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataListValue<TriggerTypesValue> {
@@ -352,7 +357,6 @@ export interface TriggerCustomUsernameData extends TriggerActionData{
 	customUsername:string;
 	customUsernameUserSource:string;
 }
-
 
 export const TriggerActionVoicemodDataActionList = ["voice", "sound", "beepOn", "beepOff"] as const;
 export type TriggerActionVoicemodDataAction = typeof TriggerActionVoicemodDataActionList[number];
@@ -469,7 +473,7 @@ export interface TriggerActionGoXLRData extends TriggerActionData{
 
 export const TriggerActionCountDataActionList = ["ADD", "DEL", "SET"] as const;
 export type TriggerActionCountDataAction = typeof TriggerActionCountDataActionList[number];
-export interface TriggerActionCountData extends TriggerActionData{
+export interface TriggerActionCounterData extends TriggerActionData{
 	type:"count";
 	/**
 	 * Value to add.
@@ -493,6 +497,18 @@ export interface TriggerActionCountData extends TriggerActionData{
 	 * Default action to execute if data is missing should be "add"
 	 */
 	action?:TriggerActionCountDataAction;
+}
+
+export interface TriggerActionValueData extends TriggerActionData{
+	type:"value";
+	/**
+	 * New value
+	 */
+	newValue:string;
+	/**
+	 * Value IDs to update
+	 */
+	values:string[];
 }
 
 export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
@@ -631,6 +647,7 @@ export const TriggerTypes = {
 	GOXLR_BUTTON_PRESSED:"86",
 	GOXLR_BUTTON_RELEASED:"87",
 	GOXLR_SAMPLE_COMPLETE:"88",
+	VALUE_UPDATE:"89",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -649,6 +666,7 @@ export interface ITriggerPlaceholder<T> extends TwitchatDataTypes.PlaceholderEnt
 
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
+export const VALUE_PLACEHOLDER_PREFIX:string = "VALUE_";
 export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
 export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
@@ -933,12 +951,17 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.COUNTER_LOOPED] =
 	map[TriggerTypes.COUNTER_MINED] =
 	map[TriggerTypes.COUNTER_MAXED] = [
-		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
-		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
-		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
-		{tag:"UPDATE_ABS", descKey:'triggers.placeholders.counter_update_abs', pointer:"added_abs", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
-		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.counter_username', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
-		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.counter_userid', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdatesData>,
+		{tag:"NAME", descKey:'triggers.placeholders.counter_name', pointer:"counter.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+		{tag:"VALUE", descKey:'triggers.placeholders.counter_value', pointer:"value", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+		{tag:"UPDATE", descKey:'triggers.placeholders.counter_update', pointer:"added", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+		{tag:"UPDATE_ABS", descKey:'triggers.placeholders.counter_update_abs', pointer:"added_abs", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.counter_username', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.counter_userid', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageCounterUpdateData>,
+	];
+
+	map[TriggerTypes.VALUE_UPDATE] = [
+		{tag:"NEW_VALUE", descKey:'triggers.placeholders.value_value', pointer:"newValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
+		{tag:"OLD_VALUE", descKey:'triggers.placeholders.value_update', pointer:"oldValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 	];
 
 	map[TriggerTypes.SLASH_COMMAND] = [
@@ -990,7 +1013,16 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (let i = 0; i < counters.length; i++) {
 		const c = counters[i];
 		if(c.placeholderKey) {
-			counterPlaceholders.push({tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey, descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter__.value", numberParsable:true, isUserID:false, globalTag:true, example:(c.value || 123).toString()});
+			counterPlaceholders.push({category:"counter", tag:COUNTER_VALUE_PLACEHOLDER_PREFIX + c.placeholderKey.toUpperCase(), descKey:'triggers.placeholders.counter_global_value', descReplacedValues:{"NAME":c.name}, pointer:"__counter__.value", numberParsable:true, isUserID:false, globalTag:true, example:(c.value || 123).toString()});
+		}
+	}
+
+	const values = StoreProxy.values.valueList;
+	const valuePlaceholders:ITriggerPlaceholder<any>[] = [];
+	for (let i = 0; i < values.length; i++) {
+		const v = values[i];
+		if(v.placeholderKey) {
+			valuePlaceholders.push({category:"value", tag:VALUE_PLACEHOLDER_PREFIX + v.placeholderKey.toUpperCase(), descKey:'triggers.placeholders.value_global_value', descReplacedValues:{"NAME":v.name}, pointer:"__value__.value", numberParsable:true, isUserID:false, globalTag:true, example:"Lorem ipsum"});
 		}
 	}
 	
@@ -999,15 +1031,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (k in map) {
 		let entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
-			entry.push({tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
+			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
 		}
 		
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
-			entry.push({tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.my_stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
+			entry.push({category:"stream", tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.my_stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
 		}
 		
 		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
-			entry.push({tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
+			entry.push({category:"stream", tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1) {
@@ -1027,30 +1059,31 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		
 		if(entry.findIndex(v=>v.tag == "TIMER_VALUE") == -1) {
-			entry.push({tag:"TIMER", descKey:"triggers.placeholders.timer_value", pointer:"__timer__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({tag:"TIMER_F", descKey:"triggers.placeholders.timer_value_formated", pointer:"__timer__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+			entry.push({category:"timer", tag:"TIMER", descKey:"triggers.placeholders.timer_value", pointer:"__timer__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({category:"timer", tag:"TIMER_F", descKey:"triggers.placeholders.timer_value_formated", pointer:"__timer__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 		}
 		
 		if(entry.findIndex(v=>v.tag == "COUNTDOWN_VALUE") == -1) {
-			entry.push({tag:"COUNTDOWN_VALUE", descKey:"triggers.placeholders.countdown_value", pointer:"__countdown__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({tag:"COUNTDOWN_VALUE_F", descKey:"triggers.placeholders.countdown_value_formated", pointer:"__countdown__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
-			entry.push({tag:"COUNTDOWN_DURATION", descKey:"triggers.placeholders.countdown_duration", pointer:"__countdown__.duration", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
-			entry.push({tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+			entry.push({category:"timer", tag:"COUNTDOWN_VALUE", descKey:"triggers.placeholders.countdown_value", pointer:"__countdown__.value", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({category:"timer", tag:"COUNTDOWN_VALUE_F", descKey:"triggers.placeholders.countdown_value_formated", pointer:"__countdown__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+			entry.push({category:"timer", tag:"COUNTDOWN_DURATION", descKey:"triggers.placeholders.countdown_duration", pointer:"__countdown__.duration", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
+			entry.push({category:"timer", tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 		}
 		
 
 		//If a music service is available, concat the music service helpers
 		if(SpotifyHelper.instance.connected) {
 			entry.push(
-				{tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"__current_track__.artist", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko"},
-				{tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"__current_track__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko march"},
-				{tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"__current_track__.album", numberParsable:false, isUserID:false, globalTag:true, example:"Fake Album"},
-				{tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"__current_track__.cover", numberParsable:false, isUserID:false, globalTag:true, example:StoreProxy.image("img/musicExampleCover.jpg")},
-				{tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"__current_track__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"}
+				{category:"music", tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"__current_track__.artist", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko"},
+				{category:"music", tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"__current_track__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko march"},
+				{category:"music", tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"__current_track__.album", numberParsable:false, isUserID:false, globalTag:true, example:"Fake Album"},
+				{category:"music", tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"__current_track__.cover", numberParsable:false, isUserID:false, globalTag:true, example:StoreProxy.image("img/musicExampleCover.jpg")},
+				{category:"music", tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"__current_track__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"}
 			);
 		}
 
 		map[k] = entry.concat(counterPlaceholders);
+		map[k] = entry.concat(valuePlaceholders);
 	}
 
 	eventPlaceholdersCache = map;
@@ -1147,6 +1180,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.COUNTER, icon:"max", labelKey:"triggers.events.COUNTER_MAXED.label", value:TriggerTypes.COUNTER_MAXED, descriptionKey:"triggers.events.COUNTER_MAXED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"min", labelKey:"triggers.events.COUNTER_MINED.label", value:TriggerTypes.COUNTER_MINED, descriptionKey:"triggers.events.COUNTER_MINED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER, icon:"loop", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
+		{category:TriggerEventTypeCategories.COUNTER, icon:"placeholder", labelKey:"triggers.events.VALUE_UPDATE.label", value:TriggerTypes.VALUE_UPDATE, descriptionKey:"triggers.events.VALUE_UPDATE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},

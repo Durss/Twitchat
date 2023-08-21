@@ -57,6 +57,7 @@ export default class DataStore {
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
+	public static VALUES:string = "values";
 	public static LANGUAGE:string = "lang";
 	public static CHAT_COL_CTA:string = "chatColCTA";
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";

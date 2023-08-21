@@ -27,7 +27,7 @@
 			:key="c.category.labelKey"
 			:title="$t(c.category.labelKey)"
 			:open="false"
-			:icons="[c.category.icon+'']"
+			:icons="c.category.icons"
 			:newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id} : undefined">
 				<i18n-t scope="global" tag="div" class="require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
@@ -50,6 +50,14 @@
 				keypath="triggers.count.require">
 					<template #URL>
 						<a @click="openCounters()">{{ $t("triggers.count.require_url") }}</a>
+					</template>
+				</i18n-t>
+
+				<i18n-t scope="global" tag="div" class="require"
+				v-if="isCountersCategory(c.category)"
+				keypath="triggers.value.require">
+					<template #URL>
+						<a @click="openValues()">{{ $t("triggers.value.require_url") }}</a>
 					</template>
 				</i18n-t>
 
@@ -474,6 +482,11 @@ export default class TriggerCreateForm extends Vue {
 			this.listCounters();
 			this.$emit("updateHeader", "triggers.header_select_counter");
 		}
+		
+		if(e.value == TriggerTypes.VALUE_UPDATE) {
+			this.listValues();
+			this.$emit("updateHeader", "triggers.header_select_value");
+		}
 
 		if(e.value) {
 			this.temporaryTrigger = {
@@ -535,6 +548,8 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED: this.temporaryTrigger.counterId = entry.value; break;
+			
+			case TriggerTypes.VALUE_UPDATE: this.temporaryTrigger.valueId = entry.value; break;
 		}
 
 		this.$store("triggers").addTrigger(this.temporaryTrigger);
@@ -563,6 +578,13 @@ export default class TriggerCreateForm extends Vue {
 	}
 
 	/**
+	 * Open values parameters
+	 */
+	public openValues():void {
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
+	}
+
+	/**
 	 * Requests access to rewards
 	 */
 	public requestRewardsScope():void {
@@ -574,6 +596,25 @@ export default class TriggerCreateForm extends Vue {
 	 */
 	public async listCounters():Promise<void> {
 		const list = this.$store("counters").counterList.sort((a,b)=> {
+			if(a.name < b.name) return -1;
+			if(a.name > b.name) return 1;
+			return 0;
+		}).map((v):TriggerEntry => {
+			return {
+				label:v.name,
+				value:v.id,
+				icon:"",
+				isCategory:false,
+			};
+		});
+		this.subtriggerList = list;
+	}
+
+	/**
+	 * Lists Values
+	 */
+	public async listValues():Promise<void> {
+		const list = this.$store("values").valueList.sort((a,b)=> {
 			if(a.name < b.name) return -1;
 			if(a.name > b.name) return 1;
 			return 0;

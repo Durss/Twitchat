@@ -400,6 +400,12 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE:{
+				if(await this.executeTriggersByType(TriggerTypes.VALUE_UPDATE, message, testMode, message.value.id, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING:
 			case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
@@ -536,6 +542,8 @@ export default class TriggerActionHandler {
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED: keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId; break;
+				
+				case TriggerTypes.VALUE_UPDATE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.valueId; break;
 				
 				case TriggerTypes.HEAT_CLICK: {
 					if((!t.heatClickSource || t.heatClickSource == "obs") && t.heatObsSource) {
@@ -1235,6 +1243,19 @@ export default class TriggerActionHandler {
 						}
 					}
 				}else
+				
+				//Handle Value update trigger action
+				if(step.type == "value") {
+					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
+					const ids = step.values;
+					for (const v of StoreProxy.values.valueList) {
+						if(ids.indexOf(v.id) > -1) {
+							StoreProxy.values.updateValue(v.id, {value:text});
+							let logMessage = "Update Value \""+v.name+"\" to "+text;
+							logStep.messages.push({date:Date.now(), value:logMessage});
+						}
+					}
+				}else
 
 				//Handle random generator trigger action
 				if(step.type == "random") {
@@ -1675,6 +1696,16 @@ export default class TriggerActionHandler {
 								//Simple counter, just get its value
 								value = counter.value.toString();
 							}
+						}
+	
+					/**
+					 * If the placeholder requests for a value's value
+					 */
+					}else if(pointer.indexOf("__value__") == 0) {
+						const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+						const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
+						if(valueEntry) {
+							value = valueEntry.value.toString();
 						}
 	
 					/**

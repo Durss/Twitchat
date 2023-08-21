@@ -46,6 +46,13 @@
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
 		"placeholder_selector_global": "Global placeholders",
+		"placeholder_selector_categories": {
+			"stream":"Stream info",
+			"counter":"Counters",
+			"value":"Values",
+			"timer":"Timer & countdown",
+			"music":"Music"
+		},
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",
 		"ad_default": "Hey, i'm using GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",

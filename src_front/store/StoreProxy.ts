@@ -1,6 +1,6 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
-import type { HeatArea, HeatScreen } from "@/types/HeatDataTypes";
+import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
@@ -45,6 +45,7 @@ export default class StoreProxy {
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
 	public static heat:IHeatState & IHeatGetters & IHeatActions & {$state:IHeatState, $reset:()=>void};
 	public static patreon:IPatreonState & IPatreonGetters & IPatreonActions & {$state:IPatreonState, $reset:()=>void};
+	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -1210,6 +1211,14 @@ export interface ITriggersActions {
 	 * @param newName 
 	 */
 	renameCounterPlaceholder(oldName:string, newName:string):void;
+	/**
+	 * Called when a value placeholder is renamed.
+	 * Parses all triggers that have a reference to that placeholder
+	 * and rename it everywhere
+	 * @param oldName 
+	 * @param newName 
+	 */
+	renameValuePlaceholder(oldName:string, newName:string):void;
 }
 
 
@@ -1743,4 +1752,36 @@ export interface IPatreonGetters {
 
 export interface IPatreonActions {
 	setPatreonAuthResult(value:{code:string,csrf:string}|null):void;
+}
+
+
+
+
+export interface IValuesState {
+	/**
+	 * All values
+	 */
+	valueList:TwitchatDataTypes.ValueData[];
+}
+
+export interface IValuesGetters {
+}
+
+export interface IValuesActions {
+	/**
+	 * Create a new value
+	 * @param data 
+	 */
+	addValue(data:TwitchatDataTypes.ValueData):void;
+	/**
+	 * Update a value
+	 * @param id
+	 * @param data 
+	 */
+	updateValue(id:string, data:Partial<TwitchatDataTypes.ValueData>):void;
+	/**
+	 * Delete a value
+	 * @param data 
+	 */
+	delValue(data:TwitchatDataTypes.ValueData):void;
 }

@@ -206,7 +206,7 @@ export const storeCounters = defineStore('counters', {
 			//If only "userId" is given, don't execute it so we can update
 			//loads of counters at once without cloagging the trigger system
 			if(!userId) {
-				const message:TwitchatDataTypes.MessageCounterUpdatesData = {
+				const message:TwitchatDataTypes.MessageCounterUpdateData = {
 					date:Date.now(),
 					type:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE,
 					counter:c,

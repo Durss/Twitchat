@@ -30,8 +30,8 @@
 				<ParamItem :paramData="param_more" />
 				<div class="ctas">
 					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
-					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0">{{ $t('global.create') }}</Button>
-					<Button type="submit" v-else icon="edit" :disabled="param_title.value.length == 0">{{ $t('counters.editBt') }}</Button>
+					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</Button>
+					<Button type="submit" v-else icon="edit" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('counters.editBt') }}</Button>
 				</div>
 			</form>
 		</section>
@@ -47,18 +47,12 @@
 					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
 					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
 					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click="editCounter(entry.counter)" />
-					<Button class="actionBt" alert icon="trash" @click="deleteCounter(entry)" />
+					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+					<Button class="actionBt" alert icon="trash" @click.stop="deleteCounter(entry)" />
 				</div>
 			</template>
 
 			<div class="content">
-				<!-- <div class="placeholder">
-					<span>Placeholder: </span>
-					<button @click.stop="copyPlaceholder($event, entry.counter)" v-tooltip="$t('global.copy')">
-						<mark v-if="entry.counter.placeholderKey">{{ getCounterPlaceholder(entry.counter) }}</mark>
-					</button>
-				</div> -->
 
 				<ParamItem class="value" v-if="!entry.counter.perUser"
 					:paramData="entry.param"
@@ -127,7 +121,6 @@ import Button from '@/components/Button.vue';
 import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -135,7 +128,6 @@ import { reactive, watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
-import { gsap } from 'gsap';
 
 @Component({
 	components:{
@@ -190,7 +182,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_valueMax_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
 	public param_valueLoop_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_loop", icon:"loop"};
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_user", icon:"user"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:15, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:20, labelKey:"counters.form.placholder", icon:"broadcast", tooltipKey:"counters.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
 
 	public get counterEntries():CounterEntry[] {
@@ -203,10 +195,6 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'})
 				}
 		});
-	}
-
-	public getCounterPlaceholder(counter:TwitchatDataTypes.CounterData):string {
-		return "{"+COUNTER_VALUE_PLACEHOLDER_PREFIX + counter.placeholderKey+"}";
 	}
 
 	public openTriggers():void {
@@ -249,7 +237,10 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		})
 
 		watch(()=> this.param_placeholder.value, ()=> {
-			if(!this.param_placeholder.value) return;
+			if(!this.param_placeholder.value) {
+				this.param_placeholder.error = false;
+				return;
+			}
 			//Check if a placeholder with the same name already exists
 			const counters = this.$store("counters").counterList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
@@ -310,6 +301,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			this.$store("counters").addCounter(data);
 		}
 		this.showForm = false;
+		this.cancelForm();
 	}
 
 	/**
@@ -545,16 +537,6 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			})
 		}
 	}
-
-	/**
-	 * Copies the placeholder
-	 * @param event 
-	 */
-	public copyPlaceholder(event:MouseEvent, counter:TwitchatDataTypes.CounterData):void {
-		Utils.copyToClipboard(this.getCounterPlaceholder(counter));
-		gsap.fromTo(event.currentTarget, {scale:1.2}, {scale:1, duration: .7, ease:"elastic.out"});
-	}
-
 }
 
 interface CounterEntry {
@@ -588,19 +570,6 @@ interface UserEntry {
 				flex-wrap: wrap;
 				justify-content: space-evenly;
 			}
-
-			.errorDetails {
-				text-align: center;
-				margin-top: -.25em;
-				&.shrink {
-					margin-left: 1.5em;
-				}
-				.text {
-					//Text is inside a sub holder so we can set its font-size without
-					//it impacting the margin-left of the holder specified in "em" unit
-					font-size: .8em;
-				}
-			}
 		}
 	}
 
@@ -630,7 +599,7 @@ interface UserEntry {
 				border-radius: 0;
 				align-self: stretch;
 				&:last-child {
-					margin-left: -.25em;//avoid gap between buttons without putting htem in a dedicated container
+					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
 				}
 			}
 		}
@@ -639,16 +608,6 @@ interface UserEntry {
 			margin-right: 1em;
 		}
 
-		mark {
-			color: var(--color-light);
-			font-size: .8em;
-			padding: 2px 5px;
-		}
-
-		.placholder {
-			display: flex;//Dunno why i need this for the button to be properly centered
-			margin-right: .5em;
-		}
 		.info {
 			gap: .25em;
 			display: flex;
@@ -659,14 +618,6 @@ interface UserEntry {
 			}
 		}
 		.content {
-			.placeholder {
-				column-gap: .25em;
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				align-items: center;
-				margin-bottom: .5em;
-			}
 			.value {
 				border-radius: var(--border-radius);
 				min-width: 3em;

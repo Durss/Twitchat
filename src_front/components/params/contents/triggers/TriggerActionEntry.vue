@@ -18,6 +18,7 @@
 					icon="dragZone"
 					class="action orderBt"
 					v-tooltip="$t('triggers.reorder_tt')"
+					@click.stop
 				/>
 			</div>
 		</template>
@@ -26,13 +27,13 @@
 				<Button small
 					icon="copy"
 					class="action"
-					@click="$emit('duplicate')"
+					@click.stop="$emit('duplicate')"
 					v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 					/>
 					<Button small alert
 					icon="trash"
 					class="action delete"
-					@click="$emit('delete')"
+					@click.stop="$emit('delete')"
 					v-tooltip="$t('global.delete')"
 				/>
 			</div>
@@ -77,6 +78,9 @@
 				
 				<Button class="button" @click="selectActionType('highlight')"
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
+				
+				<Button class="button" @click="selectActionType('value')"
+					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</Button>
 				
 				<Button class="button" @click="selectActionType('count')"
 					icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
@@ -143,6 +147,7 @@
 		<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
 		<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+		<TriggerActionValueEntry v-if="action.type=='value'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
@@ -183,6 +188,7 @@ import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
+import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
@@ -217,6 +223,7 @@ import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.v
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
 		TriggerActionDelayEntry,
+		TriggerActionValueEntry,
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
 		TriggerActionGoXLREntry,
@@ -346,6 +353,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
 		if(this.action.type == "count") icons.push( 'count' );
+		if(this.action.type == "value") icons.push( 'placeholder' );
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );

@@ -43,7 +43,7 @@
 						<Button alert
 							icon="trash"
 							class="deleteAction"
-							@click="deleteAction(element.id)"
+							@click.stop="deleteAction(element.id)"
 						/>
 					</template>
 

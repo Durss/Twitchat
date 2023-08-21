@@ -4,6 +4,7 @@
 		"header_select_trigger": "Select the trigger type to create amongst the {COUNT} available",
 		"header_select_reward": "Select the channel point reward",
 		"header_select_counter": "Select the counter",
+		"header_select_value": "Select the value",
 		"header_select_obs_scene": "Select the OBS scene",
 		"header_select_obs_source": "Select the OBS source",
 		"header_select_obs_input": "Select the OBS input to monitor",
@@ -45,7 +46,10 @@
 		"count": {
 			"require": "This trigger need you to first {URL}",
 			"require_url": "create counters"
-
+		},
+		"value": {
+			"require": "This trigger need you to first {URL}",
+			"require_url": "create values"
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",
@@ -127,7 +131,7 @@
 				"action_poll": "Start poll",
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
-				"action_countget": "Get a counter value",
+				"action_value": "Update a value",
 				"action_random": "Random value",
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
@@ -251,6 +255,11 @@
 				"user_source_everyone":"All users",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
+			"value": {
+				"value_label":"Value",
+				"select_label":"Values to update",
+				"select_placeholder":"Select a value..."
+			},
 			"random":{
 				"min_label":"Min value (included)",
 				"max_label":"Max value (included)",
@@ -321,7 +330,7 @@
 			"timer": "Temporal events",
 			"obs": "OBS",
 			"misc": "Miscellaneous",
-			"count": "Counters",
+			"count_and_values": "Counters & Values",
 			"goxlr": "GoXLR"
 		},
 		"placeholders": {
@@ -397,6 +406,7 @@
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "{NAME} counter value",
+			"value_global_value": "Value {NAME}",
 			"watch_streak": "Watch streak count",
 			"obs_scene": "Current OBS scene name",
 			"viewer_count": "Viewers watching your stream",
@@ -804,6 +814,10 @@
 			"GOXLR_SAMPLE_COMPLETE": {
 				"label": "Sample playback complete",
 				"description": "Actions to execute when a GoXLR sample playback complete"
+			},
+			"VALUE_UPDATE": {
+				"label": "Value updated",
+				"description": "Actions to execute when the value {SUB_ITEM_NAME} is updated"
 			}
 		},
 		"musicEvents": {

@@ -1,0 +1,21 @@
+{
+	"values":{
+		"header":"Create custom values for use in {LINK_TRIGGER}",
+		"header_link_trigger":"the Triggers",
+		"addBt":"Create new value",
+		"editBt":"Edit value",
+
+		"form":{
+			"name":"Name",
+			"name_conflict":"A value with the same name already exists",
+			"value":"Value",
+			"placholder": "Custom placeholder name {'{'}VALUE_{VALUE}{'}'}",
+			"placholder_tt": "This value will allow you<br>to get this value<br>in any trigger action",
+			"placeholder_conflict": "Another value already uses this placeholder"
+		},
+		"delete_confirm": {
+			"title": "Delete ?",
+			"desc": "Any trigger having a reference to this value will stop working properly."
+		}
+	}
+}

@@ -813,7 +813,7 @@ export const storeDebug = defineStore('debug', {
 							value:Math.round(Math.random()*9999),
 						}
 					}
-					const m:TwitchatDataTypes.MessageCounterUpdatesData = {
+					const m:TwitchatDataTypes.MessageCounterUpdateData = {
 						platform:"twitchat",
 						type,
 						date:Date.now(),

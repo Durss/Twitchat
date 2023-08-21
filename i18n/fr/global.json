@@ -46,6 +46,13 @@
     "placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
     "placeholder_selector_insert": "Insérer",
     "placeholder_selector_global": "Placeholders globaux",
+    "placeholder_selector_categories": {
+		"stream":"Infos de stream",
+		"counter":"Compteurs",
+		"value":"Valeurs",
+		"timer":"Chrono & compte à rebours",
+		"music":"Musique"
+	},
     "chat_alert_title": "{USER} dit",
     "date_days": "j",
     "ad_default": "J'utilise GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",

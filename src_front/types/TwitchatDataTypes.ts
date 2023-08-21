@@ -44,6 +44,7 @@ export namespace TwitchatDataTypes {
 		GOXLR: "goxlr",
 		TRIGGERS: "triggers",
 		COUNTERS: "counters",
+		VALUES: "values",
 		OVERLAYS: "overlays",
 		EMERGENCY: "emergency",
 		SPOILER: "spoiler",
@@ -107,6 +108,13 @@ export namespace TwitchatDataTypes {
 			avatar:string,
 			points:number
 		}[];
+	}
+
+	export interface ValueData {
+		id:string;
+		name:string;
+		placeholderKey:string;
+		value:string;
 	}
 
 	/**
@@ -657,6 +665,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
+		category?:"stream"|"counter"|"value"|"timer"|"music";
 	}
 
 	/**
@@ -1375,6 +1384,7 @@ export namespace TwitchatDataTypes {
 		MUSIC_STOP:"music_stop",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
+		VALUE_UPDATE:"value_update",
 		GOXLR_BUTTON:"goxlr_button",
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
@@ -1448,6 +1458,7 @@ export namespace TwitchatDataTypes {
 		music_start:false,
 		subscription:true,
 		autoban_join:true,
+		value_update:false,
 		goxlr_button:false,
 		raid_started:false,
 		room_settings:true,
@@ -1564,7 +1575,8 @@ export namespace TwitchatDataTypes {
 									| MessageRoomSettingsData
 									| MessageStreamOnlineData
 									| MessageStreamOfflineData
-									| MessageCounterUpdatesData
+									| MessageCounterUpdateData
+									| MessageValueUpdateData
 									| MessageUnpinData
 									| MessageClipCreate
 									| MessageRaidStartData
@@ -2954,7 +2966,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a counter value update
 	 */
-	export interface MessageCounterUpdatesData extends AbstractTwitchatMessage {
+	export interface MessageCounterUpdateData extends AbstractTwitchatMessage {
 		type:"counter_update";
 		/**
 		 * Counter's reference
@@ -2988,6 +3000,25 @@ export namespace TwitchatDataTypes {
 		 * User that made the counter update
 		 */
 		user?:TwitchatUser;
+	}
+
+	/**
+	 * Represents a Value object update
+	 */
+	export interface MessageValueUpdateData extends AbstractTwitchatMessage {
+		type:"value_update",
+		/**
+		 * Value object updated
+		 */
+		value:ValueData,
+		/**
+		 * New value
+		 */
+		newValue:string;
+		/**
+		 * Old value
+		 */
+		oldValue:string;
 	}
 
 	/**

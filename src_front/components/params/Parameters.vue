@@ -20,6 +20,7 @@
 						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
 						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
 						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1690765812999, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
+						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues">{{$t('params.categories.values')}}</Button>
 						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
 						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
 						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
@@ -79,6 +80,7 @@
 				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
+				<ParamsValues v-if="content == contentValues" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -129,6 +131,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
+import ParamsValues from './contents/ParamsValues.vue';
 
 @Component({
 	components:{
@@ -143,6 +146,7 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 		ParamsAlert,
 		ParamsGoXLR,
 		ParamsDonate,
+		ParamsValues,
 		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
@@ -186,6 +190,7 @@ export default class Parameters extends Vue {
 	public get contentGoXLR():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.GOXLR; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentCounters():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.COUNTERS; }
+	public get contentValues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VALUES; }
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
 	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; }
 	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; }

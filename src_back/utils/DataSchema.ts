@@ -138,6 +138,7 @@ import Ajv from "ajv";
 						items: {type:"string", maxLength:20},
 					},
 					counterId: {type:"string", maxLength:50},
+					valueId: {type:"string", maxLength:50},
 					queue: {type:"string", maxLength:100, nullable:true},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
@@ -293,6 +294,13 @@ import Ajv from "ajv";
 									minItems:0,
 									maxItems:1000,
 									items:{type:"string", maxLength:100},
+								},
+								newValue: {type:"string", maxLength:1000000},
+								values: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:40},
 								},
 								counters: {
 									type:"array",
@@ -890,6 +898,22 @@ import Ajv from "ajv";
 							".*": { type:"boolean" }
 						}
 					}
+				}
+			}
+		},
+
+		values: {
+			type:"array",
+			minItems:0,
+			maxItems:10000,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties:{
+					id: {type:"string", maxLength:40},
+					name: {type:"string", maxLength:50},
+					placeholderKey: {type:"string", maxLength:50},
+					value: {type:"string", maxLength:1000000},
 				}
 			}
 		},

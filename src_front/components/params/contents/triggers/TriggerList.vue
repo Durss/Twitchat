@@ -22,7 +22,7 @@
 		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
-			:title="$t(cat.labelKey)" :icons="[cat.icon]">
+			:title="$t(cat.labelKey)" :icons="cat.icons">
 				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
 					<TriggerListItem :noEdit="noEdit" :entryData="item"
 						v-if="buildIndex >= item.index"
@@ -178,7 +178,7 @@ export default class TriggerList extends Vue {
 			if(!idToCategory[triggerType.category.id]) {
 				let currentCategory = {
 					index:index,
-					icon: triggerType.category.icon,
+					icons: triggerType.category.icons,
 					labelKey: triggerType.category.labelKey,
 					triggerList: [],
 				};
@@ -229,7 +229,7 @@ type SortTypes = "list" | "category";
 interface TriggerListCategoryEntry {
 	index:number;
 	labelKey:string;
-	icon:string;
+	icons:string[];
 	triggerList:TriggerListEntry[];
 }
 

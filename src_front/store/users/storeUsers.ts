@@ -299,7 +299,6 @@ export const storeUsers = defineStore('users', {
 
 			const needCreationDate = user.created_at_ms == undefined;// && StoreProxy.params.appearance.recentAccountUserBadge.value === true;
 			if(platform == "twitch" && (user.temporary || needCreationDate)) {
-				
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
@@ -387,17 +386,17 @@ export const storeUsers = defineStore('users', {
 
 				//Batch requests by types.
 				//All items loaded by their IDs on one batch, by logins on another batch.
-				if(login) {
-					twitchUserBatchLoginToLoad.push({user, channelId, cb:loadCallback});
-					if(twitchUserBatchLoginToLoad.length < 100) {
-						if(twitchUserBatchLoginTimeout > -1) clearTimeout(twitchUserBatchLoginTimeout);
-						twitchUserBatchLoginTimeout = to;
-					}
-				} else {
+				if(id) {
 					twitchUserBatchIdToLoad.push({user, channelId, cb:loadCallback});
 					if(twitchUserBatchIdToLoad.length < 100) {
 						if(twitchUserBatchIdTimeout > -1) clearTimeout(twitchUserBatchIdTimeout);
 						twitchUserBatchIdTimeout = to;
+					}
+				} else if(login) {
+					twitchUserBatchLoginToLoad.push({user, channelId, cb:loadCallback});
+					if(twitchUserBatchLoginToLoad.length < 100) {
+						if(twitchUserBatchLoginTimeout > -1) clearTimeout(twitchUserBatchLoginTimeout);
+						twitchUserBatchLoginTimeout = to;
 					}
 				}
 			}else 
