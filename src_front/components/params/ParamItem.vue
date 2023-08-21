@@ -53,19 +53,20 @@
 
 				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
 				<div class="inputHolder">
-					<textarea ref="input" v-if="paramData.longText===true && !paramData.noInput"
+					<textarea ref="input" v-if="longText && !paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
 						rows="3"
 						:id="'text'+key"
 						:name="paramData.fieldName"
 						:placeholder="placeholder"
-						v-autofocus="autofocus"
+						v-autofocus="autofocusLocal"
+						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						@input="$emit('input')"></textarea>
-					<input ref="input" v-if="paramData.longText!==true && !paramData.noInput"
+					<input ref="input" v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
 						v-model="textValue"
-						v-autofocus="autofocus"
+						v-autofocus="autofocusLocal"
 						:name="paramData.fieldName"
 						:id="'text'+key"
 						:type="paramData.type == 'datetime'? 'datetime-local' : paramData.type"
@@ -206,7 +207,7 @@
 			</div>
 		</transition>
 
-		<div class="card-item alert errorMessage" v-if="(error && errorMessage) || paramData.errorMessage">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
+		<div class="card-item alert errorMessage" v-if="(error || paramData.error) && (errorMessage || paramData.errorMessage)">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
 	</div>
 </template>
 
@@ -217,10 +218,9 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
-import Slider from '../Slider.vue';
-import { useSlots, type VNode } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -275,10 +275,16 @@ export default class ParamItem extends Vue {
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 	public errorLocal:boolean = false
+	public autofocusLocal:boolean = false
 
 	private file:unknown = {};
+	private carretIndex:number = 0;
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
+
+	public get longText():boolean {
+		return this.paramData.longText === true || this.textValue.length > 30;
+	}
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -290,7 +296,7 @@ export default class ParamItem extends Vue {
 		}
 		if(this.errorLocal !== false) res.push("error");
 		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
-		if(this.paramData.longText) res.push("longText");
+		if(this.longText) res.push("longText");
 		if(this.label == '') res.push("noLabel");
 		if(this.autoFade !== false) res.push("autoFade");
 		if(this.childLevel > 0) res.push("child");
@@ -350,10 +356,22 @@ export default class ParamItem extends Vue {
 			value = value.replace(new RegExp("[^"+this.paramData.allowedCharsRegex+"]", "gi"), "");
 			if(value != prevValue) {
 				//set to a new value so a change is detected by vue when modifying it aftewards
-				this.paramData.value = "_____this_is_a_fake_value_you_should_not_use_hehehehehe_____";
+				this.paramData.value = "_____this_is_a_fake_value_you_SHOULD_R3aLLY_N0T_use_hehehehehe_____";
 			}
 		}
 		this.paramData.value = value;
+		const input = this.$refs.input as HTMLInputElement;
+		let selectStart = input.selectionStart || value.length;
+		let selectEnd = input.selectionEnd;
+		
+		this.$nextTick().then(()=> {
+			const newInput = this.$refs.input as HTMLInputElement;
+			if(newInput == input) return;
+			//In case there was a switch between a <input> and a <textarea>, set the carret
+			//to the same place it was before the switch
+			newInput.selectionStart = selectStart;
+			newInput.selectionEnd = selectEnd;
+		})
 	}
 
 	public beforeUpdate(): void {
@@ -361,6 +379,7 @@ export default class ParamItem extends Vue {
 	}
 
 	public beforeMount(): void {
+		this.autofocusLocal = this.autofocus;
 		this.setErrorState(this.error || this.paramData.error === true);
 	}
 
@@ -403,6 +422,10 @@ export default class ParamItem extends Vue {
 				// throw new Error("For \"placeholderList\" to work, \"paramData\" type must be \"text\". Current type is \""+this.paramData.type+"\"");
 			}
 		}
+
+		//Set this to true so the we keep focus on the text field when it switches
+		//between <input> and <textarea> depending on the text length
+		this.autofocusLocal = true;
 	}
 
 	/**
