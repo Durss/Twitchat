@@ -15,7 +15,7 @@
 			</template>
 		</div>
 
-		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0">
+		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0" :open="false">
 			<div class="list">
 				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
 					<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
@@ -27,6 +27,21 @@
 					</i18n-t>
 				</template>
 			</div>
+				
+			<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="false"
+			:title="$t('global.placeholder_selector_categories.'+c.key)">
+				<div class="list">
+					<template v-for="(h,index) in c.entries" :key="h.tag+index">
+						<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+						
+						<i18n-t scope="global" :keypath="h.descKey" tag="span">
+							<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
+								<mark>{{ value }}</mark>
+							</template>
+						</i18n-t>
+					</template>
+				</div>
+			</ToggleBlock>
 		</ToggleBlock>
 	</ToggleBlock>
 </template>
@@ -63,7 +78,30 @@ export default class PlaceholderSelector extends Vue {
 	}
 	
 	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
-		return this.placeholders.filter(v=>v.globalTag === true);
+		const list = this.placeholders.filter(v=>v.globalTag === true && !v.category).sort((a,b) => a.tag.length - b.tag.length);
+
+		return list;
+	}
+
+	public get globalPlaceholderCategories():{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[]{
+		const list = this.placeholders.filter(v=>v.globalTag === true && v.category).sort((a,b)=> {
+			if((a.category || "") < (b.category || "")) return -1;
+			if((a.category || "") > (b.category || "")) return 1;
+			return 0;
+		});
+		const categories:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[] = [];
+		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0].category!, entries:[list[0]]};
+		for (let i = 1; i < list.length; i++) {
+			const el = list[i];
+			if(el.category != currentCategory.key) {
+				categories.push(currentCategory);
+				currentCategory = {key:el.category!, entries:[]};
+			}
+			currentCategory.entries.push(el);
+		}
+		categories.push(currentCategory);
+
+		return categories;
 	}
 
 	/**
