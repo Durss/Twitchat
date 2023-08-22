@@ -126,7 +126,6 @@ export default class Config {
 		return [
 			// {platform:"twitch", login:"shakawah"},
 			// {platform:"twitch", login:"mewstelle"},
-			{platform:"twitch", login:"PYKA"},
 		];
 	}
 

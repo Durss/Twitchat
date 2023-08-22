@@ -98,6 +98,11 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.timerStart"),
 			},
 			{
+				id:"timerPause",
+				cmd:"/timerPause",
+				details:StoreProxy.i18n.t("params.commands.timerPause"),
+			},
+			{
 				id:"timerAdd",
 				cmd:"/timerAdd {(hh:)(mm:)ss}",
 				details:StoreProxy.i18n.t("params.commands.timerAdd"),
@@ -126,6 +131,11 @@ export const storeChat = defineStore('chat', {
 				id:"countdownRemove",
 				cmd:"/countdownRemove {(hh:)(mm:)ss}",
 				details:StoreProxy.i18n.t("params.commands.countdownRemove"),
+			},
+			{
+				id:"countdownPause",
+				cmd:"/countdownPause",
+				details:StoreProxy.i18n.t("params.commands.countdownPause"),
 			},
 			{
 				id:"countdownStop",
@@ -567,12 +577,11 @@ export const storeChat = defineStore('chat', {
 				if(res.length === 0) return;
 				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
 					id:Utils.getUUID(),
-					date:Date.now(),
+					date:messageList[0].date-.1,
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 				}
-
-				res.push(splitter);
+				messageList.unshift(splitter);
 				
 				//Force reactivity so merging feature works on old messages
 				for (let i = res.length-1; i >= 0; i--) {
@@ -911,7 +920,7 @@ export const storeChat = defineStore('chat', {
 									//Not sent from the mentionned user, ignore it
 									if(m.user.login != match && m.user.displayName.toLowerCase() != match) continue;
 									//If message is too old, stop there
-									if(ts - m.date < timeframe) break;
+									if(ts - m.date > timeframe) break;
 
 									if(m.answers) {
 										//If it's the root message of a conversation

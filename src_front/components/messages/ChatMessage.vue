@@ -99,6 +99,7 @@
 			<span :class="getChildMessageClasses(m)"
 			v-if="messageData.type == 'message' && children"
 			v-for="m in children"
+			:id="'message_' + m.id + '_' + colIndex"
 			@contextmenu.capture="onContextMenu($event, m)">
 				<span class="text">
 					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
@@ -188,6 +189,9 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	@Prop({type:Boolean, default:false})
 	public noMerge!:boolean;
+
+	@Prop({type:Number, default:0})
+	public colIndex!:number;
 	
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
@@ -924,7 +928,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	.messageChild {
-		// position: relative;
+		position: relative;
 		word-break: break-word;
 		:deep(a) {
 			word-break: break-all;
