@@ -36,23 +36,20 @@
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"music": {
-			"require": "Cet évènement nécessite de lier Spotify avec Twitchat dans {URL}",
-			"require_url": "les overlays"
+			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
+			"require_url": "la section @:params.categories.connexions"
 		},
 		"obs": {
-			"require": "Cet événément nécessite de {URL}",
+			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lier twitchat à OBS"
 		},
 		"count": {
-			"require": "Cet événément nécessite de d'abord {URL}",
-			"require_url": "créer des compteurs"
-		},
-		"value": {
-			"require": "Cet événément nécessite de d'abord {URL}",
-			"require_url": "créer des valeurs"
+			"require": "Ces événéments nécessitent de d'abord {URL_COUNTERS} ou de {URL_VALUES}",
+			"require_counters": "créer des compteurs",
+			"require_values": "créer des Valeurs"
 		},
 		"rewards": {
-			"require": "Cet événément nécessite de {URL}",
+			"require": "Ces événéments nécessitent de {URL}",
 			"require_url": "lister vos récompenses de point de chaîne"
 		},
 		"schedule": {

@@ -80,6 +80,7 @@
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
 				
 				<Button class="button" @click="selectActionType('value')"
+				 	v-newflag="{date:1690765812999, id:'params_value'}"
 					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</Button>
 				
 				<Button class="button" @click="selectActionType('count')"
@@ -109,14 +110,17 @@
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('goxlr')"
+				 	v-newflag="{date:1690765812999, id:'params_goxlr'}"
 					icon="goxlr" premium
 					:disabled="!goxlrEnabled"
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('customBadges')"
+				 	v-newflag="{date:1690765812999, id:'params_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('customUsername')"
+				 	v-newflag="{date:1690765812999, id:'params_customusername'}"
 					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</Button>
 				
 				<Button class="button" @click="selectActionType('trigger')"

@@ -37,19 +37,16 @@
 		"random_placeholder": "Random value placeholder {NAME}",
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
-			"require_url": "overlays section"
+			"require_url": "@:params.categories.connexions section"
 		},
 		"obs": {
 			"require": "This trigger need you to {URL}",
 			"require_url": "connect with OBS"
 		},
 		"count": {
-			"require": "This trigger need you to first {URL}",
-			"require_url": "create counters"
-		},
-		"value": {
-			"require": "This trigger need you to first {URL}",
-			"require_url": "create values"
+			"require": "These triggers need you to first {URL_COUNTERS} or  {URL_VALUES}",
+			"require_counters": "create counters",
+			"require_values": "create values"
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",

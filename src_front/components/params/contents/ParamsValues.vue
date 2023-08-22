@@ -26,7 +26,7 @@
 				<ParamItem :paramData="param_placeholder" :errorMessage="$t('values.form.placeholder_conflict')" />
 				<div class="ctas">
 					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
-					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0">{{ $t('global.create') }}</Button>
+					<Button type="submit" v-if="!editedCounter" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</Button>
 					<Button type="submit" v-else icon="edit" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('values.editBt') }}</Button>
 				</div>
 			</form>

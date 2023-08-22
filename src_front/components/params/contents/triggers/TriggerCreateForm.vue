@@ -33,7 +33,7 @@
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 				keypath="triggers.music.require">
 					<template #URL>
-						<a @click="openOverlays()">{{ $t("triggers.music.require_url") }}</a>
+						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
 					</template>
 				</i18n-t>
 
@@ -46,18 +46,13 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="require"
-				v-if="isCountersCategory(c.category)"
+				v-if="isCountersAndValueCategory(c.category)"
 				keypath="triggers.count.require">
-					<template #URL>
-						<a @click="openCounters()">{{ $t("triggers.count.require_url") }}</a>
+					<template #URL_COUNTERS>
+						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
 					</template>
-				</i18n-t>
-
-				<i18n-t scope="global" tag="div" class="require"
-				v-if="isCountersCategory(c.category)"
-				keypath="triggers.value.require">
-					<template #URL>
-						<a @click="openValues()">{{ $t("triggers.value.require_url") }}</a>
+					<template #URL_VALUES>
+						<a @click="openValues()">{{ $t("triggers.count.require_values") }}</a>
 					</template>
 				</i18n-t>
 
@@ -181,8 +176,8 @@ export default class TriggerCreateForm extends Vue {
 		return category.id == TriggerEventTypeCategories.OBS.id;
 	}
 
-	public isCountersCategory(category:TriggerEventTypeCategory):boolean {
-		return category.id == TriggerEventTypeCategories.COUNTER.id;
+	public isCountersAndValueCategory(category:TriggerEventTypeCategory):boolean {
+		return category.id == TriggerEventTypeCategories.COUNTER_VALUE.id;
 	}
 
 	public beforeMount():void {
@@ -557,10 +552,10 @@ export default class TriggerCreateForm extends Vue {
 	}
 	
 	/**
-	 * Open overlay parameters
+	 * Open connexions parameters
 	 */
-	public openOverlays():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+	public openConnexions():void {
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 
 	/**

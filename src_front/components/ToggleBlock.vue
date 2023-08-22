@@ -160,6 +160,9 @@ export default class ToggleBlock extends Vue {
 			display: flex;
 			flex-direction: column;
 			gap: 0;
+			h2 {
+				word-break: break-all;
+			}
 			h3 {
 				font-size: .8em;
 				font-weight: normal;
