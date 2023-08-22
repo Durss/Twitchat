@@ -387,7 +387,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 					//Counter update simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
-						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);;
+						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);
 						if(counter) {
 							m.counter = counter;
 							switch(trigger.type) {
@@ -398,6 +398,15 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								case TriggerTypes.COUNTER_MAXED: m.maxed = true; break;
 								case TriggerTypes.COUNTER_MINED: m.mined = true; break;
 							}
+						}
+					}
+
+					//Value update simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE) {
+						const value = this.$store("values").valueList.find(v=>v.id == trigger.valueId);
+						if(value) {
+							m.value = value;
+							m.oldValue = value.value;
 						}
 					}
 

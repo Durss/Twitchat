@@ -830,6 +830,34 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE: {
+					let value = Utils.pickRand(StoreProxy.values.valueList ?? []);
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 8, min: 2 }
+					});
+					if(!value) {
+						value = {
+							id:Utils.getUUID(),
+							placeholderKey:"",
+							name:"Fake value",
+							value:lorem.generateSentences(1),
+						}
+					}
+					const m:TwitchatDataTypes.MessageValueUpdateData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						value:value,
+						newValue:lorem.generateSentences(1),
+						oldValue:value.value,
+					};
+					console.log("FAKE ", m);
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT: {
 					const m:TwitchatDataTypes.MessageLowtrustTreatmentData = {
 						id:Utils.getUUID(),

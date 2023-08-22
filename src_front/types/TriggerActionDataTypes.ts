@@ -960,8 +960,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 
 	map[TriggerTypes.VALUE_UPDATE] = [
-		{tag:"NEW_VALUE", descKey:'triggers.placeholders.value_value', pointer:"newValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
-		{tag:"OLD_VALUE", descKey:'triggers.placeholders.value_update', pointer:"oldValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
+		{tag:"VALUE_NAME", descKey:'triggers.placeholders.value_name', pointer:"value.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
+		{tag:"NEW_VALUE", descKey:'triggers.placeholders.new_value', pointer:"newValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
+		{tag:"OLD_VALUE", descKey:'triggers.placeholders.old_value', pointer:"oldValue", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageValueUpdateData>,
 	];
 
 	map[TriggerTypes.SLASH_COMMAND] = [
