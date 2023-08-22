@@ -11,7 +11,12 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button icon="add" @click="showForm = true">{{ $t('values.addBt') }}</Button>
+			<Button icon="add" @click="showForm = true" v-if="canCreateValues">{{ $t('values.addBt') }}</Button>
+			<div class="card-item secondary" v-else-if="$store('auth').isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
+			<template v-else>
+				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
+				<Button slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			</template>
 		</section>
 
 		<section class="card-item" v-if="showForm">
@@ -60,6 +65,7 @@ import { reactive, watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -82,6 +88,9 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"values.form.value"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:20, labelKey:"values.form.placholder", icon:"broadcast", tooltipKey:"values.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
+
+	public get maxValues():number { return this.$store('auth').isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
+	public get canCreateValues():boolean { return this.$store('values').valueList.length < this.maxValues; }
 
 	public get valueEntries():ValueEntry[] {
 		const list = this.$store("values").valueList;
@@ -226,9 +235,14 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.param_value.value = "";
 		this.param_placeholder.value = "";
 		this.param_placeholder.value = "";
-
 	}
 
+	/**
+	 * Called when clicking premium button
+	 */
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
 }
 
 interface ValueEntry {

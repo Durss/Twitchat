@@ -13,6 +13,7 @@
 			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",
 			"Customize the name of up to 10000 of your viewers (limited to 10 otherwise)",
 			"Create up to 100 custom badges (limited to 3 otherwise)",
+			"Create up to 100 Values (limited to 3 otherwise)",
 			"Give a custom badge to up to 10000 users (limited to 30 otherwise)",
 			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
 		]

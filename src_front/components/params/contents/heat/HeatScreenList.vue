@@ -24,9 +24,12 @@
 						@duplicate="duplicateScreen" />
 				</template>
 				<template #footer>
-					<Button slot="footer" class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></Button>
-					<Button slot="footer" class="item" icon="premium" premium big @click="openPremium()" v-else-if="!$store('auth').isPremium"></Button>
-					<div class="card-item secondary" v-else>{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
+					<Button class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></Button>
+					<div class="card-item secondary" v-else-if="$store('auth').isPremium">{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
+					<template v-else>
+						<div class="card-item secondary">{{ $t("error.max_custom_heat_screen", {COUNT:maxScreens}) }}</div>
+						<Button class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+					</template>
 				</template>
 			</draggable>
 
@@ -60,11 +63,8 @@ export default class HeatScreenList extends Vue {
 
 	public currentScreen:HeatScreen|null = null;
 
-	public get maxScreens():number { return Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM }
-	public get canCreateScreens():boolean {
-		return (!this.$store('auth').isPremium && this.$store('heat').screenList.length < Config.instance.MAX_CUSTOM_HEAT_SCREENS)
-		|| this.$store('heat').screenList.length < this.maxScreens;
-	}
+	public get maxScreens():number { return this.$store('auth').isPremium? Config.instance.MAX_CUSTOM_HEAT_SCREENS_PREMIUM : Config.instance.MAX_CUSTOM_HEAT_SCREENS }
+	public get canCreateScreens():boolean { return this.$store('heat').screenList.length < this.maxScreens; }
 
 	public async beforeMount():Promise<void> {
 	}
@@ -98,7 +98,7 @@ export default class HeatScreenList extends Vue {
 	}
 
 	/**
-	 * Called when clicking duplicate button
+	 * Called when clicking premium button
 	 */
 	public openPremium():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);

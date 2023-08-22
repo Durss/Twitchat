@@ -6,6 +6,7 @@ import DataStore from '../DataStore';
 import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 
 export const storeValues = defineStore('values', {
 	state: () => ({
@@ -23,6 +24,11 @@ export const storeValues = defineStore('values', {
 
 	actions: {
 		addValue(data:TwitchatDataTypes.ValueData):void {
+			//User can create up to 3 values if not premium
+			if(!StoreProxy.auth.isPremium && this.valueList.length >= Config.instance.MAX_VALUES) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.max_values", {COUNT:Config.instance.MAX_VALUES}));
+				return;
+			}
 			this.valueList.push(data);
 			DataStore.set(DataStore.VALUES, this.valueList);
 			rebuildPlaceholdersCache();

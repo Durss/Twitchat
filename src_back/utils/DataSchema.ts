@@ -905,7 +905,7 @@ import Ajv from "ajv";
 		values: {
 			type:"array",
 			minItems:0,
-			maxItems:10000,
+			maxItems:100,
 			items:{
 				type:"object",
 				additionalProperties: false,

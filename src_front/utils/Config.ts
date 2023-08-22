@@ -92,6 +92,14 @@ export default class Config {
 	 * Maxium number of chat columns that can be created
 	 */
 	public MAX_CHAT_COLUMNS = 7;
+	/**
+	 * Maxium number of values that can be created without being premium
+	 */
+	public MAX_VALUES = 3;
+	/**
+	 * Maxium number of values that can be created when premium
+	 */
+	public MAX_VALUES_PREMIUM = 100;
 	
 	private _serverConfig!:ServerConfig;
 	

@@ -4,6 +4,7 @@
 		"header_link_trigger":"the Triggers",
 		"addBt":"Create new value",
 		"editBt":"Edit value",
+		"max_values_reached":"Vous avez atteint le maximum de {COUNT} valeurs pouvant être créées",
 
 		"form":{
 			"name":"Name",
