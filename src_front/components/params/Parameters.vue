@@ -20,7 +20,7 @@
 						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
 						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
 						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1690765812999, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
-						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues">{{$t('params.categories.values')}}</Button>
+						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues" v-newflag="{date:1690765812999, id:'paramsparams_values'}">{{$t('params.categories.values')}}</Button>
 						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
 						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
 						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>

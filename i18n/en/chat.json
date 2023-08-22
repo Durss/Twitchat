@@ -139,7 +139,7 @@
 			"announcement": "Announcement",
 			"occurrences": "Number of times this message has been sent",
 			"no_follow": "Not a follower",
-			"banned_in": " • Banned in {CHANNELS}",
+			"banned_in": "Banned in {CHANNELS}",
 			"blocked_user": "This message has been sent by a blocked user. Click to reveal.",
 			"clip_created_by": "Created by:",
 			"clip_channel": "Channel:",
@@ -355,9 +355,9 @@
 				"returningChatter":"This user chatted here twice in the last 30 days",
 				"hypeChat":"Hype chat. User paid for this message",
 				"new_account": "This account has been created {DURATION} ago",
-				"new_account_day": "D",
-				"new_account_hour": "H",
-				"new_account_minute": "M"
+				"new_account_day": "d",
+				"new_account_hour": "h",
+				"new_account_minute": "min"
 			}
 		},
 		"scope_request": {

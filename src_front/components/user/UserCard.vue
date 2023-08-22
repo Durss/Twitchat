@@ -91,6 +91,11 @@
 
 						<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
 						<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
+						<div class="info ban card-item alert" v-for="chan in bannedChannels">
+							<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
+							<span>{{ chan.user.displayName }}</span>
+							<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
+						</div>
 					</div>
 					
 					<div class="ctas">
@@ -144,7 +149,7 @@
 						<div class="list" v-if="!errorFollowings" ref="list">
 							<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
 								<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
-								<div class="date">{{getFormatedDate(u)}}</div>
+								<div class="date">{{getFormatedFollowDate(u)}}</div>
 							</div>
 						</div>
 					</div>
@@ -221,6 +226,8 @@ export default class UserCard extends Vue {
 	public subState:TwitchDataTypes.Subscriber|null = null;
 	public subStateLoaded:boolean = false;
 	public messageHistory:TwitchatDataTypes.ChatMessageTypes[] = []
+	public dateOffset:number = 0;
+	public dateOffsetTimeout:number = -1;
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	private messageBuildInterval:number = -1;
@@ -271,6 +278,27 @@ export default class UserCard extends Vue {
 	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	/**
+	 * Get connected channels the user is banned in.
+	 * Only reliable info is from our own chan. Other's chan info depends on weither we were here
+	 * when the user got banned
+	 */
+	public get bannedChannels():{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] {
+		if(!this.user) return [];
+		console.log(this.user!.channelInfo);
+		let res:{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] = [];
+		for (const uid in this.user!.channelInfo) {
+			if(this.user.channelInfo[uid].is_banned !== true) continue;
+			let entry:{user:TwitchatDataTypes.TwitchatUser, duration?:number} = {user:this.$store("users").getUserFrom(this.user.platform, uid, uid)}
+			if(this.user.channelInfo[uid].banEndDate) {
+				const duration = this.user.channelInfo[uid].banEndDate! - Date.now();
+				if(duration > 0) entry.duration = duration;
+			}
+			res.push(entry)
+		}
+		return res; 
+	}
+
+	/**
 	 * Get the "read user's messages" label depedning on its current state
 	 */
 	public get ttsReadBtLabel(): string {
@@ -286,7 +314,15 @@ export default class UserCard extends Vue {
 		return label;
 	}
 
-	public getFormatedDate(f:TwitchDataTypes.FollowingOld):string {
+	/**
+	 * Get a formated timeout duration
+	 * @param duration 
+	 */
+	public getFormatedTimeoutDuration(duration:number):string {
+		return Utils.formatDuration(Math.max(0, duration - this.dateOffset));
+	}
+
+	public getFormatedFollowDate(f:TwitchDataTypes.FollowingOld):string {
 		return Utils.formatDate(new Date(f.followed_at));
 	}
 
@@ -299,8 +335,12 @@ export default class UserCard extends Vue {
 				this.user = card.user;
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
+				this.dateOffsetTimeout = setInterval(() => {
+					this.dateOffset += 1000;
+				}, 1000);
 			}else{
 				this.user = null;
+				clearInterval(this.dateOffsetTimeout);
 			}
 		});
 
@@ -748,6 +788,7 @@ export default class UserCard extends Vue {
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: .5em;
+			cursor: default;
 			flex-shrink: 0;//necessery for shit old safari -_-
 			.info {
 				font-size: .9em;
@@ -757,7 +798,15 @@ export default class UserCard extends Vue {
 				.icon {
 					height: 1em;
 					margin-right: .5em;
-					vertical-align: top;
+					vertical-align: middle;
+				}
+
+				&.ban {
+					.timeoutDuration {
+						margin-left: .5em;
+						// font-family: Azeret;
+						font-size: .8em;
+					}
 				}
 			}
 		}

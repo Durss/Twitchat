@@ -24,9 +24,11 @@ export default class ChatMessageInfoBadges extends Vue {
 	}
 
 	public getLabel(info:TwitchatDataTypes.MessageBadgeData):string {
-		if(info.label) return info.label;
+		let label = "";
 		const hashmap = this.$tm("chat.custom_badge.label") as {[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}
-		return hashmap[info.type];
+		label = hashmap[info.type] || "";
+		if(info.label) label += " "+info.label;
+		return label;
 	}
 
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
@@ -53,10 +55,12 @@ export default class ChatMessageInfoBadges extends Vue {
 	}
 
 	public getTooltip(info:TwitchatDataTypes.MessageBadgeData):string {
+		let tt = "";
 		if(this.$te("chat.custom_badge.tooltip."+info.type)) {
-			return this.$t("chat.custom_badge.tooltip."+info.type, info.tooltipLabelParams || {});
+			tt = this.$t("chat.custom_badge.tooltip."+info.type, info.tooltipLabelParams || {});
 		}
-		return info.tooltip ?? "";
+		if(info.tooltip) tt += info.tooltip;
+		return tt ?? "";
 	}
 
 }

@@ -84,10 +84,10 @@
 					@click.stop.prevent="openUserCard(recipient!)">{{recipient.displayName}}</a>
 			</template>
 			
-			<i18n-t scope="global" class="sharedBan" tag="span"
+			<!-- <i18n-t scope="global" class="sharedBan" tag="span"
 			v-if="userBannedOnChannels" keypath="chat.message.banned_in">
 				<template #CHANNELS>{{userBannedOnChannels}}</template>
-			</i18n-t>
+			</i18n-t> -->
 			
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
@@ -706,19 +706,20 @@ export default class ChatMessage extends AbstractChatMessage {
 	private updateSuspiciousState():void{
 		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
 		
+		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
+		if(users.length > 0) {
+			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 "+this.$t("global.and"));
+		}
+		
 		if(this.messageData.twitch_isSuspicious
 		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER) == -1) {
-			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER});
+			let tt = users.length > 1? "<br><br>"+this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
+			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER, label:users.length > 1? "(x"+users.length+")" : "", tooltip:tt});
 		}
 		
 		if(this.messageData.twitch_isRestricted
 		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER) == -1) {
 			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
-		}
-		
-		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
-		if(users.length > 0) {
-			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 and");
 		}
 	}
 	

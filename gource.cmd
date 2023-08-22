@@ -1,0 +1,2 @@
+: starts rendering a git visualization from the specified date
+gource --start-date "2023-06-29" --auto-skip-seconds 0.5 --background-image static/favicon.png --background 008667 -f --frameless --camera-mode track --font-colour 444444 --filename-colour 444444 --dir-colour 444444 --file-font-size 20 --dir-font-size 16 --time-scale 1.5
