@@ -846,7 +846,7 @@ export const storeMain = defineStore("main", {
 				sParams.goxlrConfig = JSON.parse(goXLRParams);
 				const ip = sParams.goxlrConfig.ip;
 				const port = sParams.goxlrConfig.port;
-				if(ip && port) {
+				if(ip && port && sParams.goxlrConfig.enabled) {
 					GoXLRSocket.instance.connect(ip, port);
 				}
 			}
