@@ -302,16 +302,24 @@ export default class RaffleForm extends AbstractSidePanel {
 			if(this.action.raffleData) {
 				this.mode = this.action.raffleData.mode;
 				this.command.value = this.action.raffleData.command != undefined;
+				this.command_value.value = this.action.raffleData.command || "";
 				this.enterDuration.value = this.action.raffleData.duration_s/60;
 				this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 				this.maxUsersToggle.value = this.maxEntries.value > 0;
 				this.multipleJoin.value = this.action.raffleData.multipleJoin === true;
+				this.reward.value = this.action.raffleData.reward_id != undefined;
+				this.reward_value.value = this.action.raffleData.reward_id || "";
 				this.ponderateVotes_follower.value = this.action.raffleData.followRatio ?? 0;
 				this.ponderateVotes_vip.value = this.action.raffleData.vipRatio ?? 0;
 				this.ponderateVotes_sub.value = this.action.raffleData.subRatio ?? 0;
 				this.ponderateVotes_subT2.value = this.action.raffleData.subT2Ratio ?? 0;
 				this.ponderateVotes_subT3.value = this.action.raffleData.subT3Ratio ?? 0;
 				this.ponderateVotes_subgift.value = this.action.raffleData.subgiftRatio ?? 0;
+				this.ponderateVotes.value = this.ponderateVotes_vip.value > 0 ||
+											this.ponderateVotes_sub.value > 0 ||
+											this.ponderateVotes_subT2.value > 0 ||
+											this.ponderateVotes_subT3.value > 0 ||
+											this.ponderateVotes_subgift.value > 0;
 				this.subs_includeGifters.value = this.action.raffleData.subMode_includeGifters ?? false;
 				this.subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
 				this.showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
@@ -330,7 +338,7 @@ export default class RaffleForm extends AbstractSidePanel {
 											this.ponderateVotes_sub,
 											this.ponderateVotes_subT2,
 											this.ponderateVotes_subT3,
-											this.ponderateVotes_subgift
+											this.ponderateVotes_subgift,
 										];
 	}
 
@@ -352,7 +360,15 @@ export default class RaffleForm extends AbstractSidePanel {
 			DataStore.set(DataStore.RAFFLE_OVERLAY_COUNTDOWN, this.showCountdownOverlay.value)
 		})
 		
-		watch(()=>this.mode, ()=> this.onValueChange());
+		watch(()=>this.mode, () => this.onValueChange());
+		watch(()=>this.command_value.value, () => this.onValueChange());
+		watch(()=>this.reward_value.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_vip.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_follower.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_sub.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_subT2.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_subT3.value, () => this.onValueChange());
+		watch(()=>this.ponderateVotes_subgift.value, () => this.onValueChange());
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
