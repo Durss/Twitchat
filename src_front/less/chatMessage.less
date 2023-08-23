@@ -28,20 +28,17 @@
 			@c2: var(--background-color-fader);
 			background-color: var(--background-color-fader);
 			background-image: repeating-linear-gradient(-45deg, @c1, @c1 7px, @c2 7px, @c2 15px);
+			.emote, a, .icon {
+				opacity: 0;
+			}
 			&:hover {
 				color:unset;
 				-webkit-text-fill-color: unset;
 				background-color: transparent;
 				background-image: unset;
-			}
-			&:not(:hover):deep(.emote) {
-				opacity: 0;
-			}
-			&:not(:hover)>.message:deep(a) {
-				opacity: 0;
-			}
-			&:not(:hover)>.message:deep(svg) {
-				opacity: 0;
+				.emote, a, .icon {
+					opacity: 1;
+				}
 			}
 		}
 	}
