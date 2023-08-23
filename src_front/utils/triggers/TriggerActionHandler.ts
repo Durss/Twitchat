@@ -1639,15 +1639,18 @@ export default class TriggerActionHandler {
 					 */
 					}else if(pointer.indexOf("__timer__") == 0) {
 						const pointerLocal = pointer.replace('__timer__.', '');
-						if(StoreProxy.timer.timerStartDate > -1) {
-							const start = StoreProxy.timer.timerStartDate;
-							const offset = StoreProxy.timer.timerOffset;
-							let ellapsed = Math.floor((Date.now() - start + offset)/1000)*1000;
+						const timer = StoreProxy.timer.timer;
+						if(timer) {
+							let start = timer.startAt_ms;
+							let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
+							if(timer.paused) {
+								elapsed -= Date.now() - timer.pausedAt!;
+							}
 							if(pointerLocal == "value") {
-								value = Math.round(ellapsed / 1000).toString();
+								value = Math.round(elapsed / 1000).toString();
 							}else
 							if(pointerLocal == "value_formated") {
-								value = Utils.formatDuration(ellapsed);
+								value = Utils.formatDuration(elapsed);
 							}
 						}else{
 							value = "0";
@@ -1658,9 +1661,13 @@ export default class TriggerActionHandler {
 					 */
 					}else if(pointer.indexOf("__countdown__") == 0) {
 						const pointerLocal = pointer.replace('__countdown__.', '');
-						if(StoreProxy.timer.countdown) {
-							const ellapsed = Date.now() - StoreProxy.timer.countdown.startAt_ms;
-							const remaining = Math.ceil((StoreProxy.timer.countdown.duration_ms - ellapsed)/1000)*1000;
+						const cd = StoreProxy.timer.countdown;
+						if(cd) {
+							let elapsed = Date.now() - cd.startAt_ms;
+							if(cd.paused) {
+								elapsed -= Date.now() - cd.pausedAt!;
+							}
+							const remaining = Math.ceil((cd.duration_ms - elapsed)/1000)*1000;
 							if(pointerLocal == "value") {
 								value = Math.round(remaining / 1000).toString();
 							}else
@@ -1668,10 +1675,10 @@ export default class TriggerActionHandler {
 								value = Utils.formatDuration(remaining);
 							}else
 							if(pointerLocal == "duration") {
-								value = Math.round(StoreProxy.timer.countdown.duration_ms / 1000).toString();
+								value = Math.round(cd.duration_ms / 1000).toString();
 							}else
 							if(pointerLocal == "duration_formated") {
-								value = Utils.formatDuration(StoreProxy.timer.countdown.duration_ms);
+								value = Utils.formatDuration(cd.duration_ms);
 							}
 						}else{
 							value = "0";

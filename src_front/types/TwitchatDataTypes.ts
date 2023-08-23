@@ -705,8 +705,14 @@ export namespace TwitchatDataTypes {
 		startAt_ms:number;
 		endAt?:string;
 		endAt_ms?:number;
+		paused?:boolean;
+		aborted?:boolean;
+		pausedAt?:number;
+		pausedDuration:number;
 		duration:string;
 		duration_ms:number;
+		finalDuration?:string;
+		finalDuration_ms?:number;
 		timeoutRef:number;
 	}
 
@@ -716,8 +722,13 @@ export namespace TwitchatDataTypes {
 	export interface TimerData {
 		startAt:string;
 		startAt_ms:number;
+		offset_ms:number;
+		paused?:boolean;
+		pausedAt?:number;
 		endAt?:string;
 		endAt_ms?:number;
+		duration?:string;
+		duration_ms?:number;
 	}
 
 	/**
@@ -2451,21 +2462,9 @@ export namespace TwitchatDataTypes {
 		 */
 		started:boolean,
 		/**
-		 * Formated date when the timer has been started
+		 * Timer's data
 		 */
-		startAt:string;
-		/**
-		 * Date when the timer has been started in milliseconds
-		 */
-		startAt_ms:number;
-		/**
-		 * Formated timer duration
-		 */
-		duration?:string;
-		/**
-		 * Timer duration in milliseconds
-		 */
-		duration_ms?:number;
+		timer:TimerData;
 	}
 
 	/**

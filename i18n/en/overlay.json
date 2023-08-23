@@ -20,7 +20,7 @@
 		},
 		"timer": {
 			"title": "Timer & Countdown",
-			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the ellapsed or remaining time.",
+			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the elapsed or remaining time.",
 			"css": "You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
 			"try_timerBt": "Try timer",
 			"try_countdownBt": "Try countdown (2min)"

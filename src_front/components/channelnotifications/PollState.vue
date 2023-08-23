@@ -110,9 +110,9 @@ export default class PollState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed = Date.now() - this.poll.started_at;
+		const elapsed = Date.now() - this.poll.started_at;
 		const duration = this.poll.duration_s * 1000;
-		this.progressPercent = ellapsed/duration;
+		this.progressPercent = elapsed/duration;
 	}
 
 	public openUserCard():void {

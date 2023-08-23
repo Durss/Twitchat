@@ -151,9 +151,9 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed = Date.now() - this.poll.startTime;
+		const elapsed = Date.now() - this.poll.startTime;
 		const duration = this.poll.duration * 1000 * 60;
-		this.progressPercent = ellapsed/duration;
+		this.progressPercent = elapsed/duration;
 	}
 
 }

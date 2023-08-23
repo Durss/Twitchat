@@ -76,8 +76,8 @@ export default class LiveFollowings extends AbstractSidePanel {
 
 	public computeDuration(start:string):string {
 		const s = new Date(start);
-		const ellapsed = Date.now() - s.getTime();
-		return Utils.formatDuration(ellapsed);
+		const elapsed = Date.now() - s.getTime();
+		return Utils.formatDuration(elapsed);
 	}
 
 	public getProfilePicURL(s:TwitchDataTypes.StreamInfo):string {

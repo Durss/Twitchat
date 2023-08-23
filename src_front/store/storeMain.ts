@@ -234,7 +234,7 @@ export const storeMain = defineStore("main", {
 
 			//Listen for twitchat API event
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				sTimer.boradcastStates();
+				sTimer.broadcastStates();
 			});
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {

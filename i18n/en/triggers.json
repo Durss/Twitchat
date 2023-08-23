@@ -387,6 +387,7 @@
 			"timeout": "Timeout duration in seconds",
 			"start_date": "Formated start date",
 			"timer_duration": "Formated timer's final duration",
+			"timer_duration_ms": "Timer's final duration in milliseconds",
 			"countdown_end_date": "Formated end date",
 			"challenge_title": "Challenge title",
 			"challenge_description": "Challenge description",
@@ -435,6 +436,7 @@
 			"countdown_value":"Countdown's remaining time in seconds",
 			"countdown_value_formated":"Formated countdown's remaining time",
 			"countdown_duration":"Countdown's duration in seconds",
+			"countdown_duration_ms":"Countdown's duration in milliseconds",
 			"countdown_duration_formated": "Formated countdown's duration"
 
 		},

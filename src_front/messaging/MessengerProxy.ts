@@ -280,6 +280,16 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/countdownpause") {
+			StoreProxy.timer.countdownPause();
+			return true;
+		}else
+
+		if(cmd == "/countdownunpause") {
+			StoreProxy.timer.countdownUnpause();
+			return true;
+		}else
+
 		if(cmd == "/countdownstop") {
 			StoreProxy.timer.countdownStop();
 			return true;
@@ -299,6 +309,16 @@ export default class MessengerProxy {
 		if(cmd == "/timerremove") {
 			let duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.timerRemove(duration * 1000);
+			return true;
+		}else
+
+		if(cmd == "/timerpause") {
+			StoreProxy.timer.timerPause();
+			return true;
+		}else
+
+		if(cmd == "/timerunpause") {
+			StoreProxy.timer.timerUnpause();
 			return true;
 		}else
 

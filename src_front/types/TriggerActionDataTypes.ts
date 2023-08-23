@@ -893,16 +893,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 	
 	map[TriggerTypes.TIMER_START] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"timer.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 	map[TriggerTypes.TIMER_STOP] = [
-		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"START_DATE", descKey:'triggers.placeholders.start_date', pointer:"timer.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.timer_duration', pointer:"timer.duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
+		{tag:"DURATION_MS", descKey:'triggers.placeholders.timer_duration_ms', pointer:"timer.duration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTimerData>,
 	];
 
 	map[TriggerTypes.COUNTDOWN_START] = [
 		{tag:"START_AT", descKey:'triggers.placeholders.start_date', pointer:"countdown.startAt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
-		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formated', pointer:"countdown.duration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"DURATION", descKey:'triggers.placeholders.countdown_duration_formated', pointer:"countdown.finalDuration", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
+		{tag:"DURATION_MS", descKey:'triggers.placeholders.countdown_duration_ms', pointer:"countdown.finalDuration_ms", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageCountdownData>,
 	]; 
 	map[TriggerTypes.COUNTDOWN_STOP] = JSON.parse(JSON.stringify(map[TriggerTypes.COUNTDOWN_START]));
 	map[TriggerTypes.COUNTDOWN_STOP]!.push(

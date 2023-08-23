@@ -159,7 +159,7 @@
 	
 				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
 	
-				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
+				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timer" />
 	
 				<CommercialTimer v-if="isCommercial" />
 	

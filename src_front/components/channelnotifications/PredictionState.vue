@@ -95,10 +95,10 @@ export default class PredictionState extends Vue {
 	}
 
 	public mounted():void {
-		// const ellapsed = Date.now() - this.prediction.started_at;
+		// const elapsed = Date.now() - this.prediction.started_at;
 		// const duration = this.prediction.duration_s*1000;
-		// const timeLeft = duration - ellapsed
-		// this.progressPercent = ellapsed/duration;
+		// const timeLeft = duration - elapsed
+		// this.progressPercent = elapsed/duration;
 		// gsap.to(this, {progressPercent:1, duration:timeLeft/1000, ease:"linear"});
 
 		this.renderFrame();
@@ -147,9 +147,9 @@ export default class PredictionState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed = Date.now() - this.prediction.started_at;
+		const elapsed = Date.now() - this.prediction.started_at;
 		const duration = this.prediction.duration_s * 1000;
-		this.progressPercent = ellapsed/duration;
+		this.progressPercent = elapsed/duration;
 	}
 
 }

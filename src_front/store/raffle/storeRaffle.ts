@@ -144,10 +144,10 @@ export const storeRaffle = defineStore('raffle', {
 
 			const sChat = StoreProxy.chat;
 			const raffle = this.data;
-			const ellapsed = Date.now() - new Date(raffle.created_at).getTime();
+			const elapsed = Date.now() - new Date(raffle.created_at).getTime();
 
 			//Check if within time frame and max users count isn't reached
-			if(ellapsed <= raffle.duration_s * 1000
+			if(elapsed <= raffle.duration_s * 1000
 			&& (raffle.maxEntries <= 0 || raffle.entries.length < raffle.maxEntries)) {
 				const user = messageCast.user;
 				const existingEntry = raffle.entries.find(v=>v.id == user.id);

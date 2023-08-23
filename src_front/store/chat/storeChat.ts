@@ -103,6 +103,11 @@ export const storeChat = defineStore('chat', {
 				details:StoreProxy.i18n.t("params.commands.timerPause"),
 			},
 			{
+				id:"timerUnpause",
+				cmd:"/timerUnpause",
+				details:StoreProxy.i18n.t("params.commands.timerUnpause"),
+			},
+			{
 				id:"timerAdd",
 				cmd:"/timerAdd {(hh:)(mm:)ss}",
 				details:StoreProxy.i18n.t("params.commands.timerAdd"),
@@ -136,6 +141,11 @@ export const storeChat = defineStore('chat', {
 				id:"countdownPause",
 				cmd:"/countdownPause",
 				details:StoreProxy.i18n.t("params.commands.countdownPause"),
+			},
+			{
+				id:"countdownUnpause",
+				cmd:"/countdownUnpause",
+				details:StoreProxy.i18n.t("params.commands.countdownUnpause"),
 			},
 			{
 				id:"countdownStop",

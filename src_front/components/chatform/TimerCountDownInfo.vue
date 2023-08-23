@@ -1,6 +1,6 @@
 <template>
 	<div class="timercountdowninfo">
-		<div class="timer" v-if="$store('timer').timerStartDate > 0"
+		<div class="timer" v-if="$store('timer').timer"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
 			<img src="@/assets/icons/timer.svg" alt="timer">
@@ -40,8 +40,7 @@ export default class TimerCountDownInfo extends Vue {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();
-		watch(() => this.$store("timer").timerOffset, () => this.computeValues() );
-		watch(() => this.$store("timer").timerStartDate, () => this.computeValues() );
+		watch(() => this.$store("timer").timer, () => this.computeValues(), {deep:true} );
 		watch(() => this.$store("timer").countdown, () => this.computeValues(), {deep:true} );
 	}
 
@@ -52,15 +51,21 @@ export default class TimerCountDownInfo extends Vue {
 	public computeValues():void {
 		const countdown = this.$store("timer").countdown;
 		if(countdown) {
-			const ellapsed = Date.now() - countdown.startAt_ms;
-			const remaining = Math.ceil((countdown.duration_ms - ellapsed)/1000)*1000;
+			let elapsed = Date.now() - countdown.startAt_ms;
+			if(countdown.paused) {
+				elapsed -= Date.now() - countdown.pausedAt!;
+			}
+			elapsed -= countdown.pausedDuration;
+			const remaining = Math.round((countdown.duration_ms - elapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
-		const start = this.$store("timer").timerStartDate;
-		if(start) {
-			const offset = this.$store("timer").timerOffset;
-			let ellapsed = Math.floor((Date.now() - start + offset)/1000)*1000;
-			this.timer = Utils.formatDuration(ellapsed);
+		const timer = this.$store("timer").timer;
+		if(timer) {
+			let elapsed = Math.round((Date.now() - timer.startAt_ms + timer.offset_ms)/1000)*1000;
+			if(timer.paused) {
+				elapsed -= Date.now() - timer.pausedAt!;
+			}
+			this.timer = Utils.formatDuration(elapsed);
 		}
 	}
 

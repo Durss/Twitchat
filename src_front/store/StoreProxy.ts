@@ -1080,15 +1080,27 @@ export interface IStreamActions {
 
 
 export interface ITimerState {
+	// /**
+	//  * Date at which the current timer started
+	//  */
+	// timerStartDate: number;
+	// /**
+	//  * Offset to apply to the current timer.
+	//  * Allows to add or remove time from a the timer
+	//  */
+	// timerOffset: number;
+	// /**
+	//  * Is the timer paused ?
+	//  */
+	// timerPaused: boolean;
+	// /**
+	//  * Date at which the timer was paused
+	//  */
+	// timerPausedAt: number;
 	/**
-	 * Date at which the current timer started
+	 * Current timer info
 	 */
-	timerStartDate: number;
-	/**
-	 * Offset to apply to the current timer.
-	 * Allows to add or remove to from a the timer
-	 */
-	timerOffset: number;
+	timer: TwitchatDataTypes.TimerData|null;
 	/**
 	 * Current countdown info
 	 */
@@ -1102,7 +1114,7 @@ export interface ITimerActions {
 	/**
 	 * Braodcast current timer and countdown statesvia the PublicAPI
 	 */
-	boradcastStates():void;
+	broadcastStates():void;
 	/**
 	 * Start the timer
 	 */
@@ -1117,6 +1129,14 @@ export interface ITimerActions {
 	 * @param duration_ms 
 	 */
 	timerRemove(duration_ms:number):void;
+	/**
+	 * Pauses the timer
+	 */
+	timerPause():void;
+	/**
+	 * Unpauses the timer
+	 */
+	timerUnpause():void;
 	/**
 	 * Stop the timer
 	 */
@@ -1137,9 +1157,17 @@ export interface ITimerActions {
 	 */
 	countdownRemove(duration_ms:number):void;
 	/**
+	 * Pauses the countdown
+	 */
+	countdownPause():void;
+	/**
+	 * Unpauses the countdown
+	 */
+	countdownUnpause():void;
+	/**
 	 * Stop the countdown
 	 */
-	countdownStop():void;
+	countdownStop(aborted?:boolean):void;
 }
 
 
