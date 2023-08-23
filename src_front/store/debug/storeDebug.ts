@@ -767,11 +767,16 @@ export const storeDebug = defineStore('debug', {
 						type,
 						id:Utils.getUUID(),
 						date:Date.now(),
-						startAt:Utils.formatDate(start),
-						startAt_ms:start.getTime(),
 						started:true,
-						duration:Utils.formatDuration(duration, true),
-						duration_ms:duration,
+						timer:{
+							startAt:Utils.formatDate(start),
+							startAt_ms:start.getTime(),
+							duration:Utils.formatDuration(duration, true),
+							duration_ms:duration,
+							offset_ms:0,
+							endAt:Utils.formatDate(new Date()),
+							endAt_ms:Date.now(),
+						}
 					};
 					data = m;
 					break;
@@ -793,6 +798,10 @@ export const storeDebug = defineStore('debug', {
 							endAt:Utils.formatDate(new Date()),
 							endAt_ms:Date.now(),
 							timeoutRef:-1,
+							pausedDuration:0,
+							aborted:false,
+							finalDuration:Utils.formatDuration(duration, true),
+							finalDuration_ms:duration,
 						}
 					};
 					data = m;
