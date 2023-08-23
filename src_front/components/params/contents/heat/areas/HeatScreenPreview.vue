@@ -171,6 +171,7 @@ export default class HeatScreenPreview extends Vue {
 			:deep(polygon) {
 				fill: var(--color-primary-light);
 				opacity: 1;
+				stroke-width: 0;
 			}
 		}
 	}
