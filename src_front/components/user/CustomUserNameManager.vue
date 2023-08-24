@@ -1,8 +1,9 @@
 <template>
 	<div class="customusernamemanager">
-		<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
-
-		<h1>{{ $t("usercard.manage_usernames") }}</h1>
+		<div class="header">
+			<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
+			<h1>{{ $t("usercard.manage_usernames") }}</h1>
+		</div>
 
 		<div class="list">
 			<div class="card-item user" v-for="u, key in $store('users').customUsernames">
@@ -47,29 +48,31 @@ export default class CustomUserNameManager extends Vue {
 .customusernamemanager{
 	padding-bottom: 4px;//No idea why but this avoids scrollbar to show up when unnecessary
 
-	h1 {
-		font-size: 2em;
-		text-align: center;
+	.header {
+		display: flex;
+		flex-direction: row;
+		.backBt {
+			padding: .85em 1em;
+			.icon {
+				height: 1em;
+				transition: transform .15s;
+			}
+			&:hover {
+				.icon {
+					transform: scale(1.2);
+				}
+			}
+		}
+		h1 {
+			font-size: 2em;
+			text-align: center;
+		}
 	}
 
 	h2 {
 		font-size: 1.5em;
 		text-align: center;
 		margin-top: .5em;
-	}
-
-	.backBt {
-		padding: .85em 1em;
-		position: absolute;
-		.icon {
-			height: 1em;
-			transition: transform .15s;
-		}
-		&:hover {
-			.icon {
-				transform: scale(1.2);
-			}
-		}
 	}
 
 	.list {

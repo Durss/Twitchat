@@ -72,7 +72,7 @@
 		"ad_disableBt": "Faire un don",
 		"ad_bot_info_title": "Puis-je envoyer ce message avec nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Oui\r\n\r\nPar défaut le message est envoyé en votre nom.\r\nMais vous pouvez configurer ce message sur n'importe quel bot si vous préférez.\r\n\r\nTwitchat n'enverra pas ce message tant qu'un message contenant <strong>twitchat.fr</strong> sera envoyé dans le tchat au moins toutes les 2h.",
-		"saveHistory": "Conserver l'historique des messages\r\n(vous les retrouverez après avoir rechargé Twitchat)",
+		"saveHistory": "Conserver l'historique de tchat\r\n(vous les retrouverez après avoir rechargé Twitchat)",
 		"mergeConsecutive": "Fusionner les messages consécutifs d'une personne",
 		"mergeConsecutive_maxSize": "Ne pas fusionner le message s'il fait plus de {VALUE} caractères",
 		"mergeConsecutive_maxSizeTotal": "Longueur maximale totale des messages fusionnés",

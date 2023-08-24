@@ -9,7 +9,6 @@
 			</i18n-t>
 			<ParamItem :paramData="param_port" />
 			<Button type="submit" :loading="connecting"
-			@click.capture="clickConnect()"
 			:disabled="!isPremium"
 			v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</Button>
 			<div class="card-item alert message error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
@@ -55,7 +54,12 @@ export default class GoXLRConnectForm extends Vue {
 	public get isPremium():boolean { return this.$store("auth").isPremium; }
 
 	public async connect():Promise<void> {
-		if(!this.isPremium) return;
+		//Redirect user to premium page if they're not
+		if(!this.isPremium) {
+			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+			return;
+		}
+
 		this.error = false;
 		this.connecting = true;
 		try {
@@ -82,11 +86,6 @@ export default class GoXLRConnectForm extends Vue {
 
 	public onIpChange():void {
 		this.securityWarning = (this.param_ip.value.trim() != "127.0.0.1" && this.param_ip.value.trim() != "localhost")
-	}
-
-	public clickConnect():void {
-		if(this.isPremium) return;
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 }

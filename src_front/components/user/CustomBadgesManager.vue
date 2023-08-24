@@ -1,8 +1,9 @@
 <template>
 	<div class="custombadgesmanager">
-		<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
-
-		<h1>{{ $t("usercard.manage_badges") }}</h1>
+		<div class="header">
+			<button class="backBt" @click="$emit('close')"><Icon name="back" /></button>
+			<h1>{{ $t("usercard.manage_badges") }}</h1>
+		</div>
 
 		<Icon class="loader" name="loader" v-if="loading" />
 		
@@ -192,9 +193,25 @@ export default class CustomBadgesManager extends Vue {
 .custombadgesmanager{
 	padding-bottom: 4px;//No idea why but this avoids scrollbar to show up when unnecessary
 
-	h1 {
-		font-size: 2em;
-		text-align: center;
+	.header {
+		display: flex;
+		flex-direction: row;
+		.backBt {
+			padding: .85em 1em;
+			.icon {
+				height: 1em;
+				transition: transform .15s;
+			}
+			&:hover {
+				.icon {
+					transform: scale(1.2);
+				}
+			}
+		}
+		h1 {
+			font-size: 2em;
+			text-align: center;
+		}
 	}
 
 	h2 {
@@ -203,19 +220,6 @@ export default class CustomBadgesManager extends Vue {
 		margin-top: .5em;
 	}
 
-	.backBt {
-		padding: .85em 1em;
-		position: absolute;
-		.icon {
-			height: 1em;
-			transition: transform .15s;
-		}
-		&:hover {
-			.icon {
-				transform: scale(1.2);
-			}
-		}
-	}
 
 	.badgeList {
 		gap:5px;

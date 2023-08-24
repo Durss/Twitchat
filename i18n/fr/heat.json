@@ -32,7 +32,7 @@
 		"areas":{
 			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",
 			"trigger_link": "les triggers",
-			"target":"Zones actives quand la scène OBS active est",
+			"target":"Zones actives pour la scène OBS",
 			"target_always":"N'importe laquelle",
 			"show_obs":"Afficher capture OBS",
 			"connect_obs":"🔗 Connecter OBS",

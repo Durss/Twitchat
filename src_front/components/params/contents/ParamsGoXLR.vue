@@ -105,7 +105,7 @@ export default class ParamsGoXLR extends Vue {
 	public get noDevice():boolean { return GoXLRSocket.instance.status != null; }
 	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
-	public mounted():void {
+	public beforeMount():void {
 		this.param_enabled.value = this.$store("params").goxlrConfig.enabled;
 		const cols:TwitchatDataTypes.ParameterDataListValue<number>[] = [
 			{value:-1, labelKey:"global.select_placeholder"}

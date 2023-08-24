@@ -21,6 +21,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _client!:any;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
+	private _connected:boolean = false;
 	private _channelList:string[] = [];
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
@@ -741,6 +742,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
+			this._connected = true;
 		}else{
 
 			if(userState.wasOnline === true) return;//User was already here, don't send join notification
@@ -879,6 +881,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private disconnected(reason:string):void {
 		//Don't show disconnect info if its a reconnect
 		if(this._refreshingToken) return;
+		//Avoid spamming "disconnected from chat" messages
+		if(!this._connected) return;
 
 		console.log('Disconnected for reason: ', reason);
 

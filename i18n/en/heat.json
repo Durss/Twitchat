@@ -32,7 +32,7 @@
 		"areas":{
 			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",
 			"trigger_link": "triggers section",
-			"target":"Areas active when current OBS scene is",
+			"target":"Active only on OBS scene",
 			"target_always":"Any",
 			"show_obs":"Show OBS screen",
 			"connect_obs":"🔗 Connect with OBS",

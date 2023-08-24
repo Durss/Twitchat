@@ -39,7 +39,7 @@
 				@click.stop="$emit('showConversation', $event, messageData)" />
 
 			<Button class="noAutospoilBt" v-if="messageData.type == 'message' && messageData.autospoiled === true"
-			@click="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
+			@click.stop="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
@@ -835,7 +835,12 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	.infoBadges, .noAutospoilBt {
-		margin-right: .4em;
+		margin-right: .25em;
+		font-size: 1em;
+		max-height: 1em;
+		padding: 0 .15em;
+		border-radius: .25em;
+	    vertical-align: middle;
 	}
 
 	.message {

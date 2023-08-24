@@ -275,7 +275,6 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import Database from '@/store/Database';
 
 @Component({
 	components:{
@@ -419,7 +418,6 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		Database.instance;//TODO remove
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 

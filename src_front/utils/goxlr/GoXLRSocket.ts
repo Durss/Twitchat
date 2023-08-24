@@ -19,6 +19,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	
 	private _initResolver!: Function;
 	private _connecting!: boolean;
+	private _connectingPromise!: Promise<void>;
 	private _socket!: WebSocket;
 	private _autoReconnect: boolean = false;
 	private _id:number = 1;
@@ -67,10 +68,10 @@ export default class GoXLRSocket extends EventDispatcher {
 	******************/
 	public connect(ip:string="127.0.0.1", port:number=14564): Promise<void> {
 		if(this.connected) return Promise.resolve();
-		if(this._connecting) return Promise.resolve();
+		if(this._connecting) return this._connectingPromise;
 		this._connecting = true;
 		StoreProxy.params.setGoXLRConnectParams(ip, port);
-		return new Promise((resolve, reject) => {
+		this._connectingPromise = new Promise((resolve, reject) => {
 			this._initResolver = resolve;
 			this._socket = new WebSocket(`ws://${ip}:${port}/api/websocket`);
 
@@ -102,6 +103,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				reject(e);
 			}
 		});
+		return this._connectingPromise;
 	}
 
 	/**
