@@ -5,7 +5,7 @@
 
 		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === true">
 			<div class="card-item premium head">
-				<Icon name="gift" />
+				<Icon name="gift" theme="light" />
 				<div>{{ $t("premium.early_donor1") }}</div>
 			</div>
 			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">

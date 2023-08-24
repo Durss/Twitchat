@@ -71,9 +71,8 @@
 				"d": "Ce qui devait arriver arriva !<br>Mais aucun impact sur ce qui existait jusque là !<br><strong>Seules de nouvelles fonctionnalités sont concernées.</strong><br><br>D'une certaine façon Twitchat m'a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir de gagner plus.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon !<br><br><i>Pssst ! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
 			},
 			{
-				"i": "update",
-				"l": "And more...",
-				"d": "• Get all messages back after reloading Twitcaht<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• ...and lots of enhancements and fixes in many places"
+				"l": "Et plus encore...",
+				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée <br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• ...et plein de correctifs et améliorations un peu partout"
 			}
 		],
 		"forceRead": {

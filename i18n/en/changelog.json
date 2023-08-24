@@ -17,13 +17,13 @@
 			{
 				"i": "heat",
 				"l": "Heat Extension",
-				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking.<br><br><i>Heat is a desktop-only Twitch extensions allowing viewers to click on your stream. Twitchat makes it extremely dead easy to use it.</i>"
+				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking.<br><br><i>Heat is a desktop-only Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.</i>"
 			},
 			{
 				"i": "goxlr",
 				"l": "GoXLR",
 				"g": "update_images/goxlr.png",
-				"d": "Enable any <strong>FX</strong> or play any <strong>Sample</strong> from channel point rewards, follows, subs, bits, ...<br><br>Scroll your chat from the encoders.<br><br>Execute any action when pressing any GoXLR button."
+				"d": "Enable any <strong>FX</strong> or play any <strong>Sample</strong> from chat commands, channel point rewards, follows, subs, bits, hype chats, ...<br><br>Scroll your chat from the encoders.<br><br>Execute any action when pressing any GoXLR button."
 			},
 			{
 				"i": "badge",
@@ -58,22 +58,21 @@
 				"i": "raid",
 				"l": "Raiding the old way",
 				"g": "update_images/raid_actions.png",
-				"d": "Once you started a raid, a button will allow you to spamm the channel's link to your chat.<br><br>Help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
+				"d": "Once you started a raid, a button will allow you to spam the channel's link to your chat.<br><br>With this you can help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
 			},
 			{
 				"i": "placeholder",
 				"l": "Global vars",
-				"d": "Create global variables to be used on the Triggers.<br>A trigger event will be triggered everytime a value is updated."
+				"d": "Create global variables to be used on the Triggers.<br>A trigger event can let you execute actions anytime a value is modified."
 			},
 			{
 				"i": "premium",
 				"l": "Premium features",
-				"d": "It had to happen!<br>But nothing changed on what was there before !<br><strong>Only some new features are impacted.</strong><br><br>In a way, Twitchat cost me ~$70.000, what I would've eared if I took a job instead of working full-time on Twitchat for a year and a half. I earned ~$5.000 from donations and I can't thank contributors enough 🙏💖.<br>But I have little hope to earn more.<br>To use 100% of Twitchat, support me monthly on Patreon!<br><br><i>Pssst! You donated $10 or more before those updates?<br>Head over the Premium section for a little suprise</i> 😊"
+				"d": "It had to happen!<br>But nothing changed on what was there before !<br><strong>Only some new features are impacted.</strong><br><br>In a way, Twitchat cost me ~$70.000, what I would've eared if I took a job instead of working full-time on Twitchat for a year and a half now. I earned ~$5.000 from donations and I can't thank contributors enough for that 🙏💖.<br>But I have little hope to earn more.<br>To use 100% of Twitchat, support me monthly on Patreon!<br><br><i>Pssst! You donated $10 or more before this update?<br>Head over the Premium section for a little suprise</i> 😊"
 			},
 			{
-				"i": "update",
-				"l": "Et plus encore...",
-				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée <br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• ...et plein de correctifs et améliorations un peu partout"
+				"l": "And more...",
+				"d": "• Get all messages back after reloading Twitcaht<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• ...and lots of enhancements and fixes in many places"
 			}
 		],
 		"forceRead": {

@@ -32,7 +32,7 @@
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
 						<div class="inner" v-if="item.i != 'donate'">
-							<Icon :name="item.i" class="icon" />
+							<Icon v-if="item.i" :name="item.i" class="icon" />
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g" lazy>
@@ -40,16 +40,6 @@
 							
 							<div v-if="item.i=='premium'">
 								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
-							</div>
-
-							<div v-if="item.i=='count'">
-								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
-								<div class="counterActions">
-									<Button icon="add" @click="addUserCounter()" :disabled="userExample.leaderboard!.length >= 7"></Button>
-									<Button icon="trash" @click="delUserCounter()" :disabled="userExample.leaderboard!.length < 2"></Button>
-									<Button icon="dice" @click="randomUserCounter()"></Button>
-								</div>
-								<OverlayCounter class="counterExample" embed :staticCounterData="userExample" />
 							</div>
 						</div>
 						<div v-else class="inner donate">
@@ -65,8 +55,9 @@
 </template>
 
 <script lang="ts">
+import DataStore from '@/store/DataStore';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
@@ -76,8 +67,6 @@ import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
@@ -103,22 +92,13 @@ export default class Changelog extends Vue {
 	private openedAt = 0;
 	private closing:boolean = false;
 	private slideCountRead = new Map();
-	
-	public userExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:true,
-		value:50,
-		name:"My awesome counter",
-		min:false,
-		max:false,
-		users:{},
-		leaderboard:[],
-	}
+	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
+	/**
+	 * Get carousel items
+	 */
 	public get items():TwitchatDataTypes.ChangelogEntry[] {
 		return this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[];
 	}
@@ -127,21 +107,6 @@ export default class Changelog extends Vue {
 
 	public mounted(): void {
 		this.openedAt = Date.now();
-		TwitchUtils.getFakeUsers().then(res => {
-			this.userExample.leaderboard = [];
-			for (let i = 0; i < 3; i++) {
-				let points = Math.round(Math.random()*10);
-				this.userExample.users![res[i].id] = points;
-				this.userExample.leaderboard.push({
-					avatar:res[i].avatarPath || "",
-					login:res[i].displayName,
-					points,
-				});
-			}
-			this.userExample.leaderboard!.sort((a,b)=> {
-				return b.points - a.points;
-			});
-		});
 		
 		gsap.set(this.$el as HTMLDivElement, {opacity:0});
 		//Leave the view a bit of time to render to avoid lag during transition
@@ -150,6 +115,13 @@ export default class Changelog extends Vue {
 			gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 			gsap.from(this.$refs.holder as HTMLDivElement, {marginTop:"150px", ease:"back.out", opacity:0, duration:1, clearProps:"all"});
 		}, 250);
+
+		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keyup", this.keyUpHandler);
+	}
+
+	public beforeUnmount():void {
+		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	public async close(forceClose:boolean = false):Promise<void> {
@@ -194,47 +166,16 @@ export default class Changelog extends Vue {
 	}
 
 	/**
-	 * Add a user to the counter
+	 * Scroll carousel with keyboard
+	 * @param e 
 	 */
-	public addUserCounter():void {
-		TwitchUtils.getFakeUsers().then(res => {
-			// console.log(res);
-			for (let i = 0; i < res.length; i++) {
-				const user = res[i];
-				//User already in the list, ignore it
-				if(this.userExample.leaderboard!.findIndex(v=>v.login == user.displayName) > -1) continue;
-				
-				let points = Math.round(Math.random()*10);
-				this.userExample.users![res[i].id] = points;
-				this.userExample.leaderboard!.push({
-					avatar:res[i].avatarPath || "",
-					login:res[i].displayName,
-					points,
-				});
-				break;
-			}
-			this.userExample.leaderboard!.sort((a,b)=> {
-				return b.points - a.points;
-			});
-		});
-	}
-
-	/**
-	 * Delete a random user from the counter
-	 */
-	public delUserCounter():void {
-		this.userExample.leaderboard?.splice( Math.floor(Math.random() * this.userExample.leaderboard.length), 1 )
-	}
-
-	/**
-	 * Add a random value to a random user counter
-	 */
-	public randomUserCounter():void {
-		let add = Math.round((Math.random()-Math.random()) * 5);
-		Utils.pickRand(this.userExample.leaderboard!).points += add || 1;
-		this.userExample.leaderboard!.sort((a,b)=> {
-			return b.points - a.points;
-		});
+	private onKeyUp(e:KeyboardEvent):void {
+		if(e.key == "ArrowLeft") {
+			this.currentSlide --;
+		}
+		if(e.key == "ArrowRight") {
+			this.currentSlide ++;
+		}
 	}
 
 }
