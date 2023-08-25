@@ -1,6 +1,6 @@
 {
   "global": {
-	"lang": "fr-FR",
+    "lang": "fr-FR",
     "beta": "beta",
     "back": "retour",
     "yes": "oui",
@@ -20,7 +20,7 @@
     "start": "Démarrer",
     "search": "Chercher",
     "close": "Fermer",
-	"login_placeholder": "pseudo...",
+    "login_placeholder": "pseudo...",
     "search_placeholder": "recherche...",
     "select_placeholder": "sélectionner...",
     "cooldown": "📛 {'@'}{USER} attends {DURATION}",
@@ -38,21 +38,22 @@
     "hide": "Masquer",
     "copy": "Copier",
     "stop": "Stop",
-	"edit": "Editer",
-	"duplicate": "Dupliquer",
+    "edit": "Editer",
+    "duplicate": "Dupliquer",
     "loading": "Chargement...",
+		"contact": "Contact : {MAIL}",
     "obs_connect": "Cette fonctionnalité nécessite de {LINK}",
     "obs_connect_link": "se connecter à OBS",
     "placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
     "placeholder_selector_insert": "Insérer",
     "placeholder_selector_global": "Placeholders globaux",
     "placeholder_selector_categories": {
-		"stream":"Infos de stream",
-		"counter":"Compteurs",
-		"value":"Valeurs",
-		"timer":"Chrono & compte à rebours",
-		"music":"Musique"
-	},
+      "stream": "Infos de stream",
+      "counter": "Compteurs",
+      "value": "Valeurs",
+      "timer": "Chrono & compte à rebours",
+      "music": "Musique"
+    },
     "chat_alert_title": "{USER} dit",
     "date_days": "j",
     "ad_default": "J'utilise GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
@@ -63,8 +64,8 @@
     "empty_list1": "Aucune entrée existante.",
     "empty_list2": "Ecrivez pour en créer une.",
     "no_result": "Aucun résultat",
-	"terms":"Conditions d'utilisation",
-	"privacy":"Politique de confidentialité",
+    "terms": "Conditions d'utilisation",
+    "privacy": "Politique de confidentialité",
     "tooltips": {
       "commercial": "Publicité",
       "boost": "Chaîne boostée",
@@ -78,7 +79,7 @@
       "column_add": "Ajouter une colonne",
       "column_delete": "Supprimer la colonne",
       "column_move": "Déplacer la colonne",
-	  "hype_chat": "Hype chat"
+      "hype_chat": "Hype chat"
     },
     "badges": {
       "subscriber": "Abonné·e depuis {DURATION}",

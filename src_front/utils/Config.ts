@@ -19,6 +19,10 @@ export default class Config {
 	 */
 	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
 	/**
+	 * Heat extension URL
+	 */
+	public HEAT_EXTENSION = "https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk";
+	/**
 	 * Twitchat API path
 	 */
 	public TWITCH_API_PATH = "https://api.twitch.tv/helix/";
@@ -100,6 +104,22 @@ export default class Config {
 	 * Maxium number of values that can be created when premium
 	 */
 	public MAX_VALUES_PREMIUM = 100;
+	/**
+	 * Maxium number of triggers that can be created without being premium
+	 */
+	public MAX_TRIGGERS = 50;
+	/**
+	 * Maxium number of triggers that can be created when premium
+	 */
+	public MAX_TRIGGERS_PREMIUM = 1000;//TODO limit triggers count
+	/**
+	 * Maxium number of triggers that can be created without being premium
+	 */
+	public MAX_COUNTERS = 20;
+	/**
+	 * Maxium number of triggers that can be created when premium
+	 */
+	public MAX_COUNTERS_PREMIUM = 1000;//TODO limit counters count
 	
 	private _serverConfig!:ServerConfig;
 	

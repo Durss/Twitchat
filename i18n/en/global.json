@@ -41,6 +41,7 @@
 		"edit": "Edit",
 		"duplicate": "Duplicate",
 		"loading": "Loading...",
+		"contact": "Contact: {MAIL}",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",

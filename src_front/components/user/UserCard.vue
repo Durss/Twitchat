@@ -284,7 +284,6 @@ export default class UserCard extends Vue {
 	 */
 	public get bannedChannels():{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] {
 		if(!this.user) return [];
-		console.log(this.user!.channelInfo);
 		let res:{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] = [];
 		for (const uid in this.user!.channelInfo) {
 			if(this.user.channelInfo[uid].is_banned !== true) continue;
@@ -376,10 +375,13 @@ export default class UserCard extends Vue {
 		this.manageUserNames = false;
 		try {
 			let user = this.user!;
-			const loadFromLogin = user.temporary;
+			const loadFromLogin = user.login != this.$store("users").tmpDisplayName;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
+				user.login = u.login;
+				user.displayName = u.display_name;
+				user.displayNameOriginal = u.display_name;
 				this.customLogin = this.$store("users").customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;

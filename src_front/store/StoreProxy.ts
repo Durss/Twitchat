@@ -1333,6 +1333,10 @@ export interface IUsersState {
 	 * the user is added to this list for later process
 	 */
 	pendingShoutouts:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
+	/**
+	 * Tmporary name while user info is loading
+	 */
+	tmpDisplayName:string;
 }
 
 export interface IUsersGetters {

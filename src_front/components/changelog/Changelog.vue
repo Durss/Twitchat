@@ -22,7 +22,7 @@
 					<Button small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</Button>
 				</div>
 
-				<div v-else-if="showFu" class="fu" ref="fu">🖕</div>
+				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
 
 				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-end="onSlideEnd">
 					<template #addons>
@@ -38,9 +38,20 @@
 							<img v-if="item.g" class="demo" :src="item.g" lazy>
 							<video v-if="item.v" class="demo" lazy :src="item.v" autoplay loop controls></video>
 							
-							<div v-if="item.i=='premium'">
-								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
+							<div v-if="item.i=='heat'" class="card-item moreInfo">
+								<Icon name="info" />
+								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
+									<template #LINK>
+										<a :href="$config.HEAT_EXTENSION" target="_blank">{{ $t("changelog.heat_details_link") }}</a>
+									</template>
+								</i18n-t>
 							</div>
+							
+							<template v-if="item.i=='premium'">
+								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
+								<Button icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
+								<SponsorTable v-if="showPremiumFeatures" />
+							</template>
 						</div>
 						<div v-else class="inner donate">
 							<div class="emoji">🥺</div>
@@ -67,16 +78,20 @@ import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
+import PremiumFeatureList from '../premium/PremiumFeatureList.vue';
+import SponsorTable from '../premium/SponsorTable.vue';
 
 @Component({
 	components:{
 		Slide,
 		Button,
 		Carousel,
-		CloseButton,
 		ToggleBlock,
-		OverlayCounter,
+		CloseButton,
+		SponsorTable,
 		ThemeSelector,
+		OverlayCounter,
+		PremiumFeatureList,
 		Pagination,
 		Navigation,
 	},
@@ -86,6 +101,7 @@ export default class Changelog extends Vue {
 
 	public showFu:boolean = false;
 	public showReadAlert:boolean = false;
+	public showPremiumFeatures:boolean = false;
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	
@@ -280,6 +296,16 @@ export default class Changelog extends Vue {
 						font-size: 7em;
 					}
 				}
+
+				.moreInfo {
+					text-align: left;
+					font-style: italic;
+					line-height: 1.2em;
+					.icon {
+						height: 1em;
+						margin-right: .25em;
+					}
+				}
 			}
 		}
 		
@@ -335,11 +361,13 @@ export default class Changelog extends Vue {
 		}
 
 		h2 {
-			font-size: 3em;
+			font-size: 2.5em;
 			padding: .5em;
 			color: var(--color-light);
 			background-color: var(--color-dark);
 			margin-top: -1em;
+			white-space: pre-line;
+			text-align: center;
 		}
 		
 		.description {

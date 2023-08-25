@@ -73,6 +73,8 @@
 					<Button @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</Button>
 					<Button icon="edit"
 						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
+					<Button icon="premium" premium
+						@click="openParamPage(contentDonate)">{{ $t('premium.become_premiumBt') }}</Button>
 					<Button icon="follow"
 						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>

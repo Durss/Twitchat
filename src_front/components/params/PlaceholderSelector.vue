@@ -15,7 +15,7 @@
 			</template>
 		</div>
 
-		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="globalPlaceholders.length > 0" :open="false">
+		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="false">
 			<div class="list">
 				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
 					<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
@@ -89,6 +89,7 @@ export default class PlaceholderSelector extends Vue {
 			if((a.category || "") > (b.category || "")) return 1;
 			return 0;
 		});
+
 		const categories:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[] = [];
 		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0].category!, entries:[list[0]]};
 		for (let i = 1; i < list.length; i++) {

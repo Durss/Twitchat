@@ -883,6 +883,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(this._refreshingToken) return;
 		//Avoid spamming "disconnected from chat" messages
 		if(!this._connected) return;
+		this._connected = false;
 
 		console.log('Disconnected for reason: ', reason);
 

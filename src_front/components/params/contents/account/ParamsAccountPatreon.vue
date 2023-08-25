@@ -139,6 +139,7 @@ export default class ParamsAccountPatreon extends Vue {
 		}
 		.info {
 			margin-top: .5em;
+			text-align: center;
 		}
 	}
 }

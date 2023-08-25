@@ -10,7 +10,7 @@
 		</header>
 
 		<div class="paypalFormHolder" v-if="!success">
-			<div class="card-item amount primary">
+			<div class="card-item amount secondary">
 				<span class="label">{{ $t("donate.amount") }}</span>
 				<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
 				<div class="emoji">
@@ -112,6 +112,8 @@
 			<ParamItem  :paramData="param_automaticMessage" v-model="$store('chat').botMessages.twitchatAd.enabled" />
 		</div>
 
+		<div class="card-item alert error critical" v-if="paypalError"><Icon name=alert />{{ $t("donate.paypal_error") }}</div>
+
 		<div class="card-item alert error critical" v-if="criticalError">
 			<Icon name="alert" />
 			<i18n-t scope="global" keypath="error.paypal_order_failure">
@@ -123,6 +125,8 @@
 		<div class="card-item alert error" @click="error = ''" v-if="error && !success"><Icon name="alert" />{{ error }}</div>
 		
 		<Icon name="loader" class="loader" v-if="loading" />
+		
+		<SponsorTable />
 
 		<div class="card-item">
 			<div class="donorsTitle">{{ $t('donate.donors') }}</div>
@@ -133,12 +137,16 @@
 		<div class="footer">
 			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
 			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
+			<a :href="'mailto:'+$config.CONTACT_MAIL">{{ $t("global.contact", {MAIL:$config.CONTACT_MAIL}) }}</a>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import SponsorTable from '@/components/premium/SponsorTable.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
+import DonorPublicState from '@/components/user/DonorPublicState.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
@@ -146,14 +154,14 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import ParamsDonorList from './ParamsDonorList.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import DonorPublicState from '@/components/user/DonorPublicState.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
 		ParamItem,
 		DonorBadge,
 		ToggleBlock,
+		SponsorTable,
 		ParamsDonorList,
 		DonorPublicState,
 	},
@@ -162,6 +170,7 @@ import DonorPublicState from '@/components/user/DonorPublicState.vue';
 export default class ParamsDonate extends Vue {
 
 	public loading:boolean = true;
+	public paypalError:boolean = false;
 	public success:boolean = false;
 	public criticalError:boolean = false;
 	public error:string = "";
@@ -170,7 +179,6 @@ export default class ParamsDonate extends Vue {
 	public param_automaticMessage:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"donate.automatic_message"};
 
 	private buttons:PAYPAL_BUTTON[] = [];
-
 	public async mounted():Promise<void> {
 		this.loadPaypalLibrary();
 
@@ -222,6 +230,7 @@ export default class ParamsDonate extends Vue {
 			if(res) {
 				this.buildPaypalForm();
 			}else{
+				this.paypalError = true;
 				this.$store("main").alert(this.$t("error.paypal_sdk_init_failed"))
 			}
 		}else{
@@ -468,7 +477,7 @@ export default class ParamsDonate extends Vue {
 			.emoji {
 				right: -1em;
 				margin-left: 1em;
-				background-color: var(--color-primary);
+				background-color: var(--color-secondary);
 				border-radius: 50%;
 				position: absolute;
 				width: 4em;

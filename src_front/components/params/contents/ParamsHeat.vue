@@ -4,7 +4,7 @@
 
 		<div class="head">
 			<p>{{ $t("heat.header") }}</p>
-			<Button class="installBt" href="https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk"
+			<Button class="installBt" :href="$config.HEAT_EXTENSION"
 				type="link" secondary
 				icon="newtab"
 				target="_blank">{{ $t("heat.install") }}</Button>

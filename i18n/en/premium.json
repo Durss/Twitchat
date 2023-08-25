@@ -3,7 +3,7 @@
 		"header":"Support Twitchat and unlock premium features",
 		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially, some features are exclusive to people supporting me monthly on Patreon at any tier.",
 		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
-		"early_donor2":"Although it would be much appreciated, you don't need to subribe monthly on {LINK} to use premium features.",
+		"early_donor2":"Feel free to support me on {LINK} anyway 😊",
 		"early_donor2_link":"Patreon",
 		"become_premiumBt":"Become premium",
 		"restricted_access":"This feature requires premium membership",
@@ -13,9 +13,51 @@
 			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",
 			"Customize the name of up to 10000 of your viewers (limited to 10 otherwise)",
 			"Create up to 100 custom badges (limited to 3 otherwise)",
-			"Create up to 100 Values (limited to 3 otherwise)",
 			"Give a custom badge to up to 10000 users (limited to 30 otherwise)",
+			"Create up to 100 Values (limited to 3 otherwise)",
 			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
-		]
+		],
+
+		"supportTable":{
+			"headers":[
+				"Features",
+				"FREE",
+				"Donate",
+				"Premium"
+			],
+			"features": [
+				["Disable automatic chat message", 0, 1, 1],
+				["GoXLR support ", 0, 0, 1],
+				["Custom user names", 10, 10, 10000],
+				["Create custom badges", 3, 3, 100],
+				["Give custom badges to users", 30, 30, 10000],
+				["Values (AKA global vars))", 3, 3, 100],
+				["Heat custom screen areas", 2, 2, 100],
+				["Triggers", 50, 50, "∞"],
+				["Counters", 30, 30, "∞"],
+				["Spotify supprt", 1, 1, 1],
+				["Steam Deck support", 1, 1, 1],
+				["Voicemod support", 1, 1, 1],
+				["OBS support", 1, 1, 1],
+				["Heat support", 1, 1, 1],
+				["Twitchat Overlays", 1, 1, 1],
+				["Text to speech", 1, 1, 1],
+				["Emergency button", 1, 1, 1],
+				["Boosted Automod", 1, 1, 1],
+				["Voice control", 1, 1, 1],
+				["Advanced chat filters", 1, 1, 1],
+				["Bingo", 1, 1, 1],
+				["Raffle", 1, 1, 1],
+				["Chat suggestions", 1, 1, 1],
+				["Spoiler tag", 1, 1, 1],
+				["!alert command", 1, 1, 1],
+				["/search command", 1, 1, 1],
+				["BTTV/FFZ/7TV emotes", 1, 1, 1],
+				["Viewers pronouns", 1, 1, 1],
+				["Save chat messages", 1, 1, 1],
+				["Shoutouts queue", 1, 1, 1],
+				["Moderation options", 1, 1, 1]
+			]
+		}
 	}
 }

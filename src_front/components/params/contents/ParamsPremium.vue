@@ -3,15 +3,12 @@
 		<Icon name="premium" class="icon" />
 		
 		<div class="head">{{ $t("premium.header") }}</div>
+		
+		<div class="card-item description"><Icon name=info />{{ $t("premium.description") }}</div>
 
 		<ParamsAccountPatreon class="card-item" />
 
-		<div class="card-item premium">
-			<strong>{{ $t("premium.features_title") }}</strong>
-			<PremiumFeatureList />
-		</div>
-
-		<div class="card-item description"><Icon name=info />{{ $t("premium.description") }}</div>
+		<SponsorTable />
 	</div>
 </template>
 
@@ -20,10 +17,12 @@ import Icon from '@/components/Icon.vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import PremiumFeatureList from '@/components/premium/PremiumFeatureList.vue';
+import SponsorTable from '@/components/premium/SponsorTable.vue';
 
 @Component({
 	components:{
 		Icon,
+		SponsorTable,
 		PremiumFeatureList,
 		ParamsAccountPatreon,
 	},

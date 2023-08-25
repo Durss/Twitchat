@@ -7,6 +7,8 @@
 		"major_title": "New features",
 		"minor_title": "Other updates",
 		"fixes_title": "Fixes",
+		"heat_details": "{LINK} is a desktop-only Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
+		"heat_details_link": "Heat",
 		"highlights": [
 			{
 				"i": "merge",
@@ -17,7 +19,7 @@
 			{
 				"i": "heat",
 				"l": "Heat Extension",
-				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking.<br><br><i>Heat is a desktop-only Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.</i>"
+				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking."
 			},
 			{
 				"i": "goxlr",
@@ -45,7 +47,7 @@
 			{
 				"i": "show",
 				"l": "Anti backseat troll",
-				"g": "update_images/spoiler_1st.png",
+				"g": "update_images/spoiler_1st.gif",
 				"d": "Planning to play a spoiler-sensitive game?<br><br>Automatically spoil all the messages of a user speaking on your chat for the first time.<br><br>Stop spoiling their messages at anytime."
 			},
 			{
@@ -76,11 +78,11 @@
 			}
 		],
 		"forceRead": {
-			"title": "HEY 😡 TU LIS",
-			"description": "J'ai bossé pendant 2 mois pour ces mises à jour alors tu prends 2 minutes pour les lire scrogneugneu !\r\nY a quelque chose d'important dedans !",
-			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
-			"sorryBt":"ui pardon je lis 🥺",
-			"fuBt":"menfou 🤪"
+			"title": "I WANT YOU\r\nTO READ THIS",
+			"description": "I worked for +2 months on these updates, please take 2 minutes of yours to read!\r\nThere's something important to read in them!",
+			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
+			"sorryBt":"ok i read sorry 🥺",
+			"fuBt":"don't care 🤪"
 		},
 		"major": [
 			{

@@ -33,13 +33,13 @@ const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 
 const twitchUserBatchLoginToLoad:BatchItem[] = [];
 const twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
-const tmpDisplayName = "...loading...";
 const moderatorsCache:{[key:string]:{[key:string]:true}} = {};
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
+		tmpDisplayName:"...loading...",
 		pendingShoutouts: {},
 		userCard: null,
 		customUsernames: {},
@@ -286,8 +286,8 @@ export const storeUsers = defineStore('users', {
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
-			if(!user.displayName) user.displayName = tmpDisplayName;
-			if(!user.login) user.login = tmpDisplayName;
+			if(!user.displayName) user.displayName = this.tmpDisplayName;
+			if(!user.login) user.login = this.tmpDisplayName;
 
 			//User was already existing, consider stop there
 			if(userExisted){

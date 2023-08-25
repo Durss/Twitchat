@@ -629,14 +629,14 @@ export default class PrivacyPolicy extends Vue {
 	}
 
 	table, th, td {
-		border: 1px solid black;
+		border: 1px solid var(--color-text);
 	}
 	th, td {
 		padding: .5em;
 		&.center {
 			text-align: center;
 			align-items: center;
-  			vertical-align: middle;
+			vertical-align: middle;
 		}
 		.icon {
 			height: 1em;

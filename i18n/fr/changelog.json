@@ -7,6 +7,8 @@
 		"major_title": "Nouveautés",
 		"minor_title": "Autres nouveautés",
 		"fixes_title": "Correctifs",
+		"heat_details": "{LINK} est une extensions Twitch pour desktop uniquement permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
+		"heat_details_link": "Heat",
 		"highlights": [
 			{
 				"i": "merge",
@@ -17,7 +19,7 @@
 			{
 				"i": "heat",
 				"l": "Extension Heat",
-				"d": "Permettez à vos viewers de <strong>cliquer sur vos sources OBS</strong> ou des zones de <strong>formes personnalisées</strong>.<br><br>L'overlay <strong>Spotify</strong> Twitchat intègre nativement la possibilité d'être cliqué via Heat pour envoyer le morceau en cours de lecture dans le tchat. Plus besoin que vos viewers sortent du lurk pour avoir le lien !<br><br><i>Heat est une extension Twitch pour desktop uniquement permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.</i>"
+				"d": "Permettez à vos viewers de <strong>cliquer sur vos sources OBS</strong> ou des zones de <strong>formes personnalisées</strong>.<br><br>En bonus, l'overlay <strong>Spotify</strong> Twitchat intègre nativement la possibilité d'être cliqué via Heat pour envoyer le morceau en cours de lecture dans le tchat pour que les lurkers puissent continuer à lurker."
 			},
 			{
 				"i": "goxlr",
@@ -45,7 +47,7 @@
 			{
 				"i": "show",
 				"l": "Anti backseat troll",
-				"g": "update_images/spoiler_1st.png",
+				"g": "update_images/spoiler_1st.gif",
 				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
 			},
 			{
@@ -68,7 +70,7 @@
 			{
 				"i": "premium",
 				"l": "Fonctionnalités premium",
-				"d": "Ce qui devait arriver arriva !<br>Mais aucun impact sur ce qui existait jusque là !<br><strong>Seules de nouvelles fonctionnalités sont concernées.</strong><br><br>D'une certaine façon Twitchat m'a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir de gagner plus.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon !<br><br><i>Pssst ! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
+				"d": "Ce qui devait arriver arriva !<br>Mais aucun impact sur ce qui existait jusque là !<br><strong>Seules de nouvelles fonctionnalités sont concernées.</strong><br><br>D'une certaine façon Twitchat a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir que ce travail porte plus ses fruits.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon !<br><br><i>Pssst ! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
 			},
 			{
 				"l": "Et plus encore...",
@@ -76,11 +78,11 @@
 			}
 		],
 		"forceRead": {
-			"title": "HEY 😡 YOU READ",
-			"description": "I worked for 2 months on these updates, please take 2 minutes of yours to read!\r\nThere's something important to read them!",
-			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
-			"sorryBt":"ok i read sorry 🥺",
-			"fuBt":"don't care 🤪"
+			"title": "EH OH TU LIS !",
+			"description": "J'ai travaillé pendant +2 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans !",
+			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
+			"sorryBt":"ui pardon je lis 🥺",
+			"fuBt":"menfou 🤪"
 		},
 		"major": [
 			{
