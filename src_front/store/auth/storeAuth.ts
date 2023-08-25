@@ -42,7 +42,7 @@ export const storeAuth = defineStore('auth', {
 	actions: {
 		async twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
-			//Refresh token if going to expire within the next 5 minutes
+			//Refresh token if it's going to expire within the next 5 minutes
 			if(twitchAuthResult) {
 				try {
 					const res 			= await ApiController.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});

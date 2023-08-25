@@ -28,11 +28,13 @@
 						</svg>
 
 						<div class="flares" ref="flares">
-							<svg class="flare big" xmlns="http://www.w3.org/2000/svg" width="581.3px" height="572.5px" viewBox="0 0 581.34 572.51">
-								<polygon style="fill:#f15a24;" points="290.67 0 353.72 121.93 480.39 69.05 450.32 202.99 581.34 243.9 472.21 327.17 546.28 442.73 409.16 436.37 391.62 572.51 290.67 479.5 189.72 572.51 172.18 436.37 35.06 442.73 109.13 327.17 0 243.9 131.03 202.99 100.95 69.05 227.62 121.93 290.67 0" />
+							<svg class="flare big" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842.71 842.71">
+								<polygon style="fill:#f15a24;" points="421.36 18.94 506.86 184.3 678.65 112.58 637.87 294.23 815.55 349.71 667.56 462.64 768.01 619.36 582.05 610.73 558.26 795.36 421.36 669.22 284.45 795.36 260.66 610.73 74.71 619.36 175.16 462.64 27.16 349.71 204.86 294.23 164.06 112.58 335.85 184.3 421.36 18.94"/>
+								<path class="evil" d="m815.15,556.35l-239.39-178.88c36.59-112.96,93.36-288.63,93.36-288.63l-245.37,178.29c-97.8-71.01-244.43-177.53-244.43-177.53,0,0,65.52,205.34,91.74,286.03l.63,1.94L27.16,555.25l302.59.95,92.11,283.51s68.95-200.69,95.25-281.63l.55-1.7c82.92-.02,297.49-.02,297.49-.02h.01Zm-254.21-318.26l-33.81,104.1c-15.62-11.34-34.33-24.91-54.75-39.73l88.55-64.36h.01Zm-189.58,261.03l-32.42-99.74,84.75-61.59,84.85,61.63-32.38,99.69h-104.8Zm-84.87-260.98l88.56,64.33-54.71,39.75c-9.15-28.02-23.38-71.82-33.85-104.08Zm-84.9,261.06l88.69-64.45,20.91,64.36c-29.23.07-74.86.09-109.6.09h0Zm222.18,161.17l-33.79-103.94c19.96-.01,42.94-.03,67.5-.04-7.95,24.68-22.83,70.5-33.72,103.97h.01Zm112.43-161.24c2.19-6.47,4.31-12.98,6.36-19.31l1.35-4.17c4.02-12.37,8.5-26.18,13.3-40.97l88.69,64.44h-109.7,0Z"/>
 							</svg>
-							<svg class="flare" xmlns="http://www.w3.org/2000/svg" width="788.4px" height="776.4px" viewBox="0 0 788.41 776.43">
-								<polygon style="fill:#efac26;" points="394.2 0 479.71 165.36 651.5 93.65 610.71 275.28 788.41 330.78 640.41 443.7 740.86 600.43 554.9 591.8 531.11 776.43 394.2 650.28 257.3 776.43 233.51 591.8 47.55 600.43 148 443.7 0 330.78 177.7 275.28 136.91 93.65 308.7 165.36 394.2 0" />
+							<svg class="flare" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 842.71 842.71">
+								<polygon style="fill:#efac26;" points="421.35 18.94 506.86 184.3 678.65 112.59 637.86 294.22 815.56 349.72 667.56 462.64 768.01 619.36 582.05 610.73 558.26 795.36 421.35 669.21 284.45 795.36 260.66 610.73 74.71 619.36 175.16 462.64 27.16 349.72 204.85 294.22 164.07 112.59 335.85 184.3 421.35 18.94"/>
+								<path class="evil" d="m421.36,0C188.65,0,0,188.65,0,421.36s188.65,421.36,421.36,421.36,421.36-188.65,421.36-421.36S654.07,0,421.36,0Zm0,792.01c-204.7,0-370.65-165.95-370.65-370.65S216.65,50.71,421.36,50.71s370.65,165.95,370.65,370.65-165.95,370.65-370.65,370.65Z"/>
 							</svg>
 						</div>
 						
@@ -439,12 +441,19 @@ export default class ParamsDonate extends Vue {
 			eyeR.classList.add("evil");
 			eyeLBg.classList.add("evil");
 			eyeRBg.classList.add("evil");
+			flares.classList.add("evil");
 			eyeL.style.transform = "scale(.75)";
 			eyeR.style.transform = "scale(.75)";
 			eyeLBg.style.transform = "scale(1.25)";
 			eyeRBg.style.transform = "scale(1.25)";
 			browL.style.transform = "translateY(-25px) rotate(45deg) scale(1.5)";
 			browR.style.transform = "translateY(-25px) rotate(-45deg) scale(1.5)";
+			mouth.style.borderTopLeftRadius = "1em";
+			mouth.style.borderTopRightRadius = "1em";
+			mouth.style.height = "1em";
+			teeth.style.height = "0";
+			tongue.style.height = "0";
+			mouthBg.style.height = "1em";
 		}else if(eyeL.classList.contains("evil")){
 			eyeL.classList.remove("evil");
 			eyeR.classList.remove("evil");
@@ -452,6 +461,7 @@ export default class ParamsDonate extends Vue {
 			eyeR.classList.remove("evil");
 			eyeLBg.classList.remove("evil");
 			eyeRBg.classList.remove("evil");
+			flares.classList.remove("evil");
 		}
 	}
 }
@@ -679,12 +689,29 @@ export default class ParamsDonate extends Vue {
 									transform: rotate(360deg) scale(1);
 								}
 							}
+							* {
+								transition: all .2s;
+							}
 							&.big {
 								animation-duration: 3s;
 								width: 120%;
 								height: 120%;
 								left: -10%;
 								top: -10%;
+							}
+							.evil {
+								opacity:0;
+							}
+						}
+						&.evil {
+							animation: none;
+							.flare {
+								*:not(.evil) {
+									opacity:0;
+								}
+								.evil {
+									opacity:1;
+								}
 							}
 						}
 					}
