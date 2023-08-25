@@ -14,7 +14,7 @@
 			<div class="content">
 
 				<div v-if="showReadAlert" class="forceRead">
-					<img src="update_images/barracuda.png" class="barracuda">
+					<img src="@/assets/update_images/barracuda.png" class="barracuda">
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
