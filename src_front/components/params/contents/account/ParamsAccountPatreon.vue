@@ -3,8 +3,8 @@
 		
 		<Icon name="loader" v-if="authenticating" />
 
-		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === true">
-			<div class="card-item premium head">
+		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === false">
+			<div class="card-item premium large">
 				<Icon name="gift" theme="light" />
 				<div>{{ $t("premium.early_donor1") }}</div>
 			</div>
@@ -28,7 +28,7 @@
 		<template v-else-if="connected">
 			<span>{{ $t("patreon.connected") }}</span>
 			<template v-if="isMember==true">
-				<span class="card-item premium">{{ $t("patreon.is_member") }}</span>
+				<span class="card-item premium large">{{ $t("patreon.is_member") }}</span>
 				<span class="details on">{{ $t("patreon.is_member_details") }}</span>
 			</template>
 			<template v-else-if="isMember==false && !authenticating">
@@ -124,22 +124,25 @@ export default class ParamsAccountPatreon extends Vue {
 			color: var(--color-secondary);
 		}
 	}
+	.large {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		font-size: 1.25em;
+		flex-shrink: 1;
+		.icon {
+			width: 3em;
+			min-width: 3em;
+			max-width: 3em;
+		}
+	}
 
 	.earlyDonor {
-		.head {
-			gap: 1em;
-			display: flex;
-			flex-direction: row;
-			align-items: center;
-			font-size: 1.25em;
-			flex-shrink: 1;
-			.icon {
-				flex-basis: 7em;
-			}
-		}
 		.info {
 			margin-top: .5em;
 			text-align: center;
+			font-size: 1.25em;
 		}
 	}
 }

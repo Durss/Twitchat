@@ -4,10 +4,10 @@
 
 		<p class="head">{{ $t("donate.header") }}</p>
 		
-		<header class="card-item" ref="head">
+		<div class="card-item info">
 			<Icon name="info" class="icon" />
 			<p v-for="i in $tm('donate.infos')" v-html="i"></p>
-		</header>
+		</div>
 
 		<div class="paypalFormHolder" v-if="!success">
 			<div class="card-item amount secondary">
@@ -154,7 +154,6 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import ParamsDonorList from './ParamsDonorList.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -426,13 +425,41 @@ export default class ParamsDonate extends Vue {
 		}else{
 			dirtyEyes.style.transform = "scale(0)";
 		}
+
+		if(this.amount == 420) {
+			eyeLBg.classList.add("red");
+			eyeRBg.classList.add("red");
+		}else{
+			eyeLBg.classList.remove("red");
+			eyeRBg.classList.remove("red");
+		}
+
+		if(this.amount == 666) {
+			eyeL.classList.add("evil");
+			eyeR.classList.add("evil");
+			eyeLBg.classList.add("evil");
+			eyeRBg.classList.add("evil");
+			eyeL.style.transform = "scale(.75)";
+			eyeR.style.transform = "scale(.75)";
+			eyeLBg.style.transform = "scale(1.25)";
+			eyeRBg.style.transform = "scale(1.25)";
+			browL.style.transform = "translateY(-25px) rotate(45deg) scale(1.5)";
+			browR.style.transform = "translateY(-25px) rotate(-45deg) scale(1.5)";
+		}else if(eyeL.classList.contains("evil")){
+			eyeL.classList.remove("evil");
+			eyeR.classList.remove("evil");
+			eyeL.classList.remove("evil");
+			eyeR.classList.remove("evil");
+			eyeLBg.classList.remove("evil");
+			eyeRBg.classList.remove("evil");
+		}
 	}
 }
 </script>
 
 <style scoped lang="less">
 .paramssubscribe{
-	header {
+	.info {
 		line-height: 1.25em;
 		p:first-of-type {
 			display: inline;
@@ -476,7 +503,6 @@ export default class ParamsDonate extends Vue {
 			}
 			.emoji {
 				right: -1em;
-				margin-left: 1em;
 				background-color: var(--color-secondary);
 				border-radius: 50%;
 				position: absolute;
@@ -500,6 +526,9 @@ export default class ParamsDonate extends Vue {
 						position: absolute;
 						top: 1em;
 						left: .75em;
+						&.evil {
+							background-color: #ff0000;
+						}
 					}
 					.eyeR{
 						left:auto;
@@ -517,6 +546,17 @@ export default class ParamsDonate extends Vue {
 						transition: all .2s;
 						transform: scale(.8);
 						transform-origin: center center;
+						&.red {
+							background: radial-gradient(circle, rgb(255, 216, 216) 30%, rgba(252,70,107,1) 100%);
+							background-size: 150% 100%;
+							background-position: 100%;
+						}
+						&.eyeLBg.red {
+							background-position: 0;
+						}
+						&.evil {
+							background-color: #000;
+						}
 					}
 					.eyeRBg{
 						left:auto;
@@ -749,5 +789,18 @@ export default class ParamsDonate extends Vue {
 		margin: auto;
 		margin-bottom: 1em;
 	}
+}
+
+@media only screen and (max-width: 420px) {
+.paramssubscribe{
+	.paypalFormHolder {
+
+		.amount {
+			font-size: 1.25em;
+			.emoji {
+			}
+		}
+	}
+}
 }
 </style>

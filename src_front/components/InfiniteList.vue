@@ -83,6 +83,7 @@ export default class InfiniteList extends Vue {
 	public cursorSize:number = 0;
 
 	private mouseY:number = 0;
+	private maxScrollY:number = 0;
 	private cursorOffsetY:number = 0;
 	private draggingList:boolean = false;
 	private draggingListOffset:number = 0;
@@ -173,7 +174,11 @@ export default class InfiniteList extends Vue {
 	}
 
 	public onWheel(e:WheelEvent):void {
-		this.scrollOffset_local += e.deltaY * .5;
+		this.scrollOffset_local += e.deltaY;
+		if(this.lockScroll) {
+			if(this.scrollOffset_local <= 0 && e.deltaY < 0) return;
+			if(this.scrollOffset_local > this.maxScrollY && e.deltaY > 0) return;
+		}
 		e.preventDefault()
 	}
 
@@ -219,7 +224,7 @@ export default class InfiniteList extends Vue {
 
 		const bounds			= this.$el.getBoundingClientRect();
 		const itemsCount		= Math.ceil( bounds.height / (this.itemSize + this.itemMargin) ) + 2;
-
+		this.maxScrollY			= this.dataset.length*(this.itemSize+this.itemMargin) - bounds.height;
 		this.scrollOffset_local_eased += (this.scrollOffset_local - this.scrollOffset_local_eased) * .1;
 
 		if(itemsCount != this.items.length) {
@@ -230,13 +235,12 @@ export default class InfiniteList extends Vue {
 			this.items = items;
 		}
 
-		const maxScrollY = this.dataset.length*(this.itemSize+this.itemMargin) - bounds.height;
 		if(this.lockScroll !== false) {
 			if(this.scrollOffset_local_eased < 0) {
 				this.scrollOffset_local = this.scrollOffset_local_eased = 0;
 			}
-			if(this.scrollOffset_local_eased > maxScrollY) {
-				this.scrollOffset_local = this.scrollOffset_local_eased = maxScrollY;
+			if(this.scrollOffset_local_eased > this.maxScrollY) {
+				this.scrollOffset_local = this.scrollOffset_local_eased = this.maxScrollY;
 			}
 		}
 
@@ -276,14 +280,14 @@ export default class InfiniteList extends Vue {
 			if(this.draggingCursor) {
 				const py = (this.mouseY - scrollbar_b.top - this.cursorOffsetY) / scrollH;
 				// console.log(py);
-				this.scrollOffset_local = maxScrollY * py;
+				this.scrollOffset_local = this.maxScrollY * py;
 			}else if(this.trackPressed) {
 				const py = (this.mouseY - scrollbar_b.top - scrollbarCursor_b.height/2) / scrollH;
 				// console.log(py);
-				this.scrollOffset_local = maxScrollY * py;
+				this.scrollOffset_local = this.maxScrollY * py;
 			}
-			this.cursorY = this.scrollOffset_local_eased / maxScrollY * scrollH;
-			this.cursorSize = Math.max(20, bounds.height / (maxScrollY+bounds.height) * scrollbar_b.height);
+			this.cursorY = this.scrollOffset_local_eased / this.maxScrollY * scrollH;
+			this.cursorSize = Math.max(20, bounds.height / (this.maxScrollY+bounds.height) * scrollbar_b.height);
 		}
 
 		if(this.scrollOffset_local_eased != this.scrollOffset) {

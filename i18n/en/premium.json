@@ -1,7 +1,6 @@
 {
 	"premium":{
-		"header":"Support Twitchat and unlock premium features",
-		"description":"Twitchat remains almost entirely free, but it represents an enormous amount of work. To help me financially, some features are exclusive to people supporting me monthly on Patreon at any tier.",
+		"header":"Support Twitchat monthly and unlock premium features",
 		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
 		"early_donor2":"Feel free to support me on {LINK} anyway 😊",
 		"early_donor2_link":"Patreon",

@@ -1,7 +1,6 @@
 {
 	"premium":{
-		"header":"Soutenez Twitchat et débloquez des fonctionnalités premium",
-		"description":"Twitchat reste quasi intégralement gratuit, mais il représente une quantité de travail colossale. Afin de m'aider financièrement, certaines fonctionnalités sont réservées aux personnes me soutenant mensuellement sur Patreon.",
+		"header":"Soutenez Twitchat mensuellement et débloquez des fonctionnalités premium",
 		"early_donor1":"Pour vous remercier de me soutenir depuis les débuts de Twitchat, les fonctionnalités premium vous sont offertes 💝",
 		"early_donor2":"Sentez-vous libre de tout même me soutenir sur {LINK} 😊",
 		"early_donor2_link":"Patreon",

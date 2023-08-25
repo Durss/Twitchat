@@ -33,7 +33,8 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 
 @Component({
-	components:{}
+	components:{},
+	emits:["scrollBy"]
 })
 export default class SponsorTable extends Vue {
 
@@ -66,7 +67,17 @@ export default class SponsorTable extends Vue {
 		const item = (this.$refs["row_"+rowIndex] as HTMLTableRowElement[])[0];
 		const boundsList = list.getBoundingClientRect();
 		const boundsItem = item.getBoundingClientRect();
-		gsap.to(list, {duration:animate? 1: 0, ease:"sine.inout", height:boundsItem.bottom - boundsList.top});
+		const height = boundsItem.bottom - boundsList.top;
+		const added = height - boundsList.height;
+		gsap.to(list, {duration:animate? 1: 0, ease:"sine.inout", height});
+		this.$emit("scrollBy", added);
+		if(added > 0 && animate) {
+			//Dunno which parent is the scrollable one. Try 2 levels upward.
+			//Too lazy to handle this on every parent integrating this component but there's the "@scrollBy"
+			//event fired just in case..
+			gsap.to((this.$el as HTMLElement).parentElement, {duration:animate?1:0, scrollTop:"+"+added});
+			gsap.to(((this.$el as HTMLElement).parentElement as HTMLElement).parentElement, {duration:animate?1:0, scrollTop:"+"+added});
+		}
 	}
 
 }

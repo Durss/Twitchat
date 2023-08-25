@@ -2,9 +2,7 @@
 	"donate":{
 		"header": "Help making Twitchat better",
 		"infos":[
-			"Twitchat took more than a <strong>full-time year</strong> of my personnal time to create, with no revenue. It's free for you to use but it costs me money, and I like eating <i>(vegy)</i> food.",
-			"<br>",
-			"If you can afford it, make a free donation bellow, you'll then be able to <strong>disable the automatic message</strong>."
+			"Twitchat took +1 year and a half of unpaid full time work to create."
 		],
 		"amount":"Amount",
 		"success":"Thank you for your {AMOUNT}€ donation 💝",

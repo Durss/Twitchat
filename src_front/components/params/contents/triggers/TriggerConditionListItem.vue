@@ -77,10 +77,12 @@ export default class TriggerConditionListItem extends Vue {
 			
 		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
+		console.log(this.triggerData.type);
 		placeholderList = placeholderList.concat(placeholders.map(v=> {
 			let name = "";
 			//If it's a counter tag, get counter's name
 			if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
+				console.log("OKKKK", v.tag);
 				const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
 				const counter = this.$store("counters").counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
 				if(counter) name = counter.name;

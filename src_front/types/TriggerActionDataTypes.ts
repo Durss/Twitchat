@@ -1085,8 +1085,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			);
 		}
 
-		map[k] = entry.concat(counterPlaceholders);
-		map[k] = entry.concat(valuePlaceholders);
+		entry = entry.concat(counterPlaceholders);
+		entry = entry.concat(valuePlaceholders);
+		map[k] = entry;
 	}
 
 	eventPlaceholdersCache = map;

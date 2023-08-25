@@ -142,21 +142,5 @@ export default class ToggleButton extends Vue {
 			}
 		}
 	}
-
-	@media (prefers-color-scheme: light) {
-		background: var(--color-light-fader);
-		&:hover {
-			background: var(--color-light-fade);
-		}
-		&.selected:hover {
-			background-color: var(--color-primary-extralight);
-			&.secondary {
-				background: var(--color-secondary-light);
-			}
-			&.alert {
-				background: var(--color-alert-light);
-			}
-		}
-	}
 }
 </style>

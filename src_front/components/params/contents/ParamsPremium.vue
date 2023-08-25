@@ -4,7 +4,12 @@
 		
 		<div class="head">{{ $t("premium.header") }}</div>
 		
-		<div class="card-item description"><Icon name=info />{{ $t("premium.description") }}</div>
+		<!-- <div class="card-item description"><Icon name=info />{{ $t("premium.description") }}</div> -->
+		
+		<div class="card-item info">
+			<Icon name="info" class="icon" />
+			<p v-for="i in $tm('donate.infos')" v-html="i"></p>
+		</div>
 
 		<ParamsAccountPatreon class="card-item" />
 
@@ -35,6 +40,18 @@ export default class ParamsPremium extends Vue {
 
 <style scoped lang="less">
 .paramspremium {
+	.info {
+		line-height: 1.25em;
+		p:first-of-type {
+			display: inline;
+		}
+		.icon {
+			height: 1.3em;
+			margin-right: .25em;
+			vertical-align: middle;
+		}
+	}
+
 	.description {
 		line-height: 1.25em;
 		.icon {
