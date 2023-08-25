@@ -77,12 +77,10 @@ export default class TriggerConditionListItem extends Vue {
 			
 		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
-		console.log(this.triggerData.type);
 		placeholderList = placeholderList.concat(placeholders.map(v=> {
 			let name = "";
 			//If it's a counter tag, get counter's name
 			if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
-				console.log("OKKKK", v.tag);
 				const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
 				const counter = this.$store("counters").counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
 				if(counter) name = counter.name;
@@ -93,6 +91,11 @@ export default class TriggerConditionListItem extends Vue {
 			}
 		}));
 		
+		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
+		//random one in case it's been deleted or I fuck up something in the futur
+		if(placeholderList.findIndex(v=>v.value == this.condition.placeholder) == -1) {
+			placeholderList.push({label:this.condition.placeholder, value:this.condition.placeholder});
+		}
 		this.param_placeholder.listValues = placeholderList;
 		this.updateOperators();
 	}
