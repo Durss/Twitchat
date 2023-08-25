@@ -11,7 +11,8 @@
 		<div class="ctas">
 			<Button small icon="group"
 				@click="addItem()"
-				v-tooltip="$t('triggers.condition.group_tt')" />
+				v-tooltip="$t('triggers.condition.group_tt')"
+				v-if="triggerData.conditions!.conditions.length > 1" />
 			<Button alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
@@ -93,7 +94,7 @@ export default class TriggerConditionListItem extends Vue {
 		
 		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 		//random one in case it's been deleted or I fuck up something in the futur
-		if(placeholderList.findIndex(v=>v.value == this.condition.placeholder) == -1) {
+		if(this.condition.placeholder != "" && placeholderList.findIndex(v=>v.value == this.condition.placeholder) == -1) {
 			placeholderList.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
 		this.param_placeholder.listValues = placeholderList;
