@@ -3,9 +3,9 @@
 		<table ref="list">
 			<tr>
 				<th v-for="(h, index) in $tm('premium.supportTable.headers')"
-				:class="'card-item '+['', 'primary', 'secondary','premium'][index]"
-				v-tooltip="['', '', $t('params.categories.donate'), $t('premium.become_premiumBt')][index]"
-				@click="clickHeader(index)">
+				:class="'card-item '+['', 'primary', 'secondary','premium'][index as number]"
+				v-tooltip="['', '', $t('params.categories.donate'), $t('premium.become_premiumBt')][index as number]"
+				@click="clickHeader(index as number)">
 					<Icon name="twitchat" v-if="index==1" />
 					<Icon name="coin" theme="light" v-if="index==2" />
 					<Icon name="premium" theme="light" v-if="index==3" />
