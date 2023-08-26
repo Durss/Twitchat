@@ -1,0 +1,10 @@
+{
+	"rewards": {
+		"manage":{
+			"title":"Manage rewards",
+			"empty":"No reward can be managed by Twitchat",
+			"not_manageable_title":"Non manageable rewards",
+			"not_manageable_description":"These rewards are not created by Twitchat and thus cannot be managed here"
+		}		
+	}
+}

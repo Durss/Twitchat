@@ -18,6 +18,7 @@ export default class TwitchUtils {
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
+	public static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
 
 	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
@@ -615,24 +616,32 @@ export default class TwitchUtils {
 	/**
 	 * Get the rewards list
 	 */
-	public static async getRewards(forceReload = false):Promise<TwitchDataTypes.Reward[]> {
+	public static async getRewards(forceReload = false, onlyManageable:boolean = false):Promise<TwitchDataTypes.Reward[]> {
 		if(!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 		
-		if(this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache;
+		if(!onlyManageable && this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache.concat();
+		if(onlyManageable && this.rewardsManageableCache.length > 0 && !forceReload) return this.rewardsManageableCache.concat();
 		const options = {
 			method:"GET",
 			headers: this.headers,
 		}
 		let rewards:TwitchDataTypes.Reward[] = [];
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
+		let url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		if(onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
+		const res = await fetch(url, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			rewards = json.data;
 		}else{
 			return [];
 		}
-		this.rewardsCache = rewards;
-		return rewards;
+		if(!onlyManageable) {
+			this.rewardsCache = rewards;
+		}else{
+			this.rewardsManageableCache = rewards;
+		}
+		return rewards.concat();
 	}
 
 	/**
