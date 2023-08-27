@@ -850,7 +850,7 @@ export const storeUsers = defineStore('users', {
 
 		removeCustomUsername(uid:string):void {
 			delete this.customUsernames[uid];
-			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+			this.saveCustomUsername();
 		},
 
 		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean {
@@ -868,7 +868,7 @@ export const storeUsers = defineStore('users', {
 				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
 			}
 			
-			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+			this.saveCustomUsername();
 			return true;
 		},
 
@@ -888,7 +888,7 @@ export const storeUsers = defineStore('users', {
 				id = this.customBadgeList[existingIndex].id;
 			}
 
-			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+			this.saveCustomBadges();
 			return id;
 		},
 
@@ -897,7 +897,7 @@ export const storeUsers = defineStore('users', {
 			if(index > -1) {
 				this.customBadgeList[index].img = img;
 			}
-			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+			this.saveCustomBadges();
 		},
 
 		updateCustomBadgeName(badgeId:string, name:string):void {
@@ -908,8 +908,7 @@ export const storeUsers = defineStore('users', {
 					delete this.customBadgeList[index].name;
 				}
 			}
-			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
-
+			this.saveCustomBadges();
 		},
 
 		deleteCustomBadge(badgeId:string):void {
@@ -930,8 +929,7 @@ export const storeUsers = defineStore('users', {
 				this.customBadgeList.splice(index, 1);
 			}
 
-			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
-			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+			this.saveCustomBadges();
 		},
 
 		giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean {
@@ -945,7 +943,7 @@ export const storeUsers = defineStore('users', {
 				}
 				this.customUserBadges[user.id].push({id:badgeId, platform:user.platform, channel:channelId!});
 			}
-			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+			this.saveCustomBadges();
 			return true;
 		},
 
@@ -958,8 +956,17 @@ export const storeUsers = defineStore('users', {
 				delete this.customUserBadges[user.id];
 			}
 
+			this.saveCustomBadges();
+		},
+		
+		saveCustomBadges():void {
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
 			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 		},
+		
+		saveCustomUsername():void {
+			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		}
 
 	} as IUsersActions
 	& ThisType<IUsersActions

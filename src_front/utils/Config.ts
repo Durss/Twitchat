@@ -73,13 +73,25 @@ export default class Config {
 	 */
 	public MAX_CUSTOM_USERNAMES = 10;
 	/**
+	 * Maximum custom user names we can create when premium
+	 */
+	public MAX_CUSTOM_USERNAMES_PREMIUM = 10000;
+	/**
 	 * Maximum custom user badges we can create without being premium
 	 */
 	public MAX_CUSTOM_BADGES = 3;
 	/**
+	 * Maximum custom user badges we can create without when premium
+	 */
+	public MAX_CUSTOM_BADGES_PREMIUM = 100;
+	/**
 	 * Maximum user we can give custom badges without being premium
 	 */
 	public MAX_CUSTOM_BADGES_ATTRIBUTION = 30;
+	/**
+	 * Maximum user we can give custom badges when premium
+	 */
+	public MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM = 10000;
 	/**
 	 * Maximum heat screens we can create without being premium
 	 */
@@ -103,11 +115,11 @@ export default class Config {
 	/**
 	 * Maxium number of values that can be created when premium
 	 */
-	public MAX_VALUES_PREMIUM = 100;
+	public MAX_VALUES_PREMIUM = 10000;
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
-	public MAX_TRIGGERS = 50;
+	public MAX_TRIGGERS = 35;
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
@@ -119,7 +131,7 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
-	public MAX_COUNTERS_PREMIUM = 1000;//TODO limit counters count
+	public MAX_COUNTERS_PREMIUM = 10000;//TODO limit counters count
 	
 	private _serverConfig!:ServerConfig;
 	
@@ -254,6 +266,10 @@ export default class Config {
 	******************/
 	public populateServerConfigs(data:ServerConfig):void {
 		this._serverConfig = data;
+	}
+
+	public getParamByKey(key:string):unknown {
+		return this[key as keyof typeof Config.instance];
 	}
 	
 	

@@ -11,6 +11,7 @@
 		"user_tt": "Par viewer",
 		"examples": "Exemples :",
 		"user_not_found": "personne introuvable",
+		"premium_cannot_enable":"Vous ne pouvez pas réactiver ce compteur. Vous avez atteint le maximum de {MAX} compteurs actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} compteurs.",
 		"form": {
 			"name": "Nom",
 			"value": "Valeur",

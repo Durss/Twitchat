@@ -7,15 +7,6 @@
 		"become_premiumBt":"Become premium",
 		"restricted_access":"This feature requires premium membership",
 		"features_title":"Premium features",
-		"features":[
-			"Control your GoXLR from chat commands, channel point rewards, bits, raids, ...",
-			"Execute custom actions when using a GoXLR button (ex: show an OBS source when using cough button)",
-			"Customize the name of up to 10000 of your viewers (limited to 10 otherwise)",
-			"Create up to 100 custom badges (limited to 3 otherwise)",
-			"Give a custom badge to up to 10000 users (limited to 30 otherwise)",
-			"Create up to 100 Values (limited to 3 otherwise)",
-			"Disable the \"twitchat.fr\" link sent every 2h on your chat"
-		],
 
 		"supportTable":{
 			"headers":[
@@ -27,13 +18,13 @@
 			"features": [
 				["Disable automatic chat message", 0, 1, 1],
 				["GoXLR support ", 0, 0, 1],
-				["Custom user names", 10, 10, 10000],
-				["Create custom badges", 3, 3, 100],
-				["Give custom badges to users", 30, 30, 10000],
-				["Values (AKA global vars))", 3, 3, 100],
-				["Heat custom screen areas", 2, 2, 100],
-				["Triggers", 50, 50, "∞"],
-				["Counters", 30, 30, "∞"],
+				["Custom user names", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
+				["Create custom badges", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
+				["Give custom badges to users", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
+				["Values (AKA global vars)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
+				["Heat custom screen areas", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
+				["Counters", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
 				["Spotify supprt", 1, 1, 1],
 				["Steam Deck support", 1, 1, 1],
 				["Voicemod support", 1, 1, 1],
@@ -57,6 +48,20 @@
 				["Shoutouts queue", 1, 1, 1],
 				["Moderation options", 1, 1, 1]
 			]
+		},
+
+		"cleanup": {
+			"title":"Non-Premium limits",
+			"description":"You are not a Premium member and have more than some maximum allowed items. Disable/Delete some entries or become premium to keep them all.",
+			"custom_usernames":"Custom usernames",
+			"custom_username_remove":"Remove custom username",
+			"custom_badges":"Custom badges",
+			"custom_badges_attribution":"Custom badges attributions",
+			"custom_badges_attribution_remove":"Remove custom<br>badges",
+			"delete_badges_title": "Confirm",
+			"delete_badges_description": "Do you want to remove this user's custom badges?",
+			"delete_name_title": "Confirm",
+			"delete_name_description": "Do you want to remove this user's custom name?"
 		}
 	}
 }

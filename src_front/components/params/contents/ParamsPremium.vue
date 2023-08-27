@@ -21,14 +21,12 @@
 import Icon from '@/components/Icon.vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
-import PremiumFeatureList from '@/components/premium/PremiumFeatureList.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
 
 @Component({
 	components:{
 		Icon,
 		SponsorTable,
-		PremiumFeatureList,
 		ParamsAccountPatreon,
 	},
 	emits:[],

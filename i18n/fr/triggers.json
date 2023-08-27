@@ -35,6 +35,7 @@
 		"missing_reward": "RÉCOMPENSE SUPPRIMÉE",
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
+		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
 		"music": {
 			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "la section @:params.categories.connexions"

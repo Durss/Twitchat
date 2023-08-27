@@ -58,6 +58,7 @@
 			/>
 		</Teleport>
 
+		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems = false" />
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
@@ -146,9 +147,12 @@ import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
+import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
+import StreamSummary from '@/components/chatform/StreamSummary.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
+import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
@@ -166,7 +170,6 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
@@ -184,8 +187,6 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
-import StreamSummary from '@/components/chatform/StreamSummary.vue';
 
 @Component({
 	components:{
@@ -222,6 +223,7 @@ import StreamSummary from '@/components/chatform/StreamSummary.vue';
 		StreamInfoForm,
 		VoiceTranscript,
 		ChatAlertMessage,
+		NonPremiumCleanup,
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		TwitchatAnnouncement,
@@ -240,6 +242,7 @@ export default class Chat extends Vue {
 	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
+	public mustDisableItems = false;
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
@@ -296,6 +299,8 @@ export default class Chat extends Vue {
 
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
+
+		this.mustDisableItems = this.$store("main").nonPremiumLimitExceeded;
 		
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {

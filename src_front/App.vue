@@ -143,10 +143,10 @@ export default class App extends Vue {
 	font-family: var(--font-inter);
 	overflow: hidden;
 
-	&.demoMode {
+	// &.demoMode {
 		// max-width: var(--vw) !important;
 		// width: var(--vw) !important;
-	}
+	// }
 
 	.cursor {
 		pointer-events: none;

@@ -7,15 +7,6 @@
 		"become_premiumBt":"Devenir premium",
 		"restricted_access":"Cette fonctionnalité nécessite d'être membre premium",
 		"features_title":"Fonctionnalités Premium",
-		"features":[
-			"Contrôlez votre GoXLR depuis des commandes tchat, récompenses de points de chaine, bits, raids, ...",
-			"Effectuez des actions personnalisées lorsque vous utilisez un bouton de votre GoXLR (ex: afficher une source OBS lorsque vous utilisez le bouton cough)",
-			"Personnalisez le pseudo de 10000 de vos viewers (limité à 10 autrement)",
-			"Créez jusqu'à 100 badges personnalisés (limité à 3 autrement)",
-			"Attribuez des badges personnalisés à 10000 de vos viewers (limité à 30 autrement)",
-			"Créez jusqu'à 100 Valeurs (limité à 3 autrement)",
-			"Désactivez le lien vers \"twitchat.fr\" envoyé toutes les 2h dans votre tchat"
-		],
 
 		"supportTable":{
 			"headers":[
@@ -27,13 +18,13 @@
 			"features": [
 				["Désactiver le message automatique", 0, 1, 1],
 				["Support GoXLR", 0, 0, 1],
-				["Pseudos personnalisés", 10, 10, 10000],
-				["Créer des badges personnalisés", 3, 3, 100],
-				["Attribuer des badges personnalisés", 30, 30, 10000],
-				["Valeurs (AKA variables globales)", 3, 3, 100],
-				["Écrans de zones personnalisées Heat", 2, 2, 100],
-				["Triggers", 50, 50, 1000],
-				["Compteurs", 30, 30, 1000],
+				["Pseudos personnalisés", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
+				["Créer des badges personnalisés", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
+				["Attribuer des badges personnalisés", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
+				["Valeurs (AKA variables globales)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
+				["Écrans de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
+				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
 				["Support Spotify", 1, 1, 1],
 				["Support Steam Deck", 1, 1, 1],
 				["Support Voicemod", 1, 1, 1],
@@ -57,6 +48,20 @@
 				["File d'attente de shoutouts", 1, 1, 1],
 				["Options de modération", 1, 1, 1]
 			]
+		},
+
+		"cleanup": {
+			"title":"Limitations non-premium",
+			"description":"Vous n'êtes pas membre premium et avez créé plus d'éléments de certains types que le maximum autorisé. Désactivez/supprimez des entrées ou devenez membre Premium pour tous les conserver",
+			"custom_usernames":"Pseudo personnalisés",
+			"custom_username_remove":"Supprimer le pseudo<br>personnalisé",
+			"custom_badges":"Badges personnalisés",
+			"custom_badges_attribution":"Attributions de badges personnalisés",
+			"custom_badges_attribution_remove":"Retirer les badges<br>personnalisés",
+			"delete_badges_title": "Confirmer",
+			"delete_badges_description": "Souhaitez-vous retirer tous les badges de cette personne ?",
+			"delete_name_title": "Confirmer",
+			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?"
 		}
 	}
 }

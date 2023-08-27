@@ -17,20 +17,20 @@
 		</div>
 
 		<button class="testBt" @click="$emit('test',entryData.trigger)"
-		v-if="noEdit === false"
+		v-if="noEdit === false && toggleMode === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
 			<Icon name="test" class="icon" />
 		</button>
 
 		<button class="duplicateBt" @click="$emit('duplicate',entryData)"
-		v-if="noEdit === false"
+		v-if="noEdit === false && toggleMode === false"
 		v-tooltip="$t('global.duplicate')">
 			<Icon name="copy" class="icon" />
 		</button>
 
 		<button class="deleteBt" @click="$emit('delete',entryData)"
-		v-if="noEdit === false"
+		v-if="noEdit === false && toggleMode === false"
 		v-tooltip="$t('triggers.deleteBt')">
 			<Icon name="trash" class="icon" />
 		</button>
@@ -56,6 +56,9 @@ export default class TriggerListItem extends Vue {
 
 	@Prop({default:false})
 	public noEdit!:boolean;
+
+	@Prop({default:false})
+	public toggleMode!:boolean;
 
 	public getCategoryLabel(entry:TriggerListEntry):string {
 		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);

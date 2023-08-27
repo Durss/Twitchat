@@ -14,7 +14,11 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button icon="add" @click="showForm = true">{{ $t('counters.addBt') }}</Button>
+			<Button icon="add" @click="showForm = true" v-if="canCreateCounters">{{ $t('counters.addBt') }}</Button>
+			<div class="card-item alert premiumLimit" v-else>
+				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+				<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			</div>
 		</section>
 
 		<section class="card-item primary examples" v-if="!showForm && counterEntries.length == 0">
@@ -43,11 +47,16 @@
 		
 			<template #right_actions>
 				<div class="actions">
-					<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
-					<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
-					<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
-					<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
-					<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+					<template v-if="entry.counter.enabled !== false">
+						<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
+						<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
+						<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
+						<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
+						<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
+					</template>
+					<div class="toggle" v-else @click="toggleCounterState(entry.counter)">
+						<ToggleButton v-model="entry.counter.enabled" />
+					</div>
 					<Button class="actionBt" alert icon="trash" @click.stop="deleteCounter(entry)" />
 				</div>
 			</template>
@@ -128,6 +137,7 @@ import { reactive, watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import ToggleButton from '@/components/ToggleButton.vue';
 
 @Component({
 	components:{
@@ -135,6 +145,7 @@ import type IParameterContent from './IParameterContent';
 		ParamItem,
 		ToggleBlock,
 		InfiniteList,
+		ToggleButton,
 		OverlayCounter,
 	},
 	emits:[]
@@ -195,6 +206,12 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 					param:reactive({type:'number', value:v.value, min, max, labelKey:'counters.form.value'})
 				}
 		});
+	}
+
+	public get canCreateCounters():boolean {
+		if(this.$store("auth").isPremium) return true;
+		const count = this.$store("counters").counterList.filter(v=>v.enabled != false).length;
+		return count < this.$config.MAX_COUNTERS;
 	}
 
 	public openTriggers():void {
@@ -259,6 +276,13 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public onNavigateBack(): boolean { return false; }
+
+	/**
+	 * Opens the premium page
+	 */
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
 
 	/**
 	 * Create a new counter
@@ -537,6 +561,20 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			})
 		}
 	}
+
+	/**
+	 * A counter can be disabled if the user created more counters than allowed
+	 * if not also premium. In which case they're invited to disable some counters.
+	 * @param counter 
+	 */
+	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
+		if(!this.canCreateCounters) {
+			this.$store("main").alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
+		}else{
+			counter.enabled = true;
+			this.$store("counters").saveCounters();
+		}
+	}
 }
 
 interface CounterEntry {
@@ -581,6 +619,14 @@ interface UserEntry {
 		}
 	}
 
+	.premiumLimit {
+		.button {
+			display: flex;
+			margin: auto;
+			margin-top: .5em;
+		}
+	}
+
 	.counterEntry {
 		// width: 100%;
 		width: calc(100% - 2em);
@@ -600,6 +646,19 @@ interface UserEntry {
 				align-self: stretch;
 				&:last-child {
 					margin-left: -.25em;//avoid gap between buttons without putting them in a dedicated container
+				}
+			}
+			.toggle {
+				background-color: var(--color-alert);
+				height: 100%;
+				display: flex;
+				align-items: center;
+				padding: 0 .5em;
+				&:hover {
+					background-color: var(--color-alert-light);
+				}
+				* {
+					pointer-events: none;
 				}
 			}
 		}

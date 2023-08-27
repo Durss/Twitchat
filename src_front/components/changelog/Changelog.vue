@@ -78,7 +78,6 @@ import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
-import PremiumFeatureList from '../premium/PremiumFeatureList.vue';
 import SponsorTable from '../premium/SponsorTable.vue';
 
 @Component({
@@ -91,7 +90,6 @@ import SponsorTable from '../premium/SponsorTable.vue';
 		SponsorTable,
 		ThemeSelector,
 		OverlayCounter,
-		PremiumFeatureList,
 		Pagination,
 		Navigation,
 	},

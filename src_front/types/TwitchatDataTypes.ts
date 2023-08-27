@@ -108,13 +108,34 @@ export namespace TwitchatDataTypes {
 			avatar:string,
 			points:number
 		}[];
+		/**
+		 * Is the counter disabled ?
+		 * It can be disabled if the user has to disable counters they're not
+		 * premium and have more than the maximum counters allowed 
+		 */
+		enabled?:boolean
 	}
 
 	export interface ValueData {
 		id:string;
+		/**
+		 * Value's name
+		 */
 		name:string;
+		/**
+		 * Placeholder string
+		 */
 		placeholderKey:string;
+		/**
+		 * Actual value
+		 */
 		value:string;
+		/**
+		 * Is the counter disabled ?
+		 * It can be disabled if the user has to disable counters they're not
+		 * premium and have more than the maximum counters allowed 
+		 */
+		enabled?:boolean
 	}
 
 	/**
@@ -1224,6 +1245,8 @@ export namespace TwitchatDataTypes {
 	export interface TwitchatCustomUserBadge {
 		id:string;
 		img:string;
+		name?:string;
+		enabled?:boolean;
 	}
 
 	/**

@@ -37,13 +37,13 @@
 			:title="$t('sponsor.premium')"
 			:subtitle="$t('sponsor.premium_subtitle')">
 				<p>{{ $t("sponsor.premium_details") }}</p>
-				<PremiumFeatureList class="premiumFeatureList" />
-				<Button class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
+				<SponsorTable class="sponsorTable" />
+				<Button icon="patreon" class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
 			</ToggleBlock>
 
 			<Button v-for="link in links" type="link" ref="button"
 				:href="link.url" target="_blank"
-				big primary
+				big secondary
 				:icon="link.icon+''"
 				:disabled="!checkbox.value"
 				@click.native.capture="clickItem()">
@@ -65,7 +65,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import PremiumFeatureList from '@/components/premium/PremiumFeatureList.vue';
+import SponsorTable from '@/components/premium/SponsorTable.vue';
 
 @Component({
 	components:{
@@ -73,7 +73,7 @@ import PremiumFeatureList from '@/components/premium/PremiumFeatureList.vue';
 		Splitter,
 		ParamItem,
 		ToggleBlock,
-		PremiumFeatureList,
+		SponsorTable,
 	}
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
@@ -196,7 +196,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 				margin-top: .5em;
 			}
 
-			.premiumFeatureList{
+			.sponsorTable{
 				font-size: 1rem;
 				width: 80%;
 				margin: auto;

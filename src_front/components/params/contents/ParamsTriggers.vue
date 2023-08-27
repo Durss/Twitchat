@@ -35,12 +35,19 @@
 					icon="delete"
 					@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 			</div>
+			
+			<template v-if="showList && !showForm">
+				<Button class="createBt"
+					v-if="$store('auth').isPremium || $store('triggers').triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
+					icon="add"
+					v-newflag="{date:1690765812999, id:'paramsparams_triggers'}"
+					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
-			<Button class="createBt"
-				v-if="showList && !showForm"
-				icon="add"
-				v-newflag="{date:1690765812999, id:'paramsparams_triggers'}"
-				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
+				<div class="card-item alert premiumLimit" v-else>
+					<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+					<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+				</div>
+			</template>
 			
 			<TriggerCreateForm
 				v-if="showForm"
@@ -69,7 +76,6 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
@@ -200,6 +206,13 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Opens the premium page
+	 */
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -501,6 +514,14 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 		.createBt {
 			margin: auto;
+		}
+
+		.premiumLimit {
+			.button {
+				display: flex;
+				margin: auto;
+				margin-top: .5em;
+			}
 		}
 	
 		.ctas {

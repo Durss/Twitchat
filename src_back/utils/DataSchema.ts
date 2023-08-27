@@ -113,7 +113,7 @@ import Ajv from "ajv";
 		triggers: {
 			type:"array",
 			minItems:0,
-			maxItems:10000,
+			maxItems:1000,
 			items: {
 				type: "object",
 				additionalProperties: false,
@@ -609,15 +609,15 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			maxProperties:10000,
 			patternProperties: {
-			  ".{1,20}": {
-				type:"object",
-				additionalProperties: false,
-				properties: {
-					name:{type: "string", maxLength:25},
-					channel: {type:"string", maxLength:50},
-					platform: {type:"string", maxLength:15},
+				".{1,20}": {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						name:{type: "string", maxLength:25},
+						channel: {type:"string", maxLength:50},
+						platform: {type:"string", maxLength:15},
+					}
 				}
-			}
 			},
 		},
 		customBadgeList: {
@@ -631,6 +631,7 @@ import Ajv from "ajv";
 					id:{type: "string", maxLength:40},
 					img:{type: "string", maxLength:6000},
 					name:{type: "string", maxLength:50},
+					enabled:{type:"boolean"},
 				}
 			}
 		},
@@ -639,7 +640,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			maxProperties:10000,
 			patternProperties: {
-			  ".{1,10}": {
+				".{1,10}": {
 					type:"array",
 					minItems:0,
 					maxItems:20,
@@ -905,7 +906,7 @@ import Ajv from "ajv";
 		values: {
 			type:"array",
 			minItems:0,
-			maxItems:100,
+			maxItems:10000,
 			items:{
 				type:"object",
 				additionalProperties: false,
@@ -914,6 +915,7 @@ import Ajv from "ajv";
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
 					value: {type:"string", maxLength:1000000},
+					enabled:{type:"boolean"},
 				}
 			}
 		},
@@ -929,6 +931,7 @@ import Ajv from "ajv";
 					id: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
+					enabled:{type:"boolean"},
 					value: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[

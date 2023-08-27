@@ -72,9 +72,18 @@ export const storeMain = defineStore("main", {
 	
 
 	getters: {
-	} as IMainGetters
-		& ThisType<UnwrapRef<IMainState> & _StoreWithGetters<IMainGetters> & PiniaCustomProperties>
-		& _GettersTree<IMainState>,
+		nonPremiumLimitExceeded: ()=> {
+			// if(StoreProxy.auth.isPremium) return false;
+
+			return StoreProxy.counters.counterList.filter(v=>v.enabled != false).length > Config.instance.MAX_COUNTERS
+				|| StoreProxy.values.valueList.filter(v=>v.enabled != false).length > Config.instance.MAX_VALUES
+				|| StoreProxy.triggers.triggerList.filter(v=>v.enabled != false).length > Config.instance.MAX_TRIGGERS
+				|| StoreProxy.heat.screenList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_HEAT_SCREENS
+				|| StoreProxy.users.customBadgeList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_BADGES
+				|| Object.keys(StoreProxy.users.customUserBadges).length > Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION
+				|| Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES;
+		}
+	},
 
 	
 	actions: {

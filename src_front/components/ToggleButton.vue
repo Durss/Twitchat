@@ -67,11 +67,12 @@ export default class ToggleButton extends Vue {
 	border-radius: @size;
 	position: relative;
 	cursor: pointer;
+	transition: background-color .35s;
 	background-color: var(--background-color-fader);
 	.bevel();
 
 	.circle {
-		transition: left .2s;
+		transition: left .35s, background-color .35s;
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);

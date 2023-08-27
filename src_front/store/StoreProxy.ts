@@ -124,6 +124,7 @@ export interface IMainState {
 }
 
 export interface IMainGetters {
+	nonPremiumLimitExceeded:boolean;
 }
 
 export interface IMainActions {
@@ -1305,11 +1306,11 @@ export interface IUsersState {
 	 * Contains custom user badges references.
 	 * Associates a user ID to custom badge ID from the customBadgeList array
 	 */
-	customUserBadges:{[key:string]:{platform:TwitchatDataTypes.ChatPlatform, id:string, channel:string}[]};
+	customUserBadges:{[key:string]:{id:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}[]};
 	/**
 	 * Contains custom user badges
 	 */
-	customBadgeList:{id:string, img:string, name?:string}[];
+	customBadgeList:TwitchatDataTypes.TwitchatCustomUserBadge[];
 	/**
 	 * List of blocked users by platform
 	 */
@@ -1552,6 +1553,14 @@ export interface IUsersActions {
 	 * Removes a custom badge from the given user
 	 */
 	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void;
+	/**
+	 * Saves custom badges and their attributions to users
+	 */
+	saveCustomBadges():void;
+	/**
+	 * Saves custom usernames to server
+	 */
+	saveCustomUsername():void;
 }
 
 
@@ -1702,6 +1711,10 @@ export interface ICountersActions {
 	 * @param userId 
 	 */
 	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	/**
+	 * Saves counters to server
+	 */
+	saveCounters():void;
 }
 
 
@@ -1816,4 +1829,9 @@ export interface IValuesActions {
 	 * @param data 
 	 */
 	delValue(data:TwitchatDataTypes.ValueData):void;
+	/**
+	 * Save values to server
+	 * @param  
+	 */
+	saveValues():void;
 }

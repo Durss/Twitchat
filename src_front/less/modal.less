@@ -39,6 +39,9 @@
 			padding-bottom: 0;
 			display: flex;
 			flex-direction: row;
+			.icon {
+				height: 1em;
+			}
 			&>.title {
 				flex-grow: 1;
 				font-size: 1.5em;
@@ -62,6 +65,7 @@
 			flex-grow: 1;
 			overflow-x: visible;
 			overflow-y: auto;
+			padding: 2px;//Avoids scroll to appear if content is small. No idea why.
 		}
 	}
 }

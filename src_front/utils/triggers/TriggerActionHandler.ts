@@ -20,6 +20,7 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import Config from "../Config";
 
 /**
 * Created : 22/04/2022 
@@ -648,6 +649,7 @@ export default class TriggerActionHandler {
 			steps:[],
 			messages:[],
 		};
+		const isPremium = StoreProxy.auth.isPremium;
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS,TriggerTypes.TWITCHAT_MESSAGE]
@@ -1135,13 +1137,19 @@ export default class TriggerActionHandler {
 					if(step.triggerId) {
 						const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == step.triggerId);
 						if(trigger) {
-							switch(step.action) {
-								case "enable": trigger.enabled = true; break;
-								case "disable": trigger.enabled = false; break;
-								case "toggle": trigger.enabled = !trigger.enabled; break;
+							if((step.action == "enable" || (step.action == "toggle" && !trigger.enabled))
+							&& !isPremium
+							&& StoreProxy.triggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
+								logStep.messages.push({date:Date.now(), value:step.action + "❌ Cannot enable trigger \""+step.triggerId+"\". Premium limit reached."});
+							}else{
+								switch(step.action) {
+									case "enable": trigger.enabled = true; break;
+									case "disable": trigger.enabled = false; break;
+									case "toggle": trigger.enabled = !trigger.enabled; break;
+								}
+								// console.log("Exect sub trigger", step.triggerKey);
+								logStep.messages.push({date:Date.now(), value:step.action + " trigger \""+step.triggerId+"\". New State is: "+trigger.enabled});
 							}
-							// console.log("Exect sub trigger", step.triggerKey);
-							logStep.messages.push({date:Date.now(), value:step.action + " trigger \""+step.triggerId+"\". New State is: "+trigger.enabled});
 						}
 					}
 				}else
@@ -1202,6 +1210,11 @@ export default class TriggerActionHandler {
 						const ids = step.counters;
 						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
+								//Check if we can update the counter
+								if(c.enabled !== true && !isPremium) {
+									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
+									logStep.messages.push({date:Date.now(), value:logMessage});
+								}else
 								//Check if this step requests that this counter should update a user
 								//different than the default one (the one executing the command)
 								if(c.perUser
@@ -1250,9 +1263,14 @@ export default class TriggerActionHandler {
 					const ids = step.values;
 					for (const v of StoreProxy.values.valueList) {
 						if(ids.indexOf(v.id) > -1) {
-							StoreProxy.values.updateValue(v.id, {value:text});
-							let logMessage = "Update Value \""+v.name+"\" to "+text;
-							logStep.messages.push({date:Date.now(), value:logMessage});
+							if(v.enabled !== true && !isPremium) {
+								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
+								logStep.messages.push({date:Date.now(), value:logMessage});
+							} else {
+								StoreProxy.values.updateValue(v.id, {value:text});
+								let logMessage = "Update Value \""+v.name+"\" to "+text;
+								logStep.messages.push({date:Date.now(), value:logMessage});
+							}
 						}
 					}
 				}else
@@ -1559,6 +1577,7 @@ export default class TriggerActionHandler {
 		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+		const isPremium = StoreProxy.auth.isPremium;
 
 		try {
 			// console.log("===== PARSE TEXT =====");
@@ -1691,6 +1710,9 @@ export default class TriggerActionHandler {
 						const counterPH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
 						const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
 						if(counter) {
+							if(!isPremium && counter.enabled == false) {
+								value = "NOT_PREMIUM"
+							}else
 							if(counter.perUser === true) {
 								//If it's a per-user counter, get the user's value
 								let user = this.extractUserFromTrigger(trigger, message);
@@ -1712,7 +1734,11 @@ export default class TriggerActionHandler {
 						const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
 						const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
 						if(valueEntry) {
-							value = valueEntry.value.toString();
+							if(!isPremium && valueEntry.enabled == false) {
+								value = "NOT_PREMIUM"
+							}else{
+								value = valueEntry.value.toString();
+							}
 						}
 	
 					/**

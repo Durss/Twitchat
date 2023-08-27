@@ -30,7 +30,7 @@ export const storeValues = defineStore('values', {
 				return;
 			}
 			this.valueList.push(data);
-			DataStore.set(DataStore.VALUES, this.valueList);
+			this.saveValues();
 			rebuildPlaceholdersCache();
 		},
 
@@ -54,14 +54,13 @@ export const storeValues = defineStore('values', {
 							newValue: d.value,
 							oldValue: prevValue,
 						};
-						console.log("Send message", message);
 						StoreProxy.chat.addMessage(message);
 					}
 					break;
 				}
 			}
 
-			DataStore.set(DataStore.VALUES, this.valueList);
+			this.saveValues();
 		},
 		
 		delValue(data:TwitchatDataTypes.ValueData):void {
@@ -71,7 +70,7 @@ export const storeValues = defineStore('values', {
 					break;
 				}
 			}
-			DataStore.set(DataStore.VALUES, this.valueList);
+			this.saveValues();
 
 			// Delete triggers related to the deleted value
 			const triggers = StoreProxy.triggers.triggerList;
@@ -83,6 +82,10 @@ export const storeValues = defineStore('values', {
 			}
 			rebuildPlaceholdersCache();
 		},
+
+		saveValues():void {
+			DataStore.set(DataStore.VALUES, this.valueList);
+		}
 
 		
 	} as IValuesActions

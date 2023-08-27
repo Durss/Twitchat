@@ -5,33 +5,36 @@
 		<SwitchButton v-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
 		<div class="list" v-show="filterState === false" v-if="renderedList">
-			<template v-for="item in flatTriggerList">
+			<div class="item" v-for="item in flatTriggerList"
+			:ref="'item_'+item.trigger.id"
+			:key="'item_'+item.trigger.id">
 				<TriggerListItem
 					v-if="buildIndex >= item.index"
-					:key="'item_'+item.trigger.id"
 					:noEdit="noEdit" :entryData="item"
-					@changeState="onChangeTrigger()"
+					@changeState="onChangeTrigger(item)"
 					@delete="deleteTrigger($event)"
 					@duplicate="duplicateTrigger($event)"
 					@test="$emit('testTrigger',$event)"
 					@select="$emit('select', $event)"
 					/>
-			</template>
+			</div>
 		</div>
 		
 		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="cat.icons">
-				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
+				<div class="item" v-for="item in cat.triggerList"
+				:key="'item_'+item.trigger.id"
+				:ref="'item_'+item.trigger.id">
 					<TriggerListItem :noEdit="noEdit" :entryData="item"
 						v-if="buildIndex >= item.index"
-						@changeState="onChangeTrigger()"
+						@changeState="onChangeTrigger(item)"
 						@delete="deleteTrigger($event)"
 						@duplicate="duplicateTrigger($event)"
 						@test="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)"
-					 />
+					/>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -50,6 +53,9 @@ import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerListItem from './TriggerListItem.vue';
+import { gsap } from 'gsap/all';
+import { RoughEase } from 'gsap/all';
+import { Linear } from 'gsap/all';
 
 @Component({
 	components:{
@@ -167,8 +173,9 @@ export default class TriggerList extends Vue {
 		let triggerBuildIndex = 0;
 		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {}
 		
-		for (const key in triggerList) {
-			const trigger = triggerList[key];
+		for (let i = 0; i < triggerList.length; i++) {
+			const trigger = triggerList[i];
+			
 			//Create new category
 			const index = TriggerTypesDefinitionList().findIndex(v=> v.value == trigger.type);
 			
@@ -218,8 +225,22 @@ export default class TriggerList extends Vue {
 		this.populateTriggers();
 }
 
-	public onChangeTrigger():void {
-		this.$store("triggers").saveTriggers();
+	public onChangeTrigger(item:TriggerListEntry):void {
+		if(!this.$store("auth").isPremium
+		&& this.$store("triggers").triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
+			setTimeout(()=>{
+				item.trigger.enabled = false;
+			}, 350);
+			setTimeout(()=>{
+				const divs = this.$refs["item_"+item.trigger.id] as HTMLElement[];
+				for (let i = 0; i < divs.length; i++) {
+					gsap.fromTo(divs[i], {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
+					gsap.fromTo(divs[i], {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+				}
+			}, 150);
+		}else{
+			this.$store("triggers").saveTriggers();
+		}
 	}
 
 }

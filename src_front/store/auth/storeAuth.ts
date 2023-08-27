@@ -33,7 +33,8 @@ export const storeAuth = defineStore('auth', {
 	
 	getters: {
 		
-		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
+		isPremium():boolean { return false; },
+		// isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
 
 	},
 	

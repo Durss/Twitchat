@@ -35,6 +35,7 @@
 		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
+		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
 			"require_url": "@:params.categories.connexions section"

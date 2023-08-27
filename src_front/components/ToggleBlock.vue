@@ -38,7 +38,7 @@ import Button from './Button.vue';
  */
 
 @Component({
-	name:"ToggelBlock",
+	name:"ToggleBlock",
 	components:{
 		Button,
 	},

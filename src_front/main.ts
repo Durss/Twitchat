@@ -32,7 +32,7 @@ import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -233,7 +233,8 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.i18n = i18n.global;
 	StoreProxy.image = image;
-	StoreProxy.main = storeMain();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.main = (storeMain() as unknown) as IMainState & IMainGetters & IMainActions & { $state: IMainState; $reset:()=>void };
 	StoreProxy.account = storeAccount();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.auth = (storeAuth() as unknown) as IAuthState & IAuthGetters & IAuthActions & { $state: IAuthState; $reset:()=>void };

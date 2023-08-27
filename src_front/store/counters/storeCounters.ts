@@ -30,7 +30,7 @@ export const storeCounters = defineStore('counters', {
 	actions: {
 		addCounter(data:TwitchatDataTypes.CounterData):void {
 			this.counterList.push(data);
-			DataStore.set(DataStore.COUNTERS, this.counterList);
+			this.saveCounters()
 			rebuildPlaceholdersCache();
 		},
 
@@ -53,7 +53,7 @@ export const storeCounters = defineStore('counters', {
 				}
 			}
 
-			DataStore.set(DataStore.COUNTERS, this.counterList);
+			this.saveCounters()
 
 			this.broadcastCounterValue(data.id);
 			rebuildPlaceholdersCache();
@@ -131,7 +131,7 @@ export const storeCounters = defineStore('counters', {
 					break;
 				}
 			}
-			DataStore.set(DataStore.COUNTERS, this.counterList);
+			this.saveCounters()
 
 			//Delete triggers related to the deleted counter
 			const triggers = StoreProxy.triggers.triggerList;
@@ -225,7 +225,7 @@ export const storeCounters = defineStore('counters', {
 				StoreProxy.chat.addMessage(message);
 			}
 			
-			DataStore.set(DataStore.COUNTERS, this.counterList);
+			this.saveCounters()
 
 			this.broadcastCounterValue(c.id);
 
@@ -236,6 +236,10 @@ export const storeCounters = defineStore('counters', {
 				this.increment(id, action, 0, user, userId);
 			}
 		},
+
+		saveCounters():void {
+			DataStore.set(DataStore.COUNTERS, this.counterList);
+		}
 		
 	} as ICountersActions
 	& ThisType<ICountersActions

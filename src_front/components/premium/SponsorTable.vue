@@ -17,7 +17,7 @@
 					<template v-if="index==0">• </template>
 					<Icon name="checkmark" v-if="item === 1" />
 					<Icon name="cross" v-else-if="item === 0" />
-					<template v-else>{{ item }}</template>
+					<template v-else>{{ $config.getParamByKey(item as string) || item }}</template>
 				</td>
 			</tr>
 		</table>
@@ -59,7 +59,9 @@ export default class SponsorTable extends Vue {
 	}
 
 	public mounted():void {
-		this.expand(10, false);
+		this.$nextTick().then(()=> {
+			this.expand(10, false);
+		});
 	}
 
 	public expand(rowIndex:number, animate:boolean = true):void {
@@ -69,6 +71,12 @@ export default class SponsorTable extends Vue {
 		const boundsItem = item.getBoundingClientRect();
 		const height = boundsItem.bottom - boundsList.top;
 		const added = height - boundsList.height;
+		//depending on the context the holder's height my not be ready.
+		//try again until it is
+		if(boundsList.height == 0) {
+			setTimeout(()=>this.expand(rowIndex, animate), 30);
+			return;
+		}
 		gsap.to(list, {duration:animate? 1: 0, ease:"sine.inout", height});
 		this.$emit("scrollBy", added);
 		if(added > 0 && animate) {

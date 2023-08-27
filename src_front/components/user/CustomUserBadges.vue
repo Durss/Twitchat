@@ -26,13 +26,17 @@ export default class CustomUserBadges extends Vue {
 	@Prop
 	public channelId!:string;
 
-	public get badges():{id:string, img:string, name?:string}[] {
-		const res:{id:string, img:string}[] = [];
+	public get badges():TwitchatDataTypes.TwitchatCustomUserBadge[] {
+		const isPremium = this.$store("auth").isPremium;
+		const res:TwitchatDataTypes.TwitchatCustomUserBadge[] = [];
 		const badges = this.$store("users").customUserBadges[this.user.id];
 		if(!badges) return [];
 
 		badges.forEach(badge=> {
-			const list = this.$store("users").customBadgeList
+			let list = this.$store("users").customBadgeList;
+			if(!isPremium) {
+				list = list.filter(v=>v.enabled !== false);
+			}
 			const badgeSource = list.find(v=> v.id == badge.id);
 			if(badgeSource) {
 				res.push(badgeSource);
