@@ -24,6 +24,13 @@
 					<div class="details">
 						<span class="title">{{s.title}}</span>
 						<mark class="game">{{s.game_name}}</mark>
+
+						<div class="roomSettings" v-if="roomSettings[s.user_id]">
+							<mark v-if="roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
+							<mark v-if="roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+							<mark v-if="roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+						</div>
+
 						<div class="footer">
 							<span class="viewers">
 								<Icon class="icon" name="user"/>
@@ -32,6 +39,7 @@
 								<Icon class="icon" name="timeout"/>
 								{{computeDuration(s.started_at)}}</span>
 						</div>
+
 						<div class="raidBt">
 							<img src="@/assets/icons/raid.svg" alt="raid">
 							Raid
@@ -53,6 +61,7 @@ import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -64,6 +73,7 @@ import CloseButton from '../CloseButton.vue';
 export default class LiveFollowings extends AbstractSidePanel {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
+	public roomSettings:{[key:string]:TwitchatDataTypes.IRoomSettings} = {};
 	public loading = true;
 	public needScope = false;
 
@@ -97,6 +107,14 @@ export default class LiveFollowings extends AbstractSidePanel {
 		const cards = this.$refs.streamCard as HTMLDivElement[];
 		for (let i = 0; i < cards.length; i++) {
 			gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
+		}
+
+		//Only load room settings for the first 50 rooms.
+		for (let i = 0; i < Math.min(50, res.length); i++) {
+			const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);
+			if(roomSettings) {
+				this.roomSettings[res[i].user_id] = roomSettings;
+			}
 		}
 	}
 
@@ -150,7 +168,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 						background-color: var(--color-primary-light);
 					}
 					.details {
-						.title, .game, .footer {
+						.title, .game, .footer, .roomSettings {
 							opacity: 0;
 						}
 						.raidBt {
@@ -196,6 +214,19 @@ export default class LiveFollowings extends AbstractSidePanel {
 							object-fit: fill;
 							vertical-align: middle;
 							margin-right: .5em;
+						}
+					}
+					.roomSettings {
+						gap: .5em;
+						display: flex;
+						flex-wrap: wrap;
+						flex-direction: row;
+						mark {
+							background-color: var(--color-alert-fade) !important;
+							padding: .2em .5em;
+						}
+						&:empty {
+							display: none;
 						}
 					}
 		
