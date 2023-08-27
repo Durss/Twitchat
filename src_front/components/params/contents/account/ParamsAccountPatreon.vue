@@ -3,7 +3,7 @@
 		
 		<Icon name="loader" v-if="authenticating" />
 
-		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === false">
+		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === true">
 			<div class="card-item premium large">
 				<Icon name="gift" theme="light" />
 				<div>{{ $t("premium.early_donor1") }}</div>
