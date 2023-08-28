@@ -104,7 +104,9 @@ export default class TriggerActionHandler {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
 					await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmd, undefined, forcedTriggerId);
 					const cmdall = message.message.trim().toLowerCase();
-					await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmdall, undefined, forcedTriggerId);
+					if(cmdall != cmd) {
+						await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmdall, undefined, forcedTriggerId);
+					}
 				}
 				
 				if(message.user.id != StoreProxy.auth.twitch.user.id
