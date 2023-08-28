@@ -265,6 +265,10 @@
 			"customizeBt": "Personnaliser le message",
 			"donateBt": "Faire un don"
 		},
+		"updateReminder": {
+			"content": "Consultez les dernières mises à jour à tout moment avec la commande {CMD}",
+			"updatesBt": "Ouvrir les MàJ"
+		},
 		"donor": {
 			"title": "❤ Merveilleuse personne ❤",
 			"info_1": "Merci encore pour ton soutien au travers de ton don.",

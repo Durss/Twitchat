@@ -330,8 +330,8 @@ export default class UserCard extends Vue {
 			this.myFollowings = this.$store("users").myFollowings.twitch;
 
 			const card = this.$store("users").userCard;
-			if(card) {
-				this.user = card.user;
+			if(card && card.user) {
+				this.user = this.$store("users").getUserFrom("twitch", card.channelId, card.user.id, card.user.login);
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
 				this.dateOffsetTimeout = setInterval(() => {

@@ -21,7 +21,7 @@
     "microphone_mute": "Désactiver la source",
     "microphone_unmute": "Réactiver la source",
     "microphone_default_entry": "- aucun -",
-    "scenes_title": "Control des scènes",
+    "scenes_title": "Contrôle des scènes",
     "scenes_empty": "Aucune scène trouvée",
     "scenes_col_name": "Scène OBS",
     "scenes_col_cmd": "Commande de chat"

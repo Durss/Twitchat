@@ -794,6 +794,7 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_AD_WARNING:5,
 		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
 		DONATE_REMINDER:7,
+		UPDATE_REMINDER:8,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 

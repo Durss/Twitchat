@@ -25,6 +25,19 @@
 			</div>
 
 			<template v-if="selectedBadgeId">
+				
+				<div v-if="!$store('auth').isPremium && selectedBadge?.enabled === false">
+					<div>{{ $t("usercard.badge_disabled") }}</div>
+					<i18n-t scope="global" keypath="usercard.badge_diusabled_notPremium" v-if="!canEnableABadge">
+						<template #MAX>{{ $config.MAX_CUSTOM_BADGES }}</template>
+						<template #MAX_PREMIUM>{{ $config.MAX_CUSTOM_BADGES_PREMIUM }}</template>
+					</i18n-t>
+					<div v-else>
+						{{ $t("global.enable") }}
+						<ToggleButton v-model="selectedBadge.enabled" />
+					</div>
+				</div>
+				
 				<input class="badgeName" type="text" v-model="badgeName" :placeholder="$t('usercard.badge_name_placeholder')" maxlength="50">
 
 				<div class="ctas">
@@ -51,10 +64,13 @@ import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import { watch } from 'vue';
+import ToggleButton from '../ToggleButton.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
 		Button,
+		ToggleButton,
 	},
 	emits:["close"],
 })
@@ -67,6 +83,8 @@ export default class CustomBadgesManager extends Vue {
 	private userList:TwitchatDataTypes.TwitchatUser[] = [];
 
 	public get badgesList() { return this.$store('users').customBadgeList; }
+	public get selectedBadge() { return this.$store('users').customBadgeList.find(v=>v.id == this.selectedBadgeId); }
+	public get canEnableABadge() { return this.$store('users').customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
 
 	/**
 	 * Get classes for the given badge ID
@@ -74,6 +92,7 @@ export default class CustomBadgesManager extends Vue {
 	public getBadgeClasses(badgeId:string):string[] {
 		const res = ["badge"];
 		if(this.selectedBadgeId == badgeId) res.push("selected");
+		if(this.selectedBadge?.enabled === false && !this.$store('auth').isPremium) res.push("disabled");
 		return res;
 	}
 
@@ -248,6 +267,13 @@ export default class CustomBadgesManager extends Vue {
 				background-color: var(--color-secondary);
 				width: 40px;
 				height: 40px;
+			}
+
+			&.disabled {
+				outline: 1px dashed var(--color-text);
+				img {
+					opacity: .5;
+				}
 			}
 		}
 	

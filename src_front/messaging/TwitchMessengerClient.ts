@@ -141,7 +141,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
-				TwitchUtils.getRoomSettings(v.id).then(settings=> {
+				TwitchUtils.getRoomSettings(v.id, true).then(settings=> {
 					if(settings) {
 						StoreProxy.stream.setRoomSettings(v.id, settings);
 						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || typeof settings.followOnly === "number") {

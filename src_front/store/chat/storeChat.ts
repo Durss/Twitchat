@@ -639,6 +639,12 @@ export const storeChat = defineStore('chat', {
 				if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) return;
 			}
 
+			for (let i = messageList.length-1; i > Math.min(0, messageList.length - 50); i--) {
+				const mess = messageList[i];
+				if(mess.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
+				if(mess.adType == adType) return;//Avoid sending 2 consecutive ad of the same type
+			}
+
 			this.addMessage( {
 				platform:"twitch",
 				id:Utils.getUUID(),

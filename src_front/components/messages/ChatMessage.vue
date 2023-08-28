@@ -8,13 +8,13 @@
 			<div class="header"><strong>{{ $t('chat.message.automod') }}</strong> {{automodReasons}}</div>
 			<div class="actions">
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
-				 	v-tooltip="$t('chat.message.automod_acceptBt_aria')"
+					v-tooltip="$t('chat.message.automod_acceptBt_aria')"
 					icon="checkmark"
 					@click.stop="modMessage(true)"
 					:loading="automodInProgress" />
 
 				<Button :aria-label="$t('chat.message.automod_rejectBt_aria')"
-				 	v-tooltip="$t('chat.message.automod_rejectBt_aria')"
+					v-tooltip="$t('chat.message.automod_rejectBt_aria')"
 					light alert
 					icon="cross"
 					@click.stop="modMessage(false)"
@@ -947,14 +947,15 @@ export default class ChatMessage extends AbstractChatMessage {
 			padding: 0px 5px;
 		}
 		.text {
+			margin-left: .25em;
+			position: relative;
 			&::before {
 				content: "┕";
 				color: var(--color-secondary);
-				position: relative;
+				position: absolute;
 				font-size: 1em;
 				bottom: -.75em;
-				margin-right: -.25em;
-				margin-left: -.25em;
+				left: -.75em;
 			}
 			&:hover {
 				outline: 1px solid var(--color-text-fade);

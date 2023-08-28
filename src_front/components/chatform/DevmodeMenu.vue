@@ -9,6 +9,7 @@
 			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
@@ -139,6 +140,7 @@ export default class DevmodeMenu extends Vue {
 				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DONATE; break;
 				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
 				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
+				case "update_reminder":		(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; break;
 				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
 				case "first":				(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
@@ -349,6 +351,7 @@ type Subaction = "first"
 				| "soReceived"
 				| "ad_warn"
 				| "donor_public_prompt"
+				| "update_reminder"
 				| "right_click_hint"
 				| "discord"
 				| "raidOnline"

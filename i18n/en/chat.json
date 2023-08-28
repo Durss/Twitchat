@@ -265,6 +265,10 @@
 			"customizeBt": "Customize message",
 			"donateBt": "Donate to remove"
 		},
+		"updateReminder": {
+			"content": "View latest updates at any time using {CMD} command.",
+			"updatesBt": "Open updates"
+		},
 		"donor": {
 			"title": "❤ Hey lovely donor ❤",
 			"info_1": "Thank you again for supporting Twitchat with your donation.",

@@ -34,9 +34,16 @@
 				"d": "Modifiez le pseudo de vos viewers ou attribuez-leur des badges personnalisés.<br>Automatisez ces actions depuis les triggers."
 			},
 			{
-				"i": "voicemod",
-				"l": "Voicemod",
-				"d": "Nouvelles actions de Trigger pour Voicemod pour activez le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination !"
+				"i": "broadcast",
+				"l": "Résumé de stream",
+				"g": "update_images/stream_summary.png",
+				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream."
+			},
+			{
+				"i": "raid",
+				"l": "Raid à l'ancienne",
+				"g": "update_images/raid_actions.png",
+				"d": "Une fois un raid démarré un bouton vous permettra de spammer le lien vers la chaîne en cours de raid.<br><br>Aidez ainsi la chaîne à obtenir le Partenariat en évitant le \"referrer=raid\" dans l'URL pour les viewers qui accepteront d'utiliser le lien."
 			},
 			{
 				"i": "alert",
@@ -51,16 +58,9 @@
 				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
 			},
 			{
-				"i": "broadcast",
-				"l": "Résumé de stream",
-				"g": "update_images/stream_summary.png",
-				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream."
-			},
-			{
-				"i": "raid",
-				"l": "Raid à l'ancienne",
-				"g": "update_images/raid_actions.png",
-				"d": "Une fois un raid démarré un bouton vous permettra de spammer le lien vers la chaîne en cours de raid.<br><br>Aidez ainsi la chaîne à obtenir le Partenariat en évitant le \"referrer=raid\" dans l'URL pour les viewers qui accepteront d'utiliser le lien."
+				"i": "voicemod",
+				"l": "Voicemod",
+				"d": "Nouvelles actions de Trigger pour Voicemod pour activez le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination !"
 			},
 			{
 				"i": "placeholder",

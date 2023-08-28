@@ -73,7 +73,7 @@ export const storeMain = defineStore("main", {
 
 	getters: {
 		nonPremiumLimitExceeded: ()=> {
-			// if(StoreProxy.auth.isPremium) return false;
+			if(StoreProxy.auth.isPremium) return false;
 
 			return StoreProxy.counters.counterList.filter(v=>v.enabled != false).length > Config.instance.MAX_COUNTERS
 				|| StoreProxy.values.valueList.filter(v=>v.enabled != false).length > Config.instance.MAX_VALUES

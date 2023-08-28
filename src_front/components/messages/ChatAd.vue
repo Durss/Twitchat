@@ -107,6 +107,20 @@
 				</div>
 			</div>
 	
+			<div v-if="isUpdateReminder" class="card-item primary updateReminder">
+				<div class="content">
+					<img src="@/assets/icons/firstTime.svg" class="icon small">
+					<i18n-t scope="global" tag="span" keypath="chat.updateReminder.content">
+						<template #CMD>
+							<mark>/updates</mark>
+						</template>
+					</i18n-t>
+				</div>
+				<div class="ctas">
+					<Button @click="openModal('updates')">{{ $t('chat.updateReminder.updatesBt') }}</Button>
+				</div>
+			</div>
+	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
 				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
 				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
@@ -167,6 +181,7 @@ export default class ChatAd extends Vue {
 	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
 	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
+	public get isUpdateReminder():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	
@@ -202,7 +217,7 @@ export default class ChatAd extends Vue {
 		this.kofiIcon = await this.getSvgIcon("kofi");
 	}
 
-	public openModal(modal:string):void { this.$emit("showModal", modal); }
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
 	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
 
@@ -296,6 +311,14 @@ export default class ChatAd extends Vue {
 				width: 4em;
 				margin: 0 auto .5em auto;
 				display: block;
+
+				&.small {
+					height: 1em;
+					display: inline;
+					width: auto;
+					vertical-align: middle;
+					margin-right: .5em;
+				}
 			}
 	
 			:deep(mark) {

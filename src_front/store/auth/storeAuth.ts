@@ -7,14 +7,14 @@ import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
+import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
-import PatreonHelper from "@/utils/patreon/PatreonHelper";
 
 let refreshTokenTO:number = -1;
 
@@ -33,8 +33,8 @@ export const storeAuth = defineStore('auth', {
 	
 	getters: {
 		
-		isPremium():boolean { return false; },
-		// isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
+		// isPremium():boolean { return false; },
+		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
 
 	},
 	
@@ -188,7 +188,8 @@ export const storeAuth = defineStore('auth', {
 					//Parse data from storage
 					await sMain.loadDataFromStorage();
 				}catch(error) {
-					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on twitter or twitch @durss.");
+					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on Twitch @durss.");
+					console.log(error);
 				}
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);

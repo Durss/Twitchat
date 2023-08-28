@@ -1,5 +1,5 @@
 <template>
-	<div class="changelog modal">
+	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
@@ -50,7 +50,7 @@
 							<template v-if="item.i=='premium'">
 								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
 								<Button icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
-								<SponsorTable v-if="showPremiumFeatures" />
+								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
 							</template>
 						</div>
 						<div v-else class="inner donate">
@@ -109,6 +109,17 @@ export default class Changelog extends Vue {
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	
+	public get classes():string[] {
+		const res:string[] = ["changelog", "modal"];
+		if(this.currentItem.i === "premium") res.push("premium");
+		return res;
+	}
+
+	/**
+	 * Get currently displayed item data
+	 */
+	public get currentItem():TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]; }
 
 	/**
 	 * Get carousel items
@@ -157,6 +168,8 @@ export default class Changelog extends Vue {
 			await this.$nextTick();
 			gsap.to(this.$refs.fu as HTMLDivElement, {duration:.5, opacity:0, fontSize:0, ease:"back.in"});
 			await Utils.promisedTimeout(500);
+
+			this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
 		}
 
 		gsap.to(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
@@ -190,6 +203,8 @@ export default class Changelog extends Vue {
 		if(e.key == "ArrowRight") {
 			this.currentSlide ++;
 		}
+		if(this.currentSlide == this.items.length) this.currentSlide = 0;
+		if(this.currentSlide < 0) this.currentSlide = this.items.length -1;
 	}
 
 }
@@ -198,11 +213,18 @@ export default class Changelog extends Vue {
 <style scoped lang="less">
 .changelog{
 	z-index: 2;
+
+	&.premium {
+		.holder {
+			background-color: var(--color-premium-dark);
+		}
+	}
 	
 	.holder {
 		width: 600px;
 		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
+		transition: background-color .2s, color .2s;
 
 		.head {
 			display: flex;
@@ -238,7 +260,6 @@ export default class Changelog extends Vue {
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:var(--color-text);
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 
@@ -268,27 +289,6 @@ export default class Changelog extends Vue {
 					}
 				}
 
-				.tryBt {
-					margin-bottom: .5em;
-					font-weight: bold;
-				}
-
-				.counterActions {
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					gap: .5em;
-					margin-bottom: 1em;
-					.button {
-						width: 2em;
-					}
-				}
-
-				.counterExample {
-					font-size: .75em;
-					color: var(--color-dark);
-				}
-
 				&.donate {
 					.emoji {
 						font-size: 7em;
@@ -303,6 +303,10 @@ export default class Changelog extends Vue {
 						height: 1em;
 						margin-right: .25em;
 					}
+				}
+
+				.premiumTable {
+					background-color: var(--background-color-secondary);
 				}
 			}
 		}
@@ -343,6 +347,11 @@ export default class Changelog extends Vue {
 			&:after {
 				background-color: var(--color-secondary);
 				transform: scaleY(2);
+			}
+		}
+		:deep(.carousel__pagination-item:nth-last-child(2)) {
+			button:after {
+				background-color: var(--color-premium);
 			}
 		}
 	}

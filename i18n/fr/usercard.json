@@ -32,6 +32,8 @@
 			"description":"Les personne liées à ce badge le perdront. Cette action ne peut pas être annulée."
 		},
 		"replace_badge_file":"Remplacer l'image",
+		"badge_disabled":"Vous avez désactivé ce badge car vous n'êtiez plus membre premium.",
+		"badge_diusabled_notPremium":"Vous ne pouvez avoir que {MAX} badges actifs. Supprimez d'autres badges pour pouvoir le réactiver ou devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} badges personnalisés.",
 		"badge_users":"Personnes associées à ce badge",
 		"badge_users_none":"aucune"
 	}

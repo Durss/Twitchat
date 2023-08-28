@@ -1590,7 +1590,7 @@ export default class TwitchUtils {
 	/**
 	 * Get the current room's settings
 	 */
-	public static async getRoomSettings(channelId:string):Promise<TwitchatDataTypes.IRoomSettings|null> {
+	public static async getRoomSettings(channelId:string, retry:boolean = false):Promise<TwitchatDataTypes.IRoomSettings|null> {
 		const options = {
 			method:"GET",
 			headers: this.headers,
@@ -1614,7 +1614,6 @@ export default class TwitchUtils {
 				non_moderator_chat_delay_duration: number,
 			}[]} = await res.json();
 			const data = json.data[0];
-			const obj:TwitchatDataTypes.IRoomSettings = {};
 			return {
 				chatDelay:data.non_moderator_chat_delay === false? undefined : data.non_moderator_chat_delay_duration as number,
 				emotesOnly:data.emote_mode === true,
@@ -1625,8 +1624,11 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
-			return await this.getRoomSettings(channelId);
+			if(retry) {
+				await this.onRateLimit(res.headers);
+				return await this.getRoomSettings(channelId);
+			}
+			return null;
 		}else {
 			return null;
 		}

@@ -34,9 +34,16 @@
 				"d": "Change your viewers usernames or give them custom badges.<br>Automate these actions from the Triggers."
 			},
 			{
-				"i": "voicemod",
-				"l": "Voicemod",
-				"d": "New trigger actions to enable the \"<strong>beep</strong>\" or <strong>play any sound</strong> of the soundboards.<br><br>Execute these actions from chat commands, channel point rewards, follows, subs, bits, hype chats,... Imagination is your limit!"
+				"i": "broadcast",
+				"l": "Stream summary",
+				"g": "update_images/stream_summary.png",
+				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers."
+			},
+			{
+				"i": "raid",
+				"l": "Raiding the old way",
+				"g": "update_images/raid_actions.png",
+				"d": "Once you started a raid, a button will allow you to spam the channel's link to your chat.<br><br>With this you can help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
 			},
 			{
 				"i": "alert",
@@ -51,16 +58,9 @@
 				"d": "Planning to play a spoiler-sensitive game?<br><br>Automatically spoil all the messages of a user speaking on your chat for the first time.<br><br>Stop spoiling their messages at anytime."
 			},
 			{
-				"i": "broadcast",
-				"l": "Stream summary",
-				"g": "update_images/stream_summary.png",
-				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers."
-			},
-			{
-				"i": "raid",
-				"l": "Raiding the old way",
-				"g": "update_images/raid_actions.png",
-				"d": "Once you started a raid, a button will allow you to spam the channel's link to your chat.<br><br>With this you can help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
+				"i": "voicemod",
+				"l": "Voicemod",
+				"d": "New trigger actions to enable the \"<strong>beep</strong>\" or <strong>play any sound</strong> of the soundboards.<br><br>Execute these actions from chat commands, channel point rewards, follows, subs, bits, hype chats,... Imagination is your limit!"
 			},
 			{
 				"i": "placeholder",

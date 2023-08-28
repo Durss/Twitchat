@@ -7,8 +7,8 @@
 				v-tooltip="['', '', $t('params.categories.donate'), $t('premium.become_premiumBt')][index as number]"
 				@click="clickHeader(index as number)">
 					<Icon name="twitchat" v-if="index==1" />
-					<Icon name="coin" theme="light" v-if="index==2" />
-					<Icon name="premium" theme="light" v-if="index==3" />
+					<Icon name="coin" v-if="index==2" />
+					<Icon name="premium" v-if="index==3" />
 					{{ h }}
 				</th>
 			</tr>
@@ -114,6 +114,7 @@ export default class SponsorTable extends Vue {
 				width: 100%;
 				border-radius: 0;
 				vertical-align: middle;
+				color: var(--color-text);
 				&:nth-child(2) {
 					background-color: var(--color-light-fade);
 				}
