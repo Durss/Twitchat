@@ -301,11 +301,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	public get translateUsername():boolean {
 		if(this.$store("params").appearance.translateNames.value !== true) return false;
 
-		const dname = this.messageData.user.displayName.toLowerCase();
+		const dname = this.messageData.user.displayNameOriginal.toLowerCase();
 		const uname = this.messageData.user.login.toLowerCase();
-		//If display name is different from username and at least half of the
-		//display name's chars ar not latin chars, translate it
-		return dname != uname && dname.replace(/^[^a-zA-Z0-9]*/gi, "").length < dname.length/2;
+		return dname != uname;
 	}
 	
 	/**
