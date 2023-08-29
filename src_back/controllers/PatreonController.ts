@@ -14,14 +14,17 @@ export default class PatreonController extends AbstractController {
 	private localScopes:string = "w:campaigns.webhook campaigns.members";
 	private isFirstAuth:boolean = true;
 	private campaignId:string = "";
-	private members:string[] = [];
+	private members:PatreonMember[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
 	private smsWarned:boolean = false;
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
 	//to still be considered a member
-	private MIN_AMOUNT:number = 200;
+	private MIN_AMOUNT:number = 400;
+	//This tier is an exception for the "MIN_AMOUT".
+	//This tier is lower than the min amount but has a limited number of slots
+	private MIN_AMOUNT_TIER_ID_EXCEPTION:string = "10133573";
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -331,7 +334,8 @@ export default class PatreonController extends AbstractController {
 		};
 		
 		const result = await fetch(url, options);
-		const json = await result.json();
+		const json:PatreonMemberships = await result.json();
+		// fs.writeFileSync("/patreon_memberships.json", JSON.stringify(json), "utf-8");
 		if(json.errors) {
 			Logger.error("Patreon: members list failed");
 			console.log(json.errors[0].detail);
@@ -344,12 +348,16 @@ export default class PatreonController extends AbstractController {
 
 			//Only keep active patrons
 			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
-			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0 || v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT)
+			.filter(v=>v.relationships.currently_entitled_tiers.data.length > 0
+				//If current tier value is greater than the minimum (to refuse custom amounts lower than that)
+				|| v.attributes.currently_entitled_amount_cents > this.MIN_AMOUNT
+				//Specific tier exception
+				|| v.relationships.currently_entitled_tiers.data.find(v=>v.id == this.MIN_AMOUNT_TIER_ID_EXCEPTION))
 			.map(v =>{
 				const member:PatreonMember = {
 					id:v.id,
 					name:v.attributes.full_name,
-					total:parseFloat(v.attributes.lifetime_support_cents)/100,
+					total:v.attributes.lifetime_support_cents/100,
 				};
 				return member;
 			});
@@ -416,4 +424,56 @@ interface PatreonMember {
 	id: string;
 	name: string;
 	total: number;
+}
+
+interface PatreonMemberships {
+	errors?:{
+		detail:string;
+	}[];
+	data: {
+		attributes: {
+			currently_entitled_amount_cents: number
+			full_name: string
+			is_follower: boolean
+			last_charge_date?: string
+			last_charge_status?: string
+			lifetime_support_cents: number
+			patron_status?: string
+		}
+		id: string
+		relationships: {
+			currently_entitled_tiers: {
+				data: {
+					id: string
+					type: string
+				}[]
+			}
+			type: string
+		}
+	}[]
+	included: {
+		attributes: {
+			amount_cents: number
+			created_at: string
+			description: string
+			discord_role_ids: string[]
+			edited_at: string
+			patron_count: number
+			published: boolean
+			published_at?: string
+			requires_shipping: boolean
+			title: string
+			url: string
+		}
+		id: string
+		type: string
+	}[]
+	meta: {
+		pagination?: {
+			cursors?: {
+				next?: string;
+			};
+			total: number
+		}
+	}
 }
