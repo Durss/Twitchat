@@ -1090,7 +1090,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Twitchat donor state of the user
 		 */
-		donor:{
+		donor?:{
 			/**
 			 * Is a donor?
 			 */
@@ -1708,7 +1708,7 @@ export namespace TwitchatDataTypes {
 	}
 	export interface MergeableMessage {
 		/**
-		 * When sending consecutive messages of the same tuype they are grouped together.
+		 * When sending consecutive messages of the same type they are grouped together.
 		 * In this case the first one will contain the next ones in that "children" property.
 		 */
 		children: ChatMessageTypes[];

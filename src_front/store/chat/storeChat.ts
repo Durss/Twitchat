@@ -587,7 +587,7 @@ export const storeChat = defineStore('chat', {
 				if(res.length === 0) return;
 				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
 					id:Utils.getUUID(),
-					date:messageList[0].date-.1,
+					date:messageList.length > 0? messageList[0].date-.1 : Date.now(),
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 				}

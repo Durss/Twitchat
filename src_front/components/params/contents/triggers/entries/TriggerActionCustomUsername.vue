@@ -150,7 +150,7 @@ export default class TriggerActionCustomUsername extends AbstractTriggerActionEn
 				}
 
 				.badge {
-					cursor: no-drop;
+					cursor: not-allowed;
 				}
 			}
 		}

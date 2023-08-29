@@ -139,10 +139,7 @@ export const storeMain = defineStore("main", {
 			const sAuth = StoreProxy.auth;
 			const sTimer = StoreProxy.timer;
 			const sVoice = StoreProxy.voice;
-			const sUsers = StoreProxy.users;
-			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
-			const sEmergency = StoreProxy.emergency;
 
 			//Load app configs (cliend ID, scopes, ...)
 			window.setInitMessage("loading configs");
@@ -187,33 +184,6 @@ export const storeMain = defineStore("main", {
 			//Authenticate user
 			const token = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 			if(token && authenticate) {
-				SpotifyHelper.instance.connect();
-				const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
-				if(cypherKey) {
-					this.cypherKey = cypherKey;
-					ChatCypherPlugin.instance.initialize(cypherKey);
-				}
-				VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
-					//Execute trigger
-					const trigger:TwitchatDataTypes.MessageVoicemodData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
-						platform:"twitchat",
-						voiceID:e.voiceID,
-					}
-					TriggerActionHandler.instance.execute(trigger);
-
-					for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
-						const v = VoicemodWebSocket.instance.voices[i];
-						if(v.id == e.voiceID) {
-							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.id);
-							v.image = img;
-							sVoice.voicemodCurrentVoice = v;
-						}
-					}
-				});
-
 				try {
 					await new Promise((resolve,reject)=> {
 						sAuth.twitch_autenticate(undefined, (success:boolean, betaRefused?:boolean)=>{
@@ -263,318 +233,6 @@ export const storeMain = defineStore("main", {
 				sVoice.voiceText.finalText = (e.data as {text:string}).text;
 			});
 			
-			if(authenticate) {
-				//Only listen for these events if authenticated.
-				//This avoids them from being listened from the overlay or homepage where it's useless
-
-				Database.instance.connect().then(()=> {
-					StoreProxy.chat.preloadMessageHistory();
-				});
-				
-				/**
-				 * Called when a raffle animation (the wheel) completes
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
-					const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
-					StoreProxy.raffle.onRaffleComplete(data.winner);
-				});
-				
-				/**
-				 * Called when doing a shoutout to the latest raider
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
-					const raider = sStream.lastRaider;
-					if(raider) {
-						const me = StoreProxy.auth.twitch.user;
-						sUsers.shoutout(me.id, raider);
-					}else{
-						this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
-					}
-				});
-				
-				/**
-				 * Called when emergency mode is started or stoped
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
-					const enable = (e.data as unknown) as {enabled:boolean};
-					let enabled = enable.enabled;
-					//If no JSON is specified, just toggle the state
-					if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
-					sEmergency.setEmergencyMode(enabled)
-				});
-			
-				/**
-				 * Called when asking to pick a raffle winner
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
-					StoreProxy.raffle.pickWinner();
-				});
-			
-				/**
-				 * Called when asking to toggle message merging
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {
-					StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
-				});
-			
-				/**
-				 * Called when music player is clicked on the unified overlay
-				 */
-				PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
-					const data = e.data as {x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string};
-					//Init trigger data
-					const action:TriggerActionChatData = {
-						id:Utils.getUUID(),
-						text:"",
-						type:'chat',
-					}
-					const trigger:TriggerData = {
-						id:Utils.getUUID(),
-						type:TriggerTypes.TWITCHAT_MESSAGE,
-						enabled:true,
-						actions:[action],
-						cooldown: {
-							user: 0,
-							global: 0,
-							alert:false,
-						}
-					}
-									
-					const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
-					trigger.id = "heat_spotify_overlay";
-					action.text = StoreProxy.chat.botMessages.heatSpotify.message;
-					trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
-					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, data.testMode == true);
-				});
-
-				/**
-				 * Called when switching to another scene
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
-					if(!this.currentOBSScene) {
-						this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
-					}
-					const e = event.data as {sceneName:string};
-					const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
-						id: Utils.getUUID(),
-						date: Date.now(),
-						platform: "twitchat",
-						type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
-						sceneName: e.sceneName,
-						previousSceneName: this.currentOBSScene,
-					};
-					this.currentOBSScene = e.sceneName;
-					TriggerActionHandler.instance.execute(m);
-					rebuildPlaceholdersCache();
-				});
-	
-				/**
-				 * Called when a source visibility is toggled
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (event:TwitchatEvent):void => {
-					const data = (event.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean, sceneName:string}};
-					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
-						sourceName:data.item.sourceName,
-						sourceItemId:data.event.sceneItemId,
-						visible:data.event.sceneItemEnabled,
-					}
-					TriggerActionHandler.instance.execute(m);
-				});
-
-				/**
-				 * Called when a source is muted or unmuted
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_MUTE_TOGGLE, (event:TwitchatEvent):void => {
-					const data = (event.data as unknown) as {inputName:string, inputMuted:boolean};
-					const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
-						inputName:data.inputName,
-						muted:data.inputMuted,
-					}
-					TriggerActionHandler.instance.execute(m);
-				});
-
-				/**
-				 * Called when a filter visibility is toggled
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_TOGGLE, (event:TwitchatEvent):void => {
-					const data = (event.data as unknown) as {sourceName: string, filterName: string, filterEnabled: boolean};
-					const m:TwitchatDataTypes.MessageOBSFilterToggleData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
-						sourceName:data.sourceName,
-						filterName:data.filterName,
-						enabled:data.filterEnabled,
-					}
-					TriggerActionHandler.instance.execute(m);
-				});
-
-				/**
-				 * Called when streaming is started/stoped on OBS
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_STREAM_STATE, (event:TwitchatEvent):void => {
-					const data = (event.data as unknown) as {outputActive: boolean, outputState: string};
-					let m:TwitchatDataTypes.MessageOBSStartStreamData | TwitchatDataTypes.MessageOBSStopStreamData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type: TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM,
-					};
-					if(!data.outputActive){
-						m = {...m,
-							type: TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM,
-						};
-					}
-					TriggerActionHandler.instance.execute(m);
-				});
-
-				/**
-				 * Called when a playback event occurs on a media source
-				 * @param event 
-				 */
-				function onPlayBackStateChanged(event:TwitchatEvent):void {
-					const data = (event.data as unknown) as {inputName:string};
-					const typeToState:Partial<{[key in TwitchatEventType]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
-					typeToState[TwitchatEvent.OBS_PLAYBACK_ENDED]		= "complete";
-					typeToState[TwitchatEvent.OBS_PLAYBACK_STARTED]		= "start";
-					typeToState[TwitchatEvent.OBS_PLAYBACK_PAUSED]		= "pause";
-					typeToState[TwitchatEvent.OBS_PLAYBACK_NEXT]		= "next";
-					typeToState[TwitchatEvent.OBS_PLAYBACK_PREVIOUS]	= "prev";
-					typeToState[TwitchatEvent.OBS_PLAYBACK_RESTARTED]	= "restart";
-					const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
-						inputName:data.inputName,
-						state:typeToState[event.type as TwitchatEventType]!,
-					}
-					TriggerActionHandler.instance.execute(m);
-				}
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
-				
-				/**
-				 * Called when an OBS source is renamed.
-				 * Rename it on all triggers
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, (event:TwitchatEvent):void => {
-					const data = event.data as {oldInputName:string, inputName:string};
-					StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
-				});
-				
-				/**
-				 * Called when an OBS scene is renamed.
-				 * Rename it on all triggers
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, (event:TwitchatEvent):void => {
-					const data = event.data as {oldSceneName:string, sceneName:string};
-					StoreProxy.triggers.renameOBSScene(data.oldSceneName, data.sceneName);
-				});
-
-				/**
-				 * Called when an OBS Filter is renamed.
-				 * Rename it on all triggers
-				 */
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, (event:TwitchatEvent):void => {
-					const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
-					StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
-				});
-
-				/**
-				 * Called when a user clicks on the stream
-				 * Detects for a few twitch overlay being clicked as well as all the custom areas
-				 */
-				HeatSocket.instance.addEventListener(HeatEvent.CLICK, async (event:HeatEvent):Promise<void> => {
-					StoreProxy.heat.handleClickEvent(event);
-				});
-
-				/**
-				 * Handle GoXLR button events (press/release)
-				 */
-				function onGoXLRButton(event:GoXLRSocketEvent):void {
-					const message:TwitchatDataTypes.MessageGoXLRButtonData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						pressed:event.type == GoXLRSocketEvent.BUTTON_PRESSED,
-						button:event.buttonId!,
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
-					}
-					TriggerActionHandler.instance.execute(message);
-				}
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
-				
-				/**
-				 * Handle GoXLR FX state
-				 */
-				function onGoXLRFx(event:GoXLRSocketEvent):void {
-					const message:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						fxIndex:event.fxIndex!,
-						enabled:event.type == GoXLRSocketEvent.FX_ENABLED,
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
-					}
-					TriggerActionHandler.instance.execute(message);
-				}
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
-					const message:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitchat",
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
-						bank:e.bankId!,
-						buttonId:e.samplerButtonId!,
-					}
-					TriggerActionHandler.instance.execute(message);
-				});
-				GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ENCODER, (e:GoXLRSocketEvent)=>{
-					const configs = StoreProxy.params.goxlrConfig.chatScrollSources;
-					const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
-					for (let i = 0; i < configs.length; i++) {
-						const column = configs[i];
-						if(column[0] == indexToButtonId[e.fxIndex!] && column[1] == e.encoderId!) {
-							const id = e.encoderId!;
-							const value = e.encoderValue!;
-							const prevValue = e.prevEncoderValue!;
-							const values = GoXLRSocket.instance.getEncoderPossibleValues(id);
-							const index1 = values.indexOf(prevValue);
-							const index2 = values.indexOf(value);
-							const scroll = index1 - index2;
-							//Scroll chat column
-							PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:scroll });
-							let resetValue = prevValue;
-							if(prevValue == values[0]) resetValue = values[1];
-							if(prevValue == values[values.length-1]) resetValue = values[values.length-12];
-							//Reset encoder value
-							GoXLRSocket.instance.setEncoderValue(id, resetValue);
-						}
-					}
-				});
-
-				if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
-					HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
-				}
-			}
-
 			PublicAPI.instance.initialize();
 			
 			//Init OBS connection
@@ -593,6 +251,360 @@ export const storeMain = defineStore("main", {
 			window.setInitMessage("");
 			
 			callback(null);
+		},
+
+		onAuthenticated():void {
+			//Only listen for these events if authenticated.
+			//This avoids them from being listened from the overlay or homepage where it's useless
+
+			const sUsers = StoreProxy.users;
+			const sStream = StoreProxy.stream;
+			const sEmergency = StoreProxy.emergency;
+			const sVoice = StoreProxy.voice;
+
+			Database.instance.connect().then(()=> {
+				StoreProxy.chat.preloadMessageHistory();
+			});
+			/**
+			 * Connect to Spotify (won't do anything if no credentials are available)
+			 */
+			SpotifyHelper.instance.connect();
+
+			/**
+			 * Init cypher secret feature
+			 */
+			const cypherKey = DataStore.get(DataStore.CYPHER_KEY);
+			if(cypherKey) {
+				this.cypherKey = cypherKey;
+				ChatCypherPlugin.instance.initialize(cypherKey);
+			}
+
+			/**
+			 * Init voicemod voice change event handler
+			 */
+			VoicemodWebSocket.instance.addEventListener(VoicemodEvent.VOICE_CHANGE, async (e:VoicemodEvent)=> {
+				//Execute trigger
+				const trigger:TwitchatDataTypes.MessageVoicemodData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
+					platform:"twitchat",
+					voiceID:e.voiceID,
+				}
+				TriggerActionHandler.instance.execute(trigger);
+
+				for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
+					const v = VoicemodWebSocket.instance.voices[i];
+					if(v.id == e.voiceID) {
+						const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.id);
+						v.image = img;
+						sVoice.voicemodCurrentVoice = v;
+					}
+				}
+			});
+			
+			/**
+			 * Called when a raffle animation (the wheel) completes
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_RESULT, (e:TwitchatEvent)=> {
+				const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
+				StoreProxy.raffle.onRaffleComplete(data.winner);
+			});
+			
+			/**
+			 * Called when doing a shoutout to the latest raider
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.SHOUTOUT, (e:TwitchatEvent)=> {
+				const raider = sStream.lastRaider;
+				if(raider) {
+					const me = StoreProxy.auth.twitch.user;
+					sUsers.shoutout(me.id, raider);
+				}else{
+					this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
+				}
+			});
+			
+			/**
+			 * Called when emergency mode is started or stoped
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_EMERGENCY_MODE, (e:TwitchatEvent)=> {
+				const enable = (e.data as unknown) as {enabled:boolean};
+				let enabled = enable.enabled;
+				//If no JSON is specified, just toggle the state
+				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
+				sEmergency.setEmergencyMode(enabled)
+			});
+		
+			/**
+			 * Called when asking to pick a raffle winner
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
+				StoreProxy.raffle.pickWinner();
+			});
+		
+			/**
+			 * Called when asking to toggle message merging
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {
+				StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
+			});
+		
+			/**
+			 * Called when music player is clicked on the unified overlay
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
+				const data = e.data as {x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string};
+				//Init trigger data
+				const action:TriggerActionChatData = {
+					id:Utils.getUUID(),
+					text:"",
+					type:'chat',
+				}
+				const trigger:TriggerData = {
+					id:Utils.getUUID(),
+					type:TriggerTypes.TWITCHAT_MESSAGE,
+					enabled:true,
+					actions:[action],
+					cooldown: {
+						user: 0,
+						global: 0,
+						alert:false,
+					}
+				}
+								
+				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+				trigger.id = "heat_spotify_overlay";
+				action.text = StoreProxy.chat.botMessages.heatSpotify.message;
+				trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
+				TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, data.testMode == true);
+			});
+
+			/**
+			 * Called when switching to another scene
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
+				if(!this.currentOBSScene) {
+					this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+				}
+				const e = event.data as {sceneName:string};
+				const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
+					sceneName: e.sceneName,
+					previousSceneName: this.currentOBSScene,
+				};
+				this.currentOBSScene = e.sceneName;
+				TriggerActionHandler.instance.execute(m);
+				rebuildPlaceholdersCache();
+			});
+
+			/**
+			 * Called when a source visibility is toggled
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SOURCE_TOGGLE, (event:TwitchatEvent):void => {
+				const data = (event.data as unknown) as {item:OBSSourceItem, event:{sceneItemId:number, sceneItemEnabled:boolean, sceneName:string}};
+				const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE,
+					sourceName:data.item.sourceName,
+					sourceItemId:data.event.sceneItemId,
+					visible:data.event.sceneItemEnabled,
+				}
+				TriggerActionHandler.instance.execute(m);
+			});
+
+			/**
+			 * Called when a source is muted or unmuted
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_MUTE_TOGGLE, (event:TwitchatEvent):void => {
+				const data = (event.data as unknown) as {inputName:string, inputMuted:boolean};
+				const m:TwitchatDataTypes.MessageOBSInputMuteToggleData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
+					inputName:data.inputName,
+					muted:data.inputMuted,
+				}
+				TriggerActionHandler.instance.execute(m);
+			});
+
+			/**
+			 * Called when a filter visibility is toggled
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_TOGGLE, (event:TwitchatEvent):void => {
+				const data = (event.data as unknown) as {sourceName: string, filterName: string, filterEnabled: boolean};
+				const m:TwitchatDataTypes.MessageOBSFilterToggleData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.OBS_FILTER_TOGGLE,
+					sourceName:data.sourceName,
+					filterName:data.filterName,
+					enabled:data.filterEnabled,
+				}
+				TriggerActionHandler.instance.execute(m);
+			});
+
+			/**
+			 * Called when streaming is started/stoped on OBS
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_STREAM_STATE, (event:TwitchatEvent):void => {
+				const data = (event.data as unknown) as {outputActive: boolean, outputState: string};
+				let m:TwitchatDataTypes.MessageOBSStartStreamData | TwitchatDataTypes.MessageOBSStopStreamData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM,
+				};
+				if(!data.outputActive){
+					m = {...m,
+						type: TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM,
+					};
+				}
+				TriggerActionHandler.instance.execute(m);
+			});
+
+			/**
+			 * Called when a playback event occurs on a media source
+			 * @param event 
+			 */
+			function onPlayBackStateChanged(event:TwitchatEvent):void {
+				const data = (event.data as unknown) as {inputName:string};
+				const typeToState:Partial<{[key in TwitchatEventType]:TwitchatDataTypes.MessageOBSPlaybackStateValue}> = {};
+				typeToState[TwitchatEvent.OBS_PLAYBACK_ENDED]		= "complete";
+				typeToState[TwitchatEvent.OBS_PLAYBACK_STARTED]		= "start";
+				typeToState[TwitchatEvent.OBS_PLAYBACK_PAUSED]		= "pause";
+				typeToState[TwitchatEvent.OBS_PLAYBACK_NEXT]		= "next";
+				typeToState[TwitchatEvent.OBS_PLAYBACK_PREVIOUS]	= "prev";
+				typeToState[TwitchatEvent.OBS_PLAYBACK_RESTARTED]	= "restart";
+				const m:TwitchatDataTypes.MessageOBSPlaybackStateUpdateData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
+					inputName:data.inputName,
+					state:typeToState[event.type as TwitchatEventType]!,
+				}
+				TriggerActionHandler.instance.execute(m);
+			}
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
+			
+			/**
+			 * Called when an OBS source is renamed.
+			 * Rename it on all triggers
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, (event:TwitchatEvent):void => {
+				const data = event.data as {oldInputName:string, inputName:string};
+				StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
+			});
+			
+			/**
+			 * Called when an OBS scene is renamed.
+			 * Rename it on all triggers
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, (event:TwitchatEvent):void => {
+				const data = event.data as {oldSceneName:string, sceneName:string};
+				StoreProxy.triggers.renameOBSScene(data.oldSceneName, data.sceneName);
+			});
+
+			/**
+			 * Called when an OBS Filter is renamed.
+			 * Rename it on all triggers
+			 */
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, (event:TwitchatEvent):void => {
+				const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
+				StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
+			});
+
+			/**
+			 * Called when a user clicks on the stream
+			 * Detects for a few twitch overlay being clicked as well as all the custom areas
+			 */
+			HeatSocket.instance.addEventListener(HeatEvent.CLICK, async (event:HeatEvent):Promise<void> => {
+				StoreProxy.heat.handleClickEvent(event);
+			});
+
+			/**
+			 * Handle GoXLR button events (press/release)
+			 */
+			function onGoXLRButton(event:GoXLRSocketEvent):void {
+				const message:TwitchatDataTypes.MessageGoXLRButtonData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					pressed:event.type == GoXLRSocketEvent.BUTTON_PRESSED,
+					button:event.buttonId!,
+					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+				}
+				TriggerActionHandler.instance.execute(message);
+			}
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
+			
+			/**
+			 * Handle GoXLR FX state
+			 */
+			function onGoXLRFx(event:GoXLRSocketEvent):void {
+				const message:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					fxIndex:event.fxIndex!,
+					enabled:event.type == GoXLRSocketEvent.FX_ENABLED,
+					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+				}
+				TriggerActionHandler.instance.execute(message);
+			}
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
+				const message:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
+					bank:e.bankId!,
+					buttonId:e.samplerButtonId!,
+				}
+				TriggerActionHandler.instance.execute(message);
+			});
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ENCODER, (e:GoXLRSocketEvent)=>{
+				const configs = StoreProxy.params.goxlrConfig.chatScrollSources;
+				const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
+				for (let i = 0; i < configs.length; i++) {
+					const column = configs[i];
+					if(column[0] == indexToButtonId[e.fxIndex!] && column[1] == e.encoderId!) {
+						const id = e.encoderId!;
+						const value = e.encoderValue!;
+						const prevValue = e.prevEncoderValue!;
+						const values = GoXLRSocket.instance.getEncoderPossibleValues(id);
+						const index1 = values.indexOf(prevValue);
+						const index2 = values.indexOf(value);
+						const scroll = index1 - index2;
+						//Scroll chat column
+						PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:scroll });
+						let resetValue = prevValue;
+						if(prevValue == values[0]) resetValue = values[1];
+						if(prevValue == values[values.length-1]) resetValue = values[values.length-12];
+						//Reset encoder value
+						GoXLRSocket.instance.setEncoderValue(id, resetValue);
+					}
+				}
+			});
+
+			if(DataStore.get(DataStore.HEAT_ENABLED) === "true" && StoreProxy.auth.twitch.user) {
+				HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
+			}
 		},
 		
 		loadDataFromStorage() {

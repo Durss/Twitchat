@@ -183,13 +183,6 @@ export const storeUsers = defineStore('users', {
 						is_tracked:false,
 						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
-						donor:{
-							state:false,
-							level:0,
-							noAd:false,
-							upgrade:false,
-							earlyDonor:false,
-						},
 						channelInfo:{},
 					};
 					user = reactive(userData);
@@ -213,13 +206,6 @@ export const storeUsers = defineStore('users', {
 						is_tracked:false,
 						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
-						donor:{
-							state:false,
-							level:0,
-							noAd:false,
-							upgrade:false,
-							earlyDonor:false,
-						},
 						channelInfo:{},
 					};
 					

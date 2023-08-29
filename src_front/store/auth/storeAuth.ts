@@ -82,7 +82,7 @@ export const storeAuth = defineStore('auth', {
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {
-			window.setInitMessage("Twitch authentication");
+			window.setInitMessage("twitch authentication");
 
 			try {
 	
@@ -144,13 +144,11 @@ export const storeAuth = defineStore('auth', {
 
 				// Load the current user data
 				window.setInitMessage("loading Twitch user info");
-				await new Promise((resolve)=> {
-					//Makes sure the pronoun param is properly set up so our pronouns
-					//are loaded if requested					
-					// sMain.loadDataFromStorage();
-					const uid = (userRes as TwitchDataTypes.Token).user_id;
-					this.twitch.user = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
-				})
+				//Makes sure the pronoun param is properly set up so our pronouns
+				//are loaded if requested					
+				// sMain.loadDataFromStorage();
+				const uid = (userRes as TwitchDataTypes.Token).user_id;
+				await this.loadUserState(uid);
 				if(this.twitch.user.errored === true){
 					if(cb) cb(false);
 					else router.push({name:"login"});
@@ -159,23 +157,24 @@ export const storeAuth = defineStore('auth', {
 
 				this.authenticated = true;
 
+				StoreProxy.main.onAuthenticated();
+
 				//Check if user is part of the donors nor an admin
-				try {
-					window.setInitMessage("loading Twitchat user info");
-					await this.loadUserState();
-				}catch(error) {}
+				// try {
+				// 	window.setInitMessage("loading Twitchat user info");
+				// }catch(error) {}
 	
 				const sMain = StoreProxy.main;
 				const sChat = StoreProxy.chat;
 				const sRewards = StoreProxy.rewards;
 				
 				try {
-					window.setInitMessage("migrate local user data");
+					window.setInitMessage("migrating local parameter data");
 					await DataStore.migrateLocalStorage();
 
 					//If asked to sync data with server, load them
 					if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
-						window.setInitMessage("download remote user data");
+						window.setInitMessage("downloading your parameters");
 						if(!await DataStore.loadRemoteData()) {
 							//Force data sync popup to show up if remote
 							//data have been deleted
@@ -289,12 +288,23 @@ export const storeAuth = defineStore('auth', {
 			this.newScopesToRequest = scopes;
 		},
 
-		async loadUserState():Promise<void> {
+		async loadUserState(uid:string):Promise<void> {
+			const user = await new Promise<TwitchatDataTypes.TwitchatUser>(async (resolve)=> {
+				await StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
+			});
+			user.donor = {
+				earlyDonor:false,
+				level:-1,
+				noAd:false,
+				state:false,
+				upgrade:false,
+			}
 			const res = await ApiController.call("user");
 
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
 			
+			this.twitch.user					= user as Required<TwitchatDataTypes.TwitchatUser>;
 			this.twitch.user.donor.state		= res.json.data.isDonor === true;
 			this.twitch.user.donor.level		= res.json.data.level;
 			this.twitch.user.donor.upgrade		= res.json.data.level != prevLevel;

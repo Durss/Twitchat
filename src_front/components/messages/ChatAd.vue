@@ -75,7 +75,7 @@
 						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
 					<Button icon="premium" premium
 						@click="openParamPage(contentDonate)">{{ $t('premium.become_premiumBt') }}</Button>
-					<Button icon="follow"
+					<Button icon="follow" secondary
 						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
 			</div>

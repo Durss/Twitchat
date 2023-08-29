@@ -257,9 +257,9 @@
 				"A message sharing a link to Twitchat will be sent every 2 hours on your chat <strong>with your account</strong>.",
 				"<br>",
 				"You can send this message with a bot account.",
-				"You can customize the message on the Parameters menu.",
+				"You can customize the message.",
 				"<br>",
-				"Donate any amount to disable it."
+				"Donate any amount to disable it or become Premium to also unlock more Twitchat features."
 			],
 			"unacceptableBt": "😡😡😡 THAT'S UNACCEPTABLE 😡😡😡",
 			"customizeBt": "Customize message",

@@ -143,6 +143,10 @@ export interface IMainActions {
 	 */
 	startApp(authenticate:boolean, callback:(value:unknown)=>void):Promise<void>;
 	/**
+	 * Called when user is authenticated
+	 */
+	onAuthenticated():void
+	/**
 	 * Loads data from local storage
 	 */
 	loadDataFromStorage():void;
@@ -222,6 +226,7 @@ export interface IAccountActions {
 
 
 
+type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>
 
 export type IAuthState = {
 	/**
@@ -244,7 +249,7 @@ export type IAuthState = {
 		access_token:string;
 		expires_in:number;
 		scopes:string[];
-		user:TwitchatDataTypes.TwitchatUser;
+		user:RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
 	};
 }
 
@@ -275,9 +280,9 @@ export interface IAuthActions {
 	 */
 	requestTwitchScopes(scopes:TwitchScopesString[]):void;
 	/**
-	 * Loads the currently authenticated user donor state
+	 * Loads the specified user ID profile and donor state
 	 */
-	loadUserState():Promise<void>;
+	loadUserState(uid:string):Promise<void>;
 }
 
 

@@ -254,7 +254,7 @@ export default class TriggerActionCustomBadge extends AbstractTriggerActionEntry
 				}
 
 				.badge {
-					cursor: no-drop;
+					cursor: not-allowed;
 				}
 			}
 		}
