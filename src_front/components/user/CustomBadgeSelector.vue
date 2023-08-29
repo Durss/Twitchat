@@ -17,7 +17,7 @@
 					<Button light secondary small icon="edit" class="editBt"
 					@click="$emit('manageBadges')">{{ $t("usercard.manage_badgesBt") }}</Button>
 
-					<button class="badge" v-for="badge in $store('users').customBadgeList" :key="badge.id" @click="addBadge(badge.id)">
+					<button :class="getBadgeClasses(badge)" v-for="badge in $store('users').customBadgeList" :key="badge.id" @click="addBadge(badge.id)">
 						<img :src="badge.img">
 					</button>
 				</div>
@@ -71,6 +71,12 @@ export default class CustomBadgeSelector extends Vue {
 		});
 	}
 
+	public getBadgeClasses(badge:TwitchatDataTypes.TwitchatCustomUserBadge):string[] {
+		const res:string[] = ["badge"];
+		if(!this.$store("auth").isPremium && badge.enabled === false) res.push("disabled");
+		return res;
+	}
+
 	public addBadge(id:string):void {
 		if(!this.$store("users").giveCustomBadge(this.user!, id as string, this.channelId)) {
 			this.$emit("limitReached");
@@ -114,7 +120,7 @@ export default class CustomBadgeSelector extends Vue {
 		justify-content: center;
 		max-height: 300px;
 		overflow: auto;
-		button:not(.editBt) {
+		.badge {
 			padding: 2px;
 			// background-color: var(--grayout);
 			outline: 1px solid var(--color-light-fade);
@@ -126,6 +132,12 @@ export default class CustomBadgeSelector extends Vue {
 
 			&:hover {
 				outline: 1px solid var(--color-light);
+			}
+
+			&.disabled {
+				cursor: not-allowed;
+				opacity: .35;
+				outline: 1px dashed var(--color-light);
 			}
 		}
 		.editBt {

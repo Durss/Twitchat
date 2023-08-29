@@ -19,22 +19,20 @@
 				</Button>
 
 				<button :class="getBadgeClasses(badge.id)" v-for="badge in badgesList" :key="badge.id"
-				@click="selectBadge(badge.id)">
-					<img :src="badge.img">
-				</button>
+				@click="selectBadge(badge.id)"><img :src="badge.img"></button>
 			</div>
 
 			<template v-if="selectedBadgeId">
 				
-				<div v-if="!$store('auth').isPremium && selectedBadge?.enabled === false">
+				<div class="card-item secondary disabledInfo" v-if="!$store('auth').isPremium && selectedBadge?.enabled === false">
 					<div>{{ $t("usercard.badge_disabled") }}</div>
 					<i18n-t scope="global" keypath="usercard.badge_diusabled_notPremium" v-if="!canEnableABadge">
 						<template #MAX>{{ $config.MAX_CUSTOM_BADGES }}</template>
 						<template #MAX_PREMIUM>{{ $config.MAX_CUSTOM_BADGES_PREMIUM }}</template>
 					</i18n-t>
-					<div v-else>
-						{{ $t("global.enable") }}
-						<ToggleButton v-model="selectedBadge.enabled" />
+					<div v-else class="enableToggle">
+						<label for="reactivate_badge" @click="selectedBadge.enabled = !selectedBadge.enabled; saveBadges()">{{ $t("usercard.badge_users_reactivate") }}</label>
+						<ToggleButton secondary id="reactivate_badge" v-model="selectedBadge.enabled" @change="saveBadges()" />
 					</div>
 				</div>
 				
@@ -91,8 +89,9 @@ export default class CustomBadgesManager extends Vue {
 	 */
 	public getBadgeClasses(badgeId:string):string[] {
 		const res = ["badge"];
+		const badge = this.$store('users').customBadgeList.find(v=>v.id == badgeId);
 		if(this.selectedBadgeId == badgeId) res.push("selected");
-		if(this.selectedBadge?.enabled === false && !this.$store('auth').isPremium) res.push("disabled");
+		if(badge && badge.enabled === false && !this.$store('auth').isPremium) res.push("disabled");
 		return res;
 	}
 
@@ -205,6 +204,14 @@ export default class CustomBadgesManager extends Vue {
 		this.$store("users").updateCustomBadgeName(badge.id, this.badgeName);
 	}
 
+	/**
+	 * Saves custom user badges
+	 */
+	public saveBadges():void {
+		console.log("save");
+		this.$store("users").saveCustomBadges();
+	}
+
 }
 </script>
 
@@ -250,7 +257,7 @@ export default class CustomBadgesManager extends Vue {
 		.badge {
 			width: 32px;
 			height: 32px;
-			opacity: .5;
+			opacity: .75;
 			// outline: 1px solid var(--color-text);
 			background-color: var(--color-text);
 			box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, .5);
@@ -271,9 +278,7 @@ export default class CustomBadgesManager extends Vue {
 
 			&.disabled {
 				outline: 1px dashed var(--color-text);
-				img {
-					opacity: .5;
-				}
+				opacity: .35;
 			}
 		}
 	
@@ -303,6 +308,20 @@ export default class CustomBadgesManager extends Vue {
 				&::file-selector-button {
 					cursor: pointer;
 				}
+			}
+		}
+	}
+
+	.disabledInfo {
+		text-align: center;
+		.enableToggle {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			justify-content: center;
+			margin-top: .5em;
+			label {
+				cursor: pointer;
 			}
 		}
 	}
