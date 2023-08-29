@@ -314,6 +314,9 @@ function buildApp() {
 	.directive('newflag', {
 		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string, duration?:number}>, vnode:VNode<any, any, { [key: string]: any; }>) {
 			if(binding && binding.value) {
+				//date : contains the date at which something has been flagged as new
+				//id : id of the item flaged as new
+				//duration : duration during which the item should be flaged as new (1 month by default)
 				const {date, id} = binding.value;
 				const maxDuration = binding.value.duration || 30 * 24 * 60 * 60000;
 				//Flag as new only for 1 month

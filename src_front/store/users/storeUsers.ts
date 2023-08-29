@@ -156,10 +156,8 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Cleanup any "@" here so we don't have to do that for every commands
-			if(login)		login = login.replace("@", "").toLowerCase().trim();
-			if(displayName)	displayName = displayName.replace("@", "").trim();
-			if(login == this.tmpDisplayName) login = "";
-			if(displayName == this.tmpDisplayName) displayName = "";
+			if(login && login != this.tmpDisplayName)				login = login.replace("@", "").toLowerCase().trim();
+			if(displayName && displayName != this.tmpDisplayName)	displayName = displayName.replace("@", "").trim();
 			
 			//Search user on hashmaps
 			if(id && hashmaps.idToUser[id])									user = hashmaps.idToUser[id];
@@ -658,8 +656,6 @@ export const storeUsers = defineStore('users', {
 
 		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string) {
 			if(user) {
-				console.log("DO OPEN");
-				console.log(JSON.parse(JSON.stringify(user)));
 				this.userCard = {user, channelId};
 			}else{
 				this.userCard = null;

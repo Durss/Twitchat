@@ -5,7 +5,7 @@
 			<CloseButton @click="close()" />
 			
 			<div class="head">
-				<Icon name="firstTime" class="icon" />
+				<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
 				<span class="title">{{$t("changelog.major_title")}}</span>
 				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 			</div>
@@ -32,7 +32,7 @@
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
 						<div class="inner" v-if="item.i != 'donate'">
-							<Icon v-if="item.i" :name="item.i" class="icon" />
+							<Icon v-if="item.i" :name="item.i" class="icon" :theme="item.i === 'premium'? 'light' : undefined" />
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
 							<img v-if="item.g" class="demo" :src="item.g" lazy>
@@ -49,7 +49,7 @@
 							
 							<template v-if="item.i=='premium'">
 								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
-								<Button icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
+								<Button secondary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
 							</template>
 						</div>
@@ -190,6 +190,7 @@ export default class Changelog extends Vue {
 	 */
 	public onSlideEnd(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number}):void {
 		this.slideCountRead.set(data.currentSlideIndex, true);
+		this.showPremiumFeatures = false;
 	}
 
 	/**
@@ -216,7 +217,13 @@ export default class Changelog extends Vue {
 
 	&.premium {
 		.holder {
+			color: var(--color-light);
 			background-color: var(--color-premium-dark);
+			
+			*::-webkit-scrollbar-thumb {
+				background: transparent;
+				background-color: var(--color-premium-light);
+			}
 		}
 	}
 	
@@ -225,6 +232,8 @@ export default class Changelog extends Vue {
 		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
 		transition: background-color .2s, color .2s;
+		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
+		max-height: calc(var(--vh) - var(--chat-form-height));
 
 		.head {
 			display: flex;
@@ -306,7 +315,8 @@ export default class Changelog extends Vue {
 				}
 
 				.premiumTable {
-					background-color: var(--background-color-secondary);
+					color: var(--color-text);
+					background-color: var(--grayout);
 				}
 			}
 		}

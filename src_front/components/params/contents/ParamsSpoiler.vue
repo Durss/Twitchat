@@ -11,7 +11,7 @@
 			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
-		<ParamItem :paramData="param_autospoil" @change="save()" v-newflag="{date:1690765812999, id:'params_spoiler1stchatters'}" />
+		<ParamItem :paramData="param_autospoil" @change="save()" v-newflag="{date:1693519200000, id:'params_spoiler1stchatters'}" />
 
 		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 

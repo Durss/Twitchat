@@ -18,7 +18,8 @@
 				<ButtonNotification class="clearBt clearButton"
 					icon="date"
 					v-tooltip="$t('greet.resetBt')"
-					@click.stop="resetHistory()" />
+					@click.stop="resetHistory()"
+					v-newflag="{date:1693519200000, id:'greetThem_clear'}" />
 			</div>
 	
 			<div class="topForm" v-if="showList">

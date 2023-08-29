@@ -26,7 +26,7 @@
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
 				["Support Spotify", 1, 1, 1],
-				["Support Steam Deck", 1, 1, 1],
+				["Plugin Stream Deck", 1, 1, 1],
 				["Support Voicemod", 1, 1, 1],
 				["Support OBS", 1, 1, 1],
 				["Support Heat", 1, 1, 1],

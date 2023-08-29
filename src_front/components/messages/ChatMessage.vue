@@ -954,8 +954,8 @@ export default class ChatMessage extends AbstractChatMessage {
 				color: var(--color-secondary);
 				position: absolute;
 				font-size: 1em;
-				bottom: -.75em;
-				left: -.75em;
+				bottom: -.8em;
+				left: -.6em;
 			}
 			&:hover {
 				outline: 1px solid var(--color-text-fade);

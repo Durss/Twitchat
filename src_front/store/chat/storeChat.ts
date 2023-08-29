@@ -666,7 +666,7 @@ export const storeChat = defineStore('chat', {
 				m.message_html = TwitchUtils.messageChunksToHTML(chunks)
 				m.message_size = TwitchUtils.computeMessageSize(chunks);
 				m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
-				m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
+				m.user.avatarPath = StoreProxy.image("icons/twitchat.svg");
 				m.user.color = "#bb8eff";
 			});
 		},

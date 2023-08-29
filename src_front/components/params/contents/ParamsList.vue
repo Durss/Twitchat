@@ -187,6 +187,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramslist{
+	padding-top: .25em;
 	.row {
 		position: relative;
 		@iconSize: 1.25em;

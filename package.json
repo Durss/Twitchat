@@ -6,7 +6,7 @@
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run front/build && npm run server/build",
 		"front/serve": "vite --host",
-		"front/build": "vue-tsc --noEmit && vite build",
+		"front/build": "SET NODE_OPTIONS=--max_old_space_size=8048 vue-tsc --noEmit && vite build",
 		"server/watch": "tsc -w -p ./tsconfig_server.json",
 		"server/build": "tsc -p ./tsconfig_server.json",
 		"server/start": "pm2 start bootstrap-pm2.json",
