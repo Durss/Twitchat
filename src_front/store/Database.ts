@@ -124,16 +124,34 @@ export default class Database {
 
 		return new Promise((resolve, reject)=> {
 
-			const clone = this.removeCircularReferences(message);
+			const {data, json} = this.removeCircularReferences(message);
+
+			//Dirty way to check if a user is pending for login or display name
+			//to be loaded. Wait an arbitrary duration to give it some time to
+			//load and update the message on the database.
+			//Far from ideal and clean solution i know...
+			//This "fixes" issues when receiving a user event but this user's
+			//profile have not been loaded/filled yet. The message is directly
+			//saved on the DB but as the user info are not yet loaded we end up
+			//with "...loading..." as usernames stored on DB. which show up after
+			//These temporary usernames then show up on the history after
+			//reloading twitchat.
+			if(json.indexOf(StoreProxy.users.tmpDisplayName) > -1) {
+				setTimeout(() => {
+					this.updateMessage(message);
+				}, 10000);
+			}
 	
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readwrite")
 			.objectStore(Database.MESSAGES_TABLE)
-			.add(clone)
+			.add(data)
 			query.addEventListener("success", event => {
 				clearTimeout(this._cleanTimeout);
-				if((event.target as IDBRequest).result > this._maxRecords) {
-					this.limitMessageCount();
-				}
+				this._cleanTimeout = setTimeout(() => {
+					if((event.target as IDBRequest).result > this._maxRecords) {
+						this.limitMessageCount();
+					}
+				}, 1000);
 				resolve();
 			});
 			query.addEventListener("error", event => {
@@ -168,8 +186,8 @@ export default class Database {
 			.addEventListener("success", event => {
 				const pointer = (event.target as IDBRequest).result;
 				if(pointer) {
-					const clone = this.removeCircularReferences(message);
-					pointer.update(clone).addEventListener("success", ()=>{
+					const {data} = this.removeCircularReferences(message);
+					pointer.update(data).addEventListener("success", ()=>{
 						resolve();
 					});
 				}else{
@@ -254,13 +272,14 @@ export default class Database {
 	 * Remove some props known for being potential source of circular references
 	 * @param value 
 	 */
-	private removeCircularReferences<T>(value:T):T {
-		const clone = JSON.parse(JSON.stringify(value, (key, value)=>{
+	private removeCircularReferences<T>(value:T):{data:T, json:string} {
+		const json = JSON.stringify(value, (key, value)=>{
 			if(key == "answers") return [];
 			if(key == "answersTo") return undefined;
 			return value;
-		}));
+		})
+		const clone = JSON.parse(json);
 
-		return clone;
+		return {data:clone, json};
 	}
 }
