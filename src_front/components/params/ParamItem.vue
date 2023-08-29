@@ -278,12 +278,11 @@ export default class ParamItem extends Vue {
 	public autofocusLocal:boolean = false
 
 	private file:unknown = {};
-	private carretIndex:number = 0;
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
 	public get longText():boolean {
-		return this.paramData.longText === true || this.textValue.length > 30;
+		return this.paramData?.longText === true || this.textValue?.length > 30;
 	}
 
 	public get classes():string[] {
