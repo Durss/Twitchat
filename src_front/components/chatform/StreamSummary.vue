@@ -143,8 +143,8 @@ export default class StreamSummary extends AbstractSidePanel {
 			this.durationInterval = setInterval(()=> {
 				this.streamDuration = Utils.formatDuration(Date.now() - dateOffset!);
 			})
-		}else{
-			dateOffset = new Date("08/01/2023").getTime();//TODO comment
+		// }else{
+		// 	dateOffset = new Date("08/01/2023").getTime();//TODO comment
 		}
 
 		const userActivities:{[key:string]:UserActivities} = {};
