@@ -874,4 +874,23 @@ export default class Utils {
 		colorStr = "#"+colorStr;
 		return colorStr;
 	}
+
+	/**
+	 * Starts a download session of a file
+	 * @param data 
+	 * @param filename 
+	 * @param mimeType 
+	 */
+	public static downloadFile(filename:string, data?:string, rawData?:string, mimeType:string = "application/json"):void {
+		let url = rawData || "";
+		if(data) {
+			const blob = new Blob([data], { type: mimeType });
+			url = window.URL.createObjectURL(blob);
+		}
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
+		link.click();
+		URL.revokeObjectURL(url);
+	}
 }

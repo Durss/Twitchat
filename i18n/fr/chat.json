@@ -330,7 +330,8 @@
 			"unban_myRoom": "Débannir de chez moi",
 			"block": "Bloquer",
 			"unblock": "Débloquer",
-			"to": "Ban temporaire"
+			"to": "Ban temporaire",
+			"export":"Exporter données + screen"
 		},
 		"custom_badge": {
 			"label": {

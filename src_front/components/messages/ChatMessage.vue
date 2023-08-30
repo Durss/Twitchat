@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes"
-	@contextmenu="onContextMenu($event, messageData)"
+	@contextmenu="onContextMenu($event, messageData, $el)"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
 		<div v-if="automodReasons" class="automod">
@@ -84,11 +84,6 @@
 					@click.stop.prevent="openUserCard(recipient!)">{{recipient.displayName}}</a>
 			</template>
 			
-			<!-- <i18n-t scope="global" class="sharedBan" tag="span"
-			v-if="userBannedOnChannels" keypath="chat.message.banned_in">
-				<template #CHANNELS>{{userBannedOnChannels}}</template>
-			</i18n-t> -->
-			
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
 					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
@@ -100,7 +95,7 @@
 			v-if="messageData.type == 'message' && children"
 			v-for="m in children"
 			:id="'message_' + m.id + '_' + colIndex"
-			@contextmenu.capture="onContextMenu($event, m)">
+			@contextmenu.capture="onContextMenu($event, m, $el)">
 				<span class="text">
 					<ChatMessageChunksParser :chunks="m.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
@@ -144,7 +139,6 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import ContextMenuHelper from '@/utils/ContextMenuHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -154,11 +148,12 @@ import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import CustomUserBadges from '../user/CustomUserBadges.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import CustomUserBadges from '../user/CustomUserBadges.vue';
+
 
 @Component({
 	components:{
@@ -177,15 +172,15 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	@Prop({type:Boolean, default:false})
 	declare lightMode:boolean;
+	
+	@Prop({type:Boolean, default:false})
+	declare contextMenuOff:boolean;
 
 	@Prop({type:Boolean, default:false})
 	public disableConversation!:boolean;
 
 	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
-	
-	@Prop({type:Boolean, default:false})
-	public contextMenuOff!:boolean;
 
 	@Prop({type:Boolean, default:false})
 	public noMerge!:boolean;
@@ -211,8 +206,6 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
-	private canModerateMessage:boolean = false;
-	private canModerateUser_local:boolean = false;
 	
 	
 	public get showNofollow():boolean{
@@ -368,6 +361,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	public beforeMount() {
+		super.beforeMount()
 		// console.log("Create message");
 		this.channelInfo	= this.messageData.user.channelInfo[this.messageData.channel_id];
 		this.badges			= JSON.parse(JSON.stringify(this.channelInfo.badges));//Make a copy of it so they stay this way
@@ -411,13 +405,10 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 		}
 
-		this.canModerateUser_local = super.canModerateUser(this.messageData.user, this.messageData.channel_id);
-	
 		//Define message badges (these are different from user badges!)
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
 			this.showModToolsPreCalc = false;
-			this.canModerateMessage = false;
 			
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.isAd = this.messageData.is_ad === true;
@@ -441,11 +432,6 @@ export default class ChatMessage extends AbstractChatMessage {
 				this.hypeChat = mess.twitch_hypeChat;
 			}
 			
-			this.canModerateMessage = this.canModerateUser_local
-									&& this.messageData.twitch_announcementColor == undefined//If it's not announcement (they're not deletable)
-									//If message is not older than 6h after. Passed this we cannot delete a message
-									&& Date.now() - this.messageData.date < 6 * 60 * 60000;
-
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canModerateMessage//if not sent by broadcaster
@@ -663,23 +649,6 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public openAdParams():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.AD)
-	}
-
-	/**
-	 * Open the context menu on right click on desktop or long press on mobile
-	 * 
-	 * @param e 
-	 */
-	public onContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
-		if(this.contextMenuOff !== false) return;
-		if(e.target) {
-			const el = e.target as HTMLElement;
-			if(el.tagName == "A" && el.dataset.login === undefined) return;
-		}
-		if(window.getSelection()?.isCollapsed == false) return;
-		const canModerate = this.canModerateMessage && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
-		ContextMenuHelper.instance.messageContextMenu(e, message, canModerate, this.canModerateUser_local);
-		e.stopPropagation();
 	}
 
 	/**

@@ -1,6 +1,7 @@
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ContextMenuHelper from '@/utils/ContextMenuHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
@@ -17,9 +18,14 @@ export default class AbstractChatMessage extends Vue {
 	
 	@Prop({type:Boolean, default:false})
 	public lightMode!:boolean;
+	
+	@Prop({type:Boolean, default:false})
+	public contextMenuOff!:boolean;
 
 	public time:string = "";
 
+	protected canModerateMessage:boolean = false;
+	protected canModerateUser_local:boolean = false;
 	private refreshTimeout:number = -1;
 	private clickHandler!:(e:MouseEvent)=>void;
 
@@ -39,6 +45,21 @@ export default class AbstractChatMessage extends Vue {
 	}
 
 	public beforeMount() {
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			this.canModerateUser_local = this.canModerateUser(this.messageData.user, this.messageData.channel_id);
+		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT) {
+			this.canModerateUser_local = this.canModerateUser(this.messageData.message.user, this.messageData.message.channel_id);
+		}
+		
+		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| this.messageData.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT) {
+			this.canModerateMessage = this.canModerateUser_local
+									&& (!("twitch_announcementColor" in this.messageData) || this.messageData.twitch_announcementColor == undefined)//If it's not announcement (they're not deletable)
+									//If message is not older than 6h after. Passed this we cannot delete a message
+									&& Date.now() - this.messageData.date < 6 * 60 * 60000;
+		}
+
 		this.refreshDate();
 		//Watch for "relative" param update to refresh time accordingly
 		watch(()=>this.$store("params").appearance.displayTimeRelative.value, ()=> {
@@ -206,6 +227,24 @@ export default class AbstractChatMessage extends Vue {
 			PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
 		})
+	}
+
+	/**
+	 * Open the context menu on right click on desktop or long press on mobile
+	 * 
+	 * @param e 
+	 */
+	public onContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, htmlNode:HTMLElement):void {
+		console.log(htmlNode);
+		if(this.contextMenuOff !== false) return;
+		if(e.target) {
+			const el = e.target as HTMLElement;
+			if(el.tagName == "A" && el.dataset.login === undefined) return;
+		}
+		if(window.getSelection()?.isCollapsed == false) return;
+		const canModerate = this.canModerateMessage && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
+		ContextMenuHelper.instance.messageContextMenu(e, message, canModerate, this.canModerateUser_local, htmlNode);
+		e.stopPropagation();
 	}
 
 }

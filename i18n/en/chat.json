@@ -330,7 +330,8 @@
 			"unban_myRoom":"Unban from my room",
 			"block":"Block",
 			"unblock":"Unblock",
-			"to":"Timeout"
+			"to":"Timeout",
+			"export":"Export screen + data"
 		},
 		"custom_badge": {
 			"label": {

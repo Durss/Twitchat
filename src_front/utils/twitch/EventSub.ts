@@ -99,6 +99,11 @@ export default class EventSub {
 
 				case "notification": {
 					this.parseEvent(message.metadata.subscription_type, message.payload);
+					clearTimeout(this.reconnectTimeout);
+					this.reconnectTimeout = setTimeout(()=>{
+						// console.log("EVENTSUB : Session keep alive not received");
+						this.connect();
+					}, (this.keepalive_timeout_seconds + 5) * 1000);
 					break;
 				}
 				
@@ -106,12 +111,6 @@ export default class EventSub {
 					console.warn(`Unknown eventsub message type: ${message.metadata.message_type}`);
 				}
 			}
-			
-			clearTimeout(this.reconnectTimeout);
-			this.reconnectTimeout = setTimeout(()=>{
-				// console.log("EVENTSUB : Session keep alive not received");
-				this.connect();
-			}, (this.keepalive_timeout_seconds + 5) * 1000);
 		};
 		
 		this.socket.onclose = (event) => {

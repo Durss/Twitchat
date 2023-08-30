@@ -10,6 +10,8 @@ import PublicAPI from "./PublicAPI";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
+import domtoimage from 'dom-to-image-more';
+import Utils from "./Utils";
 
 /**
 * Created : 07/04/2023 
@@ -44,325 +46,345 @@ export default class ContextMenuHelper {
 	 * 
 	 * @param e 
 	 */
-	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData, canModerateMessage:boolean=false, canModerateUser:boolean=false):void {
-		const t				= StoreProxy.i18n.t;
-		const me			= StoreProxy.auth.twitch.user;
-		const channelInfo	= message.user.channelInfo[message.channel_id];
-
-		e.preventDefault();
-
+	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, canModerateMessage:boolean=false, canModerateUser:boolean=false, htmlNode:HTMLElement):void {
+		const t		= StoreProxy.i18n.t;
+		const me	= StoreProxy.auth.twitch.user;
+		const options:CMTypes.MenuItem[]= [];
 		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		const menu	= reactive({
+			theme: 'mac '+StoreProxy.main.theme,
+			x: px,
+			y: py,
+			items: [],
+		})
 		
 		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 			//Make sure the hint message is not sent anymore
 			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
 		}
 		
-		const options:CMTypes.MenuItem[]= [];
-		const user = message.user;
 
-		//Header
-		options.push({
-					label:user.displayName,
-					disabled:true,
-					customClass:"header"
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			const user			= message.user;
+			const channelInfo	= user.channelInfo[message.channel_id];
+	
+			//Header
+			options.push({
+						label:user.displayName,
+						disabled:true,
+						customClass:"header"
+					});
+			
+			//Shoutout
+			if(canModerateUser) {
+				options.push({ 
+					label: t("chat.context_menu.shoutout"),
+					icon: this.getIcon("icons/shoutout.svg"),
+					onClick: () => StoreProxy.users.shoutout(message.channel_id, user),
 				});
-		
-		//Shoutout
-		if(canModerateUser) {
+			}
+	
+			//Reply
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				options.push({ 
+							label: t("chat.context_menu.answer"),
+							icon: this.getIcon("icons/reply.svg"),
+							onClick: () => {
+								StoreProxy.chat.replyTo = message as TwitchatDataTypes.MessageChatData;
+							}
+						});
+			}
+	
+			//Trakc/untrack user
+			if(user.is_tracked) {
+				options.push({ 
+							label: t("chat.context_menu.untrack"),
+							icon: this.getIcon("icons/magnet.svg"),
+							onClick: () => StoreProxy.users.untrackUser(user),
+						});
+			}else{
+				options.push({ 
+							label: t("chat.context_menu.track"),
+							icon: this.getIcon("icons/magnet.svg"),
+							onClick: () => StoreProxy.users.trackUser(user),
+						});
+			}
+	
+			//Chat highlight
+			let highlightIndex = options.length;
 			options.push({ 
-				label: t("chat.context_menu.shoutout"),
-				icon: this.getIcon("icons/shoutout.svg"),
-				onClick: () => StoreProxy.users.shoutout(message.channel_id, user),
+				label: t("chat.context_menu.highlight_loading"),
+				icon: this.getIcon("icons/highlight.svg"),
+				disabled:true,
 			});
-		}
-
-		//Reply
-		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-			options.push({ 
-						label: t("chat.context_menu.answer"),
-						icon: this.getIcon("icons/reply.svg"),
-						onClick: () => {
-							StoreProxy.chat.replyTo = message as TwitchatDataTypes.MessageChatData;
-						}
-					});
-		}
-
-		//Trakc/untrack user
-		if(user.is_tracked) {
-			options.push({ 
-						label: t("chat.context_menu.untrack"),
-						icon: this.getIcon("icons/magnet.svg"),
-						onClick: () => StoreProxy.users.untrackUser(user),
-					});
-		}else{
-			options.push({ 
-						label: t("chat.context_menu.track"),
-						icon: this.getIcon("icons/magnet.svg"),
-						onClick: () => StoreProxy.users.trackUser(user),
-					});
-		}
-
-		//Chat highlight
-		let highlightIndex = options.length;
-		options.push({ 
-			label: t("chat.context_menu.highlight_loading"),
-			icon: this.getIcon("icons/highlight.svg"),
-			disabled:true,
-		});
-		options[highlightIndex].onClick = () => {
-			if(options[highlightIndex].customClass == "no_overlay") {
-				//Open parameters if overlay is not found
-				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
-			}else{
-				StoreProxy.chat.highlightChatMessageOverlay(message)
-			}
-		};
-		
-		//Save/unsave
-		if(message.is_saved) {
-			options.push({ 
-						label: t("chat.context_menu.unsave"),
-						icon: this.getIcon("icons/save.svg"),
-						onClick: () => StoreProxy.chat.unsaveMessage(message),
-					});
-
-		}else{
-			options.push({ 
-						label: t("chat.context_menu.save"),
-						icon: this.getIcon("icons/save.svg"),
-						onClick: () => StoreProxy.chat.saveMessage(message),
-					});
-		}
-		
-		//TTS actions
-		if(StoreProxy.tts.params.enabled) {
-			//Read message
-			options.push({ 
-						label: t("chat.context_menu.tts"),
-						icon: this.getIcon("icons/tts.svg"),
-						onClick: () => StoreProxy.tts.ttsReadMessage(message),
-					});
-
-			//Start/stop reading all this user's messages
-			const username = user.login.toLowerCase();
-			const permissions: TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
-			if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
+			options[highlightIndex].onClick = () => {
+				if(options[highlightIndex].customClass == "no_overlay") {
+					//Open parameters if overlay is not found
+					StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
+				}else{
+					StoreProxy.chat.highlightChatMessageOverlay(message)
+				}
+			};
+			
+			//Save/unsave
+			if(message.is_saved) {
 				options.push({ 
-							label: t("chat.context_menu.tts_all_start"),
-							icon: this.getIcon("icons/tts.svg"),
-							onClick: () => StoreProxy.tts.ttsReadUser(user, true),
+							label: t("chat.context_menu.unsave"),
+							icon: this.getIcon("icons/save.svg"),
+							onClick: () => StoreProxy.chat.unsaveMessage(message),
 						});
-			} else {
-				options.push({ 
-							label: t("chat.context_menu.tts_all_stop"),
-							icon: this.getIcon("icons/tts.svg"),
-							onClick: () => StoreProxy.tts.ttsReadUser(user, false),
-						});
-			}
-		}
-
-		//Open profile
-		options.push({ 
-					label: t("chat.context_menu.profile"),
-					icon: this.getIcon("icons/user.svg"),
-					onClick: () => StoreProxy.users.openUserCard(user, message.channel_id),
-				});
-
-		//Moderation actions
-		if(canModerateMessage) {
-			//Add splitter after previous item
-			options[options.length-1].divided = true;
-			//Pin/Unpin message
-			const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
-			options.push({ 
-						label: m.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
-						icon: m.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
-						customClass:"disabled",
-						onClick: () => {
-							StoreProxy.main.alert(t("error.no_pin_api"));
-						},
-					});
-					
-			//Delete message
-			let classes = "alert";
-			if(m.deleted!== true) {
-				if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
-				options.push({ 
-							label: t("chat.context_menu.delete"),
-							icon: this.getIcon("icons/trash.svg"),
-							customClass:classes,
-							onClick: () => {
-								if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-									!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
-									return;
-								}
-								StoreProxy.chat.deleteMessageByReference(m);
-							},
-						});
-			}
-		}
-
-		//User moderation actions
-		if(canModerateUser) {
-			let classesBan = "alert";
-			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
-			let classesBlock = "alert";
-			if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
-			if(!canModerateMessage) options[options.length-1].divided = true;
-
-			//Timeout
-			options.push(
-					{ 
-						label: t("chat.context_menu.to"),
-						customClass:classesBan,
-						icon: this.getIcon("icons/timeout.svg"),
-						children: [
-							{
-								label: "1s",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 1),
-							},
-							{
-								label: "10s",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 10),
-							},
-							{
-								label: "1m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60),
-							},
-							{
-								label: "5m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 5),
-							},
-							{
-								label: "10m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 10),
-							},
-							{
-								label: "30m",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 30),
-							},
-							{
-								label: "1h",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 60),
-							},
-							{
-								label: "24h",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 60 * 24),
-							},
-							{
-								label: "1w",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7),
-							},
-							{
-								label: "4w",
-								customClass:classesBan,
-								onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7 * 4),
-							},
-							{
-								label: "1w",
-								customRender: () => h(ContextMenuTimeoutDuration, {
-									user:message.user,
-									channelId:message.channel_id,
-								})
-							},
-						]
-					});
-				
-			//Ban/unban user
-			if(channelInfo.is_banned) {
-				options.push({ 
-							label: t("chat.context_menu.unban"),
-							icon: this.getIcon("icons/unban.svg"),
-							customClass:classesBan,
-							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-								TwitchUtils.unbanUser(user, message.channel_id);
-							},
-						});
+	
 			}else{
 				options.push({ 
-							label: t("chat.context_menu.ban"),
-							icon: this.getIcon("icons/ban.svg"),
-							customClass:classesBan,
-							onClick: () => this.banUser(message, message.channel_id),
+							label: t("chat.context_menu.save"),
+							icon: this.getIcon("icons/save.svg"),
+							onClick: () => StoreProxy.chat.saveMessage(message),
 						});
 			}
-
-			//Message not posted on our own channel, add a button to ban on our own channel.
-			if(message.channel_id != me.id) {
-				if(message.user.channelInfo[me.id]?.is_banned) {
+			
+			//TTS actions
+			if(StoreProxy.tts.params.enabled) {
+				//Read message
+				options.push({ 
+							label: t("chat.context_menu.tts"),
+							icon: this.getIcon("icons/tts.svg"),
+							onClick: () => StoreProxy.tts.ttsReadMessage(message),
+						});
+	
+				//Start/stop reading all this user's messages
+				const username = user.login.toLowerCase();
+				const permissions: TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
+				if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
 					options.push({ 
-							label: t("chat.context_menu.unban_myRoom"),
-							icon: this.getIcon("icons/unban.svg"),
-							customClass:classesBan,
+								label: t("chat.context_menu.tts_all_start"),
+								icon: this.getIcon("icons/tts.svg"),
+								onClick: () => StoreProxy.tts.ttsReadUser(user, true),
+							});
+				} else {
+					options.push({ 
+								label: t("chat.context_menu.tts_all_stop"),
+								icon: this.getIcon("icons/tts.svg"),
+								onClick: () => StoreProxy.tts.ttsReadUser(user, false),
+							});
+				}
+			}
+	
+			//Open profile
+			options.push({ 
+						label: t("chat.context_menu.profile"),
+						icon: this.getIcon("icons/user.svg"),
+						onClick: () => StoreProxy.users.openUserCard(user, message.channel_id),
+					});
+	
+			//Moderation actions
+			if(canModerateMessage) {
+				//Add splitter after previous item
+				options[options.length-1].divided = true;
+				//Pin/Unpin message
+				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
+				options.push({ 
+							label: m.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
+							icon: m.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
+							customClass:"disabled",
 							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-								TwitchUtils.unbanUser(user, me.id);
+								StoreProxy.main.alert(t("error.no_pin_api"));
 							},
 						});
+						
+				//Delete message
+				let classes = "alert";
+				if(m.deleted!== true) {
+					if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+					options.push({ 
+								label: t("chat.context_menu.delete"),
+								icon: this.getIcon("icons/trash.svg"),
+								customClass:classes,
+								onClick: () => {
+									if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+										!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
+										return;
+									}
+									StoreProxy.chat.deleteMessageByReference(m);
+								},
+							});
+				}
+			}
+	
+			//User moderation actions
+			if(canModerateUser) {
+				let classesBan = "alert";
+				if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
+				let classesBlock = "alert";
+				if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
+				if(!canModerateMessage) options[options.length-1].divided = true;
+	
+				//Timeout
+				options.push(
+						{ 
+							label: t("chat.context_menu.to"),
+							customClass:classesBan,
+							icon: this.getIcon("icons/timeout.svg"),
+							children: [
+								{
+									label: "1s",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 1),
+								},
+								{
+									label: "10s",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 10),
+								},
+								{
+									label: "1m",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60),
+								},
+								{
+									label: "5m",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 5),
+								},
+								{
+									label: "10m",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 10),
+								},
+								{
+									label: "30m",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 30),
+								},
+								{
+									label: "1h",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 60),
+								},
+								{
+									label: "24h",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 60 * 24),
+								},
+								{
+									label: "1w",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7),
+								},
+								{
+									label: "4w",
+									customClass:classesBan,
+									onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7 * 4),
+								},
+								{
+									label: "1w",
+									customRender: () => h(ContextMenuTimeoutDuration, {
+										user:message.user,
+										channelId:message.channel_id,
+									})
+								},
+							]
+						});
+					
+				//Ban/unban user
+				if(channelInfo.is_banned) {
+					options.push({ 
+								label: t("chat.context_menu.unban"),
+								icon: this.getIcon("icons/unban.svg"),
+								customClass:classesBan,
+								onClick: () => {
+									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									TwitchUtils.unbanUser(user, message.channel_id);
+								},
+							});
 				}else{
 					options.push({ 
-							label: t("chat.context_menu.ban_myRoom"),
-							icon: this.getIcon("icons/ban.svg"),
-							customClass:classesBan,
-							onClick: () => this.banUser(message, me.id),
-						});
+								label: t("chat.context_menu.ban"),
+								icon: this.getIcon("icons/ban.svg"),
+								customClass:classesBan,
+								onClick: () => this.banUser(message, message.channel_id),
+							});
+				}
+	
+				//Message not posted on our own channel, add a button to ban on our own channel.
+				if(message.channel_id != me.id) {
+					if(message.user.channelInfo[me.id]?.is_banned) {
+						options.push({ 
+								label: t("chat.context_menu.unban_myRoom"),
+								icon: this.getIcon("icons/unban.svg"),
+								customClass:classesBan,
+								onClick: () => {
+									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									TwitchUtils.unbanUser(user, me.id);
+								},
+							});
+					}else{
+						options.push({ 
+								label: t("chat.context_menu.ban_myRoom"),
+								icon: this.getIcon("icons/ban.svg"),
+								customClass:classesBan,
+								onClick: () => this.banUser(message, me.id),
+							});
+					}
+				}
+	
+				//Block/unblock user
+				if(message.user.is_blocked) {
+					options.push({ 
+								label: t("chat.context_menu.unblock"),
+								icon: this.getIcon("icons/unblock.svg"),
+								customClass:classesBlock,
+								onClick: () => {
+									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+									TwitchUtils.unblockUser(user);
+								},
+							});
+				}else{
+					options.push({ 
+								label: t("chat.context_menu.block"),
+								icon: this.getIcon("icons/block.svg"),
+								customClass:classesBlock,
+								onClick: () => this.blockUser(message),
+							});
 				}
 			}
 
-			//Block/unblock user
-			if(message.user.is_blocked) {
-				options.push({ 
-							label: t("chat.context_menu.unblock"),
-							icon: this.getIcon("icons/unblock.svg"),
-							customClass:classesBlock,
-							onClick: () => {
-								if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-								TwitchUtils.unblockUser(user);
-							},
-						});
-			}else{
-				options.push({ 
-							label: t("chat.context_menu.block"),
-							icon: this.getIcon("icons/block.svg"),
-							customClass:classesBlock,
-							onClick: () => this.blockUser(message),
-						});
-			}
+			this.addCustomTriggerEntries(options, message);
+		
+			//Update "highlight message" state according to overlay presence
+			this.getHighlightOverPresence().then(res => {
+				const item = menu.items[highlightIndex] as CMTypes.MenuItem;
+				item.label = t("chat.context_menu.highlight");
+				item.disabled = false;
+				if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
+			});
 		}
 
-		this.addCustomTriggerEntries(options, message);
-
-		options.forEach(v=> {
-			v.clickableWhenHasChildren = true;
-		})
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+			//Add splitter after previous item if any
+			if(options.length > 0) options[options.length-1].divided = true;
+			options.push({ 
+						label: t("chat.context_menu.export"),
+						icon: this.getIcon("icons/download.svg"),
+						onClick: () => this.exportMessage(message, htmlNode),
+					});
+			menu.items = options as never;
+		}
 		
-		const menu = reactive({
-			theme: 'mac '+StoreProxy.main.theme,
-			x: px,
-			y: py,
-			items: options,
-		})
-		ContextMenu.showContextMenu(menu);
-		
-		//Update "highlight message" state according to overlay presence
-		this.getHighlightOverPresence().then(res => {
-			const item = menu.items[highlightIndex];
-			item.label = t("chat.context_menu.highlight");
-			item.disabled = false;
-			if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
-		});
+		if(options.length > 0) {
+			options.forEach(v=> {
+				v.clickableWhenHasChildren = true;
+			});
+			ContextMenu.showContextMenu(menu);
+			e.preventDefault();
+		}
 	}
 	
 	
@@ -457,6 +479,11 @@ export default class ContextMenuHelper {
 		})
 	}
 
+	/**
+	 * Add custom slash commands created on the triggers
+	 * @param options 
+	 * @param message 
+	 */
 	private addCustomTriggerEntries(options:CMTypes.MenuItem[], message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
 		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true);
 		for (let i = 0; i < items.length; i++) {
@@ -472,5 +499,69 @@ export default class ContextMenuHelper {
 				},
 			});
 		}
+	}
+
+	/**
+	 * Exports a screenshot + data of the message
+	 * @param message 
+	 */
+	private async exportMessage(message:TwitchatDataTypes.MessageChatData
+								| TwitchatDataTypes.MessageWhisperData
+								| TwitchatDataTypes.MessageHypeChatData
+								| TwitchatDataTypes.MessageRewardRedeemData
+								| TwitchatDataTypes.MessageSubscriptionData
+								| TwitchatDataTypes.MessageCheerData
+								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
+
+		const user = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.user : message.user;
+		const chanId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.channel_id : message.channel_id;
+		const infosDiv = document.createElement("div");
+		infosDiv.style.color = "#ffffff";
+		infosDiv.style.fontSize = "20px";
+		infosDiv.style.background = "#000000";
+		infosDiv.style.width = "300px";
+		infosDiv.style.display = "flex";
+		infosDiv.style.flexDirection = "column";
+		infosDiv.innerHTML = `<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
+		<div><strong>User login:</strong> ${user.login}</div>
+		<div><strong>User ID:</strong> ${user.id}</div>
+		<div><strong>Channel ID:</strong> ${chanId}</div>`;
+		await Utils.promisedTimeout(100);
+		//Generate image from virtual infos node
+		domtoimage
+		.toPng(infosDiv)
+		.then((infoUrl:string) => {
+			let infoImg = new Image();
+			infoImg.addEventListener("load", () => {
+				//Generate image from message node
+				domtoimage
+				.toPng(htmlNode)
+				.then((dataUrl:string) => {
+					let messageImg = new Image();
+					messageImg.addEventListener("load", () => {
+						const cnvWidth	= Math.max(messageImg.width, infoImg.width);
+						const canvas	= document.createElement("canvas");
+						const ctx		= canvas.getContext("2d");
+						canvas.width	= cnvWidth;
+						canvas.height	= messageImg.height + 10 + infoImg.height;
+						console.log(messageImg.width, messageImg.height);
+						console.log(infoImg.width, infoImg.height);
+						if(!ctx) throw new Error("Context 2D creation failed");
+						ctx.clearRect(0, 0, canvas.width, canvas.height);
+						ctx.drawImage(messageImg, Math.round((cnvWidth - messageImg.width)/2), 0, messageImg.width, messageImg.height);
+						ctx.fillStyle = "red";
+						ctx.fillRect(0, messageImg.height + 10, canvas.width, infoImg.height);
+						ctx.drawImage(infoImg, Math.round((cnvWidth - infoImg.width)/2), messageImg.height + 10, infoImg.width, infoImg.height);
+						Utils.downloadFile("message.png", undefined, canvas.toDataURL(), "image/png")
+					});
+					messageImg.setAttribute("src", dataUrl);
+				});
+			});
+			infoImg.setAttribute("src", infoUrl);
+		})
+		.catch((error:any) => {
+			console.error('DOM node export failed', error);
+			StoreProxy.main.alert("Export failed :(...");
+		});
 	}
 }

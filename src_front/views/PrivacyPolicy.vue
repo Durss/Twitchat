@@ -539,13 +539,7 @@ export default class PrivacyPolicy extends Vue {
 		ApiController.call("user/data", "GET").then(async (result) => {
 			if(result.json.success) {
 				const data = JSON.stringify(result.json.data);
-				const blob = new Blob([data], { type: 'application/json' });
-				const url = window.URL.createObjectURL(blob);
-				const link = document.createElement('a');
-				link.href = url;
-				link.download = "twitchat_data.json";
-				link.click();
-				URL.revokeObjectURL(url);
+				Utils.downloadFile("twitchat_data.json", data);
 				await Utils.promisedTimeout(1000);
 			}else{
 				this.$store("main").alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
