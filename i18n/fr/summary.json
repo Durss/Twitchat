@@ -3,6 +3,7 @@
 		"title": "Résumé du stream",
 		"no_data": "On dirait qu'il ne s'est pas passé grand chose durant votre stream 😔.\r\nJe suis certain que le prochain sera mieux !",
 		"stream_duration": "Durée du stream:",
+		"csv_exportBt": "Export CSV",
 		"data_messages":"Messages envoyés",
 		"data_emotes":"Emotes envoyées",
 		"data_chars":"Caractères envoyés",
@@ -15,6 +16,7 @@
 		"data_bits":"Bits",
 		"data_follow":"Followers",
 		"data_rewards":"Récompenses de<br/>points de chaîne",
+		"data_channelPointCount":"Points de chaîne dépensés",
 		"data_hypeTrain":"Trains de la hype terminés",
 		"data_hypeChat":"Hype chats envoyés",
 		"data_raid":"Raids reçus",
@@ -22,6 +24,11 @@
 		"data_poll":"Sondages",
 		"data_prediction":"Prédictions",
 		"data_bingo":"Bingos",
-		"data_raffle":"Tirages au sort"
+		"data_raffle":"Tirages au sort",
+		"data_inShoutout":"Shoutouts reçus",
+		"data_outShoutout":"Shoutouts envoyés",
+		"data_bans":"Bans",
+		"data_tos":"Timeouts",
+		"data_tosDuration":"Duraée totale<br>des timeouts"
 	}
 }

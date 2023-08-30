@@ -12,30 +12,43 @@
 			<template v-else>
 				<div class="noData" v-if="noData">{{ $t("summary.no_data") }}</div>
 				<template v-else>
-					<div class="global">
-						<div class="data card-item" v-tooltip="$t('summary.data_subPrime')" v-if="subPrimeCount > 0"><Icon name="prime" />{{ subPrimeCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_subT1')" v-if="subT1Count > 0"><Icon name="sub" /><small>T1</small>{{ subT1Count }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_subT2')" v-if="subT2Count > 0"><Icon name="sub" /><small>T2</small>{{ subT2Count }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_subT3')" v-if="subT3Count > 0"><Icon name="sub" /><small>T3</small>{{ subT3Count }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_subgift')" v-if="subgiftCount > 0"><Icon name="gift" />{{ subgiftCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_bits')" v-if="bitsCount > 0"><Icon name="bits" />{{ bitsCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_hypeChat')" v-if="hypeChatCount > 0"><Icon name="hypeChat" />{{ hypeChatCount }} <small class="data" v-for="amount, key in hypeChats">{{amount}} {{ key }}</small></div>
-						<div class="data card-item" v-tooltip="$t('summary.data_hypeTrain')" v-if="hypeTrainCount > 0"><Icon name="train" />{{ hypeTrainCount }}</div>
-						<div class="data card-item" v-if="raidCount > 0"><span v-tooltip="$t('summary.data_raid')"><Icon name="raid" />{{ raidCount }}</span><small class="data" v-tooltip="$t('summary.data_raider')"><Icon name="user" />{{ raidViewerCount }}</small></div>
-						<div class="data card-item" v-tooltip="$t('summary.data_follow')" v-if="followCount > 0"><Icon name="follow" />{{ followCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_messages')" v-if="messCount > 0"><Icon name="whispers" />{{ messCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_emotes')" v-if="emoteCount > 0"><Icon name="emote" />{{ emoteCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_chars')" v-if="charCount > 0"><Icon name="font" />{{ charCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_chatters')" v-if="chatterCount > 0"><Icon name="user" />{{ chatterCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="rewardCount > 0"><Icon name="channelPoints" />{{ rewardCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_poll')" v-if="pollCount > 0"><Icon name="poll" />{{ pollCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_prediction')" v-if="predictionCount > 0"><Icon name="prediction" />{{ predictionCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_bingo')" v-if="bingoCount > 0"><Icon name="bingo" />{{ bingoCount }}</div>
-						<div class="data card-item" v-tooltip="$t('summary.data_raffle')" v-if="raffleCount > 0"><Icon name="ticket" />{{ raffleCount }}</div>
+					<div class="card-item global">
+						<div class="list">
+							<div class="data card-item" v-tooltip="$t('summary.data_subPrime')" v-if="subPrimeCount > 0"><Icon name="prime" />{{ subPrimeCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_subT1')" v-if="subT1Count > 0"><Icon name="sub" /><small>T1</small>{{ subT1Count }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_subT2')" v-if="subT2Count > 0"><Icon name="sub" /><small>T2</small>{{ subT2Count }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_subT3')" v-if="subT3Count > 0"><Icon name="sub" /><small>T3</small>{{ subT3Count }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_subgift')" v-if="subgiftCount > 0"><Icon name="gift" />{{ subgiftCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_bits')" v-if="bitsCount > 0"><Icon name="bits" />{{ bitsCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_hypeChat')" v-if="hypeChatCount > 0"><Icon name="hypeChat" />{{ hypeChatCount }} <small class="data" v-for="amount, key in hypeChats">{{amount}} {{ key }}</small></div>
+							<div class="data card-item" v-tooltip="$t('summary.data_hypeTrain')" v-if="hypeTrainCount > 0"><Icon name="train" />{{ hypeTrainCount }}</div>
+							<div class="data card-item" v-if="raidCount > 0"><span v-tooltip="$t('summary.data_raid')"><Icon name="raid" />{{ raidCount }}</span><small class="data" v-tooltip="$t('summary.data_raider')"><Icon name="user" />{{ raidViewerCount }}</small></div>
+							<div class="data card-item" v-tooltip="$t('summary.data_follow')" v-if="followCount > 0"><Icon name="follow" />{{ followCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_messages')" v-if="messCount > 0"><Icon name="whispers" />{{ messCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_emotes')" v-if="emoteCount > 0"><Icon name="emote" />{{ emoteCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_chars')" v-if="charCount > 0"><Icon name="font" />{{ charCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_chatters')" v-if="chatterCount > 0"><Icon name="user" />{{ chatterCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_outShoutout')" v-if="outShoutout > 0"><Icon name="shoutout" />{{ outShoutout }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_inShoutout')" v-if="inShoutout > 0"><Icon name="shoutout" class="flip" />{{ inShoutout }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="rewardCount > 0"><Icon name="channelPoints" />{{ rewardCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_channelPointCount')" v-if="channelPointCount > 0"><Icon name="channelPoints" />{{ channelPointCount }}pts</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_bans')" v-if="banUserCount > 0"><Icon name="ban" />{{ banUserCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_tos')" v-if="toUserCount > 0"><Icon name="timer" />{{ toUserCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_tosDuration')" v-if="toDuration > 0"><Icon name="timer" />{{ toDuration }}s</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_poll')" v-if="pollCount > 0"><Icon name="poll" />{{ pollCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_prediction')" v-if="predictionCount > 0"><Icon name="prediction" />{{ predictionCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_bingo')" v-if="bingoCount > 0"><Icon name="bingo" />{{ bingoCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_raffle')" v-if="raffleCount > 0"><Icon name="ticket" />{{ raffleCount }}</div>
+						</div>
+						<div class="ctas">
+							<Button icon="newTab" @click="exportCSV(true)">{{ $t("summary.csv_exportBt") }}</Button>
+						</div>
 					</div>
 
-					<div class="users">
-						<div class="user card-item" v-for="u in userList" :key="u.user.id">
+
+					<div class="card-item users">
+						<div class="list">
+							<div class="user card-item" v-for="u in userList" :key="u.user.id">
 							<img class="avatar" loading="lazy" v-if="u.user.avatarPath" :src="u.user.avatarPath" alt="avatar">
 							<a @click.prevent="openUserCard(u.user)" :href="'https://twitch.tv/'+u.user.login" class="login">{{ u.user.displayName }}</a>
 							<div class="data card-item" v-tooltip="$t('summary.data_subPrime')" v-if="u.subPrime > 0"><Icon name="prime" />{{ u.subPrime }}</div>
@@ -50,6 +63,14 @@
 							<div class="data card-item" v-tooltip="$t('summary.data_emotes')" v-if="u.emoteCount > 0"><Icon name="emote" />{{ u.emoteCount }}</div>
 							<div class="data card-item" v-tooltip="$t('summary.data_chars')" v-if="u.charCount > 0"><Icon name="font" />{{ u.charCount }}</div>
 							<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="u.rewards > 0"><Icon name="channelPoints" />{{ u.rewards }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_rewards')" v-if="u.channelPointCount > 0"><Icon name="channelPoints" />{{ u.channelPointCount }}pts</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_bans')" v-if="u.banUserCount > 0"><Icon name="ban" />{{ u.banUserCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_tos')" v-if="u.toUserCount > 0"><Icon name="timer" />{{ u.toUserCount }}</div>
+							<div class="data card-item" v-tooltip="$t('summary.data_tosDuration')" v-if="u.toDuration > 0"><Icon name="timer" />{{ u.toDuration }}s</div>
+							</div>
+						</div>
+						<div class="ctas">
+							<Button icon="newTab" @click="exportCSV()">{{ $t("summary.csv_exportBt") }}</Button>
 						</div>
 					</div>
 				</template>
@@ -66,9 +87,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Icon from '../Icon.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import Button from '../Button.vue';
 
 @Component({
 	components:{
+		Button,
 		CloseButton,
 	},
 	emits:["close"],
@@ -90,6 +113,7 @@ export default class StreamSummary extends AbstractSidePanel {
 	public bitsCount = 0;
 	public followCount = 0;
 	public rewardCount = 0;
+	public channelPointCount = 0;
 	public raidCount = 0;
 	public raidViewerCount = 0;
 	public hypeTrainCount = 0;
@@ -97,7 +121,12 @@ export default class StreamSummary extends AbstractSidePanel {
 	public predictionCount = 0;
 	public bingoCount = 0;
 	public raffleCount = 0;
+	public outShoutout = 0;
+	public inShoutout = 0;
 	public hypeChatCount = 0;
+	public banUserCount = 0;
+	public toUserCount = 0;
+	public toDuration = 0;
 	public hypeChats:{[key:string]:number} = {};
 	public userList:UserActivities[] = [];
 
@@ -109,12 +138,13 @@ export default class StreamSummary extends AbstractSidePanel {
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
 		if(res.length > 0) {
-			// const dateOffset = new Date("08/01/2023").getTime();//TODO comment
 			dateOffset = new Date(res[0].started_at).getTime();
 			
 			this.durationInterval = setInterval(()=> {
 				this.streamDuration = Utils.formatDuration(Date.now() - dateOffset!);
 			})
+		}else{
+			dateOffset = new Date("08/01/2023").getTime();//TODO comment
 		}
 
 		const userActivities:{[key:string]:UserActivities} = {};
@@ -227,7 +257,9 @@ export default class StreamSummary extends AbstractSidePanel {
 					const uid = m.user.id;
 					if(!userActivities[uid]) userActivities[uid] = this.getEmptyUserActivities(m.user);
 					this.rewardCount ++;
+					this.channelPointCount += m.reward.cost;
 					userActivities[uid].rewards ++;
+					userActivities[uid].channelPointCount += m.reward.cost;
 					userActivities[uid].sortValue += Math.round(m.reward.cost / 10);
 					if(m.message) {
 						const emoteCount = m.message_chunks!.filter(v=>v.type == "emote").length;
@@ -263,6 +295,30 @@ export default class StreamSummary extends AbstractSidePanel {
 				}
 				case TwitchatDataTypes.TwitchatMessageType.RAFFLE: {
 					this.raffleCount ++;
+					this.noData = false;
+					break;
+				}
+				case TwitchatDataTypes.TwitchatMessageType.BAN: {
+					const uid = m.user.id;
+					if(!userActivities[uid]) userActivities[uid] = this.getEmptyUserActivities(m.user);
+					if(m.duration_s && m.duration_s > 0) {
+						this.toUserCount ++;
+						this.toDuration += m.duration_s;
+						userActivities[uid].toUserCount ++;
+						userActivities[uid].toDuration += m.duration_s;
+					}else{
+						this.banUserCount ++;
+						userActivities[uid].banUserCount ++;
+					}
+					this.noData = false;
+					break;
+				}
+				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
+					if(m.received) {
+						this.inShoutout ++;
+					}else{
+						this.outShoutout ++;
+					}
 					this.noData = false;
 					break;
 				}
@@ -306,6 +362,80 @@ export default class StreamSummary extends AbstractSidePanel {
 		this.$store("users").openUserCard(user, this.$store("auth").twitch.user.id);
 	}
 
+	public exportCSV(globalData:boolean = false):void {
+		let csv = "";
+		
+		if(globalData) {
+			console.log("OK");
+			csv = "messCount, charCount, emoteCount, chatterCount, subT1Count, subT2Count, subT3Count, subPrimeCount, subgiftCount, bitsCount, followCount, rewardCount, channelPointCount, raidCount, raidViewerCount, hypeTrainCount, pollCount, predictionCount, bingoCount, raffleCount, outShoutout, inShoutout, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
+			csv += this.messCount+", ";
+			csv += this.charCount+", ";
+			csv += this.emoteCount+", ";
+			csv += this.chatterCount+", ";
+			csv += this.subT1Count+", ";
+			csv += this.subT2Count+", ";
+			csv += this.subT3Count+", ";
+			csv += this.subPrimeCount+", ";
+			csv += this.subgiftCount+", ";
+			csv += this.bitsCount+", ";
+			csv += this.followCount+", ";
+			csv += this.rewardCount+", ";
+			csv += this.channelPointCount+", ";
+			csv += this.raidCount+", ";
+			csv += this.raidViewerCount+", ";
+			csv += this.hypeTrainCount+", ";
+			csv += this.pollCount+", ";
+			csv += this.predictionCount+", ";
+			csv += this.bingoCount+", ";
+			csv += this.raffleCount+", ";
+			csv += this.outShoutout+", ";
+			csv += this.inShoutout+", ";
+			csv += this.hypeChatCount+", ";
+			for (const currency in this.hypeChats) csv += `${this.hypeChats[currency]}(${currency}) `;
+			csv += ",";
+			csv += this.banUserCount+", ";
+			csv += this.toUserCount+", ";
+			csv += this.toDuration;
+		}else{
+			csv = "userID, userLogin, messCount, charCount, emoteCount, subPrime, subT1, subT2, subT3, subgift, bits, rewards, channelPointCount, raidCount, raidViewerCount, hypeChatCount, hypeChats, banUserCount, toUserCount, toDuration\n";
+			for (let i = 0; i < this.userList.length; i++) {
+				const user = this.userList[i];
+				csv += user.user.id+", ";
+				csv += user.user.login+", ";
+				csv += user.messCount+", ";
+				csv += user.charCount+", ";
+				csv += user.emoteCount+", ";
+				csv += user.subPrime+", ";
+				csv += user.subT1+", ";
+				csv += user.subT2+", ";
+				csv += user.subT3+", ";
+				csv += user.subgift+", ";
+				csv += user.bits+", ";
+				csv += user.rewards+", ";
+				csv += user.channelPointCount+", ";
+				csv += user.raidCount+", ";
+				csv += user.raidViewerCount+", ";
+				csv += user.hypeChatCount+", ";
+				for (const currency in user.hypeChats) csv += `${user.hypeChats[currency]}(${currency}) `;
+				csv += ",";
+				csv += user.banUserCount+", ";
+				csv += user.toUserCount+", ";
+				csv += user.toDuration+"\n";
+			}
+		}
+
+		//Start download session
+		const blob = new Blob([csv], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob);
+		var link = document.createElement("a");
+		let filename = "export";
+		filename += globalData? "_global" : "_user";
+		filename += "_"+new Date().getDate()+"-"+(new Date().getMonth()+1)+"-"+new Date().getFullYear();
+		link.download = filename+".csv";
+		link.href = url;
+		link.click();
+	}
+
 	private getEmptyUserActivities(user:TwitchatDataTypes.TwitchatUser):UserActivities {
 		return {
 			user,
@@ -320,10 +450,14 @@ export default class StreamSummary extends AbstractSidePanel {
 			subgift:0,
 			bits:0,
 			rewards:0,
+			channelPointCount:0,
 			raidCount:0,
 			raidViewerCount:0,
 			hypeChatCount:0,
 			hypeChats:{},
+			banUserCount:0,
+			toUserCount:0,
+			toDuration:0,
 		};
 	}
 
@@ -342,10 +476,14 @@ interface UserActivities{
 	subgift:number;
 	bits:number;
 	rewards:number;
+	channelPointCount:number;
 	raidCount:number;
 	raidViewerCount:number;
 	hypeChatCount:number;
 	hypeChats:{[key:string]:number};
+	banUserCount:number;
+	toUserCount:number;
+	toDuration:number;
 }
 </script>
 
@@ -355,33 +493,63 @@ interface UserActivities{
 		height: 2em;
 	}
 
-	.global {
-		gap: .5em;
-		display: flex;
-		flex-direction: row;
-		justify-content: center;
-		flex-wrap: wrap;
+	.content {
+		overflow-y: auto;
 	}
 
-	.users {
+	.global {
+		overflow: visible;
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-		.user {
+		flex-grow: 1;
+		.list {
 			gap: .5em;
 			display: flex;
 			flex-direction: row;
+			justify-content: center;
 			flex-wrap: wrap;
-			align-items: center;
-			.login {
-				font-weight: bold;
-			}
+		}
+	}
 
-			.avatar {
-				height: 2em;
-				border-radius: 50%;
+	.users {
+		overflow: hidden;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		flex-grow: 1;
+		min-height: 200px;
+		.list {
+			flex-grow: 1;
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			overflow: auto;
+			.user {
+				flex-shrink: 0;
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				.login {
+					font-weight: bold;
+				}
+	
+				.avatar {
+					height: 2em;
+					border-radius: 50%;
+				}
 			}
 		}
+	}
+
+	.ctas {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
 	}
 
 	.data {
@@ -394,6 +562,10 @@ interface UserActivities{
 			height: 1em;
 			max-width: 1em;
 			margin-right: .5em;
+
+			&.flip {
+				transform: scale(-1, 1);
+			}
 		}
 
 		small {
