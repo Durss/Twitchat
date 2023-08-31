@@ -38,7 +38,7 @@ export default class Overlay extends Vue {
 
 	public overlay = "";
 
-	private heatEventHandler!:(event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}) => void;
+	private heatEventHandler!:(event:{detail:{anonymous:boolean, x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}) => void;
 
 	public get classes():string[] {
 		const res:string[] = ["overlay"];
@@ -71,7 +71,7 @@ export default class Overlay extends Vue {
 		window.removeEventListener("heat-click", this.heatEventHandler);
 	}
 
-	private async onHeatClick(event:{detail:{x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> {
+	private async onHeatClick(event:{detail:{anonymous:boolean, x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> {
 		//Check if the heat event is for the current page
 		const hash = await Utils.sha256(document.location.href);
 		if(event.detail.page != hash) return;

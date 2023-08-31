@@ -513,20 +513,31 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageCheerData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
 
+		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
+		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
 		const user = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.user : message.user;
 		const chanId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.channel_id : message.channel_id;
+		const messageId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.id : message.id;
+		const fileName = user.id+"_"+user.login+"_"+messageId;
 		const infosDiv = document.createElement("div");
-		infosDiv.style.color = "#ffffff";
-		infosDiv.style.fontSize = "20px";
-		infosDiv.style.background = "#000000";
-		infosDiv.style.width = "300px";
+		infosDiv.style.color = fgcolor;
+		infosDiv.style.fontSize = "16px";
+		infosDiv.style.lineHeight = "18px";
+		infosDiv.style.width = "fit-content";
 		infosDiv.style.display = "flex";
 		infosDiv.style.flexDirection = "column";
+		infosDiv.style.position = "fixed";
+		infosDiv.style.padding = "10px";
+		infosDiv.style.top = "-99999px";
 		infosDiv.innerHTML = `<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
 		<div><strong>User login:</strong> ${user.login}</div>
 		<div><strong>User ID:</strong> ${user.id}</div>
-		<div><strong>Channel ID:</strong> ${chanId}</div>`;
-		await Utils.promisedTimeout(100);
+		<div><strong>Message type:</strong> ${message.type}</div>
+		<div><strong>Channel ID:</strong> ${chanId}</div>
+		<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
+		document.body.appendChild(infosDiv);
+		await Utils.promisedTimeout(0);//Leave time for the html node to render
+		
 		//Generate image from virtual infos node
 		domtoimage
 		.toPng(infosDiv)
@@ -535,7 +546,9 @@ export default class ContextMenuHelper {
 			infoImg.addEventListener("load", () => {
 				//Generate image from message node
 				domtoimage
-				.toPng(htmlNode)
+				.toPng(htmlNode, {bgcolor, style:{"font-size":"22px !important", color:"red !important"}, filter:(node:HTMLElement)=>{
+					return !node.classList || !node.classList.contains("chatMessageTime");
+				}})
 				.then((dataUrl:string) => {
 					let messageImg = new Image();
 					messageImg.addEventListener("load", () => {
@@ -543,16 +556,16 @@ export default class ContextMenuHelper {
 						const canvas	= document.createElement("canvas");
 						const ctx		= canvas.getContext("2d");
 						canvas.width	= cnvWidth;
-						canvas.height	= messageImg.height + 10 + infoImg.height;
-						console.log(messageImg.width, messageImg.height);
-						console.log(infoImg.width, infoImg.height);
+						canvas.height	= messageImg.height + infoImg.height;
 						if(!ctx) throw new Error("Context 2D creation failed");
 						ctx.clearRect(0, 0, canvas.width, canvas.height);
-						ctx.drawImage(messageImg, Math.round((cnvWidth - messageImg.width)/2), 0, messageImg.width, messageImg.height);
-						ctx.fillStyle = "red";
-						ctx.fillRect(0, messageImg.height + 10, canvas.width, infoImg.height);
-						ctx.drawImage(infoImg, Math.round((cnvWidth - infoImg.width)/2), messageImg.height + 10, infoImg.width, infoImg.height);
-						Utils.downloadFile("message.png", undefined, canvas.toDataURL(), "image/png")
+						ctx.fillStyle = bgcolor;
+						ctx.fillRect(0, 0, canvas.width, canvas.height);
+						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
+						ctx.fillStyle = fgcolor;
+						ctx.fillRect(0, messageImg.height, canvas.width, 1);
+						ctx.drawImage(infoImg, 0, messageImg.height, infoImg.width, infoImg.height);
+						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png")
 					});
 					messageImg.setAttribute("src", dataUrl);
 				});
