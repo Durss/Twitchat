@@ -2,6 +2,7 @@ import StoreProxy from "@/store/StoreProxy";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
+import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 
 /**
  * Util to strongly type string object paths.
@@ -448,11 +449,11 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 
 
 export const TriggerActionGoXLRDataActionList = [
-	{code:"fx_on", mini:false} as {code:string, mini:boolean}, //The enforced type is only here to let the rest of the app know "mini" can also be true even though there are none yet
+	{code:"fx_on", mini:false},
 	{code:"fx_off", mini:false}, 
-	// {code:"cough_on", mini:true}, 
-	// {code:"cough_off", mini:true}, 
 	{code:"sample_play", mini:false},
+	{code:"set_fader", mini:true},
+	{code:"profile", mini:true},
 ] as const;
 export type TriggerActionGoXLRDataAction = typeof TriggerActionGoXLRDataActionList[number]['code'];
 export interface TriggerActionGoXLRData extends TriggerActionData{
@@ -465,6 +466,18 @@ export interface TriggerActionGoXLRData extends TriggerActionData{
 	 * Index of the preset (0-5)
 	 */
 	fxPresetIndex?:number;
+	/**
+	 * Value to move the fader to
+	 */
+	faderValue?:string;
+	/**
+	 * Profile to switch to
+	 */
+	profile?:string;
+	/**
+	 * Fader to update the value of
+	 */
+	faderId?:GoXLRTypes.InputTypesData;
 	/**
 	 * Target of the sample to play
 	 */
@@ -648,6 +661,8 @@ export const TriggerTypes = {
 	GOXLR_BUTTON_RELEASED:"87",
 	GOXLR_SAMPLE_COMPLETE:"88",
 	VALUE_UPDATE:"89",
+	GOXLR_INPUT_MUTE:"90",
+	GOXLR_INPUT_UNMUTE:"91",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1011,6 +1026,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"BUTTON_ID", descKey:'triggers.placeholders.goxlr_button_id', pointer:"button", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRButtonData>,
 	];
 
+	map[TriggerTypes.GOXLR_INPUT_MUTE] =
+	map[TriggerTypes.GOXLR_INPUT_UNMUTE] = [
+		{tag:"FADER_INDEX", descKey:'triggers.placeholders.goxlr_fader_index', pointer:"faderIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRSoundInputData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -1073,7 +1093,6 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"timer", tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 		}
 		
-
 		//If a music service is available, concat the music service helpers
 		if(SpotifyHelper.instance.connected) {
 			entry.push(
@@ -1082,6 +1101,35 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 				{category:"music", tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"__current_track__.album", numberParsable:false, isUserID:false, globalTag:true, example:"Fake Album"},
 				{category:"music", tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"__current_track__.cover", numberParsable:false, isUserID:false, globalTag:true, example:StoreProxy.image("img/musicExampleCover.jpg")},
 				{category:"music", tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"__current_track__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"}
+			);
+		}
+
+		//If a goxlr is connected concat available placeholder
+		if(GoXLRSocket.instance.connected) {
+			entry.push(
+				{category:"goxlr", tag:"GOXLR_COUGH", descKey:'triggers.placeholders.goxlr_cough', pointer:"__goxlr__.cough", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_PROFILE", descKey:'triggers.placeholders.goxlr_profile', pointer:"__goxlr__.profile", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_INPUT_MIC", descKey:'triggers.placeholders.goxlr_input_mic', pointer:"__goxlr__.input.mic", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_CHAT", descKey:'triggers.placeholders.goxlr_input_chat', pointer:"__goxlr__.input.chat", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_MUSIC", descKey:'triggers.placeholders.goxlr_input_music', pointer:"__goxlr__.input.music", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_GAME", descKey:'triggers.placeholders.goxlr_input_game', pointer:"__goxlr__.input.game", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_CONSOLE", descKey:'triggers.placeholders.goxlr_input_console', pointer:"__goxlr__.input.console", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_LINEIN", descKey:'triggers.placeholders.goxlr_input_linein', pointer:"__goxlr__.input.linein", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_SYSTEM", descKey:'triggers.placeholders.goxlr_input_system', pointer:"__goxlr__.input.system", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_INPUT_SAMPLE", descKey:'triggers.placeholders.goxlr_input_sample', pointer:"__goxlr__.input.sample", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
+				{category:"goxlr", tag:"GOXLR_FX_ENABLED", descKey:'triggers.placeholders.goxlr_fx_state', pointer:"__goxlr__.fx.enabled", numberParsable:true, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_PRESET", descKey:'triggers.placeholders.goxlr_fx_preset', pointer:"__goxlr__.fx.preset", numberParsable:false, isUserID:false, globalTag:true, example:"3"},
+				{category:"goxlr", tag:"GOXLR_FX_MEGAPHONE", descKey:'triggers.placeholders.goxlr_megaphone', pointer:"__goxlr__.fx.megaphone", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_ROBOT", descKey:'triggers.placeholders.goxlr_robot', pointer:"__goxlr__.fx.robot", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_HARDTUNE", descKey:'triggers.placeholders.goxlr_hardtune', pointer:"__goxlr__.fx.hardtune", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_REVERB", descKey:'triggers.placeholders.goxlr_reverb', pointer:"__goxlr__.fx.reverb", numberParsable:false, isUserID:false, globalTag:true, example:"12"},
+				{category:"goxlr", tag:"GOXLR_FX_PITCH", descKey:'triggers.placeholders.goxlr_pitch', pointer:"__goxlr__.fx.pitch", numberParsable:false, isUserID:false, globalTag:true, example:"-5"},
+				{category:"goxlr", tag:"GOXLR_FX_ECHO", descKey:'triggers.placeholders.goxlr_echo', pointer:"__goxlr__.fx.echo", numberParsable:false, isUserID:false, globalTag:true, example:"50"},
+				{category:"goxlr", tag:"GOXLR_FX_GENDER", descKey:'triggers.placeholders.goxlr_gender', pointer:"__goxlr__.fx.gender", numberParsable:false, isUserID:false, globalTag:true, example:"-12"},
+				{category:"goxlr", tag:"GOXLR_FADER_1_MUTE", descKey:'triggers.placeholders.goxlr_fader_1_mute', pointer:"__goxlr__.fader.a", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
+				{category:"goxlr", tag:"GOXLR_FADER_2_MUTE", descKey:'triggers.placeholders.goxlr_fader_2_mute', pointer:"__goxlr__.fader.b", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
+				{category:"goxlr", tag:"GOXLR_FADER_3_MUTE", descKey:'triggers.placeholders.goxlr_fader_3_mute', pointer:"__goxlr__.fader.c", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
+				{category:"goxlr", tag:"GOXLR_FADER_4_MUTE", descKey:'triggers.placeholders.goxlr_fader_4_mute', pointer:"__goxlr__.fader.d", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
 			);
 		}
 
@@ -1193,6 +1241,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON, goxlrMiniCompatible:true},
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"release", labelKey:"triggers.events.GOXLR_BUTTON_RELEASED.label", value:TriggerTypes.GOXLR_BUTTON_RELEASED, descriptionKey:"triggers.events.GOXLR_BUTTON_RELEASED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON, goxlrMiniCompatible:true},
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"play", labelKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.label", value:TriggerTypes.GOXLR_SAMPLE_COMPLETE, descriptionKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE, goxlrMiniCompatible:false},
+		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"mute", labelKey:"triggers.events.GOXLR_INPUT_MUTE.label", value:TriggerTypes.GOXLR_INPUT_MUTE, descriptionKey:"triggers.events.GOXLR_INPUT_MUTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT, goxlrMiniCompatible:true},
+		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"unmute", labelKey:"triggers.events.GOXLR_INPUT_UNMUTE.label", value:TriggerTypes.GOXLR_INPUT_UNMUTE, descriptionKey:"triggers.events.GOXLR_INPUT_MUTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT, goxlrMiniCompatible:true},
 	];
 	return eventsCache;
 }

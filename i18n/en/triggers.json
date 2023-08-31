@@ -297,11 +297,22 @@
 				"param_fxPreset4": "Preset 4",
 				"param_fxPreset5": "Preset 5",
 				"param_fxPreset6": "Preset 6",
+				"param_faderIndex": "Fader à modifier",
+				"param_fader_mic":"Mic",
+				"param_fader_chat":"Voice chat",
+				"param_fader_music":"Music",
+				"param_fader_game":"Game",
+				"param_fader_console":"Console",
+				"param_fader_linein":"Line In",
+				"param_fader_system":"System",
+				"param_fader_sample":"Sample",
+				"param_faderValue": "Valeur du fader (0 <-> 253)",
+				"param_profile":"Profile",
 				"action_fx_on": "Enable FX",
 				"action_fx_off": "Disable FX",
-				"action_cough_on": "Mute",
-				"action_cough_off": "Unmute",
 				"action_sample_play": "Play sample",
+				"action_set_fader": "Set fader value",
+				"action_profile": "Switch profile",
 				"select_sampler": "Select the sampler button to play bellow"
 			},
 			"customBadge": {
@@ -430,6 +441,7 @@
 			"heat_key_ctrl": "Is CTRL key pressed ?",
 			"clip_url": "Clip URL",
 			"goxlr_button_id":"Id of the button",
+			"goxlr_fader_index":"Fader index (1 -> 4)",
 			"goxlr_preset_index":"Preset index (1 -> 6)",
 			"goxlr_fxenabled":"FX enabled",
 			"timer_value":"Timer's value in seconds",
@@ -438,8 +450,30 @@
 			"countdown_value_formated":"Formated countdown's remaining time",
 			"countdown_duration":"Countdown's duration in seconds",
 			"countdown_duration_ms":"Countdown's duration in milliseconds",
-			"countdown_duration_formated": "Formated countdown's duration"
-
+			"countdown_duration_formated": "Formated countdown's duration",
+			"goxlr_cough":"Cough button active",
+			"goxlr_profile":"Current GoXLR profile",
+			"goxlr_input_mic":"Mic input volume",
+			"goxlr_input_chat":"Chat input volume",
+			"goxlr_input_music":"Music input volume",
+			"goxlr_input_game":"Game input volume",
+			"goxlr_input_console":"Console input volume",
+			"goxlr_input_linein":"Line In input volume",
+			"goxlr_input_system":"System input volume",
+			"goxlr_input_sample":"Sample input volume",
+			"goxlr_fx_state":"FX enabled state",
+			"goxlr_fx_preset":"Current FX preset index (1 -> 6)",
+			"goxlr_megaphone":"Megaphone active",
+			"goxlr_robot":"Robot active",
+			"goxlr_hardtune":"Hardtune active",
+			"goxlr_reverb":"Reverb encoder value",
+			"goxlr_pitch":"Pitch encoder value",
+			"goxlr_echo":"Echo encoder value",
+			"goxlr_gender":"Gender encoder value",
+			"goxlr_fader_1_mute":"Fader 1 muted",
+			"goxlr_fader_2_mute":"Fader 2 muted",
+			"goxlr_fader_3_mute":"Fader 3 muted",
+			"goxlr_fader_4_mute":"Fader 4 muted"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -817,6 +851,14 @@
 			"GOXLR_SAMPLE_COMPLETE": {
 				"label": "Sample playback complete",
 				"description": "Actions to execute when a GoXLR sample playback complete"
+			},
+			"GOXLR_INPUT_MUTE": {
+				"label": "Fader muted",
+				"description": "Actions to execute when a GoXLR fader is muted"
+			},
+			"GOXLR_INPUT_UNMUTE": {
+				"label": "Fader unmuted",
+				"description": "Actions to execute when a GoXLR fader is unmuted"
 			},
 			"VALUE_UPDATE": {
 				"label": "Value updated",

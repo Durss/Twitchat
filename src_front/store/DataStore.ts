@@ -142,7 +142,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 45;
+		let latestVersion = 46;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -282,6 +282,11 @@ export default class DataStore {
 		}
 		if(v==44) {
 			delete data["goxlrEnabled"];
+			v = 45;
+		}
+		if(v==45) {
+			delete data["goxlrEnabled"];
+			this.addGoXLRReadMarkDefaults(data);
 			v = latestVersion;
 		}
 
@@ -1307,6 +1312,17 @@ export default class DataStore {
 				}
 			}
 			data[DataStore.CUSTOM_USER_BADGES] = badges;
+		}
+	}
+
+	/**
+	 * Add "move read marker" default data to GoXLR params
+	 */
+	private static addGoXLRReadMarkDefaults(data:any):void {
+		const confs:TwitchatDataTypes.GoXLRParams = data[DataStore.GOXLR_CONFIG];
+		if(confs && !confs.chatReadMarkSources) {
+			confs.chatReadMarkSources = []
+			data[DataStore.GOXLR_CONFIG] = confs;
 		}
 	}
 }

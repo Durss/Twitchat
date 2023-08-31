@@ -12,6 +12,8 @@ export default class GoXLRSocketEvent extends Event {
 	public static FX_DISABLED:"FX_DISABLED" = "FX_DISABLED";
 	public static ENCODER:"ENCODER" = "ENCODER";
 	public static SAMPLE_PLAYBACK_COMPLETE:"SAMPLE_PLAYBACK_COMPLETE" = "SAMPLE_PLAYBACK_COMPLETE";
+	public static FADER_MUTE:"FADER_MUTE" = "FADER_MUTE";
+	public static FADER_UNMUTE:"FADER_UNMUTE" = "FADER_UNMUTE";
 
 	/**
 	 * ID of the button pressed/released
@@ -33,6 +35,13 @@ export default class GoXLRSocketEvent extends Event {
 	 * ENCODER
 	 */
 	public encoderId?:Extract<GoXLRTypes.ButtonTypesData, "echo"|"pitch"|"reverb"|"gender">;
+	/**
+	 * Contains the index of the muted/unmuted fader
+	 * Only for those events:
+	 * FADER_MUTE
+	 * FADER_UNMUTE
+	 */
+	public faderIndex?:1|2|3|4;
 	/**
 	 * Contains the value of the rotated encoder button
 	 * Only for those events:
@@ -61,6 +70,7 @@ export default class GoXLRSocketEvent extends Event {
 	constructor(eventType:"ENCODER", encoderId:GoXLRTypes.ButtonTypesData, encoderValue:number, prevEncoderValue:number, fxIndex:number);
 	constructor(eventType:"SAMPLE_PLAYBACK_COMPLETE", bankId:Extract<GoXLRTypes.ButtonTypesData, "SamplerSelectA"|"SamplerSelectB"|"SamplerSelectC">, buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">);
 	constructor(eventType:"FX_ENABLED"|"FX_DISABLED", fxIndex:number);
+	constructor(eventType:"FADER_MUTE"|"FADER_UNMUTE", faderIndex:1|2|3|4);
 	constructor(eventType:"BUTTON_PRESSED"|"BUTTON_RELEASED", button?:GoXLRTypes.ButtonTypesData);
 	constructor(...params:any[]) {
 		const event = params[0];
@@ -84,6 +94,10 @@ export default class GoXLRSocketEvent extends Event {
 		if(event == "SAMPLE_PLAYBACK_COMPLETE") {
 			this.bankId = params[1];
 			this.samplerButtonId = params[2];
+		}
+
+		if(event == "FADER_MUTE" || event == "FADER_UNMUTE") {
+			this.faderIndex = params[1];
 		}
 	}
 	

@@ -763,28 +763,7 @@ export interface IParamsState {
 	/**
 	 * GoXLR configurations
 	 */
-	goxlrConfig: {
-		/**
-		 * GoXLR socket enabled ?
-		 */
-		enabled:boolean,
-		/**
-		 * Socket IP
-		 */
-		ip:string,
-		/**
-		 * Socket port
-		 */
-		port:number,
-		/**
-		 * Contains an effect preset ID and an effect encoder ID for
-		 * every chat columns.
-		 * If requesting to scroll first chat column via "Gender"
-		 * encoder of the preset N°6 the first entry of this array
-		 * will contain this: ["EffectSelect6", "gender"]
-		 */
-		chatScrollSources:GoXLRTypes.ButtonTypesData[][],
-	}
+	goxlrConfig: TwitchatDataTypes.GoXLRParams;
 }
 
 export interface IParamsGetters {
@@ -867,6 +846,12 @@ export interface IParamsActions {
 	 * @param encoderPath 
 	 */
 	setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
+	/**
+	 * Sets the encoder that should move the read mark on the given chat column
+	 * @param colIndex 
+	 * @param encoderPath 
+	 */
+	setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
 }
 
 

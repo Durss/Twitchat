@@ -222,7 +222,7 @@ import Ajv from "ajv";
 								triggerId: {type:"string", maxLength:50},
 								delay: {type:"integer"},
 								filterName: {type:"string", maxLength:100},
-								text: {type:"string", maxLength:500},
+								text: {type:"string", maxLength:1000},
 								url: {type:"string", maxLength:1000},
 								mediaPath: {type:"string", maxLength:1000},
 								type: {type:"string", maxLength:50, nullable: true},
@@ -236,6 +236,9 @@ import Ajv from "ajv";
 								method: {type:"string", maxLength:10},
 								addValue: {type:"string", maxLength:100},
 								counter: {type:"string", maxLength:40},
+								faderId: {type:"string", maxLength:20},
+								faderValue: {type:"string", maxLength:100},
+								profile: {type:"string", maxLength:100},
 								counterUserSources: {
 									type:"object",
 									additionalProperties: false,
@@ -1016,6 +1019,17 @@ import Ajv from "ajv";
 				ip: {type:"string", maxLength:20},
 				port: {type:"integer", minimum:0, maximum:65535},
 				chatScrollSources: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type:"array",
+						minItems:0,
+						maxItems:2,
+						items:{type:"string", maxLength:30},
+					}
+				},
+				chatReadMarkSources: {
 					type:"array",
 					minItems:0,
 					maxItems:10,

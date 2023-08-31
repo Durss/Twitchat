@@ -27,6 +27,8 @@ import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 
+const ignoreNextGoXLREncoderEvent:{[key:string]:boolean} = {};
+
 export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 14,
@@ -567,6 +569,27 @@ export const storeMain = defineStore("main", {
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
+			
+			/**
+			 * Handle GoXLR mute state
+			 */
+			function onGoXLRMute(event:GoXLRSocketEvent):void {
+				const message:TwitchatDataTypes.MessageGoXLRSoundInputData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitchat",
+					mute:event.type == GoXLRSocketEvent.FADER_MUTE,
+					faderIndex: event.faderIndex!,
+					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT,
+				}
+				TriggerActionHandler.instance.execute(message);
+			}
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FADER_MUTE, onGoXLRMute);
+			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FADER_UNMUTE, onGoXLRMute);
+
+			/**
+			 * Handle GoXLR sampler complete
+			 */
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.SAMPLE_PLAYBACK_COMPLETE, (e:GoXLRSocketEvent)=>{
 				const message:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
 					id:Utils.getUUID(),
@@ -578,27 +601,45 @@ export const storeMain = defineStore("main", {
 				}
 				TriggerActionHandler.instance.execute(message);
 			});
+			
+			/**
+			 * Handle GoXLR encoder value change
+			 */
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.ENCODER, (e:GoXLRSocketEvent)=>{
-				const configs = StoreProxy.params.goxlrConfig.chatScrollSources;
-				const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
-				for (let i = 0; i < configs.length; i++) {
-					const column = configs[i];
-					if(column[0] == indexToButtonId[e.fxIndex!] && column[1] == e.encoderId!) {
-						const id = e.encoderId!;
-						const value = e.encoderValue!;
-						const prevValue = e.prevEncoderValue!;
-						const values = GoXLRSocket.instance.getEncoderPossibleValues(id);
-						const index1 = values.indexOf(prevValue);
-						const index2 = values.indexOf(value);
-						const scroll = index1 - index2;
-						//Scroll chat column
-						PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:scroll });
-						let resetValue = prevValue;
-						if(prevValue == values[0]) resetValue = values[1];
-						if(prevValue == values[values.length-1]) resetValue = values[values.length-12];
-						//Reset encoder value
-						GoXLRSocket.instance.setEncoderValue(id, resetValue);
-					}
+				const configs = [StoreProxy.params.goxlrConfig.chatScrollSources, StoreProxy.params.goxlrConfig.chatReadMarkSources];
+				for (let j = 0; j < configs.length; j++) {
+					const config = configs[j];
+					const indexToButtonId = ["EffectSelect1", "EffectSelect2", "EffectSelect3", "EffectSelect4", "EffectSelect5", "EffectSelect6"];
+					for (let i = 0; i < config.length; i++) {
+						const column = config[i];
+						if(column[0] == indexToButtonId[e.fxIndex!]
+						&& column[1] == e.encoderId!) {
+							const key = e.fxIndex+"_"+e.encoderId+"_"+e.encoderValue;
+							const id = e.encoderId!;
+							const value = e.encoderValue!;
+							const encoderParams = GoXLRSocket.instance.getEncoderPossibleValues(id);
+							const resetValue = encoderParams.values[Math.round(encoderParams.values.length/2)]
+							if(value !== resetValue) {
+								const prevValue = e.prevEncoderValue!;
+								const index1 = encoderParams.values.indexOf(prevValue);
+								const index2 = encoderParams.values.indexOf(value);
+								const delta = Math.round((index2 - index1)/encoderParams.step);
+								console.log(index1, index2, encoderParams.step);
+								//Scroll chat column
+								if(j == 0) {
+									PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:delta }, true);
+								}else{
+									PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_READ, { col:i, count:delta }, true);
+								}
+								// let resetValue = prevValue;
+								// let resetValue = encoderParams.values[Math.round(encoderParams.values.length/2)];
+								// if(prevValue == encoderParams.values[0]) resetValue = encoderParams.values[1];
+								// if(prevValue == encoderParams.values[encoderParams.values.length-1]) resetValue = encoderParams.values[encoderParams.values.length-2];
+								//Reset encoder value
+								GoXLRSocket.instance.setEncoderValue(id, resetValue);
+							}
+						}
+				}
 				}
 			});
 

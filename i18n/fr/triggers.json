@@ -298,11 +298,22 @@
 				"param_fxPreset4": "Preset 4",
 				"param_fxPreset5": "Preset 5",
 				"param_fxPreset6": "Preset 6",
+				"param_faderIndex": "Fader to update",
+				"param_fader_mic":"Mic",
+				"param_fader_chat":"Voice chat",
+				"param_fader_music":"Music",
+				"param_fader_game":"Game",
+				"param_fader_console":"Console",
+				"param_fader_linein":"Line In",
+				"param_fader_system":"System",
+				"param_fader_sample":"Sample",
+				"param_faderValue": "Fader value (0 <-> 253)",
+				"param_profile":"Profile",
 				"action_fx_on": "Activer FX",
 				"action_fx_off": "Désactiver FX",
-				"action_cough_on": "Mute",
-				"action_cough_off": "Unmute",
 				"action_sample_play": "Jouer un sample",
+				"action_set_fader": "Déplacer fader",
+				"action_profile": "Changer de profile",
 				"select_sampler": "Sélectionnez le sample à jouer dans l'interface"
 			},
 			"customBadge": {
@@ -402,7 +413,7 @@
 			"counter_name": "Nom du compteur",
 			"counter_value": "Nouvelle valeur du compteur",
 			"counter_update": "Valeur ajoutée",
-			"counter_update_abs": "Valeur ajoutée (valuer absolue)",
+			"counter_update_abs": "Valeur ajoutée (valeur absolue)",
 			"counter_username": "Pseudo (pour les compteurs utilisateur)",
 			"counter_userid": "ID utilisateur (pour les compteurs utilisateur)",
 			"counter_global_value": "Valeur du compteur {NAME}",
@@ -431,6 +442,7 @@
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
 			"goxlr_button_id":"Id du boutton",
+			"goxlr_fader_index":"Index du fader (1 -> 4)",
 			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
 			"goxlr_fxenabled":"FX actif ou non",
 			"timer_value":"Durée du timer en secondes",
@@ -439,7 +451,30 @@
 			"countdown_value_formated":"Durée restante du compte à rebours formatée",
 			"countdown_duration":"Durée du compte à rebours en secondes",
 			"countdown_duration_ms":"Durée du compte à rebours en millisecondes",
-			"countdown_duration_formated": "Durée du compte à rebours formatée"
+			"countdown_duration_formated": "Durée du compte à rebours formatée",
+			"goxlr_cough":"Boutton Cough actif",
+			"goxlr_profile":"Profile actif",
+			"goxlr_input_mic":"Volume de l'entrée Mic",
+			"goxlr_input_chat":"Volume de l'entrée Chat",
+			"goxlr_input_music":"Volume de l'entrée Music",
+			"goxlr_input_game":"Volume de l'entrée Game",
+			"goxlr_input_console":"Volume de l'entrée Console",
+			"goxlr_input_linein":"Volume de l'entrée Line In",
+			"goxlr_input_system":"Volume de l'entrée System",
+			"goxlr_input_sample":"Volume de l'entrée Sample",
+			"goxlr_fx_state":"FX activé",
+			"goxlr_fx_preset":"Preset de FX actif (1 -> 6)",
+			"goxlr_megaphone":"Megaphone activé",
+			"goxlr_robot":"Robot activé",
+			"goxlr_hardtune":"Hardtune activé",
+			"goxlr_reverb":"Valeur de reverbe",
+			"goxlr_pitch":"Valeur de pitch",
+			"goxlr_echo":"Valeur d'écho",
+			"goxlr_gender":"Valeur de gender",
+			"goxlr_fader_1_mute":"Fader 1 mis en sourdine",
+			"goxlr_fader_2_mute":"Fader 2 mis en sourdine",
+			"goxlr_fader_3_mute":"Fader 3 mis en sourdine",
+			"goxlr_fader_4_mute":"Fader 4 mis en sourdine"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -819,6 +854,14 @@
 			"GOXLR_SAMPLE_COMPLETE": {
 				"label": "Lecture d'un sample terminée",
 				"description": "Actions à exécuter lorsque la lecture d'un sample GoXLR termine"
+			},
+			"GOXLR_INPUT_MUTE": {
+				"label": "Fader coupé",
+				"description": "Actions à exécuter lorsque le son d'un fader est coupé"
+			},
+			"GOXLR_INPUT_UNMUTE": {
+				"label": "Fader réactivé",
+				"description": "Actions à exécuter lorsque le son d'un fader est réactivé"
 			},
 			"VALUE_UPDATE": {
 				"label": "Valeur modifiée",

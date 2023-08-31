@@ -507,4 +507,7 @@ export namespace GoXLRTypes {
 								"gender", "echo", "reverb", "pitch",
 								"SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight", "SamplerClear"] as const;
 	export type ButtonTypesData = typeof ButtonTypes[number];
+	
+	export const InputTypes = ["Mic", "Chat", "Music","Game","Console","LineIn","System","Sample"] as const;
+	export type InputTypesData = typeof InputTypes[number];
 }

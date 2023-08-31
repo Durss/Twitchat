@@ -52,7 +52,8 @@
 			"counter":"Counters",
 			"value":"Values",
 			"timer":"Timer & countdown",
-			"music":"Music"
+			"music":"Music",
+			"goxlr": "GoXLR"
 		},
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",

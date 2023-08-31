@@ -139,6 +139,7 @@ export default class AbstractChatMessage extends Vue {
 				this.time = days + this.$t("global.date_days");
 			}
 			
+			clearTimeout(this.refreshTimeout);
 			this.refreshTimeout = setTimeout(()=> {
 				this.refreshDate();
 			}, duration);
@@ -235,7 +236,6 @@ export default class AbstractChatMessage extends Vue {
 	 * @param e 
 	 */
 	public onContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, htmlNode:HTMLElement):void {
-		console.log(htmlNode);
 		if(this.contextMenuOff !== false) return;
 		if(e.target) {
 			const el = e.target as HTMLElement;

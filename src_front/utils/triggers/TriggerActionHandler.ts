@@ -21,6 +21,7 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import Config from "../Config";
+import type { GoXLRTypes } from "@/types/GoXLRTypes";
 
 /**
 * Created : 22/04/2022 
@@ -390,6 +391,13 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE:{
 				if(await this.executeTriggersByType(TriggerTypes.GOXLR_SAMPLE_COMPLETE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT:{
+				const eventType = message.mute? TriggerTypes.GOXLR_INPUT_MUTE : TriggerTypes.GOXLR_INPUT_UNMUTE;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
@@ -1355,13 +1363,8 @@ export default class TriggerActionHandler {
 
 				//Handle mobile device vibration action
 				if(step.type == "goxlr") {
-					logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action});
+					logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action+"\""});
 					switch(step.action) {
-						// case "cough_on":
-						// case "cough_off": {
-						// 	GoXLRSocket.instance.setCoughState(step.action == "cough_on");
-						// 	break;
-						// }
 						case "fx_on":
 						case "fx_off": {
 							if(step.fxPresetIndex && step.fxPresetIndex > -1) {
@@ -1375,6 +1378,21 @@ export default class TriggerActionHandler {
 							if(step.sampleIndex) {
 								logStep.messages.push({date:Date.now(), value:"GoXLR play sample at \""+step.sampleIndex[0] + " "+ step.sampleIndex[1]});
 								GoXLRSocket.instance.playSample(step.sampleIndex[0], step.sampleIndex[1]);
+							}
+							break;
+						}
+						case "set_fader": {
+							if(step.faderId) {
+								logStep.messages.push({date:Date.now(), value:"GoXLR set fader \""+step.faderId + "\" volume to "+ step.faderValue});
+								const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.faderValue!);
+								GoXLRSocket.instance.setFaderValue(step.faderId, parseInt(value) || 0);
+							}
+							break;
+						}
+						case "profile": {
+							if(step.profile) {
+								logStep.messages.push({date:Date.now(), value:"GoXLR set profile \""+step.profile + "\""});
+								GoXLRSocket.instance.setProfile(step.profile!);
 							}
 							break;
 						}
@@ -1596,11 +1614,12 @@ export default class TriggerActionHandler {
 			//No placeholders for this event type, just send back the source text
 			if(placeholders.length == 0) return res;
 
-			
+			const srcU = src.toUpperCase();
 			for (const placeholder of placeholders) {
 				let value:string = "";
 				let cleanSubevent = true;
 				placeholder.tag = placeholder.tag.toUpperCase();
+				if(srcU.indexOf("{"+placeholder.tag+"}") == -1) continue;
 
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
@@ -1705,6 +1724,58 @@ export default class TriggerActionHandler {
 							}
 						}else{
 							value = "0";
+						}
+
+					/**
+					 * If the placeholder requests for a goxlr value
+					 */
+					}else if(pointer.indexOf("__goxlr__") == 0) {
+						const pointerLocal = pointer.split(".").splice(1);
+						if(pointerLocal[0] == "cough") {
+							value = GoXLRSocket.instance.getButtonState( "Cough" ) === true ? "true" : "false";
+						}else
+						if(pointerLocal[0] == "profile") {
+							value = GoXLRSocket.instance.currentProfile;
+						}else
+						if(pointerLocal[0] == "input") {
+							type keys = "mic"|"chat"|"music"|"game"|"console"|"linein"|"system"|"sample";
+							const input = pointerLocal[1] as keys;
+							const hashmap:{[key in keys]:keyof GoXLRTypes.Volumes} = {
+								mic:"Mic",
+								chat:"Chat",
+								music:"Music",
+								game:"Game",
+								console:"Console",
+								linein:"LineIn",
+								system:"System",
+								sample:"Sample",
+							}
+							if(hashmap[input]) {
+								value = GoXLRSocket.instance.getInputVolume( hashmap[input] ).toString();
+							}else{
+								value = "0";
+							}
+						}else
+						if(pointerLocal[0] == "fx") {
+							switch(pointerLocal[1]) {
+								case "enabled": value = GoXLRSocket.instance.fxEnabled===true? "true" : "false"; break;
+								case "preset": value = (GoXLRSocket.instance.activeEffectPreset + 1).toString(); break;
+								case "megaphone": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectMegaphone")===true? "true" : "false"; break;
+								case "robot": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectRobot")===true? "true" : "false"; break;
+								case "hardtune": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectHardTune")===true? "true" : "false"; break;
+								case "reverb": value = GoXLRSocket.instance.getButtonState("reverb").toString(); break;
+								case "pitch": value = GoXLRSocket.instance.getButtonState("pitch").toString(); break;
+								case "echo": value = GoXLRSocket.instance.getButtonState("echo").toString(); break;
+								case "gender": value = GoXLRSocket.instance.getButtonState("gender").toString(); break;
+							}
+						}else
+						if(pointerLocal[0] == "fader") {
+							switch(pointerLocal[1]) {
+								case "a": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader1Mute")===true? "true" : "false"; break;
+								case "b": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader2Mute")===true? "true" : "false"; break;
+								case "c": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader3Mute")===true? "true" : "false"; break;
+								case "d": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader4Mute")===true? "true" : "false"; break;
+							}
 						}
 	
 					/**

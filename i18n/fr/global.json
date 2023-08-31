@@ -52,7 +52,8 @@
       "counter": "Compteurs",
       "value": "Valeurs",
       "timer": "Chrono & compte à rebours",
-      "music": "Musique"
+      "music": "Musique",
+      "goxlr": "GoXLR"
     },
     "chat_alert_title": "{USER} dit",
     "date_days": "j",

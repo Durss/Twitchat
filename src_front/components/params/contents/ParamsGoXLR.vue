@@ -23,17 +23,33 @@
 		<Button icon="premium" @click="openPremium()" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
 
 		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
-		<!-- <div class="fadeHolder"> -->
 			<section class="card-item alert error" v-if="noDevice">
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
 			<ToggleBlock :icons="['scroll']" :title="$t('goxlr.scroll_info')">
-				<ParamItem class="item" :paramData="param_chatColIndex" noBackground @change="onSelectChatColumnIndex()" />
+				<ParamItem class="item" :paramData="param_chatColIndexScroll" noBackground @change="onSelectChatColumnIndex()" />
 				
-				<template v-if="param_chatColIndex.value >= 0">
+				<template v-if="param_chatColIndexScroll.value >= 0">
 					<div class="item center">{{ $t("goxlr.scroll_select_encoder") }}</div>
-					<GoXLRUI class="item" childMode knobMode v-model="knobSelection" @change="onGoXLRSelectionChange()" />
+					<div class="item card-item secondary" v-if="showEncoderWarning">{{ $t("goxlr.pitch_warning") }}</div>
+					<GoXLRUI class="item" childMode knobMode v-model="knobSelectionScroll" @change="onGoXLRSelectionChange()" />
+				</template>
+			</ToggleBlock>
+		</div>
+
+		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
+			<section class="card-item alert error" v-if="noDevice">
+				<div class="item">{{ $t("goxlr.no_device") }}</div>
+			</section>
+
+			<ToggleBlock :icons="['scroll']" :title="$t('goxlr.readMark_info')">
+				<ParamItem class="item" :paramData="param_chatColIndexMarkRead" noBackground @change="onSelectChatColumnIndex()" />
+				
+				<template v-if="param_chatColIndexMarkRead.value >= 0">
+					<div class="item center">{{ $t("goxlr.readMark_select_encoder") }}</div>
+					<div class="item card-item secondary" v-if="showEncoderWarning">{{ $t("goxlr.pitch_warning") }}</div>
+					<GoXLRUI class="item" childMode knobMode v-model="knobSelectionReadMark" @change="onGoXLRSelectionChange(true)" />
 				</template>
 			</ToggleBlock>
 		</div>
@@ -82,10 +98,13 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 export default class ParamsGoXLR extends Vue {
 
 	public connecting:boolean = false;
-	public knobSelection:GoXLRTypes.ButtonTypesData[] = [];
+	public showEncoderWarning:boolean = false;
+	public knobSelectionScroll:GoXLRTypes.ButtonTypesData[] = [];
+	public knobSelectionReadMark:GoXLRTypes.ButtonTypesData[] = [];
 
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
-	public param_chatColIndex:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
+	public param_chatColIndexScroll:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
+	public param_chatColIndexMarkRead:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 
 	public get holderStyles():StyleValue {
 		return {
@@ -102,7 +121,7 @@ export default class ParamsGoXLR extends Vue {
 	}
 
 	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
-	public get noDevice():boolean { return GoXLRSocket.instance.status != null; }
+	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
 	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public beforeMount():void {
@@ -113,7 +132,8 @@ export default class ParamsGoXLR extends Vue {
 		for (let i = 0; i < this.$store("params").chatColumnsConfig.length; i++) {
 			cols.push({value:i, label:(i+1).toString()});
 		}
-		this.param_chatColIndex.listValues = cols;
+		this.param_chatColIndexScroll.listValues = cols;
+		this.param_chatColIndexMarkRead.listValues = cols;
 	}
 
 	/**
@@ -141,25 +161,44 @@ export default class ParamsGoXLR extends Vue {
 	 * Called when selecting a new chat column index
 	 */
 	public onSelectChatColumnIndex():void {
-		if(this.param_chatColIndex.value == -1) return;
 		const configs = this.$store("params").goxlrConfig;
-		this.knobSelection = configs.chatScrollSources[this.param_chatColIndex.value] || [];
+		if(this.param_chatColIndexScroll.value > -1) {
+			this.knobSelectionScroll = configs.chatScrollSources[this.param_chatColIndexScroll.value] || [];
+		}
+		if(this.param_chatColIndexMarkRead.value > -1 && configs.chatReadMarkSources) {
+			this.knobSelectionReadMark = configs.chatReadMarkSources[this.param_chatColIndexMarkRead.value] || [];
+		}
 	}
 
 	/**
 	 * Called when selection changes on GoXLR UI
 	 */
-	public onGoXLRSelectionChange():void {
-		//Extract last knob ID
-		const knobs = this.knobSelection.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
-		const knob = knobs.pop();
-		//Remove all knob IDs and push the previously extracted one
-		const list = this.knobSelection.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
-		if(knob) list.push(knob);
-		this.knobSelection = list;
+	public onGoXLRSelectionChange(readMarkMode:boolean = false):void {
+		if(readMarkMode) {
+			//Extract last knob ID
+			const knobs = this.knobSelectionReadMark.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
+			const knob = knobs.pop();
+			//Remove all knob IDs and push the previously extracted one
+			const list = this.knobSelectionReadMark.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			if(knob) list.push(knob);
+			this.knobSelectionReadMark = list;
 
-		const index = this.param_chatColIndex.value;
-		this.$store("params").setGoXLRChatColScrollParams(index, list);
+			this.showEncoderWarning = list[list.length-1] == "pitch";
+			const index = this.param_chatColIndexMarkRead.value;
+			this.$store("params").setGoXLRChatColReadMarkParams(index, list);
+		}else{
+			//Extract last knob ID
+			const knobs = this.knobSelectionScroll.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
+			const knob = knobs.pop();
+			//Remove all knob IDs and push the previously extracted one
+			const list = this.knobSelectionScroll.filter(v => v != "reverb" && v != "echo" && v != "pitch" && v != "gender");
+			if(knob) list.push(knob);
+			this.knobSelectionScroll = list;
+
+			this.showEncoderWarning = list[list.length-1] == "pitch";
+			const index = this.param_chatColIndexScroll.value;
+			this.$store("params").setGoXLRChatColScrollParams(index, list);
+		}
 	}
 }
 </script>

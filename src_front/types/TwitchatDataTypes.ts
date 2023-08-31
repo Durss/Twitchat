@@ -299,6 +299,37 @@ export namespace TwitchatDataTypes {
 		unmuteCommand:string;
 	}
 
+	export interface GoXLRParams {
+		/**
+		 * GoXLR socket enabled ?
+		 */
+		enabled:boolean,
+		/**
+		 * Socket IP
+		 */
+		ip:string,
+		/**
+		 * Socket port
+		 */
+		port:number,
+		/**
+		 * Contains an effect preset ID and an effect encoder ID for
+		 * every chat columns.
+		 * If requesting to scroll first chat column via "Gender"
+		 * encoder of the preset N°6 the first entry of this array
+		 * will contain this: ["EffectSelect6", "gender"]
+		 */
+		chatScrollSources:GoXLRTypes.ButtonTypesData[][],
+		/**
+		 * Contains an effect preset ID and an effect encoder ID for
+		 * every chat columns.
+		 * If requesting to move the marker of first chat column via
+		 * "Gender" encoder of the preset N°6 the first entry of this
+		 * array will contain this: ["EffectSelect6", "gender"]
+		 */
+		chatReadMarkSources:GoXLRTypes.ButtonTypesData[][],
+	}
+
 
 
 	/**
@@ -686,7 +717,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music";
+		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr";
 	}
 
 	/**
@@ -1437,6 +1468,7 @@ export namespace TwitchatDataTypes {
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		GOXLR_SOUND_INPUT:"goxlr_sound_input",
 		USER_WATCH_STREAK:"user_watch_streak",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
@@ -1514,6 +1546,7 @@ export namespace TwitchatDataTypes {
 		obs_filter_toggle:false,
 		hype_train_cancel:false,
 		hype_train_summary:true,
+		goxlr_sound_input:false,
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
@@ -1624,6 +1657,7 @@ export namespace TwitchatDataTypes {
 									| MessageGoXLRButtonData
 									| MessageGoXLRFXEnableChangeData
 									| MessageGoXLRSampleCompleteData
+									| MessageGoXLRSoundInputData
 									| MessageHistorySplitterData
 	;
 	
@@ -3188,6 +3222,21 @@ export namespace TwitchatDataTypes {
 		 * Sampler button that started the sample
 		 */
 		buttonId:Extract<GoXLRTypes.ButtonTypesData, "SamplerTopLeft"|"SamplerTopRight"|"SamplerBottomLeft"|"SamplerBottomRight">;
+	}
+
+	/**
+	 * Represents a GoXLR fader mute/unmute action
+	 */
+	export interface MessageGoXLRSoundInputData extends AbstractTwitchatMessage {
+		type:"goxlr_sound_input";
+		/**
+		 * Is channel muted ?
+		 */
+		mute:boolean;
+		/**
+		 * Muted/unmuted fader index (1 -> 4)
+		 */
+		faderIndex:1|2|3|4;
 	}
 
 	/**

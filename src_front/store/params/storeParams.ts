@@ -224,6 +224,7 @@ export const storeParams = defineStore('params', {
 			ip:"127.0.0.1",
 			port:14564,
 			chatScrollSources:[],
+			chatReadMarkSources:[],
 		}
 	} as IParamsState),
 
@@ -423,6 +424,11 @@ export const storeParams = defineStore('params', {
 
 		setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void {
 			this.goxlrConfig.chatScrollSources[colIndex] = encoderPath;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
+
+		setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void {
+			this.goxlrConfig.chatReadMarkSources[colIndex] = encoderPath;
 			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
 		},
 

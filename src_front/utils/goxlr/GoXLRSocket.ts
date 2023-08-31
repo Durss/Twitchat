@@ -1,8 +1,8 @@
 import { EventDispatcher } from "@/events/EventDispatcher";
 import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
-import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { reactive } from "vue";
 
 /**
@@ -19,6 +19,8 @@ export default class GoXLRSocket extends EventDispatcher {
 	
 	private _initResolver!: Function;
 	private _connecting!: boolean;
+	private _currentProfile!: string;
+	private _profileList: string[] = [];
 	private _connectingPromise!: Promise<void>;
 	private _socket!: WebSocket;
 	private _autoReconnect: boolean = false;
@@ -28,6 +30,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	private _status:GoXLRTypes.Status | null = null;
 	private _currentFXIndex:number = 0;
 	private _buttonStates:Partial<{[key in GoXLRTypes.ButtonTypesData]:boolean|number}> = {};
+	private _toggleStates:Partial<{[key in GoXLRTypes.ButtonTypesData]:boolean|number}> = {};
 	private _pitchMode:"Narrow"|"Medium"|"Wide" = "Narrow";
 	private _genderMode:"Narrow"|"Medium"|"Wide" = "Narrow";
 	
@@ -57,9 +60,18 @@ export default class GoXLRSocket extends EventDispatcher {
 
 	/**
 	 * Gets the currently active preset index (0 <-> 5)
-	 * @param name
 	 */
 	public get activeEffectPreset():number { return this._currentFXIndex; }
+
+	/**
+	 * Get all available profiles
+	 */
+	public get profileList():string[] { return this._profileList; }
+
+	/**
+	 * Get current profile
+	 */
+	public get currentProfile():string { return this._currentProfile; }
 	
 	
 	
@@ -78,6 +90,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			this._socket.onopen = () => {
 				console.log("🎤 GoXLR connection succeed");
 				this.getDeviceStatus();
+				rebuildPlaceholdersCache();
 			};
 
 			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
@@ -88,6 +101,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				}
 				this._connecting = false;
 				this.connected = false;
+				rebuildPlaceholdersCache();
 				if(this._autoReconnect) {
 					try {
 						this.connect(ip, port);
@@ -120,11 +134,30 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
-	 * Get a button's value
+	 * Get a button's value.
+	 * Returns a boolean with true if the button is pressed.
+	 * Returns a number for encoders
 	 * @param buttonId 
 	 */
 	public getButtonState(buttonId:GoXLRTypes.ButtonTypesData):boolean|number {
 		return this._buttonStates[buttonId] ?? false;
+	}
+
+	/**
+	 * Get if a toggle button is active
+	 * @param buttonId 
+	 */
+	public getIsToggleButtonActive(buttonId:GoXLRTypes.ButtonTypesData):boolean|number {
+		return this._toggleStates[buttonId] ?? false;
+	}
+
+	/**
+	 * Get an input's voluùe
+	 * @param inputId 
+	 */
+	public getInputVolume(inputId:keyof GoXLRTypes.Volumes):number {
+		if(!this.status) return 0;
+		return this.status!.levels.volumes[inputId];
 	}
 
 	/**
@@ -244,42 +277,58 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * Values can change depending on the "hard tune" state
 	 * @param id 
 	 */
-	public getEncoderPossibleValues(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">):number[] {
+	public getEncoderPossibleValues(id:Extract<GoXLRTypes.ButtonTypesData, "gender"|"echo"|"pitch"|"reverb">):{step:number, values:number[]} {
 		let min = 0;
 		let max = 100;
+		let step = 1;
+		if(id == "echo") step = 4;
+		if(id == "reverb") step = 5;
 		//Define custom ranges for pitch and gender depending on configurations.
 		if(id === "pitch") {
 			if(this._pitchMode == "Narrow") {
-				min = -12;
-				max = 12;
+				min = -24;
+				max = 24;
+				step = 2;
 				//If HardTune is enabled it restrict possible values to only 3
-				if(this._buttonStates.EffectHardTune) return [-12, 0, 12];
+				if(this._buttonStates.EffectHardTune) {
+					min = -1;
+					max = 1;
+					step = 1;
+				}
 			}
 			if(this._pitchMode == "Wide") {
 				min = -24;
 				max = 24;
+				step = 1;
 				//If HardTune is enabled it restrict possible values to only 5
-				if(this._buttonStates.EffectHardTune) return [-24, -12, 0, 12, 24];
+				if(this._buttonStates.EffectHardTune) {
+					min = -2;
+					max = 2;
+					step = 1;
+				}
 			}
 		}
 		if(id === "gender") {
 			if(this._genderMode == "Narrow") {
 				min = -12;
 				max = 12;
+				step = 1;
 			}
 			if(this._genderMode == "Medium") {
 				min = -25;
 				max = 25;
+				step = 1;
 			}
 			if(this._genderMode == "Wide") {
 				min = -50;
 				max = 50;
+				step = 2;
 			}
 		}
 
 		const res:number[] = [];
-		for (let i = min; i < max; i++) res.push(i);
-		return res;
+		for (let i = min; i < max; i ++) res.push(i);
+		return {step, values:res};
 	}
 
 	/**
@@ -369,6 +418,20 @@ export default class GoXLRSocket extends EventDispatcher {
 	 * @param bmp
 	 */
 	public setEchoTempo(bpm:number):Promise<unknown> { return this.execCommand("SetEchoTempo", bpm); }
+
+	/**
+	 * Sets a fader's value
+	 * Between 0 and 254
+	 * @param fader
+	 * @param value (0 => 254)
+	 */
+	public setFaderValue(fader:GoXLRTypes.InputTypesData, value:number):Promise<unknown> { return this.execCommand("SetVolume", [fader, Math.min(254, Math.max(0, value))]); }
+
+	/**
+	 * Switch to the given profile
+	 * @param profile
+	 */
+	public setProfile(profile:string):Promise<unknown> { return this.execCommand("LoadProfile", [profile, true]); }
 	
 	
 	
@@ -422,11 +485,60 @@ export default class GoXLRSocket extends EventDispatcher {
 				for (let j = 0; j < chunks.length; j++) {
 					const c = chunks[j];
 
+					//Handle profile update
+					if(c == "profile_name") {
+						this._currentProfile = patch.value;
+					}else
+
+					//Handle profile update
+					if(c == "profiles") {
+						this.getDeviceStatus();
+					}else
+
 					//Handle FX enable/disable
 					if(c == "effects" && chunks[j+1] === "is_enabled") {
 						const isEnabled = patch.value == true;
+						this.fxEnabled = isEnabled;
+						this._toggleStates.EffectFx = isEnabled;
 						const type = isEnabled? GoXLRSocketEvent.FX_ENABLED : GoXLRSocketEvent.FX_DISABLED;
 						this.dispatchEvent(new GoXLRSocketEvent(type, this._currentFXIndex));
+					}else
+
+					//Handle FX enable/disable
+					if(c == "effects" && chunks[j+3] === "is_enabled") {
+						const id = chunks[j+2]
+						let btId:GoXLRTypes.ButtonTypesData|null = null;
+						switch(id) {
+							case "megaphone": btId = "EffectMegaphone"; break;
+							case "robot": btId = "EffectRobot"; break;
+							case "hard_tune": btId = "EffectHardTune"; break;
+						}
+						if(btId) this._toggleStates[btId] = patch.value;
+						console.log(this._toggleStates);
+					}else
+
+					//Handle current FX preset change
+					if(c == "effects" && chunks[j+1] === "active_preset") {
+						this._currentFXIndex = ["Preset1", "Preset2", "Preset3", "Preset4", "Preset5", "Preset6"].indexOf(patch.value);
+					}else
+
+					//Handle fader mute/unmute
+					if(c == "fader_status" && chunks[j+2] === "mute_state") {
+						const muted = patch.value !== "Unmuted";
+						const key = chunks[j+1] as "A"|"B"|"C"|"D";
+						const hashmap:{[key in "A"|"B"|"C"|"D"]:1|2|3|4} = { A:1, B:2, C:3, D:4 };
+						const faderIndex = hashmap[key];
+						const type = muted? GoXLRSocketEvent.FADER_MUTE : GoXLRSocketEvent.FADER_UNMUTE;
+						const hashmap2:{[key in "A"|"B"|"C"|"D"]:GoXLRTypes.ButtonTypesData} = { A:"Fader1Mute", B:"Fader2Mute", C:"Fader3Mute", D:"Fader4Mute" };
+						const faderId = hashmap2[key] as GoXLRTypes.ButtonTypesData;
+						this._toggleStates[faderId] = muted
+						this.dispatchEvent(new GoXLRSocketEvent(type, faderIndex));
+					}else
+
+					//Handle fader value update
+					if(c == "levels" && chunks[j+1] === "volumes") {
+						type test = keyof GoXLRTypes.Volumes;
+						this.status!.levels.volumes[chunks[j+2] as test] = patch.value;
 					}else
 
 					//Handle button press/release
@@ -440,9 +552,11 @@ export default class GoXLRSocket extends EventDispatcher {
 					
 					//Handle encoders
 					if(["echo","gender","reverb","pitch"].indexOf(c) > -1 && chunks[j+1] === "amount") {
-						const value = patch.value;
 						const bt = c as GoXLRTypes.ButtonTypesData;
-						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ENCODER, bt, value, this.getButtonState(bt) as number, this._currentFXIndex));
+						const value = patch.value;
+						const prevValue = this.getButtonState(bt) as number;
+						this._buttonStates[bt] = value;
+						this.dispatchEvent(new GoXLRSocketEvent(GoXLRSocketEvent.ENCODER, bt, value, prevValue, this._currentFXIndex));
 					}else
 
 					//Handle sampler playback complete
@@ -467,13 +581,13 @@ export default class GoXLRSocket extends EventDispatcher {
 			this._idToPromiseResolver[id] = <T>(data:T) => resolve(data as {Status:GoXLRTypes.Status});
 		});
 		prom.then(result => {
-			console.log(result.Status);
 			this._deviceId = Object.keys(result.Status.mixers)[0];
 			if(!this._deviceId) {
 				console.error("🎤 No GoXLR device found");
 			}else{
 				console.log("🎤 GoXLR device ID is", this._deviceId);
 				const mixer = result.Status.mixers[this._deviceId];
+				console.log(mixer);
 				if(mixer) {
 					this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
 					//Initialize buttons states
@@ -507,10 +621,15 @@ export default class GoXLRSocket extends EventDispatcher {
 					this._buttonStates.echo = mixer.effects.current.echo.amount;
 					this._genderMode = mixer.effects.current.gender.style as "Narrow"|"Medium"|"Wide";
 					this._pitchMode = mixer.effects.current.pitch.style as "Narrow"|"Medium"|"Wide";
+					
+					this._toggleStates.EffectHardTune = mixer.effects.current.hard_tune.is_enabled;
+					this._toggleStates.EffectRobot = mixer.effects.current.robot.is_enabled;
+					this._toggleStates.EffectMegaphone = mixer.effects.current.megaphone.is_enabled;
+					this._toggleStates.Fader1Mute = mixer.fader_status.A.mute_state !== "Unmuted";
+					this._toggleStates.Fader2Mute = mixer.fader_status.B.mute_state !== "Unmuted";
+					this._toggleStates.Fader3Mute = mixer.fader_status.C.mute_state !== "Unmuted";
+					this._toggleStates.Fader4Mute = mixer.fader_status.D.mute_state !== "Unmuted";
 				}
-				this.status = this._status? this._status.mixers[this._deviceId] : null;
-				this.isGoXLRMini = this.status?.hardware.device_type == "Mini";
-				this.fxEnabled = this.status?.effects.is_enabled || false;
 			}
 			//If no status was loaded yet, execute init promise resolver
 			if(!this._status) {
@@ -519,7 +638,14 @@ export default class GoXLRSocket extends EventDispatcher {
 				this._autoReconnect = true;
 				this._initResolver();
 			}
-			this._status = reactive(result.Status);
+			this._status = reactive(result.Status)!;
+			this.status = this._status? this._status.mixers[this._deviceId] : null;
+			if(this.status) {
+				this.isGoXLRMini = this.status?.hardware.device_type == "Mini";
+				this.fxEnabled = this.status.effects.is_enabled || false;
+				this._currentProfile = this.status.profile_name;
+			}
+			this._profileList = this._status.files.profiles;
 		});
 
 		this._socket.send(JSON.stringify({id, data:"GetStatus"}));
