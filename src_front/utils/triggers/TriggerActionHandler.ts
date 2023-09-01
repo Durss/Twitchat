@@ -38,7 +38,7 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private lastAnyMessageSent:string = "";
 	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {};
-	private triggerTypeToQueue:{[key:string]:Promise<void>} = {};
+	private triggerTypeToQueue:{[key:string]:Promise<void>[]} = {};
 	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo}|null = null;
 	private triggerType2Triggers:{[key:string]:TriggerData[]} = {};
 	private HASHMAP_KEY_SPLITTER:string = "_";
@@ -656,11 +656,15 @@ export default class TriggerActionHandler {
 			date:Date.now(),
 			complete:false,
 			skipped:false,
+			error:false,
+			criticalError:false,
 			data: message,
 			testMode,
 			steps:[],
 			messages:[],
 		};
+		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
+
 		const isPremium = StoreProxy.auth.isPremium;
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
@@ -691,6 +695,24 @@ export default class TriggerActionHandler {
 			MessengerProxy.instance.sendMessage(text);
 			return true;
 		}
+			
+		//Wait for potential previous trigger of the exact same type to finish their execution
+		const queueKey = trigger.queue || trigger.id;
+		log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
+		
+		if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
+		const queue = this.triggerTypeToQueue[queueKey];
+		const eventBusy = queue.length > 0
+		let prom = queue[queue.length-1] ?? Promise.resolve();
+		let triggerResolver!: ()=>void;
+		queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
+		if(eventBusy) {
+			log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
+		}
+		await prom;
+		if(eventBusy) {
+			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
+		}
 
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
@@ -700,6 +722,8 @@ export default class TriggerActionHandler {
 			const triggerId = trigger.id;
 			const now = Date.now();
 
+			//If message contains a user and a channel_id properties, check for permissions and cooldowns
+			//Channel ID is necessary for follower check and chat message feedback is user is cooling down
 			if("user" in message && message.user
 			&& "channel_id" in message && message.channel_id) {
 				//check user's permissions
@@ -719,18 +743,18 @@ export default class TriggerActionHandler {
 					}
 					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
-			}
-	
-			//Global cooldown
-			if(trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
-				canExecute = false;
-				if(trigger.cooldown.alert !== false && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
-					const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
-					MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+		
+				//Global cooldown
+				if(trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
+					canExecute = false;
+					if(trigger.cooldown.alert !== false) {
+						const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
+						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
+						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
+					}
 				}
+				else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 			}
-			else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 		}
 
 		//Create dynamic placeholders only if trigger is planned for execution so far.
@@ -763,20 +787,18 @@ export default class TriggerActionHandler {
 		
 		let actions = trigger.actions;
 		
-		//check execution conditions
 		let passesCondition = true;
-		let hasConditions = trigger.conditions && trigger.conditions.conditions.length > 0
-		if(!testMode
-		&& hasConditions
-		&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
-			log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
-			passesCondition = false;
-		}else if(hasConditions) {
-			log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
-		}
-
-		//Filter actions to execute based on whether the condition is matched or not
-		if(hasConditions) {
+		//If trigger has conditions, check if the condition passes or not
+		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
+			if(!testMode
+			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
+				log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
+				passesCondition = false;
+			}else{
+				log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
+			}
+	
+			//Filter actions to execute based on whether the condition is matched or not
 			actions = trigger.actions.filter(t=> {
 				return t.condition == passesCondition || (t.condition !== false && passesCondition);
 			});
@@ -786,29 +808,14 @@ export default class TriggerActionHandler {
 			canExecute = false;
 			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
 		}
-		if(!trigger.enabled && !testMode && !ignoreDisableState) {
-			canExecute = false;
-			log.messages.push({date:Date.now(), value:"Trigger is disabled"});
-		}
 		
 		log.skipped = !canExecute;
 
-		//Stop there if previous conditions aren't matched
-		if(!canExecute) return false;
-			
-		//Wait for potential previous trigger of the exact same type to finish its execution
-		const queueKey = trigger.queue || trigger.id;
-		const eventBusy = this.triggerTypeToQueue[queueKey] != undefined;
-		log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
-		if(eventBusy) {
-			log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
-		}
-		let prom = this.triggerTypeToQueue[queueKey] ?? Promise.resolve();
-		let resolverTriggerType!: ()=>void;
-		this.triggerTypeToQueue[queueKey] = new Promise<void>(async (resolve, reject)=> { resolverTriggerType = resolve });
-		await prom;
-		if(eventBusy) {
-			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
+		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
+		if(!canExecute) {
+			queue.shift();
+			triggerResolver();//Proceed to next trigger in current queue
+			return false;
 		}
 
 		let channel_id = StoreProxy.auth.twitch.user.id;
@@ -921,6 +928,7 @@ export default class TriggerActionHandler {
 					const platforms:TwitchatDataTypes.ChatPlatform[] = [];
 					if(message.platform != "twitchat") platforms.push(message.platform);
 					// console.log(platforms, text);
+					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""});
 					MessengerProxy.instance.sendMessage(text, platforms);
 					if(trigger.type == TriggerTypes.ANY_MESSAGE) {
 						this.lastAnyMessageSent = text;
@@ -1017,6 +1025,7 @@ export default class TriggerActionHandler {
 								step.pollData.pointsPerVote);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create poll as it's missing either the title or answers"});
+							log.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1038,6 +1047,7 @@ export default class TriggerActionHandler {
 								step.predictionData.voteDuration * 60);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create prediction as it's missing either the title or answers"});
+							log.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1059,6 +1069,7 @@ export default class TriggerActionHandler {
 				if(step.type == "raffle_enter") {
 					if(StoreProxy.raffle.checkRaffleJoin(message)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
+						log.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ User joined the raffle"});
 					}
@@ -1138,9 +1149,11 @@ export default class TriggerActionHandler {
 							await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Call trigger, trigger \""+step.triggerId+"\" not found"});
+							log.error = true;
 						}
 					}else{
 						logStep.messages.push({date:Date.now(), value:"❌ Call trigger, no trigger defined"});
+						log.error = true;
 					}
 				}else
 				
@@ -1153,6 +1166,7 @@ export default class TriggerActionHandler {
 							&& !isPremium
 							&& StoreProxy.triggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
 								logStep.messages.push({date:Date.now(), value:step.action + "❌ Cannot enable trigger \""+step.triggerId+"\". Premium limit reached."});
+								log.error = true;
 							}else{
 								switch(step.action) {
 									case "enable": trigger.enabled = true; break;
@@ -1168,9 +1182,7 @@ export default class TriggerActionHandler {
 				
 				//Handle http call trigger action
 				if(step.type == "http") {
-					const options = {
-						method:step.method,
-					};
+					const options = {method:step.method};
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
@@ -1205,6 +1217,7 @@ export default class TriggerActionHandler {
 							WebsocketTrigger.instance.sendMessage(json);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
+							log.error = true;
 						}
 					}catch(error) {
 						console.error(error);
@@ -1226,6 +1239,7 @@ export default class TriggerActionHandler {
 								if(c.enabled !== true && !isPremium) {
 									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 									logStep.messages.push({date:Date.now(), value:logMessage});
+									log.error = true;
 								}else
 								//Check if this step requests that this counter should update a user
 								//different than the default one (the one executing the command)
@@ -1260,8 +1274,12 @@ export default class TriggerActionHandler {
 								}else{
 									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
-									let logMessage = "Increment \""+c.name+"\" by "+value+" ("+text+")";
-									if(user) logMessage += " (for @"+user.displayName+")";
+									let logMessage = "";
+									if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
+									if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
+									if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
+									if(user) logMessage += " for @"+user.displayName+")";
+									logMessage += ". New value is "+c.value;
 									logStep.messages.push({date:Date.now(), value:logMessage});
 								}
 							}
@@ -1278,6 +1296,7 @@ export default class TriggerActionHandler {
 							if(v.enabled !== true && !isPremium) {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
+								log.error = true;
 							} else {
 								StoreProxy.values.updateValue(v.id, {value:text});
 								let logMessage = "Update Value \""+v.name+"\" to "+text;
@@ -1424,7 +1443,7 @@ export default class TriggerActionHandler {
 								}
 								if(track) {
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success: true"});
+										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
 										data = {
 											title:track.name,
 											artist:track.artists[0].name,
@@ -1434,7 +1453,8 @@ export default class TriggerActionHandler {
 											url:track.external_urls.spotify,
 										};
 									}else{
-										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue success: false"});
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
+										log.error = true;
 									}
 								}
 							}
@@ -1518,6 +1538,7 @@ export default class TriggerActionHandler {
 					}catch(error) {
 						console.error(error);
 						logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Exception: "+ error});
+						log.error = true;
 					}
 				}else
 
@@ -1541,6 +1562,7 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"➕ Given badge \""+v+"\" to "+user.login});
 								}else{
 									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user.login+". Limit reached."});
+									log.error = true;
 								}
 							});
 							step.customBadgeDel.forEach(v=> {
@@ -1569,6 +1591,7 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"✔ Set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
+							log.error = true;
 						}
 					}
 				}
@@ -1576,13 +1599,13 @@ export default class TriggerActionHandler {
 			}catch(error) {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
+				log.criticalError = true;
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
 		}
 		
-		delete this.triggerTypeToQueue[queueKey];
-
-		resolverTriggerType();
+		queue.shift();
+		triggerResolver();//Proceed to next trigger in current queue
 		log.complete = true;
 
 		// console.log("Steps parsed", actions);

@@ -212,6 +212,8 @@ export interface TriggerLog {
 	testMode:boolean;
 	complete:boolean;
 	skipped:boolean;
+	error:boolean;
+	criticalError:boolean;
 	data:TwitchatDataTypes.ChatMessageTypes;
 	messages:{date:number, value:string}[];
 	steps:{
