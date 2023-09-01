@@ -505,6 +505,11 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/triggerlogs") {
+			StoreProxy.params.openModal("triggersLogs");
+			return true;
+		}else
+
 		if(cmd == "/startraffle") {
 			await StoreProxy.raffle.pickWinner();
 			return true;

@@ -183,7 +183,8 @@
 			"betamigrate": "Migre les données utilisateur de la beta vers la prod",
 			"streamTitle": "Modifier le titre du stream",
 			"streamCategory": "Modifier la category du stream",
-			"streamTags": "Modifier les tags du stream"
+			"streamTags": "Modifier les tags du stream",
+			"triggerlogs": "@:triggers.logs.title"
 		}
 	}
 }

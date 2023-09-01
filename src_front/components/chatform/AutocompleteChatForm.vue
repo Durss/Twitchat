@@ -25,7 +25,7 @@
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
-			<div class="infos" v-if="i.type == 'cmdS' && i.infos">{{i.infos}}</div>
+			<div class="infos" v-if="i.type == 'cmdS' && i.infos">{{$t(i.infos)}}</div>
 			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 	</div>

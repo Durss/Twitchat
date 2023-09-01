@@ -1,27 +1,28 @@
 <template>
 	<div class="triggerslogs sidePanel">
 		<div class="head">
-			<h1 class="title">Triggers logs</h1>
+			<h1 class="title">{{ $t("triggers.logs.title") }}</h1>
+			<div class="subtitle">{{ $t("triggers.logs.subtitle") }}</div>
 			<CloseButton @click="close" />
 		</div>
 		
 		<div class="ctas">
-			<Button @click="refreshList()" icon="refresh" :loading="reloading">Refresh</Button>
-			<Button @click="clearList()" icon="trash" alert>Clear</Button>
+			<Button @click="refreshList()" icon="refresh" :loading="reloading">{{ $t("global.refresh") }}</Button>
+			<Button @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</Button>
 		</div>
 		
-		<div class="content empty" v-if="logs.length == 0 && !reloading">
-			- No history -
-		</div>
+		<div class="content empty" v-if="logs.length == 0 && !reloading">{{ $t("triggers.logs.empty") }}</div>
 		
 		<div class="content empty" v-else-if="reloading">
 			<Icon class="loader" name="loader" />
 		</div>
 		
 		<div class="content entries" v-else-if="!reloading">
-			<div v-for="item in logs" :key="item.id" class="entry">
+			<div v-for="item in logs" :key="item.id" :class="getTriggerClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
+					<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
+					<div class="status" v-tooltip="'critical error'" v-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
 					<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
 					<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
 					<div class="status" v-tooltip="'pending'" v-else><img src="@/assets/loader/loader.svg"></div>
@@ -83,6 +84,13 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 	public get logs():TriggerLog[] {
 		return TriggerActionHandler.instance.logHistory;
+	}
+
+	public getTriggerClasses(log:TriggerLog):string[] {
+		const res = ["entry"];
+		if(log.error) res.push("secondary");
+		if(log.criticalError) res.push("alert");
+		return res;
 	}
 
 	public getTriggerInfo(trigger:TriggerData) {
@@ -202,6 +210,17 @@ export default class TriggersLogs extends AbstractSidePanel {
 				.date {
 					margin-right: .5em;
 				}
+			}
+		}
+
+		&.secondary {
+			.head {
+				background: var(--color-secondary);
+			}
+		}
+		&.alert {
+			.head {
+				background: var(--color-alert);
 			}
 		}
 

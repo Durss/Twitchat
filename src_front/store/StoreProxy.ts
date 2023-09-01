@@ -519,6 +519,10 @@ export interface IChatActions {
 	 * Reset the greeting history.
 	 */
 	resetGreetingHistory():void
+	/**
+	 * Removes any donation request related messages
+	 */
+	cleanupDonationRelatedMessages():void
 }
 
 
@@ -1169,6 +1173,10 @@ export interface ITriggersState {
 	 * contains all the triggers defintions
 	 */
 	triggerList: TriggerData[];
+	/**
+	 * Contains data about the currently edited trigger;
+	 */
+	currentEditTriggerData:TriggerData|null;
 }
 
 export interface ITriggersGetters {
@@ -1179,6 +1187,15 @@ export interface ITriggersGetters {
 }
 
 export interface ITriggersActions {
+	/**
+	 * Defines the trigger data to be editted
+	 * @param data 
+	 */
+	openTriggerEdition(data:TriggerData):void;
+	/**
+	 * Opens the trigger list
+	 */
+	openTriggerList():void;
 	/**
 	 * Add a new trigger
 	 * @param data 

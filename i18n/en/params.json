@@ -183,7 +183,8 @@
 			"betamigrate": "Migrate user data from beta to production",
 			"streamTitle": "Update the stream's title",
 			"streamCategory": "Update the stream's title",
-			"streamTags": "Update the stream's tags"
+			"streamTags": "Update the stream's tags",
+			"triggerlogs": "@:triggers.logs.title"
 		}
 	}
 }

@@ -36,6 +36,12 @@
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
+		"logs":{
+			"cmd_info":"Astuce: Consultez les logs d'exécution des triggers avec la commande {CMD}",
+			"title":"Logs de triggers",
+			"subtitle":"Retrouvez les détails d'exécution de vos triggers",
+			"empty":"- aucun historique -"
+		},
 		"music": {
 			"require": "Ces évènements nécessitent de lier Spotify avec Twitchat dans {URL}",
 			"require_url": "la section @:params.categories.connexions"

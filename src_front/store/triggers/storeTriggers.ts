@@ -6,10 +6,13 @@ import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
+import StoreProxy from '../StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggerList: [],
+		currentEditTriggerData: null,
 	} as ITriggersState),
 
 
@@ -34,6 +37,15 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	actions: {
+		openTriggerEdition(data:TriggerData) {
+			this.currentEditTriggerData = data;
+			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		},
+		
+		openTriggerList() {
+			this.currentEditTriggerData = null;
+		},
+
 		addTrigger(data:TriggerData) {
 			//If it is a schedule trigger add it to the scheduler
 			if(data.type === TriggerTypes.SCHEDULE) {

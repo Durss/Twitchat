@@ -93,7 +93,7 @@
 					<ParamsTwitchatAd :expand="content == contentAd && !closed" @collapse="openPage('main')" />
 				</div>
 				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
-				<ParamsSponsor v-else-if="content != contentAd" />
+				<ParamsPremium v-else-if="content != contentAd" />
 			</div>
 		</div>
 	</div>
@@ -124,14 +124,13 @@ import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsPremium from './contents/ParamsPremium.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
-import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
+import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
-import ParamsValues from './contents/ParamsValues.vue';
 
 @Component({
 	components:{
@@ -151,7 +150,6 @@ import ParamsValues from './contents/ParamsValues.vue';
 		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
-		ParamsSponsor,
 		ThemeSelector,
 		ParamsCounters,
 		ParamsOverlays,
@@ -337,6 +335,10 @@ export default class Parameters extends Vue {
 	}
 
 	public openPage(page:TwitchatDataTypes.ParameterPagesStringType):void {
+		const content = this.$refs.currentContent as IParameterContent;
+		//Check if current content wants to override the navigation
+		if(content && content.reload) content.reload();
+
 		this.$store("params").openParamsPage(page);
 	}
 

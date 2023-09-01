@@ -85,108 +85,108 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"updates",
 				cmd:"/updates",
-				details:StoreProxy.i18n.t("params.commands.updates"),
+				details:"params.commands.updates",
 			},
 			{
 				id:"tip",
 				cmd:"/tip",
-				details:StoreProxy.i18n.t("params.commands.tip"),
+				details:"params.commands.tip",
 			},
 			{
 				id:"timerStart",
 				cmd:"/timerStart",
-				details:StoreProxy.i18n.t("params.commands.timerStart"),
+				details:"params.commands.timerStart",
 			},
 			{
 				id:"timerPause",
 				cmd:"/timerPause",
-				details:StoreProxy.i18n.t("params.commands.timerPause"),
+				details:"params.commands.timerPause",
 			},
 			{
 				id:"timerUnpause",
 				cmd:"/timerUnpause",
-				details:StoreProxy.i18n.t("params.commands.timerUnpause"),
+				details:"params.commands.timerUnpause",
 			},
 			{
 				id:"timerAdd",
 				cmd:"/timerAdd {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.timerAdd"),
+				details:"params.commands.timerAdd",
 			},
 			{
 				id:"timerRemove",
 				cmd:"/timerRemove {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.timerRemove"),
+				details:"params.commands.timerRemove",
 			},
 			{
 				id:"timerStop",
 				cmd:"/timerStop",
-				details:StoreProxy.i18n.t("params.commands.timerStop"),
+				details:"params.commands.timerStop",
 			},
 			{
 				id:"countdown",
 				cmd:"/countdown {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdown"),
+				details:"params.commands.countdown",
 			},
 			{
 				id:"countdownAdd",
 				cmd:"/countdownAdd {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdownAdd"),
+				details:"params.commands.countdownAdd",
 			},
 			{
 				id:"countdownRemove",
 				cmd:"/countdownRemove {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdownRemove"),
+				details:"params.commands.countdownRemove",
 			},
 			{
 				id:"countdownPause",
 				cmd:"/countdownPause",
-				details:StoreProxy.i18n.t("params.commands.countdownPause"),
+				details:"params.commands.countdownPause",
 			},
 			{
 				id:"countdownUnpause",
 				cmd:"/countdownUnpause",
-				details:StoreProxy.i18n.t("params.commands.countdownUnpause"),
+				details:"params.commands.countdownUnpause",
 			},
 			{
 				id:"countdownStop",
 				cmd:"/countdownStop",
-				details:StoreProxy.i18n.t("params.commands.countdownStop"),
+				details:"params.commands.countdownStop",
 			},
 			{
 				id:"search",
 				cmd:"/search {text}",
-				details:StoreProxy.i18n.t("params.commands.search"),
+				details:"params.commands.search",
 			},
 			{
 				id:"userinfo",
 				cmd:"/user {username}",
 				alias:"/userinfo {user}",
-				details:StoreProxy.i18n.t("params.commands.userinfo"),
+				details:"params.commands.userinfo",
 			},
 			{
 				id:"raffle",
 				cmd:"/raffle",
-				details:StoreProxy.i18n.t("params.commands.raffle"),
+				details:"params.commands.raffle",
 			},
 			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				details:"params.commands.bingo",
 			},
 			{
 				id:"bingonumber",
 				cmd:"/bingo number {min} {max}",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				details:"params.commands.bingo",
 			},
 			{
 				id:"bingocustom",
 				cmd:"/bingo custom {message}",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				details:"params.commands.bingo",
 			},
 			{
 				id:"raid",
 				cmd:"/raid {user}",
-				details:StoreProxy.i18n.t("params.commands.raid"),
+				details:"params.commands.raid",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.START_RAID],
@@ -194,7 +194,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shoutout",
 				cmd:"/shoutout {user}",
-				details:StoreProxy.i18n.t("params.commands.so"),
+				details:"params.commands.so",
 				alias:"/so {user}",
 				needModerator:true,
 				twitchCmd:true,
@@ -203,7 +203,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"poll",
 				cmd:"/poll {title}",
-				details:StoreProxy.i18n.t("params.commands.poll"),
+				details:"params.commands.poll",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -212,12 +212,12 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"chatsugg",
 				cmd:"/suggestion",
-				details:StoreProxy.i18n.t("params.commands.chatsugg"),
+				details:"params.commands.chatsugg",
 			},
 			{
 				id:"prediction",
 				cmd:"/prediction {title}",
-				details:StoreProxy.i18n.t("params.commands.prediction"),
+				details:"params.commands.prediction",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -226,24 +226,24 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"tts",
 				cmd:"/tts {user}",
-				details:StoreProxy.i18n.t("params.commands.tts"),
+				details:"params.commands.tts",
 				needTTS:true,
 			},
 			{
 				id:"ttsoff",
 				cmd:"/ttsoff {user}",
-				details:StoreProxy.i18n.t("params.commands.ttsoff"),
+				details:"params.commands.ttsoff",
 				needTTS:true,
 			},
 			{
 				id:"simulatechat",
 				cmd:"/simulateChat",
-				details:StoreProxy.i18n.t("params.commands.simulatechat"),
+				details:"params.commands.simulatechat",
 			},
 			{
 				id:"announce",
 				cmd:"/announce {message}",
-				details:StoreProxy.i18n.t("params.commands.announce"),
+				details:"params.commands.announce",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -251,7 +251,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceblue",
 				cmd:"/announceblue {message}",
-				details:StoreProxy.i18n.t("params.commands.announceblue"),
+				details:"params.commands.announceblue",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -259,7 +259,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcegreen",
 				cmd:"/announcegreen {message}",
-				details:StoreProxy.i18n.t("params.commands.announcegreen"),
+				details:"params.commands.announcegreen",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -267,7 +267,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceorange",
 				cmd:"/announceorange {message}",
-				details:StoreProxy.i18n.t("params.commands.announceorange"),
+				details:"params.commands.announceorange",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -275,7 +275,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcepurple",
 				cmd:"/announcepurple {message}",
-				details:StoreProxy.i18n.t("params.commands.announcepurple"),
+				details:"params.commands.announcepurple",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -283,7 +283,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"commercial",
 				cmd:"/commercial {duration}",
-				details:StoreProxy.i18n.t("params.commands.commercial"),
+				details:"params.commands.commercial",
 				twitchCmd:true,
 				needChannelPoints:false,
 				needModerator:true,
@@ -292,7 +292,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"to",
 				cmd:"/timeout {user} {duration} {reason}",
-				details:StoreProxy.i18n.t("params.commands.to"),
+				details:"params.commands.to",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -300,7 +300,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"ban",
 				cmd:"/ban {user}",
-				details:StoreProxy.i18n.t("params.commands.ban"),
+				details:"params.commands.ban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -308,7 +308,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unban",
 				cmd:"/unban {user}",
-				details:StoreProxy.i18n.t("params.commands.unban"),
+				details:"params.commands.unban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -316,7 +316,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"block",
 				cmd:"/block {user}",
-				details:StoreProxy.i18n.t("params.commands.block"),
+				details:"params.commands.block",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -324,7 +324,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unblock",
 				cmd:"/unblock {user}",
-				details:StoreProxy.i18n.t("params.commands.unblock"),
+				details:"params.commands.unblock",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -332,7 +332,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonly",
 				cmd:"/emoteonly",
-				details:StoreProxy.i18n.t("params.commands.emoteonly"),
+				details:"params.commands.emoteonly",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -340,7 +340,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonlyoff",
 				cmd:"/emoteonlyoff",
-				details:StoreProxy.i18n.t("params.commands.emoteonlyoff"),
+				details:"params.commands.emoteonlyoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -348,7 +348,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followers",
 				cmd:"/followers {minutes}",
-				details:StoreProxy.i18n.t("params.commands.followers"),
+				details:"params.commands.followers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -356,7 +356,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followersoff",
 				cmd:"/followersoff",
-				details:StoreProxy.i18n.t("params.commands.followersoff"),
+				details:"params.commands.followersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -364,7 +364,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slow",
 				cmd:"/slow {seconds}",
-				details:StoreProxy.i18n.t("params.commands.slow"),
+				details:"params.commands.slow",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -372,7 +372,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slowoff",
 				cmd:"/slowoff",
-				details:StoreProxy.i18n.t("params.commands.slowoff"),
+				details:"params.commands.slowoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -380,7 +380,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribers",
 				cmd:"/subscribers {seconds}",
-				details:StoreProxy.i18n.t("params.commands.subscribers"),
+				details:"params.commands.subscribers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -388,7 +388,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribersoff",
 				cmd:"/subscribersoff",
-				details:StoreProxy.i18n.t("params.commands.subscribersoff"),
+				details:"params.commands.subscribersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -396,7 +396,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"whisper",
 				cmd:"/w {recipient} {message}",
-				details:StoreProxy.i18n.t("params.commands.whisper"),
+				details:"params.commands.whisper",
 				alias:"/whisper {recipient} {message}",
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.WHISPER_WRITE, TwitchScopes.WHISPER_READ],
@@ -404,7 +404,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOn",
 				cmd:"/shield",
-				details:StoreProxy.i18n.t("params.commands.shieldOn"),
+				details:"params.commands.shieldOn",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -412,7 +412,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOff",
 				cmd:"/shieldoff",
-				details:StoreProxy.i18n.t("params.commands.shieldOff"),
+				details:"params.commands.shieldOff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -420,7 +420,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"mod",
 				cmd:"/mod {user}",
-				details:StoreProxy.i18n.t("params.commands.mod"),
+				details:"params.commands.mod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -428,7 +428,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unmod",
 				cmd:"/unmod {user}",
-				details:StoreProxy.i18n.t("params.commands.unmod"),
+				details:"params.commands.unmod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -436,7 +436,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"vip",
 				cmd:"/vip {user}",
-				details:StoreProxy.i18n.t("params.commands.vip"),
+				details:"params.commands.vip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -444,7 +444,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unvip",
 				cmd:"/unvip {user}",
-				details:StoreProxy.i18n.t("params.commands.unvip"),
+				details:"params.commands.unvip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -452,7 +452,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clip",
 				cmd:"/clip",
-				details:StoreProxy.i18n.t("params.commands.clips"),
+				details:"params.commands.clips",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.CLIPS],
@@ -460,7 +460,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"marker",
 				cmd:"/marker {comment}",
-				details:StoreProxy.i18n.t("params.commands.marker"),
+				details:"params.commands.marker",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -468,7 +468,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clear",
 				cmd:"/clear",
-				details:StoreProxy.i18n.t("params.commands.clear"),
+				details:"params.commands.clear",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
@@ -476,7 +476,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtitle",
 				cmd:"/setStreamTitle {title}",
-				details:StoreProxy.i18n.t("params.commands.streamTitle"),
+				details:"params.commands.streamTitle",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -484,7 +484,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamcategory",
 				cmd:"/setStreamCategory {category}",
-				details:StoreProxy.i18n.t("params.commands.streamCategory"),
+				details:"params.commands.streamCategory",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -492,7 +492,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtags",
 				cmd:"/setStreamTags {tag1} {tag2}",
-				details:StoreProxy.i18n.t("params.commands.streamTags"),
+				details:"params.commands.streamTags",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -500,54 +500,59 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
-				details:StoreProxy.i18n.t("params.commands.betaadd"),
+				details:"params.commands.betaadd",
 				needAdmin:true,
 			},
 			{
 				id:"betadel",
 				cmd:"/betaDel {user}",
-				details:StoreProxy.i18n.t("params.commands.betadel"),
+				details:"params.commands.betadel",
 				needAdmin:true,
 			},
 			{
 				id:"betamigrate",
 				cmd:"/betaMigrate {user}",
-				details:StoreProxy.i18n.t("params.commands.betamigrate"),
+				details:"params.commands.betamigrate",
 				needAdmin:true,
 			},
 			{
 				id:"betaclose",
 				cmd:"/betaClose",
-				details:StoreProxy.i18n.t("params.commands.betareset"),
+				details:"params.commands.betareset",
 				needAdmin:true,
 			},
 			{
 				id:"devmode",
 				cmd:"/devmode",
-				details:StoreProxy.i18n.t("params.commands.devmode"),
+				details:"params.commands.devmode",
 				needAdmin:true,
 			},
 			{
 				id:"userlist",
 				cmd:"/userlist",
-				details:StoreProxy.i18n.t("params.commands.userlist"),
+				details:"params.commands.userlist",
 				needAdmin:true,
 			},
 			{
 				id:"userdata",
 				cmd:"/userdata {login}",
-				details:StoreProxy.i18n.t("params.commands.userdata"),
+				details:"params.commands.userdata",
 				needAdmin:true,
 			},
 			{
 				id:"greetduration",
 				cmd:"/greetDuration {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.greetduration"),
+				details:"params.commands.greetduration",
 			},
 			{
 				id:"pin",
 				cmd:"/pin {message}",
-				details:StoreProxy.i18n.t("params.commands.pin"),
+				details:"params.commands.pin",
+			},
+			{
+				id:"triggerlogs",
+				cmd:"/triggerlogs",
+				details:"params.commands.triggerlogs",
 			},
 		],
 
@@ -608,6 +613,12 @@ export const storeChat = defineStore('chat', {
 		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
+			if(adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
+			|| adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
+			|| adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
+				//Don't send donation related messages if premium
+				if(StoreProxy.auth.isPremium) return;
+			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(StoreProxy.auth.twitch.user.donor.state!==true && !StoreProxy.auth.isPremium) {
@@ -620,13 +631,6 @@ export const storeChat = defineStore('chat', {
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
-
-				const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
-				if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
-					//Force last updates if any not read
-					// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
-					StoreProxy.params.openModal("updates");
-				}
 				// else{
 					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
@@ -639,7 +643,8 @@ export const storeChat = defineStore('chat', {
 				if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) return;
 			}
 
-			for (let i = messageList.length-1; i > Math.min(0, messageList.length - 50); i--) {
+			//Check if current ad has alrady been sent within the last 50 message
+			for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 50); i--) {
 				const mess = messageList[i];
 				if(mess.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
 				if(mess.adType == adType) return;//Avoid sending 2 consecutive ad of the same type
@@ -803,6 +808,7 @@ export const storeChat = defineStore('chat', {
 							messageList.splice(i, 1);
 							await Database.instance.deleteMessage(m);
 							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
+							console.log("INCREMENT", m.message);
 							m.occurrenceCount ++;
 							//Update timestamp
 							m.date = Date.now();
@@ -1500,6 +1506,18 @@ export const storeChat = defineStore('chat', {
 			greetedUsers = {};
 			//Reset greeting history
 			DataStore.remove(DataStore.GREET_HISTORY);
+		},
+
+		cleanupDonationRelatedMessages():void {
+			for (let i = 0; i < messageList.length; i++) {
+				const m = messageList[i];
+				if(m.type !== TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
+				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
+				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
+				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
+					this.deleteMessageByReference(m);
+				}
+			}
 		},
 	} as IChatActions
 	& ThisType<IChatActions

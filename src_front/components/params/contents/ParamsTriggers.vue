@@ -2,9 +2,14 @@
 	<div class="paramstriggers parameterContent">
 		<Icon name="broadcast" class="icon" />
 
-		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
-			<template #COUNT><strong>{{ eventsCount }}</strong></template>
-		</i18n-t>
+		<div class="head">
+			<i18n-t scope="global" tag="p" :keypath="headerKey" v-if="!currentTriggerData">
+				<template #COUNT><strong>{{ eventsCount }}</strong></template>
+			</i18n-t>
+			<i18n-t scope="global" tag="p" class="small" keypath="triggers.logs.cmd_info" v-if="!currentTriggerData">
+				<template #CMD><mark v-click2Select>{{ $store("chat").commands.find(v=>v.id=='triggerlogs')?.cmd}}</mark></template>
+			</i18n-t>
+		</div>
 
 		<div class="holder">
 
@@ -105,18 +110,18 @@ import TriggerList from './triggers/TriggerList.vue';
 export default class ParamsTriggers extends Vue implements IParameterContent {
 
 	public eventsCount:number = 0;
-	public showList:boolean = true;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
 	public loadingOBSScenes:boolean = false;
 	public headerKey:string = "triggers.header";
-	public currentTriggerData:TriggerData|null = null;
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
 
 	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
+	public get currentTriggerData():TriggerData|null { return this.$store("triggers").currentEditTriggerData; }
+	public get showList():boolean { return this.currentTriggerData == null; }
 
 	public get showOBSResync():boolean {
 		if(!this.currentTriggerData) return false;
@@ -145,7 +150,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		const list = this.$store("triggers").triggerList;
 		//No trigger yet, just show form
 		if(list.length == 0) {
-			this.showList = false;
 			this.showForm = true;
 			this.headerKey = "triggers.header_select_trigger";
 		}
@@ -198,10 +202,16 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Called when back button is clicked on params header
 	 */
 	public onNavigateBack(): boolean {
+		return this.reload();
+	}
+
+	/**
+	 * Called when back button is clicked on params header
+	 */
+	public reload(): boolean {
 		if(!this.showList) {
-			this.showList = true;
 			this.showForm = false;
-			this.currentTriggerData = null;
+			this.$store("triggers").openTriggerList();
 			this.headerKey = "triggers.header";
 			return true;
 		}
@@ -221,7 +231,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public openForm():void {
 		this.headerKey = "triggers.header_select_trigger";
 		this.showForm = true;
-		this.showList = false;
 	}
 
 	/**
@@ -229,8 +238,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * @param triggerData
 	 */
 	public onSelectTrigger(triggerData:TriggerData):void {
-		this.currentTriggerData = triggerData;
-		this.showList = false;
+		this.$store("triggers").openTriggerEdition(triggerData);
 		this.showForm = false;
 	}
 
@@ -246,6 +254,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		}catch(error) {
 			this.obsSources = [];
 			this.$store("main").alert(this.$t('error.obs_sources_loading'));
+			this.loadingOBSScenes = false;
 			return;
 		}
 
@@ -496,10 +505,9 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 */
 	public deleteTrigger(id:string):void {
 		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
-			this.$store("triggers").deleteTrigger(id);
-			this.showList = true;
 			this.showForm = false;
-			this.currentTriggerData = null;
+			this.$store("triggers").deleteTrigger(id);
+			this.$store("triggers").openTriggerList();
 		}).catch(error=>{});
 	}
 }
