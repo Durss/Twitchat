@@ -259,10 +259,42 @@ export const storeMain = defineStore("main", {
 			//Only listen for these events if authenticated.
 			//This avoids them from being listened from the overlay or homepage where it's useless
 
+			const sAuth = StoreProxy.auth;
+			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
+			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
-			const sVoice = StoreProxy.voice;
+
+			//Warn the user about the automatic "ad" message sent every 2h
+			if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !sAuth.isPremium) {
+				setTimeout(()=>{
+					if(sAuth.twitch.user.donor.noAd) return;
+					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
+				}, 5000);
+			}else
+			//Ask the user if they want to make their donation public
+			if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && sAuth.twitch.user.donor.state) {
+				setTimeout(()=>{
+					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
+				}, 5000);
+			}else
+			//Show "right click message" hint
+			if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
+				setTimeout(()=>{
+					sChat.sendRightClickHint();
+				}, 5000);
+			}else{
+				//Hot fix to make sure new changelog highlights are displayed properly
+				setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
+			}
+
+			const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
+			if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
+				//Force last updates if any not read
+				// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
+				StoreProxy.params.openModal("updates");
+			}
 
 			Database.instance.connect().then(()=> {
 				StoreProxy.chat.preloadMessageHistory();

@@ -58,7 +58,7 @@
 			/>
 		</Teleport>
 
-		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems = false" />
+		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
@@ -242,11 +242,11 @@ export default class Chat extends Vue {
 	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;
-	public mustDisableItems = false;
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
 	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";
+	public mustDisableItems_precalc:boolean = false;
 	
 	private disposed = false;
 	private mouseX = 0;
@@ -263,6 +263,7 @@ export default class Chat extends Vue {
 	
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
+	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store("auth").isPremium; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -300,7 +301,7 @@ export default class Chat extends Vue {
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
 
-		this.mustDisableItems = this.$store("main").nonPremiumLimitExceeded;
+		this.mustDisableItems_precalc = this.$store("main").nonPremiumLimitExceeded;
 		
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {

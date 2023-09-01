@@ -17,8 +17,7 @@
 			"port":"Port",
 			"secured":"Secured",
 			"success":"Socket is now connected",
-			"usage":"Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger.",
-			"clearBt":"Clear"
+			"usage":"Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger."
 		}
 	}
 }

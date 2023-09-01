@@ -2,7 +2,6 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
@@ -15,6 +14,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 let refreshTokenTO:number = -1;
 
@@ -156,16 +156,8 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				this.authenticated = true;
-
-				StoreProxy.main.onAuthenticated();
-
-				//Check if user is part of the donors nor an admin
-				// try {
-				// 	window.setInitMessage("loading Twitchat user info");
-				// }catch(error) {}
 	
 				const sMain = StoreProxy.main;
-				const sChat = StoreProxy.chat;
 				const sRewards = StoreProxy.rewards;
 				
 				try {
@@ -241,28 +233,7 @@ export const storeAuth = defineStore('auth', {
 					})
 				});
 
-				//Warn the user about the automatic "ad" message sent every 2h
-				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.isPremium) {
-					setTimeout(()=>{
-						if(this.twitch.user.donor.noAd) return;
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
-					}, 5000);
-				}else
-				//Ask the user if they want to make their donation public
-				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && this.twitch.user.donor.state) {
-					setTimeout(()=>{
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
-					}, 5000);
-				}else
-				//Show "right click message" hint
-				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
-					setTimeout(()=>{
-						sChat.sendRightClickHint();
-					}, 5000);
-				}else{
-					//Hot fix to make sure new changelog highlights are displayed properly
-					setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
-				}
+				StoreProxy.main.onAuthenticated();
 
 				if(cb) cb(true);
 				

@@ -98,6 +98,9 @@ export default class PatreonHelper {
 		
 		const res = await ApiController.call("patreon/isMember", "GET", {token:this._token.access_token});
 		this._isMember = res.json.data.isMember;
+		if(this._isMember) {
+			StoreProxy.chat.cleanupDonationRelatedMessages();
+		}
 		return res.json;
 	}
 	

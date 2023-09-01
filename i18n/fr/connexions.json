@@ -17,8 +17,7 @@
 			"port":"Port",
 			"secured":"Sécurisé",
 			"success":"Connexion au serveur socket établie",
-			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers.",
-			"clearBt":"Effacer"
+			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers."
 		}
 	}
 }
