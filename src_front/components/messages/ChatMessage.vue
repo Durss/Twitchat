@@ -154,7 +154,6 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
 
-
 @Component({
 	components:{
 		Button,

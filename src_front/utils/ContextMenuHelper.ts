@@ -21,7 +21,7 @@ export default class ContextMenuHelper {
 	private static _instance:ContextMenuHelper;
 
 	constructor() {
-	
+		
 	}
 	
 	/********************
@@ -519,20 +519,23 @@ export default class ContextMenuHelper {
 		const chanId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.channel_id : message.channel_id;
 		const messageId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.id : message.id;
 		const fileName = user.id+"_"+user.login+"_"+messageId;
+		const gap = 10;
 		const infosDiv = document.createElement("div");
 		infosDiv.style.color = fgcolor;
-		infosDiv.style.fontSize = "16px";
-		infosDiv.style.lineHeight = "18px";
-		infosDiv.style.width = "fit-content";
+		infosDiv.style.fontSize = "15px";
+		infosDiv.style.lineHeight = "17px";
+		infosDiv.style.width = "600px";
 		infosDiv.style.display = "flex";
 		infosDiv.style.flexDirection = "column";
 		infosDiv.style.position = "fixed";
-		infosDiv.style.padding = "10px";
 		infosDiv.style.top = "-99999px";
-		infosDiv.innerHTML = `<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
+		infosDiv.style.padding = "1em";
+		infosDiv.style.borderRadius = ".3em";
+		infosDiv.style.backgroundColor = bgcolor;
+		infosDiv.innerHTML = `<div><strong>Message type:</strong> ${message.type}</div>
+		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
 		<div><strong>User login:</strong> ${user.login}</div>
 		<div><strong>User ID:</strong> ${user.id}</div>
-		<div><strong>Message type:</strong> ${message.type}</div>
 		<div><strong>Channel ID:</strong> ${chanId}</div>
 		<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
 		document.body.appendChild(infosDiv);
@@ -540,15 +543,50 @@ export default class ContextMenuHelper {
 		
 		//Generate image from virtual infos node
 		domtoimage
-		.toPng(infosDiv)
-		.then((infoUrl:string) => {
+		.toPng(infosDiv, {})
+		.then(async(infoUrl:string) => {
+			infosDiv.remove();
 			let infoImg = new Image();
-			infoImg.addEventListener("load", () => {
+			infoImg.addEventListener("load", async () => {
 				//Generate image from message node
+				const clone = htmlNode.cloneNode(true) as HTMLElement;
+				htmlNode.parentElement?.appendChild(clone);
+				clone.style.position = "fixed";
+				clone.style.top = "0";
+				clone.style.left = "-9999999999px";
+				clone.style.width = "600px";
+				clone.style.position = "absolute";
+				clone.style.fontSize = "18px";
+				clone.style.opacity = "1";
+				clone.style.padding = "1em";
+				clone.style.borderRadius = ".3em";
+				//Do not override any existing background color
+				if(!window.getComputedStyle(htmlNode).getPropertyValue("background")) {
+					clone.style.background = bgcolor;
+				}
+				clone.querySelector(".chatMessageTime")?.remove();
+				clone.querySelectorAll("button").forEach(v=>v.remove());
+				const imgs = clone.querySelectorAll("img");
+				let loaded = 0;
+				//Wait for all images to be loaded
+				await new Promise<void>((resolve)=> {
+					let fallBackTO = setTimeout(() => resolve(), 1000);
+					imgs.forEach((v:HTMLImageElement)=>{
+						// let url = new URL(v.src);
+						// url.searchParams.append("ck", Date.now().toString());
+						// v.src = url.href;
+						v.removeAttribute("loading");
+						v.addEventListener("load", ()=>{
+							if(++loaded == imgs.length) {
+								resolve();
+								clearTimeout(fallBackTO);
+							}
+						});
+					});
+				})
+				
 				domtoimage
-				.toPng(htmlNode, {bgcolor, style:{"font-size":"22px !important", color:"red !important"}, filter:(node:HTMLElement)=>{
-					return !node.classList || !node.classList.contains("chatMessageTime");
-				}})
+				.toPng(clone, {})
 				.then((dataUrl:string) => {
 					let messageImg = new Image();
 					messageImg.addEventListener("load", () => {
@@ -556,16 +594,15 @@ export default class ContextMenuHelper {
 						const canvas	= document.createElement("canvas");
 						const ctx		= canvas.getContext("2d");
 						canvas.width	= cnvWidth;
-						canvas.height	= messageImg.height + infoImg.height;
+						canvas.height	= messageImg.height + infoImg.height + gap;
 						if(!ctx) throw new Error("Context 2D creation failed");
 						ctx.clearRect(0, 0, canvas.width, canvas.height);
-						ctx.fillStyle = bgcolor;
-						ctx.fillRect(0, 0, canvas.width, canvas.height);
+						// ctx.fillStyle = bgcolor;
+						// ctx.fillRect(0, 0, canvas.width, canvas.height);
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
-						ctx.fillStyle = fgcolor;
-						ctx.fillRect(0, messageImg.height, canvas.width, 1);
-						ctx.drawImage(infoImg, 0, messageImg.height, infoImg.width, infoImg.height);
-						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png")
+						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
+						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
+						clone.remove();
 					});
 					messageImg.setAttribute("src", dataUrl);
 				});

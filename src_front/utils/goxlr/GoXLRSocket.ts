@@ -514,7 +514,6 @@ export default class GoXLRSocket extends EventDispatcher {
 							case "hard_tune": btId = "EffectHardTune"; break;
 						}
 						if(btId) this._toggleStates[btId] = patch.value;
-						console.log(this._toggleStates);
 					}else
 
 					//Handle current FX preset change
@@ -587,7 +586,6 @@ export default class GoXLRSocket extends EventDispatcher {
 			}else{
 				console.log("🎤 GoXLR device ID is", this._deviceId);
 				const mixer = result.Status.mixers[this._deviceId];
-				console.log(mixer);
 				if(mixer) {
 					this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
 					//Initialize buttons states
