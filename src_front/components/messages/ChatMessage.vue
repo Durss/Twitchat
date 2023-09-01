@@ -729,12 +729,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 
-	&.merged {
-		.message, .messageChild {
-			line-height: 1.75em !important;
-		}
-	}
-
 	&.censor {
 
 		&.deleted, .messageChild.deleted {
@@ -918,10 +912,11 @@ export default class ChatMessage extends AbstractChatMessage {
 			&::before {
 				content: "┕";
 				color: var(--color-secondary);
-				position: absolute;
+				position: relative;
 				font-size: 1em;
-				top: .25em;
-				left: -.6em;
+				top: .5em;
+				margin-right: -0.25em;
+				margin-left: -0.25em;
 			}
 			&:hover {
 				outline: 1px solid var(--color-text-fade);
