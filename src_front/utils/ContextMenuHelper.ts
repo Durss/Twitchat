@@ -550,7 +550,7 @@ export default class ContextMenuHelper {
 			infoImg.addEventListener("load", async () => {
 				//Generate image from message node
 				const clone = htmlNode.cloneNode(true) as HTMLElement;
-				htmlNode.parentElement?.appendChild(clone);
+				htmlNode.parentElement?.parentElement?.appendChild(clone);
 				clone.style.position = "fixed";
 				clone.style.top = "0";
 				clone.style.left = "-9999999999px";
@@ -602,7 +602,8 @@ export default class ContextMenuHelper {
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
 						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
-						clone.remove();
+						// clone.remove();
+
 					});
 					messageImg.setAttribute("src", dataUrl);
 				});
