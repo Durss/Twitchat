@@ -520,11 +520,12 @@ export default class ContextMenuHelper {
 		const messageId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.id : message.id;
 		const fileName = user.id+"_"+user.login+"_"+messageId;
 		const gap = 10;
+		const width = 600;
 		const infosDiv = document.createElement("div");
 		infosDiv.style.color = fgcolor;
 		infosDiv.style.fontSize = "15px";
 		infosDiv.style.lineHeight = "17px";
-		infosDiv.style.width = "600px";
+		infosDiv.style.width = width+"px";
 		infosDiv.style.display = "flex";
 		infosDiv.style.flexDirection = "column";
 		infosDiv.style.position = "fixed";
@@ -540,10 +541,11 @@ export default class ContextMenuHelper {
 		<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
 		document.body.appendChild(infosDiv);
 		await Utils.promisedTimeout(0);//Leave time for the html node to render
+		const bounds = infosDiv.getBoundingClientRect();
 		
 		//Generate image from virtual infos node
 		domtoimage
-		.toPng(infosDiv, {})
+		.toPng(infosDiv, {width:bounds.width, height:bounds.height})
 		.then(async(infoUrl:string) => {
 			infosDiv.remove();
 			let infoImg = new Image();
@@ -553,8 +555,8 @@ export default class ContextMenuHelper {
 				htmlNode.parentElement?.parentElement?.appendChild(clone);
 				clone.style.position = "fixed";
 				clone.style.top = "0";
-				clone.style.left = "-9999999999px";
-				clone.style.width = "600px";
+				clone.style.left = "-10000px";//Don't set a too high value here, it fucks up bounds calculations on firefox
+				clone.style.width = width+"px";
 				clone.style.position = "absolute";
 				clone.style.fontSize = "18px";
 				clone.style.opacity = "1";
@@ -585,8 +587,13 @@ export default class ContextMenuHelper {
 					});
 				})
 				
+				const bounds = clone.getBoundingClientRect();
+				//Add margin to make sure borders are not cut out (necessary on firefox...)
+				bounds.width = Math.ceil(bounds.width + 5);
+				bounds.height = Math.ceil(bounds.height + 5);
+				
 				domtoimage
-				.toPng(clone, {})
+				.toPng(clone, {width:bounds.width, height:bounds.height})
 				.then((dataUrl:string) => {
 					let messageImg = new Image();
 					messageImg.addEventListener("load", () => {
@@ -597,13 +604,10 @@ export default class ContextMenuHelper {
 						canvas.height	= messageImg.height + infoImg.height + gap;
 						if(!ctx) throw new Error("Context 2D creation failed");
 						ctx.clearRect(0, 0, canvas.width, canvas.height);
-						// ctx.fillStyle = bgcolor;
-						// ctx.fillRect(0, 0, canvas.width, canvas.height);
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
 						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
-						// clone.remove();
-
+						clone.remove();
 					});
 					messageImg.setAttribute("src", dataUrl);
 				});
