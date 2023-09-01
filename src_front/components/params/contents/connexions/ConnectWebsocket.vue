@@ -13,7 +13,7 @@
 					<Button type="reset" v-if="!connected" alert
 						@click="clearForm()"
 						:loading="connecting"
-						:disabled="!canConnect">{{ $t('connexions.triggerSocket.clearBt') }}</Button>
+						:disabled="!canConnect">{{ $t('global.clear') }}</Button>
 					<Button type="submit" v-if="!connected"
 						:loading="connecting"
 						:disabled="!canConnect">{{ $t('global.connect') }}</Button>

@@ -43,7 +43,7 @@
 				<div class="item">{{ $t("goxlr.no_device") }}</div>
 			</section>
 
-			<ToggleBlock :icons="['scroll']" :title="$t('goxlr.readMark_info')">
+			<ToggleBlock :icons="['read']" :title="$t('goxlr.readMark_info')">
 				<ParamItem class="item" :paramData="param_chatColIndexMarkRead" noBackground @change="onSelectChatColumnIndex()" />
 				
 				<template v-if="param_chatColIndexMarkRead.value >= 0">

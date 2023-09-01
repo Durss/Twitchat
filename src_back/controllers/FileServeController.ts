@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger";
 import Utils from "../utils/Utils";
+import {Readable} from "stream";
 
 /**
 * Created : 22/02/2023
@@ -36,6 +37,9 @@ export default class FileServeController extends AbstractController {
 		
 		//Get latest app configs
 		this.server.get('/api/configs', async (request:FastifyRequest, response:FastifyReply) => this.getConfigs(request, response) );
+
+		//Starts download of the given file
+		this.server.get('/api/download', async (request:FastifyRequest, response:FastifyReply) => this.getDownload(request, response) );
 		
 		//Get latest announcements
 		this.server.get('/api/announcements', async (request:FastifyRequest, response:FastifyReply) => this.getAnnouncements(request, response) );
@@ -101,7 +105,6 @@ export default class FileServeController extends AbstractController {
 		if(!super.adminGuard(request, response)) return;
 
 		const body:any = request.body;
-		console.log(body);
 		const dateStart:number = body.dateStart || Date.now();
 		const dateEnd:number = body.dateEnd;
 		const important:boolean = body.important === true;
@@ -155,6 +158,20 @@ export default class FileServeController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data:list}));
+	}
+
+	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const b64:string = (request.query as any).img.trim();
+		
+		const imgBuffer = Buffer.from(b64.split(",")[1], 'base64');
+		var s = new Readable()
+		s.push(imgBuffer)   
+		s.push(null) 
+		s.pipe(fs.createWriteStream("image.png"));
+
+		response.header('Content-Disposition','attachment; filename=test.png');
+		response.header('Content-Type','image/png');
+		response.send(s).type('image/png').code(200);
 	}
 
 }
