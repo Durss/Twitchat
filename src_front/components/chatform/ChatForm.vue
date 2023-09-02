@@ -234,7 +234,11 @@
 			</transition>
 		</div>
 
-		<AutocompleteChatForm class="contentWindows emotesLive"
+		<transition name="slide">
+			<MessageExportIndicator class="contentWindows exportIndicator" v-if="$store('main').messageExportState" />
+		</transition>
+
+		<AutocompleteChatForm class="contentWindows"
 			v-if="openAutoComplete"
 			:search="autoCompleteSearch"
 			:emotes="autoCompleteEmotes"
@@ -275,6 +279,7 @@ import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import MessageExportIndicator from './MessageExportIndicator.vue';
 
 @Component({
 	components:{
@@ -285,6 +290,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		TimerCountDownInfo,
 		CommunityBoostInfo,
 		AutocompleteChatForm,
+		MessageExportIndicator,
 		ChatMessageChunksParser,
 	},
 	emits: [
@@ -1121,10 +1127,10 @@ export default class ChatForm extends Vue {
 			}
 		}
 
-			.slide-enter-from,
-			.slide-leave-to {
-				transform: translate(100%, 0);
-			}
+		.slide-enter-from,
+		.slide-leave-to {
+			transform: translate(100%, 0);
+		}
 	}
 
 	.contentWindows {
@@ -1133,6 +1139,17 @@ export default class ChatForm extends Vue {
 		left: 0;
 		transform: translateY(-100%);
 		z-index: 5;
+	}
+	.exportIndicator {
+		left: 50%;
+		z-index: 0;
+		transform: translate(-50%, -100%);
+		transition: all .35s;
+
+		&.slide-enter-from,
+		&.slide-leave-to {
+			transform: translate(-50%, 0);
+		}
 	}
 }
 

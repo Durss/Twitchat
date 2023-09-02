@@ -12,6 +12,7 @@ import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
 import domtoimage from 'dom-to-image-more';
 import Utils from "./Utils";
+import Config from "./Config";
 
 /**
 * Created : 07/04/2023 
@@ -361,23 +362,26 @@ export default class ContextMenuHelper {
 			});
 		}
 
-		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-			//Add splitter after previous item if any
-			if(options.length > 0) options[options.length-1].divided = true;
-			options.push({ 
-						label: t("chat.context_menu.export"),
-						icon: this.getIcon("icons/download.svg"),
-						onClick: () => this.exportMessage(message, htmlNode),
-					});
-			menu.items = options as never;
+		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+		if(!isSafari) {
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+				//Add splitter after previous item if any
+				if(options.length > 0) options[options.length-1].divided = true;
+				options.push({ 
+							label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
+							icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
+							onClick: () => this.exportMessage(message, htmlNode),
+						});
+				menu.items = options as never;
+			}
 		}
 		
 		if(options.length > 0) {
@@ -517,6 +521,10 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
 
+		StoreProxy.main.messageExportState = "progress";
+		let errorTimeout = setTimeout(()=> {
+			StoreProxy.main.messageExportState = "error";
+		}, 10000)
 		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
 		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
 		let user!:TwitchatDataTypes.TwitchatUser;
@@ -623,19 +631,40 @@ export default class ContextMenuHelper {
 						canvas.height	= messageImg.height + infoImg.height + gap;
 						if(!ctx) throw new Error("Context 2D creation failed");
 						ctx.clearRect(0, 0, canvas.width, canvas.height);
+						ctx.fillStyle = "rgba(255,255,255,0)";
+						ctx.fillRect(0, 0, canvas.width, canvas.height);
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
 						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
 						clone.remove();
+						let downloaded = !Config.instance.OBS_DOCK_CONTEXT;
+						
+						canvas.toBlob((blob)=> {
+							navigator.clipboard.write([
+								new ClipboardItem({ 'image/png': blob!}),
+							]).then(()=>{
+								StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
+								clearTimeout(errorTimeout);
+							}).catch(()=> {
+								StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
+								clearTimeout(errorTimeout);
+							});
+						}, "image/png");
 					});
 					messageImg.setAttribute("src", dataUrl);
+				})
+				.catch((error:any) => {
+					console.error('DOM node export failed', error);
+					StoreProxy.main.messageExportState = "error";
+					clearTimeout(errorTimeout);
 				});
 			});
 			infoImg.setAttribute("src", infoUrl);
 		})
 		.catch((error:any) => {
 			console.error('DOM node export failed', error);
-			StoreProxy.main.alert("Export failed :(...");
+			StoreProxy.main.messageExportState = "error";
+			clearTimeout(errorTimeout);
 		});
 	}
 }

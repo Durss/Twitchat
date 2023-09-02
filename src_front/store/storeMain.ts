@@ -33,6 +33,7 @@ export const storeMain = defineStore("main", {
 		theme:"dark",
 		initComplete: false,
 		devmode: false,
+		messageExportState: null,
 		ahsInstaller: null,
 		alertData:{
 			message:"",

@@ -331,7 +331,8 @@
 			"block":"Block",
 			"unblock":"Unblock",
 			"to":"Timeout",
-			"export":"Export screen + data"
+			"export":"Download screen",
+			"export_clipboard":"Copy screen to clipboard"
 		},
 		"custom_badge": {
 			"label": {

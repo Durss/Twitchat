@@ -331,7 +331,8 @@
 			"block": "Bloquer",
 			"unblock": "Débloquer",
 			"to": "Ban temporaire",
-			"export":"Exporter données + screen"
+			"export":"Télécharger un capture",
+			"export_clipboard":"Copier une capture dans le presse-papier"
 		},
 		"custom_badge": {
 			"label": {

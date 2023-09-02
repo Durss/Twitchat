@@ -71,6 +71,11 @@ export interface IMainState {
 	 */
 	devmode: boolean;
 	/**
+	 * When right cliking a message we can export it as an
+	 * image. This object contains the export state.
+	 */
+	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"error"|null;
+	/**
 	 * Method to call to trigger install of twitchat on the device
 	 */
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;

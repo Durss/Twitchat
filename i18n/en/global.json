@@ -189,6 +189,12 @@
 			"nobody": "Nobody is allowed by the current selection",
 			"follow": "Followers",
 			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {VALUE} days"
+		},
+		"messageExport": {
+			"tooltip": "Message export in progress",
+			"complete_downloaded": "Message downloaded.",
+			"complete_copied": "Message copied to clipboard.\r\nPress CTRL+V on discord, paint, ...",
+			"error": "An error has occured while exporting message :("
 		}
 	}
 }
