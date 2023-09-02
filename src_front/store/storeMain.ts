@@ -27,8 +27,6 @@ import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 
-const ignoreNextGoXLREncoderEvent:{[key:string]:boolean} = {};
-
 export const storeMain = defineStore("main", {
 	state: () => ({
 		latestUpdateIndex: 14,
@@ -407,7 +405,7 @@ export const storeMain = defineStore("main", {
 				}
 								
 				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
-				trigger.id = "heat_spotify_overlay";
+				trigger.id = Utils.getUUID();
 				action.text = StoreProxy.chat.botMessages.heatSpotify.message;
 				trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
 				TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, data.testMode == true);

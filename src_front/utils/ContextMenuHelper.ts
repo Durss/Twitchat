@@ -367,6 +367,8 @@ export default class ContextMenuHelper {
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 			//Add splitter after previous item if any
 			if(options.length > 0) options[options.length-1].divided = true;
@@ -511,12 +513,24 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageRewardRedeemData
 								| TwitchatDataTypes.MessageSubscriptionData
 								| TwitchatDataTypes.MessageCheerData
+								| TwitchatDataTypes.MessageStreamOnlineData
+								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
 
 		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
 		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
-		const user = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.user : message.user;
-		const chanId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.channel_id : message.channel_id;
+		let user!:TwitchatDataTypes.TwitchatUser;
+		let chanId:string = "";
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT){
+			user = message.message.user;
+			chanId = message.message.channel_id;
+		}else if(message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE || message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE){
+			user = message.info.user;
+			chanId = StoreProxy.auth.twitch.user.id;
+		}else{
+			user = message.user;
+			chanId = message.channel_id;
+		}
 		const messageId = message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT? message.message.id : message.id;
 		const fileName = user.id+"_"+user.login+"_"+messageId;
 		const gap = 10;
@@ -533,12 +547,17 @@ export default class ContextMenuHelper {
 		infosDiv.style.padding = "1em";
 		infosDiv.style.borderRadius = ".3em";
 		infosDiv.style.backgroundColor = bgcolor;
-		infosDiv.innerHTML = `<div><strong>Message type:</strong> ${message.type}</div>
+		let html = `<div><strong>Message type:</strong> ${message.type}</div>
 		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
 		<div><strong>User login:</strong> ${user.login}</div>
 		<div><strong>User ID:</strong> ${user.id}</div>
-		<div><strong>Channel ID:</strong> ${chanId}</div>
-		<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
+		<div><strong>Channel ID:</strong> ${chanId}</div>`;
+		//Add message ID if relevant
+		if(message.type != TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
+		&& message.type != TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
+			html += `<div><strong>Message ID:</strong> <span style="font-size:.8em">${messageId}</span></div>`;
+		}
+		infosDiv.innerHTML = html;
 		document.body.appendChild(infosDiv);
 		await Utils.promisedTimeout(0);//Leave time for the html node to render
 		const bounds = infosDiv.getBoundingClientRect();

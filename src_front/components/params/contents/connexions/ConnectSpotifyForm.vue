@@ -9,7 +9,7 @@
 				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
 					<template #URL>
 						<strong>
-							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
+							<a :href="$t('music.spotify_instructions')" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
 						</strong>
 					</template>
 				</i18n-t>

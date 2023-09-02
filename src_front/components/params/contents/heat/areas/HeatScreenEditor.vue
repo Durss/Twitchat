@@ -65,7 +65,7 @@ export default class HeatScreenEditor extends Vue {
 	private draggedArea:HeatArea |  null = null;
 	private draggedPoint:{x:number, y:number} |  null = null;
 	private draggOffset:{x:number, y:number}= {x:0, y:0};
-	private obsScreener:number = -1;
+	private disposed:boolean = false;
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private mouseUpHandler!:(e:PointerEvent) => void;
@@ -80,7 +80,6 @@ export default class HeatScreenEditor extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	
 	public async beforeMount():Promise<void> {
-
 		if(this.screen.areas.length == 0) {
 			this.screen.areas.push({
 				id:Utils.getUUID(),
@@ -104,6 +103,7 @@ export default class HeatScreenEditor extends Vue {
 	}
 
 	public beforeUnmount():void {
+		this.disposed = true;
 		document.removeEventListener("keydown", this.keyDownHandler, true);
 		document.removeEventListener("pointerup", this.mouseUpHandler);
 		document.removeEventListener("pointermove", this.mouseMoveHandler);
@@ -414,6 +414,7 @@ export default class HeatScreenEditor extends Vue {
 	 * Grabs an OBS screenshot to set it as area's background
 	 */
 	private async refreshImage():Promise<void> {
+		if(this.disposed) return;
 		const area = (this.$refs.background as HTMLDivElement);
 		//@ts-ignore
 		if(area && this.params_showOBS.value == true && OBSWebsocket.instance.connected) {
@@ -422,8 +423,7 @@ export default class HeatScreenEditor extends Vue {
 			area.style.backgroundImage = "url("+image+")";
 		}
 
-		clearTimeout(this.obsScreener);
-		this.obsScreener = setTimeout(()=>this.refreshImage(), 60);
+		setTimeout(()=>this.refreshImage(), 60);
 	}
 
 }

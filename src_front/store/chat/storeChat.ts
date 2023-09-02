@@ -85,108 +85,108 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"updates",
 				cmd:"/updates",
-				details:"params.commands.updates",
+				detailsKey:"params.commands.updates",
 			},
 			{
 				id:"tip",
 				cmd:"/tip",
-				details:"params.commands.tip",
+				detailsKey:"params.commands.tip",
 			},
 			{
 				id:"timerStart",
 				cmd:"/timerStart",
-				details:"params.commands.timerStart",
+				detailsKey:"params.commands.timerStart",
 			},
 			{
 				id:"timerPause",
 				cmd:"/timerPause",
-				details:"params.commands.timerPause",
+				detailsKey:"params.commands.timerPause",
 			},
 			{
 				id:"timerUnpause",
 				cmd:"/timerUnpause",
-				details:"params.commands.timerUnpause",
+				detailsKey:"params.commands.timerUnpause",
 			},
 			{
 				id:"timerAdd",
 				cmd:"/timerAdd {(hh:)(mm:)ss}",
-				details:"params.commands.timerAdd",
+				detailsKey:"params.commands.timerAdd",
 			},
 			{
 				id:"timerRemove",
 				cmd:"/timerRemove {(hh:)(mm:)ss}",
-				details:"params.commands.timerRemove",
+				detailsKey:"params.commands.timerRemove",
 			},
 			{
 				id:"timerStop",
 				cmd:"/timerStop",
-				details:"params.commands.timerStop",
+				detailsKey:"params.commands.timerStop",
 			},
 			{
 				id:"countdown",
 				cmd:"/countdown {(hh:)(mm:)ss}",
-				details:"params.commands.countdown",
+				detailsKey:"params.commands.countdown",
 			},
 			{
 				id:"countdownAdd",
 				cmd:"/countdownAdd {(hh:)(mm:)ss}",
-				details:"params.commands.countdownAdd",
+				detailsKey:"params.commands.countdownAdd",
 			},
 			{
 				id:"countdownRemove",
 				cmd:"/countdownRemove {(hh:)(mm:)ss}",
-				details:"params.commands.countdownRemove",
+				detailsKey:"params.commands.countdownRemove",
 			},
 			{
 				id:"countdownPause",
 				cmd:"/countdownPause",
-				details:"params.commands.countdownPause",
+				detailsKey:"params.commands.countdownPause",
 			},
 			{
 				id:"countdownUnpause",
 				cmd:"/countdownUnpause",
-				details:"params.commands.countdownUnpause",
+				detailsKey:"params.commands.countdownUnpause",
 			},
 			{
 				id:"countdownStop",
 				cmd:"/countdownStop",
-				details:"params.commands.countdownStop",
+				detailsKey:"params.commands.countdownStop",
 			},
 			{
 				id:"search",
 				cmd:"/search {text}",
-				details:"params.commands.search",
+				detailsKey:"params.commands.search",
 			},
 			{
 				id:"userinfo",
 				cmd:"/user {username}",
 				alias:"/userinfo {user}",
-				details:"params.commands.userinfo",
+				detailsKey:"params.commands.userinfo",
 			},
 			{
 				id:"raffle",
 				cmd:"/raffle",
-				details:"params.commands.raffle",
+				detailsKey:"params.commands.raffle",
 			},
 			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
-				details:"params.commands.bingo",
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"bingonumber",
 				cmd:"/bingo number {min} {max}",
-				details:"params.commands.bingo",
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"bingocustom",
 				cmd:"/bingo custom {message}",
-				details:"params.commands.bingo",
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"raid",
 				cmd:"/raid {user}",
-				details:"params.commands.raid",
+				detailsKey:"params.commands.raid",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.START_RAID],
@@ -194,7 +194,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shoutout",
 				cmd:"/shoutout {user}",
-				details:"params.commands.so",
+				detailsKey:"params.commands.so",
 				alias:"/so {user}",
 				needModerator:true,
 				twitchCmd:true,
@@ -203,7 +203,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"poll",
 				cmd:"/poll {title}",
-				details:"params.commands.poll",
+				detailsKey:"params.commands.poll",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -212,12 +212,12 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"chatsugg",
 				cmd:"/suggestion",
-				details:"params.commands.chatsugg",
+				detailsKey:"params.commands.chatsugg",
 			},
 			{
 				id:"prediction",
 				cmd:"/prediction {title}",
-				details:"params.commands.prediction",
+				detailsKey:"params.commands.prediction",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -226,24 +226,24 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"tts",
 				cmd:"/tts {user}",
-				details:"params.commands.tts",
+				detailsKey:"params.commands.tts",
 				needTTS:true,
 			},
 			{
 				id:"ttsoff",
 				cmd:"/ttsoff {user}",
-				details:"params.commands.ttsoff",
+				detailsKey:"params.commands.ttsoff",
 				needTTS:true,
 			},
 			{
 				id:"simulatechat",
 				cmd:"/simulateChat",
-				details:"params.commands.simulatechat",
+				detailsKey:"params.commands.simulatechat",
 			},
 			{
 				id:"announce",
 				cmd:"/announce {message}",
-				details:"params.commands.announce",
+				detailsKey:"params.commands.announce",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -251,7 +251,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceblue",
 				cmd:"/announceblue {message}",
-				details:"params.commands.announceblue",
+				detailsKey:"params.commands.announceblue",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -259,7 +259,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcegreen",
 				cmd:"/announcegreen {message}",
-				details:"params.commands.announcegreen",
+				detailsKey:"params.commands.announcegreen",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -267,7 +267,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceorange",
 				cmd:"/announceorange {message}",
-				details:"params.commands.announceorange",
+				detailsKey:"params.commands.announceorange",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -275,7 +275,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcepurple",
 				cmd:"/announcepurple {message}",
-				details:"params.commands.announcepurple",
+				detailsKey:"params.commands.announcepurple",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -283,7 +283,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"commercial",
 				cmd:"/commercial {duration}",
-				details:"params.commands.commercial",
+				detailsKey:"params.commands.commercial",
 				twitchCmd:true,
 				needChannelPoints:false,
 				needModerator:true,
@@ -292,7 +292,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"to",
 				cmd:"/timeout {user} {duration} {reason}",
-				details:"params.commands.to",
+				detailsKey:"params.commands.to",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -300,7 +300,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"ban",
 				cmd:"/ban {user}",
-				details:"params.commands.ban",
+				detailsKey:"params.commands.ban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -308,7 +308,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unban",
 				cmd:"/unban {user}",
-				details:"params.commands.unban",
+				detailsKey:"params.commands.unban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -316,7 +316,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"block",
 				cmd:"/block {user}",
-				details:"params.commands.block",
+				detailsKey:"params.commands.block",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -324,7 +324,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unblock",
 				cmd:"/unblock {user}",
-				details:"params.commands.unblock",
+				detailsKey:"params.commands.unblock",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -332,7 +332,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonly",
 				cmd:"/emoteonly",
-				details:"params.commands.emoteonly",
+				detailsKey:"params.commands.emoteonly",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -340,7 +340,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonlyoff",
 				cmd:"/emoteonlyoff",
-				details:"params.commands.emoteonlyoff",
+				detailsKey:"params.commands.emoteonlyoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -348,7 +348,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followers",
 				cmd:"/followers {minutes}",
-				details:"params.commands.followers",
+				detailsKey:"params.commands.followers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -356,7 +356,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followersoff",
 				cmd:"/followersoff",
-				details:"params.commands.followersoff",
+				detailsKey:"params.commands.followersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -364,7 +364,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slow",
 				cmd:"/slow {seconds}",
-				details:"params.commands.slow",
+				detailsKey:"params.commands.slow",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -372,7 +372,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slowoff",
 				cmd:"/slowoff",
-				details:"params.commands.slowoff",
+				detailsKey:"params.commands.slowoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -380,7 +380,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribers",
 				cmd:"/subscribers {seconds}",
-				details:"params.commands.subscribers",
+				detailsKey:"params.commands.subscribers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -388,7 +388,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribersoff",
 				cmd:"/subscribersoff",
-				details:"params.commands.subscribersoff",
+				detailsKey:"params.commands.subscribersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -396,7 +396,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"whisper",
 				cmd:"/w {recipient} {message}",
-				details:"params.commands.whisper",
+				detailsKey:"params.commands.whisper",
 				alias:"/whisper {recipient} {message}",
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.WHISPER_WRITE, TwitchScopes.WHISPER_READ],
@@ -404,7 +404,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOn",
 				cmd:"/shield",
-				details:"params.commands.shieldOn",
+				detailsKey:"params.commands.shieldOn",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -412,7 +412,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOff",
 				cmd:"/shieldoff",
-				details:"params.commands.shieldOff",
+				detailsKey:"params.commands.shieldOff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -420,7 +420,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"mod",
 				cmd:"/mod {user}",
-				details:"params.commands.mod",
+				detailsKey:"params.commands.mod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -428,7 +428,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unmod",
 				cmd:"/unmod {user}",
-				details:"params.commands.unmod",
+				detailsKey:"params.commands.unmod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -436,7 +436,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"vip",
 				cmd:"/vip {user}",
-				details:"params.commands.vip",
+				detailsKey:"params.commands.vip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -444,7 +444,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unvip",
 				cmd:"/unvip {user}",
-				details:"params.commands.unvip",
+				detailsKey:"params.commands.unvip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -452,7 +452,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clip",
 				cmd:"/clip",
-				details:"params.commands.clips",
+				detailsKey:"params.commands.clips",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.CLIPS],
@@ -460,7 +460,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"marker",
 				cmd:"/marker {comment}",
-				details:"params.commands.marker",
+				detailsKey:"params.commands.marker",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -468,7 +468,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clear",
 				cmd:"/clear",
-				details:"params.commands.clear",
+				detailsKey:"params.commands.clear",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
@@ -476,7 +476,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtitle",
 				cmd:"/setStreamTitle {title}",
-				details:"params.commands.streamTitle",
+				detailsKey:"params.commands.streamTitle",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -484,7 +484,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamcategory",
 				cmd:"/setStreamCategory {category}",
-				details:"params.commands.streamCategory",
+				detailsKey:"params.commands.streamCategory",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -492,7 +492,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtags",
 				cmd:"/setStreamTags {tag1} {tag2}",
-				details:"params.commands.streamTags",
+				detailsKey:"params.commands.streamTags",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -500,59 +500,59 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
-				details:"params.commands.betaadd",
+				detailsKey:"params.commands.betaadd",
 				needAdmin:true,
 			},
 			{
 				id:"betadel",
 				cmd:"/betaDel {user}",
-				details:"params.commands.betadel",
+				detailsKey:"params.commands.betadel",
 				needAdmin:true,
 			},
 			{
 				id:"betamigrate",
 				cmd:"/betaMigrate {user}",
-				details:"params.commands.betamigrate",
+				detailsKey:"params.commands.betamigrate",
 				needAdmin:true,
 			},
 			{
 				id:"betaclose",
 				cmd:"/betaClose",
-				details:"params.commands.betareset",
+				detailsKey:"params.commands.betareset",
 				needAdmin:true,
 			},
 			{
 				id:"devmode",
 				cmd:"/devmode",
-				details:"params.commands.devmode",
+				detailsKey:"params.commands.devmode",
 				needAdmin:true,
 			},
 			{
 				id:"userlist",
 				cmd:"/userlist",
-				details:"params.commands.userlist",
+				detailsKey:"params.commands.userlist",
 				needAdmin:true,
 			},
 			{
 				id:"userdata",
 				cmd:"/userdata {login}",
-				details:"params.commands.userdata",
+				detailsKey:"params.commands.userdata",
 				needAdmin:true,
 			},
 			{
 				id:"greetduration",
 				cmd:"/greetDuration {(hh:)(mm:)ss}",
-				details:"params.commands.greetduration",
+				detailsKey:"params.commands.greetduration",
 			},
 			{
 				id:"pin",
 				cmd:"/pin {message}",
-				details:"params.commands.pin",
+				detailsKey:"params.commands.pin",
 			},
 			{
 				id:"triggerlogs",
 				cmd:"/triggerlogs",
-				details:"params.commands.triggerlogs",
+				detailsKey:"params.commands.triggerlogs",
 			},
 		],
 
@@ -808,7 +808,6 @@ export const storeChat = defineStore('chat', {
 							messageList.splice(i, 1);
 							await Database.instance.deleteMessage(m);
 							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
-							console.log("INCREMENT", m.message);
 							m.occurrenceCount ++;
 							//Update timestamp
 							m.date = Date.now();

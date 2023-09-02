@@ -677,7 +677,8 @@ export namespace TwitchatDataTypes {
 		id:string;
 		cmd:string;
 		alias:string;
-		details:string;
+		details?:string;
+		detailsKey?:string;
 		needChannelPoints?:boolean;
 		needTTS?:boolean;
 		needAdmin?:boolean;

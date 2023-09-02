@@ -4,6 +4,7 @@
 		"spotify_refused": "You refused to grant access to your Spotify account",
 		"search_track": "search track...",
 		"playBt": "Play",
-		"add_queueBt": "Add to queue"
+		"add_queueBt": "Add to queue",
+		"spotify_instructions":"https://github.com/durss/twitchat/blob/main/SPOTIFY.md"
 	}
 }

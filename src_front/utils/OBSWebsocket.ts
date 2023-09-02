@@ -267,13 +267,14 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(cache && Date.now()-cache.ts < 30000) return this.sceneDisplayRectsCache[currentScene].value;
 
 		//If caching is in progress from a previous request, wait a little
-		if(this.sceneToCaching[currentScene]) {
-			await Utils.promisedTimeout(1000);
-			return this.getSourcesDisplayRects();
+		if(this.sceneToCaching[currentScene] === true) {
+			if(cache) return cache.value;
+			return {canvas:{width:1920, height:1080}, sources:[]};
 		}
 
 		//Flag scene as being cached
 		this.sceneToCaching[currentScene] = true;
+		const isOverlayInteraction = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
 
 		const videoSettings = await this.obs.call("GetVideoSettings");
 		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform, isGroup?:boolean}[] = [{name:currentScene}];
@@ -291,7 +292,10 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		});
 
-		if(sourcesToWatch.length === 0) return {canvas:{width:1920, height:1080}, sources:[]};
+		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
+			this.sceneToCaching[currentScene] = false;
+			return {canvas:{width:1920, height:1080}, sources:[]};
+		}
 
 		//Parse all scene items
 		for (let j = 0; j < sceneList.length; j++) {

@@ -28,8 +28,8 @@ export default class HeatDebugPopout extends Vue {
 	public isPopout:boolean = false;
 	public clicks:ClickData[] = [];
 
+	private disposed:boolean = false
 	private debugInterval:number = -1;
-	private obsScreener:number = -1;
 	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public mounted():void {
@@ -46,7 +46,8 @@ export default class HeatDebugPopout extends Vue {
 	}
 
 	public beforeUnmount():void {
-		clearTimeout(this.obsScreener);
+		console.log("dispose");
+		this.disposed = true;
 		clearTimeout(this.debugInterval);
 		document.removeEventListener("keydown", this.keyupHandler);
 	}
@@ -141,6 +142,8 @@ export default class HeatDebugPopout extends Vue {
 	 * Grabs an OBS screenshot to set it as area's background
 	 */
 	private async refreshImage():Promise<void> {
+		if(this.disposed) return;
+		console.log("REFRESH");
 		const area = (this.$refs.areaHolder as HTMLDivElement);
 		//@ts-ignore
 		if(area) {
@@ -148,8 +151,7 @@ export default class HeatDebugPopout extends Vue {
 			area.style.backgroundImage = "url("+image+")";
 		}
 
-		clearTimeout(this.obsScreener);
-		this.obsScreener = setTimeout(()=>this.refreshImage(), 60);
+		setTimeout(()=>this.refreshImage(), 60);
 	}
 }
 interface ClickData {

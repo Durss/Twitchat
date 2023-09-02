@@ -745,7 +745,7 @@ export default class TriggerActionHandler {
 				}
 		
 				//Global cooldown
-				if(trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
+				if(canExecute && trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
 					canExecute = false;
 					if(trigger.cooldown.alert !== false) {
 						const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";

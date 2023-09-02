@@ -4,6 +4,7 @@
 		"spotify_refused": "Vous avez refusé l'accès à votre compte Spotify",
 		"search_track": "chercher... ",
 		"playBt": "Jouer",
-		"add_queueBt": "Ajouter à la file d'attente"
+		"add_queueBt": "Ajouter à la file d'attente",
+		"spotify_instructions":"https://github.com/durss/twitchat/blob/main/SPOTIFY_FR.md"
 	}
 }

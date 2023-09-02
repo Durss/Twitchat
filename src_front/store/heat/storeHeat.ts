@@ -90,9 +90,9 @@ export const storeHeat = defineStore('heat', {
 			//Stop there if coordinates are missing, can't do anything without it
 			if(!event.coordinates) return;
 
-			const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK);
+			const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK) != undefined;
 			const isOverlay = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
-
+			
 			//If nothing requests for heat click events, ignore it
 			if(!isTrigger && !isOverlay) return;
 
@@ -192,8 +192,7 @@ export const storeHeat = defineStore('heat', {
 						alert:false,
 					}
 				}
-				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_heat_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
-					
+
 				const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 				const px = event.coordinates.x;
 				const py = event.coordinates.y;
@@ -239,6 +238,7 @@ export const storeHeat = defineStore('heat', {
 							}
 						});
 
+
 						//Spotify overlay
 						if(url.indexOf(spotifyRoute) > -1
 						&& StoreProxy.chat.botMessages.heatSpotify.enabled
@@ -248,11 +248,11 @@ export const storeHeat = defineStore('heat', {
 							//If user is banned, skip
 							if(user.channelInfo![channelId]?.is_banned) continue;
 							
-							trigger.id = "heat_spotify_overlay";
+							trigger.id = "heat_spotify_click";//Don't make this a random value or cooldown will break as it's based on this ID !
 							action.text = StoreProxy.chat.botMessages.heatSpotify.message;
 							trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
 							
-							TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
+							TriggerActionHandler.instance.executeTrigger(trigger, message, event.testMode == true);
 						}
 						if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
 							//If anon users are not allowed, skip
@@ -260,10 +260,10 @@ export const storeHeat = defineStore('heat', {
 							//If user is banned, skip
 							if(user.channelInfo![channelId]?.is_banned) continue;
 
-							trigger.id = "heat_ulule_overlay";
+							trigger.id = "heat_ulule_click";//Don't make this a random value or cooldown will break as it's based on this ID !
 							action.text = StoreProxy.chat.botMessages.heatUlule.message;
 							trigger.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
-							TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, event.testMode == true);
+							TriggerActionHandler.instance.executeTrigger(trigger, message, event.testMode == true);
 						}
 					}
 				}

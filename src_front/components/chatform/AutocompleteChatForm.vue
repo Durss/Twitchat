@@ -25,7 +25,7 @@
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
-			<div class="infos" v-if="i.type == 'cmdS' && i.infos">{{$t(i.infos)}}</div>
+			<div class="infos" v-if="i.type == 'cmdS' && (i.infos || i.infosKey)">{{i.infos || $t(i.infosKey || "")}}</div>
 			<div class="name alias" v-else-if="i.type=='cmdS' && i.alias">(alias: {{i.alias}})</div>
 		</div>
 	</div>
@@ -260,6 +260,7 @@ export default class AutocompleteChatForm extends Vue {
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
 							cmd:e.cmd,
 							infos:e.details,
+							infosKey:e.detailsKey,
 							id:e.id,
 							alias:e.alias?.replace(/{(.*?)\}/gi, "$1"),
 							disabled: e.twitch_scopes !== undefined && !TwitchUtils.hasScopes(e.twitch_scopes),
@@ -355,7 +356,8 @@ interface CommandItem {
 	id:string;
 	label:string;
 	cmd:string;
-	infos:string;
+	infos?:string;
+	infosKey?:string;
 	alias?:string;
 	disabled?:boolean;
 	tooltipKey?:string;
