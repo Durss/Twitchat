@@ -1,7 +1,10 @@
 {
 	"name": "twitchat",
 	"version": "9.31.0",
-	"private": true,
+	"private": false,
+	"author": "Durss",
+	"description": "Full featured alternative Twitch chat",
+	"main": "goxlr-proxy/index.js",
 	"scripts": {
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run front/build && npm run server/build",
@@ -20,6 +23,24 @@
 		"streamdeck_deploy_local": "shx cp -r streamdeck_plugin/fr.twitchat.sdPlugin C:/Users/franc/AppData/Roaming/Elgato/StreamDeck/Plugins/",
 		"check-circular-dependencies": "dpdm ./src_front/main.ts"
 	},
+	"build": {
+		"appId": "fr.twitchat.goxlrproxy",
+		"artifactName": "twitchat-goxlr-proxy${version}.${ext}",
+		"mac": {
+			"category": "public.app-category.developer-tools"
+		},
+		"win": {
+			"target": "portable"
+		},
+		"files": [
+			"goxlr-proxy/index.js",
+			"goxlr-proxy/**/*"
+		],
+		"directories": {
+			"output": "goxlr-proxy-build",
+			"buildResources": "goxlr-proxy"
+		}
+	},
 	"dependencies": {
 		"@fastify/cors": "^8.1.0",
 		"@fastify/rate-limit": "^7.5.0",
@@ -31,7 +52,6 @@
 		"fastify": "^4.20.0",
 		"fastify-raw-body": "^4.2.1",
 		"jsonwebtoken": "^8.5.1",
-		"lorem-ipsum": "^2.0.8",
 		"node-fetch": "^2.6.7",
 		"node-static": "^0.7.11"
 	},
@@ -62,6 +82,7 @@
 		"grapheme-splitter": "^1.0.4",
 		"gsap": "^3.10.4",
 		"less-loader": "^8.0.0",
+		"lorem-ipsum": "^2.0.8",
 		"mathjs": "^11.5.1",
 		"obs-websocket-js": "^5.0.2",
 		"pinia": "^2.0.23",

@@ -1,0 +1,42 @@
+{
+	"name": "twitchat-proxy",
+	"version": "0.0.1",
+	"private": false,
+	"author": "Durss",
+	"description": "Proxy for remote twitchat connections",
+	"main": "src/index.js",
+	"scripts": {
+		"serve": "electron ./src",
+		"build": "electron-builder --dir",
+		"dist": "electron-builder"
+	},
+	"postinstall": "electron-builder install-app-deps",
+	"build": {
+		"appId": "fr.twitchat.proxy",
+		"icon": "../static/logo.png",
+		"artifactName": "twitchat-proxy${version}.${ext}",
+		"mac": {
+			"category": "public.app-category.developer-tools"
+		},
+		"win": {
+			"target": "portable"
+		},
+		"files": [
+			"src/index.js",
+			"src/"
+		],
+		"directories": {
+			"output": "build",
+			"buildResources": "src"
+		}
+	},
+	"dependencies": {
+		"http-proxy": "^1.18.1",
+		"fastify": "^4.20.0",
+		"node-fetch": "^2.6.7"
+	},
+	"devDependencies": {
+		"electron": "^26.1.0",
+		"electron-builder": "^24.6.3"
+	}
+}

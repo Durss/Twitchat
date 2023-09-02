@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Twitchat Proxy</title>
+	<style>
+		@font-face {
+			font-family: "Nunito";
+			font-style: normal;
+			src: url("./assets/fonts/Nunito-Regular.ttf");
+		}
+		@font-face {
+			font-family: "Nunito";
+			font-style: bold;
+			src: url("./assets/fonts/Nunito-Bold.ttf");
+		}
+		@font-face {
+			font-family: "Nunito";
+			font-style: italic;
+			src: url("./assets/fonts/Nunito-Italic.ttf");
+		}
+		@font-face {
+			font-family: "Roboto";
+			font-style: normal;
+			src: url("./assets/fonts/Roboto-Regular.ttf");
+		}
+		@font-face {
+			font-family: "Inter";
+			font-style: normal;
+			src: url("./assets/fonts/inter-latin.woff2") format('woff2');
+		}
+
+		body {
+			-webkit-app-region: drag;
+			color: #EEEEEE;
+		}
+		button, input {
+			-webkit-app-region: no-drag;
+		}
+		.holder {
+			background: #18181b;
+			padding: 1em;
+			font-size: 20px;
+			border-radius: .5em;
+			padding: 1em;
+			font-family: "Inter";
+		}
+		.form {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			text-align: center;
+		}
+
+		button {
+			background-color: #008667;
+			padding: .25em .5em;
+			border-radius: .5em;
+			cursor: pointer;
+			font-size: 1em;
+			color: #EEEEEE;
+			border: none;
+			transition: all .2s;
+		}
+		button:hover {
+			background-color: #01a982;
+		}
+
+		input {
+			border: none;
+			font-size: 1em;
+			padding: .25em .5em;
+			color: inherit;
+			background-color: rgba(255, 255, 255, .3);
+			border-radius: .5em;
+			font-family: Inter;
+			box-shadow: inset -2px -2px 2px rgba(255, 255, 255, 0.1), inset 2px 2px 2px rgba(0, 0, 0, .3);
+			text-align: center;
+		}
+		input::placeholder {
+			font-style: italic;
+			color: rgba(255, 255, 255, .5);
+		}
+
+		.loader {
+			height: 2em;
+			display: none;
+			margin: auto;
+		}
+
+		.error {
+			display: none;
+			padding: .25em;
+			border-radius: .5em;
+			background-color: #b71f1f;
+		}
+
+		.disconnect {
+			text-align: center;
+			display: none;
+		}
+	</style>
+	<script type="text/javascript">
+		function submitForm(event) {
+			event.preventDefault();
+			const list = document.getElementsByClassName("entry");
+			for (let i = 0; i < list.length; i++) {
+				const el = list[i];
+				if(el.id === id) {
+					el.classList.add("selected");
+				}else{
+					el.classList.remove("selected");
+				}
+			}
+			document.getElementById("loader").style.display = "block";
+			document.getElementById("form").style.display = "none";
+			document.getElementById("error").style.display = "none";
+
+			const ip = document.getElementById("ip").value;
+			localStorage.setItem("ip", ip);
+			const body = JSON.stringify({ip});
+			fetch("http://127.0.0.1:8253/ip", {method:"POST", body}).then((res)=>{
+				document.getElementById("loader").style.display = "none";
+				document.getElementById("form").style.display = "none";
+				document.getElementById("disconnect").style.display = "block";
+			}).catch((error)=> {
+				document.getElementById("loader").style.display = "none";
+				document.getElementById("form").style.display = "flex";
+				document.getElementById("error").style.display = "block";
+			});
+			return false;
+		}
+
+		function disconnect() {
+			fetch("http://127.0.0.1:8253/disconnect", {method:"POST"}).finally(()=> {
+				document.getElementById("form").style.display = "flex";
+				document.getElementById("disconnect").style.display = "none";
+			});
+		}
+
+		window.addEventListener("load", ()=> {
+			const ip = localStorage.getItem("ip");
+			if(ip) {
+				document.getElementById("ip").value = ip;
+			}
+		})
+	</script>
+</head>
+<body>
+	<div class="holder">
+		<form class="form" id="form" onsubmit="submitForm(event)">
+			<label>Set IP address of remote computer</label>
+			<input type="text" id="ip" placeholder="192.168.0.1" value="192.168.0.1">
+			<button type="submit">Submit</button>
+			<div class="error" id="error">connection failed</div>
+		</form>
+		<div class="disconnect" id="disconnect">
+			<button type="submit" onclick="disconnect()">Disconnect</button>
+		</div>
+		<img src="./assets/loader.svg" alt="loader" class="loader" id="loader">
+	</div>
+</body>
+</html>
