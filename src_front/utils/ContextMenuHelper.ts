@@ -363,7 +363,7 @@ export default class ContextMenuHelper {
 		}
 
 		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-		if(!isSafari) {
+		if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
@@ -645,7 +645,8 @@ export default class ContextMenuHelper {
 							]).then(()=>{
 								StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
 								clearTimeout(errorTimeout);
-							}).catch(()=> {
+							}).catch((error)=> {
+								console.log(error);
 								StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
 								clearTimeout(errorTimeout);
 							});
