@@ -70,7 +70,7 @@
 				:obsInputs="obsInputs"
 				:rewards="rewards" />
 				
-			<TriggerList v-if="showList"
+			<TriggerList v-if="showList && !showForm"
 				@select="onSelectTrigger($event)"
 				@testTrigger="testTrigger($event)"
 				:rewards="rewards" />
@@ -209,7 +209,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Called when back button is clicked on params header
 	 */
 	public reload(): boolean {
-		if(!this.showList) {
+		if(!this.showList || this.showForm) {
 			this.showForm = false;
 			this.$store("triggers").openTriggerList();
 			this.headerKey = "triggers.header";

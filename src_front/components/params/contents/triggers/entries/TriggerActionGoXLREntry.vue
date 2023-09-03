@@ -53,6 +53,7 @@ export default class TriggerActionGoXLREntry extends AbstractTriggerActionEntry 
 		this.param_fxPreset.listValues = [0,1,2,3,4,5].map(v=>{ return {value:v, labelKey:"triggers.actions.goxlr.param_fxPreset"+(v+1)}});
 		this.param_fxPreset.listValues.unshift({value:-1, labelKey:"triggers.actions.goxlr.param_fxPreset_keep"})
 		this.param_action.value = this.action.action || this.param_action.listValues[0].value;
+		this.action.action = this.param_action.value;
 		this.param_profile.listValues = GoXLRSocket.instance.profileList.map(v=> {
 			return {value:v, label:v};
 		});
