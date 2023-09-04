@@ -73,7 +73,8 @@ export default class OverlayParamsMusic extends Vue {
 		this.param_customTemplate.labelKey			= "overlay.music_common.custom_template";
 		this.param_customTemplate.placeholderList= [
 			{tag:"TITLE", descKey:"overlay.music_common.custom_template_placeholders.title"},
-			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"}
+			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"},
+			{tag:"COVER", descKey:"overlay.music_common.custom_template_placeholders.cover"},
 		];
 
 		const params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;

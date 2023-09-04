@@ -90,6 +90,8 @@ export default class PlaceholderSelector extends Vue {
 			return 0;
 		});
 
+		if(list.length === 0) return [];
+
 		const categories:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[] = [];
 		let currentCategory:{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]} = { key:list[0].category!, entries:[list[0]]};
 		for (let i = 1; i < list.length; i++) {

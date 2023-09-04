@@ -62,7 +62,8 @@
 			"custom_template": "Template (HTML accepted)",
 			"custom_template_placeholders": {
 				"title": "Track title",
-				"artist": "Track artist"
+				"artist": "Track artist",
+				"cover": "Cover image URL"
 			},
 			"infos": "You can allow your viewers to control playback or add musics to the queue from chat commands thanks to the {TRIGGERS}.",
 			"triggerBt": "triggers"

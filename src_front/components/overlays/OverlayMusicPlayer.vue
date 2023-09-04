@@ -132,6 +132,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 				if(this.customTrackInfo.length > 0) {
 					customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
 					customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+					customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 				}
 				this.customTrackInfo = customTrackInfo;
 
@@ -203,6 +204,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			if(this.customTrackInfo.length > 0) {
 				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
 				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 			}
 			this.customTrackInfo = customTrackInfo;
 

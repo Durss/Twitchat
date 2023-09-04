@@ -62,7 +62,8 @@
 			"custom_template": "Template (HTML accepté)",
 			"custom_template_placeholders": {
 				"title": "Titre",
-				"artist": "Artiste"
+				"artist": "Artiste",
+				"cover": "URL de l'image"
 			},
 			"infos": "Permettez à vos viewers d'ajouter des morceaux à la liste de lecture ou de contrôler la lecture via les {TRIGGERS}.",
 			"triggerBt": "triggers"
