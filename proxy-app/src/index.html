@@ -34,23 +34,36 @@
 		body {
 			-webkit-app-region: drag;
 			color: #EEEEEE;
+			overflow: hidden;
+			width: 100vw;
+			height: 100vh;
+			padding: 0;
+			margin: 0;
+			font-size: 18px;
+			font-family: "Inter";
+		}
+		* {
+			box-sizing: border-box;
 		}
 		button, input {
 			-webkit-app-region: no-drag;
 		}
 		.holder {
 			background: #18181b;
-			padding: 1em;
-			font-size: 20px;
 			border-radius: .5em;
 			padding: 1em;
-			font-family: "Inter";
-		}
-		.form {
-			gap: .5em;
+			gap: 1em;
 			display: flex;
 			flex-direction: column;
-			text-align: center;
+			height: 100%;
+		}
+		.scrollable {
+			gap: 1em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			overflow-y: auto;
+			padding-right: .5em;
 		}
 
 		button {
@@ -62,9 +75,34 @@
 			color: #EEEEEE;
 			border: none;
 			transition: all .2s;
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
 		}
-		button:hover {
+		button:disabled {
+			cursor: default;
+			opacity: .5;
+		}
+		button:hover:not(:disabled) {
 			background-color: #01a982;
+		}
+
+		button>img {
+			height: 1em;
+		}
+		button.light {
+			background-color: rgba(255, 255, 255, .3);
+		}
+		button.light:hover:not(:disabled) {
+			background-color: rgba(255, 255, 255, .5);
+		}
+		button.alert {
+			background-color: #b71f1f;
+		}
+		button.alert:hover:not(:disabled) {
+			background-color: #d53838;
 		}
 
 		input {
@@ -89,75 +127,37 @@
 			margin: auto;
 		}
 
-		.error {
-			display: none;
-			padding: .25em;
-			border-radius: .5em;
-			background-color: #b71f1f;
+		.infos {
+			font-size: .9em;
+			text-align: center;
 		}
 
-		.disconnect {
-			text-align: center;
-			display: none;
+		*::-webkit-scrollbar {
+			width: 10px;
+		}
+
+		*::-webkit-scrollbar-track {
+			background: transparent;
+			background-color: #000;
+			border-radius: 20px;
+		}
+
+		*::-webkit-scrollbar-thumb {
+			border-radius: 20px;
+			background-color: rgba(255, 255, 255, .25);
 		}
 	</style>
-	<script type="text/javascript">
-		function submitForm(event) {
-			event.preventDefault();
-			const list = document.getElementsByClassName("entry");
-			for (let i = 0; i < list.length; i++) {
-				const el = list[i];
-				if(el.id === id) {
-					el.classList.add("selected");
-				}else{
-					el.classList.remove("selected");
-				}
-			}
-			document.getElementById("loader").style.display = "block";
-			document.getElementById("form").style.display = "none";
-			document.getElementById("error").style.display = "none";
-
-			const ip = document.getElementById("ip").value;
-			localStorage.setItem("ip", ip);
-			const body = JSON.stringify({ip});
-			fetch("http://127.0.0.1:8253/ip", {method:"POST", body}).then((res)=>{
-				document.getElementById("loader").style.display = "none";
-				document.getElementById("form").style.display = "none";
-				document.getElementById("disconnect").style.display = "block";
-			}).catch((error)=> {
-				document.getElementById("loader").style.display = "none";
-				document.getElementById("form").style.display = "flex";
-				document.getElementById("error").style.display = "block";
-			});
-			return false;
-		}
-
-		function disconnect() {
-			fetch("http://127.0.0.1:8253/disconnect", {method:"POST"}).finally(()=> {
-				document.getElementById("form").style.display = "flex";
-				document.getElementById("disconnect").style.display = "none";
-			});
-		}
-
-		window.addEventListener("load", ()=> {
-			const ip = localStorage.getItem("ip");
-			if(ip) {
-				document.getElementById("ip").value = ip;
-			}
-		})
-	</script>
+	<script src="app.js" type="module" defer></script>
 </head>
 <body>
 	<div class="holder">
-		<form class="form" id="form" onsubmit="submitForm(event)">
-			<label>Set IP address of remote computer</label>
-			<input type="text" id="ip" placeholder="192.168.0.1" value="192.168.0.1">
-			<button type="submit">Submit</button>
-			<div class="error" id="error">connection failed</div>
-		</form>
-		<div class="disconnect" id="disconnect">
-			<button type="submit" onclick="disconnect()">Disconnect</button>
+		<header-section></header-section>
+
+		<div class="infos">Make it possible for Twitchat to connect to a remote OBS, Voicemod or GoXLR</div>
+
+		<div id="forms_holder" class="scrollable">
 		</div>
+
 		<img src="./assets/loader.svg" alt="loader" class="loader" id="loader">
 	</div>
 </body>

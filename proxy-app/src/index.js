@@ -1,100 +1,150 @@
-const { app, BrowserWindow } = require('electron');
+const { app, ipcMain, BrowserWindow, Tray, Menu } = require('electron');
 const path = require("path");
 const httpProxy = require('http-proxy');
 
-let proxy;
-let shouldConnect = false;
+let mainWindow;
+let proxyList = {};
 
-const createWindow = () => {
-	const win = new BrowserWindow({
-		width: 300,
-		height: 200,
-		frame: false,
-		transparent: true,
-		webPreferences: {
-			preload: path.join(__dirname, 'preload.js')
+/**
+ * Create electron app
+ */
+		const createWindow = () => {
+			mainWindow = new BrowserWindow({
+				width: 520,
+				height: 320,
+				frame: false,
+				transparent: true,
+				webPreferences: {
+					// nodeIntegration: true,
+					// contextIsolation: true,
+					// enableRemoteModule: true,
+					preload: path.join(__dirname, 'preload.js')
+				}
+			});
+
+			let tray = null;
+			mainWindow.on('minimize', function (event) {
+				event.preventDefault();
+				mainWindow.setSkipTaskbar(true);
+				tray = createTray();
+			});
+
+			mainWindow.on('restore', function (event) {
+				mainWindow.show();
+				mainWindow.setSkipTaskbar(false);
+				tray.destroy();
+			});
+
+			mainWindow.loadFile(path.join(__dirname, "index.html"));
 		}
-	})
 
-	win.loadFile(path.join(__dirname, "index.html"));
-}
+		app.whenReady().then(() => {
+			createWindow()
 
-app.whenReady().then(() => {
-	createWindow()
+			app.on('activate', () => {
+				if (BrowserWindow.getAllWindows().length === 0) createWindow()
+			})
+		});
 
-	app.on('activate', () => {
-		if (BrowserWindow.getAllWindows().length === 0) createWindow()
-	})
-});
+		app.on('window-all-closed', () => {
+			if (process.platform !== 'darwin') app.quit()
+		})
 
-app.on('window-all-closed', () => {
-	if (process.platform !== 'darwin') app.quit()
-})
-
-
-// Require the framework and instantiate it
-const server = require('fastify')({ logger: false })
-server.get('/', async (request, response) => { return "Server ready"; })
-server.post('/ip', async (request, response) => {
-	shouldConnect = true;
-	const json = JSON.parse(request.body);
-	console.log(json);
-	startWebsocketProxies(json.ip);
-	response.status(200).send();
-});
-server.post('/disconnect', async (request, response) => {
-	shouldConnect = false;
-	if(proxy) proxy.close();
-	response.status(200).send();
-});
-
-
-server.listen({port:8253, host:'0.0.0.0'}).catch((err)=> {
-	console.log(err);
-	process.exit(1)
-});
-
-//*
-function startWebsocketProxies(ip) {
-	/**
-	 * GOXLR proxy
-	 */
-	proxy = httpProxy.createServer({
-		target: 'ws://'+ip+':14564',
-		ws: true
-	}).on('error', (err) => {
-		proxy.close();
-		if(shouldConnect) {
-			setTimeout(()=> {
-				startWebsocketProxies();
-			}, 1000)
+		/**
+		 * Create tray menu
+		 */
+		function createTray() {
+			let appIcon = new Tray(path.join(__dirname, "assets/tray.ico"));
+			const contextMenu = Menu.buildFromTemplate([
+				{
+					label: 'Show', click: function () {
+						mainWindow.show();
+					}
+				},
+				{
+					label: 'Exit', click: function () {
+						app.isQuiting = true;
+						app.quit();
+					}
+				}
+			]);
+		
+			appIcon.on('double-click', function (event) {
+				mainWindow.show();
+			});
+			appIcon.setToolTip('Tray Tutorial');
+			appIcon.setContextMenu(contextMenu);
+			return appIcon;
 		}
-	}).on("open", ()=> {
-		console.log("Opened");
-	}).on("proxyReqWs", (req) => {
-		// console.log("Forward WS");
-	})
-	.listen(14564);
 
-	/**
-	 * OBS websocket proxy
-	 */
-	proxy = httpProxy.createServer({
-		target: 'ws://'+ip+':4455',
-		ws: true
-	}).on('error', (err) => {
-		proxy.close();
-		if(shouldConnect) {
-			setTimeout(()=> {
-				startWebsocketProxies();
-			}, 1000)
+/**
+ * Methods exposed to frontend.
+ * Declare them in preload.js
+ */
+		ipcMain.handle('connect', async (event, arg) => {
+			if(proxyList[arg.ip+"_"+arg.port]) return {success:true};
+
+			const success = await createProxy(arg.ip, arg.port).catch(error=>{console.log("Error", error)});
+			return {success};
+		});
+		ipcMain.handle('disconnect', async (event, arg) => {
+			const key = arg.ip+"_"+arg.port;
+			if(proxyList[key]) {
+				proxyList[key].close();
+				delete proxyList[key];
+			}
+		});
+		ipcMain.handle('minimize', async (event, arg) => {
+			mainWindow.minimize();
+		});
+		ipcMain.handle('close', async (event, arg) => {
+			mainWindow.close();
+		});
+
+
+
+
+/**
+ * Create Websocket proxies
+ */
+		function createProxy(ip, port) {
+			return new Promise((resolve, reject)=> {
+				let reconnectTimeout = -1;
+				const proxy = httpProxy.createProxyServer({
+					target: {
+						protocol: 'ws:',
+						host: ip,
+						port: port
+					  },
+					ws: true,
+					timeout:1000,
+					proxyTimeout:1000,
+				});
+				proxy.on('error', (error) => {
+					console.log(error);
+					// if(proxy) proxy.close();
+					if (proxyList[ip+"_"+port]) {
+						delete proxyList[ip+"_"+port];
+						clearTimeout(reconnectTimeout);
+						reconnectTimeout = setTimeout(() => {
+							createProxy(ip, port).then((()=>{
+								resolve(true);
+							})).catch((()=>{
+								resolve(false);
+							}));
+						}, 1000);
+					}else{
+						proxy.close();
+						resolve(false);
+					}
+				}).on("open", () => {
+					proxyList[ip+"_"+port] = proxy;
+					resolve(true);
+				}).on("close", () => {
+					delete proxyList[ip+"_"+port];
+				}).on("proxyReqWs", (req) => {
+					// console.log("Forward WS");
+				})
+				.listen(port);
+			})
 		}
-	}).on("open", ()=> {
-		console.log("Opened");
-	}).on("proxyReqWs", (req) => {
-		// console.log("Forward WS");
-	})
-	.listen(4455);
-}
-// startWebsocketProxy("192.168.1.13");
-//*/
