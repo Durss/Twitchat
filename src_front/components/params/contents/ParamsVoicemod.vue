@@ -115,7 +115,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	 */
 	public toggleState():void {
 		if(this.param_enabled.value === true) {
-			this.prefill();
+			// this.prefill();
 			this.connect();
 		} else {
 			this.connected = false;

@@ -40,7 +40,7 @@
 			</i18n-t>
 			<ul class="list">
 				<li class="user" v-for="(u, index) in bannedOnline" :key="index + u.id">
-					<img src="@/assets/icons/ban.svg" v-tooltip="'Timeout'">
+					<img src="@/assets/icons/ban.svg" v-tooltip="'Ban'">
 					<a :href="'https://twitch.tv/'+u.login" target="_blank"
 					@click.stop.prevent="openUserCard(u)" class="login">{{ u.login }}</a>
 				</li>
@@ -59,8 +59,8 @@
 		</ToggleBlock>
 		
 		<div class="ctas">
-			<Button light @click="spamLink()">{{ $t('raid.spam_linkBt') }}</Button>
-			<Button light @click="openSummary()">{{ $t('raid.stream_summaryBt') }}</Button>
+			<Button light @click="spamLink()" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
+			<Button light @click="openSummary()" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
 		<Button icon="cross" alert @click="cancelRaid()">{{ $t('global.cancel') }}</Button>
