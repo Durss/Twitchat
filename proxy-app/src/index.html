@@ -64,6 +64,7 @@
 			align-items: center;
 			overflow-y: auto;
 			padding-right: .5em;
+			-webkit-app-region: no-drag;
 		}
 
 		button {
@@ -120,6 +121,9 @@
 			font-style: italic;
 			color: rgba(255, 255, 255, .5);
 		}
+		input:disabled {
+			opacity: .5;
+		}
 
 		.loader {
 			height: 2em;
@@ -153,7 +157,7 @@
 	<div class="holder">
 		<header-section></header-section>
 
-		<div class="infos">Make it possible for Twitchat to connect to a remote OBS, Voicemod or GoXLR</div>
+		<div class="infos">Make it possible for Twitchat to remotely connect to OBS, a GoXLR or Voicemod</div>
 
 		<div id="forms_holder" class="scrollable">
 		</div>

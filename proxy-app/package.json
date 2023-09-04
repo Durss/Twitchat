@@ -8,7 +8,8 @@
 	"scripts": {
 		"serve": "electron ./src",
 		"build": "electron-builder --dir",
-		"dist": "electron-builder"
+		"dist": "electron-builder",
+		"rebuildModules": "electron-rebuild"
 	},
 	"postinstall": "electron-builder install-app-deps",
 	"build": {
@@ -31,12 +32,14 @@
 		}
 	},
 	"dependencies": {
-		"http-proxy": "^1.18.1",
+		"@msgpack/msgpack": "^3.0.0-beta2",
 		"fastify": "^4.20.0",
+		"http-proxy": "^1.18.1",
 		"node-fetch": "^2.6.7"
 	},
 	"devDependencies": {
 		"electron": "^26.1.0",
-		"electron-builder": "^24.6.3"
+		"electron-builder": "^24.6.3",
+		"electron-rebuild": "^3.2.9"
 	}
 }

@@ -35,5 +35,10 @@ contextBridge.exposeInMainWorld("api", {
 			return ipcRenderer.invoke(channel, data);
 		}
 	},
+	onConnecting: (callback) => ipcRenderer.on('on:connecting', callback),
+	onConnect: (callback) => ipcRenderer.on('on:connect', callback),
+	onDisconnect: (callback) => ipcRenderer.on('on:disconnect', callback),
+	onData: (callback) => ipcRenderer.on('on:data', callback),
+	onNeedsAuth: (callback) => ipcRenderer.on('on:needsAuth', callback),
 }
 );

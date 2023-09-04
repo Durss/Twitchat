@@ -11,7 +11,44 @@ export default class ProxyItem extends HTMLFormElement {
 		super();
 		this.loading = false;
 		this.connected = false;
+		this.needsAuth = false;
 		this.buildHTML();
+
+		window.api.onConnect((event, id) => {
+			if(id != this.proxy.id) return;
+			this.loading = false;
+			this.connected = true;
+			this.needsAuth = false;
+			this.buildHTML();
+		});
+
+		window.api.onDisconnect((event, id) => {
+			if(id != this.proxy.id) return;
+			this.loading = false;
+			this.connected = false;
+			this.buildHTML();
+		});
+
+		window.api.onData((event, id) => {
+			if(id != this.proxy.id) return;
+			console.log(event);
+		});
+
+		window.api.onConnecting((event, id) => {
+			if(id != this.proxy.id) return;
+			this.loading = true;
+			this.connected = false;
+			this.needsAuth = false;
+			this.buildHTML();
+		});
+
+		window.api.onNeedsAuth((event, id) => {
+			if(id != this.proxy.id) return;
+			this.loading = true;
+			this.connected = false;
+			this.needsAuth = true;
+			this.buildHTML();
+		});
 	}
 
 	/**
@@ -52,6 +89,7 @@ export default class ProxyItem extends HTMLFormElement {
 					display: flex;
 					flex-direction: row;
 					align-items: center;
+					flex-wrap: wrap;
 				}
 				.proxyItem>label {
 					width: 130px;
@@ -72,11 +110,30 @@ export default class ProxyItem extends HTMLFormElement {
 				.proxyItem .port {
 					width: 80px;
 				}
+				.proxyItem .connected {
+					color: #008667;
+					text-align: center;
+					width: 244px;
+					line-height: 30px;
+				}
+				.proxyItem .error {
+					color: #b71f1f;
+					font-size:.7em;
+					font-weight: bold;
+					flex-basis: 100%;
+					text-align: center;
+				}
 			</style>
 			<label><img src="assets/${this.proxy.id}.svg" alt="${this.proxy.id}">${this.proxy.name}</label>
-			<input type="text" class="ip" name="ip" placeholder="${this.proxy.ip}" value="${this.proxy.ip}">
-			<input type="text" class="port" name="port" placeholder="${this.proxy.port}" value="${this.proxy.port}">
 		`;
+		if(this.connected) {
+			this.innerHTML += `<span class="connected">connected</span>`;
+		}else{
+			this.innerHTML += `
+			<input type="text" class="ip" name="ip" ${this.loading || this.connected? 'disabled' : ''} placeholder="${this.proxy.ip}" value="${this.proxy.ip}">
+			<input type="text" class="port" name="port" ${this.loading || this.connected? 'disabled' : ''} placeholder="${this.proxy.port}" value="${this.proxy.port}">
+			`;
+		}
 
 		const connectBt = `<button type="submit" class="light"><img src="assets/connect.svg" alt="connect"></button>`;
 		const disconnectBt = `<button type="button" class="alert disconnectBt"><img src="assets/cross.svg" alt="disconnect"></button>`;
@@ -89,10 +146,12 @@ export default class ProxyItem extends HTMLFormElement {
 			this.innerHTML += connectBt;
 		}
 
+		if(this.needsAuth) {
+			this.innerHTML += "<span class='error'>Twitchat Proxy does not support OBS-Websocket authentication. Please disable authentication on OBS-websocket.</span>"
+		}
+
 		this.querySelector(".disconnectBt")?.addEventListener("click", ()=>{
-			window.api.invoke("disconnect", {ip:this.proxy.ip, port:this.proxy.port});
-			this.connected = false;
-			this.buildHTML();
+			window.api.invoke("disconnect", {ip:this.proxy.ip, port:this.proxy.port, id:this.proxy.id});
 		})
 	}
 
@@ -109,16 +168,7 @@ export default class ProxyItem extends HTMLFormElement {
 		localStorage.setItem("ip_"+id, ip);
 		localStorage.setItem("port_"+id, port);
 
-		console.log(ip, port);
-
-		this.loading = true;
-		this.buildHTML();
-
-		const {success} = await window.api.invoke("connect", {ip, port});
-		this.connected = success;
-		this.loading = false;
-
-		this.buildHTML();
+		await window.api.invoke("connect", {ip, port, id});
 
 		return false;
 	}
