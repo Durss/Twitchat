@@ -220,7 +220,7 @@ import Ajv from "ajv";
 								},
 								action: {type:"string", maxLength:20},
 								triggerId: {type:"string", maxLength:50},
-								delay: {type:"integer"},
+								delay: {type:"number", minimum:0 , maximum:99999},
 								filterName: {type:"string", maxLength:100},
 								text: {type:"string", maxLength:1000},
 								url: {type:"string", maxLength:1000},
