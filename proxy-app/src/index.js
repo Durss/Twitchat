@@ -1,9 +1,9 @@
 const { app, ipcMain, BrowserWindow, Tray, Menu } = require('electron');
 const path = require("path");
 const httpProxy = require('http-proxy');
-const msgpack = require('@msgpack/msgpack');
-const sha256 = require("crypto-js/sha256.js");
-const Base64 = require("crypto-js/enc-base64.js");
+// const msgpack = require('@msgpack/msgpack');
+// const sha256 = require("crypto-js/sha256.js");
+// const Base64 = require("crypto-js/enc-base64.js");
 
 let mainWindow;
 let proxyList = {};
@@ -91,7 +91,7 @@ let socketConnections = {};
 		ipcMain.handle('disconnect', async (event, arg) => {
 			const id = arg.id;
 			if(socketConnections[id]) {
-				this.closeProxy(id);
+				closeProxy(id);
 			}
 		});
 		ipcMain.handle('minimize', async (event, arg) => {
@@ -108,6 +108,7 @@ let socketConnections = {};
  * Create Websocket proxies
  */
 		function createProxy(ip, port, id) {
+			console.log("Create proxy", id, ip, port);
 			mainWindow.webContents.send('on:connecting', id);
 			//Handle custom timeout as for some socket ports the
 			//connection keeps hanging with no timeout...
@@ -144,6 +145,7 @@ let socketConnections = {};
 				console.log("on upgrade", id);
 			})
 			.on("open", (socket) => {
+				console.log("Proxy created", id, ip, port);
 				clearTimeout(timeout);
 
 				socketConnections[id] = socket;
@@ -176,7 +178,7 @@ let socketConnections = {};
 				closeProxy(id);
 			})
 			.on("proxyReqWs", (req) => {
-				// console.log(req);
+				console.log("Forward");
 				mainWindow.webContents.send('on:data', id);
 			})
 			.listen(port);

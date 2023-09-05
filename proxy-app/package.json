@@ -32,8 +32,6 @@
 		}
 	},
 	"dependencies": {
-		"@msgpack/msgpack": "^3.0.0-beta2",
-		"fastify": "^4.20.0",
 		"http-proxy": "^1.18.1",
 		"node-fetch": "^2.6.7"
 	},
