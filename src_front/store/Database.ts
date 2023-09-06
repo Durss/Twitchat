@@ -107,7 +107,7 @@ export default class Database {
 	 * @param message 
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
-		if(!this._db) return Promise.reject();
+		if(!this._db) return Promise.reject("Databse not ready");
 
 		const ignoreList:TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,

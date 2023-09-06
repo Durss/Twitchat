@@ -382,7 +382,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Contains the raw selected list item
 		 */
-		selectedListValue?:U;
+		selectedListValue?:ParameterDataListValue<U>;
 		/**
 		 * List values for the "editablelist" type
 		 */

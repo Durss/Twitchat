@@ -702,7 +702,7 @@ export default class TriggerActionHandler {
 		
 		if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 		const queue = this.triggerTypeToQueue[queueKey];
-		const eventBusy = queue.length > 0
+		const eventBusy = queue.length > 0;
 		let prom = queue[queue.length-1] ?? Promise.resolve();
 		let triggerResolver!: ()=>void;
 		queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
@@ -1619,7 +1619,8 @@ export default class TriggerActionHandler {
 	 * Replaces placeholders by their values on the message
 	 */
 	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
-		let res = src;
+		src = src.toString();//Make sure it's a string
+		let res = src.toString();
 		if(!res) return "";
 		let subEvent_regSafe = "";
 		if(subEvent) subEvent_regSafe = subEvent.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");

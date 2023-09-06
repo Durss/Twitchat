@@ -295,9 +295,6 @@ export const storeMain = defineStore("main", {
 				StoreProxy.params.openModal("updates");
 			}
 
-			Database.instance.connect().then(()=> {
-				StoreProxy.chat.preloadMessageHistory();
-			});
 			/**
 			 * Connect to Spotify (won't do anything if no credentials are available)
 			 */
@@ -944,8 +941,13 @@ export const storeMain = defineStore("main", {
 				}
 			}
 			
-			//Reload devmode state
-			this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
+
+			Database.instance.connect().then(()=> {
+				StoreProxy.chat.preloadMessageHistory();
+				
+				//Reload devmode state
+				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
+			});
 
 			SchedulerHelper.instance.start();
 			

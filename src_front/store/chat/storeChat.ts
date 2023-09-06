@@ -604,6 +604,9 @@ export const storeChat = defineStore('chat', {
 				}
 				
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+			}).catch(error=>{
+				console.log("DATABASE ERROR");
+				console.log(error);
 			})
 		},
 
@@ -1232,7 +1235,10 @@ export const storeChat = defineStore('chat', {
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
 				if(StoreProxy.params.features.saveHistory.value === true) {
-					Database.instance.addMessage(message);
+					Database.instance.addMessage(message).catch((error)=>{
+						console.error("Database addMessage() error");
+						console.log(error);
+					});
 				}
 			
 				//Limit history size

@@ -3,10 +3,10 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
+import Utils from "../Utils";
 import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
-import Utils from "../Utils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 
 /**
@@ -337,7 +337,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+channelId, options);
 		const json:{data:TwitchDataTypes.Poll[]} = await res.json();
 		if(res.status == 200) {
-			if(json.data[0].status == "ACTIVE") {
+			if(json.data.length > 0 && json.data[0].status == "ACTIVE") {
 				const src = json.data[0];
 				const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 				src.choices.forEach(v=> {

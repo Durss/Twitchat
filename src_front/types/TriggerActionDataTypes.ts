@@ -679,6 +679,7 @@ export interface ITriggerPlaceholder<T> extends TwitchatDataTypes.PlaceholderEnt
 	isUserID:boolean;
 	numberParsable:boolean;
 	customTag?:boolean;
+	values?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
 }
 
 export const USER_PLACEHOLDER:string = "USER";
@@ -750,7 +751,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message.message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
 		{tag:"PAID_AMOUNT", descKey:'triggers.placeholders.hype_chat_paid', pointer:"message.twitch_hypeChat.amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
 		{tag:"PAID_CURRENCY", descKey:'triggers.placeholders.hype_chat_currency', pointer:"message.twitch_hypeChat.currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
-		{tag:"PAID_LEVEL", descKey:'triggers.placeholders.hype_chat_level', pointer:"message.twitch_hypeChat.level", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
+		{tag:"PAID_LEVEL", descKey:'triggers.placeholders.hype_chat_level', pointer:"message.twitch_hypeChat.level", numberParsable:true, isUserID:false, values:[{label:"1", value:0},{label:"2", value:1},{label:"3", value:2},{label:"4", value:3},{label:"5", value:4},{label:"6", value:4},{label:"7", value:6},{label:"8", value:7},{label:"9", value:8},{label:"10", value:9}]} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
 		{tag:"PIN_DURATION", descKey:'triggers.placeholders.hype_chat_duration', pointer:"message.twitch_hypeChat.duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageHypeChatData, "message"> & {message:SafeMessage}>,
 	];
 
@@ -799,7 +800,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.SUB] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
-		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false, values:[{label:'prime', value:'prime'}, {label:"1", value:1},{label:"2", value:2},{label:"3", value:3}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.sub_message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
@@ -811,7 +812,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"RECIPIENTS", descKey:'triggers.placeholders.sub_gift_recipient', pointer:"gift_recipients.0.displayName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"RECIPIENTS_ID", descKey:'triggers.placeholders.sub_gift_recipient_id', pointer:"gift_recipients.0.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
-		{tag:"SUB_TIER", descKey:'triggers.placeholders.sub_tier', pointer:"tier", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"SUB_TIER", descKey:'triggers.placeholders.subgift_tier', pointer:"tier", numberParsable:true, isUserID:false, values:[{label:"1", value:1},{label:"2", value:2},{label:"3", value:3}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"GIFT_COUNT", descKey:'triggers.placeholders.sub_gift_count', pointer:"gift_count", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 	];
@@ -835,7 +836,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"CATEGORY", descKey:'triggers.placeholders.stream_category', pointer:"stream.category", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"VIEWERS", descKey:'triggers.placeholders.stream_viewers', pointer:"viewers", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 		{tag:"DURATION", descKey:'triggers.placeholders.stream_duration', pointer:"stream.duration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
-		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
+		{tag:"WAS_LIVE", descKey:'triggers.placeholders.stream_live', pointer:"stream.wasLive", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageRaidData>,
 	];
 	
 	map[TriggerTypes.RAID_STARTED] = [
@@ -1005,12 +1006,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.HEAT_CLICK] = [
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.user', pointer:"user.login", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.user_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
-		{tag:"USER_ANONYMOUS", descKey:'triggers.placeholders.heat_anonymous', pointer:"anonymous", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
+		{tag:"USER_ANONYMOUS", descKey:'triggers.placeholders.heat_anonymous', pointer:"anonymous", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{tag:"COORD_X", descKey:'triggers.placeholders.heat_coord_x', pointer:"coords.x", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 		{tag:"COORD_Y", descKey:'triggers.placeholders.heat_coord_y', pointer:"coords.y", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
-		{tag:"KEY_ALT", descKey:'triggers.placeholders.heat_key_alt', pointer:"alt", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
-		{tag:"KEY_SHIFT", descKey:'triggers.placeholders.heat_key_shift', pointer:"shift", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
-		{tag:"KEY_CTRL", descKey:'triggers.placeholders.heat_key_ctrl', pointer:"ctrl", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
+		{tag:"KEY_ALT", descKey:'triggers.placeholders.heat_key_alt', pointer:"alt", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
+		{tag:"KEY_SHIFT", descKey:'triggers.placeholders.heat_key_shift', pointer:"shift", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
+		{tag:"KEY_CTRL", descKey:'triggers.placeholders.heat_key_ctrl', pointer:"ctrl", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageHeatClickData>,
 	];
 
 	map[TriggerTypes.CLIP_CREATED] = [
@@ -1020,7 +1021,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.GOXLR_FX_DISABLED] =
 	map[TriggerTypes.GOXLR_FX_ENABLED] = [
 		{tag:"PRESET_INDEX", descKey:'triggers.placeholders.goxlr_preset_index', pointer:"fxIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRFXEnableChangeData>,
-		{tag:"FX_ENABLED", descKey:'triggers.placeholders.goxlr_fxenabled', pointer:"enabled", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRFXEnableChangeData>,
+		{tag:"FX_ENABLED", descKey:'triggers.placeholders.goxlr_fxenabled', pointer:"enabled", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRFXEnableChangeData>,
 	];
 
 	map[TriggerTypes.GOXLR_BUTTON_PRESSED] =
@@ -1030,7 +1031,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 
 	map[TriggerTypes.GOXLR_INPUT_MUTE] =
 	map[TriggerTypes.GOXLR_INPUT_UNMUTE] = [
-		{tag:"FADER_INDEX", descKey:'triggers.placeholders.goxlr_fader_index', pointer:"faderIndex", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRSoundInputData>,
+		{tag:"FADER_INDEX", descKey:'triggers.placeholders.goxlr_fader_index', pointer:"faderIndex", numberParsable:true, isUserID:false, values:[{label:"Fader 1", value:1},{label:"Fader 2", value:2},{label:"Fader 3", value:3},{label:"Fader 4", value:4}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRSoundInputData>,
 	];
 
 	const counters = StoreProxy.counters.counterList;
@@ -1109,7 +1110,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		//If a goxlr is connected concat available placeholder
 		if(GoXLRSocket.instance.connected) {
 			entry.push(
-				{category:"goxlr", tag:"GOXLR_COUGH", descKey:'triggers.placeholders.goxlr_cough', pointer:"__goxlr__.cough", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_COUGH", descKey:'triggers.placeholders.goxlr_cough', pointer:"__goxlr__.cough", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 				{category:"goxlr", tag:"GOXLR_PROFILE", descKey:'triggers.placeholders.goxlr_profile', pointer:"__goxlr__.profile", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
 				{category:"goxlr", tag:"GOXLR_INPUT_MIC", descKey:'triggers.placeholders.goxlr_input_mic', pointer:"__goxlr__.input.mic", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
 				{category:"goxlr", tag:"GOXLR_INPUT_CHAT", descKey:'triggers.placeholders.goxlr_input_chat', pointer:"__goxlr__.input.chat", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
@@ -1119,19 +1120,19 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 				{category:"goxlr", tag:"GOXLR_INPUT_LINEIN", descKey:'triggers.placeholders.goxlr_input_linein', pointer:"__goxlr__.input.linein", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
 				{category:"goxlr", tag:"GOXLR_INPUT_SYSTEM", descKey:'triggers.placeholders.goxlr_input_system', pointer:"__goxlr__.input.system", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
 				{category:"goxlr", tag:"GOXLR_INPUT_SAMPLE", descKey:'triggers.placeholders.goxlr_input_sample', pointer:"__goxlr__.input.sample", numberParsable:true, isUserID:false, globalTag:true, example:"128"},
-				{category:"goxlr", tag:"GOXLR_FX_ENABLED", descKey:'triggers.placeholders.goxlr_fx_state', pointer:"__goxlr__.fx.enabled", numberParsable:true, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_ENABLED", descKey:'triggers.placeholders.goxlr_fx_state', pointer:"__goxlr__.fx.enabled", numberParsable:true, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 				{category:"goxlr", tag:"GOXLR_FX_PRESET", descKey:'triggers.placeholders.goxlr_fx_preset', pointer:"__goxlr__.fx.preset", numberParsable:false, isUserID:false, globalTag:true, example:"3"},
-				{category:"goxlr", tag:"GOXLR_FX_MEGAPHONE", descKey:'triggers.placeholders.goxlr_megaphone', pointer:"__goxlr__.fx.megaphone", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
-				{category:"goxlr", tag:"GOXLR_FX_ROBOT", descKey:'triggers.placeholders.goxlr_robot', pointer:"__goxlr__.fx.robot", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
-				{category:"goxlr", tag:"GOXLR_FX_HARDTUNE", descKey:'triggers.placeholders.goxlr_hardtune', pointer:"__goxlr__.fx.hardtune", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
+				{category:"goxlr", tag:"GOXLR_FX_MEGAPHONE", descKey:'triggers.placeholders.goxlr_megaphone', pointer:"__goxlr__.fx.megaphone", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+				{category:"goxlr", tag:"GOXLR_FX_ROBOT", descKey:'triggers.placeholders.goxlr_robot', pointer:"__goxlr__.fx.robot", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+				{category:"goxlr", tag:"GOXLR_FX_HARDTUNE", descKey:'triggers.placeholders.goxlr_hardtune', pointer:"__goxlr__.fx.hardtune", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 				{category:"goxlr", tag:"GOXLR_FX_REVERB", descKey:'triggers.placeholders.goxlr_reverb', pointer:"__goxlr__.fx.reverb", numberParsable:false, isUserID:false, globalTag:true, example:"12"},
 				{category:"goxlr", tag:"GOXLR_FX_PITCH", descKey:'triggers.placeholders.goxlr_pitch', pointer:"__goxlr__.fx.pitch", numberParsable:false, isUserID:false, globalTag:true, example:"-5"},
 				{category:"goxlr", tag:"GOXLR_FX_ECHO", descKey:'triggers.placeholders.goxlr_echo', pointer:"__goxlr__.fx.echo", numberParsable:false, isUserID:false, globalTag:true, example:"50"},
 				{category:"goxlr", tag:"GOXLR_FX_GENDER", descKey:'triggers.placeholders.goxlr_gender', pointer:"__goxlr__.fx.gender", numberParsable:false, isUserID:false, globalTag:true, example:"-12"},
-				{category:"goxlr", tag:"GOXLR_FADER_1_MUTE", descKey:'triggers.placeholders.goxlr_fader_1_mute', pointer:"__goxlr__.fader.a", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
-				{category:"goxlr", tag:"GOXLR_FADER_2_MUTE", descKey:'triggers.placeholders.goxlr_fader_2_mute', pointer:"__goxlr__.fader.b", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
-				{category:"goxlr", tag:"GOXLR_FADER_3_MUTE", descKey:'triggers.placeholders.goxlr_fader_3_mute', pointer:"__goxlr__.fader.c", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
-				{category:"goxlr", tag:"GOXLR_FADER_4_MUTE", descKey:'triggers.placeholders.goxlr_fader_4_mute', pointer:"__goxlr__.fader.d", numberParsable:false, isUserID:false, globalTag:true, example:"false"},
+				{category:"goxlr", tag:"GOXLR_FADER_1_MUTE", descKey:'triggers.placeholders.goxlr_fader_1_mute', pointer:"__goxlr__.fader.a", numberParsable:false, isUserID:false, globalTag:true, example:"false", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+				{category:"goxlr", tag:"GOXLR_FADER_2_MUTE", descKey:'triggers.placeholders.goxlr_fader_2_mute', pointer:"__goxlr__.fader.b", numberParsable:false, isUserID:false, globalTag:true, example:"false", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+				{category:"goxlr", tag:"GOXLR_FADER_3_MUTE", descKey:'triggers.placeholders.goxlr_fader_3_mute', pointer:"__goxlr__.fader.c", numberParsable:false, isUserID:false, globalTag:true, example:"false", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
+				{category:"goxlr", tag:"GOXLR_FADER_4_MUTE", descKey:'triggers.placeholders.goxlr_fader_4_mute', pointer:"__goxlr__.fader.d", numberParsable:false, isUserID:false, globalTag:true, example:"false", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 			);
 		}
 

@@ -6,7 +6,8 @@
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
-		<ParamItem class="value" noBackground :paramData="param_value" v-model="condition.value" :key="'op_'+condition.id" />
+		<ParamItem class="value" v-if="param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" />
+		<ParamItem class="value" v-else noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" />
 
 		<div class="ctas">
 			<Button small icon="group"
@@ -27,6 +28,7 @@ import Utils from '@/utils/Utils';
 import ParamItem from '../../ParamItem.vue';
 import Button from '@/components/Button.vue';
 import { watch } from 'vue';
+import { clone } from 'mathjs';
 
 @Component({
 	components:{
@@ -49,8 +51,10 @@ export default class TriggerConditionListItem extends Vue {
 	public param_placeholder:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
 	public param_operator:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:""}
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
+	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
 
 	public beforeMount():void {
+		console.log(JSON.parse(JSON.stringify(this.condition)));
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
 		
 		this.buildSourceList();
@@ -66,13 +70,13 @@ export default class TriggerConditionListItem extends Vue {
 	 */
 	public buildSourceList():void {
 		//Add commmand params
-		let placeholderList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-			if(this.triggerData.chatCommandParams) {
+		let placeholderList:ConditionListValues<string>[] = [];
+		if(this.triggerData.chatCommandParams) {
 			this.triggerData.chatCommandParams.forEach(v=> {
 				placeholderList.push({
 					value:v.tag.toUpperCase(),
 					label: this.$t('triggers.condition.placeholder_cmd_param', {NAME:"{"+v.tag.toUpperCase()+"}"}),
-				})
+				});
 			})
 		}
 			
@@ -89,6 +93,7 @@ export default class TriggerConditionListItem extends Vue {
 			return {
 				label: this.$t(v.descKey, {NAME:"\""+name+"\""}),
 				value:v.tag.toUpperCase(),
+				fixedValues:v.values,
 			}
 		}));
 		
@@ -98,7 +103,12 @@ export default class TriggerConditionListItem extends Vue {
 			placeholderList.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
 		this.param_placeholder.listValues = placeholderList;
-		this.updateOperators();
+		//Wait for list to render and update its internal "selectedListValue" value.
+		//Might be something fixable within the ParamItem component to avoid that
+		//async behavior, but too lazy for now :3
+		this.$nextTick().then(()=>{
+			this.updateOperators();
+		})
 	}
 
 	/**
@@ -111,17 +121,25 @@ export default class TriggerConditionListItem extends Vue {
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
 
 		this.param_operator.listValues = TriggerConditionOperatorList.map(v=> {
-				return {
-					label: this.$t("triggers.condition.operators."+v),
-					value: v,
-				}
-			}).filter(v=> {
-				//Remove arithmetical operators if placeholder isn't parsable as number
-				if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
-					return ![">","<",">=","<="].includes(v.value);
-				}
-				return true;
-			});
+			return {
+				label: this.$t("triggers.condition.operators."+v),
+				value: v,
+			}
+		}).filter(v=> {
+			//Remove arithmetical operators if placeholder isn't parsable as number
+			if((!placeholderRef || placeholderRef.numberParsable !== true) && !cmdParamRef) {
+				return ![">","<",">=","<="].includes(v.value);
+			}
+			return true;
+		});
+		
+		if(this.param_placeholder.selectedListValue) {
+			this.param_value_list.listValues = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues;
+			console.log(this.param_value_list.listValues);
+
+		}else{
+			delete this.param_value_list.listValues;
+		}
 	}
 
 	/**
@@ -152,6 +170,11 @@ export default class TriggerConditionListItem extends Vue {
 		this.parentCondition.conditions.splice(index, 1);
 	}
 }
+
+export interface ConditionListValues<T> extends TwitchatDataTypes.ParameterDataListValue<T> {
+	fixedValues?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
+}
+
 </script>
 
 <style scoped lang="less">
@@ -181,6 +204,11 @@ export default class TriggerConditionListItem extends Vue {
 		flex-basis: 150px;
 		flex-shrink: 0;
 	}
+
+	.value {
+		min-width: 100px;
+	}
+
 	.ctas {
 		flex-shrink: 0;
 		display: flex;

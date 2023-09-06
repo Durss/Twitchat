@@ -61,7 +61,13 @@ import Ajv from "ajv";
 				type: {type:"string", maxLength:15},
 				placeholder: {type:"string", maxLength:100},
 				operator: {type:"string", maxLength:20},
-				value: {type:"string", maxLength:500},
+				value: {
+					anyOf:[
+						{type:"string", maxLength:500},
+						{type:"boolean"},
+						{type:"number"},
+					]
+				},
 			}
 		},
 		botMessage: {
