@@ -12,6 +12,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
+import OBSWebsocket from "@/utils/OBSWebsocket";
 /**
 * Created : 26/09/2022 
 */
@@ -512,6 +513,11 @@ export default class MessengerProxy {
 
 		if(cmd == "/startraffle") {
 			await StoreProxy.raffle.pickWinner();
+			return true;
+		}else
+
+		if(cmd == "/clearobscache") {
+			await OBSWebsocket.instance.clearSourceTransformCache();
 			return true;
 		}else
 
