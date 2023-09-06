@@ -794,6 +794,8 @@ export default class TriggerActionHandler {
 			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
 				log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
 				passesCondition = false;
+			}else if(testMode){
+				log.messages.push({date:Date.now(), value:"✔ Trigger is being tested, force condition to pass"});
 			}else{
 				log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
 			}
@@ -858,7 +860,7 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Execute OBS action on source \""+step.sourceName+"\""});
 					
 					if(!OBSWebsocket.instance.connected) {
-						logStep.messages.push({date:Date.now(), value:"OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
+						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 					}else{
 
 						if(step.text) {
@@ -908,6 +910,7 @@ export default class TriggerActionHandler {
 									case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
 									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
 									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
+									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
 								}
 							}catch(error) {
 								console.error(error);

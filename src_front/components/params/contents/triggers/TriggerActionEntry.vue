@@ -142,7 +142,7 @@
 		</div>
 
 		<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
+		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
 		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
@@ -179,7 +179,7 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
@@ -249,9 +249,11 @@ export default class TriggerActionEntry extends Vue {
 	public action!:TriggerActionTypes;
 	@Prop
 	public triggerData!:TriggerData;
-	@Prop
+	@Prop({default:[]})
+	public obsScenes!:OBSSceneItem[];
+	@Prop({default:[]})
 	public obsSources!:OBSSourceItem[];
-	@Prop
+	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
@@ -259,7 +261,6 @@ export default class TriggerActionEntry extends Vue {
 	public index!:number;
 
 	public opened = false;
-	public isError = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
@@ -339,6 +340,7 @@ export default class TriggerActionEntry extends Vue {
 			mute:"mute",
 			unmute:"unmute",
 			replay:"play",
+			switch_to:"next",
 		};
 		
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );
@@ -367,15 +369,22 @@ export default class TriggerActionEntry extends Vue {
 		return icons;
 	}
 
+	public get isError():boolean {
+		if(this.action.type != "obs") return false;
+
+		const action:TriggerActionObsData = this.action as TriggerActionObsData;
+		if(!action.sourceName) return false;
+		if(!this.obsConnected) return true;
+		return this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1
+		&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
+		&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1;
+	}
+
 	public async beforeMount():Promise<void> {
 		this.opened = !this.action.type;
 	}
 
 	public async mounted():Promise<void> {
-		if(this.action.type == "obs") {
-			watch(()=>this.obsSources, ()=> this.checkOBSSource());
-			this.checkOBSSource();
-		}
 	}
 
 	/**
@@ -447,14 +456,6 @@ export default class TriggerActionEntry extends Vue {
 			}
 		}
 		this.action.type = type;
-	}
-
-	/**
-	 * Updates the error state when obs sources are changed
-	 */
-	private checkOBSSource():void {
-		const action:TriggerActionObsData = this.action as TriggerActionObsData;
-		this.isError = this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1 && this.obsConnected;
 	}
 
 }

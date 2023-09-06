@@ -1,5 +1,5 @@
 <template>
-	<div :class="classes" v-if="!obsConnected">
+	<div class="triggeractionobsentry triggerActionForm" v-if="!obsConnected">
 		<div class="info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
@@ -10,7 +10,7 @@
 		</div>
 	</div>
 
-	<div :class="classes" v-else>
+	<div class="triggeractionobsentry triggerActionForm" v-else>
 		<ParamItem class="source" :paramData="source_conf" v-model="action.sourceName" />
 		<ParamItem class="show" :paramData="action_conf" v-model="action.action" />
 		<ParamItem class="text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
@@ -40,12 +40,12 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
-import type { OBSFilter, OBSSourceItem } from '@/utils/OBSWebsocket';
-import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
+import { watch } from 'vue';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
@@ -58,11 +58,13 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionObsData;
-	@Prop
+	@Prop({default:[]})
 	declare triggerData:TriggerData;
-	@Prop
+	@Prop({default:[]})
+	public obsScenes!:OBSSceneItem[];
+	@Prop({default:[]})
 	public obsSources!:OBSSourceItem[];
-	@Prop
+	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
 	
 	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show" };
@@ -71,7 +73,6 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
 	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://..." };
 	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/..." };
-	public isMissingObsEntry = false;
 	
 	private filters:OBSFilter[] = [];
 	
@@ -84,11 +85,6 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public getHelpers(key:TriggerTypesValue):ITriggerPlaceholder<any>[] { return TriggerEventPlaceholders(key); }
 
-	public get classes():string[] {
-		const res = ["triggeractionobsentry", "triggerActionForm"];
-		if(this.isMissingObsEntry) res.push("missingSource");
-		return res;
-	}
 
 	/**
 	 * Get if the selected source is an audio source
@@ -140,6 +136,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		//Prefill forms
 		await this.prefillForm();
 
+		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
+		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsSources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
@@ -147,20 +145,23 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	private updateActionsList():void {
 		const values:TwitchatDataTypes.ParameterDataListValue<TriggerActionObsDataAction>[] = [];
+		const selectedItem = this.source_conf.selectedListValue as {label:string, value:string, type:"scene"|"source"|"input"}|null;
 
 		if(this.filter_conf.value == "") {
 			values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
 			values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
+			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
+			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
+
+			if(selectedItem?.type == "scene"){
+				values.push({labelKey:"triggers.actions.obs.param_action_scene_switch", value:"switch_to"});
+			}
 		}else{
 			values.push({labelKey:"triggers.actions.obs.param_action_show_filter", value:"show"});
 			values.push({labelKey:"triggers.actions.obs.param_action_hide_filter", value:"hide"});
 		}
 
-		if(this.filter_conf.value == "") {
-			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
-			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
-		}
-		
+
 		if(this.isMediaSource && this.filter_conf.value == "") {
 			values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
 		}
@@ -172,60 +173,47 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Prefills the form
 	 */
 	private async prefillForm():Promise<void> {
+		let list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 		//Get all OBS sources
-		let list = this.obsSources.map(v=> {return {label:v.sourceName, value:v.sourceName, type:"source"}}) as TwitchatDataTypes.ParameterDataListValue<string>[];
+		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true});
+		list = list.concat( this.obsScenes.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.sceneName, value:v.sceneName, type:"scene"}}) );
 		//Get all OBS inputs
-		list = list.concat( this.obsInputs.map(v=> {return {label:v.inputName, value:v.inputName, type:"input"}}) as TwitchatDataTypes.ParameterDataListValue<string>[] );
+		if(this.obsSources.length > 0) {
+			list.push({labelKey:"triggers.actions.obs.param_source_splitter_sources", value:"__sources__", disabled:true});
+			list = list.concat( this.obsSources.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.sourceName, value:v.sourceName, type:"source"}}));
+		}
 
-		//Dedupe entries
-		const entriesDone:{[key:string]:boolean} = {};
-		list = list.filter(v=> {
-			const key = v.value.toLowerCase();
-			if(entriesDone[key] === true) return false;
-			entriesDone[key] = true;
+		//Get all OBS inputs.
+		//Input are only really useful for a very specific case.
+		//All inputs are also sources except for flobal audio devices defined on
+		//File => Settings => Audio => Global Audio Devices
+		//If any is defined there they'll be listed in the inputs
+		let inputs = JSON.parse(JSON.stringify(this.obsInputs)) as OBSInputItem[];
+		//Dedupe entries as inputs are mostly sources
+		inputs = inputs.filter(v=> {
+			if(list.find(w => w.value.toLowerCase() == v.inputName.toLowerCase())) return false;
 			return true;
 		})
-
-		//Sort entries by name
-		list.sort((a,b)=> {
-			if(a.label!.toLowerCase() > b.label!.toLowerCase()) return 1;
-			if(a.label!.toLowerCase() < b.label!.toLowerCase()) return -1;
-			return 0
-		});
+		if(inputs.length > 0) {
+			list.push({labelKey:"triggers.actions.obs.param_source_splitter_inputs", value:"__inputs__", disabled:true});
+			list = list.concat( inputs.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.inputName, value:v.inputName, type:"input"}}));
+		}
+		
+		if(this.action.sourceName && !list.find(v=>v.value == this.action.sourceName)) {
+			list.push({label:this.action.sourceName, value:this.action.sourceName})
+		}
 
 		this.source_conf.listValues = list;
 		this.source_conf.listValues.unshift({labelKey:"global.select_placeholder", value:""});
 		
-		this.isMissingObsEntry = false;
-		this.filter_conf.value = ""
-		if(this.action.sourceName != undefined) {
-			//Check if an input is selected and exists on the list
-			if(this.obsSources.findIndex(v=>v.sourceName===this.action.sourceName) > -1) {
-				this.source_conf.value = this.action.sourceName;
-				const cachedFiltername = this.action.filterName;
-				const forceFilter = this.action.filterName != undefined;
-				//Trigger a source change to query optionnal filters existing
-				//on the selected entry
-				await this.onSourceChanged();
-				if(forceFilter && cachedFiltername) {
-					this.filter_conf.value = cachedFiltername;
-					this.updateFilter();
-				}else{
-					this.filter_conf.value = "";
-				}
-			}else if(this.action.sourceName != ""){
-				this.isMissingObsEntry = true;
-			}
-		}
-
 		this.updateActionsList();
+		this.onSourceChanged(true);
 	}
 
 	/**
 	 * Called when selecting a new source
 	 */
-	private async onSourceChanged():Promise<void> {
-		this.isMissingObsEntry = false;
+	private async onSourceChanged(forceFilterEntry:boolean = false):Promise<void> {
 		this.filters = [];
 		if(this.source_conf.value != "") {
 			try {
@@ -234,12 +222,22 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 				this.filters = []
 			}
 		}
-		if(this.filters.length > 0) {
-			const list:TwitchatDataTypes.ParameterDataListValue<string>[] = this.filters.map(v => {return {label:v.filterName, value:v.filterName}});
+		
+		if(this.filters.length > 0 || this.action.filterName) {
+			const list:TwitchatDataTypes.ParameterDataListValue<string>[] = (this.filters || []).map(v => {return {label:v.filterName, value:v.filterName}});
 			list.unshift({labelKey:"triggers.actions.obs.param_filter_none", value:""});
-			this.filter_conf.value = list[0].value;
-			this.filter_conf.listValues = list;
-			this.source_conf.children = [this.filter_conf];
+			//Add defined filter if missing from the list
+			if(forceFilterEntry && this.action.filterName && !list.find(v=>v.value == this.action.filterName)) {
+				list.push({label:this.action.filterName, value:this.action.filterName})
+			}
+			this.filter_conf.value = this.action.filterName || list[0].value;
+			if(list.length > 1) {
+				this.filter_conf.listValues = list;
+				this.source_conf.children = [this.filter_conf];
+			}else{
+				this.filter_conf.listValues = [];
+				this.source_conf.children = [];
+			}
 		}else{
 			this.source_conf.children = [];
 		}

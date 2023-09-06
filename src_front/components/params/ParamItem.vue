@@ -398,11 +398,11 @@ export default class ParamItem extends Vue {
 		
 		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
 		
+		watch(() => this.paramData.listValues, ()=> this.updateSelectedListValue());
+		
 		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
 		
 		watch(() => this.paramData.children, () => this.buildChildren() );
-		
-		watch(() => this.file, () => console.log(this.file) );
 		
 		this.buildChildren();
 		
@@ -412,6 +412,7 @@ export default class ParamItem extends Vue {
 			if(!this.paramData.listValues.find(v=>v.value === this.paramData.value)) {
 				this.paramData.value = this.paramData.listValues[0].value;
 			}
+			this.updateSelectedListValue();
 		}
 
 		if(this.paramData.placeholderList && this.paramData.placeholderList.length > 0) {
@@ -447,7 +448,10 @@ export default class ParamItem extends Vue {
 	 * Called when value changes
 	 */
 	public onEdit():void {
+		this.updateSelectedListValue();
+
 		if(this.isLocalUpdate) return;
+
 		this.isLocalUpdate = true;
 		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
 			//Limit number of items of the editablelist
@@ -606,6 +610,12 @@ export default class ParamItem extends Vue {
 		gsap.to(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
 			done();
 		}});
+	}
+	
+	private updateSelectedListValue():void {
+		if(this.paramData.type == "list" && this.paramData.listValues) {
+			this.paramData.selectedListValue = this.paramData.listValues.find(v=>v.value == this.paramData.value);
+		}
 	}
 }
 </script>
@@ -862,6 +872,10 @@ export default class ParamItem extends Vue {
 			flex-basis: 300px;
 			text-overflow: ellipsis;
 			width: 100%;
+		}
+
+		&:has(.list, .number) .icon {
+			margin-top: .4em;
 		}
 
 		.list {

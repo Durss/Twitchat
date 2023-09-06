@@ -307,7 +307,7 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay";
+export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"switch_to";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	action:TriggerActionObsDataAction;

@@ -101,6 +101,7 @@
 							class="action"
 							:action="element"
 							:index="index"
+							:obsScenes="obsScenes"
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
@@ -125,7 +126,7 @@ import TabMenu from '@/components/TabMenu.vue';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -160,11 +161,13 @@ export default class TriggerActionList extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
-	@Prop
+	@Prop({default:[]})
+	public obsScenes!:OBSSceneItem[];
+	@Prop({default:[]})
 	public obsSources!:OBSSourceItem[];
-	@Prop
+	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
-	@Prop
+	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 	
 	public matchingCondition:boolean = true;

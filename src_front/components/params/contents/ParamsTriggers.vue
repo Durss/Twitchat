@@ -19,9 +19,9 @@
 				<Button class="cta resyncBt" small
 					v-if="showOBSResync || showForm"
 					icon="obs"
-					@click="listOBSSources()"
+					@click="listOBSSources(); listOBSScenes();"
 					v-tooltip="$t('triggers.resyncOBSBt_tt')"
-					:loading="loadingOBSScenes">{{ $t('triggers.resyncOBSBt') }}</Button>
+					:loading="loadingOBSElements">{{ $t('triggers.resyncOBSBt') }}</Button>
 
 				<Button class="cta resyncBt" small
 					icon="channelPoints"
@@ -66,6 +66,7 @@
 			<TriggerActionList
 				v-if="currentTriggerData"
 				:triggerData="currentTriggerData"
+				:obsScenes="obsScenes"
 				:obsSources="obsSources"
 				:obsInputs="obsInputs"
 				:rewards="rewards" />
@@ -112,7 +113,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
-	public loadingOBSScenes:boolean = false;
+	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
@@ -243,52 +244,59 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	/**
-	 * Lists OBS Sources
+	 * Lists OBS sources, scenes and filters
 	 */
 	public async listOBSSources():Promise<void> {
-		this.loadingOBSScenes = true;
+		this.loadingOBSElements = true;
 		await Utils.promisedTimeout(250);
+		let sources:OBSSourceItem[] = [];
+		let inputs:OBSInputItem[] = [];
 		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
-			this.obsInputs = await OBSWebsocket.instance.getInputs();
+			sources = await OBSWebsocket.instance.getSources();
+			inputs = await OBSWebsocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
 			this.$store("main").alert(this.$t('error.obs_sources_loading'));
-			this.loadingOBSScenes = false;
+			this.loadingOBSElements = false;
 			return;
 		}
 
-		this.obsSources.sort((a,b)=> {
+		sources.sort((a,b)=> {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
 			return 0;
 		});
 
-		this.obsInputs.sort((a,b)=> {
+		inputs.sort((a,b)=> {
 			if(a.inputName.toLowerCase() < b.inputName.toLowerCase()) return -1;
 			if(a.inputName.toLowerCase() > b.inputName.toLowerCase()) return 1;
 			return 0;
 		});
-		this.loadingOBSScenes = false;
+
+		this.obsSources = sources;
+		this.obsInputs = inputs;
+		this.loadingOBSElements = false;
 	}
 
 	/**
 	 * Lists OBS Scenes
 	 */
 	public async listOBSScenes():Promise<void> {
+		let scenes:OBSSceneItem[] = [];
 		try {
-			this.obsScenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
+			scenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
 		}catch(error) {
 			this.obsScenes = [];
 			this.$store("main").alert(this.$t('error.obs_scenes_loading'));
 			return;
 		}
 
-		this.obsScenes.sort((a,b)=> {
+		scenes.sort((a,b)=> {
 			if(a.sceneName.toLowerCase() < b.sceneName.toLowerCase()) return -1;
 			if(a.sceneName.toLowerCase() > b.sceneName.toLowerCase()) return 1;
 			return 0;
 		});
+		this.obsScenes = scenes;
 	}
 
 	/**
