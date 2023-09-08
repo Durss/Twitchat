@@ -28,7 +28,7 @@
 					<div class="card-item secondary" v-else-if="$store('auth').isPremium">{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
 					<template v-else>
 						<div class="card-item secondary">{{ $t("error.max_custom_heat_screen", {COUNT:maxScreens}) }}</div>
-						<Button class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+						<Button class="item premiumBt" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
 					</template>
 				</template>
 			</draggable>
@@ -133,12 +133,12 @@ export default class HeatScreenList extends Vue {
 			align-items: center;
 			justify-content: center;
 			
-			.item {
+			.item:not(.premiumBt) {
 				width: 30%;
 				min-width: 100px;
 				aspect-ratio: 16/9;
 
-				&.button {
+				&.premiumBt {
 					:deep(.icon) {
 						height: 2em;
 						width: 2em;

@@ -6,7 +6,7 @@
 		
 		<div class="obsSceneName" v-if="screen.activeOBSScene"><Icon name="obs" />{{ screen.activeOBSScene }}</div>
 
-		<div class="enableBt" v-if="selectAreaMode === false">
+		<div class="enableBt" v-if="selectAreaMode === false && canEnable">
 			<ToggleButton v-model="screen.enabled" @change="$emit('update')" />
 		</div>
 		
@@ -47,6 +47,12 @@ export default class HeatScreenPreview extends Vue {
 		if(this.selectAreaMode === false) res.push("noSelect");
 		if(!this.screen.enabled) res.push("disabled");
 		return res;
+	}
+
+	public get canEnable():boolean {
+		let max = this.$config.MAX_CUSTOM_HEAT_SCREENS;
+		if(this.$store("auth").isPremium) max = this.$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM;
+		return this.$store("heat").screenList.filter(v=>v.enabled).length < max || this.screen.enabled != false;
 	}
 	
 	public get polygons():{id:string, svgData:string}[] {
