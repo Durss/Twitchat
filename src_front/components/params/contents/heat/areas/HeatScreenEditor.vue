@@ -6,26 +6,31 @@
 			<ParamItem :paramData="params_target" @change="onSelectOBSScene()"/>
 		</div>
 
-		<div ref="editor" :class="editorClasses" @pointerdown="$event => addPoint($event)">
-			<div ref="background" class="background" v-if="params_showOBS.value"></div>
-			<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
-				<g v-for="area in screen.areas" :key="'area_'+screen.id">
-					<polygon :points="getSVGPoints(area.points)"
-						:class="fillClasses(area)"
-						@contextmenu.prevent="onRightClickArea(area)"
-						@pointerdown.stop="startDragArea($event, area)" />
-
-					<circle v-for="p, index in area.points" :key="screen.id+'_'+index"
-						:cx="(p.x*100)+'%'"
-						:cy="(p.y*100)+'%'"
-						r="2%"
-						:class="pointClasses(area, index)"
-						@click="selectPoint(area, index)"
-						@dblclick="resetCurrentArea()"
-						@contextmenu.prevent="onRightClickPoint(area, index)"
-						@pointerdown.stop="startDragPoint($event, p, area, index)"/>
-				</g>
-			</svg>
+		<div class="scrollable" @wheel="onMouseWheel($event)">
+			<div ref="editor"
+			:style="editorStyles"
+			:class="editorClasses"
+			@pointerdown="$event => addPoint($event)">
+				<div ref="background" class="background" v-if="params_showOBS.value"></div>
+				<svg viewBox="0 0 1920 1080" xmlns="http://www.w3.org/2000/svg">
+					<g v-for="area in screen.areas" :key="'area_'+screen.id">
+						<polygon :points="getSVGPoints(area.points)"
+							:class="fillClasses(area)"
+							@contextmenu.prevent="onRightClickArea(area)"
+							@pointerdown.stop="startDragArea($event, area)" />
+	
+						<circle v-for="p, index in area.points" :key="screen.id+'_'+index"
+							:cx="(p.x*100)+'%'"
+							:cy="(p.y*100)+'%'"
+							r="15px"
+							:class="pointClasses(area, index)"
+							@click="selectPoint(area, index)"
+							@dblclick="resetCurrentArea()"
+							@contextmenu.prevent="onRightClickPoint(area, index)"
+							@pointerdown.stop="startDragPoint($event, p, area, index)"/>
+					</g>
+				</svg>
+			</div>
 		</div>
 
 		<div class="form">
@@ -41,7 +46,7 @@ import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import { watch } from 'vue';
+import { watch, type StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -66,6 +71,7 @@ export default class HeatScreenEditor extends Vue {
 	private draggedPoint:{x:number, y:number} |  null = null;
 	private draggOffset:{x:number, y:number}= {x:0, y:0};
 	private disposed:boolean = false;
+	private editorScale:number = 1;
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private mouseUpHandler!:(e:PointerEvent) => void;
@@ -74,6 +80,13 @@ export default class HeatScreenEditor extends Vue {
 	public get editorClasses():string[] {
 		const res = ["editor"];
 		if(this.editMode) res.push(this.editMode);
+		return res;
+	}
+
+	public get editorStyles():StyleValue {
+		const res:StyleValue = {};
+		res.transform = "scale("+this.editorScale+")";
+		res.width = (this.editorScale * 100)+"%";
 		return res;
 	}
 
@@ -304,6 +317,17 @@ export default class HeatScreenEditor extends Vue {
 		}
 	}
 
+	public onMouseWheel(event:WheelEvent):void {
+		if(event.deltaY == 0) return;
+		if(!event.ctrlKey) return; //require ctrl key to be pressed
+		let delta = event.deltaY > 0? .9 : 1.1;
+		let scale = this.editorScale;
+		scale *= delta;
+		scale = Math.min(3, Math.max(1, scale));
+		this.editorScale = scale;
+		event.preventDefault();
+	}
+
 	public onMouseUp(event:PointerEvent):void {
 		if(this.draggedPoint || this.draggedArea) {
 			event.preventDefault();
@@ -432,10 +456,14 @@ export default class HeatScreenEditor extends Vue {
 <style scoped lang="less">
 .heatscreeneditor{
 
+	.scrollable {
+		width: 99%;
+		aspect-ratio: 16/9;
+		overflow: auto;
+	}
+
 	.editor {
 		border: 1px solid var(--color-text);
-		width: 100%;
-		aspect-ratio: 16/9;
 		cursor: crosshair;
 		user-select: none;
 		position: relative;

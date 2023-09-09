@@ -30,11 +30,11 @@
 			"obs": "Compute OBS sources positions. These positions are refreshed only every 30s. If you moved a source, click here to get fresh positions."
 		},
 		"areas":{
-			"description": "Define custom clickable areas and detect when they're clicked on the {TRIGGER_LINK}.",
+			"description": "Define custom clickable areas and detect when they're clicked from the {TRIGGER_LINK}.",
 			"trigger_link": "triggers section",
 			"target":"Active only on OBS scene",
 			"target_always":"Any",
-			"show_obs":"Show OBS screen",
+			"show_obs":"Show OBS scene preview",
 			"connect_obs":"🔗 Connect with OBS",
 			"delete_confirm": {
 				"title":"Delete area?",

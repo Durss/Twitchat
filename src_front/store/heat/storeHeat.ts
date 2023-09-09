@@ -29,15 +29,17 @@ export const storeHeat = defineStore('heat', {
 
 	actions: {
 
-		createScreen():void {
-			this.screenList.push({
+		createScreen():string {
+			const screen:HeatScreen = {
 				id:Utils.getUUID(),
 				areas:[],
 				activeOBSScene:"",
 				enabled:true,
-			});
+			}
+			this.screenList.push(screen);
 
 			this.saveScreens();
+			return screen.id;
 		},
 
 		duplicateScreen(id:string):void {

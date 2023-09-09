@@ -1,7 +1,7 @@
 <template>
 	<ToggleBlock class="HeatScreenList" :title="$t('heat.zone_interaction')" :open="true" :icons="['polygon']">
 		<div class="content">
-			<i18n-t scope="global" tag="div" keypath="heat.areas.description" v-if="!currentScreen">
+			<i18n-t class="infos" scope="global" tag="div" keypath="heat.areas.description" v-if="!currentScreen">
 				<template #TRIGGER_LINK>
 					<a @click="openTriggers()">{{ $t("heat.areas.trigger_link") }}</a>
 				</template>
@@ -77,7 +77,8 @@ export default class HeatScreenList extends Vue {
 	 * Called when clicking "+" (new screen) button
 	 */
 	public createScreen():void {
-		this.$store("heat").createScreen();
+		const id = this.$store("heat").createScreen();
+		this.currentScreen = this.$store("heat").screenList.find(v=>v.id == id) || null;
 	}
 
 	/**
@@ -124,6 +125,10 @@ export default class HeatScreenList extends Vue {
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+
+		.infos {
+			text-align: center;
+		}
 
 		.areaList {
 			gap: 5px;
