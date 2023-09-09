@@ -28,7 +28,7 @@ export const storeStream = defineStore('stream', {
 		// 	date:Date.now() - 15*24*3600000
 		// },
 		// {
-		// 	uid:"162021341",
+		// 	uid:"43809079",
 		// 	date:Date.now() - 9*24*3600000
 		// },
 		// {
@@ -45,11 +45,11 @@ export const storeStream = defineStore('stream', {
 		// },
 		// {
 		// 	uid:"53964156",
-		// 	date:Date.now() - 1.65*24*3600000
+		// 	date:Date.now() - 16.65*24*3600000
 		// },
 		// {
 		// 	uid:"53964156",
-		// 	date:Date.now() - 3.65*24*3600000
+		// 	date:Date.now() - 31.65*24*3600000
 		// }],
 	} as IStreamState),
 

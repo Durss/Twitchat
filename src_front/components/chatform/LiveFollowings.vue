@@ -39,10 +39,11 @@
 						<mark class="game">{{s.game_name}}</mark>
 
 						<div class="roomSettings">
-							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
-							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
-							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
 							<mark class="info" v-if="s.user_id === lastRaidedUserID">{{ $t("raid.last_raided_user") }}</mark>
+							<mark class="info" v-if="getLastRaidElapsedDuration(s.user_id)">{{ $t("raid.last_raid_date", {DATE:getLastRaidElapsedDuration(s.user_id)}) }}</mark>
 						</div>
 
 						<div class="footer">
@@ -108,6 +109,12 @@ export default class LiveFollowings extends AbstractSidePanel {
 				user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, v.uid)
 			}
 		});
+	}
+
+	public getLastRaidElapsedDuration(uid:string):string {
+		const last = this.sortedRaidHistory.find(v => v.uid == uid);
+		if(!last) return "";
+		return Utils.elapsedDuration(last.date);
 	}
 
 	public getFormatedDate(date:number) {
@@ -301,8 +308,10 @@ export default class LiveFollowings extends AbstractSidePanel {
 						mark {
 							display: flex;
 							align-items: center;
-							background-color: var(--color-alert-fade) !important;
 							padding: .2em .5em;
+							&.alert {
+								background-color: var(--color-alert-fade) !important;
+							}
 							&.info {
 								background-color: var(--color-primary-fade) !important;
 							}
