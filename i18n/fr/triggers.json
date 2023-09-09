@@ -93,7 +93,8 @@
 				"not_ends_with": "Ne termine pas par",
 				"AND": "ET",
 				"OR": "OU"
-			}
+			},
+			"custom_value": "Custom value..."
 		},
 		"slash_cmd": {
 			"param_cmd": "Commande",
@@ -452,10 +453,6 @@
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
 			"clip_url": "URL du clip",
-			"goxlr_button_id":"Id du boutton",
-			"goxlr_fader_index":"Index du fader (1 -> 4)",
-			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
-			"goxlr_fxenabled":"FX actif ou non",
 			"timer_value":"Durée du timer en secondes",
 			"timer_value_formated":"Durée du timer formatée",
 			"countdown_value":"Durée restante du compte à rebours en secondes",
@@ -463,6 +460,10 @@
 			"countdown_duration":"Durée du compte à rebours en secondes",
 			"countdown_duration_ms":"Durée du compte à rebours en millisecondes",
 			"countdown_duration_formated": "Durée du compte à rebours formatée",
+			"goxlr_button_id":"Id du boutton",
+			"goxlr_fader_index":"Index du fader (1 -> 4)",
+			"goxlr_preset_index":"Index du preset actif (0 -> 5)",
+			"goxlr_fxenabled":"FX actif ou non",
 			"goxlr_cough":"Boutton Cough actif",
 			"goxlr_profile":"Profile actif",
 			"goxlr_input_mic":"Volume de l'entrée Mic",

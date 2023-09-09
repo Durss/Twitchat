@@ -93,7 +93,8 @@
 				"not_ends_with":"Not ending with",
 				"AND":"AND",
 				"OR":"OR"
-			}
+			},
+			"custom_value": "Valeur personnalisée..."
 		},
 		"slash_cmd":{
 			"param_cmd": "Command",
@@ -451,10 +452,6 @@
 			"heat_key_shift": "Is SHIFT key pressed ?",
 			"heat_key_ctrl": "Is CTRL key pressed ?",
 			"clip_url": "Clip URL",
-			"goxlr_button_id":"Id of the button",
-			"goxlr_fader_index":"Fader index (1 -> 4)",
-			"goxlr_preset_index":"Preset index (1 -> 6)",
-			"goxlr_fxenabled":"FX enabled",
 			"timer_value":"Timer's value in seconds",
 			"timer_value_formated":"Formated timer's value",
 			"countdown_value":"Countdown's remaining time in seconds",
@@ -462,6 +459,10 @@
 			"countdown_duration":"Countdown's duration in seconds",
 			"countdown_duration_ms":"Countdown's duration in milliseconds",
 			"countdown_duration_formated": "Formated countdown's duration",
+			"goxlr_button_id":"Id of the button",
+			"goxlr_fader_index":"Fader index (1 -> 4)",
+			"goxlr_preset_index":"Preset index (1 -> 6)",
+			"goxlr_fxenabled":"FX enabled",
 			"goxlr_cough":"Cough button active",
 			"goxlr_profile":"Current GoXLR profile",
 			"goxlr_input_mic":"Mic input volume",

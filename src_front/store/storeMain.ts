@@ -95,7 +95,6 @@ export const storeMain = defineStore("main", {
 		 * Also called when user requests a specific theme
 		 */
 		toggleTheme(theme?:"light"|"dark"):void {
-			console.log("SET THEME", theme);
 			let list = document.body.classList;
 			if(theme == "light") {
 				list.remove("dark");
