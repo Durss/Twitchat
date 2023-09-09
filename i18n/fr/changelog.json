@@ -37,7 +37,7 @@
 				"i": "broadcast",
 				"l": "Résumé de stream",
 				"g": "update_images/stream_summary.png",
-				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream."
+				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream.<br>Les résumés peuvent être exportés au format CSV."
 			},
 			{
 				"i": "raid",
@@ -60,6 +60,7 @@
 			{
 				"i": "voicemod",
 				"l": "Voicemod",
+				"g": "update_images/voicemod.png",
 				"d": "Nouvelles actions de Trigger pour Voicemod pour activer le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination !"
 			},
 			{
@@ -74,7 +75,7 @@
 			},
 			{
 				"l": "Et plus encore...",
-				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée <br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• ...et plein de correctifs et améliorations un peu partout"
+				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Retrouvez votre historique de raids dans la section \"Qui stream\"<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée <br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• Exporter un screen annoté d'un message de tchat via un clic droit<br>• ...et plein de petites améliorations et quelques correctifs"
 			}
 		],
 		"forceRead": {

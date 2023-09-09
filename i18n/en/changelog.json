@@ -37,7 +37,7 @@
 				"i": "broadcast",
 				"l": "Stream summary",
 				"g": "update_images/stream_summary.png",
-				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers."
+				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers.<br>Summaries can be exported as CSV files."
 			},
 			{
 				"i": "raid",
@@ -74,7 +74,7 @@
 			},
 			{
 				"l": "And more...",
-				"d": "• Get all messages back after reloading Twitcaht<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• ...and lots of enhancements and fixes in many places"
+				"d": "• Get all messages back after reloading Twitcaht<br>• Hide stream info of an incoming raid<br>• Find back your raid history on \"Who's live\" section<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click<br>• ...and lots of enhancements and fixes in many places"
 			}
 		],
 		"forceRead": {
