@@ -8,7 +8,10 @@
 		"emote_only": "Emote only",
 		"sub_only": "Sub only",
 		"follower_only": "Follower only",
+		"last_raided_user": "User you last raided",
 		"spam_linkBt": "Spam link to channel",
-		"stream_summaryBt": "Stream summary"
+		"stream_summaryBt": "Stream summary",
+		"raid_liveBt": "Live channels",
+		"raid_historyBt": "Raid history"
 	}
 }

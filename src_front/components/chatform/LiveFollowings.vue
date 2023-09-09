@@ -2,8 +2,12 @@
 	<div class="livefollowings sidePanel">
 		
 		<div class="head">
-			<h1><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
+			<h1 v-if="showRaidHistory" ><Icon name="user" class="icon" />{{$t('raid.raid_historyBt')}}</h1>
+			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
+
+			<Button class="actionBt" small v-if="!showRaidHistory && $store('stream').raidHistory.length > 0" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
+			<Button class="actionBt" small v-if="showRaidHistory" icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
 		</div>
 		
 		<div class="content">
@@ -14,9 +18,18 @@
 				<Button icon="unlock" @click="grantPermission()">{{ $t('liveusers.scope_grantBt') }}</Button>
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
+
+			<div class="history" v-else-if="showRaidHistory">
+				<a :href="'https://twitch.tv/'+entry.user.login" v-for="entry in sortedRaidHistoryPopulated" class="card-item user" @click.prevent="raid(entry.user.login)">
+					<Icon name="loader" v-if="entry.user.temporary" />
+					<img class="icon" v-else-if="entry.user.avatarPath" :src="entry.user.avatarPath" lazy>
+					<div class="login">{{ entry.user.login }}</div>
+					<div class="date">{{ getElapsedDuration(entry.date) }}</div>
+				</a>
+			</div>
 			
 			<div class="list" v-else>
-				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s)">
+				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s.user_login)">
 					<div class="header">
 						<img class="icon" :src="getProfilePicURL(s)" alt="">
 						<span class="title">{{s.user_name}}</span>
@@ -25,10 +38,11 @@
 						<span class="title">{{s.title}}</span>
 						<mark class="game">{{s.game_name}}</mark>
 
-						<div class="roomSettings" v-if="roomSettings[s.user_id]">
-							<mark v-if="roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
-							<mark v-if="roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
-							<mark v-if="roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+						<div class="roomSettings">
+							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
+							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+							<mark v-if="roomSettings[s.user_id] && roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+							<mark class="info" v-if="s.user_id === lastRaidedUserID">{{ $t("raid.last_raided_user") }}</mark>
 						</div>
 
 						<div class="footer">
@@ -52,6 +66,7 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -61,7 +76,6 @@ import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -76,13 +90,39 @@ export default class LiveFollowings extends AbstractSidePanel {
 	public roomSettings:{[key:string]:TwitchatDataTypes.IRoomSettings} = {};
 	public loading = true;
 	public needScope = false;
+	public showRaidHistory = false;
+
+	public get lastRaidedUserID():string {
+		if(this.$store("stream").raidHistory.length == 0) return "";
+		return this.sortedRaidHistory[0].uid;
+	}
+
+	public get sortedRaidHistory() {
+		return this.$store("stream").raidHistory.sort((a,b)=> b.date-a.date);
+	}
+
+	public get sortedRaidHistoryPopulated():{date:number, user:TwitchatDataTypes.TwitchatUser}[] {
+		return this.sortedRaidHistory.map(v=> {
+			return {
+				date:v.date,
+				user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, v.uid)
+			}
+		});
+	}
+
+	public getFormatedDate(date:number) {
+		return Utils.formatDate(new Date(date), true);
+	}
+
+	public getElapsedDuration(date:number) {
+		return Utils.elapsedDuration(date);
+	}
 
 	public mounted():void {
 		this.needScope = !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
 		if(!this.needScope) this.updateList();
 		super.open();
 	}
-
 
 	public computeDuration(start:string):string {
 		const s = new Date(start);
@@ -118,9 +158,9 @@ export default class LiveFollowings extends AbstractSidePanel {
 		}
 	}
 
-	public raid(s:TwitchDataTypes.StreamInfo):void {
-		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:s.user_login})).then(async () => {
-			TwitchUtils.raidChannel(s.user_login);
+	public raid(login:string):void {
+		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:login})).then(async () => {
+			TwitchUtils.raidChannel(login);
 			this.close();
 		}).catch(()=> { });
 	}
@@ -132,6 +172,12 @@ export default class LiveFollowings extends AbstractSidePanel {
 	.loader {
 		.center();
 		position: absolute;
+	}
+
+	.head {
+		.actionBt {
+			margin: auto
+		}
 	}
 
 	.noResult, .needScope {
@@ -148,6 +194,37 @@ export default class LiveFollowings extends AbstractSidePanel {
 	}
 
 	.content {
+
+		.history {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			.user {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				flex-wrap: wrap;
+				text-decoration: none;
+				color: var(--color-text);
+				.icon {
+					height: 2em;
+					width: 2em;
+					object-fit: fill;
+					vertical-align: middle;
+					margin-right: .5em;
+					border-radius: 50%;
+				}
+
+				.login {
+					font-size: 1em;
+					font-weight: bold;
+					flex-grow: 1;
+				}
+				&:hover {
+					background-color: var(--color-light-fader);
+				}
+			}
+		}
 
 		.list {
 			@itemWidth: 200px;
@@ -222,8 +299,13 @@ export default class LiveFollowings extends AbstractSidePanel {
 						flex-wrap: wrap;
 						flex-direction: row;
 						mark {
+							display: flex;
+							align-items: center;
 							background-color: var(--color-alert-fade) !important;
 							padding: .2em .5em;
+							&.info {
+								background-color: var(--color-primary-fade) !important;
+							}
 						}
 						&:empty {
 							display: none;

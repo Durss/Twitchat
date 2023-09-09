@@ -80,6 +80,7 @@ export default class DataStore {
 	public static ANNOUNCEMENTS_READ:string = "announcementsRead";
 	public static NEW_FLAGS:string = "newFlags";
 	public static GOXLR_CONFIG:string = "goxlrConfig";
+	public static RAID_HISTORY:string = "raidHistory";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

@@ -977,6 +977,10 @@ export interface IStreamState {
 	 */
 	currentStreamInfo: {[key in string]:TwitchatDataTypes.StreamInfo|undefined};
 	/**
+	 * History of outgoing raids
+	 */
+	raidHistory: {uid:string, date:number}[];
+	/**
 	 * Date at which the current commercial will end
 	 */
 	commercialEnd: number;
@@ -1766,7 +1770,7 @@ export interface IHeatActions {
 	/**
 	 * Create a new screen.
 	 */
-	createScreen():void;
+	createScreen():string;
 	/**
 	 * Duplicate a screen by its ID
 	 */

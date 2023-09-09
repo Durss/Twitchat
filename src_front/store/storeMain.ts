@@ -940,6 +940,12 @@ export const storeMain = defineStore("main", {
 					GoXLRSocket.instance.connect(ip, port);
 				}
 			}
+
+			//Init raid history
+			const raidHistoryParams = DataStore.get(DataStore.RAID_HISTORY);
+			if(raidHistoryParams) {
+				sStream.raidHistory = JSON.parse(raidHistoryParams);
+			}
 			
 
 			Database.instance.connect().then(()=> {

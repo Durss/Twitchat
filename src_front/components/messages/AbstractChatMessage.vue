@@ -117,32 +117,14 @@ export default class AbstractChatMessage extends Vue {
 		
 		if(elapsedMode) {
 			let elapsed = Date.now() - d.getTime();
-			let duration = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+			let step = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
 			
-			//Round value to nearest update step to avoid having durations with random offsets
-			elapsed = Math.floor(elapsed/duration) * duration;
-			
-			if(elapsed < 60000) {
-				this.time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
-			}else
-			if(elapsed < 60 * 60000) {
-				const minutes = Math.floor(elapsed/60000);
-				this.time = Utils.toDigits(minutes) + ":";
-				this.time += Utils.toDigits( Math.round((elapsed - minutes*60000)/1000) );
-			}else
-			if(elapsed < 24 * 60 * 60000) {
-				const hours = Math.floor(elapsed/(60 * 60000));
-				this.time = hours + "h";
-				this.time += Utils.toDigits( Math.round((elapsed - hours*(60 * 60000))/60000) );
-			}else{
-				const days = Math.floor(elapsed/(24 * 60 * 60000));
-				this.time = days + this.$t("global.date_days");
-			}
+			this.time = Utils.elapsedDuration(d.getTime(), step);
 			
 			clearTimeout(this.refreshTimeout);
 			this.refreshTimeout = setTimeout(()=> {
 				this.refreshDate();
-			}, duration);
+			}, step);
 		}else{
 			this.time = Utils.toDigits(d.getHours())+":"+Utils.toDigits(d.getMinutes());
 		}

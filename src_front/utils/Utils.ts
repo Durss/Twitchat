@@ -200,6 +200,38 @@ export default class Utils {
 		return res;
 	}
 
+
+	/**
+	 * Returns the nomber of seconds, minutes, hours or days that past
+	 * since the given date
+	 */
+	public static elapsedDuration(date:number, step?:number) {
+		let elapsed = Date.now() - date;
+		let duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+		
+		//Round value to nearest update step to avoid having durations with random offsets
+		elapsed = Math.floor(elapsed/duration) * duration;
+		
+		let time = "";
+		if(elapsed < 60000) {
+			time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
+		}else
+		if(elapsed < 60 * 60000) {
+			const minutes = Math.floor(elapsed/60000);
+			time = Utils.toDigits(minutes) + ":";
+			time += Utils.toDigits( Math.round((elapsed - minutes*60000)/1000) );
+		}else
+		if(elapsed < 24 * 60 * 60000) {
+			const hours = Math.floor(elapsed/(60 * 60000));
+			time = hours + "h";
+			time += Utils.toDigits( Math.round((elapsed - hours*(60 * 60000))/60000) );
+		}else{
+			const days = Math.floor(elapsed/(24 * 60 * 60000));
+			time = days + StoreProxy.i18n.t("global.date_days");
+		}
+		return time;
+	}
+
 	/**
 	 * Converts an RGB color to HSL
 	 * @returns h:0-360 - s:0-1 - l:0-1

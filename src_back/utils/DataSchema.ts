@@ -1048,6 +1048,20 @@ import Ajv from "ajv";
 				}
 			}
 		},
+
+		raidHistory: {
+			type:"array",
+			minItems:0,
+			maxItems:10,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					uid: {type:"string", maxLength:50},
+					date: {type:"integer", minimum:1694214864808, maximum:9999999999999},
+				}
+			}
+		},
 	}
 }
 

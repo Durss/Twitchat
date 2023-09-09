@@ -22,6 +22,35 @@ export const storeStream = defineStore('stream', {
 		startAdCooldown: 0,
 		roomSettings:{},//channelId => settings
 		currentStreamInfo: {},//channelId => infos
+		raidHistory: [],
+		// raidHistory: [{
+		// 	uid:"152242149",
+		// 	date:Date.now() - 15*24*3600000
+		// },
+		// {
+		// 	uid:"162021341",
+		// 	date:Date.now() - 9*24*3600000
+		// },
+		// {
+		// 	uid:"152242149",
+		// 	date:Date.now() - 12.5*24*3600000
+		// },
+		// {
+		// 	uid:"152242149",
+		// 	date:Date.now() - 8.65*24*3600000
+		// },
+		// {
+		// 	uid:"18615783",
+		// 	date:Date.now() - 9.5*24*3600000
+		// },
+		// {
+		// 	uid:"53964156",
+		// 	date:Date.now() - 1.65*24*3600000
+		// },
+		// {
+		// 	uid:"53964156",
+		// 	date:Date.now() - 3.65*24*3600000
+		// }],
 	} as IStreamState),
 
 
@@ -81,6 +110,16 @@ export const storeStream = defineStore('stream', {
 		},
 
 		onRaidComplete() {
+			if(this.currentRaid) {
+				this.raidHistory.push({
+					uid:this.currentRaid.user.id,
+					date:Date.now(),
+				});
+				//Limit history to 100 entries
+				if(this.raidHistory.length > 100) {
+					this.raidHistory.shift();
+				}
+			}
 			//Send donation reminder if requested
 			if(StoreProxy.params.donationReminderEnabled) {
 				StoreProxy.params.donationReminderEnabled = false;
