@@ -32,6 +32,13 @@
 			</p>
 		</ToggleBlock>
 
+		<ToggleBlock class="block" :title="$t('about.dad.title')" :icons="['follow']" :open="false" v-newflag="{date:1693519200000, id:'about_dad'}">
+			<div class="dad">
+				<p v-for="i in $tm('about.dad.content')">{{ i }}</p>
+			</div>
+			<img src="@/assets/img/papa.png" alt="my dad">
+		</ToggleBlock>
+
 		<div class="footer">
 			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
 			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
@@ -75,6 +82,7 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 	}
 
 	.block {
+		position: relative;
 		text-align: center;
 		display: flex;
 		flex-direction: column;
@@ -109,6 +117,22 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
+	}
+
+	.dad {
+		line-height: 1.3em;
+		text-align: left;
+		p:first-letter {
+			font-weight: bold;
+			margin-left: .5em;
+		}
+		p:first-child {
+			font-style: italic;
+			margin-bottom: 1em;
+			&::first-letter {
+				font-weight: normal;
+			}
+		}
 	}
 }
 </style>

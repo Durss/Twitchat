@@ -32,7 +32,7 @@
 						<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1693519200000, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
 						<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
 						<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
-						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
+						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout" v-newflag="{date:1693519200000, id:'params_about'}">{{$t('params.categories.about')}}</Button>
 						<Button icon="coin"			@click="openPage(contentDonate)"		:selected="content==contentDonate" v-newflag="{date:1693519200000, id:'params_donate'}" secondary>{{$t('params.categories.donate')}}</Button>
 						<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1693519200000, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
 					</div>
