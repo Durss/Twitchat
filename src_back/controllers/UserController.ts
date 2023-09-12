@@ -66,7 +66,7 @@ export default class UserController extends AbstractController {
 			return;
 		}
 
-		let isDonor:boolean = false, level:number = -1;
+		let isDonor:boolean = false, level:number = -1, amount:number = -1;
 		if(fs.existsSync( Config.donorsList )) {
 			let json:{[key:string]:number} = {};
 			try {
@@ -79,6 +79,7 @@ export default class UserController extends AbstractController {
 			}
 			isDonor = json.hasOwnProperty(userInfo.user_id);
 			if(isDonor) {
+				amount = json[userInfo.user_id];
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 			}
 		}
@@ -91,7 +92,7 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true} = {isDonor:isDonor && level > -1, level};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount > Config.lifetimeDonorStep};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}

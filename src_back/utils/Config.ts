@@ -11,6 +11,8 @@ export default class Config {
 	private static envName: EnvName;
 	private static confPath: string = "env.conf";
 	private static credentialsCache:Credentials;
+	
+	public static lifetimeDonorStep:number = 89;
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
 	public static get donorsAnonStates(): string { return this.DONORS_DATA_FOLDER + "public_states.json"; }
 	public static get donorsPublicList(): string { return this.DONORS_DATA_FOLDER + "public_cache.json"; }

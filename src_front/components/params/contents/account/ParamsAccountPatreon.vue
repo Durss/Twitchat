@@ -15,10 +15,28 @@
 			</i18n-t>
 		</div>
 
+		<div class="premiumDonor" v-else-if="$store('auth').twitch.user.donor.isPremiumDonor === true">
+			<div class="card-item premium large">
+				<Icon name="premium" theme="light" />
+				<div>{{ $t("premium.premium_donor1") }}</div>
+			</div>
+			<i18n-t class="info" scope="global" tag="div" keypath="premium.early_donor2">
+				<template #LINK>
+					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("premium.early_donor2_link") }}</a>
+				</template>
+			</i18n-t>
+		</div>
+
 		<template v-else-if="!connected">
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
 				<template #LINK>
 					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("patreon.info_link") }}</a>
+				</template>
+			</i18n-t>
+			
+			<i18n-t scope="global" tag="div" keypath="patreon.alternative">
+				<template #LINK>
+					<a @click="openDonate()">{{ $t("patreon.alternative_link", {AMOUNT:$config.LIFETIME_DONOR_VALUE}) }}</a>
 				</template>
 			</i18n-t>
 			
@@ -43,6 +61,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
@@ -106,6 +125,10 @@ export default class ParamsAccountPatreon extends Vue {
 		url.searchParams.append("state", this.csrfToken);
 		document.location = url.href;
 	}
+
+	public openDonate():void {
+		this.$store("params").openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM)
+	}
 }
 </script>
 
@@ -125,7 +148,7 @@ export default class ParamsAccountPatreon extends Vue {
 		}
 	}
 	.large {
-		gap: 1em;
+		gap: .5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;

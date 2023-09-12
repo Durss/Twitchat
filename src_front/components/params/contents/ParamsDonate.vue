@@ -10,9 +10,10 @@
 		</div>
 
 		<div class="paypalFormHolder" v-if="!success">
-			<div class="card-item amount secondary">
+			<div :class="formClasses">
 				<span class="label">{{ $t("donate.amount") }}</span>
 				<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
+				<div class="premiumLabel" ref="premiumLabel"><Icon name="premium" theme="light" />{{ $t("donate.lifetime_premium") }}</div>
 				<div class="emoji">
 					<div class="subHolder">
 						<svg class="heart" ref="heart" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -149,7 +150,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import DonorPublicState from '@/components/user/DonorPublicState.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import { watch } from 'vue';
@@ -171,6 +172,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 export default class ParamsDonate extends Vue {
 
 	public loading:boolean = true;
+	public premium:boolean = false;
 	public paypalError:boolean = false;
 	public success:boolean = false;
 	public criticalError:boolean = false;
@@ -180,18 +182,25 @@ export default class ParamsDonate extends Vue {
 	public param_automaticMessage:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"donate.automatic_message"};
 
 	private buttons:PAYPAL_BUTTON[] = [];
+
+	public get formClasses():string[] {
+		const res = ["card-item", "amount", "secondary"];
+		if(this.premium) res.push("premium")
+		return res;
+	}
+
 	public async mounted():Promise<void> {
 		this.loadPaypalLibrary();
+
+		if(this.$store("params").currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM) {
+			this.amount = this.$config.LIFETIME_DONOR_VALUE;
+		}
 
 		watch(()=>this.currency, ()=> {
 			this.loadPaypalLibrary();
 		});
 
-		watch(()=>this.amount, ()=> {
-			if(this.amount < 1) this.amount = 1;
-			if(this.amount > 999999) this.amount = 999999;
-			this.updateEmoji();
-		});
+		watch(()=>this.amount, ()=> this.updateEmoji() );
 		this.updateEmoji();
 	}
 
@@ -318,7 +327,7 @@ export default class ParamsDonate extends Vue {
 					try {
 						const orderRes = await ApiController.call("paypal/complete_order", "POST", obj);
 						if(orderRes.json.success === true) {
-							await this.$store("auth").loadUserState();
+							await this.$store("auth").loadUserState(this.$store("auth").twitch.user.id);
 							this.$store("auth").twitch.user.donor.state = true;
 							//Hide all buttons
 							this.buttons.forEach(v=> v.close());
@@ -345,6 +354,10 @@ export default class ParamsDonate extends Vue {
 	}
 
 	public updateEmoji():void {
+		if(this.amount < 1) this.amount = 1;
+		if(this.amount > 999999) this.amount = 999999;
+		this.premium = this.amount >= this.$config.LIFETIME_DONOR_VALUE;
+
 		const eyeL = this.$refs.eyeL as SVGPathElement;
 		const eyeR = this.$refs.eyeR as SVGPathElement;
 		const eyeLBg = this.$refs.eyeLBg as SVGPathElement;
@@ -442,6 +455,7 @@ export default class ParamsDonate extends Vue {
 			eyeLBg.classList.add("evil");
 			eyeRBg.classList.add("evil");
 			flares.classList.add("evil");
+			cloud.classList.add("evil");
 			eyeL.style.transform = "scale(.75)";
 			eyeR.style.transform = "scale(.75)";
 			eyeLBg.style.transform = "scale(1.25)";
@@ -462,7 +476,11 @@ export default class ParamsDonate extends Vue {
 			eyeLBg.classList.remove("evil");
 			eyeRBg.classList.remove("evil");
 			flares.classList.remove("evil");
+			cloud.classList.remove("evil");
 		}
+
+		const premiumLabel = this.$refs.premiumLabel as HTMLDivElement;
+		premiumLabel.style.transform = "translate(0, calc(100% - .5em)) scaleY("+(this.premium? 1 : 0)+")"
 	}
 }
 </script>
@@ -499,6 +517,7 @@ export default class ParamsDonate extends Vue {
 			z-index: 101;//Go over paypal buttons
 			position: relative;
 			padding-right: 3.5em;
+			transition: background-color .5s;
 			.currency {
 				font-weight: bold;
 			}
@@ -511,14 +530,39 @@ export default class ParamsDonate extends Vue {
 				font-weight: bold;
 				text-align: right;
 			}
+
+			.premiumLabel {
+				position: absolute;
+				bottom: 0;
+				background-color: inherit;
+				transform-origin: center .5em;
+				transition: transform .25s;
+				left: 0;
+				text-align: center;
+				border-radius: 1em;
+				padding: .5em;
+				padding-top: .75em;
+				font-size: .65em;
+				white-space: nowrap;
+				width: fit-content;
+				transform: scale(0);
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+					vertical-align: middle;
+				}
+			}
+
 			.emoji {
 				right: -1em;
-				background-color: var(--color-secondary);
+				background-color: inherit;
 				border-radius: 50%;
 				position: absolute;
 				width: 4em;
 				height: 4em;
 				padding: .5em;
+				z-index: 1;
+				pointer-events: none;
 				.subHolder {
 					z-index: 1;
 					position: relative;
@@ -556,6 +600,10 @@ export default class ParamsDonate extends Vue {
 						transition: all .2s;
 						transform: scale(.8);
 						transform-origin: center center;
+						background-size: 150% 100%;
+						&.eyeRBg {
+							background-position: 100%;
+						}
 						&.red {
 							background: radial-gradient(circle, rgb(255, 216, 216) 30%, rgba(252,70,107,1) 100%);
 							background-size: 150% 100%;
@@ -650,6 +698,7 @@ export default class ParamsDonate extends Vue {
 						height: 2em;
 						transition: all .2s;
 						transform-origin: bottom center;
+						transform: scale(0);
 						&:nth-of-type(1), &:nth-of-type(2) {
 							filter: brightness(.75);
 						}
@@ -661,7 +710,11 @@ export default class ParamsDonate extends Vue {
 						bottom: 90%;
 						z-index: -1;
 						transition: all .2s;
+						transform: scale(0);
 						transform-origin: bottom center;
+						&.evil {
+							filter: brightness(0.6) contrast(400%) hue-rotate(151deg);
+						}
 					}
 	
 					.flares {
@@ -670,6 +723,7 @@ export default class ParamsDonate extends Vue {
 						transition: all .2s;
 						width: 100%;
 						height: 100%;
+						transform: scale(0);
 						.flare {
 							position: absolute;
 							transition: all .2s;
@@ -727,6 +781,7 @@ export default class ParamsDonate extends Vue {
 						align-items: flex-end;
 						transition: all .2s;
 						transform-origin: bottom center;
+						transform: scale(0);
 						span {
 							display: inline-block;
 						}
@@ -752,6 +807,7 @@ export default class ParamsDonate extends Vue {
 						transition: all .2s;
 						transform-origin: center top;
 						letter-spacing: .2em;
+						transform: scale(0);
 					}
 				}
 			}
@@ -824,8 +880,6 @@ export default class ParamsDonate extends Vue {
 
 		.amount {
 			font-size: 1.25em;
-			.emoji {
-			}
 		}
 	}
 }

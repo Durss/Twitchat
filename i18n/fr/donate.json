@@ -9,6 +9,7 @@
 		"success_details":"Si vous le souhaitez, cous pouvez désormais désactiver le message automatique envoyé toutes les 2h dans votre tchat.",
 		"automatic_message":"Continuer à envoyer le message automatique",
 		"paypal_error":"Une erreur est survenue lors de l'initialisation du formulaire PayPal",
-		"donors": "Donatrices et donateurs"
+		"donors": "Donatrices et donateurs",
+		"lifetime_premium": "Premium à vie"
 	}
 }

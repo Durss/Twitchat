@@ -33,6 +33,10 @@ export default class Config {
 	// public TWITCH_API_PATH = "http://localhost:8000/mock/";
 	// public TWITCH_EVENTSUB_PATH = "ws://localhost:8001/eventsub";
 	/**
+	 * Donation amount to get lifetime Twitchat subscription
+	 */
+	public LIFETIME_DONOR_VALUE = 89;
+	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;

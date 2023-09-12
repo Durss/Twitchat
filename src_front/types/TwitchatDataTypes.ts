@@ -19,6 +19,7 @@ export namespace TwitchatDataTypes {
 		ULULE: "ulule",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
+		PREMIUM: "premium",
 		COUNTER: "counter",
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",
@@ -1147,6 +1148,10 @@ export namespace TwitchatDataTypes {
 			 * true if user is part of the early twitchat donors
 			 */
 			earlyDonor:boolean,
+			/**
+			 * true if user donated enough to unlock lifetime premium
+			 */
+			isPremiumDonor:boolean,
 		};
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code

@@ -34,7 +34,7 @@ export const storeAuth = defineStore('auth', {
 	getters: {
 		
 		// isPremium():boolean { return false; },
-		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor; },
+		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor; },
 
 	},
 	
@@ -269,17 +269,19 @@ export const storeAuth = defineStore('auth', {
 				noAd:false,
 				state:false,
 				upgrade:false,
+				isPremiumDonor:false,
 			}
 			const res = await ApiController.call("user");
 
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
 			
-			this.twitch.user					= user as Required<TwitchatDataTypes.TwitchatUser>;
-			this.twitch.user.donor.state		= res.json.data.isDonor === true;
-			this.twitch.user.donor.level		= res.json.data.level;
-			this.twitch.user.donor.upgrade		= res.json.data.level != prevLevel;
-			this.twitch.user.donor.earlyDonor	= res.json.data.isEarlyDonor === true;
+			this.twitch.user						= user as Required<TwitchatDataTypes.TwitchatUser>;
+			this.twitch.user.donor.state			= res.json.data.isDonor === true;
+			this.twitch.user.donor.level			= res.json.data.level;
+			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
+			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
+			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
 			if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
 
 			//Async loading of followers count to define if user is exempt

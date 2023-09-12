@@ -203,6 +203,7 @@ type ApiEndpoints =  {
 				isAdmin:boolean,
 				isDonor:boolean,
 				isEarlyDonor:boolean,
+				isPremiumDonor:boolean,
 				level:number,
 			}
 		},
