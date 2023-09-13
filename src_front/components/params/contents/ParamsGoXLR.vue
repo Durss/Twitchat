@@ -20,7 +20,7 @@
 				<GoXLRConnectForm />
 			</div>
 		</template>
-		<Button icon="premium" @click="openPremium()" v-else premium>{{ $t('premium.become_premiumBt')  }}</Button>
+		<Button icon="premium" @click="openPremium()" v-else premium big>{{ $t('premium.become_premiumBt')  }}</Button>
 
 		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
 			<section class="card-item alert error" v-if="noDevice">
@@ -39,10 +39,6 @@
 		</div>
 
 		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
-			<section class="card-item alert error" v-if="noDevice">
-				<div class="item">{{ $t("goxlr.no_device") }}</div>
-			</section>
-
 			<ToggleBlock :icons="['read']" :title="$t('goxlr.readMark_info')">
 				<ParamItem class="item" :paramData="param_chatColIndexMarkRead" noBackground @change="onSelectChatColumnIndex()" />
 				

@@ -11,9 +11,9 @@
 <script lang="ts">
 import { watch, type VNode } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
+import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
-import Config from './utils/Config';
 
 
 @Component({
@@ -112,10 +112,10 @@ export default class App extends Vue {
 
 		if(isButton) {
 			this.cursorOffset.x = -20;
-			this.cursorImage = this.$image("img/cursorDemo_pointer.svg?v=1");
+			this.cursorImage = this.$image("img/cursorDemo_pointer.svg");
 		}else{
 			this.cursorOffset.x = 0;
-			this.cursorImage = this.$image("img/cursorDemo_default.svg?v=1");
+			this.cursorImage = this.$image("img/cursorDemo_default.svg");
 		}
 		return false;
 	}

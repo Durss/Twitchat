@@ -16,9 +16,9 @@
 		"readMark_select_encoder":"Select an FX preset then the encoder you want to move this column's read marker with",
 		"pitch_warning":"⚠️ Pitch encoder has limits that makes it not very suitable for this usage. Scrolling might be glitchy or not work depending on some settings.",
 		"infos":[
-			"Once your GoXLR is connected you can control it or execute actions when using some of its buttons thanks to the Triggers system.",
+			"Once your GoXLR is connected you can control it or automate actions when using some of its buttons thanks to the Triggers system.",
 			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",
-			"Or you can show an OBS source when mute or bleep button is pressed.",
+			"Or you can show an OBS source when mute or bleep button is pressed or when a fader is muted.",
 			"You can also scroll any chat column from one of the 4 encoders."
 		],
 		"connect_form":{

@@ -1,5 +1,7 @@
 <template>
 	<div class="paramsdonorlist">
+		<DonorPublicState class="publicDonation" noInfos @change="loadList()" />
+
 		<div v-if="error">{{ $t("error.donor_loading") }}</div>
 		<Icon v-if="loading" name="loader" alt="loading" class="loader" />
 
@@ -42,11 +44,13 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
 import DonorBadge from '../../user/DonorBadge.vue';
+import DonorPublicState from '@/components/user/DonorPublicState.vue';
 
 @Component({
 	components:{
 		DonorBadge,
 		InfiniteList,
+		DonorPublicState,
 	}
 })
 export default class ParamsDonorList extends Vue {
@@ -60,7 +64,7 @@ export default class ParamsDonorList extends Vue {
 	public loading = true;
 	public disposed = false;
 	
-	private loadingPage = false;
+	private loadingNextPage = false;
 	private localList:{uid:string, v:number}[] = [];
 
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
@@ -84,8 +88,10 @@ export default class ParamsDonorList extends Vue {
 		this.disposed = true;
 	}
 	
-	private async loadList():Promise<void> {
+	public async loadList():Promise<void> {
+		this.loading = true;
 		this.error = false;
+		this.itemList = [];
 		try {
 			const headers = TwitchUtils.headers;
 			headers['App-Version'] = import.meta.env.PACKAGE_VERSION;
@@ -103,8 +109,8 @@ export default class ParamsDonorList extends Vue {
 	}
 
 	private async loadNext():Promise<void> {
-		if(this.loadingPage) return;
-		this.loadingPage = true;
+		if(this.loadingNextPage) return;
+		this.loadingNextPage = true;
 		const items = this.localList.splice(0, 100);
 		const uids = items.map(v => v.uid).filter(v => v != "-1");
 		const users = await TwitchUtils.loadUserInfo(uids);
@@ -119,12 +125,13 @@ export default class ParamsDonorList extends Vue {
 			res.push(item)
 		}
 		this.itemList = this.itemList.concat(res);
-		this.loadingPage = false;
+		this.loadingNextPage = false;
 	}
 
 	private computeStats():void {
 		const lvl2Count:{[key:number]:number} = {};
 		const meUID = StoreProxy.auth.twitch.user.id;
+		this.mePos = -1;
 		for (let i = 0; i < this.localList.length; i++) {
 			const e = this.localList[i];
 			if(!lvl2Count[e.v]) lvl2Count[e.v] = 0;
@@ -149,6 +156,12 @@ export default class ParamsDonorList extends Vue {
 		height: 2em;
 		margin: auto;
 		display: block;
+	}
+
+	.publicDonation {
+		width: fit-content;
+		margin: auto;
+		margin-bottom: 1em;
 	}
 
 	.stats {

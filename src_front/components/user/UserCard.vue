@@ -385,7 +385,7 @@ export default class UserCard extends Vue {
 				this.customLogin = this.$store("users").customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;
-				user.avatarPath = u.profile_image_url;
+				if(!user.avatarPath) user.avatarPath = u.profile_image_url;
 				user.id = u.id;
 				//Don't replace display name if already set.
 				//Extensions like "Stream stickers" have a different display name

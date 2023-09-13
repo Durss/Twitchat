@@ -14,6 +14,12 @@
 		<ParamsAccountPatreon class="card-item" />
 
 		<SponsorTable />
+
+		<div class="footer">
+			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
+			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
+			<a :href="'mailto:'+$config.CONTACT_MAIL">{{ $t("global.contact", {MAIL:$config.CONTACT_MAIL}) }}</a>
+		</div>
 	</div>
 </template>
 
@@ -68,6 +74,12 @@ export default class ParamsPremium extends Vue {
 			text-align: center;
 			margin-bottom: .5em;
 		}
+	}
+	.footer {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 }
 </style>

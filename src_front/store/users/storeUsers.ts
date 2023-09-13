@@ -344,8 +344,8 @@ export const storeUsers = defineStore('users', {
 								userLocal.displayName		= userLocal.displayNameOriginal = apiUser.display_name;
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
-								userLocal.avatarPath		= apiUser.profile_image_url;
 								userLocal.created_at_ms		= new Date(apiUser.created_at).getTime();
+								if(!userLocal.avatarPath)	userLocal.avatarPath = apiUser.profile_image_url;
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;

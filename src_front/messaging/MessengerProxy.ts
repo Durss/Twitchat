@@ -682,7 +682,6 @@ export default class MessengerProxy {
 					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{
-						if(Config.instance.DEMO_MODE) m.fake = false;
 						//Force a specific reward via "/spam reward {REWARD_ID}"
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {

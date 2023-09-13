@@ -281,7 +281,7 @@
 
 			<h2 id="contact">24. CONTACT US</h2>
 			<p>In order to resolve a complaint regarding the Services or to receive further information regarding use of the Services, please contact us at:</p>
-			<strong>{{ $config.CONTACT_MAIL }}</strong>
+			<p><strong>{{ $config.CONTACT_MAIL }}</strong></p>
 
 			<p>These terms of use were created using Termly's <a href="https://termly.io/products/terms-and-conditions-generator/" target="_blank">Terms and Conditions Generator</a>.</p>
 

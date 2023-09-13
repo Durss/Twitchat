@@ -1,9 +1,9 @@
 {
 	"patreon": {
 		"linkBt":"Lier Patreon",
-		"info":"Débloquez des fonctionnalités premium en me {LINK}.",
-		"info_link":"supportant sur Patreon",
-		"alternative":"Ou obtenez premium à vie avec un {LINK} ou plus.",
+		"info":"{LINK} pour profiter des fonctionnalités Premium.",
+		"info_link":"Abonnez-vous sur Patreon",
+		"alternative":"Ou devenez Premium à vie avec un {LINK} ou plus.",
 		"alternative_link":"don de {AMOUNT}€",
 		"connected":"Votre compte Patreon est lié à Twitchat.",
 		"is_member":"💝 Merci de faire partie des donateur·ices sur Patreon 💝",

@@ -133,7 +133,6 @@
 
 		<div class="card-item">
 			<div class="donorsTitle">{{ $t('donate.donors') }}</div>
-			<DonorPublicState class="publicDonation" noInfos />
 			<ParamsDonorList />
 		</div>
 
@@ -149,7 +148,6 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
-import DonorPublicState from '@/components/user/DonorPublicState.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
@@ -165,7 +163,6 @@ import ParamsDonorList from './ParamsDonorList.vue';
 		ToggleBlock,
 		SponsorTable,
 		ParamsDonorList,
-		DonorPublicState,
 	},
 	emits:[],
 })
@@ -865,12 +862,6 @@ export default class ParamsDonate extends Vue {
 		font-size: 1.5em;
 		font-weight: bold;
 		margin-bottom: .5em;
-	}
-
-	.publicDonation {
-		width: fit-content;
-		margin: auto;
-		margin-bottom: 1em;
 	}
 }
 

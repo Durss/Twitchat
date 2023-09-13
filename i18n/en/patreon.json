@@ -1,14 +1,14 @@
 {
 	"patreon": {
 		"linkBt":"Link Patreon",
-		"info":"Unlock premium features by {LINK}.",
-		"info_link":"supporting me monthly on Patreon",
-		"alternative":"Or get lifetime premium by {LINK} or more.",
+		"info":"{LINK} to enjoy Premium features.",
+		"info_link":"Support me monthly on Patreon",
+		"alternative":"Or get lifetime Premium by {LINK} or more.",
 		"alternative_link":"donating {AMOUNT}€",
 		"connected":"Your Patreon account is linked to Twitchat.",
 		"is_member":"💝 Thank you for being part of the donors on Patreon 💝",
-		"is_member_details":"You have access to all premium features!",
+		"is_member_details":"You have access to all Premium features!",
 		"is_not_member":"You are not part of the donors on Patreon 😥",
-		"is_not_member_details":"You do not have access to premium features.\r\nNote: It may take a few minutes for Patreon to process your payment."
+		"is_not_member_details":"You do not have access to Premium features.\r\nNote: It may take a few minutes for Patreon to process your payment."
 	}
 }

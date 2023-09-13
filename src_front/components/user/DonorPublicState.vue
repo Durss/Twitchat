@@ -25,7 +25,7 @@ import Icon from '../Icon.vue';
 		ParamItem,
 		DonorPublicState,
 	},
-	emits:[],
+	emits:["change"],
 })
 export default class DonorPublicState extends Vue {
 
@@ -59,6 +59,7 @@ export default class DonorPublicState extends Vue {
 	private async updateDonationState():Promise<void> {
 		try {
 			await ApiController.call("user/donor/anon", "POST", {public:this.publicDonation});
+			this.$emit("change");
 		}catch(error) {
 		}
 	}

@@ -74,7 +74,7 @@
 					<Button icon="edit"
 						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
 					<Button icon="premium" premium
-						@click="openParamPage(contentDonate)">{{ $t('premium.become_premiumBt') }}</Button>
+						@click="openParamPage(contentPremium)">{{ $t('premium.become_premiumBt') }}</Button>
 					<Button icon="follow" secondary
 						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</Button>
 				</div>
@@ -191,6 +191,7 @@ export default class ChatAd extends Vue {
 	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
+	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; } 
 	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 

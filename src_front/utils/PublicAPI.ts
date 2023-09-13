@@ -1,9 +1,9 @@
+import gsap from "gsap/all";
 import type { JsonArray, JsonObject, JsonValue } from "type-fest";
-import { watch } from "vue";
 import { EventDispatcher } from "../events/EventDispatcher";
-import OBSWebsocket from "./OBSWebsocket";
 import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEvent";
 import TwitchatEvent from "../events/TwitchatEvent";
+import OBSWebsocket from "./OBSWebsocket";
 import Utils from "./Utils";
 
 /**
@@ -26,7 +26,11 @@ export default class PublicAPI extends EventDispatcher {
 	static get instance():PublicAPI {
 		if(!PublicAPI._instance) {
 			PublicAPI._instance = new PublicAPI();
-		}
+			//@ts-ignore
+			// window.broadcast = (a, b, c) => PublicAPI._instance.broadcast(a,b,c);
+			//@ts-ignore
+			// window.gsap = gsap;
+			}
 		return PublicAPI._instance;
 	}
 
