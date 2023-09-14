@@ -194,6 +194,12 @@
 				"param_url": "Browser URL",
 				"param_media": "Media file (optionel)",
 				"param_media_img": "Image file",
+				"param_mediaEvent": "Wait for media to end playing (trigger's execution will be paused until media playing completes)",
+				"param_x": "Position X (pixels)",
+				"param_y": "Position Y (pixels)",
+				"param_width": "Width (pixels)",
+				"param_height": "Height (pixels)",
+				"param_angle": "Rotation angle (0 -> 360)",
 				"param_action_show": "Enable source",
 				"param_action_hide": "Disable source",
 				"param_action_show_filter": "Enable filter",
@@ -201,7 +207,10 @@
 				"param_action_scene_switch": "Switch to scene",
 				"param_action_mute": "Mute source",
 				"param_action_unmute": "Unmute source",
-				"param_action_replay": "Restart playback"
+				"param_action_replay": "Restart playback",
+				"param_action_move": "Move source",
+				"param_action_rotate": "Rotate source",
+				"param_action_resize": "Resize source"
 			},
 			"trigger": {
 				"beta": "This is a beta feature!{BR} If you experience any unexpected behavior with it please {LINK}",

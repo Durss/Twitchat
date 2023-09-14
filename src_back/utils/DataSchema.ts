@@ -231,6 +231,7 @@ import Ajv from "ajv";
 								text: {type:"string", maxLength:1000},
 								url: {type:"string", maxLength:1000},
 								mediaPath: {type:"string", maxLength:1000},
+								waitMediaEnd: {type:"boolean"},
 								type: {type:"string", maxLength:50, nullable: true},
 								musicAction: {type:"string", maxLength:3},
 								track: {type:"string", maxLength:500},

@@ -307,7 +307,7 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"switch_to";
+export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"switch_to"|"move"|"rotate"|"resize";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	action:TriggerActionObsDataAction;
@@ -315,7 +315,13 @@ export interface TriggerActionObsData extends TriggerActionData{
 	filterName?:string;
 	text?:string;
 	url?:string;
+	pos_x?:string;
+	pos_y?:string;
+	width?:string;
+	height?:string;
+	angle?:string;
 	mediaPath?:string;
+	waitMediaEnd?:boolean;
 	/**
 	 * @deprecated replaced by "action" prop
 	 */

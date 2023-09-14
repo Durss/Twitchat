@@ -11,15 +11,22 @@
 	</div>
 
 	<div class="triggeractionobsentry triggerActionForm" v-else>
-		<ParamItem class="source" :paramData="source_conf" v-model="action.sourceName" />
-		<ParamItem class="show" :paramData="action_conf" v-model="action.action" />
-		<ParamItem class="text" :paramData="text_conf" v-model="action.text" v-if="isTextSource" ref="textContent" />
-		<ParamItem class="url" :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" ref="textContent" />
+		<ParamItem :paramData="source_conf" v-model="selectedSourceName" />
+		<ParamItem :paramData="action_conf" v-model="action.action" v-if="selectedSourceName" />
+		<ParamItem :paramData="text_conf" v-model="action.text" v-if="isTextSource" />
+		<ParamItem :paramData="url_conf" v-model="action.url" v-if="isBrowserSource" />
+		<ParamItem :paramData="x_conf" v-model="action.pos_x" v-if="action.action == 'move'" />
+		<ParamItem :paramData="y_conf" v-model="action.pos_y" v-if="action.action == 'move'" />
+		<ParamItem :paramData="width_conf" v-model="action.width" v-if="action.action == 'resize'" />
+		<ParamItem :paramData="height_conf" v-model="action.height" v-if="action.action == 'resize'" />
+		<ParamItem :paramData="angle_conf" v-model="action.angle" v-if="action.action == 'rotate'" />
 		
 		<ParamItem class="file"
-			v-if="isMediaSource && filter_conf.value == '' && action_conf.value == 'show'"
+			v-if="canSetMediaPath"
 			:paramData="media_conf"
-			v-model="action.mediaPath" ref="textContent" />
+			v-model="action.mediaPath" />
+			
+		<ParamItem class="url" :paramData="mediaEndEvent_conf" v-model="action.waitMediaEnd" v-if="canWaitForMediaEnd" />
 
 		<div v-if="showPlaceholderWarning" class="info">
 			<img src="@/assets/icons/alert.svg" alt="info" class="">
@@ -67,12 +74,20 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
 	
-	public action_conf:TwitchatDataTypes.ParameterData<string, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show" };
-	public source_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], icon:"list", children:[] };
-	public filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[] };
-	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
-	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://..." };
-	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/..." };
+	public action_conf:TwitchatDataTypes.ParameterData<TriggerActionObsDataAction, TriggerActionObsDataAction> = { type:"list", value:"show", listValues:[], icon:"show", labelKey:"triggers.actions.obs.param_action" };
+	public source_conf:TwitchatDataTypes.ParameterData<string, string> = { type:"list", value:"", listValues:[], icon:"list", children:[], labelKey:"triggers.actions.obs.param_source" };
+	public filter_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", listValues:[], labelKey:"triggers.actions.obs.param_filter" };
+	public text_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500, labelKey:"triggers.actions.obs.param_text" };
+	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://...", labelKey:"triggers.actions.obs.param_url" };
+	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/...", labelKey:"triggers.actions.obs.param_media" };
+	public mediaEndEvent_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"countdown", labelKey:"triggers.actions.obs.param_mediaEvent" };
+	public x_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_x" };
+	public y_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_y" };
+	public angle_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_angle" };
+	public width_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_width" };
+	public height_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_height" };
+	
+	public selectedSourceName:string = "";
 	
 	private filters:OBSFilter[] = [];
 	
@@ -112,6 +127,16 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	}
 
 	/**
+	 * Get if the "wait for media to end playing" option can be used
+	 */
+	public get canWaitForMediaEnd():boolean { return this.isMediaSource && (this.action.action == "show" || this.action.action == "replay"); }
+
+	/**
+	 * Get if the "wait for media to end playing" option can be used
+	 */
+	public get canSetMediaPath():boolean { return this.isMediaSource && this.filter_conf.value == "" && this.action_conf.value == "show"; }
+
+	/**
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
@@ -123,95 +148,107 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
-
-		this.action_conf.labelKey	= "triggers.actions.obs.param_action";
-		this.source_conf.labelKey	= "triggers.actions.obs.param_source";
-		this.filter_conf.labelKey	= "triggers.actions.obs.param_filter";
-		this.text_conf.labelKey		= "triggers.actions.obs.param_text";
-		this.url_conf.labelKey		= "triggers.actions.obs.param_url";
-		this.media_conf.labelKey	= "triggers.actions.obs.param_media";
 	}
 
 	public async mounted():Promise<void> {
+		const sourceNameBackup = this.action.sourceName;
+		const actionBackup = this.action.action;
+
 		//Prefill forms
 		await this.prefillForm();
+
+		const list = this.source_conf.listValues as SourceItem[];
+		//If entry does not exist on the available items, push a fake
+		//item to avoid losing it
+		if(sourceNameBackup && !list.find(v=>v.name == sourceNameBackup)) {
+			this.selectedSourceName = "source_"+sourceNameBackup;
+			list.push({label:sourceNameBackup, value:this.selectedSourceName, name:sourceNameBackup, type:"source"});
+		}else{
+			const source = list.find((v:SourceItem)=>v.value == "source_"+sourceNameBackup);
+			const scene = list.find((v:SourceItem)=>v.value == "scene_"+sourceNameBackup);
+			const input = list.find((v:SourceItem)=>v.value == "input_"+sourceNameBackup);
+			this.selectedSourceName = (actionBackup == "switch_to"? scene?.value : source?.value || scene?.value || input?.value)!;
+		}
+
+		//Prefill may change the action during its build.
+		//Force it to the actual requested value.
+		//There must be a better way to handle this async issue but it's 5am
+		//my brain is half-working I want to sleep T_T
+		this.$nextTick().then(()=>{
+			this.action.action = actionBackup;
+			console.log(actionBackup);
+		})
+		
 
 		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsSources, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
+		watch(()=>this.action_conf.value, ()=> this.cleanupData());
+		watch(()=>this.selectedSourceName, ()=> {
+			if(this.source_conf.selectedListValue) {
+				this.action.sourceName = (this.source_conf.selectedListValue as SourceItem).name;
+			}else{
+				this.action.sourceName = "";
+			}
+		});
 	}
 
-	private updateActionsList():void {
-		const values:TwitchatDataTypes.ParameterDataListValue<TriggerActionObsDataAction>[] = [];
-		const selectedItem = this.source_conf.selectedListValue as {label:string, value:string, type:"scene"|"source"|"input"}|null;
-
-		if(this.filter_conf.value == "") {
-			values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
-			values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
-			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
-			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
-
-			if(selectedItem?.type == "scene"){
-				values.push({labelKey:"triggers.actions.obs.param_action_scene_switch", value:"switch_to"});
-			}
-		}else{
-			values.push({labelKey:"triggers.actions.obs.param_action_show_filter", value:"show"});
-			values.push({labelKey:"triggers.actions.obs.param_action_hide_filter", value:"hide"});
-		}
-
-
-		if(this.isMediaSource && this.filter_conf.value == "") {
-			values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
-		}
-		this.action_conf.listValues	= values;
-		this.action_conf.value		= this.action.action;
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.text_conf.placeholderList	= list;
+		this.url_conf.placeholderList	= list;
+		this.media_conf.placeholderList	= list;
+		this.x_conf.placeholderList		= list;
+		this.y_conf.placeholderList		= list;
+		this.angle_conf.placeholderList	= list;
+		this.width_conf.placeholderList	= list;
+		this.height_conf.placeholderList= list;
 	}
 
 	/**
 	 * Prefills the form
 	 */
 	private async prefillForm():Promise<void> {
-		let list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		let list:SourceItem[] = [];
+		//Get all OBS scenes
+		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, name:"__scene__", type:"scene"});
+		list = list.concat( this.obsScenes.map<SourceItem>(v=> {return {label:v.sceneName, value:"scene_"+v.sceneName, type:"scene", name:v.sceneName}}) );
 		//Get all OBS sources
-		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true});
-		list = list.concat( this.obsScenes.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.sceneName, value:v.sceneName, type:"scene"}}) );
-		//Get all OBS inputs
 		if(this.obsSources.length > 0) {
-			list.push({labelKey:"triggers.actions.obs.param_source_splitter_sources", value:"__sources__", disabled:true});
-			list = list.concat( this.obsSources.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.sourceName, value:v.sourceName, type:"source"}}));
+			list.push({labelKey:"triggers.actions.obs.param_source_splitter_sources", value:"__sources__", disabled:true, name:"__scene__", type:"source"});
+			list = list.concat( this.obsSources.map<SourceItem>(v=> {return {label:v.sourceName, value:"source_"+v.sourceName, type:"source", name:v.sourceName}}));
 		}
 
 		//Get all OBS inputs.
 		//Input are only really useful for a very specific case.
-		//All inputs are also sources except for flobal audio devices defined on
+		//All inputs are also sources except for global audio devices defined on:
 		//File => Settings => Audio => Global Audio Devices
 		//If any is defined there they'll be listed in the inputs
 		let inputs = JSON.parse(JSON.stringify(this.obsInputs)) as OBSInputItem[];
 		//Dedupe entries as inputs are mostly sources
 		inputs = inputs.filter(v=> {
-			if(list.find(w => w.value.toLowerCase() == v.inputName.toLowerCase())) return false;
+			if(list.find(w => w.name.toLowerCase() == v.inputName.toLowerCase())) return false;
 			return true;
 		})
 		if(inputs.length > 0) {
-			list.push({labelKey:"triggers.actions.obs.param_source_splitter_inputs", value:"__inputs__", disabled:true});
-			list = list.concat( inputs.map<TwitchatDataTypes.ParameterDataListValue<string>>(v=> {return {label:v.inputName, value:v.inputName, type:"input"}}));
-		}
-		
-		if(this.action.sourceName && !list.find(v=>v.value == this.action.sourceName)) {
-			list.push({label:this.action.sourceName, value:this.action.sourceName})
+			list.push({labelKey:"triggers.actions.obs.param_source_splitter_inputs", value:"__inputs__", disabled:true, name:"__input__", type:"input"});
+			list = list.concat( inputs.map<SourceItem>(v=> {return {label:v.inputName, value:"input_"+v.inputName, type:"input", name:v.inputName}}));
 		}
 
+		list.unshift({labelKey:"global.select_placeholder", value:"", name:"", type:"source"});
 		this.source_conf.listValues = list;
-		this.source_conf.listValues.unshift({labelKey:"global.select_placeholder", value:""});
 		
-		this.updateActionsList();
-		this.onSourceChanged(true);
+		await this.onSourceChanged(true)
 	}
 
 	/**
 	 * Called when selecting a new source
+	 * Loads filters associated to the given source to define
+	 * if the filters list should be displayed or not
 	 */
 	private async onSourceChanged(forceFilterEntry:boolean = false):Promise<void> {
 		this.filters = [];
@@ -245,7 +282,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	}
 
 	/**
-	 * Called when selecting a filter to update a title
+	 * Called when selecting a filter
+	 * Updates the input's label or cleanup filter's name if any
 	 */
 	private updateFilter():void {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
@@ -260,14 +298,68 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	}
 
 	/**
-	 * Called when the available placeholder list is updated
+	 * Updates available actions (show, hide, mute, unmute, replay, ...)
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.text_conf.placeholderList	= list;
-		this.url_conf.placeholderList	= list;
-		this.media_conf.placeholderList	= list;
+	private updateActionsList():void {
+		const values:TwitchatDataTypes.ParameterDataListValue<TriggerActionObsDataAction>[] = [];
+		const selectedItem = this.source_conf.selectedListValue as SourceItem|undefined;
+
+		if(this.filter_conf.value == "") {
+			values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
+			values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
+			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
+			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
+
+			if(selectedItem && selectedItem.type == "scene"){
+				values.push({labelKey:"triggers.actions.obs.param_action_scene_switch", value:"switch_to"});
+			}else{
+				values.push({labelKey:"triggers.actions.obs.param_action_move", value:"move"});
+				values.push({labelKey:"triggers.actions.obs.param_action_rotate", value:"rotate"});
+				values.push({labelKey:"triggers.actions.obs.param_action_resize", value:"resize"});
+			}
+			if(this.isMediaSource) {
+				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
+			}
+		}else{
+			values.push({labelKey:"triggers.actions.obs.param_action_show_filter", value:"show"});
+			values.push({labelKey:"triggers.actions.obs.param_action_hide_filter", value:"hide"});
+		}
+
+		this.action_conf.listValues	= values;
+		this.action_conf.value		= this.action.action;
+		this.cleanupData();
 	}
 
+	/**
+	 * Cleanup useless data to avoid unexpected trigger execution behavior
+	 */
+	private async cleanupData():Promise<void> {
+		await this.$nextTick();//Leave it time to form field to be unmounted
+
+		if(!this.canSetMediaPath) {
+			this.media_conf.value = "";
+			delete this.action.mediaPath;
+		}
+
+		if(!this.canWaitForMediaEnd) {
+			this.mediaEndEvent_conf.value = false;
+			delete this.action.waitMediaEnd;
+		}
+		if(!this.isTextSource) {
+			this.text_conf.value = "";
+			delete this.action.text;
+		}
+		if(!this.isBrowserSource) {
+			this.url_conf.value = "";
+			delete this.action.url;
+		}
+	}
+}
+
+
+interface SourceItem extends TwitchatDataTypes.ParameterDataListValue<string> {
+	type:"scene"|"source"|"input";
+	name:string;
 }
 </script>
 

@@ -53,6 +53,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -102,6 +103,8 @@ export default class TriggerActionHeatParams extends Vue {
 				alert:false,
 			}
 		}
+
+		watch(()=>this.obsSources, ()=> this.populateObsSources());
 	}
 
 	public mounted():void {
@@ -111,9 +114,7 @@ export default class TriggerActionHeatParams extends Vue {
 			{value:'area', labelKey:"heat.click_source_area"}
 		];
 
-		this.param_obsSources.listValues = (this.obsSources || []).map(v=>{
-			return {value:v.sourceName, label:v.sourceName};
-		});
+		this.populateObsSources();
 		
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
@@ -151,6 +152,12 @@ export default class TriggerActionHeatParams extends Vue {
 
 	public openOBSParams():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+	}
+
+	private populateObsSources():void {
+		this.param_obsSources.listValues = (this.obsSources || []).map(v=>{
+			return {value:v.sourceName, label:v.sourceName};
+		});
 	}
 
 }

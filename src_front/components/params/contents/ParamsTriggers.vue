@@ -126,6 +126,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 	public get showOBSResync():boolean {
 		if(!this.currentTriggerData) return false;
+		if(this.currentTriggerData.type == TriggerTypes.HEAT_CLICK) return true;
 		if(this.currentTriggerData.actions.length === 0) return false;
 		return this.currentTriggerData.actions.findIndex(v=>v.type == "obs") > -1;
 	}

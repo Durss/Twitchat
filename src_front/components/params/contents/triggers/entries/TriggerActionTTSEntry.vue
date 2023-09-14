@@ -11,7 +11,7 @@
 	</div>
 
 	<div v-else class="triggeractionttsentry">
-		<ParamItem class="file" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem class="file" :paramData="message_conf" v-model="action.text" />
 	</div>
 </template>
 

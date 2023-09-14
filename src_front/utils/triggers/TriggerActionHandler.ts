@@ -912,6 +912,17 @@ export default class TriggerActionHandler {
 									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
 									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
 								}
+								if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
+									logStep.messages.push({date:Date.now(), value:"Wait for media to complete playing..."});
+									await new Promise<void>((resolve, reject)=> {
+										const handler = (e:TwitchatEvent) => {
+											logStep.messages.push({date:Date.now(), value:"Media playing complete."});
+											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+											resolve();
+										}
+										OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+									})
+								}
 							}catch(error) {
 								console.error(error);
 							}
