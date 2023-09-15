@@ -6,7 +6,7 @@
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
-				:theme="error !== false || alert !== false || primary !== false || secondary !== false? 'light': small === true? 'secondary' : ''"
+				:theme="(error !== false || alert !== false || primary !== false || secondary !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
 			
 			<div class="title" v-if="title || subtitle">
@@ -264,7 +264,7 @@ export default class ToggleBlock extends Vue {
 
 
 	&.small {
-		background-color: var(--color-dark-fadest);
+		// background-color: var(--color-dark-fadest);
 		.header {
 			padding: 0;
 			background-color: transparent;

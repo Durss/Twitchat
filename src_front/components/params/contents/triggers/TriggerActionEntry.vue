@@ -341,6 +341,9 @@ export default class TriggerActionEntry extends Vue {
 			unmute:"unmute",
 			replay:"play",
 			switch_to:"next",
+			move:"move",
+			resize:"scale",
+			rotate:"rotate",
 		};
 		
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );

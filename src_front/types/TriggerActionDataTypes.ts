@@ -216,12 +216,14 @@ export interface TriggerLog {
 	criticalError:boolean;
 	data:TwitchatDataTypes.ChatMessageTypes;
 	messages:{date:number, value:string}[];
-	steps:{
-		id:string;
-		date:number;
-		data:TriggerActionTypes;
-		messages:{date:number, value:string}[];
-	}[]
+	steps:TriggerLogStep[];
+}
+
+export interface TriggerLogStep {
+	id:string;
+	date:number;
+	data:TriggerActionTypes;
+	messages:{date:number, value:string}[];
 }
 
 export interface SocketParams {
@@ -320,6 +322,10 @@ export interface TriggerActionObsData extends TriggerActionData{
 	width?:string;
 	height?:string;
 	angle?:string;
+	relativeTransform?:boolean;
+	animate?:boolean;
+	animateEasing?:string;
+	animateDuration?:number;
 	mediaPath?:string;
 	waitMediaEnd?:boolean;
 	/**

@@ -10,6 +10,8 @@
 		"param_anon": "Autorisez les personnes anonymes à interagir",
 		"anonymous": "Par défaut les interactions sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
 		"click_source":"L'utilisateur·ice doit cliquer sur...",
+		"click_source_info_title":"Informations de mise en cache",
+		"click_source_info_description":"La détection du clique sur une source OBS nécessite beaucoup d'échanges avec OBS pour calculer la position de vos sources. Selon la complexité de vos scènes OBS ceci peut prendre du temps. Pour des raisons de performance, la position de vos sources est mise en cache durant 30 secondes. Si une source est déplacée il peut falloir attendre jusqu'à 30s pour que sa nouvelle position soit prise en compte. Si vous en avez VRAIMENT besoin, la commande /clearobscache permet de vider le cache.",
 		"click_source_obs":"Une source OBS",
 		"click_source_area":"Une zone personnalisée",
 		"obs_source":"Source OBS",

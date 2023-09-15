@@ -556,13 +556,27 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets the ID of a scene item by its name
+	 * @param sourceName 
+	 * @param sceneName will search on current scene if not specified
+	 * @returns 
+	 */
+	public async searchSceneItemId(sourceName:string, sceneName?:string):Promise<{scene:string, itemId:number}> {
+		if(!sceneName) {
+			const scene = await this.obs.call("GetCurrentProgramScene");
+			sceneName = scene.currentProgramSceneName;
+		}
+		const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
+		return {scene:sceneName, itemId:result.sceneItemId};
+	}
+
+	/**
 	 * Get a source by its name on the current scene.
 	 * Searches recursively on sub scenes
 	 * 
 	 * @param sourceName 
 	 * @param sceneName 
 	 * @returns 
-	 * //TODO replace all this with a GetSceneItemId call? https://github.com/obsproject/obs-websocket/blob/master/docs/generated/protocol.md#getsceneitemid
 	 */
 	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
 		const cacheKey = sceneName + this.sceneCacheKeySplitter + sourceName;
@@ -663,7 +677,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
-	 * Gets the settings of a source
+	 * Gets the transforms of a source
 	 * 
 	 * @param sourceName 
 	 */
@@ -1064,7 +1078,7 @@ export interface SourceTransform {
 	 */
 	globalBR? :{x:number, y:number};
 }
-  
+
 
 export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
 							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |

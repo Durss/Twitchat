@@ -9,7 +9,7 @@ import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import ApiController from "../ApiController";
-import OBSWebsocket from "../OBSWebsocket";
+import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
 import Utils from "../Utils";
@@ -22,6 +22,7 @@ import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import Config from "../Config";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
+import gsap from "gsap";
 
 /**
 * Created : 22/04/2022 
@@ -826,7 +827,7 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			const logStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
+			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
@@ -857,7 +858,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
 					}
 					
-					logStep.messages.push({date:Date.now(), value:"Execute OBS action on source \""+step.sourceName+"\""});
+					logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
 					
 					if(!OBSWebsocket.instance.connected) {
 						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
@@ -866,6 +867,7 @@ export default class TriggerActionHandler {
 						if(step.text) {
 							try {
 								const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent);
+								logStep.messages.push({date:Date.now(), value:"Update text to \""+text+"\""});
 								await OBSWebsocket.instance.setTextSourceContent(step.sourceName, text);
 							}catch(error) {
 								console.error(error);
@@ -874,6 +876,7 @@ export default class TriggerActionHandler {
 						if(step.url) {
 							try {
 								const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.url as string, subEvent);
+								logStep.messages.push({date:Date.now(), value:"Update browser source URL to \""+url+"\""});
 								await OBSWebsocket.instance.setBrowserSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -882,6 +885,7 @@ export default class TriggerActionHandler {
 						if(step.mediaPath) {
 							try {
 								let url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+								logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
 								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 							}catch(error) {
 								console.error(error);
@@ -890,6 +894,7 @@ export default class TriggerActionHandler {
 			
 						if(step.filterName) {
 							try {
+								logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
 								await OBSWebsocket.instance.setFilterState(step.sourceName, step.filterName, step.action === "show");
 							}catch(error) {
 								console.error(error);
@@ -911,6 +916,87 @@ export default class TriggerActionHandler {
 									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
 									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
 									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
+									case "move": 
+									case "rotate": 
+									case "resize": {
+										const item = await OBSWebsocket.instance.searchSceneItemId(step.sourceName);
+										const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.itemId);
+										type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
+										let result:ReducedType = {};
+										if(action == "move") {
+											//Move source
+											if(step.pos_x) {
+												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
+												text = text.replace(/,/gi, ".");
+												result.positionX = MathJS.evaluate(text);
+											}
+											if(step.pos_y) {
+												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
+												text = text.replace(/,/gi, ".");
+												result.positionY = MathJS.evaluate(text);
+											}
+										}else if(action == "resize") {
+											//Resize source
+											if(step.width) {
+												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
+												text = text.replace(/,/gi, ".");
+												result.width = MathJS.evaluate(text);
+											}
+											if(step.height) {
+												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
+												text = text.replace(/,/gi, ".");
+												result.height = MathJS.evaluate(text);
+											}
+										}else if(action == "rotate" && step.angle) {
+											//Rotate source
+												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
+												text = text.replace(/,/gi, ".");
+												result.rotation = MathJS.evaluate(text);
+										}
+
+										//Handle relative transform mode
+										if(step.relativeTransform === true) {
+											if(result.positionX) result.positionX += transform.positionX;
+											if(result.positionY) result.positionY += transform.positionY;
+											if(result.width) result.width += transform.width;
+											if(result.height) result.height += transform.height;
+											if(result.rotation) result.rotation += transform.rotation;
+										}
+										
+										//OBS-WS does not allow to change the source's sizes.
+										//Instead we compute the equivalent scale values.
+										if(result.width) {
+											result.scaleX = result.width/transform.sourceWidth;
+											delete result.width;
+										}
+										if(result.height) {
+											result.scaleY = result.height/transform.sourceHeight;
+											delete result.height;
+										}
+										logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
+
+										if(step.animate === true) {
+											logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
+											const params:{[key:string]:number|string|(()=>void)} = {};
+											for (const key in result) params[key] = result[key as keyof ReducedType]!;
+											params.duration = step.animateDuration! / 1000;
+											params.ease = step.animateEasing!;
+											let lastFrame = Date.now();
+											params.onUpdate = ()=> {
+												//Limit to 30fps to avoid destroying OBS-WS
+												if(Date.now() - lastFrame < 30/1000) return;
+												const localTransform:{[key:string]:number|string} = {};
+												//Remove invalid props
+												for (const key in params) {
+													if(["positionX", "positionY", "rotation", "scaleX", "scaleY"].includes(key)) localTransform[key] = transform[key as keyof ReducedType]!;
+												}
+												OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, localTransform);
+											}
+											gsap.to(transform, params);
+										}else{
+											await OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, result);
+										}
+									}
 								}
 								if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
 									logStep.messages.push({date:Date.now(), value:"Wait for media to complete playing..."});
@@ -925,6 +1011,8 @@ export default class TriggerActionHandler {
 								}
 							}catch(error) {
 								console.error(error);
+								log.criticalError = true;
+								logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+JSON.stringify(error)});
 							}
 						}
 						

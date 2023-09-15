@@ -20,6 +20,8 @@
 		<ParamItem :paramData="width_conf" v-model="action.width" v-if="action.action == 'resize'" />
 		<ParamItem :paramData="height_conf" v-model="action.height" v-if="action.action == 'resize'" />
 		<ParamItem :paramData="angle_conf" v-model="action.angle" v-if="action.action == 'rotate'" />
+		<ParamItem :paramData="transformRelative_conf" v-model="action.relativeTransform" v-if="action.action == 'rotate' || action.action == 'resize' || action.action == 'move'" />
+		<ParamItem :paramData="transformAnimate_conf" v-model="action.animate" v-if="action.action == 'rotate' || action.action == 'resize' || action.action == 'move'" />
 		
 		<ParamItem class="file"
 			v-if="canSetMediaPath"
@@ -81,11 +83,15 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public url_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"http://...", labelKey:"triggers.actions.obs.param_url" };
 	public media_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"url", placeholder:"C:/...", labelKey:"triggers.actions.obs.param_media" };
 	public mediaEndEvent_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"countdown", labelKey:"triggers.actions.obs.param_mediaEvent" };
-	public x_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_x" };
-	public y_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_y" };
-	public angle_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_angle" };
-	public width_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_width" };
-	public height_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", labelKey:"triggers.actions.obs.param_height" };
+	public x_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_x" };
+	public y_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_y" };
+	public angle_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_angle" };
+	public width_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_width" };
+	public height_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_height" };
+	public transformRelative_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"number" };
+	public transformAnimate_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"animate", labelKey:"triggers.actions.obs.param_transform_animate" };
+	public transformEasing_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"linear.easeNone", icon:"easing", labelKey:"triggers.actions.obs.param_transform_animate_easing" };
+	public transformDuration_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:500, min:0, max:3600000, icon:"timer", labelKey:"triggers.actions.obs.param_transform_animate_duration" };
 	
 	public selectedSourceName:string = "";
 	
@@ -140,7 +146,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Get if the selected source is a media source
 	 */
 	public get isMediaSource():boolean {
-		const inputKind = this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind;
+		let sourceName = this.source_conf.selectedListValue? (this.source_conf.selectedListValue as SourceItem).name : "";
+		const inputKind = this.obsSources.find(v=> v.sourceName == sourceName)?.inputKind;
 		this.media_conf.labelKey = "triggers.actions.obs.param_media";
 		if(inputKind === "image_source") this.media_conf.labelKey = "triggers.actions.obs.param_media_img";
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source" || inputKind === "vlc_source");
@@ -153,6 +160,18 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public async mounted():Promise<void> {
 		const sourceNameBackup = this.action.sourceName;
 		const actionBackup = this.action.action;
+
+		this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
+
+		const easing = this.$tm("triggers.actions.obs.param_transform_animate_easing_list") as {[key:string]:string};
+		const easingList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		for (const ease in easing) {
+			easingList.push({value:ease, label: easing[ease]});
+		}
+		this.transformEasing_conf.listValues = easingList;
+
+		if(this.action.animateEasing) this.transformEasing_conf.value = this.action.animateEasing;
+		if(this.action.animateDuration) this.transformDuration_conf.value = this.action.animateDuration;
 
 		//Prefill forms
 		await this.prefillForm();
@@ -176,16 +195,17 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		//my brain is half-working I want to sleep T_T
 		this.$nextTick().then(()=>{
 			this.action.action = actionBackup;
-			console.log(actionBackup);
 		})
 		
 
 		watch(()=>this.obsScenes, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsInputs, ()=> { this.prefillForm(); }, {deep:true});
 		watch(()=>this.obsSources, ()=> { this.prefillForm(); }, {deep:true});
+		watch(()=>this.action_conf.value, ()=> this.cleanupData());
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
-		watch(()=>this.action_conf.value, ()=> this.cleanupData());
+		watch(()=>this.transformEasing_conf.value, ()=> this.action.animateEasing = this.transformEasing_conf.value);
+		watch(()=>this.transformDuration_conf.value, ()=> this.action.animateDuration = this.transformDuration_conf.value);
 		watch(()=>this.selectedSourceName, ()=> {
 			if(this.source_conf.selectedListValue) {
 				this.action.sourceName = (this.source_conf.selectedListValue as SourceItem).name;
@@ -202,11 +222,11 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.text_conf.placeholderList	= list;
 		this.url_conf.placeholderList	= list;
 		this.media_conf.placeholderList	= list;
-		this.x_conf.placeholderList		= list;
-		this.y_conf.placeholderList		= list;
-		this.angle_conf.placeholderList	= list;
-		this.width_conf.placeholderList	= list;
-		this.height_conf.placeholderList= list;
+		this.x_conf.placeholderList		= 
+		this.y_conf.placeholderList		= 
+		this.angle_conf.placeholderList	= 
+		this.width_conf.placeholderList	= 
+		this.height_conf.placeholderList= list.filter(v=> v.numberParsable === true);
 	}
 
 	/**
@@ -224,7 +244,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		}
 
 		//Get all OBS inputs.
-		//Input are only really useful for a very specific case.
+		//Inputs are only really useful for a very specific case.
 		//All inputs are also sources except for global audio devices defined on:
 		//File => Settings => Audio => Global Audio Devices
 		//If any is defined there they'll be listed in the inputs
@@ -239,6 +259,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			list = list.concat( inputs.map<SourceItem>(v=> {return {label:v.inputName, value:"input_"+v.inputName, type:"input", name:v.inputName}}));
 		}
 
+		//Add "select..." placeholder entry
 		list.unshift({labelKey:"global.select_placeholder", value:"", name:"", type:"source"});
 		this.source_conf.listValues = list;
 		
@@ -310,15 +331,16 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
 			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
 
+			if(this.isMediaSource) {
+				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
+			}
+
 			if(selectedItem && selectedItem.type == "scene"){
 				values.push({labelKey:"triggers.actions.obs.param_action_scene_switch", value:"switch_to"});
 			}else{
 				values.push({labelKey:"triggers.actions.obs.param_action_move", value:"move"});
 				values.push({labelKey:"triggers.actions.obs.param_action_rotate", value:"rotate"});
 				values.push({labelKey:"triggers.actions.obs.param_action_resize", value:"resize"});
-			}
-			if(this.isMediaSource) {
-				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
 			}
 		}else{
 			values.push({labelKey:"triggers.actions.obs.param_action_show_filter", value:"show"});
@@ -352,6 +374,18 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		if(!this.isBrowserSource) {
 			this.url_conf.value = "";
 			delete this.action.url;
+		}
+
+		if(this.action.action == "move") {
+			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_move";
+		}else if(this.action.action == "resize") {
+			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_resize";
+		}if(this.action.action == "rotate") {
+			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_rotate";
+		}else{
+			delete this.action.animateEasing;
+			delete this.action.animateDuration;
+			delete this.action.relativeTransform;
 		}
 	}
 }

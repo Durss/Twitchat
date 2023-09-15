@@ -22,8 +22,12 @@
 				<Button @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
 			</div>
 		</template>
-		
-		<ParamItem v-else-if="obsConnect" noBackground :paramData="param_obsSources" v-model="triggerData.heatObsSource" />
+		<template v-else-if="obsConnect">
+			<ToggleBlock :title="$t('heat.click_source_info_title')" :icons="['alert']" small secondary :open="false">
+				<p class="infos">{{ $t("heat.click_source_info_description") }}</p>
+			</ToggleBlock>
+			<ParamItem noBackground :paramData="param_obsSources" v-model="triggerData.heatObsSource" />
+		</template>
 
 		<div v-else class="card-item alert error">
 			<p v-html="$t('heat.need_OBS')"></p>
@@ -204,6 +208,11 @@ export default class TriggerActionHeatParams extends Vue {
 		button {
 			margin-top: .5em;
 		}
+	}
+
+	.infos {
+		font-size: .9em;
+		line-height: 1.2em;
 	}
 }
 </style>
