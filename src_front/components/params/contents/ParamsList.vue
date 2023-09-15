@@ -47,10 +47,6 @@
 						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
-					<div v-else-if="p.id == 12 && fakeMessageData">
-						<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
-					</div>
-	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="card-item alert info scope">
 						<img src="@/assets/icons/lock_fit.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
@@ -60,6 +56,10 @@
 							@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
 					</div>
 				</ParamItem>
+	
+				<div v-if="p.id == 12 && fakeMessageData">
+					<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
+				</div>
 			</div>
 
 		</div>
@@ -237,7 +237,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 			.chatMessage {
 				background-color: var(--background-color-primary);
-				padding: 1em;
+				padding: .5em;
 				border-radius: .5em;
 				transition: font-size .25s;
 			}

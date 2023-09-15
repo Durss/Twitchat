@@ -201,7 +201,7 @@
 		<transition
 		@enter="onShowItem"
 		@leave="onHideItem">
-			<div class="child" ref="param_child_slot" v-if="($slots.default || $slots.child) && paramData.value === true">
+			<div class="child" ref="param_child_slot" v-if="($slots.default || $slots.child) && (paramData.value === true || paramData.type != 'boolean')">
 				<slot></slot>
 				<slot name="child"></slot>
 			</div>
