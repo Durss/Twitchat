@@ -85,6 +85,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"updates",
 				cmd:"/updates",
+				alias:"/changelog",
 				detailsKey:"params.commands.updates",
 			},
 			{

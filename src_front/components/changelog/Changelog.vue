@@ -52,6 +52,13 @@
 								<Button secondary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
 							</template>
+							
+							<template v-if="item.i=='heat'">
+								<div class="videos">
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank"><img :src="$image('/img/param_examples/heatVideo.jpg')" class="demo" alt="demo"></a>
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img :src="$image('/img/param_examples/heat2Video.jpg')" class="demo" alt="demo"></a>
+								</div>
+							</template>
 						</div>
 						<div v-else class="inner donate">
 							<div class="emoji">🥺</div>
@@ -317,6 +324,17 @@ export default class Changelog extends Vue {
 				.premiumTable {
 					color: var(--color-text);
 					background-color: var(--grayout);
+				}
+
+				.videos {
+					gap: .5em;
+					display: flex;
+					flex-direction: row;
+					.demoLink {
+						display: inline;
+						margin: auto;
+						overflow: visible;
+					}
 				}
 			}
 		}

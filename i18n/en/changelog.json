@@ -7,7 +7,7 @@
 		"major_title": "New features",
 		"minor_title": "Other updates",
 		"fixes_title": "Fixes",
-		"heat_details": "{LINK} is a desktop-only Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
+		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
@@ -65,7 +65,7 @@
 			{
 				"i": "placeholder",
 				"l": "Global vars",
-				"d": "Create global variables to be used on the Triggers.<br>A trigger event can let you execute actions anytime a value is modified."
+				"d": "Create global variables to be used on the Triggers.<br>A trigger event allows you to execute actions anytime a value is modified."
 			},
 			{
 				"i": "premium",
@@ -74,7 +74,7 @@
 			},
 			{
 				"l": "And more...",
-				"d": "• Get all messages back after reloading Twitcaht<br>• Hide stream info of an incoming raid<br>• Find back your raid history on \"Who's live\" section<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click<br>• ...and lots of enhancements and fixes in many places"
+				"d": "• Get all messages back after reloading Twitcaht<br>• Get an history of channels you raided on \"Who's live\" section<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• Move, roate or risze OBS sources from triggers<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click (impossible within OBS dock)<br>• ...and lots of enhancements and fixes in many places"
 			}
 		],
 		"forceRead": {

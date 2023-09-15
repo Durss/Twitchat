@@ -72,17 +72,6 @@ export default class OverlayParamsSpotify extends Vue {
 		flex-direction: column;
 		align-items: center;
 		gap: .5em;
-
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
 	
 		.playerHolder {
 			width: 100%;

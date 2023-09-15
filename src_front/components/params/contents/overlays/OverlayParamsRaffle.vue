@@ -120,17 +120,6 @@ export default class OverlayParamsRaffle extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
-
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
 		.item {
 
 			.info {

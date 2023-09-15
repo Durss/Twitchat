@@ -7,7 +7,7 @@
 		"major_title": "Nouveautés",
 		"minor_title": "Autres nouveautés",
 		"fixes_title": "Correctifs",
-		"heat_details": "{LINK} est une extensions Twitch pour desktop uniquement permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
+		"heat_details": "{LINK} est une extensions Twitch permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
@@ -66,7 +66,7 @@
 			{
 				"i": "placeholder",
 				"l": "Variables globales",
-				"d": "Créez des variables globales utilisables depuis les triggers.<br>Un évènement de trigger est déclenché lorsque l'une de ces valeurs est modifiée."
+				"d": "Créez des variables globales utilisables depuis les triggers.<br>Un évènement de trigger vous permet d'exécuter des actions lorsque l'une de ces valeurs est modifiée."
 			},
 			{
 				"i": "premium",
@@ -75,7 +75,7 @@
 			},
 			{
 				"l": "Et plus encore...",
-				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Retrouvez votre historique de raids dans la section \"Qui stream\"<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée <br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• Exporter un screen annoté d'un message de tchat via un clic droit<br>• ...et plein de petites améliorations et quelques correctifs"
+				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Retrouvez votre historique de raids dans la section \"Qui stream\"<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée<br>• Déplacez, redimensionnez ou tournez des sources OBS depuis les triggers<br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• Les dons rendus plus simple grâce à une intégration PayPal<br>• Exportez un screen annoté d'un message de tchat via un clic droit (impossible dans un dock OBS)<br>• ...et plein de petites améliorations et quelques correctifs"
 			}
 		],
 		"forceRead": {

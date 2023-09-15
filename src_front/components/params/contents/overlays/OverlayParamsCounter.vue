@@ -140,17 +140,6 @@ export default class OverlayParamsCounter extends Vue {
 		display: flex;
 		flex-direction: column;
 
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
-
 		.counterList {
 			gap: .5em;
 			display: flex;
