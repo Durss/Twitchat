@@ -442,6 +442,18 @@ export default class MessengerProxy {
 			}
 			return true;
 		}else
+
+		if(cmd == "/userfromid") {
+			const res = await TwitchUtils.loadUserInfo([params[0]]);
+			if(res.length === 0) {
+				StoreProxy.main.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
+			}else{
+				const userInfo = res[0];
+				const user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, userInfo.id, userInfo.login, userInfo.display_name);
+				StoreProxy.users.openUserCard(user);
+			}
+			return true;
+		}
 				
 		if(cmd == "/logself") {
 			console.log(StoreProxy.auth.twitch.user);

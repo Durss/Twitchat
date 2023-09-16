@@ -133,6 +133,7 @@
 			"countdownUnpause": "Relance le compte à rebours",
 			"search": "Recherche un message",
 			"userinfo": "Ouvre un profil utilisateur",
+			"userfromid": "Recherche un profil utilisateur par son ID",
 			"raffle": "Lance un tirage au sort",
 			"bingo": "Lance un bingo",
 			"raid": "Lance un raid",

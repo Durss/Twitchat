@@ -133,6 +133,7 @@
 			"countdownUnpause": "Resume the countdown",
 			"search": "Search for a message by its content",
 			"userinfo": "Opens a user's profile info",
+			"userfromid": "Get a user from their ID",
 			"raffle": "Start a raffle",
 			"bingo": "Create a bingo session",
 			"raid": "Raid someone",

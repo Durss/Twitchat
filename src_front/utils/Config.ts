@@ -123,11 +123,11 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
-	public MAX_TRIGGERS = 35;
+	public MAX_TRIGGERS = 40;
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
-	public MAX_TRIGGERS_PREMIUM = 1000;//TODO limit triggers count
+	public MAX_TRIGGERS_PREMIUM = 1000;//TODO limit triggers count for premium. Unlimitted for now
 	/**
 	 * Maxium number of triggers that can be created without being premium
 	 */
@@ -135,7 +135,7 @@ export default class Config {
 	/**
 	 * Maxium number of triggers that can be created when premium
 	 */
-	public MAX_COUNTERS_PREMIUM = 10000;//TODO limit counters count
+	public MAX_COUNTERS_PREMIUM = 10000;//TODO limit counters count for premium. Unlimitted for now
 	
 	private _serverConfig!:ServerConfig;
 	

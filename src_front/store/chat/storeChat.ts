@@ -165,6 +165,12 @@ export const storeChat = defineStore('chat', {
 				detailsKey:"params.commands.userinfo",
 			},
 			{
+				id:"userfromid",
+				cmd:"/userFromID {userID}",
+				alias:"/uid {user}",
+				detailsKey:"params.commands.userfromid",
+			},
+			{
 				id:"raffle",
 				cmd:"/raffle",
 				detailsKey:"params.commands.raffle",
