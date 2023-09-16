@@ -62,7 +62,8 @@
 			"delete_badges_title": "Confirmer",
 			"delete_badges_description": "Souhaitez-vous retirer tous les badges de cette personne ?",
 			"delete_name_title": "Confirmer",
-			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?"
+			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?",
+			"completeBt": "Terminer"
 		}
 	}
 }

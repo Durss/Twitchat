@@ -10,7 +10,7 @@
 				<span class="subtitle">{{ $t('premium.cleanup.description') }}</span>
 				<Button icon="premium" class="premiumBt" big premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
 
-				<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :alert="!triggersOK" :primary="triggersOK" :open="!triggersOK"
+				<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :alert="!triggersOK" :open="!triggersOK"
 				v-if="$store('triggers').triggerList.length > 0">
 					<template #right_actions>
 						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
@@ -21,7 +21,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['count']" :title="$t('params.categories.counters')" :alert="!countersOK" :primary="countersOK" :open="!countersOK"
+				<ToggleBlock :icons="['count']" :title="$t('params.categories.counters')" :alert="!countersOK" :open="!countersOK"
 				v-if="$store('counters').counterList.length > 0">
 					<template #right_actions>
 						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
@@ -37,7 +37,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['placeholder']" :title="$t('params.categories.values')" :alert="!valuesOK" :primary="valuesOK" :open="!valuesOK"
+				<ToggleBlock :icons="['placeholder']" :title="$t('params.categories.values')" :alert="!valuesOK" :open="!valuesOK"
 				v-if="$store('values').valueList.length > 0">
 					<template #right_actions>
 						<Icon :name="(valuesOK? 'checkmark' : 'alert')" />
@@ -53,7 +53,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('params.categories.heat')" :alert="!heatOK" :primary="heatOK" :open="!heatOK"
+				<ToggleBlock :icons="['heat']" :title="$t('params.categories.heat')" :alert="!heatOK" :open="!heatOK"
 				v-if="$store('heat').screenList.length > 0">
 					<template #right_actions>
 						<Icon :name="(heatOK? 'checkmark' : 'alert')" />
@@ -69,7 +69,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :primary="badgesOK" :open="!badgesOK"
+				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
 				v-if="$store('users').customBadgeList.length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesOK? 'checkmark' : 'alert')" />
@@ -85,7 +85,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :primary="badgesUserOK" :open="!badgesUserOK"
+				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
 				v-if="Object.keys($store('users').customUserBadges).length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesUserOK? 'checkmark' : 'alert')" />
@@ -107,7 +107,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :primary="usernamesOK" :open="!usernamesOK"
+				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
 				v-if="Object.keys($store('users').customUsernames).length > 0">
 					<template #right_actions>
 						<Icon :name="(usernamesOK? 'checkmark' : 'alert')" />
@@ -121,6 +121,8 @@
 						</div>
 					</div>
 				</ToggleBlock>
+
+				<Button class="completeBt" icon="checkmark" @click="close()">{{ $t("premium.cleanup.completeBt") }}</Button>
 			</div>
 		</div>
 	</div>
@@ -275,6 +277,10 @@ export default class NonPremiumCleanup extends Vue {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+
+		.completeBt {
+			margin: auto;
+		}
 	}
 
 	.holder {
