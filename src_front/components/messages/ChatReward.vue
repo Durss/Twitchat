@@ -20,8 +20,10 @@
 						<span class="cost" v-if="entry.vo.reward.cost > 0">({{ entry.vo.reward.cost }}pts)</span>
 					</template>
 				</i18n-t>
+				
 				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
-				<div class="quote" v-if="entry.vo.message_html">
+				
+				<div class="quote dark" v-if="entry.vo.message_html">
 					<ChatMessageChunksParser :chunks="entry.vo.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</div>
 			</div>
@@ -116,6 +118,14 @@ export default class ChatReward extends AbstractChatMessage {
 
 	.item:not(:last-child) {
 		margin-bottom: 1px;
+	}
+
+	.quote {
+		margin-top: .5em;
+		&.dark {
+			.bevel();
+			background-color: var(--background-color-primary);
+		}
 	}
 }
 </style>

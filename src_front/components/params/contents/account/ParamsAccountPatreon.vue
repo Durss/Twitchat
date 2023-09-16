@@ -156,6 +156,7 @@ export default class ParamsAccountPatreon extends Vue {
 		flex-shrink: 1;
 		.icon {
 			width: 3em;
+			height: 3em;
 			min-width: 3em;
 			max-width: 3em;
 		}

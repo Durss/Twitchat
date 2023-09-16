@@ -198,9 +198,13 @@ export default class Slider extends Vue {
 		position: absolute;
 		top: 0;
 		left: 0;
+		padding: 0;
+		margin: 0;
+		height: 100%;
 		width: 100%;
 		opacity: 0;
-		z-index: -1;
+		z-index: 2;
+		cursor: pointer;
 	}
 
 	&.disabled {

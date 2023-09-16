@@ -26,7 +26,6 @@
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
 				<Icon name="cross" theme="primary" class="icon" />
-				<Icon name="alert" class="icon" />
 			</button>
 		</div>
 

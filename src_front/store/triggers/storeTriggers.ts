@@ -101,6 +101,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "goxlr") return true;
 					if(v.type == "customBadges") return true;
 					if(v.type == "customUsername") return true;
+					if(v.type == "chatSugg") return true;
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
 				})
