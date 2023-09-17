@@ -1,5 +1,9 @@
 {
 	"bingo": {
+		"goal_emote":"Find one of the global Twitch emotes",
+		"goal_number":"Find a number between {MIN} and {MAX}",
+		"goal_custom":"",
+
 		"form": {
 			"title":"Create bingo",
 			"closeBt_aria":"Close bingo form",
@@ -23,11 +27,7 @@
 			"username_placeholder":"User name",
 
 			"announce_start":"Announce bingo start on chat",
-			"announce_winner":"Post bingo winner on chat",
-			
-			"goal_emote":"Find one of the global Twitch emotes",
-			"goal_number":"Find a number between {MIN} and {MAX}",
-			"goal_custom":""
+			"announce_winner":"Post bingo winner on chat"
 		},
 		"state":{
 			"title":"Bingo",

@@ -1338,7 +1338,7 @@ export default class TriggerActionHandler {
 						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
 								//Check if we can update the counter
-								if(c.enabled !== true && !isPremium) {
+								if(c.enabled == false && !isPremium) {
 									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 									logStep.messages.push({date:Date.now(), value:logMessage});
 									log.error = true;
@@ -1395,7 +1395,7 @@ export default class TriggerActionHandler {
 					const ids = step.values;
 					for (const v of StoreProxy.values.valueList) {
 						if(ids.indexOf(v.id) > -1) {
-							if(v.enabled !== true && !isPremium) {
+							if(v.enabled == false && !isPremium) {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
