@@ -59,7 +59,6 @@ export default class Overlay extends Vue {
 		// 	this.$router.replace({path: this.$route.path, query})
 		// }
 		if(this.overlay === "unified") {
-			console.log("CREATE HANDLER");
 			this.heatEventHandler = (e) => this.onHeatClick(e);
 			//@ts-ignore
 			window.addEventListener("heat-click", this.heatEventHandler);

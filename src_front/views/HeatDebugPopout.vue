@@ -46,7 +46,6 @@ export default class HeatDebugPopout extends Vue {
 	}
 
 	public beforeUnmount():void {
-		console.log("dispose");
 		this.disposed = true;
 		clearTimeout(this.debugInterval);
 		document.removeEventListener("keydown", this.keyupHandler);
@@ -128,7 +127,6 @@ export default class HeatDebugPopout extends Vue {
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
 			const bounds = (this.$refs.area as HTMLDivElement).getBoundingClientRect();
 			this.debugInterval = setInterval(()=>{
-				console.log("ok");
 				this.clearOBSCache();
 				this.onClickArea(new MouseEvent("click", {
 					clientX:bounds.left,
@@ -143,7 +141,6 @@ export default class HeatDebugPopout extends Vue {
 	 */
 	private async refreshImage():Promise<void> {
 		if(this.disposed) return;
-		console.log("REFRESH");
 		const area = (this.$refs.areaHolder as HTMLDivElement);
 		//@ts-ignore
 		if(area) {
