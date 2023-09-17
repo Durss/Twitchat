@@ -475,7 +475,7 @@ export default class TriggerActionEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionentry{
-	transition: all .15s;
+	// transition: all .15s;
 	:deep(.header) {
 		padding: 0;
 		.title {

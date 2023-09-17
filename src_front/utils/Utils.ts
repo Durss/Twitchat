@@ -925,4 +925,17 @@ export default class Utils {
 		link.click();
 		URL.revokeObjectURL(url);
 	}
+
+	/**
+	 * Unselects anything currently selected on the DOM
+	 */
+	public static unselectDom():void {
+		const s = window.getSelection();
+		if (s && s.rangeCount > 0) {
+			for (let i = 0; i < s.rangeCount; i++) {
+				console.log(s.getRangeAt(i));
+				s.removeRange(s.getRangeAt(i));
+			}
+		}
+	}
 }

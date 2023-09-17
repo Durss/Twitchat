@@ -12,6 +12,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggerList: [],
+		clipboard: [],
 		currentEditTriggerData: null,
 	} as ITriggersState),
 

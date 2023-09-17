@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractionlist">
-		<div class="card-item secondary description">
+		<div class="card-item secondary description" data-noselect>
 			<img src="@/assets/icons/info.svg" class="icon">
 			<i18n-t scope="global" tag="span" v-if="triggerDescriptionLabel" :keypath="triggerDescriptionLabel">
 				<template #SUB_ITEM_NAME>
@@ -21,7 +21,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="card-item params">
+		<div class="card-item params" data-noselect>
 			<ParamItem noBackground :paramData="param_name" v-model="triggerData.name" />
 
 			<TriggerActionChatCommandParams
@@ -65,10 +65,10 @@
 			</div>
 		</div>
 
-		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" />
+		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" data-noselect />
 		
 		<div :class="listClasses">
-			<div v-if="hasCondition" class="conditionSelector">
+			<div v-if="hasCondition" class="conditionSelector" data-noselect>
 				<Button icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
 				<img src="@/assets/icons/condition.svg" class="conditionLink" />
 				<Button icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" />
@@ -81,11 +81,11 @@
 
 			<div class="dash long"></div>
 
-			<button class="addBt" @click="addActionAt(0)">
+			<button class="addBt" @click="addActionAt(0)" data-noselect>
 				<img src="@/assets/icons/add.svg" class="icon">
 			</button>
 
-			<draggable 
+			<draggable
 			v-model="filteredActionList" 
 			group="actions" 
 			item-key="id"
@@ -97,8 +97,9 @@
 				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
 					<div class="listItem">
 						<div class="dash"></div>
-						<TriggerActionEntry
-							class="action"
+						<TriggerActionEntry data-noselect
+							:class="getActionClasses(element)"
+							:data-actionid="element.id"
 							:action="element"
 							:index="index"
 							:obsScenes="obsScenes"
@@ -110,13 +111,15 @@
 							@duplicate="duplicateAction(element, index)"
 						/>
 						<div class="dash"></div>
-						<button class="addBt" @click="addActionAfter(element.id)">
+						<button class="addBt" @click="addActionAfter(element.id)" data-noselect>
 							<img src="@/assets/icons/add.svg" class="icon">
 						</button>
 					</div>
 				</template>
 			</draggable>
 		</div>
+
+		<div class="selectRect" :style="selectStyles" v-if="selecting"></div>
 	</div>
 </template>
 
@@ -170,9 +173,18 @@ export default class TriggerActionList extends Vue {
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 	
+	public selecting:boolean = false;
+	public selectStyles:{[key:string]:string} = {};
+	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
+	
+	private selectOffset = {x:0, y:0};
+	private pointerDownHandler!:(e:PointerEvent) => void;
+	private pointerMoveHandler!:(e:PointerEvent) => void;
+	private pointerUpHandler!:(e:PointerEvent) => void;
+	private keyUpHandler!:(e:KeyboardEvent) => void;
 
 	/**
 	 * Get a trigger's description
@@ -281,11 +293,37 @@ export default class TriggerActionList extends Vue {
 		return "...";
 	}
 
+	public getActionClasses(action:TriggerActionTypes):string[] {
+		const res = ["action", "actionItemEntry"];
+		if(this.selectedActions.includes(action.id)) res.push("selected");
+		return res;
+	}
+
 	public beforeMount():void {
 		this.param_queue.options = this.$store("triggers").queues;
 		if(this.triggerData.actions.length === 0) {
 			this.addActionAt(0);
 		}
+
+		//Not super clean way of getting the param content holder but don't
+		//know any cleaner one.
+		const holder = document.getElementById("paramContentHolder")!;
+		this.pointerDownHandler	= (e:PointerEvent) => this.onPointerDown(e);
+		this.pointerMoveHandler	= (e:PointerEvent) => this.onPointerMove(e);
+		this.pointerUpHandler	= (e:PointerEvent) => this.onPointerUp(e);
+		this.keyUpHandler		= (e:KeyboardEvent) => this.onKeyUp(e);
+		holder.addEventListener("pointerdown", this.pointerDownHandler);
+		document.addEventListener("pointermove", this.pointerMoveHandler);
+		document.addEventListener("pointerup", this.pointerUpHandler);
+		document.addEventListener("keyup", this.keyUpHandler);
+	}
+
+	public beforeUnmount():void {
+		const holder = document.getElementById("paramContentHolder")!;
+		holder.removeEventListener("pointerdown", this.pointerDownHandler);
+		document.removeEventListener("pointermove", this.pointerMoveHandler);
+		document.removeEventListener("pointerup", this.pointerUpHandler);
+		document.removeEventListener("keyup", this.keyUpHandler);
 	}
 
 	/**
@@ -333,6 +371,85 @@ export default class TriggerActionList extends Vue {
 		this.triggerData.actions.splice(index, 0, action);
 	}
 
+	private onPointerDown(e:PointerEvent):void {
+		const parent = document.getElementById("paramContentHolder")!;
+		let target = e.target as HTMLElement;
+		//Go up on hierarchy until reaching the parameters holder
+		//stop if finding a button or an element with "data-noselect" attribute
+		while(target != parent && target.dataset.noselect == undefined && target.nodeName != "BUTTON") {
+			target = target.parentElement as HTMLElement;
+		}
+
+		//Not a valid drag start place
+		if(target != parent) return;
+
+		Utils.unselectDom();
+
+		this.selecting = true;
+		this.selectOffset.x = e.clientX;
+		this.selectOffset.y = e.clientY;
+		this.onPointerMove(e);
+	}
+	
+	private onPointerMove(e:PointerEvent):void {
+		if(!this.selecting) return;
+		
+		const x1 = Math.min(this.selectOffset.x, e.clientX);
+		const y1 = Math.min(this.selectOffset.y, e.clientY);
+		const x2 = Math.max(this.selectOffset.x, e.clientX);
+		const y2 = Math.max(this.selectOffset.y, e.clientY);
+		this.selectStyles.left = x1+"px";
+		this.selectStyles.top = y1+"px";
+		this.selectStyles.width = (x2 - x1)+"px";
+		this.selectStyles.height = (y2 - y1)+"px";
+
+		// const entries = this.$refs.entry as TriggerActionEntry[];
+		const entries = (this.$el as HTMLElement).querySelectorAll(".actionItemEntry");
+		const selected:string[] = []
+		for (let i = 0; i < entries.length; i++) {
+			const entry = entries[i] as HTMLElement;
+			const bounds = entry.getBoundingClientRect();
+			const overlap = !( x1 > bounds.right
+							|| x2 < bounds.left
+							|| y1 > bounds.bottom
+							|| y2 < bounds.top );
+			if(overlap) {
+				selected.push(entry.dataset.actionid as string);
+			}
+		}
+
+		this.selectedActions = selected;
+
+		//If moved 10px away in a direction, avoid selecting something on the page
+		if(x2-x1 > 10 || y2-y1 > 10) {
+			Utils.unselectDom();
+			e.preventDefault();
+		}
+	}
+	
+	private onPointerUp(e:PointerEvent):void {
+		this.selecting = false;
+	}
+	
+	private onKeyUp(e:KeyboardEvent):void {
+		if(e.key == "c" && e.ctrlKey && this.selectedActions.length > 0) {
+			const clipboar:TriggerActionTypes[] = [];
+			for (let i = 0; i < this.triggerData.actions.length; i++) {
+				const a = this.triggerData.actions[i];
+				if(this.selectedActions.includes(a.id)) {
+					clipboar.push(a);
+				}
+			}
+			this.$store("triggers").clipboard = clipboar;
+		}else
+		if(e.key == "v" && e.ctrlKey && this.$store("triggers").clipboard.length > 0) {
+			for (let i = 0; i < this.$store("triggers").clipboard.length; i++) {
+				const action = JSON.parse(JSON.stringify(this.$store("triggers").clipboard[i]));
+				action.id = Utils.getUUID();//Override ID by a new one to avoid conflicts
+				this.triggerData.actions.push(action);
+			}
+		}
+	}
 }
 </script>
 
@@ -383,6 +500,10 @@ export default class TriggerActionList extends Vue {
 			&.long {
 				height:15px;
 			}
+		}
+
+		.action.selected {
+			outline: 2px dashed var(--color-text);
 		}
 	
 		.addBt {
@@ -482,6 +603,13 @@ export default class TriggerActionList extends Vue {
 			border: 2px solid var(--color-primary);
 			margin-bottom: -1em;
 		}
+	}
+
+	.selectRect {
+		z-index: 1;
+		position: absolute;
+		border: 1px solid var(--color-text);
+		background-color: var(--background-color-fader);
 	}
 }
 </style>

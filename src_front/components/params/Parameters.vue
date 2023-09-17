@@ -47,7 +47,7 @@
 				</div>
 			</div>
 			
-		<div class="contentHolder">
+		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
 					<Icon name="back"/>

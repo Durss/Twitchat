@@ -1,7 +1,7 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
-import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
@@ -1182,6 +1182,11 @@ export interface ITriggersState {
 	 * contains all the triggers defintions
 	 */
 	triggerList: TriggerData[];
+	/**
+	 * Temporary store to hold copied actions data via
+	 * selection & ctrl+C.
+	 */
+	clipboard: TriggerActionTypes[];
 	/**
 	 * Contains data about the currently edited trigger;
 	 */
