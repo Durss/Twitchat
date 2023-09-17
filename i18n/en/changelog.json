@@ -74,7 +74,7 @@
 			},
 			{
 				"l": "And more...",
-				"d": "• Get all messages back after reloading Twitcaht<br>• Get an history of channels you raided on \"Who's live\" section<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• Move, roate or risze OBS sources from triggers<br>• Chat commands can now contain spaces<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click (impossible within OBS dock)<br>• ...and lots of enhancements and fixes in many places"
+				"d": "• Get all messages back after reloading Twitcaht<br>• Get an history of channels you raided on \"Who's live\" section<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• Move, roate or risze OBS sources from triggers<br>• Chat commands can now contain spaces<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click (impossible within OBS dock)<br>• Copy/Paste actions from a trigger to another<br>• ...and lots of enhancements and fixes in many places"
 			}
 		],
 		"forceRead": {
