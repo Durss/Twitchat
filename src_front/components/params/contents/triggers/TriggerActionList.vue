@@ -126,7 +126,7 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import TabMenu from '@/components/TabMenu.vue';
-import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -444,8 +444,9 @@ export default class TriggerActionList extends Vue {
 		}else
 		if(e.key == "v" && e.ctrlKey && this.$store("triggers").clipboard.length > 0) {
 			for (let i = 0; i < this.$store("triggers").clipboard.length; i++) {
-				const action = JSON.parse(JSON.stringify(this.$store("triggers").clipboard[i]));
+				const action = JSON.parse(JSON.stringify(this.$store("triggers").clipboard[i])) as TriggerActionTypes;
 				action.id = Utils.getUUID();//Override ID by a new one to avoid conflicts
+				action.condition = this.matchingCondition;
 				this.triggerData.actions.push(action);
 			}
 		}

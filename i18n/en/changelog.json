@@ -60,6 +60,7 @@
 			{
 				"i": "voicemod",
 				"l": "Voicemod",
+				"g": "update_images/voicemod.png",
 				"d": "New trigger actions to enable the \"<strong>beep</strong>\" or <strong>play any sound</strong> of the soundboards.<br><br>Execute these actions from chat commands, channel point rewards, follows, subs, bits, hype chats,... Imagination is your limit!"
 			},
 			{

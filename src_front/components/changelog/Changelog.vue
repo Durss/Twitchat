@@ -55,8 +55,8 @@
 							
 							<template v-if="item.i=='heat'">
 								<div class="videos">
-									<a class="item demoLink" href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank"><img :src="$image('/img/param_examples/heatVideo.jpg')" class="demo" alt="demo"></a>
-									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img :src="$image('/img/param_examples/heat2Video.jpg')" class="demo" alt="demo"></a>
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank"><img src="@/assets/img/param_examples/heatVideo.jpg" class="demo" alt="demo"></a>
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img src="@/assets/img/param_examples/heat2Video.jpg" class="demo" alt="demo"></a>
 								</div>
 							</template>
 						</div>

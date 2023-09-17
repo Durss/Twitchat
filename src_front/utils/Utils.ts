@@ -933,7 +933,6 @@ export default class Utils {
 		const s = window.getSelection();
 		if (s && s.rangeCount > 0) {
 			for (let i = 0; i < s.rangeCount; i++) {
-				console.log(s.getRangeAt(i));
 				s.removeRange(s.getRangeAt(i));
 			}
 		}
