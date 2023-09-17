@@ -143,9 +143,9 @@ export default class RaffleState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed	= Date.now() - new Date(this.raffleData.created_at).getTime();
+		const elapsed	= Date.now() - new Date(this.raffleData.created_at).getTime();
 		const duration	= this.raffleData.duration_s * 1000;
-		this.timerPercent = 1 - (duration-ellapsed)/duration;
+		this.timerPercent = 1 - (duration-elapsed)/duration;
 	}
 
 }

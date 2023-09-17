@@ -1,13 +1,8 @@
 <template>
 	<div class="paramslist">
-		<div class="row" v-for="(p, key) in params" :key="key">
-
+		<div class="row" v-for="(p, key) in params" :key="key" v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" noBackground />
-				<transition
-					@enter="onShowItem"
-					@leave="onHideItem"
-				>
+				<ParamItem :paramData="p" noBackground>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="card-item alert info obsConnect">
 						<img src="@/assets/icons/alert.svg">
 						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
@@ -52,10 +47,6 @@
 						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
-					<div v-else-if="p.id == 12 && fakeMessageData">
-						<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
-					</div>
-	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="card-item alert info scope">
 						<img src="@/assets/icons/lock_fit.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>
@@ -64,7 +55,11 @@
 							icon="unlock"
 							@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
 					</div>
-				</transition>
+				</ParamItem>
+	
+				<div v-if="p.id == 12 && fakeMessageData">
+					<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
+				</div>
 			</div>
 
 		</div>
@@ -73,12 +68,10 @@
 
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
-import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import ParamItem from '../ParamItem.vue';
@@ -105,7 +98,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
@@ -128,10 +120,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 	}
 	
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
-	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
 	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
 	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
 
 	public async beforeMount(): Promise<void> {
 		await new Promise((resolve)=> {
@@ -192,23 +182,12 @@ export default class ParamsList extends Vue implements IParameterContent {
 		this.$store("auth").requestTwitchScopes(scopes);
 	}
 
-	public async onShowItem(el:Element, done:()=>void):Promise<void> {
-		gsap.from(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", clearProps:"all", onComplete:()=>{
-			done();
-		}});
-	}
-
-	public onHideItem(el:Element, done:()=>void):void {
-		gsap.to(el, {height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
-			done();
-		}});
-	}
-
 }
 </script>
 
 <style scoped lang="less">
 .paramslist{
+	padding-top: .25em;
 	.row {
 		position: relative;
 		@iconSize: 1.25em;
@@ -256,57 +235,9 @@ export default class ParamsList extends Vue implements IParameterContent {
 				// background-color: var(--color-secondary-fadest);
 			}
 
-
-			// @colorSize: .5em;
-			// &.highlightMods {
-			// 	border: 1px solid var(--highlight-mods);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-mods);
-			// 	}
-			// }
-			// &.highlightVips {
-			// 	border: 1px solid var(--highlight-vips);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-vips);
-			// 	}
-			// }
-			// &.highlightSubs {
-			// 	border: 1px solid var(--highlight-subs);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-subs);
-			// 	}
-			// }
-			// &.highlightPartners {
-			// 	border: 1px solid var(--highlight-partners);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-partners);
-			// 	}
-			// }
-			// &.highlightMentions {
-			// 	border: 1px solid var(--highlight-mention);
-			// 	:deep(label) {
-			// 		padding-left: @colorSize;
-			// 	}
-			// 	&::before {
-			// 		border-right: @colorSize solid var(--highlight-mention);
-			// 	}
-			// }
-
 			.chatMessage {
 				background-color: var(--background-color-primary);
-				padding: 1em;
+				padding: .5em;
 				border-radius: .5em;
 				transition: font-size .25s;
 			}
@@ -323,7 +254,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 		.info, .config {
 			overflow: hidden;
 			padding: 4px;
-			margin-left: calc(@iconSize + 10px);
 			img {
 				height: 1em;
 				vertical-align: middle;
@@ -359,7 +289,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	
 			&.pronouns, &.spoiler, &.greetThem {
 				font-size: .8em;
-				opacity: .8;
+				opacity: .9;
 			}
 	
 		}

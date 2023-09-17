@@ -36,11 +36,9 @@
 		"shoutout_offline": "You must be live to make a shoutout",
 		"shoutout_pending": "This user already has a pending shoutout",
 		"spotify": {
+			"no_device": "[SPOTIFY] You must first start playing something on Spotify for Twitchat to be able to control it.",
 			"api_rate": "[SPOTIFY] API rate limits exceeded",
 			"token_refresh": "[SPOTIFY] token refresh failed"
-		},
-		"deezer": {
-			"auth_failed": "Deezer authentication failed"
 		},
 		"message_send": "Woops... something went wrong when sending the message :(",
 		"prediction_outcome": "An error occurred while chosing prediction's outcome",
@@ -55,6 +53,19 @@
 			"pick_winner_no_raffle":"You must start a raffle before picking a winner",
 			"pick_winner_no_subs":"You cannot start a raffle amongst your subs. No user is subscribed to your channel at the moment.",
 			"pick_winner_no_entry":"No user entered current raffle"
-		}
+		},
+		"patreon_denied": "You refused to grant access to your Patreon profile",
+		"patreon_disconected": "Your Patreon account has been disconected",
+		"badge_file_loading_failed": "Something went wrong loading the given image",
+		"max_custom_usernames": "You've reached the maximum of {COUNT} custom user name count you can set. Become premium to set up to 10000 custom user names.",
+		"max_custom_badges": "You've reached the maximum of {COUNT} custom badges you can create. Become premium to create up to 100 custom badges.",
+		"max_custom_badges_given": "You've reached the maximum of {COUNT} users with custom badges. Become premium to give custom badges to up to 10000 users.",
+		"max_custom_heat_screen": "You've reached the maximum of {COUNT} custom heat screens. Become premium to create up to 100 custom screens.",
+		"max_values": "You've reached the maximum of {COUNT} values. Become premium to create up to 100 values.",
+		"paypal_sdk_init_failed": "Paypal SDK initialization failed.",
+		"paypal_create_order_failure": "Something went wrong when creating PayPal order",
+		"paypal_order_failure": "Something went wrong when processing your payment or registering you as a donor. Please contact me {EMAIL} to get things sorted out",
+		"rate_limit": "You are being rate limited. Wait a minute and try again.",
+		"rate_limit_ban": "You have been banned from server after a suspicious activity. Come back in a few days or contact me at {MAIL}."
 	}
 }

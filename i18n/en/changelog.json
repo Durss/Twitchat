@@ -7,63 +7,83 @@
 		"major_title": "New features",
 		"minor_title": "Other updates",
 		"fixes_title": "Fixes",
-		"tryBt": "Try it 👇",
-		"get_streamdeck": "Get Stream Deck™ plugin",
+		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
+		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "theme",
-				"l": "New design",
-				"d": "Comes both in dark and light mode to finally satisfy all eyes!"
+				"i": "merge",
+				"l": "Fuuuuuusioooon",
+				"g": "update_images/merge_messages.gif",
+				"d": "Don't let viewers drown your chat by spamming multiple short messages thanks to a new feature to merge consecutive messages of a user into one.<br>Works both on chat messages and channel point rewards."
 			},
 			{
-				"i": "shoutout",
-				"l": "Shoutout queue",
-				"g": "update_images/shoutout_queue.gif",
-				"d": "Getting raided multiple times in row?<br>Stop forgetting to shoutout them!<br>Just send all the shoutouts, they will be queued and sent automatically as soon as possible.<br>Reorder and delete them later if necessary."
+				"i": "heat",
+				"l": "Heat Extension",
+				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking."
 			},
 			{
-				"i": "count",
-				"l": "Leaderboard overlay",
-				"d": "Create a user specific counter and show its leaderbord on your stream thanks to the new dedicated overlay."
+				"i": "goxlr",
+				"l": "GoXLR",
+				"g": "update_images/goxlr.png",
+				"d": "Enable any <strong>FX</strong> or play any <strong>Sample</strong> from chat commands, channel point rewards, follows, subs, bits, hype chats, ...<br><br>Scroll your chat from the encoders.<br><br>Execute any action when pressing any GoXLR button."
 			},
 			{
-				"i": "whispers",
-				"l": "Customize highlights",
-				"g": "update_images/highlights.png",
-				"d": "Customize colors for every kind highlighted messages."
-			},
-			{
-				"i": "commands",
-				"l": "Custom /commands",
-				"g": "update_images/customCmd.png",
-				"d": "Create your own /commands with the new dedicated trigger.<br><br>These commands won't be sent on chat and can be added to the default moderation options on the context menu for easy and fast access."
-			},
-			{
-				"i": "raid",
-				"l": "Hide raiders count",
-				"g": "update_images/raid_viewers.png",
-				"d": "Numbers are source of stress?<br>A new option allows to censor the number of incoming raiders. Reveal it with a click!"
-			},
-			{
-				"i": "elgato",
-				"l": "Stream Deck™",
-				"d": "Latest Twitchat plugin comes with 5 new actions:<br>• Execute any trigger<br>• Enable, disable or toggle the state of any trigger<br>• Start a raffle animation<br>• Send a message <i>(can be a Twitch command, a Twitchat command, or a trigger command)</i><br>• New option on the counter edition action"
+				"i": "badge",
+				"l": "Custom names and badges",
+				"g": "update_images/custom_badges_name.gif",
+				"d": "Change your viewers usernames or give them custom badges.<br>Automate these actions from the Triggers."
 			},
 			{
 				"i": "broadcast",
-				"l": "Triggers on steroïds",
-				"d": "• You can now create multiple triggers for the same event.<br>• Triggers can have execution conditions.<br>• Chat commands can have aliases<br>• Counter read and edition made easier<br>• 6 new trigger events related to OBS audio sources, media sources, and filters<br>• New dedicated \"delay\" action<br>• New action to vibrate a mobile device<br>• New action to automate Chat Suggestions session<br>• New action to enable or disable other triggers"
+				"l": "Stream summary",
+				"g": "update_images/stream_summary.png",
+				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers.<br>Summaries can be exported as CSV files."
 			},
 			{
-				"i": "vibratePhone",
-				"l": "Bbzzz bzzzz",
-				"d": "Using Twitchat on mobile? Let your mods or viewers get your attention by making your phone vibrate.<br><br>Head over the \"Appearance => Chat alerts\" option to enable it. Or use the \"Vibrate phone\" trigger action"
+				"i": "raid",
+				"l": "Raiding the old way",
+				"g": "update_images/raid_actions.png",
+				"d": "Once you started a raid, a button will allow you to spam the channel's link to your chat.<br><br>With this you can help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
 			},
 			{
-				"i": "donate",
-				"d": "You like Twitchat?<br>You like these updates?<br>Please consider donating to help me 😇"
+				"i": "alert",
+				"l": "Recent accounts",
+				"g": "update_images/recent_account.png",
+				"d": "New option to let you know if a chatter's account is less than a week old."
+			},
+			{
+				"i": "show",
+				"l": "Anti backseat troll",
+				"g": "update_images/spoiler_1st.gif",
+				"d": "Planning to play a spoiler-sensitive game?<br><br>Automatically spoil all the messages of a user speaking on your chat for the first time.<br><br>Stop spoiling their messages at anytime."
+			},
+			{
+				"i": "voicemod",
+				"l": "Voicemod",
+				"d": "New trigger actions to enable the \"<strong>beep</strong>\" or <strong>play any sound</strong> of the soundboards.<br><br>Execute these actions from chat commands, channel point rewards, follows, subs, bits, hype chats,... Imagination is your limit!"
+			},
+			{
+				"i": "placeholder",
+				"l": "Global vars",
+				"d": "Create global variables to be used on the Triggers.<br>A trigger event allows you to execute actions anytime a value is modified."
+			},
+			{
+				"i": "premium",
+				"l": "Premium features",
+				"d": "It had to happen!<br>But nothing changed on what was there before !<br><strong>Only some new features are impacted.</strong><br><br>In a way, Twitchat cost me ~$70.000, what I would've eared if I took a job instead of working full-time on Twitchat for a year and a half now. I earned ~$5.000 from donations and I can't thank contributors enough for that 🙏💖.<br>But I have little hope to earn more.<br>To use 100% of Twitchat, support me monthly on Patreon!<br><br><i>Pssst! You donated $10 or more before this update?<br>Head over the Premium section for a little suprise</i> 😊"
+			},
+			{
+				"l": "And more...",
+				"d": "• Get all messages back after reloading Twitcaht<br>• Get an history of channels you raided on \"Who's live\" section<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• Move, roate or risze OBS sources from triggers<br>• Chat commands can now contain spaces<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click (impossible within OBS dock)<br>• Copy/Paste actions from a trigger to another<br>• ...and lots of enhancements and fixes in many places"
 			}
 		],
+		"forceRead": {
+			"title": "I WANT YOU\r\nTO READ THIS",
+			"description": "I worked for +2 months on these updates, please take 2 minutes of yours to read!\r\nThere's something important to read in them!",
+			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
+			"sorryBt":"ok i read sorry 🥺",
+			"fuBt":"don't care 🤪"
+		},
 		"major": [
 			{
 				"i": "icon",

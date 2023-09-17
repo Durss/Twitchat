@@ -1,9 +1,6 @@
 <template>
 	<div class="triggercreateform">
-		<picture v-if="showLoading">
-			<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-			<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-		</picture>
+		<Icon class="loader" name="loader" v-if="showLoading" />
 
 		<i18n-t scope="global" tag="div" class="card-item alert require"
 		v-if="needObsConnect"
@@ -30,12 +27,13 @@
 			:key="c.category.labelKey"
 			:title="$t(c.category.labelKey)"
 			:open="false"
-			:icons="[c.category.icon+'']">
+			:icons="c.category.icons"
+			:newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id} : undefined">
 				<i18n-t scope="global" tag="div" class="require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 				keypath="triggers.music.require">
 					<template #URL>
-						<a @click="openOverlays()">{{ $t("triggers.music.require_url") }}</a>
+						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
 					</template>
 				</i18n-t>
 
@@ -48,20 +46,25 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="require"
-				v-if="isCountersCategory(c.category)"
+				v-if="isCountersAndValueCategory(c.category)"
 				keypath="triggers.count.require">
-					<template #URL>
-						<a @click="openCounters()">{{ $t("triggers.count.require_url") }}</a>
+					<template #URL_COUNTERS>
+						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
+					</template>
+					<template #URL_VALUES>
+						<a @click="openValues()">{{ $t("triggers.count.require_values") }}</a>
 					</template>
 				</i18n-t>
 
-				<div v-for="e in c.events" :key="e.value" :class="e.beta? 'item beta' : 'item'">
+				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
+				v-newflag="e.newDate? {date:c.newDate, id:'triggerEvent_'+e.value} : undefined">
 					<TTButton class="triggerBt"
+						:premium="e.premium === true"
 						:disabled="disabledEntry(e)"
 						v-tooltip="disabledEntry(e)? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
 						<template #icon>
-							<img :src="getIcon(e)">
+							<img :src="getTriggerIcon(e)">
 						</template>
 						{{ $t(e.labelKey!) }}
 					</TTButton>
@@ -95,19 +98,21 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { TriggerEventTypeCategories, TriggerTypesDefinitionList, TriggerTypes, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
+import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
-import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
+import { max } from 'mathjs';
 
 @Component({
 	components:{
@@ -132,27 +137,35 @@ export default class TriggerCreateForm extends Vue {
 	public needRewards = false;
 	public needObsConnect = false;
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
-	public selectedSubtriggerEntry:TriggerEntry|null = null;
-
-	public triggerTypeList:TriggerEntry[] = [];
 	public subtriggerList:TriggerEntry[] = [];
-	public actionList:TriggerActionTypes[] = [];
-	public temporaryTrigger:TriggerData|null = null;
-	public eventCategories:{category:TriggerEventTypeCategory, events:TriggerTypeDefinition[]}[] = [];
+	public eventCategories:TriggerCategory[] = [];
+	
+	private temporaryTrigger:TriggerData|null = null;
 
-	public get musicServiceAvailable():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+
+	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
 
 	/**
 	 * Gets a trigger's icon
 	 */
-	public getIcon(e:TriggerTypeDefinition):string {
+	public getTriggerIcon(e:TriggerTypeDefinition):string {
 		if(!e.icon) return "";
 		if(e.icon.indexOf("/") > -1) return e.icon as string;
 		return this.$image("icons/"+e.icon+".svg");
+	}
+
+	/**
+	 * Gets a trigger's classes
+	 */
+	public getTriggerClasses(e:TriggerTypeDefinition):string[] {
+		const res:string[] = ["item"];
+		if(e.beta) res.push("beta");
+		return res;
 	}
 
 	public isMusicCategory(category:TriggerEventTypeCategory):boolean {
@@ -163,40 +176,51 @@ export default class TriggerCreateForm extends Vue {
 		return category.id == TriggerEventTypeCategories.OBS.id;
 	}
 
-	public isCountersCategory(category:TriggerEventTypeCategory):boolean {
-		return category.id == TriggerEventTypeCategories.COUNTER.id;
+	public isCountersAndValueCategory(category:TriggerEventTypeCategory):boolean {
+		return category.id == TriggerEventTypeCategories.COUNTER_VALUE.id;
 	}
 
 	public beforeMount():void {
 		const triggers = TriggerTypesDefinitionList().concat();
-		this.triggerTypeList = triggers.map( v=> {
+		//Create button/display data for all available triggers
+		let triggerTypeList:TriggerEntry[] = triggers.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
 				value:v.value,
 				trigger:v,
 				icon:this.$image('icons/'+v.icon+'.svg'),
 				isCategory:false,
+				newDate:v.newDate,
 			}
 		});
+		
+		//Remove affiliates-only triggers if not affiliate or partner
 		if(!this.$store("auth").twitch.user.is_affiliate && !this.$store("auth").twitch.user.is_partner) {
-			this.triggerTypeList = this.triggerTypeList.filter(v=> {
+			triggerTypeList = triggerTypeList.filter(v=> {
 				return v.value != TriggerTypes.REWARD_REDEEM
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE
 			})
 		}
+
+		//Remove GoXLR Full specific triggers if a mini is connected
+		if(this.isGoxlrMini) {
+			triggerTypeList = triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
+		}
 		
-		let currCat = this.triggerTypeList[0].trigger!.category;
+		//Extract available trigger categories
+		let currCat = triggerTypeList[0].trigger!.category;
 		let catEvents:TriggerTypeDefinition[] = [];
-		for (let i = 0; i < this.triggerTypeList.length; i++) {
-			const ev = this.triggerTypeList[i];
+		for (let i = 0; i < triggerTypeList.length; i++) {
+			const ev = triggerTypeList[i];
 			if(!ev.trigger) continue;
-			if(ev.trigger.category != currCat || i === this.triggerTypeList.length-1) {
-				if(i === this.triggerTypeList.length-1) catEvents.push(ev.trigger);
-				this.eventCategories.push({
+			if(ev.trigger.category != currCat || i === triggerTypeList.length-1) {
+				if(i === triggerTypeList.length-1) catEvents.push(ev.trigger);
+				const cat:TriggerCategory = {
 					category:catEvents[0].category,
 					events:catEvents,
-				});
+				};
+				this.eventCategories.push(cat);
 				catEvents = [ev.trigger];
 			}else{
 				catEvents.push(ev.trigger);
@@ -204,19 +228,13 @@ export default class TriggerCreateForm extends Vue {
 			currCat = ev.trigger.category
 		}
 
-		let prevCategrory:TriggerEventTypeCategoryID|null = null;
-		for (let i = 0; i < this.triggerTypeList.length; i++) {
-			const t = this.triggerTypeList[i];
-			if(t.trigger!.category.id != prevCategrory) {
-				this.triggerTypeList.splice(i, 0, {
-					label: this.$t(t.trigger!.category.labelKey),
-					value:"",
-					icon: this.$image('icons/'+t.trigger!.category.icon+'.svg'),
-					isCategory: true,
-				});
-				prevCategrory = t.trigger!.category.id;
-			}
-		}
+		this.eventCategories.forEach(v => {
+			let newDate = 0;
+			v.events.forEach(w => {
+				if(w.newDate) newDate = Math.max(newDate, w.newDate);
+			})
+			if(newDate > 0) v.newDate = newDate;
+		})
 
 		watch(()=>this.obsSources, ()=> {
 			if(this.selectedTriggerType) {
@@ -338,7 +356,6 @@ export default class TriggerCreateForm extends Vue {
 						isCategory:false,
 					};
 				});
-				console.log(list);
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_obs_scene");
 			}
@@ -351,7 +368,7 @@ export default class TriggerCreateForm extends Vue {
 				return;
 			}else{
 				this.needObsConnect = false;
-				//build list from obs sourcess
+				//build list from obs sources
 				const list = this.obsSources.map((v):TriggerEntry => {
 					return {
 						label:v.sourceName,
@@ -460,6 +477,11 @@ export default class TriggerCreateForm extends Vue {
 			this.listCounters();
 			this.$emit("updateHeader", "triggers.header_select_counter");
 		}
+		
+		if(e.value == TriggerTypes.VALUE_UPDATE) {
+			this.listValues();
+			this.$emit("updateHeader", "triggers.header_select_value");
+		}
 
 		if(e.value) {
 			this.temporaryTrigger = {
@@ -467,6 +489,7 @@ export default class TriggerCreateForm extends Vue {
 				enabled:true,
 				id:Utils.getUUID(),
 				type:e.value,
+				created_at:Date.now(),
 			};
 
 			if(this.subtriggerList.length == 0) {
@@ -488,6 +511,7 @@ export default class TriggerCreateForm extends Vue {
 			enabled:true,
 			id:Utils.getUUID(),
 			type:this.selectedTriggerType.value,
+			created_at:Date.now(),
 		};
 
 		switch(this.selectedTriggerType.value) {
@@ -519,6 +543,8 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED: this.temporaryTrigger.counterId = entry.value; break;
+			
+			case TriggerTypes.VALUE_UPDATE: this.temporaryTrigger.valueId = entry.value; break;
 		}
 
 		this.$store("triggers").addTrigger(this.temporaryTrigger);
@@ -526,10 +552,10 @@ export default class TriggerCreateForm extends Vue {
 	}
 	
 	/**
-	 * Open overlay parameters
+	 * Open connexions parameters
 	 */
-	public openOverlays():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+	public openConnexions():void {
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 
 	/**
@@ -544,6 +570,13 @@ export default class TriggerCreateForm extends Vue {
 	 */
 	public openCounters():void {
 		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+	}
+
+	/**
+	 * Open values parameters
+	 */
+	public openValues():void {
+		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
 	}
 
 	/**
@@ -571,6 +604,25 @@ export default class TriggerCreateForm extends Vue {
 		});
 		this.subtriggerList = list;
 	}
+
+	/**
+	 * Lists Values
+	 */
+	public async listValues():Promise<void> {
+		const list = this.$store("values").valueList.sort((a,b)=> {
+			if(a.name < b.name) return -1;
+			if(a.name > b.name) return 1;
+			return 0;
+		}).map((v):TriggerEntry => {
+			return {
+				label:v.name,
+				value:v.id,
+				icon:"",
+				isCategory:false,
+			};
+		});
+		this.subtriggerList = list;
+	}
 }
 
 interface TriggerEntry{
@@ -582,6 +634,13 @@ interface TriggerEntry{
 	trigger?:TriggerTypeDefinition;
 	isCategory:boolean;
 	icon:string;
+	newDate?:number;
+}
+
+interface TriggerCategory{
+	category:TriggerEventTypeCategory;
+	events:TriggerTypeDefinition[];
+	newDate?:number;
 }
 </script>
 
@@ -595,6 +654,7 @@ interface TriggerEntry{
 
 	.loader {
 		height: 2em;
+		width: 2em;
 		margin: auto;
 		display: block;
 	}
@@ -608,6 +668,7 @@ interface TriggerEntry{
 		gap: .5em;
 
 		.category{
+			position: relative;
 			width: 100%;
 			.require {
 				font-size: .8em;

@@ -104,7 +104,7 @@ export default class PredictionForm extends AbstractSidePanel {
 	public error = "";
 	public title = "";
 	public answers:string[] = ["", ""];
-	public placeholderList:ITriggerPlaceholder[] = [];
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30};
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 

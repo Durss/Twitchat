@@ -117,7 +117,6 @@ export default class CommandHelper extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
-		console.log(this.$store("auth").twitch.user.is_admin);
 		//Fake raid to test "raiding" card
 		// this.$store('stream').currentRaid = {
 		// 	channel_id:this.$store("auth").twitch.user.id,

@@ -29,11 +29,11 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
-import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayParamsMusic from './OverlayParamsMusic.vue';
 
@@ -53,7 +53,7 @@ export default class OverlayParamsSpotify extends Vue {
 	public open!:boolean;
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
-	public get spotifyConnected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
@@ -71,18 +71,7 @@ export default class OverlayParamsSpotify extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		gap: 1em;
-
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
+		gap: .5em;
 	
 		.playerHolder {
 			width: 100%;

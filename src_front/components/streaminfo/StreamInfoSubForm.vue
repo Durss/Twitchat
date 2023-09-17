@@ -26,7 +26,6 @@
 			@click="deleteTag(i)">
 				<span>{{ i }}</span>
 				<Icon name="cross" theme="primary" class="icon" />
-				<Icon name="alert" class="icon" />
 			</button>
 		</div>
 
@@ -87,7 +86,7 @@ export default class StreamInfoSubForm extends Vue {
 
 	//This is used by the trigger action form.
 	@Prop({ type: Array, default:[]})
-	public placeholderList!:ITriggerPlaceholder[];
+	public placeholderList!:ITriggerPlaceholder<any>[];
 
 	public param_title:TwitchatDataTypes.ParameterData<string>	= {value:"", type:"string", maxLength:140, labelKey:"stream.form_stream_title", placeholderKey:"stream.form_stream_title_placeholder"};
 	public param_tags:TwitchatDataTypes.ParameterData<string[]>	= {value:[], type:"editablelist", labelKey:"stream.form_stream_tags"};

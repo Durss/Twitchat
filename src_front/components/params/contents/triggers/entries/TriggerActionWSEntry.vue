@@ -60,7 +60,7 @@ export default class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	@Prop
 	declare triggerData:TriggerData;
 
-	public parameters:{placeholder:ITriggerPlaceholder, enabled:boolean}[] = [];
+	public parameters:{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] = [];
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 
 	public get websocketConnected():boolean { return WebsocketTrigger.instance.connected; }
@@ -86,7 +86,7 @@ export default class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.parameters = list.map(v=> {
 			return  {
 				placeholder:v,

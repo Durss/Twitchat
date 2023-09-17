@@ -1,9 +1,9 @@
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerActionObsDataAction, type TriggerActionDelayData, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import Config from "@/utils/Config";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import ApiController from "@/utils/ApiController";
 import Utils from "@/utils/Utils";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
 import StoreProxy from "./StoreProxy";
 
@@ -46,6 +46,8 @@ export default class DataStore {
 	public static GREET_HISTORY:string = "greetHistory";
 	public static MUSIC_PLAYER_PARAMS:string = "musicPlayerParams";
 	public static VOICEMOD_PARAMS:string = "voicemodParams";
+	public static VOICE_BOT_ACTIONS:string = "voiceActions";
+	public static VOICE_BOT_LANG:string = "voiceLang";
 	public static AUTOMOD_PARAMS:string = "automodParams";
 	public static DONOR_LEVEL:string = "donorLevel";
 	public static TWITCHAT_AD_WARNED:string = "adWarned";
@@ -55,6 +57,7 @@ export default class DataStore {
 	public static CHAT_COLUMNS_CONF:string = "chatColumnsConf";
 	public static COLLAPSE_PARAM_AD_INFO:string = "collapseParamAdInfo";
 	public static COUNTERS:string = "counters";
+	public static VALUES:string = "values";
 	public static LANGUAGE:string = "lang";
 	public static CHAT_COL_CTA:string = "chatColCTA";
 	public static WEBSOCKET_TRIGGER:string = "websocketTrigger";
@@ -68,7 +71,16 @@ export default class DataStore {
 	public static ULULE_GOALS:string = "ululeGoals";
 	public static ULULE_TITLE:string = "ululeTitle";
 	public static ULULE_CURRENCY:string = "ululeCurrency";
+	public static HEAT_ENABLED:string = "heatEnabled";
+	public static HEAT_SCREENS:string = "heatScreens";
+	public static PATREON_AUTH_TOKEN:string = "patreonAuthToken";
+	public static CUSTOM_USERNAMES:string = "customUsernames";
+	public static CUSTOM_BADGE_LIST:string = "customBadgeList";
+	public static CUSTOM_USER_BADGES:string = "customUserBadges";
 	public static ANNOUNCEMENTS_READ:string = "announcementsRead";
+	public static NEW_FLAGS:string = "newFlags";
+	public static GOXLR_CONFIG:string = "goxlrConfig";
+	public static RAID_HISTORY:string = "raidHistory";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -91,8 +103,10 @@ export default class DataStore {
 		this.TOOLTIP_AUTO_OPEN,
 		this.POLL_DEFAULT_DURATION,
 		this.PREDICTION_DEFAULT_DURATION,
+		this.PATREON_AUTH_TOKEN,
 		this.ANNOUNCEMENTS_READ,
-	]
+		this.NEW_FLAGS,
+	];
 	
 	
 	/********************
@@ -129,7 +143,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 41;
+		let latestVersion = 46;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -252,6 +266,28 @@ export default class DataStore {
 		}
 		if(v==40) {
 			this.enableHypeChatFilters(data);
+			v = 41;
+		}
+		if(v==41) {
+			this.fixCommandsBlockListDefaultValue(data);
+			v = 42;
+		}
+		if(v==42) {
+			this.resetCustomUsernames(data);
+			v = 43;
+		}
+		if(v==43) {
+			//Removed migration because it became useless
+			//Keeping this version for beta testers
+			v = 44;
+		}
+		if(v==44) {
+			delete data["goxlrEnabled"];
+			v = 45;
+		}
+		if(v==45) {
+			delete data["goxlrEnabled"];
+			this.addGoXLRReadMarkDefaults(data);
 			v = latestVersion;
 		}
 
@@ -268,17 +304,12 @@ export default class DataStore {
 		if(!this.store) this.init();
 
 		try {
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/user/data", {method:"GET", headers});
+			const res = await ApiController.call("user/data");
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
-				const json = await res.json();
-				if(json.success === true) {
-					await this.loadFromJSON(json.data);
+				if(res.json.success === true) {
+					await this.loadFromJSON(res.json.data);
 				}
 			}
 			return res.status != 404;
@@ -426,12 +457,7 @@ export default class DataStore {
 					}
 				}
 	
-				const headers = {
-					"Content-Type": "application/json",
-					'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				}
-				await fetch(Config.instance.API_PATH+"/user/data", {method:"POST", headers, body:JSON.stringify(data)});
+				await ApiController.call("user/data", "POST", data);
 				
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves
@@ -848,7 +874,6 @@ export default class DataStore {
 				data[DataStore.VOICEMOD_PARAMS] = voicemod;
 			}
 		}
-
 	}
 
 	/**
@@ -910,7 +935,6 @@ export default class DataStore {
 		delete data["level"];
 		delete data["isDonor"];
 		delete data["p:hideUsers"];
-		delete data["p:censorDeletedMessages"];
 		delete data["p:showSelf"];
 		delete data["p:blockedCommands"];
 		delete data["p:ignoreListCommands"];
@@ -931,7 +955,6 @@ export default class DataStore {
 		delete data["p:showNotifications"];
 		delete data["p:showRaids"];
 		delete data["p:showRewards"];
-		delete data["p:showRewardsInfos"];
 		delete data["p:showSubs"];
 		delete data["p:splitView"];
 		delete data["p:splitViewSwitch"];
@@ -939,7 +962,6 @@ export default class DataStore {
 		delete data["p:shoutoutLabel"];
 		delete data["leftColSize"];
 		delete data["activityFeedFilters"];
-		delete data["deezerEnabled"];
 	}
 
 	/**
@@ -1178,14 +1200,24 @@ export default class DataStore {
 				//Parse all current trigger actions
 				for (let i = 0; i < triggers[key].actions.length; i++) {
 					const a = triggers[key].actions[i];
+					//@ts-ignore
 					//If action is a "read counter value", delete it and replace any subsequent
 					//placeholders by the new counter placeholder
 					if(a.type == "countget") {
+						// Actual type
+						// {
+						// 	type:"countget";
+						// 	counter:string;
+						// 	placeholder:string;
+						// }
+						//@ts-ignore
 						const c = counters.find(v => v.id == a.counter);
 						if(c) {
+							//@ts-ignore
 							//Counter exists grab its placeholder key
 							oldPlaceholderToNew[a.placeholder] = c.placeholderKey.slice(0, 15);
 						}else{
+							//@ts-ignore
 							//Counter doesn't exists, set a placeholder user will understand
 							oldPlaceholderToNew[a.placeholder] = "DELETED_COUNTER";
 						}
@@ -1234,5 +1266,64 @@ export default class DataStore {
 		cols.forEach(v=>v.filters.hype_chat = true);
 		data[DataStore.CHAT_COLUMNS_CONF] = cols;
 
+	}
+
+	/**
+	 * For some users the "commandsBlockList" value is "" instead of []
+	 */
+	private static fixCommandsBlockListDefaultValue(data:any):void {
+		const confs:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+		if(confs) {
+			for (let i = 0; i < confs.length; i++) {
+				const c = confs[i];
+				//@ts-ignore
+				if(c.commandsBlockList == "")  c.commandsBlockList = [];
+				//@ts-ignore
+				if(c.userBlockList == "")  c.userBlockList = [];
+			}
+			data[DataStore.CHAT_COLUMNS_CONF] = confs;
+		}
+	}
+
+	/**
+	 * I changed custom user names data format during beta
+	 */
+	private static resetCustomUsernames(data:any):void {
+		const confs:{[key:string]:string} = data[DataStore.CUSTOM_USERNAMES];
+		if(confs) {
+			for (const uid in confs) {
+				//If the value is just a string (the user name) delete it.
+				//I changed data format to be an object with the platform and channel id
+				if(typeof confs[uid] == "string") {
+					delete confs[uid];
+				}
+			}
+			data[DataStore.CUSTOM_USERNAMES] = confs;
+		}
+
+		//Remove all user references with no badges.
+		//I added auto cleanup on update later
+		const badges:{[key:string]:unknown[]} = data[DataStore.CUSTOM_USER_BADGES];
+		if(badges) {
+			for (const uid in badges) {
+				//If the value is just a string (the user name) delete it.
+				//I changed data format to be an object with the platform and channel id
+				if(badges[uid].length == 0) {
+					delete badges[uid];
+				}
+			}
+			data[DataStore.CUSTOM_USER_BADGES] = badges;
+		}
+	}
+
+	/**
+	 * Add "move read marker" default data to GoXLR params
+	 */
+	private static addGoXLRReadMarkDefaults(data:any):void {
+		const confs:TwitchatDataTypes.GoXLRParams = data[DataStore.GOXLR_CONFIG];
+		if(confs && !confs.chatReadMarkSources) {
+			confs.chatReadMarkSources = []
+			data[DataStore.GOXLR_CONFIG] = confs;
+		}
 	}
 }

@@ -21,9 +21,29 @@
 		<img src="@/assets/img/eating.gif" alt="eating" class="patrick" ref="patrick" />
 
 		<div class="buttons">
+			<Button type="link" ref="premium"
+				big premium
+				icon="premium"
+				v-if="!standaloneMode"
+				@click="clickPremium()">
+					<div class="labelHolder">
+						<span v-html="$t('sponsor.premium')"></span>
+						<i>{{ $t("sponsor.premium_details") }}</i>
+					</div>
+			</Button>
+
+			<ToggleBlock class="premium" ref="premium" v-else
+			premium :open="false" :icons="['premium']"
+			:title="$t('sponsor.premium')"
+			:subtitle="$t('sponsor.premium_subtitle')">
+				<p>{{ $t("sponsor.premium_details") }}</p>
+				<SponsorTable class="sponsorTable" />
+				<Button icon="patreon" class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
+			</ToggleBlock>
+
 			<Button v-for="link in links" type="link" ref="button"
 				:href="link.url" target="_blank"
-				big primary
+				big secondary
 				:icon="link.icon+''"
 				:disabled="!checkbox.value"
 				@click.native.capture="clickItem()">
@@ -39,17 +59,21 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import Splitter from '@/components/Splitter.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import SponsorTable from '@/components/premium/SponsorTable.vue';
 
 @Component({
 	components:{
 		Button,
 		Splitter,
 		ParamItem,
+		ToggleBlock,
+		SponsorTable,
 	}
 })
 export default class ParamsSponsor extends Vue implements IParameterContent {
@@ -59,9 +83,11 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public checkbox:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"sponsor.checkbox"}
 
+	public get standaloneMode():boolean { return this.$route.name == "sponsor"; }
+
 	public links:{url:string, icon:string, key:string}[] = [
 		{url:"https://paypal.me/durss", icon:"paypal", key:"paypal"},
-		{url:"https://www.patreon.com/durss", icon:"patreon", key:"patreon"},
+		{url:"https://www.patreon.com/bePatron?c=9093199", icon:"patreon", key:"patreon"},
 		{url:"https://ko-fi.com/durss", icon:"kofi", key:"kofi"},
 		{url:"https://www.buymeacoffee.com/durss", icon:"coffee", key:"coffee"},
 		{url:"https://github.com/sponsors/Durss", icon:"github", key:"github"},
@@ -77,7 +103,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public mounted():void {
 		if(this.animate !== false) {
-			const refs = ["head","instructions","patrick","button"];
+			const refs = ["head","instructions","patrick","premium","button"];
 			for (let i = 0; i < refs.length; i++) {
 				let el = this.$refs[refs[i]];
 				let list:unknown[] = [];
@@ -96,6 +122,10 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 				}
 			}
 		}
+	}
+
+	public clickPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	public clickItem():void {
@@ -147,6 +177,33 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		margin-top: -1em;
 		gap: .5em;
 
+		&>.premium {
+			width: 100%;
+			:deep(.header) {
+				padding: .75em 1em;
+				.icon {
+					height: 1.4em;
+					width: 1.4em;
+				}
+				h2 {
+					font-weight: normal;
+				}
+				h3 {
+					font-size: .6em;
+				}
+			}
+			.patreonBt {
+				margin-top: .5em;
+			}
+
+			.sponsorTable{
+				font-size: 1rem;
+				width: 80%;
+				margin: auto;
+				margin-top: .5em;
+			}
+		}
+
 		:deep(.label) {
 			flex-grow: 1;
 		}
@@ -154,6 +211,11 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 		.button {
 			* { pointer-events: all;}
 			border-radius: var(--border-radius);
+			:deep(.label) {
+				flex-shrink: 1;
+				flex-grow: 0;
+				width: calc(100% - .6em - 1em);
+			}
 			.labelHolder {
 				display: flex;
 				flex-direction: column;

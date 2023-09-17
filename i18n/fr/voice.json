@@ -20,7 +20,7 @@
 		"sentences_count":"(1 par ligne)",
 		"global_commands_title":"Commandes globales",
 		"global_commands":"Mots que vous aurez à dire pour naviguer dans les formulaires",
-		"fill_global":"Remplissez toutes les commandes globale au-dessus",
+		"fill_global":"Remplissez toutes les commandes globales ci-dessus",
 		"remote":{
 			"title":"Cette page permet de contrôler Twitchat et quelques fonctionnalités Twitch avec votre voix",
 			"commands":"Créez des commandes vocales dans Twitchat <strong>Parameters => @:params.categories.voice </strong> section"

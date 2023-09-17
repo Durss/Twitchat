@@ -11,9 +11,15 @@
 				<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
 	
 				<ButtonNotification class="clearBt clearButton"
-					icon="delete"
+					icon="checkmark"
 					v-tooltip="$t('greet.clearBt')"
 					@click.stop="clearAll()" />
+	
+				<ButtonNotification class="clearBt clearButton"
+					icon="date"
+					v-tooltip="$t('greet.resetBt')"
+					@click.stop="resetHistory()"
+					v-newflag="{date:1693519200000, id:'greetThem_clear'}" />
 			</div>
 	
 			<div class="topForm" v-if="showList">
@@ -281,11 +287,15 @@ export default class NewUsers extends Vue {
 	 * Removes all messages
 	 */
 	public clearAll():void {
-		//Store the count of messages to delete so if new messages are added
-		//while confirming the clear, these new messages are kept
-		let deleteCount = this.localMessages.length;
-		this.$confirm(this.$t("greet.clear_confirm_title"), this.$t("greet.clear_confirm_description"), null).then(() => {
-			this.localMessages.splice(0, deleteCount);
+		this.localMessages = [];
+	}
+
+	/**
+	 * Reset greeting history
+	 */
+	public resetHistory():void {
+		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
+			this.$store("chat").resetGreetingHistory();
 		});
 	}
 

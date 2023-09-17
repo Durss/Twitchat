@@ -11,11 +11,12 @@
 		"user_tt":"Per user",
 		"examples":"Examples :",
 		"user_not_found":"user not found",
+		"premium_cannot_enable":"You cannot enable this counter back. You reached the maximum of {MAX} counters that can be enabled. Become premium to create up to {MAX_PREMIUM} counters.",
 		"form": {
 			"name": "Name",
 			"value": "Value",
 			"more": "More options",
-			"placholder": "Custom placeholder {'{'}COUNTER_VALUE_{VALUE}{'}'}",
+			"placholder": "Custom placeholder name {'{'}COUNTER_VALUE_{VALUE}{'}'}",
 			"placholder_tt": "This value will allow you<br>to get this counter's value<br>in any trigger action",
 			"placholder_conflict": "Another counter already uses this placeholder",
 			"name_conflict": "Another counter with the same name already exists",

@@ -44,8 +44,8 @@ export default class BetaController extends AbstractController {
 	private async getUser(request:FastifyRequest, response:FastifyReply) {
 		const params = request.query as any;
 		let userList:string[] = [];
-		if(fs.existsSync(Config.betaList)) {
-			userList = JSON.parse(fs.readFileSync(Config.betaList, "utf8"));
+		if(fs.existsSync(Config.BETA_USER_LIST)) {
+			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
 		}
 
 		const isBetaTester = userList.includes(params.uid) || Config.credentials.admin_ids.includes(params.uid);
@@ -62,7 +62,7 @@ export default class BetaController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -96,14 +96,14 @@ export default class BetaController extends AbstractController {
 	private async addUser(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 		
-		const params = request.query as any;
+		const params = request.body as any;
 		let userList:string[] = [];
-		if(fs.existsSync(Config.betaList)) {
-			userList = JSON.parse(fs.readFileSync(Config.betaList, "utf8"));
+		if(fs.existsSync(Config.BETA_USER_LIST)) {
+			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
 		}
 		if(!userList.includes(params.uid)) userList.push(params.uid);
 
-		fs.writeFileSync(Config.betaList, JSON.stringify(userList));
+		fs.writeFileSync(Config.BETA_USER_LIST, JSON.stringify(userList));
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, +params.uid+".json");
@@ -124,7 +124,7 @@ export default class BetaController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -147,7 +147,7 @@ export default class BetaController extends AbstractController {
 	private async migrateUserAdmin(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 		
-		const params = request.query as any;
+		const params:any = request.body;
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, params.uid+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, params.uid+".json");
@@ -169,15 +169,15 @@ export default class BetaController extends AbstractController {
 		
 		const params = request.query as any;
 		let userList:string[] = [];
-		if(fs.existsSync(Config.betaList)) {
-			userList = JSON.parse(fs.readFileSync(Config.betaList, "utf8"));
+		if(fs.existsSync(Config.BETA_USER_LIST)) {
+			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
 		}
 		let index = userList.indexOf(params.uid);
 		if(index > -1) {
 			userList.splice(index, 1);
 		}
 
-		fs.writeFileSync(Config.betaList, JSON.stringify(userList));
+		fs.writeFileSync(Config.BETA_USER_LIST, JSON.stringify(userList));
 	
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -190,7 +190,7 @@ export default class BetaController extends AbstractController {
 	private async removeAllUsers(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 		
-		fs.writeFileSync(Config.betaList, JSON.stringify([]));
+		fs.writeFileSync(Config.BETA_USER_LIST, JSON.stringify([]));
 	
 		response.header('Content-Type', 'application/json');
 		response.status(200);

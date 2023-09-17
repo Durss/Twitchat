@@ -1,18 +1,30 @@
 <template>
-	<div class="changelog modal">
+	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
 			
 			<div class="head">
-				<Icon name="firstTime" class="icon" />
+				<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
 				<span class="title">{{$t("changelog.major_title")}}</span>
 				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 			</div>
 
 
 			<div class="content">
-				<Carousel class="carousel" :items-to-show="1" :wrap-around="true" @slide-end="onSlideEnd">
+
+				<div v-if="showReadAlert" class="forceRead">
+					<img src="@/assets/img/barracuda.png" class="barracuda">
+					<h2>{{ $t("changelog.forceRead.title") }}</h2>
+					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
+					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
+					<Button big @click="showReadAlert=false">{{ $t("changelog.forceRead.sorryBt") }}</Button>
+					<Button small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</Button>
+				</div>
+
+				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
+
+				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-end="onSlideEnd">
 					<template #addons>
 						<Navigation />
 						<Pagination />
@@ -20,33 +32,33 @@
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
 						<div class="inner" v-if="item.i != 'donate'">
-							<Icon :name="item.i" class="icon" />
+							<Icon v-if="item.i" :name="item.i" class="icon" :theme="item.i === 'premium'? 'light' : undefined" />
 							<span class="title" v-html="item.l"></span>
 							<span class="description" v-html="item.d"></span>
-							<img v-if="item.g" class="demo" :src="item.g">
-							<video v-if="item.v" class="demo" :src="item.v" autoplay loop controls></video>
+							<img v-if="item.g" class="demo" :src="item.g" lazy>
+							<video v-if="item.v" class="demo" lazy :src="item.v" autoplay loop controls></video>
 							
-							<div v-if="item.i=='theme'">
-								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
-								<ThemeSelector />
+							<div v-if="item.i=='heat'" class="card-item moreInfo">
+								<Icon name="info" />
+								<i18n-t scope="global" keypath="changelog.heat_details" tag="span">
+									<template #LINK>
+										<a :href="$config.HEAT_EXTENSION" target="_blank">{{ $t("changelog.heat_details_link") }}</a>
+									</template>
+								</i18n-t>
 							</div>
 							
-							<div v-if="item.i=='elgato'">
-								<Button href="https://apps.elgato.com/plugins/fr.twitchat"
-								target="_blank"
-								icon="elgato"
-								type="link">{{ $t("changelog.get_streamdeck") }}</Button>
-							</div>
-
-							<div v-if="item.i=='count'">
-								<div class="tryBt">{{ $t('changelog.tryBt') }}</div>
-								<div class="counterActions">
-									<Button icon="add" @click="addUserCounter()" :disabled="userExample.leaderboard!.length >= 7"></Button>
-									<Button icon="trash" @click="delUserCounter()" :disabled="userExample.leaderboard!.length < 2"></Button>
-									<Button icon="dice" @click="randomUserCounter()"></Button>
+							<template v-if="item.i=='premium'">
+								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
+								<Button secondary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
+								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
+							</template>
+							
+							<template v-if="item.i=='heat'">
+								<div class="videos">
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank"><img :src="$image('/img/param_examples/heatVideo.jpg')" class="demo" alt="demo"></a>
+									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img :src="$image('/img/param_examples/heat2Video.jpg')" class="demo" alt="demo"></a>
 								</div>
-								<OverlayCounter class="counterExample" embed :staticCounterData="userExample" />
-							</div>
+							</template>
 						</div>
 						<div v-else class="inner donate">
 							<div class="emoji">🥺</div>
@@ -61,8 +73,9 @@
 </template>
 
 <script lang="ts">
+import DataStore from '@/store/DataStore';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
@@ -72,18 +85,18 @@ import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import DataStore from '@/store/DataStore';
+import SponsorTable from '../premium/SponsorTable.vue';
 
 @Component({
 	components:{
 		Slide,
 		Button,
 		Carousel,
-		CloseButton,
 		ToggleBlock,
-		OverlayCounter,
+		CloseButton,
+		SponsorTable,
 		ThemeSelector,
+		OverlayCounter,
 		Pagination,
 		Navigation,
 	},
@@ -91,43 +104,41 @@ import DataStore from '@/store/DataStore';
 })
 export default class Changelog extends Vue {
 
-	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
-
-	private isFirstCounterDisplay = true;
+	public showFu:boolean = false;
+	public showReadAlert:boolean = false;
+	public showPremiumFeatures:boolean = false;
+	public readAtSpeedOfLight:boolean = false;
+	public currentSlide:number = 0;
 	
-	public userExample:TwitchatDataTypes.CounterData = {
-		id:Utils.getUUID(),
-		placeholderKey:"",
-		loop:false,
-		perUser:true,
-		value:50,
-		name:"My awesome counter",
-		min:false,
-		max:false,
-		users:{},
-		leaderboard:[],
+	private openedAt = 0;
+	private closing:boolean = false;
+	private slideCountRead = new Map();
+	private keyUpHandler!:(e:KeyboardEvent)=>void;
+	
+	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	
+	public get classes():string[] {
+		const res:string[] = ["changelog", "modal"];
+		if(this.currentItem.i === "premium") res.push("premium");
+		return res;
 	}
 
+	/**
+	 * Get currently displayed item data
+	 */
+	public get currentItem():TwitchatDataTypes.ChangelogEntry { return this.items[this.currentSlide]; }
+
+	/**
+	 * Get carousel items
+	 */
 	public get items():TwitchatDataTypes.ChangelogEntry[] {
 		return this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[];
 	}
 
+	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
+
 	public mounted(): void {
-		TwitchUtils.getFakeUsers().then(res => {
-			this.userExample.leaderboard = [];
-			for (let i = 0; i < 3; i++) {
-				let points = Math.round(Math.random()*10);
-				this.userExample.users![res[i].id] = points;
-				this.userExample.leaderboard.push({
-					avatar:res[i].avatarPath || "",
-					login:res[i].displayName,
-					points,
-				});
-			}
-			this.userExample.leaderboard!.sort((a,b)=> {
-				return b.points - a.points;
-			});
-		});
+		this.openedAt = Date.now();
 		
 		gsap.set(this.$el as HTMLDivElement, {opacity:0});
 		//Leave the view a bit of time to render to avoid lag during transition
@@ -136,9 +147,38 @@ export default class Changelog extends Vue {
 			gsap.from(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 			gsap.from(this.$refs.holder as HTMLDivElement, {marginTop:"150px", ease:"back.out", opacity:0, duration:1, clearProps:"all"});
 		}, 250);
+
+		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keyup", this.keyUpHandler);
 	}
 
-	public close():void {
+	public beforeUnmount():void {
+		document.removeEventListener("keyup", this.keyUpHandler);
+	}
+
+	public async close(forceClose:boolean = false):Promise<void> {
+		if(this.closing) return;
+
+		//If not all slides have been read or spent less than 30s on it
+		const didntReadAll = [...this.slideCountRead].length < this.items.length - 1; //don't care about last slide
+		this.readAtSpeedOfLight = Date.now() - this.openedAt < 30 * 1000 && !didntReadAll;
+		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
+			this.showReadAlert = true;
+			return;
+		}
+
+		this.closing = true;
+		
+		if(forceClose) {
+			this.showFu = true;
+			this.showReadAlert = false;
+			await this.$nextTick();
+			gsap.to(this.$refs.fu as HTMLDivElement, {duration:.5, opacity:0, fontSize:0, ease:"back.in"});
+			await Utils.promisedTimeout(500);
+
+			this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
+		}
+
 		gsap.to(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
 		gsap.to(this.$refs.holder as HTMLDivElement, {y:"-150px", ease:"back.in", opacity:0, duration:.5, onComplete:()=>{
 			this.$emit('close');
@@ -156,59 +196,23 @@ export default class Changelog extends Vue {
 	 * @param slidesCount 
 	 */
 	public onSlideEnd(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number}):void {
-		if(data.currentSlideIndex && this.isFirstCounterDisplay) {
-			this.isFirstCounterDisplay = false;
-			setTimeout(()=> {
-				this.addUserCounter();
-			}, 1500);
-			setTimeout(()=> {
-				this.addUserCounter();
-			}, 2000);
+		this.slideCountRead.set(data.currentSlideIndex, true);
+		this.showPremiumFeatures = false;
+	}
+
+	/**
+	 * Scroll carousel with keyboard
+	 * @param e 
+	 */
+	private onKeyUp(e:KeyboardEvent):void {
+		if(e.key == "ArrowLeft") {
+			this.currentSlide --;
 		}
-	}
-
-	/**
-	 * Add a user to the counter
-	 */
-	public addUserCounter():void {
-		TwitchUtils.getFakeUsers().then(res => {
-			// console.log(res);
-			for (let i = 0; i < res.length; i++) {
-				const user = res[i];
-				//User already in the list, ignore it
-				if(this.userExample.leaderboard!.findIndex(v=>v.login == user.displayName) > -1) continue;
-				
-				let points = Math.round(Math.random()*10);
-				this.userExample.users![res[i].id] = points;
-				this.userExample.leaderboard!.push({
-					avatar:res[i].avatarPath || "",
-					login:res[i].displayName,
-					points,
-				});
-				break;
-			}
-			this.userExample.leaderboard!.sort((a,b)=> {
-				return b.points - a.points;
-			});
-		});
-	}
-
-	/**
-	 * Delete a random user from the counter
-	 */
-	public delUserCounter():void {
-		this.userExample.leaderboard?.splice( Math.floor(Math.random() * this.userExample.leaderboard.length), 1 )
-	}
-
-	/**
-	 * Add a random value to a random user counter
-	 */
-	public randomUserCounter():void {
-		let add = Math.round((Math.random()-Math.random()) * 5);
-		Utils.pickRand(this.userExample.leaderboard!).points += add || 1;
-		this.userExample.leaderboard!.sort((a,b)=> {
-			return b.points - a.points;
-		});
+		if(e.key == "ArrowRight") {
+			this.currentSlide ++;
+		}
+		if(this.currentSlide == this.items.length) this.currentSlide = 0;
+		if(this.currentSlide < 0) this.currentSlide = this.items.length -1;
 	}
 
 }
@@ -217,11 +221,26 @@ export default class Changelog extends Vue {
 <style scoped lang="less">
 .changelog{
 	z-index: 2;
+
+	&.premium {
+		.holder {
+			color: var(--color-light);
+			background-color: var(--color-premium-dark);
+			
+			*::-webkit-scrollbar-thumb {
+				background: transparent;
+				background-color: var(--color-premium-light);
+			}
+		}
+	}
 	
 	.holder {
 		width: 600px;
 		max-width: ~"min(600px, var(--vw))";
 		// height: unset;
+		transition: background-color .2s, color .2s;
+		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
+		max-height: calc(var(--vh) - var(--chat-form-height));
 
 		.head {
 			display: flex;
@@ -257,7 +276,6 @@ export default class Changelog extends Vue {
 				align-items: center;
 				gap: 1em;
 				padding: 1em 3em;
-				color:var(--color-text);
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 
@@ -287,30 +305,35 @@ export default class Changelog extends Vue {
 					}
 				}
 
-				.tryBt {
-					margin-bottom: .5em;
-					font-weight: bold;
-				}
-
-				.counterActions {
-					display: flex;
-					flex-direction: row;
-					justify-content: center;
-					gap: .5em;
-					margin-bottom: 1em;
-					.button {
-						width: 2em;
-					}
-				}
-
-				.counterExample {
-					font-size: .75em;
-					color: var(--color-dark);
-				}
-
 				&.donate {
 					.emoji {
 						font-size: 7em;
+					}
+				}
+
+				.moreInfo {
+					text-align: left;
+					font-style: italic;
+					line-height: 1.2em;
+					.icon {
+						height: 1em;
+						margin-right: .25em;
+					}
+				}
+
+				.premiumTable {
+					color: var(--color-text);
+					background-color: var(--grayout);
+				}
+
+				.videos {
+					gap: .5em;
+					display: flex;
+					flex-direction: row;
+					.demoLink {
+						display: inline;
+						margin: auto;
+						overflow: visible;
 					}
 				}
 			}
@@ -354,6 +377,47 @@ export default class Changelog extends Vue {
 				transform: scaleY(2);
 			}
 		}
+		:deep(.carousel__pagination-item:nth-last-child(2)) {
+			button:after {
+				background-color: var(--color-premium);
+			}
+		}
+	}
+
+	.forceRead {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+		padding: 1em;
+		img {
+			align-self: center;
+		}
+
+		h2 {
+			font-size: 2.5em;
+			padding: .5em;
+			color: var(--color-light);
+			background-color: var(--color-dark);
+			margin-top: -1em;
+			white-space: pre-line;
+			text-align: center;
+		}
+		
+		.description {
+			font-size: 1.3em;
+			line-height: 1.3em;
+			white-space: pre-line;
+			text-align: justify;
+		}
+	}
+
+	.fu {
+		display: block;
+		text-align: center;
+		font-size: 5em;
+		padding: .25em;
 	}
 }
 </style>

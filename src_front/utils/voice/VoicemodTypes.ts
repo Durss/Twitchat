@@ -1,11 +1,14 @@
 export namespace VoicemodTypes {
 	export interface SocketEvent {
-		target:WebSocket;
-		type:string;
-		data:string;
+		target: WebSocket;
+		type: string;
+		data: string;
 	}
 
 	export interface SocketData {
+		action?: string;
+		payload?: any;
+
 		actionType: string;
 		appVersion: string;
 		actionID?: any;
@@ -15,35 +18,65 @@ export namespace VoicemodTypes {
 	}
 
 	export interface ActionObject {
-		allVoices?: Voice[];
+		voices?: Voice[];
 		listOfMemes?: Meme[];
 		favoriteVoices?: Voice[];
 		customVoices?: Voice[];
-		selectedVoice?: string;
+		currentVoice?: string;
 		result?: Result;
 		voiceID?: string | "nofx";
 	}
 
 	export interface Voice {
-		voiceID: string;
+		id: string;
 		friendlyName: string;
-		image?: string;
+		enabled: boolean;
+		isCustom: boolean;
+		favorited: boolean;
+		isNew: boolean;
+		bitmapChecksum: string;
+		//custom prop
+		image?:string;
 	}
 
+
 	export interface Meme {
-		FileName:string;
-		Profile:string;
-		Name:string;
-		Type:string;
-		Image:string;
-		IsCore:boolean;
+		FileName: string;
+		Profile: string;
+		Name: string;
+		Type: string;
+		Image: string;
+		IsCore: boolean;
 	}
 
 	export interface Result {
 		default: string;
-		isSelected?:boolean;
-		selected?:string;
-		transparent?:string;
-		[parameter: string|number]: unknown;
+		isSelected?: boolean;
+		selected?: string;
+		transparent?: string;
+		[parameter: string | number]: unknown;
+	}
+
+	export interface Soundboard {
+		id: string
+		name: string
+		isCustom: boolean
+		enabled: boolean
+		showProLogo: boolean
+		sounds: Sound[]
+	}
+
+	export interface Sound {
+		id: string
+		name: string
+		isCustom: boolean
+		isEnabled: boolean
+		playbackMode: string
+		loop: boolean
+		muteOtherSounds: boolean
+		muteVoice: boolean
+		stopOtherSounds: boolean
+		showProLogo: boolean
+		bitmapChecksum: string
 	}
 }

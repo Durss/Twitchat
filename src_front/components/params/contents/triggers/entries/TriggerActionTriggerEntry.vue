@@ -18,6 +18,7 @@
 			<img src="@/assets/icons/broadcast.svg" class="icon">
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 			<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" />
+			<button class="openTriggerBt" @click="openTrigger()"><Icon name="newTab" /></button>
 		</div>
 
 		<ToggleBlock :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
@@ -43,6 +44,7 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import type { TriggerActionTriggerData, TriggerData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
@@ -50,11 +52,12 @@ import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../../ToggleBlock.vue';
-import TriggerList from '../TriggerList.vue';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
+import TriggerList from '../TriggerList.vue';
 
 @Component({
 	components:{
+		Icon,
 		ToggleBlock,
 		TriggerList,
 		SimpleTriggerList,
@@ -99,6 +102,11 @@ export default class TriggerActionTriggerEntry extends Vue {
 		if(!trigger) return;
 		this.action.triggerId = trigger.id;
 		this.buildDependencyLoop();
+	}
+
+	public openTrigger():void {
+		const trigger = this.$store("triggers").triggerList.find(v=>v.id == this.action.triggerId);
+		if(trigger) this.$store("triggers").openTriggerEdition(trigger)
 	}
 
 	private buildDependencyLoop():void {
@@ -177,6 +185,14 @@ export default class TriggerActionTriggerEntry extends Vue {
 			flex-grow: 1;
 			max-height: 300px;
 			width: 100%;
+		}
+
+		.openTriggerBt{
+			height: 1em;
+			transition: transform .2s;
+			&:hover {
+				transform: scale(1.2);
+			}
 		}
 	}
 

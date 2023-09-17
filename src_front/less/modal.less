@@ -1,5 +1,5 @@
 .modal {
-	position: absolute;
+	position: fixed;
 	top: 0;
 	left: 0;
 	width: 100%;
@@ -39,12 +39,15 @@
 			padding-bottom: 0;
 			display: flex;
 			flex-direction: row;
+			.icon {
+				height: 1em;
+			}
 			&>.title {
 				flex-grow: 1;
 				font-size: 1.5em;
 				text-align: center;
 			}
-			&>.close, &>.icon {
+			&>.close, &>.icon:not(.loader) {
 				width: 1em;
 				height: 1em;
 				max-width: 1em;
@@ -62,6 +65,7 @@
 			flex-grow: 1;
 			overflow-x: visible;
 			overflow-y: auto;
+			padding: 2px;//Avoids scroll to appear if content is small. No idea why.
 		}
 	}
 }

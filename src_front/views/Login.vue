@@ -75,10 +75,7 @@
 				
 				<div class="loader" v-if="authenticating">
 					<p>{{ $t("login.authenticating") }}</p>
-					<picture>
-						<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-						<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-					</picture>
+					<Icon class="loader" name="loader" />
 				</div>
 			</div>
 	
@@ -97,6 +94,7 @@ import Button from '@/components/Button.vue';
 import CloseButton from '@/components/CloseButton.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import DataStore from '@/store/DataStore';
+import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -179,16 +177,9 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const options = {
-					method: "POST",
-					headers: {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					},
-				};
-				const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+csrfToken, options);
-				const csrf = await csrfRes.json();
-				if(!csrf.success) {
-					this.$store("main").alert(csrf.message);
+				const res = await ApiController.call("auth/CSRFToken", "POST", {token:csrfToken});
+				if(!res.json.success) {
+					if(res.json.message) this.$store("main").alert(res.json.message);
 					this.authenticating = false;
 				}else{
 					this.$store("auth").twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
@@ -255,11 +246,7 @@ export default class Login extends Vue {
 	public async generateCSRF(redirect:boolean = false):Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const headers = {
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
-			const json = await res.json();
+			const {json} = await ApiController.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 			this.onScopesUpdate
 		}catch(e) {
@@ -301,14 +288,7 @@ export default class Login extends Vue {
 	public transferData():void {
 		this.$confirm(this.$t("login.transfer_confirm_title"), this.$t("login.transfer_confirm_description")).then(async ()=>{
 			this.transferingData = true;
-			const options = {
-				method: "POST",
-				headers: {
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			}
-			const res = await fetch(Config.instance.API_PATH+"/beta/user/migrateToProduction", options);
+			const res = await ApiController.call("beta/user/migrateToProduction", "POST");
 			if(res.status == 200) {
 				this.transferComplete = true;
 			}else{
@@ -322,23 +302,15 @@ export default class Login extends Vue {
 	 * Check if the user has data on beta server that can be migrated to production
 	 */
 	public async checkIfCanMigrate():Promise<void> {
-		const options = {
-			method: "GET",
-			headers: {
-				"Content-Type": "application/json",
-				"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			},
-		}
-		const res = await fetch(Config.instance.API_PATH+"/beta/user/hasData", options);
+		const res = await ApiController.call("beta/user/hasData");
 		if(res.status === 200) {
-			const json:{success:boolean, data:{betaDate?:number, prodDate?:number, betaVersion?:number, prodVersion?:number}} = await res.json();
+			const json = res.json;
 			if(json.success) {
 				this.migrateInfo = {};
-				if(json.data.betaDate) this.migrateInfo.betaDate = Utils.formatDate(new Date(json.data.betaDate));
-				if(json.data.prodDate) this.migrateInfo.prodDate = Utils.formatDate(new Date(json.data.prodDate));
-				if(json.data.betaVersion) this.migrateInfo.betaVersion = json.data.betaVersion;
-				if(json.data.prodVersion) this.migrateInfo.prodVersion = json.data.prodVersion;
+				if(json.data!.betaDate) this.migrateInfo.betaDate = Utils.formatDate(new Date(json.data!.betaDate));
+				if(json.data!.prodDate) this.migrateInfo.prodDate = Utils.formatDate(new Date(json.data!.prodDate));
+				if(json.data!.betaVersion) this.migrateInfo.betaVersion = json.data!.betaVersion;
+				if(json.data!.prodVersion) this.migrateInfo.prodVersion = json.data!.prodVersion;
 			}
 		}
 	}

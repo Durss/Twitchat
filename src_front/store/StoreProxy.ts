@@ -1,4 +1,7 @@
-import type { TriggerActionCountDataAction, TriggerData } from "@/types/TriggerActionDataTypes";
+import type HeatEvent from "@/events/HeatEvent";
+import type { GoXLRTypes } from "@/types/GoXLRTypes";
+import type { HeatScreen } from "@/types/HeatDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
@@ -40,6 +43,9 @@ export default class StoreProxy {
 	public static admin:IAdminState & IAdminGetters & IAdminActions & {$state:IAdminState, $reset:()=>void};
 	public static counters:ICountersState & ICountersGetters & ICountersActions & {$state:ICountersState, $reset:()=>void};
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
+	public static heat:IHeatState & IHeatGetters & IHeatActions & {$state:IHeatState, $reset:()=>void};
+	public static patreon:IPatreonState & IPatreonGetters & IPatreonActions & {$state:IPatreonState, $reset:()=>void};
+	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -65,13 +71,24 @@ export interface IMainState {
 	 */
 	devmode: boolean;
 	/**
+	 * When right cliking a message we can export it as an
+	 * image. This object contains the export state.
+	 */
+	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"error"|null;
+	/**
 	 * Method to call to trigger install of twitchat on the device
 	 */
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;
 	/**
 	 * Current alert data (user alert() to populate)
 	 */
-	alertData: string;
+	alertData: {
+		message:string;
+		/**
+		 * defines if it's a critical error. It will remain on screen and won't be replacable
+		 */
+		critical:boolean;
+	};
 	/**
 	 * Current tooltip data to display
 	 */
@@ -112,6 +129,7 @@ export interface IMainState {
 }
 
 export interface IMainGetters {
+	nonPremiumLimitExceeded:boolean;
 }
 
 export interface IMainActions {
@@ -130,14 +148,19 @@ export interface IMainActions {
 	 */
 	startApp(authenticate:boolean, callback:(value:unknown)=>void):Promise<void>;
 	/**
+	 * Called when user is authenticated
+	 */
+	onAuthenticated():void
+	/**
 	 * Loads data from local storage
 	 */
 	loadDataFromStorage():void;
 	/**
 	 * Opens up an alert at the top of the app on red bar
 	 * @param message 
+	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
 	 */
-	alert(message:string):void;
+	alert(message:string, isCritical?:boolean):void;
 	/**
 	 * Opens up a confirm window requesting the user to confirm or cancel
 	 * @param title 
@@ -208,6 +231,7 @@ export interface IAccountActions {
 
 
 
+type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>
 
 export type IAuthState = {
 	/**
@@ -230,11 +254,12 @@ export type IAuthState = {
 		access_token:string;
 		expires_in:number;
 		scopes:string[];
-		user:TwitchatDataTypes.TwitchatUser;
+		user:RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
 	};
 }
 
 export interface IAuthGetters {
+	isPremium:boolean;
 }
 
 export interface IAuthActions {
@@ -259,6 +284,10 @@ export interface IAuthActions {
 	 * @param scopes 
 	 */
 	requestTwitchScopes(scopes:TwitchScopesString[]):void;
+	/**
+	 * Loads the specified user ID profile and donor state
+	 */
+	loadUserState(uid:string):Promise<void>;
 }
 
 
@@ -384,6 +413,10 @@ export interface IChatGetters {
 
 export interface IChatActions {
 	/**
+	 * Preload message history from IndexedDB
+	 */
+	preloadMessageHistory():void;
+	/**
 	 * Sends a twitchat ad
 	 */
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;
@@ -410,6 +443,13 @@ export interface IChatActions {
 	 * @param callEndpoint 
 	 */
 	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	/**
+	 * Delete a message by its reference
+	 * @param messageID 
+	 * @param deleteData 
+	 * @param callEndpoint 
+	 */
+	deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete all messages of a channel
 	 * @param channelId 
@@ -480,6 +520,14 @@ export interface IChatActions {
 	 * @param user 
 	 */
 	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void;
+	/**
+	 * Reset the greeting history.
+	 */
+	resetGreetingHistory():void
+	/**
+	 * Removes any donation request related messages
+	 */
+	cleanupDonationRelatedMessages():void
 }
 
 
@@ -582,6 +630,11 @@ export interface IEmergencyActions {
 	 */
 	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
 	/**
+	 * Removes a follower from the emergency follow
+	 * @param payload 
+	 */
+	ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
+	/**
 	 * Clear the emergency followers list
 	 */
 	clearEmergencyFollows():void;
@@ -607,11 +660,6 @@ export interface IMusicState {
 	 */
 	spotifyAuthToken: SpotifyAuthToken|null;
 	/**
-	 * Is deezer connected
-	 * @deprecated not used since deezer killed the possibility to control playback
-	 */
-	deezerConnected: boolean;
-	/**
 	 * Music player overlay params.
 	 */
 	musicPlayerParams:TwitchatDataTypes.MusicPlayerParamsData,
@@ -627,12 +675,6 @@ export interface IMusicActions {
 	 * @param value 
 	 */
 	setSpotifyAuthResult(value:SpotifyAuthResult|null):void;
-	/**
-	 * Sets if deezer is connected or not
-	 * @param value 
-	 * @deprecated not used since deezer killed the possibility to control playback
-	 */
-	setDeezerConnected(value:boolean):void;
 }
 
 
@@ -707,6 +749,11 @@ export interface IParamsState {
 	 */
 	currentModal:TwitchatDataTypes.ModalTypes;
 	/**
+	 * Defines if a donate reminder should be posted when user ends
+	 * their stream (after raid and/or strem cut)
+	 */
+	donationReminderEnabled:boolean;
+	/**
 	 * Duration after which a 1st user message today is removed from the list
 	 */
 	greetThemAutoDelete:number;
@@ -722,6 +769,10 @@ export interface IParamsState {
 	 * Chat columns definitions
 	 */
 	chatColumnsConfig:TwitchatDataTypes.ChatColumnsConfig[];
+	/**
+	 * GoXLR configurations
+	 */
+	goxlrConfig: TwitchatDataTypes.GoXLRParams;
 }
 
 export interface IParamsGetters {
@@ -782,11 +833,34 @@ export interface IParamsActions {
 	 * Open the specified modal
 	 * @param modal 
 	 */
-	openModal(modal:TwitchatDataTypes.ModalTypes):void;
+	openModal(modal:TwitchatDataTypes.ModalTypes, noToggle?:boolean):void;
 	/**
 	 * Closes currently opened modal
 	 */
 	closeModal():void;
+	/**
+	 * Set if Tiwtchat should automatically connect to GoXLR on startup
+	 * @param enabled 
+	 */
+	setGoXLREnabled(enabled:boolean):void;
+	/**
+	 * Set GoXLR connection params
+	 * @param ip 
+	 * @param port 
+	 */
+	setGoXLRConnectParams(ip:string, port:number):void;
+	/**
+	 * Sets the encoder that should control the given chat column
+	 * @param colIndex 
+	 * @param encoderPath 
+	 */
+	setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
+	/**
+	 * Sets the encoder that should move the read mark on the given chat column
+	 * @param colIndex 
+	 * @param encoderPath 
+	 */
+	setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
 }
 
 
@@ -865,7 +939,7 @@ export interface IRaffleActions {
 	 * any currently opened raffle
 	 * @param message 
 	 */
-	checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):boolean;
 	/**
 	 * Pick a random winner amongst the users that joined the raffmle
 	 * @param forcedData 
@@ -902,6 +976,10 @@ export interface IStreamState {
 	 * Current stream info
 	 */
 	currentStreamInfo: {[key in string]:TwitchatDataTypes.StreamInfo|undefined};
+	/**
+	 * History of outgoing raids
+	 */
+	raidHistory: {uid:string, date:number}[];
 	/**
 	 * Date at which the current commercial will end
 	 */
@@ -941,7 +1019,11 @@ export interface IStreamActions {
 	 * Set outgoing raid info
 	 * @param infos 
 	 */
-	setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined):void;
+	setRaiding(infos?:TwitchatDataTypes.RaidInfo):void;
+	/**
+	 * Called after a raid completed
+	 */
+	onRaidComplete():void;
 	/**
 	 * Update room settings
 	 * @param channelId 
@@ -1002,15 +1084,27 @@ export interface IStreamActions {
 
 
 export interface ITimerState {
+	// /**
+	//  * Date at which the current timer started
+	//  */
+	// timerStartDate: number;
+	// /**
+	//  * Offset to apply to the current timer.
+	//  * Allows to add or remove time from a the timer
+	//  */
+	// timerOffset: number;
+	// /**
+	//  * Is the timer paused ?
+	//  */
+	// timerPaused: boolean;
+	// /**
+	//  * Date at which the timer was paused
+	//  */
+	// timerPausedAt: number;
 	/**
-	 * Date at which the current timer started
+	 * Current timer info
 	 */
-	timerStartDate: number;
-	/**
-	 * Offset to apply to the current timer.
-	 * Allows to add or remove to from a the timer
-	 */
-	timerOffset: number;
+	timer: TwitchatDataTypes.TimerData|null;
 	/**
 	 * Current countdown info
 	 */
@@ -1024,7 +1118,7 @@ export interface ITimerActions {
 	/**
 	 * Braodcast current timer and countdown statesvia the PublicAPI
 	 */
-	boradcastStates():void;
+	broadcastStates():void;
 	/**
 	 * Start the timer
 	 */
@@ -1039,6 +1133,14 @@ export interface ITimerActions {
 	 * @param duration_ms 
 	 */
 	timerRemove(duration_ms:number):void;
+	/**
+	 * Pauses the timer
+	 */
+	timerPause():void;
+	/**
+	 * Unpauses the timer
+	 */
+	timerUnpause():void;
 	/**
 	 * Stop the timer
 	 */
@@ -1059,9 +1161,17 @@ export interface ITimerActions {
 	 */
 	countdownRemove(duration_ms:number):void;
 	/**
+	 * Pauses the countdown
+	 */
+	countdownPause():void;
+	/**
+	 * Unpauses the countdown
+	 */
+	countdownUnpause():void;
+	/**
 	 * Stop the countdown
 	 */
-	countdownStop():void;
+	countdownStop(aborted?:boolean):void;
 }
 
 
@@ -1072,6 +1182,15 @@ export interface ITriggersState {
 	 * contains all the triggers defintions
 	 */
 	triggerList: TriggerData[];
+	/**
+	 * Temporary store to hold copied actions data via
+	 * selection & ctrl+C.
+	 */
+	clipboard: TriggerActionTypes[];
+	/**
+	 * Contains data about the currently edited trigger;
+	 */
+	currentEditTriggerData:TriggerData|null;
 }
 
 export interface ITriggersGetters {
@@ -1082,6 +1201,15 @@ export interface ITriggersGetters {
 }
 
 export interface ITriggersActions {
+	/**
+	 * Defines the trigger data to be editted
+	 * @param data 
+	 */
+	openTriggerEdition(data:TriggerData):void;
+	/**
+	 * Opens the trigger list
+	 */
+	openTriggerList():void;
 	/**
 	 * Add a new trigger
 	 * @param data 
@@ -1096,6 +1224,11 @@ export interface ITriggersActions {
 	 * @param id
 	 */
 	deleteTrigger(id:string):void;
+	/**
+	 * Duplicate a trigger by its ID
+	 * @param id
+	 */
+	duplicateTrigger(id:string):void;
 	/**
 	 * Called when an OBS source is renamed.
 	 * Parses all triggers that have a reference to that source
@@ -1128,6 +1261,14 @@ export interface ITriggersActions {
 	 * @param newName 
 	 */
 	renameCounterPlaceholder(oldName:string, newName:string):void;
+	/**
+	 * Called when a value placeholder is renamed.
+	 * Parses all triggers that have a reference to that placeholder
+	 * and rename it everywhere
+	 * @param oldName 
+	 * @param newName 
+	 */
+	renameValuePlaceholder(oldName:string, newName:string):void;
 }
 
 
@@ -1178,6 +1319,20 @@ export interface IUsersState {
 		channelId?:string,
 	}|null;
 	/**
+	 * Contains custom user names used for display on place of the actual username
+	 * Associates a user ID to a custom display name
+	 */
+	customUsernames:{[key:string]:{ name:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}};
+	/**
+	 * Contains custom user badges references.
+	 * Associates a user ID to custom badge ID from the customBadgeList array
+	 */
+	customUserBadges:{[key:string]:{id:string, platform:TwitchatDataTypes.ChatPlatform, channel:string}[]};
+	/**
+	 * Contains custom user badges
+	 */
+	customBadgeList:TwitchatDataTypes.TwitchatCustomUserBadge[];
+	/**
 	 * List of blocked users by platform
 	 */
 	blockedUsers: {[key in TwitchatDataTypes.ChatPlatform]:{[key:string]:boolean}};
@@ -1200,6 +1355,10 @@ export interface IUsersState {
 	 * the user is added to this list for later process
 	 */
 	pendingShoutouts:Partial<{[key:string]:TwitchatDataTypes.ShoutoutHistoryItem[]}>;
+	/**
+	 * Tmporary name while user info is loading
+	 */
+	tmpDisplayName:string;
 }
 
 export interface IUsersGetters {
@@ -1323,7 +1482,7 @@ export interface IUsersActions {
 	 * @param user 
 	 * @param channelId 
 	 */
-	checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean>;
+	checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean>;
 	/**
 	 * Load pronouns of a user
 	 * @param user 
@@ -1372,6 +1531,57 @@ export interface IUsersActions {
 	 * Execute any pending shoutout
 	 */
 	executePendingShoutouts():void;
+	/**
+	 * Deletes a custom user name
+	 * @param uid 
+	 */
+	removeCustomUsername(uid:string):void;
+	/**
+	 * Defines a custom username to the given user
+	 * @param user 
+	 * @param name 
+	 * @returns false if user has used all the non premium slots
+	 */
+	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean;
+	/**
+	 * Create a new custom user badge
+	 * @returns false if user the maximum custom badges has been reached, otherwise returns the created badge ID
+	 */
+	createCustomBadge(img:string):boolean|string;
+	/**
+	 * Update the image of the given custom badge
+	 * @param badgeId 
+	 * @param img 
+	 */
+	updateCustomBadgeImage(badgeId:string, img:string):void;
+	/**
+	 * Update the name of a custom badge
+	 * @param badgeId 
+	 * @param name 
+	 */
+	updateCustomBadgeName(badgeId:string, name:string):void;
+	/**
+	 * Deletes the given custom badge
+	 * Removes any references from users
+	 */
+	deleteCustomBadge(badgeId:string):void;
+	/**
+	 * Gives a custom badge to the given user
+	 * @returns false if the max users with custom badges is reached
+	 */
+	giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean;
+	/**
+	 * Removes a custom badge from the given user
+	 */
+	removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void;
+	/**
+	 * Saves custom badges and their attributions to users
+	 */
+	saveCustomBadges():void;
+	/**
+	 * Saves custom usernames to server
+	 */
+	saveCustomUsername():void;
 }
 
 
@@ -1522,6 +1732,10 @@ export interface ICountersActions {
 	 * @param userId 
 	 */
 	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	/**
+	 * Saves counters to server
+	 */
+	saveCounters():void;
 }
 
 
@@ -1542,4 +1756,103 @@ export interface IRewardsActions {
 	 * Load twitch channel point rewards
 	 */
 	loadRewards():Promise<TwitchDataTypes.Reward[]>;
+}
+
+
+
+
+export interface IHeatState {
+	/**
+	 * List of clickable areas
+	 */
+	screenList:HeatScreen[];
+}
+
+export interface IHeatGetters {
+}
+
+export interface IHeatActions {
+	/**
+	 * Create a new screen.
+	 */
+	createScreen():string;
+	/**
+	 * Duplicate a screen by its ID
+	 */
+	duplicateScreen(id:string):void;
+	/**
+	 * Delete a screen by its ID
+	*/
+	deleteScreen(id:string):void;
+	/**
+	 * Update an existing screen
+	 */
+	updateScreen(data:HeatScreen):void;
+	/**
+	 * Save screens to server
+	 */
+	saveScreens():void;
+	/**
+	 * Handles a heat click event
+	 * @param event 
+	 */
+	handleClickEvent(event:HeatEvent):Promise<void>;
+}
+
+
+
+
+export interface IPatreonState {
+	/**
+	 * Spotify app params
+	 */
+	patreonAuthParams: SpotifyAuthResult|null;
+	/**
+	 * Current Spotify auth token
+	 */
+	patreonAuthToken: SpotifyAuthToken|null;
+}
+
+export interface IPatreonGetters {
+}
+
+export interface IPatreonActions {
+	setPatreonAuthResult(value:{code:string,csrf:string}|null):void;
+}
+
+
+
+
+export interface IValuesState {
+	/**
+	 * All values
+	 */
+	valueList:TwitchatDataTypes.ValueData[];
+}
+
+export interface IValuesGetters {
+}
+
+export interface IValuesActions {
+	/**
+	 * Create a new value
+	 * @param data 
+	 */
+	addValue(data:TwitchatDataTypes.ValueData):void;
+	/**
+	 * Update a value
+	 * @param id
+	 * @param data 
+	 */
+	updateValue(id:string, data:Partial<TwitchatDataTypes.ValueData>):void;
+	/**
+	 * Delete a value
+	 * @param data 
+	 */
+	delValue(data:TwitchatDataTypes.ValueData):void;
+	/**
+	 * Save values to server
+	 * @param  
+	 */
+	saveValues():void;
 }

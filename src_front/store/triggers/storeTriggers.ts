@@ -1,14 +1,19 @@
 import DataStore from '@/store/DataStore';
-import { TriggerTypes, type TriggerActionTypes, type TriggerData, COUNTER_VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
+import Utils from '@/utils/Utils';
+import StoreProxy from '../StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggerList: [],
+		clipboard: [],
+		currentEditTriggerData: null,
 	} as ITriggersState),
 
 
@@ -33,7 +38,44 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	actions: {
+		openTriggerEdition(data:TriggerData) {
+			this.currentEditTriggerData = data;
+			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		},
+		
+		openTriggerList() {
+			this.currentEditTriggerData = null;
+		},
+
 		addTrigger(data:TriggerData) {
+			//If it is a schedule trigger add it to the scheduler
+			if(data.type === TriggerTypes.SCHEDULE) {
+				SchedulerHelper.instance.scheduleTrigger(data);
+			}
+			
+			this.triggerList.push(data);
+			this.saveTriggers();
+		},
+
+		deleteTrigger(id:string) {
+			this.triggerList = this.triggerList.filter(v=> v.id != id);
+			this.saveTriggers();
+		},
+
+		duplicateTrigger(id:string) {
+			const trigger = this.triggerList.find(v=> v.id === id);
+			if(trigger) {
+				const clone:TriggerData = JSON.parse(JSON.stringify(trigger));
+				clone.id = Utils.getUUID();
+				let name = clone.name || Utils.getTriggerDisplayInfo(clone).label;
+				name += " (CLONE)";
+				clone.name = name;
+				this.triggerList.push(clone);
+				this.saveTriggers();
+			}
+		},
+
+		saveTriggers():void {
 			//remove incomplete entries
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
@@ -53,35 +95,28 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "poll") return true;
 					if(v.type == "prediction") return true;
 					if(v.type == "count") return true;
-					if(v.type == "countget") return true;
+					if(v.type == "value") return true;
 					if(v.type == "random") return true;
 					if(v.type == "stream_infos") return true;
 					if(v.type == "delay") return true;
-					//@ts-ignore
+					if(v.type == "goxlr") return true;
+					if(v.type == "customBadges") return true;
+					if(v.type == "customUsername") return true;
+					if(v.type == "chatSugg") return true;
 					console.warn("Trigger action type not whitelisted on store : "+v.type);
 					return false;
 				})
 
 			}
-			data.actions = cleanEmptyActions(data.actions);
-
-			//If it is a schedule trigger add it to the scheduler
-			if(data.type === TriggerTypes.SCHEDULE) {
-				SchedulerHelper.instance.scheduleTrigger(data);
-			}
 			
-			this.triggerList.push(data);
-			this.saveTriggers();
-		},
+			const list = JSON.parse(JSON.stringify(this.triggerList));
+			list.forEach((data:TriggerData)=> {
+				data.actions = cleanEmptyActions(data.actions);
+			})
 
-		deleteTrigger(id:string) {
-			this.triggerList = this.triggerList.filter(v=> v.id != id);
-			this.saveTriggers();
-		},
 
-		saveTriggers():void {
-			DataStore.set(DataStore.TRIGGERS, this.triggerList);
-			TriggerActionHandler.instance.populate(this.triggerList);
+			DataStore.set(DataStore.TRIGGERS, list);
+			TriggerActionHandler.instance.populate(list);
 		},
 
 		renameOBSSource(oldName:string, newName:string):void {
@@ -127,8 +162,8 @@ export const storeTriggers = defineStore('triggers', {
 		},
 
 		renameCounterPlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
-			//Search for any trigger linked to the renamed scene and any
-			//trigger action controling that scene and rename it
+			//Search for any trigger linked to the renamed counter and any
+			//trigger action updating that counter and rename it
 			for (let i = 0; i < this.triggerList.length; i++) {
 				const t = this.triggerList[i];
 				let json = JSON.stringify(t);
@@ -144,7 +179,31 @@ export const storeTriggers = defineStore('triggers', {
 				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				
 				//Nuclear way to replace placeholders on trigger data
-				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "gi"), "{"+newPlaceholderLoc.toUpperCase()+"}");
+				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
+				this.triggerList[i] = JSON.parse(json);
+			}
+			this.saveTriggers();
+		},
+
+		renameValuePlaceholder(oldPlaceholder:string, newPlaceholder:string):void {
+			//Search for any trigger linked to the renamed value and any
+			//trigger action updating that value and rename it
+			for (let i = 0; i < this.triggerList.length; i++) {
+				const t = this.triggerList[i];
+				let json = JSON.stringify(t);
+				
+				//Is the old placeholder somewhere on the trigger data ?
+				if(json.toLowerCase().indexOf((VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
+
+				//Add placeholders prefix
+				let newPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + newPlaceholder.toUpperCase();
+				let oldPlaceholderLoc = VALUE_PLACEHOLDER_PREFIX + oldPlaceholder.toUpperCase();
+				//Make it regex safe
+				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+				
+				//Nuclear way to replace placeholders on trigger data
+				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
 				this.triggerList[i] = JSON.parse(json);
 			}
 			this.saveTriggers();

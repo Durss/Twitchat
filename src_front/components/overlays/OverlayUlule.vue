@@ -16,6 +16,7 @@
 
 <script lang="ts">
 import type { UluleTypes } from '@/types/UluleTypes';
+import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
@@ -52,14 +53,10 @@ export default class OverlayUlule extends Vue {
 		let goals = Utils.getQueryParameterByName("goals");
 		this.currency = Utils.getQueryParameterByName("currency") || "$";
 
-		const headers = {'App-Version': import.meta.env.PACKAGE_VERSION};
-		const url = new URL(Config.instance.API_PATH+"/ulule/project");
-		url.searchParams.append("project", project);
 		try {
-			const apiRes = await fetch(url, {method:"GET", headers});
+			const apiRes = await ApiController.call("ulule/project", "GET", {project});
 			if(apiRes.status == 200) {
-				const projectData:UluleTypes.Project = await apiRes.json();
-		
+				const projectData = apiRes.json;
 				this.title = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;
 				this.mainGoal = projectData.goal;
 				this.currentGoal = this.mainGoal;

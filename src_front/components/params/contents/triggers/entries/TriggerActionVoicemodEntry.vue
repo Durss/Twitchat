@@ -11,19 +11,22 @@
 	</div>
 
 	<div class="triggeractionvoicemodentry triggerActionForm" v-else>
-		<ParamItem :paramData="param_voiceList" v-model="itemID" @change="onSelectVoice()" />
+		<ParamItem :paramData="param_action" v-model="action.action" />
+		<ParamItem :paramData="param_voiceList" v-model="voiceItemID" @change="onSelectVoice()" v-if="param_action.value == 'voice'" />
+		<ParamItem :paramData="param_soundsList" v-model="soundItemID" @change="onSelectSound()" v-if="param_action.value == 'sound'" />
 	</div>
 </template>
 
 <script lang="ts">
+import type { TriggerActionVoicemodDataAction } from '@/types/TriggerActionDataTypes';
+import { TriggerActionVoicemodDataActionList, type ITriggerPlaceholder, type TriggerActionVoicemodData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
-import type { ITriggerPlaceholder, TriggerActionVoicemodData, TriggerData } from '@/types/TriggerActionDataTypes';
-import Utils from '@/utils/Utils';
+import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 
 @Component({
 	components:{
@@ -39,15 +42,25 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	@Prop
 	declare triggerData:TriggerData;
 	
-	public param_voiceList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", label:"", listValues:[], value:"", icon:"voice"}
-	public itemID:string = "";
-	private listItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
+	public param_action:TwitchatDataTypes.ParameterData<TriggerActionVoicemodDataAction, TriggerActionVoicemodDataAction> = {type:"list", label:"", listValues:[], value:"voice", icon:"", labelKey:"triggers.actions.voicemod.param_action"}
+	public param_voiceList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", label:"", listValues:[], value:"", icon:"voice", labelKey:"triggers.actions.voicemod.param_voice"}
+	public param_soundsList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", label:"", listValues:[], value:"", icon:"unmute", labelKey:"triggers.actions.voicemod.param_sound"}
+
+	public voiceItemID:string = "";
+	public soundItemID:string = "";
+	private voiceListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
+	private soundListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
 	public get contentVM():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; } 
 
 	public beforeMount():void {
-		this.param_voiceList.labelKey = "triggers.actions.voicemod.param_voice";
+		this.param_action.listValues = TriggerActionVoicemodDataActionList.map((v):TwitchatDataTypes.ParameterDataListValue<TriggerActionVoicemodDataAction>=> {
+			return {
+				value:v,
+				labelKey:"triggers.actions.voicemod.param_action_"+v
+			}
+		});
 	}
 
 	/**
@@ -56,7 +69,7 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	public onSelectVoice():void {
 		this.action.voiceID = "";
 		this.action.placeholder = "";
-		let data = this.listItemIDToData[this.itemID];
+		let data = this.voiceListItemIDToData[this.voiceItemID];
 		if(data.type == "id") {
 			this.action.voiceID = data.value;
 		}else{
@@ -65,18 +78,44 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	}
 
 	/**
+	 * Called when sound selection changes
+	 */
+	public onSelectSound():void {
+		this.action.soundID = "";
+		this.action.placeholder = "";
+		let data = this.soundListItemIDToData[this.soundItemID];
+		if(data.type == "id") {
+			this.action.soundID = data.value;
+			VoicemodWebSocket.instance.playSound(undefined, data.value);
+		}else{
+			this.action.placeholder = data.value;
+		}
+	}
+
+	/**
 	 * Called when the available placeholder list is updated
 	 */
-	 public onPlaceholderUpdate(placeholders:ITriggerPlaceholder[]):void {
+	 public onPlaceholderUpdate(placeholders:ITriggerPlaceholder<any>[]):void {
 		if(!this.vmConnected) return;
 
 		//Add an entry per voice filter
-		let list:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
-			list = VoicemodWebSocket.instance.voices.map(v=>{
+		let voiceList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		voiceList = VoicemodWebSocket.instance.voices.map(v=>{
 			let id = Utils.getUUID();
-			this.listItemIDToData[id] = {type:"id",value:v.voiceID};
+			this.voiceListItemIDToData[id] = {type:"id",value:v.id};
 			return {
 				label:v.friendlyName,
+				value:id,
+			}
+		});
+
+		//Add an entry per sound
+		let soundList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
+		soundList = VoicemodWebSocket.instance.soundboards.reduce((result:VoicemodTypes.Sound[], item) => result.concat(item.sounds), []).map(v=>{
+			let id = Utils.getUUID();
+			this.soundListItemIDToData[id] = {type:"id",value:v.id};
+			return {
+				label:v.name,
 				value:id,
 			}
 		});
@@ -84,37 +123,65 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 		//Add placeholders section with all placeholders available on this action
 		let ph = placeholders;
 		if(ph.length > 0) {
-			list.push({label:"", value:"", disabled:true});
-			list.push({label:"═══════ Placeholders ═══════", value:"", disabled:true});
+			voiceList.push({label:"", value:"", disabled:true});
+			soundList.push({label:"", value:"", disabled:true});
+			voiceList.push({label:"═══════ Placeholders ═══════", value:"", disabled:true});
+			soundList.push({label:"═══════ Placeholders ═══════", value:"", disabled:true});
 
 			for (let i = 0; i < ph.length; i++) {
 				const p = ph[i];
 				let id = Utils.getUUID();
-				this.listItemIDToData[id] = {type:"placeholder",value:p.tag};
-				list.push({label:"{"+p.tag.toUpperCase()+"}", value:id});
-				list.push({label: " ⤷ "+this.$t(p.descKey, {NAME:"{"+p.tag.toUpperCase()+"}"}), value:id, disabled:true});
+				this.voiceListItemIDToData[id] = {type:"placeholder",value:p.tag};
+				this.soundListItemIDToData[id] = {type:"placeholder",value:p.tag};
+				voiceList.push({label:"{"+p.tag.toUpperCase()+"}", value:id});
+				soundList.push({label:"{"+p.tag.toUpperCase()+"}", value:id});
+				voiceList.push({label: " ⤷ "+this.$t(p.descKey, {NAME:"{"+p.tag.toUpperCase()+"}"}), value:id, disabled:true});
+				soundList.push({label: " ⤷ "+this.$t(p.descKey, {NAME:"{"+p.tag.toUpperCase()+"}"}), value:id, disabled:true});
 			}
 		}
 
 		//Prefill input depending on selected data type
-		this.param_voiceList.listValues = list;
-		for (let i = 0; i < list.length; i++) {
-			const v = list[i];
+		this.param_voiceList.listValues = voiceList;
+		for (let i = 0; i < voiceList.length; i++) {
+			const v = voiceList[i];
 			
 			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
 			
-			let data = this.listItemIDToData[v.value];
+			let data = this.voiceListItemIDToData[v.value];
 
 			if(!data) {
 				console.log("Entry not found", v);
 				continue;
 			}
 			if(data.type === "id" &&  this.action.voiceID === data.value) {
-				this.itemID = v.value;
+				this.voiceItemID = v.value;
 				break;
 			}
 			if(data.type === "placeholder" &&  this.action.placeholder === data.value) {
-				this.itemID = v.value;
+				this.voiceItemID = v.value;
+				break;
+			}
+		}
+
+		//Prefill input depending on selected data type
+		this.param_soundsList.listValues = soundList;
+		for (let i = 0; i < soundList.length; i++) {
+			const v = soundList[i];
+			
+			if(v.disabled === true) continue; //Ignore disabled entries used just as labels
+			
+			let data = this.soundListItemIDToData[v.value];
+
+			if(!data) {
+				console.log("Entry not found", v);
+				continue;
+			}
+			if(data.type === "id" &&  this.action.soundID === data.value) {
+				this.soundItemID = v.value;
+				break;
+			}
+			if(data.type === "placeholder" &&  this.action.placeholder === data.value) {
+				this.soundItemID = v.value;
 				break;
 			}
 		}

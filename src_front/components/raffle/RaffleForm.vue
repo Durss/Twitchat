@@ -116,17 +116,17 @@
 					</i18n-t>
 				</ParamItem>
 
-				<PostOnChatParam class="card-item" botMessageKey="raffleStart"
+				<PostOnChatParam botMessageKey="raffleStart"
 					v-if="mode=='chat' && triggerMode === false"
 					:placeholders="startPlaceholders"
 					titleKey="raffle.configs.postOnChat_start"
 				/>
-				<PostOnChatParam class="card-item" botMessageKey="raffle"
+				<PostOnChatParam botMessageKey="raffle"
 					v-if="triggerMode === false"
 					:placeholders="winnerPlaceholders"
 					titleKey="raffle.configs.postOnChat_winner"
 				/>
-				<PostOnChatParam class="card-item" botMessageKey="raffleJoin"
+				<PostOnChatParam botMessageKey="raffleJoin"
 					v-if="mode=='chat' && triggerMode === false"
 					:placeholders="joinPlaceholders"
 					titleKey="raffle.configs.postOnChat_join"

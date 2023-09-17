@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@click="open()"
-	v-if="$store('auth').twitch.user.donor.state || !$store('auth').twitch.user.donor.noAd">
+	v-if="$store('auth').twitch.user.donor.state === true || !$store('auth').twitch.user.donor.noAd">
 		<CloseButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
@@ -14,14 +14,18 @@
 					:noToggle="!isDonor"
 					clearToggle
 					secondary
+					noBackground
 					titleKey="params.ad_info"
 				/>
 		
-				<ToggleBlock v-if="!isDonor" class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
-					<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
-				</ToggleBlock>
-		
-				<p v-if="!isDonor" class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info1')"></p>
+				<template v-if="!isDonor">
+					<ToggleBlock class="tip" :open="false" :title="$t('params.ad_bot_info_title')" small>
+						<div class="tipContent" v-html="$t('params.ad_bot_info_content')"></div>
+					</ToggleBlock>
+			
+					<p class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info')"></p>
+					<Button @click="openDonate()" light icon="coin">{{ $t('params.ad_disableBt') }}</Button>
+				</template>
 			</div>
 	</div>
 </template>
@@ -55,8 +59,7 @@ export default class ParamsTwitchatAd extends Vue {
 	public collapse:boolean = true;
 	public blink:boolean = false;
 	
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; }
+	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
@@ -111,6 +114,10 @@ export default class ParamsTwitchatAd extends Vue {
 			this.collapse = true;
 			this.$emit("collapse");
 		}});
+	}
+
+	public openDonate():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 	}
 
 }

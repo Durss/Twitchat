@@ -43,7 +43,7 @@
 						<Button alert
 							icon="trash"
 							class="deleteAction"
-							@click="deleteAction(element.id)"
+							@click.stop="deleteAction(element.id)"
 						/>
 					</template>
 
@@ -275,6 +275,7 @@ export default class VoiceTriggerList extends Vue {
 	
 		.global {
 			width: 100%;
+			margin-bottom: .5em;
 		}
 	
 		.error {

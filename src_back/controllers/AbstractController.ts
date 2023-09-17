@@ -1,5 +1,4 @@
-import fastify, { FastifyReply, FastifyRequest } from "fastify";
-import { PassThrough } from "stream";
+import { FastifyReply, FastifyRequest } from "fastify";
 import Config from '../utils/Config';
 
 /**
@@ -34,7 +33,7 @@ export default class AbstractController {
 		//Missing auth token
 		if(!request.headers.authorization) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({success:false}));
 			return false;
 		}
@@ -42,7 +41,7 @@ export default class AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return false;
 		}
@@ -50,7 +49,7 @@ export default class AbstractController {
 		//Only allow admins
 		if(Config.credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
 			return false;
 		}

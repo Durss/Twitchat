@@ -1,24 +1,21 @@
 <template>
 	<div :class="classes">
-		<div class="holder">
+		<div class="holder" @click="debug">
 			<div class="leftForm">
-				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" />
+				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1693519200000, id:'parameters'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
 				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="onlineUsersTooltip" />
-				<!-- <Button icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
+				<!-- <ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
 			
 			<form @submit.prevent="" class="inputForm">
-				<picture v-if="loading">
-					<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-					<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-				</picture>
+				<Icon class="loader" name="loader" v-if="loading" />
 				
 				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
@@ -30,14 +27,14 @@
 					</div>
 
 					<div class="announcement" v-if="announcement">
-						<button class="closeBt" type="button" @click="closeAnnouncement()"><img src="@/assets/icons/cross.svg" alt="close"></button>
+						<button class="closeBt" type="button" @click="closeAnnouncement()"><Icon name="cross"/></button>
 						<div class="content">
 							<span class="title">
 								<Icon name="alert" />
-								<ChatMessageChunksParser :chunks="announcementTitle" />
+								<ChatMessageChunksParser :chunks="announcementTitle" :channel="$store('auth').twitch.user.id" platform="twitch" />
 							</span>
 							<span class="message">
-								<ChatMessageChunksParser :chunks="announcementMessage" />
+								<ChatMessageChunksParser :chunks="announcementMessage" :channel="$store('auth').twitch.user.id" platform="twitch" />
 							</span>
 						</div>
 					</div>
@@ -140,7 +137,7 @@
 						v-if="$store('chat').pinedMessages.length > 0"
 						:count="$store('chat').pinedMessages.length"
 						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
-						@click="$emit('pins')" />
+						@click="openModal('pins')" />
 				</transition>
 	
 				<transition name="blink">
@@ -149,14 +146,6 @@
 						@click="toggleCypher()"
 						v-if="cypherConfigured"
 						v-tooltip="'Send encrypted<br>messages'" />
-				</transition>
-	
-				<transition name="blink">
-					<ButtonNotification :aria-label="$t('chat.form.deezerBt_aria')"
-						icon="deezer"
-						v-if="$store('music').deezerConnected"
-						v-tooltip="$t('chat.form.deezerBt_aria')"
-						@click="openNotifications('deezer')" />
 				</transition>
 	
 				<transition name="blink">
@@ -170,7 +159,7 @@
 	
 				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
 	
-				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timerStartDate > 0" />
+				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timer" />
 	
 				<CommercialTimer v-if="isCommercial" />
 	
@@ -234,18 +223,22 @@
 
 			<transition name="slide">
 				<Button class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
-					secondary
-					v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.voiceID != 'nofx'"
-					v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
-					@click="resetVoiceEffect()">
-					<template #icon>
-						<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
+				secondary
+				v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.id != 'nofx'"
+				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
+				@click="resetVoiceEffect()">
+				<template #icon>
+					<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
 					</template>
 				</Button>
 			</transition>
 		</div>
 
-		<AutocompleteChatForm class="contentWindows emotesLive"
+		<transition name="slide">
+			<MessageExportIndicator class="contentWindows exportIndicator" v-if="$store('main').messageExportState" />
+		</transition>
+
+		<AutocompleteChatForm class="contentWindows"
 			v-if="openAutoComplete"
 			:search="autoCompleteSearch"
 			:emotes="autoCompleteEmotes"
@@ -264,10 +257,13 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import ApiController from '@/utils/ApiController';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -276,14 +272,14 @@ import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import ButtonNotification from '../ButtonNotification.vue';
+import Icon from '../Icon.vue';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import MessageExportIndicator from './MessageExportIndicator.vue';
 
 @Component({
 	components:{
@@ -294,19 +290,10 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 		TimerCountDownInfo,
 		CommunityBoostInfo,
 		AutocompleteChatForm,
+		MessageExportIndicator,
 		ChatMessageChunksParser,
 	},
 	emits: [
-		"pins",
-		"poll",
-		"pred",
-		"raffle",
-		"search",
-		"bingo",
-		"chatpoll",
-		"TTuserList",
-		"liveStreams",
-		"update:showFeed",
 		"update:showEmotes",
 		"update:showCommands",
 		"update:showChatUsers",
@@ -466,7 +453,6 @@ export default class ChatForm extends Vue {
 				}
 			}
 		});
-
 		// try {
 		// 	await TwitchUtils.loadRewards();
 		// }catch(e) {
@@ -482,6 +468,9 @@ export default class ChatForm extends Vue {
 		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
+	}
+
+	public debug():void {
 	}
 
 	public openNotifications(type:TwitchatDataTypes.NotificationTypes):void {
@@ -530,6 +519,17 @@ export default class ChatForm extends Vue {
 				//Allow only important alerts if requested
 				if(onlyImportant && a.important !== true) continue;
 				this.announcement = json[i];
+			}
+			let historyUpdated = false;
+			//Remove ids from old deleted messages to avoid keeping useless data on localstorage
+			Object.keys(history).forEach(id => {
+				if(json.findIndex(v=>v.id == id) == -1) {
+					delete history[id];
+					historyUpdated = true;
+				}
+			});
+			if(historyUpdated) {
+				DataStore.set(DataStore.ANNOUNCEMENTS_READ, history);
 			}
 		}
 	}
@@ -609,6 +609,7 @@ export default class ChatForm extends Vue {
 		const params = this.message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		const sChat = this.$store("chat");
+		const isAdmin = this.$store("auth").twitch.user.is_admin === true;
 		let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|undefined;
 		let noticeMessage:string|undefined;
 		params.forEach((v, i) => { params[i] = v.trim() });
@@ -637,13 +638,21 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(cmd == "/gngngn") {
-			//App version
+		if(isAdmin && cmd == "/tenorgifload") {
 			console.log(this.$store("chat").messages);
+			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 		
-		if(cmd == "/raw") {
+		if(isAdmin && cmd == "/max1") {
+			this.$store("params").features.mergeConsecutive_maxSize.value = parseInt(params[0]);
+		}else
+		
+		if(isAdmin && cmd == "/max2") {
+			this.$store("params").features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
+		}else
+		
+		if(isAdmin && cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
 				const json = JSON.parse(params.join(""));
@@ -956,7 +965,7 @@ export default class ChatForm extends Vue {
 						height: 1.5em;
 						min-width: 1.5em;
 						min-height: 1.5em;
-						img {
+						.icon {
 							display: block;
 							width: 100%;
 							height: 100%;
@@ -1118,10 +1127,10 @@ export default class ChatForm extends Vue {
 			}
 		}
 
-			.slide-enter-from,
-			.slide-leave-to {
-				transform: translate(100%, 0);
-			}
+		.slide-enter-from,
+		.slide-leave-to {
+			transform: translate(100%, 0);
+		}
 	}
 
 	.contentWindows {
@@ -1130,6 +1139,17 @@ export default class ChatForm extends Vue {
 		left: 0;
 		transform: translateY(-100%);
 		z-index: 5;
+	}
+	.exportIndicator {
+		left: 50%;
+		z-index: 0;
+		transform: translate(-50%, -100%);
+		transition: all .35s;
+
+		&.slide-enter-from,
+		&.slide-leave-to {
+			transform: translate(-50%, 0);
+		}
 	}
 }
 

@@ -3,10 +3,10 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
+import Utils from "../Utils";
 import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
-import Utils from "../Utils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 
 /**
@@ -18,6 +18,7 @@ export default class TwitchUtils {
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
 	public static rewardsCache:TwitchDataTypes.Reward[] = [];
+	public static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
 
 	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
@@ -336,7 +337,7 @@ export default class TwitchUtils {
 		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+channelId, options);
 		const json:{data:TwitchDataTypes.Poll[]} = await res.json();
 		if(res.status == 200) {
-			if(json.data[0].status == "ACTIVE") {
+			if(json.data.length > 0 && json.data[0].status == "ACTIVE") {
 				const src = json.data[0];
 				const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
 				src.choices.forEach(v=> {
@@ -522,24 +523,28 @@ export default class TwitchUtils {
 	/**
 	 * Loads specified emotes sets
 	 */
-	public static async loadEmoteSets(channelId:string, sets:string[]):Promise<TwitchatDataTypes.Emote[]> {
+	public static async loadEmoteSets(channelId:string, sets:string[], staticEmotes?:TwitchDataTypes.Emote[]):Promise<TwitchatDataTypes.Emote[]> {
 		if(this.emotesCache.length > 0) return this.emotesCache;
-		const options = {
-			method:"GET",
-			headers: this.headers,
-		}
 		let emotes:TwitchatDataTypes.Emote[] = [];
 		let emotesTwitch:TwitchDataTypes.Emote[] = [];
-		do {
-			const params = sets.splice(0,25).join("&emote_set_id=");
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
-			const json = await res.json();
-			if(res.status == 200) {
-				emotesTwitch = emotesTwitch.concat(json.data);
-			}else{
-				throw(json);
+		if(!staticEmotes) {
+			const options = {
+				method:"GET",
+				headers: this.headers,
 			}
-		}while(sets.length > 0);
+			do {
+				const params = sets.splice(0,25).join("&emote_set_id=");
+				const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
+				const json = await res.json();
+				if(res.status == 200) {
+					emotesTwitch = emotesTwitch.concat(json.data);
+				}else{
+					throw(json);
+				}
+			}while(sets.length > 0);
+		}else{
+			emotesTwitch.push(...staticEmotes);
+		}
 
 		const uid2User:{[key:string]:TwitchatDataTypes.TwitchatUser} = {};//Avoid spamming store
 		
@@ -560,8 +565,9 @@ export default class TwitchUtils {
 					id:"0",
 					platform:"twitch",
 					displayName:"Global",
+					displayNameOriginal:"Global",
 					login:"Global",
-					donor:{level:0, state:false, upgrade:false, noAd:false},
+					donor:{level:0, state:false, upgrade:false, noAd:false, earlyDonor:false},
 					is_affiliate:false,
 					is_partner:false,
 					is_tracked:false,
@@ -610,24 +616,32 @@ export default class TwitchUtils {
 	/**
 	 * Get the rewards list
 	 */
-	public static async getRewards(forceReload = false):Promise<TwitchDataTypes.Reward[]> {
+	public static async getRewards(forceReload = false, onlyManageable:boolean = false):Promise<TwitchDataTypes.Reward[]> {
 		if(!this.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 		
-		if(this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache;
+		if(!onlyManageable && this.rewardsCache.length > 0 && !forceReload) return this.rewardsCache.concat();
+		if(onlyManageable && this.rewardsManageableCache.length > 0 && !forceReload) return this.rewardsManageableCache.concat();
 		const options = {
 			method:"GET",
 			headers: this.headers,
 		}
 		let rewards:TwitchDataTypes.Reward[] = [];
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
+		let url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		if(onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
+		const res = await fetch(url, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			rewards = json.data;
 		}else{
 			return [];
 		}
-		this.rewardsCache = rewards;
-		return rewards;
+		if(!onlyManageable) {
+			this.rewardsCache = rewards;
+		}else{
+			this.rewardsManageableCache = rewards;
+		}
+		return rewards.concat();
 	}
 
 	/**
@@ -1329,7 +1343,7 @@ export default class TwitchUtils {
 	public static async createClip():Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.CLIPS])) return false;
 
-		const message:TwitchatDataTypes.MessageClipCreate = {
+		let message:TwitchatDataTypes.MessageClipCreate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
 			platform:"twitch",
@@ -1358,12 +1372,28 @@ export default class TwitchUtils {
 				const clip = await TwitchUtils.getClipById(message.clipID);
 				if(clip) {
 					clearInterval(interval);
-					message.clipData = {
+					const clipData = {
 						url:clip.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
 						mp4:clip.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 						duration:clip.duration,
 					};
+					message.clipData = clipData;
 					message.loading = false;
+
+					//Send a message dedicated to the creation complete to execute related
+					//triggers once clip loading completed
+					message = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE,
+						clipUrl: json.data[0].edit_url,
+						clipID: json.data[0].id,
+						error:false,
+						loading:false,
+						clipData,
+					};
+					StoreProxy.chat.addMessage(message);
 				}
 
 				//If after 15s the clip is still not returned by the API, consider it failed
@@ -1560,7 +1590,7 @@ export default class TwitchUtils {
 	/**
 	 * Get the current room's settings
 	 */
-	public static async getRoomSettings(channelId:string):Promise<TwitchatDataTypes.IRoomSettings|null> {
+	public static async getRoomSettings(channelId:string, retry:boolean = false):Promise<TwitchatDataTypes.IRoomSettings|null> {
 		const options = {
 			method:"GET",
 			headers: this.headers,
@@ -1584,19 +1614,21 @@ export default class TwitchUtils {
 				non_moderator_chat_delay_duration: number,
 			}[]} = await res.json();
 			const data = json.data[0];
-			const obj:TwitchatDataTypes.IRoomSettings = {};
 			return {
 				chatDelay:data.non_moderator_chat_delay === false? undefined : data.non_moderator_chat_delay_duration as number,
 				emotesOnly:data.emote_mode === true,
-				followOnly:data.follower_mode === false? undefined : data.follower_mode_duration,
-				slowMode:data.slow_mode === false? undefined : data.slow_mode_wait_time,
+				followOnly:data.follower_mode === false? false : data.follower_mode_duration,
+				slowMode:data.slow_mode === false? false : data.slow_mode_wait_time,
 				subOnly:data.subscriber_mode,
 			}
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
-			return await this.getRoomSettings(channelId);
+			if(retry) {
+				await this.onRateLimit(res.headers);
+				return await this.getRoomSettings(channelId);
+			}
+			return null;
 		}else {
 			return null;
 		}
@@ -2135,7 +2167,8 @@ export default class TwitchUtils {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			followers = await TwitchUtils.getFollowers(null, 100);
 			for (let i = 0; i < followers.length; i++) {
-				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name,undefined, true, false);
+				const user = StoreProxy.users.getUserFrom("twitch", channelId, followers[i].user_id, followers[i].user_login, followers[i].user_name, undefined, true, false);
+				user.channelInfo[channelId].following_date_ms = new Date(followers[i].followed_at).getTime();
 				this.fakeUsersCache.push(user);
 			}
 		}
@@ -2522,7 +2555,7 @@ export default class TwitchUtils {
 		for (let i = 0; i < result.length; i++) {
 			const chunk = result[i];
 			if(chunk.type == "text") {
-				result.splice(i, 1);//Rmove source chunk
+				result.splice(i, 1);//Remove source chunk
 				let res = chunk.value.split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
@@ -2541,8 +2574,45 @@ export default class TwitchUtils {
 				})
 			}
 		}
+
+		//Parse username chunks
+		for (let i = 0; i < result.length; i++) {
+			const chunk = result[i];
+			if(chunk.type == "text") {
+				result.splice(i, 1);//Remove source chunk
+				let res = chunk.value.split(/(@[a-z0-9_]{3,25})/gi);
+				let subIndex = 0;
+				res.forEach(v=> {
+					//Add sub chunks to original resulting chunks
+					const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
+					const node:TwitchDataTypes.ParseMessageChunk = {
+						type:isUsername? "user" : "text",
+						value:v,
+					};
+					if(isUsername) {
+						node.username = v.substring(1);//Remove "@"
+					}
+					result.splice(i+subIndex, 0, node);
+					subIndex++;
+				})
+			}
+		}
 		
 		return result;
+	}
+
+	/**
+	 * Computes the text size of a message.
+	 * Emotes and cheermotes count as 2 chars
+	 * @param message 
+	 */
+	public static computeMessageSize(messageChunks:TwitchDataTypes.ParseMessageChunk[]):number {
+		let size = 0;
+		messageChunks.forEach(v=> {
+			if(v.type == "emote" || v.type == "cheermote") size += 1;
+			else size += v.value.length;
+		});
+		return size;
 	}
 
 	/**

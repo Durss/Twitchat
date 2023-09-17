@@ -9,6 +9,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import { watch, type UnwrapRef } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import { GoXLRTypes } from '@/types/GoXLRTypes';
 
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
@@ -68,9 +69,11 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
+						message_size:0,
 						user:from,
 						to
 					};
+					m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 					data = m;
 					break;
 				}
@@ -84,12 +87,15 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						answers:[],
+						children:[],
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
+						message_size:0,
 						user:fakeUser,
 						is_short:false,
 					};
+					m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 					if(allowConversations) {
 						const messageList = StoreProxy.chat.messages;
 						if(messageList.length > 0 && Math.random() < .1) {
@@ -106,24 +112,6 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-
-				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-					const m:TwitchatDataTypes.MessageWhisperData = {
-						id:Utils.getUUID(),
-						platform:"twitch",
-						channel_id:uid,
-						date:Date.now(),
-						type,
-						message,
-						message_chunks:chunks,
-						message_html:TwitchUtils.messageChunksToHTML(chunks),
-						user:fakeUser,
-						to:user
-					};
-					data = m;
-					break;
-				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
@@ -136,6 +124,7 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_size:0,
 						user:fakeUser,
 						months: Math.random() > .75? Math.floor(Math.random() * 6) + 1 : 0,
 						streakMonths: Math.floor(Math.random() * 46),
@@ -146,6 +135,7 @@ export const storeDebug = defineStore('debug', {
 						is_resub:false,
 						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
+					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
 						fakeUser.channelInfo[uid].totalSubgifts = Math.floor(Math.random() * 1000);
 					}
@@ -232,6 +222,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						user:Utils.pickRand(fakeUsers),
+						children:[],
+						message_size:0,
 						reward: {
 							id:reward.id,
 							cost:reward.cost,
@@ -245,7 +237,8 @@ export const storeDebug = defineStore('debug', {
 						let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 						m.message = message;
 						m.message_chunks = chunks;
-						m.message_html =TwitchUtils.messageChunksToHTML(chunks);
+						m.message_html = TwitchUtils.messageChunksToHTML(chunks);
+						m.message_size = TwitchUtils.computeMessageSize(chunks);
 					}
 					data = m;
 					break;
@@ -352,6 +345,7 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE:
 				case TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION: {
 					const m:TwitchatDataTypes.MessageClipCreate = {
 						id:Utils.getUUID(),
@@ -364,11 +358,19 @@ export const storeDebug = defineStore('debug', {
 						error:false,
 					};
 
-					setTimeout(()=>{
-						m.clipID = "xxx";
-						m.clipUrl = "https://durss.ninja";
+					function fillClipInfo(m:TwitchatDataTypes.MessageClipCreate):void {
+						m.clipID = "UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
+						m.clipUrl = "https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
 						m.loading = false;
-					}, 2000);
+					}
+
+					if(type == TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE) {
+						fillClipInfo(m);
+					}else{
+						setTimeout(()=>{
+							fillClipInfo(m);
+						}, 2000);
+					}
 					
 					data = m;
 					break;
@@ -765,11 +767,16 @@ export const storeDebug = defineStore('debug', {
 						type,
 						id:Utils.getUUID(),
 						date:Date.now(),
-						startAt:Utils.formatDate(start),
-						startAt_ms:start.getTime(),
 						started:true,
-						duration:Utils.formatDuration(duration, true),
-						duration_ms:duration,
+						timer:{
+							startAt:Utils.formatDate(start),
+							startAt_ms:start.getTime(),
+							duration:Utils.formatDuration(duration, true),
+							duration_ms:duration,
+							offset_ms:0,
+							endAt:Utils.formatDate(new Date()),
+							endAt_ms:Date.now(),
+						}
 					};
 					data = m;
 					break;
@@ -791,6 +798,10 @@ export const storeDebug = defineStore('debug', {
 							endAt:Utils.formatDate(new Date()),
 							endAt_ms:Date.now(),
 							timeoutRef:-1,
+							pausedDuration:0,
+							aborted:false,
+							finalDuration:Utils.formatDuration(duration, true),
+							finalDuration_ms:duration,
 						}
 					};
 					data = m;
@@ -811,7 +822,7 @@ export const storeDebug = defineStore('debug', {
 							value:Math.round(Math.random()*9999),
 						}
 					}
-					const m:TwitchatDataTypes.MessageCounterUpdatesData = {
+					const m:TwitchatDataTypes.MessageCounterUpdateData = {
 						platform:"twitchat",
 						type,
 						date:Date.now(),
@@ -824,6 +835,34 @@ export const storeDebug = defineStore('debug', {
 						mined:false,
 						value:counter.value,
 					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE: {
+					let value = Utils.pickRand(StoreProxy.values.valueList ?? []);
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 8, min: 2 }
+					});
+					if(!value) {
+						value = {
+							id:Utils.getUUID(),
+							placeholderKey:"",
+							name:"Fake value",
+							value:lorem.generateSentences(1),
+						}
+					}
+					const m:TwitchatDataTypes.MessageValueUpdateData = {
+						platform:"twitchat",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						value:value,
+						newValue:lorem.generateSentences(1),
+						oldValue:value.value,
+					};
+					console.log("FAKE ", m);
 					data = m;
 					break;
 				}
@@ -1055,6 +1094,63 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						message:userMessage,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK: {
+					const m:TwitchatDataTypes.MessageHeatClickData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						alt:Math.random() > .8,
+						shift:Math.random() > .8,
+						ctrl:Math.random() > .8,
+						anonymous:false,
+						user,
+						channel_id:user.id,
+						coords:{x:Math.random()*100, y:Math.random()*100},
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON: {
+					const m:TwitchatDataTypes.MessageGoXLRButtonData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						button:Utils.pickRand((GoXLRTypes.ButtonTypes as unknown) as GoXLRTypes.ButtonTypesData[]),
+						pressed:Math.random() > .5,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE: {
+					const m:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						enabled:Math.random() > .5,
+						fxIndex:Utils.pickRand([0,1,2,3,4,5]),
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE: {
+					const m:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
+						platform:"twitch",
+						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						buttonId:Utils.pickRand(["SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight"]),
+						bank:Utils.pickRand(["SamplerSelectA", "SamplerSelectB", "SamplerSelectC"]),
 					};
 					data = m;
 					break;

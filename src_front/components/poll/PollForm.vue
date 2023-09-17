@@ -88,7 +88,7 @@ export default class PollForm extends AbstractSidePanel {
 	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
 	public param_points:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};
-	public placeholderList:ITriggerPlaceholder[] = [];
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	private voiceController!:FormVoiceControllHelper;
 

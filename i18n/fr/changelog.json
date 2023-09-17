@@ -7,63 +7,84 @@
 		"major_title": "Nouveautés",
 		"minor_title": "Autres nouveautés",
 		"fixes_title": "Correctifs",
-		"tryBt": "Essayez 👇",
-		"get_streamdeck": "Plugin Stream Deck™",
+		"heat_details": "{LINK} est une extensions Twitch permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
+		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "theme",
-				"l": "Nouveau design",
-				"d": "Livré avec un thème sombre et un thème clair pour satisfaire tous les yeux !"
+				"i": "merge",
+				"l": "Fuuuuuusioooon",
+				"g": "update_images/merge_messages.gif",
+				"d": "Ne laissez plus les spammers compulsifs noyer votre tchat grâce à la nouvelle option permettant de fusionner les messages consécutifs d'une même personne.<br>Agit sur les messages ainsi que les récompenses de points de chaîne."
 			},
 			{
-				"i": "shoutout",
-				"l": "File de Shoutouts",
-				"g": "update_images/shoutout_queue.gif",
-				"d": "Vous êtes la voiture-balais de 2h du matin qui reçoit des séries de raids ?<br>Faites tous les Shoutouts d'un coup, Twitchat les exécutera automatiquement dès que possible.<br>Re priorisez leur exécution ou supprimez-les si nécessaire."
+				"i": "heat",
+				"l": "Extension Heat",
+				"d": "Permettez à vos viewers de <strong>cliquer sur vos sources OBS</strong> ou des zones de <strong>formes personnalisées</strong>.<br><br>En bonus, l'overlay <strong>Spotify</strong> Twitchat intègre nativement la possibilité d'être cliqué via Heat pour envoyer le morceau en cours de lecture dans le tchat pour que les lurkers puissent continuer à lurker."
 			},
 			{
-				"i": "count",
-				"l": "Overlay de classement",
-				"d": "Créez un compteur utilisateur et affichez son classement grâce au nouvel overlay dédié."
+				"i": "goxlr",
+				"l": "GoXLR",
+				"g": "update_images/goxlr.png",
+				"d": "Activez des <strong>FX</strong> ou lancez la lecture de <strong>Samples</strong> depuis des récompenses de points de chaîne, follows, subs, bits, ...<br><br>Utilisez les encoders pour scroller votre tchat.<br><br>Effectuez des actions personnalisées lorsque vous utilisez n'importe quel bouton de votre GoXLR."
 			},
 			{
-				"i": "whispers",
-				"l": "Personnalisez les surbrillances",
-				"g": "update_images/highlights.png",
-				"d": "Modifiez les couleurs de surbrillance pour chaque type de message à votre guise."
-			},
-			{
-				"i": "commands",
-				"l": "/commandes",
-				"g": "update_images/customCmd.png",
-				"d": "Créez vos propres /commandes via le nouveau trigger dédié.<br><br>Ces commandes ne seront pas envoyées en tchat et peuvent être ajoutées aux options de modération du menu contextuel."
-			},
-			{
-				"i": "raid",
-				"l": "Anti-stress",
-				"g": "update_images/raid_viewers.png",
-				"d": "Une nouvelle option permet de censurer le nombre de raiders débarquant chez vous.<br>Cliquez pour révéler le nombre quand vous vous sentez moralement prêt·e à encaisser la fame."
-			},
-			{
-				"i": "elgato",
-				"l": "Stream Deck™",
-				"d": "Le plugin Twitchat possède 5 nouvelles actions :<br>• Executer un trigger<br>• Activer, désactiver ou inverser l'état d'un trigger<br>• Lancer un tirage au sort<br>• Envoyer un message <i>(peut être une commande Twitch, une commande Twitchat, ou une commande définie dans les triggers)</i><br>• Nouvelles options sur l'action d'édition de compteur"
+				"i": "badge",
+				"l": "Pseudo et badges personnalisés",
+				"g": "update_images/custom_badges_name.gif",
+				"d": "Modifiez le pseudo de vos viewers ou attribuez-leur des badges personnalisés.<br>Automatisez ces actions depuis les triggers."
 			},
 			{
 				"i": "broadcast",
-				"l": "Triggers sous stéroïdes",
-				"d": "• Plusieurs triggers peuvent être créés pour un même évènement<br>• Des conditions d'exécution peuvent être définies<br>• Ajoutez des alias à vos commandes<br>• Édition/lecture des compteurs simplifiée<br>• 6 nouveaux triggers relatifs aux sources audio OBS, aux sources media et aux filtres<br>• Nouvelle action dédiée pour les \"délais\"<br>• Nouvelle action pour faire vibrer votre téléphone<br>• Nouvelle action pour activer/désactiver d'autres triggers<br>• Nouvelle action pour lancer une session de Suggestions de Tchat"
+				"l": "Résumé de stream",
+				"g": "update_images/stream_summary.png",
+				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream.<br>Les résumés peuvent être exportés au format CSV."
 			},
 			{
-				"i": "vibratePhone",
-				"l": "Bbzzz bzzzz",
-				"d": "Vous utilisez Twitchat sur mobile ? Permettez à vos modos ou viewers d'attirer votre attention en faisant vibrer votre téléphone.<br><br>Rendez-vous dans l'option \"Apparence => Alertes de tchat\". Ou utilisez l'action de trigger \"Vibrer téléphone\"."
+				"i": "raid",
+				"l": "Raid à l'ancienne",
+				"g": "update_images/raid_actions.png",
+				"d": "Une fois un raid démarré un bouton vous permettra de spammer le lien vers la chaîne en cours de raid.<br><br>Aidez ainsi la chaîne à obtenir le Partenariat en évitant le \"referrer=raid\" dans l'URL pour les viewers qui accepteront d'utiliser le lien."
 			},
 			{
-				"i": "donate",
-				"d": "Tu aimes Twitchat ?<br>Tu apprécies ces mises à jour ?<br>Pense à faire un don pour m'aider à continuer 😇"
+				"i": "alert",
+				"l": "Comptes récents",
+				"g": "update_images/recent_account.png",
+				"d": "Nouvelle option pour indiquer lorsqu'un compte a été créé il y a moins d'une semaine."
+			},
+			{
+				"i": "show",
+				"l": "Anti backseat troll",
+				"g": "update_images/spoiler_1st.gif",
+				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
+			},
+			{
+				"i": "voicemod",
+				"l": "Voicemod",
+				"g": "update_images/voicemod.png",
+				"d": "Nouvelles actions de Trigger pour Voicemod pour activer le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination !"
+			},
+			{
+				"i": "placeholder",
+				"l": "Variables globales",
+				"d": "Créez des variables globales utilisables depuis les triggers.<br>Un évènement de trigger vous permet d'exécuter des actions lorsque l'une de ces valeurs est modifiée."
+			},
+			{
+				"i": "premium",
+				"l": "Fonctionnalités premium",
+				"d": "Ce qui devait arriver arriva !<br>D'une certaine façon Twitchat a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir que ce travail porte plus ses fruits.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon !<br><br><i>Pssst ! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
+			},
+			{
+				"l": "Et plus encore...",
+				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Retrouvez votre historique de raids dans la section \"Qui stream\"<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée<br>• Déplacez, redimensionnez ou tournez des sources OBS depuis les triggers<br>• Les commandes de tchat peuvent maintenant contenir des espaces<br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• Les dons rendus plus simple grâce à une intégration PayPal<br>• Exportez un screen annoté d'un message de tchat via un clic droit (impossible dans un dock OBS)<br>• Copiez/collez des actions d'un trigger à un autre<br>• ...et plein de petites améliorations et quelques correctifs"
 			}
 		],
+		"forceRead": {
+			"title": "EH OH TU LIS !",
+			"description": "J'ai travaillé pendant +2 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans !",
+			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
+			"sorryBt":"ui pardon je lis 🥺",
+			"fuBt":"menfou 🤪"
+		},
 		"major": [
 			{
 				"i": "icon",

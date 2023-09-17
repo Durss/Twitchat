@@ -1,94 +1,44 @@
 <template>
 	<div class="donorstate">
-		<DonorBadge class="donorBadge" />
+		<DonorBadge class="donorBadge" :premium="isPremium" />
 		<div class="badgesList">
+			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="i-1" light />
+			<DonorBadge class="badge" v-if="isPremium" light :premium="isPremium" />
 			<img src="@/assets/icons/donor_placeholder.svg" class="badge" v-for="i in 9-donorLevel" />
-			<DonorBadge class="badge" v-for="i in donorLevel+1" :level="(donorLevel+1)-i" light />
+			<button class="premiumDisabled" @click="openPremium">
+				<img v-if="!isPremium" src="@/assets/icons/donor_placeholder.svg" class="badge" />
+				<Icon name="premium" />
+			</button>
 		</div>
 
-		<div class="card-item">
-			<Icon name="loader" v-if="!publicDonation_loaded" />
-			<ParamItem class="param toggle" v-if="publicDonation_loaded" :paramData="$store('account').publicDonation" v-model="publicDonation" noBackground />
-			<i18n-t scope="global" class="infos" tag="div" v-if="publicDonation_loaded" keypath="account.donation_public">
-				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentAbout)">{{ $t("account.about_link") }}.</a>
-				</template>
-			</i18n-t>
-		</div>
+		<DonorPublicState class="card-item publicState" />
 	</div>
 </template>
 
 <script lang="ts">
-import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
-import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
 import ParamItem from '../params/ParamItem.vue';
 import DonorBadge from './DonorBadge.vue';
+import DonorPublicState from './DonorPublicState.vue';
 
 @Component({
 	components:{
+		Icon,
 		ParamItem,
 		DonorBadge,
+		DonorPublicState,
 	},
 	emits:[],
 })
 export default class DonorState extends Vue {
 
-	public publicDonation = false;
-	public publicDonation_loaded = false;
-
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
+	public get isPremium():boolean { return this.$store("auth").isPremium; }
 	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
-	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 
-	public async mounted():Promise<void> {
-		this.publicDonation = DataStore.get(DataStore.SYNC_DATA_TO_SERVER) == "true";
-
-		if(this.isDonor) {
-			//Load current anon state of the user's donation
-			const options = {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			}
-
-			try {
-				const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-				const json = await anonState.json();
-				if(json.success === true) {
-					this.publicDonation = json.data.public === true;
-				}
-			}catch(error) {
-			}
-			this.publicDonation_loaded = true;
-	
-			watch(()=> this.publicDonation, async ()=> this.updateDonationState());
-		}
-	}
-
-	private async updateDonationState():Promise<void> {
-		try {
-			const options = {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-				body: JSON.stringify({
-					public:this.publicDonation,
-				})
-			}
-			const anonState = await fetch(Config.instance.API_PATH+"/user/donor/anon", options);
-			const json = await anonState.json();
-			this.publicDonation = json.data.public !== true;
-		}catch(error) {
-		}
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 }
 </script>
@@ -120,10 +70,27 @@ export default class DonorState extends Vue {
 		margin-top: 1em;
 	}
 
-	.infos {
-		margin-top: .25em;
+	.premiumDisabled {
+		cursor: pointer;
+		position: relative;
+		.icon {
+			height: 1.4em;
+			opacity: .5;
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -60%);
+			transition: transform .2s;
+		}
+		&:hover {
+			.icon {
+				transform: translate(-50%, -60%) scale(1.2, 1.2);
+			}
+		}
+	}
+
+	.publicState {
 		max-width: 300px;
-		font-size: .8em;
 	}
 }
 </style>

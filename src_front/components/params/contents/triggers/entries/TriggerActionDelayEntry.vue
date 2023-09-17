@@ -12,8 +12,8 @@
 				v-model="delay_local"
 				:no-nl="true"
 				:no-html="true"
-				@keydown="onKeyDown($event)"
-				@keyup="validateValue()" />
+				@blur="test()"
+				@keydown="onKeyDown($event)" />
 	
 			<span>s</span>
 		</div>
@@ -64,8 +64,8 @@ export default class TriggerActionDelayEntry extends Vue {
 		if(add != 0) {
 			this.action.delay! += add;
 			this.delay_local = this.action.delay!.toString();
+			this.validateValue();
 		}
-		this.validateValue();
 	}
 
 	/**
@@ -75,12 +75,19 @@ export default class TriggerActionDelayEntry extends Vue {
 		const ce = this.$refs.input as Vue;
 		(ce.$el as HTMLInputElement).focus()
 	}
+	public test():void {
+		this.validateValue(true)
+	}
 
 	/**
 	 * Makes sure the value is a number within the min/max range
 	 */
-	public validateValue():void {
-		let v = Math.max(0, Math.min(99999, parseInt(this.delay_local)));
+	public validateValue(restrictChars:boolean = false):void {
+		let txt = this.delay_local;
+		if(restrictChars === true) {
+			txt = txt.replace(",", ".").replace(/[^\d.]/g, "");
+		}
+		let v = Math.max(0, Math.min(99999, parseFloat(txt)));
 		if(isNaN(v)) v = 0;
 		this.action.delay = v;
 		this.delay_local = v.toString();

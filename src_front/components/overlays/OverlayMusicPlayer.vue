@@ -36,7 +36,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import DeezerHelper from '@/utils/music/DeezerHelper';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -75,8 +74,6 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 	public isPlaying = false;
 	public resetScrolling = false;
 	public params:TwitchatDataTypes.MusicPlayerParamsData|null = null;
-
-	public get paused():boolean { return !DeezerHelper.instance.playing; }
 
 	public get noScroll():boolean {
 		if(Object.hasOwn(this.$route.query, "noScroll")) return true;
@@ -135,6 +132,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 				if(this.customTrackInfo.length > 0) {
 					customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
 					customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+					customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 				}
 				this.customTrackInfo = customTrackInfo;
 
@@ -174,12 +172,6 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			this.progress = 50;
 		}
 		if(this.embed) {
-			//Called when track changes
-			watch(()=>DeezerHelper.instance.currentTrack, ()=>this.onTrackChangeLocal());
-			//Called when play/pause track
-			watch(()=>DeezerHelper.instance.playing, ()=>this.updateEmbedProgress());
-			//Called when seeking
-			watch(()=>DeezerHelper.instance.playbackPos, ()=> this.updateEmbedProgress());
 			//Called when seeking
 			watch(()=>this.$store("music").musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
 			this.onTrackChangeLocal();
@@ -202,40 +194,27 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	private onTrackChangeLocal():void {
-		const track = this.staticTrackData? this.staticTrackData : DeezerHelper.instance.currentTrack;
 		this.params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
-		if(track) {
-			this.artist = track.artist;
-			this.title = track.title;
-			this.cover = track.cover;
+		if(this.staticTrackData) {
+			this.artist = this.staticTrackData.artist;
+			this.title = this.staticTrackData.title;
+			this.cover = this.staticTrackData.cover;
 			this.isPlaying = true;
 			let customTrackInfo = this.params.customInfoTemplate;
 			if(this.customTrackInfo.length > 0) {
 				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
 				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
+				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 			}
 			this.customTrackInfo = customTrackInfo;
 
-			const newProgress = ((this.staticTrackData? 600 : DeezerHelper.instance.playbackPos)/track.duration);
+			const newProgress = 600/this.staticTrackData.duration;
 			this.progress = newProgress;
-			const duration = track.duration*(1-newProgress);
+			const duration = this.staticTrackData.duration*(1-newProgress);
 			gsap.killTweensOf(this);
 			gsap.to(this, {duration, progress:1, ease:"linear"});
 		}else{
 			this.isPlaying = false;
-		}
-	}
-
-	private updateEmbedProgress():void {
-		if(DeezerHelper.instance.currentTrack && DeezerHelper.instance.playing) {
-			let trackDuration = DeezerHelper.instance.currentTrack.duration * 1000;
-			const newProgress = ((DeezerHelper.instance.playbackPos*1000)/trackDuration);
-			this.progress = newProgress;
-			const duration = (trackDuration*(1-newProgress))/1000;
-			gsap.killTweensOf(this);
-			gsap.to(this, {duration, progress:1, ease:"linear"});
-		}else{
-			gsap.killTweensOf(this);
 		}
 	}
 

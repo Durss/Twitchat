@@ -6,6 +6,7 @@ import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -21,6 +22,35 @@ export const storeStream = defineStore('stream', {
 		startAdCooldown: 0,
 		roomSettings:{},//channelId => settings
 		currentStreamInfo: {},//channelId => infos
+		raidHistory: [],
+		// raidHistory: [{
+		// 	uid:"152242149",
+		// 	date:Date.now() - 15*24*3600000
+		// },
+		// {
+		// 	uid:"43809079",
+		// 	date:Date.now() - 9*24*3600000
+		// },
+		// {
+		// 	uid:"152242149",
+		// 	date:Date.now() - 12.5*24*3600000
+		// },
+		// {
+		// 	uid:"152242149",
+		// 	date:Date.now() - 8.65*24*3600000
+		// },
+		// {
+		// 	uid:"18615783",
+		// 	date:Date.now() - 9.5*24*3600000
+		// },
+		// {
+		// 	uid:"53964156",
+		// 	date:Date.now() - 16.65*24*3600000
+		// },
+		// {
+		// 	uid:"53964156",
+		// 	date:Date.now() - 31.65*24*3600000
+		// }],
 	} as IStreamState),
 
 
@@ -65,7 +95,7 @@ export const storeStream = defineStore('stream', {
 			return false;
 		},
 
-		setRaiding(infos:TwitchatDataTypes.RaidInfo|undefined) {
+		setRaiding(infos?:TwitchatDataTypes.RaidInfo) {
 			if(!this.currentRaid && infos) {
 				const m:TwitchatDataTypes.MessageRaidStartData = {
 					date:Date.now(),
@@ -77,6 +107,31 @@ export const storeStream = defineStore('stream', {
 				StoreProxy.chat.addMessage(m);
 			}
 			this.currentRaid = infos;
+		},
+
+		onRaidComplete() {
+			if(this.currentRaid) {
+				this.raidHistory.push({
+					uid:this.currentRaid.user.id,
+					date:Date.now(),
+				});
+				//Limit history to 100 entries
+				if(this.raidHistory.length > 100) {
+					this.raidHistory.shift();
+				}
+			}
+			//Send donation reminder if requested
+			if(StoreProxy.params.donationReminderEnabled) {
+				StoreProxy.params.donationReminderEnabled = false;
+				StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
+			}
+			//Cut OBS stream if requested
+			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
+				setTimeout(() => {
+					OBSWebsocket.instance.stopStreaming();
+				}, 2000);
+			}
+			this.currentRaid = undefined;
 		},
 
 		setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings) {
@@ -146,6 +201,12 @@ export const storeStream = defineStore('stream', {
 			const uid = StoreProxy.auth.twitch.user.id;
 			if(emoteOnly && channelId === uid){
 				TwitchUtils.setRoomSettings(uid, {emotesOnly:true});
+			}
+
+			//Send donation reminder if requested
+			if(StoreProxy.params.donationReminderEnabled) {
+				StoreProxy.params.donationReminderEnabled = false;
+				StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
 			}
 		},
 

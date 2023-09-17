@@ -4,10 +4,12 @@
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
 			<Button small @click="simulateEvent('message', 'clip')" icon="clip">Clip link</Button>
+			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Ad</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Ad warn</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
 			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
+			<Button small @click="simulateEvent('twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
@@ -17,6 +19,7 @@
 			<Button small @click="simulateEvent('message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
 			<Button small @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
+			<Button small @click="simulateEvent('message', 'recent')" icon="alert">Recent account</Button>
 			<Button small @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
 			<Button small @click="simulateEvent('raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
 			<Button small @click="simulateEvent('raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
@@ -48,8 +51,8 @@
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
-			<Button small @click="simulateFollowbotItem()" icon="block">Follow bot item</Button>
-			<Button small @click="simulateFollowbotRaid()" icon="block">Follow bot raid</Button>
+			<Button small @click="simulateFollowbotItem()" icon="follow">Follow bot item</Button>
+			<Button small @click="simulateFollowbotRaid()" icon="follow">Follow bot raid</Button>
 			<Button small @click="simulateEvent('shoutout')" icon="shoutout">Send shoutout</Button>
 			<Button small @click="simulateEvent('shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
 			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>
@@ -57,7 +60,6 @@
 			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
 			<Button small @click="simulateEvent('stream_online')" icon="online">Stream online</Button>
 			<Button small @click="simulateEvent('stream_offline')" icon="offline">Stream offline</Button>
-			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
 			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
@@ -135,13 +137,15 @@ export default class DevmodeMenu extends Vue {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
 				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;
 				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
-				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR; break;
+				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DONATE; break;
 				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
 				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
+				case "update_reminder":		(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; break;
 				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
 				case "first":				(message as TwitchatDataTypes.MessageChatData).twitch_isFirstMessage = true; break;
 				case "returning":			(message as TwitchatDataTypes.MessageChatData).twitch_isReturning = true; break;
 				case "presentation":		(message as TwitchatDataTypes.MessageChatData).twitch_isPresentation = true; break;
+				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
 				case "hypeChat": {
@@ -162,6 +166,7 @@ export default class DevmodeMenu extends Vue {
 					m.message = str;
 					m.message_chunks = chunks;
 					m.message_html = str;
+					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					break;
 				}
 				case "gift":{
@@ -177,6 +182,11 @@ export default class DevmodeMenu extends Vue {
 					m.gift_count = recipients.length;
 					break;
 				}
+			}
+			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
+				setTimeout(()=>{
+					this.simulateEvent(TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
+				}, 2000);
 			}
 			this.$store("chat").addMessage(message);
 		}, false);
@@ -341,13 +351,15 @@ type Subaction = "first"
 				| "soReceived"
 				| "ad_warn"
 				| "donor_public_prompt"
+				| "update_reminder"
 				| "right_click_hint"
 				| "discord"
 				| "raidOnline"
 				| "raidOffline"
 				| "ad"
 				| "hypeChat"
-				| "clip";
+				| "clip"
+				| "recent";
 
 </script>
 

@@ -18,6 +18,7 @@
 					icon="dragZone"
 					class="action orderBt"
 					v-tooltip="$t('triggers.reorder_tt')"
+					@click.stop
 				/>
 			</div>
 		</template>
@@ -26,13 +27,13 @@
 				<Button small
 					icon="copy"
 					class="action"
-					@click="$emit('duplicate')"
+					@click.stop="$emit('duplicate')"
 					v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 					/>
 					<Button small alert
 					icon="trash"
 					class="action delete"
-					@click="$emit('delete')"
+					@click.stop="$emit('delete')"
 					v-tooltip="$t('global.delete')"
 				/>
 			</div>
@@ -67,14 +68,20 @@
 					v-if="hasUserInfo"
 					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
 				
-				<Button class="button" @click="selectActionType('stream_infos')"
-					icon="info">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
+				<Button class="button" @click.capture="selectActionType('stream_infos')"
+					icon="info"
+					:disabled="!canEditStreamInfo"
+					v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
 					
 				<Button class="button" @click="selectActionType('chatSugg')"
 					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</Button>
 				
 				<Button class="button" @click="selectActionType('highlight')"
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
+				
+				<Button class="button" @click="selectActionType('value')"
+				 	v-newflag="{date:1693519200000, id:'params_value'}"
+					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</Button>
 				
 				<Button class="button" @click="selectActionType('count')"
 					icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
@@ -94,13 +101,27 @@
 				
 				<Button class="button" @click.capture="selectActionType('music')"
 					icon="spotify"
-					:disabled="!musicServiceConfigured"
-					v-tooltip="musicServiceConfigured? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
+					:disabled="!spotifyConnected"
+					v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('voicemod')"
 					icon="voicemod"
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('goxlr')"
+				 	v-newflag="{date:1693519200000, id:'params_goxlr'}"
+					icon="goxlr" premium
+					:disabled="!goxlrEnabled"
+					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('customBadges')"
+				 	v-newflag="{date:1693519200000, id:'params_custombadges'}"
+					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('customUsername')"
+				 	v-newflag="{date:1693519200000, id:'params_customusername'}"
+					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</Button>
 				
 				<Button class="button" @click="selectActionType('trigger')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
@@ -121,7 +142,7 @@
 		</div>
 
 		<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" />
+		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
 		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
@@ -130,10 +151,14 @@
 		<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
 		<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+		<TriggerActionValueEntry v-if="action.type=='value'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
 		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
+		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -154,10 +179,10 @@ import PredictionForm from '@/components/prediction/PredictionForm.vue';
 import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
-import type { OBSInputItem, OBSSourceItem } from '@/utils/OBSWebsocket';
+import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
@@ -166,7 +191,10 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
+import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
+import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
 import TriggerActionHighlightEntry from './entries/TriggerActionHighlightEntry.vue';
 import TriggerActionMusicEntry from './entries/TriggerActionMusicEntry.vue';
@@ -176,10 +204,12 @@ import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
+import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
-import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
+import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 
 @Component({
 	components:{
@@ -197,12 +227,16 @@ import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
 		TriggerActionDelayEntry,
+		TriggerActionValueEntry,
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
+		TriggerActionGoXLREntry,
+		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
+		TriggerActionCustomUsername,
 		TriggerActionStreamInfoEntry,
 		TriggerActionVibratePhoneEntry,
 		TriggerActionTriggerToggleEntry,
@@ -215,9 +249,11 @@ export default class TriggerActionEntry extends Vue {
 	public action!:TriggerActionTypes;
 	@Prop
 	public triggerData!:TriggerData;
-	@Prop
+	@Prop({default:[]})
+	public obsScenes!:OBSSceneItem[];
+	@Prop({default:[]})
 	public obsSources!:OBSSourceItem[];
-	@Prop
+	@Prop({default:[]})
 	public obsInputs!:OBSInputItem[];
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
@@ -225,14 +261,15 @@ export default class TriggerActionEntry extends Vue {
 	public index!:number;
 
 	public opened = false;
-	public isError = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
+	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
@@ -303,6 +340,10 @@ export default class TriggerActionEntry extends Vue {
 			mute:"mute",
 			unmute:"unmute",
 			replay:"play",
+			switch_to:"next",
+			move:"move",
+			resize:"scale",
+			rotate:"rotate",
 		};
 		
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );
@@ -321,11 +362,25 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "poll") icons.push( 'poll' );
 		if(this.action.type == "prediction") icons.push( 'prediction' );
 		if(this.action.type == "count") icons.push( 'count' );
+		if(this.action.type == "value") icons.push( 'placeholder' );
 		if(this.action.type == "random") icons.push( 'dice_placeholder' );
 		if(this.action.type == "stream_infos") icons.push( 'info' );
 		if(this.action.type == "delay") icons.push( 'timer' );
 		if(this.action.type == "vibrate") icons.push( 'vibrate' );
+		if(this.action.type == "customBadges") icons.push( 'badge' );
+		if(this.action.type == "customUsername") icons.push( 'user' );
 		return icons;
+	}
+
+	public get isError():boolean {
+		if(this.action.type != "obs") return false;
+
+		const action:TriggerActionObsData = this.action as TriggerActionObsData;
+		if(!action.sourceName) return false;
+		if(!this.obsConnected) return true;
+		return this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1
+		&& this.obsScenes.findIndex(v=>v.sceneName == action.sourceName) == -1
+		&& this.obsInputs.findIndex(v=>v.inputName == action.sourceName) == -1;
 	}
 
 	public async beforeMount():Promise<void> {
@@ -333,10 +388,6 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(this.action.type == "obs") {
-			watch(()=>this.obsSources, ()=> this.checkOBSSource());
-			this.checkOBSSource();
-		}
 	}
 
 	/**
@@ -364,8 +415,14 @@ export default class TriggerActionEntry extends Vue {
 					return;
 				}break
 			}
+			case "stream_infos": {
+				if(!this.canEditStreamInfo) {
+					this.$store("auth").requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+					return;
+				}break
+			}
 			case "music": {
-				if(!this.musicServiceConfigured) {
+				if(!this.spotifyConnected) {
 					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 					return;
 				}break
@@ -373,6 +430,12 @@ export default class TriggerActionEntry extends Vue {
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
 					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
+					return;
+				}break
+			}
+			case "goxlr": {
+				if(!this.goxlrEnabled) {
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.GOXLR);
 					return;
 				}break
 			}
@@ -398,14 +461,6 @@ export default class TriggerActionEntry extends Vue {
 		this.action.type = type;
 	}
 
-	/**
-	 * Updates the error state when obs sources are changed
-	 */
-	private checkOBSSource():void {
-		const action:TriggerActionObsData = this.action as TriggerActionObsData;
-		this.isError = this.obsSources.findIndex(v=>v.sourceName == action.sourceName) == -1 && this.obsConnected;
-	}
-
 }
 </script>
 
@@ -420,7 +475,7 @@ export default class TriggerActionEntry extends Vue {
 
 <style scoped lang="less">
 .triggeractionentry{
-	transition: all .15s;
+	// transition: all .15s;
 	:deep(.header) {
 		padding: 0;
 		.title {

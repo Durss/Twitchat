@@ -2,19 +2,26 @@
 	<div class="paramstriggers parameterContent">
 		<Icon name="broadcast" class="icon" />
 
-		<i18n-t scope="global" tag="p" class="head" :keypath="headerKey" v-if="!currentTriggerData">
-			<template #COUNT><strong>{{ eventsCount }}</strong></template>
-		</i18n-t>
+		<div class="head">
+			<i18n-t scope="global" tag="p" :keypath="headerKey" v-if="!currentTriggerData">
+				<template #COUNT><strong>{{ eventsCount }}</strong></template>
+			</i18n-t>
+			<i18n-t scope="global" tag="p" class="small" keypath="triggers.logs.cmd_info" v-if="!currentTriggerData">
+				<template #CMD><mark v-click2Select>{{ $store("chat").commands.find(v=>v.id=='triggerlogs')?.cmd}}</mark></template>
+			</i18n-t>
+		</div>
 
 		<div class="holder">
+
+			<div class="card-item" v-if="$store('triggers').triggerList?.length === 0">{{ $t("triggers.usage") }}</div>
 
 			<div class="ctas" v-if="showForm || currentTriggerData">
 				<Button class="cta resyncBt" small
 					v-if="showOBSResync || showForm"
 					icon="obs"
-					@click="listOBSSources()"
+					@click="listOBSSources(); listOBSScenes();"
 					v-tooltip="$t('triggers.resyncOBSBt_tt')"
-					:loading="loadingOBSScenes">{{ $t('triggers.resyncOBSBt') }}</Button>
+					:loading="loadingOBSElements">{{ $t('triggers.resyncOBSBt') }}</Button>
 
 				<Button class="cta resyncBt" small
 					icon="channelPoints"
@@ -33,11 +40,19 @@
 					icon="delete"
 					@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 			</div>
+			
+			<template v-if="showList && !showForm">
+				<Button class="createBt"
+					v-if="$store('auth').isPremium || $store('triggers').triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
+					icon="add"
+					v-newflag="{date:1693519200000, id:'paramsparams_triggers'}"
+					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
-			<Button class="createBt"
-				v-if="showList && !showForm"
-				icon="add"
-				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
+				<div class="card-item alert premiumLimit" v-else>
+					<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+					<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+				</div>
+			</template>
 			
 			<TriggerCreateForm
 				v-if="showForm"
@@ -51,11 +66,12 @@
 			<TriggerActionList
 				v-if="currentTriggerData"
 				:triggerData="currentTriggerData"
+				:obsScenes="obsScenes"
 				:obsSources="obsSources"
 				:obsInputs="obsInputs"
 				:rewards="rewards" />
 				
-			<TriggerList v-if="showList"
+			<TriggerList v-if="showList && !showForm"
 				@select="onSelectTrigger($event)"
 				@testTrigger="testTrigger($event)"
 				:rewards="rewards" />
@@ -65,23 +81,23 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, type TriggerActionData, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import SchedulerHelper from '@/utils/SchedulerHelper';
+import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
 import TriggerList from './triggers/TriggerList.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import SchedulerHelper from '@/utils/SchedulerHelper';
 
 @Component({
 	components:{
@@ -95,21 +111,22 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 export default class ParamsTriggers extends Vue implements IParameterContent {
 
 	public eventsCount:number = 0;
-	public showList:boolean = true;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
-	public loadingOBSScenes:boolean = false;
+	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
-	public currentTriggerData:TriggerData|null = null;
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
 
 	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
+	public get currentTriggerData():TriggerData|null { return this.$store("triggers").currentEditTriggerData; }
+	public get showList():boolean { return this.currentTriggerData == null; }
 
 	public get showOBSResync():boolean {
 		if(!this.currentTriggerData) return false;
+		if(this.currentTriggerData.type == TriggerTypes.HEAT_CLICK) return true;
 		if(this.currentTriggerData.actions.length === 0) return false;
 		return this.currentTriggerData.actions.findIndex(v=>v.type == "obs") > -1;
 	}
@@ -135,7 +152,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		const list = this.$store("triggers").triggerList;
 		//No trigger yet, just show form
 		if(list.length == 0) {
-			this.showList = false;
 			this.showForm = true;
 			this.headerKey = "triggers.header_select_trigger";
 		}
@@ -188,14 +204,27 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Called when back button is clicked on params header
 	 */
 	public onNavigateBack(): boolean {
-		if(!this.showList) {
-			this.showList = true;
+		return this.reload();
+	}
+
+	/**
+	 * Called when back button is clicked on params header
+	 */
+	public reload(): boolean {
+		if(!this.showList || this.showForm) {
 			this.showForm = false;
-			this.currentTriggerData = null;
+			this.$store("triggers").openTriggerList();
 			this.headerKey = "triggers.header";
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Opens the premium page
+	 */
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -204,7 +233,6 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public openForm():void {
 		this.headerKey = "triggers.header_select_trigger";
 		this.showForm = true;
-		this.showList = false;
 	}
 
 	/**
@@ -212,57 +240,64 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * @param triggerData
 	 */
 	public onSelectTrigger(triggerData:TriggerData):void {
-		this.currentTriggerData = triggerData;
-		this.showList = false;
+		this.$store("triggers").openTriggerEdition(triggerData);
 		this.showForm = false;
 	}
 
 	/**
-	 * Lists OBS Sources
+	 * Lists OBS sources, scenes and filters
 	 */
 	public async listOBSSources():Promise<void> {
-		this.loadingOBSScenes = true;
+		this.loadingOBSElements = true;
 		await Utils.promisedTimeout(250);
+		let sources:OBSSourceItem[] = [];
+		let inputs:OBSInputItem[] = [];
 		try {
-			this.obsSources = await OBSWebsocket.instance.getSources();
-			this.obsInputs = await OBSWebsocket.instance.getInputs();
+			sources = await OBSWebsocket.instance.getSources();
+			inputs = await OBSWebsocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
 			this.$store("main").alert(this.$t('error.obs_sources_loading'));
+			this.loadingOBSElements = false;
 			return;
 		}
 
-		this.obsSources.sort((a,b)=> {
+		sources.sort((a,b)=> {
 			if(a.sourceName.toLowerCase() < b.sourceName.toLowerCase()) return -1;
 			if(a.sourceName.toLowerCase() > b.sourceName.toLowerCase()) return 1;
 			return 0;
 		});
 
-		this.obsInputs.sort((a,b)=> {
+		inputs.sort((a,b)=> {
 			if(a.inputName.toLowerCase() < b.inputName.toLowerCase()) return -1;
 			if(a.inputName.toLowerCase() > b.inputName.toLowerCase()) return 1;
 			return 0;
 		});
-		this.loadingOBSScenes = false;
+
+		this.obsSources = sources;
+		this.obsInputs = inputs;
+		this.loadingOBSElements = false;
 	}
 
 	/**
 	 * Lists OBS Scenes
 	 */
 	public async listOBSScenes():Promise<void> {
+		let scenes:OBSSceneItem[] = [];
 		try {
-			this.obsScenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
+			scenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
 		}catch(error) {
 			this.obsScenes = [];
 			this.$store("main").alert(this.$t('error.obs_scenes_loading'));
 			return;
 		}
 
-		this.obsScenes.sort((a,b)=> {
+		scenes.sort((a,b)=> {
 			if(a.sceneName.toLowerCase() < b.sceneName.toLowerCase()) return -1;
 			if(a.sceneName.toLowerCase() > b.sceneName.toLowerCase()) return 1;
 			return 0;
 		});
+		this.obsScenes = scenes;
 	}
 
 	/**
@@ -383,7 +418,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 					//Counter update simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
-						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);;
+						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);
 						if(counter) {
 							m.counter = counter;
 							switch(trigger.type) {
@@ -394,6 +429,15 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 								case TriggerTypes.COUNTER_MAXED: m.maxed = true; break;
 								case TriggerTypes.COUNTER_MINED: m.mined = true; break;
 							}
+						}
+					}
+
+					//Value update simulation
+					if(m.type == TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE) {
+						const value = this.$store("values").valueList.find(v=>v.id == trigger.valueId);
+						if(value) {
+							m.value = value;
+							m.oldValue = value.value;
 						}
 					}
 
@@ -435,9 +479,30 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.SHOUTOUT_IN || triggerEvent.value == TriggerTypes.SHOUTOUT_OUT) {
 						//Force proper "received" state
 						(m as TwitchatDataTypes.MessageShoutoutData).received = (triggerEvent.value == TriggerTypes.SHOUTOUT_IN);
+					}else
+
+					if(triggerEvent.value == TriggerTypes.HEAT_CLICK) {
+						//Force proper heat click target
+						if(trigger.heatClickSource == "area" && trigger.heatAreaIds) {
+							(m as TwitchatDataTypes.MessageHeatClickData).areaId = Utils.pickRand(trigger.heatAreaIds);
+						}
+						if(trigger.heatClickSource == "obs" && trigger.heatObsSource) {
+							(m as TwitchatDataTypes.MessageHeatClickData).obsSource = trigger.obsSource;
+						}
+					}else
+
+					if(triggerEvent.value == TriggerTypes.GOXLR_BUTTON_PRESSED || triggerEvent.value == TriggerTypes.GOXLR_BUTTON_RELEASED) {
+						//Force a button
+						(m as TwitchatDataTypes.MessageGoXLRButtonData).button = Utils.pickRand(trigger.goxlrButtons!);
+						(m as TwitchatDataTypes.MessageGoXLRButtonData).pressed = triggerEvent.value == TriggerTypes.GOXLR_BUTTON_PRESSED;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED || triggerEvent.value == TriggerTypes.GOXLR_FX_DISABLED) {
+						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).enabled = triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED;
+						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).fxIndex = Utils.pickRand([0,1,2,3,4,5]);
 					}
 
-					TriggerActionHandler.instance.execute(m, true);
+					TriggerActionHandler.instance.execute(m, true, trigger.id);
 				}, false);
 			}
 		}
@@ -449,10 +514,9 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 */
 	public deleteTrigger(id:string):void {
 		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
-			this.$store("triggers").deleteTrigger(id);
-			this.showList = true;
 			this.showForm = false;
-			this.currentTriggerData = null;
+			this.$store("triggers").deleteTrigger(id);
+			this.$store("triggers").openTriggerList();
 		}).catch(error=>{});
 	}
 }
@@ -467,6 +531,14 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 		.createBt {
 			margin: auto;
+		}
+
+		.premiumLimit {
+			.button {
+				display: flex;
+				margin: auto;
+				margin-top: .5em;
+			}
 		}
 	
 		.ctas {

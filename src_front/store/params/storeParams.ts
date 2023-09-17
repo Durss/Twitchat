@@ -11,6 +11,8 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import type { GoXLRTypes } from '@/types/GoXLRTypes';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -18,13 +20,19 @@ export const storeParams = defineStore('params', {
 		currentParamSearch:"",
 		currentPageSubContent:"",
 		currentModal:"",
+		donationReminderEnabled:false,
 		greetThemAutoDelete: 600,
 		features: {
-			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show"},
+			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show", storage:{vnew:{date:1693519200000, id:'params_chatspoiler'}}},
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
-			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
+			saveHistory: 				{save:true, type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history", storage:{vnew:{date:1693519200000, id:'params_chathistory'}}},
+			mergeConsecutive:	 		{save:true, type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},
+			mergeConsecutive_maxSize:	{save:true, type:"number", value:100, labelKey:"params.mergeConsecutive_maxSize", id:226, parent:225, min:1, max:500},
+			mergeConsecutive_maxSizeTotal:{save:true, type:"number", value:1000, labelKey:"params.mergeConsecutive_maxSizeTotal", id:227, parent:225, min:10, max:2000},
+			mergeConsecutive_minDuration:{save:true, type:"number", value:30, labelKey:"params.mergeConsecutive_minDuration", id:228, parent:225, min:0, max:3600},
 			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment", example:"groupIdenticalMessage.gif"},
+			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
 			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation", example:"conversation.gif"},
 			userHistoryEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.userHistoryEnabled", id:203, icon:"conversation"},
 			lockAutoScroll: 			{save:true, type:"boolean", value:false, labelKey:"params.lockAutoScroll", id:205, icon:"pause"},
@@ -32,7 +40,6 @@ export const storeParams = defineStore('params', {
 			liveAlerts:					{save:true, type:"boolean", value:false, labelKey:"params.liveAlerts", id:220, icon:"online", twitch_scopes:[TwitchScopes.LIST_FOLLOWINGS]},
 			autoRemod: 					{save:true, type:"boolean", value:false, labelKey:"params.autoRemod", id:222, icon:"mod", twitch_scopes:[TwitchScopes.EDIT_MODS]},
 			showModTools: 				{save:true, type:"boolean", value:true, labelKey:"params.showModTools", id:206, icon:"ban", twitch_scopes:[TwitchScopes.EDIT_BANNED, TwitchScopes.EDIT_BLOCKED, TwitchScopes.DELETE_MESSAGES]},
-			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:221, icon:"sub", example:"firstUserBadge.png"},
 			raffleHighlightUser:		{save:true, type:"boolean", value:true, labelKey:"params.raffleHighlightUser", id:218, icon:"ticket", example:"trackUser.png"},
 			raffleHighlightUserDuration:{save:true, type:"number", value:5, labelKey:"params.raffleHighlightUserDuration", id:223, icon:"timer", parent:218, min:1, max:60*24*30},
 			offlineEmoteOnly:			{save:true, type:"boolean", value:false, labelKey:"params.offlineEmoteOnly", id:214, icon:"emote", twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS]},
@@ -43,6 +50,7 @@ export const storeParams = defineStore('params', {
 		appearance: {
 			splitViewVertical: 			{save:true, type:"boolean", value:false, labelKey:"params.splitViewVertical", id:21, icon:"layout", example:"verticalLayout.png"},
 			censorDeletedMessages: 		{save:true, type:"boolean", value:true, labelKey:"params.censorDeletedMessages", id:25, icon:"hide"},
+			highlightusernames: 		{save:true, type:"boolean", value:true, labelKey:"params.highlightusernames", id:44, icon:"user", example:"clickable_mentions.png", storage:{vnew:{date:1693519200000, id:'params_chathighlightmentions'}}},
 			highlightMods: 				{save:true, type:"boolean", value:true, labelKey:"params.highlightMods", id:9, icon:"mod"},
 			highlightMods_color:		{save:true, type:"color", value:"#00a865", labelKey:"params.highlightColor", id:29, parent:9},
 			highlightVips: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightVips", id:10, icon:"vip"},
@@ -62,10 +70,13 @@ export const storeParams = defineStore('params', {
 			highlight1stToday: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stToday", id:28, icon:"hand"},
 			highlight1stToday_color:	{save:true, type:"color", value:"#82D408", labelKey:"params.highlightColor", id:39, parent:28},
 			highlightNonFollowers: 		{save:true, type:"boolean", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow", example:"nofollow.png", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]},
+			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:45, icon:"sub", example:"firstUserBadge.png"},
+			recentAccountUserBadge: 	{save:true, type:"boolean", value:false, labelKey:"params.recentAccountUserBadge", id:46, icon:"date", example:"recent_account.png", storage:{vnew:{date:1693519200000, id:'params_chatrecentbadge'}}},
 			translateNames:				{save:true, type:"boolean", value:true, labelKey:"params.translateNames", id:22, icon:"translate", example:"translate.png"},
 			showRewardsInfos: 			{save:true, type:"boolean", value:false, labelKey:"params.showRewardsInfos", id:23, icon:"channelPoints", example:"rewardDetails.png"},
 			showViewersCount: 			{save:true, type:"boolean", value:true, labelKey:"params.showViewersCount", id:17, icon:"user"},
-			showRaidViewersCount: 		{save:true, type:"boolean", value:true, labelKey:"params.showRaidViewersCount", id:40, icon:"raid"},
+			showRaidViewersCount: 		{save:true, type:"boolean", value:true, labelKey:"params.showRaidViewersCount", id:40, icon:"raid", example:"raid_count.png"},
+			showRaidStreamInfo: 		{save:true, type:"boolean", value:true, labelKey:"params.showRaidStreamInfo", id:43, icon:"raid", example:"raid_infos.png", storage:{vnew:{date:1693519200000, id:'params_chatraidinfo'}}},
 			alternateMessageBackground:	{save:true, type:"boolean", value:true, labelKey:"params.alternateMessageBackground", id:41, icon:"whispers"},
 			showEmotes: 				{save:true, type:"boolean", value:true, labelKey:"params.showEmotes", id:2, icon:"emote"},
 			bttvEmotes: 				{save:true, type:"boolean", value:false, labelKey:"params.bttvEmotes", id:3, icon:"emote", parent:2},
@@ -74,7 +85,7 @@ export const storeParams = defineStore('params', {
 			showBadges: 				{save:true, type:"boolean", value:true, labelKey:"params.showBadges", id:4, icon:"badge"},
 			minimalistBadges: 			{save:true, type:"boolean", value:false, labelKey:"params.minimalistBadges", id:5, parent:4, example:"minibadges.png"},
 			displayTime: 				{save:true, type:"boolean", value:false, labelKey:"params.displayTime", id:6, icon:"timeout"},
-			displayTimeRelative: 		{save:true, type:"boolean", value:false, labelKey:"params.displayTimeRelative", id:27, icon:"timeout", parent:6},
+			displayTimeRelative: 		{save:true, type:"boolean", value:false, labelKey:"params.displayTimeRelative", id:27, parent:6},
 			dyslexicFont: 				{save:true, type:"boolean", value:false, labelKey:"params.dyslexicFont", id:24, icon:"font"},
 			defaultSize: 				{save:true, type:"slider", value:4, labelKey:"params.defaultSize", min:1, max:20, step:1, id:12},
 		},
@@ -102,11 +113,11 @@ export const storeParams = defineStore('params', {
 					ban:false,
 					unban:false,
 					join: false,
+					leave: false,
 					message: true,
 					whisper: true,
 					raid: false,
 					poll: false,
-					leave: false,
 					cheer: false,
 					bingo: false,
 					raffle: false,
@@ -208,6 +219,13 @@ export const storeParams = defineStore('params', {
 				}
 			}
 		],
+		goxlrConfig: {
+			enabled:false,
+			ip:"127.0.0.1",
+			port:14564,
+			chatScrollSources:[],
+			chatReadMarkSources:[],
+		}
 	} as IParamsState),
 
 
@@ -280,11 +298,11 @@ export const storeParams = defineStore('params', {
 					ban:false,
 					unban:false,
 					join:false,
+					leave:false,
 					message:false,
 					whisper:false,
 					raid:false,
 					poll:false,
-					leave:false,
 					cheer:false,
 					bingo:false,
 					raffle:false,
@@ -397,12 +415,39 @@ export const storeParams = defineStore('params', {
 			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
 		},
 
-		openModal(modal:TwitchatDataTypes.ModalTypes):void {
-			if(this.currentModal == modal) this.closeModal();
+		openModal(modal:TwitchatDataTypes.ModalTypes, noToggle:boolean = false):void {
+			if(this.currentModal == modal && !noToggle) this.closeModal();
 			else this.currentModal = modal;
 		},
 
 		closeModal():void { this.currentModal = "" },
+
+		setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void {
+			this.goxlrConfig.chatScrollSources[colIndex] = encoderPath;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
+
+		setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void {
+			this.goxlrConfig.chatReadMarkSources[colIndex] = encoderPath;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
+
+		setGoXLREnabled(enabled:boolean):void {
+			this.goxlrConfig.enabled = enabled;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+			if(enabled === true) {
+				if(!this.goxlrConfig.ip || !this.goxlrConfig.port) return;
+				GoXLRSocket.instance.connect(this.goxlrConfig.ip, this.goxlrConfig.port);
+			}else{
+				GoXLRSocket.instance.disconnect();
+			}
+		},
+
+		setGoXLRConnectParams(ip:string, port:number):void {
+			this.goxlrConfig.ip = ip;
+			this.goxlrConfig.port = port;
+			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
+		},
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>

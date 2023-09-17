@@ -16,7 +16,7 @@
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
 							<template #CMD>{{example}}</template>
-							<template #SUGG>{{$t("suggestion.example_sugg")}}</template>
+							<template #SUGG>[{{$t("suggestion.example_sugg")}}]</template>
 						</i18n-t>
 					</div>
 				</div>

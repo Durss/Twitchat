@@ -1,12 +1,12 @@
 <template>
 	<div :class="classes">
-		<div class="header" @click.stop="toggle()">
+		<div class="header" @click.stop="toggle()" v-newflag="newflag">
 			<slot name="left_actions"></slot>
 			
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
-				:theme="error !== false || alert !== false || primary !== false || secondary !== false? 'light': small === true? 'secondary' : ''"
+				:theme="(error !== false || alert !== false || primary !== false || secondary !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
 			
 			<div class="title" v-if="title || subtitle">
@@ -38,7 +38,7 @@ import Button from './Button.vue';
  */
 
 @Component({
-	name:"ToggelBlock",
+	name:"ToggleBlock",
 	components:{
 		Button,
 	},
@@ -76,6 +76,12 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Object})
+	public newflag!:{date:number, id:string};
+
 	public opened = false;
 
 	public get classes():string[] {
@@ -85,6 +91,7 @@ export default class ToggleBlock extends Vue {
 		if(this.primary !== false)		res.push("primary");
 		if(this.secondary !== false)	res.push("secondary");
 		if(this.alert !== false)		res.push("alert");
+		if(this.premium !== false)		res.push("premium");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
 		return res;
@@ -129,7 +136,6 @@ export default class ToggleBlock extends Vue {
 
 <style scoped lang="less">
 .toggleblock{
-	align-self: flex-start;
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
 
@@ -154,6 +160,9 @@ export default class ToggleBlock extends Vue {
 			display: flex;
 			flex-direction: column;
 			gap: 0;
+			h2 {
+				word-break: break-all;
+			}
 			h3 {
 				font-size: .8em;
 				font-weight: normal;
@@ -208,6 +217,19 @@ export default class ToggleBlock extends Vue {
 		}
 	}
 
+	&.premium{
+		background-color: var(--color-premium-fadest);
+		.header {
+			background-color: var(--color-premium);
+			&:hover {
+				background-color: var(--color-premium-light);
+			}
+			.title {
+				color: var(--color-button);
+			}
+		}
+	}
+
 	&.primary{
 		background-color: var(--color-primary-fadest);
 		.header {
@@ -242,7 +264,7 @@ export default class ToggleBlock extends Vue {
 
 
 	&.small {
-		background-color: var(--color-dark-fadest);
+		// background-color: var(--color-dark-fadest);
 		.header {
 			padding: 0;
 			background-color: transparent;

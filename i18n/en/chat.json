@@ -34,7 +34,6 @@
 			"whispersBt_aria": "Whispers",
 			"pinsBt_aria": "Pinned messages",
 			"saveBt_aria": "Saved messages",
-			"deezerBt_aria": "Deezer player",
 			"highlightBt_aria": "Close highlighted message",
 			"voicebot_startBt_aria": "Start voice bot",
 			"voicebot_stopBt_aria": "Stop voice bot",
@@ -140,7 +139,7 @@
 			"announcement": "Announcement",
 			"occurrences": "Number of times this message has been sent",
 			"no_follow": "Not a follower",
-			"banned_in": " • Banned in {CHANNELS}",
+			"banned_in": "Banned in {CHANNELS}",
 			"blocked_user": "This message has been sent by a blocked user. Click to reveal.",
 			"clip_created_by": "Created by:",
 			"clip_channel": "Channel:",
@@ -152,6 +151,7 @@
 			"deleted_by": "<message deleted by {USER}>",
 			"disable_ad":"Disable",
 			"customize_ad":"Customize",
+			"stop_autospoil":"Stop auto spoiling this user's messages",
 			"badges": {
 				"prediction": "Prediction",
 				"subscriber": "Subscriber",
@@ -235,8 +235,11 @@
 		"sponsor": {
 			"title": "💝 Support me 💝",
 			"head": "Are you enjoying Twitchat?<br>Twitchat took <strong>more than 1 year</strong> of full-time work with no revenue to create.<br>It is free for you to use but, <strong>if you can afford it</strong> any tip would make my day brighter!",
+			"head_reminder": "I hope your stream was awesome?<br>You requested to get a donation reminder at the end of your stream, here it is 😁!",
 			"tipBt_aria": "Open tip options",
-			"tipBt": "🌞 Make my day brighter 🌞"
+			"tipBt": "🌞 Make my day brighter 🌞",
+			"remind_meBt": "Remind me when i end my stream",
+			"reminder_scheduled": "You'll get a donation reminder after you raid a channel or end your stream 🙂"
 		},
 		"stream": {
 			"online": "Channel {USER} is now live.",
@@ -252,24 +255,29 @@
 			"contents": [
 				"Twitchat is free for you to use but:",
 				"A message sharing a link to Twitchat will be sent every 2 hours on your chat <strong>with your account</strong>.",
-				"You can send this message with a bot account.",
 				"<br>",
-				"You can customize the message on the Parameters menu.",
-				"Or you can donate any amount to remove it"
+				"You can send this message with a bot account.",
+				"You can customize the message.",
+				"<br>",
+				"Donate any amount to disable it or become Premium to also unlock more Twitchat features."
 			],
 			"unacceptableBt": "😡😡😡 THAT'S UNACCEPTABLE 😡😡😡",
 			"customizeBt": "Customize message",
 			"donateBt": "Donate to remove"
 		},
+		"updateReminder": {
+			"content": "View latest updates at any time using {CMD} command.",
+			"updatesBt": "Open updates"
+		},
 		"donor": {
 			"title": "❤ Hey lovely donor ❤",
 			"info_1": "Thank you again for supporting Twitchat with your donation.",
 			"info_2": "A list of all the donor is visible by everyone under {LINK}",
-			"info_2_link": "About section",
+			"info_2_link": "@:params.categories.donate section",
 			"info_3": "Donation are anonymous by default but you can chose to make yours public if you wish!",
 			"thanks": "Thank you ❤.",
 			"thanks_change": "You can change your mind anytime under {LINK}",
-			"thanks_change_link": "Account section",
+			"thanks_change_link": "@:params.categories.donate section",
 			"publicBt": "Make my donation public",
 			"close_confirm": {
 				"info_1": "Are you sure you read the message?",
@@ -322,7 +330,9 @@
 			"unban_myRoom":"Unban from my room",
 			"block":"Block",
 			"unblock":"Unblock",
-			"to":"Timeout"
+			"to":"Timeout",
+			"export":"Download screen",
+			"export_clipboard":"Copy screen to clipboard"
 		},
 		"custom_badge": {
 			"label": {
@@ -349,7 +359,11 @@
 				"firstToday":"First message today",
 				"firstTimeChatter":"First message on this channel",
 				"returningChatter":"This user chatted here twice in the last 30 days",
-				"hypeChat":"Hype chat. User paid for this message"
+				"hypeChat":"Hype chat. User paid for this message",
+				"new_account": "This account has been created {DURATION} ago",
+				"new_account_day": "d",
+				"new_account_hour": "h",
+				"new_account_minute": "min"
 			}
 		},
 		"scope_request": {
@@ -362,6 +376,9 @@
 		},
 		"watch_streak":{
 			"label": "{USER} watched {COUNT} consecutive streams this month and sparked a watch streak!"
+		},
+		"splitter": {
+			"label": "New messages"
 		}
 	}
 }

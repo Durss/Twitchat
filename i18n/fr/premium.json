@@ -1,0 +1,69 @@
+{
+	"premium":{
+		"header":"Soutenez Twitchat mensuellement et débloquez des fonctionnalités premium",
+		"early_donor1":"Pour vous remercier de me soutenir depuis les débuts de Twitchat, les fonctionnalités premium vous sont offertes 💝",
+		"early_donor2":"Sentez-vous libre de tout même me soutenir sur {LINK} 😊",
+		"early_donor2_link":"Patreon",
+		"premium_donor1":"Vous possédez l'abonnement à vie de Twitchat",
+		"become_premiumBt":"Devenir premium",
+		"restricted_access":"Cette fonctionnalité nécessite d'être membre premium",
+		"features_title":"Fonctionnalités Premium",
+
+		"supportTable":{
+			"headers":[
+				"Fonctionnalités",
+				"FREE",
+				"Don",
+				"Premium"
+			],
+			"features": [
+				["Désactiver le message automatique", 0, 1, 1],
+				["Support GoXLR", 0, 0, 1],
+				["Pseudos personnalisés", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
+				["Créer des badges personnalisés", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
+				["Attribuer des badges personnalisés", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
+				["Valeurs (AKA variables globales)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
+				["Écrans de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
+				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["Support Spotify", 1, 1, 1],
+				["Plugin Stream Deck", 1, 1, 1],
+				["Support Voicemod", 1, 1, 1],
+				["Support OBS", 1, 1, 1],
+				["Support Heat", 1, 1, 1],
+				["Overlays Twitchat", 1, 1, 1],
+				["Text to speech", 1, 1, 1],
+				["Bouton d'urgence", 1, 1, 1],
+				["Automod boosté", 1, 1, 1],
+				["Commandes vocales", 1, 1, 1],
+				["Filtres de tchat avancés", 1, 1, 1],
+				["Bingo", 1, 1, 1],
+				["Tirage au sort", 1, 1, 1],
+				["Suggestions de tchat", 1, 1, 1],
+				["Tag spoiler", 1, 1, 1],
+				["Commande !alert", 1, 1, 1],
+				["Commande /search", 1, 1, 1],
+				["Emotes BTTV/FFZ/7TV", 1, 1, 1],
+				["Pronoms des viewers", 1, 1, 1],
+				["Enregistrer des messages", 1, 1, 1],
+				["File d'attente de shoutouts", 1, 1, 1],
+				["Options de modération", 1, 1, 1]
+			]
+		},
+
+		"cleanup": {
+			"title":"Limitations non-premium",
+			"description":"Vous n'êtes pas membre premium et avez créé plus d'éléments de certains types que le maximum autorisé. Désactivez/supprimez des entrées ou devenez membre Premium pour tous les conserver",
+			"custom_usernames":"Pseudo personnalisés",
+			"custom_username_remove":"Supprimer le pseudo<br>personnalisé",
+			"custom_badges":"Badges personnalisés",
+			"custom_badges_attribution":"Attributions de badges personnalisés",
+			"custom_badges_attribution_remove":"Retirer les badges<br>personnalisés",
+			"delete_badges_title": "Confirmer",
+			"delete_badges_description": "Souhaitez-vous retirer tous les badges de cette personne ?",
+			"delete_name_title": "Confirmer",
+			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?",
+			"completeBt": "Terminer"
+		}
+	}
+}

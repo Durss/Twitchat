@@ -3,7 +3,7 @@
 		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
 		<input class="primary" type="text" id="spotify_overlay_url" v-model="overlayUrl">
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-			<div>{{ $t("overlay.music_common.css") }}</div>
+			<div class="head">{{ $t("overlay.music_common.css") }}</div>
 			<ul class="cssStructure">
 				<li>#music_holder { ... }</li>
 				<li>#music_cover { ... }</li>
@@ -73,7 +73,8 @@ export default class OverlayParamsMusic extends Vue {
 		this.param_customTemplate.labelKey			= "overlay.music_common.custom_template";
 		this.param_customTemplate.placeholderList= [
 			{tag:"TITLE", descKey:"overlay.music_common.custom_template_placeholders.title"},
-			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"}
+			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"},
+			{tag:"COVER", descKey:"overlay.music_common.custom_template_placeholders.cover"},
 		];
 
 		const params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
@@ -116,16 +117,9 @@ export default class OverlayParamsMusic extends Vue {
 
 <style scoped lang="less">
 .overlayparamsmusic{
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
-
-	&>label {
-		margin-bottom: .5em;
-	}
-	
-	ul {
-		margin-top: .5em;
-	}
 
 	.params {
 		width:100%;

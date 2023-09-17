@@ -33,13 +33,13 @@
 						<Button class="deleteBt" icon="trash" alert @click="deleteAnnounce(a.id)"></Button>
 					</div>
 					<div class="infos">
-						<p class="title"><strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" /></strong></p>
+						<p class="title"><strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></strong></p>
 						<p class="date">
 							<span>{{ formatDate(a.dateStart) }}</span>
 							<span v-if="a.dateEnd" class="split">=&gt;</span>
 							<span v-if="a.dateEnd">{{ formatDate(a.dateEnd) }}</span>
 						</p>
-						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" /></p>
+						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></p>
 					</div>
 				</div>
 			</div>
@@ -102,7 +102,11 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 			this.param_text.push({type:"string", value:"", storage:v, longText:true, label:v.toUpperCase()+" "+this.$t("announcement.param_text")});
 		});
 		this.param_versionMax.value = import.meta.env.PACKAGE_VERSION;
-		this.loadAnnouncements();
+
+		//Wait for emotes to be loaded to make sure they get parsed
+		TwitchUtils.getEmotes().then(()=> {
+			this.loadAnnouncements();
+		})
 	}
 
 	public async loadAnnouncements():Promise<void> {
@@ -142,6 +146,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				dateStart:new Date(this.param_dateStart.value).getTime(),
 				dateEnd:new Date(this.param_dateEnd.value).getTime(),
 				versionMax:this.param_versionMax.value,
+				important:this.param_important.value,
 			};
 			const options = {
 				method:"POST",

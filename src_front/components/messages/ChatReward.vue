@@ -1,24 +1,31 @@
 <template>
-	<div :class="classes">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
-		
-		<img :src="icon" alt="reward" class="icon" :style="{backgroundColor:messageData.reward.color}">
 
 		<div class="holder">
-			<i18n-t scope="global" tag="span" keypath="chat.reward">
-				<template #USER>
-					<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
-				</template>
-				<template #REWARD>
-					<strong>{{ messageData.reward.title }}</strong>
-				</template>
-				<template #COST>
-					<span class="cost" v-if="messageData.reward.cost > 0">({{ messageData.reward.cost }}pts)</span>
-				</template>
-			</i18n-t>
-			<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && messageData.reward.description">{{ messageData.reward.description }}</div>
-			<div class="quote" v-if="messageData.message_html">
-				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+			<div v-for="entry in rewardList" :key="entry.vo.id" class="item">
+				<img :src="getIcon(entry.vo)" alt="reward" class="icon" :style="{backgroundColor:entry.vo.reward.color}">
+
+				<span class="card-item secondary count" v-if="entry.count > 1">x{{ entry.count }}</span>
+	
+				<i18n-t scope="global" tag="span" keypath="chat.reward">
+					<template #USER>
+						<a class="userlink" @click.stop="openUserCard()">{{entry.vo.user.displayName}}</a>
+					</template>
+					<template #REWARD>
+						<strong>{{ entry.vo.reward.title }}</strong>
+					</template>
+					<template #COST>
+						<span class="cost" v-if="entry.vo.reward.cost > 0">({{ entry.vo.reward.cost }}pts)</span>
+					</template>
+				</i18n-t>
+				
+				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
+				
+				<div class="quote dark" v-if="entry.vo.message_html">
+					<ChatMessageChunksParser :chunks="entry.vo.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
+				</div>
 			</div>
 		</div>
 	</div>
@@ -41,16 +48,43 @@ export default class ChatReward extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
 
+	@Prop({type:Boolean, default:false})
+	public noMerge!:boolean;
+
+	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
+		const res = [this.messageData];
+		if(this.messageData.children && this.noMerge === false) res.push(...this.messageData.children);
+
+		const idCountDictionary :{[key:string]:number} = {};
+
+		res.forEach(r => {
+			const id = r.reward.id;
+			idCountDictionary[id] = (idCountDictionary[id] || 0) + 1;
+		});
+		
+		const finalList:{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] = Object.keys(idCountDictionary).map((id) => {
+			return { count: idCountDictionary[id], vo: res.find(r => r.reward.id === id)! };
+		});
+
+		finalList.sort((a,b)=>{
+			if(a.count != b.count) return b.count - a.count;
+			if(a.vo.reward.title < b.vo.reward.title) return -1;
+			if(a.vo.reward.title > b.vo.reward.title) return 1;
+			return 0;
+		});
+		return finalList;
+	}
+
 	public get classes():string[] {
 		let res = ["chatreward", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
 		return res;
 	}
 
-	public get icon():string {
+	public getIcon(reward:TwitchatDataTypes.MessageRewardRedeemData):string {
 		let icon = this.$image('icons/channelPoints.svg');
-		const img = this.messageData.reward.icon;
-		icon = img.hd ?? img.sd;
+		const img = reward.reward.icon;
+		icon = img.hd || img.sd || icon;
 		return icon;
 	}
 
@@ -73,6 +107,25 @@ export default class ChatReward extends AbstractChatMessage {
 		height: 2em;
 		width: 2em;
 		flex-shrink: 0;
+		vertical-align: middle;
+		margin-right: 5px;
+	}
+
+	.count {
+		padding: 3px;
+		margin-right: 5px;
+	}
+
+	.item:not(:last-child) {
+		margin-bottom: 1px;
+	}
+
+	.quote {
+		margin-top: .5em;
+		&.dark {
+			.bevel();
+			background-color: var(--background-color-primary);
+		}
 	}
 }
 </style>

@@ -8,6 +8,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import { reactive, type UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
@@ -32,15 +33,18 @@ const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 
 const twitchUserBatchLoginToLoad:BatchItem[] = [];
 const twitchUserBatchIdToLoad:{channelId?:string, user:TwitchatDataTypes.TwitchatUser, cb?:(user:TwitchatDataTypes.TwitchatUser) => void}[] = [];
-const tmpDisplayName = "...loading...";
-let moderatorsCache:{[key:string]:{[key:string]:true}} = {}
+const moderatorsCache:{[key:string]:{[key:string]:true}} = {};
 let twitchUserBatchLoginTimeout = -1;
 let twitchUserBatchIdTimeout = -1;
 
 export const storeUsers = defineStore('users', {
 	state: () => ({
+		tmpDisplayName:"...loading...",
 		pendingShoutouts: {},
 		userCard: null,
+		customUsernames: {},
+		customUserBadges: {},
+		customBadgeList:[],
 		blockedUsers: {
 			twitchat:{},
 			twitch:{},
@@ -152,8 +156,8 @@ export const storeUsers = defineStore('users', {
 			}
 
 			//Cleanup any "@" here so we don't have to do that for every commands
-			if(login)		login = login.replace("@", "").toLowerCase().trim();
-			if(displayName)	displayName = displayName.replace("@", "").trim();
+			if(login && login != this.tmpDisplayName)				login = login.replace("@", "").toLowerCase().trim();
+			if(displayName && displayName != this.tmpDisplayName)	displayName = displayName.replace("@", "").trim();
 			
 			//Search user on hashmaps
 			if(id && hashmaps.idToUser[id])									user = hashmaps.idToUser[id];
@@ -165,12 +169,12 @@ export const storeUsers = defineStore('users', {
 			if(!user) {
 				//Create user if enough given info
 				if(id && login) {
-					if(!displayName) displayName = login;
 					const userData:TwitchatDataTypes.TwitchatUser = {
 						platform,
 						id:id ?? "",
 						login:login ?? "",
-						displayName:displayName ?? "",
+						displayName: displayName ?? login ?? "",
+						displayNameOriginal:displayName ?? "",
 						pronouns:null,
 						pronounsLabel:false,
 						pronounsTooltip:false,
@@ -179,12 +183,6 @@ export const storeUsers = defineStore('users', {
 						is_tracked:false,
 						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
-						donor:{
-							state:false,
-							level:0,
-							noAd:false,
-							upgrade:false,
-						},
 						channelInfo:{},
 					};
 					user = reactive(userData);
@@ -198,6 +196,7 @@ export const storeUsers = defineStore('users', {
 						id:id??Utils.getUUID(),
 						login:login??"",
 						displayName:displayName??login??"",
+						displayNameOriginal:displayName??login??"",
 						temporary:true,
 						pronouns:null,
 						pronounsLabel:false,
@@ -207,12 +206,6 @@ export const storeUsers = defineStore('users', {
 						is_tracked:false,
 						is_blocked:false,
 						is_bot:this.knownBots[platform][login ?? ""] === true,
-						donor:{
-							state:false,
-							level:0,
-							noAd:false,
-							upgrade:false,
-						},
 						channelInfo:{},
 					};
 					
@@ -221,6 +214,19 @@ export const storeUsers = defineStore('users', {
 
 				// user = reactive(user!);
 			}
+
+			//Override "displayName" property by a getter that returns either the 
+			//"displayNameOriginal" value or the "customUsername" if any is defined
+			//This is to avoid updating "displayName" accessors everywhere on the app.
+			Object.defineProperty(user, 'displayName', {
+				set: function(name) {
+					(this as TwitchatDataTypes.TwitchatUser).displayNameOriginal = name;
+				},
+				get: function() {
+					const ref = (this as TwitchatDataTypes.TwitchatUser);
+					return StoreProxy.users.customUsernames[ref.id]?.name || ref.displayNameOriginal || ref.login
+				}}
+			);
 			
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
@@ -266,8 +272,8 @@ export const storeUsers = defineStore('users', {
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
 				
-			if(!user.displayName) user.displayName = tmpDisplayName;
-			if(!user.login) user.login = tmpDisplayName;
+			if(!user.displayName) user.displayName = this.tmpDisplayName;
+			if(!user.login) user.login = this.tmpDisplayName;
 
 			//User was already existing, consider stop there
 			if(userExisted){
@@ -277,7 +283,8 @@ export const storeUsers = defineStore('users', {
 				return user;
 			}
 
-			if(platform == "twitch" && user.temporary) {
+			const needCreationDate = user.created_at_ms == undefined;// && StoreProxy.params.appearance.recentAccountUserBadge.value === true;
+			if(platform == "twitch" && (user.temporary || needCreationDate)) {
 				//Wait half a second to let time to external code to populate the
 				//object with more details like in TwitchMessengerClient that calls
 				//this method, then populates the is_partner and is_affiliate and
@@ -286,10 +293,11 @@ export const storeUsers = defineStore('users', {
 				const to = setTimeout((batchType:"id"|"login")=> {
 					
 					const batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
+					
 					//Remove items that might have been fullfilled externally
 					for (let i = 0; i < batch.length; i++) {
 						const item = batch[i];
-						if(!item.user.temporary) {
+						if(!item.user.temporary && !needCreationDate) {
 							if(item.cb) item.cb(item.user);
 							batch.splice(i,1);
 							i--;
@@ -333,15 +341,14 @@ export const storeUsers = defineStore('users', {
 								// console.log("User found", apiUser.login, apiUser.id);
 								userLocal.id				= apiUser.id;
 								userLocal.login				= apiUser.login;
-								userLocal.displayName		= apiUser.display_name;
+								userLocal.displayName		= userLocal.displayNameOriginal = apiUser.display_name;
 								userLocal.is_partner		= apiUser.broadcaster_type == "partner";
 								userLocal.is_affiliate		= userLocal.is_partner || apiUser.broadcaster_type == "affiliate";
-								userLocal.avatarPath		= apiUser.profile_image_url;
-								if(!userLocal.displayName
-								|| userLocal.displayName == tmpDisplayName) userLocal.displayName = apiUser.display_name;
-								if(userLocal.id)							hashmaps!.idToUser[userLocal.id] = userLocal;
-								if(userLocal.login)							hashmaps!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)					hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								userLocal.created_at_ms		= new Date(apiUser.created_at).getTime();
+								if(!userLocal.avatarPath)	userLocal.avatarPath = apiUser.profile_image_url;
+								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
+								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
+								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
 								
 								//Load pronouns if requested
 								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
@@ -365,17 +372,17 @@ export const storeUsers = defineStore('users', {
 
 				//Batch requests by types.
 				//All items loaded by their IDs on one batch, by logins on another batch.
-				if(login) {
-					twitchUserBatchLoginToLoad.push({user, channelId, cb:loadCallback});
-					if(twitchUserBatchLoginToLoad.length < 100) {
-						if(twitchUserBatchLoginTimeout > -1) clearTimeout(twitchUserBatchLoginTimeout);
-						twitchUserBatchLoginTimeout = to;
-					}
-				} else {
+				if(id) {
 					twitchUserBatchIdToLoad.push({user, channelId, cb:loadCallback});
 					if(twitchUserBatchIdToLoad.length < 100) {
 						if(twitchUserBatchIdTimeout > -1) clearTimeout(twitchUserBatchIdTimeout);
 						twitchUserBatchIdTimeout = to;
+					}
+				} else if(login) {
+					twitchUserBatchLoginToLoad.push({user, channelId, cb:loadCallback});
+					if(twitchUserBatchLoginToLoad.length < 100) {
+						if(twitchUserBatchLoginTimeout > -1) clearTimeout(twitchUserBatchLoginTimeout);
+						twitchUserBatchLoginTimeout = to;
 					}
 				}
 			}else 
@@ -575,7 +582,7 @@ export const storeUsers = defineStore('users', {
 		},
 
 		//Check if user is following
-		async checkFollowerState(user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
+		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean> {
 			if(channelId != StoreProxy.auth.twitch.user.id) {
 				//Only get follower state for our own chan, ignore others as it won't be possible in the future
 				user.channelInfo[channelId].is_following = true;
@@ -826,6 +833,126 @@ export const storeUsers = defineStore('users', {
 
 			}
 		},
+
+		removeCustomUsername(uid:string):void {
+			delete this.customUsernames[uid];
+			this.saveCustomUsername();
+		},
+
+		setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean {
+			name = name.trim().substring(0, 25);
+			if(name.length == 0) {
+				delete this.customUsernames[user.id];
+			}else{
+				//User can give up to 10 custom user names if not premium
+				if(!this.customUsernames[user.id]
+				&& !StoreProxy.auth.isPremium
+				&& Object.keys(this.customUsernames).length >= Config.instance.MAX_CUSTOM_USERNAMES) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
+					return false;
+				}
+				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
+			}
+			
+			this.saveCustomUsername();
+			return true;
+		},
+
+		createCustomBadge(img:string):boolean|string {
+			let id = "";
+			//add badge to global list if necessary
+			const existingIndex = this.customBadgeList.findIndex(v=>v.img == img);
+			if(existingIndex == -1) {
+				//User can create up to 3 custom badges if not premium
+				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= Config.instance.MAX_CUSTOM_BADGES) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges", {COUNT:Config.instance.MAX_CUSTOM_BADGES}));
+					return false;
+				}
+				id = Utils.getUUID();
+				this.customBadgeList.push({id, img});
+			}else{
+				id = this.customBadgeList[existingIndex].id;
+			}
+
+			this.saveCustomBadges();
+			return id;
+		},
+
+		updateCustomBadgeImage(badgeId:string, img:string):void {
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList[index].img = img;
+			}
+			this.saveCustomBadges();
+		},
+
+		updateCustomBadgeName(badgeId:string, name:string):void {
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList[index].name = name;
+				if(name.length === 0) {
+					delete this.customBadgeList[index].name;
+				}
+			}
+			this.saveCustomBadges();
+		},
+
+		deleteCustomBadge(badgeId:string):void {
+			//Remove any reference of the badge from the users
+			const userBadges = this.customUserBadges;
+			for (const uid in userBadges) {
+				const index = userBadges[uid].findIndex(v=> v.id == badgeId);
+				if(index > -1) {
+					userBadges[uid].splice(index, 1);
+					if(userBadges[uid].length == 0) {
+						delete userBadges[uid];
+					}
+				}
+			}
+
+			const index = this.customBadgeList.findIndex(v=>v.id == badgeId);
+			if(index > -1) {
+				this.customBadgeList.splice(index, 1);
+			}
+
+			this.saveCustomBadges();
+		},
+
+		giveCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):boolean {
+			if(!this.customUserBadges[user.id]) this.customUserBadges[user.id] = [];
+			//Add badge to the user if necessary
+			if(this.customUserBadges[user.id].findIndex(v => v.id == badgeId) == -1) {
+				//User can give badges to 30 users max if not premium
+				if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
+					return false;
+				}
+				this.customUserBadges[user.id].push({id:badgeId, platform:user.platform, channel:channelId!});
+			}
+			this.saveCustomBadges();
+			return true;
+		},
+
+		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void {
+			if(!this.customUserBadges[user.id]) return;
+
+			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
+			if(index > -1) this.customUserBadges[user.id].splice(index, 1);
+			if(this.customUserBadges[user.id].length === 0) {
+				delete this.customUserBadges[user.id];
+			}
+
+			this.saveCustomBadges();
+		},
+		
+		saveCustomBadges():void {
+			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
+			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
+		},
+		
+		saveCustomUsername():void {
+			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
+		}
 
 	} as IUsersActions
 	& ThisType<IUsersActions

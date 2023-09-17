@@ -1,5 +1,5 @@
 <template>
-	<div class="triggerlistitem">
+	<div class="triggerlistitem" v-newflag="{date:(entryData.trigger.created_at || 0), duration:2 * 60000, id:'trigger_'+entryData.trigger.id}">
 		<button class="button"
 		@click="$emit('select', entryData.trigger)"
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
@@ -17,14 +17,20 @@
 		</div>
 
 		<button class="testBt" @click="$emit('test',entryData.trigger)"
-		v-if="noEdit === false"
+		v-if="noEdit === false && toggleMode === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
 			<Icon name="test" class="icon" />
 		</button>
 
+		<button class="duplicateBt" @click="$emit('duplicate',entryData)"
+		v-if="noEdit === false && toggleMode === false"
+		v-tooltip="$t('global.duplicate')">
+			<Icon name="copy" class="icon" />
+		</button>
+
 		<button class="deleteBt" @click="$emit('delete',entryData)"
-		v-if="noEdit === false"
+		v-if="noEdit === false && toggleMode === false"
 		v-tooltip="$t('triggers.deleteBt')">
 			<Icon name="trash" class="icon" />
 		</button>
@@ -41,7 +47,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	components:{
 		ToggleButton,
 	},
-	emits:["changeState", "delete", "test", "select"],
+	emits:["changeState", "delete", "test", "select", "duplicate"],
 })
 export default class TriggerListItem extends Vue {
 
@@ -50,6 +56,9 @@ export default class TriggerListItem extends Vue {
 
 	@Prop({default:false})
 	public noEdit!:boolean;
+
+	@Prop({default:false})
+	public toggleMode!:boolean;
 
 	public getCategoryLabel(entry:TriggerListEntry):string {
 		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
@@ -62,7 +71,6 @@ export default class TriggerListItem extends Vue {
 
 <style scoped lang="less">
 .triggerlistitem{
-	
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 	background-color: var(--background-color-fadest);
 	border-radius: .5em;
@@ -70,7 +78,13 @@ export default class TriggerListItem extends Vue {
 	display: flex;
 	flex-direction: row;
 	min-height: 1.5em;
-	overflow: hidden;
+	position: relative;
+	transition: background-color .1s;
+
+	&:hover {
+		background-color: var(--background-color-fader);
+	}
+	
 	.button {
 		display: flex;
 		flex-direction: row;
@@ -95,7 +109,7 @@ export default class TriggerListItem extends Vue {
 		cursor: pointer;
 		border-left: 1px solid var(--color-dark-light);
 	}
-	.deleteBt, .testBt {
+	.deleteBt, .testBt, .duplicateBt {
 		flex-shrink: 0;
 		.icon {
 			height: .9em;
@@ -108,12 +122,6 @@ export default class TriggerListItem extends Vue {
 			.icon {
 				opacity: .35;
 			}
-		}
-	}
-	&>* {
-		transition: background-color .1s;
-		&:hover {
-			background-color: var(--background-color-fader);
 		}
 	}
 }

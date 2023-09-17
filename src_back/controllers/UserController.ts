@@ -11,6 +11,7 @@ import AbstractController from "./AbstractController";
 */
 export default class UserController extends AbstractController {
 
+	private earlyDonors:{[key:string]:boolean} = {};
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -29,7 +30,15 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
-		this.server.post('/api/user/data', async (request, response) => await this.setUserData(request, response));
+		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
+		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
+
+		if(fs.existsSync(Config.EARLY_TWITCHAT_DONORS)) {
+			const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
+			for (let i = 0; i < uids.length; i++) {
+				this.earlyDonors[uids[i]] = true;
+			}
+		}
 		
 		//Old endpoint URL.
 		//It's just here to make sure people running on the old version won't have issues
@@ -52,12 +61,12 @@ export default class UserController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
 
-		let isDonor:boolean = false, level:number = -1;
+		let isDonor:boolean = false, level:number = -1, amount:number = -1;
 		if(fs.existsSync( Config.donorsList )) {
 			let json:{[key:string]:number} = {};
 			try {
@@ -70,6 +79,7 @@ export default class UserController extends AbstractController {
 			}
 			isDonor = json.hasOwnProperty(userInfo.user_id);
 			if(isDonor) {
+				amount = json[userInfo.user_id];
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 			}
 		}
@@ -82,9 +92,14 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true} = {isDonor:isDonor && level > -1, level};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
+		}
+
+		//Is user an early donor of twitchat?
+		if(this.earlyDonors[userInfo.user_id] === true) {
+			data.isEarlyDonor = true;
 		}
 
 		response.header('Content-Type', 'application/json');
@@ -99,7 +114,7 @@ export default class UserController extends AbstractController {
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -123,12 +138,12 @@ export default class UserController extends AbstractController {
 	/**
 	 * Get/set a user's data
 	 */
-	private async setUserData(request:FastifyRequest, response:FastifyReply) {
+	private async postUserData(request:FastifyRequest, response:FastifyReply) {
 		const body:any = request.body;
 		const userInfo = await Config.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({message:"Invalid access token", success:false}));
 			return;
 		}
@@ -148,7 +163,16 @@ export default class UserController extends AbstractController {
 		//Test data format
 		try {
 			const clone = JSON.parse(JSON.stringify(body));
-			// fs.writeFileSync(userDataFolder+userInfo.user_id+"_full.json", JSON.stringify(clone), "utf8");
+			
+			const success = schemaValidator(body);
+			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
+			if(!success) {
+				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login);
+				//Save schema errors if any
+				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
+			}else if(fs.existsSync(errorsFilePath)) {
+				fs.unlinkSync(errorsFilePath);
+			}
 	
 			//schemaValidator() is supposed to tell if the format is valid or not.
 			//Because we enabled "removeAdditional" option, no error will be thrown
@@ -156,14 +180,16 @@ export default class UserController extends AbstractController {
 			//V9+ of the lib is supposed to allow us to retrieve the removed props,
 			//but it doesn't yet. As a workaround we use JSONPatch that compares
 			//the JSON before and after validation.
-			//This is not the most efficient way to do this, but we have no much
-			//other choice for now.
-			schemaValidator(body);
-			const diff = JsonPatch.compare(clone, body, false);
+			//This is not the most efficient way to do this, but I found no better
+			//way to log these errors for now
+			const diff = JsonPatch.compare(clone, body as any, false);
+			const cleanupFilePath = Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json";
 			if(diff?.length > 0) {
 				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data");
 				console.log(diff);
-				fs.writeFileSync(Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json", JSON.stringify(diff), "utf8");
+				fs.writeFileSync(cleanupFilePath, JSON.stringify(diff), "utf-8");
+			}else if(fs.existsSync(cleanupFilePath)) {
+				fs.unlinkSync(cleanupFilePath);
 			}
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 
@@ -182,13 +208,35 @@ export default class UserController extends AbstractController {
 	}
 
 	/**
+	 * Delete a user's data
+	 */
+	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		if(!userInfo) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
+		//Delete user's data
+		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		fs.rmSync(userFilePath);
+		Logger.info("❌ User "+userInfo.login+" requested to delete their personal data.");
+
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
+	}
+
+	/**
 	 * Get users list
 	 */
 	private async getAllUsers(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
 	
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
-		const list = files.filter(v => v.indexOf("_cleanup") == -1);
+		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v.indexOf("_errors") == -1);
 		const users:{id:String, date:number}[] = []
 		list.forEach(v => {
 			users.push({

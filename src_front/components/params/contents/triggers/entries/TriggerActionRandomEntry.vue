@@ -22,7 +22,7 @@
 				<Button icon="add" class="addBt" @click="addItem()" :disabled="!itemValue" />
 			</div>
 			
-			<div class="listItem">
+			<div class="listItem list">
 				<div v-for="item, index in action.list" class="entry"
 				@click="indexToEditState[index] = true">
 						
@@ -34,7 +34,7 @@
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" />
+							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" :channel="$store('auth').twitch.user.id" platform="twitch" />
 						</span>
 
 						<textarea v-if="indexToEditState[index]"
@@ -291,11 +291,20 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 				}
 				textarea{
 					font-size: 1em;
-					min-width: calc(100% - 2em);
+					min-width: calc(100%);
 					resize: vertical;
 				}
 				:deep(.copyBt) {
 					height: 1em;
+				}
+			}
+		}
+
+		&.list {
+			.entry {
+				.content {
+					.bevel();
+					background-color: var(--background-color-fader);
 				}
 			}
 		}

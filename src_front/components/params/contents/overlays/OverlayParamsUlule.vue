@@ -68,7 +68,7 @@ export default class OverlayParamsUlule extends Vue {
 	public param_project:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_name", placeholder:"https://ulule.com/your-project..."}
 	public param_goals:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_goals", placeholder:"10000,25000,50000,100000,...", tooltipKey:"overlay.ulule.project_goals_tt"}
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:100, labelKey:"overlay.ulule.project_title"}
-	public param_currency:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"$", maxLength:2, labelKey:"overlay.ulule.project_currency"}
+	public param_currency:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"$", maxLength:5, labelKey:"overlay.ulule.project_currency"}
 	
 	public get overlayUrl():string {
 		let project = this.param_project.value.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
@@ -107,7 +107,7 @@ export default class OverlayParamsUlule extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
+		gap: .5em;
 
 		ul {
 			margin-top: .5em;

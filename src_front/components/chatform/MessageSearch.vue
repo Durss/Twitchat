@@ -15,7 +15,7 @@
 			<CloseButton @click="close()" />
 		</div>
 
-		<div class="content">
+		<div class="content" ref="holder">
 			<div class="messages" v-if="messages.length > 0">
 				<ChatMessage
 					v-for="m in messages"
@@ -104,8 +104,14 @@ export default class MessageSearch extends AbstractSidePanel {
 			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
 				result.push(m);
 			}
+			if(m.children) {
+				list.splice(i+1, 0, ...m.children);
+			}
 		}
 		this.messages = result;
+		await this.$nextTick();
+		const holder = this.$refs.holder as HTMLDivElement;
+		holder.scrollTop = holder.scrollHeight;
 	}
 
 }

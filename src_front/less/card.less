@@ -41,9 +41,9 @@
 		background-color: var(--color-primary);
 		& > .header {
 			background-color: var(--color-primary-light);
-			.title {
-				color: var(--color-dark);
-			}
+			// .title {
+			// 	color: var(--color-dark);
+			// }
 		}
 		a:not(.button) {
 			color: var(--color-light);
@@ -74,6 +74,21 @@
 		background-color: var(--color-alert);
 		& > .header {
 			background-color: var(--color-alert-light);
+		}
+		a:not(.button) {
+			color: var(--color-light);
+			text-decoration: underline;
+			&:hover {
+				text-decoration: none;
+			}
+		}
+	}
+	
+	&.premium {
+		color: var(--color-text-light);
+		background-color: var(--color-premium);
+		& > .header {
+			background-color: var(--color-premium-light);
 		}
 		a:not(.button) {
 			color: var(--color-light);

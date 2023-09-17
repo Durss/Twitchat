@@ -1,5 +1,7 @@
 <template>
-	<div class="postonchatparam">
+	<div class="postonchatparam"
+	@focus.native="showMessage = true"
+	@blur.native="showMessage = false">
 		<ParamItem class="parameter" ref="paramItem"
 			:clearToggle="clearToggle"
 			:paramData="enabledParam"
@@ -8,23 +10,26 @@
 			:secondary="secondary"
 			:alert="alert"
 			:noBackground="noBackground"
-		/>
+		>
+		
+			<PlaceholderSelector class="placeholders"
+				v-if="placeholderTarget && placeholders && showMessage"
+				v-model="textParam.value"
+				:target="placeholderTarget"
+				:placeholders="placeholders"
+				@change="saveParams()"
+			/>
 
-		<div class="preview" ref="preview" v-if="enabledParam.value === true">
-			<ChatMessage class="message"
-				v-if="adPreview"
-				lightMode
-				contextMenuOff
-				:messageData="adPreview" />
-		</div>
+			<div class="preview" ref="preview" v-if="adPreview && showMessage">
+				<ChatMessage class="message"
+					lightMode
+					contextMenuOff
+					:messageData="adPreview" />
+			</div>
+		
+			<slot></slot>
+		</ParamItem>
 
-		<PlaceholderSelector class="placeholders"
-			v-if="placeholderTarget && placeholders && enabledParam.value===true"
-			v-model="textParam.value"
-			:target="placeholderTarget"
-			:placeholders="placeholders"
-			@change="saveParams()"
-		/>
 	</div>
 </template>
 
@@ -32,7 +37,6 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -78,12 +82,14 @@ export default class PostOnChatParam extends Vue {
 	public adPreview:TwitchatDataTypes.MessageChatData | null = null;
 
 	public error:string = "";
-	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean", maxLength:500};
-	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true};
+	public showMessage:boolean = false;
+	public enabledParam:TwitchatDataTypes.ParameterData<boolean> = { value:false, type:"boolean"};
+	public textParam:TwitchatDataTypes.ParameterData<string> = { value:"", type:"string", longText:true, maxLength:500};
 
 	public placeholderTarget:HTMLTextAreaElement|null = null;
 
 	private isFirstRender:boolean = true;
+	private focusHandler!:(e:FocusEvent) => void;
 
 	public async mounted():Promise<void> {
 		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
@@ -96,14 +102,33 @@ export default class PostOnChatParam extends Vue {
 			this.enabledParam.icon	= this.icon;
 		}
 
-		watch(()=>this.textParam.value, ()=> this.saveParams())
-		watch(()=>this.enabledParam.value, ()=> this.saveParams())
-		watch(()=>this.placeholders, ()=> this.updatePreview(), {deep:true})
+		watch(()=>this.textParam.value, ()=> this.saveParams());
+		watch(()=>this.enabledParam.value, ()=> this.saveParams());
+		watch(()=>this.placeholders, ()=> this.updatePreview(), {deep:true});
+
+		this.focusHandler = (e:FocusEvent) => this.onFocus(e);
+		document.addEventListener("mouseup", this.focusHandler);
 
 		await this.$nextTick();
 		this.saveParams(false);
 	}
 
+	public beforeUnmount():void {
+		document.removeEventListener("mouseup", this.focusHandler);
+	}
+	
+	public onFocus(e:FocusEvent):void {
+		let target = document.activeElement as HTMLElement;
+		while(target != this.$el && target != document.body) {
+			target = (target as HTMLElement).parentElement!;
+		}
+		this.showMessage = (target == this.$el);
+	}
+	
+	public onBlur(e:FocusEvent):void {
+		this.showMessage = false;
+	}
+	
 	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
@@ -125,8 +150,6 @@ export default class PostOnChatParam extends Vue {
 			this.isFirstRender = false;
 			await this.$nextTick();
 			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
-			const holder = this.$refs.preview as HTMLDivElement;
-			gsap.from(holder, {duration:.25, height:0, margin:0, paddingTop:0, paddingBottom:0, clearProps:"all"});
 		}
 		this.updatePreview();
 	}
@@ -153,8 +176,8 @@ export default class PostOnChatParam extends Vue {
 			rawMessage = rawMessage.replace(/\/announce([a-z]+)?\s(.*)/i, "$2");
 		}
 		
-		const message = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
-		const message_html = TwitchUtils.messageChunksToHTML(message);
+		const chunks = TwitchUtils.parseMessageToChunks(rawMessage, undefined, true);
+		const message_html = TwitchUtils.messageChunksToHTML(chunks);
 		this.adPreview = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -162,12 +185,14 @@ export default class PostOnChatParam extends Vue {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			answers:[],
+			children:[],
 			user:me,
 			twitch_announcementColor:announcementColor,
 			is_short:false,
 			message:rawMessage,
-			message_chunks:message,
+			message_chunks:chunks,
 			message_html,
+			message_size: TwitchUtils.computeMessageSize(chunks),
 		};
 	}
 }
@@ -188,19 +213,11 @@ export default class PostOnChatParam extends Vue {
 	}
 	
 	.preview {
-		display: none;
-		margin-left: 1.5em;
 		padding: .25em .5em;
 		border-radius: .5em;
 		box-sizing: border-box;
 		background-color: var(--background-color-primary);
 		overflow: hidden;
-	}
-	
-	&:focus-within {
-		.preview {
-			display: block;
-		}
 	}
 }
 </style>

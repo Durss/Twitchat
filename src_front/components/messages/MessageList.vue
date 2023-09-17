@@ -21,8 +21,9 @@
 
 		
 		<div class="messageHolder" ref="chatMessageHolder">
-			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id">
-				<div class="fake" v-if="m.fake === true" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
+			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id" :id="'message_' + m.id + '_' + config.order">
+				<div class="fake" v-if="m.fake === true && !$config.DEMO_MODE" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
+				<!-- <span style="font-family:Azaret; opacity: .1; pointer-events:none; background:red; color:#fff; position: absolute; top:0; left:0; z-index: 2; width:100%; height:100%;">{{ m.id }} {{ m.date }}</span> -->
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
 					@showConversation="openConversation"
@@ -33,6 +34,7 @@
 					@setCustomActivities="setCustomActivities"
 					@showModal="(v: string) => $emit('showModal', v)"
 					@openFilters="openFilters()"
+					:colIndex="config.order"
 					:lightMode="lightMode"
 				/>
 
@@ -48,7 +50,11 @@
 		</teleport>
 
 		<teleport :to="selectedItem" v-if="selectedItem">
-			<div class="selected"></div>
+			<div :class="selectedClasses"></div>
+		</teleport>
+
+		<teleport :to="selectedItem" v-if="selectedItem">
+			<div class="incompatibleSelection" ref="incompatibleSelection">⛔</div>
 		</teleport>
 
 		<div class="locked" ref="locked" v-if="!lightMode && lockScroll" @click.stop="unPause">
@@ -65,17 +71,15 @@
 				/>
 			</div>
 			<div class="footer">
-				<Button	:aria-label="$t('chat.live_chat_less_aria')"
-					icon="minus"
+				<button :aria-label="$t('chat.live_chat_less_aria')"
 					:disabled="config.liveLockCount == 1"
-					@click="incrementLockedLiveCount(-1)"/>
+					@click="incrementLockedLiveCount(-1)"><Icon name="minus" /></button>
 
 				<span class="label">{{ $t("chat.live_chat") }}</span>
 
-				<Button	:aria-label="$t('chat.live_chat_more_aria')"
-					icon="add"
+				<button :aria-label="$t('chat.live_chat_more_aria')"
 					:disabled="config.liveLockCount == 10 || config.liveLockCount>=pendingMessages.length"
-					@click="incrementLockedLiveCount(1)"/>
+					@click="incrementLockedLiveCount(1)"><Icon name="add" /></button>
 			</div>
 		</div>
 
@@ -111,16 +115,18 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import MessageListFilter from './components/MessageListFilter.vue';
-import MessageItem from './MessageItem.vue';
 import CloseButton from '../CloseButton.vue';
+import MessageItem from './MessageItem.vue';
+import MessageListFilter from './components/MessageListFilter.vue';
+import { RoughEase } from 'gsap/all';
+import { Linear } from 'gsap/all';
 
 @Component({
 	components: {
@@ -155,7 +161,7 @@ export default class MessageList extends Vue {
 	public conversationMode = true;//Used to change title between "History"/"Conversation"
 	public markedReadItem: HTMLDivElement | null = null;
 	public selectedItem: HTMLDivElement | null = null;
-	public selectedMessage: TwitchatDataTypes.MessageChatData | null = null;
+	public selectedMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
 
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
@@ -165,6 +171,7 @@ export default class MessageList extends Vue {
 	private prevTs = 0;
 	private counter = 0;
 	private disposed = false;
+	private forceScrollDown = false;
 	private loadingOldMessage = false;
 	private scrollUpIndexOffset = -1;
 	private holderOffsetY = -1;
@@ -179,8 +186,7 @@ export default class MessageList extends Vue {
 	private publicApiEventHandler!: (e: TwitchatEvent) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
-	private updateMessageStateHandler!: (e: GlobalEvent) => void;
-	private trackUntrackUserHandler!: (e: GlobalEvent) => void;
+	private reloadListHandler!: (e: GlobalEvent) => void;
 
 	public get classes(): string[] {
 		let res = ["messagelist"];
@@ -192,6 +198,12 @@ export default class MessageList extends Vue {
 
 	public get conversationStyles(): StyleValue {
 		return { top: this.conversationPos + "px" }
+	}
+
+	public get selectedClasses():string[] {
+		let res = ["selected"];
+		if(this.selectedMessage?.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) res.push("noSelect");
+		return res;
 	}
 
 	public get filteredMessagesDeduped(): TwitchatDataTypes.ChatMessageTypes[] {
@@ -221,18 +233,23 @@ export default class MessageList extends Vue {
 			this.computeMaxMessageCount();
 		});
 
+		watch(()=>this.$store("params").features.mergeConsecutive.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
+		watch(()=>this.$store("params").features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
+
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
-		this.updateMessageStateHandler = (e: GlobalEvent) => this.onUpdateMessageState(e);
-		this.trackUntrackUserHandler = (e: GlobalEvent) => this.onTrackUntrackUser(e);
+		this.reloadListHandler = (e: GlobalEvent) => this.fullListRefresh(e.type == GlobalEvent.RELOAD_MESSAGES);
 
 		EventBus.instance.addEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.addEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		EventBus.instance.addEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.addEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
-		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.addEventListener(GlobalEvent.PIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNPIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
+		EventBus.instance.addEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT, this.publicApiEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
@@ -271,10 +288,11 @@ export default class MessageList extends Vue {
 
 		EventBus.instance.removeEventListener(GlobalEvent.ADD_MESSAGE, this.addMessageHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.DELETE_MESSAGE, this.deleteMessageHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.PIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.UNPIN_MESSAGE, this.updateMessageStateHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.trackUntrackUserHandler);
-		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.trackUntrackUserHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.PIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNPIN_MESSAGE, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.reloadListHandler);
+		EventBus.instance.removeEventListener(GlobalEvent.RELOAD_MESSAGES, this.reloadListHandler);
 
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_SELECT, this.publicApiEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_FEED_READ, this.publicApiEventHandler);
@@ -331,7 +349,8 @@ export default class MessageList extends Vue {
 		if (this.pendingMessages.length == 0
 		&& el.scrollTop >= maxScroll - 50
 		&& !this.customActivitiesDisplayed) {
-			this.unlockListRefresh();
+			this.lockScroll = false;
+			this.virtualScrollY = -1;//Forces autoscroll to bottom
 		}
 	}
 
@@ -348,7 +367,6 @@ export default class MessageList extends Vue {
 	public fullListRefresh(scrollToBottom:boolean = true): void {
 		if(this.customActivitiesDisplayed) return;
 
-
 		clearTimeout(this.updateDebounce);
 		this.updateDebounce = setTimeout(async () => {
 			if(!this.lockScroll) {
@@ -363,10 +381,15 @@ export default class MessageList extends Vue {
 			const messages = sChat.messages;
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
-			let i = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
-			for (; i >= 0; i--) {
-				const m = messages[i];
+			let index = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
+			
+			for (; index >= 0; index--) {
+				
+				const m = messages[index];
 				if (await this.shouldShowMessage(m)) {
+					//Merge messages if necessary
+					if(await this.mergeWithPrevious(m, index-1, messages, true)) continue;
+
 					//Make sure message isn't pending for display
 					//This sometimes happens when stressing the list... Probably due
 					//the fact that the reference point ("scrollUpIndexOffset") is based
@@ -377,6 +400,7 @@ export default class MessageList extends Vue {
 					}
 
 					result.unshift(m);
+					// result.push(m);
 					if (result.length == this.maxMessages) break;
 				}
 			}
@@ -396,10 +420,13 @@ export default class MessageList extends Vue {
 					this.virtualScrollY = el.scrollTop = maxScroll - 10;
 				}
 			}else if(scrollToBottom){
-				this.virtualScrollY = maxScroll;
+				this.forceScrollDown = true;
+				setTimeout(()=> {
+					this.forceScrollDown = false;
+				}, 1000);
 			}
 			// this.lockScroll = false;
-			this.replaceReadMarker();
+			this.replaceReadMarkerAndSelector();
 		}, 50)
 	}
 
@@ -624,12 +651,13 @@ export default class MessageList extends Vue {
 				return this.config.order == 0;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: {
-				return true
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK: {
 				return this.config.filters.user_watch_streak !== false;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: 
+			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
+				return true;
 			}
 
 			default: return false;
@@ -637,7 +665,7 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Called when a message is add
+	 * Called when a message is added
 	 */
 	private async onAddMessage(e: GlobalEvent): Promise<void> {
 		if(this.customActivitiesDisplayed) return;
@@ -646,6 +674,8 @@ export default class MessageList extends Vue {
 		// const maxScroll = (el.scrollHeight - el.offsetHeight);
 		const m = e.data as TwitchatDataTypes.ChatMessageTypes;
 		if (!await this.shouldShowMessage(m)) return;
+
+		if(await this.mergeWithPrevious(m)) return;
 
 		//If scrolling is locked or there are still messages pending,
 		//add the new message to the pending list
@@ -667,53 +697,6 @@ export default class MessageList extends Vue {
 			this.showLoadingGradient = false;
 			this.scrollToPrevMessage();
 		}
-	}
-
-	/**
-	 * Called when the state of a message is changed (pin/unpin)
-	 */
-	private onUpdateMessageState(e: GlobalEvent): void {
-		this.fullListRefresh(false);
-		// const message = e.data as TwitchatDataTypes.ChatMessageTypes
-		// const shouldShow = this.shouldShowMessage(message);
-		// const displayedIndex = this.filteredMessages.findIndex(v=>v.id == message.id);
-		// const pendingIndex = this.pendingMessages.findIndex(v=>v.id == message.id);
-		// const lockedIndex = this.lockedLiveMessages.findIndex(v=>v.id == message.id);
-		// if(!shouldShow) {
-		// 	if(pendingIndex > -1)  this.pendingMessages.splice(pendingIndex, 1);
-		// 	if(displayedIndex > -1)  this.filteredMessages.splice(displayedIndex, 1);
-		// 	if(lockedIndex > -1)  this.lockedLiveMessages.splice(lockedIndex, 1);
-		// }else{
-		// 	if(this.lockScroll) {
-		// 		if(pendingIndex == -1)  this.pendingMessages.push(message);
-		// 		if(lockedIndex == -1)  this.lockedLiveMessages.push(message);
-		// 	}else{
-		// 		if(displayedIndex == -1)  this.filteredMessages.push(message);
-		// 	}
-		// }
-	}
-
-	/**
-	 * Called when changing the tracking state of a user
-	 */
-	private onTrackUntrackUser(e: GlobalEvent): void {
-		this.fullListRefresh(false);
-		// const user = e.data as TwitchatDataTypes.TwitchatUser;
-		// const lists = [this.filteredMessages, this.pendingMessages, this.lockedLiveMessages];
-		// for (let i = 0; i < lists.length; i++) {
-		// 	const list = lists[i];
-		// 	for (let j = 0; j < list.length; j++) {
-		// 		const message = list[j];
-		// 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-		// 			const shouldShow = this.shouldShowMessage(message);
-		// 			if(!shouldShow) {
-		// 				list.splice(j, 1);
-		// 			}else{
-		// 				list.push(message);
-		// 			}
-		// 		}
-		// 	}
-		// }
 	}
 
 	/**
@@ -742,42 +725,6 @@ export default class MessageList extends Vue {
 			}
 		}
 		this.fullListRefresh(false);
-
-		// //remove from displayed messages
-		// for (let i = this.filteredMessages.length - 1; i >= 0; i--) {
-		// 	const m = this.filteredMessages[i];
-		// 	if (m.id == data.message.id) {
-		// 		if(data.force===true
-		// 		|| !this.shouldShowMessage(m)
-		// 		|| m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-		// 			if(m.markedAsRead) {
-		// 				m.markedAsRead = false;
-		// 				if(i>0) {
-		// 					const newMessage = this.filteredMessages[i-1];
-		// 					newMessage.markedAsRead = true;
-		// 					const div = (this.$refs["message_" + newMessage.id] as HTMLDivElement[])[0];
-		// 					this.markedReadItem = div;
-		// 				}
-		// 			}
-		// 			this.filteredMessages.splice(i, 1);
-		// 		}
-		// 		return;
-		// 	}
-		// }
-
-		// //Check if it's in the pending messages
-		// for (let i = this.pendingMessages.length - 1; i >= 0; i--) {
-		// 	const m = this.pendingMessages[i];
-		// 	if (m.id == data.message.id) return
-		// }
-
-		// if(this.shouldShowMessage(data.message) && data.message.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) {
-		// 	if(this.pendingMessages.length > 0) {
-		// 		this.pendingMessages.push(data.message);
-		// 	}else{
-		// 		this.filteredMessages.push(data.message);
-		// 	}
-		// }
 	}
 
 	/**
@@ -816,20 +763,19 @@ export default class MessageList extends Vue {
 							if(await this.shouldShowMessage(m)) count ++;
 							if(count === 1) {
 								this.markedAsReadDate = m.date;
-								this.replaceReadMarker();
+								this.replaceReadMarkerAndSelector(true);
 								break;
 							}
 						}
 						
 					//Moving read mark downward
 					}else if(count > 0){
-						console.log(messageList);
 						for (let i = currentMessageIndex; i < messageList.length; i++) {
 							const m = messageList[i];
 							if(await this.shouldShowMessage(m)) count --;
 							if(count === -1) {
 								this.markedAsReadDate = m.date;
-								this.replaceReadMarker();
+								this.replaceReadMarkerAndSelector(true);
 								break;
 							}
 						}
@@ -922,7 +868,7 @@ export default class MessageList extends Vue {
 				//Search for a message selected
 				for (let i = offset; i >= 0; i--) {
 					const m = messageList[i];
-					if(m.date <= this.selectionDate && await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					if(m.date <= this.selectionDate && await this.shouldShowMessage(m)) {
 						currentMessageIndex = i;
 						break;
 					}
@@ -933,10 +879,10 @@ export default class MessageList extends Vue {
 					if(count < 0) {
 						for (let i = currentMessageIndex; i > 0; i--) {
 							const m = messageList[i];
-							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count ++;
+							if(await this.shouldShowMessage(m)) count ++;
 							if(count === add) {
 								this.selectionDate = m.date;
-								this.replaceReadMarker();
+								this.replaceReadMarkerAndSelector();
 								break;
 							}
 						}
@@ -945,10 +891,10 @@ export default class MessageList extends Vue {
 					}else if(count > 0){
 						for (let i = currentMessageIndex; i < messageList.length; i++) {
 							const m = messageList[i];
-							if(await this.shouldShowMessage(m) && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) count --;
+							if(await this.shouldShowMessage(m)) count --;
 							if(count === -add) {
 								this.selectionDate = m.date;
-								this.replaceReadMarker();
+								this.replaceReadMarkerAndSelector();
 								break;
 							}
 						}
@@ -972,7 +918,10 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_DELETE: {
-				if(!this.selectedMessage) return;
+				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					this.showSelectionError();
+					return;
+				}
 				this.$store("chat").deleteMessage(this.selectedMessage);
 				this.selectedItem = null;
 				this.selectedMessage = null;
@@ -981,7 +930,10 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_BAN: {
-				if(!this.selectedMessage) return
+				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					this.showSelectionError();
+					return;
+				}
 				TwitchUtils.banUser(this.selectedMessage.user, this.selectedMessage.channel_id, data.duration ?? 0);
 				this.selectedItem = null;
 				this.selectedMessage = null;
@@ -990,7 +942,10 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_PIN: {
-				if(!this.selectedMessage) return
+				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					this.showSelectionError();
+					return;
+				}
 				if(this.selectedMessage.is_saved !== true) {
 					this.$store("chat").saveMessage(this.selectedMessage);
 				}else{
@@ -1000,13 +955,19 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_HIGHLIGHT: {
-				if(!this.selectedMessage) return
+				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					this.showSelectionError();
+					return;
+				}
 				this.$store("chat").highlightChatMessageOverlay(this.selectedMessage);
 				break;
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT: {
-				if(!this.selectedMessage) return
+				if(!this.selectedMessage || this.selectedMessage.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					this.showSelectionError();
+					return;
+				}
 				this.$store("users").shoutout(this.selectedMessage.channel_id, this.selectedMessage.user);
 				break;
 			}
@@ -1139,6 +1100,10 @@ export default class MessageList extends Vue {
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
 		let easeValue		= hasResized? 1 : .3;
 
+		if(this.forceScrollDown) {
+			this.virtualScrollY = maxScroll;
+		}
+
 		//Compute scroll offset before/after which point prev/next messages
 		//should be loaded
 		const scrollPageOffset = Math.min(this.virtualMessageHeight * 5, maxScroll*.25);
@@ -1207,15 +1172,6 @@ export default class MessageList extends Vue {
 	 */
 	private async showNextPendingMessage():Promise<void> {
 		if (this.pendingMessages.length == 0) return;
-		
-		//Get last currently displayed message reference so we can scroll back
-		//to it after adding new messages
-		const messagesHolder = this.$refs.chatMessageHolder as HTMLDivElement;
-		const messRefs = messagesHolder.querySelectorAll(".messageHolder>.subHolder");
-		let lastMessRef:HTMLDivElement|undefined = undefined;
-		if (messRefs.length > 0) {
-			lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
-		}
 
 		//Add 5 messages
 		let addCount = 5;
@@ -1229,6 +1185,7 @@ export default class MessageList extends Vue {
 			//Message isn't supposed to be displayed, ignore it
 			if(!await this.shouldShowMessage(message!)) message = undefined;
 			else if(message) {
+				if(await this.mergeWithPrevious(message, undefined, this.pendingMessages)) continue;
 				//Add message
 				addCount --;
 				this.filteredMessages.push(message);
@@ -1290,7 +1247,7 @@ export default class MessageList extends Vue {
 			//back to avoid emptying the list if we keep scrolling up
 			removed.forEach(v=> this.filteredMessages.push( v ));
 		}
-		this.replaceReadMarker();
+		this.replaceReadMarkerAndSelector();
 		this.loadingOldMessage = false;
 	}
 
@@ -1331,7 +1288,7 @@ export default class MessageList extends Vue {
 				messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
 		}
-		this.replaceReadMarker();
+		this.replaceReadMarkerAndSelector();
 	}
 
 	/**
@@ -1455,7 +1412,7 @@ export default class MessageList extends Vue {
 			let target = event.target as HTMLElement;
 			do {
 				if (target.tagName.toLowerCase() == "a") return;//Do not mark as read if clicked on a link
-				target = target.parentNode as HTMLElement;
+				target = target.parentElement as HTMLElement;
 			}while(target != document.body);
 		}
 		
@@ -1469,7 +1426,7 @@ export default class MessageList extends Vue {
 			this.markedAsReadDate = m.date;
 		}
 
-		this.replaceReadMarker();
+		this.replaceReadMarkerAndSelector();
 
 		if (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -1549,9 +1506,9 @@ export default class MessageList extends Vue {
 	}
 
 	/**
-	 * Replaces the read marker
+	 * Replaces the read marker and selector
 	 */
-	private replaceReadMarker():void {
+	private replaceReadMarkerAndSelector(movingReadMark:boolean = false):void {
 		this.markedReadItem = null;
 		this.selectedItem = null;
 		this.selectedMessage = null;
@@ -1570,13 +1527,139 @@ export default class MessageList extends Vue {
 				this.markedReadItem = div;
 				foundCount ++;
 			}
+			
 			if(!this.selectedItem && this.selectionDate > 0 && mLoc.date <= this.selectionDate) {
-				const div = (this.$refs["message_" + mLoc.id] as HTMLDivElement[])[0];
+				//Using element IDs instead of $refs so we can target sub elements.
+				//Merged messages are handled within a message, this list doesn't have any reference
+				//to the actual children except via their element ID
+				const div = document.getElementById("message_" + mLoc.id + "_" + this.config.order) as HTMLDivElement;
 				this.selectedItem = div;
 				this.selectedMessage = mLoc as TwitchatDataTypes.MessageChatData;
 				foundCount ++;
+				
+				//Search on merged children if any
+				const mergeable = mLoc as TwitchatDataTypes.MergeableMessage;
+				if(mergeable.children) {
+					for (let j = 0; j < mergeable.children.length; j++) {
+						const child = mergeable.children[j];
+						if(this.selectionDate > 0 && child.date <= this.selectionDate) {
+							const div = document.getElementById("message_" + child.id + "_" + this.config.order) as HTMLDivElement;
+							// const div = (this.$refs["message_" + mLoc.id] as HTMLDivElement[])[0];
+							this.selectedItem = div;
+							this.selectedMessage = child as TwitchatDataTypes.MessageChatData;
+						}
+					}
+				}
 			}
 			if(foundCount == toFindCount) break;
+		}
+
+
+		//Scroll chat to make sure the selection remains visible on screen
+		const item = movingReadMark? this.markedReadItem : this.selectedItem;
+		if(item) {
+			const messageHolder	= this.$refs.chatMessageHolder as HTMLDivElement;
+			if (!messageHolder) return;
+			let messageBounds = item.getBoundingClientRect();
+			let listBounds = messageHolder.getBoundingClientRect();
+			let thresholdTop = listBounds.top + listBounds.height* 1/4;
+			let thresholdBottom = listBounds.top + listBounds.height* 3/4;
+			//If message is above 1/4 of the chat height, scroll top
+			if(messageBounds.top < thresholdTop) {
+				this.lockScroll = true;
+				this.virtualScrollY -= thresholdTop - messageBounds.top;
+				// messageHolder.scrollTop = this.virtualScrollY;
+				gsap.killTweensOf(messageHolder)
+				gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
+				
+				//If message is bellow 3/4 of the chat height, scroll down
+			}else if(messageBounds.top > thresholdBottom) {
+				this.virtualScrollY += messageBounds.top - thresholdBottom;
+				// messageHolder.scrollTop = this.virtualScrollY;
+				gsap.killTweensOf(messageHolder)
+				gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
+				this.onScroll(messageBounds.height);
+			}
+		}
+	} 
+	
+	/**
+	 * Attempt to merge consecutive messages of the same type and user
+	 * 
+	 * @returns true if the message has been merged
+	 */
+	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[], resetChildren:boolean = false):Promise<boolean> {
+		const isMergeable = TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(newMessage.type);
+		if(!isMergeable) return false;
+
+		const newCast = newMessage as TwitchatDataTypes.MergeableMessage;
+		//If merge option is disable, stop there and clean potential children
+		if(StoreProxy.params.features.mergeConsecutive.value == false) {
+			if(isMergeable) newCast.children.splice(0);
+			return false;
+		}
+		const maxSize		= this.$store("params").features.mergeConsecutive_maxSize.value as number;
+		const maxSizeTotal	= this.$store("params").features.mergeConsecutive_maxSizeTotal.value as number;
+		const minDuration	= this.$store("params").features.mergeConsecutive_minDuration.value as number;
+
+		//If message size is higher than max allowed, don't merged
+		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(newMessage.message_size > maxSize) return false;
+			if((newMessage.occurrenceCount || 0) > 0) return false;//don't merge messages with multiple occurences flag
+		}
+
+		//Message not mergeable, skip it
+		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
+		//No message to merge with
+		if(messageList.length < 2) return false;
+
+		if(indexOffset == undefined) indexOffset = messageList.length-1;
+		//Search for message to merge with
+		for (let i = indexOffset; i >= 0; i--) {
+			const prevMessage = messageList[i];
+			if(!await this.shouldShowMessage(prevMessage)) continue;
+			
+			//Check if prev message meets the condition to be merged witht the new one
+			if(prevMessage.type != newMessage.type) return false;//Prev displayable message isnt the same type, don't merge
+			// if(prevMessage.deleted) return false;//if message has been deleted, don't merge
+
+			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
+			if(resetChildren) prevCast.children.splice(0);
+			if(prevCast.user.id !== newCast.user.id) return false;//Not the same user don't merge
+			
+			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				//don't merge messages with multiple occurences flag
+				if((prevMessage.occurrenceCount || 0) > 0) return false;
+				//Get date of the latest children if any, or the date of the message
+				const prevDate = prevMessage.children.length > 0? prevMessage.children[prevMessage.children.length-1].date : prevMessage.date;
+				//Too much time elapsed between the 2 messages
+				if(newMessage.date - prevDate > minDuration * 1000) return false;
+				//Parent message size is too big, don't merge
+				if(TwitchUtils.computeMessageSize(prevMessage.message_chunks) + newCast.message_size > maxSizeTotal) return false;
+			}
+			
+			//Merge with previous message
+			prevCast.children.push(newMessage);
+			
+			//If added child had children extract them to their new parent
+			if(newCast.children && newCast.children.length > 0) {
+				prevCast.children.push(...newCast.children);
+				newCast.children.splice(0);
+			}
+			return true;
+		}
+		return false;
+	}
+
+	/**
+	 * Shows an error when trying to execute a Stream Deck + action on a message that doesn't
+	 * support it
+	 */
+	private showSelectionError():void {
+		gsap.fromTo(this.selectedItem, {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+		const stopSign = this.$refs.incompatibleSelection as HTMLDivElement;
+		if(stopSign) {
+			gsap.fromTo(stopSign, {scale:2, opacity:1}, {duration:1, scale:.5, opacity:0});
 		}
 	}
 }
@@ -1697,13 +1780,18 @@ export default class MessageList extends Vue {
 		.selected {
 			width: 100%;
 			height: 100%;
-			background-color: var(--color-alert-fadest);
-			outline: 1px solid var(--color-alert);
+			background-color: var(--color-light-fade);
+			outline: 1px solid var(--color-light);
 			position: absolute;
 			bottom: 0;
 			left: 0;
 			z-index: 1;
 			pointer-events: none;
+
+			&.noSelect {
+				background-color: var(--color-alert-fadest);
+				outline: 1px solid var(--color-alert);
+			}
 		}
 
 		.subHolder:last-child {
@@ -1766,6 +1854,19 @@ export default class MessageList extends Vue {
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
+			}
+			button {
+				height: 1.5em;
+				width: 1.5em;
+				padding: 2px;
+				border-radius: var(--border-radius);
+				&:hover {
+					background-color: var(--color-text-fadest);
+				}
+
+				.icon {
+					height: 100%;
+				}
 			}
 		}
 
@@ -1857,6 +1958,14 @@ export default class MessageList extends Vue {
 				background-color: rgba(255, 255, 255, .025);
 			}
 		}
+	}
+
+	.incompatibleSelection {
+		opacity: 0;
+		pointer-events: none;
+		font-size: 2em;
+		position: absolute;
+		.center();
 	}
 
 }

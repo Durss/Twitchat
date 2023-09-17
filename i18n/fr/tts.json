@@ -52,7 +52,7 @@
 			"param_maxLength": "Lire {VALUE} caractères maximum",
 			"param_maxDurationToggle": "Limiter la durée de lecture",
 			"param_maxDuration": "Arrêter de lire après {VALUE} secondes",
-			"param_timeoutToggle": "Supprimer un message de la file d'attente s'il nest pas lu avant...",
+			"param_timeoutToggle": "Supprimer un message de la file d'attente s'il n'est pas lu avant...",
 			"param_timeout": "{VALUE} minute | {VALUE} minutes",
 			"param_inactivityPeriodToggle": "Lire un message seulement si aucun message n'a été lu depuis...",
 			"param_inactivityPeriod": "{VALUE} minute | {VALUE} minutes",

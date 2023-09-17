@@ -50,28 +50,24 @@
 			
 			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
-			icon="user"
+			icon="add"
 			@click="loadNextUsers()" />
 	
-			<picture v-if="loading">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" v-if="loading" />
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import ApiController from '@/utils/ApiController';
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import ToggleButton from '../ToggleButton.vue';
-import CloseButton from '../CloseButton.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
+import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
@@ -130,17 +126,9 @@ export default class TTUserList extends AbstractSidePanel {
 		this.users = [];
 		this.usersSpool = [];
 		try {
-			res = await fetch(Config.instance.API_PATH+"/user/all", {
-				method: "GET",
-				headers: {
-					"Content-Type": "application/json",
-					"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-					'App-Version': import.meta.env.PACKAGE_VERSION,
-				},
-			})
-			const json = await res.json();
+			const {json} = await ApiController.call("user/all");
 			if(json.success) {
-				const users = json.users as {id:string, date:number, user:TwitchDataTypes.UserInfo}[];
+				const users = json.users;
 				this.activeLast24h = 0;
 				this.activeLast7days = 0;
 				this.activeLast30days = 0;
@@ -292,7 +280,6 @@ interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
 
 		.loadBt, .loader {
 			margin: auto;
-			display: block;
 		}
 	}
 }

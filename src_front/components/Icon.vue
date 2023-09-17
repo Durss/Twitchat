@@ -80,6 +80,8 @@ export default class Icon extends Vue {
 	display: inline-block;
 	:deep(svg) {
 		width: auto;
+		width: 100%;
+		height: 100%;
 		max-width: 100%;
 		max-height: 100%;
 		object-fit: cover;
@@ -90,14 +92,14 @@ export default class Icon extends Vue {
 	&.light {
 		:deep(svg) {
 			* {
-				fill: @color-light !important;
+				fill: var(--color-light) !important;
 			}
 		}
 	}
 	&.dark {
 		:deep(svg) {
 			* {
-				fill: @color-dark !important;
+				fill: var(--color-dark) !important;
 			}
 		}
 	}

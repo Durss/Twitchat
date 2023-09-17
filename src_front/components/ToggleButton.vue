@@ -67,11 +67,12 @@ export default class ToggleButton extends Vue {
 	border-radius: @size;
 	position: relative;
 	cursor: pointer;
+	transition: background-color .35s;
 	background-color: var(--background-color-fader);
 	.bevel();
 
 	.circle {
-		transition: left .2s;
+		transition: left .35s, background-color .35s;
 		position: absolute;
 		top: 50%;
 		transform: translateY(-50%);
@@ -139,22 +140,6 @@ export default class ToggleButton extends Vue {
 			background: var(--color-alert);
 			.circle {
 				background-color: var(--color-button);
-			}
-		}
-	}
-
-	@media (prefers-color-scheme: light) {
-		background: var(--color-light-fader);
-		&:hover {
-			background: var(--color-light-fade);
-		}
-		&.selected:hover {
-			background-color: var(--color-primary-extralight);
-			&.secondary {
-				background: var(--color-secondary-light);
-			}
-			&.alert {
-				background: var(--color-alert-light);
 			}
 		}
 	}

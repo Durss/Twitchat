@@ -110,9 +110,9 @@ export default class PollState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed = Date.now() - this.poll.started_at;
+		const elapsed = Date.now() - this.poll.started_at;
 		const duration = this.poll.duration_s * 1000;
-		this.progressPercent = ellapsed/duration;
+		this.progressPercent = elapsed/duration;
 	}
 
 	public openUserCard():void {
@@ -140,6 +140,7 @@ export default class PollState extends Vue {
 			padding: 7px 15px;
 			font-size: 16px;
 			background-color: var(--color-secondary-fadest);
+			transition: background-size .2s;
 			justify-content: space-between;
 			background-repeat: no-repeat;
 			&:not(:last-child) {

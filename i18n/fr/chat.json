@@ -34,7 +34,6 @@
 			"whispersBt_aria": "Chuchotements",
 			"pinsBt_aria": "Messages épinglés",
 			"saveBt_aria": "Messages conservés",
-			"deezerBt_aria": "Lecteur deezer",
 			"highlightBt_aria": "Fermer le message mis en avant",
 			"voicebot_startBt_aria": "Activer l'assistant vocal",
 			"voicebot_stopBt_aria": "Arrêter l'assistant vocal",
@@ -140,7 +139,7 @@
 			"announcement": "Annonce",
 			"occurrences": "Nombre de fois que ce message a été envoyé",
 			"no_follow": "Ne vous follow pas",
-			"banned_in": " • Banni·e chez {CHANNELS}",
+			"banned_in": "Banni·e chez {CHANNELS}",
 			"blocked_user": "Ce message a été envoyé par une personne bloquée. Cliquez pour afficher.",
 			"clip_created_by": "Créé par:",
 			"clip_channel": "Chaîne:",
@@ -152,6 +151,7 @@
 			"deleted_by": "<message supprimé par {USER}>",
 			"disable_ad": "Désactiver",
 			"customize_ad": "Personnaliser",
+			"stop_autospoil":"Arrêter de spoiler les messages de cette personne automatiquement",
 			"badges": {
 				"prediction": "Prédiction",
 				"subscriber": "Abonné·e",
@@ -235,8 +235,11 @@
 		"sponsor": {
 			"title": "💝 Me soutenir 💝",
 			"head": "Tu apprécies Twitchat ?<br>Ca m'a pris <strong>plus d'un an</strong> de travail sans revenus à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
+			"head_reminder": "J'espère que ton stream s'est bien passé ?<br>Tu as souhaité recevoir un rappel de don en fin de stream, le voici donc 😁!",
 			"tipBt_aria": "Voir les options de dons",
-			"tipBt": "🌞 Emerveiller ma journée 🌞"
+			"tipBt": "🌞 Emerveiller ma journée 🌞",
+			"remind_meBt": "Rappel en fin de stream",
+			"reminder_scheduled": "Vous recevrez un rappel lorsque vous aurez effectué un raid ou coupé votre stream 🙂"
 		},
 		"stream": {
 			"online": "La chaîne {USER} est en live.",
@@ -252,24 +255,29 @@
 			"contents": [
 				"Twitchat est gratuit mais:",
 				"Un message partageant un lien vers Twitchat sera envoyé toutes les 2 heures dans votre tchat <strong>en votre nom</strong>.",
-				"Vous pouvez envoyer ce message depuis un autre bot",
 				"<br>",
-				"Vous pouvez personnaliser le message dans les paramètres.",
-				"Ou faire un don libre pour le supprimer."
+				"Vous pouvez envoyer ce message depuis un autre bot.",
+				"Vous pouvez personnaliser le message.",
+				"<br>",
+				"Faites un don libre pour désactiver ce message ou devenez <strong>membre premium</strong> pour en plus débloquer toutes les fonctionnalités Twitchat."
 			],
 			"unacceptableBt": "😡😡😡 C'EST INACCEPTABLE 😡😡😡",
 			"customizeBt": "Personnaliser le message",
 			"donateBt": "Faire un don"
 		},
+		"updateReminder": {
+			"content": "Consultez les dernières mises à jour à tout moment avec la commande {CMD}",
+			"updatesBt": "Ouvrir les MàJ"
+		},
 		"donor": {
 			"title": "❤ Merveilleuse personne ❤",
 			"info_1": "Merci encore pour ton soutien au travers de ton don.",
 			"info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
-			"info_2_link": "section À propos",
+			"info_2_link": "section @:params.categories.donate",
 			"info_3": "Par défaut les dons sont anonymes mais tu peux rendre tien public !",
 			"thanks": "Merci ❤.",
 			"thanks_change": "Tu peux changer d'avis à tout moment dans la {LINK}",
-			"thanks_change_link": "section Mon compte",
+			"thanks_change_link": "section @:params.categories.donate",
 			"publicBt": "Rendre mon don public",
 			"close_confirm": {
 				"info_1": "Es-tu sûr·e d'avoir lu le message ?",
@@ -322,7 +330,9 @@
 			"unban_myRoom": "Débannir de chez moi",
 			"block": "Bloquer",
 			"unblock": "Débloquer",
-			"to": "Ban temporaire"
+			"to": "Ban temporaire",
+			"export":"Télécharger une capture",
+			"export_clipboard":"Copier une capture dans le presse-papier"
 		},
 		"custom_badge": {
 			"label": {
@@ -349,7 +359,11 @@
 				"firstToday": "1er message du jour",
 				"firstTimeChatter": "1er message sur cette chaîne",
 				"returningChatter": "A parlé dans le tchat au moins 2 fois au cours des 30 derniers jours",
-				"hypeChat": "Hype chat. Cette personne a payé pour ce message."
+				"hypeChat": "Hype chat. Cette personne a payé pour ce message",
+				"new_account": "Ce compte a été créé il y a {DURATION}",
+				"new_account_day": "j",
+				"new_account_hour": "h",
+				"new_account_minute": "Min"
 			}
 		},
 		"scope_request": {
@@ -362,6 +376,9 @@
 		},
 		"watch_streak": {
 			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
+		},
+		"splitter": {
+			"label": "Nouveaux messages"
 		}
 	}
 }

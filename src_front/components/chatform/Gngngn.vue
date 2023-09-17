@@ -2,10 +2,10 @@
 	<div class="gngngn modal">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
-			<div class="head">
+			<h1 class="head">
 				<span class="title">{{ $t('gngngn.title') }}</span>
 				<CloseButton @click="close()" />
-			</div>
+			</h1>
 			<div class="content">
 				<p v-for="e in $tm('gngngn.contents')" v-html="e"></p>
 				<ToggleBlock class="block" :title="$t('gngngn.why_title')" small :open="false">

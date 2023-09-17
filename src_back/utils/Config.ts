@@ -12,13 +12,10 @@ export default class Config {
 	private static confPath: string = "env.conf";
 	private static credentialsCache:Credentials;
 	
-	public static betaDataFolder = "./beta/";
-	public static donorsDataFolder = "./donors/";
-
-	public static get betaList(): string { return this.betaDataFolder + "betaUsers.json"; }
-	public static get donorsList(): string { return this.donorsDataFolder + "donors.json"; }
-	public static get donorsAnonStates(): string { return this.donorsDataFolder + "public_states.json"; }
-	public static get donorsPublicList(): string { return this.donorsDataFolder + "public_cache.json"; }
+	public static get lifetimeDonorStep():number{ return 89; }
+	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
+	public static get donorsAnonStates(): string { return this.DONORS_DATA_FOLDER + "public_states.json"; }
+	public static get donorsPublicList(): string { return this.DONORS_DATA_FOLDER + "public_cache.json"; }
 	public static get donorsLevels(): number[] { return [0,20,30,50,80,100,200,300,400,500,999999]; }
 
 	public static get credentials():Credentials {
@@ -31,7 +28,7 @@ export default class Config {
 	/**
 	 * Validates a token and returns the user data
 	 */
-	public static async getUserFromToken(token:string):Promise<{
+	public static async getUserFromToken(token:string|undefined):Promise<{
 		client_id: string,
 		login: string,
 		scopes: string[],
@@ -61,6 +58,7 @@ export default class Config {
 	public static get LOCAL_TESTING(): boolean {
 		return this.getEnvData({
 			dev: true,
+			beta: false,
 			prod: false,
 		});
 	}
@@ -68,6 +66,7 @@ export default class Config {
 	public static get LOGS_ENABLED(): boolean {
 		return this.getEnvData({
 			dev: true,
+			beta: true,
 			prod: true,
 		});
 	}
@@ -75,6 +74,7 @@ export default class Config {
 	public static get PUBLIC_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../dist/"),
+			beta: path.join(__dirname, "../public/"),
 			prod: path.join(__dirname, "../public/"),
 		});
 	}
@@ -82,6 +82,7 @@ export default class Config {
 	public static get USER_DATA_PATH(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../userData/"),
+			beta: path.join(__dirname, "../userData/"),
 			prod: path.join(__dirname, "../userData/"),
 		});
 	}
@@ -89,14 +90,105 @@ export default class Config {
 	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../userData_fake_production/"),
+			beta: path.join(__dirname, "../../twitchat/userData/"),
 			prod: path.join(__dirname, "../../twitchat/userData/"),
+		});
+	}
+
+	public static get PATREON_TOKEN_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../patreonToken.json"),
+			beta: path.join(__dirname, "../patreonToken.json"),
+			prod: path.join(__dirname, "../patreonToken.json"),
+		});
+	}
+
+	public static get PATREON_MEMBERS_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../patreonMembers.json"),
+			beta: path.join(__dirname, "../patreonMembers.json"),
+			prod: path.join(__dirname, "../patreonMembers.json"),
 		});
 	}
 
 	public static get ANNOUNCEMENTS_PATH(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../announcements.json"),
+			beta: path.join(__dirname, "../announcements.json"),
 			prod: path.join(__dirname, "../announcements.json"),
+		});
+	}
+
+	/**
+	 * List of user ID that supported twitchat with 10€ or more
+	 */
+	public static get EARLY_TWITCHAT_DONORS(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../earlyDonors.json"),
+			beta: path.join(__dirname, "../earlyDonors.json"),
+			prod: path.join(__dirname, "../earlyDonors.json"),
+		});
+	}
+
+	/**
+	 * Get if SMS warning for patreon requesting authentication is enabled
+	 */
+	public static get SMS_WARN_PATREON_AUTH(): boolean {
+		return this.getEnvData({
+			dev: false,
+			beta: true,
+			prod: true,
+		});
+	}
+
+	/**
+	 * List of beta users
+	 */
+	public static get BETA_USER_LIST(): string {
+		return this.BETA_DATA_FOLDER + "betaUsers.json";
+	}
+
+	/**
+	 * Golder containing beta user list
+	 */
+	public static get BETA_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "../../beta/"),
+			beta: path.join(__dirname, "../beta/"),
+			prod: path.join(__dirname, "../beta/"),
+		});
+	}
+	
+	/**
+	 * Folder containing donors infos
+	 */
+	public static get DONORS_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "../../donors/"),
+			beta: path.join(__dirname, "../../twitchat/donors/"),
+			prod: path.join(__dirname, "../donors/"),
+		});
+	}
+	
+	/**
+	 * Paypal API endpoint
+	 */
+	public static get PAYPAL_ENDPOINT(): string {
+		return this.getEnvData({
+			dev: "https://api-m.sandbox.paypal.com",
+			beta: "https://api-m.paypal.com",
+			prod: "https://api-m.paypal.com",
+		});
+	}
+	
+	/**
+	 * External endpoint that manages donors through google sheet (not part of this repository)
+	 */
+	public static get DONORS_REMOTE_ENDPOINT(): string {
+		return this.getEnvData({
+			dev: "http://127.0.0.1:3025/",
+			beta: "http://127.0.0.1:3025/",
+			prod: "http://127.0.0.1:3025/",
 		});
 	}
 
@@ -139,10 +231,12 @@ export default class Config {
 	}
 }
 
-type EnvName = "dev" | "prod";
+type EnvName = "dev" | "prod" | "beta";
 
 interface Credentials {
 	server_port:number;
+	sms_uid?:string;
+	sms_token?:string;
 
 	admin_ids: string[];
 	csrf_key: string;
@@ -157,11 +251,23 @@ interface Credentials {
 	spotify_scopes: string;
 	spotify_redirect_uri: string;
 	
-	deezer_scopes: string;
-	deezer_client_id: string;
-	deezer_client_secret: string;
-	deezer_redirect_uri: string;
-	deezer_dev_client_id: string;
-	deezer_dev_client_secret: string;
-	deezer_dev_redirect_uri: string;
+	patreon_client_id:string;
+	patreon_client_secret:string;
+	patreon_scopes:string;
+	patreon_redirect_uri:string;
+	
+	patreon_my_uid:string;
+	patreon_client_id_server:string;
+	patreon_client_secret_server:string;
+	patreon_redirect_uri_server:string;
+	patreon_webhook_secret:string;
+
+	tenor_secret:string;
+
+	paypal_client_id:string;
+	paypal_client_secret:string;
+
+	donors_remote_api_secret:string;
+
+	contact_mail:string;
 }

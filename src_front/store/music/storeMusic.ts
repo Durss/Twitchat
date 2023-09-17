@@ -1,8 +1,4 @@
-import DataStore from '@/store/DataStore';
-import Config from '@/utils/Config';
-import DeezerHelper from '@/utils/music/DeezerHelper';
-import type { SpotifyAuthResult, SpotifyAuthToken } from '@/utils/music/SpotifyDataTypes';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
@@ -10,8 +6,6 @@ import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
 export const storeMusic = defineStore('music', {
 	state: () => ({
 		spotifyAuthParams: null,
-		
-		deezerConnected: false,
 		
 		musicPlayerParams: {
 			autoHide:false,
@@ -38,13 +32,6 @@ export const storeMusic = defineStore('music', {
 	actions: {
 		setSpotifyAuthResult(value:SpotifyAuthResult|null) { this.spotifyAuthParams = value; },
 
-		setDeezerConnected(value:boolean) {
-			this.deezerConnected = value;
-			Config.instance.DEEZER_CONNECTED = value;
-			if(!value) {
-				DeezerHelper.instance.dispose();
-			}
-		},
 	} as IMusicActions
 	& ThisType<IMusicActions
 		& UnwrapRef<IMusicState>

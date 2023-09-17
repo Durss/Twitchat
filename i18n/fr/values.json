@@ -1,0 +1,22 @@
+{
+	"values":{
+		"header":"Créez des valeurs personnalisées à utiliser dans {LINK_TRIGGER}",
+		"header_link_trigger":"les Triggers",
+		"addBt":"Créer une valeur",
+		"editBt":"Editer la valeur",
+		"max_values_reached":"You reached the maximum of {COUNT} values that can be created",
+
+		"form":{
+			"name":"Nom",
+			"name_conflict":"Une valeur du même nom existe déjà",
+			"value":"Valeur",
+			"placholder": "Nom de placeholder personnalisé {'{'}VALUE_{VALUE}{'}'}",
+			"placholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur<br>dans n'importe<br>quelle action de trigger",
+			"placeholder_conflict": "Une autre valeur utilise déjà ce placeholder"
+		},
+		"delete_confirm": {
+			"title": "Supprimer ?",
+			"desc": "Tout trigger faisant référence à ce compteur ne fonctionnera plus correctement."
+		}
+	}
+}

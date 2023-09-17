@@ -11,47 +11,24 @@
 			<ChatMessage v-if="spoilerExample" :messageData="spoilerExample" class="example" lightMode />
 		</section>
 
+		<ParamItem :paramData="param_autospoil" @change="save()" v-newflag="{date:1693519200000, id:'params_spoiler1stchatters'}" />
+
 		<Splitter class="splitter">{{ $t("spoiler.command.title") }}</Splitter>
 
 		<section class="form">
-			<div class="card-item">
-				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
-					<template #CMD><mark>!spoiler</mark></template>
-				</i18n-t>
-				<PermissionsForm class="perms" v-model="chatCommandPerms" />
-			</div>
-
 			<div class="card-item">
 				<i18n-t scope="global" tag="div" keypath="spoiler.command.how_to">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
 				<img class="tuto" src="@/assets/img/spoilerTutorial.png" alt="spoiler tutorial">
 			</div>
-		</section>
 
-		<Splitter class="splitter">{{ $t('spoiler.warning.title') }}</Splitter>
-
-		<section class="card-item secondary warning">
-
-			<div class="disclaimer">
-				<i18n-t scope="global" tag="div" keypath="spoiler.warning.head">
+			<div class="card-item">
+				<i18n-t scope="global" tag="div" keypath="spoiler.command.allowed" class="title">
 					<template #CMD><mark>!spoiler</mark></template>
 				</i18n-t>
-				<i18n-t scope="global" tag="div" keypath="spoiler.warning.example">
-					<template #ANSWER><mark>{{ $t("spoiler.warning.example_2") }}</mark></template>
-					<template #ROOT><mark>{{ $t("spoiler.warning.example_1") }}</mark></template>
-				</i18n-t>
+				<PermissionsForm class="perms" v-model="chatCommandPerms" />
 			</div>
-			<ul>
-				<li>
-					<span>{{ $t("spoiler.warning.example_1") }}</span>
-					<ul>
-						<li>{{ $t("spoiler.warning.example_2") }}</li>
-						<li>{{ $t("spoiler.warning.example_3") }}</li>
-						<li>{{ $t("spoiler.warning.example_4") }}</li>
-					</ul>
-				</li>
-			</ul>
 		</section>
 	</div>
 </template>
@@ -64,10 +41,12 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
+import ParamItem from '../ParamItem.vue';
 
 @Component({
 	components: {
 		Splitter,
+		ParamItem,
 		ChatMessage,
 		PermissionsForm,
 	}
@@ -75,6 +54,7 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
+	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
 
 	public chatCommandPerms: TwitchatDataTypes.PermissionsData = {
 		broadcaster: true,
@@ -100,14 +80,17 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 			this.chatCommandPerms = this.$store("chat").spoilerParams.permissions;
 		}
 
-		watch(() => this.chatCommandPerms, () => {
-			this.$store("chat").setSpoilerParams({
-				permissions: this.chatCommandPerms
-			});
-		}, { deep: true })
+		watch(() => this.chatCommandPerms, () => this.save(), { deep: true })
 	}
 
 	public onNavigateBack(): boolean { return false; }
+
+	public save():void {
+		this.$store("chat").setSpoilerParams({
+			permissions: this.chatCommandPerms,
+			autoSpoilNewUsers: this.param_autospoil.value,
+		});
+	}
 
 }
 </script>

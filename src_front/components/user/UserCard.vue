@@ -1,147 +1,192 @@
 <template>
-	<div class="usercard modal" v-if="user">
-		<div class="dimmer" ref="dimmer" @click="close()"></div>
-
-		<div class="holder" ref="holder" v-if="loading">
-			<CloseButton aria-label="close" @click="close()" />
-			<div class="head">
-				<div class="title">
-					<span class="label">{{user.displayName}}</span>
-				</div>
-				<Icon name="loader" alt="loading" class="loader"/>
-			</div>
-		</div>
-
-		<div class="holder" ref="holder" v-else-if="error">
-			<CloseButton aria-label="close" @click="close()" />
-			<div class="head">
-				<div class="title">
-					<span class="label">{{user.displayName}}</span>
-				</div>
-			</div>
-
-			<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
-		</div>
-
-		<div class="holder" ref="holder" v-else-if="!loading && !error">
-			<CloseButton aria-label="close" @click="close()" />
-			<div class="head">
-				<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
-					<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
-					<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
+	<div class="usercard sidePanel" v-if="user">
+		<div class="content">
+			<template v-if="loading">
+				<CloseButton aria-label="close" @click="close()" />
+				<div class="header">
 					<div class="title">
-						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
 						<span class="label">{{user.displayName}}</span>
-						<span class="translation" v-if="translateUsername">({{user.login}})</span>
 					</div>
-				</a>
-				<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
-				<div class="subtitle" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
-			</div>
-			
-			<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock />
+					<Icon name="loader" alt="loading" class="loader"/>
+				</div>
+			</template>
 
-			<div class="scrollable">
-				<div class="infoList">
-					<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
-					
-					<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
-					
-					<div class="info" v-if="subState && subStateLoaded">
-						<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
-						<Icon name="sub" alt="subscribed" class="icon" v-else/>
-						<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
-							<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
-							<template #GIFTER>{{ subState.gifter_name }}</template>
-						</i18n-t>
+			<template v-else-if="error">
+				<CloseButton aria-label="close" @click="close()" />
+				<div class="header">
+					<div class="title">
+						<span class="label">{{user.displayName}}</span>
 					</div>
-					<div class="info" v-else-if="subStateLoaded">
-						<Icon name="sub" alt="subscribed" class="icon"/>
-						<span>{{ $t("usercard.non_subscribed") }}</span>
-					</div>
+				</div>
 
-					<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
-					<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
+				<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
+			</template>
+
+			<template v-else-if="!loading && !error">
+				<CloseButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
+				<div class="header" v-show="!manageBadges && !manageUserNames">
+					<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
+						<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
+					</a>
+					<div class="title">
+						<CustomBadgeSelector class="customBadges" :user="user" @manageBadges="manageBadges = true" :channelId="channelId" @limitReached="manageBadges = true" />
+						
+						<img v-for="b in badges" :key="b.id" class="badge" :src="b.icon.hd" :alt="b.title" v-tooltip="b.title">
+
+						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channelId" />
+						
+						<template v-if="!edittingLogin">
+							<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+								<span class="label">{{user.displayName}}</span>
+								<span class="translation" v-if="translateUsername">({{user.login}})</span>
+							</a>
+
+							<tooltip tag="button" interactive class="editLoginBt" @click="editLogin()">
+								<template #default>
+									<Icon name="edit" theme="secondary" />
+								</template>
+
+								<template #content>
+									<div style="text-align: center">
+										<div>{{ $t('usercard.edit_loginBt_tt') }}</div>
+										<div class="list" v-if="Object.keys($store('users').customUsernames).length > 0">
+											<Button light secondary small icon="edit" @click="manageUserNames = true">{{ $t("usercard.manage_usernamesBt") }}</Button>
+										</div>
+									</div>
+								</template>
+							</tooltip>
+						</template>
+						
+						<form v-else class="editLoginForm" @submit.prevent="submitCustomLogin()">
+							<input class="" type="text" :placeholder="$t('global.login_placeholder')" v-model="customLogin" ref="customUsername" maxlength="25">
+							<Button type="submit" icon="checkmark"></Button>
+						</form>
+					</div>
+					<span v-if="user.displayName != user.displayNameOriginal" class="originalName">({{ user.displayNameOriginal }})</span>
+					<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
+					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<div class="ctas">
-					<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
-					<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
-					<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
-					<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-					<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
-				</div>
-				
-				<div class="card-item secondary liveInfo" v-if="currentStream">
-					<div class="header">
-						<div class="title">{{ $t("usercard.streaming") }}</div>
-					</div>
-					<div class="infos">
-						<div class="title">{{currentStream.title}}</div>
-						<mark class="game">{{currentStream.game_name}}</mark>
-					</div>
-				</div>
+				<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
-				<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
-			
-				<div class="card-item messages" v-if="messageHistory.length > 0">
-					<div class="header">
-						<h2 class="title">{{ $t("usercard.messages") }}</h2>
+				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
+					<div class="infoList">
+						<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
+						
+						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
+						
+						<div class="info" v-if="subState && subStateLoaded">
+							<Icon name="gift" alt="subscribed" class="icon" v-if="subState.is_gift"/>
+							<Icon name="sub" alt="subscribed" class="icon" v-else/>
+							<i18n-t scope="global" tag="span" :keypath="subState.is_gift? 'usercard.subgifted' : 'usercard.subscribed'">
+								<template #TIER>{{ {"1000":1, "2000":2, "3000":3, prime:"prime"}[subState.tier] }}</template>
+								<template #GIFTER>{{ subState.gifter_name }}</template>
+							</i18n-t>
+						</div>
+						<div class="info" v-else-if="subStateLoaded">
+							<Icon name="sub" alt="subscribed" class="icon"/>
+							<span>{{ $t("usercard.non_subscribed") }}</span>
+						</div>
+
+						<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
+						<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
+						<div class="info ban card-item alert" v-for="chan in bannedChannels">
+							<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
+							<span>{{ chan.user.displayName }}</span>
+							<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
+						</div>
 					</div>
-	
-					<div class="list">
-						<div class="subholder" v-for="m in messageHistory" :key="m.id">
-							<MessageItem class="message"
-								disableConversation
-								:messageData="m" />
+					
+					<div class="ctas">
+						<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
+						<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+						<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+						<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+						<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+					</div>
+					
+					<div class="card-item secondary liveInfo" v-if="currentStream">
+						<div class="header">
+							<div class="title">{{ $t("usercard.streaming") }}</div>
+						</div>
+						<div class="infos">
+							<div class="title">{{currentStream.title}}</div>
+							<mark class="game">{{currentStream.game_name}}</mark>
+						</div>
+					</div>
+
+					<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
+				
+					<div class="card-item messages" v-if="messageHistory.length > 0">
+						<div class="header">
+							<h2 class="title">{{ $t("usercard.messages") }}</h2>
+						</div>
+		
+						<div class="list" ref="messagelist">
+							<div class="subholder" v-for="m in messageHistory" :key="m.id">
+								<MessageItem class="message"
+									disableConversation
+									noMerge
+									:messageData="m" />
+							</div>
+						</div>
+					</div>
+					
+					<div class="card-item followings" v-if="!followingsDisabled">
+						<div class="header">
+							<h2 class="title">Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
+						</div>
+						<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
+						<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
+						<transition name="scale">
+							<Icon class="loader" name="loader" v-if="loadingFollowings" />
+						</transition>
+		
+						<div v-if="errorFollowings" class="card-item alert errorMessage">Something went wrong while loading followings...</div>
+						<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
+		
+						<div class="list" v-if="!errorFollowings" ref="list">
+							<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
+								<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
+								<div class="date">{{getFormatedFollowDate(u)}}</div>
+							</div>
 						</div>
 					</div>
 				</div>
-				
-				<div class="card-item followings" v-if="!followingsDisabled">
-					<div class="header">
-						<h2 class="title">Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-					</div>
-					<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
-					<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
-					<transition name="scale">
-						<picture v-if="loadingFollowings">
-							<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-							<Icon name="loader" alt="loading" class="loader"/>
-						</picture>
-					</transition>
-	
-					<div v-if="errorFollowings" class="card-item alert errorMessage">Something went wrong while loading followings...</div>
-					<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
-	
-					<div class="list" v-if="!errorFollowings" ref="list">
-						<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
-							<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
-							<div class="date">{{getFormatedDate(u)}}</div>
-						</div>
-					</div>
-				</div>
+			</template>
+
+			<div class="holder" ref="holder" v-if="manageBadges">
+				<CustomBadgesManager class="scrollable" @close="manageBadges = false" />
 			</div>
+
+			<div class="holder" ref="holder" v-if="manageUserNames">
+				<CustomUserNameManager class="scrollable" @close="manageUserNames = false" />
 			</div>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import ChatModTools from '../messages/components/ChatModTools.vue';
-import MessageItem from '../messages/MessageItem.vue';
 import CloseButton from '../CloseButton.vue';
+import MessageItem from '../messages/MessageItem.vue';
+import ChatModTools from '../messages/components/ChatModTools.vue';
+import CustomUserBadges from './CustomUserBadges.vue';
+import CustomBadgeSelector from './CustomBadgeSelector.vue';
+import CustomBadgesManager from './CustomBadgesManager.vue';
+import CustomUserNameManager from './CustomUserNameManager.vue';
 
 @Component({
 	components:{
@@ -149,6 +194,10 @@ import CloseButton from '../CloseButton.vue';
 		CloseButton,
 		MessageItem,
 		ChatModTools,
+		CustomUserBadges,
+		CustomBadgeSelector,
+		CustomBadgesManager,
+		CustomUserNameManager,
 	}
 })
 export default class UserCard extends Vue {
@@ -158,6 +207,10 @@ export default class UserCard extends Vue {
 	public suspiciousFollowFrequency:boolean = false;
 	public loading:boolean = true;
 	public loadingFollowings:boolean = true;
+	public edittingLogin:boolean = true;
+	public manageBadges:boolean = false;
+	public manageUserNames:boolean = false;
+	public customLogin:string = "";
 	public createDate:string = "";
 	public followDate:string = "";
 	public userDescription:string = "";
@@ -172,9 +225,12 @@ export default class UserCard extends Vue {
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public subState:TwitchDataTypes.Subscriber|null = null;
 	public subStateLoaded:boolean = false;
-	public modChans:TwitchatDataTypes.TwitchatUser[] = [];
+	public messageHistory:TwitchatDataTypes.ChatMessageTypes[] = []
+	public dateOffset:number = 0;
+	public dateOffsetTimeout:number = -1;
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
+	private messageBuildInterval:number = -1;
 
 	public get followingsDisabled():boolean {
 		//Necessary Twitch API endpoint to get the followings of a user
@@ -222,6 +278,26 @@ export default class UserCard extends Vue {
 	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	/**
+	 * Get connected channels the user is banned in.
+	 * Only reliable info is from our own chan. Other's chan info depends on weither we were here
+	 * when the user got banned
+	 */
+	public get bannedChannels():{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] {
+		if(!this.user) return [];
+		let res:{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] = [];
+		for (const uid in this.user!.channelInfo) {
+			if(this.user.channelInfo[uid].is_banned !== true) continue;
+			let entry:{user:TwitchatDataTypes.TwitchatUser, duration?:number} = {user:this.$store("users").getUserFrom(this.user.platform, uid, uid)}
+			if(this.user.channelInfo[uid].banEndDate) {
+				const duration = this.user.channelInfo[uid].banEndDate! - Date.now();
+				if(duration > 0) entry.duration = duration;
+			}
+			res.push(entry)
+		}
+		return res; 
+	}
+
+	/**
 	 * Get the "read user's messages" label depedning on its current state
 	 */
 	public get ttsReadBtLabel(): string {
@@ -238,38 +314,14 @@ export default class UserCard extends Vue {
 	}
 
 	/**
-	 * Get users's message history
+	 * Get a formated timeout duration
+	 * @param duration 
 	 */
-	public get messageHistory():TwitchatDataTypes.ChatMessageTypes[] {
-		if(!this.user) return [];
-
-		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
-		const uid:string = this.user.id;
-		for (let i = 0; i < this.$store("chat").messages.length; i++) {
-			const mess = this.$store("chat").messages[i];
-			if(!allowedTypes.includes(mess.type)) continue;
-			if(mess.type == "shoutout" && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if(mess.type == "following" && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if(mess.type == "subscription" && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if(mess.type == "cheer" && mess.user.id == uid) {
-				messageList.push(mess);
-			}else if(mess.type == "reward" && mess.user.id == uid) {
-				messageList.push(mess);
-			}
-			if (messageList.length > 100) break;//Limit to 100 for perf reasons
-		}
-		return messageList;
+	public getFormatedTimeoutDuration(duration:number):string {
+		return Utils.formatDuration(Math.max(0, duration - this.dateOffset));
 	}
 
-	public getFormatedDate(f:TwitchDataTypes.FollowingOld):string {
+	public getFormatedFollowDate(f:TwitchDataTypes.FollowingOld):string {
 		return Utils.formatDate(new Date(f.followed_at));
 	}
 
@@ -278,12 +330,16 @@ export default class UserCard extends Vue {
 			this.myFollowings = this.$store("users").myFollowings.twitch;
 
 			const card = this.$store("users").userCard;
-			if(card) {
-				this.user = card.user;
+			if(card && card.user) {
+				this.user = this.$store("users").getUserFrom("twitch", card.channelId, card.user.id);
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
+				this.dateOffsetTimeout = setInterval(() => {
+					this.dateOffset += 1000;
+				}, 1000);
 			}else{
 				this.user = null;
+				clearInterval(this.dateOffsetTimeout);
 			}
 		});
 
@@ -292,6 +348,7 @@ export default class UserCard extends Vue {
 	}
 
 	public beforeUnmount():void {
+		clearInterval(this.messageBuildInterval);
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
@@ -309,22 +366,26 @@ export default class UserCard extends Vue {
 		this.commonFollowCount = 0;
 		this.followersCount = -1;
 		this.followDate = "";
+		this.currentStream = null;
 		this.subState = null;
 		this.subStateLoaded = false;
-		this.modChans = [
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "684410546", "mewstelle", "Mewstelle"),
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "43809079", "shakawah", "Shakawah"),
-			this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, "642638701", "fibertooth", "fibertooth"),
-		];
+		this.customLogin = "";
+		this.edittingLogin = false;
+		this.manageBadges = false;
+		this.manageUserNames = false;
 		try {
 			let user = this.user!;
-			const loadFromLogin = user.temporary;
+			const loadFromLogin = user.login != this.$store("users").tmpDisplayName;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
+				user.login = u.login;
+				user.displayName = u.display_name;
+				user.displayNameOriginal = u.display_name;
+				this.customLogin = this.$store("users").customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;
-				user.avatarPath = u.profile_image_url;
+				if(!user.avatarPath) user.avatarPath = u.profile_image_url;
 				user.id = u.id;
 				//Don't replace display name if already set.
 				//Extensions like "Stream stickers" have a different display name
@@ -368,9 +429,12 @@ export default class UserCard extends Vue {
 					message: "",
 					message_html: "",
 					message_chunks: [],
+					message_size:0,
 					answers:[],
 					is_short:false,
-				}
+					children:[],
+				};
+				this.loadHistory(u.id);
 			}else{
 				this.error = true;
 			}
@@ -423,6 +487,39 @@ export default class UserCard extends Vue {
 	}
 
 	/**
+	 * Start custom display name edition
+	 */
+	public editLogin():void {
+		this.edittingLogin = true;
+		this.$nextTick().then(()=> {
+			(this.$refs.customUsername as HTMLInputElement).focus();
+			(this.$refs.customUsername as HTMLInputElement).select();
+		})
+	}
+
+	/**
+	 * Called when setting a custom display name
+	 */
+	public submitCustomLogin():void {
+		this.edittingLogin = false;
+		if(!this.$store("users").setCustomUsername(this.user!, this.customLogin, this.channelId)) {
+			this.manageUserNames = true;
+		}
+		//Update customLogin from the actual displayname.
+		//If clearing the custom login, the real display name is loaded back to the
+		//"displayName" getter .
+		this.customLogin = this.user!.displayName;
+	}
+
+	/**
+	 * Removes a custom badge from the user
+	 * @param id 
+	 */
+	removeCustomBadge(id:string):void {
+		this.$store("users").removeCustomBadge(this.user!, id, this.channelId);
+	}
+
+	/**
 	 * Toggles whether the TTS should read this user's messages
 	 */
 	public toggleReadUser(): void {
@@ -431,11 +528,17 @@ export default class UserCard extends Vue {
 		this.$store("tts").ttsReadUser(this.user!, read);
 	}
 
+	/**
+	 * Push user ID to clipboard
+	 */
 	public copyID():void {
 		Utils.copyToClipboard(this.user!.id);
 		gsap.from(this.$refs.userID as HTMLDivElement, {scale:1.5, ease:"back.out"});
 	}
 
+	/**
+	 * Check how many followers we have in common
+	 */
 	public computeCommonFollows():void {
 		this.commonFollowCount = 0;
 		for (let i = 0; i < this.followings.length; i++) {
@@ -482,10 +585,64 @@ export default class UserCard extends Vue {
 		}
 	}
 
+	/**
+	 * Detect ESC key to close window
+	 */
 	private onKeyUp(e:KeyboardEvent):void {
 		if(e.key == "Escape") {
-			this.close();
+			if(this.edittingLogin) {
+				this.edittingLogin = false;
+			}else{
+				this.close();
+			}
+			e.preventDefault();
+			e.stopPropagation();
 		}
+	}
+
+	/**
+	 * Build the message history chunk by chunk
+	 */
+	private loadHistory(uid:string):void {
+		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
+		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
+			const mess = this.$store("chat").messages[i];
+			if(!allowedTypes.includes(mess.type)) continue;
+			if(mess.type == "shoutout" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "following" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if((mess.type == "ban" || mess.type == "unban") && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if((mess.type == "message" || mess.type == "whisper") && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "subscription" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "cheer" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "reward" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}
+			if (messageList.length > 100) break;//Limit message count for perf reasons
+		}
+
+		//Build messages by batch to avoid lag on open
+		this.messageHistory = messageList.splice(-20);
+		clearInterval(this.messageBuildInterval);
+		this.messageBuildInterval = setInterval(()=> {
+			if(messageList.length == 0) clearInterval(this.messageBuildInterval);
+
+			this.messageHistory.unshift(...messageList.splice(-5));
+			
+			if(this.messageHistory.length < 30) {
+				this.$nextTick(()=>{
+					const messagelist = this.$refs.messagelist as HTMLDivElement |undefined;
+					if(!messagelist) return;
+					messagelist.scrollTop = messagelist.scrollHeight;
+				});
+			}
+		}, 50);
 	}
 
 }
@@ -493,34 +650,19 @@ export default class UserCard extends Vue {
 
 <style scoped lang="less">
 .usercard{
-	z-index: 98;
-	position: fixed;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: var(--vh);
-	max-height: var(--vh);
-
-	&.hidden {
-		display: none;
-	}
-
-	&>.holder {
-		
-		max-height: var(--vh);
-
+	.content {
 		.loader {
 			margin: auto;
 			display: block;
 			width: 2em;
 			height: 2em;
 		}
-
+	
 		.errorMessage, .warn {
 			text-align: center;
 		}
-
-		&>.head {
+	
+		&>.header, &>div>.header {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
@@ -530,36 +672,73 @@ export default class UserCard extends Vue {
 			a {
 				text-decoration: none;
 			}
-
+	
 			.title {
 				font-size: 1.5em;
 				display: flex;
 				align-items: center;
 				justify-content: center;
 				width:100%;
-
+	
+				.customBadges {
+					font-size: .8em;
+					margin-right: .25em;
+					z-index: 2;
+				}
+	
 				.label {
 					text-overflow: ellipsis;
 					overflow: hidden;
 					line-height: 1.2em;
 				}
-
+	
 				.translation {
 					font-style: italic;
 					font-size: .8em;
 					margin-left: .25em;
 				}
-
-				.badge {
+	
+				.badge, :deep(.customUserBadge) {
 					height: .8em;
 					margin-right: 3px;
+					&.customUserBadge {
+						cursor: not-allowed;
+					}
+				}
+	
+				.editLoginBt {
+					height: .7em;
+					margin-left: .25em;
+					.icon {
+						height: 100%;
+						:deep(svg) {
+							vertical-align: top;
+						}
+					}
+				}
+	
+				.editLoginForm {
+					gap: 0;
+					font-size: 1rem;
+					display: flex;
+					flex-direction: row;
+					.button {
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+					}
+	
+					input {
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+					}
 				}
 			}
-
-			.pronouns {
+	
+			.pronouns, .originalName {
 				font-style: italic;
+				margin-bottom: .25em;
 			}
-
+	
 			.live {
 				position: relative;
 				display: block;
@@ -574,7 +753,7 @@ export default class UserCard extends Vue {
 				transform: translate(-50%, -50%);
 				z-index: 1;
 				box-shadow: 0 -.25em .5em rgba(0, 0, 0, .5);
-
+	
 				.viewers {
 					font-weight: normal;
 					.icon {
@@ -583,13 +762,13 @@ export default class UserCard extends Vue {
 					}
 				}
 			}
-
-			.subtitle {
+	
+			.userID {
 				font-size: .7em;
 				cursor: copy;
 				z-index: 1;
 			}
-
+	
 			.avatar {
 				width: 5em;
 				height: 5em;
@@ -604,13 +783,14 @@ export default class UserCard extends Vue {
 				}
 			}
 		}
-
+	
 		.infoList {
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
 			justify-content: center;
 			gap: .5em;
+			cursor: default;
 			flex-shrink: 0;//necessery for shit old safari -_-
 			.info {
 				font-size: .9em;
@@ -620,11 +800,19 @@ export default class UserCard extends Vue {
 				.icon {
 					height: 1em;
 					margin-right: .5em;
-					vertical-align: top;
+					vertical-align: middle;
+				}
+
+				&.ban {
+					.timeoutDuration {
+						margin-left: .5em;
+						// font-family: Azeret;
+						font-size: .8em;
+					}
 				}
 			}
 		}
-
+	
 		.liveInfo {
 			align-self: center;
 			flex-shrink: 0;
@@ -635,13 +823,13 @@ export default class UserCard extends Vue {
 				}
 			}
 		}
-
+	
 		.modActions {
 			margin: -.5em 0;
 			align-self: center;
 			flex-shrink: 0;//necessery for shit old safari -_-
 		}
-
+	
 		.ctas {
 			display: flex;
 			flex-direction: row;
@@ -650,7 +838,7 @@ export default class UserCard extends Vue {
 			gap: .5em;
 			flex-shrink: 0;//necessery for shit old safari -_-
 		}
-
+	
 		.description {
 			flex-shrink: 0;
 			align-self: center;
@@ -674,7 +862,7 @@ export default class UserCard extends Vue {
 				vertical-align: text-bottom;
 			}
 		}
-
+	
 		.scrollable {
 			overflow-y: auto;
 			gap: 1em;
@@ -684,11 +872,11 @@ export default class UserCard extends Vue {
 				flex-shrink: 0;
 			}
 		}
-
+	
 		.followings, .messages {
 			display: flex;
 			flex-direction: column;
-
+	
 			&.messages {
 				.list {
 					max-height: min(50vh, 300px);
@@ -696,7 +884,7 @@ export default class UserCard extends Vue {
 					text-align: left;
 				}
 			}
-
+	
 			&.followings {
 				gap: .5em;
 				display: flex;
@@ -763,26 +951,6 @@ export default class UserCard extends Vue {
 					}
 				}
 			}
-
-		}
-	}
-}
-
-@media only screen and (max-width: 800px) {
-		
-	.usercard{
-
-		.dimmer {
-			display: none;
-		}
-
-		&>.holder {
-			max-width: unset;
-			height: 100%;
-			width: var(--vw);
-			top: 0;
-			left: 0;
-			transform: none;
 		}
 	}
 }

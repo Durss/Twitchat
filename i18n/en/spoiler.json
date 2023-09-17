@@ -2,19 +2,11 @@
 	"spoiler":{
 		"header":"Messages starting with {TAG} will be masked by default and revealed on hover",
 		"message_example":"Message example:",
+		"autospoil_new_users":"Display all messages of 1st time chatters as spoilers<br>(useful if you play a spoiler-sensitive game)",
 		"command":{
 			"title":"Spoil someone's message",
 			"how_to":"You can allow your mods to flag a message sent by another viewer as a spoiler by answering the message with the {CMD} command",
 			"allowed":"Users allowed to use {CMD} command:"
-		},
-		"warning":{
-			"title":"Warning",
-			"head":"Twitch's answer system being terribly bad, if you try to use {CMD} on an answer, it will actually make the the one the user answered to as a spoiler instead.",
-			"example":"For example, bellow, if you try to spoil the {ANSWER} by answering to it, it will actually spoil the {ROOT} instead:",
-			"example_1":"Original message",
-			"example_2":"Answer 1",
-			"example_3":"Answer 2",
-			"example_4":"Answer 3"
 		}
 	}
 }

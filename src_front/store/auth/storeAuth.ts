@@ -2,17 +2,19 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
-import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
+import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 let refreshTokenTO:number = -1;
 
@@ -30,23 +32,22 @@ export const storeAuth = defineStore('auth', {
 	
 	
 	getters: {
-	} as IAuthGetters
-	& ThisType<UnwrapRef<IAuthState> & _StoreWithGetters<IAuthGetters> & PiniaCustomProperties>
-	& _GettersTree<IAuthState>,
+		
+		// isPremium():boolean { return false; },
+		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor; },
+
+	},
 	
 	
 	
 	actions: {
 		async twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
-			//Refresh token if going to expire within the next 5 minutes
+			//Refresh token if it's going to expire within the next 5 minutes
 			if(twitchAuthResult) {
 				try {
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res			= await fetch(Config.instance.API_PATH+"/auth/twitch/refreshtoken?token="+twitchAuthResult.refresh_token, {method:"GET", headers});
-					twitchAuthResult	= await res.json();
+					const res 			= await ApiController.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});
+					twitchAuthResult	= res.json;
 				}catch(error) {
 					if(callback) callback(false);
 					return;
@@ -77,9 +78,11 @@ export const storeAuth = defineStore('auth', {
 				if(callback) callback(true);
 				return twitchAuthResult;
 			}
+			return;
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {
+			window.setInitMessage("twitch authentication");
 
 			try {
 	
@@ -87,11 +90,8 @@ export const storeAuth = defineStore('auth', {
 				let twitchAuthResult:TwitchDataTypes.AuthTokenResult = storeValue? JSON.parse(storeValue) : undefined;
 				if(code) {
 					//Convert oAuth code to access_token
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res = await fetch(Config.instance.API_PATH+"/auth/twitch?code="+code, {method:"GET", headers});
-					twitchAuthResult = await res.json();
+					const res = await ApiController.call("auth/twitch", "GET", {code});
+					twitchAuthResult = res.json;
 					twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 					clearTimeout(refreshTokenTO);
@@ -119,6 +119,7 @@ export const storeAuth = defineStore('auth', {
 				//Validate access token
 				let userRes:TwitchDataTypes.Token | TwitchDataTypes.Error | undefined;
 				try {
+					window.setInitMessage("validating Twitch auth token");
 					userRes = await TwitchUtils.validateToken(twitchAuthResult.access_token);
 				}catch(error) { /*ignore*/ }
 
@@ -132,11 +133,9 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.expires_in		= userRes.expires_in;
 
 				if(Config.instance.BETA_MODE) {
-					const headers = {
-						'App-Version': import.meta.env.PACKAGE_VERSION,
-					};
-					const res = await fetch(Config.instance.API_PATH+"/beta/user?uid="+userRes.user_id, {method:"GET", headers});
-					if(res.status != 200 || (await res.json()).data.beta !== true) {
+					window.setInitMessage("checking beta access permissions");
+					const res = await ApiController.call("beta/user", "GET", {uid:userRes.user_id});
+					if(res.status != 200 || res.json.data.beta !== true) {
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
 						return;
@@ -144,13 +143,12 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				// Load the current user data
-				await new Promise((resolve)=> {
-					//Makes sure the pronoun param is properly set up so our pronouns
-					//are loaded if requested					
-					// sMain.loadDataFromStorage();
-					const uid = (userRes as TwitchDataTypes.Token).user_id;
-					this.twitch.user = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
-				})
+				window.setInitMessage("loading Twitch user info");
+				//Makes sure the pronoun param is properly set up so our pronouns
+				//are loaded if requested					
+				// sMain.loadDataFromStorage();
+				const uid = (userRes as TwitchDataTypes.Token).user_id;
+				await this.loadUserState(uid);
 				if(this.twitch.user.errored === true){
 					if(cb) cb(false);
 					else router.push({name:"login"});
@@ -158,50 +156,17 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				this.authenticated = true;
-
-				//Check if user is part of the donors nor an admin
-				try {
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+this.twitch.access_token,
-						},
-					}
-					
-					const userStateRes = await fetch(Config.instance.API_PATH+"/user", options);
-
-					const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
-					const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
-					const userJSON:{
-						data:{
-							isAdmin:boolean,
-							isDonor:boolean,
-							level:number,
-						}
-					} = await userStateRes.json();
-					
-					this.twitch.user.donor.state	= userJSON.data.isDonor === true;
-					this.twitch.user.donor.level	= userJSON.data.level;
-					this.twitch.user.donor.upgrade	= userJSON.data.level != prevLevel;
-					if(userJSON.data.isAdmin === true) this.twitch.user.is_admin = true;
-
-					//Async loading of followers count to define if user is exempt
-					//from ads or not
-					TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
-						this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
-					})
-				}catch(error) {}
 	
 				const sMain = StoreProxy.main;
-				const sChat = StoreProxy.chat;
 				const sRewards = StoreProxy.rewards;
 				
 				try {
+					window.setInitMessage("migrating local parameter data");
 					await DataStore.migrateLocalStorage();
 
 					//If asked to sync data with server, load them
 					if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
+						window.setInitMessage("downloading your parameters");
 						if(!await DataStore.loadRemoteData()) {
 							//Force data sync popup to show up if remote
 							//data have been deleted
@@ -214,7 +179,8 @@ export const storeAuth = defineStore('auth', {
 					//Parse data from storage
 					await sMain.loadDataFromStorage();
 				}catch(error) {
-					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on twitter or twitch @durss.");
+					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on Twitch @durss.");
+					console.log(error);
 				}
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
@@ -222,6 +188,7 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
+				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				sRewards.loadRewards();
 
 				//Preload stream info
@@ -266,28 +233,7 @@ export const storeAuth = defineStore('auth', {
 					})
 				});
 
-				//Warn the user about the automatic "ad" message sent every 2h
-				if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !this.twitch.user.donor.state) {
-					setTimeout(()=>{
-						if(this.twitch.user.donor.noAd) return;
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
-					}, 5000);
-				}else
-				//Ask the user if they want to make their donation public
-				if(!DataStore.get(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT) && this.twitch.user.donor.state) {
-					setTimeout(()=>{
-						sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT);
-					}, 5000);
-				}else
-				//Show "right click message" hint
-				if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
-					setTimeout(()=>{
-						sChat.sendRightClickHint();
-					}, 5000);
-				}else{
-					//Hot fix to make sure new changelog highlights are displayed properly
-					setTimeout(()=> { sChat.sendTwitchatAd(); }, 1000);
-				}
+				StoreProxy.main.onAuthenticated();
 
 				if(cb) cb(true);
 				
@@ -312,6 +258,38 @@ export const storeAuth = defineStore('auth', {
 		requestTwitchScopes(scopes:TwitchScopesString[]) {
 			this.newScopesToRequest = scopes;
 		},
+
+		async loadUserState(uid:string):Promise<void> {
+			const user = await new Promise<TwitchatDataTypes.TwitchatUser>(async (resolve)=> {
+				await StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, resolve);
+			});
+			user.donor = {
+				earlyDonor:false,
+				level:-1,
+				noAd:false,
+				state:false,
+				upgrade:false,
+				isPremiumDonor:false,
+			}
+			const res = await ApiController.call("user");
+
+			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
+			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
+			
+			this.twitch.user						= user as Required<TwitchatDataTypes.TwitchatUser>;
+			this.twitch.user.donor.state			= res.json.data.isDonor === true;
+			this.twitch.user.donor.level			= res.json.data.level;
+			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
+			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
+			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
+			if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
+
+			//Async loading of followers count to define if user is exempt
+			//from ads or not
+			TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
+				this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			})
+		}
 	} as IAuthActions
 	& ThisType<IAuthActions
 		& UnwrapRef<IAuthState>

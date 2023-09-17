@@ -34,7 +34,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 
 # Features
 - [x] Enable an emergency button with custom actions to prevent from follow bots and doxxing
-- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify or Deezer when an event occurs
+- [x] Create your own sub/follow/rewards/poll/... alerts and chat commands with the Trigger system that allows to control your OBS sources and filters as well as Spotify when an event occurs
 - [x] Control Twitchat and create polls or predictions with your voice
 - [x] Read your messages and alerts out loud thank to the include text-to-speech
 - [x] Pin messages and find them back later
@@ -45,7 +45,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Alert command to make Twitchat shake, blink, emit sound and display a message over everything else
 - [x] Edit your stream's info from Twitchat with possibility to create pressets
 - [x] Create a timer or a countdown with a simple command and show it on your stream
-- [x] Control spotify or deezer from chat commands *(create your own song request system)* and show currently playing track on your stream
+- [x] Control spotify from chat commands *(create your own song request system)* and show currently playing track on your stream
 - [x] Make it easier to follow a conversation between users
 - [x] Remember where you stopped reading the chat by clicking any message
 - [x] Track a user to make sure not to miss their messages
@@ -102,11 +102,15 @@ First create a `credentials.json` file on the root directory and fill in these v
 	"twitch_scopes": [
 		"chat:read",
 		"chat:edit",
+		"moderator:manage:announcements",
+		"moderator:manage:chat_messages",
+		"moderator:manage:shoutouts",
+		"whispers:read",
+		"user:manage:whispers",
+		"moderator:read:chatters",
 		"channel:read:redemptions",
 		"channel:manage:polls",
 		"channel:manage:predictions",
-		"moderator:manage:announcements",
-		"moderator:manage:chat_messages",
 		"moderator:manage:chat_settings",
 		"channel:moderate",
 		"moderation:read",
@@ -117,23 +121,39 @@ First create a `credentials.json` file on the root directory and fill in these v
 		"channel:read:hype_train",
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
-		"channel:read:goals",
 		"user:read:follows",
+		"moderator:read:followers",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
 		"moderator:manage:banned_users",
-		"whispers:read",
-		"user:manage:whispers",
 		"moderator:manage:automod",
-		"moderator:read:chatters",
-		"moderator:read:followers",
-		"moderator:manage:shield_mode"
+		"moderator:manage:shield_mode",
+		"clips:edit"
 	],
 	
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
-	"spotify_redirect_uri": "http://localhost:8080/spotify/auth"
+	"spotify_redirect_uri": "http://localhost:8080/spotify/auth",
+	
+	"patreon_client_id": "",
+	"patreon_client_secret": "",
+	"patreon_scopes": "identity identity.memberships",
+	"patreon_redirect_uri": "http://localhost:8080/patreon/auth",
+	
+	"patreon_my_uid": "",
+	"patreon_client_id_server": "",
+	"patreon_client_secret_server": "",
+	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
+	"patreon_webhook_secret": "9p",
+
+	"tenor_secret": "",
+
+	"paypal_client_id":"",
+	"paypal_client_secret":"",
+
+	"donors_remote_api_secret": "",
+	"contact_mail": ""
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\

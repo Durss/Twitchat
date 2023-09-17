@@ -8,4 +8,12 @@ export default interface IParameterContent {
 	 * @returns true if the call acted on the navigation
 	 */
 	onNavigateBack():boolean;
+	/**
+	 * Called if clicking on the menu button to open this section
+	 * when already on it.
+	 * Useful on the triggers, if editing a specific trigger, clicking
+	 * on the "Triggers" menu entry will bring user back to the
+	 * triggers list
+	 */
+	reload?():void;
 }

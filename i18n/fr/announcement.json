@@ -7,7 +7,7 @@
 		"param_dateEnd":"Date de fin (optionnel)",
 		"param_text":"Message",
 		"param_versionMax":"Version max de Twitchat (optionnel)",
-		"param_important":"Notification importante (sera envoyée aux personne déjà en live)",
+		"param_important":"Notification importante (sera envoyée aux personnes déjà en live)",
 		"postBt":"Publier",
 		"list":"Liste des annonces",
 		"create_confirm":{

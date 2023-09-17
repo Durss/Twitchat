@@ -7,6 +7,7 @@
 			</div>
 			<input type="text" id="chatcmdparam" v-model="newTag"
 				@keyup.enter="createItem()"
+				@keydown.capture="filterChars($event)"
 				@blur="createItem()"
 				:placeholder="$t('triggers.slash_cmd.param_cmd_params_placeholder')"
 				maxlength="20">
@@ -90,6 +91,10 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 		//Generate a fake message
 		const words = "Lorem ipsum dolore Enim nisi labore adipisicing irure aliquip anim dolor consequat fugiat exercitation veniam minim velit ullamco consectetur duis aute tempor".trim();
 		this.usage = cmd + " " + words.split(" ").splice(0, Math.max(5, this.param_cmdParams.value.length)).join(" ");
+	}
+
+	public filterChars(event:KeyboardEvent):void {
+		if(!/[a-z-0-9_-]/gi.test(event.key)) event.preventDefault();
 	}
 
 	public copy(event:MouseEvent, item:TriggerChatCommandParam):void {

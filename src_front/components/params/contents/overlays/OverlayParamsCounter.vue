@@ -136,23 +136,12 @@ export default class OverlayParamsCounter extends Vue {
 <style scoped lang="less">
 .overlayparamscounter{
 	.holder {
-		gap: 1em;
+		gap: .5em;
 		display: flex;
 		flex-direction: column;
 
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
-
 		.counterList {
-			gap: 1em;
+			gap: .5em;
 			display: flex;
 			flex-direction: column;
 			max-height: 400px;

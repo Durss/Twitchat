@@ -12,7 +12,7 @@
 				<div v-for="m in $store('chat').whispers[selectedUserId]" :key="m.id" :class="messageClasses(m)">
 					<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
 					<div class="text">
-						<ChatMessageChunksParser :chunks="m.message_chunks" />
+						<ChatMessageChunksParser :chunks="m.message_chunks" :channel="m.channel_id" :platform="m.platform" />
 					</div>
 				</div>
 			</div>

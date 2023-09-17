@@ -217,13 +217,16 @@ export default class PubSub extends EventDispatcher {
 			channel_id:uid,
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			answers:[],
+			children:[],
 			user: StoreProxy.users.getUserFrom("twitch", uid, uid),
 			message,
 			message_chunks: TwitchUtils.parseMessageToChunks(message),
 			message_html:message,
+			message_size:0,
 			twitch_isSuspicious:true,
 			is_short:false,
-		}
+		};
+		m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 		StoreProxy.chat.addMessage(m)
 
 		//Flag mesage as low trust
@@ -343,6 +346,7 @@ export default class PubSub extends EventDispatcher {
 				message: localObj.body,
 				message_chunks: chunks,
 				message_html: TwitchUtils.messageChunksToHTML(chunks),
+				message_size: TwitchUtils.computeMessageSize(chunks),
 			}
 			StoreProxy.chat.addMessage(whisper);
 
@@ -481,13 +485,16 @@ export default class PubSub extends EventDispatcher {
 					channel_id:channelId,
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 					answers:[],
+					children:[],
 					user,
 					bypassBotFilter:true,
 					message:mess.content.text,
 					message_chunks:chunks,
 					message_html:TwitchUtils.messageChunksToHTML(chunks),
+					message_size:0,
 					is_short:false,
 				};
+				m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 				StoreProxy.chat.addMessage(m);
 			}
 
@@ -524,7 +531,7 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.stream.setRaiding(m);
 
 		}else if(data.type == "raid_go_v2" ||data.type == "raid_cancel_v2") {
-			StoreProxy.stream.setRaiding(undefined);
+			StoreProxy.stream.setRaiding();
 
 
 
@@ -629,7 +636,7 @@ export default class PubSub extends EventDispatcher {
 				}
 
 				case "unraid": {
-					StoreProxy.stream.setRaiding(undefined);
+					StoreProxy.stream.setRaiding();
 					break;
 				}
 				
@@ -711,12 +718,15 @@ export default class PubSub extends EventDispatcher {
 				platform:"twitch",
 				user:userData,
 				answers:[],
+				children:[],
 				message:messageClean,
 				message_chunks:chunks,
 				message_html:messageHtml,
+				message_size:0,
 				twitch_automod:{ reasons, words },
 				is_short:false,
-			}
+			};
+			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 			StoreProxy.chat.addMessage(m);
 
 		}else 
@@ -787,12 +797,15 @@ export default class PubSub extends EventDispatcher {
 				platform:"twitch",
 				user:userData,
 				answers:[],
+				children:[],
 				message:localObj.message_content.text,
 				message_chunks:chunks,
 				message_html:TwitchUtils.messageChunksToHTML(chunks),
+				message_size:0,
 				twitch_isRestricted:true,
 				is_short:false,
-			}
+			};
+			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 			const users = await TwitchUtils.loadUserInfo(localObj.low_trust_user.shared_ban_channel_ids);
 			m.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
 			StoreProxy.chat.addMessage(m);
@@ -833,6 +846,8 @@ export default class PubSub extends EventDispatcher {
 					hd:img.url_4x,
 				},
 			},
+			children:[],
+			message_size:0,
 			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
 		};
 		// m.user.channelInfo[channelId].online = true;
@@ -841,6 +856,7 @@ export default class PubSub extends EventDispatcher {
 			m.message		= localObj.redemption.user_input;
 			m.message_chunks= chunks;
 			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			m.message_size	= TwitchUtils.computeMessageSize(chunks);
 		}
 		
 		StoreProxy.chat.addMessage(m);

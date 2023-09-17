@@ -4,8 +4,11 @@
 		
 		<Icon name="timer" alt="icon" class="icon"/>
 		
-		<i18n-t scope="global" tag="div" keypath="chat.timer.end">
-			<template #DURATION><strong>{{messageData.duration}}</strong></template>
+		<div v-if="!messageData.timer" class="card-item alert error">
+			invalid timer data
+		</div>
+		<i18n-t v-else scope="global" tag="div" keypath="chat.timer.end">
+			<template #DURATION><strong>{{messageData.timer.duration}}</strong></template>
 		</i18n-t>
 	</div>
 </template>
@@ -33,5 +36,8 @@ export default class ChatTimerResult extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chattimerresult{
+	.error {
+		padding: .1em .5em;
+	}
 }
 </style>

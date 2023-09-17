@@ -6,7 +6,7 @@
 	:target="target"
 	:to="to"
 	:href="type=='link'? to : null"
-	@click.stop="onClick($event)"
+	@click="onClick($event)"
 	@mouseup="onRelease($event)"
 	v-model="modelValue">
 		<span v-if="loading" class="loadingBorder"></span>
@@ -16,7 +16,6 @@
 	
 		<Icon class="icon" v-if="icon && !loading" :name="icon" :theme="theme" alt="icon" />
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
-
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
 
 		<div class="clickArea"></div>
@@ -68,7 +67,13 @@ export default class Button extends Vue {
 	public alert!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public light!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public transparent!:boolean;
 
 	@Prop({type:Boolean, default: false})
 	public selected!:boolean;
@@ -102,7 +107,9 @@ export default class Button extends Vue {
 		if(!this.$slots.default) list.push("noTitle");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
+		if(this.premium !== false) list.push("premium");
 		if(this.light !== false) list.push("light");
+		if(this.transparent !== false) list.push("transparent");
 		if(this.big !== false) list.push("big");
 		if(this.small !== false) list.push("small");
 		if(this.selected !== false) list.push("selected");
@@ -274,6 +281,20 @@ export default class Button extends Vue {
 			display: none;
 		}
 	}
+	
+	.browse {
+		position: absolute;
+		top: -1em;
+		left: -1em;
+		width: calc(100% + 1em);
+		height: calc(100% + 1em);
+		opacity: .01;
+		&::file-selector-button {
+			cursor: pointer;
+			width: 200%;
+			height: 200%;
+		}
+	}
 	.icon {
 		height: 1em;
 		max-width: 1em;
@@ -282,6 +303,7 @@ export default class Button extends Vue {
 		:deep(img) {
 			width: 100%;
 			height: 100%;
+			vertical-align: top;
 		}
 	}
 	&.big {
@@ -344,6 +366,30 @@ export default class Button extends Vue {
 		}
 	}
 
+	&.premium {
+		.label {
+			text-shadow: none;
+		}
+		.background {
+			background-color: var(--color-premium);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-premium-light);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-premium-dark);
+				}
+			}
+		}
+		.loadingBorder {
+			background-color: var(--color-premium);
+		}
+	}
+
 	&.light {
 		.label {
 			color: var(--color-primary);
@@ -357,6 +403,11 @@ export default class Button extends Vue {
 		&.alert {
 			.label {
 				color: var(--color-alert);
+			}
+		}
+		&.premium {
+			.label {
+				color: var(--color-premium);
 			}
 		}
 		.background {
@@ -376,6 +427,48 @@ export default class Button extends Vue {
 		}
 	}
 
+	&.transparent {
+		.label {
+			color: var(--color-primary);
+			text-shadow: unset;
+		}
+		&.secondary {
+			.label {
+				color: var(--color-secondary);
+			}
+		}
+		&.alert {
+			.label {
+				color: var(--color-alert);
+			}
+		}
+		&.premium {
+			.label {
+				color: var(--color-premium);
+			}
+		}
+		&.light {
+			.label {
+				color: var(--color-light);
+			}
+		}
+		.background {
+			background-color: transparent;
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-text-fadest);
+				}
+			}
+			&:active {
+				.background {
+					background-color: transparent;
+				}
+			}
+		}
+	}
+
 	&.selected {
 		.icon {
 			filter: invert();
@@ -388,14 +481,39 @@ export default class Button extends Vue {
 		.background{
 			background-color: var(--color-primary-extralight);
 		}
+		&:active {
+			.background{
+				background-color: var(--color-primary);
+			}
+		}
 		&.secondary {
 			.background{
 				background-color: var(--color-secondary-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-secondary);
+				}
 			}
 		}
 		&.alert {
 			.background{
 				background-color: var(--color-alert-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-alert);
+				}
+			}
+		}
+		&.premium {
+			.background{
+				background-color: var(--color-premium-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-premium);
+				}
 			}
 		}
 	}

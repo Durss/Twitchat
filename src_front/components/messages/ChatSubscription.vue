@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon v-if="messageData.is_gift" name="gift" alt="gift" class="icon"/>
@@ -114,7 +115,7 @@
 			</div>
 			
 			<div class="quote" v-if="messageData.message">
-				<ChatMessageChunksParser :chunks="messageData.message_chunks" />
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
 		</div>
 

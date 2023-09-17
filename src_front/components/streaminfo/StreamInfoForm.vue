@@ -6,6 +6,10 @@
 		</div>
 		
 		<div class="content">
+			<transition name="scale">
+				<div class="success card-item primary" v-if="updateSuccess" @click="updateSuccess = false">{{$t("stream.update_done")}}</div>
+			</transition>
+
 			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
 				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
@@ -23,11 +27,7 @@
 				</div>
 			</ToggleBlock>
 			
-		
-			<picture v-if="loading">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" v-if="loading" />
 
 			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
 			:open="presets.length == 0 || forceOpenForm" icon="update">
@@ -78,6 +78,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public title:string = "";
 	public tags:string[] = [];
 	public branded:boolean = false;
+	public updateSuccess:boolean = false;
 	public labels:{id:string, enabled:boolean}[] = [];
 	public category:TwitchDataTypes.StreamCategory|null = null;
 
@@ -124,7 +125,12 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			if(!await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+			if(await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+				this.updateSuccess = true;
+				setTimeout(()=>{
+					this.updateSuccess = false;
+				}, 5000);
+			}else{
 				this.$store("main").alert( this.$t("error.stream_info_updating") );
 			}
 		}else {
@@ -182,10 +188,13 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	 */
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
-		try {
-			const channelId = StoreProxy.auth.twitch.user.id;
-			await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels);
-		}catch(error) {
+		const channelId = StoreProxy.auth.twitch.user.id;
+		if(await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
+			this.updateSuccess = true;
+			setTimeout(()=>{
+				this.updateSuccess = false;
+			}, 5000);
+		}else{
 			this.$store("main").alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;
@@ -288,6 +297,28 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		flex-direction: row;
 		justify-content: center;
 		margin-top: .5em;
+	}
+
+	.success {
+		flex-shrink: 0;
+		text-align: center;
+		cursor: pointer;
+		&.scale-enter-active {
+			transition: all .25s;
+		}
+
+		&.scale-leave-active {
+			transition: all .25s;
+		}
+
+		&.scale-enter-from,
+		&.scale-leave-to {
+			height: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+			margin-top: 0;
+			margin-bottom: -1em;
+		}
 	}
 
 	.save {

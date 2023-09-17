@@ -2,8 +2,12 @@
 	<div class="livefollowings sidePanel">
 		
 		<div class="head">
-			<h1><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
+			<h1 v-if="showRaidHistory" ><Icon name="user" class="icon" />{{$t('raid.raid_historyBt')}}</h1>
+			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
+
+			<Button class="actionBt" small v-if="!showRaidHistory && $store('stream').raidHistory.length > 0" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
+			<Button class="actionBt" small v-if="showRaidHistory" icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
 		</div>
 		
 		<div class="content">
@@ -14,9 +18,18 @@
 				<Button icon="unlock" @click="grantPermission()">{{ $t('liveusers.scope_grantBt') }}</Button>
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
+
+			<div class="history" v-else-if="showRaidHistory">
+				<a :href="'https://twitch.tv/'+entry.user.login" v-for="entry in sortedRaidHistoryPopulated" class="card-item user" @click.prevent="raid(entry.user.login)">
+					<Icon name="loader" v-if="entry.user.temporary" />
+					<img class="icon" v-else-if="entry.user.avatarPath" :src="entry.user.avatarPath" lazy>
+					<div class="login">{{ entry.user.login }}</div>
+					<div class="date">{{ getElapsedDuration(entry.date) }}</div>
+				</a>
+			</div>
 			
 			<div class="list" v-else>
-				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s)">
+				<a :href="'https://twitch.tv/'+s.user_login" v-for="s in streams" :key="s.id" class="card-item stream" ref="streamCard" @click.prevent="raid(s.user_login)">
 					<div class="header">
 						<img class="icon" :src="getProfilePicURL(s)" alt="">
 						<span class="title">{{s.user_name}}</span>
@@ -24,6 +37,15 @@
 					<div class="details">
 						<span class="title">{{s.title}}</span>
 						<mark class="game">{{s.game_name}}</mark>
+
+						<div class="roomSettings">
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].subOnly == true">{{ $t("raid.sub_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].followOnly !== false">{{ $t("raid.follower_only") }}</mark>
+							<mark class="alert" v-if="roomSettings[s.user_id] && roomSettings[s.user_id].emotesOnly == true">{{ $t("raid.emote_only") }}</mark>
+							<mark class="info" v-if="s.user_id === lastRaidedUserID">{{ $t("raid.last_raided_user") }}</mark>
+							<mark class="info" v-if="getLastRaidElapsedDuration(s.user_id)">{{ $t("raid.last_raid_date", {DATE:getLastRaidElapsedDuration(s.user_id)}) }}</mark>
+						</div>
+
 						<div class="footer">
 							<span class="viewers">
 								<Icon class="icon" name="user"/>
@@ -32,6 +54,7 @@
 								<Icon class="icon" name="timeout"/>
 								{{computeDuration(s.started_at)}}</span>
 						</div>
+
 						<div class="raidBt">
 							<img src="@/assets/icons/raid.svg" alt="raid">
 							Raid
@@ -44,6 +67,7 @@
 </template>
 
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -58,13 +82,48 @@ import CloseButton from '../CloseButton.vue';
 	components:{
 		Button,
 		CloseButton,
-	}
+	},
+	emits:["close"]
 })
 export default class LiveFollowings extends AbstractSidePanel {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
+	public roomSettings:{[key:string]:TwitchatDataTypes.IRoomSettings} = {};
 	public loading = true;
 	public needScope = false;
+	public showRaidHistory = false;
+
+	public get lastRaidedUserID():string {
+		if(this.$store("stream").raidHistory.length == 0) return "";
+		return this.sortedRaidHistory[0].uid;
+	}
+
+	public get sortedRaidHistory() {
+		return this.$store("stream").raidHistory.sort((a,b)=> b.date-a.date);
+	}
+
+	public get sortedRaidHistoryPopulated():{date:number, user:TwitchatDataTypes.TwitchatUser}[] {
+		return this.sortedRaidHistory.map(v=> {
+			return {
+				date:v.date,
+				user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, v.uid)
+			}
+		});
+	}
+
+	public getLastRaidElapsedDuration(uid:string):string {
+		const last = this.sortedRaidHistory.find(v => v.uid == uid);
+		if(!last) return "";
+		return Utils.elapsedDuration(last.date);
+	}
+
+	public getFormatedDate(date:number) {
+		return Utils.formatDate(new Date(date), true);
+	}
+
+	public getElapsedDuration(date:number) {
+		return Utils.elapsedDuration(date);
+	}
 
 	public mounted():void {
 		this.needScope = !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
@@ -72,11 +131,10 @@ export default class LiveFollowings extends AbstractSidePanel {
 		super.open();
 	}
 
-
 	public computeDuration(start:string):string {
 		const s = new Date(start);
-		const ellapsed = Date.now() - s.getTime();
-		return Utils.formatDuration(ellapsed);
+		const elapsed = Date.now() - s.getTime();
+		return Utils.formatDuration(elapsed);
 	}
 
 	public getProfilePicURL(s:TwitchDataTypes.StreamInfo):string {
@@ -97,11 +155,19 @@ export default class LiveFollowings extends AbstractSidePanel {
 		for (let i = 0; i < cards.length; i++) {
 			gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
 		}
+
+		//Only load room settings for the first 50 rooms.
+		for (let i = 0; i < Math.min(50, res.length); i++) {
+			const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);
+			if(roomSettings) {
+				this.roomSettings[res[i].user_id] = roomSettings;
+			}
+		}
 	}
 
-	public raid(s:TwitchDataTypes.StreamInfo):void {
-		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:s.user_login})).then(async () => {
-			TwitchUtils.raidChannel(s.user_login);
+	public raid(login:string):void {
+		this.$confirm(this.$t("liveusers.raid_confirm_title"), this.$t('liveusers.raid_confirm_desc', {USER:login})).then(async () => {
+			TwitchUtils.raidChannel(login);
 			this.close();
 		}).catch(()=> { });
 	}
@@ -113,6 +179,12 @@ export default class LiveFollowings extends AbstractSidePanel {
 	.loader {
 		.center();
 		position: absolute;
+	}
+
+	.head {
+		.actionBt {
+			margin: auto
+		}
 	}
 
 	.noResult, .needScope {
@@ -129,6 +201,37 @@ export default class LiveFollowings extends AbstractSidePanel {
 	}
 
 	.content {
+
+		.history {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			.user {
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				flex-wrap: wrap;
+				text-decoration: none;
+				color: var(--color-text);
+				.icon {
+					height: 2em;
+					width: 2em;
+					object-fit: fill;
+					vertical-align: middle;
+					margin-right: .5em;
+					border-radius: 50%;
+				}
+
+				.login {
+					font-size: 1em;
+					font-weight: bold;
+					flex-grow: 1;
+				}
+				&:hover {
+					background-color: var(--color-light-fader);
+				}
+			}
+		}
 
 		.list {
 			@itemWidth: 200px;
@@ -149,7 +252,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 						background-color: var(--color-primary-light);
 					}
 					.details {
-						.title, .game, .footer {
+						.title, .game, .footer, .roomSettings {
 							opacity: 0;
 						}
 						.raidBt {
@@ -195,6 +298,26 @@ export default class LiveFollowings extends AbstractSidePanel {
 							object-fit: fill;
 							vertical-align: middle;
 							margin-right: .5em;
+						}
+					}
+					.roomSettings {
+						gap: .5em;
+						display: flex;
+						flex-wrap: wrap;
+						flex-direction: row;
+						mark {
+							display: flex;
+							align-items: center;
+							padding: .2em .5em;
+							&.alert {
+								background-color: var(--color-alert-fade) !important;
+							}
+							&.info {
+								background-color: var(--color-primary-fade) !important;
+							}
+						}
+						&:empty {
+							display: none;
 						}
 					}
 		

@@ -10,6 +10,9 @@ import BetaController from './controllers/BetaController';
 import FileServeController from './controllers/FileServeController';
 import MiddlewareController from './controllers/MiddlewareController';
 import UluleController from './controllers/UluleController';
+import PatreonController from './controllers/PatreonController';
+import TenorController from './controllers/TenorController';
+import PaypalController from './controllers/PaypalController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -28,20 +31,26 @@ async function start():Promise<void> {
 }
 
 fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
-fs.mkdirSync(Config.betaDataFolder, { recursive: true });
-fs.mkdirSync(Config.donorsDataFolder, { recursive: true });
+fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
 
 const server:FastifyInstance = Fastify({logger: false});
-
-//Create controllers
-new MiddlewareController(server).initialize();
-new FileServeController(server).initialize();
-new AuthController(server).initialize();
-new DonorController(server).initialize();
-new UserController(server).initialize();
-new SpotifyController(server).initialize();
-new BetaController(server).initialize();
-new UluleController(server).initialize();
-
-//Start server
-start();
+server.register(import('fastify-raw-body'), {
+  runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
+}).then(()=> {
+	//Create controllers
+	new MiddlewareController(server).initialize();
+	new FileServeController(server).initialize();
+	new AuthController(server).initialize();
+	new DonorController(server).initialize();
+	new UserController(server).initialize();
+	new SpotifyController(server).initialize();
+	new BetaController(server).initialize();
+	new UluleController(server).initialize();
+	new PatreonController(server).initialize();
+	new TenorController(server).initialize();
+	new PaypalController(server).initialize();
+	
+	//Start server
+	start();
+})

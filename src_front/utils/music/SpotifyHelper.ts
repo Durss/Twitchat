@@ -1,20 +1,22 @@
 import TwitchatEvent from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
+import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Config from "@/utils/Config";
 import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
+import ApiController from "../ApiController";
 import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
-import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
 
 /**
 * Created : 23/05/2022 
 */
 export default class SpotifyHelper {
 	
+	public connected:boolean = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
 	
 	private static _instance:SpotifyHelper;
@@ -44,6 +46,7 @@ export default class SpotifyHelper {
 
 
 	public get clientSecret():string { return this._clientSecret; }
+	public get isPlaying():boolean { return this._isPlaying; }
 
 	public get clientID():string {
 		return this._clientID;
@@ -77,7 +80,7 @@ export default class SpotifyHelper {
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
-		Config.instance.SPOTIFY_CONNECTED = false;
+		this.connected = false;
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);
 		rebuildPlaceholdersCache();
 	}
@@ -103,11 +106,7 @@ export default class SpotifyHelper {
 	 */
 	public async startAuthFlow():Promise<void> {
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
-		const headers = {
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
-		const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
-		const json = await res.json();
+		const {json} = await ApiController.call("auth/CSRFToken");
 
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		let url = new URL("https://accounts.spotify.com/authorize");
@@ -154,7 +153,7 @@ export default class SpotifyHelper {
 		}catch(error) {
 			StoreProxy.main.alert("Spotify authentication failed");
 			console.log(error);
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.connected = false;
 			rebuildPlaceholdersCache();
 			throw(error);
 		}
@@ -199,7 +198,8 @@ export default class SpotifyHelper {
 			}
 		}
 		if(!refreshSuccess){
-			Config.instance.SPOTIFY_CONNECTED = false;
+			this.connected = false;
+			rebuildPlaceholdersCache();
 
 			//Refresh failed, try again
 			if(attempt < 5) {
@@ -320,7 +320,10 @@ export default class SpotifyHelper {
 		}else {
 			try {
 				const json = await res.json();
-				if(json.error.message) {
+				if(json.error.reason == "NO_ACTIVE_DEVICE") {
+					StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.no_device") );
+
+				}else if(json.error.message) {
 					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error(""))
@@ -338,7 +341,7 @@ export default class SpotifyHelper {
 	 * track info.
 	 */
 	public async getCurrentTrack():Promise<void> {
-		if(!Config.instance.SPOTIFY_CONNECTED) return;
+		if(!this.connected) return;
 		
 		clearTimeout(this._getTrackTimeout);
 
@@ -572,7 +575,7 @@ export default class SpotifyHelper {
 			"Content-Type":"application/json",
 			"Authorization":"Bearer "+this._token.access_token,
 		}
-		Config.instance.SPOTIFY_CONNECTED = this._token? this._token.expires_at > Date.now() : false;
+		this.connected = this._token? this._token.expires_at > Date.now() : false;
 		rebuildPlaceholdersCache();
 		
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {

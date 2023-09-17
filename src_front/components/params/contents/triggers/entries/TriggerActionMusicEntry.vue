@@ -1,5 +1,5 @@
 <template>
-	<div class="TriggerActionMusicEntry triggerActionForm" v-if="!musicServiceConfigured">
+	<div class="TriggerActionMusicEntry triggerActionForm" v-if="!spotifyConnected">
 		<div class="info warn">
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
@@ -19,9 +19,9 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerActionPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
@@ -45,9 +45,9 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
 	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500 };
 
+	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
 	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
-	public get musicServiceConfigured():boolean { return Config.instance.MUSIC_SERVICE_CONFIGURED_AND_CONNECTED; }
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
@@ -69,11 +69,9 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
-		list = list.concat(TriggerActionPlaceholders("music"));
-
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.track_conf.placeholderList = list;
-		this.confirmSongRequest_conf.placeholderList = list;
+		this.confirmSongRequest_conf.placeholderList = list.concat(TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
 		this.playlist_conf.placeholderList = list;
 	}
 

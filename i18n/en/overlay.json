@@ -20,7 +20,7 @@
 		},
 		"timer": {
 			"title": "Timer & Countdown",
-			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the ellapsed or remaining time.",
+			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the elapsed or remaining time.",
 			"css": "You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
 			"try_timerBt": "Try timer",
 			"try_countdownBt": "Try countdown (2min)"
@@ -62,18 +62,14 @@
 			"custom_template": "Template (HTML accepted)",
 			"custom_template_placeholders": {
 				"title": "Track title",
-				"artist": "Track artist"
+				"artist": "Track artist",
+				"cover": "Cover image URL"
 			},
 			"infos": "You can allow your viewers to control playback or add musics to the queue from chat commands thanks to the {TRIGGERS}.",
 			"triggerBt": "triggers"
 		},
 		"spotify": {
 			"connectBt": "Connect Spotify"
-		},
-		"deezer": {
-			"shit_api": "Deezer API being terribly bad, chances of having issues are high. Also, you'll have to reconnect again everytime you start Twitchat.",
-			"authBt": "Authenticate",
-			"control": "Click on the {ICON} icon deezer on the bottom right of the screen to add tracks, view the queue, and control the playback."
 		},
 		"ulule": {
 			"title":"Ulule",

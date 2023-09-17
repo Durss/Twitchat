@@ -1,6 +1,6 @@
 <template>
 	<div class="alert" v-if="message && message.length > 0" @click="close()">
-		<CloseButton />
+		<CloseButton v-if="!locked" />
 		<p v-html="message" class="label"></p>
 	</div>
 </template>
@@ -20,24 +20,32 @@ export default class AlertView extends Vue {
 
 	public message = "";
 	public timeout!:number;
+	public locked:boolean = false;
 	
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => this.$store("main").alertData, () => {
+		watch(() => this.$store("main").alertData.message, () => {
 			this.onWatchAlert();
 		});
 	}
 
 	public async onWatchAlert():Promise<void> {
+		if(this.locked) return;
+
 		let mess = this.$store("main").alertData;
-		if(mess && mess.length > 0) {
-			this.message = mess;
+		if(mess && mess.message.length > 0) {
+			this.message = mess.message;
 			await this.$nextTick();
 			this.$el.removeAttribute("style");
 			gsap.killTweensOf(this.$el);
 			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
 			clearTimeout(this.timeout);
-			this.timeout = setTimeout(()=> this.close(), this.message.length*80 +2000);
+			
+			if(mess.critical) {
+				this.locked = true;
+			}else{
+				this.timeout = setTimeout(()=> this.close(), this.message.length*80 +2000);
+			}
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
 				this.message = "";
@@ -46,8 +54,10 @@ export default class AlertView extends Vue {
 	}
 
 	public close():void {
+		if(this.locked) return;
+		
 		clearTimeout(this.timeout);
-		this.$store("main").alertData = "";
+		this.$store("main").alertData.message = "";
 	}
 }
 </script>

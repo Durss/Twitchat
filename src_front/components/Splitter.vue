@@ -1,5 +1,5 @@
 <template>
-	<div class="splitter">
+	<div :class="classes">
 			<span class="line"></span>
 			<span><slot /></span>
 			<span class="line"></span>
@@ -7,12 +7,25 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
 export default class Splitter extends Vue {
+
+	@Prop({type:String, default:""})
+	public theme!:string;
+
+	public get classes():string[] {
+		let res = ["splitter"];
+		if(this.theme == "dark") res.push("dark");
+		if(this.theme == "light") res.push("light");
+		if(this.theme == "primary") res.push("primary");
+		if(this.theme == "secondary") res.push("secondary");
+		if(this.theme == "alert") res.push("alert");
+		return res;
+	}
 
 }
 </script>
@@ -34,6 +47,37 @@ export default class Splitter extends Vue {
 		flex-grow: 1;
 		background-color: var(--splitter-color);
 		height: 1px;
+	}
+
+	&.light {
+		color: var(--color-light);
+		.line {
+			background-color: var(--color-light);
+		}
+	}
+	&.dark {
+		color: var(--color-dark);
+		.line {
+			background-color: var(--color-dark);
+		}
+	}
+	&.primary {
+		color: var(--color-primary);
+		.line {
+			background-color: var(--color-primary);
+		}
+	}
+	&.secondary {
+		color: var(--color-secondary);
+		.line {
+			background-color: var(--color-secondary);
+		}
+	}
+	&.alert {
+		color: var(--color-alert);
+		.line {
+			background-color: var(--color-alert);
+		}
 	}
 }
 </style>

@@ -6,7 +6,7 @@
 			</template>
 		</i18n-t>
 		<ParamItem class="show" :paramData="show_conf" v-model="action.show" />
-		<ParamItem v-if="show_conf.value === true" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem v-if="show_conf.value === true" :paramData="message_conf" v-model="action.text" />
 	</div>
 </template>
 
@@ -56,7 +56,7 @@ export default class TriggerActionHighlightEntry extends AbstractTriggerActionEn
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.message_conf.placeholderList = list;
 	}
 

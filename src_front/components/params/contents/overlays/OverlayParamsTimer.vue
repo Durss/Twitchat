@@ -2,36 +2,34 @@
 	<ToggleBlock :open="open" class="overlaytimer" :title="$t('overlay.timer.title')" :icons="['countdown']">
 		<div class="holder">
 			<a class="item demoLink" href="https://www.youtube.com/watch?v=x_OnsPRA8Bs" target="_blank"><img src="@/assets/img/param_examples/timerVideo.jpg" class="demo"></a>
-			<div class="item">
-				<div class="info">
-					<i18n-t scope="global" tag="div" keypath="overlay.timer.head">
-						<template #CMD1><mark>/countdown</mark></template>
-						<template #CMD2><mark>/timerStart</mark></template>
-					</i18n-t>
-				</div>
-				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
-				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div>{{ $t("overlay.timer.css") }}</div>
-					<ul class="cssStructure">
-						<li>#timer { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#timer_icon { ... }</li>
-								<li>#timer_label { ... }</li>
-							</ul>
-						</li>
-					</ul>
-					<ul class="cssStructure">
-						<li>#countdown { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#countdown_icon { ... }</li>
-								<li>#countdown_label { ... }</li>
-							</ul>
-						</li>
-					</ul>
-				</ToggleBlock>
+			<div class="info">
+				<i18n-t scope="global" tag="div" keypath="overlay.timer.head">
+					<template #CMD1><mark>/countdown</mark></template>
+					<template #CMD2><mark>/timerStart</mark></template>
+				</i18n-t>
 			</div>
+			<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
+			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
+				<div>{{ $t("overlay.timer.css") }}</div>
+				<ul class="cssStructure">
+					<li>#timer { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#timer_icon { ... }</li>
+							<li>#timer_label { ... }</li>
+						</ul>
+					</li>
+				</ul>
+				<ul class="cssStructure">
+					<li>#countdown { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#countdown_icon { ... }</li>
+							<li>#countdown_label { ... }</li>
+						</ul>
+					</li>
+				</ul>
+			</ToggleBlock>
 			<div class="item center actions">
 				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
 				<Button icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
@@ -70,34 +68,7 @@ export default class OverlayParamsTimer extends Vue {
 	.holder {
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
-
-		.demoLink {
-			.demo {
-				.emboss();
-				margin:auto;
-				display: block;
-				max-height: 100px;
-				aspect-ratio: 16 / 9;
-				border-radius: .5em;
-			}
-		}
-		
-		.item {
-
-			.info {
-				margin-bottom: .5em;
-			}
-
-			input {
-				width: 100%;
-				margin-bottom: .5em;
-			}
-
-			&.center {
-				text-align: center;
-			}
-		}
+		gap: .5em;
 
 		ul {
 			margin-top: .5em;

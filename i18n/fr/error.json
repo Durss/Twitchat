@@ -24,7 +24,7 @@
 		"poll_error": "Unable to create poll: {MESSAGE}",
 		"ad_url_required": "Le message doit contenir \"twitchat.fr\"",
 		"donor_loading": "Chargement des donateurs·ices échoué :(",
-		"cmd_missing_api": "Cette commande ne peut pas encore être utilisée en dehors du tchat officiel de Twitch :(",
+		"cmd_missing_api": "Cette commande ne peut pas encore être utilisée en dehors du tchat officiel de Twitch pour le moment :(",
 		"no_pin_api": "Twitch ne permet pas encore d'épingler des messages en dehors du tchat officiel de Twitch. Mais c'est en cours de préparation.",
 		"rewards_loading": "Le chargement de vos récompenses de points de chaîne a échoué",
 		"obs_scenes_loading": "La récupération de vos scènes OBS a échoué",
@@ -36,11 +36,9 @@
 		"shoutout_offline": "Vous devez être en live pour effectuer un shoutout",
 		"shoutout_pending": "Cette personne a déjà un shoutout en attente",
 		"spotify": {
+			"no_device": "[SPOTIFY] Afin que Twitchat puisse contrôler Spotify vous devez d'abord lancer une lecture manuellement.",
 			"api_rate": "[SPOTIFY] Maximum de requête atteint",
 			"token_refresh": "[SPOTIFY] Mise à jour du token échouée"
-		},
-		"deezer": {
-			"auth_failed": "L'authentification à deezer a échoué"
 		},
 		"message_send": "Une erreur a eu lieu lors de l'envoi du message :(",
 		"prediction_outcome": "Une erreur a eu lieu lors de la sélection de l'entrée gagnante",
@@ -55,6 +53,19 @@
 			"pick_winner_no_raffle":"Vous devez d'abord lancer un tirage au sort avant de pouvoir sélectionner une personne gagnante",
 			"pick_winner_no_subs":"Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
 			"pick_winner_no_entry":"Aucune personne n'a rejoint le tirage au sort"
-		}
+		},
+		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
+		"patreon_disconected": "Votre compte Patreon a été deconnecté",
+		"badge_file_loading_failed": "Une erreur a eu lieu lors du chargement de l'image",
+		"max_custom_usernames": "Vous avez atteint le maximum de {COUNT} noms d'utilisateur personnalisés que vous pouvez définir. Devenez premium pour en définir jusqu'à 10000.",
+		"max_custom_badges": "Vous avez atteint le maximum de {COUNT} badges personnalisés que vous pouvez créer. Devenez premium pour en créer jusqu'à 100.",
+		"max_custom_badges_given": "Vous avez atteint le maximum de {COUNT} utilisateurices avec un badge personnalisé. Devenez premium pour attribuer des badges personnalisés jusqu'à 10000 utilisateurices.",
+		"max_custom_heat_screen": "Vous avez atteint le maximum de {COUNT} écrans heat personnalisés. Devenez premium pour en créer jusqu'à 100.",
+		"max_values": "Vous avez atteint le maximum de {COUNT} valeurs. Devenez premium pour en créer jusqu'à 100.",
+		"paypal_sdk_init_failed": "L'initialization du SDK Paypal a échouée.",
+		"paypal_create_order_failure": "Une erreur est survenue lors de la création de la commande PayPal",
+		"paypal_order_failure": "Une erreur est survenue lors du traitement de votre don ou lors de votre ajout à la liste des donateurices. Contactez-moi à l'adresse {EMAIL} pour que l'on règle ce souci.",
+		"rate_limit": "Suite à un trop grand nombre de requêtes votre accès est retreint. Attendez une minute puis essayez à nouveau.",
+		"rate_limit_ban": "Vous avez été banni·e suite à une activité suspecte. Revenez dans plusieurs jours ou contactez moi à cette adresse {MAIL}."
 	}
 }

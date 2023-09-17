@@ -13,13 +13,6 @@ import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 
 /**
- * TYPING IS COMPLETLY BROKEN AFTER UPGRADING TO LATEST tmi.js LIB
- * Couln't find a way to fix it yet and i'm f***in tired of trying è_é
- * compilation still works if I delete the types.d.ts from tmi.js module
- * so F it for now :3
- */
-
-/**
 * Created : 25/09/2022 
 */
 export default class TwitchMessengerClient extends EventDispatcher {
@@ -28,6 +21,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _client!:any;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
+	private _connected:boolean = false;
 	private _channelList:string[] = [];
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
@@ -127,7 +121,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
-				u.channelInfo[u.id].online = true;
+				u.channelInfo[v.id].online = true;
 				
 				//Init stream info
 				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
@@ -147,7 +141,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
-				TwitchUtils.getRoomSettings(v.id).then(settings=> {
+				TwitchUtils.getRoomSettings(v.id, true).then(settings=> {
 					if(settings) {
 						StoreProxy.stream.setRoomSettings(v.id, settings);
 						if(settings.chatDelay || settings.emotesOnly || settings.subOnly || typeof settings.followOnly === "number") {
@@ -607,14 +601,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			months:typeof tags["msg-param-multimonth-duration"] == "string"? parseInt(tags["msg-param-multimonth-duration"]) : -1,
 			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : -1,
 			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
-			raw_data:{tags, methods, message}
+			raw_data:{tags, methods, message},
+			message_size:0,
 		}
 		if(methods) res.tier =  methods.prime? "prime" : (parseInt((methods.plan as string) || "1000")/1000) as (1|2|3);
 		if(message) {
 			const chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"]);
 			res.message = message;
 			res.message_chunks = chunks;
-			res.message_html = TwitchUtils.messageChunksToHTML(res.message_chunks);
+			res.message_html = TwitchUtils.messageChunksToHTML(chunks);
+			res.message_size = TwitchUtils.computeMessageSize(chunks);
 		}
 		return res;
 	}
@@ -642,12 +638,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			answers:[],
 			message_html:"",
 			message_chunks:[],
+			message_size:0,
+			children:[],
 			is_short:false,
 			raw_data:{tags, message}
 		};
 
 		data.message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
+		data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
 		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 				
 		// If message is an answer, set original message's ref to the answer
@@ -711,6 +710,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message:data.message,
 				message_chunks:data.message_chunks,
 				message_html:data.message_html,
+				message_size:data.message_size,
+				children:[],
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}
@@ -741,6 +742,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
+			this._connected = true;
 		}else{
 
 			if(userState.wasOnline === true) return;//User was already here, don't send join notification
@@ -879,6 +881,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private disconnected(reason:string):void {
 		//Don't show disconnect info if its a reconnect
 		if(this._refreshingToken) return;
+		//Avoid spamming "disconnected from chat" messages
+		if(!this._connected) return;
+		this._connected = false;
 
 		console.log('Disconnected for reason: ', reason);
 

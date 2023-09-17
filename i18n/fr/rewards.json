@@ -1,0 +1,10 @@
+{
+	"rewards": {
+		"manage":{
+			"title":"Gestions des récompenses",
+			"empty":"Aucune récompense ne peut être gérée par Twitchat",
+			"not_manageable_title":"Récompenses non gérables",
+			"not_manageable_description":"Ces récompenses n'ont pas été créées par Twitchat et ne peuvent donc être gérées ici"
+		}		
+	}
+}

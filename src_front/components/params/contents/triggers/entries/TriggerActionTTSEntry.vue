@@ -11,7 +11,7 @@
 	</div>
 
 	<div v-else class="triggeractionttsentry">
-		<ParamItem class="file" :paramData="message_conf" ref="textContent" v-model="action.text" />
+		<ParamItem class="file" :paramData="message_conf" v-model="action.text" />
 	</div>
 </template>
 
@@ -43,7 +43,7 @@ export default class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Called when the available placeholder list is updated
 	 */
-	public onPlaceholderUpdate(list:ITriggerPlaceholder[]):void {
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.message_conf.placeholderList = list;
 	}
 

@@ -1,12 +1,16 @@
 .DS_Store
 node_modules
+build
 /dist
 /server
 /userData
 /server
 /userData_fake_production
 credentials.json
+patreonToken.json
 announcements.json
+patreonMembers.json
+earlyDonors.json
 donors
 beta
 env.conf

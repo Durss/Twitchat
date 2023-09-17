@@ -88,7 +88,7 @@ export default class AuthController extends AbstractController {
 	 */
 	private async setCSRFToken(request:FastifyRequest, response:FastifyReply) {
 		//Verifies a CSRF token
-		const params = URL.parse(request.url, true).query;
+		const params:any = request.body;
 		const result = jwt.verify(params.token, Config.credentials.csrf_key);
 		if(result) {
 			//Token valid only for 5 minutes

@@ -5,38 +5,27 @@ import PublicAPI from "../PublicAPI";
 import Utils from "../Utils";
 import VoicemodEvent from "./VoicemodEvent";
 import type { VoicemodTypes } from "./VoicemodTypes";
+import StoreProxy from "@/store/StoreProxy";
 
 /**
 * Created : 25/07/2021 
 */
 export default class VoicemodWebSocket extends EventDispatcher {
 
-	private static ACTION_REGISTER_PLUGIN: string = "registerPlugin";
+	private static ACTION_REGISTER_CLIENT: string = "registerClient";
 	private static ACTION_GET_VOICES: string = "getVoices";
-	private static ACTION_GET_MEMES: string = "getMemes";
+	private static ACTION_GET_CURRENT_VOICE: string = "getCurrentVoice";
+	private static ACTION_GET_SOUNDBOARDS: string = "getAllSoundboard";
 	private static ACTION_SELECT_VOICE: string = "selectVoice";
 	private static ACTION_PLAY_MEME: string = "playMeme";
 	private static ACTION_STOP_ALL_MEME_SOUNDS: string = "stopAllMemeSounds";
-	private static ACTION_BEEP_SOUND_ON_OFF: string = "beepSound_OnOff";
-
-	//Bellow events are captured but nothing is done with it so far
-	private static EVENT_TOGGLE_MUTE: string = "toggleMute";
-	private static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
-	private static EVENT_TOGGLE_BACKGROUND: string = "toggleBackground";
-	private static EVENT_TOGGLE_HEAR_MY_VOICE: string = "toggleHearMyVoice";
-	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceChangedEvent";
+	private static ACTION_BEEP_SOUND_ON_OFF: string = "setBeepSound";
 	private static ACTION_GET_BITMAP: string = "getBitmap";
 
-	//Bellow actions are not implemented
-	private static ACTION_SELECT_RANDOM_VOICE: string = "selectRandomVoice";
-	private static ACTION_VOICE_CHANGER_ON_OFF: string = "voiceChanger_OnOff";
-	private static ACTION_HEAR_MY_VOICE_ON_OFF: string = "hearMyVoice_OnOff";
-	private static ACTION_BACKGROUND_ON_OFF: string = "background_OnOff";
-	private static ACTION_GET_HEAR_MYSELF_STATUS: string = "getHearMyselfStatus";
-	private static ACTION_GET_VOICE_CHANGER_STATUS: string = "getVoiceChangerStatus";
-	private static ACTION_GET_MUTE_MIC_STATUS: string = "getMuteMicStatus";
-	private static ACTION_GET_BACKGROUND_EFFECT_STATUS: string = "getBackgroundEffectStatus";
-	private static ACTION_DATA_STOP_ALL_SOUNDS: string = "stopAllSounds";
+	//Bellow events are captured but nothing is done with it so far
+	private static EVENT_TOGGLE_VOICE_CHANGER: string = "toggleVoiceChanger";
+	private static EVENT_VOICE_CHANGED_EVENT: string = "voiceLoadedEvent";
+
 
 	private static _instance:VoicemodWebSocket;
 	
@@ -46,10 +35,11 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	private _connecting!: boolean;
 	private _socket!: WebSocket;
 	private _voicesList: VoicemodTypes.Voice[] = [];
-	private _memesList: VoicemodTypes.Meme[] = [];
+	private _soundsboards: VoicemodTypes.Soundboard[] = [];
 	private _currentVoiceEffect!: VoicemodTypes.Voice|null;
 	private _autoReconnect: boolean = false;
-	private _resetTimeout:number = -1;
+	private _resetVoiceTimeout:number = -1;
+	private _reconnectTimeout: number = -1;
 	private _voiceIdImageToPromise:{[key:string]:{resolve:(base64:string)=>void, reject:()=>void}} = {};
 	private _voiceIdToImage:{[key:string]:string} = {};
 
@@ -72,10 +62,10 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	}
 
 	/**
-	 * Get all the available memes list
+	 * Get all the available soundboards list
 	 */
-	public get memes():VoicemodTypes.Meme[] {
-		return JSON.parse(JSON.stringify(this._memesList));
+	public get soundboards():VoicemodTypes.Soundboard[] {
+		return JSON.parse(JSON.stringify(this._soundsboards));
 	}
 
 	/**
@@ -96,13 +86,14 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		this._connecting = true;
 		return new Promise((resolve, reject) => {
 			this._initResolver = resolve;
-			this._socket = new WebSocket(`ws://${ip}:${port}/vmsd/`);
+			this._socket = new WebSocket(`ws://${ip}:${port}/v1/`);
 
 			this._socket.onopen = () => {
 				console.log('🎤 Voicemod connection succeed');
 				this._connecting = false;
 				this.connected = true;
 				this._autoReconnect = true;
+				this.register();
 			};
 
 			this._socket.onmessage = (event:any) => this.onSocketMessage(event);
@@ -115,7 +106,9 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				this.connected = false;
 				if(this._autoReconnect) {
 					try {
-						this.connect(ip, port);
+						setTimeout(()=> {
+							this.connect(ip, port);
+						}, 1000)
 					}catch(error) {
 						console.log(error);
 						reject();
@@ -134,11 +127,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Disconnects socket
 	 */
 	public disconnect():void {
-		this._memesList = [];
 		this._voicesList = [];
+		this._soundsboards = [];
 		this._voiceIdToImage = {};
 		this._voiceIdImageToPromise = {};
 		this._autoReconnect = false;
+		clearTimeout(this._reconnectTimeout);
 		if(this.connected) {
 			this._socket.close();
 		}
@@ -146,7 +140,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	}
 
 	/**
-	 * Activate a voice effect by its name.
+	 * Activate a voice effect by its ID or its name.
 	 * There's a tolerence on the name matching.
 	 * If the actual voice effect name is "Game Over", you can activate
 	 * it with "gameover".
@@ -154,32 +148,31 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the voice effect to activate
 	 * @param id		(optional) The ID of the voice effect to activate
 	 */
-	public async enableVoiceEffect(id:string, autoRemoveDelay:number = -1):Promise<void> {
-		let voice!:VoicemodTypes.Voice;
+	public async enableVoiceEffect(name?:string, id?:string, autoRemoveDelay:number = -1):Promise<void> {
 		if(!this._voicesList || !this._voicesList.length) {
 			console.log("🎤 VoicemodWebSocket not connected");
 			return;
 		}
-		//Search for a voice effect with the requested name
-		for (let i = 0; i < this._voicesList.length; i++) {
-			if (id === this._voicesList[i].voiceID) {
-				voice = this._voicesList[i];
-				break;
-			}
-		}
 
+		let voice:VoicemodTypes.Voice|undefined;
+		if(name) {
+			name = name.toLowerCase().replace(/[^\w\s]/g, '').trim();
+			voice = VoicemodWebSocket.instance.voices.find(v=> v.friendlyName.toLowerCase().replace(/[^\w\s]/g, '').trim() === name);
+		}else if(id) {
+			voice = this._voicesList.find(v=>v.id == id);
+		}
 		if(!voice) {
-			console.log("🎤Voicemod: voice effect "+id? id : name+" not found");
+			console.log("🎤Voicemod: voice effect "+(id? id : name)+" not found");
 		}else{
 			this._currentVoiceEffect = voice;
-			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, {voiceID:voice.voiceID});
+			this.send(VoicemodWebSocket.ACTION_SELECT_VOICE, {voiceID:voice.id});
 		}
 
-		clearTimeout(this._resetTimeout);
+		clearTimeout(this._resetVoiceTimeout);
 
 		if(autoRemoveDelay > -1) {
-			this._resetTimeout = setTimeout(async ()=> {
-				this.enableVoiceEffect("nofx");
+			this._resetVoiceTimeout = setTimeout(async ()=> {
+				this.enableVoiceEffect(undefined, "nofx");
 			}, autoRemoveDelay);
 		}
 	}
@@ -188,33 +181,26 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * Disables the current voice effect
 	 */
 	public disableVoiceEffect():void {
-		this.enableVoiceEffect("nofx");
+		this.enableVoiceEffect(undefined, "nofx");
 		this._currentVoiceEffect = null;
 	}
 
 	/**
 	 * Makes a beep sound
-	 * If a duration is specified the beep will be stoped after this amoutn of milliseconds.
-	 * 
-	 * @param duration		beep duration. Set to 0 if you don't want it to stop automatically.
-	 * @param forcedState	set to 1 to force it to beep, or 0 to force it to not beep
 	 */
-	public beep(duration:number = 500, forcedState:1|0|null = null):void {
-		let data = {badLanguage:forcedState != null? forcedState : 1};
-		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, data);
-
-		//If asked to beep for a specific duration,
-		//stop the beep sound after that duration
-		if(duration > 0) {
-			setTimeout(()=> {
-				data.badLanguage = 0;
-				this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, data);
-			}, duration);
-		}
+	public async beepOn():Promise<void> {
+		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, {badLanguage:1});
 	}
 
 	/**
-	 * Activate a meme sound by its name.
+	 * Stops beeping
+	 */
+	public beepOff():void {
+		this.send(VoicemodWebSocket.ACTION_BEEP_SOUND_ON_OFF, {badLanguage:0});
+	}
+
+	/**
+	 * Activate a sound by its name.
 	 * There's a tolerence on the name matching.
 	 * If the actual meme name is "Game Over", you can activate
 	 * it with "gameover".
@@ -222,45 +208,49 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * @param name		the name of the meme sound to activate
 	 * @param id		(optional) The "FileName" of the meme to activate
 	 */
-	public playMeme(name:string, id?:string):void {
-		if(!this._memesList || this._memesList.length == 0) return;
-		let fileID = "";
-		const rawName = name;
-		name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
-		//Search for a voice effect with the requested name
-		for (let i = 0; i < this._memesList.length; i++) {
-			if(id) {
-				if (id === this._memesList[i].FileName) {
-					fileID = this._memesList[i].FileName;
-					break;
-				}
-			}else{
-				const nameRef = this._memesList[i].Name;
-				//Check if the requested name is exactly the same
-				if(rawName == nameRef) {
-					fileID = this._memesList[i].FileName;
-					//As this exactly matches the requested name, we can stop searching
-					break;
-				}
-				//Check if requested name is more or less the same
-				if (nameRef.trim().toLowerCase().replace(/[^\w\s]/g, '') === name) {
-					fileID = this._memesList[i].FileName;
+	public playSound(name?:string, id?:string):void {
+		if(!this._soundsboards || this._soundsboards.length == 0) return;
+
+		if(name) {
+			const rawName = name;
+			name = name.trim().toLowerCase().replace(/[^\w\s]/g, '')
+			for (let i = 0; i < this._soundsboards.length; i++) {
+				const board = this._soundsboards[i];
+				for (let j = 0; j < board.sounds.length; j++) {
+					const sound = board.sounds[j];
+					//Check if the requested name is exactly the same
+					if(rawName == sound.name) {
+						//As this exactly matches the requested name, we can stop searching
+						id = sound.id;
+						break;
+					}
+					//Check if requested name is more or less the same
+					if (sound.name.trim().toLowerCase().replace(/[^\w\s]/g, '') === name) {
+						id = sound.id;
+					}
 				}
 			}
 		}
 
-		if(!fileID) {
-			console.log("🎤Voicemod: meme sound "+id? id : name+" not found");
+		if(!id) {
+			console.log("🎤Voicemod: meme sound "+name+" not found");
 		}else{
-			this.send(VoicemodWebSocket.ACTION_PLAY_MEME, {FileName:fileID, IsKeyDown:true});
+			this.send(VoicemodWebSocket.ACTION_PLAY_MEME, {FileName:id, IsKeyDown:true});
 		}
 	}
 
 	/**
 	 * Stops any playing meme sound
 	 */
-	public stopMeme():void {
+	public stopSound():void {
 		this.send(VoicemodWebSocket.ACTION_STOP_ALL_MEME_SOUNDS);
+	}
+
+	/**
+	 * Stops any playing meme sound
+	 */
+	public getCurrentVoice():void {
+		this.send(VoicemodWebSocket.ACTION_GET_CURRENT_VOICE);
 	}
 
 	/**
@@ -286,21 +276,24 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	/**
 	 * Sends a data to Voicemod
 	 */
-	private send(actionType: string, data?:any):void {
+	private send(actionType: string, payload?:any):void {
 		const uuid = Utils.getUUID();
 		const json:any = {
-			"actionID": uuid,
-			"actionType": actionType,
-			"context": "request:" + actionType + ":" + uuid,
-			"pluginVersion": "2.0.0",
+			"id": uuid,
+			"action": actionType,
 		};
-		if(data) {
-			json.actionObject = data;
+		if(payload) {
+			json.payload = payload;
 		}
 		
 		if(this._socket.readyState == WebSocket.OPEN) {
 			this._socket.send( JSON.stringify(json) );
 		}
+	}
+
+	private register():void {
+		const json = {clientKey: "controlapi-uzur23999"};
+		this.send(VoicemodWebSocket.ACTION_REGISTER_CLIENT, json)
 	}
 
 	/**
@@ -311,38 +304,35 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 		// console.log("🎤Voicemod: received message: " + json);
 
-		if (json.server) {
-			if(!json.appVersion) { 
-				console.log("🎤VoicemodWebSocket: missing \"appVersion\" prop from json");
-				const opts = {
-					method:"GET",
-					headers:{
-						"Content-Type": "application/json",
-					},
-				}
+		//Special case for "registerClient" event that's returned in an "action"
+		//field instead of "actionType" like every other events -_-
+		if(json.action == VoicemodWebSocket.ACTION_REGISTER_CLIENT) {
+			if(json.payload.status.code != 200) {
+				StoreProxy.main.alert("[Voicemod] Connection failed with reason: "+json.payload.status.description)
+				return;
 			}
-			this.send(VoicemodWebSocket.ACTION_REGISTER_PLUGIN);
+			//Request all available voice effect list
+			this.send(VoicemodWebSocket.ACTION_GET_VOICES);
+			this.send(VoicemodWebSocket.ACTION_GET_SOUNDBOARDS);
+			// this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:"nofx"});
 			return;
 		}
 		
 		switch(json.actionType) {
-			case VoicemodWebSocket.ACTION_REGISTER_PLUGIN:
-				//Request all available voice effect list
-				this.send(VoicemodWebSocket.ACTION_GET_VOICES);
-				//Request all available meme sound list
-				this.send(VoicemodWebSocket.ACTION_GET_MEMES);
-				this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:"nofx"});
-				this.send
-				break;
 
 			case VoicemodWebSocket.ACTION_GET_VOICES:
-				this._voicesList = json.actionObject.allVoices ?? [];
-				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, json.actionObject.selectedVoice as string))
+				this._voicesList = json.actionObject.voices ?? [];
+				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.currentVoice)!;
+				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, this.currentVoiceEffect!.id || "nofx"))
 				this.checkInitComplete();
 			break;
 			
-			case VoicemodWebSocket.ACTION_GET_MEMES:
-				this._memesList = json.actionObject.listOfMemes ?? [];
+			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE:
+				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.voiceID)!;
+				break;
+			
+			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:
+				this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
 				this.checkInitComplete();
 				break;
 
@@ -350,7 +340,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				//Called after requesting the image of a voice effect
 				const data = json.actionObject.result;
 				if(data) {
-					const img = data.transparent ?? data.default;
+					const img = data.transparent ?? data.default ?? data.selected;
 					const voiceID = json.actionObject.voiceID as string;
 					const prom = this._voiceIdImageToPromise[voiceID];
 					if(prom?.resolve) prom.resolve(img);
@@ -358,30 +348,21 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				}
 				break;
 
-			case VoicemodWebSocket.EVENT_TOGGLE_MUTE:
-				break;
-
-			case VoicemodWebSocket.EVENT_TOGGLE_BACKGROUND:
-				break;
-
-			case VoicemodWebSocket.EVENT_TOGGLE_HEAR_MY_VOICE:
-				break;
-
 			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:
-				const voice = json.actionObject.voiceID as string;
-				PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice});
-				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice));
+				const voice = this._voicesList.find(v=>v.id == json.actionObject.voiceID as string);
+				if(voice) {
+					this._currentVoiceEffect = voice;
+					StoreProxy.voice.voicemodCurrentVoice = voice;
+					PublicAPI.instance.broadcast(TwitchatEvent.VOICEMOD_CHANGE, {voice:voice.id});
+					this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id));
+				}
 				break;
 
 			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:
 				break;
 
-			case "licenseTypeChanged":
-				//What is that ?? I received it without doing anything...
-				break;
-
 			default:
-				console.log("🎤Voicemod: unhandled actionType "+json.actionType);
+				// console.log("🎤Voicemod: unhandled actionType "+json.actionType);
 				// console.log(json);
 		}
 	}
@@ -391,7 +372,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * connect promise.
 	 */
 	private checkInitComplete():void {
-		if(this._voicesList && this._memesList) {
+		if(this._voicesList.length > 0 && this._soundsboards.length > 0) {
 			this._initResolver();
 		}
 	}

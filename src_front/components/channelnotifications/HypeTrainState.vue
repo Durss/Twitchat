@@ -274,9 +274,9 @@ export default class HypeTrainState extends Vue {
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		const ellapsed = Date.now() - this.trainData.updated_at;
+		const elapsed = Date.now() - this.trainData.updated_at;
 		const duration = this.trainData.timeLeft_s * 1000;
-		this.timerPercent = 1 - (duration-ellapsed)/this.timerDuration;
+		this.timerPercent = 1 - (duration-elapsed)/this.timerDuration;
 	}
 
 }

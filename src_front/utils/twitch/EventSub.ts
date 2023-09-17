@@ -18,7 +18,6 @@ export default class EventSub {
 	private oldSocket!:WebSocket;
 	private reconnectTimeout!:number;
 	private keepalive_timeout_seconds!:number;
-	private raidTimeout:number = -1;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private connectURL:string = "";
 	
@@ -100,6 +99,11 @@ export default class EventSub {
 
 				case "notification": {
 					this.parseEvent(message.metadata.subscription_type, message.payload);
+					clearTimeout(this.reconnectTimeout);
+					this.reconnectTimeout = setTimeout(()=>{
+						// console.log("EVENTSUB : Session keep alive not received");
+						this.connect();
+					}, (this.keepalive_timeout_seconds + 5) * 1000);
 					break;
 				}
 				
@@ -107,12 +111,6 @@ export default class EventSub {
 					console.warn(`Unknown eventsub message type: ${message.metadata.message_type}`);
 				}
 			}
-			
-			clearTimeout(this.reconnectTimeout);
-			this.reconnectTimeout = setTimeout(()=>{
-				// console.log("EVENTSUB : Session keep alive not received");
-				this.connect();
-			}, (this.keepalive_timeout_seconds + 5) * 1000);
 		};
 		
 		this.socket.onclose = (event) => {
@@ -533,6 +531,7 @@ export default class EventSub {
 			months:1,
 			streakMonths:-1,
 			totalSubDuration:-1,
+			message_size:0,
 		}
 
 		if(renew.message) {
@@ -540,6 +539,7 @@ export default class EventSub {
 			message.message			= renew.message.text;
 			message.message_chunks	= chunks;
 			message.message_html	= TwitchUtils.messageChunksToHTML(chunks);
+			message.message_size	= TwitchUtils.computeMessageSize(message.message_chunks);
 		}
 		StoreProxy.chat.addMessage(message);
 	}
@@ -583,13 +583,7 @@ export default class EventSub {
 		const me = StoreProxy.auth.twitch.user;
 		if(event.from_broadcaster_user_id == me.id) {
 			//Raid complete
-			if(StoreProxy.params.features.stopStreamOnRaid.value === true) {
-				clearTimeout(this.raidTimeout)
-				this.raidTimeout = setTimeout(() => {
-					OBSWebsocket.instance.stopStreaming();
-				}, 1000);
-			}
-			StoreProxy.stream.setRaiding(undefined);
+			StoreProxy.stream.onRaidComplete();
 		}else{
 			//Raided by someone
 			const user = StoreProxy.users.getUserFrom("twitch", event.to_broadcaster_user_id, event.from_broadcaster_user_id, event.from_broadcaster_user_login, event.from_broadcaster_user_name);
@@ -748,8 +742,15 @@ export default class EventSub {
 				message.info.live = true;
 				message.info.title = streamInfo.title;
 				message.info.category = streamInfo.game_name;
-				StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
+			}else{
+				//Fallback to channel info if API isn't synchronized yet
+				const [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id]);
+				message.info.started_at = Date.now();
+				message.info.live = true;
+				message.info.title = chanInfo.title;
+				message.info.category = chanInfo.game_name;
 			}
+			StoreProxy.stream.setStreamStart(event.broadcaster_user_id);
 		}
 		StoreProxy.chat.addMessage(message);
 		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = streamInfo;

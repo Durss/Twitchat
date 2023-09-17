@@ -14,8 +14,9 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
-import type { JsonObject, JsonArray } from 'type-fest'
+import type { JsonArray, JsonObject } from 'type-fest'
 import { reactive, type UnwrapRef } from 'vue'
+import Database from '../Database'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
 //Don't make this reactive, it kills performances on the long run
@@ -67,93 +68,132 @@ export const storeChat = defineStore('chat', {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.chatSuggStart"),
 			},
+			heatSpotify: {
+				enabled:false,
+				message:StoreProxy.i18n.tm("params.botMessages.heatSpotify"),
+				cooldown:10,
+				allowAnon:false,
+			},
+			heatUlule: {
+				enabled:false,
+				message:StoreProxy.i18n.tm("params.botMessages.heatUlule"),
+				cooldown:10,
+				allowAnon:false,
+			},
 		},
 		commands: [
 			{
 				id:"updates",
 				cmd:"/updates",
-				details:StoreProxy.i18n.t("params.commands.updates"),
+				alias:"/changelog",
+				detailsKey:"params.commands.updates",
 			},
 			{
 				id:"tip",
 				cmd:"/tip",
-				details:StoreProxy.i18n.t("params.commands.tip"),
+				detailsKey:"params.commands.tip",
 			},
 			{
 				id:"timerStart",
 				cmd:"/timerStart",
-				details:StoreProxy.i18n.t("params.commands.timerStart"),
+				detailsKey:"params.commands.timerStart",
+			},
+			{
+				id:"timerPause",
+				cmd:"/timerPause",
+				detailsKey:"params.commands.timerPause",
+			},
+			{
+				id:"timerUnpause",
+				cmd:"/timerUnpause",
+				detailsKey:"params.commands.timerUnpause",
 			},
 			{
 				id:"timerAdd",
 				cmd:"/timerAdd {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.timerAdd"),
+				detailsKey:"params.commands.timerAdd",
 			},
 			{
 				id:"timerRemove",
 				cmd:"/timerRemove {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.timerRemove"),
+				detailsKey:"params.commands.timerRemove",
 			},
 			{
 				id:"timerStop",
 				cmd:"/timerStop",
-				details:StoreProxy.i18n.t("params.commands.timerStop"),
+				detailsKey:"params.commands.timerStop",
 			},
 			{
 				id:"countdown",
 				cmd:"/countdown {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdown"),
+				detailsKey:"params.commands.countdown",
 			},
 			{
 				id:"countdownAdd",
 				cmd:"/countdownAdd {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdownAdd"),
+				detailsKey:"params.commands.countdownAdd",
 			},
 			{
 				id:"countdownRemove",
 				cmd:"/countdownRemove {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.countdownRemove"),
+				detailsKey:"params.commands.countdownRemove",
+			},
+			{
+				id:"countdownPause",
+				cmd:"/countdownPause",
+				detailsKey:"params.commands.countdownPause",
+			},
+			{
+				id:"countdownUnpause",
+				cmd:"/countdownUnpause",
+				detailsKey:"params.commands.countdownUnpause",
 			},
 			{
 				id:"countdownStop",
 				cmd:"/countdownStop",
-				details:StoreProxy.i18n.t("params.commands.countdownStop"),
+				detailsKey:"params.commands.countdownStop",
 			},
 			{
 				id:"search",
 				cmd:"/search {text}",
-				details:StoreProxy.i18n.t("params.commands.search"),
+				detailsKey:"params.commands.search",
 			},
 			{
 				id:"userinfo",
 				cmd:"/user {username}",
 				alias:"/userinfo {user}",
-				details:StoreProxy.i18n.t("params.commands.userinfo"),
+				detailsKey:"params.commands.userinfo",
+			},
+			{
+				id:"userfromid",
+				cmd:"/userFromID {userID}",
+				alias:"/uid {user}",
+				detailsKey:"params.commands.userfromid",
 			},
 			{
 				id:"raffle",
 				cmd:"/raffle",
-				details:StoreProxy.i18n.t("params.commands.raffle"),
+				detailsKey:"params.commands.raffle",
 			},
 			{
 				id:"bingoemote",
 				cmd:"/bingo emote",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"bingonumber",
 				cmd:"/bingo number {min} {max}",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"bingocustom",
 				cmd:"/bingo custom {message}",
-				details:StoreProxy.i18n.t("params.commands.bingo"),
+				detailsKey:"params.commands.bingo",
 			},
 			{
 				id:"raid",
 				cmd:"/raid {user}",
-				details:StoreProxy.i18n.t("params.commands.raid"),
+				detailsKey:"params.commands.raid",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.START_RAID],
@@ -161,7 +201,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shoutout",
 				cmd:"/shoutout {user}",
-				details:StoreProxy.i18n.t("params.commands.so"),
+				detailsKey:"params.commands.so",
 				alias:"/so {user}",
 				needModerator:true,
 				twitchCmd:true,
@@ -170,7 +210,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"poll",
 				cmd:"/poll {title}",
-				details:StoreProxy.i18n.t("params.commands.poll"),
+				detailsKey:"params.commands.poll",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -179,12 +219,12 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"chatsugg",
 				cmd:"/suggestion",
-				details:StoreProxy.i18n.t("params.commands.chatsugg"),
+				detailsKey:"params.commands.chatsugg",
 			},
 			{
 				id:"prediction",
 				cmd:"/prediction {title}",
-				details:StoreProxy.i18n.t("params.commands.prediction"),
+				detailsKey:"params.commands.prediction",
 				needChannelPoints:true,
 				needModerator:true,
 				twitchCmd:true,
@@ -193,24 +233,24 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"tts",
 				cmd:"/tts {user}",
-				details:StoreProxy.i18n.t("params.commands.tts"),
+				detailsKey:"params.commands.tts",
 				needTTS:true,
 			},
 			{
 				id:"ttsoff",
 				cmd:"/ttsoff {user}",
-				details:StoreProxy.i18n.t("params.commands.ttsoff"),
+				detailsKey:"params.commands.ttsoff",
 				needTTS:true,
 			},
 			{
 				id:"simulatechat",
 				cmd:"/simulateChat",
-				details:StoreProxy.i18n.t("params.commands.simulatechat"),
+				detailsKey:"params.commands.simulatechat",
 			},
 			{
 				id:"announce",
 				cmd:"/announce {message}",
-				details:StoreProxy.i18n.t("params.commands.announce"),
+				detailsKey:"params.commands.announce",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -218,7 +258,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceblue",
 				cmd:"/announceblue {message}",
-				details:StoreProxy.i18n.t("params.commands.announceblue"),
+				detailsKey:"params.commands.announceblue",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -226,7 +266,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcegreen",
 				cmd:"/announcegreen {message}",
-				details:StoreProxy.i18n.t("params.commands.announcegreen"),
+				detailsKey:"params.commands.announcegreen",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -234,7 +274,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announceorange",
 				cmd:"/announceorange {message}",
-				details:StoreProxy.i18n.t("params.commands.announceorange"),
+				detailsKey:"params.commands.announceorange",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -242,7 +282,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"announcepurple",
 				cmd:"/announcepurple {message}",
-				details:StoreProxy.i18n.t("params.commands.announcepurple"),
+				detailsKey:"params.commands.announcepurple",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SEND_ANNOUNCE],
@@ -250,7 +290,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"commercial",
 				cmd:"/commercial {duration}",
-				details:StoreProxy.i18n.t("params.commands.commercial"),
+				detailsKey:"params.commands.commercial",
 				twitchCmd:true,
 				needChannelPoints:false,
 				needModerator:true,
@@ -259,7 +299,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"to",
 				cmd:"/timeout {user} {duration} {reason}",
-				details:StoreProxy.i18n.t("params.commands.to"),
+				detailsKey:"params.commands.to",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -267,7 +307,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"ban",
 				cmd:"/ban {user}",
-				details:StoreProxy.i18n.t("params.commands.ban"),
+				detailsKey:"params.commands.ban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -275,7 +315,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unban",
 				cmd:"/unban {user}",
-				details:StoreProxy.i18n.t("params.commands.unban"),
+				detailsKey:"params.commands.unban",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BANNED],
@@ -283,7 +323,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"block",
 				cmd:"/block {user}",
-				details:StoreProxy.i18n.t("params.commands.block"),
+				detailsKey:"params.commands.block",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -291,7 +331,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unblock",
 				cmd:"/unblock {user}",
-				details:StoreProxy.i18n.t("params.commands.unblock"),
+				detailsKey:"params.commands.unblock",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_BLOCKED],
@@ -299,7 +339,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonly",
 				cmd:"/emoteonly",
-				details:StoreProxy.i18n.t("params.commands.emoteonly"),
+				detailsKey:"params.commands.emoteonly",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -307,7 +347,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"emoteonlyoff",
 				cmd:"/emoteonlyoff",
-				details:StoreProxy.i18n.t("params.commands.emoteonlyoff"),
+				detailsKey:"params.commands.emoteonlyoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -315,7 +355,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followers",
 				cmd:"/followers {minutes}",
-				details:StoreProxy.i18n.t("params.commands.followers"),
+				detailsKey:"params.commands.followers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -323,7 +363,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"followersoff",
 				cmd:"/followersoff",
-				details:StoreProxy.i18n.t("params.commands.followersoff"),
+				detailsKey:"params.commands.followersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -331,7 +371,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slow",
 				cmd:"/slow {seconds}",
-				details:StoreProxy.i18n.t("params.commands.slow"),
+				detailsKey:"params.commands.slow",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -339,7 +379,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"slowoff",
 				cmd:"/slowoff",
-				details:StoreProxy.i18n.t("params.commands.slowoff"),
+				detailsKey:"params.commands.slowoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -347,7 +387,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribers",
 				cmd:"/subscribers {seconds}",
-				details:StoreProxy.i18n.t("params.commands.subscribers"),
+				detailsKey:"params.commands.subscribers",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -355,7 +395,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"subscribersoff",
 				cmd:"/subscribersoff",
-				details:StoreProxy.i18n.t("params.commands.subscribersoff"),
+				detailsKey:"params.commands.subscribersoff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS],
@@ -363,7 +403,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"whisper",
 				cmd:"/w {recipient} {message}",
-				details:StoreProxy.i18n.t("params.commands.whisper"),
+				detailsKey:"params.commands.whisper",
 				alias:"/whisper {recipient} {message}",
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.WHISPER_WRITE, TwitchScopes.WHISPER_READ],
@@ -371,7 +411,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOn",
 				cmd:"/shield",
-				details:StoreProxy.i18n.t("params.commands.shieldOn"),
+				detailsKey:"params.commands.shieldOn",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -379,7 +419,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"shieldOff",
 				cmd:"/shieldoff",
-				details:StoreProxy.i18n.t("params.commands.shieldOff"),
+				detailsKey:"params.commands.shieldOff",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SHIELD_MODE],
@@ -387,7 +427,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"mod",
 				cmd:"/mod {user}",
-				details:StoreProxy.i18n.t("params.commands.mod"),
+				detailsKey:"params.commands.mod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -395,7 +435,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unmod",
 				cmd:"/unmod {user}",
-				details:StoreProxy.i18n.t("params.commands.unmod"),
+				detailsKey:"params.commands.unmod",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_MODS],
@@ -403,7 +443,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"vip",
 				cmd:"/vip {user}",
-				details:StoreProxy.i18n.t("params.commands.vip"),
+				detailsKey:"params.commands.vip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -411,7 +451,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"unvip",
 				cmd:"/unvip {user}",
-				details:StoreProxy.i18n.t("params.commands.unvip"),
+				detailsKey:"params.commands.unvip",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.EDIT_VIPS],
@@ -419,7 +459,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clip",
 				cmd:"/clip",
-				details:StoreProxy.i18n.t("params.commands.clips"),
+				detailsKey:"params.commands.clips",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.CLIPS],
@@ -427,7 +467,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"marker",
 				cmd:"/marker {comment}",
-				details:StoreProxy.i18n.t("params.commands.marker"),
+				detailsKey:"params.commands.marker",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -435,7 +475,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"clear",
 				cmd:"/clear",
-				details:StoreProxy.i18n.t("params.commands.clear"),
+				detailsKey:"params.commands.clear",
 				twitchCmd:true,
 				needModerator:true,
 				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
@@ -443,7 +483,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtitle",
 				cmd:"/setStreamTitle {title}",
-				details:StoreProxy.i18n.t("params.commands.streamTitle"),
+				detailsKey:"params.commands.streamTitle",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -451,7 +491,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamcategory",
 				cmd:"/setStreamCategory {category}",
-				details:StoreProxy.i18n.t("params.commands.streamCategory"),
+				detailsKey:"params.commands.streamCategory",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -459,7 +499,7 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"streamtags",
 				cmd:"/setStreamTags {tag1} {tag2}",
-				details:StoreProxy.i18n.t("params.commands.streamTags"),
+				detailsKey:"params.commands.streamTags",
 				needModerator:true,
 				twitchCmd:true,
 				twitch_scopes:[TwitchScopes.SET_STREAM_INFOS],
@@ -467,54 +507,59 @@ export const storeChat = defineStore('chat', {
 			{
 				id:"betaadd",
 				cmd:"/betaAdd {user}",
-				details:StoreProxy.i18n.t("params.commands.betaadd"),
+				detailsKey:"params.commands.betaadd",
 				needAdmin:true,
 			},
 			{
 				id:"betadel",
 				cmd:"/betaDel {user}",
-				details:StoreProxy.i18n.t("params.commands.betadel"),
+				detailsKey:"params.commands.betadel",
 				needAdmin:true,
 			},
 			{
 				id:"betamigrate",
 				cmd:"/betaMigrate {user}",
-				details:StoreProxy.i18n.t("params.commands.betamigrate"),
+				detailsKey:"params.commands.betamigrate",
 				needAdmin:true,
 			},
 			{
 				id:"betaclose",
 				cmd:"/betaClose",
-				details:StoreProxy.i18n.t("params.commands.betareset"),
+				detailsKey:"params.commands.betareset",
 				needAdmin:true,
 			},
 			{
 				id:"devmode",
 				cmd:"/devmode",
-				details:StoreProxy.i18n.t("params.commands.devmode"),
+				detailsKey:"params.commands.devmode",
 				needAdmin:true,
 			},
 			{
 				id:"userlist",
 				cmd:"/userlist",
-				details:StoreProxy.i18n.t("params.commands.userlist"),
+				detailsKey:"params.commands.userlist",
 				needAdmin:true,
 			},
 			{
 				id:"userdata",
 				cmd:"/userdata {login}",
-				details:StoreProxy.i18n.t("params.commands.userdata"),
+				detailsKey:"params.commands.userdata",
 				needAdmin:true,
 			},
 			{
 				id:"greetduration",
 				cmd:"/greetDuration {(hh:)(mm:)ss}",
-				details:StoreProxy.i18n.t("params.commands.greetduration"),
+				detailsKey:"params.commands.greetduration",
 			},
 			{
 				id:"pin",
 				cmd:"/pin {message}",
-				details:StoreProxy.i18n.t("params.commands.pin"),
+				detailsKey:"params.commands.pin",
+			},
+			{
+				id:"triggerlogs",
+				cmd:"/triggerlogs",
+				detailsKey:"params.commands.triggerlogs",
 			},
 		],
 
@@ -530,6 +575,7 @@ export const storeChat = defineStore('chat', {
 				usersAllowed:[],
 				usersRefused:[],
 			},
+			autoSpoilNewUsers:false,
 		},
 
 		isChatMessageHighlighted: false,
@@ -547,12 +593,46 @@ export const storeChat = defineStore('chat', {
 
 
 	actions: {
+		preloadMessageHistory():void {
+			if(StoreProxy.params.features.saveHistory.value === false) return;
+			Database.instance.getMessageList().then(res=>{
+				if(res.length === 0) return;
+				const splitter:TwitchatDataTypes.MessageHistorySplitterData = {
+					id:Utils.getUUID(),
+					date:messageList.length > 0? messageList[0].date-.1 : Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
+				}
+				messageList.unshift(splitter);
+				
+				//Force reactivity so merging feature works on old messages
+				for (let i = res.length-1; i >= 0; i--) {
+					messageList.unshift(reactive(res[i]));
+				}
+				
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+			}).catch(error=>{
+				console.log("DATABASE ERROR");
+				console.log(error);
+			})
+		},
+
+		addFake(message:TwitchatDataTypes.ChatMessageTypes):void {
+			messageList.push(message);
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {
+			if(adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
+			|| adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
+			|| adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
+				//Don't send donation related messages if premium
+				if(StoreProxy.auth.isPremium) return;
+			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
-				if(StoreProxy.auth.twitch.user.donor.state!==true || StoreProxy.auth.twitch.user.donor.level < 2) {
-					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.SPONSOR);
+				if(StoreProxy.auth.twitch.user.donor.state!==true && !StoreProxy.auth.isPremium) {
+					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DONATE);
 				}
 				//Give more chances to have anything but the "sponsor" ad
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
@@ -561,13 +641,6 @@ export const storeChat = defineStore('chat', {
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
 				possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DISCORD);
-
-				const lastUpdateRead = parseInt(DataStore.get(DataStore.UPDATE_INDEX));
-				if(isNaN(lastUpdateRead) || lastUpdateRead < StoreProxy.main.latestUpdateIndex) {
-					//Force last updates if any not read
-					// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
-					StoreProxy.params.openModal("updates");
-				}
 				// else{
 					//Add 10 empty slots for every content type available
 					//to reduce chances to actually get an "ad"
@@ -578,6 +651,13 @@ export const storeChat = defineStore('chat', {
 				adType = Utils.pickRand(possibleAds);
 				// adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR;//TODO comment this line
 				if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) return;
+			}
+
+			//Check if current ad has alrady been sent within the last 50 message
+			for (let i = messageList.length-1; i >= Math.max(0, messageList.length - 50); i--) {
+				const mess = messageList[i];
+				if(mess.type != TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
+				if(mess.adType == adType) return;//Avoid sending 2 consecutive ad of the same type
 			}
 
 			this.addMessage( {
@@ -599,8 +679,9 @@ export const storeChat = defineStore('chat', {
 				m.message = str;
 				m.message_chunks = chunks;
 				m.message_html = TwitchUtils.messageChunksToHTML(chunks)
+				m.message_size = TwitchUtils.computeMessageSize(chunks);
 				m.user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "40203552", "twitchat", "Twitchat");
-				m.user.avatarPath = new URL(`/src_front/assets/icons/twitchat.svg`, import.meta.url).href;
+				m.user.avatarPath = "logo.png";
 				m.user.color = "#bb8eff";
 			});
 		},
@@ -640,7 +721,7 @@ export const storeChat = defineStore('chat', {
 			}
 
 			//Check if it's a greetable message
-			if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
+			if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
 				const mLoc = message as TwitchatDataTypes.GreetableMessage;
 				this.flagMessageAsFirstToday(mLoc, mLoc.user);
 			}
@@ -696,6 +777,7 @@ export const storeChat = defineStore('chat', {
 						const original = message.message;
 						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
 						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);
+						message.message_size = TwitchUtils.computeMessageSize(message.message_chunks);
 						message.cyphered = message.message != original;
 					}
 
@@ -707,9 +789,9 @@ export const storeChat = defineStore('chat', {
 						for (let i = len-1; i > end; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.type != TwitchatDataTypes.TwitchatMessageType.WHISPER) continue;
-							if(m.user.id != message.user.id) continue;
 							if(message.type != m.type) continue;
-							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-20" more or less means "if message is still visible on screen"
+							if(m.user.id != message.user.id) continue;
+							if(m.date < Date.now() - 30000 || i < len-30) continue;//"i < len-0" more or less means "if message is still visible on screen"
 							if(message.message.toLowerCase() != m.message.toLowerCase()) continue;
 							if(message.spoiler != m.spoiler) continue;
 							if(message.deleted != m.deleted) continue;
@@ -721,7 +803,7 @@ export const storeChat = defineStore('chat', {
 							}
 
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-								&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							&& m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								//If highlight state isn't the same, skip it
 								if(m.twitch_isHighlighted != message.twitch_isHighlighted) continue;
 								//Don't merge automoded
@@ -729,10 +811,12 @@ export const storeChat = defineStore('chat', {
 								if(message.twitch_automod || m.twitch_automod) continue;
 								//Don't merge answers to messages
 								if(message.answersTo || m.answersTo) continue;
+								m.children = [];
 							}
 							if(!m.occurrenceCount) m.occurrenceCount = 0;
 							//Remove message
 							messageList.splice(i, 1);
+							await Database.instance.deleteMessage(m);
 							EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:true}));
 							m.occurrenceCount ++;
 							//Update timestamp
@@ -867,7 +951,7 @@ export const storeChat = defineStore('chat', {
 									//Not sent from the mentionned user, ignore it
 									if(m.user.login != match && m.user.displayName.toLowerCase() != match) continue;
 									//If message is too old, stop there
-									if(ts - m.date < timeframe) break;
+									if(ts - m.date > timeframe) break;
 
 									if(m.answers) {
 										//If it's the root message of a conversation
@@ -887,6 +971,15 @@ export const storeChat = defineStore('chat', {
 									break;
 								}
 							}
+						}
+
+						//If it's a new user and "autospoil new users" option is enabled,
+						//set the message as a spoiler
+						if(message.user.channelInfo[message.channel_id].is_new === true
+						&& this.spoilerParams.autoSpoilNewUsers === true
+						&& message.user.noAutospoil !== true) {
+							message.spoiler = true;
+							message.autospoiled = true;
 						}
 					}
 					break;
@@ -1148,6 +1241,12 @@ export const storeChat = defineStore('chat', {
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
+				if(StoreProxy.params.features.saveHistory.value === true) {
+					Database.instance.addMessage(message).catch((error)=>{
+						console.error("Database addMessage() error");
+						console.log(error);
+					});
+				}
 			
 				//Limit history size
 				while(messageList.length >= this.realHistorySize) {
@@ -1159,7 +1258,7 @@ export const storeChat = defineStore('chat', {
 
 			const e = Date.now();
 			// console.log(messageList.length, e-s);
-			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date);
+			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date, message);
 			
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
 				//If it's a subgift, wait a little before proceeding as subgifts do not
@@ -1186,53 +1285,60 @@ export const storeChat = defineStore('chat', {
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
 				if(messageID == m.id && !m.deleted) {
-					m.deleted = true;
-					if(m.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
-					|| m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
-					|| (m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.is_ad)) {
-						//Called if closing an ad
-						messageList.splice(i, 1);
-						EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
-					}else if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-						const wsMessage = {
-							channel:m.channel_id,
-							message:m.message,
-							user:{
-								id:m.user.id,
-								login:m.user.login,
-								displayName:m.user.displayName,
-							}
-						}
-						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
-	
-						//Don't keep automod form message
-						if(m.twitch_automod) {
-							messageList.splice(i, 1);
-						}
-
-						if(deleter) {
-							m.deletedData = { deleter };
-						}
-						
-						if(callEndpoint && m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-							TwitchUtils.deleteMessages(m.channel_id, m.id);
-						}
-					}
-					
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					this.deleteMessageByReference(m, deleter, callEndpoint);
 					break;
 				}
 			}
+		},
+		
+		deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
+			message.deleted = true;
+			const i = messageList.findIndex(v=>v.id === message.id);
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
+			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {
+				//Called if closing an ad
+				messageList.splice(i, 1);
+				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
+			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const wsMessage = {
+					channel:message.channel_id,
+					message:message.message,
+					user:{
+						id:message.user.id,
+						login:message.user.login,
+						displayName:message.user.displayName,
+					}
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
+
+				//Don't keep automod form message
+				if(message.twitch_automod) {
+					messageList.splice(i, 1);
+					Database.instance.deleteMessage(message);
+				}
+
+				if(deleter) {
+					message.deletedData = { deleter };
+					Database.instance.updateMessage(message);
+				}
+				
+				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+					TwitchUtils.deleteMessages(message.channel_id, message.id);
+				}
+			}
+			
+			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 		},
 
 		delUserMessages(uid:string, channelId:string) {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
 				&& mTyped.channel_id == channelId
-				&& !mTyped.deleted) {
+				&& !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
@@ -1247,8 +1353,10 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					mTyped.deleted = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					mTyped.cleared = true;
+					Database.instance.updateMessage(m);
+					// mTyped.deleted = true;
+					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
 				}
 			}
 		},
@@ -1256,10 +1364,9 @@ export const storeChat = defineStore('chat', {
 		delChannelMessages(channelId:string):void {
 			for (let i = 0; i < messageList.length; i++) {
 				const m = messageList[i];
-				if(!TwitchatDataTypes.GreetableMessageTypesString[m.type as TwitchatDataTypes.GreetableMessageTypes] === true) continue;
+				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
-				if(mTyped.channel_id == channelId
-				&& !mTyped.deleted) {
+				if(mTyped.channel_id == channelId && !mTyped.cleared) {
 					//Send public API events by batches of 5 to avoid clogging it
 					setTimeout(()=> {
 						const wsMessage = {
@@ -1274,8 +1381,8 @@ export const storeChat = defineStore('chat', {
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 					}, Math.floor(i/5)*50)
 
-					mTyped.deleted = true;
-					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));
+					mTyped.cleared = true;
+					Database.instance.updateMessage(m);
 				}
 			}
 		},
@@ -1397,6 +1504,32 @@ export const storeChat = defineStore('chat', {
 			message.todayFirst = true;
 			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
 			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
+		},
+
+		resetGreetingHistory():void {
+			const users = StoreProxy.users.users;
+			//Reset last activity date of all users on all channels
+			for (let i = 0; i < users.length; i++) {
+				const u = users[i];
+				for (const chan in u.channelInfo) {
+					u.channelInfo[chan].lastActivityDate = 0;
+				}
+			}
+			greetedUsers = {};
+			//Reset greeting history
+			DataStore.remove(DataStore.GREET_HISTORY);
+		},
+
+		cleanupDonationRelatedMessages():void {
+			for (let i = 0; i < messageList.length; i++) {
+				const m = messageList[i];
+				if(m.type !== TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD) continue;
+				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
+				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
+				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
+					this.deleteMessageByReference(m);
+				}
+			}
 		},
 	} as IChatActions
 	& ThisType<IChatActions

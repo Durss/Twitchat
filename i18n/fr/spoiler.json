@@ -2,19 +2,11 @@
 	"spoiler":{
 		"header":"Le contenu de tout message commençant par {TAG} sera masqué par défaut et révélé au survol",
 		"message_example":"Exemple :",
+		"autospoil_new_users":"Spoiler les messages des personnes parlant dans le tchat pour la 1ère fois<br>(utile si vous jouez à un jeu sensible aux spoilers ou backseats)",
 		"command":{
 			"title":"Spoiler un autre message",
 			"how_to":"Vous pouvez permettre à vos modos de spoiler le message d'un autre viewer en répondant au message avec la commande {CMD}",
 			"allowed":"Personnes autorisées à utiliser la commande {CMD} :"
-		},
-		"warning":{
-			"title":"Attention",
-			"head":"Le système de réponse de Twitch étant bancal, si vous utilisez la commande {CMD} sur une réponse de conversation, le message mis en spoiler sera celui à l'origine de la conversation.",
-			"example":"Exemple ci-dessous, si vous cherchez à spoiler {ANSWER} en y répondant, ça mettra en réalité {ROOT} en spoiler à la place :",
-			"example_1":"Origine de la conversation",
-			"example_2":"Réponse 1",
-			"example_3":"Réponse 2",
-			"example_4":"Réponse 3"
 		}
 	}
 }

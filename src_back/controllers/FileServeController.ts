@@ -5,6 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger";
 import Utils from "../utils/Utils";
+import {Readable} from "stream";
 
 /**
 * Created : 22/02/2023
@@ -36,6 +37,9 @@ export default class FileServeController extends AbstractController {
 		
 		//Get latest app configs
 		this.server.get('/api/configs', async (request:FastifyRequest, response:FastifyReply) => this.getConfigs(request, response) );
+
+		//Starts download of the given file
+		this.server.get('/api/download', async (request:FastifyRequest, response:FastifyReply) => this.getDownload(request, response) );
 		
 		//Get latest announcements
 		this.server.get('/api/announcements', async (request:FastifyRequest, response:FastifyReply) => this.getAnnouncements(request, response) );
@@ -62,10 +66,14 @@ export default class FileServeController extends AbstractController {
 		Logger.info("Serving script for cache bypass")
 		const assets = path.join(Config.PUBLIC_ROOT, "assets");
 		const file = fs.readdirSync(assets).find(v => /index\..*\.js/gi.test(v));
-		const txt = fs.readFileSync(path.join(assets, file), {encoding:"utf8"});
-		response.header('Content-Type', 'application/javascript');
-		response.status(200);
-		response.send(txt);
+		if(file) {
+			const txt = fs.readFileSync(path.join(assets, file), {encoding:"utf8"});
+			response.header('Content-Type', 'application/javascript');
+			response.status(200);
+			response.send(txt);
+		}else{
+			response.status(404);
+		}
 	}
 
 	private getConfigs(request:FastifyRequest, response:FastifyReply):void {
@@ -78,9 +86,12 @@ export default class FileServeController extends AbstractController {
 			spotify_scopes:Config.credentials.spotify_scopes,
 			spotify_client_id:Config.credentials.spotify_client_id,
 			
-			deezer_scopes:Config.credentials.deezer_scopes,
-			deezer_client_id:Config.credentials.deezer_client_id,
-			deezer_dev_client_id:Config.credentials.deezer_dev_client_id,
+			patreon_client_id:Config.credentials.patreon_client_id,
+			patreon_scopes:Config.credentials.patreon_scopes,
+			
+			paypal_client_id:Config.credentials.paypal_client_id,
+			
+			contact_mail:Config.credentials.contact_mail,
 		}));
 	}
 
@@ -96,7 +107,7 @@ export default class FileServeController extends AbstractController {
 		const body:any = request.body;
 		const dateStart:number = body.dateStart || Date.now();
 		const dateEnd:number = body.dateEnd;
-		const important:boolean = body.important === "true";
+		const important:boolean = body.important === true;
 		const title:{[key:string]:string} = body.title;
 		const text:{[key:string]:string} = body.text;
 		const versionMax:string = body.versionMax || "";
@@ -147,6 +158,20 @@ export default class FileServeController extends AbstractController {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data:list}));
+	}
+
+	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const b64:string = (request.query as any).img.trim();
+		
+		const imgBuffer = Buffer.from(b64.split(",")[1], 'base64');
+		var s = new Readable()
+		s.push(imgBuffer)   
+		s.push(null) 
+		s.pipe(fs.createWriteStream("image.png"));
+
+		response.header('Content-Disposition','attachment; filename=test.png');
+		response.header('Content-Type','image/png');
+		response.send(s).type('image/png').code(200);
 	}
 
 }

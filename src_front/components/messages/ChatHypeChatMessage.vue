@@ -1,5 +1,6 @@
 <template>
-	<div :class="classes">
+	<div :class="classes"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<div class="fill" ref="fill"></div>
 
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
@@ -12,7 +13,7 @@
 			<a :href="'https://twitch.tv/'+messageData.message.user.login" target="_blank"
 				@click.stop.prevent="openUserCard(messageData.message.user)"
 				class="login">{{messageData.message.user.displayName}} :</a>
-				<ChatMessageChunksParser :chunks="messageData.message.message_chunks" />
+				<ChatMessageChunksParser :chunks="messageData.message.message_chunks" :channel="messageData.message.channel_id" :platform="messageData.platform" />
 			</div>
 	
 			<div class="price">{{currency}}{{ messageData.message.twitch_hypeChat!.amount }}</div>

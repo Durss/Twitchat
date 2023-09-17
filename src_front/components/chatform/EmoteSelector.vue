@@ -1,10 +1,7 @@
 <template>
 	<div class="emoteselector blured-background-window">
 		<div v-if="users.length == 0" class="loader">
-			<picture>
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
@@ -79,9 +76,11 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import Button from '../Button.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 	},
 	emits:["close", "select"]
@@ -152,6 +151,7 @@ export default class EmoteSelector extends Vue {
 				platform:"twitch",
 				login:"twitchhypetrain",
 				displayName:"TwitchHypeTrain",
+				displayNameOriginal:"TwitchHypeTrain",
 				avatarPath:this.$image("img/hypetrain_avatar.png"),
 				id:"477339272",
 				is_affiliate:false,
@@ -162,7 +162,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 				is_bot:false,
 			});
 	
@@ -172,6 +172,7 @@ export default class EmoteSelector extends Vue {
 				platform:"twitch",
 				login:"global",
 				displayName:"Global",
+				displayNameOriginal:"Global",
 				avatarPath:this.$image("icons/twitch.svg"),
 				id:"0",
 				is_affiliate:false,
@@ -182,7 +183,7 @@ export default class EmoteSelector extends Vue {
 				pronounsLabel:false,
 				pronounsTooltip:false,
 				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false},
+				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 				is_bot:false,
 			});
 	
@@ -212,6 +213,7 @@ export default class EmoteSelector extends Vue {
 						platform:"twitch",
 						login:"BTTV",
 						displayName:"BTTV",
+						displayNameOriginal:"BTTV",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"1",
 						is_affiliate:false,
@@ -222,7 +224,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: BTTVUtils.instance.emotes,
@@ -236,6 +238,7 @@ export default class EmoteSelector extends Vue {
 						platform:"twitch",
 						login:"7TV",
 						displayName:"7TV",
+						displayNameOriginal:"7TV",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"2",
 						is_affiliate:false,
@@ -246,7 +249,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: SevenTVUtils.instance.emotes,
@@ -260,6 +263,7 @@ export default class EmoteSelector extends Vue {
 						platform:"twitch",
 						login:"FFZ",
 						displayName:"FFZ",
+						displayNameOriginal:"FFZ",
 						avatarPath:this.$image("icons/emote.svg"),
 						id:"3",
 						is_affiliate:false,
@@ -270,7 +274,7 @@ export default class EmoteSelector extends Vue {
 						pronounsLabel:false,
 						pronounsTooltip:false,
 						channelInfo:{},
-						donor:{state:false, level:0, upgrade:false, noAd:false},
+						donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false},
 						is_bot:true,
 					},
 					emotes: FFZUtils.instance.emotes,

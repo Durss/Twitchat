@@ -2,7 +2,7 @@ import { createPopper } from '@popperjs/core';
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
-import { createApp } from 'vue';
+import { createApp, h, type DirectiveBinding, type VNode } from 'vue';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
@@ -32,7 +32,7 @@ import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IChatActions, type IChatGetters, type IChatState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -47,6 +47,11 @@ import 'tippy.js/dist/tippy.css';
 import 'tippy.js/animations/scale.css'
 import { setDefaultProps } from 'vue-tippy';
 import Icon from './components/Icon.vue';
+import { storeHeat } from './store/heat/storeHeat';
+import { storePatreon } from './store/patreon/storePatreon';
+import { divide } from 'mathjs';
+import Config from './utils/Config';
+import { storeValues } from './store/storeValues/storeValues';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -79,6 +84,7 @@ const i18n = createI18n({
 //initializing stores data
 (async()=> {
 	try {
+		window.setInitMessage("loading labels");
 		const labelsRes = await fetch("/labels.json");
 		const labelsJSON = await labelsRes.json();
 		for (const lang in labelsJSON) {
@@ -105,8 +111,6 @@ function buildApp() {
 		const transparent = to.meta.noBG;
 		if(transparent) {
 			document.body.style.backgroundColor = "transparent";
-		}else{
-			document.body.style.backgroundColor = "#18181b";
 		}
 	
 		//If landing on homepage, redirect to chat if an auth token is available
@@ -189,7 +193,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon"|"values") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -216,6 +220,9 @@ function buildApp() {
 			case "admin": return StoreProxy.admin;
 			case "counters": return StoreProxy.counters;
 			case "rewards": return StoreProxy.rewards;
+			case "heat": return StoreProxy.heat;
+			case "patreon": return StoreProxy.patreon;
+			case "values": return StoreProxy.values;
 		}
 	}
 	
@@ -226,9 +233,11 @@ function buildApp() {
 	//router needs to access some stores
 	StoreProxy.i18n = i18n.global;
 	StoreProxy.image = image;
-	StoreProxy.main = storeMain();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.main = (storeMain() as unknown) as IMainState & IMainGetters & IMainActions & { $state: IMainState; $reset:()=>void };
 	StoreProxy.account = storeAccount();
-	StoreProxy.auth = storeAuth();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.auth = (storeAuth() as unknown) as IAuthState & IAuthGetters & IAuthActions & { $state: IAuthState; $reset:()=>void };
 	StoreProxy.automod = storeAutomod();
 	StoreProxy.bingo = storeBingo();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
@@ -244,6 +253,7 @@ function buildApp() {
 	StoreProxy.rewards = storeRewards();
 	StoreProxy.stream = storeStream();
 	StoreProxy.timer = storeTimer();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };;
 	StoreProxy.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
@@ -253,6 +263,9 @@ function buildApp() {
 	StoreProxy.accessibility = storeAccessibility();
 	StoreProxy.admin = storeAdmin();
 	StoreProxy.counters = storeCounters();
+	StoreProxy.heat = storeHeat();
+	StoreProxy.patreon = storePatreon();
+	StoreProxy.values = storeValues();
 	StoreProxy.router = router;
 	
 	app.use(router)
@@ -265,6 +278,7 @@ function buildApp() {
 	.component("country-flag", CountryFlag)
 	.component("vue-select", VueSelect)
 	.component("Icon", Icon)
+	.provide("$config", Config.instance)
 	.provide("$image", image)
 	.provide("$store", storeAccess)
 	.provide("$confirm", confirm)
@@ -296,9 +310,38 @@ function buildApp() {
 				});
 			}
 		}
+	})
+	.directive('newflag', {
+		mounted(el:HTMLElement, binding:DirectiveBinding<{date:number, id:string, duration?:number}>, vnode:VNode<any, any, { [key: string]: any; }>) {
+			if(binding && binding.value) {
+				//date : contains the date at which something has been flagged as new
+				//id : id of the item flaged as new
+				//duration : duration during which the item should be flaged as new (1 month by default)
+				const {date, id} = binding.value;
+				const maxDuration = binding.value.duration || 30 * 24 * 60 * 60000;
+				//Flag as new only for 1 month
+				if(Date.now() - date > maxDuration) return;
+
+				//Don't flag is already marked as read
+				const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
+				if(flagsDone.includes(id)) return;
+
+				el.classList.add("newFlag");
+
+				el.addEventListener("click", ()=>{
+					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
+					flagsDone.push(id);
+					DataStore.set(DataStore.NEW_FLAGS, flagsDone);
+					el.classList.remove("newFlag");
+				});
+			}
+		},
+		beforeUnmount(el:HTMLElement, binding:unknown) {
+		}
 	});
 	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
+	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;

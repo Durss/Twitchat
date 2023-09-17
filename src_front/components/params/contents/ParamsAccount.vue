@@ -4,6 +4,7 @@
 		<section class="profilePic">
 			<img :src="userPP" alt="profile pic">
 		</section>
+
 		<section class="card-itemhead">
 			<div v-html="$t('account.connected_as', {USER:'<strong>'+userName+'</strong>'})"></div>
 		</section>
@@ -12,6 +13,10 @@
 			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
 			<Button class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</Button>
 			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
+		</section>
+		
+		<section class="card-item actions">
+			<ParamsAccountPatreon />
 		</section>
 		
 		<section class="card-item scopes">
@@ -63,6 +68,8 @@ import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type IParameterContent from './IParameterContent';
 import DonorState from '@/components/user/DonorState.vue';
+import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
+import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
@@ -72,6 +79,7 @@ import DonorState from '@/components/user/DonorState.vue';
 		ToggleBlock,
 		ScopeSelector,
 		AppLangSelector,
+		ParamsAccountPatreon,
 	},
 	emits:[],
 })
@@ -92,7 +100,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 
 	public get canInstall():boolean { return this.$store("main").ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state || this.$store("auth").isPremium; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
@@ -159,8 +167,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 			const headers = {
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const res = await fetch(Config.instance.API_PATH+"/auth/CSRFToken", {method:"GET", headers});
-			const json = await res.json();
+			const {json} = await ApiController.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 		}catch(e) {
 			this.$store("main").alert(this.$t("error.csrf_failed"));

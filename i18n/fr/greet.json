@@ -2,9 +2,10 @@
 	"greet":{
 		"title":"Dites bonjour",
 		"never":"jamais",
-		"clearBt":"Effacer tous les messages",
-		"clear_confirm_title":"Tout effacer",
-		"clear_confirm_description":"Voulez-vous effacer tous les messages ?",
+		"clearBt":"Marquer tous les messages comme lus",
+		"resetBt":"Réinitialiser l'historique",
+		"reset_confirm_title":"Réinitialiser",
+		"reset_confirm_description":"L'historique des bonjours sera réinitialisé. Le prochain message de toutes les personne sera considéré comme leur 1er du stream.",
 		"auto_scroll_on_aria":"Activer le défilement automatique vers le bas",
 		"auto_scroll_off_aria":"Désactiver le défilement automatique vers le bas",
 		"auto_scroll_down":"Défilement automatique vers le bas",

@@ -5,6 +5,8 @@
 		"follow_date_tt":"Follower depuis",
 		"not_following":"Ne vous follow pas",
 		"streaming":"Live en cours",
+		"add_badgeBt_tt":"Ajouter un badge personnalisé (32*32px)",
+		"edit_loginBt_tt":"Personnaliser le pseudo",
 		"profileBt":"Profil",
 		"viewercardBt":"Infos viewer",
 		"trackBt":"Activer le suivi",
@@ -14,6 +16,26 @@
 		"non_subscribed":"pas abonné·e",
 		"subscribed":"abonné·e niveau {TIER}",
 		"subgifted":"abonnement niveau {TIER} offert par {GIFTER}",
-		"following_end":"Suite à des restrictions de la part de Twitch, cette section disparaîtra le {DATE}"
+		"following_end":"Suite à des restrictions de la part de Twitch, cette section disparaîtra le {DATE}",
+		"manage_usernames":"Gestions des pseudos",
+		"manage_usernames_removeBt":"Retirer le pseudo personnalisé",
+		"manage_usernames_real_tt":"Vrai pseudo",
+		"manage_usernames_custom_tt":"Pseudo personnalisé",
+		"manage_usernamesBt":"Gérer",
+		"manage_badges":"Gestion des badges",
+		"manage_badgesBt":"Gérer",
+		"remove_badgesBt":"Retirer",
+		"badge_name_placeholder":"nom du badge... (optionnel)",
+		"delete_badge":"Supprimer le badge",
+		"delete_badge_confirm":{
+			"title":"Supprimer le badge ?",
+			"description":"Les personne liées à ce badge le perdront. Cette action ne peut pas être annulée."
+		},
+		"replace_badge_file":"Remplacer l'image",
+		"badge_disabled":"Vous avez désactivé ce badge car vous n'êtiez plus membre premium.",
+		"badge_diusabled_notPremium":"Vous ne pouvez avoir que {MAX} badges actifs. Supprimez d'autres badges pour pouvoir le réactiver ou devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} badges personnalisés.",
+		"badge_users":"Personnes associées à ce badge",
+		"badge_users_none":"aucune",
+		"badge_users_reactivate":"Réactiver le badge"
 	}
 }

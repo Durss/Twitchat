@@ -1,7 +1,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import Config from '@/utils/Config'
-import TwitchUtils from '@/utils/twitch/TwitchUtils'
+import ApiController from '@/utils/ApiController'
 import Utils from '@/utils/Utils'
+import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import StoreProxy, { type IAdminActions, type IAdminGetters, type IAdminState } from '../StoreProxy'
@@ -26,13 +26,9 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user?uid="+users[0].id, {method:"POST", headers});
+			const res = await ApiController.call("admin/beta/user", "POST", {uid:users[0].id});
 			try {
-				if(res.status === 200 && (await res.json()).success) {
+				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -62,13 +58,9 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user?uid="+users[0].id, {method:"DELETE", headers});
+			const res = await ApiController.call("admin/beta/user", "DELETE", {uid:users[0].id});
 			try {
-				if(res.status === 200 && (await res.json()).success) {
+				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -93,13 +85,9 @@ export const storeAdmin = defineStore('Admin', {
 		},
 		
 		async removeAllBetaUser():Promise<void> {
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user/all", {method:"DELETE", headers});
+			const res = await ApiController.call("admin/beta/user/all", "DELETE");
 			try {
-				if(res.status === 200 && (await res.json()).success) {
+				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
 						date:Date.now(),
 						id:Utils.getUUID(),
@@ -129,13 +117,9 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const headers = {
-				'Authorization': 'Bearer '+StoreProxy.auth.twitch.access_token,
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const res = await fetch(Config.instance.API_PATH+"/admin/beta/user/migrateToProduction?uid="+users[0].id, {method:"POST", headers});
+			const res = await ApiController.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0].id});
 			try {
-				if(res.status === 200 && (await res.json()).success) {
+				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
 						date:Date.now(),
 						id:Utils.getUUID(),

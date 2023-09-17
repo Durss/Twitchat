@@ -39,7 +39,6 @@
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
-		<!-- <OverlayParamsDeezer class="block" /> -->
 	</div>
 </template>
 
@@ -47,11 +46,11 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
 import type IParameterContent from './IParameterContent';
 import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
-import OverlayParamsDeezer from './overlays/OverlayParamsDeezer.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
 import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
@@ -64,7 +63,6 @@ import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 		OverlayParamsUlule,
 		OverlayParamsTimer,
 		OverlayParamsRaffle,
-		OverlayParamsDeezer,
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
 		OverlayParamsHighlight,
@@ -78,8 +76,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
-	public get spotifyConfigured():boolean { return Config.instance.SPOTIFY_CONFIGURED; }
-	public get deezerConfigured():boolean { return Config.instance.DEEZER_CONFIGURED; }
+	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 

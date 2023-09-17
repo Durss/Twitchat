@@ -9,7 +9,7 @@
 				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
 					<template #URL>
 						<strong>
-							<a href="https://github.com/durss/twitchat/blob/main/SPOTIFY.md" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
+							<a :href="$t('music.spotify_instructions')" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
 						</strong>
 					</template>
 				</i18n-t>
@@ -21,17 +21,24 @@
 				<Button class="item" v-if="!connected && !authenticating"
 					type="submit"
 					:loading="loading"
-					:disabled="!canConnect">{{ $t('connexions.spotify.connectBt') }}</Button>
+					:disabled="!canConnect">{{ $t('global.connect') }}</Button>
 			</form>
 	
 			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
-			<Button class="connectBt" v-if="connected" @click="disconnect()" icon="cross" alert>{{ $t('connexions.spotify.disconnectBt') }}</Button>
+			<template v-if="connected">
+				<i18n-t scope="global" tag="div" keypath="connexions.spotify.usage_connected">
+					<template #OVERLAY>
+						<a @click="openOverlays()">{{ $t("connexions.spotify.usage_connected_overlay") }}</a>
+					</template>
+					<template #TRIGGERS>
+						<a @click="openTriggers()">{{ $t("connexions.spotify.usage_connected_triggers") }}</a>
+					</template>
+				</i18n-t>
+				<Button class="connectBt" @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</Button>
+			</template>
 	
-			<picture v-if="authenticating">
-				<source srcset="@/assets/loader/loader_dark.svg" media="(prefers-color-scheme: light)">
-				<img src="@/assets/loader/loader.svg" alt="loading" class="loader">
-			</picture>
+			<Icon v-if="authenticating" name="loader" />
 		</div>
 
 	</ToggleBlock>
@@ -40,8 +47,8 @@
 <script lang="ts">
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiController from '@/utils/ApiController';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
@@ -64,7 +71,7 @@ export default class ConnectSpotifyForm extends Vue {
 	public paramClient:TwitchatDataTypes.ParameterData<string> = {label:"Client ID", value:"", type:"string", fieldName:"spotifyClient", maxLength:32};
 	public paramSecret:TwitchatDataTypes.ParameterData<string> = {label:"Client secret", value:"", type:"password", fieldName:"spotifySecret", maxLength:32};
 
-	public get connected():boolean { return Config.instance.SPOTIFY_CONNECTED; }
+	public get connected():boolean { return SpotifyHelper.instance.connected; }
 	public get canConnect():boolean {
 		return this.paramClient.value.length >= 30 && this.paramSecret.value.length >= 30;
 	}
@@ -89,13 +96,9 @@ export default class ConnectSpotifyForm extends Vue {
 			this.open = true;	
 			this.authenticating = true;
 
-			const headers = {
-				'App-Version': import.meta.env.PACKAGE_VERSION,
-			};
-			const csrfRes = await fetch(Config.instance.API_PATH+"/auth/CSRFToken?token="+spotifyAuthParams.csrf, {method:"POST", headers});
-			const csrf = await csrfRes.json();
+			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store("main").alert = csrf.message;
+				this.$store("main").alert(csrf.message || "Spotify authentication failed");
 			}else{
 				try {
 					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);
@@ -104,6 +107,7 @@ export default class ConnectSpotifyForm extends Vue {
 					this.error = (e as {error:string, error_description:string}).error_description;
 					this.showSuccess = false;
 					console.log(e);
+					this.$store("main").alert("Oops... something went wrong");
 				}
 			}
 
@@ -115,6 +119,14 @@ export default class ConnectSpotifyForm extends Vue {
 
 	public disconnect():void {
 		SpotifyHelper.instance.disconnect()
+	}
+
+	public openOverlays():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+	}
+	
+	public openTriggers():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 }

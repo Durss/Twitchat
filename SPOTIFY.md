@@ -4,7 +4,7 @@ You may want to **carefully read all the following** to properly understand what
 
 # Table of content
 * [Disclaimer](#disclaimer)
-* [Is there any risk ?](#is-there-any-risk-)
+* [Is there any risk?](#is-there-any-risk)
 * [Create a Spotify application](#create-a-spotify-application)
 <br><br>
 ## Disclaimer
@@ -14,7 +14,7 @@ Problem is, `Spotify is refusing me to do that` because Twitchat is an app made 
 Because of that, the only way for you to connect Twitchat with Spotify is by doing part of the job on your side, which is [`creating a Spotify application`](#create-a-spotify-application) as explained bellow.
 <br><br>
 
-## Is there any risk ?
+## Is there any risk?
 These credentials allow Twitchat to do nothing more than what it would if Twitchat was doing things the normal way.\
 But, having these credentials means that I *(Twitchat's developper)* could theorically store them and use them for any other tool.\
 \

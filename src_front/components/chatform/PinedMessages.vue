@@ -138,6 +138,10 @@ export default class PinedMessages extends AbstractSidePanel {
 				width: 100%;
 				max-width: 100%;
 
+				.message {
+					flex-grow: 1;
+				}
+
 				.button {
 					width: fit-content;
 					min-width: fit-content;

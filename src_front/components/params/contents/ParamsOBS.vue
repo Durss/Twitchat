@@ -200,15 +200,12 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsobs{
-	.block:not(:first-of-type) {
-		margin-top: .5em;
-	}
-	.block:first-of-type {
-		margin-top: 1em;
-	}
 
 	.fadeHolder {
 		transition: opacity .2s;
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
 	}
 	
 	.install {

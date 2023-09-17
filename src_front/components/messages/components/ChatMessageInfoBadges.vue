@@ -24,9 +24,11 @@ export default class ChatMessageInfoBadges extends Vue {
 	}
 
 	public getLabel(info:TwitchatDataTypes.MessageBadgeData):string {
-		if(info.label) return info.label;
+		let label = "";
 		const hashmap = this.$tm("chat.custom_badge.label") as {[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}
-		return hashmap[info.type];
+		label = hashmap[info.type] || "";
+		if(info.label) label += " "+info.label;
+		return label;
 	}
 
 	public getIcon(info:TwitchatDataTypes.MessageBadgeData):string {
@@ -44,6 +46,7 @@ export default class ChatMessageInfoBadges extends Vue {
 			presentation:"presentation",
 			returningChatter:"returning",
 			hypeChat:"hypeChat",
+			new_account:"alert",
 		};
 		if(hashmap[info.type]) {
 			return this.$image("icons/"+hashmap[info.type]+".svg");
@@ -52,8 +55,12 @@ export default class ChatMessageInfoBadges extends Vue {
 	}
 
 	public getTooltip(info:TwitchatDataTypes.MessageBadgeData):string {
-		const hashmap = this.$tm("chat.custom_badge.tooltip") as Partial<{[key in TwitchatDataTypes.MessageBadgeDataStringType]:string}>
-		return hashmap[info.type] ?? info.tooltip ?? "";
+		let tt = "";
+		if(this.$te("chat.custom_badge.tooltip."+info.type)) {
+			tt = this.$t("chat.custom_badge.tooltip."+info.type, info.tooltipLabelParams || {});
+		}
+		if(info.tooltip) tt += info.tooltip;
+		return tt ?? "";
 	}
 
 }
@@ -67,7 +74,7 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	.item {
 		border-radius: .25em;
-		padding: 1px 5px;
+		padding: 1px 3px;
 		color: var(--color-button);
 		background-color: var(--color-primary);
 		white-space: nowrap;
@@ -85,7 +92,7 @@ export default class ChatMessageInfoBadges extends Vue {
 			background-color: var(--color-alert);
 		}
 
-		&.suspiciousUser {
+		&.suspiciousUser, &.new_account {
 			background-color: var(--color-secondary);
 			font-weight: bold;
 		}

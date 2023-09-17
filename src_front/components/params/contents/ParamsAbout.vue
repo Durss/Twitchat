@@ -1,17 +1,17 @@
 <template>
 	<div class="paramsabout">
 
-		<ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
+		<!-- <ToggleBlock class="block" :title="$t('about.sponsor')" :icons="['coin']" :open="false" secondary>
 			<ParamsSponsor />
-		</ToggleBlock>
+		</ToggleBlock> -->
 
-		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.suggestion')" :icons="['idea']" :open="true">
 			<p class="item">{{ $t("about.suggestion_content1") }}</p>
 			<Button class="item" icon="discord" :href="discordURL" target="_blank" type="link">{{ $t('about.discordBt') }}</Button>
 			<p class="item" v-html="$t('about.suggestion_content2')"></p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="false">
+		<ToggleBlock class="block" :title="$t('about.api')" :icons="['api']" :open="true">
 			<p class="item">{{ $t("about.api_content1") }}</p>
 			<p class="item">{{ $t("about.api_content2") }}</p>
 			<Button class="item" icon="github" :href="apiURL" target="_blank" type="link">{{ $t('about.documentationBt') }}</Button>
@@ -32,28 +32,34 @@
 			</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.donors')" :icons="['follow']">
-			<ParamsDonorList />
+		<ToggleBlock class="block" :title="$t('about.dad.title')" :icons="['follow']" :open="false" v-newflag="{date:1693519200000, id:'about_dad'}">
+			<div class="dad">
+				<p v-for="i in $tm('about.dad.content')">{{ i }}</p>
+			</div>
+			<img src="@/assets/img/papa.png" alt="my dad">
 		</ToggleBlock>
+
+		<div class="footer">
+			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
+			<a :href="$router.resolve({name:'termsofuse'}).href" target="_blank">{{ $t("global.terms") }}</a>
+		</div>
 
 	</div>
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import Button from '@/components/Button.vue';
-import ParamsSponsor from './ParamsSponsor.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
-import ParamsDonorList from './ParamsDonorList.vue';
+import { Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
+import ParamsSponsor from './ParamsSponsor.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
 		ParamsSponsor,
-		ParamsDonorList,
 	}
 })
 export default class ParamsAbout extends Vue implements IParameterContent {
@@ -76,6 +82,7 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 	}
 
 	.block {
+		position: relative;
 		text-align: center;
 		display: flex;
 		flex-direction: column;
@@ -100,6 +107,30 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 	
 			&.socials {
 				margin-top: 1em;
+			}
+		}
+	}
+
+	.footer {
+		margin-top: 1em;
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.dad {
+		line-height: 1.3em;
+		text-align: left;
+		p:first-letter {
+			font-weight: bold;
+			margin-left: .5em;
+		}
+		p:first-child {
+			font-style: italic;
+			margin-bottom: 1em;
+			&::first-letter {
+				font-weight: normal;
 			}
 		}
 	}

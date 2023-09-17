@@ -2,34 +2,39 @@
 	<div :class="classes">
 		<div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
 
-		<SwitchButton v-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
+		<SwitchButton v-else-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
-		<div class="list" v-show="filterState === false">
-			<template v-for="item in flatTriggerList">
+		<div class="list" v-show="filterState === false" v-if="renderedList">
+			<div class="item" v-for="item in flatTriggerList"
+			:ref="'item_'+item.trigger.id"
+			:key="'item_'+item.trigger.id">
 				<TriggerListItem
 					v-if="buildIndex >= item.index"
-					:key="'item_'+item.trigger.id"
 					:noEdit="noEdit" :entryData="item"
-					@changeState="onChangeTrigger()"
+					@changeState="onChangeTrigger(item)"
 					@delete="deleteTrigger($event)"
+					@duplicate="duplicateTrigger($event)"
 					@test="$emit('testTrigger',$event)"
 					@select="$emit('select', $event)"
 					/>
-			</template>
+			</div>
 		</div>
 		
-		<div class="list category" v-show="filterState === true" v-if="noEdit === false">
+		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
-			:title="$t(cat.labelKey)" :icons="[cat.icon]">
-				<div class="item" v-for="item in cat.triggerList" :key="'item_'+item.trigger.id">
+			:title="$t(cat.labelKey)" :icons="cat.icons">
+				<div class="item" v-for="item in cat.triggerList"
+				:key="'item_'+item.trigger.id"
+				:ref="'item_'+item.trigger.id">
 					<TriggerListItem :noEdit="noEdit" :entryData="item"
 						v-if="buildIndex >= item.index"
-						@changeState="onChangeTrigger()"
+						@changeState="onChangeTrigger(item)"
 						@delete="deleteTrigger($event)"
+						@duplicate="duplicateTrigger($event)"
 						@test="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)"
-					 />
+					/>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -48,6 +53,9 @@ import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerListItem from './TriggerListItem.vue';
+import { gsap } from 'gsap/all';
+import { RoughEase } from 'gsap/all';
+import { Linear } from 'gsap/all';
 
 @Component({
 	components:{
@@ -71,6 +79,8 @@ export default class TriggerList extends Vue {
 	public triggerId!:string|null;
 
 	public filterState:boolean = true;
+	public renderedList:boolean = true;
+	public renderedCat:boolean = true;
 	public triggerCategories:TriggerListCategoryEntry[] = [];
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
@@ -137,6 +147,13 @@ export default class TriggerList extends Vue {
 	 * Populates the triggers list
 	 */
 	private populateTriggers():void {
+		if(!this.renderedList) {
+			this.renderedList = this.filterState === false;
+		}
+		if(!this.renderedCat) {
+			this.renderedCat = !this.renderedList;
+		}
+
 		//List all available trigger types
 		this.triggerTypeToInfo = {};
 		this.triggerCategories = [];
@@ -156,8 +173,9 @@ export default class TriggerList extends Vue {
 		let triggerBuildIndex = 0;
 		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {}
 		
-		for (const key in triggerList) {
-			const trigger = triggerList[key];
+		for (let i = 0; i < triggerList.length; i++) {
+			const trigger = triggerList[i];
+			
 			//Create new category
 			const index = TriggerTypesDefinitionList().findIndex(v=> v.value == trigger.type);
 			
@@ -167,7 +185,7 @@ export default class TriggerList extends Vue {
 			if(!idToCategory[triggerType.category.id]) {
 				let currentCategory = {
 					index:index,
-					icon: triggerType.category.icon,
+					icons: triggerType.category.icons,
 					labelKey: triggerType.category.labelKey,
 					triggerList: [],
 				};
@@ -201,8 +219,28 @@ export default class TriggerList extends Vue {
 		}).catch(error=>{});
 	}
 
-	public onChangeTrigger():void {
-		this.$store("triggers").saveTriggers();
+	public duplicateTrigger(entry:TriggerListEntry):void {
+		console.log(entry.trigger.id);
+		this.$store("triggers").duplicateTrigger(entry.trigger.id);
+		this.populateTriggers();
+}
+
+	public onChangeTrigger(item:TriggerListEntry):void {
+		if(!this.$store("auth").isPremium
+		&& this.$store("triggers").triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
+			setTimeout(()=>{
+				item.trigger.enabled = false;
+			}, 350);
+			setTimeout(()=>{
+				const divs = this.$refs["item_"+item.trigger.id] as HTMLElement[];
+				for (let i = 0; i < divs.length; i++) {
+					gsap.fromTo(divs[i], {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
+					gsap.fromTo(divs[i], {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+				}
+			}, 150);
+		}else{
+			this.$store("triggers").saveTriggers();
+		}
 	}
 
 }
@@ -212,7 +250,7 @@ type SortTypes = "list" | "category";
 interface TriggerListCategoryEntry {
 	index:number;
 	labelKey:string;
-	icon:string;
+	icons:string[];
 	triggerList:TriggerListEntry[];
 }
 
@@ -249,7 +287,7 @@ export interface TriggerListEntry {
 			:deep(.header) {
 				position: sticky;
 				top: 0;
-				z-index: 1;
+				z-index: 101;
 			}
 			:deep(.content) {
 				display: flex;

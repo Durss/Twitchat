@@ -46,6 +46,8 @@
 			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
 			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
 			<TwitchatAnnouncement	class="popin" v-if="$store('params').currentModal == 'twitchatAnnouncement'" @close="$store('params').closeModal()" />
+			<StreamSummary			class="popin" v-if="$store('params').currentModal == 'streamSummary'" @close="$store('params').closeModal()" />
+			<UserCard				class="popin"  />
 		</Teleport>
 
 
@@ -56,6 +58,7 @@
 			/>
 		</Teleport>
 
+		<NonPremiumCleanup v-if="mustDisableItems" @close="mustDisableItems_precalc = false" />
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
@@ -117,21 +120,11 @@
 
 		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
-		<UserCard />
-
 		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').closeModal()" />
 
 		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').closeModal()" />
 		
 		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
-
-		<Teleport to="body">
-			<div class="deezerCTA" v-if="needUserInteraction">
-				<img src="@/assets/icons/deezer_color.svg" alt="deezer" class="icon">
-				<div class="title">{{ $t("global.click") }}</div>
-				<div class="message">{{ $t("music.deezer_interact") }}</div>
-			</div>
-		</Teleport>
 
 		<ChatAlertMessage />
 		
@@ -154,9 +147,12 @@ import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
+import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
+import StreamSummary from '@/components/chatform/StreamSummary.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
+import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
@@ -174,10 +170,8 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import DeezerHelper from '@/utils/music/DeezerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
@@ -193,7 +187,6 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 
 @Component({
 	components:{
@@ -219,6 +212,7 @@ import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue
 		TriggersLogs,
 		TrackedUsers,
 		MessageSearch,
+		StreamSummary,
 		WhispersState,
 		Accessibility,
 		CommandHelper,
@@ -229,6 +223,7 @@ import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue
 		StreamInfoForm,
 		VoiceTranscript,
 		ChatAlertMessage,
+		NonPremiumCleanup,
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		TwitchatAnnouncement,
@@ -251,6 +246,7 @@ export default class Chat extends Vue {
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;
 	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";
+	public mustDisableItems_precalc:boolean = false;
 	
 	private disposed = false;
 	private mouseX = 0;
@@ -266,8 +262,8 @@ export default class Chat extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
 	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
-	public get needUserInteraction():boolean { return Config.instance.DEEZER_CONNECTED && !DeezerHelper.instance.userInteracted; }
 	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
+	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store("auth").isPremium; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -304,6 +300,8 @@ export default class Chat extends Vue {
 
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
+
+		this.mustDisableItems_precalc = this.$store("main").nonPremiumLimitExceeded;
 		
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
@@ -358,7 +356,7 @@ export default class Chat extends Vue {
 
 			//Make sure the column holding modals is visible
 			if(this.panelsColumnTarget && value) {
-				const col = this.panelsColumnTarget.parentNode as HTMLDivElement;
+				const col = this.panelsColumnTarget.parentElement as HTMLDivElement;
 				const scrollable = this.$refs.scrollable as HTMLDivElement;
 				const scrollTo = {x:col.offsetLeft - (scrollable.offsetWidth-col.offsetWidth), y:col.offsetTop - (scrollable.offsetHeight - col.offsetHeight)/2};
 				gsap.to(scrollable, {duration: .75, ease:"sine.inOut", scrollTo});
@@ -621,9 +619,11 @@ export default class Chat extends Vue {
 						message:"",
 						message_chunks:[],
 						message_html:"",
+						message_size:0,
 						user:me,
 						is_short:false,
 						answers:[],
+						children:[],
 					}
 					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
 				}
@@ -1130,31 +1130,4 @@ export default class Chat extends Vue {
 		}
 	}
 }
-</style>
-<style lang="less">
-	.deezerCTA {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		background: rgba(255, 0, 0, .25);
-		transform: translate(-50%, -50%);
-		z-index: 6;
-		pointer-events: none;
-		color: var(--color-primary);
-		text-align: center;
-		text-shadow: 0 1px 1px rgba(0, 0, 0, .5);
-
-		.icon {
-			height: 4em;
-		}
-
-		.title {
-			font-size: 3em;
-			font-weight: bold;
-			margin: .25em 0;
-		}
-		.message {
-			font-size: 1.5em;
-		}
-	}
 </style>

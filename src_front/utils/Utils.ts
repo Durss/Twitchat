@@ -60,9 +60,9 @@ export default class Utils {
 		let y = 0;
 		
 		while (element) {
-		  x += element.offsetLeft - element.scrollLeft;
-		  y += element.offsetTop - element.scrollTop;
-		  element = element.offsetParent as HTMLDivElement;
+			x += element.offsetLeft - element.scrollLeft;
+			y += element.offsetTop - element.scrollTop;
+			element = element.offsetParent as HTMLDivElement;
 		}
 		return {x, y};
 	}
@@ -200,6 +200,38 @@ export default class Utils {
 		return res;
 	}
 
+
+	/**
+	 * Returns the nomber of seconds, minutes, hours or days that past
+	 * since the given date
+	 */
+	public static elapsedDuration(date:number, step?:number) {
+		let elapsed = Date.now() - date;
+		let duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+		
+		//Round value to nearest update step to avoid having durations with random offsets
+		elapsed = Math.floor(elapsed/duration) * duration;
+		
+		let time = "";
+		if(elapsed < 60000) {
+			time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
+		}else
+		if(elapsed < 60 * 60000) {
+			const minutes = Math.floor(elapsed/60000);
+			time = Utils.toDigits(minutes) + ":";
+			time += Utils.toDigits( Math.round((elapsed - minutes*60000)/1000) );
+		}else
+		if(elapsed < 24 * 60 * 60000) {
+			const hours = Math.floor(elapsed/(60 * 60000));
+			time = hours + "h";
+			time += Utils.toDigits( Math.round((elapsed - hours*(60 * 60000))/60000) );
+		}else{
+			const days = Math.floor(elapsed/(24 * 60 * 60000));
+			time = days + StoreProxy.i18n.t("global.date_days");
+		}
+		return time;
+	}
+
 	/**
 	 * Converts an RGB color to HSL
 	 * @returns h:0-360 - s:0-1 - l:0-1
@@ -254,7 +286,7 @@ export default class Utils {
 	/**
 	 * Check if a user matches a permission criterias
 	 */
-	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:TwitchatDataTypes.TwitchatUser, channelId:string):Promise<boolean> {
+	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
 		
 		if(permissions.usersAllowed?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
@@ -743,6 +775,93 @@ export default class Utils {
 	}
 
 	/**
+	 * Test if given point coordinates is inside 
+	 * @param polygon 
+	 * @param px 
+	 * @param py 
+	 */
+	public static isPointInsidePolygon(point:{x:number, y:number}, polygon:{x:number,y:number}[]) {
+		let intersections = 0;
+		const n = polygon.length;
+		const px = point.x;
+		const py = point.y;
+
+		for (var i = 0; i < n; i++) {
+			var x1 = polygon[i].x;
+			var y1 = polygon[i].y;
+			var x2 = polygon[(i + 1) % n].x;
+			var y2 = polygon[(i + 1) % n].y;
+
+			if ((y1 <= py && py < y2) || (y2 <= py && py < y1)) {
+				if (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1) {
+					intersections++;
+				}
+			}
+		}
+
+		return intersections % 2 === 1;
+	}
+
+	/**
+	 * Rotates a point around another arbitrary point
+	 * @param point 
+	 * @param center 
+	 * @param angle_deg 
+	 */
+	public static rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number):{x:number, y:number} {
+		let angle_rad = angle_deg * Math.PI / 180;
+		const { x, y } = point;
+		const { x:cx, y:cy } = center;
+		
+		const cosTheta = Math.cos(angle_rad);
+		const sinTheta = Math.sin(angle_rad);
+		
+		// Calculate the new coordinates
+		const newX = cosTheta * (x - cx) - sinTheta * (y - cy) + cx;
+		const newY = sinTheta * (x - cx) + cosTheta * (y - cy) + cy;
+		
+		return { x: newX, y: newY };
+	}
+
+	/**
+	 * Computes SHA-256 hash of given input
+	 * @param input 
+	 */
+	public static async sha256(input:string):Promise<string> {
+		const encoder = new TextEncoder();
+		const data = encoder.encode(input);
+		const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+		const hashArray = Array.from(new Uint8Array(hashBuffer));
+		const hashHex = hashArray.map(byte => byte.toString(16).padStart(2, '0')).join('');
+		return hashHex;
+	}
+
+	/**
+	 * Converts a file input to a base64 image
+	 * @param input 
+	 */
+	public static async fileToBase64Img(input:File):Promise<string> {
+		return new Promise<string>((resolve, reject)=> {
+			var img = new Image();
+			img.onload = (event)=>{
+				//Scale down image to a 32x32px image
+				const size = 32;
+				const sourceCanvas	= document.createElement("canvas");
+				sourceCanvas.width	= size;
+				sourceCanvas.height	= size;
+				const sourceContext	= sourceCanvas.getContext('2d')!;
+				sourceContext.drawImage(img, 0, 0, size, size);
+				const base64Img = sourceCanvas.toDataURL();
+				resolve(base64Img);
+			};
+			img.onerror = ()=>{
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.badge_file_loading_failed"));
+			};
+			img.src = URL.createObjectURL(input);
+		})
+	}
+
+	/**
 	 * Compare 2 semantic version number like "1.23.456"
 	 * @param v1 
 	 * @param v2 
@@ -755,5 +874,68 @@ export default class Utils {
 		if (major1 !== major2) return major1 > major2;
 		if (minor1 !== minor2) return minor1 > minor2;
 		return patch1 > patch2;
+	}
+
+	/**
+	 * Get a readable user's color
+	 * @param user 
+	 */
+	public static getUserColor(user:TwitchatDataTypes.TwitchatUser):string {
+		let colorStr = user.color ?? "#ffffff";
+		let color = 0xffffff;
+		if(user.color) {
+			color = parseInt(user.color.replace("#", ""), 16);
+		}
+		if(!Utils.isLightMode) {
+			const hsl = Utils.rgb2hsl(color);
+			const minL = .65;
+			if(hsl.l < minL) {
+				color = Utils.hsl2rgb(hsl.h, hsl.s, minL);
+			}
+			colorStr = color.toString(16);
+		}else{
+			const hsl = Utils.rgb2hsl(color);
+			const maxL = .4;
+			const minS = 1;
+			if(hsl.l > maxL) {
+				color = Utils.hsl2rgb(hsl.h, Math.max(hsl.s, minS), Math.min(hsl.l, maxL));
+			}
+			colorStr = color.toString(16);
+		}
+		while(colorStr.length < 6) colorStr = "0"+colorStr;
+		colorStr = "#"+colorStr;
+		return colorStr;
+	}
+
+	/**
+	 * Starts a download session of a file
+	 * @param data 
+	 * @param filename 
+	 * @param mimeType 
+	 */
+	public static downloadFile(filename:string, data?:string, rawData?:string, mimeType:string = "application/json"):void {
+		let url = rawData || "";
+		if(data) {
+			const blob = new Blob([data], { type: mimeType });
+			url = window.URL.createObjectURL(blob);
+		}
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
+		link.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
+	 * Unselects anything currently selected on the DOM
+	 */
+	public static unselectDom():void {
+		const s = window.getSelection();
+		if (s && s.rangeCount > 0) {
+			for (let i = 0; i < s.rangeCount; i++) {
+				console.log(s.getRangeAt(i));
+				s.removeRange(s.getRangeAt(i));
+			}
+		}
 	}
 }

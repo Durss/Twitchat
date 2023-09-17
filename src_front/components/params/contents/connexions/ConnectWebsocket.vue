@@ -13,10 +13,10 @@
 					<Button type="reset" v-if="!connected" alert
 						@click="clearForm()"
 						:loading="connecting"
-						:disabled="!canConnect">{{ $t('connexions.triggerSocket.clearBt') }}</Button>
+						:disabled="!canConnect">{{ $t('global.clear') }}</Button>
 					<Button type="submit" v-if="!connected"
 						:loading="connecting"
-						:disabled="!canConnect">{{ $t('connexions.triggerSocket.connectBt') }}</Button>
+						:disabled="!canConnect">{{ $t('global.connect') }}</Button>
 				</div>
 			</form>
 	
@@ -24,7 +24,7 @@
 			
 			<div class="card-item alert" v-if="error" @click="error=false">{{$t("error.trigger_socket")}}</div>
 
-			<Button class="connectBt" v-if="connected" @click="disconnect()">{{ $t('connexions.triggerSocket.disconnectBt') }}</Button>
+			<Button class="connectBt" v-if="connected" @click="disconnect()">{{ $t('global.disconnect') }}</Button>
 		</div>
 
 	</ToggleBlock>

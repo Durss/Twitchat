@@ -1,6 +1,6 @@
 {
 	"automod": {
-		"header": "Modération automatisée",
+		"header": "Suppression de messages automatisée",
 		"ban_usernames": "Bannir les personnes dont le pseudo correspond à une règle",
 		"delete_confirm_title": "Supprimer la règle ?",
 		"delete_confirm_description": "Cela ne peut pas être annulé",

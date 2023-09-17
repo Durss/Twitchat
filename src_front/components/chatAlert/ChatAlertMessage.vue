@@ -2,7 +2,7 @@
 	<div class="chatalertmessage" @click="message = null" v-if="message" v-tooltip="$t('global.close')">
 		<div class="user">{{ $t("global.chat_alert_title", {USER:message.user.displayName}) }}</div>
 		<div class="message">
-			<ChatMessageChunksParser :chunks="chunks" />
+			<ChatMessageChunksParser :chunks="chunks" :channel="message.channel_id" :platform="message.platform" />
 		</div>
 	</div>
 </template>

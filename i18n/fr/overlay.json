@@ -48,7 +48,7 @@
 		},
 		"music_common": {
 			"music": "Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
-			"music_url": "Set this URL in an OBS browser source to display currently playing track:",
+			"music_url": "Affichez la musique en cours de lecture en ajoutant cette URL dans une source de navigateur",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
 			"no_scroll": "Désactiver le défilement",
 			"open_from_left": "Ouvrir depuis la gauche",
@@ -62,18 +62,14 @@
 			"custom_template": "Template (HTML accepté)",
 			"custom_template_placeholders": {
 				"title": "Titre",
-				"artist": "Artiste"
+				"artist": "Artiste",
+				"cover": "URL de l'image"
 			},
 			"infos": "Permettez à vos viewers d'ajouter des morceaux à la liste de lecture ou de contrôler la lecture via les {TRIGGERS}.",
 			"triggerBt": "triggers"
 		},
 		"spotify": {
 			"connectBt": "Connecter Spotify"
-		},
-		"deezer": {
-			"shit_api": "L'API Deezer étant catastrophique, les risques de malfonctions existent. Vous devrez de plus vous reconnecter à chaque lancement de Twitchat.",
-			"authBt": "Connexion",
-			"control": "Cliquez sur l'icone {ICON} en bas à droite de l'écran pour ajouter des morceaux, voir la liste de lecture, et controler la lecture."
 		},
 		"ulule": {
 			"title":"Ulule",

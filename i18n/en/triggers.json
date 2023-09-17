@@ -4,10 +4,12 @@
 		"header_select_trigger": "Select the trigger type to create amongst the {COUNT} available",
 		"header_select_reward": "Select the channel point reward",
 		"header_select_counter": "Select the counter",
+		"header_select_value": "Select the value",
 		"header_select_obs_scene": "Select the OBS scene",
 		"header_select_obs_source": "Select the OBS source",
 		"header_select_obs_input": "Select the OBS input to monitor",
 		"header_select_obs_filter": "Select the OBS filter to monitor",
+		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
 		"trigger_name":"Custom name",
 		"add_triggerBt": "Create a trigger",
 		"testBt": "Test trigger",
@@ -33,18 +35,25 @@
 		"missing_reward": "DELETED REWARD",
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
+		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
+		"logs":{
+			"cmd_info":"Tip: Use {CMD} command to get execution logs",
+			"title":"Trigger logs",
+			"subtitle":"Get details about your triggers execution",
+			"empty":"- no history -"
+		},
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
-			"require_url": "overlays section"
+			"require_url": "@:params.categories.connexions section"
 		},
 		"obs": {
 			"require": "This trigger need you to {URL}",
 			"require_url": "connect with OBS"
 		},
 		"count": {
-			"require": "This trigger need you to first {URL}",
-			"require_url": "create counters"
-
+			"require": "These triggers need you to first {URL_COUNTERS} or  {URL_VALUES}",
+			"require_counters": "create counters",
+			"require_values": "create values"
 		},
 		"rewards": {
 			"require": "This trigger needs to {URL}",
@@ -84,7 +93,8 @@
 				"not_ends_with":"Not ending with",
 				"AND":"AND",
 				"OR":"OR"
-			}
+			},
+			"custom_value": "Valeur personnalisée..."
 		},
 		"slash_cmd":{
 			"param_cmd": "Command",
@@ -126,11 +136,16 @@
 				"action_poll": "Start poll",
 				"action_prediction": "Start prediction",
 				"action_count": "Update a counter",
-				"action_countget": "Get a counter value",
+				"action_value": "Update a value",
 				"action_random": "Random value",
 				"action_stream_infos": "Set stream infos",
+				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value."
+				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
+				"action_goxlr": "Control GoXLR",
+				"action_goxlr_tt": "You need to connect your GoXLR",
+				"action_customBadges": "Custom user badges",
+				"action_customUsername": "Custom username"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -169,20 +184,55 @@
 				"media_source_example": ": if setting this as the path {PATH1}, users won't be able to send {PATH2}",
 				"param_action": "Action",
 				"param_show_filter": "Filter visibility",
-				"param_source": "OBS Source",
+				"param_source": "OBS Element",
+				"param_source_splitter_scenes": "═══════ Scenes ═══════",
+				"param_source_splitter_sources": "═══════ Sources ═══════",
+				"param_source_splitter_inputs": "═══════ Inputs ═══════",
 				"param_filter": "Source filter",
 				"param_filter_none": "- none -",
 				"param_text": "Text to write on source",
 				"param_url": "Browser URL",
 				"param_media": "Media file (optionel)",
 				"param_media_img": "Image file",
+				"param_mediaEvent": "Wait for media to end playing (trigger's execution will be paused until media playing completes)",
+				"param_x": "Position X (pixels)",
+				"param_y": "Position Y (pixels)",
+				"param_width": "Width (pixels)",
+				"param_height": "Height (pixels)",
+				"param_angle": "Rotation angle (0 -> 360)",
+				"param_relative_transform_move": "Relative move (add to current position)",
+				"param_relative_transform_resize": "Relative resize (add to current sizes)",
+				"param_relative_transform_rotate": "Relative rotation (add to current rotation)",
+				"param_relative_transform": "Relative values (values above will be added to the current values, otherwise current values will be replaced by the specified ones)",
+				"param_transform_animate": "Animate change",
+				"param_transform_animate_easing": "Animation type",
+				"param_transform_animate_easing_list": {
+					"linear.None": "Linear",
+					"sine.out": "Slowdown",
+					"sine.in": "Accelerate",
+					"sine.inOut": "Accelerate & Slowdown",
+					"back.out": "Back (out)",
+					"back.in": "Back (in)",
+					"back.inOut": "Back (in out)",
+					"bounce.out": "Bounce (out)",
+					"bounce.in": "Bounce (in)",
+					"bounce.inOut": "Bounce (in out)",
+					"elastic.out": "Elastic (out)",
+					"elastic.in": "Elastic (in)",
+					"elastic.inOut": "Elastic (in out)"
+				},
+				"param_transform_animate_duration": "Animation duration ({VALUE} milliseconds)",
 				"param_action_show": "Enable source",
 				"param_action_hide": "Disable source",
 				"param_action_show_filter": "Enable filter",
 				"param_action_hide_filter": "Disable filter",
+				"param_action_scene_switch": "Switch to scene",
 				"param_action_mute": "Mute source",
 				"param_action_unmute": "Unmute source",
-				"param_action_replay": "Restart playback"
+				"param_action_replay": "Restart playback",
+				"param_action_move": "Move source",
+				"param_action_rotate": "Rotate source",
+				"param_action_resize": "Resize source"
 			},
 			"trigger": {
 				"beta": "This is a beta feature!{BR} If you experience any unexpected behavior with it please {LINK}",
@@ -211,9 +261,13 @@
 			"voicemod": {
 				"header": "This feature needs you to {LINK}",
 				"header_link": "connect with Voicemod",
-				"param_voice": "Voice",
-				"tab_voice":"Specific voice",
-				"tab_random":"Random voice"
+				"param_voice": "Voice effect",
+				"param_sound": "Sound to play",
+				"param_action": "Action",
+				"param_action_voice": "Enable a filter",
+				"param_action_sound": "Play a sound",
+				"param_action_beepOn": "Start beep",
+				"param_action_beepOff": "Stop beep"
 			},
 			"http_ws": {
 				"url": "URL to call",
@@ -241,6 +295,11 @@
 				"user_source_everyone":"All users",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
+			"value": {
+				"value_label":"Value",
+				"select_label":"Values to update",
+				"select_placeholder":"Select a value..."
+			},
 			"random":{
 				"min_label":"Min value (included)",
 				"max_label":"Max value (included)",
@@ -263,6 +322,51 @@
 			"vibrate":{
 				"info":"This action only works when using Twitchat on a mobile device.",
 				"pattern":"Vibration pattern"
+			},
+			"heat":{
+				"select_area":"Select one or multiple areas to be clicked to execute this trigger",
+				"no_area":"You created no clickable area",
+				"create_areaBt":"Create clickable areas"
+			},
+			"goxlr": {
+				"select_button":"Select which buttons should execute that trigger in the interface bellow",
+				"param_action":"Action type",
+				"param_fxPreset":"FX preset to enable",
+				"param_fxPreset_keep": "Keep current",
+				"param_fxPreset1": "Preset 1",
+				"param_fxPreset2": "Preset 2",
+				"param_fxPreset3": "Preset 3",
+				"param_fxPreset4": "Preset 4",
+				"param_fxPreset5": "Preset 5",
+				"param_fxPreset6": "Preset 6",
+				"param_faderIndex": "Fader to update",
+				"param_fader_mic":"Mic",
+				"param_fader_chat":"Voice chat",
+				"param_fader_music":"Music",
+				"param_fader_game":"Game",
+				"param_fader_console":"Console",
+				"param_fader_linein":"Line In",
+				"param_fader_system":"System",
+				"param_fader_sample":"Sample",
+				"param_faderValue": "Fader value (0 <-> 253)",
+				"param_profile":"Profile",
+				"action_fx_on": "Enable FX",
+				"action_fx_off": "Disable FX",
+				"action_sample_play": "Play sample",
+				"action_set_fader": "Set fader value",
+				"action_profile": "Switch profile",
+				"select_sampler": "Select the sampler button to play bellow"
+			},
+			"customBadge": {
+				"param_user": "Select user to edit tags of",
+				"no_badge": "drag & drop badge here",
+				"badge_to_add": "Badges to add",
+				"badge_to_del": "Badges to remove",
+				"param_add_badgeBt": "Create badge"
+			},
+			"customUsername": {
+				"param_user": "Select user to edit username of",
+				"param_username": "New username (leave empty to reset)"
 			}
 		},
 		"categories": {
@@ -277,7 +381,8 @@
 			"timer": "Temporal events",
 			"obs": "OBS",
 			"misc": "Miscellaneous",
-			"count": "Counters"
+			"count_and_values": "Counters & Values",
+			"goxlr": "GoXLR"
 		},
 		"placeholders": {
 			"trigger_name":"Current trigger name",
@@ -296,7 +401,8 @@
 			"prediction_users":"Total users that participated",
 			"prediction_users_win":"Users that voted for winning outcome",
 			"winner": "Winner name",
-			"sub_tier": "Sub tier 1, 2 or 3",
+			"sub_tier": "Sub tier: prime, 1, 2 or 3",
+			"subgift_tier": "Sub tier: 1, 2 or 3",
 			"sub_message": "Message of the user",
 			"sub_months_total": "Total months subscribed",
 			"sub_months_prepaid": "Prepaid months",
@@ -306,6 +412,8 @@
 			"sub_gift_recipient_id": "Recipients user IDs",
 			"sub_gift_count": "Subgifts count",
 			"bits": "Number of bits",
+			"my_stream_title": "My stream title",
+			"my_stream_category": "My stream category",
 			"stream_title": "Stream title",
 			"stream_category": "Stream category",
 			"stream_viewers": "Viewers count",
@@ -334,7 +442,7 @@
 			"timeout": "Timeout duration in seconds",
 			"start_date": "Formated start date",
 			"timer_duration": "Formated timer's final duration",
-			"countdown_duration": "Formated countdown's duration",
+			"timer_duration_ms": "Timer's final duration in milliseconds",
 			"countdown_end_date": "Formated end date",
 			"challenge_title": "Challenge title",
 			"challenge_description": "Challenge description",
@@ -351,6 +459,10 @@
 			"counter_username": "User name (for user specific counters)",
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "{NAME} counter value",
+			"value_global_value": "Value {NAME}",
+			"value_name":"Name of the Value",
+			"new_value":"New value",
+			"old_value":"Old value",
 			"watch_streak": "Watch streak count",
 			"obs_scene": "Current OBS scene name",
 			"viewer_count": "Viewers watching your stream",
@@ -363,7 +475,48 @@
 			"hype_chat_level": "Paid level (from 0 to 9)",
 			"ulule_campaign_url": "Campaign URL",
 			"ulule_campaign_name": "Campaign name",
-			"ulule_campaign_name_example": "My awesome project"
+			"ulule_campaign_name_example": "My awesome project",
+			"heat_anonymous": "Is click from an anonymous user ?",
+			"heat_coord_x": "X coordinate of the click in percent (0 <-> 100)",
+			"heat_coord_y": "Y coordinate of the click in percent (0 <-> 100)",
+			"heat_key_alt": "Is ALT key pressed ?",
+			"heat_key_shift": "Is SHIFT key pressed ?",
+			"heat_key_ctrl": "Is CTRL key pressed ?",
+			"clip_url": "Clip URL",
+			"timer_value":"Timer's value in seconds",
+			"timer_value_formated":"Formated timer's value",
+			"countdown_value":"Countdown's remaining time in seconds",
+			"countdown_value_formated":"Formated countdown's remaining time",
+			"countdown_duration":"Countdown's duration in seconds",
+			"countdown_duration_ms":"Countdown's duration in milliseconds",
+			"countdown_duration_formated": "Formated countdown's duration",
+			"goxlr_button_id":"Id of the button",
+			"goxlr_fader_index":"Fader index (1 -> 4)",
+			"goxlr_preset_index":"Preset index (1 -> 6)",
+			"goxlr_fxenabled":"FX enabled",
+			"goxlr_cough":"Cough button active",
+			"goxlr_profile":"Current GoXLR profile",
+			"goxlr_input_mic":"Mic input volume",
+			"goxlr_input_chat":"Chat input volume",
+			"goxlr_input_music":"Music input volume",
+			"goxlr_input_game":"Game input volume",
+			"goxlr_input_console":"Console input volume",
+			"goxlr_input_linein":"Line In input volume",
+			"goxlr_input_system":"System input volume",
+			"goxlr_input_sample":"Sample input volume",
+			"goxlr_fx_state":"FX enabled state",
+			"goxlr_fx_preset":"Current FX preset index (1 -> 6)",
+			"goxlr_megaphone":"Megaphone active",
+			"goxlr_robot":"Robot active",
+			"goxlr_hardtune":"Hardtune active",
+			"goxlr_reverb":"Reverb encoder value",
+			"goxlr_pitch":"Pitch encoder value",
+			"goxlr_echo":"Echo encoder value",
+			"goxlr_gender":"Gender encoder value",
+			"goxlr_fader_1_mute":"Fader 1 muted",
+			"goxlr_fader_2_mute":"Fader 2 muted",
+			"goxlr_fader_3_mute":"Fader 3 muted",
+			"goxlr_fader_4_mute":"Fader 4 muted"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -711,6 +864,48 @@
 			"HYPE_CHAT": {
 				"label": "Hype chat",
 				"description": "Actions to execute when a user pays for a hype chat message"
+			},
+			"HEAT_CLICK": {
+				"label": "Heat click",
+				"description": "Actions to execute when a user clicks on your stream {INFO}",
+				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
+			},
+			"CLIP_CREATED": {
+				"label": "Clip created",
+				"description": "Actions to execute when a clip is created from Twitchat {INFO}",
+				"description_info": "(only called after using /clip command from Twitchat)"
+			},
+			"GOXLR_FX_ENABLED": {
+				"label": "FX enabled",
+				"description": "Actions to execute when GoXLR effect is enabled"
+			},
+			"GOXLR_FX_DISABLED": {
+				"label": "FX disabled",
+				"description": "Actions to execute when GoXLR effect is disabled"
+			},
+			"GOXLR_BUTTON_PRESSED": {
+				"label": "Button pressed",
+				"description": "Actions to execute when a GoXLR button is pressed"
+			},
+			"GOXLR_BUTTON_RELEASED": {
+				"label": "Button released",
+				"description": "Actions to execute when a GoXLR button is released"
+			},
+			"GOXLR_SAMPLE_COMPLETE": {
+				"label": "Sample playback complete",
+				"description": "Actions to execute when a GoXLR sample playback complete"
+			},
+			"GOXLR_INPUT_MUTE": {
+				"label": "Fader muted",
+				"description": "Actions to execute when a GoXLR fader is muted"
+			},
+			"GOXLR_INPUT_UNMUTE": {
+				"label": "Fader unmuted",
+				"description": "Actions to execute when a GoXLR fader is unmuted"
+			},
+			"VALUE_UPDATE": {
+				"label": "Value updated",
+				"description": "Actions to execute when the value {SUB_ITEM_NAME} is updated"
 			}
 		},
 		"musicEvents": {

@@ -16,7 +16,7 @@ import Ajv from "ajv";
 				vips: {type:"boolean"},
 				subs: {type:"boolean"},
 				follower: {type:"boolean"},
-				follower_duration_ms: {type:"number", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
+				follower_duration_ms: {type:"integer", minimum:0, maximum:100 * 365 * 24 * 60 * 60 * 1000},
 				all: {type:"boolean"},
 				usersAllowed: {
 					type:"array",
@@ -41,10 +41,15 @@ import Ajv from "ajv";
 				type: {type:"string", maxLength:15},
 				operator: {type:"string", maxLength:15},
 				conditions:{
-					anyOf: [
-						{ $ref: "#/definitions/condition" },
-						{ $ref: "#/definitions/conditionGroup" },
-					]
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items: {
+						anyOf: [
+								{ $ref: "#/definitions/condition" },
+								{ $ref: "#/definitions/conditionGroup" },
+							]
+						}
 				}
 			}
 		},
@@ -56,9 +61,25 @@ import Ajv from "ajv";
 				type: {type:"string", maxLength:15},
 				placeholder: {type:"string", maxLength:100},
 				operator: {type:"string", maxLength:20},
-				value: {type:"string", maxLength:500},
+				value: {
+					anyOf:[
+						{type:"string", maxLength:500},
+						{type:"boolean"},
+						{type:"number"},
+					]
+				},
 			}
-		}
+		},
+		botMessage: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				enabled: {type:"boolean"},
+				allowAnon: {type:"boolean"},
+				message: {type:"string", maxLength:500},
+				cooldown: {type:"integer", minimum:0, maximum:3600},
+			}
+		},
 	},
 
 	type:"object",
@@ -98,7 +119,7 @@ import Ajv from "ajv";
 		triggers: {
 			type:"array",
 			minItems:0,
-			maxItems:10000,
+			maxItems:1000,
 			items: {
 				type: "object",
 				additionalProperties: false,
@@ -115,10 +136,27 @@ import Ajv from "ajv";
 					obsScene:{type:"string", maxLength:200},
 					obsInput:{type:"string", maxLength:200},
 					obsFilter:{type:"string", maxLength:200},
+					created_at: {type:"integer", minimum:0, maximum:32503672800000},
+					goxlrButtons:{
+						type:"array",
+						minItems:0,
+						maxItems:24,
+						items: {type:"string", maxLength:20},
+					},
 					counterId: {type:"string", maxLength:50},
-					queue: {type:"string", maxLength:100},
+					valueId: {type:"string", maxLength:50},
+					queue: {type:"string", maxLength:100, nullable:true},
 					conditions: { $ref: "#/definitions/conditionGroup" },
 					permissions: { $ref: "defs.json#/definitions/permissions" },
+					heatAllowAnon: {type:"boolean"},
+					heatObsSource: {type:"string", maxLength:100},
+					heatClickSource: {type:"string", maxLength:10},
+					heatAreaIds:{
+										type:"array",
+										minItems:0,
+										maxItems:100,
+										items:{type:"string", maxLength:40},
+									},
 					chatCommandAliases:{
 										type:"array",
 										minItems:0,
@@ -142,8 +180,8 @@ import Ajv from "ajv";
 						type:"object",
 						properties: {
 							type: {type:"string", maxLength:10},
-							repeatDuration: {type:"number", minimum:0, maximum:48*60},
-							repeatMinMessages: {type:"number", minimum:0, maximum:9999},
+							repeatDuration: {type:"integer", minimum:0, maximum:48*60},
+							repeatMinMessages: {type:"integer", minimum:0, maximum:9999},
 							dates:{
 								type:"array",
 								minItems:0,
@@ -164,8 +202,8 @@ import Ajv from "ajv";
 					cooldown: {
 						type:"object",
 						properties: {
-							global: {type:"number", minimum:0, maximum:60*60*12},
-							user: {type:"number", minimum:0, maximum:60*60*12},
+							global: {type:"integer", minimum:0, maximum:60*60*12},
+							user: {type:"integer", minimum:0, maximum:60*60*12},
 							alert: {type:"boolean"},
 						}
 					},
@@ -188,42 +226,63 @@ import Ajv from "ajv";
 								},
 								action: {type:"string", maxLength:20},
 								triggerId: {type:"string", maxLength:50},
-								delay: {type:"number"},
+								delay: {type:"number", minimum:0 , maximum:99999},
 								filterName: {type:"string", maxLength:100},
-								text: {type:"string", maxLength:500},
+								text: {type:"string", maxLength:1000},
 								url: {type:"string", maxLength:1000},
 								mediaPath: {type:"string", maxLength:1000},
-								type: {type:"string", maxLength:50},
+								waitMediaEnd: {type:"boolean"},
+								pos_x: {type:"string", maxLength:500},
+								pos_y: {type:"string", maxLength:500},
+								width: {type:"string", maxLength:500},
+								height: {type:"string", maxLength:500},
+								angle: {type:"string", maxLength:500},
+								animate: {type:"boolean"},
+								animateEasing: {type:"string", maxLength:30},
+								animateDuration: {type:"number", minimum:0, maximum:3600000},
+								relativeTransform: {type:"boolean"},
+								type: {type:"string", maxLength:50, nullable: true},
 								musicAction: {type:"string", maxLength:3},
 								track: {type:"string", maxLength:500},
 								confirmMessage: {type:"string", maxLength:500},
 								playlist: {type:"string", maxLength:500},
 								voiceID: {type:"string", maxLength:100},
+								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},
 								method: {type:"string", maxLength:10},
 								addValue: {type:"string", maxLength:100},
 								counter: {type:"string", maxLength:40},
+								faderId: {type:"string", maxLength:20},
+								faderValue: {type:"string", maxLength:100},
+								profile: {type:"string", maxLength:100},
 								counterUserSources: {
 									type:"object",
 									additionalProperties: false,
 									patternProperties: {
-									  ".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
 									},
 								},
 								placeholder:{type:"string", maxLength:20},
 								outputPlaceholder:{type:"string", maxLength:20},
-								min: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								max: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								min: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								max: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},
 								disableAfterExec: {type:"boolean"},
 								mode: {type:"string", maxLength:20},
-								title: {type:"string", maxLength:20},
+								title: {type:"string", maxLength:140},
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
 								pattern: {type:"string", maxLength:15},
 								branded:{type:"boolean"},
+								fxPresetIndex:{type:"integer", minimum:-1, maximum:5},
+								sampleIndex:{
+									type:"array",
+									minItems:0,
+									maxItems:2,
+									items:{type:"string", maxLength:20},
+								},
 								labels:{
 									type:"array",
 									minItems:0,
@@ -241,7 +300,7 @@ import Ajv from "ajv";
 									type:"array",
 									minItems:0,
 									maxItems:20,
-									items:{type:"string", maxLength:10},
+									items:{type:"string", maxLength:25},
 								},
 								list: {
 									type:"array",
@@ -254,6 +313,13 @@ import Ajv from "ajv";
 									minItems:0,
 									maxItems:1000,
 									items:{type:"string", maxLength:100},
+								},
+								newValue: {type:"string", maxLength:1000000},
+								values: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:40},
 								},
 								counters: {
 									type:"array",
@@ -273,6 +339,21 @@ import Ajv from "ajv";
 									maxItems:100,
 									items:{type:"string", maxLength:50},
 								},
+								customUsername:{type:"string", maxLength:50},
+								customUsernameUserSource:{type:"string", maxLength:50},
+								customBadgeUserSource:{type:"string", maxLength:50},
+								customBadgeAdd: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
+								customBadgeDel: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{type:"string", maxLength:50},
+								},
 								raffleData: {
 									type: "object",
 									additionalProperties: false,
@@ -281,9 +362,9 @@ import Ajv from "ajv";
 										command: {type:"string", maxLength:100},
 										reward_id: {type:"string", maxLength:200},
 										multipleJoin: {type:"boolean"},
-										duration_s: {type:"number", minimum:0, maximum:120 * 60000},
-										maxEntries: {type:"number", minimum:0, maximum:1000000},
-										created_at: {type:"number", minimum:0, maximum:9999999999999},
+										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
+										maxEntries: {type:"integer", minimum:0, maximum:1000000},
+										created_at: {type:"integer", minimum:0, maximum:9999999999999},
 										entries: {
 											type:"array",
 											minItems:0,
@@ -294,16 +375,16 @@ import Ajv from "ajv";
 												properties: {
 													id:{type:"string", maxLength:100},
 													label:{type:"string", maxLength:200},
-													score:{type:"number", minimum:0, maximum:100},
+													score:{type:"integer", minimum:0, maximum:100},
 												}
 											}
 										},
-										followRatio: {type:"number", minimum:0, maximum:100},
-										vipRatio: {type:"number", minimum:0, maximum:100},
-										subRatio: {type:"number", minimum:0, maximum:100},
-										subT2Ratio: {type:"number", minimum:0, maximum:100},
-										subT3Ratio: {type:"number", minimum:0, maximum:100},
-										subgiftRatio: {type:"number", minimum:0, maximum:100},
+										followRatio: {type:"integer", minimum:0, maximum:100},
+										vipRatio: {type:"integer", minimum:0, maximum:100},
+										subRatio: {type:"integer", minimum:0, maximum:100},
+										subT2Ratio: {type:"integer", minimum:0, maximum:100},
+										subT3Ratio: {type:"integer", minimum:0, maximum:100},
+										subgiftRatio: {type:"integer", minimum:0, maximum:100},
 										subMode_includeGifters: {type:"boolean"},
 										subMode_excludeGifted: {type:"boolean"},
 										showCountdownOverlay: {type:"boolean"},
@@ -317,8 +398,8 @@ import Ajv from "ajv";
 										guessNumber: {type:"boolean"},
 										guessEmote: {type:"boolean"},
 										guessCustom: {type:"boolean"},
-										min: {type:"number", minimum:0, maximum:999999999},
-										max: {type:"number", minimum:0, maximum:999999999},
+										min: {type:"integer", minimum:0, maximum:999999999},
+										max: {type:"integer", minimum:0, maximum:999999999},
 										customValue: {type:"string", maxLength:1000000},
 									}
 								},
@@ -326,8 +407,8 @@ import Ajv from "ajv";
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										pointsPerVote: {type:"number", minimum:0, maximum:999999999},
-										voteDuration: {type:"number", minimum:0, maximum:999999999},
+										pointsPerVote: {type:"integer", minimum:0, maximum:999999999},
+										voteDuration: {type:"integer", minimum:0, maximum:999999999},
 										title: {type:"string", maxLength:60},
 										answers: {
 											type:"array",
@@ -341,7 +422,7 @@ import Ajv from "ajv";
 									type: "object",
 									additionalProperties: false,
 									properties: {
-										voteDuration: {type:"number", minimum:0, maximum:999999999},
+										voteDuration: {type:"integer", minimum:0, maximum:999999999},
 										title: {type:"string", maxLength:60},
 										answers: {
 											type:"array",
@@ -356,10 +437,10 @@ import Ajv from "ajv";
 									additionalProperties: false,
 									properties: {
 										command: {type:"string", maxLength:30},
-										maxLength: {type:"number", minimum:0, maximum:500},
-										duration: {type:"number", minimum:0, maximum:1440},
+										maxLength: {type:"integer", minimum:0, maximum:500},
+										duration: {type:"integer", minimum:0, maximum:1440},
 										allowMultipleAnswers: {type:"boolean"},
-										startTime: {type:"number", maximum:999999999999999},
+										startTime: {type:"integer", maximum:999999999999999},
 										choices: {
 											type:"array",
 											minItems:0,
@@ -384,70 +465,16 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
-				raffleStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				raffleJoin: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				raffle: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				bingoStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				bingo: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				shoutout: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				twitchatAd: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
-				chatSuggStart: {
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						enabled: {type:"boolean"},
-						message: {type:"string", maxLength:500},
-					}
-				},
+				raffleStart: { $ref: "#/definitions/botMessage" },
+				raffleJoin: { $ref: "#/definitions/botMessage" },
+				raffle: { $ref: "#/definitions/botMessage" },
+				bingoStart: { $ref: "#/definitions/botMessage" },
+				bingo: { $ref: "#/definitions/botMessage" },
+				shoutout: { $ref: "#/definitions/botMessage" },
+				twitchatAd: { $ref: "#/definitions/botMessage" },
+				chatSuggStart: { $ref: "#/definitions/botMessage" },
+				heatSpotify: { $ref: "#/definitions/botMessage" },
+				heatUlule: { $ref: "#/definitions/botMessage" },
 			}
 		},
 		voiceActions: {
@@ -473,7 +500,7 @@ import Ajv from "ajv";
 				additionalProperties: false,
 				properties:{
 					name:{type:"string", maxLength:50},
-					id:{type:"string", maxLength:10},
+					id:{type:"string", maxLength:40},
 					title:{type:"string", maxLength:200},
 					categoryID:{type:"string", maxLength:10},
 					branded:{type:"boolean"},
@@ -503,7 +530,7 @@ import Ajv from "ajv";
 		"p:ffzEmotes": {type:"boolean"},
 		"p:sevenTVEmotes": {type:"boolean"},
 		"p:conversationsEnabled": {type:"boolean"},
-		"p:defaultSize": {type:"integer", minimum:0, maximum:5},
+		"p:defaultSize": {type:"integer", minimum:0, maximum:21},
 		"p:displayTime": {type:"boolean"},
 		"p:displayTimeRelative": {type:"boolean"},
 		"p:dyslexicFont": {type:"boolean"},
@@ -528,10 +555,10 @@ import Ajv from "ajv";
 		"p:highlight1stEver_color": {type:"string", maxLength:7, minLength:7},
 		"p:raidHighlightUser": {type:"boolean"},
 		"p:raidHighlightUserTrack": {type:"boolean"},
-		"p:raidHighlightUserDuration": {type:"number"},
+		"p:raidHighlightUserDuration": {type:"integer"},
 		"p:raidHighlightUser_color": {type:"string", maxLength:7, minLength:7},
 		"p:raffleHighlightUser": {type:"boolean"},
-		"p:raffleHighlightUserDuration": {type:"number"},
+		"p:raffleHighlightUserDuration": {type:"integer"},
 		"p:lockAutoScroll": {type:"boolean"},
 		"p:liveMessages": {type:"boolean"},
 		"p:liveAlerts": {type:"boolean"},
@@ -546,6 +573,7 @@ import Ajv from "ajv";
 		"p:showViewersCount": {type:"boolean"},
 		"p:alternateMessageBackground": {type:"boolean"},
 		"p:showRaidViewersCount": {type:"boolean"},
+		"p:showRaidStreamInfo": {type:"boolean"},
 		"p:offlineEmoteOnly": {type:"boolean"},
 		"p:stopStreamOnRaid": {type:"boolean"},
 		"p:userHistoryEnabled": {type:"boolean"},
@@ -553,73 +581,21 @@ import Ajv from "ajv";
 		"p:spoilersEnabled": {type:"boolean"},
 		"p:alertMode": {type:"boolean"},
 		"p:chatShoutout": {type:"boolean"},
-		"p:hideUsers": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:censorDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSelf": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:blockedCommands": {type:"string"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:ignoreListCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:ignoreCommands": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSlashMe": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showBots": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:keepDeletedMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:firstTimeMessage": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:keepHighlightMyMessages": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:historySize": {type:"integer", minimum:50, maximum:500},//Keep it a little, remove it once most of the users have migrated their data
-		"p:notifyJoinLeave": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:raidStreamInfo": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:receiveWhispers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showWhispersOnChat": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showCheers": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showFollow": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showHypeTrain": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showNotifications": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRaids": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRewards": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showRewardsInfos": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:showSubs": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:splitView": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:splitViewSwitch": {type:"boolean"},//Keep it a little, remove it once most of the users have migrated their data
-		"p:emergencyButton": {type:"boolean"},//Keep it a little to avoid loosing data, remove it later
-		leftColSize: {type:"number"},//Keep it a little to avoid loosing data, remove it later
-		activityFeedFilters: {//Keep it a little to avoid loosing data, remove it later
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				sub:{
-					type:"boolean",
-				},
-				follow:{
-					type:"boolean",
-				},
-				bits:{
-					type:"boolean",
-				},
-				raid:{
-					type:"boolean",
-				},
-				rewards:{
-					type:"boolean",
-				},
-				poll:{
-					type:"boolean",
-				},
-				prediction:{
-					type:"boolean",
-				},
-				bingo:{
-					type:"boolean",
-				},
-				raffle:{
-					type:"boolean",
-				}
-			}
-		},
+		"p:showRewardsInfos": {type:"boolean"},
+		"p:censorDeletedMessages": {type:"boolean"},
+		"p:saveHistory": {type:"boolean"},
+		"p:highlightusernames": {type:"boolean"},
+		"p:recentAccountUserBadge": {type:"boolean"},
+		"p:mergeConsecutive": {type:"boolean"},
+		"p:mergeConsecutive_maxSize": {type:"integer", minimum:1, maximum:500},
+		"p:mergeConsecutive_maxSizeTotal": {type:"integer", minimum:10, maximum:2000},
+		"p:mergeConsecutive_minDuration": {type:"integer", minimum:0, maximum:3600},
 		v: {type:"integer"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
 		theme: {type:"string", maxLength:10},
 		obsIP: {type:"string", maxLength:20},
-		obsPort: {type:"integer"},
+		obsPort: {type:"integer", minimum:0, maximum:65535},
 		updateIndex: {type:"integer"},
 		raffle_message: {type:"string", maxLength:500},
 		raffle_messageEnabled: {type:"boolean"},
@@ -629,18 +605,76 @@ import Ajv from "ajv";
 		greetAutoDeleteAfter: {type:"integer", minimum:-1, maximum:3600},
 		devmode: {type:"boolean"},
 		greetHeight: {type:"number"},
-		adNextTS: {type:"number"},
+		adNextTS: {type:"integer"},
 		adWarned: {type:"boolean"},
 		sponsorPublicPrompt: {type:"boolean"},
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
-		donorLevel: {type:"number", minimum:-1, maximum:10},
-		rightClickHintPrompt: {type:"boolean"},
+		donorLevel: {type:"integer", minimum:-1, maximum:10},
+		rightClickHintPrompt: {
+			anyOf:[
+				{type:"string", maxLength:5},
+				{type:"boolean"},
+			]
+		},
 		triggerSortType: {type:"string", maxLength:20},
 		ululeProject: {type:"string", maxLength:200},
 		ululeGoals: {type:"string", maxLength:200},
 		ululeTitle: {type:"string", maxLength:100},
 		ululeCurrency: {type:"string", maxLength:2},
+		heatEnabled: {type:"boolean"},
+		customUsernames: {
+			type:"object",
+			additionalProperties: false,
+			maxProperties:10000,
+			patternProperties: {
+				".{1,20}": {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						name:{type: "string", maxLength:25},
+						channel: {type:"string", maxLength:50},
+						platform: {type:"string", maxLength:15},
+					}
+				}
+			},
+		},
+		customBadgeList: {
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id:{type: "string", maxLength:40},
+					img:{type: "string", maxLength:6000},
+					name:{type: "string", maxLength:50},
+					enabled:{type:"boolean"},
+				}
+			}
+		},
+		customUserBadges: {
+			type:"object",
+			additionalProperties: false,
+			maxProperties:10000,
+			patternProperties: {
+				".{1,10}": {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							channel: {type:"string", maxLength:50},
+							platform: {type:"string", maxLength:15},
+						},
+					},
+				},
+			},
+		},
 		ttsParams: {
 			type:"object",
 			additionalProperties: false,
@@ -670,7 +704,7 @@ import Ajv from "ajv";
 				readSubgifts: {type:"boolean"},
 				readSubgiftsPattern:{type:"string", maxLength:300},
 				readBits: {type:"boolean"},
-				readBitsMinAmount: {type:"number", minimum:0, maximum:1000000},
+				readBitsMinAmount: {type:"integer", minimum:0, maximum:1000000},
 				readBitsPattern:{type:"string", maxLength:300},
 				readRaids: {type:"boolean"},
 				readRaidsPattern:{type:"string", maxLength:300},
@@ -717,8 +751,8 @@ import Ajv from "ajv";
 				subOnly:{type:"boolean"},
 				followOnly:{type:"boolean"},
 				noTriggers:{type:"boolean"},
-				followOnlyDuration:{type:"number"},
-				slowModeDuration:{type:"number"},
+				followOnlyDuration:{type:"integer"},
+				slowModeDuration:{type:"integer"},
 				toUsers:{
 					type:"array",
 					minItems:0,
@@ -738,14 +772,19 @@ import Ajv from "ajv";
 			}
 		},
 		emergencyFollowers: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				uid:{type:"string", maxLength:50},
-				login:{type:"string", maxLength:50},
-				date:{type:"number"},
-				blocked:{type:"boolean"},
-				unblocked:{type:"boolean"},
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items: {
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					uid:{type:"string", maxLength:50},
+					channelId:{type:"string", maxLength:50},
+					login:{type:"string", maxLength:50},
+					date:{type:"integer"},
+					platform:{type:"string", maxLength:15},
+				}
 			}
 		},
 		spoilerParams: {
@@ -753,6 +792,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				permissions:{ $ref: "defs.json#/definitions/permissions" },
+				autoSpoilNewUsers:{type:"boolean"},
 			}
 		},
 		chatHighlightParams: {
@@ -818,14 +858,21 @@ import Ajv from "ajv";
 				banUserNames: {type:"boolean"},
 				exludedUsers: { $ref: "defs.json#/definitions/permissions" },
 				keywordsFilters:{
-					type:"object",
-					additionalProperties: false,
-					properties: {
-						id: {type:"string", maxLength:36},
-						label: {type:"string", maxLength:100},
-						regex: {type:"string", maxLength:5000},
-						enabled: {type:"boolean"},
-						serverSync: {type:"boolean"},
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items: {
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:36},
+							label: {type:"string", maxLength:100},
+							regex: {type:"string", maxLength:5000},
+							enabled: {type:"boolean"},
+							serverSync: {type:"boolean"},
+							emergency: {type:"boolean"},
+							firstTimeChatters: {type:"boolean"},
+						}
 					}
 				},
 			}
@@ -852,8 +899,8 @@ import Ajv from "ajv";
 						maxItems:10000,
 						items:{type:"string", maxLength:40},
 					},
-					liveLockCount: {type:"number", minimum:0, maximum:10},
-					order: {type:"number", minimum:0, maximum:1000},
+					liveLockCount: {type:"integer", minimum:0, maximum:10},
+					order: {type:"integer", minimum:0, maximum:1000},
 					size: {type:"number", minimum:0, maximum:10},
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
@@ -875,6 +922,23 @@ import Ajv from "ajv";
 			}
 		},
 
+		values: {
+			type:"array",
+			minItems:0,
+			maxItems:10000,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties:{
+					id: {type:"string", maxLength:40},
+					name: {type:"string", maxLength:50},
+					placeholderKey: {type:"string", maxLength:50},
+					value: {type:"string", maxLength:1000000},
+					enabled:{type:"boolean"},
+				}
+			}
+		},
+
 		counters: {
 			type:"array",
 			minItems:0,
@@ -885,17 +949,18 @@ import Ajv from "ajv";
 				properties:{
 					id: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:50},
-					placeholderKey: {type:"string", maxLength:15},
-					value: {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+					placeholderKey: {type:"string", maxLength:50},
+					enabled:{type:"boolean"},
+					value: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[
-							{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
 					max: {
 						anyOf:[
-							{type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
@@ -905,7 +970,7 @@ import Ajv from "ajv";
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"number", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						}
 					}
 				}
@@ -922,12 +987,90 @@ import Ajv from "ajv";
 			}
 		},
 
-		tooltipAutoOpen: {
+		heatScreens: {
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					enabled: {type:"boolean"},
+					activeOBSScene: {type:"string", maxLength:100},
+					areas: {
+						type:"array",
+						minItems:0,
+						maxItems:100,
+						items:{
+							type:"object",
+							additionalProperties: false,
+							properties: {
+								id: {type:"string", maxLength:40},
+								points: {
+									type:"array",
+									minItems:0,
+									maxItems:100,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										properties: {
+											x: {type:"number", minimum:-10, maximum:10},
+											y: {type:"number", minimum:-10, maximum:10},
+										}
+									}
+								},
+							}
+						}
+					},
+				}
+			}
+		},
+
+		goxlrConfig: {
 			type:"object",
 			additionalProperties: false,
-			patternProperties: {
-			  ".{1,10}": {type: "number"}
-			},
+			properties: {
+				enabled: {type:"boolean"},
+				ip: {type:"string", maxLength:20},
+				port: {type:"integer", minimum:0, maximum:65535},
+				chatScrollSources: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type:"array",
+						minItems:0,
+						maxItems:2,
+						items:{type:"string", maxLength:30},
+					}
+				},
+				chatReadMarkSources: {
+					type:"array",
+					minItems:0,
+					maxItems:10,
+					items:{
+						type:"array",
+						minItems:0,
+						maxItems:2,
+						items:{type:"string", maxLength:30},
+					}
+				}
+			}
+		},
+
+		raidHistory: {
+			type:"array",
+			minItems:0,
+			maxItems:10,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					uid: {type:"string", maxLength:50},
+					date: {type:"integer", minimum:1694214864808, maximum:9999999999999},
+				}
+			}
 		},
 	}
 }
@@ -938,5 +1081,8 @@ const ajv = new Ajv({
 	removeAdditional:true,
 	discriminator:true,
 	allErrors:true,
+	strictNumbers:true,
+	strict:true,
 });
+
 export const schemaValidator = ajv.compile( UserDataSchema );

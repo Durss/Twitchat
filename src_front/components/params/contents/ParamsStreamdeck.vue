@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsstreamdeck parameterContent">
-		<Icon name="elgato" alt="overlay icon" class="icon" />
+		<Icon name="elgato" alt="stream deck logo" class="icon" />
 
 		<p class="head">{{ $t("streamdeck.header") }}</p>
 		
@@ -74,7 +74,7 @@ export default class ParamsStreamdeck extends Vue implements IParameterContent {
 <style scoped lang="less">
 .paramsstreamdeck{
 	ol {
-		gap: .5em;
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
 		list-style-position: inside;

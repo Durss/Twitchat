@@ -1,16 +1,18 @@
+import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
-import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
-import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import Utils from "@/utils/Utils";
+import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
-import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
-import { LoremIpsum } from "lorem-ipsum";
-import DataStore from "@/store/DataStore";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import OBSWebsocket from "@/utils/OBSWebsocket";
 /**
 * Created : 26/09/2022 
 */
@@ -181,30 +183,34 @@ export default class MessengerProxy {
 			
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
-				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				
-				//Split leave events by channels
-				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
-				for (let i = 0; i < this.leaveSpool.length; i++) {
-					const entry = this.leaveSpool[i];
-					if(!channels[entry.channelId]) channels[entry.channelId] = [];
-					channels[entry.channelId].push(entry.user);
+				try {
+					const d = e.data! as TwitchatDataTypes.MessageJoinData;
+					
+					//Split leave events by channels
+					const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
+					for (let i = 0; i < this.leaveSpool.length; i++) {
+						const entry = this.leaveSpool[i];
+						if(!channels[entry.channelId]) channels[entry.channelId] = [];
+						channels[entry.channelId].push(entry.user);
+					}
+					
+					//Send one message per channel
+					for (const channel in channels) {
+						this.onMessage(new MessengerClientEvent("LEAVE", {
+							platform:d.platform,
+							type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
+							id:Utils.getUUID(),
+							channel_id:channel,
+							date:Date.now(),
+							users:channels[channel],
+						}));
+						StoreProxy.users.flagOfflineUsers(channels[channel], channel);
+					}
+					
+					this.leaveSpool = [];
+				}catch(error) {
+					console.error(error);
 				}
-				
-				//Send one message per channel
-				for (const channel in channels) {
-					this.onMessage(new MessengerClientEvent("LEAVE", {
-						platform:d.platform,
-						type:TwitchatDataTypes.TwitchatMessageType.LEAVE,
-						id:Utils.getUUID(),
-						channel_id:channel,
-						date:Date.now(),
-						users:channels[channel],
-					}));
-					StoreProxy.users.flagOfflineUsers(channels[channel], channel);
-				}
-				
-				this.leaveSpool = [];
 			}, 1000);
 		}
 	}
@@ -222,6 +228,7 @@ export default class MessengerProxy {
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
+		const isAdmin = StoreProxy.auth.twitch.user.is_admin === true;
 		
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
@@ -243,6 +250,8 @@ export default class MessengerProxy {
 					user:me,
 					is_short:false,
 					answers:[],
+					children:[],
+					message_size:0,
 				}
 				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);
 				return true;
@@ -272,6 +281,16 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/countdownpause") {
+			StoreProxy.timer.countdownPause();
+			return true;
+		}else
+
+		if(cmd == "/countdownunpause") {
+			StoreProxy.timer.countdownUnpause();
+			return true;
+		}else
+
 		if(cmd == "/countdownstop") {
 			StoreProxy.timer.countdownStop();
 			return true;
@@ -294,6 +313,16 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/timerpause") {
+			StoreProxy.timer.timerPause();
+			return true;
+		}else
+
+		if(cmd == "/timerunpause") {
+			StoreProxy.timer.timerUnpause();
+			return true;
+		}else
+
 		if(cmd == "/timerstop") {
 			StoreProxy.timer.timerStop();
 			return true;
@@ -304,17 +333,12 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/voice") {
-			//change voicemod voice
-			//TODO
-		}else
-
-		if(cmd == "/userlist") {
+		if(isAdmin && cmd == "/userlist") {
 			StoreProxy.params.openModal("TTuserList")
 			return true;
 		}else
 
-		if(cmd == "/logmessages") {
+		if(isAdmin && cmd == "/logmessages") {
 			console.log(StoreProxy.chat.messages)
 			return true;
 		}else
@@ -363,7 +387,7 @@ export default class MessengerProxy {
 			const search = params.join(" ");
 			// this.$emit("search", search);
 			StoreProxy.chat.doSearchMessages(search);
-			StoreProxy.params.openModal("search")
+			StoreProxy.params.openModal("search", true);
 			return true;
 		}else
 
@@ -418,6 +442,18 @@ export default class MessengerProxy {
 			}
 			return true;
 		}else
+
+		if(cmd == "/userfromid") {
+			const res = await TwitchUtils.loadUserInfo([params[0]]);
+			if(res.length === 0) {
+				StoreProxy.main.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
+			}else{
+				const userInfo = res[0];
+				const user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, userInfo.id, userInfo.login, userInfo.display_name);
+				StoreProxy.users.openUserCard(user);
+			}
+			return true;
+		}
 				
 		if(cmd == "/logself") {
 			console.log(StoreProxy.auth.twitch.user);
@@ -446,28 +482,33 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/logusers") {
+		if(isAdmin && cmd == "/logusers") {
 			console.log(StoreProxy.users.users);
 			return true;
 		}else
 
-		if(cmd == "/betaadd") {
+		if(isAdmin && cmd == "/betaadd") {
 			StoreProxy.admin.addBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
-		if(cmd == "/betadel") {
+		if(isAdmin && cmd == "/betadel") {
 			StoreProxy.admin.removeBetaUser(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
 
-		if(cmd == "/betaclose") {
+		if(isAdmin && cmd == "/betaclose") {
 			StoreProxy.admin.removeAllBetaUser();
 			return true;
 		}else
 
-		if(cmd == "/betamigrate") {
+		if(isAdmin && cmd == "/betamigrate") {
 			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
+			return true;
+		}else
+
+		if(cmd == "/streamsummary") {
+			StoreProxy.params.openModal("streamSummary");
 			return true;
 		}else
 
@@ -477,8 +518,18 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/triggerlogs") {
+			StoreProxy.params.openModal("triggersLogs");
+			return true;
+		}else
+
 		if(cmd == "/startraffle") {
 			await StoreProxy.raffle.pickWinner();
+			return true;
+		}else
+
+		if(cmd == "/clearobscache") {
+			await OBSWebsocket.instance.clearSourceTransformCache();
 			return true;
 		}else
 
@@ -541,7 +592,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 		
-		if(cmd == "/fakeso" || cmd == "/fakeshoutout") {
+		if(isAdmin && cmd == "/fakeso" || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
 			if(params[0] && params[0] != "true" && params[0] != "false") {
@@ -563,7 +614,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fakesolist") {
+		if(isAdmin && cmd == "/fakesolist") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
 				let user = Utils.pickRand(fakeUsers);
@@ -583,7 +634,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fake") {
+		if(isAdmin && cmd == "/fake") {
 			let forcedMessage = params.join(" ");
 
 			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
@@ -630,6 +681,7 @@ export default class MessengerProxy {
 							m.message = "Message "+(inc++);
 							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
 							m.message_html = m.message;
+							m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 							m.todayFirst = false;
 							m.twitch_isFirstMessage = false;
 							m.twitch_isSuspicious = false;
@@ -642,7 +694,6 @@ export default class MessengerProxy {
 					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{
-						if(Config.instance.DEMO_MODE) m.fake = false;
 						//Force a specific reward via "/spam reward {REWARD_ID}"
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {
@@ -670,7 +721,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/fakewhisper" || cmd == "/fakewhispers") {
+		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {
 			let count = parseInt(params[0]) || 1;
 			for (let i = 0; i < count; i++) {
 				StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
@@ -692,7 +743,7 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/userdata" || cmd == "/loaduserdata") {
+		if(isAdmin && (cmd == "/userdata" || cmd == "/loaduserdata")) {
 			if(params.length == 0) {
 				StoreProxy.main.alert(StoreProxy.i18n.t('error.user_param_missing'));
 			}else{
@@ -704,22 +755,13 @@ export default class MessengerProxy {
 				if(users.length == 0) {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
-					const options = {
-						method: "GET",
-						headers: {
-							"Content-Type": "application/json",
-							"Authorization": "Bearer "+StoreProxy.auth.twitch.access_token,
-							'App-Version': import.meta.env.PACKAGE_VERSION,
-						},
-					}
-					const res = await fetch(Config.instance.API_PATH+"/user/data?uid="+users[0].id, options)
+					const res = await ApiController.call("user/data", "GET", {uid:users[0].id});
 					if(res.status === 200) {
-						const json = await res.json();
 						if(cmd === "/loaduserdata") {
-							DataStore.loadFromJSON(json.data);
+							DataStore.loadFromJSON(res.json.data);
 						}else{
 							//Open JSON on new tab
-							const data = JSON.stringify(json.data);
+							const data = JSON.stringify(res.json.data);
 							const blob = new Blob([data], { type: 'application/json' });
 							const url = window.URL.createObjectURL(blob);
 							window.open(url, "_blank");

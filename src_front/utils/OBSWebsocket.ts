@@ -6,6 +6,7 @@ import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 /**
 * Created : 29/03/2022 
@@ -20,6 +21,13 @@ export default class OBSWebsocket extends EventDispatcher {
 	private reconnectTimeout!:number;
 	private autoReconnect:boolean = false;
 	private connectInfo:{port:string, ip:string, pass:string} = {port:"",ip:"",pass:""};
+	
+	private sceneCacheKeySplitter:string = "_-___-___-_";
+	//Key : "sceneName" + sceneCacheKeySplitter + "sourceName"
+	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}}} = {};
+	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
+	private sceneToCaching:{[key:string]:boolean} = {};
+	private cachedScreenshots:{[key:string]:{ts:number, screen:string}} = {};
 	
 	constructor() {
 		super();
@@ -89,6 +97,8 @@ export default class OBSWebsocket extends EventDispatcher {
 			return false;
 		}
 
+		StoreProxy.main.currentOBSScene = await this.getCurrentScene();
+
 		// console.log(await this.obs.call("GetInputList"));
 
 		/* LIST ALL INPUT KINDS
@@ -125,8 +135,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		// const res = await this.getSourceOnCurrentScene("TTImage");
 		// console.log(res);
 
-		//@ts-ignore
-		window.test = this.obs;
 		return true;
 	}
 
@@ -162,11 +170,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async getScenes():Promise<{
 		currentProgramSceneName: string;
 		currentPreviewSceneName: string;
-		scenes: JsonArray;
+		scenes: {sceneIndex:number, sceneName:string}[];
 	}> {
 		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 		
-		return await this.obs.call("GetSceneList");
+		let res = await this.obs.call("GetSceneList");
+		return res as {
+			currentProgramSceneName: string;
+			currentPreviewSceneName: string;
+			scenes: {sceneIndex:number, sceneName:string}[];
+		};
 	}
 	
 	/**
@@ -174,38 +187,248 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns 
 	 */
-	public async getSources():Promise<OBSSourceItem[]> {
+	public async getSources(currentSceneOnly:boolean = false):Promise<OBSSourceItem[]> {
 		if(!this.connected) return [];
-		const scenes = await this.getScenes();
+		const scenesResult = await this.getScenes();
+		let sceneList:OBSSceneItemParented[] = scenesResult.scenes;
+		if(currentSceneOnly) {
+			let currentScene  = await this.getCurrentScene();
+			sceneList = sceneList.filter(v=>v.sceneName == currentScene);
+		}
 		let sources:OBSSourceItem[] = [];
-		const idsSourceDone:{[key:string]:boolean} = {};
-		const idsScenesDone:{[key:string]:boolean} = {};
-		for (let i = 0; i < scenes.scenes.length; i++) {
-			const scene = scenes.scenes[i] as {sceneIndex:number, sceneName:string};
+		const sourceDone:{[key:string]:boolean} = {};
+		const scenesDone:{[key:string]:boolean} = {};
+		
+		//Parse all scene items
+		for (const scene of sceneList) {
+			if(scenesDone[scene.sceneName] == true) continue;
+			scenesDone[scene.sceneName] = true;
+
 			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
-			for (let i = 0; i < items.length; i++) {
-				const v = items[i];
-				if(idsSourceDone[v.sourceName] == true) {
-					items.splice(i, 1);
-					i--;
-					continue;
+
+			//Parse all scene sources
+			for (const source of items) {
+				if(sourceDone[source.sourceName] == true) continue;
+
+				sourceDone[source.sourceName] = true;
+				
+				//Get group children
+				if(source.isGroup) {
+					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
+					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
+					items = items.concat( groupItems );
 				}
-				idsSourceDone[v.sourceName] = true;
-				if(v.isGroup) {
-					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:v.sourceName});
-					items = items.concat( (res.sceneItems as unknown) as OBSSourceItem[] );
+
+				//Check recursively on child scene if we requested the sources only from the current scene
+				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE" && currentSceneOnly) {
+					sceneList.push({sceneIndex:-1, sceneName:source.sourceName, parentScene:scene});
 				}
-				// if(v.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-				// 	console.log("Scene:", v.sourceName);
-				// }
-				// if(v.sourceType == "OBS_SOURCE_TYPE_INPUT") {
-				// 	console.log("Input:", v.sourceName);
-				// }
 			}
 			sources = sources.concat(items);
 		}
+
+		//Dedupe results
+		let itemsDone:{[key:string]:boolean} = {};
+		for (let i = 0; i < sources.length; i++) {
+			if(itemsDone[sources[i].sourceName] === true) {
+				sources.splice(i, 1)!
+				i--;
+			}
+			itemsDone[sources[i].sourceName] = true;
+		}
+
 		return sources;
+	}
+	
+	/**
+	 * Get all sources currently on screen with their coordinates.
+	 * Returns original OBS transforms augmented with these global coordinate space values
+	 * to make manipulation easier :
+	 * 
+	 *	globalCenterX
+	 *	globalCenterY
+	 *	globalScaleX
+	 *	globalScaleY
+	 *	globalRotation
+	 *	globalTL
+	 *	globalTR
+	 *	globalBL
+	 *	globalBR
+	 * 
+	 * @returns 
+	 */
+	public async getSourcesDisplayRects():Promise<{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}> {
+		if(!this.connected) return {canvas:{width:1920, height:1080}, sources:[]};
+		const currentScene  = await this.getCurrentScene();
+		
+		//If current scene is cached, just send back cached data
+		const cache = this.sceneDisplayRectsCache[currentScene];
+		if(cache && Date.now()-cache.ts < 30000) return this.sceneDisplayRectsCache[currentScene].value;
+
+		//If caching is in progress from a previous request, wait a little
+		if(this.sceneToCaching[currentScene] === true) {
+			if(cache) return cache.value;
+			return {canvas:{width:1920, height:1080}, sources:[]};
+		}
+
+		//Flag scene as being cached
+		this.sceneToCaching[currentScene] = true;
+		const isOverlayInteraction = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
+
+		const videoSettings = await this.obs.call("GetVideoSettings");
+		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform, isGroup?:boolean}[] = [{name:currentScene}];
+		const transforms:{source:OBSSourceItem, sceneName:string, transform:SourceTransform}[] = [];
+		const sourceDone:{[key:string]:boolean} = {};
+		const scenesDone:{[key:string]:boolean} = {};
+		const itemNameToTransform:{[key:string]:SourceTransform} = {};
+		const canvasW:number = videoSettings.baseWidth;
+		const canvasH:number = videoSettings.baseHeight;
+		const sourcesToWatch:string[] = [];
+
+		StoreProxy.triggers.triggerList.forEach(v=> {
+			if(v.type == TriggerTypes.HEAT_CLICK && v.heatObsSource && v.enabled){
+				sourcesToWatch.push(v.heatObsSource);
+			}
+		});
+
+		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
+			this.sceneToCaching[currentScene] = false;
+			return {canvas:{width:1920, height:1080}, sources:[]};
+		}
+
+		//Parse all scene items
+		for (let j = 0; j < sceneList.length; j++) {
+			const scene = sceneList[j];
+			
+			if(scenesDone[scene.name] == true) continue;
+			scenesDone[scene.name] = true;
+
+			let list:{sceneItems: JsonObject[]} = {sceneItems:[]};
+			if(scene.isGroup === true){
+				list = await this.obs.call("GetGroupSceneItemList", {sceneName:scene.name});
+			}else{
+				list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
+			}
+			let items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
+			//Parse all scene sources
+			for (let i=0; i < items.length; i++) {
+				const source = items[i];
+				sourceDone[source.item.sourceName] = true;
+
+				//If no trigger request for this source's events and if it's not a browser source or a group or a scene, ignore it
+				if(source.item.sourceType != "OBS_SOURCE_TYPE_SCENE"
+				&& !source.item.isGroup
+				&& source.item.inputKind != "browser_source"
+				&& !sourcesToWatch.includes(source.item.sourceName)) {
+					continue;
+				}
+				
+				//Ignore invisible items
+				const visibleRes = await this.obs.call("GetSceneItemEnabled", {
+					sceneName:source.parent,
+					sceneItemId:source.item.sceneItemId,
+				});
+				if(!visibleRes.sceneItemEnabled) continue;
+				 
+				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+				if(!sourceTransform.globalScaleX) {
+					sourceTransform.globalScaleX = sourceTransform.scaleX;
+					sourceTransform.globalScaleY = sourceTransform.scaleY;
+					sourceTransform.globalRotation = 0;
+				}
+
+				//Compute the center of the source on the local space
+				let coords = this.getSourceCenterFromTransform(sourceTransform);
+				sourceTransform.globalCenterX = coords.cx;
+				sourceTransform.globalCenterY = coords.cy;
+
+				if(scene.parentTransform) {
+					//Apply parent rotation
+					const pt = scene.parentTransform;
+					const cW = scene.isGroup? pt.width/2 : canvasW/2;
+					const cH = scene.isGroup? pt.height/2 : canvasH/2;
+					let rotated = Utils.rotatePointAround(
+													{
+														x:sourceTransform.globalCenterX + pt.globalCenterX! - cW,
+														y:sourceTransform.globalCenterY + pt.globalCenterY! - cH,
+													},
+													{x:pt.globalCenterX!, y:pt.globalCenterY!},
+													pt.rotation
+													);
+					sourceTransform.globalCenterX = rotated.x;
+					sourceTransform.globalCenterY = rotated.y;
+
+					//Propagate scale and rotation to children
+					sourceTransform.rotation += pt.rotation;
+					sourceTransform.globalRotation = sourceTransform.rotation;
+					sourceTransform.globalScaleX! *= pt.globalScaleX!;
+					sourceTransform.globalScaleY! *= pt.globalScaleY!;
+
+					//Apply parent scale
+					const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
+					sourceTransform.globalCenterX = scaled.x;
+					sourceTransform.globalCenterY = scaled.y;
+				}
+
+				//Is it a source?
+				if((source.item.sourceType == "OBS_SOURCE_TYPE_INPUT"
+				|| source.item.sourceType == "OBS_SOURCE_TYPE_SCENE")
+				|| source.item.isGroup) {
+					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
+					let px = sourceTransform.globalCenterX!;
+					let py = sourceTransform.globalCenterY!;
+					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2
+					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2
+					const angle_rad = sourceTransform.rotation * Math.PI / 180;
+					const cos_angle = Math.cos(angle_rad);
+					const sin_angle = Math.sin(angle_rad);
+					sourceTransform.globalRotation = sourceTransform.rotation;
+					sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
+					sourceTransform.globalBR = {x:px + hw * cos_angle - hh * sin_angle, y:py + hw * sin_angle + hh * cos_angle};
+					sourceTransform.globalTL = {x:px - hw * cos_angle + hh * sin_angle, y:py - hw * sin_angle - hh * cos_angle};
+					sourceTransform.globalTR = {x:px + hw * cos_angle + hh * sin_angle, y:py + hw * sin_angle - hh * cos_angle};
+					if(!source.item.isGroup) {
+						transforms.push({transform:sourceTransform, sceneName:source.parent, source:source.item});
+					}
+				}
+				
+				//If it's a scene item, add it to the scene list
+				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
+					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
+					sceneList.push( {
+									name:source.item.sourceName,
+									parentScene:source.parent,
+									parentItemId:source.item.sceneItemId,
+									parentTransform:sourceTransform,
+									isGroup:source.item.isGroup === true,
+								} );
+				}
+			}
+		}
+
+		const res = {canvas:{width:canvasW, height:canvasH}, sources:transforms};
+		this.sceneDisplayRectsCache[currentScene] = {ts:Date.now(), value:res};
+		this.sceneToCaching[currentScene] = false;
+		return res;
+	}
+
+	/**
+	 * Clears cache for sources transforms
+	 */
+	public clearSourceTransformCache():void {
+		this.sceneDisplayRectsCache = {};
+	}
+
+	/**
+	 * Update the transform's props of a source
+	 * @param sceneName 
+	 * @param sceneItemId 
+	 * @param transform 
+	 */
+	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call("SetSceneItemTransform", {sceneName, sceneItemId, sceneItemTransform:transform});
 	}
 	
 	/**
@@ -333,6 +556,21 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets the ID of a scene item by its name
+	 * @param sourceName 
+	 * @param sceneName will search on current scene if not specified
+	 * @returns 
+	 */
+	public async searchSceneItemId(sourceName:string, sceneName?:string):Promise<{scene:string, itemId:number}> {
+		if(!sceneName) {
+			const scene = await this.obs.call("GetCurrentProgramScene");
+			sceneName = scene.currentProgramSceneName;
+		}
+		const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
+		return {scene:sceneName, itemId:result.sceneItemId};
+	}
+
+	/**
 	 * Get a source by its name on the current scene.
 	 * Searches recursively on sub scenes
 	 * 
@@ -341,6 +579,14 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @returns 
 	 */
 	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
+		const cacheKey = sceneName + this.sceneCacheKeySplitter + sourceName;
+
+		//Searching for a source in the scene tree may take quite much time depending on the number
+		//of sources and nested scenes. If the resource has already been queried, send back cached data
+		if(this.sceneSourceCache[cacheKey]) {
+			return this.sceneSourceCache[cacheKey].value;
+		}
+
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
@@ -357,7 +603,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 		const item = items.find(v=> v.sourceName == sourceName);
 		if(item) {
-			return {scene:sceneName, source:item};
+			const res = {scene:sceneName, source:item};
+			this.sceneSourceCache[cacheKey] = {ts:Date.now(), value:res};
+			return res;
 		}else{
 			//Item not found check on sub scenes and groups
 			for (let i = 0; i < items.length; i++) {
@@ -411,6 +659,55 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Gets the settings of a source
+	 * 
+	 * @param sourceName 
+	 */
+	public async getSourceSettings(sourceName:string):Promise<{
+		inputSettings: JsonObject;
+		inputKind: string;
+	}> {
+		if(!this.connected) return {
+			inputSettings: {},
+			inputKind: "",
+		};
+
+		const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
+		return settings;
+	}
+
+	/**
+	 * Gets the transforms of a source
+	 * 
+	 * @param sourceName 
+	 */
+	public async getSceneItemTransform(sceneName:string, sceneItemId:number):Promise<SourceTransform> {
+		if(!this.connected) return {
+			alignment: 0,
+			boundsAlignment: 0,
+			boundsHeight: 0,
+			boundsType: "OBS_BOUNDS_NONE",
+			boundsWidth: 0,
+			cropBottom: 0,
+			cropLeft: 0,
+			cropRight: 0,
+			cropTop: 0,
+			height: 0,
+			positionX: 0,
+			positionY: 0,
+			rotation: 0,
+			scaleX: 0,
+			scaleY: 0,
+			sourceHeight: 0,
+			sourceWidth: 0,
+			width: 0,
+		};
+
+		const settings = await this.obs.call("GetSceneItemTransform", {sceneName, sceneItemId});
+		return (settings.sceneItemTransform as unknown) as SourceTransform;
+	}
+
+	/**
 	 * Change the URL of an media (ffmpeg) source
 	 * 
 	 * @param sourceName 
@@ -430,6 +727,28 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async replayMedia(sourceName:string):Promise<void> {
 		if(!this.connected) return;
 		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_RESTART'});
+	}
+
+	/**
+	 * Get a screenshot of a source.
+	 * Takes a screenshot of the current scene if no sourceName is defined
+	 * 
+	 * @param sourceName 
+	 */
+	public async getScreenshot(sourceName?:string):Promise<string> {
+		if(!this.connected) return "";
+		if(!sourceName) sourceName = await this.getCurrentScene();
+		//If there's an cached image recent enough, send it back
+		if(Date.now() - this.cachedScreenshots[sourceName]?.ts < 100) return this.cachedScreenshots[sourceName].screen;
+
+		//Request for a fresh new screenshot
+		let res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
+		//Cache it
+		this.cachedScreenshots[sourceName] = {
+			ts:Date.now(),
+			screen:res.imageData,
+		}
+		return res.imageData;
 	}
 	
 	
@@ -521,10 +840,26 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 		
 		this.obs.on("InputNameChanged", async (e:{oldInputName:string, inputName:string}) => {
+			//Migrate all caches refering to the old source name to the new source name
+			for (const key in this.sceneSourceCache) {
+				const [scene, source] = key.split(this.sceneCacheKeySplitter);
+				if(source == e.oldInputName) {
+					this.sceneSourceCache[ scene + this.sceneCacheKeySplitter + e.inputName ] = this.sceneSourceCache[key];
+					delete this.sceneSourceCache[key];
+				}
+			}
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_INPUT_NAME_CHANGED, e));
 		});
 		
 		this.obs.on("SceneNameChanged", async (e:{oldSceneName:string, sceneName:string}) => {
+			//Migrate all caches refering to the old scene name to the new scene name
+			for (const key in this.sceneSourceCache) {
+				const [scene, source] = key.split(this.sceneCacheKeySplitter);
+				if(scene == e.oldSceneName) {
+					this.sceneSourceCache[ e.sceneName + this.sceneCacheKeySplitter + source ] = this.sceneSourceCache[key];
+					delete this.sceneSourceCache[key];
+				}
+			}
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_NAME_CHANGED, e));
 		});
 
@@ -542,6 +877,100 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		});
 	}
+
+	/**
+	 * Get the center of a rectangle depending on its pivot point placement
+	 * 
+	 * @param pivotType 
+	 * @param pivotX 
+	 * @param pivotY 
+	 * @param width 
+	 * @param height 
+	 * @param rotation_deg 
+	 */
+	private getSourceCenterFromTransform(transform:SourceTransform) {
+		let a = -transform.rotation * Math.PI / 180;
+		let width = transform.width - transform.cropLeft - transform.cropRight;
+		let height = transform.height - transform.cropTop - transform.cropBottom;
+		let w = width / 2;
+		let h = height / 2;
+
+		//Define width and height offset depending on the pivot point type
+		switch (transform.alignment) {
+			//center
+			case 0: break;
+			//center left
+			case 1:
+				w = 0;
+				break;
+			//center right
+			case 2:
+				w *= 2;
+				break;
+			//top center
+			case 4:
+				h = 0;
+				break;
+			//top left
+			case 5:
+				w = 0;
+				h = 0;
+				break;
+			//top right
+			case 6:
+				w *= 2;
+				h = 0;
+				break;
+			//bottom center
+			case 8:
+				h *= 2;
+				break;
+			//bottom left
+			case 9:
+				w = 0;
+				h *= 2;
+				break;
+			//bottom right
+			case 10:
+				w *= 2;
+				h *= 2;
+				break;
+			default:
+				break;
+		}
+
+		//Get top left corner coordinates
+		let cosTheta = Math.cos(a);
+		let sinTheta = Math.sin(a);
+		let displacementX = w * cosTheta + h * sinTheta;
+		let displacementY = h * cosTheta - w * sinTheta;
+		let px = transform.positionX - displacementX;
+		let py = transform.positionY - displacementY;
+
+		//Get center point coordinates
+		displacementX = (width / 2) * cosTheta + (height / 2) * sinTheta;
+		displacementY = (height / 2) * cosTheta - (width / 2) * sinTheta;
+		let cx = px + displacementX;
+		let cy = py + displacementY;
+
+		return { x: px, y: py, cx, cy };
+	}
+
+	/**
+	 * Apply scale 
+	 * @param point 
+	 * @param origin 
+	 * @param scale 
+	 */
+	private applyParentScale(point:{x:number, y:number}, parentTransform:SourceTransform) {
+		const translatedX = point.x - parentTransform.globalCenterX!;
+		const translatedY = point.y - parentTransform.globalCenterY!;
+		const scaledX = translatedX * parentTransform.globalScaleX!;
+		const scaledY = translatedY * parentTransform.globalScaleY!;
+		const x = scaledX + parentTransform.globalCenterX!;
+		const y = scaledY + parentTransform.globalCenterY!;
+		return { x, y };
+	}
 }
 
 export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source";
@@ -556,9 +985,16 @@ export interface OBSSourceItem {
 	sourceName:string;
 	sourceType:OBSSourceType;
 }
+
 export interface OBSSceneItem {
 	sceneIndex:number;
 	sceneName:string;
+}
+
+export interface OBSSceneItemParented {
+	sceneIndex:number;
+	sceneName:string;
+	parentScene?:OBSSceneItem;
 }
 
 export interface OBSInputItem {
@@ -585,6 +1021,64 @@ export interface BrowserSourceSettings {
 	url?: string;
 	width?: number;
 }
+
+export interface SourceTransform {
+	alignment: number;
+	boundsAlignment: number;
+	boundsHeight: number;
+	boundsType: string;
+	boundsWidth: number;
+	cropBottom: number;
+	cropLeft: number;
+	cropRight: number;
+	cropTop: number;
+	height: number;
+	positionX: number;
+	positionY: number;
+	rotation: number;
+	scaleX: number;
+	scaleY: number;
+	sourceHeight: number;
+	sourceWidth: number;
+	width: number;
+	/**
+	 * Center X of the source on the global space
+	 */
+	globalCenterX? :number;
+	/**
+	 * Center Y of the source on the global space
+	 */
+	globalCenterY? :number;
+	/**
+	 * Scale X of the source on the global space
+	 */
+	globalScaleX? :number;
+	/**
+	 * Scale Y of the source on the global space
+	 */
+	globalScaleY? :number;
+	/**
+	 * Rotation of the source on the global space
+	 */
+	globalRotation? :number;
+	/**
+	 * Top Left corner coordinates on the global space
+	 */
+	globalTL? :{x:number, y:number};
+	/**
+	 * Top Right corner coordinates on the global space
+	 */
+	globalTR? :{x:number, y:number};
+	/**
+	 * Bottom Left corner coordinates on the global space
+	 */
+	globalBL? :{x:number, y:number};
+	/**
+	 * Bottom Left corner coordinates on the global space
+	 */
+	globalBR? :{x:number, y:number};
+}
+
 
 export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
 							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |

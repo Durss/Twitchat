@@ -100,15 +100,22 @@ export default class OverlayTimer extends AbstractOverlay {
 
 	public computeValues():void {
 		if(this.countdownData) {
-			const ellapsed = Date.now() - this.countdownData.startAt_ms;
-			const remaining = Math.round((this.countdownData.duration_ms - ellapsed)/1000)*1000;
+			let elapsed = Date.now() - this.countdownData.startAt_ms;
+			if(this.countdownData.paused) {
+				elapsed -= Date.now() - this.countdownData.pausedAt!;
+			}
+			elapsed -= this.countdownData.pausedDuration;
+			const remaining = Math.round((this.countdownData.duration_ms - elapsed)/1000)*1000;
 			this.countdownValue = Utils.formatDuration(remaining);
 		}else{
 			this.countdownValue = "";
 		}
 		if(this.timerData) {
-			let ellapsed = Math.floor((Date.now() - this.timerData.startAt_ms)/1000)*1000;
-			this.timerValue = Utils.formatDuration(ellapsed);
+			let elapsed = Math.floor((Date.now() - this.timerData.startAt_ms + this.timerData.offset_ms)/1000)*1000;
+			if(this.timerData.paused) {
+				elapsed -= Date.now() - this.timerData.pausedAt!;
+			}
+			this.timerValue = Utils.formatDuration(elapsed);
 		}else{
 			this.timerValue = "";
 		}

@@ -1,47 +1,53 @@
 <template>
 	<div :class="classes" v-show="!closed">
 		<div class="menu">
-			<!-- v-if="content == contentMain && !search || content == contentAd"> -->
-				<div class="head">
-					<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
+				<div class="head" v-if="content == contentMain && !search || content == contentAd">
+					<h1 class="title">{{$t('params.categories.'+content)}}</h1>
 					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 				</div>
 			
-				<div class="automaticMessageHolder" v-if="!isDonor">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-				</div>
-
-				<div class="buttonList">
-					<div class="search">
-						<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+				<div class="scrollable">
+					<div class="automaticMessageHolder" v-if="!isDonor && !closed">
+						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 					</div>
-					<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures">{{$t('params.categories.features')}}</Button>
-					<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance">{{$t('params.categories.appearance')}}</Button>
-					<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
-					<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
-					<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers">{{$t('params.categories.triggers')}}</Button>
-					<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
-					<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
-					<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
-					<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
-					<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
-					<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
-					<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-					<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
-					<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
-					<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout">{{$t('params.categories.about')}}</Button>
+	
+					<div class="buttonList">
+						<div class="search">
+							<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+						</div>
+						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1693519200000, id:'params_chatfeatures'}">{{$t('params.categories.features')}}</Button>
+						<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1693519200000, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
+						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
+						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
+						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1693519200000, id:'paramsparams_triggers'}">{{$t('params.categories.triggers')}}</Button>
+						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues" v-newflag="{date:1693519200000, id:'paramsparams_values'}">{{$t('params.categories.values')}}</Button>
+						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
+						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays">{{$t('params.categories.overlays')}}</Button>
+						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
+						<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
+						<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
+						<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat" v-newflag="{date:1693519200000, id:'params_heat'}">{{$t('params.categories.heat')}}</Button>
+						<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
+						<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
+						<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1693519200000, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
+						<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
+						<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
+						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout" v-newflag="{date:1693519200000, id:'params_about'}">{{$t('params.categories.about')}}</Button>
+						<Button icon="coin"			@click="openPage(contentDonate)"		:selected="content==contentDonate" v-newflag="{date:1693519200000, id:'params_donate'}" secondary>{{$t('params.categories.donate')}}</Button>
+						<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1693519200000, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
+					</div>
+	
+					<div class="automaticMessageHolder" v-if="isDonor && !closed">
+						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+					</div>
+	
+					<ThemeSelector class="themeSelector" />
+	
+					<mark class="version">v {{appVersion}}</mark>
 				</div>
-
-				<div class="automaticMessageHolder" v-if="isDonor">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-				</div>
-
-				<ThemeSelector class="themeSelector" />
-
-				<mark class="version">v {{appVersion}}</mark>
 			</div>
 			
-		<div class="contentHolder">
+		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
 				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
 					<Icon name="back"/>
@@ -70,8 +76,11 @@
 				<ParamsAutomod v-if="content == contentAutomod" ref="currentContent" />
 				<ParamsCounters v-if="content == contentCounters" ref="currentContent" />
 				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
-				<!-- Used for direct link to sponsor content from chat ads -->
-				<ParamsSponsor v-if="content == contentSponsor" ref="currentContent" />
+				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
+				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
+				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
+				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
+				<ParamsValues v-if="content == contentValues" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -81,10 +90,10 @@
 			<!-- default content for large screen -->
 			<div class="content default" v-else>
 				<div class="automaticMessageHolder">
-					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+					<ParamsTwitchatAd :expand="content == contentAd && !closed" @collapse="openPage('main')" />
 				</div>
 				<DonorState class="donorState" v-if="isDonor && content != contentAd" />
-				<ParamsSponsor v-else-if="content != contentAd" />
+				<ParamsPremium v-else-if="content != contentAd" />
 			</div>
 		</div>
 	</div>
@@ -96,28 +105,32 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ThemeSelector from '../ThemeSelector.vue';
+import DonorState from '../user/DonorState.vue';
+import type IParameterContent from './contents/IParameterContent';
 import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
+import ParamsConnexions from './contents/ParamsConnexions.vue';
 import ParamsCounters from './contents/ParamsCounters.vue';
+import ParamsDonate from './contents/ParamsDonate.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
+import ParamsGoXLR from './contents/ParamsGoXLR.vue';
+import ParamsHeat from './contents/ParamsHeat.vue';
 import ParamsList from './contents/ParamsList.vue';
 import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
+import ParamsPremium from './contents/ParamsPremium.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
-import ParamsSponsor from './contents/ParamsSponsor.vue';
 import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
-import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
+import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
+import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
-import ParamsConnexions from './contents/ParamsConnexions.vue';
-import type IParameterContent from './contents/IParameterContent';
-import CloseButton from '../CloseButton.vue';
-import DonorState from '../user/DonorState.vue';
-import ThemeSelector from '../ThemeSelector.vue';
 
 @Component({
 	components:{
@@ -125,14 +138,18 @@ import ThemeSelector from '../ThemeSelector.vue';
 		ParamsOBS,
 		ParamsTTS,
 		DonorState,
+		ParamsHeat,
 		ParamsList,
 		CloseButton,
 		ParamsAbout,
 		ParamsAlert,
+		ParamsGoXLR,
+		ParamsDonate,
+		ParamsValues,
+		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
-		ParamsSponsor,
 		ThemeSelector,
 		ParamsCounters,
 		ParamsOverlays,
@@ -155,28 +172,32 @@ export default class Parameters extends Vue {
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
 	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state; }
-	public get contentClose():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CLOSE; } 
-	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 
-	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; } 
-	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; } 
-	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; } 
-	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
-	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
-	public get contentVoicemod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; } 
-	public get contentSponsor():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPONSOR; } 
-	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
-	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
-	public get contentCounters():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.COUNTERS; } 
-	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
-	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
-	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
-	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
-	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; } 
-	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; } 
-	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
+	public get contentClose():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CLOSE; }
+	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
+	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }
+	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; }
+	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; }
+	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; }
+	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; }
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
+	public get contentHeat():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.HEAT; }
+	public get contentVoicemod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; }
+	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
+	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
+	public get contentGoXLR():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.GOXLR; }
+	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
+	public get contentCounters():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.COUNTERS; }
+	public get contentValues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VALUES; }
+	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; }
+	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; }
+	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; }
+	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; }
+	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; }
+	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; }
+	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
+	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	
@@ -274,7 +295,7 @@ export default class Parameters extends Vue {
 		this.$store("params").currentParamSearch = "";
 		
 		//Check if current content wants to override the navigation
-		if(content && content.onNavigateBack() === true) return;
+		if(content && content.onNavigateBack && content.onNavigateBack() === true) return;
 
 		this.history.pop();//Remove current page from history
 		this.openPage(this.history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
@@ -314,13 +335,17 @@ export default class Parameters extends Vue {
 	}
 
 	public openPage(page:TwitchatDataTypes.ParameterPagesStringType):void {
+		const content = this.$refs.currentContent as IParameterContent;
+		//Check if current content wants to override the navigation
+		if(content && content.reload) content.reload();
+
 		this.$store("params").openParamsPage(page);
 	}
 
 	private onKeyDown(e:KeyboardEvent):void {
 		if(this.closed) return;
 		const node = document.activeElement?.nodeName;
-		if(e.key.toLowerCase() == "escape" && node != "INPUT") {
+		if(e.key?.toLowerCase() == "escape" && node != "INPUT") {
 			this.close();
 		}
 	}
@@ -388,53 +413,67 @@ export default class Parameters extends Vue {
 		gap: 1em;
 		width: fit-content;
 		border-right: 1px solid var(--splitter-color);
-		padding-right: 1em;
-		overflow-y: auto;
 		.head {
 			display:none;
 		}
-		.automaticMessageHolder {
-			display: none;
-		}
-		.buttonList {
+
+		.scrollable {
 			display: flex;
 			flex-direction: column;
-			justify-content: center;
-			gap: 10px;
-			&>.button {
-				flex-wrap: nowrap;
-				overflow: hidden;
-				&.beta {
-					&::before {
-						content: "beta";
-						z-index: 1;
-						position: absolute;
-						top: 2px;
-						right: -25px;
-						background-color: var(--color-alert);
-						color: var(--color-light);
-						padding: 5px 30px;
-						text-transform: uppercase;
-						font-size: .7em;
-						font-weight: bold;
-						transform: rotate(45deg);
+			gap: 1em;
+			overflow-x: visible;
+			overflow-y: auto;
+			padding-right: 1em;
+			.automaticMessageHolder {
+				display: none;
+			}
+			.buttonList {
+				width: 100%;
+				display: flex;
+				flex-direction: column;
+				justify-content: center;
+				gap: 10px;
+				&>.button {
+					flex-wrap: nowrap;
+					&.beta {
+						overflow: hidden;
+						&::before {
+							content: "beta";
+							z-index: 1;
+							position: absolute;
+							top: 2px;
+							right: -25px;
+							background-color: var(--color-alert);
+							color: var(--color-light);
+							padding: 5px 30px;
+							text-transform: uppercase;
+							font-size: .7em;
+							font-weight: bold;
+							transform: rotate(45deg);
+						}
+					}
+	
+					&.premiumIndicator {
+						:deep(.background) {
+							border-left: 3px solid var(--color-premium);
+						}
 					}
 				}
 			}
-		}
-
-		.themeSelector {
-			display: block;
-			margin: 0 auto;
-			flex-shrink: 0;
-		}
-
-		.version {
-			display: block;
-			margin: 0 auto;
-			padding: .5em;
-			font-style: italic;
-			font-size: .8em;
+	
+			.themeSelector {
+				display: block;
+				margin: 0 auto;
+				flex-shrink: 0;
+			}
+	
+			.version {
+				display: block;
+				margin: 0 auto;
+				padding: .5em;
+				font-style: italic;
+				font-size: .8em;
+			}
 		}
 	}
 
@@ -522,52 +561,54 @@ export default class Parameters extends Vue {
 					display: block;
 				}
 			}
-			.automaticMessageHolder {
-				display: block !important;
-				margin: 0 auto;
-			}
-			.search {
-				// display: none;
-				width: 100%;
-				margin-bottom: 1em;
-				input {
-					// min-width: 250px;
-					width: 100%;
-					max-width: 250px;
-					margin: auto;
-					display: block;
+			.scrollable {
+				.automaticMessageHolder {
+					display: block !important;
+					margin: 0 auto;
 				}
-			}
-			.buttonList {
-				display: flex;
-				flex-direction: row;
-				flex-wrap: wrap;
-				justify-content: center;
-				gap: 4px;
-				width: 100%;
-				margin: auto;
-				&>.button {
-					width: 180px;
-					flex-direction: column;
-					border-radius: var(--border-radius);
-					:deep(.icon) {
-						height: 2em;
-						width: 2em;
-						max-height: unset;
-						max-width: unset;
-						object-fit: fill;
-						object-position: center center;
-						margin: 0 0 .5em 0;
+				.search {
+					// display: none;
+					width: 100%;
+					margin-bottom: 1em;
+					input {
+						// min-width: 250px;
+						width: 100%;
+						max-width: 250px;
+						margin: auto;
+						display: block;
 					}
-					:deep(.label) {
-						white-space: normal;
-					}
-					&.beta {
-						&::before {
-							top: 10px;
-							right: -50px;
-							padding: 5px 50px;
-							font-size: 18px;
+				}
+				.buttonList {
+					display: flex;
+					flex-direction: row;
+					flex-wrap: wrap;
+					justify-content: center;
+					gap: 4px;
+					width: 100%;
+					margin: auto;
+					&>.button {
+						width: 180px;
+						flex-direction: column;
+						border-radius: var(--border-radius);
+						:deep(.icon) {
+							height: 2em;
+							width: 2em;
+							max-height: unset;
+							max-width: unset;
+							object-fit: fill;
+							object-position: center center;
+							margin: 0 0 .5em 0;
+						}
+						:deep(.label) {
+							white-space: normal;
+						}
+						&.beta {
+							&::before {
+								top: 10px;
+								right: -50px;
+								padding: 5px 50px;
+								font-size: 18px;
+							}
 						}
 					}
 				}
@@ -597,28 +638,30 @@ export default class Parameters extends Vue {
 	}
 }
 
-@media only screen and (max-width: 410px) {
+@media only screen and (max-width: 420px) {
 	.parameters {
 		.menu {
 			margin: 0 auto;
-			.buttonList {
-				flex-direction: column;
-				flex-wrap: nowrap;
-				max-width: 250px;
-				&>.button {
-					width: unset;
-					flex-direction: unset;
-					:deep(.icon) {
-						height: 1em;
-						width: 1em;
-						margin: 0;
-					}
-					&.beta {
-						&::before {
-							top: 2px;
-							right: -25px;
-							padding: 5px 30px;
-							font-size: .7em;
+			.scrollable {
+				.buttonList {
+					flex-direction: column;
+					flex-wrap: nowrap;
+					max-width: 250px;
+					&>.button {
+						width: unset;
+						flex-direction: unset;
+						:deep(.icon) {
+							height: 1em;
+							width: 1em;
+							margin: 0;
+						}
+						&.beta {
+							&::before {
+								top: 2px;
+								right: -25px;
+								padding: 5px 30px;
+								font-size: .7em;
+							}
 						}
 					}
 				}

@@ -1,0 +1,69 @@
+{
+	"premium":{
+		"header":"Support Twitchat monthly and unlock premium features",
+		"early_donor1":"As a thank you for supporting me from the early days of Twitchat, premium features are offered you 💝",
+		"early_donor2":"Feel free to support me on {LINK} anyway 😊",
+		"early_donor2_link":"Patreon",
+		"premium_donor1":"You have lifetime Twitchat subscription",
+		"become_premiumBt":"Become premium",
+		"restricted_access":"This feature requires premium membership",
+		"features_title":"Premium features",
+
+		"supportTable":{
+			"headers":[
+				"Features",
+				"FREE",
+				"Donate",
+				"Premium"
+			],
+			"features": [
+				["Disable automatic chat message", 0, 1, 1],
+				["GoXLR support ", 0, 0, 1],
+				["Custom user names", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
+				["Create custom badges", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
+				["Give custom badges to users", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
+				["Values (AKA global vars)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
+				["Heat custom screen areas", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
+				["Counters", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["Spotify supprt", 1, 1, 1],
+				["Stream Deck plugin", 1, 1, 1],
+				["Voicemod support", 1, 1, 1],
+				["OBS support", 1, 1, 1],
+				["Heat support", 1, 1, 1],
+				["Twitchat Overlays", 1, 1, 1],
+				["Text to speech", 1, 1, 1],
+				["Emergency button", 1, 1, 1],
+				["Boosted Automod", 1, 1, 1],
+				["Voice control", 1, 1, 1],
+				["Advanced chat filters", 1, 1, 1],
+				["Bingo", 1, 1, 1],
+				["Raffle", 1, 1, 1],
+				["Chat suggestions", 1, 1, 1],
+				["Spoiler tag", 1, 1, 1],
+				["!alert command", 1, 1, 1],
+				["/search command", 1, 1, 1],
+				["BTTV/FFZ/7TV emotes", 1, 1, 1],
+				["Viewers pronouns", 1, 1, 1],
+				["Save chat messages", 1, 1, 1],
+				["Shoutouts queue", 1, 1, 1],
+				["Moderation options", 1, 1, 1]
+			]
+		},
+
+		"cleanup": {
+			"title":"Non-Premium limits",
+			"description":"You are not a Premium member and have more than some maximum allowed items. Disable/Delete some entries or become premium to keep them all.",
+			"custom_usernames":"Custom usernames",
+			"custom_username_remove":"Remove custom username",
+			"custom_badges":"Custom badges",
+			"custom_badges_attribution":"Custom badges attributions",
+			"custom_badges_attribution_remove":"Remove custom<br>badges",
+			"delete_badges_title": "Confirm",
+			"delete_badges_description": "Do you want to remove this user's custom badges?",
+			"delete_name_title": "Confirm",
+			"delete_name_description": "Do you want to remove this user's custom name?",
+			"completeBt": "Complete"
+		}
+	}
+}

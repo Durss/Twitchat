@@ -20,6 +20,7 @@
 		"start": "Start",
 		"search": "Search",
 		"close": "Close",
+		"login_placeholder": "login...",
 		"search_placeholder": "search...",
 		"select_placeholder": "select...",
 		"cooldown": "📛 {'@'}{USER} wait {DURATION}",
@@ -37,12 +38,25 @@
 		"hide": "Hide",
 		"copy": "Copy",
 		"stop": "Stop",
+		"edit": "Edit",
+		"duplicate": "Duplicate",
 		"loading": "Loading...",
+		"clear": "Clear",
+		"refresh": "Refresh",
+		"contact": "Contact: {MAIL}",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
 		"placeholder_selector_insert": "Insert",
 		"placeholder_selector_global": "Global placeholders",
+		"placeholder_selector_categories": {
+			"stream":"Stream info",
+			"counter":"Counters",
+			"value":"Values",
+			"timer":"Timer & countdown",
+			"music":"Music",
+			"goxlr": "GoXLR"
+		},
 		"chat_alert_title": "{USER} says",
 		"date_days": "d",
 		"ad_default": "Hey, i'm using GivePLZ twitchat.fr TakeNRG {USER_MESSAGE}",
@@ -53,6 +67,8 @@
 		"empty_list1":"No entry exist.",
 		"empty_list2":"Write to create one.",
 		"no_result":"No result",
+		"terms":"Terms of use",
+		"privacy":"Privacy policy",
 		"tooltips": {
 			"commercial": "Commercial",
 			"boost": "Channel boosted",
@@ -172,7 +188,13 @@
 			"users_placeholder": "username...",
 			"nobody": "Nobody is allowed by the current selection",
 			"follow": "Followers",
-			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {'{'}VALUE{'}'} days"
+			"follow_duration": "Must be a follower for 0 day | Must be a follower for 1 day | Must be a follower for {VALUE} days"
+		},
+		"messageExport": {
+			"tooltip": "Message export in progress",
+			"complete_downloaded": "Message downloaded.",
+			"complete_copied": "Message copied to clipboard.\r\nPress CTRL+V on discord, paint, ...",
+			"error": "An error has occured while exporting message :("
 		}
 	}
 }

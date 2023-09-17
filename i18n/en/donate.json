@@ -1,0 +1,15 @@
+{
+	"donate":{
+		"header": "Help making Twitchat better",
+		"infos":[
+			"Twitchat took +1 year and a half of unpaid full time work to create."
+		],
+		"amount":"Amount",
+		"success":"Thank you for your {AMOUNT}€ donation 💝",
+		"success_details":"You can now disable the automatic message sent every 2h on your chat if you wish to",
+		"automatic_message":"Keep sending automatic message",
+		"paypal_error":"Something went wrong why initializing PayPal form",
+		"donors": "Donor list",
+		"lifetime_premium": "Lifetime premium"
+	}
+}
