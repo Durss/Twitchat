@@ -799,6 +799,7 @@ export default class TriggerActionHandler {
 				log.messages.push({date:Date.now(), value:"✔ Trigger is being tested, force condition to pass"});
 			}else{
 				log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
+				log.error = true;
 			}
 	
 			//Filter actions to execute based on whether the condition is matched or not

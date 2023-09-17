@@ -380,10 +380,10 @@ export default class ContextMenuHelper {
 							icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
 							onClick: () => this.exportMessage(message, htmlNode),
 						});
-				menu.items = options as never;
 			}
 		}
-		
+			
+		menu.items = options as never;
 		if(options.length > 0) {
 			options.forEach(v=> {
 				v.clickableWhenHasChildren = true;

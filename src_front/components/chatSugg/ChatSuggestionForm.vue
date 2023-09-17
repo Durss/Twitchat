@@ -190,6 +190,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	.alternativeTool {
 		text-align: center;
 		font-size: .8em;
+		flex-shrink: 0;
 	}
 }
 </style>
