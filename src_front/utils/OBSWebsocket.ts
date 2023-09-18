@@ -561,13 +561,24 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName will search on current scene if not specified
 	 * @returns 
 	 */
-	public async searchSceneItemId(sourceName:string, sceneName?:string):Promise<{scene:string, itemId:number}> {
+	public async searchSceneItemId(sourceName:string, sceneName?:string):Promise<{scene:string, itemId:number}|null> {
 		if(!sceneName) {
 			const scene = await this.obs.call("GetCurrentProgramScene");
 			sceneName = scene.currentProgramSceneName;
 		}
-		const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
-		return {scene:sceneName, itemId:result.sceneItemId};
+		try {
+			const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
+			return {scene:sceneName, itemId:result.sceneItemId};
+		}catch(error){
+			let sources = await this.getSources();
+			for (let i = 0; i < sources.length; i++) {
+				const s = sources[i];
+				if(s.isGroup) {
+					return await this.searchSceneItemId(sourceName, s.sourceName);
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

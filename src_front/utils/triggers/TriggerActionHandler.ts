@@ -741,6 +741,8 @@ export default class TriggerActionHandler {
 							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 						}
+						log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
+						log.error = true;
 					}
 					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
@@ -748,11 +750,13 @@ export default class TriggerActionHandler {
 				//Global cooldown
 				if(canExecute && trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
 					canExecute = false;
+					const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
 					if(trigger.cooldown.alert !== false) {
-						const remaining_s = Utils.formatDuration(this.globalCooldowns[triggerId] - now + 1000) + "s";
 						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 					}
+					log.messages.push({date:Date.now(), value:"❌ Trigger is on global cooldown for "+remaining_s});
+					log.error = true;
 				}
 				else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
 			}
@@ -921,81 +925,86 @@ export default class TriggerActionHandler {
 									case "rotate": 
 									case "resize": {
 										const item = await OBSWebsocket.instance.searchSceneItemId(step.sourceName);
-										const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.itemId);
-										type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
-										let result:ReducedType = {};
-										if(action == "move") {
-											//Move source
-											if(step.pos_x) {
-												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
-												text = text.replace(/,/gi, ".");
-												result.positionX = MathJS.evaluate(text);
-											}
-											if(step.pos_y) {
-												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
-												text = text.replace(/,/gi, ".");
-												result.positionY = MathJS.evaluate(text);
-											}
-										}else if(action == "resize") {
-											//Resize source
-											if(step.width) {
-												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
-												text = text.replace(/,/gi, ".");
-												result.width = MathJS.evaluate(text);
-											}
-											if(step.height) {
-												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
-												text = text.replace(/,/gi, ".");
-												result.height = MathJS.evaluate(text);
-											}
-										}else if(action == "rotate" && step.angle) {
-											//Rotate source
-												let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
-												text = text.replace(/,/gi, ".");
-												result.rotation = MathJS.evaluate(text);
-										}
-
-										//Handle relative transform mode
-										if(step.relativeTransform === true) {
-											if(result.positionX) result.positionX += transform.positionX;
-											if(result.positionY) result.positionY += transform.positionY;
-											if(result.width) result.width += transform.width;
-											if(result.height) result.height += transform.height;
-											if(result.rotation) result.rotation += transform.rotation;
-										}
-										
-										//OBS-WS does not allow to change the source's sizes.
-										//Instead we compute the equivalent scale values.
-										if(result.width) {
-											result.scaleX = result.width/transform.sourceWidth;
-											delete result.width;
-										}
-										if(result.height) {
-											result.scaleY = result.height/transform.sourceHeight;
-											delete result.height;
-										}
-										logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
-
-										if(step.animate === true) {
-											logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
-											const params:{[key:string]:number|string|(()=>void)} = {};
-											for (const key in result) params[key] = result[key as keyof ReducedType]!;
-											params.duration = step.animateDuration! / 1000;
-											params.ease = step.animateEasing!;
-											let lastFrame = Date.now();
-											params.onUpdate = ()=> {
-												//Limit to 30fps to avoid destroying OBS-WS
-												if(Date.now() - lastFrame < 30/1000) return;
-												const localTransform:{[key:string]:number|string} = {};
-												//Remove invalid props
-												for (const key in params) {
-													if(["positionX", "positionY", "rotation", "scaleX", "scaleY"].includes(key)) localTransform[key] = transform[key as keyof ReducedType]!;
-												}
-												OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, localTransform);
-											}
-											gsap.to(transform, params);
+										if(!item) {
+											logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
+											log.error = true;
 										}else{
-											await OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, result);
+											const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.itemId);
+											type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
+											let result:ReducedType = {};
+											if(action == "move") {
+												//Move source
+												if(step.pos_x) {
+													let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
+													text = text.replace(/,/gi, ".");
+													result.positionX = MathJS.evaluate(text);
+												}
+												if(step.pos_y) {
+													let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
+													text = text.replace(/,/gi, ".");
+													result.positionY = MathJS.evaluate(text);
+												}
+											}else if(action == "resize") {
+												//Resize source
+												if(step.width) {
+													let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
+													text = text.replace(/,/gi, ".");
+													result.width = MathJS.evaluate(text);
+												}
+												if(step.height) {
+													let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
+													text = text.replace(/,/gi, ".");
+													result.height = MathJS.evaluate(text);
+												}
+											}else if(action == "rotate" && step.angle) {
+												//Rotate source
+													let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
+													text = text.replace(/,/gi, ".");
+													result.rotation = MathJS.evaluate(text);
+											}
+	
+											//Handle relative transform mode
+											if(step.relativeTransform === true) {
+												if(result.positionX) result.positionX += transform.positionX;
+												if(result.positionY) result.positionY += transform.positionY;
+												if(result.width) result.width += transform.width;
+												if(result.height) result.height += transform.height;
+												if(result.rotation) result.rotation += transform.rotation;
+											}
+											
+											//OBS-WS does not allow to change the source's sizes.
+											//Instead we compute the equivalent scale values.
+											if(result.width) {
+												result.scaleX = result.width/transform.sourceWidth;
+												delete result.width;
+											}
+											if(result.height) {
+												result.scaleY = result.height/transform.sourceHeight;
+												delete result.height;
+											}
+											logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
+	
+											if(step.animate === true) {
+												logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
+												const params:{[key:string]:number|string|(()=>void)} = {};
+												for (const key in result) params[key] = result[key as keyof ReducedType]!;
+												params.duration = step.animateDuration! / 1000;
+												params.ease = step.animateEasing!;
+												let lastFrame = Date.now();
+												params.onUpdate = ()=> {
+													//Limit to 30fps to avoid destroying OBS-WS
+													if(Date.now() - lastFrame < 30/1000) return;
+													const localTransform:{[key:string]:number|string} = {};
+													//Remove invalid props
+													for (const key in params) {
+														if(["positionX", "positionY", "rotation", "scaleX", "scaleY"].includes(key)) localTransform[key] = transform[key as keyof ReducedType]!;
+													}
+													OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, localTransform);
+												}
+												gsap.to(transform, params);
+											}else{
+												await OBSWebsocket.instance.setSourceTransform(item.scene, item.itemId, result);
+											}
 										}
 									}
 								}
