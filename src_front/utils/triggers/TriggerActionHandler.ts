@@ -1247,15 +1247,19 @@ export default class TriggerActionHandler {
 					if(step.triggerId) {
 						const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == step.triggerId);
 						if(trigger) {
-							// console.log("Exect sub trigger", step.triggerKey);
-							logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
-							await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
+							if(trigger.enabled) {
+								// console.log("Exect sub trigger", step.triggerKey);
+								logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
+								await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
+							}else{
+								logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger is disabled"});
+								log.error = true;
+							}
 						}else{
-							logStep.messages.push({date:Date.now(), value:"❌ Call trigger, trigger \""+step.triggerId+"\" not found"});
-							log.error = true;
+							logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger \""+step.triggerId+"\" not found"});
 						}
 					}else{
-						logStep.messages.push({date:Date.now(), value:"❌ Call trigger, no trigger defined"});
+						logStep.messages.push({date:Date.now(), value:"❌ Call trigger: no trigger defined"});
 						log.error = true;
 					}
 				}else
