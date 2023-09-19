@@ -364,6 +364,7 @@ export default class SpotifyHelper {
 		}
 		if(res.status == 204) {
 			//No content, nothing is playing
+			this._isPlaying = false;
 			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
 			return;
 		}
@@ -371,9 +372,7 @@ export default class SpotifyHelper {
 		let json:SpotifyTrack|null = null;
 		try {
 			json = await res.json();
-		}catch(error) {
-			return;
-		}
+		}catch(error) { }
 		if(!json) {
 			this._getTrackTimeout = setTimeout(()=> {
 				this.getCurrentTrack();
