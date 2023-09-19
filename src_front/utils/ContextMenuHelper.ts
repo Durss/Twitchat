@@ -412,11 +412,6 @@ export default class ContextMenuHelper {
 		})
 	}
 
-	private getHTMLLabel(labelKey:string):VNode<RendererNode, RendererElement> {
-		const t = StoreProxy.i18n.t;
-		return h("span", {class:"label", innerHTML:t(labelKey)});
-	}
-
 	/**
 	 * Timeouts a user
 	 * 

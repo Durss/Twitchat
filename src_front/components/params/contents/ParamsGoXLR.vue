@@ -20,7 +20,10 @@
 				<GoXLRConnectForm />
 			</div>
 		</template>
-		<Button icon="premium" @click="openPremium()" v-else premium big>{{ $t('premium.become_premiumBt')  }}</Button>
+		<template v-else>
+			<Button icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</Button>
+			<img src="@/assets/img/goxlr_features.png" alt="goxlr" class="interfaceExample">
+		</template>
 
 		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
 			<section class="card-item alert error" v-if="noDevice">
@@ -54,7 +57,16 @@
 			<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
 			<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
 		</section>
-		
+
+		<div class="youtubeLinks">
+			<a href="https://www.youtube.com/watch?v=4EqwWVK7BAA" target="_blank">
+				<img src="@/assets/img/youtube_goxlr1.jpg" alt="youtube example" class="youtubeBt">
+			</a>
+			<a href="https://www.youtube.com/watch?v=epfuG9K1vtc" target="_blank">
+				<img src="@/assets/img/youtube_goxlr2.jpg" alt="youtube example" class="youtubeBt">
+			</a>
+		</div>
+	
 		<i18n-t scope="global" class="donate" tag="div" keypath="goxlr.donate">
 			<template #LINK>
 				<a href="https://ko-fi.com/frostycoolslug" target="_blank">{{ $t("goxlr.donate_link") }}</a>
@@ -207,6 +219,23 @@ export default class ParamsGoXLR extends Vue {
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
+	}
+
+	.interfaceExample {
+		max-width: 400px;
+		margin: auto;
+	}
+
+	.youtubeLinks {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		.youtubeBt {
+			.emboss();
+			width: 200px;
+			border-radius: var(--border-radius);
+		}
 	}
 
 	section, .toggleblock {

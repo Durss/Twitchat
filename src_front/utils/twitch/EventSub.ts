@@ -3,7 +3,6 @@ import { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes"
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { LoremIpsum } from "lorem-ipsum";
 import Config from "../Config";
-import OBSWebsocket from "../OBSWebsocket";
 import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
@@ -121,6 +120,8 @@ export default class EventSub {
 			//Connection was created but we subscribed to no topic, twitch
 			//closed the connection
 			if(event.code == 4003) return;
+			
+			this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 
 			// console.log("EVENTSUB : Closed");
 			clearTimeout(this.reconnectTimeout)

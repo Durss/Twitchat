@@ -19,6 +19,15 @@
 			<HeatScreenList :open="subContent == 'heatAreas'" :class="subContent == 'heatAreas'? 'selected' : ''" />
 			<HeatDebug />
 		</div>
+		
+		<div class="youtubeLinks">
+			<a href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank">
+				<img src="@/assets/img/youtube_heat1.jpg" alt="youtube example" class="youtubeBt">
+			</a>
+			<a href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank">
+				<img src="@/assets/img/youtube_heat2.jpg" alt="youtube example" class="youtubeBt">
+			</a>
+		</div>
 
 		<a href="https://ko-fi.com/scottmadethis" target="_blank" class="donate">{{ $t("heat.donate") }}</a>
 	</div>
@@ -123,6 +132,18 @@ export default class ParamsHeat extends Vue {
 .paramsheat{
 	.installBt {
 		margin-top: .5em;
+	}
+
+	.youtubeLinks {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		.youtubeBt {
+			.emboss();
+			width: 200px;
+			border-radius: var(--border-radius);
+		}
 	}
 
 	.fadeHolder {

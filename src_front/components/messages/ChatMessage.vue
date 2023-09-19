@@ -212,21 +212,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		&& this.channelInfo.is_following === false;
 	}
 
-	/**
-	* Get replacement text if message has been deleted
-	*/
-	public getDeletedMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):string {
-		if(message.type != "message") return "";
-
-		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
-		if(message.deletedData) {
-			return censor ? this.$t("chat.message.deleted_by", {USER:message.deletedData.deleter.displayName}) : "";
-		}else if(message.deleted){
-			return censor ? this.$t("chat.message.deleted") : "";
-		}
-		return "";
-	}
-
 	public get classes():string[] {
 		const res					= this.staticClasses.concat();
 		const message				= this.messageData;
@@ -255,25 +240,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		return this.messageData.children.filter(v=>(v.occurrenceCount || 0) === 0);
 	}
 
-	public getMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
-		const res:string[]		= ["message"];
-		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
-
-		if(message.deleted)	res.push("deleted");
-		if(spoilersEnabled && message.spoiler === true) res.push("spoiler");
-
-		return res;
-	}
-
-	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData):string[] {
-		const res:string[] = ["messageChild"];
-		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
-
-		if(message.deleted) res.push("deleted");
-		if(spoilersEnabled && message.spoiler) res.push("spoiler");
-		return res;
-	}
-
 	public get showModTools():boolean {
 		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
 	}
@@ -296,16 +262,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		const dname = this.messageData.user.displayNameOriginal.toLowerCase();
 		const uname = this.messageData.user.login.toLowerCase();
 		return dname != uname;
-	}
-	
-	/**
-	 * Set login color
-	 */
-	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
-		let res = {
-			color: Utils.getUserColor(user),
-		};
-		return res;
 	}
 
 	/**
@@ -353,6 +309,57 @@ export default class ChatMessage extends AbstractChatMessage {
 			}
 		}
 		return badges;
+	}
+
+	/**
+	* Get replacement text if message has been deleted
+	*/
+	public getDeletedMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):string {
+		if(message.type != "message") return "";
+
+		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
+		if(message.deletedData) {
+			return censor ? this.$t("chat.message.deleted_by", {USER:message.deletedData.deleter.displayName}) : "";
+		}else if(message.deleted){
+			return censor ? this.$t("chat.message.deleted") : "";
+		}
+		return "";
+	}
+
+	/**
+	 * Get classes for the message holder
+	 */
+	public getMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
+		const res:string[]		= ["message"];
+		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+
+		if(message.deleted)	res.push("deleted");
+		if(spoilersEnabled && message.spoiler === true) res.push("spoiler");
+
+		return res;
+	}
+
+	/**
+	 * Get classes for a child message
+	 * @param message 
+	 */
+	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData):string[] {
+		const res:string[] = ["messageChild"];
+		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+
+		if(message.deleted) res.push("deleted");
+		if(spoilersEnabled && message.spoiler) res.push("spoiler");
+		return res;
+	}
+	
+	/**
+	 * Set login color
+	 */
+	public getLoginStyles(user:TwitchatDataTypes.TwitchatUser):StyleValue {
+		let res = {
+			color: Utils.getUserColor(user),
+		};
+		return res;
 	}
 
 	public beforeUpdate() {
