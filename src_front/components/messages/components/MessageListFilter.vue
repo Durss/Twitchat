@@ -66,7 +66,7 @@
 							</template>
 							<template #child v-if="f.storage == messageType && config.filters.message === true">
 								<div class="subFilters">
-									<ParamItem class="item" autoFade
+									<ParamItem class="item"
 										v-if="config.filters.message === true"
 										key="subfilter_blockUsers"
 										:childLevel="1"

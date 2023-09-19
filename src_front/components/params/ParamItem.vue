@@ -289,7 +289,9 @@ export default class ParamItem extends Vue {
 		const res = ["paramitem"];
 		if(this.noBackground === false) {
 			res.push("card-item");
-			if(this.paramData.value !== true) res.push("unselected");
+			if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
+			if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
+			if(this.paramData.type == "editablelist" && (this.paramData.value as unknown[]).length === 0) res.push("unselected");
 		}else{
 			res.push("no-bg");
 		}
