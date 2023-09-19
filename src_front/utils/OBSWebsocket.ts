@@ -570,11 +570,13 @@ export default class OBSWebsocket extends EventDispatcher {
 			const result = await this.obs.call("GetSceneItemId", {sceneName, sourceName});
 			return {scene:sceneName, itemId:result.sceneItemId};
 		}catch(error){
+			//If source isn't found, search for groups recursively to also check within them
 			let sources = await this.getSources();
 			for (let i = 0; i < sources.length; i++) {
 				const s = sources[i];
-				if(s.isGroup) {
-					return await this.searchSceneItemId(sourceName, s.sourceName);
+				if(s.isGroup || s.sourceType == "OBS_SOURCE_TYPE_SCENE") {
+					let res = await this.searchSceneItemId(sourceName, s.sourceName);
+					if(res) return res;
 				}
 			}
 		}
