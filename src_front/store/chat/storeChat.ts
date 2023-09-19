@@ -15,7 +15,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { JsonArray, JsonObject } from 'type-fest'
-import { reactive, type UnwrapRef } from 'vue'
+import { reactive, watch, type UnwrapRef } from 'vue'
 import Database from '../Database'
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy'
 
@@ -1246,6 +1246,18 @@ export const storeChat = defineStore('chat', {
 						console.error("Database addMessage() error");
 						console.log(error);
 					});
+					//If user isn't fully loaded yet, wait for it to be loaded
+					if("user" in message && message.user) {
+						const u = (message.user as TwitchatDataTypes.TwitchatUser)
+						if(u.temporary === true) {
+							watch(()=> u.temporary, ()=> {
+								Database.instance.updateMessage(message).catch((error)=>{
+									console.error("Database updateMessage() error");
+									console.log(error);
+								})
+							})
+						}
+					}
 				}
 			
 				//Limit history size
