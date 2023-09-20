@@ -629,6 +629,9 @@ export const storeChat = defineStore('chat', {
 				//Don't send donation related messages if premium
 				if(StoreProxy.auth.isPremium) return;
 			}
+			if(adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING && StoreProxy.auth.twitch.user.donor.state) {
+				return;
+			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
 				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(StoreProxy.auth.twitch.user.donor.state!==true && !StoreProxy.auth.isPremium) {
