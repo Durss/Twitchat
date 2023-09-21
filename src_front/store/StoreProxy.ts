@@ -260,6 +260,7 @@ export type IAuthState = {
 
 export interface IAuthGetters {
 	isPremium:boolean;
+	isDonor:boolean;
 }
 
 export interface IAuthActions {

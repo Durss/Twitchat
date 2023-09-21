@@ -25,6 +25,7 @@
 			
 					<p class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info')"></p>
 					<Button @click="openDonate()" light icon="coin">{{ $t('params.ad_disableBt') }}</Button>
+					<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
 				</template>
 			</div>
 	</div>
@@ -98,7 +99,12 @@ export default class ParamsTwitchatAd extends Vue {
 	public async open():Promise<void> {
 		if(!this.collapse) return;
 		this.collapse = false;
-		await this.$nextTick()
+		await this.$nextTick();
+		await this.$nextTick();
+		await this.$nextTick();
+		await this.$nextTick();
+		await this.$nextTick();
+		await this.$nextTick();
 		const content = this.$refs.content as HTMLDivElement;
 		DataStore.set(DataStore.COLLAPSE_PARAM_AD_INFO, false);
 		gsap.from(content, {padding:0, width:0, height:0, duration:.35, ease:"quad.inOut", clearProps:"all", onComplete:()=>{
@@ -120,6 +126,10 @@ export default class ParamsTwitchatAd extends Vue {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 	}
 
+	public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
 }
 </script>
 
@@ -130,7 +140,6 @@ export default class ParamsTwitchatAd extends Vue {
 	border: 5px solid transparent;
 
 	.content {
-		overflow: hidden;
 		max-width: 600px;
 		gap: .5em;
 		display: flex;
@@ -139,6 +148,7 @@ export default class ParamsTwitchatAd extends Vue {
 	}
 
 	&.collapse {
+		overflow: hidden;
 		width: min-content;
 		cursor: pointer;
 		.content {
