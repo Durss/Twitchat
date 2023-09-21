@@ -26,22 +26,6 @@
 				</template>
 			</i18n-t>
 		</div>
-
-		<template v-else-if="!connected">
-			<i18n-t scope="global" tag="div" keypath="patreon.info">
-				<template #LINK>
-					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("patreon.info_link") }}</a>
-				</template>
-			</i18n-t>
-			
-			<i18n-t scope="global" tag="div" keypath="patreon.alternative">
-				<template #LINK>
-					<a @click="openDonate()">{{ $t("patreon.alternative_link", {AMOUNT:$config.LIFETIME_DONOR_VALUE}) }}</a>
-				</template>
-			</i18n-t>
-			
-			<Button icon="patreon" @click="authenticate()" :loading="redirecting" premium>{{ $t("patreon.linkBt") }}</Button>
-		</template>
 	
 		<template v-else-if="connected">
 			<span>{{ $t("patreon.connected") }}</span>
@@ -55,6 +39,22 @@
 			</template>
 
 			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
+		</template>
+
+		<template v-if="!connected || (connected && !isMember)">
+			<i18n-t scope="global" tag="div" keypath="patreon.info">
+				<template #LINK>
+					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("patreon.info_link") }}</a>
+				</template>
+			</i18n-t>
+			
+			<i18n-t scope="global" tag="div" keypath="patreon.alternative">
+				<template #LINK>
+					<a @click="openDonate()">{{ $t("patreon.alternative_link", {AMOUNT:$config.LIFETIME_DONOR_VALUE}) }}</a>
+				</template>
+			</i18n-t>
+			
+			<Button v-if="!connected" icon="patreon" @click="authenticate()" :loading="redirecting" premium>{{ $t("patreon.linkBt") }}</Button>
 		</template>
 	</div>
 </template>
@@ -81,7 +81,7 @@ export default class ParamsAccountPatreon extends Vue {
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
-	public get isMember():boolean { return PatreonHelper.instance.isMember; }
+	public get isMember():boolean { return PatreonHelper.instance.isMember && false; }
 
 	public async mounted():Promise<void> {
 		
