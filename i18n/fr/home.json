@@ -11,22 +11,46 @@
 			"title":"Fonctionnalités",
 			"list":[
 				{
-					"icon":"emergency",
-					"video":"emergency.webm",
-					"title":"Button d'urgence",
-					"description":"Masquez vos alertes, changez de scène, bannissez vos bots temporairement et activez le shield mode d'un simple bouton"
+					"icon":"merge",
+					"image":"merge_messages.gif",
+					"title":"Anti-spam",
+					"description":"Fusionnez les messages consécutifs d'une même personne en un seul"
 				},
 				{
-					"icon":"pin",
-					"video":"save.webm",
-					"title":"Enregistrez des messages",
-					"description":"Mettez des messages de côté pour les retrouver plus tard"
+					"icon":"badge",
+					"image":"custom_badges_name.gif",
+					"title":"Badges et pseudo personnalisés",
+					"description":"Créez des badges de tchat et attribuez des pseudos personnalisés à vow viewers. Ceci peut être automatisé depuis les points de chaîne, des commandes de tchat, des subs, des bits, ..."
+				},
+				{
+					"icon":"goxlr",
+					"image":"goxlr.png",
+					"title":"GoXLR",
+					"description":"Contrôlez Twitchat depuis votre GoXLR et contrôlez votre GoXLR depuis des récompenses de point de chaîne, subs, bit, ..."
 				},
 				{
 					"icon":"elgato",
 					"image":"streamdeck.jpg",
 					"title":"Stream Deck™",
 					"description":"Scrollez le tchat, déplacez le marque-page, modérez et mettez des messages en avant, déclenchez le mode urgence, ..."
+				},
+				{
+					"icon":"voicemod",
+					"image":"voicemod.webp",
+					"title":"Voicemod",
+					"description":"Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
+				},
+				{
+					"icon":"spotify",
+					"image":"musicPlayer.png",
+					"title":"Spotify",
+					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
+				},
+				{
+					"icon":"pin",
+					"video":"save.webm",
+					"title":"Enregistrez des messages",
+					"description":"Mettez des messages de côté pour les retrouver plus tard"
 				},
 				{
 					"icon":"show",
@@ -47,10 +71,10 @@
 					"description":"Permettez à vos modérateurices de vous alerter en cas d'urgence"
 				},
 				{
-					"icon":"voice",
-					"video":"voiceControl.webm",
-					"title":"Contrôle vocal",
-					"description":"Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclencher le mode urgence, ..."
+					"icon":"emergency",
+					"video":"emergency.webm",
+					"title":"Button d'urgence",
+					"description":"Masquez vos alertes, changez de scène, bannissez vos bots temporairement et activez le shield mode d'un simple bouton"
 				},
 				{
 					"icon":"tts",
@@ -89,22 +113,16 @@
 					"description":"Faites deviner un nombre aléatoire, une emote aléatoire ou un message personnalisé à vos viewers"
 				},
 				{
+					"icon":"voice",
+					"video":"voiceControl.webm",
+					"title":"Contrôle vocal",
+					"description":"Utilisez votre voix pour contrôlez le chat, gérer vos sondages et prédictions, déclencher le mode urgence, ..."
+				},
+				{
 					"icon":"broadcast",
 					"image":"triggers.png",
 					"title":"Actions automatisées",
 					"description":"Un système de <strong>Triggers</strong> permet de contrôler OBS, envoyer des messages, contrôler spotify, ... en réponse à énormément d'évènements comme les subs, cheers, points de chaîne, ..."
-				},
-				{
-					"icon":"spotify",
-					"image":"musicPlayer.png",
-					"title":"Spotify",
-					"description":"Liez Twitchat à Spotify pour afficher la musique en cours ou en contrôler la lecture depuis des Triggers"
-				},
-				{
-					"icon":"voicemod",
-					"image":"voicemod.webp",
-					"title":"Voicemod",
-					"description":"Contrôlez <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> depuis Twitchat et automatisez des actions lorsqu'un effet est activé"
 				},
 				{
 					"icon":"params",

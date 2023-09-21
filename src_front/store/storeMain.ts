@@ -265,9 +265,8 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 
 			//Warn the user about the automatic "ad" message sent every 2h
-			if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !sAuth.isPremium) {
+			if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !sAuth.isDonor) {
 				setTimeout(()=>{
-					if(sAuth.twitch.user.donor.noAd) return;
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
 				}, 5000);
 			}else

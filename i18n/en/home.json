@@ -11,22 +11,46 @@
 			"title":"Features",
 			"list":[
 				{
-					"icon":"emergency",
-					"video":"emergency.webm",
-					"title":"Emergency button",
-					"description":"Protect yourself from doxxing, hate raids and follow bot raids with the simple click of a configurable button"
+					"icon":"merge",
+					"image":"merge_messages.gif",
+					"title":"Anti-spam",
+					"description":"Make all consecutive messages of a user appear as one single message"
 				},
 				{
-					"icon":"pin",
-					"video":"save.webm",
-					"title":"Save messages",
-					"description":"Save any message and find them back in a dedicated list"
+					"icon":"badge",
+					"image":"custom_badges_name.gif",
+					"title":"Custom badges and usernames",
+					"description":"Create custom chat badges and set custom usernames to your viewers. This can be automated from channel point rewards, chat commands, subs, bits, ..."
+				},
+				{
+					"icon":"goxlr",
+					"image":"goxlr.png",
+					"title":"GoXLR",
+					"description":"Control Twitchat from your GoXLR and control your GoXLR from channel point rewards, subs, bit, ..."
 				},
 				{
 					"icon":"elgato",
 					"image":"streamdeck.jpg",
 					"title":"Stream Deck™",
 					"description":"Scroll chat feed, move read mark, moderate messages, highlight them on stream, start emergency mode, ..."
+				},
+				{
+					"icon":"voicemod",
+					"image":"voicemod.webp",
+					"title":"Voicemod",
+					"description":"Control <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> from Twitchat and automate actions when effect is changed"
+				},
+				{
+					"icon":"spotify",
+					"image":"musicPlayer.png",
+					"title":"Spotify",
+					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
+				},
+				{
+					"icon":"pin",
+					"video":"save.webm",
+					"title":"Save messages",
+					"description":"Save any message and find them back in a dedicated list"
 				},
 				{
 					"icon":"show",
@@ -47,10 +71,10 @@
 					"description":"Let your moderator get your attention with a configurable alert command"
 				},
 				{
-					"icon":"voice",
-					"video":"voiceControl.webm",
-					"title":"Voice control",
-					"description":"Control the chat, create polls and predictions and much more with your voice thanks to the voice bot"
+					"icon":"emergency",
+					"video":"emergency.webm",
+					"title":"Emergency button",
+					"description":"Protect yourself from doxxing, hate raids and follow bot raids with the simple click of a configurable button"
 				},
 				{
 					"icon":"tts",
@@ -89,22 +113,16 @@
 					"description":"Let your viewers guess a random number, emote or message"
 				},
 				{
+					"icon":"voice",
+					"video":"voiceControl.webm",
+					"title":"Voice control",
+					"description":"Control the chat, create polls and predictions and much more with your voice thanks to the voice bot"
+				},
+				{
 					"icon":"broadcast",
 					"image":"triggers.png",
 					"title":"Automate actions",
 					"description":"Twitchat provides a <strong>Trigger</strong> system to control OBS, send messages on chat, control Spotify, create commands, react to channel points events, subs, cheers, polls, predictions, ..."
-				},
-				{
-					"icon":"spotify",
-					"image":"musicPlayer.png",
-					"title":"Spotify",
-					"description":"Connect Twitchat with Spotify to display the current track on your stream or allow your viewers to add tracks to the queue"
-				},
-				{
-					"icon":"voicemod",
-					"image":"voicemod.webp",
-					"title":"Voicemod",
-					"description":"Control <a href='https://www.voicemod.net' target='_blank'>Voicemod</a> from Twitchat and automate actions when effect is changed"
 				},
 				{
 					"icon":"params",
