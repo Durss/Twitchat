@@ -81,7 +81,7 @@ export default class ParamsAccountPatreon extends Vue {
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
-	public get isMember():boolean { return PatreonHelper.instance.isMember && false; }
+	public get isMember():boolean { return PatreonHelper.instance.isMember; }
 
 	public async mounted():Promise<void> {
 		
