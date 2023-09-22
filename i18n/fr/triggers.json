@@ -516,7 +516,8 @@
 			"goxlr_fader_1_mute":"Fader 1 mis en sourdine",
 			"goxlr_fader_2_mute":"Fader 2 mis en sourdine",
 			"goxlr_fader_3_mute":"Fader 3 mis en sourdine",
-			"goxlr_fader_4_mute":"Fader 4 mis en sourdine"
+			"goxlr_fader_4_mute":"Fader 4 mis en sourdine",
+			"announcement_color":"Couleur de l'annonce"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -908,6 +909,10 @@
 			"VALUE_UPDATE": {
 				"label": "Valeur modifiée",
 				"description": "Actions à exécuter lorsque la valeur {SUB_ITEM_NAME} est modifiée"
+			},
+			"ANNOUNCEMENTS": {
+				"label": "/announce",
+				"description": "Actions à exécuter lorsqu'un /announce est envoyé"
 			}
 		},
 		"musicEvents": {

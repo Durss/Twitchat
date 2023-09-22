@@ -516,7 +516,8 @@
 			"goxlr_fader_1_mute":"Fader 1 muted",
 			"goxlr_fader_2_mute":"Fader 2 muted",
 			"goxlr_fader_3_mute":"Fader 3 muted",
-			"goxlr_fader_4_mute":"Fader 4 muted"
+			"goxlr_fader_4_mute":"Fader 4 muted",
+			"announcement_color":"Couleur de l'annonce"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -906,6 +907,10 @@
 			"VALUE_UPDATE": {
 				"label": "Value updated",
 				"description": "Actions to execute when the value {SUB_ITEM_NAME} is updated"
+			},
+			"ANNOUNCEMENTS": {
+				"label": "/announce",
+				"description": "Actions to execute when a /announce is sent on chat"
 			}
 		},
 		"musicEvents": {

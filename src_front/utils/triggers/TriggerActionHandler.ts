@@ -101,6 +101,9 @@ export default class TriggerActionHandler {
 				if(message.twitch_isReturning === true) {
 					await this.executeTriggersByType(TriggerTypes.RETURNING_USER, message, testMode, undefined, undefined, forcedTriggerId);
 				}
+				if(message.twitch_announcementColor) {
+					await this.executeTriggersByType(TriggerTypes.ANNOUNCEMENTS, message, testMode, undefined, undefined, forcedTriggerId);
+				}
 
 				if(message.message) {
 					const cmd = message.message.trim().split(" ")[0].toLowerCase();
