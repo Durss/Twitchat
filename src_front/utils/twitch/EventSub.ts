@@ -570,6 +570,7 @@ export default class EventSub {
 			message:event.message,
 			message_chunks:chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			message_size:TwitchUtils.computeMessageSize(chunks),
 		}
 		StoreProxy.chat.addMessage(message);
 	}

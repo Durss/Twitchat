@@ -639,7 +639,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message_html:"",
 			message_chunks:[],
 			message_size:0,
-			children:[],
 			is_short:false,
 			raw_data:{tags, message}
 		};
@@ -711,7 +710,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				message_chunks:data.message_chunks,
 				message_html:data.message_html,
 				message_size:data.message_size,
-				children:[],
 			}
 			this.dispatchEvent(new MessengerClientEvent("REWARD", reward));
 		}
@@ -787,6 +785,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message,
 			message_chunks:chunks,
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
+			message_size:TwitchUtils.computeMessageSize(chunks),
 		}));
 	}
 

@@ -185,7 +185,6 @@ export default class PostOnChatParam extends Vue {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			answers:[],
-			children:[],
 			user:me,
 			twitch_announcementColor:announcementColor,
 			is_short:false,

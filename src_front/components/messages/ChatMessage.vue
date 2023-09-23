@@ -169,6 +169,9 @@ export default class ChatMessage extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	
+	@Prop
+	declare children:(TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData)[];
+	
 	@Prop({type:Boolean, default:false})
 	declare lightMode:boolean;
 	
@@ -180,9 +183,6 @@ export default class ChatMessage extends AbstractChatMessage {
 
 	@Prop({type:Array, default:[]})
 	public highlightedWords!:string[];
-
-	@Prop({type:Boolean, default:false})
-	public noMerge!:boolean;
 
 	@Prop({type:Number, default:0})
 	public colIndex!:number;
@@ -232,12 +232,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		return res;
-	}
-
-	public get children():TwitchatDataTypes.MessageChatData[] {
-		if(this.noMerge !== false) return [];
-		if(this.messageData.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) return []
-		return this.messageData.children.filter(v=>(v.occurrenceCount || 0) === 0);
 	}
 
 	public get showModTools():boolean {
@@ -343,7 +337,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Get classes for a child message
 	 * @param message 
 	 */
-	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData):string[] {
+	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
 		const res:string[] = ["messageChild"];
 		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
 
@@ -567,15 +561,12 @@ export default class ChatMessage extends AbstractChatMessage {
 		}else{
 			const answersBckp = this.messageData.answers;
 			const answerToBckp = this.messageData.answersTo;
-			const childrenBckp = this.messageData.children;
 			//Remove data to avoid infinite JSON stringify recursion
 			this.messageData.answers = [];
 			this.messageData.answersTo = undefined;
-			this.messageData.children = [];
 			super.copyJSON();
 			this.messageData.answers = answersBckp;
 			this.messageData.answersTo = answerToBckp;
-			this.messageData.children = childrenBckp;
 		}
 	}
 

@@ -250,7 +250,6 @@ export default class MessengerProxy {
 					user:me,
 					is_short:false,
 					answers:[],
-					children:[],
 					message_size:0,
 				}
 				TriggerActionHandler.instance.executeTrigger(t, messageData, false, t.chatCommand);

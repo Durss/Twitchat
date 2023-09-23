@@ -127,7 +127,6 @@
 							<div class="subholder" v-for="m in messageHistory" :key="m.id">
 								<MessageItem class="message"
 									disableConversation
-									noMerge
 									:messageData="m" />
 							</div>
 						</div>
@@ -432,7 +431,6 @@ export default class UserCard extends Vue {
 					message_size:0,
 					answers:[],
 					is_short:false,
-					children:[],
 				};
 				this.loadHistory(u.id);
 			}else{

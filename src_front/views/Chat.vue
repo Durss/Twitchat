@@ -623,7 +623,6 @@ export default class Chat extends Vue {
 						user:me,
 						is_short:false,
 						answers:[],
-						children:[],
 					}
 					TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, false);
 				}

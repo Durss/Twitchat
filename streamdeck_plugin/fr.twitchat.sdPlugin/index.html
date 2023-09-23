@@ -101,15 +101,6 @@
 						params = {scrollBy: payload.settings.scrollAmount};
 						break;
 					}
-					case "TIMER":
-					case "COUNTDOWN":{
-						params = {scrollBy: payload.settings.timeAdd};
-						break;
-					}
-					case "COUNT":{
-						params = {scrollBy: payload.settings.countAdd};
-						break;
-					}
 				}
 				if(col) params.col = col;
 				// console.log(actionName, params);

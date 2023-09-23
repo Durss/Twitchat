@@ -416,7 +416,6 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
 			message_size: TwitchUtils.computeMessageSize(chunks),
 			answers: [],
-			children: [],
 			is_short:false,
 		};
 		TTSUtils.instance.readNow(m);

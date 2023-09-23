@@ -128,6 +128,7 @@ export default class ChatModTools extends Vue {
 	.icon {
 		opacity: 0.75;
 		height: 1em;
+		width: 1em;
 		vertical-align: middle;
 		cursor: pointer;
 		&:hover {

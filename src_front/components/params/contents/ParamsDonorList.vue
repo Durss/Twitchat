@@ -114,6 +114,7 @@ export default class ParamsDonorList extends Vue {
 		const items = this.localList.splice(0, 100);
 		const uids = items.map(v => v.uid).filter(v => v != "-1");
 		const users = await TwitchUtils.loadUserInfo(uids);
+		if(this.disposed) return;
 		const res:{uid:string, v:number, login:string, index:number}[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const item = {

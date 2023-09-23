@@ -87,7 +87,6 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						answers:[],
-						children:[],
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
@@ -169,6 +168,7 @@ export const storeDebug = defineStore('debug', {
 						message,
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_size:TwitchUtils.computeMessageSize(chunks),
 						user:fakeUser,
 						bits,
 					};
@@ -222,7 +222,6 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						type,
 						user:Utils.pickRand(fakeUsers),
-						children:[],
 						message_size:0,
 						reward: {
 							id:reward.id,

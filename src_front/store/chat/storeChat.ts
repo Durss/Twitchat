@@ -814,7 +814,6 @@ export const storeChat = defineStore('chat', {
 								if(message.twitch_automod || m.twitch_automod) continue;
 								//Don't merge answers to messages
 								if(message.answersTo || m.answersTo) continue;
-								m.children = [];
 							}
 							if(!m.occurrenceCount) m.occurrenceCount = 0;
 							//Remove message

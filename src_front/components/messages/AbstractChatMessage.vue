@@ -15,6 +15,9 @@ export default class AbstractChatMessage extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
+
+	@Prop
+	public children!:TwitchatDataTypes.ChatMessageTypes[];
 	
 	@Prop({type:Boolean, default:false})
 	public lightMode!:boolean;

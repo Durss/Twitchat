@@ -22,10 +22,13 @@
 				</i18n-t>
 				
 				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
-				
-				<div class="quote dark" v-if="entry.vo.message_html">
-					<ChatMessageChunksParser :chunks="entry.vo.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
-				</div>
+			</div>
+			
+			<div class="quote dark" v-if="messageData.message_html">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
+			</div>
+			<div class="quote dark" v-if="children" v-for="child in children.filter(v=>v.message_html != undefined)" :key="child.id">
+				<ChatMessageChunksParser :chunks="child.message_chunks" :channel="child.channel_id" :platform="child.platform" />
 			</div>
 		</div>
 	</div>
@@ -48,12 +51,12 @@ export default class ChatReward extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
 
-	@Prop({type:Boolean, default:false})
-	public noMerge!:boolean;
+	@Prop
+	declare children:TwitchatDataTypes.MessageRewardRedeemData[];
 
 	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
 		const res = [this.messageData];
-		if(this.messageData.children && this.noMerge === false) res.push(...this.messageData.children);
+		if(this.children) res.push(...this.children);
 
 		const idCountDictionary :{[key:string]:number} = {};
 

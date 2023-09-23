@@ -1744,24 +1744,22 @@ export namespace TwitchatDataTypes {
 		col?:number;//Use this to send a message on a specific column index
 	}
 
-	export type MergeableMessageTypes = Extract<ChatMessageTypes, {children?:ChatMessageTypes[]}>["type"];
+	export type MergeableMessageTypes = Extract<ChatMessageTypes, {message_size?:number}>["type"];
 	//Ensure the object contains all requested keys
 	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
 		message:true,
 		reward:true,
+		whisper:true,
+		cheer:true,
+		subscription:false,
 	}
 	export interface MergeableMessage {
-		/**
-		 * When sending consecutive messages of the same type they are grouped together.
-		 * In this case the first one will contain the next ones in that "children" property.
-		 */
-		children: ChatMessageTypes[];
 		/**
 		 * User that posted the message
 		 */
 		user: TwitchatUser;
 		/**
-		 * Size of the message
+		 * Size of the message in chars (emotes/cheermotes count as 2 chars)
 		 */
 		message_size:number;
 	}
@@ -1824,7 +1822,7 @@ export namespace TwitchatDataTypes {
 		 */
 		message_html:string;
 		/**
-		 * Size of the message in chars (emotes/cheermotes count as 2 chars)
+		 * @see MergeableMessage
 		 */
 		message_size:number;
 		/**
@@ -1857,10 +1855,6 @@ export namespace TwitchatDataTypes {
 		 * The message this message answers to if any
 		 */
 		answersTo?: MessageChatData;
-		/**
-		 * @see MergeableMessage
-		 */
-		children: MessageChatData[];
 		/**
 		 * Is the message content cyphered ?
 		 */
@@ -1975,7 +1969,7 @@ export namespace TwitchatDataTypes {
 		 */
 		message_html:string;
 		/**
-		 * Textual size of the message. (emotes/cheermotes count as 2 chars)
+		 * @see MergeableMessage
 		 */
 		message_size:number;
 		/**
@@ -2201,7 +2195,7 @@ export namespace TwitchatDataTypes {
 		 */
 		message_html?:string;
 		/**
-		 * Message textual size (emotes/cheermotes count as 2 chars)
+		 * @see MergeableMessage
 		 */
 		message_size:number;
 		/**
@@ -2213,7 +2207,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a bits data
 	 */
-	export interface MessageCheerData extends GreetableMessage {
+	export interface MessageCheerData extends GreetableMessage, MergeableMessage {
 		channel_id: string;
 		type:"cheer";
 		/**
@@ -2236,6 +2230,10 @@ export namespace TwitchatDataTypes {
 		 * Text message with cheermotes replaced by HTML tags
 		 */
 		message_html: string;
+		/**
+		 * @see MergeableMessage
+		 */
+		message_size: number;
 	}
 
 	/**
@@ -2271,10 +2269,6 @@ export namespace TwitchatDataTypes {
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
 		*/
 		message_html?:string;
-		/**
-		 * @see MergeableMessage
-		 */
-		children:MessageRewardRedeemData[];
 	}
 
 	/**

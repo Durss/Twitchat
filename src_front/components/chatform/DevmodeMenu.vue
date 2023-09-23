@@ -2,64 +2,64 @@
 	<div class="devmodemenu blured-background-window">
 		<h1>Developer panel</h1>
 		<div class="list">
-			<!-- <Button small title="Commercial" @click="simulateEvent('commercial')" icon="coin" /> -->
-			<Button small @click="simulateEvent('message', 'clip')" icon="clip">Clip link</Button>
-			<Button small @click="simulateEvent('clip_pending_publication')" icon="clip">Clip creation</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'discord')" icon="whispers">Discord</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
-			<Button small @click="simulateEvent('twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
+			<!-- <Button small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
+			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
+			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad')" icon="whispers">Twitchat ad</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
-			<Button small @click="simulateEvent('join')" icon="enter">Join</Button>
-			<Button small @click="simulateEvent('leave')" icon="leave">Leave</Button>
-			<Button small @click="simulateEvent('ban')" icon="ban">Ban</Button>
-			<Button small @click="simulateEvent('unban')" icon="unban">Unban</Button>
-			<Button small @click="simulateEvent('message', 'first')" icon="firstTime">First message</Button>
-			<Button small @click="simulateEvent('message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
-			<Button small @click="simulateEvent('message', 'returning')" icon="returning">Returning user</Button>
-			<Button small @click="simulateEvent('message', 'presentation')" icon="firstTime">Presentation</Button>
-			<Button small @click="simulateEvent('message', 'recent')" icon="alert">Recent account</Button>
-			<Button small @click="simulateEvent('user_watch_streak')" icon="watchStreak">Watch streak</Button>
-			<Button small @click="simulateEvent('raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
-			<Button small @click="simulateEvent('raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
+			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
+			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
+			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
+			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
+			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>
+			<Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
+			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
+			<Button small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</Button>
+			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
+			<Button small @click="simulateEvent($event, 'user_watch_streak')" icon="watchStreak">Watch streak</Button>
+			<Button small @click="simulateEvent($event, 'raid', 'raidOffline')" icon="raid">Incoming raid offline</Button>
+			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
 			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
-			<Button small @click="simulateEvent('cheer')" icon="bits">Bits</Button>
-			<Button small @click="simulateEvent('subscription')" icon="sub">Sub</Button>
-			<Button small @click="simulateEvent('subscription', 'resub')" icon="sub">ReSub</Button>
-			<Button small @click="simulateEvent('subscription', 'gift')" icon="gift">Subgifts</Button>
+			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
+			<Button small @click="simulateEvent($event, 'subscription')" icon="sub">Sub</Button>
+			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
+			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
 			<Button small @click="simulateSubgiftSpam()" icon="gift">Subgift spam</Button>
-			<Button small @click="simulateEvent('subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
-			<Button small @click="simulateEvent('following')" icon="follow">Follow</Button>
-			<Button small @click="simulateEvent('reward')" icon="channelPoints">Reward redeem</Button>
-			<Button small @click="simulateEvent('community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
+			<Button small @click="simulateEvent($event, 'subscription', 'giftpaidupgrade')" icon="gift">Subgift upgrade</Button>
+			<Button small @click="simulateEvent($event, 'following')" icon="follow">Follow</Button>
+			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
+			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
 			<Button small @click="simulateHypeTrain()" icon="train">Hype train</Button>
-			<Button small @click="simulateEvent('hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
-			<Button small @click="simulateEvent('hype_train_summary')" icon="train">Hype train summary</Button>
+			<Button small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
+			<Button small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</Button>
 			<Button small @click="simulateComunityBoost()" icon="boost">Community boost</Button>
 			<Button small @click="simulateAutomod()" icon="automod">Automod Twitch</Button>
 			<Button small @click="simulateAutomodTwitchat()" icon="automod">Automod Twitchat</Button>
-			<Button small @click="simulateEvent('autoban_join')" icon="automod">Automod Twitchat join</Button>
-			<Button small @click="simulateEvent('poll')" icon="poll">Poll result</Button>
-			<Button small @click="simulateEvent('prediction')" icon="prediction">Prediction result</Button>
-			<Button small @click="simulateEvent('bingo')" icon="bingo">Bingo result</Button>
-			<Button small @click="simulateEvent('raffle')" icon="ticket">Raffle result</Button>
-			<Button small @click="simulateEvent('countdown')" icon="timer">Countdown result</Button>
-			<Button small @click="simulateEvent('pinned')" icon="pin">Pin message</Button>
-			<Button small @click="simulateEvent('unpinned')" icon="unpin">Upin message</Button>
-			<Button small @click="simulateEvent('clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateEvent($event, 'autoban_join')" icon="automod">Automod Twitchat join</Button>
+			<Button small @click="simulateEvent($event, 'poll')" icon="poll">Poll result</Button>
+			<Button small @click="simulateEvent($event, 'prediction')" icon="prediction">Prediction result</Button>
+			<Button small @click="simulateEvent($event, 'bingo')" icon="bingo">Bingo result</Button>
+			<Button small @click="simulateEvent($event, 'raffle')" icon="ticket">Raffle result</Button>
+			<Button small @click="simulateEvent($event, 'countdown')" icon="timer">Countdown result</Button>
+			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
+			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
+			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
 			<Button small @click="simulateFollowbotItem()" icon="follow">Follow bot item</Button>
 			<Button small @click="simulateFollowbotRaid()" icon="follow">Follow bot raid</Button>
-			<Button small @click="simulateEvent('shoutout')" icon="shoutout">Send shoutout</Button>
-			<Button small @click="simulateEvent('shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
+			<Button small @click="simulateEvent($event, 'shoutout')" icon="shoutout">Send shoutout</Button>
+			<Button small @click="simulateEvent($event, 'shoutout', 'soReceived')" icon="shoutout">Receive shoutout</Button>
 			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>
 			<Button small @click="monitorUser()" icon="shield">Monitor user</Button>
 			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
-			<Button small @click="simulateEvent('stream_online')" icon="online">Stream online</Button>
-			<Button small @click="simulateEvent('stream_offline')" icon="offline">Stream offline</Button>
+			<Button small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</Button>
+			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
 			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
@@ -131,7 +131,7 @@ export default class DevmodeMenu extends Vue {
 		}
 	}
 
-	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
+	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
 		this.$store("debug").simulateMessage(type, async (message)=> {
 			switch(subAction) {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
@@ -185,8 +185,13 @@ export default class DevmodeMenu extends Vue {
 			}
 			if(type === TwitchatDataTypes.TwitchatMessageType.CLIP_PENDING_PUBLICATION) {
 				setTimeout(()=>{
-					this.simulateEvent(TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
+					this.simulateEvent(event, TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
 				}, 2000);
+			}
+			
+			//Pressing CTRL while clicking a button will force the user to self
+			if(event.ctrlKey && message.hasOwnProperty("user")) {
+				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
 			}
 			this.$store("chat").addMessage(message);
 		}, false);

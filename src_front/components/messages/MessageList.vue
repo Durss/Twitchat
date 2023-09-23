@@ -36,6 +36,7 @@
 					@openFilters="openFilters()"
 					:colIndex="config.order"
 					:lightMode="lightMode"
+					:children="messageIdToChildren[m.id]"
 				/>
 
 			</div>
@@ -162,6 +163,7 @@ export default class MessageList extends Vue {
 	public markedReadItem: HTMLDivElement | null = null;
 	public selectedItem: HTMLDivElement | null = null;
 	public selectedMessage: TwitchatDataTypes.ChatMessageTypes | null = null;
+	public messageIdToChildren: {[key:string]:TwitchatDataTypes.ChatMessageTypes[]} = {};
 
 	private maxMessages:number = 50;
 	private markedAsReadDate:number = 0;
@@ -372,6 +374,7 @@ export default class MessageList extends Vue {
 			if(!this.lockScroll) {
 				this.pendingMessages = [];
 				this.lockedLiveMessages = [];
+				this.messageIdToChildren = {};
 				this.scrollUpIndexOffset = -1;
 			}
 
@@ -484,7 +487,6 @@ export default class MessageList extends Vue {
 						}
 					}
 				}
-
 
 				//Second test for some types so deleted/automoded/... messages can still be
 				//displayed even if all the viewers/mod/vip/sub filters are off
@@ -1538,10 +1540,14 @@ export default class MessageList extends Vue {
 				foundCount ++;
 				
 				//Search on merged children if any
-				const mergeable = mLoc as TwitchatDataTypes.MergeableMessage;
-				if(mergeable.children) {
-					for (let j = 0; j < mergeable.children.length; j++) {
-						const child = mergeable.children[j];
+				const children = this.messageIdToChildren[mLoc.id]
+				// const mergeable = mLoc as TwitchatDataTypes.MergeableMessage;
+				if(children) {
+				// if(mergeable.children) {
+					for (let j = 0; j < children.length; j++) {
+						const child = children[j];
+					// for (let j = 0; j < mergeable.children.length; j++) {
+					// 	const child = mergeable.children[j];
 						if(this.selectionDate > 0 && child.date <= this.selectionDate) {
 							const div = document.getElementById("message_" + child.id + "_" + this.config.order) as HTMLDivElement;
 							// const div = (this.$refs["message_" + mLoc.id] as HTMLDivElement[])[0];
@@ -1589,13 +1595,14 @@ export default class MessageList extends Vue {
 	 * @returns true if the message has been merged
 	 */
 	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[], resetChildren:boolean = false):Promise<boolean> {
-		const isMergeable = TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(newMessage.type);
+		const isMergeable = TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(newMessage.type)
+		&& TwitchatDataTypes.MergeableMessageTypesString[newMessage.type as TwitchatDataTypes.MergeableMessageTypes] === true;
 		if(!isMergeable) return false;
 
 		const newCast = newMessage as TwitchatDataTypes.MergeableMessage;
 		//If merge option is disable, stop there and clean potential children
 		if(StoreProxy.params.features.mergeConsecutive.value == false) {
-			if(isMergeable) newCast.children.splice(0);
+			if(isMergeable) delete this.messageIdToChildren[newMessage.id];
 			return false;
 		}
 		const maxSize		= this.$store("params").features.mergeConsecutive_maxSize.value as number;
@@ -1606,9 +1613,9 @@ export default class MessageList extends Vue {
 		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(newMessage.message_size > maxSize) return false;
 			if((newMessage.occurrenceCount || 0) > 0) return false;//don't merge messages with multiple occurences flag
+			if(newMessage.twitch_announcementColor) return false;//don't merge announcements
 		}
 
-		//Message not mergeable, skip it
 		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
 		//No message to merge with
 		if(messageList.length < 2) return false;
@@ -1621,30 +1628,43 @@ export default class MessageList extends Vue {
 			
 			//Check if prev message meets the condition to be merged witht the new one
 			if(prevMessage.type != newMessage.type) return false;//Prev displayable message isnt the same type, don't merge
-			// if(prevMessage.deleted) return false;//if message has been deleted, don't merge
 
 			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
-			if(resetChildren) prevCast.children.splice(0);
+			if(resetChildren) this.messageIdToChildren[prevMessage.id];
 			if(prevCast.user.id !== newCast.user.id) return false;//Not the same user don't merge
 			
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//don't merge messages with multiple occurences flag
 				if((prevMessage.occurrenceCount || 0) > 0) return false;
+				//don't merge /announce
+				if(prevMessage.twitch_announcementColor) return false;
 				//Get date of the latest children if any, or the date of the message
-				const prevDate = prevMessage.children.length > 0? prevMessage.children[prevMessage.children.length-1].date : prevMessage.date;
+				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 				//Too much time elapsed between the 2 messages
 				if(newMessage.date - prevDate > minDuration * 1000) return false;
 				//Parent message size is too big, don't merge
 				if(TwitchUtils.computeMessageSize(prevMessage.message_chunks) + newCast.message_size > maxSizeTotal) return false;
+			}else
+			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
+				//Dont merge rewards with prompts unless they're the same reward type
+				if(newMessage.message_html && prevMessage.message_html
+				&& newMessage.reward.id != prevMessage.reward.id) return false;
+				if(newMessage.message_html && !prevMessage.message_html) return false;
+				if(!newMessage.message_html && prevMessage.message_html) return false;
 			}
 			
 			//Merge with previous message
-			prevCast.children.push(newMessage);
+			if(!this.messageIdToChildren[prevMessage.id]) this.messageIdToChildren[prevMessage.id] = [];
+			this.messageIdToChildren[prevMessage.id].push(newMessage);
+			// prevCast.children.push(newMessage);
 			
 			//If added child had children extract them to their new parent
-			if(newCast.children && newCast.children.length > 0) {
-				prevCast.children.push(...newCast.children);
-				newCast.children.splice(0);
+			const newChildren = this.messageIdToChildren[newMessage.id];
+			const prevChildren = this.messageIdToChildren[prevMessage.id];
+			if(newChildren && newChildren.length > 0) {
+				prevChildren.push(...newChildren);
+				newChildren.splice(0);
 			}
 			return true;
 		}
