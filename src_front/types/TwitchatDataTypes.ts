@@ -1423,6 +1423,23 @@ export namespace TwitchatDataTypes {
 		versionMax?:string;
 	}
 
+	/**
+	 * Contains some info about current stream
+	 * Used to communicate that to a remote overlay
+	 */
+	export interface StreamSummaryData {
+		streamDuration:number;
+		follows:{uid:string, login:string}[];
+		raids:{uid:string, login:string, raiders:number}[];
+		subs:{uid:string, login:string, tier:1|2|3|"prime"}[];
+		resubs:{uid:string, login:string, tier:1|2|3|"prime"}[];
+		subgifts:{uid:string, login:string, tier:1|2|3|"prime"}[];
+		bits:{uid:string, login:string, bits:number}[];
+		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
+		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
+		shoutouts:{uid:string, login:string, received:boolean}[];
+		hypeTrains:{level:number, percent:number}[];
+	}
 
 
 

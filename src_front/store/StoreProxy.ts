@@ -1079,6 +1079,10 @@ export interface IStreamActions {
 	 * @param duration 
 	 */
 	startCommercial(duration:number):void;
+	/**
+	 * Get all current stream data
+	 */
+	getSummary(offset?:number):Promise<TwitchatDataTypes.StreamSummaryData>;
 }
 
 

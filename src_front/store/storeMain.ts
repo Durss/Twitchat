@@ -378,6 +378,20 @@ export const storeMain = defineStore("main", {
 			});
 		
 			/**
+			 * Called when asking to toggle message merging
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_SUMMARY_DATA, async (e:TwitchatEvent)=> {
+				try {
+					const d = (e.data as unknown) as {offset:number};
+					const summary = await StoreProxy.stream.getSummary(d.offset);
+					PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject)
+				}catch(error) {
+					console.error("An error occured when computing summary data");
+					console.error(error);
+				}
+			});
+		
+			/**
 			 * Called when music player is clicked on the unified overlay
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {

@@ -294,6 +294,94 @@ export const storeStream = defineStore('stream', {
 				}
 			}).catch(()=>{/*ignore*/});
 		},
+
+		async getSummary(offset:number = 0):Promise<TwitchatDataTypes.StreamSummaryData> {
+			const res = await TwitchUtils.loadCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+			let prevDate:number = 0;
+			let result:TwitchatDataTypes.StreamSummaryData = {
+				streamDuration:0,
+				follows:[] as {uid:string, login:string}[],
+				raids:[] as {uid:string, login:string, raiders:number}[],
+				subs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
+				resubs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
+				subgifts:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
+				bits:[] as {uid:string, login:string, bits:number}[],
+				hypeChats:[] as {uid:string, login:string, amount:number, currency:string}[],
+				rewards:[] as {uid:string, login:string, reward:{name:string, id:string, icon:string}}[],
+				shoutouts:[] as {uid:string, login:string, received:boolean}[],
+				hypeTrains:[] as {level:number, percent:number}[],
+			};
+			let dateOffset:number|undefined = offset;
+			if(res.length > 0) {
+				dateOffset = new Date(res[0].started_at).getTime();
+				result.streamDuration = Date.now() - dateOffset;
+			}
+
+			const messages = StoreProxy.chat.messages;
+			for (let i = messages.length-1; i >= 0; i--) {
+				const m = messages[i];
+				if(dateOffset && m.date < dateOffset) break;
+				//If more than 4h past between the 2 messages, consider it's a different stream and stop there
+				if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
+					result.streamDuration = messages[messages.length - 1].date - m.date;
+					break;
+				}
+				prevDate = m.date;
+				
+				switch(m.type) {
+					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier};
+						if(m.is_resub) result.resubs.push(sub);
+						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
+						else result.subs.push(sub);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+						const cheer = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits};
+						result.bits.push(cheer);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
+						const hypeChat = {uid:m.message.user.id, login:m.message.user.displayNameOriginal, amount:m.message.twitch_hypeChat!.amount, currency:m.message.twitch_hypeChat!.currency};
+						result.hypeChats.push(hypeChat);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+						const follow = {uid:m.user.id, login:m.user.displayNameOriginal};
+						result.follows.push(follow);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.RAID: {
+						const raid = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
+						result.raids.push(raid);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+						const reward = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
+						result.rewards.push(reward);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
+						const shoutout = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received};
+						result.shoutouts.push(shoutout);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: {
+						const train = {level:m.train.level, percent:m.train.currentValue};
+						result.hypeTrains.push(train);
+						break;
+					}
+				}
+			}
+			return result;
+		},
 		
 	} as IStreamActions
 	& ThisType<IStreamActions
