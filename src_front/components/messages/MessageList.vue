@@ -36,7 +36,7 @@
 					@openFilters="openFilters()"
 					:colIndex="config.order"
 					:lightMode="lightMode"
-					:children="messageIdToChildren[m.id]"
+					:childrenList="messageIdToChildren[m.id]"
 				/>
 
 			</div>

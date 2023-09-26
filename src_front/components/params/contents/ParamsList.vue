@@ -47,6 +47,12 @@
 						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
+					<div v-else-if="p.id == 224 && p.value === true" class="config">
+						<Button small secondary
+						v-newflag="{date:1695691108070, id:'params_clearHistory'}"
+						@click="$store('chat').clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
+					</div>
+	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="card-item alert info scope">
 						<img src="@/assets/icons/lock_fit.svg">
 						<p class="label">{{ $t("params.scope_missing") }}</p>

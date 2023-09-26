@@ -92,8 +92,8 @@
 			</span>
 			
 			<span :class="getChildMessageClasses(m)"
-			v-if="messageData.type == 'message' && children"
-			v-for="m in children"
+			v-if="messageData.type == 'message' && childrenList"
+			v-for="m in childrenList"
 			:id="'message_' + m.id + '_' + colIndex"
 			@contextmenu.capture="onContextMenu($event, m, $el)">
 				<span class="text">
@@ -170,7 +170,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
 	
 	@Prop
-	declare children:(TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData)[];
+	declare childrenList:(TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData)[];
 	
 	@Prop({type:Boolean, default:false})
 	declare lightMode:boolean;
@@ -228,7 +228,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(message.cleared)	res.push("cleared");
 			if(message.deleted)	res.push("deleted");
-			if(this.children && this.children.length > 0)res.push("merged")
+			if(this.childrenList && this.childrenList.length > 0)res.push("merged")
 		}
 
 		return res;

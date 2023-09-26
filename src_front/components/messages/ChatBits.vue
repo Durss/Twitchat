@@ -43,7 +43,7 @@ export default class ChatBits extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageCheerData;
 
 	@Prop
-	declare children:TwitchatDataTypes.MessageCheerData[];
+	declare childrenList:TwitchatDataTypes.MessageCheerData[];
 
 	public get classes():string[] {
 		let res = ["chatbits", "chatMessage", "highlight"];
@@ -53,8 +53,8 @@ export default class ChatBits extends AbstractChatMessage {
 
 	public get totalBits():number {
 		let res = this.messageData.bits;
-		if(this.children) {
-			this.children.forEach(m => res += m.bits);
+		if(this.childrenList) {
+			this.childrenList.forEach(m => res += m.bits);
 		}
 		return res;
 	}
@@ -62,8 +62,8 @@ export default class ChatBits extends AbstractChatMessage {
 	public get messages():TwitchatDataTypes.MessageCheerData[] {
 		let res:TwitchatDataTypes.MessageCheerData[] =  [];
 		if(this.messageData.message_chunks) res.push(this.messageData);
-		if(this.children) {
-			this.children.forEach(m => {
+		if(this.childrenList) {
+			this.childrenList.forEach(m => {
 				if(m.message_chunks) res.push(m);
 			});
 		}

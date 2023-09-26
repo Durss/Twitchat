@@ -144,7 +144,6 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
 import ChatAd from './ChatAd.vue';
 import ChatAutobanJoin from './ChatAutobanJoin.vue';
 import ChatBan from './ChatBan.vue';
@@ -182,7 +181,6 @@ import ChatHistorySplitter from './ChatHistorySplitter.vue';
 
 @Component({
 	components:{
-		Button,
 		ChatAd,
 		ChatBan,
 		ChatRaid,
@@ -225,6 +223,9 @@ export default class MessageItem extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
+
+	@Prop
+	declare children:TwitchatDataTypes.ChatMessageTypes[];
 
 }
 </script>

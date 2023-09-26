@@ -617,9 +617,11 @@ export const storeChat = defineStore('chat', {
 			})
 		},
 
-		addFake(message:TwitchatDataTypes.ChatMessageTypes):void {
-			messageList.push(message);
-			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
+		clearHistory():void {
+			StoreProxy.main.confirm(StoreProxy.i18n.t("params.clearHistory"), StoreProxy.i18n.t("params.clearHistory_confirm"))
+			.then(()=> {
+				Database.instance.clear();
+			}).catch(error=>{});
 		},
 
 		sendTwitchatAd(adType:TwitchatDataTypes.TwitchatAdStringTypes = -1) {

@@ -27,7 +27,7 @@
 			<div class="quote dark" v-if="messageData.message_html">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
-			<div class="quote dark" v-if="children" v-for="child in children.filter(v=>v.message_html != undefined)" :key="child.id">
+			<div class="quote dark" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
 				<ChatMessageChunksParser :chunks="child.message_chunks" :channel="child.channel_id" :platform="child.platform" />
 			</div>
 		</div>
@@ -52,11 +52,11 @@ export default class ChatReward extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
 
 	@Prop
-	declare children:TwitchatDataTypes.MessageRewardRedeemData[];
+	declare childrenList:TwitchatDataTypes.MessageRewardRedeemData[];
 
 	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
 		const res = [this.messageData];
-		if(this.children) res.push(...this.children);
+		if(this.childrenList) res.push(...this.childrenList);
 
 		const idCountDictionary :{[key:string]:number} = {};
 

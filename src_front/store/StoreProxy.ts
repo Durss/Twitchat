@@ -418,6 +418,10 @@ export interface IChatActions {
 	 */
 	preloadMessageHistory():void;
 	/**
+	 * Clears database history message history from IndexedDB
+	 */
+	clearHistory():void;
+	/**
 	 * Sends a twitchat ad
 	 */
 	sendTwitchatAd(contentID?:TwitchatDataTypes.TwitchatAdStringTypes):void;

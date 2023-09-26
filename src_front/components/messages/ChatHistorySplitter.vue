@@ -22,6 +22,9 @@ export default class ChatHistorySplitter extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageHistorySplitterData;
+	
+	@Prop
+	declare childrenList:TwitchatDataTypes.MessageHistorySplitterData[];
 
 }
 </script>
