@@ -60,13 +60,13 @@
 						v-tooltip="{content:$t('home.youtubeBt'), placement:'bottom'}"
 					></Button>
 			
-					<Button
+					<!-- <Button
 						big light
 						:to="{name:'sponsor'}"
 						class="sponsorBt"
 						ref="sponsorBt"
 						v-tooltip="{content:$t('home.sponsorBt'), placement:'bottom'}"
-					>💝</Button>
+					>💝</Button> -->
 				</div>
 			</div>
 	
@@ -217,7 +217,7 @@ export default class Home extends Vue {
 		//TODO update anchors labels when changing language
 
 		//Opening transition ATF elements
-		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "sponsorBt", "featuresTitle"];
+		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "featuresTitle"];
 		await this.$nextTick();
 		for (let i = 0; i < refs.length; i++) {
 			let el = this.$refs[refs[i]] as HTMLElement | Vue;

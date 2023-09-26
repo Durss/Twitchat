@@ -30,7 +30,7 @@ export default class ApiController {
 	 * @param data 
 	 * @param method 
 	 */
-	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, attemptIndex:number = 0):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
+	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, retryOnFail:boolean = true, attemptIndex:number = 0):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
 		const headers:{[key:string]:string} = {
 			"Content-Type": "application/json",
@@ -66,7 +66,7 @@ export default class ApiController {
 		}else
 		if(res.status != 200 && attemptIndex < 5 && res.status != 401) {
 			await Utils.promisedTimeout(1000);
-			return this.call(endpoint, method, data, attemptIndex+1);
+			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}
 		return {status:res.status, json};
 	}
@@ -267,6 +267,13 @@ type ApiEndpoints =  {
 			success:boolean,
 			message?:string,
 			data: {isMember:boolean},
+		}
+	},
+	"patreon/isApiDown": {
+		GET: {
+			success:boolean,
+			message?:string,
+			data: {isDown:boolean},
 		}
 	},
 	"tenor/search": {

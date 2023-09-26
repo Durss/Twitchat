@@ -314,11 +314,14 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 				gap: .5em;
 
 				.rule {
+					width: 100%;
+					&.closed {
+						width: fit-content;
+					}
 					.actions {
 						gap: .5em;
 						display: flex;
 						flex-direction: row;
-						margin-left: 1em;
 						.deleteBt {
 							margin: calc(-.5em - 1px);
 							margin-left: 0;

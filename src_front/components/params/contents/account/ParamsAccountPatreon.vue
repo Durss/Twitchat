@@ -55,6 +55,8 @@
 			</i18n-t>
 			
 			<Button v-if="!connected" icon="patreon" @click="authenticate()" :loading="redirecting" premium>{{ $t("patreon.linkBt") }}</Button>
+
+			<div v-if="patreonDown" class="card-item alert apiDown"><Icon name="alert" theme="light"/>{{ $t("patreon.api_down") }}</div>
 		</template>
 	</div>
 </template>
@@ -75,6 +77,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class ParamsAccountPatreon extends Vue {
 
+	public patreonDown:boolean = false;
 	public redirecting:boolean = false;
 	public authenticating:boolean = false;
 
@@ -84,6 +87,9 @@ export default class ParamsAccountPatreon extends Vue {
 	public get isMember():boolean { return PatreonHelper.instance.isMember; }
 
 	public async mounted():Promise<void> {
+		const {json} = await ApiController.call("patreon/isApiDown");
+		this.patreonDown = json.data.isDown === true;
+		
 		
 		// PatreonHelper.instance.connect();
 		const authParams = this.$store("patreon").patreonAuthParams;
@@ -167,6 +173,15 @@ export default class ParamsAccountPatreon extends Vue {
 			margin-top: .5em;
 			text-align: center;
 			font-size: 1.25em;
+		}
+	}
+
+	.apiDown {
+		white-space: pre-line;
+		line-height: 1.25em;
+		.icon {
+			height: 1em;
+			margin-right: .5em;
 		}
 	}
 }

@@ -754,7 +754,7 @@ export default class MessengerProxy {
 				if(users.length == 0) {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
-					const res = await ApiController.call("user/data", "GET", {uid:users[0].id});
+					const res = await ApiController.call("user/data", "GET", {uid:users[0].id}, false);
 					if(res.status === 200) {
 						if(cmd === "/loaduserdata") {
 							DataStore.loadFromJSON(res.json.data);

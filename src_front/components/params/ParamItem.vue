@@ -382,6 +382,15 @@ export default class ParamItem extends Vue {
 	public beforeMount(): void {
 		this.autofocusLocal = this.autofocus;
 		this.setErrorState(this.error || this.paramData.error === true);
+
+		//Makes sure value is non-empty and within min/max.
+		//For a while some users emptied the field because i didn't block that
+		//this kinda fixes these old bad behaviors.
+		//also if min/max values are changed this will make sure the value
+		//respects the new limits.
+		if(this.paramData.type == "number") {
+			this.clampValue();
+		}
 	}
 
 	public mounted():void {
@@ -586,6 +595,13 @@ export default class ParamItem extends Vue {
 	public clampValue():void {
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
+
+		if(this.paramData.value == ""
+		&& this.paramData.type == "number") {
+			this.paramData.value = this.paramData.min ?? 0;
+		}
+
+		this.onEdit();
 	}
 
 	public insertPlaceholder(tag:string):void {

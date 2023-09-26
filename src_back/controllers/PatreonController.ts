@@ -17,6 +17,7 @@ export default class PatreonController extends AbstractController {
 	private members:PatreonMember[] = [];
 	private tokenRefresh!:NodeJS.Timeout;
 	private smsWarned:boolean = false;
+	private patreonApiDown:boolean = false;
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -51,6 +52,7 @@ export default class PatreonController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/patreon/isMember', async (request, response) => await this.getIsMember(request, response));
 		this.server.get('/api/patreon/serverauth', async (request, response) => await this.getServerAuth(request, response));
+		this.server.get('/api/patreon/isApiDown', async (request, response) => await this.getApiDown(request, response));
 		this.server.post('/api/patreon/webhook', async (request, response) => await this.postWebhookTrigger(request, response));
 		this.server.post('/api/patreon/authenticate', async (request, response) => await this.postAuthenticate(request, response));
 		this.server.post('/api/patreon/refresh_token', async (request, response) => await this.postRefreshToken(request, response));
@@ -208,10 +210,15 @@ export default class PatreonController extends AbstractController {
 					Logger.success("Patreon: API ready");
 				}
 				fs.writeFileSync(Config.PATREON_TOKEN_PATH, JSON.stringify(token), "utf-8");
-				await this.getCampaignID();
-				await this.refreshPatrons(this.isFirstAuth);
-				this.isFirstAuth = false;
+				try {
+					await this.getCampaignID();
+					await this.refreshPatrons(this.isFirstAuth);
+					this.patreonApiDown = false;
+				}catch(error) {
+					this.patreonApiDown = true;
+				}
 				this.smsWarned = false;
+				this.isFirstAuth = false;
 
 				//Schedule token refresh
 				clearTimeout(this.tokenRefresh);
@@ -226,20 +233,21 @@ export default class PatreonController extends AbstractController {
 		
 		if(!token){
 			Logger.warn("Please connect to patreon !", this.authURL);
-			
-			//Send myself an SMS to alert me it's down
-			if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH
-			&& Config.credentials.sms_uid && Config.credentials.sms_token) {
-				const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
-				urlSms.searchParams.append("user", Config.credentials.sms_uid);
-				urlSms.searchParams.append("pass", Config.credentials.sms_token);
-				urlSms.searchParams.append("msg", "Patreon authentication is down server-side! Click to auth "+this.authURL);
-				fetch(urlSms, {method:"GET"});
-				this.smsWarned = true;
-			}
+			this.sendSMSAlert("Patreon authentication is down server-side! Click to auth "+this.authURL);
 		}
 
 		return false;
+	}
+
+	/**
+	 * Gets if the patreon API is down
+	 * @param request 
+	 * @param response 
+	 */
+	public async getApiDown(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true, data:{isDown:this.patreonApiDown}}));
 	}
 
 	/**
@@ -257,6 +265,18 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 
 		const result = await fetch(url, {method:"POST"});
+
+		if(result.status != 200) {
+			Logger.error("Patreon: Server auth failed: "+result.status);
+			const reason = await result.text();
+			response.status(500);
+			response.header('Content-Type', 'text/html; charset=UTF-8');
+			response.send("Patreon authentication failed. <a href=\""+this.authURL+"\">Try again</a><br>"+reason);
+			response.send({success:false, message:"Authentication failed"});
+			this.patreonApiDown = true;
+			return;
+		}
+		
 		const json = await result.json();
 
 		if(json.error) {
@@ -300,13 +320,20 @@ export default class PatreonController extends AbstractController {
 			Logger.warn("Patreon: Invalid webhook signature");
 			response.status(401);
 			response.send("Unauthorized");
+			this.patreonApiDown = true;
+			this.sendSMSAlert("Patreon Webhook failed, invalid signature "+signature);
 			return;
 		}
 
 		Logger.success("Patreon: received webhook event \""+event+"\"");
 		response.status(200);
 		response.send("OK");
-		this.refreshPatrons(true);
+		try {
+			this.refreshPatrons(true);
+			this.patreonApiDown = false;
+		}catch(error) {
+			this.patreonApiDown = true;
+		}
 	}
 
 	/**
@@ -334,6 +361,12 @@ export default class PatreonController extends AbstractController {
 		};
 		
 		const result = await fetch(url, options);
+		if(result.status != 200) {
+			Logger.error("Patreon: Refreshing member list failed");
+			console.log(await result.text());
+			this.logout();
+			throw("Error");
+		}
 		const json:PatreonMemberships = await result.json();
 		// fs.writeFileSync("/patreon_memberships.json", JSON.stringify(json), "utf-8");
 		if(json.errors) {
@@ -393,6 +426,7 @@ export default class PatreonController extends AbstractController {
 		if(result.status != 200) {
 			Logger.error("Patreon: campaign list failed");
 			console.log(await result.text());
+			throw("Error");
 
 		}else{
 			const json = await result.json();
@@ -407,6 +441,22 @@ export default class PatreonController extends AbstractController {
 					this.campaignId = json.data[0].id;
 				}
 			}
+		}
+	}
+
+	/**
+	 * Send myself an SMS if something went wrong
+	 */
+	private sendSMSAlert(message:string):void {
+		if(!this.smsWarned && Config.SMS_WARN_PATREON_AUTH
+		&& Config.credentials.sms_uid && Config.credentials.sms_token) {
+			const urlSms = new URL("https://smsapi.free-mobile.fr/sendmsg");
+			urlSms.searchParams.append("user", Config.credentials.sms_uid);
+			urlSms.searchParams.append("pass", Config.credentials.sms_token);
+			urlSms.searchParams.append("msg", message);
+			fetch(urlSms, {method:"GET"});
+			this.smsWarned = true;
+			this.patreonApiDown = true;
 		}
 	}
 

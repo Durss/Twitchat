@@ -81,6 +81,7 @@ export default class DataStore {
 	public static NEW_FLAGS:string = "newFlags";
 	public static GOXLR_CONFIG:string = "goxlrConfig";
 	public static RAID_HISTORY:string = "raidHistory";
+	public static SENT_MESSAGE_HISTORY:string = "sentMessageHistory";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -106,6 +107,7 @@ export default class DataStore {
 		this.PATREON_AUTH_TOKEN,
 		this.ANNOUNCEMENTS_READ,
 		this.NEW_FLAGS,
+		this.SENT_MESSAGE_HISTORY,
 	];
 	
 	

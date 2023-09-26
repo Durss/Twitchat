@@ -9,6 +9,7 @@
 		"is_member":"💝 Thank you for being part of the donors on Patreon 💝",
 		"is_member_details":"You have access to all Premium features!",
 		"is_not_member":"You are not part of the donors on Patreon 😥",
-		"is_not_member_details":"You do not have access to Premium features.\r\nNote: It may take a few minutes for Patreon to process your payment."
+		"is_not_member_details":"You do not have access to Premium features.\r\nNote: It may take a few minutes for Patreon to process your payment.",
+		"api_down":"Patreon API is down.\nIt's not the first time, and probably not the last...\n\nIf you just subscribed on Patreon you may have issues being recognized as Premium until Patreon fixes their API sorry :(..."
 	}
 }

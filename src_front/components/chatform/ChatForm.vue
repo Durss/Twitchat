@@ -323,6 +323,8 @@ export default class ChatForm extends Vue {
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
 	public trackedUserCount = 0;
+	public sendHistoryIndex = 0;
+	public sendHistory:string[] = [];
 	public channelId:string = "";
 	public onlineUsersTooltip:string = "";
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
@@ -408,6 +410,11 @@ export default class ChatForm extends Vue {
 	}
 
 	public beforeMount(): void {
+		const history = DataStore.get(DataStore.SENT_MESSAGE_HISTORY);
+		if(history) {
+			this.sendHistory = JSON.parse(history) as string[];
+			this.sendHistoryIndex = this.sendHistory.length;
+		}
 		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
@@ -605,6 +612,16 @@ export default class ChatForm extends Vue {
 	public async sendMessage(event?:Event):Promise<void> {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
+
+		//Push message to history
+		this.sendHistory.push(this.message);
+		//Limit history size
+		const maxHistorySize = 100;
+		if(this.sendHistory.length > maxHistorySize) this.sendHistory = this.sendHistory.splice(-maxHistorySize);
+		//set history cursor to latest message
+		this.sendHistoryIndex = this.sendHistory.length;
+
+		DataStore.set(DataStore.SENT_MESSAGE_HISTORY, this.sendHistory);
 
 		const params = this.message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
@@ -814,10 +831,16 @@ export default class ChatForm extends Vue {
 		//Avoid leaving the input form
 		if(e.key == "Tab") e.preventDefault();
 
-		if(!this.openAutoComplete) return;
-		if(e.key == "ArrowUp" || e.key == "ArrowDown") {
-			e.preventDefault();
+		if(!this.openAutoComplete) {
+			//Navigate through sent message history
+			if(e.key == "ArrowUp" || e.key == "ArrowDown") {
+				this.sendHistoryIndex += e.key == "ArrowUp"? -1 : 1;
+				this.sendHistoryIndex = Math.min(this.sendHistory.length, Math.max(0, this.sendHistoryIndex));
+				if(this.sendHistoryIndex >= this.sendHistory.length) this.message = "";
+				else this.message = this.sendHistory[this.sendHistoryIndex];
+			}
 		}
+		if(e.key == "ArrowUp" || e.key == "ArrowDown") e.preventDefault();
 	}
 
 	/**

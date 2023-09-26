@@ -681,7 +681,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		
 		if(this.messageData.twitch_isSuspicious
 		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER) == -1) {
-			let tt = users.length > 1? "<br><br>"+this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
+			let tt = users.length > 0? this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
 			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER, label:users.length > 1? "(x"+users.length+")" : "", tooltip:tt});
 		}
 		

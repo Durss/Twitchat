@@ -121,6 +121,7 @@ export default class Database {
 		];
 		//Do not save above message types. They're useless to recover
 		if(ignoreList.includes(message.type)) return;
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.NOTICE && message.noticeId == "devMode") return
 
 		return new Promise((resolve, reject)=> {
 

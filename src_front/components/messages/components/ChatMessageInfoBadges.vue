@@ -59,7 +59,7 @@ export default class ChatMessageInfoBadges extends Vue {
 		if(this.$te("chat.custom_badge.tooltip."+info.type)) {
 			tt = this.$t("chat.custom_badge.tooltip."+info.type, info.tooltipLabelParams || {});
 		}
-		if(info.tooltip) tt += info.tooltip;
+		if(info.tooltip) tt = info.tooltip;
 		return tt ?? "";
 	}
 
@@ -74,7 +74,7 @@ export default class ChatMessageInfoBadges extends Vue {
 
 	.item {
 		border-radius: .25em;
-		padding: 1px 3px;
+		padding: 5px 5px;
 		color: var(--color-button);
 		background-color: var(--color-primary);
 		white-space: nowrap;
@@ -94,11 +94,16 @@ export default class ChatMessageInfoBadges extends Vue {
 
 		&.suspiciousUser, &.new_account {
 			background-color: var(--color-secondary);
-			font-weight: bold;
+			color: #fff;
+			font-weight: 300;
 		}
 
 		img {
 			height: .8em;
+		}
+
+		.label {
+			margin-top: -.1em;
 		}
 	}
 }
