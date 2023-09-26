@@ -1245,7 +1245,7 @@ export const storeChat = defineStore('chat', {
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
-				if(StoreProxy.params.features.saveHistory.value === true) {
+				if(StoreProxy.params.features.saveHistory.value === true && message.fake !== true) {
 					Database.instance.addMessage(message).catch((error)=>{
 						console.error("Database addMessage() error");
 						console.log(error);

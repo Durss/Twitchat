@@ -834,6 +834,7 @@ export default class UserCard extends Vue {
 			justify-content: center;
 			flex-wrap: wrap;
 			gap: .5em;
+			opacity: .75;
 			flex-shrink: 0;//necessery for shit old safari -_-
 		}
 	
