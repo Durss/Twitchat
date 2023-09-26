@@ -1417,6 +1417,10 @@ export namespace TwitchatDataTypes {
 		id:string;
 		dateStart:number;
 		important:boolean;
+		donorsOnly:boolean;
+		premiumOnly:boolean;
+		patreonOnly:boolean;
+		heatOnly:boolean;
 		title:{[key:string]:string};
 		text:{[key:string]:string};
 		dateEnd?:number;

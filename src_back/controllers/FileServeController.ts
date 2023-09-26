@@ -111,6 +111,10 @@ export default class FileServeController extends AbstractController {
 		const title:{[key:string]:string} = body.title;
 		const text:{[key:string]:string} = body.text;
 		const versionMax:string = body.versionMax || "";
+		const donorsOnly:boolean = body.donorsOnly === true;
+		const premiumOnly:boolean = body.premiumOnly === true;
+		const patreonOnly:boolean = body.patreonOnly === true;
+		const heatOnly:boolean = body.heatOnly === true;
 
 		let list:AnnouncementData[] = [];
 		if(fs.existsSync(Config.ANNOUNCEMENTS_PATH)) {
@@ -123,9 +127,13 @@ export default class FileServeController extends AbstractController {
 			title,
 			text,
 			important,
+			donorsOnly,
+			premiumOnly,
+			patreonOnly,
+			heatOnly,
 		};
 		if(dateEnd) announce.dateEnd = dateEnd;
-		if(versionMax.length > 2) announce.versionMax = versionMax;
+		if(versionMax.length >= 2) announce.versionMax = versionMax;
 		list.push(announce);
 
 		this.cachedAnnouncements = JSON.stringify(list);
@@ -180,6 +188,10 @@ interface AnnouncementData{
 	id:string;
 	dateStart:number;
 	important:boolean;
+	donorsOnly:boolean;
+	premiumOnly:boolean;
+	patreonOnly:boolean;
+	heatOnly:boolean;
 	title:{[key:string]:string};
 	text:{[key:string]:string};
 	dateEnd?:number;

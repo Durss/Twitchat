@@ -28,7 +28,7 @@
 			</div>
 		</div>
 
-		<div class="card-item primary unified" v-if="true || exchangeChannelAvailable">
+		<div class="card-item primary unified" v-if="exchangeChannelAvailable">
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>

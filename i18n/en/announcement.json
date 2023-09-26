@@ -8,6 +8,10 @@
 		"param_text":"Message",
 		"param_versionMax":"Twitchat max version (optional)",
 		"param_important":"Important notification (will be sent to people already live)",
+		"param_donorsOnly":"Send to Donors only",
+		"param_premiumOnly":"Send to Premium only",
+		"param_patreonOnly":"Send to Patreon only",
+		"param_heatOnly":"Send to heat only",
 		"postBt":"Publish",
 		"list":"Announcement list",
 		"create_confirm":{

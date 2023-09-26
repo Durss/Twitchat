@@ -280,6 +280,8 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
+import PatreonHelper from '@/utils/patreon/PatreonHelper';
+import HeatSocket from '@/utils/twitch/HeatSocket';
 
 @Component({
 	components:{
@@ -520,6 +522,14 @@ export default class ChatForm extends Vue {
 					const currentVersion = import.meta.env.PACKAGE_VERSION;
 					if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
 				}
+				//Check donor only condition
+				if(a.donorsOnly === true && !this.$store("auth").twitch.user.donor.state) continue;
+				//Check premium only condition
+				if(a.premiumOnly === true && !this.$store("auth").isPremium) continue;
+				//Check patreon only condition
+				if(a.patreonOnly === true && !PatreonHelper.instance.isMember) continue;
+				//Check patreon only condition
+				if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
 				//Check if within date frame
 				if(Date.now() < new Date(a.dateStart).getTime()) continue;
 				if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;

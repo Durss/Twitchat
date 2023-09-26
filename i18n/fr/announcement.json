@@ -8,6 +8,10 @@
 		"param_text":"Message",
 		"param_versionMax":"Version max de Twitchat (optionnel)",
 		"param_important":"Notification importante (sera envoyée aux personnes déjà en live)",
+		"param_donorsOnly":"Envoyer aux donateurices uniquement",
+		"param_premiumOnly":"Envoyer aux Premium uniquement",
+		"param_patreonOnly":"Envoyer aux membres Patreon uniquement",
+		"param_heatOnly":"Envoyer aux utilisateurices Heat uniquement",
 		"postBt":"Publier",
 		"list":"Liste des annonces",
 		"create_confirm":{

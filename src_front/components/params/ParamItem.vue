@@ -965,6 +965,9 @@ export default class ParamItem extends Vue {
 				display: block;
 			}
 		}
+		&:empty {
+			display: none;
+		}
 	}
 
 	&.hasIcon {

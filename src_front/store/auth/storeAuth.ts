@@ -61,7 +61,7 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				const expire	= this.twitch.expires_in;
-				let delay		= Math.max(0, expire*1000 - 60000 * 5);//Refresh 5min before it actually expires
+				let delay		= Math.max(0, expire * 1000 - 60000 * 5);//Refresh 5min before it actually expires
 				delay			= Math.min(delay, 1000 * 60 * 60 * 3);//Refresh at least every 3h
 				if(isNaN(delay)) {
 					//fail safe.

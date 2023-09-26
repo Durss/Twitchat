@@ -83,7 +83,7 @@ export default class UserController extends AbstractController {
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 			}
 		}
-
+		
 		//Update user's storage file to get a little idea on how many people use twitchat
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
 		if(!fs.existsSync(userFilePath)) {
@@ -92,7 +92,7 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1 && false, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}

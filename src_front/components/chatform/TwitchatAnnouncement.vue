@@ -17,10 +17,14 @@
 			<form @submit.prevent="submitForm()">
 				<ParamItem :paramData="param_dateStart" />
 				<ParamItem :paramData="param_dateEnd" />
-				<ParamItem :paramData="param_versionMax" />
-				<ParamItem :paramData="param_important" />
 				<ParamItem v-for="title in param_title" :paramData="title" />
 				<ParamItem v-for="text in param_text" :paramData="text" />
+				<ParamItem :paramData="param_versionMax" />
+				<ParamItem :paramData="param_important" />
+				<ParamItem :paramData="param_donorsOnly" />
+				<ParamItem :paramData="param_premiumOnly" />
+				<ParamItem :paramData="param_patreonOnly" />
+				<ParamItem :paramData="param_heatOnly" />
 				<Button type="submit" :loading="submitting">{{ $t("announcement.postBt") }}</Button>
 			</form>
 
@@ -33,7 +37,16 @@
 						<Button class="deleteBt" icon="trash" alert @click="deleteAnnounce(a.id)"></Button>
 					</div>
 					<div class="infos">
-						<p class="title"><strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></strong></p>
+						<div class="title">
+							<strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></strong>
+						</div>
+						<div class="restrictions">
+							<span v-if="a.versionMax" class="version">version max v{{a.versionMax}}</span>
+							<Icon name="coin" v-if="a.donorsOnly" v-tooltip="'donors only'" />
+							<Icon name="premium" v-if="a.premiumOnly" v-tooltip="'premium only'" />
+							<Icon name="patreon" v-if="a.patreonOnly" v-tooltip="'patreon members only'" />
+							<Icon name="heat" v-if="a.heatOnly" v-tooltip="'heat users only'" />
+						</div>
 						<p class="date">
 							<span>{{ formatDate(a.dateStart) }}</span>
 							<span v-if="a.dateEnd" class="split">=&gt;</span>
@@ -87,6 +100,10 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 	public param_dateStart:TwitchatDataTypes.ParameterData<string> = {type:"datetime", value:new Date().toISOString().substring(0, 16), labelKey:"announcement.param_dateStart", icon:"date"};
 	public param_dateEnd:TwitchatDataTypes.ParameterData<string> = {type:"datetime", value:"", labelKey:"announcement.param_dateEnd", icon:"date"};
 	public param_versionMax:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"announcement.param_versionMax"};
+	public param_donorsOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_donorsOnly", icon:"coin"};
+	public param_premiumOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_premiumOnly", icon:"premium"};
+	public param_patreonOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_patreonOnly", icon:"patreon"};
+	public param_heatOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_heatOnly", icon:"heat"};
 
 	public getAnnouncementTitle(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(a.title[this.$i18n.locale], undefined, true);
@@ -140,13 +157,17 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 
 		this.$confirm(this.$t("announcement.create_confirm.title"), this.$t("announcement.create_confirm.description"))
 		.then(async ()=>{
-			const data = {
+			const data:Omit<TwitchatDataTypes.TwitchatAnnouncementData, "id"> = {
 				title,
 				text,
-				dateStart:new Date(this.param_dateStart.value).getTime(),
-				dateEnd:new Date(this.param_dateEnd.value).getTime(),
-				versionMax:this.param_versionMax.value,
-				important:this.param_important.value,
+				dateStart: new Date(this.param_dateStart.value).getTime(),
+				dateEnd: new Date(this.param_dateEnd.value).getTime(),
+				versionMax: this.param_versionMax.value,
+				important: this.param_important.value,
+				donorsOnly: this.param_donorsOnly.value,
+				premiumOnly: this.param_premiumOnly.value,
+				patreonOnly: this.param_patreonOnly.value,
+				heatOnly: this.param_heatOnly.value,
 			};
 			const options = {
 				method:"POST",
@@ -239,6 +260,27 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				.title{
 					font-size: 1.25em;
 				}
+
+				.restrictions {
+					gap: .25em;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					margin: .25em 0;
+					.icon {
+						font-size: 1.25em;
+						height: 1em;
+						width: 1em;
+						display: flex;
+						padding: .15em;
+						border-radius: 50%;
+						border: 1px solid var(--color-text);
+					}
+					&:empty {
+						display: none;
+					}
+				}
+
 				.date {
 					font-style: italic;
 					font-size: .8em;
