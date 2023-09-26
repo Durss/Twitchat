@@ -502,7 +502,6 @@ interface UserActivities{
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-		flex-grow: 1;
 		.list {
 			gap: .5em;
 			display: flex;
@@ -517,8 +516,7 @@ interface UserActivities{
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
-		flex-grow: 1;
-		min-height: 200px;
+		min-height: 100px;
 		.list {
 			flex-grow: 1;
 			gap: .5em;
