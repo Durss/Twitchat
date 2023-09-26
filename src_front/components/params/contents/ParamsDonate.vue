@@ -209,7 +209,7 @@ export default class ParamsDonate extends Vue {
 		}
 
 		//Embed paypal SDK
-		const url = "https://www.paypal.com/sdk/js?client-id="+Config.instance.PAYPAL_CLIENT_ID+"&components=buttons&enable-funding=venmo&currency="+this.currency;
+		const url = "https://www.paypal.com/sdk/js?client-id="+Config.instance.PAYPAL_CLIENT_ID+"&commit=true&components=buttons&enable-funding=venmo&currency="+this.currency;
 		const scripts = document.getElementsByTagName("script");
 		let existingScript = false;
 		for (let i = 0; i < scripts.length; i++) {
