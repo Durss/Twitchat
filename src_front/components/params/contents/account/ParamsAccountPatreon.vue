@@ -3,7 +3,7 @@
 		
 		<Icon name="loader" v-if="authenticating" />
 
-		<div class="earlyDonor" v-else-if="$store('auth').twitch.user.donor.earlyDonor === true">
+		<div class="earlyDonor" v-else-if="isEarlyDonor">
 			<div class="card-item premium large">
 				<Icon name="gift" theme="light" />
 				<div>{{ $t("premium.early_donor1") }}</div>
@@ -41,7 +41,7 @@
 			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
 		</template>
 
-		<template v-if="!connected || (connected && !isMember)">
+		<template v-if="(!connected || (connected && !isMember)) && !isEarlyDonor">
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
 				<template #LINK>
 					<a href="https://www.patreon.com/bePatron?c=9093199" target="_blank">{{ $t("patreon.info_link") }}</a>
@@ -85,6 +85,7 @@ export default class ParamsAccountPatreon extends Vue {
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
 	public get isMember():boolean { return PatreonHelper.instance.isMember; }
+	public get isEarlyDonor():boolean { return this.$store('auth').twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
 		const {json} = await ApiController.call("patreon/isApiDown");
