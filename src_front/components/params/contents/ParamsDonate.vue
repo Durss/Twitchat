@@ -16,7 +16,11 @@
 						<span class="label">{{ $t("donate.amount") }}</span>
 						<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
 					</div>
-					<div class="taxes">{{ $t("donate.ttc") }} <strong>{{taxedAmount}}€</strong></div>
+					<i18n-t scope="global" tag="div" class="taxes" keypath="donate.ttc">
+						<template #AMOUNT>
+							<strong>{{ taxedAmount }}</strong>
+						</template>
+					</i18n-t>
 				</div>
 				<div class="premiumLabel" ref="premiumLabel"><Icon name="premium" theme="light" />{{ $t("donate.lifetime_premium") }}</div>
 				<div class="emoji">
@@ -536,7 +540,7 @@ export default class ParamsDonate extends Vue {
 				gap: .25em;
 				display: flex;
 				flex-direction: column;
-				align-items: flex-end;
+				// align-items: flex-end;
 				.form {
 					display: flex;
 					flex-direction: row;
@@ -558,10 +562,10 @@ export default class ParamsDonate extends Vue {
 				.taxes {
 					padding: .25em .5em;
 					font-size: .6em;
-					text-align: right;
+					text-align: center;
 					font-style: italic;
 					z-index: 1;
-					transform: translateX(-50%);
+					// transform: translateX(-50%);
 					border-radius: var(--border-radius);
 					background-color: var(--color-dark-fadest);
 				}
