@@ -32,7 +32,10 @@
 				@change="sortList()">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlot, index:number}">
 						<div :class="getItemClasses(element)" :key="'item_'+element.id">
-							<Icon :name="getIconFromType(element.id as TwitchatDataTypes.EndingCreditsSlotStringTypes)" />
+							<div class="icons">
+								<Icon name="dragZone" />
+								<Icon :name="getIconFromType(element.id as TwitchatDataTypes.EndingCreditsSlotStringTypes)" />
+							</div>
 
 							<contenteditable class="label" tag="span"
 								:contenteditable="true"
