@@ -1809,8 +1809,11 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current OBS scene
 					 */
-					}else if(pointer === "__obs__") {
-						value = StoreProxy.main.currentOBSScene || "-none-";
+					}else if(pointer.indexOf("__obs__") == 0) {
+						const pointerLocal = pointer.replace('__obs__.', '');
+						switch(pointerLocal) {
+							case "scene": value = StoreProxy.main.currentOBSScene || "-none-"; break;
+						}
 	
 					/**
 					 * If the placeholder requests for the current command
