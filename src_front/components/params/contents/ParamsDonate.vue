@@ -11,8 +11,13 @@
 
 		<div class="paypalFormHolder" v-if="!success">
 			<div :class="formClasses">
-				<span class="label">{{ $t("donate.amount") }}</span>
-				<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
+				<div class="amountHolder">
+					<div class="form">
+						<span class="label">{{ $t("donate.amount") }}</span>
+						<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
+					</div>
+					<div class="taxes">{{ $t("donate.ttc") }} <strong>{{taxedAmount}}€</strong></div>
+				</div>
 				<div class="premiumLabel" ref="premiumLabel"><Icon name="premium" theme="light" />{{ $t("donate.lifetime_premium") }}</div>
 				<div class="emoji">
 					<div class="subHolder">
@@ -184,6 +189,19 @@ export default class ParamsDonate extends Vue {
 		const res = ["card-item", "amount", "secondary"];
 		if(this.premium) res.push("premium")
 		return res;
+	}
+
+	public get taxedAmount():string {
+		let taxes = .98;
+		//Paypal taxes
+		if(this.amount < 90) taxes = .967;
+		if(this.amount <= 20) taxes = .954;
+		if(this.amount <= 10) taxes = .936;
+		if(this.amount <= 5) taxes = .85;
+		if(this.amount <= 2) taxes = .6;
+		//France taxes
+		taxes *= .77;
+		return (this.amount * taxes).toFixed(1);
 	}
 
 	public async mounted():Promise<void> {
@@ -511,19 +529,42 @@ export default class ParamsDonate extends Vue {
 			overflow: visible;
 			z-index: 101;//Go over paypal buttons
 			position: relative;
+			padding: .5em;
 			padding-right: 3.5em;
 			transition: background-color .5s;
-			.currency {
-				font-weight: bold;
-			}
-			.label {
-				margin-right: .5em;
-				flex-grow: 1;
-			}
-			.value {
-				width: 4em;
-				font-weight: bold;
-				text-align: right;
+			.amountHolder {
+				gap: .25em;
+				display: flex;
+				flex-direction: column;
+				align-items: flex-end;
+				.form {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					.currency {
+						font-weight: bold;
+					}
+					.label {
+						margin-right: .5em;
+						flex-grow: 1;
+					}
+				}
+				.value {
+					width: 4em;
+					font-weight: bold;
+					text-align: right;
+				}
+	
+				.taxes {
+					padding: .25em .5em;
+					font-size: .6em;
+					text-align: right;
+					font-style: italic;
+					z-index: 1;
+					transform: translateX(-50%);
+					border-radius: var(--border-radius);
+					background-color: var(--color-dark-fadest);
+				}
 			}
 
 			.premiumLabel {
@@ -549,7 +590,8 @@ export default class ParamsDonate extends Vue {
 			}
 
 			.emoji {
-				right: -1em;
+				font-size: 1.25em;
+				right: -1.5em;
 				background-color: inherit;
 				border-radius: 50%;
 				position: absolute;
