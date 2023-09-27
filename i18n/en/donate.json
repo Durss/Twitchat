@@ -10,6 +10,7 @@
 		"automatic_message":"Keep sending automatic message",
 		"paypal_error":"Something went wrong why initializing PayPal form",
 		"donors": "Donor list",
-		"lifetime_premium": "Lifetime premium"
+		"lifetime_premium": "Lifetime premium",
+		"ttc": "I get {AMOUNT}€ after taxes"
 	}
 }

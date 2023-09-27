@@ -155,6 +155,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
+		console.log(JSON.parse(JSON.stringify(this.action)));
 	}
 
 	public async mounted():Promise<void> {
@@ -174,7 +175,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		if(this.action.animateDuration) this.transformDuration_conf.value = this.action.animateDuration;
 
 		//Prefill forms
-		await this.prefillForm();
+		await this.prefillForm(false);
 
 		const list = this.source_conf.listValues as SourceItem[];
 		//If entry does not exist on the available items, push a fake
@@ -232,7 +233,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	/**
 	 * Prefills the form
 	 */
-	private async prefillForm():Promise<void> {
+	private async prefillForm(cleanData:boolean = true):Promise<void> {
 		let list:SourceItem[] = [];
 		//Get all OBS scenes
 		list.push({labelKey:"triggers.actions.obs.param_source_splitter_scenes", value:"__scenes__", disabled:true, name:"__scene__", type:"scene"});
@@ -263,7 +264,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		list.unshift({labelKey:"global.select_placeholder", value:"", name:"", type:"source"});
 		this.source_conf.listValues = list;
 		
-		await this.onSourceChanged(true)
+		await this.onSourceChanged(true, cleanData)
 	}
 
 	/**
@@ -271,7 +272,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Loads filters associated to the given source to define
 	 * if the filters list should be displayed or not
 	 */
-	private async onSourceChanged(forceFilterEntry:boolean = false):Promise<void> {
+	private async onSourceChanged(forceFilterEntry:boolean = false, cleanData:boolean = true):Promise<void> {
 		this.filters = [];
 		if(this.source_conf.value != "") {
 			try {
@@ -299,14 +300,14 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		}else{
 			this.source_conf.children = [];
 		}
-		this.updateFilter();
+		this.updateFilter(cleanData);
 	}
 
 	/**
 	 * Called when selecting a filter
 	 * Updates the input's label or cleanup filter's name if any
 	 */
-	private updateFilter():void {
+	private updateFilter(cleanData:boolean = true):void {
 		if(this.source_conf.children && this.source_conf.children?.length > 0
 		&& this.filter_conf.value != "") {
 			this.action_conf.labelKey = "triggers.actions.obs.param_show_filter";
@@ -315,7 +316,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			this.action_conf.labelKey = "triggers.actions.obs.param_action";
 			delete this.action.filterName;
 		}
-		this.updateActionsList();
+		if(cleanData) this.updateActionsList();
 	}
 
 	/**
@@ -359,6 +360,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		await this.$nextTick();//Leave it time to form field to be unmounted
 
 		if(!this.canSetMediaPath) {
+			console.log(this.isMediaSource, this.filter_conf.value, this.action_conf.value);
 			this.media_conf.value = "";
 			delete this.action.mediaPath;
 		}
