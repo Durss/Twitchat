@@ -6,7 +6,7 @@
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
-				:theme="(error !== false || alert !== false || primary !== false || secondary !== false) && small === false? 'light': small === true? 'secondary' : ''"
+				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
 			
 			<div class="title" v-if="title || subtitle">

@@ -12,7 +12,7 @@
 				v-model="delay_local"
 				:no-nl="true"
 				:no-html="true"
-				@blur="test()"
+				@blur="validateValue(true)"
 				@keydown="onKeyDown($event)" />
 	
 			<span>s</span>
@@ -74,9 +74,6 @@ export default class TriggerActionDelayEntry extends Vue {
 	public setFocus():void {
 		const ce = this.$refs.input as Vue;
 		(ce.$el as HTMLInputElement).focus()
-	}
-	public test():void {
-		this.validateValue(true)
 	}
 
 	/**

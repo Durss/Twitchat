@@ -81,6 +81,35 @@
 			"project_goals":"Paliers de dons",
 			"project_currency":"Devise",
 			"project_goals_tt":"Si vous avez plusieurs paliers de dons, spécifiez-les ici afin que la barre de progression ne reste pas pleine lorsque l'objectif principal est atteint."
+		},
+		"credits": {
+			"title": "Crédits de fin",
+			"head": "Affichez des crédits de fin de stream",
+			"css": "Changez l'apparence des crédits via ces sélecteurs CSS",
+			"parameters": "Paramètres",
+			"customize_content": "Personnalisez le contenu",
+			"param_timing": "Timing de défilement",
+			"param_timing_speed": "Vitesse",
+			"param_timing_duration": "Durée",
+			"param_duration": "Durée du défilement ({VALUE}s)",
+			"param_speed": "Vitesse de défilement ({VALUE}pixels / s)",
+			"items": {
+				"cheers":"Bits",
+				"follows":"Followers",
+				"hypechats":"Hype chats",
+				"hypetrains":"Trains de la hype",
+				"mods":"Moderateurices",
+				"raids":"Raids reçus",
+				"rewards":"Récompenses de points de chaîne",
+				"so_in":"Shoutouts reçus",
+				"so_out":"Shoutout envoyés",
+				"subgifts":"Subgifts",
+				"subs":"Subs",
+				"subsandgifts":"Subs et Subgifts",
+				"vips":"VIPs",
+				"bans":"Bans effectués",
+				"timeouts":"Bans temporaires"
+			}
 		}
 	}
 }

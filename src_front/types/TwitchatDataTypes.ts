@@ -17,6 +17,7 @@ export namespace TwitchatDataTypes {
 		WHEEL: "wheel",
 		TIMER: "timer",
 		ULULE: "ulule",
+		CREDITS: "credits",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		PREMIUM: "premium",
@@ -1443,6 +1444,31 @@ export namespace TwitchatDataTypes {
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
 		shoutouts:{uid:string, login:string, received:boolean}[];
 		hypeTrains:{level:number, percent:number}[];
+	}
+
+	export const EndingCreditsSlotTypes = {
+		BANS: "bans",
+		MODS: "mods",
+		SUBS: "subs",
+		VIPS: "vips",
+		RAIDS: "raids",
+		SO_IN: "so_in",
+		SO_OUT: "so_out",
+		CHEERS: "cheers",
+		FOLLOWS: "follows",
+		REWARDS: "rewards",
+		TIMEOUTS: "timeouts",
+		SUBGIFTS: "subgifts",
+		HYPECHATS: "hypechats",
+		HYPETRAINS: "hypetrains",
+		SUBSANDGIFTS: "subsandgifts",
+	} as const;
+	export type EndingCreditsSlotStringTypes = typeof EndingCreditsSlotTypes[keyof typeof EndingCreditsSlotTypes];
+	export interface EndingCreditsSlot {
+		id:EndingCreditsSlotStringTypes;
+		enabled:boolean;
+		label:string;
+		max:number;
 	}
 
 

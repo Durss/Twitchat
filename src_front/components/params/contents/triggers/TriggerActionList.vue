@@ -92,8 +92,7 @@
 			ghost-class="ghost"
 			direction="vertical"
 			handle=".header"
-			:animation="250"
-			:dragoverBubble="true">
+			:animation="250">
 				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
 					<div class="listItem">
 						<div class="dash"></div>

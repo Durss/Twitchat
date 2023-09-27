@@ -12,8 +12,7 @@
 				item-key="id"
 				ghost-class="ghost"
 				direction="horizontal"
-				:animation="250"
-				:dragoverBubble="true">
+				:animation="250">
 					<template #item="{element, index}:{element:{id:string, img:string}, index:number}">
 						<button class="badge" :key="element.id">
 							<img :src="element.img">
@@ -40,7 +39,6 @@
 						ghost-class="ghost"
 						direction="horizontal"
 						:animation="250"
-						:dragoverBubble="true"
 						v-model="badgesDel"
 						@change="listUpdate(badgesDel)">
 							<template #item="{element, index}:{element:{id:string, img:string}, index:number}">
@@ -64,7 +62,6 @@
 						ghost-class="ghost"
 						direction="horizontal"
 						:animation="250"
-						:dragoverBubble="true"
 						v-model="badgesAdd"
 						@change="listUpdate(badgesAdd)">
 							<template #item="{element, index}:{element:{id:string, img:string}, index:number}">
@@ -79,14 +76,14 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
+import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
-import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
 import draggable from 'vuedraggable';
-import Icon from '@/components/Icon.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({
 	components:{

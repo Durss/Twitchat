@@ -14,8 +14,7 @@
 			ghost-class="ghost"
 			direction="vertical"
 			draggable=".item"
-			:animation="250"
-			:dragoverBubble="true">
+			:animation="250">
 				<template #item="{element, index}:{element:HeatScreen, index:number}">
 					<HeatScreenPreview class="item" :screen="element" :key="index"
 						@update="editScreen(element, true)"

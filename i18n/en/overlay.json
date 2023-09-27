@@ -81,6 +81,35 @@
 			"project_goals":"Donation goals",
 			"project_currency":"Currency",
 			"project_goals_tt":"If you have multiple donation tiers, specify them here so the progress doesn't remains filled once the main goal has been reached"
+		},
+		"credits": {
+			"title": "Ending credits",
+			"head": "Shows a rolling ending credits.",
+			"css": "You can change the appearance of the credits by overriding these CSS values on OBS browser source params",
+			"parameters": "Parameters",
+			"customize_content": "Customize content",
+			"param_timing": "Scroll timing",
+			"param_timing_speed": "Speed",
+			"param_timing_duration": "Duration",
+			"param_duration": "Scroll duration ({VALUE}s)",
+			"param_speed": "Scroll speed ({VALUE}pixels / s)",
+			"items": {
+				"cheers":"Bits",
+				"follows":"Followers",
+				"hypechats":"Hype chats",
+				"hypetrains":"Hype trains",
+				"mods":"Moderators",
+				"raids":"Raids",
+				"rewards":"Channel point rewards",
+				"so_in":"Shoutouts received",
+				"so_out":"Shoutout sent",
+				"subgifts":"Subgifts",
+				"subs":"Subs",
+				"subsandgifts":"Subs and Subgifts",
+				"vips":"VIPs",
+				"bans":"Users banned",
+				"timeouts":"Users timedout"
+			}
 		}
 	}
 }

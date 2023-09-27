@@ -23,8 +23,7 @@
 		direction="vertical"
 		handle=".action>.header>.dragZone"
 		class="actionList"
-		:animation="250"
-		:dragoverBubble="true">
+		:animation="250">
 			<template #item="{element, index}">
 				<ToggleBlock
 					v-if="globalCommandsOK"

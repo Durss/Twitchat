@@ -28,11 +28,12 @@
 			</div>
 		</div>
 
-		<div class="card-item primary unified" v-if="exchangeChannelAvailable">
+		<div class="card-item primary unified">
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
+		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
 		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
@@ -56,6 +57,7 @@ import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
+import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
 
 @Component({
 	components:{
@@ -65,6 +67,7 @@ import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 		OverlayParamsRaffle,
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
+		OverlayParamsCredits,
 		OverlayParamsHighlight,
 	},
 	emits:[]

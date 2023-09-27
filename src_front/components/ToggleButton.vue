@@ -28,6 +28,9 @@ export default class ToggleButton extends Vue {
 	public alert!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
 	public localValue:boolean = false;
@@ -38,6 +41,7 @@ export default class ToggleButton extends Vue {
 		if(this.small !== false) res.push("small");
 		if(this.secondary !== false) res.push("secondary");
 		if(this.alert !== false) res.push("alert");
+		if(this.premium !== false) res.push("premium");
 		if(this.localValue) res.push("selected");
 		return res;
 	}
@@ -138,6 +142,18 @@ export default class ToggleButton extends Vue {
 		}
 		&.selected {
 			background: var(--color-alert);
+			.circle {
+				background-color: var(--color-button);
+			}
+		}
+	}
+
+	&.premium {
+		.circle {
+			background-color: var(--color-premium);
+		}
+		&.selected {
+			background: var(--color-premium);
 			.circle {
 				background-color: var(--color-button);
 			}
