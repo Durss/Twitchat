@@ -78,6 +78,11 @@ event.detail.scalerotation//Rotation angle of the browser source in degrees
 event.detail.anonymous//is click anonymous?
 event.detail.uid//User ID (anonymized one if user is anonymous)
 event.detail.login//User login (if not anonymous)
+event.detail.isSub//Is user a subscriber of the channel
+event.detail.isBan//Is user banned on the channel
+event.detail.isMod//Is user a moderator of the channel
+event.detail.isVip//Is user a VIP on the channel
+event.detail.isFollower//Is user a follower of the channel
 
 event.detail.shift//Shift key pressed ?
 event.detail.alt//Alt key pressed ?
