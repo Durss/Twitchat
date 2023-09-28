@@ -329,10 +329,22 @@ export default class PatreonController extends AbstractController {
 		response.status(200);
 		response.send("OK");
 		try {
-			this.refreshPatrons(true);
+			this.refreshPatrons(event != "members:create");
 			this.patreonApiDown = false;
 		}catch(error) {
 			this.patreonApiDown = true;
+		}
+
+		if(event == "members:create") {
+			//Force a second refresh 10s after an account creation
+			//I've had a case of user not being counted as member right after donating, I'm suspecting
+			//that's because I requested too quick but I'm not sure at all.
+			//Although new members are not yet approved as patreon members, they usually have the
+			//given amount returned. That time it apparently didn't.
+			//This second call is here in case I called Patreon too early after member's creation.
+			setTimeout(()=>{
+				this.refreshPatrons(true);
+			}, 10000);
 		}
 	}
 

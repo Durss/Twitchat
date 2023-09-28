@@ -87,7 +87,7 @@
 			"head": "Affichez des crédits de fin de stream",
 			"css": "Changez l'apparence des crédits via ces sélecteurs CSS",
 			"parameters": "Paramètres",
-			"customize_content": "Personnalisez le contenu",
+			"customize_content": "Mise en page des crédits de fin",
 			"param_timing": "Timing de défilement",
 			"param_timing_speed": "Vitesse",
 			"param_timing_duration": "Durée",
@@ -109,7 +109,10 @@
 				"vips":"VIPs",
 				"bans":"Bans effectués",
 				"timeouts":"Bans temporaires"
-			}
+			},
+			"param_layout":"Disposition des entrées",
+			"param_maxItems":"Maximum d'entrées à afficher",
+			"param_customHTML":"Template HTML personnalisé"
 		}
 	}
 }

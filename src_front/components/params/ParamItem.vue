@@ -23,6 +23,7 @@
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
 					:secondary="secondary"
+					:premium="premium"
 					:alert="alert || errorLocal"
 					:id="'toggle'+key" />
 			</div>
@@ -102,7 +103,10 @@
 				/>
 
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
-				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value" :secondary="secondary" :alert="alert || errorLocal" />
+				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
+				:secondary="secondary"
+				:premium="premium"
+				:alert="alert || errorLocal" />
 			</div>
 			
 			<div v-if="paramData.type == 'list'" class="holder list">
@@ -152,6 +156,7 @@
 				</vue-select>
 				<button class="listSubmitBt"
 				:secondary="secondary"
+				:premium="premium"
 				:alert="alert || errorLocal"
 				@click="submitListItem()" v-if="searching"
 				><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
@@ -173,6 +178,7 @@
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
+					:premium="premium"
 					:alert="alert || errorLocal"
 					:accept="paramData.accept?paramData.accept:'*'"
 					icon="upload"
@@ -193,6 +199,7 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:secondary="secondary"
+			:premium="premium"
 			:alert="alert || errorLocal"
 			noBackground
 			:autoFade="autoFade"
@@ -260,6 +267,9 @@ export default class ParamItem extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
 
 	@Prop({type:Boolean, default: false})
 	public noBackground!:boolean;

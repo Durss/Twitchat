@@ -1469,6 +1469,9 @@ export namespace TwitchatDataTypes {
 		enabled:boolean;
 		label:string;
 		max:number;
+		layout:"col"|"row"|"2cols"|"3cols";
+		customHTML:boolean;
+		htmlTemplate:string;
 	}
 
 

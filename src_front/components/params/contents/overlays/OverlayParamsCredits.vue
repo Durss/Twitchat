@@ -31,24 +31,47 @@
 				v-model="items"
 				@change="sortList()">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlot, index:number}">
-						<div :class="getItemClasses(element)" :key="'item_'+element.id">
-							<div class="icons">
-								<Icon name="dragZone" />
-								<Icon :name="getIconFromType(element.id as TwitchatDataTypes.EndingCreditsSlotStringTypes)" />
-							</div>
-
-							<contenteditable class="label" tag="span"
+						<ToggleBlock :class="getItemClasses(element)" :key="'item_'+element.id" :open="false" :disabled="element.enabled === false">
+							<template #left_actions>
+								<div class="icons">
+									<Icon name="dragZone" />
+									<Icon :name="getIconFromType(element.id as TwitchatDataTypes.EndingCreditsSlotStringTypes)" />
+								</div>
+							</template>
+							
+							<template #title>
+								<contenteditable class="label" tag="span"
 								:contenteditable="true"
 								v-model="element.label"
 								:no-nl="true"
 								:no-html="true"
 								@blur="checkLabel(element)" />
+							</template>
 
-							<div class="actions">
-								<ParamItem class="maxItems" :paramData="{type:'number', min:1, max:1000, value:100}" v-model="element.max" noBackground />
-								<ToggleButton v-model="element.enabled" premium />
+							<template #right_actions>
+								<div class="rightActions">
+									<ToggleButton v-model="element.enabled" premium @change="sortList()" />
+									<button class="arrowBt"><Icon name="arrowRight" /></button>
+								</div>
+							</template>
+
+							<div class="content">
+								<div class="layout">
+									<label>{{ $t("overlay.credits.param_layout") }}</label>
+									<div class="layoutBtns">
+										<Button icon="layout_col" premium @click="element.layout = 'col'" :selected="element.layout == 'col'" />
+										<Button icon="layout_row" premium @click="element.layout = 'row'" :selected="element.layout == 'row'" />
+										<Button icon="layout_2cols" premium @click="element.layout = '2cols'" :selected="element.layout == '2cols'" />
+										<Button icon="layout_3cols" premium @click="element.layout = '3cols'" :selected="element.layout == '3cols'" />
+									</div>
+								</div>
+								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.max" noBackground premium />
+								
+								<ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" noBackground premium>
+									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" noBackground premium />
+								</ParamItem>
 							</div>
-						</div>
+						</ToggleBlock>
 					</template>
 				</draggable>
 			</div>
@@ -89,6 +112,9 @@ export default class OverlayParamsCredits extends Vue {
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"number", min:1, max:5000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_maxItems:TwitchatDataTypes.ParameterData<number>[] = [];
+	public param_customHTML:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_htmlTemplate:TwitchatDataTypes.ParameterData<string>[] = [];
 
 	public get overlayUrl():string { return this.$overlayURL("credits"); }
 
@@ -142,22 +168,28 @@ export default class OverlayParamsCredits extends Vue {
 
 	public beforeMount():void {
 		this.items = [
-			{id:"hypechats",	max:100, enabled:true, label:this.$t(this.getLabelFromType("hypechats"))},
-			{id:"subs",			max:100, enabled:true, label:this.$t(this.getLabelFromType("subs"))},
-			{id:"subgifts",		max:100, enabled:true, label:this.$t(this.getLabelFromType("subgifts"))},
-			{id:"cheers",		max:100, enabled:true, label:this.$t(this.getLabelFromType("cheers"))},
-			{id:"raids",		max:100, enabled:true, label:this.$t(this.getLabelFromType("raids"))},
-			{id:"follows",		max:100, enabled:true, label:this.$t(this.getLabelFromType("follows"))},
-			{id:"hypetrains",	max:100, enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
-			{id:"so_in",		max:100, enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
-			{id:"mods",			max:100, enabled:false, label:this.$t(this.getLabelFromType("mods"))},
-			{id:"rewards",		max:100, enabled:false, label:this.$t(this.getLabelFromType("rewards"))},
-			{id:"so_out",		max:100, enabled:false, label:this.$t(this.getLabelFromType("so_out"))},
-			{id:"vips",			max:100, enabled:false, label:this.$t(this.getLabelFromType("vips"))},
-			{id:"subsandgifts",	max:100, enabled:false, label:this.$t(this.getLabelFromType("subsandgifts"))},
-			{id:"bans",			max:100, enabled:false, label:this.$t(this.getLabelFromType("bans"))},
-			{id:"timeouts",		max:100, enabled:false, label:this.$t(this.getLabelFromType("timeouts"))},
+			{id:"hypechats",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats"))},
+			{id:"subs",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subs"))},
+			{id:"subgifts",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts"))},
+			{id:"cheers",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers"))},
+			{id:"raids",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids"))},
+			{id:"follows",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
+			{id:"hypetrains",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
+			{id:"so_in",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
+			{id:"mods",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("mods"))},
+			{id:"rewards",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("rewards"))},
+			{id:"so_out",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out"))},
+			{id:"vips",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("vips"))},
+			{id:"subsandgifts",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("subsandgifts"))},
+			{id:"bans",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("bans"))},
+			{id:"timeouts",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("timeouts"))},
 		];
+
+		for (let i = 0; i < this.items.length; i++) {
+			this.param_customHTML.push({type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"});
+			this.param_htmlTemplate.push({type:"string", value:"", longText:true, maxLength:1000});
+			this.param_maxItems.push({type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'});
+		}
 
 		this.param_timing.listValues = [
 			{value:"speed", labelKey:"overlay.credits.param_timing_speed"},
@@ -226,36 +258,42 @@ export default class OverlayParamsCredits extends Vue {
 				margin-top: .5em;
 			}
 			.dragItem {
-				width: 100%;
-				text-align: center;
-				padding: .5em;
 				margin: .25em 0;
 				border: 1px solid var(--color-text);
 				border-radius: var(--border-radius);
-				background-color: var(--color-text-fadest);
-				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
-				align-items: center;
-				cursor: move;
-				transition: background-color .2s;
-				.icon {
-					height: 1em;
-					min-width: 1em;
+				:deep(.header) {
+					cursor: move;
+					justify-content: space-between;
+					background-color: var(--color-text-fadest);
+					transition: background-color .2s;
+					border-bottom: 1px solid var(--color-text-fade);
+					&:hover {
+						background-color: var(--color-text-fader);
+					}
+				}
+				.icons {
+					display: flex;
+					flex-direction: row;
+
+					.icon {
+						height: 1em;
+						min-width: 1em;
+					}
 				}
 				.label {
 					cursor: text;
 					min-width: 2em;
 					font-weight: bold;
+					// flex-grow: 1;
+					padding: .25em .5em;
 					&:hover, &:active, &:focus {
 						.bevel();
-						background-color: var(--grayout);
+						background-color: var(--color-text-inverse-fader);
 						// border: 1px double var(--color-light);
 						// border-style: groove;
-						padding: .25em .5em;
 					}
 				}
-				.actions {
+				.rightActions {
 					gap: .25em;
 					display: flex;
 					flex-direction: row;
@@ -266,14 +304,59 @@ export default class OverlayParamsCredits extends Vue {
 							text-align: center;
 						}
 					}
+					.arrowBt {
+						transition: transform .25s;
+					}
 				}
-				&:hover {
-					background-color: var(--color-text-fader);
+				.content {
+					gap: .25em;
+					display: flex;
+					flex-direction: column;
+
+					.layout {
+						gap: .5em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						position: relative;
+						&::before {
+							content: "";
+							opacity: 0;
+							top: 0;
+							left: 0;
+							width: 100%;
+							height: 100%;
+							position: absolute;
+							filter: blur(5px);
+							pointer-events: none;
+							background-color: var(--background-color-fadest);
+							background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
+						}
+						&:hover::before {
+							opacity: 1;
+						}
+						label {
+							flex-grow: 1;
+						}
+
+						.layoutBtns {
+							gap: .5em;
+							display: flex;
+							flex-direction: row;
+						}
+					}
+
 				}
 				&.disabled {
 					border-style: dashed;
 					opacity: .5;
 					background-color: transparent;
+				}
+
+				&:not(.closed) {
+					.arrowBt {
+						transform: rotate(90deg);
+					}
 				}
 			}
 		}

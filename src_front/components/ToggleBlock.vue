@@ -13,6 +13,7 @@
 				<h2 v-if="title">{{ title }}</h2>
 				<h3 v-if="subtitle">{{ subtitle }}</h3>
 			</div>
+			<slot name="title"></slot>
 
 			<slot name="right_actions"></slot>
 		</div>
@@ -79,6 +80,9 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public premium!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public disabled!:boolean;
+
 	@Prop({type:Object})
 	public newflag!:{date:number, id:string};
 
@@ -114,6 +118,8 @@ export default class ToggleBlock extends Vue {
 	}
 
 	public async toggle(forcedState?:boolean):Promise<void> {
+		if(this.disabled !== false && (forcedState == true || !this.opened)) return;
+
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
 		let open = !this.opened;
 		if(forcedState !== undefined) {

@@ -87,7 +87,7 @@
 			"head": "Shows a rolling ending credits.",
 			"css": "You can change the appearance of the credits by overriding these CSS values on OBS browser source params",
 			"parameters": "Parameters",
-			"customize_content": "Customize content",
+			"customize_content": "Ending credits layout",
 			"param_timing": "Scroll timing",
 			"param_timing_speed": "Speed",
 			"param_timing_duration": "Duration",
@@ -109,7 +109,10 @@
 				"vips":"VIPs",
 				"bans":"Users banned",
 				"timeouts":"Users timedout"
-			}
+			},
+			"param_layout":"Entries layout",
+			"param_maxItems":"Max entries to show",
+			"param_customHTML":"Custom HTML template"
 		}
 	}
 }
