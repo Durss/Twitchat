@@ -56,7 +56,7 @@
 				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
-			<div class="content" v-if="(content != contentMain && content != contentAd) || search">
+			<div class="content" v-if="(content != contentMain && content != contentAd) || search" id="paramContentScrollableHolder">
 				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
 					<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 				</div>

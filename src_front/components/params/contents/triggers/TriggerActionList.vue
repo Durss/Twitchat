@@ -180,6 +180,8 @@ export default class TriggerActionList extends Vue {
 	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 	
 	private selectOffset = {x:0, y:0};
+	private scrollDir:number = 0;
+	private disposed:boolean = false;
 	private pointerDownHandler!:(e:PointerEvent) => void;
 	private pointerMoveHandler!:(e:PointerEvent) => void;
 	private pointerUpHandler!:(e:PointerEvent) => void;
@@ -315,9 +317,12 @@ export default class TriggerActionList extends Vue {
 		document.addEventListener("pointermove", this.pointerMoveHandler);
 		document.addEventListener("pointerup", this.pointerUpHandler);
 		document.addEventListener("keyup", this.keyUpHandler);
+
+		this.renderFrame();
 	}
 
 	public beforeUnmount():void {
+		this.disposed = true;
 		const holder = document.getElementById("paramContentHolder")!;
 		holder.removeEventListener("pointerdown", this.pointerDownHandler);
 		document.removeEventListener("pointermove", this.pointerMoveHandler);
@@ -383,20 +388,23 @@ export default class TriggerActionList extends Vue {
 		if(target != parent) return;
 
 		Utils.unselectDom();
+		const offsetBounds = this.$el.getBoundingClientRect();
 
 		this.selecting = true;
-		this.selectOffset.x = e.clientX;
-		this.selectOffset.y = e.clientY;
+		this.selectOffset.x = e.clientX - offsetBounds.left;
+		this.selectOffset.y = e.clientY - offsetBounds.top;
 		this.onPointerMove(e);
 	}
 	
 	private onPointerMove(e:PointerEvent):void {
 		if(!this.selecting) return;
+
+		const offsetBounds = this.$el.getBoundingClientRect();
 		
-		const x1 = Math.min(this.selectOffset.x, e.clientX);
-		const y1 = Math.min(this.selectOffset.y, e.clientY);
-		const x2 = Math.max(this.selectOffset.x, e.clientX);
-		const y2 = Math.max(this.selectOffset.y, e.clientY);
+		const x1 = Math.min(this.selectOffset.x, e.clientX - offsetBounds.left);
+		const y1 = Math.min(this.selectOffset.y, e.clientY - offsetBounds.top);
+		const x2 = Math.max(this.selectOffset.x, e.clientX - offsetBounds.left);
+		const y2 = Math.max(this.selectOffset.y, e.clientY - offsetBounds.top);
 		this.selectStyles.left = x1+"px";
 		this.selectStyles.top = y1+"px";
 		this.selectStyles.width = (x2 - x1)+"px";
@@ -408,14 +416,18 @@ export default class TriggerActionList extends Vue {
 		for (let i = 0; i < entries.length; i++) {
 			const entry = entries[i] as HTMLElement;
 			const bounds = entry.getBoundingClientRect();
-			const overlap = !( x1 > bounds.right
-							|| x2 < bounds.left
-							|| y1 > bounds.bottom
-							|| y2 < bounds.top );
+			const overlap = !( x1 + offsetBounds.left > bounds.right
+							|| x2 + offsetBounds.left < bounds.left
+							|| y1 + offsetBounds.top > bounds.bottom
+							|| y2 + offsetBounds.top < bounds.top );
 			if(overlap) {
 				selected.push(entry.dataset.actionid as string);
 			}
 		}
+
+		this.scrollDir = 0;
+		if(e.clientY > document.body.clientHeight * .8) this.scrollDir = (e.clientY - document.body.clientHeight * .8) * .1;
+		if(e.clientY < document.body.clientHeight * .2) this.scrollDir = -(document.body.clientHeight * .2) * .1;
 
 		this.selectedActions = selected;
 
@@ -431,6 +443,10 @@ export default class TriggerActionList extends Vue {
 	}
 	
 	private onKeyUp(e:KeyboardEvent):void {
+		//Do not copy/past actions if focus is on a form input
+		const nodeName = (e.target as HTMLElement).nodeName;
+		if(["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
+
 		if(e.key == "c" && e.ctrlKey && this.selectedActions.length > 0) {
 			const clipboar:TriggerActionTypes[] = [];
 			for (let i = 0; i < this.triggerData.actions.length; i++) {
@@ -439,6 +455,7 @@ export default class TriggerActionList extends Vue {
 					clipboar.push(a);
 				}
 			}
+			this.selectedActions = [];
 			this.$store("triggers").clipboard = clipboar;
 		}else
 		if(e.key == "v" && e.ctrlKey && this.$store("triggers").clipboard.length > 0) {
@@ -450,6 +467,16 @@ export default class TriggerActionList extends Vue {
 			}
 		}
 	}
+
+	private renderFrame():void {
+		if(this.disposed) return;
+		requestAnimationFrame(()=>this.renderFrame());
+		if(!this.selecting) return;
+		if(this.scrollDir == 0) return;
+		const scrollableHolder = document.getElementById("paramContentScrollableHolder") as HTMLDivElement;
+		if(!scrollableHolder) return;
+		scrollableHolder.scrollTop += this.scrollDir;
+	}
 }
 </script>
 
@@ -458,6 +485,7 @@ export default class TriggerActionList extends Vue {
 	display: flex;
 	flex-direction: column;
 	gap: 1em;
+	position: relative;
 
 	.list {
 		.conditionSelector {
