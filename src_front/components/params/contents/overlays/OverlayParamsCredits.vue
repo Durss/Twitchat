@@ -15,12 +15,13 @@
 			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
 
 			<div class="card-item item">
-				<ParamItem noBackground :paramData="param_timing" />
-				<ParamItem noBackground :paramData="param_duration" v-if="param_timing.value == 'duration'" />
-				<ParamItem noBackground :paramData="param_speed" v-if="param_timing.value == 'speed'" />
+				<ParamItem noBackground :paramData="param_scale" v-model="data.scale" />
+				<ParamItem noBackground :paramData="param_timing" v-model="data.timing" />
+				<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" />
+				<ParamItem noBackground :paramData="param_speed" v-model="data.duration" v-if="param_timing.value == 'speed'" />
 			</div>
 
-			<Splitter @click="randomize">{{ $t("overlay.credits.customize_content") }}</Splitter>
+			<Splitter>{{ $t("overlay.credits.customize_content") }}</Splitter>
 
 			<div class="item">
 				<draggable
@@ -28,7 +29,7 @@
 				group="description"
 				ghostClass="ghost"
 				item-key="id"
-				v-model="items"
+				v-model="data.slots"
 				@change="sortList()">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlot, index:number}">
 						<ToggleBlock :class="getItemClasses(element)" :key="'item_'+element.id" :open="false" :disabled="element.enabled === false">
@@ -40,12 +41,15 @@
 							</template>
 							
 							<template #title>
-								<contenteditable class="label" tag="span"
+								<contenteditable class="label" tag="div" :ref="'label_'+element.id"
 								:contenteditable="true"
 								v-model="element.label"
 								:no-nl="true"
 								:no-html="true"
-								@blur="checkLabel(element)" />
+								@click.stop
+								@returned="checkDefaultLabel(element)"
+								@input="limitLabelSize(element)"
+								@blur="checkDefaultLabel(element)" />
 							</template>
 
 							<template #right_actions>
@@ -65,7 +69,7 @@
 										<Button icon="layout_3cols" premium @click="element.layout = '3cols'" :selected="element.layout == '3cols'" />
 									</div>
 								</div>
-								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.max" noBackground premium />
+								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.maxEntries" noBackground premium />
 								
 								<ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" noBackground premium>
 									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" noBackground premium />
@@ -80,16 +84,21 @@
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
 import Splitter from '@/components/Splitter.vue';
-import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
+import ToggleButton from '@/components/ToggleButton.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import DataStore from '@/store/DataStore';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import type { JsonObject } from "type-fest";
+import { watch } from 'vue';
+import contenteditable from 'vue-contenteditable';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
-import draggable from 'vuedraggable';
-import Icon from '@/components/Icon.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
-import contenteditable from 'vue-contenteditable';
 
 @Component({
 	components:{
@@ -108,13 +117,21 @@ export default class OverlayParamsCredits extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
-	public items:TwitchatDataTypes.EndingCreditsSlot[] = [];
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"number", min:1, max:5000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"number", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
 	public param_maxItems:TwitchatDataTypes.ParameterData<number>[] = [];
 	public param_customHTML:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public param_htmlTemplate:TwitchatDataTypes.ParameterData<string>[] = [];
+	public data:TwitchatDataTypes.EndingCreditsParams = {
+		scale:2,
+		timing:"speed",
+		duration:200,
+		slots:[],
+	};
+
+	private broadcastDebounce:number = -1;
 
 	public get overlayUrl():string { return this.$overlayURL("credits"); }
 
@@ -167,25 +184,31 @@ export default class OverlayParamsCredits extends Vue {
 	}
 
 	public beforeMount():void {
-		this.items = [
-			{id:"hypechats",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats"))},
-			{id:"subs",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subs"))},
-			{id:"subgifts",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts"))},
-			{id:"cheers",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers"))},
-			{id:"raids",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids"))},
-			{id:"follows",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
-			{id:"hypetrains",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
-			{id:"so_in",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
-			{id:"mods",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("mods"))},
-			{id:"rewards",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("rewards"))},
-			{id:"so_out",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out"))},
-			{id:"vips",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("vips"))},
-			{id:"subsandgifts",	max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("subsandgifts"))},
-			{id:"bans",			max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("bans"))},
-			{id:"timeouts",		max:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("timeouts"))},
-		];
+		const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
+		if(json) {
+			this.data = JSON.parse(json);
+		}
+		if(this.data.slots.length == 0) {
+			this.data.slots.push(
+				{id:"hypechats",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats"))},
+				{id:"subs",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subs"))},
+				{id:"subgifts",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts"))},
+				{id:"cheers",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers"))},
+				{id:"raids",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids"))},
+				{id:"follows",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
+				{id:"hypetrains",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
+				{id:"so_in",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
+				{id:"mods",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("mods"))},
+				{id:"rewards",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("rewards"))},
+				{id:"so_out",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out"))},
+				{id:"vips",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("vips"))},
+				{id:"subsandgifts",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("subsandgifts"))},
+				{id:"bans",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("bans"))},
+				{id:"timeouts",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("timeouts"))},
+			);
+		}
 
-		for (let i = 0; i < this.items.length; i++) {
+		for (let i = 0; i < this.data.slots.length; i++) {
 			this.param_customHTML.push({type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"});
 			this.param_htmlTemplate.push({type:"string", value:"", longText:true, maxLength:1000});
 			this.param_maxItems.push({type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'});
@@ -197,27 +220,53 @@ export default class OverlayParamsCredits extends Vue {
 		]
 
 		this.sortList();
+
+		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
+		if(!json) {
+			this.saveParams();
+		}
 	}
 
 	public sortList():void {
-		this.items = this.items.sort((a,b)=> {
+		this.data.slots.sort((a,b)=> {
 			if(a.enabled && !b.enabled) return -1;
 			if(!a.enabled && b.enabled) return 1;
 			return 0;
 		})
 	}
 
-	public checkLabel(item:TwitchatDataTypes.EndingCreditsSlot):void {
+	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlot):void {
 		if(!item.label) {
 			item.label = this.$t(this.getLabelFromType(item.id));
+		}else{
+			this.limitLabelSize(item);
 		}
 	}
 
-	public randomize():void {
-		for (let i = this.items.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			[this.items[i], this.items[j]] = [this.items[j], this.items[i]];
+	public async limitLabelSize(item:TwitchatDataTypes.EndingCreditsSlot):Promise<void> {
+		const sel = window.getSelection();
+		if(sel && sel.rangeCount > 0) {
+			//Save caret index
+			var range = sel.getRangeAt(0);
+			let caretIndex = range.startOffset;
+			await this.$nextTick();
+			//Limit label's size
+			item.label = item.label.substring(0, 100);
+			await this.$nextTick();
+			//Reset caret to previous position
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.label.length, caretIndex-1));
+		}else{
+			item.label = item.label.substring(0, 100);
 		}
+	}
+
+	private saveParams():void {
+		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
+
+		clearTimeout(this.broadcastDebounce);
+		this.broadcastDebounce = setTimeout(() => {
+			PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (this.data as unknown) as JsonObject);
+		}, 100);
 	}
 
 }
@@ -286,6 +335,7 @@ export default class OverlayParamsCredits extends Vue {
 					font-weight: bold;
 					// flex-grow: 1;
 					padding: .25em .5em;
+					border-radius: var(--border-radius);
 					&:hover, &:active, &:focus {
 						.bevel();
 						background-color: var(--color-text-inverse-fader);

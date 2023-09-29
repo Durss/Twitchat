@@ -1086,7 +1086,7 @@ export interface IStreamActions {
 	/**
 	 * Get all current stream data
 	 */
-	getSummary(offset?:number):Promise<TwitchatDataTypes.StreamSummaryData>;
+	getSummary(offset?:number, includeParams?:boolean):Promise<TwitchatDataTypes.StreamSummaryData>;
 }
 
 

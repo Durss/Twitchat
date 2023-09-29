@@ -1,4 +1,3 @@
-import gsap from "gsap/all";
 import type { JsonArray, JsonObject, JsonValue } from "type-fest";
 import { EventDispatcher } from "../events/EventDispatcher";
 import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEvent";
@@ -85,10 +84,12 @@ export default class PublicAPI extends EventDispatcher {
 		}
 
 		if(!OBSWebsocket.instance.connected || onlyLocal) {
+			console.log("Broadacast local", type);
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, data));
 		}else{
+			console.log("Broadacast remote", type);
 			//Broadcast to any OBS Websocket connected client
 			OBSWebsocket.instance.broadcast(type, data);
 		}

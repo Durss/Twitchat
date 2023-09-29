@@ -773,10 +773,10 @@ export default class ChatForm extends Vue {
 	 */
 	public async onSelectItem(item:string):Promise<void> {
 		const input = this.$refs.input as HTMLInputElement;
-		let carretPos = input.selectionStart;
+		let caretPos = input.selectionStart;
 		let localMessage = this.message;
-		if(!carretPos) carretPos = 1;
-		carretPos --;
+		if(!caretPos) caretPos = 1;
+		caretPos --;
 
 		//If it's a command and it has no parameter, submit it right away
 		if(item.indexOf("/") === 0 && item.indexOf("{") == -1) {
@@ -787,7 +787,7 @@ export default class ChatForm extends Vue {
 		}
 
 		if(this.autoCompleteSearch) {
-			for (let i = carretPos; i >= 0; i--) {
+			for (let i = caretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
 				if(currentChar == ":" || 
 				currentChar == "@" ||
@@ -797,17 +797,17 @@ export default class ChatForm extends Vue {
 					const suffix = localMessage.substring(i+1+this.autoCompleteSearch.length)+" ";
 					if(prefix) prefix += " ";
 					localMessage = prefix + item + suffix;
-					carretPos = prefix.length + item.length + 1;
+					caretPos = prefix.length + item.length + 1;
 					break;
 				}
 			}
 			this.autoCompleteSearch = "";
 		}else{
-			const prefix = carretPos == 0 || /\s/gi.test(localMessage.charAt(carretPos))? "" : " ";
-			const suffix = carretPos == localMessage.length || /\s/gi.test(localMessage.charAt(carretPos+1))? "" : " ";
+			const prefix = caretPos == 0 || /\s/gi.test(localMessage.charAt(caretPos))? "" : " ";
+			const suffix = caretPos == localMessage.length || /\s/gi.test(localMessage.charAt(caretPos+1))? "" : " ";
 			const code = prefix + item + suffix;
-			localMessage = localMessage.substring(0, carretPos+1) + code + localMessage.substring(carretPos+1);
-			carretPos += code.length+1;
+			localMessage = localMessage.substring(0, caretPos+1) + code + localMessage.substring(caretPos+1);
+			caretPos += code.length+1;
 		}
 		
 		if(/\{.*?\}/gi.test(item)) {
@@ -821,7 +821,7 @@ export default class ChatForm extends Vue {
 		if(/\{.*?\}/gi.test(item)) {
 			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
 		}else{
-			input.setSelectionRange(carretPos, carretPos, "forward");
+			input.setSelectionRange(caretPos, caretPos, "forward");
 			input.focus();
 		}
 

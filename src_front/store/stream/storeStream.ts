@@ -295,7 +295,7 @@ export const storeStream = defineStore('stream', {
 			}).catch(()=>{/*ignore*/});
 		},
 
-		async getSummary(offset:number = 0):Promise<TwitchatDataTypes.StreamSummaryData> {
+		async getSummary(offset:number = 0, includeParams:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const res = await TwitchUtils.loadCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
@@ -304,13 +304,20 @@ export const storeStream = defineStore('stream', {
 				raids:[] as {uid:string, login:string, raiders:number}[],
 				subs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
 				resubs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
-				subgifts:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
+				subgifts:[] as {uid:string, login:string, tier:1|2|3|"prime", total:number}[],
 				bits:[] as {uid:string, login:string, bits:number}[],
 				hypeChats:[] as {uid:string, login:string, amount:number, currency:string}[],
 				rewards:[] as {uid:string, login:string, reward:{name:string, id:string, icon:string}}[],
 				shoutouts:[] as {uid:string, login:string, received:boolean}[],
 				hypeTrains:[] as {level:number, percent:number}[],
 			};
+			if(includeParams) {
+				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
+				if(json) {
+					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+				}
+			}
+
 			let dateOffset:number|undefined = offset;
 			if(res.length > 0) {
 				dateOffset = new Date(res[0].started_at).getTime();
@@ -330,7 +337,7 @@ export const storeStream = defineStore('stream', {
 				
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier};
+						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1};
 						if(m.is_resub) result.resubs.push(sub);
 						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
 						else result.subs.push(sub);

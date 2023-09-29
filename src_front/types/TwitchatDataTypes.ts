@@ -1434,11 +1434,12 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface StreamSummaryData {
 		streamDuration:number;
+		params?:TwitchatDataTypes.EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
 		subs:{uid:string, login:string, tier:1|2|3|"prime"}[];
 		resubs:{uid:string, login:string, tier:1|2|3|"prime"}[];
-		subgifts:{uid:string, login:string, tier:1|2|3|"prime"}[];
+		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number}[];
 		bits:{uid:string, login:string, bits:number}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
@@ -1468,10 +1469,17 @@ export namespace TwitchatDataTypes {
 		id:EndingCreditsSlotStringTypes;
 		enabled:boolean;
 		label:string;
-		max:number;
+		maxEntries:number;
 		layout:"col"|"row"|"2cols"|"3cols";
 		customHTML:boolean;
 		htmlTemplate:string;
+	}
+
+	export interface EndingCreditsParams {
+		scale:number;
+		timing:"speed" | "duration";
+		duration:number;
+		slots:EndingCreditsSlot[];
 	}
 
 

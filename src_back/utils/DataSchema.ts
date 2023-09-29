@@ -1072,6 +1072,34 @@ import Ajv from "ajv";
 				}
 			}
 		},
+
+		endingCreditsParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				timing: {type:"string", maxLength:15},
+				duration: {type:"integer", minimum:1, maximum:5000},
+				slots: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:15},
+							enabled: {type:"boolean"},
+							label: {type:"string", maxLength:50},
+							maxEntries: {type:"integer", minimum:1, maximum:1000},
+							scale: {type:"integer", minimum:1, maximum:5},
+							layout: {enum: ["col","row","2cols","3cols"]},
+							customHTML: {type:"boolean"},
+							htmlTemplate: {type:"string", maxLength:5000},
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

@@ -7,11 +7,13 @@
 		<OverlayCounter v-if="overlay=='counter'" />
 		<OverlayUlule v-if="overlay=='ulule'" />
 		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
+		<OverlayEndingCredits v-if="overlay=='credits'" />
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-facing-decorator';
+import OverlayEndingCredits from '../components/overlays/OverlayEndingCredits.vue';
 import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
 import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
 import OverlayTimer from '../components/overlays/OverlayTimer.vue';
@@ -31,6 +33,7 @@ import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 		OverlayHeatDebug,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
+		OverlayEndingCredits,
 		OverlayChatHighlight,
 	}
 })
