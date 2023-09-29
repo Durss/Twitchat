@@ -229,11 +229,13 @@ export default class SpotifyHelper {
 			if(!isRetry) return await this.getTrackByID(id, true);
 			else return null;
 		}
-		try {
-			return await res.json();
-		}catch(error) {
-			return null;
+		if(res.status < 204 && res.status >= 200) {
+			try {
+				return await res.json();
+			}catch(error) {
+			}
 		}
+		return null;
 	}
 
 	/**
