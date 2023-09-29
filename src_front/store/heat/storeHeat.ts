@@ -236,9 +236,25 @@ export const storeHeat = defineStore('heat', {
 							vendorName:"obs-browser",
 							requestData:{
 								event_name:"heat-click",
-								event_data:{anonymous, x:percentX, y:percentY, rotation:rect.transform.globalRotation, scaleX:rect.transform.globalScaleX!, scaleY:rect.transform.globalScaleY!, uid:user.id, login:user.login, testMode:event.testMode, alt:event.alt, ctrl:event.ctrl, shift:event.shift, page:await Utils.sha256(url)},
+								event_data:{anonymous, x:percentX, y:percentY,
+									rotation:rect.transform.globalRotation,
+									scaleX:rect.transform.globalScaleX!,
+									scaleY:rect.transform.globalScaleY!,
+									uid:user.id,
+									login:user.login,
+									isSub:user.channelInfo[channelId].is_subscriber,
+									isBan:user.channelInfo[channelId].is_banned,
+									isMod:user.channelInfo[channelId].is_moderator,
+									isVip:user.channelInfo[channelId].is_vip,
+									isFollower:user.channelInfo[channelId].is_following,
+									testMode:event.testMode,
+									alt:event.alt,
+									ctrl:event.ctrl,
+									shift:event.shift,
+									page:await Utils.sha256(url)},
 							}
 						});
+						console.log(url);
 
 
 						//Spotify overlay
