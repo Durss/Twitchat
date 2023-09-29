@@ -1077,6 +1077,8 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				textColor: {type:"string", maxLength:9},
+				textShdow: {type:"string", maxLength:9},
 				scale: {type:"integer", minimum:1, maximum:5},
 				timing: {type:"string", maxLength:15},
 				duration: {type:"integer", minimum:1, maximum:5000},

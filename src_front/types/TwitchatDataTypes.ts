@@ -1478,6 +1478,8 @@ export namespace TwitchatDataTypes {
 
 	export interface EndingCreditsParams {
 		scale:number;
+		textColor:string;
+		textShadow:boolean;
 		timing:"speed" | "duration";
 		duration:number;
 		startDelay:number;

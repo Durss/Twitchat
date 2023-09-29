@@ -112,6 +112,8 @@
 				"bans":"BANS EFFECTUÉS",
 				"timeouts":"BANS TEMPORAIRES"
 			},
+			"param_textColor":"Couleur des textes",
+			"param_textShadow":"Ombre portée sur les textes",
 			"param_layout":"Disposition des entrées",
 			"param_maxItems":"Maximum d'entrées à afficher",
 			"param_customHTML":"Template HTML personnalisé",

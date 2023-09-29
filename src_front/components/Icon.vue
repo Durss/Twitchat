@@ -78,6 +78,7 @@ export default class Icon extends Vue {
 <style scoped lang="less">
 .icon{
 	display: inline-block;
+	color: inherit;
 	:deep(svg) {
 		width: auto;
 		width: 100%;
@@ -86,43 +87,23 @@ export default class Icon extends Vue {
 		max-height: 100%;
 		object-fit: cover;
 		* {
-			fill: var(--icon-color) !important;
+			fill: currentColor !important;
 		}
 	}
 	&.light {
-		:deep(svg) {
-			* {
-				fill: var(--color-light) !important;
-			}
-		}
+		color: var(--color-light) !important;
 	}
 	&.dark {
-		:deep(svg) {
-			* {
-				fill: var(--color-dark) !important;
-			}
-		}
+		color: var(--color-dark) !important;
 	}
 	&.primary {
-		:deep(svg) {
-			* {
-				fill: var(--color-primary) !important;
-			}
-		}
+		color: var(--color-primary) !important;
 	}
 	&.secondary {
-		:deep(svg) {
-			* {
-				fill: var(--color-secondary) !important;
-			}
-		}
+		color: var(--color-secondary) !important;
 	}
 	&.alert {
-		:deep(svg) {
-			* {
-				fill: var(--color-alert) !important;
-			}
-		}
+		color: var(--color-alert) !important;
 	}
 }
 </style>

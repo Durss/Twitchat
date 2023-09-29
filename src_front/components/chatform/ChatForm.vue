@@ -921,6 +921,7 @@ export default class ChatForm extends Vue {
 	opacity: 1;
 	z-index: 2;
 	transition: opacity .25s;
+	color: var(--color-text);
 
 	&.loading {
 		opacity: .5;

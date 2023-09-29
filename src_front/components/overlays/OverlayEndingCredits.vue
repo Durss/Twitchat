@@ -22,17 +22,17 @@
 					
 					<div v-if="item.id == 'subgifts'" v-for="entry in (data.subgifts || []).sort((a,b)=>b.total-a.total)" class="item subgift">
 						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="gift" theme="light" class="giftIcon" />{{ entry.total }}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
 					</div>
 					
 					<div v-if="item.id == 'cheers'" v-for="entry in (data.bits || [])" class="item bits">
 						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="bits" theme="light" class="bitsIcon" />{{ entry.bits }}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
 					
 					<div v-if="item.id == 'raids'" v-for="entry in (data.raids || [])" class="item raids">
 						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="user" theme="light" class="userIcon" />{{ entry.raiders }}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
 				</div>
 			</div>
@@ -71,7 +71,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	public get styles():StyleValue {
 		const res:StyleValue = {
 			opacity: this.display? 1 : 0,
-			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em"
+			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
+			color: this.data?.params?.textColor,
 		}
 		if(this.data?.params?.timing == 'speed') {
 			res.top = this.posY+"px";
@@ -215,6 +216,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		const holder = this.$el as HTMLElement;
 		// const bounds = holder.getBoundingClientRect();
 
+		if(this.posY < 0) return;
+
 		this.posY -= this.data?.params?.speed || 2;
 		
 	}
@@ -227,14 +230,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	// background-color: red;
 	position: absolute;
 	width: 100%;
+	// background-color: red;
+	color: #fff;
 
 	.category {
 		font-family: "Inter";
 		margin-bottom: 7em;
-		color: #fff;
 		display: flex;
 		flex-direction: column;
 		align-items: center;

@@ -112,6 +112,8 @@
 				"bans":"USERS BANNED",
 				"timeouts":"USERS TIMEDOUT"
 			},
+			"param_textColor":"Text color",
+			"param_textShadow":"Drop shadow under texts",
 			"param_layout":"Entries layout",
 			"param_maxItems":"Max entries to show",
 			"param_customHTML":"Custom HTML template",

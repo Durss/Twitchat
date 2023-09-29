@@ -384,10 +384,12 @@ export default class Parameters extends Vue {
 
 		.closebutton {
 			position: unset;
+			color: inherit;
 		}
 
 		.backBt {
 			padding: 1em;
+			color: inherit;
 			.icon {
 				height: 1em;
 				transition: transform .15s;

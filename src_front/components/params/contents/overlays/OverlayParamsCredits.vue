@@ -15,6 +15,8 @@
 			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
 
 			<div class="item globalParams">
+				<ParamItem :paramData="param_textColor" v-model="data.textColor" />
+				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 				<ParamItem :paramData="param_scale" v-model="data.scale" />
 				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
 				<ParamItem :paramData="param_timing" v-model="data.timing">
@@ -121,6 +123,8 @@ export default class OverlayParamsCredits extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
+	public param_textColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_textColor", icon:"color"};
+	public param_textShadow:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:30, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
@@ -132,6 +136,8 @@ export default class OverlayParamsCredits extends Vue {
 	public param_showAmounts:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
+		textShadow:true,
+		textColor:"#ffffff",
 		timing:"speed",
 		startDelay:0,
 		duration:200,
@@ -369,7 +375,11 @@ export default class OverlayParamsCredits extends Vue {
 						}
 					}
 					.arrowBt {
+						color: var(--color-text);
 						transition: transform .25s;
+						.icon {
+							padding: .2em;
+						}
 					}
 				}
 				.content {
