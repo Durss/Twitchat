@@ -1473,12 +1473,15 @@ export namespace TwitchatDataTypes {
 		layout:"col"|"row"|"2cols"|"3cols";
 		customHTML:boolean;
 		htmlTemplate:string;
+		showAmounts?:boolean;
 	}
 
 	export interface EndingCreditsParams {
 		scale:number;
 		timing:"speed" | "duration";
 		duration:number;
+		startDelay:number;
+		speed:number;
 		slots:EndingCreditsSlot[];
 	}
 

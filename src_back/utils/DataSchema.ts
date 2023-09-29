@@ -1077,8 +1077,11 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
+				scale: {type:"integer", minimum:1, maximum:5},
 				timing: {type:"string", maxLength:15},
 				duration: {type:"integer", minimum:1, maximum:5000},
+				speed: {type:"integer", minimum:1, maximum:30},
+				startDelay: {type:"integer", minimum:0, maximum:30},
 				slots: {
 					type:"array",
 					minItems:0,
@@ -1089,9 +1092,9 @@ import Ajv from "ajv";
 						properties: {
 							id: {type:"string", maxLength:15},
 							enabled: {type:"boolean"},
+							showAmounts: {type:"boolean"},
 							label: {type:"string", maxLength:50},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
-							scale: {type:"integer", minimum:1, maximum:5},
 							layout: {enum: ["col","row","2cols","3cols"]},
 							customHTML: {type:"boolean"},
 							htmlTemplate: {type:"string", maxLength:5000},

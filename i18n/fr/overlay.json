@@ -94,6 +94,7 @@
 			"param_duration": "Durée du défilement ({VALUE}s)",
 			"param_speed": "Vitesse de défilement ({VALUE}pixels / s)",
 			"param_scale": "Taille des textes",
+			"param_startDelay": "Attendre {VALUE}s avant de défiler",
 			"items": {
 				"cheers":"BITS",
 				"follows":"FOLLOWERS",
@@ -113,7 +114,8 @@
 			},
 			"param_layout":"Disposition des entrées",
 			"param_maxItems":"Maximum d'entrées à afficher",
-			"param_customHTML":"Template HTML personnalisé"
+			"param_customHTML":"Template HTML personnalisé",
+			"param_showAmounts":"Afficher les quantités"
 		}
 	}
 }

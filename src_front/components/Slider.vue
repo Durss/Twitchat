@@ -89,7 +89,6 @@ export default class Slider extends Vue {
 	}
 
 	public onMouseWheel(e?:WheelEvent):void {
-		console.log("WHEEL");
 		const add = e? (e.deltaY > 0)? -1 : 1 : 0;
 		const prevValue = this.localValue;
 		let v = this.localValue + add * this.step;

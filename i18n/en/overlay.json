@@ -94,6 +94,7 @@
 			"param_duration": "Scroll duration ({VALUE}s)",
 			"param_speed": "Scroll speed ({VALUE}pixels / s)",
 			"param_scale": "Text scale",
+			"param_startDelay": "Wait {VALUE}s before starting scrolling",
 			"items": {
 				"cheers":"BITS",
 				"follows":"FOLLOWERS",
@@ -113,7 +114,8 @@
 			},
 			"param_layout":"Entries layout",
 			"param_maxItems":"Max entries to show",
-			"param_customHTML":"Custom HTML template"
+			"param_customHTML":"Custom HTML template",
+			"param_showAmounts":"Show amounts"
 		}
 	}
 }

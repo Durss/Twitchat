@@ -14,11 +14,13 @@
 
 			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
 
-			<div class="card-item item">
-				<ParamItem noBackground :paramData="param_scale" v-model="data.scale" />
-				<ParamItem noBackground :paramData="param_timing" v-model="data.timing" />
-				<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" />
-				<ParamItem noBackground :paramData="param_speed" v-model="data.duration" v-if="param_timing.value == 'speed'" />
+			<div class="item globalParams">
+				<ParamItem :paramData="param_scale" v-model="data.scale" />
+				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
+				<ParamItem :paramData="param_timing" v-model="data.timing">
+					<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" />
+					<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" />
+				</ParamItem>
 			</div>
 
 			<Splitter>{{ $t("overlay.credits.customize_content") }}</Splitter>
@@ -60,7 +62,7 @@
 							</template>
 
 							<div class="content">
-								<div class="layout">
+								<div class="card-item layout">
 									<label>{{ $t("overlay.credits.param_layout") }}</label>
 									<div class="layoutBtns">
 										<Button icon="layout_col" premium @click="element.layout = 'col'" :selected="element.layout == 'col'" />
@@ -69,11 +71,13 @@
 										<Button icon="layout_3cols" premium @click="element.layout = '3cols'" :selected="element.layout == '3cols'" />
 									</div>
 								</div>
-								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.maxEntries" noBackground premium />
+
+								<ParamItem v-if="element.showAmounts != undefined" class="amounts" :paramData="param_showAmounts[index]" v-model="element.showAmounts" premium />
+								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.maxEntries" premium />
 								
-								<ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" noBackground premium>
-									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" noBackground premium />
-								</ParamItem>
+								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
+									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
+								</ParamItem> -->
 							</div>
 						</ToggleBlock>
 					</template>
@@ -119,15 +123,19 @@ export default class OverlayParamsCredits extends Vue {
 	
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
-	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"number", min:1, max:5000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer"};
-	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"number", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
+	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:30, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
+	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown"};
 	public param_maxItems:TwitchatDataTypes.ParameterData<number>[] = [];
 	public param_customHTML:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public param_htmlTemplate:TwitchatDataTypes.ParameterData<string>[] = [];
+	public param_showAmounts:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
 		timing:"speed",
+		startDelay:0,
 		duration:200,
+		speed:2,
 		slots:[],
 	};
 
@@ -190,11 +198,11 @@ export default class OverlayParamsCredits extends Vue {
 		}
 		if(this.data.slots.length == 0) {
 			this.data.slots.push(
-				{id:"hypechats",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats"))},
+				{id:"hypechats",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats")), showAmounts:true},
 				{id:"subs",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subs"))},
-				{id:"subgifts",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts"))},
-				{id:"cheers",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers"))},
-				{id:"raids",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids"))},
+				{id:"subgifts",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts")), showAmounts:true},
+				{id:"cheers",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers")), showAmounts:true},
+				{id:"raids",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids")), showAmounts:true},
 				{id:"follows",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
 				{id:"hypetrains",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
 				{id:"so_in",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
@@ -212,6 +220,9 @@ export default class OverlayParamsCredits extends Vue {
 			this.param_customHTML.push({type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"});
 			this.param_htmlTemplate.push({type:"string", value:"", longText:true, maxLength:1000});
 			this.param_maxItems.push({type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'});
+			if(this.data.slots[i].showAmounts != undefined) {
+				this.param_showAmounts.push({type:"boolean", value:false, labelKey:"overlay.credits.param_showAmounts"});
+			}
 		}
 
 		this.param_timing.listValues = [
@@ -221,18 +232,20 @@ export default class OverlayParamsCredits extends Vue {
 
 		this.sortList();
 
-		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
+		watch(()=>this.data, ()=>{
+			this.saveParams();
+		}, {deep:true});
 		if(!json) {
 			this.saveParams();
 		}
 	}
 
 	public sortList():void {
-		this.data.slots.sort((a,b)=> {
-			if(a.enabled && !b.enabled) return -1;
-			if(!a.enabled && b.enabled) return 1;
-			return 0;
-		})
+		// this.data.slots.sort((a,b)=> {
+		// 	if(a.enabled && !b.enabled) return -1;
+		// 	if(!a.enabled && b.enabled) return 1;
+		// 	return 0;
+		// })
 	}
 
 	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlot):void {
@@ -294,13 +307,14 @@ export default class OverlayParamsCredits extends Vue {
 				margin-bottom: .5em;
 			}
 
-			&.center {
-				margin: auto;
-			}
-
-			:deep(.icon) {
-				height: 1em;
-				vertical-align: middle;
+			&.globalParams {
+				gap: .5em;
+				display: flex;
+				flex-direction: column;
+				:deep(.icon) {
+					height: 1em;
+					vertical-align: middle;
+				}
 			}
 
 			ul {
@@ -393,6 +407,9 @@ export default class OverlayParamsCredits extends Vue {
 							gap: .5em;
 							display: flex;
 							flex-direction: row;
+							.button {
+								width: 2em;
+							}
 						}
 					}
 

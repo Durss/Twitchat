@@ -72,24 +72,25 @@ export default class PublicAPI extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
-		data.id = Utils.getUUID();
-		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
 
 		//Broadcast to other browser's tabs
 		try {
-			if(data) data = JSON.parse(JSON.stringify(data));
+			if(data) {
+				data = JSON.parse(JSON.stringify(data)) as JsonObject;
+				if(!data.id) data.id = Utils.getUUID();
+				if(!broadcastToSelf) this._idsDone[data.id as string] = true;//Avoid receiving self-broadcast events
+			}
+
 			if(this._bc) this._bc.postMessage({type, data});
 		}catch(error) {
 			console.error(error);
 		}
 
 		if(!OBSWebsocket.instance.connected || onlyLocal) {
-			console.log("Broadacast local", type);
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
 			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, data));
 		}else{
-			console.log("Broadacast remote", type);
 			//Broadcast to any OBS Websocket connected client
 			OBSWebsocket.instance.broadcast(type, data);
 		}
