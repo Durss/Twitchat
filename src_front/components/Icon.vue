@@ -38,6 +38,7 @@ export default class Icon extends Vue {
 		if(this.theme == "primary") res.push("primary");
 		if(this.theme == "secondary") res.push("secondary");
 		if(this.theme == "alert") res.push("alert");
+		if(this.theme == "premium") res.push("premium");
 		return res;
 	}
 
@@ -104,6 +105,9 @@ export default class Icon extends Vue {
 	}
 	&.alert {
 		color: var(--color-alert) !important;
+	}
+	&.premium {
+		color: var(--color-premium) !important;
 	}
 }
 </style>
