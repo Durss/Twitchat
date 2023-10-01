@@ -89,12 +89,12 @@ export default class TriggerListItem extends Vue {
 		display: flex;
 		flex-direction: row;
 		gap: .25em;
-		color: var(--color-text);
 		padding: 0 .5em 0 0;
 		align-items: center;
 		flex-grow: 1;
 		overflow: hidden;
 		word-wrap: break-word;
+		color: var(--color-text);
 		.icon {
 			height: 1.5em;
 			width: 1.5em;
@@ -110,6 +110,7 @@ export default class TriggerListItem extends Vue {
 		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt, .duplicateBt {
+		color: var(--color-text);
 		flex-shrink: 0;
 		.icon {
 			height: .9em;

@@ -53,7 +53,7 @@ export const storeCounters = defineStore('counters', {
 				}
 			}
 
-			this.saveCounters()
+			this.saveCounters();
 
 			this.broadcastCounterValue(data.id);
 			rebuildPlaceholdersCache();
