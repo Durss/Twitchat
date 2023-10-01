@@ -606,12 +606,13 @@ export default class ParamItem extends Vue {
 		if(this.paramData.max != undefined && this.paramData.value as number > this.paramData.max) this.paramData.value = this.paramData.max;
 		if(this.paramData.min != undefined && this.paramData.value as number < this.paramData.min) this.paramData.value = this.paramData.min;
 
-		if(this.paramData.value == ""
+		console.log(this.paramData.value);
+		if(this.paramData.value === ""
 		&& this.paramData.type == "number") {
 			this.paramData.value = this.paramData.min ?? 0;
 		}
 
-		this.onEdit();
+		// this.onEdit();
 	}
 
 	public insertPlaceholder(tag:string):void {
