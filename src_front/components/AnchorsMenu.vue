@@ -112,6 +112,7 @@ export default class AnchorsMenu extends Vue {
 			background-color: var(--background-color-primary);
 			transition: background-color .25s;
 			box-shadow: 0 0 5px 0px rgba(0, 0, 0, .5);
+			color: var(--color-text);
 
 			.icon {
 				width: @size;
@@ -124,7 +125,6 @@ export default class AnchorsMenu extends Vue {
 				flex-grow: 1;
 				white-space: nowrap;
 				margin: 0 1em 0 .5em;
-				color: var(--color-text);
 				overflow: hidden;
 			}
 		}
