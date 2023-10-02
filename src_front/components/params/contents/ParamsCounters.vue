@@ -185,7 +185,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:50, labelKey:"counters.form.name"};
-	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
+	public param_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, labelKey:"counters.form.value"};
 	public param_more:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.more"};
 	public param_valueMin_toggle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"counters.form.value_min", icon:"min"};
 	public param_valueMin_value:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0};
@@ -199,7 +199,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	public get counterEntries():CounterEntry[] {
 		const list = this.$store('counters').counterList;
 		return list.map((v) => {
-			const min = v.min == false ? -Number.MAX_SAFE_INTEGER : v.min as number;
+			const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min as number;
 			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
 			return {
 					counter:v,

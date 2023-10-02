@@ -264,8 +264,8 @@ import Ajv from "ajv";
 								},
 								placeholder:{type:"string", maxLength:20},
 								outputPlaceholder:{type:"string", maxLength:20},
-								min: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
-								max: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								float: {type:"boolean"},
 								condition: {type:"boolean"},
 								skipDisabled: {type:"boolean"},
@@ -951,16 +951,16 @@ import Ajv from "ajv";
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
 					enabled:{type:"boolean"},
-					value: {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+					value: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[
-							{type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
 					max: {
 						anyOf:[
-							{type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
@@ -970,7 +970,7 @@ import Ajv from "ajv";
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"integer", minimum:-Number.MAX_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						}
 					}
 				}
