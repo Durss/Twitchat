@@ -95,6 +95,12 @@
 			"param_speed": "Scroll speed ({VALUE}pixels / s)",
 			"param_scale": "Text scale",
 			"param_startDelay": "Wait {VALUE}s before starting scrolling",
+			"param_textColor":"Text color",
+			"param_textShadow":"Drop shadow opacity ({VALUE}%)",
+			"param_loop":"Loop credits",
+			"param_fontTitle":"Titles font",
+			"param_fontEntry":"Entries font",
+			"param_showIcons":"Show icons",
 			"items": {
 				"cheers":"BITS",
 				"follows":"FOLLOWERS",
@@ -112,8 +118,6 @@
 				"bans":"USERS BANNED",
 				"timeouts":"USERS TIMEDOUT"
 			},
-			"param_textColor":"Text color",
-			"param_textShadow":"Drop shadow under texts",
 			"param_layout":"Entries layout",
 			"param_maxItems":"Max entries to show",
 			"param_customHTML":"Custom HTML template",

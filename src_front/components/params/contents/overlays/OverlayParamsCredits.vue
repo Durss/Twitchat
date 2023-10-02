@@ -15,9 +15,11 @@
 			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
 
 			<div class="item globalParams">
+				<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" />
+				<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" />
 				<ParamItem :paramData="param_textColor" v-model="data.textColor" />
-				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 				<ParamItem :paramData="param_scale" v-model="data.scale" />
+				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
 				<ParamItem :paramData="param_timing" v-model="data.timing">
 					<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" />
@@ -67,8 +69,12 @@
 								<div class="card-item layout">
 									<label>{{ $t("overlay.credits.param_layout") }}</label>
 									<div class="layoutBtns">
+										<Button icon="layout_left" premium @click="element.layout = 'left'" :selected="element.layout == 'left'" />
+										<Button icon="layout_center" premium @click="element.layout = 'center'" :selected="element.layout == 'center'" />
+										<Button icon="layout_right" premium @click="element.layout = 'right'" :selected="element.layout == 'right'" />
+										<Button icon="layout_colLeft" premium @click="element.layout = 'colLeft'" :selected="element.layout == 'colLeft'" />
 										<Button icon="layout_col" premium @click="element.layout = 'col'" :selected="element.layout == 'col'" />
-										<Button icon="layout_row" premium @click="element.layout = 'row'" :selected="element.layout == 'row'" />
+										<Button icon="layout_colRight" premium @click="element.layout = 'colRight'" :selected="element.layout == 'colRight'" />
 										<Button icon="layout_2cols" premium @click="element.layout = '2cols'" :selected="element.layout == '2cols'" />
 										<Button icon="layout_3cols" premium @click="element.layout = '3cols'" :selected="element.layout == '3cols'" />
 									</div>
@@ -105,6 +111,7 @@ import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -123,8 +130,10 @@ export default class OverlayParamsCredits extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
+	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
+	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
 	public param_textColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_textColor", icon:"color"};
-	public param_textShadow:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
+	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:30, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
@@ -136,7 +145,9 @@ export default class OverlayParamsCredits extends Vue {
 	public param_showAmounts:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
-		textShadow:true,
+		fontTitle:"",
+		fontEntry:"",
+		textShadow:1,
 		textColor:"#ffffff",
 		timing:"speed",
 		startDelay:0,
@@ -202,6 +213,10 @@ export default class OverlayParamsCredits extends Vue {
 		if(json) {
 			this.data = JSON.parse(json);
 		}
+		Utils.listAvailableFonts().then(fonts => {
+			this.param_fontEntry.options = fonts.concat();
+			this.param_fontTitle.options = fonts.concat();
+		});
 		if(this.data.slots.length == 0) {
 			this.data.slots.push(
 				{id:"hypechats",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats")), showAmounts:true},

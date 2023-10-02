@@ -144,6 +144,7 @@
 					@search:blur="submitListItem()"
 					appendToBody
 					taggable
+					:clearSearchOnSelect="false"
 					:multiple="paramData.options === undefined"
 					:noDrop="paramData.options === undefined"
 					:push-tags="paramData.options != undefined"
@@ -154,12 +155,6 @@
 						<div>{{ $t("global.empty_list2") }}</div>
 					</template>
 				</vue-select>
-				<button class="listSubmitBt"
-				:secondary="secondary"
-				:premium="premium"
-				:alert="alert || errorLocal"
-				@click="submitListItem()" v-if="searching"
-				><img src="@/assets/icons/checkmark.svg" alt="submit"></button>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -287,7 +282,6 @@ export default class ParamItem extends Vue {
 	public errorLocal:boolean = false
 	public autofocusLocal:boolean = false
 
-	private file:unknown = {};
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
@@ -301,7 +295,6 @@ export default class ParamItem extends Vue {
 			res.push("card-item");
 			if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
 			if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
-			if(this.paramData.type == "editablelist" && (this.paramData.value as unknown[]).length === 0) res.push("unselected");
 		}else{
 			res.push("no-bg");
 		}
@@ -324,12 +317,10 @@ export default class ParamItem extends Vue {
 		
 		let count = 0;
 		let v = this.paramData.value;
-		if(this.paramData.type == "number") {
+		if(this.paramData.type == "number" || this.paramData.type == "slider") {
 			count = parseFloat(this.paramData.value as string) ?? 0;
 			if(isNaN(count)) count = 0;
 			v = count.toString();
-		}else if(this.paramData.type == "slider") {
-			count = this.paramData.value as number;
 		}
 		if(this.paramData.labelKey) {
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
@@ -338,6 +329,7 @@ export default class ParamItem extends Vue {
 		}
 		
 		if(!txt) return "";
+		//Puts anything between parenthesis inside <span> elements
 		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
 	}
 
@@ -534,7 +526,7 @@ export default class ParamItem extends Vue {
 		//event after creating an item.
 		//Without this frame delay the searching flag would be reset to "true"
 		//right after setting it to false here.
-		await this.$nextTick();
+		// await this.$nextTick();
 		this.searching = false;
 
 		//Trim spaces around the values
@@ -553,8 +545,19 @@ export default class ParamItem extends Vue {
 	 * @see onSearch() for more details about why this hack
 	 */
 	public submitListItem():void {
-		this.searching = false;
-		(this.$refs.vueSelect as any).typeAheadSelect();
+		// setTimeout(()=> {
+			// this.searching = false;
+			// console.log(this.$refs.vueSelect);
+			// // (this.$refs.vueSelect as Vue).$el.dispatchEvent(new KeyboardEvent('keydown', {
+			// // 	key: 'Enter',
+			// // 	code: 'Enter',
+			// // 	keyCode: 13,
+			// // 	which: 13,
+			// // 	bubbles: true
+			// // }));
+			// console.log((this.$refs.vueSelect as any).isComposing);
+			(this.$refs.vueSelect as any).typeAheadSelect();
+		// }, 1000)
 	}
 
 	private async buildChildren():Promise<void> {
@@ -916,13 +919,17 @@ export default class ParamItem extends Vue {
 			.listField {
 				:deep(.vs__dropdown-toggle) {
 					width: 100%;
+					.vs__actions {
+						flex-basis: 45px;
+						justify-content: flex-end;
+					}
 				}
 			}
 			
 			.listSubmitBt {
 				position: absolute;
-				right: 10px;
-				bottom: 7px;
+				right: 25px;
+				bottom: 5px;
 				cursor: pointer;
 				z-index: 1;
 				img {

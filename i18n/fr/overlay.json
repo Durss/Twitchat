@@ -95,6 +95,12 @@
 			"param_speed": "Vitesse de défilement ({VALUE}pixels / s)",
 			"param_scale": "Taille des textes",
 			"param_startDelay": "Attendre {VALUE}s avant de défiler",
+			"param_textColor":"Couleur des textes",
+			"param_textShadow":"Opacité de l'ombre portée ({VALUE}%)",
+			"param_loop":"Boucler le défilement",
+			"param_fontTitle":"Police d'écriture des titres",
+			"param_fontEntry":"Police d'écriture des entrées",
+			"param_showIcons":"Afficher les icones",
 			"items": {
 				"cheers":"BITS",
 				"follows":"FOLLOWERS",
@@ -112,8 +118,6 @@
 				"bans":"BANS EFFECTUÉS",
 				"timeouts":"BANS TEMPORAIRES"
 			},
-			"param_textColor":"Couleur des textes",
-			"param_textShadow":"Ombre portée sur les textes",
 			"param_layout":"Disposition des entrées",
 			"param_maxItems":"Maximum d'entrées à afficher",
 			"param_customHTML":"Template HTML personnalisé",

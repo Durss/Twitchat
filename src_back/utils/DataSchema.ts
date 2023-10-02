@@ -1078,9 +1078,11 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				textColor: {type:"string", maxLength:9},
-				textShdow: {type:"string", maxLength:9},
+				textShdow: {type:"number", minimum:0, maximum:100},
 				scale: {type:"integer", minimum:1, maximum:5},
 				timing: {type:"string", maxLength:15},
+				fontTitle: {type:"string", maxLength:100},
+				fontEntry: {type:"string", maxLength:100},
 				duration: {type:"integer", minimum:1, maximum:5000},
 				speed: {type:"integer", minimum:1, maximum:30},
 				startDelay: {type:"integer", minimum:0, maximum:30},
@@ -1097,7 +1099,7 @@ import Ajv from "ajv";
 							showAmounts: {type:"boolean"},
 							label: {type:"string", maxLength:50},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
-							layout: {enum: ["col","row","2cols","3cols"]},
+							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
 							customHTML: {type:"boolean"},
 							htmlTemplate: {type:"string", maxLength:5000},
 						}

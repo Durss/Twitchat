@@ -82,7 +82,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	public connect(ip:string="127.0.0.1", port:number=14564): Promise<void> {
 		if(!StoreProxy.auth.isPremium) {
 			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
-			throw("not premium");
+			return Promise.reject()
 		}
 
 		if(this.connected) return Promise.resolve();

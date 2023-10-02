@@ -1470,7 +1470,7 @@ export namespace TwitchatDataTypes {
 		enabled:boolean;
 		label:string;
 		maxEntries:number;
-		layout:"col"|"row"|"2cols"|"3cols";
+		layout:"col"|"center"|"2cols"|"3cols"|"left"|"right"|"colLeft"|"colRight";
 		customHTML:boolean;
 		htmlTemplate:string;
 		showAmounts?:boolean;
@@ -1479,7 +1479,9 @@ export namespace TwitchatDataTypes {
 	export interface EndingCreditsParams {
 		scale:number;
 		textColor:string;
-		textShadow:boolean;
+		fontTitle:string;
+		fontEntry:string;
+		textShadow:number;
 		timing:"speed" | "duration";
 		duration:number;
 		startDelay:number;
