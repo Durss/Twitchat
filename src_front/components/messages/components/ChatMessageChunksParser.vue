@@ -75,5 +75,9 @@ export default class ChatMessageChunksParser extends Vue {
 .login:hover {
 	background-color: var(--background-color-fader);
 	border-radius: 3px;
+
+	.copyBt {
+		width: 1em;
+	}
 }
 </style>
