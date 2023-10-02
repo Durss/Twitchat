@@ -18,8 +18,10 @@
 		<div class="card-item" v-if="action.mode == 'list'">
 			<label for="randomEntry_input">{{ $t("triggers.actions.random.list_label") }}</label>
 			<div class="itemForm" v-if="action.list.length < 10000">
-				<textarea rows="2" v-model="itemValue" id="randomEntry_input" :placeholder="$t('triggers.actions.random.list_entry_placeholder')"></textarea>
-				<Button icon="add" class="addBt" @click="addItem()" :disabled="!itemValue" />
+				<textarea rows="2" v-model="itemValue" ref="listinput" id="randomEntry_input"
+				:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
+				@keyup.enter.ctrl="addListItem()"></textarea>
+				<Button icon="add" class="addBt" @click="addListItem()" :disabled="!itemValue" />
 			</div>
 			
 			<div class="listItem list">
@@ -27,14 +29,14 @@
 				@click="indexToEditState[index] = true">
 						
 					<button class="action button"
-					v-tooltip="'Delete'"
-					@click.capture.stop="deleteItem(index)">
+					v-tooltip="$t('global.delete')"
+					@click.capture.stop="deleteListItem(index)">
 						<img src="@/assets/icons/trash.svg" alt="delete">
 					</button>
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser :chunks="getChunksFromItem(item)" v-if="buildIndex >= index" :channel="$store('auth').twitch.user.id" platform="twitch" />
+							<ChatMessageChunksParser v-if="buildIndex >= index" :chunks="itemChunks[index]" :channel="$store('auth').twitch.user.id" platform="twitch" />
 						</span>
 
 						<textarea v-if="indexToEditState[index]"
@@ -52,8 +54,7 @@
 
 			<ParamItem :paramData="param_disableAfterExec" v-model="action.disableAfterExec" />
 
-			<div class="card-item triggerList" medium primary
-			:open="openTriggerList">
+			<div class="card-item triggerList" medium primary :open="openTriggerList">
 				<div class="title" @click="openTriggerList = !openTriggerList">
 					<span :class="openTriggerList? 'arrow open' : 'arrow'">►</span>
 					<span>{{ $t("triggers.actions.random.trigger_select") }}</span>
@@ -64,7 +65,7 @@
 			<div class="listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
 					<button class="action button"
-						v-tooltip="'Delete'"
+						v-tooltip="$t('global.delete')"
 						@click.capture.stop="deleteTriggerItem(index)">
 						<img src="@/assets/icons/trash.svg" alt="delete">
 					</button>
@@ -132,13 +133,14 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	declare triggerData:TriggerData;
 
 	public itemValue:string = "";
+	public itemChunks:TwitchDataTypes.ParseMessageChunk[][] = [];
 	public buildIndex:number = 0;
 	public disposed:boolean = false;
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
 
-	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
-	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:-Number.MAX_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
+	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
+	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
 	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
 	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
@@ -176,23 +178,23 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	}
 
 	public onSwitchMode():void {
-		this.buildIndex = 5;
-		setTimeout(()=> {
-			this.buildNextListBatch();
-		}, 250);
+		this.buildNextListBatch();
 	}
 
 	public getChunksFromItem(src:string):TwitchDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(src, undefined, true);
 	}
 
-	public addItem():void {
+	public addListItem():void {
 		this.action.list.unshift(this.itemValue);
+		this.itemChunks.unshift(TwitchUtils.parseMessageToChunks(this.itemValue, undefined, true));
 		this.itemValue = "";
+		(this.$refs.listinput as HTMLInputElement).focus();
 	}
 
-	public deleteItem(index:number):void {
+	public deleteListItem(index:number):void {
 		this.action.list.splice(index, 1);
+		this.itemChunks.splice(index, 1);
 	}
 
 	public deleteTriggerItem(index:number):void {
@@ -207,13 +209,16 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 		if(this.disposed) return;
 		if(this.action.mode != "list") return;
 		if(this.buildIndex >= this.action.list.length) return;
-		
+
+		for (let i = this.buildIndex; i < Math.min(this.buildIndex+10, this.action.list.length); i++) {
+			const item = this.action.list[i];
+			this.itemChunks.push(TwitchUtils.parseMessageToChunks(item, undefined, true));
+		}
 		this.buildIndex += 10;
-		console.log(this.buildIndex);
 		
 		setTimeout(()=> {
 			this.buildNextListBatch();
-		}, 30)
+		}, 30);
 	}
 
 }

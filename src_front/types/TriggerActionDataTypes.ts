@@ -222,6 +222,7 @@ export interface TriggerLog {
 export interface TriggerLogStep {
 	id:string;
 	date:number;
+	error:boolean;
 	data:TriggerActionTypes;
 	messages:{date:number, value:string}[];
 }

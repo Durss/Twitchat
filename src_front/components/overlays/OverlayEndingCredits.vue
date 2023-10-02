@@ -49,7 +49,6 @@ import AbstractOverlay from './AbstractOverlay.vue';
 import gsap from 'gsap/all';
 import { Linear } from 'gsap';
 import type { StyleValue } from 'vue';
-import Utils from '@/utils/Utils';
 
 @Component({
 	components:{},
@@ -90,7 +89,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_SUMMARY_DATA, {includeParams:true, dateOffset:Date.parse("07/01/2023 18:27:02 GMT+0200")});
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_SUMMARY_DATA, {includeParams:true, dateOffset:Date.parse("06/01/2023 18:27:02 GMT+0200")});
 	}
 
 	public beforeMount(): void {
@@ -195,6 +194,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 					this.startDelayTimeout = setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
 				})
 			}
+			if(!this.data?.params) return;//No params?!
 			this.display = true;
 			const holder = this.$el as HTMLElement;
 			const bounds = holder.getBoundingClientRect();

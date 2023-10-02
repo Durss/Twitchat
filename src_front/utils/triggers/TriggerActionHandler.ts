@@ -802,11 +802,11 @@ export default class TriggerActionHandler {
 			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
 				log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
 				passesCondition = false;
+				log.error = true;
 			}else if(testMode){
 				log.messages.push({date:Date.now(), value:"✔ Trigger is being tested, force condition to pass"});
 			}else{
 				log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
-				log.error = true;
 			}
 	
 			//Filter actions to execute based on whether the condition is matched or not
@@ -835,7 +835,7 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
+			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), error:false, data:step, messages:[] as {date:number, value:string}[]};
 			log.steps.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
@@ -870,6 +870,8 @@ export default class TriggerActionHandler {
 					
 					if(!OBSWebsocket.instance.connected) {
 						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
+						log.error = true;
+						logStep.error = true;
 					}else{
 
 						if(step.text) {
@@ -931,6 +933,7 @@ export default class TriggerActionHandler {
 										if(!item) {
 											logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
 											log.error = true;
+											logStep.error = true;
 										}else{
 											const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.itemId);
 											type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
@@ -1141,6 +1144,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create poll as it's missing either the title or answers"});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1163,6 +1167,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create prediction as it's missing either the title or answers"});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1185,6 +1190,7 @@ export default class TriggerActionHandler {
 					if(StoreProxy.raffle.checkRaffleJoin(message)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
 						log.error = true;
+						logStep.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ User joined the raffle"});
 					}
@@ -1266,6 +1272,7 @@ export default class TriggerActionHandler {
 							}else{
 								logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger is disabled"});
 								log.error = true;
+								logStep.error = true;
 							}
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger \""+step.triggerId+"\" not found"});
@@ -1273,6 +1280,7 @@ export default class TriggerActionHandler {
 					}else{
 						logStep.messages.push({date:Date.now(), value:"❌ Call trigger: no trigger defined"});
 						log.error = true;
+						logStep.error = true;
 					}
 				}else
 				
@@ -1286,6 +1294,7 @@ export default class TriggerActionHandler {
 							&& StoreProxy.triggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
 								logStep.messages.push({date:Date.now(), value:step.action + "❌ Cannot enable trigger \""+step.triggerId+"\". Premium limit reached."});
 								log.error = true;
+								logStep.error = true;
 							}else{
 								switch(step.action) {
 									case "enable": trigger.enabled = true; break;
@@ -1337,6 +1346,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error) {
 						console.error(error);
@@ -1359,6 +1369,7 @@ export default class TriggerActionHandler {
 									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 									logStep.messages.push({date:Date.now(), value:logMessage});
 									log.error = true;
+									logStep.error = true;
 								}else
 								//Check if this step requests that this counter should update a user
 								//different than the default one (the one executing the command)
@@ -1416,6 +1427,7 @@ export default class TriggerActionHandler {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
+								logStep.error = true;
 							} else {
 								StoreProxy.values.updateValue(v.id, {value:text});
 								let logMessage = "Update Value \""+v.name+"\" to "+text;
@@ -1574,6 +1586,7 @@ export default class TriggerActionHandler {
 									}else{
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
 										log.error = true;
+										logStep.error = true;
 									}
 								}
 							}
@@ -1658,6 +1671,7 @@ export default class TriggerActionHandler {
 						console.error(error);
 						logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Exception: "+ error});
 						log.error = true;
+						logStep.error = true;
 					}
 				}else
 
@@ -1682,6 +1696,7 @@ export default class TriggerActionHandler {
 								}else{
 									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user.login+". Limit reached."});
 									log.error = true;
+									logStep.error = true;
 								}
 							});
 							step.customBadgeDel.forEach(v=> {
@@ -1711,6 +1726,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
 							log.error = true;
+							logStep.error = true;
 						}
 					}
 				}

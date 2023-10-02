@@ -414,9 +414,9 @@ export default class NewUsers extends Vue {
 			flex-direction: row;
 			justify-content: center;
 			cursor: pointer;
+			color: var(--color-light);
 			h1 {
 				text-align: center;
-				color: var(--color-light);
 				margin: 0 10px;
 	
 				.count {

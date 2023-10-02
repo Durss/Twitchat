@@ -106,19 +106,11 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public getHelpers(key:TriggerTypesValue):ITriggerPlaceholder<any>[] { return TriggerEventPlaceholders(key); }
 
-
-	/**
-	 * Get if the selected source is an audio source
-	 */
-	public get isAudioSource():boolean {
-		return this.obsInputs.findIndex(v=> v.inputName == this.source_conf.value) > -1;
-	}
-
 	/**
 	 * Get if the selected source is a text source
 	 */
 	public get isTextSource():boolean {
-		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
@@ -127,7 +119,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	 * Get if the selected source is a browwer source
 	 */
 	public get isBrowserSource():boolean {
-		return this.obsSources.find(v=> v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
@@ -155,7 +147,6 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
-		console.log(JSON.parse(JSON.stringify(this.action)));
 	}
 
 	public async mounted():Promise<void> {
@@ -360,7 +351,6 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		await this.$nextTick();//Leave it time to form field to be unmounted
 
 		if(!this.canSetMediaPath) {
-			console.log(this.isMediaSource, this.filter_conf.value, this.action_conf.value);
 			this.media_conf.value = "";
 			delete this.action.mediaPath;
 		}

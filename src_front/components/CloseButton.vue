@@ -27,6 +27,7 @@ export default class CloseButton extends Vue {
 	padding: 1em;
 	z-index: 1;
 	cursor: pointer;
+	color: var(--color-text);
 	.icon {
 		height: 1em;
 		transition: transform .15s;

@@ -22,9 +22,9 @@
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
 					<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
 					<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
-					<div class="status" v-tooltip="'critical error'" v-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
-					<div class="status" v-tooltip="'complete'" v-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
-					<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
+					<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
+					<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
+					<!-- <div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div> -->
 					<div class="status" v-tooltip="'pending'" v-else><Icon name="loader" theme="light" /></div>
 					<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
 					<div class="date">{{ getFormatedDime(item.date) }}</div>
@@ -40,7 +40,7 @@
 					</ul>
 				</div>
 				<div class="steps" v-if="idToExpandState[item.id] == true">
-					<div v-for="step in item.steps" class="step">
+					<div v-for="step in item.steps" :class="getStepClasses(step)">
 						<div class="head" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
 							<span class="date">{{ getFormatedDime(step.date) }}</span>
 							<span>{{ step.data.type }}</span>
@@ -59,7 +59,7 @@
 </template>
 
 <script lang="ts">
-import type { TriggerData, TriggerLog } from '@/types/TriggerActionDataTypes';
+import type { TriggerData, TriggerLog, TriggerLogStep } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { Component } from 'vue-facing-decorator';
@@ -90,6 +90,12 @@ export default class TriggersLogs extends AbstractSidePanel {
 		const res = ["entry"];
 		if(log.error) res.push("secondary");
 		if(log.criticalError) res.push("alert");
+		return res;
+	}
+
+	public getStepClasses(step:TriggerLogStep):string[] {
+		const res = ["step"];
+		if(step.error) res.push("secondary");
 		return res;
 	}
 
@@ -181,6 +187,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 				padding: 1.5px 5px;
 				border-radius: 5px;
 			}
+
 		}
 
 		.date {
@@ -198,7 +205,12 @@ export default class TriggersLogs extends AbstractSidePanel {
 				gap: .25em;
 				.head {
 					align-self: flex-start;
-					background-color: var(--color-secondary);
+					background-color: var(--color-primary);
+				}
+				&.secondary {
+					.head {
+						background: var(--color-secondary);
+					}
 				}
 			}
 		}

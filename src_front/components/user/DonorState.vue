@@ -81,6 +81,7 @@ export default class DonorState extends Vue {
 			left: 50%;
 			transform: translate(-50%, -60%);
 			transition: transform .2s;
+			color: #808080;
 		}
 		&:hover {
 			.icon {
