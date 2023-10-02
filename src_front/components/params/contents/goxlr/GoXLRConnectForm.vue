@@ -28,7 +28,8 @@ import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -57,7 +58,9 @@ export default class GoXLRConnectForm extends Vue {
 		this.error = false;
 		this.connecting = true;
 		try {
-			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value);
+			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
+				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+			});
 		}catch(error) {
 			console.log(error);
 			this.error = true;
