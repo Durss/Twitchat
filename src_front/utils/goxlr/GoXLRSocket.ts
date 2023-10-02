@@ -3,6 +3,7 @@ import GoXLRSocketEvent from "@/events/GoXLRSocketEvent";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { rebuildPlaceholdersCache } from "@/types/TriggerActionDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
 
 /**
@@ -21,7 +22,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	private _connecting!: boolean;
 	private _currentProfile!: string;
 	private _profileList: string[] = [];
-	private _connectingPromise!: Promise<void>;
+	private _connectingPromise: Promise<void>|null= null;
 	private _socket!: WebSocket;
 	private _autoReconnect: boolean = false;
 	private _id:number = 1;
@@ -79,8 +80,13 @@ export default class GoXLRSocket extends EventDispatcher {
 	* PUBLIC METHODS *
 	******************/
 	public connect(ip:string="127.0.0.1", port:number=14564): Promise<void> {
+		if(!StoreProxy.auth.isPremium) {
+			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+			throw("not premium");
+		}
+
 		if(this.connected) return Promise.resolve();
-		if(this._connecting) return this._connectingPromise;
+		if(this._connecting && this._connectingPromise) return this._connectingPromise;
 		this._connecting = true;
 		StoreProxy.params.setGoXLRConnectParams(ip, port);
 		this._connectingPromise = new Promise((resolve, reject) => {
@@ -89,6 +95,7 @@ export default class GoXLRSocket extends EventDispatcher {
 
 			this._socket.onopen = () => {
 				console.log("🎤 GoXLR connection succeed");
+				this._connectingPromise = null;
 				this.getDeviceStatus();
 				rebuildPlaceholdersCache();
 			};
@@ -101,10 +108,13 @@ export default class GoXLRSocket extends EventDispatcher {
 				}
 				this._connecting = false;
 				this.connected = false;
+				this._connectingPromise = null;
 				rebuildPlaceholdersCache();
 				if(this._autoReconnect) {
 					try {
-						this.connect(ip, port);
+						setTimeout(()=> {
+							this.connect(ip, port);
+						}, 1000)
 					}catch(error) {
 						console.log(error);
 						reject(error);
@@ -114,6 +124,7 @@ export default class GoXLRSocket extends EventDispatcher {
 		
 			this._socket.onerror = (e) => {
 				this._connecting = false;
+				console.log("🎤 GoXLR connection failed");
 				reject(e);
 			}
 		});
@@ -576,58 +587,68 @@ export default class GoXLRSocket extends EventDispatcher {
 	private getDeviceStatus():Promise<{Status:GoXLRTypes.Status}> {
 		//Request connected device list
 		const id = this._id ++;
-		const prom = new Promise<{Status:GoXLRTypes.Status}>((resolve, reject) => {
+		const prom = new Promise<{Error?:string, Status:GoXLRTypes.Status}>((resolve, reject) => {
 			this._idToPromiseResolver[id] = <T>(data:T) => resolve(data as {Status:GoXLRTypes.Status});
 		});
 		prom.then(result => {
-			this._deviceId = Object.keys(result.Status.mixers)[0];
+			if(result.Error || !result.Status) {
+				console.error("🎤 No GoXLR device found");
+				console.log(result);
+				this.connected = true;
+				return
+			}
+
+			this._deviceId = Object.keys(result.Status.mixers ?? {})[0];
 			if(!this._deviceId) {
 				console.error("🎤 No GoXLR device found");
-			}else{
-				console.log("🎤 GoXLR device ID is", this._deviceId);
-				const mixer = result.Status.mixers[this._deviceId];
-				if(mixer) {
-					this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
-					//Initialize buttons states
-					this._buttonStates.Bleep = mixer.button_down.Bleep;
-					this._buttonStates.Cough = mixer.button_down.Cough;
-					this._buttonStates.SamplerSelectA = mixer.button_down.SamplerSelectA;
-					this._buttonStates.SamplerSelectB = mixer.button_down.SamplerSelectB;
-					this._buttonStates.SamplerSelectC = mixer.button_down.SamplerSelectA;
-					this._buttonStates.SamplerBottomLeft = mixer.button_down.SamplerBottomLeft;
-					this._buttonStates.SamplerBottomRight = mixer.button_down.SamplerBottomRight;
-					this._buttonStates.SamplerTopLeft = mixer.button_down.SamplerTopLeft;
-					this._buttonStates.SamplerTopRight = mixer.button_down.SamplerTopRight;
-					this._buttonStates.EffectSelect1 = mixer.button_down.EffectSelect1;
-					this._buttonStates.EffectSelect2 = mixer.button_down.EffectSelect2;
-					this._buttonStates.EffectSelect3 = mixer.button_down.EffectSelect3;
-					this._buttonStates.EffectSelect4 = mixer.button_down.EffectSelect4;
-					this._buttonStates.EffectSelect5 = mixer.button_down.EffectSelect5;
-					this._buttonStates.EffectSelect6 = mixer.button_down.EffectSelect6;
-					this._buttonStates.Fader1Mute = mixer.button_down.Fader1Mute;
-					this._buttonStates.Fader2Mute = mixer.button_down.Fader2Mute;
-					this._buttonStates.Fader3Mute = mixer.button_down.Fader3Mute;
-					this._buttonStates.Fader4Mute = mixer.button_down.Fader4Mute;
-					this._buttonStates.EffectFx = mixer.button_down.EffectFx;
-					this._buttonStates.EffectHardTune = mixer.button_down.EffectHardTune;
-					this._buttonStates.EffectRobot = mixer.button_down.EffectRobot;
-					this._buttonStates.EffectMegaphone = mixer.button_down.EffectMegaphone;
-					this._buttonStates.SamplerClear = mixer.button_down.SamplerClear;
-					this._buttonStates.pitch = mixer.effects.current.pitch.amount;
-					this._buttonStates.gender = mixer.effects.current.gender.amount;
-					this._buttonStates.reverb = mixer.effects.current.reverb.amount;
-					this._buttonStates.echo = mixer.effects.current.echo.amount;
-					this._genderMode = mixer.effects.current.gender.style as "Narrow"|"Medium"|"Wide";
-					this._pitchMode = mixer.effects.current.pitch.style as "Narrow"|"Medium"|"Wide";
-					
-					this._toggleStates.EffectHardTune = mixer.effects.current.hard_tune.is_enabled;
-					this._toggleStates.EffectRobot = mixer.effects.current.robot.is_enabled;
-					this._toggleStates.EffectMegaphone = mixer.effects.current.megaphone.is_enabled;
-					this._toggleStates.Fader1Mute = mixer.fader_status.A.mute_state !== "Unmuted";
-					this._toggleStates.Fader2Mute = mixer.fader_status.B.mute_state !== "Unmuted";
-					this._toggleStates.Fader3Mute = mixer.fader_status.C.mute_state !== "Unmuted";
-					this._toggleStates.Fader4Mute = mixer.fader_status.D.mute_state !== "Unmuted";
-				}
+				console.log(result);
+				this.connected = true;
+				return
+			}
+
+			console.log("🎤 GoXLR device ID is", this._deviceId);
+			const mixer = result.Status.mixers[this._deviceId];
+			if(mixer) {
+				this._currentFXIndex = parseInt(mixer.effects.active_preset.replace(/\D/gi, "") || "1") - 1;
+				//Initialize buttons states
+				this._buttonStates.Bleep = mixer.button_down.Bleep;
+				this._buttonStates.Cough = mixer.button_down.Cough;
+				this._buttonStates.SamplerSelectA = mixer.button_down.SamplerSelectA;
+				this._buttonStates.SamplerSelectB = mixer.button_down.SamplerSelectB;
+				this._buttonStates.SamplerSelectC = mixer.button_down.SamplerSelectA;
+				this._buttonStates.SamplerBottomLeft = mixer.button_down.SamplerBottomLeft;
+				this._buttonStates.SamplerBottomRight = mixer.button_down.SamplerBottomRight;
+				this._buttonStates.SamplerTopLeft = mixer.button_down.SamplerTopLeft;
+				this._buttonStates.SamplerTopRight = mixer.button_down.SamplerTopRight;
+				this._buttonStates.EffectSelect1 = mixer.button_down.EffectSelect1;
+				this._buttonStates.EffectSelect2 = mixer.button_down.EffectSelect2;
+				this._buttonStates.EffectSelect3 = mixer.button_down.EffectSelect3;
+				this._buttonStates.EffectSelect4 = mixer.button_down.EffectSelect4;
+				this._buttonStates.EffectSelect5 = mixer.button_down.EffectSelect5;
+				this._buttonStates.EffectSelect6 = mixer.button_down.EffectSelect6;
+				this._buttonStates.Fader1Mute = mixer.button_down.Fader1Mute;
+				this._buttonStates.Fader2Mute = mixer.button_down.Fader2Mute;
+				this._buttonStates.Fader3Mute = mixer.button_down.Fader3Mute;
+				this._buttonStates.Fader4Mute = mixer.button_down.Fader4Mute;
+				this._buttonStates.EffectFx = mixer.button_down.EffectFx;
+				this._buttonStates.EffectHardTune = mixer.button_down.EffectHardTune;
+				this._buttonStates.EffectRobot = mixer.button_down.EffectRobot;
+				this._buttonStates.EffectMegaphone = mixer.button_down.EffectMegaphone;
+				this._buttonStates.SamplerClear = mixer.button_down.SamplerClear;
+				this._buttonStates.pitch = mixer.effects.current.pitch.amount;
+				this._buttonStates.gender = mixer.effects.current.gender.amount;
+				this._buttonStates.reverb = mixer.effects.current.reverb.amount;
+				this._buttonStates.echo = mixer.effects.current.echo.amount;
+				this._genderMode = mixer.effects.current.gender.style as "Narrow"|"Medium"|"Wide";
+				this._pitchMode = mixer.effects.current.pitch.style as "Narrow"|"Medium"|"Wide";
+				
+				this._toggleStates.EffectHardTune = mixer.effects.current.hard_tune.is_enabled;
+				this._toggleStates.EffectRobot = mixer.effects.current.robot.is_enabled;
+				this._toggleStates.EffectMegaphone = mixer.effects.current.megaphone.is_enabled;
+				this._toggleStates.Fader1Mute = mixer.fader_status.A.mute_state !== "Unmuted";
+				this._toggleStates.Fader2Mute = mixer.fader_status.B.mute_state !== "Unmuted";
+				this._toggleStates.Fader3Mute = mixer.fader_status.C.mute_state !== "Unmuted";
+				this._toggleStates.Fader4Mute = mixer.fader_status.D.mute_state !== "Unmuted";
 			}
 			//If no status was loaded yet, execute init promise resolver
 			if(!this._status) {
