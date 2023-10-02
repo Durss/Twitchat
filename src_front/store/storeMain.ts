@@ -949,7 +949,7 @@ export const storeMain = defineStore("main", {
 				const ip = sParams.goxlrConfig.ip;
 				const port = sParams.goxlrConfig.port;
 				if(ip && port && sParams.goxlrConfig.enabled) {
-					GoXLRSocket.instance.connect(ip, port);
+					GoXLRSocket.instance.connect(ip, port).catch(error=>{});
 				}
 			}
 

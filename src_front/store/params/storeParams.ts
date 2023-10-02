@@ -437,7 +437,7 @@ export const storeParams = defineStore('params', {
 			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
 			if(enabled === true) {
 				if(!this.goxlrConfig.ip || !this.goxlrConfig.port) return;
-				GoXLRSocket.instance.connect(this.goxlrConfig.ip, this.goxlrConfig.port);
+				GoXLRSocket.instance.connect(this.goxlrConfig.ip, this.goxlrConfig.port).catch(error=>{});
 			}else{
 				GoXLRSocket.instance.disconnect();
 			}
