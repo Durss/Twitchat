@@ -1086,6 +1086,8 @@ import Ajv from "ajv";
 				duration: {type:"integer", minimum:1, maximum:5000},
 				speed: {type:"integer", minimum:1, maximum:30},
 				startDelay: {type:"integer", minimum:0, maximum:30},
+				loop: {type:"boolean"},
+				showIcons: {type:"boolean"},
 				slots: {
 					type:"array",
 					minItems:0,
@@ -1100,8 +1102,6 @@ import Ajv from "ajv";
 							label: {type:"string", maxLength:50},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
-							loop: {type:"boolean"},
-							showIcons: {type:"boolean"},
 							customHTML: {type:"boolean"},
 							htmlTemplate: {type:"string", maxLength:5000},
 						}
