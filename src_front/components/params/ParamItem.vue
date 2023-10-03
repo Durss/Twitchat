@@ -382,6 +382,12 @@ export default class ParamItem extends Vue {
 	public beforeMount(): void {
 		this.autofocusLocal = this.autofocus;
 		this.setErrorState(this.error || this.paramData.error === true);
+		
+		if(this.modelValue !== null
+		&& this.modelValue !== undefined) {
+			console.log(this.paramData.labelKey, this.paramData.value, this.modelValue);
+			this.paramData.value = this.modelValue;
+		}
 
 		//Makes sure value is non-empty and within min/max.
 		//For a while some users emptied the field because i didn't block that
@@ -394,10 +400,6 @@ export default class ParamItem extends Vue {
 	}
 
 	public mounted():void {
-		if(this.modelValue !== null
-		&& this.modelValue !== undefined) {
-			this.paramData.value = this.modelValue;
-		}
 		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
 			if(value !== null
 			&& value !== undefined) {
