@@ -76,7 +76,7 @@ export const storeBingo = defineStore('bingo', {
 				if(sChat.botMessages.bingo.enabled) {
 					//Post on chat if requested
 					let txt = sChat.botMessages.bingo.message;
-					txt = txt.replace(/\{USER\}/gi, message.user.displayName);
+					txt = txt.replace(/\{USER\}/gi, message.user.displayNameOriginal);
 					MessengerProxy.instance.sendMessage(txt, [message.user.platform]);
 				}
 

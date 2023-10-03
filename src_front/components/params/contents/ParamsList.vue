@@ -143,7 +143,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 			{
 				tag:"USER",
 				descKey:"params.chatShoutout_placeholders.user",
-				example:me.displayName,
+				example:me.displayNameOriginal,
 			},
 			{
 				tag:"URL",

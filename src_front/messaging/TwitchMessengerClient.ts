@@ -115,7 +115,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const amIModThere = result !== false;
 					if(amIModThere) {
 						//Go through getUserFrom() that will init the channelInfo property for later use
-						let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayName)
+						let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayNameOriginal)
 						//Flag self as mod of that channel
 						me.channelInfo[v.id].is_moderator = true;
 					}

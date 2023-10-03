@@ -742,7 +742,7 @@ export const storeChat = defineStore('chat', {
 						const wsUser = {
 							id:message.user.id,
 							login:message.user.login,
-							displayName:message.user.displayName,
+							displayName:message.user.displayNameOriginal,
 						};
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
 						
@@ -847,7 +847,7 @@ export const storeChat = defineStore('chat', {
 							user: {
 								id:message.user.id,
 								login:message.user.login,
-								displayName:message.user.displayName,
+								displayName:message.user.displayNameOriginal,
 							}
 						}
 	
@@ -953,7 +953,7 @@ export const storeChat = defineStore('chat', {
 									//Not a user message, ignore it
 									if(m.type != TwitchatDataTypes.TwitchatMessageType.MESSAGE) continue;
 									//Not sent from the mentionned user, ignore it
-									if(m.user.login != match && m.user.displayName.toLowerCase() != match) continue;
+									if(m.user.login != match && m.user.displayNameOriginal.toLowerCase() != match) continue;
 									//If message is too old, stop there
 									if(ts - m.date > timeframe) break;
 
@@ -1008,7 +1008,7 @@ export const storeChat = defineStore('chat', {
 						user: {
 							id:message.user.id,
 							login:message.user.login,
-							displayName:message.user.displayName,
+							displayName:message.user.displayNameOriginal,
 						},
 						reward:{
 							id:message.reward.id,
@@ -1073,7 +1073,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.JOIN: {
 					for (let i = 0; i < message.users.length; i++) {
 						const user = message.users[i];
-						const rule = Utils.isAutomoded(user.displayName, user, message.channel_id);
+						const rule = Utils.isAutomoded(user.displayNameOriginal, user, message.channel_id);
 						if(rule != null) {
 							if(user.platform == "twitch") {
 								TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
@@ -1158,7 +1158,7 @@ export const storeChat = defineStore('chat', {
 							user:{
 								id: message.user.id,
 								login: message.user.login,
-								displayName: message.user.displayName,
+								displayName: message.user.displayNameOriginal,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.FOLLOW, wsMessage);
@@ -1190,7 +1190,7 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
 						//Check if nickname passes the automod
-						const rule = Utils.isAutomoded(message.user.displayName, message.user, message.channel_id);
+						const rule = Utils.isAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
 						if(rule) {
 							//User blocked by automod
 							if(message.user.platform == "twitch") {
@@ -1327,7 +1327,7 @@ export const storeChat = defineStore('chat', {
 					user:{
 						id:message.user.id,
 						login:message.user.login,
-						displayName:message.user.displayName,
+						displayName:message.user.displayNameOriginal,
 					}
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
@@ -1367,7 +1367,7 @@ export const storeChat = defineStore('chat', {
 							user:{
 								id:mTyped.user.id,
 								login:mTyped.user.login,
-								displayName:mTyped.user.displayName,
+								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
@@ -1395,7 +1395,7 @@ export const storeChat = defineStore('chat', {
 							user:{
 								id:mTyped.user.id,
 								login:mTyped.user.login,
-								displayName:mTyped.user.displayName,
+								displayName:mTyped.user.displayNameOriginal,
 							}
 						}
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
@@ -1456,7 +1456,7 @@ export const storeChat = defineStore('chat', {
 					message.user.avatarPath = twitchUser.profile_image_url;
 					//Populate more info just in case some are missing
 					message.user.login = twitchUser.login;
-					message.user.displayName = twitchUser.display_name;
+					message.user.displayNameOriginal = twitchUser.display_name;
 				}
 
 				let info:TwitchatDataTypes.ChatHighlightInfo = {

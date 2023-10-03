@@ -101,7 +101,7 @@ export const storeCounters = defineStore('counters', {
 									//Add user to leaderboard
 									counter!.leaderboard!.push({
 										avatar:res.avatarPath!,
-										login:res.displayName,
+										login:res.displayNameOriginal,
 										points:v.value
 									})
 								}

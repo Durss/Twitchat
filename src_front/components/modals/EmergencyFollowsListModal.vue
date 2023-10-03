@@ -130,7 +130,7 @@ export default class EmergencyFollowsListModal extends Vue {
 			for (let i = 0; i < list.length; i++) {
 				const f = list[i];
 				reg.lastIndex = 0;
-				if(reg.test(f.user.displayName)) {
+				if(reg.test(f.user.displayNameOriginal)) {
 					this.followers.push( f );
 				}
 			}

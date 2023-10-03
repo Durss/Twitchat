@@ -5,7 +5,7 @@
 				<img :src="user.avatarPath">
 			</div>
 			<div class="infos" id="highlight_infos">
-				<div class="login" id="highlight_login" v-if="user">{{user.displayName}}</div>
+				<div class="login" id="highlight_login" v-if="user">{{user.displayNameOriginal ?? user.displayName}}</div>
 				<div class="message" id="highlight_message" v-html="message"></div>
 			</div>
 		</div>

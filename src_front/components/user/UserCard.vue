@@ -249,7 +249,7 @@ export default class UserCard extends Vue {
 	 * mostly non-latin chars
 	 */
 	public get translateUsername():boolean {
-		const dname = this.user!.displayName.toLowerCase();
+		const dname = this.user!.displayNameOriginal.toLowerCase();
 		const uname = this.user!.login.toLowerCase();
 		//If display name is different from username and at least half of the
 		//display name's chars ar not latin chars, translate it
