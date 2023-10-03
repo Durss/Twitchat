@@ -161,7 +161,7 @@ export const storeRaffle = defineStore('raffle', {
 					raffle.entries.push( {
 						score:0,
 						joinCount:1,
-						label:user.displayName,
+						label:user.displayNameOriginal,
 						id:user.id,
 						user:{
 							id:messageCast.user.id,
@@ -173,7 +173,7 @@ export const storeRaffle = defineStore('raffle', {
 				
 				if(sChat.botMessages.raffleJoin.enabled) {
 					let message = sChat.botMessages.raffleJoin.message;
-					message = message.replace(/\{USER\}/gi, user.displayName)
+					message = message.replace(/\{USER\}/gi, user.displayNameOriginal)
 					MessengerProxy.instance.sendMessage(message, [user.platform]);
 				}
 				return true;

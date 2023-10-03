@@ -473,7 +473,7 @@ export default class MessageList extends Vue {
 				}
 				
 				//Ignore specific users
-				if (this.config.userBlockList && m.user.displayName.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
+				if (this.config.userBlockList && m.user.displayNameOriginal.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
 				}
 
@@ -1438,7 +1438,7 @@ export default class MessageList extends Vue {
 				user: {
 					id: m.user.id,
 					login: m.user.login,
-					displayName: m.user.displayName,
+					displayName: m.user.displayNameOriginal,
 				}
 			}
 			PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_READ, { manual: event != null, selected: this.markedAsReadDate == m.date, message });

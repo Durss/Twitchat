@@ -348,7 +348,7 @@ export const storeUsers = defineStore('users', {
 								if(!userLocal.avatarPath)	userLocal.avatarPath = apiUser.profile_image_url;
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
-								if(userLocal.displayName)	hashmaps!.displayNameToUser[userLocal.displayName] = userLocal;
+								if(userLocal.displayNameOriginal)	hashmaps!.displayNameToUser[userLocal.displayNameOriginal] = userLocal;
 								
 								//Load pronouns if requested
 								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
@@ -393,9 +393,9 @@ export const storeUsers = defineStore('users', {
 			//Attribute a random color to the user (overwrite that externally if necessary)
 			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 
-			if(user.id)				hashmaps.idToUser[user.id] = user;
-			if(user.login)			hashmaps.loginToUser[user.login] = user;
-			if(user.displayName)	hashmaps.displayNameToUser[user.displayName] = user;
+			if(user.id)						hashmaps.idToUser[user.id] = user;
+			if(user.login)					hashmaps.loginToUser[user.login] = user;
+			if(user.displayNameOriginal)	hashmaps.displayNameToUser[user.displayNameOriginal] = user;
 
 			userList.push(user);
 

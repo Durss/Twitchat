@@ -1374,7 +1374,7 @@ export default class TriggerActionHandler {
 										const user = users[i];
 										if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
 										let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
-										if(user) logMessage += " (for @"+user.displayName+")";
+										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 										logStep.messages.push({date:Date.now(), value:logMessage});
 									}
 
@@ -1397,7 +1397,7 @@ export default class TriggerActionHandler {
 									if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
 									if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
 									if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
-									if(user) logMessage += " for @"+user.displayName+")";
+									if(user) logMessage += " for @"+user.displayNameOriginal+")";
 									logMessage += ". New value is "+c.value;
 									logStep.messages.push({date:Date.now(), value:logMessage});
 								}
@@ -1505,7 +1505,7 @@ export default class TriggerActionHandler {
 					switch(step.action) {
 						case "fx_on":
 						case "fx_off": {
-							if(step.fxPresetIndex && step.fxPresetIndex > -1) {
+							if(step.fxPresetIndex !== undefined && step.fxPresetIndex > -1) {
 								logStep.messages.push({date:Date.now(), value:"GoXLR set active preset index \""+step.fxPresetIndex});
 								await GoXLRSocket.instance.setActiveFxPreset(step.fxPresetIndex);
 							}

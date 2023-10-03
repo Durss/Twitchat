@@ -53,7 +53,7 @@ export default class ChatModTools extends Vue {
 
 	public banUser():void {
 		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.ban_confirm_desc"))
+		this.$confirm(this.$t("chat.mod_tools.ban_confirm_title", {USER:this.messageData.user.displayNameOriginal}), this.$t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
 			this.$emit('deleteUser', this.messageData);
 			if(this.messageData.fake === true) {
@@ -67,7 +67,7 @@ export default class ChatModTools extends Vue {
 
 	public blockUser():void {
 		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayName}), this.$t("chat.mod_tools.block_confirm_desc"))
+		this.$confirm(this.$t("chat.mod_tools.block_confirm_title", {USER:this.messageData.user.displayNameOriginal}), this.$t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {
 			this.$emit('deleteUser', this.messageData);
 			if(this.messageData.fake === true) {

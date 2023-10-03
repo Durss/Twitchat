@@ -104,9 +104,6 @@ export default class MessageSearch extends AbstractSidePanel {
 			|| m.user.displayName.toLowerCase() == this.search.toLowerCase()) {
 				result.push(m);
 			}
-			if(m.children) {
-				list.splice(i+1, 0, ...m.children);
-			}
 		}
 		this.messages = result;
 		await this.$nextTick();

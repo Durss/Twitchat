@@ -110,7 +110,7 @@
 						v-slot="{ item } : {item:UserEntry}">
 							<div class="card-item userItem">
 								<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayName }}</span>
+								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayNameOriginal }}</span>
 								<ParamItem class="value" noBackground
 									:paramData="item.param"
 									@input="onChangeValue(entry, item)" />
@@ -427,7 +427,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			for (let i = 0; i < preloadedUsers.length; i++) {
 				const u = preloadedUsers[i];
 				u.hide = false;
-				if(u.user.login.indexOf(this.search[counter.id]) == -1 && u.user.displayName.indexOf(this.search[counter.id]) == -1) {
+				if(u.user.login.indexOf(this.search[counter.id]) == -1 && u.user.displayNameOriginal.indexOf(this.search[counter.id]) == -1) {
 					u.hide = true;
 				}else{
 					hasResult = true;
@@ -548,8 +548,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		if(users) {
 			users.sort((a,b)=> {
 				if(this.sortType[entry.counter.id] == "name") {
-					if(a.user.displayName.toLowerCase() > b.user.displayName.toLowerCase()) return this.sortDirection[entry.counter.id];
-					if(a.user.displayName.toLowerCase() < b.user.displayName.toLowerCase()) return -this.sortDirection[entry.counter.id];
+					if(a.user.displayNameOriginal.toLowerCase() > b.user.displayNameOriginal.toLowerCase()) return this.sortDirection[entry.counter.id];
+					if(a.user.displayNameOriginal.toLowerCase() < b.user.displayNameOriginal.toLowerCase()) return -this.sortDirection[entry.counter.id];
 					return 0;
 				}
 				if(this.sortType[entry.counter.id] == "points") {
