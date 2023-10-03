@@ -381,6 +381,12 @@ export default class ParamItem extends Vue {
 	public beforeMount(): void {
 		this.autofocusLocal = this.autofocus;
 		this.setErrorState(this.error || this.paramData.error === true);
+		
+		if(this.modelValue !== null
+		&& this.modelValue !== undefined) {
+			console.log(this.paramData.labelKey, this.paramData.value, this.modelValue);
+			this.paramData.value = this.modelValue;
+		}
 
 		if(this.modelValue !== null
 		&& this.modelValue !== undefined) {
