@@ -8,6 +8,7 @@
 		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run front/build && npm run server/build",
 		"front/serve": "vite --host",
+		"front/serve-force": "vite --host --force",
 		"front/build": "SET NODE_OPTIONS=--max_old_space_size=8048 vue-tsc --noEmit && vite build",
 		"server/watch": "tsc -w -p ./tsconfig_server.json",
 		"server/build": "tsc -p ./tsconfig_server.json",
@@ -36,8 +37,8 @@
 		"node-static": "^0.7.11"
 	},
 	"devDependencies": {
-		"@popperjs/core": "^2.11.5",
 		"@imengyu/vue3-context-menu": "^1.2.3",
+		"@popperjs/core": "^2.11.5",
 		"@rushstack/eslint-patch": "^1.1.0",
 		"@types/dom-screen-wake-lock": "^1.0.0",
 		"@types/gsap": "^3.0.0",
@@ -77,7 +78,7 @@
 		"vue-facing-decorator": "^2.1.15",
 		"vue-i18n": "^9.2.2",
 		"vue-router": "^4.0.12",
-		"vue-select": "^4.0.0-beta.6",
+		"vue-select": "github:Durss/vue-select#beta",
 		"vue-tippy": "^6.0.0",
 		"vue-tsc": "^1.0.9",
 		"vue3-carousel": "^0.2.9",

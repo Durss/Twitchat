@@ -131,30 +131,23 @@
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
-				<label :for="'list'+key" v-html="label" v-tooltip="tooltip"></label>
-				<vue-select class="listField" label="label"
-					:id="'list'+key"
+				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
+				<vue-select class="listField"
+					label="label"
 					ref="vueSelect"
+					:id="'editablelist'+key"
 					:placeholder="placeholder"
 					v-model="paramData.value"
 					:calculate-position="$placeDropdown"
-					@search="onSearch()"
-					@option:created="onCreateListItem()"
 					@option:selected="onEdit()"
-					@search:blur="submitListItem()"
 					appendToBody
 					taggable
-					:clearSearchOnSelect="false"
+					:submitSearchOnBlur="true"
 					:multiple="paramData.options === undefined"
 					:noDrop="paramData.options === undefined"
 					:push-tags="paramData.options != undefined"
 					:options="paramData.options"
-				>
-					<template #no-options="{ search, searching, loading }">
-						<div>{{ $t("global.empty_list1") }}</div>
-						<div>{{ $t("global.empty_list2") }}</div>
-					</template>
-				</vue-select>
+				></vue-select>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -275,7 +268,6 @@ export default class ParamItem extends Vue {
 	@Prop({type:Number, default: 0})
 	public tabindex!:number;
 
-	public searching:boolean = false;
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
@@ -462,9 +454,9 @@ export default class ParamItem extends Vue {
 	 */
 	public onEdit():void {
 		this.updateSelectedListValue();
-
+		
 		if(this.isLocalUpdate) return;
-
+		
 		this.isLocalUpdate = true;
 		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
 			//Limit number of items of the editablelist
@@ -475,10 +467,10 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.type == "editablelist") {
-			if(this.paramData.options) {
+			const list = this.$refs.vueSelect as any;
+			if(this.paramData.options && list.pushedTags) {
 				//If there's a list of options, cleanup any custom options added that
 				//is not the currently selected one
-				const list = this.$refs.vueSelect as any;
 				for (let i = 0; i < list.pushedTags.length; i++) {
 					const opt = list.pushedTags[i];
 					if(opt == this.paramData.value as string) continue;
@@ -486,7 +478,7 @@ export default class ParamItem extends Vue {
 					list.pushedTags.splice(i, 1);
 				}
 			}
-			const list = this.$refs.vueSelect as any;
+			
 			if(list.dropdownOpen) {
 				list.closeSearchOptions();
 			}
@@ -504,60 +496,6 @@ export default class ParamItem extends Vue {
 		this.$nextTick().then(()=>{
 			this.isLocalUpdate = false;
 		})
-	}
-
-	/**
-	 * vue-select component is lacking a "submit" button when "noDrop"
-	 * option is enabled. User has to find out they have to hit "Enter"
-	 * to create a new entry. This is far from ideal in terms of UX.
-	 * 
-	 * This method is called anytime somehting's written on the input
-	 * to display a custom submit button if there's text
-	 */
-	public onSearch():void {
-		this.searching = (this.$refs.vueSelect as any).search.length > 0;
-	}
-
-	/**
-	 * Called when creating a new item on <vue-select> component
-	 */
-	public async onCreateListItem():Promise<void> {
-		//This is a workaround an issue with vue-select that throws a "searching"
-		//event after creating an item.
-		//Without this frame delay the searching flag would be reset to "true"
-		//right after setting it to false here.
-		// await this.$nextTick();
-		this.searching = false;
-
-		//Trim spaces around the values
-		let list = Array.isArray(this.paramData.value)? this.paramData.value as string[] : this.paramData.options as string[];
-		if(!list) list = [];
-		for (let i = 0; i < list.length; i++) {
-			list[i] = list[i].trim();
-		}
-
-		this.onEdit();
-	}
-
-	/**
-	 * Called when custom submit button for the <vue-select> component
-	 * is clicked.
-	 * @see onSearch() for more details about why this hack
-	 */
-	public submitListItem():void {
-		// setTimeout(()=> {
-			// this.searching = false;
-			// console.log(this.$refs.vueSelect);
-			// // (this.$refs.vueSelect as Vue).$el.dispatchEvent(new KeyboardEvent('keydown', {
-			// // 	key: 'Enter',
-			// // 	code: 'Enter',
-			// // 	keyCode: 13,
-			// // 	which: 13,
-			// // 	bubbles: true
-			// // }));
-			// console.log((this.$refs.vueSelect as any).isComposing);
-			(this.$refs.vueSelect as any).typeAheadSelect();
-		// }, 1000)
 	}
 
 	private async buildChildren():Promise<void> {
@@ -926,17 +864,6 @@ export default class ParamItem extends Vue {
 				}
 			}
 			
-			.listSubmitBt {
-				position: absolute;
-				right: 25px;
-				bottom: 5px;
-				cursor: pointer;
-				z-index: 1;
-				img {
-					height: 1em;
-				}
-			}
-
 			&.editable {
 				flex-direction: column;
 				label {
