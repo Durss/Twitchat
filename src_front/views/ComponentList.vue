@@ -372,6 +372,7 @@ export default class ComponentList extends Vue {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
+		color:var(--color-text);
 		.icon {
 			width: 4em;
 			height: 4em;

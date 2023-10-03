@@ -49,6 +49,7 @@ export default class Checkbox extends Vue {
 	position: relative;
 
 	.checkmark {
+		color:var(--color-text);
 		border: 1px solid var(--color-text);
 		border-radius: .25em;
 		padding: 0;

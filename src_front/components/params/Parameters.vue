@@ -250,11 +250,11 @@ export default class Parameters extends Vue {
 		});
 
 		this.keyDownHandler = (e:KeyboardEvent) => this.onKeyDown(e);
-		document.addEventListener("keydown", this.keyDownHandler);
+		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
 	}
 
 	public async open():Promise<void> {
