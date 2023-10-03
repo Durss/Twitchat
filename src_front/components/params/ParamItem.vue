@@ -147,7 +147,12 @@
 					:noDrop="paramData.options === undefined"
 					:push-tags="paramData.options != undefined"
 					:options="paramData.options"
-				></vue-select>
+				>
+					<template #no-options="{ search, searching, loading }">
+						<div>{{ $t("global.empty_list1") }}</div>
+						<div>{{ $t("global.empty_list2") }}</div>
+					</template>
+				</vue-select>
 			</div>
 			
 			<div v-if="paramData.type == 'browse'" class="holder browse">
@@ -377,6 +382,11 @@ export default class ParamItem extends Vue {
 		this.autofocusLocal = this.autofocus;
 		this.setErrorState(this.error || this.paramData.error === true);
 
+		if(this.modelValue !== null
+		&& this.modelValue !== undefined) {
+			this.paramData.value = this.modelValue;
+		}
+
 		//Makes sure value is non-empty and within min/max.
 		//For a while some users emptied the field because i didn't block that
 		//this kinda fixes these old bad behaviors.
@@ -388,10 +398,6 @@ export default class ParamItem extends Vue {
 	}
 
 	public mounted():void {
-		if(this.modelValue !== null
-		&& this.modelValue !== undefined) {
-			this.paramData.value = this.modelValue;
-		}
 		watch(()=>this.modelValue, (value:string | number | boolean | string[])=>{
 			if(value !== null
 			&& value !== undefined) {
@@ -430,6 +436,7 @@ export default class ParamItem extends Vue {
 
 		//Set this to true so the we keep focus on the text field when it switches
 		//between <input> and <textarea> depending on the text length
+		//This won't affect first rendering, only subsequent ones
 		this.autofocusLocal = true;
 	}
 

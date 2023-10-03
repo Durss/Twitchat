@@ -706,7 +706,7 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						received:false,
-						user:user,
+						user:Utils.pickRand(fakeUsers),
 						viewerCount: Math.round(Math.random()*999),
 						moderator:user,
 						stream: {

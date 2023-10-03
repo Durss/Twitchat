@@ -1044,17 +1044,17 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
-						console.log("Merge attempt");
+						// console.log("Merge attempt");
 						const len = Math.max(0, messageList.length-20);//Only check within the last 20 messages
 						for (let i = messageList.length-1; i > len; i--) {
 							const m = messageList[i];
 							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
-							console.log("Found sub ", m);
+							// console.log("Found sub ", m);
 							//If the message is a subgift from the same user with the same tier and
 							//happened in the last 5s, merge it.
 							if(m.tier == message.tier && m.user.id == message.user.id
 								&& message.date - m.date < 5000) {
-								console.log("MERGE IT !");
+								// console.log("MERGE IT !");
 								if(!m.gift_recipients) m.gift_recipients = [];
 								m.date = Date.now();//Update timestamp
 								for (let i = 0; i < message.gift_recipients.length; i++) {
@@ -1063,7 +1063,7 @@ export const storeChat = defineStore('chat', {
 								m.gift_count = m.gift_recipients.length;
 								return;
 							}
-							console.log("Dont merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
+							// console.log("Dont merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
 						}
 					}
 					break;

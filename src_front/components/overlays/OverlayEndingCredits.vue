@@ -34,6 +34,24 @@
 						<span class="login">{{entry.login}}</span>
 						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
+					
+					<div v-if="item.id == 'follows'" v-for="entry in (data.follows || [])" class="item follows">
+						<span class="login">{{entry.login}}</span>
+					</div>
+					
+					<div v-if="item.id == 'so_in'" v-for="entry in (data.shoutouts?.filter(v=>v.received) || [])" class="item so_in">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
+					</div>
+					
+					<div v-if="item.id == 'so_out'" v-for="entry in (data.shoutouts?.filter(v=>!v.received) || [])" class="item so_out">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
+					</div>
+					
+					<div v-if="item.id == 'hypetrains'" v-for="entry in data.hypeTrains" class="item trains">
+						<span class="login">{{ $t('train.ending_credits', {LEVEL:entry.level, PERCENT:entry.percent})}}</span>
+					</div>
 				</div>
 			</div>
 		</template>
@@ -61,6 +79,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	public data:TwitchatDataTypes.StreamSummaryData|null = null;
 	
 	private animFrame:number = -1;
+	private prevParams:TwitchatDataTypes.EndingCreditsParams|null = null;
 	private startDelayTimeout:number = -1;
 	private entryCountCache:{[key:string]:number} = {}
 
@@ -72,6 +91,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			opacity: this.display? 1 : 0,
 			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
 			color: this.data?.params?.textColor,
+			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 		}
 		if(this.data?.params?.timing == 'speed') {
 			res.top = this.posY+"px";
@@ -81,8 +101,11 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlot):string[] {
 		const res = ["category"];
+		if(this.data?.params?.showIcons === false) res.push("noIcon");
 		const itemCount = this.getEntryCountFor(item);
+		//If requesting 3 cols but there are only 2 items, switch to 2 cols mode
 		if(item.layout == "3cols" && itemCount == 2) res.push("layout_2cols");
+		//If requestion 3 or 3 cols but only 1 item is available, switch to 1 col mode
 		else if((item.layout == "3cols" && itemCount == 1) || (item.layout == "2cols" && itemCount == 1)) res.push("layout_col");
 		else res.push("layout_"+item.layout);
 		return res;
@@ -168,26 +191,42 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private async onParamsData(e:TwitchatEvent):Promise<void> {
 		if(e.data && this.data) {
 			this.data.params = (e.data as unknown) as TwitchatDataTypes.EndingCreditsParams;
-			this.reset();
+			let resetScroll = false;
+			//Only restart delay if one of the related params changed
+			if(this.prevParams &&
+			(
+				this.prevParams.duration != this.data.params.duration
+				|| this.prevParams.speed != this.data.params.speed
+				|| this.prevParams.startDelay != this.data.params.startDelay
+				|| this.prevParams.timing != this.data.params.timing
+				|| this.prevParams.loop != this.data.params.loop
+				|| !this.data.params.loop
+			)) resetScroll = true;
+
+			this.prevParams = this.data.params;
+
+			this.reset(resetScroll);
 		}
 	}
 
 	/**
 	 * Resets some data for better live reload
 	 */
-	private reset():void {
+	private reset(resetScroll:boolean = true):void {
 		this.display = false;
 		this.entryCountCache = {};
-		clearTimeout(this.startDelayTimeout)
-		cancelAnimationFrame(this.animFrame);
-		gsap.killTweensOf(this.$el as HTMLElement);
-		this.startScroll();
+		if(resetScroll) {
+			clearTimeout(this.startDelayTimeout)
+			cancelAnimationFrame(this.animFrame);
+			gsap.killTweensOf(this.$el as HTMLElement);
+		}
+		this.startScroll(resetScroll);
 	}
 
 	/**
 	 * Starts scrolling credits
 	 */
-	private startScroll():void {
+	private startScroll(resetScroll:boolean):void {
 		this.$nextTick().then(async () => {
 			if(this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
@@ -196,14 +235,21 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			}
 			if(!this.data?.params) return;//No params?!
 			this.display = true;
-			const holder = this.$el as HTMLElement;
-			const bounds = holder.getBoundingClientRect();
-			this.posY = window.innerHeight;
+			
+			if(resetScroll) {
+				const holder = this.$el as HTMLElement;
+				const bounds = holder.getBoundingClientRect();
+				this.posY = window.innerHeight;
 
-			if(this.data?.params?.timing == 'duration') {
-				gsap.fromTo(holder, {top:this.posY}, {duration:this.data!.params!.duration, top:-bounds.height, ease:Linear.easeNone});
-			}else{
-				this.renderFrame();
+				if(this.data?.params?.timing == 'duration') {
+					gsap.fromTo(holder, {top:this.posY}, {duration:this.data!.params!.duration, top:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
+						if(this.data?.params?.loop === true) {
+							this.reset(true);
+						}
+					}});
+				}else{
+					this.renderFrame();
+				}
 			}
 		})
 	}
@@ -214,9 +260,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private renderFrame():void {
 		this.animFrame = requestAnimationFrame(()=>this.renderFrame());
 		const holder = this.$el as HTMLElement;
-		// const bounds = holder.getBoundingClientRect();
+		const bounds = holder.getBoundingClientRect();
 
-		if(this.posY < 0) return;
+		if(this.posY < -bounds.height) {
+			if(this.data?.params?.loop === true) {
+				this.reset(true);
+			}
+			return;
+		}
 
 		this.posY -= this.data?.params?.speed || 2;
 		
@@ -246,7 +297,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			margin-bottom: 1em;
 			font-size: 2.5em;
 			text-align: center;
-			filter: drop-shadow(4px 4px 0 rgba(0, 0, 0, .7));
 			.icon {
 				height: 1em;
 				width: 1em;
@@ -267,7 +317,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				justify-content: center;
 				font-size: 1.5em;
 				font-weight: 400;
-				filter: drop-shadow(2px 2px 0 rgba(0, 0, 0, .7));
 				.icon {
 					height: 1em;
 				}
@@ -279,25 +328,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 						font-weight: bold;
 					}
 				}
-				&.sub, &.subgift {
-					.count {
-						margin-left: .5em;
-						font-weight: bold;
-						.icon {
-							margin-right: .25em;
-						}
-					}
-				}
-				&.bits {
-					.count {
-						margin-left: .5em;
-						font-weight: bold;
-						.icon {
-							margin-right: .25em;
-						}
-					}
-				}
-				&.raids {
+				&.sub, &.subgift, &.bits, &.so_out, &.so_in, &.raids {
 					.count {
 						margin-left: .5em;
 						font-weight: bold;
@@ -309,13 +340,45 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			}
 		}
 
-		&.layout_row {
+		&.layout_left {
+			.list {
+				column-gap: 2em;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-start;
+			}
+		}
+
+		&.layout_center {
 			.list {
 				column-gap: 2em;
 				flex-direction: row;
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: center;
+			}
+		}
+
+		&.layout_right {
+			.list {
+				column-gap: 2em;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+			}
+		}
+
+		&.layout_colRight {
+			.list {
+				align-items: flex-end;
+			}
+		}
+
+		&.layout_colLeft {
+			.list {
+				align-items: flex-start;
 			}
 		}
 
@@ -350,6 +413,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 					&:nth-child(3n) {
 						justify-self: start;
 					}
+				}
+			}
+		}
+
+		&.noIcon {
+			h1 {
+				.icon {
+					display: none;
 				}
 			}
 		}

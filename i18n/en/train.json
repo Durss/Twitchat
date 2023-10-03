@@ -12,6 +12,7 @@
 		"conductor_subs": "{COUNT} sub | {COUNT} subs",
 		"conductor_subs_tt": "subs leader",
 		"conductor_bits": "{COUNT} bit | {COUNT} bits",
-		"conductor_bits_tt": "bits leader"
+		"conductor_bits_tt": "bits leader",
+		"ending_credits": "Level {LEVEL} at {PERCENT}%"
 	}
 }

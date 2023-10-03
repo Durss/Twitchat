@@ -300,16 +300,16 @@ export const storeStream = defineStore('stream', {
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
-				follows:[] as {uid:string, login:string}[],
-				raids:[] as {uid:string, login:string, raiders:number}[],
-				subs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
-				resubs:[] as {uid:string, login:string, tier:1|2|3|"prime"}[],
-				subgifts:[] as {uid:string, login:string, tier:1|2|3|"prime", total:number}[],
-				bits:[] as {uid:string, login:string, bits:number}[],
-				hypeChats:[] as {uid:string, login:string, amount:number, currency:string}[],
-				rewards:[] as {uid:string, login:string, reward:{name:string, id:string, icon:string}}[],
-				shoutouts:[] as {uid:string, login:string, received:boolean}[],
-				hypeTrains:[] as {level:number, percent:number}[],
+				follows:[],
+				raids:[],
+				subs:[],
+				resubs:[],
+				subgifts:[],
+				bits:[],
+				hypeChats:[],
+				rewards:[],
+				shoutouts:[],
+				hypeTrains:[],
 			};
 			if(includeParams) {
 				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
@@ -375,12 +375,12 @@ export const storeStream = defineStore('stream', {
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-						const shoutout = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received};
+						const shoutout = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received, viewers:m.viewerCount};
 						result.shoutouts.push(shoutout);
 						break;
 					}
 					
-					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE: {
+					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
 						const train = {level:m.train.level, percent:m.train.currentValue};
 						result.hypeTrains.push(train);
 						break;

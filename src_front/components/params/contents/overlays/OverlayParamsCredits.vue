@@ -15,12 +15,14 @@
 			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
 
 			<div class="item globalParams">
-				<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" />
-				<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" />
+				<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
+				<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
 				<ParamItem :paramData="param_textColor" v-model="data.textColor" />
 				<ParamItem :paramData="param_scale" v-model="data.scale" />
 				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
+				<ParamItem :paramData="param_showIcons" v-model="data.showIcons" />
 				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
+				<ParamItem :paramData="param_loop" v-model="data.loop" />
 				<ParamItem :paramData="param_timing" v-model="data.timing">
 					<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" />
 					<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" />
@@ -35,8 +37,7 @@
 				group="description"
 				ghostClass="ghost"
 				item-key="id"
-				v-model="data.slots"
-				@change="sortList()">
+				v-model="data.slots">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlot, index:number}">
 						<ToggleBlock :class="getItemClasses(element)" :key="'item_'+element.id" :open="false" :disabled="element.enabled === false">
 							<template #left_actions>
@@ -60,7 +61,7 @@
 
 							<template #right_actions>
 								<div class="rightActions">
-									<ToggleButton v-model="element.enabled" premium @change="sortList()" />
+									<ToggleButton v-model="element.enabled" premium />
 									<button class="arrowBt"><Icon name="arrowRight" /></button>
 								</div>
 							</template>
@@ -80,8 +81,8 @@
 									</div>
 								</div>
 
-								<ParamItem v-if="element.showAmounts != undefined" class="amounts" :paramData="param_showAmounts[index]" v-model="element.showAmounts" premium />
-								<ParamItem class="maxItems" :paramData="param_maxItems[index]" v-model="element.maxEntries" premium />
+								<ParamItem v-if="element.showAmounts != undefined" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium />
+								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" premium />
 								
 								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
 									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
@@ -138,21 +139,26 @@ export default class OverlayParamsCredits extends Vue {
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:30, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
 	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
+	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
+	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
 	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown"};
-	public param_maxItems:TwitchatDataTypes.ParameterData<number>[] = [];
-	public param_customHTML:TwitchatDataTypes.ParameterData<boolean>[] = [];
-	public param_htmlTemplate:TwitchatDataTypes.ParameterData<string>[] = [];
-	public param_showAmounts:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public fontsReady:boolean = false;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
-		fontTitle:"",
-		fontEntry:"",
+		fontTitle:"Inter",
+		fontEntry:"Inter",
 		textShadow:1,
 		textColor:"#ffffff",
 		timing:"speed",
 		startDelay:0,
 		duration:200,
 		speed:2,
+		loop:true,
+		showIcons:true,
 		slots:[],
 	};
 
@@ -211,12 +217,23 @@ export default class OverlayParamsCredits extends Vue {
 	public beforeMount():void {
 		const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 		if(json) {
-			this.data = JSON.parse(json);
+			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
 		}
+		
 		Utils.listAvailableFonts().then(fonts => {
-			this.param_fontEntry.options = fonts.concat();
 			this.param_fontTitle.options = fonts.concat();
+			this.param_fontEntry.options = fonts.concat();
+			if(this.param_fontEntry.options.indexOf(this.data.fontEntry)) {
+				this.param_fontEntry.options.push(this.data.fontEntry)
+			}
+			if(this.param_fontTitle.options.indexOf(this.data.fontTitle)) {
+				this.param_fontTitle.options.push(this.data.fontTitle)
+			}
+			this.fontsReady = true;
 		});
+		
+		// this.param_fontTitle.value = "Inter";
+		// this.param_fontEntry.value = "Inter";
 		if(this.data.slots.length == 0) {
 			this.data.slots.push(
 				{id:"hypechats",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats")), showAmounts:true},
@@ -226,10 +243,10 @@ export default class OverlayParamsCredits extends Vue {
 				{id:"raids",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids")), showAmounts:true},
 				{id:"follows",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
 				{id:"hypetrains",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains"))},
-				{id:"so_in",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in"))},
+				{id:"so_in",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in")), showAmounts:true},
 				{id:"mods",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("mods"))},
 				{id:"rewards",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("rewards"))},
-				{id:"so_out",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out"))},
+				{id:"so_out",		maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out")), showAmounts:true},
 				{id:"vips",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("vips"))},
 				{id:"subsandgifts",	maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("subsandgifts"))},
 				{id:"bans",			maxEntries:100, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("bans"))},
@@ -238,11 +255,12 @@ export default class OverlayParamsCredits extends Vue {
 		}
 
 		for (let i = 0; i < this.data.slots.length; i++) {
-			this.param_customHTML.push({type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"});
-			this.param_htmlTemplate.push({type:"string", value:"", longText:true, maxLength:1000});
-			this.param_maxItems.push({type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'});
+			const key = this.data.slots[i].id;
+			this.param_customHTML[key] = {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
+			this.param_htmlTemplate[key] = {type:"string", value:"", longText:true, maxLength:1000};
+			this.param_maxItems[key] = {type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
 			if(this.data.slots[i].showAmounts != undefined) {
-				this.param_showAmounts.push({type:"boolean", value:false, labelKey:"overlay.credits.param_showAmounts"});
+				this.param_showAmounts[key] = {type:"boolean", value:false, labelKey:"overlay.credits.param_showAmounts"};
 			}
 		}
 
@@ -251,22 +269,13 @@ export default class OverlayParamsCredits extends Vue {
 			{value:"duration", labelKey:"overlay.credits.param_timing_duration"},
 		]
 
-		this.sortList();
+		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
 
-		watch(()=>this.data, ()=>{
-			this.saveParams();
-		}, {deep:true});
 		if(!json) {
+			//Force first save of the parameters when showing this form
+			//for the first time
 			this.saveParams();
 		}
-	}
-
-	public sortList():void {
-		// this.data.slots.sort((a,b)=> {
-		// 	if(a.enabled && !b.enabled) return -1;
-		// 	if(!a.enabled && b.enabled) return 1;
-		// 	return 0;
-		// })
 	}
 
 	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlot):void {
@@ -295,6 +304,9 @@ export default class OverlayParamsCredits extends Vue {
 	}
 
 	private saveParams():void {
+		this.data.fontTitle = this.data.fontTitle ?? "Inter";
+		this.data.fontEntry = this.data.fontEntry ?? "Inter";
+
 		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
 
 		clearTimeout(this.broadcastDebounce);

@@ -1443,7 +1443,7 @@ export namespace TwitchatDataTypes {
 		bits:{uid:string, login:string, bits:number}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
-		shoutouts:{uid:string, login:string, received:boolean}[];
+		shoutouts:{uid:string, login:string, received:boolean, viewers:number}[];
 		hypeTrains:{level:number, percent:number}[];
 	}
 
@@ -1470,7 +1470,7 @@ export namespace TwitchatDataTypes {
 		enabled:boolean;
 		label:string;
 		maxEntries:number;
-		layout:"col"|"center"|"2cols"|"3cols"|"left"|"right"|"colLeft"|"colRight";
+		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
 		customHTML:boolean;
 		htmlTemplate:string;
 		showAmounts?:boolean;
@@ -1485,6 +1485,8 @@ export namespace TwitchatDataTypes {
 		timing:"speed" | "duration";
 		duration:number;
 		startDelay:number;
+		loop:boolean;
+		showIcons:boolean;
 		speed:number;
 		slots:EndingCreditsSlot[];
 	}

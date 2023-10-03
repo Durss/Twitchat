@@ -16,7 +16,7 @@
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
 			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
 			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>
-			<Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
+			<Button small @click="simulateEvent($event, 'hype_chat')" icon="hypeChat">Hype chat message</Button>
 			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</Button>
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
@@ -148,17 +148,6 @@ export default class DevmodeMenu extends Vue {
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
-				case "hypeChat": {
-					const m = (message as TwitchatDataTypes.MessageChatData);
-					const level = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
-					m.twitch_hypeChat = {
-						level,
-						amount:[1.2,6,12,24,60,120,240,360,480,600][level],
-						currency:Utils.pickRand(["EUR","USD","CHF", "GBP"]),
-						duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][level]
-					};
-					break;
-				}
 				case "clip": {
 					const m = message as TwitchatDataTypes.MessageChatData;
 					let str = "Check out this clip https://www.twitch.tv/twitch/clip/UnusualFriendlyLasagnaOpieOP-ot8P67E0N6trA6hW";
