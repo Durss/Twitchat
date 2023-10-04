@@ -43,6 +43,7 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
+					:disabled="premiumLocked || disabled !== false"
 					@blur="clampValue()"
 					@input="$emit('input')">
 			</div>
@@ -63,6 +64,7 @@
 						:placeholder="placeholder"
 						v-autofocus="autofocusLocal"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
+						:disabled="premiumLocked || disabled !== false"
 						@input="$emit('input')"></textarea>
 					<input ref="input" v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
@@ -73,6 +75,7 @@
 						:type="paramData.type == 'datetime'? 'datetime-local' : paramData.type"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
+						:disabled="premiumLocked || disabled !== false"
 						autocomplete="new-password"
 						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
@@ -90,6 +93,7 @@
 						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocus"
+						:disabled="premiumLocked || disabled !== false"
 						:name="paramData.fieldName"
 						:id="'text'+key"
 						type="color"
@@ -106,6 +110,7 @@
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
 				:secondary="secondary"
 				:premium="premium"
+				:disabled="premiumLocked || disabled !== false"
 				:alert="alert || errorLocal" />
 			</div>
 			
@@ -166,7 +171,8 @@
 					v-model="paramData.value"
 					:name="paramData.fieldName"
 					:id="'browse'+key"
-					:placeholder="placeholder">
+					:placeholder="placeholder"
+					:disabled="premiumLocked || disabled !== false">
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
@@ -208,6 +214,8 @@
 		</transition>
 
 		<div class="card-item alert errorMessage" v-if="(error || paramData.error) && (errorMessage || paramData.errorMessage)">{{ errorMessage.length > 0? errorMessage : paramData.errorMessage }}</div>
+
+		<PremiumLockLayer v-if="premiumLocked" />
 	</div>
 </template>
 
@@ -218,6 +226,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
@@ -228,6 +237,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		Button,
 		Slider,
 		ToggleButton,
+		PremiumLockLayer,
 		PlaceholderSelector,
 	},
 	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
@@ -265,6 +275,9 @@ export default class ParamItem extends Vue {
 	public premium!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public noPremiumLock!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public noBackground!:boolean;
 
 	@Prop({type:Boolean, default: false})
@@ -282,14 +295,15 @@ export default class ParamItem extends Vue {
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
 
-	public get longText():boolean {
-		return this.paramData?.longText === true || this.textValue?.length > 30;
-	}
+	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
+
+	public get premiumLocked():boolean { return this.premium !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
 
 	public get classes():string[] {
 		const res = ["paramitem"];
 		if(this.noBackground === false) {
 			res.push("card-item");
+			if(this.premium !== false) res.push("premium");
 			if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
 			if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
 		}else{
@@ -304,6 +318,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.icon) res.push("hasIcon");
 		if(this.paramData.maxLength) res.push("maxLength");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
+		if(this.premiumLocked) res.push("cantUse");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -460,6 +475,8 @@ export default class ParamItem extends Vue {
 	 * Called when value changes
 	 */
 	public onEdit():void {
+		if(this.premiumLocked) return;
+
 		this.updateSelectedListValue();
 		
 		if(this.isLocalUpdate) return;
@@ -505,6 +522,9 @@ export default class ParamItem extends Vue {
 		})
 	}
 
+	/**
+	 * Create children
+	 */
 	private async buildChildren():Promise<void> {
 		if(this.paramData.value === false){
 			//Collapse children
@@ -924,6 +944,19 @@ export default class ParamItem extends Vue {
 	&.hasIcon {
 		.placeholders {
 			padding-left:1.5em;
+		}
+	}
+
+	&.premium {
+		color: var(--color-text);
+		background-color: var(--color-premium-fadest);
+		&.cantUse {
+			.content {
+				opacity: .5;
+				* {
+					pointer-events: none;
+				}
+			}
 		}
 	}
 }

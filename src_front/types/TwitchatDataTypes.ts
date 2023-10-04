@@ -1445,6 +1445,9 @@ export namespace TwitchatDataTypes {
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
 		shoutouts:{uid:string, login:string, received:boolean, viewers:number}[];
 		hypeTrains:{level:number, percent:number}[];
+		polls:{title:string, votes:number, choices:{title:string, votes:number, win:boolean}[]}[];
+		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
+		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
 	}
 
 	export const EndingCreditsSlotTypes = {
@@ -1453,15 +1456,18 @@ export namespace TwitchatDataTypes {
 		SUBS: "subs",
 		VIPS: "vips",
 		RAIDS: "raids",
+		POLLS: "polls",
 		SO_IN: "so_in",
 		SO_OUT: "so_out",
 		CHEERS: "cheers",
 		FOLLOWS: "follows",
 		REWARDS: "rewards",
+		CHATTERS: "chatters",
 		TIMEOUTS: "timeouts",
 		SUBGIFTS: "subgifts",
 		HYPECHATS: "hypechats",
 		HYPETRAINS: "hypetrains",
+		PREDICTIONS: "predictions",
 		SUBSANDGIFTS: "subsandgifts",
 	} as const;
 	export type EndingCreditsSlotStringTypes = typeof EndingCreditsSlotTypes[keyof typeof EndingCreditsSlotTypes];
@@ -1474,6 +1480,7 @@ export namespace TwitchatDataTypes {
 		customHTML:boolean;
 		htmlTemplate:string;
 		showAmounts?:boolean;
+		premium?:boolean;
 	}
 
 	export interface EndingCreditsParams {

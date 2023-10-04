@@ -87,10 +87,11 @@ export default class ToggleBlock extends Vue {
 	public newflag!:{date:number, id:string};
 
 	public opened = false;
+	public closing = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
-		if(!this.opened)				res.push("closed");
+		if(!this.opened || this.closing)res.push("closed");
 		if(this.error !== false)		res.push("error");
 		if(this.primary !== false)		res.push("primary");
 		if(this.secondary !== false)	res.push("secondary");
@@ -122,13 +123,14 @@ export default class ToggleBlock extends Vue {
 
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
 		let open = !this.opened;
+		this.closing = !open;
 		if(forcedState !== undefined) {
 			open = forcedState;
 			if(open == this.opened) return;//Already in the proper state, ignore
 		}
 		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
 		if(!open) {
-			params.onComplete = ()=>{ this.opened = false; }
+			params.onComplete = ()=>{ this.opened = this.closing = false; };
 			gsap.to(this.$refs.content as HTMLDivElement, params);
 		}else {
 			this.opened = true;

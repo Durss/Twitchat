@@ -1561,12 +1561,16 @@ export default class TriggerActionHandler {
 							let data:TwitchatDataTypes.MusicTrackData|null = null;
 							if(SpotifyHelper.instance.connected) {
 								let track:SearchTrackItem|null = null;
-								if(/open\.spotify\.com\/.*track\/.*/gi.test(m)) {
+								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
 									//Full URL specified, extract the ID from it
 									const chunks = new URL(m).pathname.split(/\//gi);
 									const id = chunks.pop()!;
 									track = await SpotifyHelper.instance.getTrackByID(id);
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Get track by ID success: "+(track != null)+" : TRACK ID "+id});
+								}else if(/spotify\..[a-z]{2,}\/.*/gi.test(m)) {
+									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
+									log.error = true;
+									logStep.error = true;
 								}else{
 									//No URL given, search with API
 									track = await SpotifyHelper.instance.searchTrack(m);

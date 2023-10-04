@@ -4,7 +4,7 @@
 			<div v-if="getEntryCountFor(item) > 0" :class="getCategoryClasses(item)">
 				<h1><Icon :name="getIconFor(item)" />{{ item.label }}</h1>
 				<div class="list">
-					<div v-if="item.id == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().splice(0, item.maxEntries)" class="item hypechat">
+					<div v-if="item.id == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().concat().splice(0, item.maxEntries)" class="item hypechat">
 						<span class="login">{{entry.login}}</span>
 						<div class="amount" v-if="item.showAmounts === true">
 							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
@@ -12,45 +12,61 @@
 						</div>
 					</div>
 					
-					<div v-if="item.id == 'subsandgifts'" v-for="entry in (data.subs || []).concat((data.subgifts || []))" class="item sub">
+					<div v-if="item.id == 'subsandgifts'" v-for="entry in (data.subs || []).concat().concat((data.subgifts || [])).concat().splice(0, item.maxEntries)" class="item sub">
 						<span class="login">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.id == 'subs'" v-for="entry in (data.subs || [])" class="item sub">
+					<div v-if="item.id == 'subs'" v-for="entry in (data.subs || []).concat().splice(0, item.maxEntries)" class="item sub">
 						<span class="login">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.id == 'subgifts'" v-for="entry in (data.subgifts || []).sort((a,b)=>b.total-a.total)" class="item subgift">
+					<div v-if="item.id == 'subgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.maxEntries)" class="item subgift">
 						<span class="login">{{entry.login}}</span>
 						<span class="count" v-if="item.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
 					</div>
 					
-					<div v-if="item.id == 'cheers'" v-for="entry in (data.bits || [])" class="item bits">
+					<div v-if="item.id == 'cheers'" v-for="entry in (data.bits || []).concat().splice(0, item.maxEntries)" class="item bits">
 						<span class="login">{{entry.login}}</span>
 						<span class="count" v-if="item.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
 					
-					<div v-if="item.id == 'raids'" v-for="entry in (data.raids || [])" class="item raids">
+					<div v-if="item.id == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.maxEntries)" class="item raids">
 						<span class="login">{{entry.login}}</span>
 						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
 					
-					<div v-if="item.id == 'follows'" v-for="entry in (data.follows || [])" class="item follows">
+					<div v-if="item.id == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.maxEntries)" class="item follows">
 						<span class="login">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.id == 'so_in'" v-for="entry in (data.shoutouts?.filter(v=>v.received) || [])" class="item so_in">
-						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
-					</div>
-					
-					<div v-if="item.id == 'so_out'" v-for="entry in (data.shoutouts?.filter(v=>!v.received) || [])" class="item so_out">
+					<div v-if="item.id == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).splice(0, item.maxEntries)" class="item so_in">
 						<span class="login">{{entry.login}}</span>
 						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
 					
-					<div v-if="item.id == 'hypetrains'" v-for="entry in data.hypeTrains" class="item trains">
+					<div v-if="item.id == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).splice(0, item.maxEntries)" class="item so_out">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
+					</div>
+					
+					<div v-if="item.id == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.maxEntries)" class="item trains">
 						<span class="login">{{ $t('train.ending_credits', {LEVEL:entry.level, PERCENT:entry.percent})}}</span>
+					</div>
+					
+					<div v-if="item.id == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.maxEntries)" class="item bans">
+						<span class="login">{{ entry.login }}</span>
+						<span class="count" v-if="item.showAmounts === true">{{ entry.bans }}</span>
+					</div>
+					
+					<div v-if="item.id == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.maxEntries)" class="item tos">
+						<span class="login">{{ entry.login }}</span>
+						<span class="count" v-if="item.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
+					</div>
+					
+					<div v-if="item.id == 'rewards'" v-for="entry in rewards.concat().splice(0, item.maxEntries).sort((a,b)=>b.total-a.total)" class="item rewards">
+						<img :src="entry.reward.icon" alt="reward redeem icon" class="rewardIcon">
+						<span class="login">{{ entry.reward.name }}</span>
+						<span class="count" v-if="item.showAmounts === true">x{{ entry.total }}</span>
 					</div>
 				</div>
 			</div>
@@ -67,6 +83,7 @@ import AbstractOverlay from './AbstractOverlay.vue';
 import gsap from 'gsap/all';
 import { Linear } from 'gsap';
 import type { StyleValue } from 'vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{},
@@ -85,6 +102,37 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 	private summaryDataHandler!:(e:TwitchatEvent) => void;
 	private paramsDataHandler!:(e:TwitchatEvent) => void;
+
+	public get rewards() {
+		const res:{total:number, users:{login:string, uid:string, total:number}[], reward:(TwitchatDataTypes.StreamSummaryData["rewards"][0]["reward"])}[] = [];
+		let done:{[key:string]:number} = {};
+		(this.data?.rewards || []).forEach(v=> {
+			if(done[v.reward.id] === undefined) {
+				let entry:typeof res[0] = {
+					 reward:v.reward,
+					 total:0,
+					 users:[]
+				}
+				done[v.reward.id] = res.push(entry) -1 ;
+			}
+			let index = done[v.reward.id];
+			const entry = res[index];
+			entry.total ++;
+			let user = entry.users.find(w=>v.uid == w.uid);
+			if(!user) {
+				user = {
+					uid:v.uid,
+					login:v.login,
+					total:0,
+				};
+				entry.users.push(user)
+			}
+
+			user.total ++;
+		});
+		console.log(res);
+		return res;
+	}
 
 	public get styles():StyleValue {
 		const res:StyleValue = {
@@ -142,10 +190,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			case "so_in": return "shoutout";
 			case "so_out": return "shoutout";
 			case "rewards": return "channelPoints";
-			// case "bans": return "ban";
-			// case "timeouts": return "timeout";
-			// case "vips": return "vip";
-			// case "mods": return "mod";
+			case "bans": return "ban";
+			case "timeouts": return "timeout";
+			case "vips": return "vip";
+			case "mods": return "mod";
 		}
 		return "";
 	}
@@ -165,14 +213,22 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			case "so_in": count = (this.data?.shoutouts || []).filter(v=>v.received === true).length; break;
 			case "so_out": count = (this.data?.shoutouts || []).filter(v=>v.received === false).length; break;
 			case "rewards": count = (this.data?.rewards || []).length; break;
-			// case "bans": count = (this.data?.bans || []).length; break;
-			// case "timeouts": count = (this.data?.timeouts || []).length; break;
-			// case "vips": count = (this.data?.vips || []).length; break;
-			// case "mods": count = (this.data?.mods || []).length; break;
+			case "bans": count = (this.data?.chatters || []).filter(v=>v.bans > 0).length; break;
+			case "timeouts": count = (this.data?.chatters || []).filter(v=>v.tosDuration > 0).length; break;
+			case "vips": count = (this.data?.chatters || []).filter(v=>v.vip).length; break;
+			case "mods": count = (this.data?.chatters || []).filter(v=>v.mod).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
 		return count;
+	}
+
+	/**
+	 * Converts milliseconds to duration
+	 * @param seconds 
+	 */
+	public formatDuration(seconds:number):string {
+		return Utils.formatDuration(seconds * 1000);
 	}
 
 	/**
@@ -328,14 +384,17 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 						font-weight: bold;
 					}
 				}
-				&.sub, &.subgift, &.bits, &.so_out, &.so_in, &.raids {
-					.count {
-						margin-left: .5em;
-						font-weight: bold;
-						.icon {
-							margin-right: .25em;
-						}
+				.count {
+					margin-left: .5em;
+					font-weight: bold;
+					.icon {
+						margin-right: .25em;
 					}
+				}
+
+				.rewardIcon {
+					margin-right: .5em;
+					height: 1em;
 				}
 			}
 		}

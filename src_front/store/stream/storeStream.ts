@@ -296,7 +296,8 @@ export const storeStream = defineStore('stream', {
 		},
 
 		async getSummary(offset:number = 0, includeParams:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
-			const res = await TwitchUtils.loadCurrentStreamInfo([StoreProxy.auth.twitch.user.id]);
+			const channelId = StoreProxy.auth.twitch.user.id;
+			const res = await TwitchUtils.loadCurrentStreamInfo([channelId]);
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
@@ -310,6 +311,9 @@ export const storeStream = defineStore('stream', {
 				rewards:[],
 				shoutouts:[],
 				hypeTrains:[],
+				chatters:[],
+				polls:[],
+				predictions:[],
 			};
 			if(includeParams) {
 				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
@@ -325,6 +329,7 @@ export const storeStream = defineStore('stream', {
 			}
 
 			const messages = StoreProxy.chat.messages;
+			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
 			for (let i = messages.length-1; i >= 0; i--) {
 				const m = messages[i];
 				if(dateOffset && m.date < dateOffset) break;
@@ -345,44 +350,97 @@ export const storeStream = defineStore('stream', {
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-						const cheer = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits};
+						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits};
 						result.bits.push(cheer);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
-						const hypeChat = {uid:m.message.user.id, login:m.message.user.displayNameOriginal, amount:m.message.twitch_hypeChat!.amount, currency:m.message.twitch_hypeChat!.currency};
+						const hypeChat:TwitchatDataTypes.StreamSummaryData['hypeChats'][0] = {uid:m.message.user.id, login:m.message.user.displayNameOriginal, amount:m.message.twitch_hypeChat!.amount, currency:m.message.twitch_hypeChat!.currency};
 						result.hypeChats.push(hypeChat);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-						const follow = {uid:m.user.id, login:m.user.displayNameOriginal};
+						const follow:TwitchatDataTypes.StreamSummaryData['follows'][0] = {uid:m.user.id, login:m.user.displayNameOriginal};
 						result.follows.push(follow);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
-						const raid = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
+						const raid:TwitchatDataTypes.StreamSummaryData['raids'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
 						result.raids.push(raid);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-						const reward = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
+						const reward:TwitchatDataTypes.StreamSummaryData['rewards'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
 						result.rewards.push(reward);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-						const shoutout = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received, viewers:m.viewerCount};
+						const shoutout:TwitchatDataTypes.StreamSummaryData['shoutouts'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received, viewers:m.viewerCount};
 						result.shoutouts.push(shoutout);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
-						const train = {level:m.train.level, percent:m.train.currentValue};
+						const train:TwitchatDataTypes.StreamSummaryData['hypeTrains'][0] = {level:m.train.level, percent:m.train.currentValue};
 						result.hypeTrains.push(train);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.POLL: {
+						let totalVotes = 0;
+						m.choices.forEach(v => totalVotes += v.votes);
+						const poll:TwitchatDataTypes.StreamSummaryData['polls'][0] = {title:m.title, votes:totalVotes, choices:m.choices.map(v=> {
+							return {title:v.label, votes:v.votes, win:m.winner?.id === v.id};
+						})};
+						result.polls.push(poll);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
+						let totalVotes = 0;
+						m.outcomes.forEach(v => totalVotes += v.votes);
+						const pred:TwitchatDataTypes.StreamSummaryData['predictions'][0] = {title:m.title, points:totalVotes, outcomes:m.outcomes.map(v=> {
+							return {title:v.label, points:v.votes, voters:v.voters, win:m.winner?.id === v.id};
+						})};
+						result.predictions.push(pred);
+						break;
+					}
+					
+					case TwitchatDataTypes.TwitchatMessageType.BAN:
+					case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+						const chanInfo = m.user.channelInfo[channelId]
+						if(!chanInfo) continue;
+						if(!chatters[m.user.id]) {
+							chatters[m.user.id] = {
+								uid: m.user.id,
+								login: m.user.displayNameOriginal,
+								count: 0,
+								vip: chanInfo.is_vip,
+								mod: chanInfo.is_moderator,
+								sub: chanInfo.is_subscriber,
+								bans: 0,
+								tos: 0,
+								tosDuration: 0,
+							};
+							result.chatters.push(chatters[m.user.id]);
+						}
+						
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							chatters[m.user.id].count ++;
+						}else
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.BAN) {
+							if(m.duration_s !!= undefined) {
+								chatters[m.user.id].tos ++;
+								chatters[m.user.id].tosDuration += m.duration_s;
+							}else{
+								chatters[m.user.id].bans ++;
+							}
+						}
 						break;
 					}
 				}

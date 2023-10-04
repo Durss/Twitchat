@@ -1,0 +1,68 @@
+<template>
+	<div class="premiumlocklayer" v-if="!$store('auth').isPremium">
+		<Icon name="premium" class="icon" />
+		<Button icon="premium" @click="openPremium()" premium>{{$t('premium.become_premiumBt')}}</Button>
+	</div>
+</template>
+
+<script lang="ts">
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { Component, Vue } from 'vue-facing-decorator';
+import Button from './Button.vue';
+import Icon from './Icon.vue';
+
+@Component({
+	components:{
+		Icon,
+		Button,
+	},
+	emits:[],
+})
+export default class PremiumLockLayer extends Vue {
+
+	/**
+	 * Open premium section
+	 */
+	 public openPremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
+}
+</script>
+
+<style scoped lang="less">
+.premiumlocklayer{
+	// outline: 1px solid red;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	z-index: 1;
+	// background-color: var(--color-premium-fadest);
+	cursor: not-allowed;
+	& > * {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+	.button {
+		opacity: 0;
+		transition: opacity .25s;
+	}
+	&>.icon {
+		height: 2em !important;
+		width: 2em;
+		transition: opacity .25s;
+	}
+	&:hover {
+		.button {
+			opacity: 1;
+		}
+		&>.icon {
+			opacity: 0;
+		}
+	}
+}
+</style>

@@ -116,7 +116,10 @@
 				"subsandgifts":"SUBS ET SUBGIFTS",
 				"vips":"VIPS",
 				"bans":"BANS EFFECTUÉS",
-				"timeouts":"BANS TEMPORAIRES"
+				"chatters":"CHATTERS",
+				"timeouts":"BANS TEMPORAIRES",
+				"polls":"SONDAGES",
+				"predictions":"PRÉDICTIONS"
 			},
 			"param_layout":"Disposition des entrées",
 			"param_maxItems":"Maximum d'entrées à afficher",

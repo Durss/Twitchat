@@ -112,10 +112,6 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	.block {
 		width: 100%;
 		flex-grow: 1;
-		:deep(.icon) {
-			width: 1.5em;
-			height: 1.5em;
-		}
 
 		&.selected {
 			border: 5px solid transparent;

@@ -23,6 +23,9 @@ export default class Slider extends Vue {
 	public alert!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
 
 	@Prop({type:Number, default: 0})
@@ -46,8 +49,9 @@ export default class Slider extends Vue {
 
 	public get classes():string[] {
 		let res:string[] = ["slider"];
-		if(this.secondary) res.push("secondary");
-		if(this.alert) res.push("alert");
+		if(this.secondary !== false) res.push("secondary");
+		if(this.alert !== false) res.push("alert");
+		if(this.premium !== false) res.push("premium");
 		if(this.disabled) res.push("disabled");
 		return res;
 	}
@@ -188,9 +192,9 @@ export default class Slider extends Vue {
 		border-radius: 1em;
 		height: calc(100% - 2px);
 		background-color: var(--color-primary);
-		// transition: width .2s;
 		min-width: 1px;
 		z-index: 1;
+		transition: width .1s;
 	}
 
 	input {
@@ -229,6 +233,17 @@ export default class Slider extends Vue {
 		}
 		.gratuations {
 			@c2: var(--color-alert-light);
+			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+		}
+	}
+	
+	&.premium {
+		background-color: var(--color-premium-fadest);
+		.fill {
+			background-color: var(--color-premium);
+		}
+		.gratuations {
+			@c2: var(--color-premium-light);
 			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
 		}
 	}

@@ -186,6 +186,7 @@
 			<Slider />
 			<Slider secondary />
 			<Slider alert />
+			<Slider premium />
 			<Slider disabled />
 		</div>
 
