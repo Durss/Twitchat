@@ -3,6 +3,7 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
+import DataStore from "@/store/DataStore";
 
 /**
  * Util to strongly type string object paths.
@@ -684,6 +685,7 @@ export const TriggerTypes = {
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
 	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
 	TWITCHAT_MESSAGE:"twitchat_message",
+	GLOBAL_PLACHOLDERS:"global_placholders",
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
@@ -1075,6 +1077,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	
 	//Add global placeholders where missing
 	let k!:TriggerTypesValue;
+	const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
 	for (k in map) {
 		let entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
@@ -1088,16 +1091,24 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
 			entry.push({category:"stream", tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
 		}
+		
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION") == -1) {
+			entry.push({tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION_MS") == -1) {
+			entry.push({tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
+		}
 
-		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1) {
+		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {
 			entry.push({tag:"ULULE_CAMPAIGN_NAME", descKey:'triggers.placeholders.ulule_campaign_name', pointer:"__ulule__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My ulule campaign"});
 		}
 
-		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_URL") == -1) {
+		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_URL") == -1 && hasUlule) {
 			entry.push({tag:"ULULE_CAMPAIGN_URL", descKey:'triggers.placeholders.ulule_campaign_url', pointer:"__ulule__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://ulule.com"});
 		}
 
-		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1) {
+		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1 && key != TriggerTypes.GLOBAL_PLACHOLDERS) {
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My trigger"});
 		}
 		

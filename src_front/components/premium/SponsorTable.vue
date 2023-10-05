@@ -17,6 +17,7 @@
 					<template v-if="index==0">• </template>
 					<Icon name="checkmark" v-if="item === 1" />
 					<Icon name="cross" v-else-if="item === 0" />
+					<span class="tild" v-else-if="($config.getParamByKey(item as string) || item) === '~'">~</span>
 					<template v-else>{{ $config.getParamByKey(item as string) || item }}</template>
 				</td>
 			</tr>
@@ -157,6 +158,10 @@ export default class SponsorTable extends Vue {
 				}
 				.icon {
 					height: 1em;
+				}
+				.tild {
+					font-size: 2em;
+					line-height: .5em;
 				}
 			}
 			&:not(:first-child):hover {

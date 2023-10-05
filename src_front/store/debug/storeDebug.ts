@@ -957,6 +957,7 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
+							streamStartedAt_ms:0,
 						}
 					};
 					data = m;
@@ -978,6 +979,7 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
+							streamStartedAt_ms:0,
 						}
 					};
 					data = m;

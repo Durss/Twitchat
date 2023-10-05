@@ -1778,6 +1778,7 @@ export default class TriggerActionHandler {
 			if(placeholders.length == 0) return res;
 
 			const srcU = src.toUpperCase();
+			const streamInfos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
 			for (const placeholder of placeholders) {
 				let value:string = "";
 				let cleanSubevent = true;
@@ -1791,9 +1792,15 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
-					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
-						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
-						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
+					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
+						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys | "duration" | "duration_ms";
+						if(pointerLocal == "duration") {
+							value = Utils.formatDuration(Date.now() - (streamInfos.streamStartedAt_ms || Date.now()));
+						}else if(pointerLocal == "duration_ms") {
+							value = (Date.now() - (streamInfos.streamStartedAt_ms || Date.now())).toString();
+						}else{
+							value = streamInfos[pointerLocal]?.toString() || "";
+						}
 						if(!value) value = (pointerLocal == "viewers")? "0" : "-none-";
 
 					/**
@@ -2139,6 +2146,7 @@ export default class TriggerActionHandler {
 				viewers:c.viewer_count,
 				started_at:new Date(c.started_at).getTime(),
 				lastSoDoneDate:0,
+				streamStartedAt_ms:0,
 			}
 		}
 

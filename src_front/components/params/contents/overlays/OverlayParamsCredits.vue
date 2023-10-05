@@ -12,38 +12,38 @@
 				</ToggleBlock>
 			</div>
 
-			<Splitter>{{ $t("overlay.credits.parameters") }}</Splitter>
+			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium primary :open="false">
+				<div class="globalParams">
+					<ParamItem :paramData="param_scale" v-model="data.scale" />
+					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
+					<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
+					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
+					<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
+					<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
+					<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
+					<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
+					<ParamItem :paramData="param_loop" v-model="data.loop" premium />
+					<ParamItem :paramData="param_timing" v-model="data.timing" premium>
+						<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
+						<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
+					</ParamItem>
+				</div>
+			</ToggleBlock>
 
-			<div class="item globalParams">
-				<ParamItem :paramData="param_textColor" v-model="data.textColor" />
-				<ParamItem :paramData="param_scale" v-model="data.scale" />
-				<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
-				<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
-				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
-				<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
-				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
-				<ParamItem :paramData="param_loop" v-model="data.loop" premium />
-				<ParamItem :paramData="param_timing" v-model="data.timing" premium>
-					<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
-					<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
-				</ParamItem>
-			</div>
-
-			<Splitter>{{ $t("overlay.credits.customize_content") }}</Splitter>
-
-			<div class="item">
+			<div class="item slots">
 				<draggable
 				:animation="250"
 				group="description"
 				ghostClass="ghost"
 				item-key="id"
+        		handle=".slotHolder>.header"
 				v-model="data.slots">
-					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlot, index:number}">
+					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
 						<ToggleBlock :class="getItemClasses(element)" :key="'item_'+element.id" :open="false">
 							<template #left_actions>
 								<div class="icons">
 									<Icon name="dragZone" />
-									<Icon :name="getIconFromType(element.id as TwitchatDataTypes.EndingCreditsSlotStringTypes)" />
+									<Icon :name="getDefinitionFromSlot(element.slotType).icon" />
 								</div>
 							</template>
 							
@@ -61,36 +61,40 @@
 
 							<template #right_actions>
 								<div class="rightActions">
-									<Button v-if="element.premium === true && !isPremium"
+									<Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
 									premium
 									icon="premium"
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" />
-									<ToggleButton v-else v-model="element.enabled" :premium="element.premium" />
+									<button class="deleteBt" transparent @click.stop="deleteSlot(element)"><Icon name="cross" /></button>
 									<button class="arrowBt"><Icon name="arrowRight" /></button>
 								</div>
 							</template>
 
 							<div class="content">
+								<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium">
+									<Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}
+								</div>
 								<div class="card-item layout">
-									<!-- <PremiumLockLayer /> -->
+									<!-- <PremiumLockLayer v-if="slotTypes.find(v => v.id == element.slotType)?.premium" /> -->
 									<div class="form">
 										<label>{{ $t("overlay.credits.param_layout") }}</label>
 										<div class="layoutBtns">
-											<Button icon="layout_left" 		 :premium="element.premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" />
-											<Button icon="layout_center" 	 :premium="element.premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" />
-											<Button icon="layout_right" 	 :premium="element.premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" />
-											<Button icon="layout_colLeft" 	 :premium="element.premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
-											<Button icon="layout_col" 		 :premium="element.premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
-											<Button icon="layout_colRight" 	 :premium="element.premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-											<Button icon="layout_2cols" 	 :premium="element.premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" />
-											<Button icon="layout_3cols" 	 :premium="element.premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" />
+											<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
+											<Button icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
+											<Button icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
+											<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="element.slotType != 'text'" />
 										</div>
 									</div>
 								</div>
 
-								<ParamItem v-if="element.showAmounts != undefined" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium noPremiumLock />
-								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" premium noPremiumLock />
+								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								
 								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
 									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
@@ -99,6 +103,18 @@
 						</ToggleBlock>
 					</template>
 				</draggable>
+
+				<Button class="addBt" transparent icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+				
+				<div class="slotSelector" v-else>
+					<CloseButton @click="showSlotOptions = false" />
+					<!-- <Button icon="cross" @click="showSlotOptions = false" alert :aria-label="$t('global.cancel')" /> -->
+					<Button class="slotBt"
+					v-for="slot in slotTypes"
+					:icon="slot.icon"
+					:premium="slot.premium"
+					@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
+				</div>
 			</div>
 		</div>
 	</ToggleBlock>
@@ -106,6 +122,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
+import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -121,7 +138,9 @@ import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
-import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
+import Config from '@/utils/Config';
+import CloseButton from '@/components/CloseButton.vue';
+import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -130,6 +149,7 @@ import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 		Splitter,
 		draggable,
 		ParamItem,
+		CloseButton,
 		ToggleBlock,
 		ToggleButton,
 		contenteditable,
@@ -143,7 +163,8 @@ export default class OverlayParamsCredits extends Vue {
 	
 	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
 	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
-	public param_textColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_textColor", icon:"color"};
+	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
+	public param_entryColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorEntry", icon:"color"};
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
@@ -156,13 +177,17 @@ export default class OverlayParamsCredits extends Vue {
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public fontsReady:boolean = false;
+	public showSlotOptions:boolean = false;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
 		fontTitle:"Inter",
 		fontEntry:"Inter",
+		colorTitle:"#ffffff",
+		colorEntry:"#ffffff",
 		textShadow:100,
-		textColor:"#ffffff",
 		timing:"speed",
 		startDelay:0,
 		duration:200,
@@ -183,59 +208,14 @@ export default class OverlayParamsCredits extends Vue {
 		return res;
 	}
 
-	public getItemClasses(item:TwitchatDataTypes.EndingCreditsSlot):string[] {
+	public getItemClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
 		const res:string[] = ["slotHolder"];
-		if(item.premium) res.push("premium");
-		if(!item.enabled) res.push("disabled");
+		if(this.getDefinitionFromSlot(item.slotType).premium) res.push("premium");
 		return res;
 	}
 
-	public getIconFromType(type:TwitchatDataTypes.EndingCreditsSlotStringTypes):string {
-		const hashmap:{[key in TwitchatDataTypes.EndingCreditsSlotStringTypes]:string} = {
-			cheers:"bits",
-			follows:"follow",
-			hypechats:"hypeChat",
-			hypetrains:"train",
-			mods:"mod",
-			raids:"raid",
-			rewards:"channelPoints",
-			so_in:"shoutout",
-			so_out:"shoutout",
-			subgifts:"gift",
-			subs:"sub",
-			subsandgifts:"sub",
-			vips:"vip",
-			bans:"ban",
-			timeouts:"timeout",
-			chatters:"user",
-			polls:"poll",
-			predictions:"prediction"
-		}
-		return hashmap[type];
-	}
-
-	public getLabelFromType(type:TwitchatDataTypes.EndingCreditsSlotStringTypes):string {
-		const hashmap:{[key in TwitchatDataTypes.EndingCreditsSlotStringTypes]:string} = {
-			cheers:"overlay.credits.items.cheers",
-			follows:"overlay.credits.items.follows",
-			hypechats:"overlay.credits.items.hypechats",
-			hypetrains:"overlay.credits.items.hypetrains",
-			mods:"overlay.credits.items.mods",
-			raids:"overlay.credits.items.raids",
-			rewards:"overlay.credits.items.rewards",
-			so_in:"overlay.credits.items.so_in",
-			so_out:"overlay.credits.items.so_out",
-			subgifts:"overlay.credits.items.subgifts",
-			subs:"overlay.credits.items.subs",
-			subsandgifts:"overlay.credits.items.subsandgifts",
-			vips:"overlay.credits.items.vips",
-			bans:"overlay.credits.items.bans",
-			timeouts:"overlay.credits.items.timeouts",
-			chatters:"overlay.credits.items.chatters",
-			polls:"overlay.credits.items.polls",
-			predictions:"overlay.credits.items.predictions",
-		}
-		return hashmap[type];
+	public getDefinitionFromSlot(id:TwitchatDataTypes.EndingCreditsSlotStringTypes):TwitchatDataTypes.EndingCreditsSlotDefinition {
+		return TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == id)!;
 	}
 
 	public beforeMount():void {
@@ -256,72 +236,38 @@ export default class OverlayParamsCredits extends Vue {
 			this.fontsReady = true;
 		});
 		
-		const defaultSlots:TwitchatDataTypes.EndingCreditsSlot[] = [
-			{id:"hypechats",	maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypechats")), showAmounts:true},
-			{id:"subs",			maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subs"))},
-			{id:"subgifts",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("subgifts")), showAmounts:true},
-			{id:"cheers",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("cheers")), showAmounts:true},
-			{id:"follows",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("follows"))},
-			{id:"mods",			maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("mods"))},
-			{id:"so_out",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("so_out")), showAmounts:true},
-			{id:"bans",			maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("bans")), showAmounts:true},
-			{id:"timeouts",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("timeouts")), showAmounts:true},
-			{id:"raids",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("raids")), showAmounts:true, premium:true},
-			{id:"hypetrains",	maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("hypetrains")), premium:true},
-			{id:"so_in",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:true, label:this.$t(this.getLabelFromType("so_in")), showAmounts:true, premium:true},
-			{id:"chatters",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("chatters")), showAmounts:true, premium:true},
-			{id:"rewards",		maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("rewards")), showAmounts:true, premium:true},
-			{id:"vips",			maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("vips")), premium:true},
-			{id:"subsandgifts",	maxEntries:50, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("subsandgifts")), premium:true},
-			{id:"polls",		maxEntries:10, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("polls")), premium:true},
-			{id:"predictions",	maxEntries:10, layout:"col", customHTML:false, htmlTemplate:"", enabled:false, label:this.$t(this.getLabelFromType("predictions")), premium:true},
-		];
 		if(this.data.slots.length == 0) {
-			this.data.slots = defaultSlots;
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subgifts")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "raids")!);
 		}else{
-			//Add new slots missing from the user's list
-			for (let i = 0; i < defaultSlots.length; i++) {
-				const slot = defaultSlots[i];
-				if(this.data.slots.findIndex(v=>v.id === slot.id) == -1) {
-					this.data.slots.push(defaultSlots[i]);
-				}
-			}
 
-			//Remove deleted slots and force premium stuff
 			for (let i = 0; i < this.data.slots.length; i++) {
 				const slot = this.data.slots[i];
-				const defaultSlot = defaultSlots.find(v=>v.id === slot.id);
+				const defaultSlot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType);
 				if(!defaultSlot) {
+					console.log("remove it ", slot.slotType);
 					//Remove deleted slot
 					this.data.slots.splice(i, 1);
 					i--;
 				}else{
-					//Force proper premium states
-					slot.premium = defaultSlot.premium;
-					//Disable premium slots if not user isn't premium
-					if(slot.premium && !this.isPremium) {
-						slot.enabled = false;
-						if(slot.showAmounts !=undefined) slot.showAmounts = false;
+					if(this.getDefinitionFromSlot(slot.slotType).premium) {
+						//Disable showAmount props if user isn't premium
+						if(slot.showAmounts != undefined) slot.showAmounts = false;
 					}else{
-						if(slot.showAmounts == undefined && defaultSlot.showAmounts) {
-							slot.showAmounts = defaultSlot.showAmounts;
-						}
+						//Force amount value if missing
+						if(slot.showAmounts == undefined && defaultSlot.hasAmount) slot.showAmounts = true;
 					}
 					//Max entries field is premium only, if not premium force it to 10
-					if(!this.isPremium) {
-						slot.maxEntries = 10;
-					}
+					if(!this.isPremium) slot.maxEntries = Config.instance.MAX_ENDING_CREDIT_ENTRIES;
 				}
 			}
-		}
-
-		for (let i = 0; i < this.data.slots.length; i++) {
-			const key = this.data.slots[i].id;
-			this.param_customHTML[key] = {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
-			this.param_htmlTemplate[key] = {type:"string", value:"", longText:true, maxLength:1000};
-			this.param_maxItems[key] = {type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
-			if(this.data.slots[i].showAmounts != undefined) {
-				this.param_showAmounts[key] = {type:"boolean", value:false, labelKey:"overlay.credits.param_showAmounts"};
+		
+			for (let i = 0; i < this.data.slots.length; i++) {
+				const slot = this.data.slots[i];
+				this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType)!, slot);
 			}
 		}
 
@@ -335,17 +281,35 @@ export default class OverlayParamsCredits extends Vue {
 		this.saveParams();
 	}
 
+	/**
+	 * Opens the premium section
+	 */
 	public openPremium():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
+	/**
+	 * Deletes a slot
+	 */
+	public deleteSlot(slot:TwitchatDataTypes.EndingCreditsSlotParams):void {
+		this.$confirm( this.$t("overlay.credits.delete_confirm_title") ).then(()=> {
+			const index = this.data.slots.findIndex(v=>v.id == slot.id);
+			this.data.slots.splice(index, 1);
+			delete this.param_customHTML[slot.id];
+			delete this.param_htmlTemplate[slot.id];
+			delete this.param_maxItems[slot.id];
+			delete this.param_showAmounts[slot.id];
+			delete this.param_text[slot.id];
+		}).catch(()=>{})
 	}
 
 	/**
 	 * Reset to default label if label is empty
 	 * @param item 
 	 */
-	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlot):void {
+	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlotParams):void {
 		if(!item.label) {
-			item.label = this.$t(this.getLabelFromType(item.id));
+			item.label = this.$t(this.getDefinitionFromSlot(item.slotType).defaultLabel);
 		}else{
 			this.limitLabelSize(item);
 		}
@@ -356,7 +320,7 @@ export default class OverlayParamsCredits extends Vue {
 	 * Can't use maxLength because it's a content-editable tag.
 	 * @param item 
 	 */
-	public async limitLabelSize(item:TwitchatDataTypes.EndingCreditsSlot):Promise<void> {
+	public async limitLabelSize(item:TwitchatDataTypes.EndingCreditsSlotParams):Promise<void> {
 		const sel = window.getSelection();
 		if(sel && sel.rangeCount > 0) {
 			//Save caret index
@@ -371,6 +335,36 @@ export default class OverlayParamsCredits extends Vue {
 		}else{
 			item.label = item.label.substring(0, 100);
 		}
+	}
+
+	/**
+	 * Adds a new category to the list
+	 */
+	public addSlot(slotDef:TwitchatDataTypes.EndingCreditsSlotDefinition, data?:TwitchatDataTypes.EndingCreditsSlotParams):void {
+		let id = data?.id || Utils.getUUID();
+		let slotType = slotDef.id;
+		const entry:TwitchatDataTypes.EndingCreditsSlotParams = data || {
+			id,
+			slotType,
+			label:this.$t(slotDef.defaultLabel),
+			layout:"col",
+			maxEntries:this.isPremium? 100 : Config.instance.MAX_ENDING_CREDIT_ENTRIES,
+		};
+		
+		//Create parameters
+		this.param_customHTML[id] = {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
+		this.param_htmlTemplate[id] = {type:"string", value:"", longText:true, maxLength:1000};
+		this.param_maxItems[id] = {type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
+		if(slotDef.hasAmount) {
+			entry.showAmounts = this.isPremium;
+			this.param_showAmounts[id] = {type:"boolean", value:false, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
+		}
+		if(slotDef.id == "text") {
+			const placeholderList = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+			this.param_text[id] = {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+		}
+		if(!data) this.data.slots.push(entry);
+		this.saveParams();
 	}
 
 	/**
@@ -413,8 +407,8 @@ export default class OverlayParamsCredits extends Vue {
 				margin-bottom: .5em;
 			}
 
-			&.globalParams {
-				gap: .5em;
+			.globalParams {
+				gap: .25em;
 				display: flex;
 				flex-direction: column;
 				:deep(.icon) {
@@ -431,7 +425,7 @@ export default class OverlayParamsCredits extends Vue {
 				margin: .25em 0;
 				border: 1px solid var(--color-text);
 				border-radius: var(--border-radius);
-				:deep(.header) {
+				&>:deep(.header) {
 					cursor: move;
 					justify-content: space-between;
 					background-color: var(--color-text-fadest);
@@ -442,9 +436,9 @@ export default class OverlayParamsCredits extends Vue {
 					}
 				}
 				.icons {
+					gap: .5em;
 					display: flex;
 					flex-direction: row;
-
 					.icon {
 						height: 1em;
 						min-width: 1em;
@@ -478,16 +472,25 @@ export default class OverlayParamsCredits extends Vue {
 					.arrowBt {
 						color: var(--color-text);
 						transition: transform .25s;
-						.icon {
-							// padding: .2em;
-						}
+					}
+					.deleteBt {
+						// color: red;
+						margin-right: .5em;
+						color: var(--color-text);
 					}
 				}
 				.content {
 					gap: .25em;
 					display: flex;
 					flex-direction: column;
+					position: relative;
 
+					.limitations{
+						text-align: center;
+						.icon {
+							height: 1em;
+						}
+					}
 					.layout {
 						width: 100%;
 						position: relative;
@@ -535,11 +538,6 @@ export default class OverlayParamsCredits extends Vue {
 						}
 					}
 				}
-				&.disabled {
-					border-style: dashed;
-					opacity: .75;
-					background-color: transparent;
-				}
 
 				&:not(.closed) {
 					.arrowBt {
@@ -554,11 +552,33 @@ export default class OverlayParamsCredits extends Vue {
 					.paramitem {
 						background-color: var(--color-light-fadest);
 					}
-					&.disabled {
-						.paramitem, .layout {
-							background-color: var(--color-premium-fadest);
-						}
-					}
+				}
+			}
+
+			&.slots {
+				.addBt {
+					box-shadow: none;
+					border: 1px solid var(--color-text);
+					display: flex;
+					margin: auto;
+					margin-top: .5em;
+					color: var(--color-text);
+					background-color: var(--color-light-fader);
+				}
+
+				.slotSelector {
+					color: var(--color-text);
+					border: 1px solid var(--color-text);
+					background-color: var(--color-light-fader);
+					margin-top: .5em;
+					padding: .5em 2.5em;
+					border-radius: var(--border-radius);
+					gap: .5em;
+					display: flex;
+					justify-content: center;
+					flex-direction: row;
+					flex-wrap: wrap;
+					position: relative;
 				}
 			}
 		}
@@ -567,10 +587,10 @@ export default class OverlayParamsCredits extends Vue {
 	// &.notPremium {
 	// 	.holder {
 	// 		.item {
-	// 			.slotHolder {
+	// 			.slotHolder.premium {
 	// 				.content {
 	// 					.layout {
-	// 						background-color: var(--color-premium-fadest);
+	// 						// background-color: var(--color-premium-fadest);
 	// 						.form {
 	// 							opacity: .5;
 	// 							* {

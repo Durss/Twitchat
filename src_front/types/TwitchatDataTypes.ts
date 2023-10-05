@@ -753,6 +753,7 @@ export namespace TwitchatDataTypes {
 		live:boolean;
 		viewers:number;
 		lastSoDoneDate:number;
+		streamStartedAt_ms:number;
 	}
 	export type StreamInfoKeys = keyof StreamInfo;
 
@@ -1434,7 +1435,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface StreamSummaryData {
 		streamDuration:number;
-		params?:TwitchatDataTypes.EndingCreditsParams;
+		params?:EndingCreditsParams;
 		follows:{uid:string, login:string}[];
 		raids:{uid:string, login:string, raiders:number}[];
 		subs:{uid:string, login:string, tier:1|2|3|"prime"}[];
@@ -1449,43 +1450,64 @@ export namespace TwitchatDataTypes {
 		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
 		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
 	}
+	  
+	
+	/**
+	 * Contains only the Array props from the StreamSummaryData
+	 */
+	type ExtractArrayProps<T> = {[K in keyof T]: T[K] extends any[] ? ExcludeUndefined<T[K][number]> : never;}
+	type UnionFromArrayProps<T> = ExcludeUndefined<ExtractArrayProps<T>[keyof ExtractArrayProps<T>]>;
+	type ExcludeUndefined<T> = T extends undefined ? never : T;
+	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export const EndingCreditsSlotTypes = {
-		BANS: "bans",
-		MODS: "mods",
-		SUBS: "subs",
-		VIPS: "vips",
-		RAIDS: "raids",
-		POLLS: "polls",
-		SO_IN: "so_in",
-		SO_OUT: "so_out",
-		CHEERS: "cheers",
-		FOLLOWS: "follows",
-		REWARDS: "rewards",
-		CHATTERS: "chatters",
-		TIMEOUTS: "timeouts",
-		SUBGIFTS: "subgifts",
-		HYPECHATS: "hypechats",
-		HYPETRAINS: "hypetrains",
-		PREDICTIONS: "predictions",
-		SUBSANDGIFTS: "subsandgifts",
-	} as const;
-	export type EndingCreditsSlotStringTypes = typeof EndingCreditsSlotTypes[keyof typeof EndingCreditsSlotTypes];
-	export interface EndingCreditsSlot {
-		id:EndingCreditsSlotStringTypes;
-		enabled:boolean;
+	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "subgifts" | "hypechats" | "hypetrains" | "predictions" | "subsandgifts";
+	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
+		{id:"cheers",		premium:false,	hasAmount:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
+		{id:"subs",			premium:false,	hasAmount:false,	icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs"},
+		{id:"subgifts",		premium:false,	hasAmount:true,		icon:"gift",			label:"overlay.credits.categories.subgifts",		defaultLabel:"overlay.credits.labels.subgifts",		amountLabel:"overlay.credits.amounts.subgifts"},
+		{id:"subsandgifts",	premium:false,	hasAmount:true,		icon:"sub",				label:"overlay.credits.categories.subsandgifts",	defaultLabel:"overlay.credits.labels.subsandgifts",	amountLabel:"overlay.credits.amounts.subsandgifts"},
+		{id:"follows",		premium:false,	hasAmount:false,	icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
+		{id:"raids",		premium:false,	hasAmount:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
+		{id:"hypechats",	premium:true,	hasAmount:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
+		{id:"hypetrains",	premium:true,	hasAmount:true,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains",	amountLabel:"overlay.credits.amounts.hypetrains"},
+		{id:"rewards",		premium:true,	hasAmount:true,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",		amountLabel:"overlay.credits.amounts.rewards"},
+		{id:"bans",			premium:true,	hasAmount:true,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",			amountLabel:"overlay.credits.amounts.bans"},
+		{id:"timeouts",		premium:true,	hasAmount:true,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",		amountLabel:"overlay.credits.amounts.timeouts"},
+		{id:"so_in",		premium:true,	hasAmount:true,		icon:"shoutout",		label:"overlay.credits.categories.so_in",			defaultLabel:"overlay.credits.labels.so_in",		amountLabel:"overlay.credits.amounts.so_in"},
+		{id:"so_out",		premium:true,	hasAmount:true,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
+		{id:"polls",		premium:true,	hasAmount:true,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
+		{id:"predictions",	premium:true,	hasAmount:true,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
+		{id:"chatters",		premium:true,	hasAmount:true,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
+		{id:"text",			premium:true,	hasAmount:false,	icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
+	];
+	
+	export interface EndingCreditsSlotDefinition {
+		id:EndingCreditsSlotStringTypes,
+		icon:string,
+		label:string,
+		defaultLabel:string,
+		premium:boolean,
+		hasAmount:boolean,
+		amountLabel?:string,
+	}
+	
+	export interface EndingCreditsSlotParams {
+		id:string;
+		slotType:EndingCreditsSlotStringTypes;
 		label:string;
 		maxEntries:number;
 		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
-		customHTML:boolean;
-		htmlTemplate:string;
+		customHTML?:boolean;
+		htmlTemplate?:string;
 		showAmounts?:boolean;
-		premium?:boolean;
+		showBadges?:boolean;
+		text?:string,
 	}
 
 	export interface EndingCreditsParams {
 		scale:number;
-		textColor:string;
+		colorTitle:string;
+		colorEntry:string;
 		fontTitle:string;
 		fontEntry:string;
 		textShadow:number;
@@ -1495,7 +1517,7 @@ export namespace TwitchatDataTypes {
 		loop:boolean;
 		showIcons:boolean;
 		speed:number;
-		slots:EndingCreditsSlot[];
+		slots:EndingCreditsSlotParams[];
 	}
 
 

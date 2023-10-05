@@ -17,8 +17,8 @@
 				"Premium"
 			],
 			"features": [
-				["Désactiver le message automatique", 0, 1, 1],
-				["Support GoXLR", 0, 0, 1],
+				["Désactiver le message automatique", "-", 1, 1],
+				["Support GoXLR", "-", "-", 1],
 				["Pseudos personnalisés", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
 				["Créer des badges personnalisés", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
 				["Attribuer des badges personnalisés", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
@@ -26,6 +26,7 @@
 				["Écrans de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["Générique de fin", "~", "~", 1],
 				["Support Spotify", 1, 1, 1],
 				["Plugin Stream Deck", 1, 1, 1],
 				["Support Voicemod", 1, 1, 1],

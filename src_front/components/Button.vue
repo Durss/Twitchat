@@ -369,6 +369,10 @@ export default class Button extends Vue {
 	&.premium {
 		.label {
 			text-shadow: none;
+			opacity: 1;
+		}
+		.icon {
+			opacity: 1;
 		}
 		.background {
 			background-color: var(--color-premium);
@@ -391,24 +395,18 @@ export default class Button extends Vue {
 	}
 
 	&.light {
+		color: var(--color-primary);
 		.label {
-			color: var(--color-primary);
 			text-shadow: unset;
 		}
 		&.secondary {
-			.label {
-				color: var(--color-secondary);
-			}
+			color: var(--color-secondary);
 		}
 		&.alert {
-			.label {
-				color: var(--color-alert);
-			}
+			color: var(--color-alert);
 		}
 		&.premium {
-			.label {
-				color: var(--color-premium);
-			}
+			color: var(--color-premium);
 		}
 		.background {
 			background-color: var(--color-light);
@@ -428,29 +426,21 @@ export default class Button extends Vue {
 	}
 
 	&.transparent {
+		color: var(--color-text);
 		.label {
-			color: var(--color-primary);
 			text-shadow: unset;
 		}
 		&.secondary {
-			.label {
-				color: var(--color-secondary);
-			}
+			color: var(--color-secondary);
 		}
 		&.alert {
-			.label {
-				color: var(--color-alert);
-			}
+			color: var(--color-alert);
 		}
 		&.premium {
-			.label {
-				color: var(--color-premium);
-			}
+			color: var(--color-premium);
 		}
 		&.light {
-			.label {
-				color: var(--color-light);
-			}
+			color: var(--color-light);
 		}
 		.background {
 			background-color: transparent;
@@ -470,11 +460,11 @@ export default class Button extends Vue {
 	}
 
 	&.selected {
+		color: var(--color-button-selected);
 		.icon {
 			filter: invert();
 		}
 		.label {
-			color: var(--color-button-selected);
 			font-weight: bold;
 			text-shadow: unset;
 		}

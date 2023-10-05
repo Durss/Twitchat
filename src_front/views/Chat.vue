@@ -2,11 +2,11 @@
 	<div :class="classes">
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
-				<div class="column" v-for="c in $store('params').chatColumnsConfig"
+				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
 				:ref="'column_'+c.id"
 				:key="c.id"
 				:style="getColStyles(c)">
-					<div class="subHolder">
+					<div class="subHolder" v-if="buildIndex >= index">
 						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
@@ -27,7 +27,7 @@
 			</div>
 		</div>
 
-		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
+		<Teleport v-if="panelsColumnTarget && buildIndex >= 1 + $store('params').chatColumnsConfig.length" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
 			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
@@ -51,7 +51,7 @@
 		</Teleport>
 
 
-		<Teleport v-if="panelsColumnTarget" :to="panelsColumnTarget">
+		<Teleport v-if="panelsColumnTarget && buildIndex >= 2 + $store('params').chatColumnsConfig.length" :to="panelsColumnTarget">
 			<ChannelNotifications
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"
@@ -62,6 +62,7 @@
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
+				v-if="buildIndex >= 3 + $store('params').chatColumnsConfig.length"
 				@poll="$store('params').openModal('poll')"
 				@chatpoll="$store('params').openModal('chatsuggForm')"
 				@pred="$store('params').openModal('pred')"
@@ -114,7 +115,7 @@
 			v-if="showShoutout"
 			@close="showShoutout = false" />
 		
-		<Parameters />
+		<Parameters v-if="buildIndex >= 5 + $store('params').chatColumnsConfig.length" />
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
@@ -126,7 +127,7 @@
 		
 		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
 
-		<ChatAlertMessage />
+		<ChatAlertMessage v-if="buildIndex >= 4 + $store('params').chatColumnsConfig.length" />
 		
 		<Accessibility />
 
@@ -233,6 +234,7 @@ import Login from './Login.vue';
 })
 export default class Chat extends Vue {
 
+	public buildIndex = 0;
 	public showDonorBadge = true;
 	public showEmotes = false;
 	public showRewards = false;
@@ -442,6 +444,10 @@ export default class Chat extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.SEND_MESSAGE, this.publicApiEventHandler);
 		this.renderFrame();
 		requestWakeLock();
+
+		for (let i = 0; i < this.$store('params').chatColumnsConfig.length + 5; i++) {
+			Utils.promisedTimeout(500).then(()=> this.buildIndex ++);
+		}
 	}
 
 	public mounted():void {

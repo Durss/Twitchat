@@ -79,7 +79,7 @@ export default class Icon extends Vue {
 <style scoped lang="less">
 .icon{
 	display: inline-block;
-	color: inherit;
+	// color: inherit;
 	:deep(svg) {
 		width: auto;
 		width: 100%;

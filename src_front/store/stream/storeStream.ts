@@ -89,6 +89,7 @@ export const storeStream = defineStore('stream', {
 					category:category.name,
 					user:StoreProxy.auth.twitch.user,
 					lastSoDoneDate:0,
+					streamStartedAt_ms:0,
 				}
 				return true;
 			}

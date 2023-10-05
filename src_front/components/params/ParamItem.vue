@@ -189,6 +189,9 @@
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
+			:secondary="secondary"
+			:premium="premium"
+			:alert="alert || errorLocal"
 			@insert="insertPlaceholder"
 		/>
 

@@ -221,6 +221,7 @@ export const storeAuth = defineStore('auth', {
 						viewers,
 						user:this.twitch.user,
 						lastSoDoneDate:0,
+						streamStartedAt_ms:0,
 					};
 				});
 

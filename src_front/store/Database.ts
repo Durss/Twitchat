@@ -107,7 +107,7 @@ export default class Database {
 	 * @param message 
 	 */
 	public async addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void> {
-		if(!this._db) return Promise.reject("Databse not ready");
+		if(!this._db) return Promise.reject("Database not ready");
 
 		const ignoreList:TwitchatDataTypes.TwitchatMessageStringType[] = [
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
@@ -274,9 +274,13 @@ export default class Database {
 	 * @param value 
 	 */
 	private removeCircularReferences<T>(value:T):{data:T, json:string} {
+		type KeysOfUnion<T> = T extends T ? keyof T: never;
+		type keys = KeysOfUnion<TwitchatDataTypes.ChatMessageTypes>;
+
 		const json = JSON.stringify(value, (key, value)=>{
-			if(key == "answers") return [];
-			if(key == "answersTo") return undefined;
+			const typedKey = key as keys;
+			if(typedKey == "answers") return [];
+			if(typedKey == "answersTo") return undefined;
 			return value;
 		})
 		const clone = JSON.parse(json);

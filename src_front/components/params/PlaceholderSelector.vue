@@ -1,11 +1,15 @@
 <template>
-	<ToggleBlock small class="placeholderselector"
-		:title="$t('global.placeholder_selector_title')"
-		:open="false"
-	>
+	<ToggleBlock small :class="classes"
+	noBackground
+	:title="$t('global.placeholder_selector_title')"
+	:open="false">
 		<div class="list" v-if="localPlaceholders.length > 0">
 			<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
-				<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+				<button type="button" @click="$event => insert(h, $event)"
+					:data-alert="alert"
+					:data-premium="premium"
+					:data-secondary="secondary"
+					v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 				
 				<i18n-t scope="global" :keypath="h.descKey" tag="span">
 					<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -15,10 +19,19 @@
 			</template>
 		</div>
 
-		<ToggleBlock class="global" :title="$t('global.placeholder_selector_global')" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="false">
+		<ToggleBlock class="global" small v-if="(globalPlaceholders.length + globalPlaceholderCategories.length) > 0" :open="false"
+		noBackground
+		:alert="alert"
+		:premium="premium"
+		:secondary="secondary"
+		:title="$t('global.placeholder_selector_global')">
 			<div class="list">
 				<template v-for="(h,index) in globalPlaceholders" :key="h.tag+index">
-					<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+					<button type="button" @click="$event => insert(h, $event)"
+						:data-alert="alert"
+						:data-premium="premium"
+						:data-secondary="secondary"
+						v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 					
 					<i18n-t scope="global" :keypath="h.descKey" tag="span">
 						<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -29,10 +42,18 @@
 			</div>
 				
 			<ToggleBlock class="global" v-for="c in globalPlaceholderCategories" :key="c.key" small :open="false"
+			noBackground
+			:alert="alert"
+			:premium="premium"
+			:secondary="secondary"
 			:title="$t('global.placeholder_selector_categories.'+c.key)">
 				<div class="list">
 					<template v-for="(h,index) in c.entries" :key="h.tag+index">
-						<button type="button" @click="$event => insert(h, $event)" v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
+						<button type="button" @click="$event => insert(h, $event)"
+							:data-alert="alert"
+							:data-premium="premium"
+							:data-secondary="secondary"
+							v-tooltip="copyMode !== false? $t('global.copy') : $t('global.placeholder_selector_insert')">&#123;{{h.tag}}&#125;</button>
 						
 						<i18n-t scope="global" :keypath="h.descKey" tag="span">
 							<template v-for="(value,name) in h.descReplacedValues ?? {}" v-slot:[name]>
@@ -72,6 +93,15 @@ export default class PlaceholderSelector extends Vue {
 	
 	@Prop({default:false})
 	public copyMode!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
 	
 	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
 		return this.placeholders.filter(v=>v.globalTag !== true);
@@ -81,6 +111,14 @@ export default class PlaceholderSelector extends Vue {
 		const list = this.placeholders.filter(v=>v.globalTag === true && !v.category).sort((a,b) => a.tag.length - b.tag.length);
 
 		return list;
+	}
+
+	public get classes():string[] {
+		const res = ["placeholderselector"];
+		if(this.alert !== false) res.push("alert");
+		if(this.premium !== false) res.push("premium");
+		if(this.secondary !== false) res.push("secondary");
+		return res;
 	}
 
 	public get globalPlaceholderCategories():{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[]{
@@ -177,6 +215,24 @@ export default class PlaceholderSelector extends Vue {
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
+			}
+			&[data-alert="true"] {
+				background-color: var(--color-alert);
+				&:hover {
+					background-color: var(--color-alert-light);
+				}
+			}
+			&[data-premium="true"] {
+				background-color: var(--color-premium);
+				&:hover {
+					background-color: var(--color-premium-light);
+				}
+			}
+			&[data-secondary="true"] {
+				background-color: var(--color-secondary);
+				&:hover {
+					background-color: var(--color-secondary-light);
+				}
 			}
 		}
 	}

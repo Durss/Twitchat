@@ -1,72 +1,68 @@
 <template>
-	<div class="overlayendingcredits" v-if="data && data.params" :style="styles">
-		<template v-for="item in data.params.slots.filter(v=>v.enabled)">
-			<div v-if="getEntryCountFor(item) > 0" :class="getCategoryClasses(item)">
-				<h1><Icon :name="getIconFor(item)" />{{ item.label }}</h1>
+	<div class="overlayendingcredits" v-if="data && slotList" :style="styles" ref="holder">
+		<template v-for="item in slotList">
+			<div :class="item.holderClasses">
+				<h1 :style="item.titleStyles"><Icon :name="item.slot.icon" />{{ item.params.label }}</h1>
 				<div class="list">
-					<div v-if="item.id == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().concat().splice(0, item.maxEntries)" class="item hypechat">
+					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item hypechat">
 						<span class="login">{{entry.login}}</span>
-						<div class="amount" v-if="item.showAmounts === true">
+						<div class="amount" v-if="item.params.showAmounts === true">
 							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
 							<span class="value">{{entry.amount}}</span>
 						</div>
 					</div>
 					
-					<div v-if="item.id == 'subsandgifts'" v-for="entry in (data.subs || []).concat().concat((data.subgifts || [])).concat().splice(0, item.maxEntries)" class="item sub">
+					<div v-if="item.params.slotType == 'subs' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subs || []).concat().splice(0, item.params.maxEntries)" class="item sub">
 						<span class="login">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.id == 'subs'" v-for="entry in (data.subs || []).concat().splice(0, item.maxEntries)" class="item sub">
+					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item subgift">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
+					</div>
+					
+					<div v-if="item.params.slotType == 'cheers'" v-for="entry in (data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item bits">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
+					</div>
+					
+					<div v-if="item.params.slotType == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.params.maxEntries)" class="item raids">
+						<span class="login">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
+					</div>
+					
+					<div v-if="item.params.slotType == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.params.maxEntries)" class="item follows">
 						<span class="login">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.id == 'subgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.maxEntries)" class="item subgift">
+					<div v-if="item.params.slotType == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item so_in">
 						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
 					
-					<div v-if="item.id == 'cheers'" v-for="entry in (data.bits || []).concat().splice(0, item.maxEntries)" class="item bits">
+					<div v-if="item.params.slotType == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item so_out">
 						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
 					
-					<div v-if="item.id == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.maxEntries)" class="item raids">
-						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
-					</div>
-					
-					<div v-if="item.id == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.maxEntries)" class="item follows">
-						<span class="login">{{entry.login}}</span>
-					</div>
-					
-					<div v-if="item.id == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).splice(0, item.maxEntries)" class="item so_in">
-						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
-					</div>
-					
-					<div v-if="item.id == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).splice(0, item.maxEntries)" class="item so_out">
-						<span class="login">{{entry.login}}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
-					</div>
-					
-					<div v-if="item.id == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.maxEntries)" class="item trains">
+					<div v-if="item.params.slotType == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.params.maxEntries)" class="item trains">
 						<span class="login">{{ $t('train.ending_credits', {LEVEL:entry.level, PERCENT:entry.percent})}}</span>
 					</div>
 					
-					<div v-if="item.id == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.maxEntries)" class="item bans">
+					<div v-if="item.params.slotType == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.params.maxEntries)" class="item bans">
 						<span class="login">{{ entry.login }}</span>
-						<span class="count" v-if="item.showAmounts === true">{{ entry.bans }}</span>
+						<span class="count" v-if="item.params.showAmounts === true">{{ entry.bans }}</span>
 					</div>
 					
-					<div v-if="item.id == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.maxEntries)" class="item tos">
+					<div v-if="item.params.slotType == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.params.maxEntries)" class="item tos">
 						<span class="login">{{ entry.login }}</span>
-						<span class="count" v-if="item.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
 					</div>
 					
-					<div v-if="item.id == 'rewards'" v-for="entry in rewards.concat().splice(0, item.maxEntries).sort((a,b)=>b.total-a.total)" class="item rewards">
+					<div v-if="item.params.slotType == 'rewards'" v-for="entry in rewards.concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item rewards">
 						<img :src="entry.reward.icon" alt="reward redeem icon" class="rewardIcon">
 						<span class="login">{{ entry.reward.name }}</span>
-						<span class="count" v-if="item.showAmounts === true">x{{ entry.total }}</span>
+						<span class="count" v-if="item.params.showAmounts === true">x{{ entry.total }}</span>
 					</div>
 				</div>
 			</div>
@@ -76,13 +72,13 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
 import gsap from 'gsap/all';
 import { Linear } from 'gsap';
-import type { StyleValue } from 'vue';
+import { watch, type StyleValue } from 'vue';
 import Utils from '@/utils/Utils';
 
 @Component({
@@ -91,10 +87,11 @@ import Utils from '@/utils/Utils';
 })
 export default class OverlayEndingCredits extends AbstractOverlay {
 
-	public posY:number = 0;
 	public display:boolean = false;
 	public data:TwitchatDataTypes.StreamSummaryData|null = null;
+	public slotList:{slot:TwitchatDataTypes.EndingCreditsSlotDefinition, params:TwitchatDataTypes.EndingCreditsSlotParams, holderClasses:string[], titleStyles:StyleValue,}[] = [];
 	
+	private posY:number = 0;
 	private animFrame:number = -1;
 	private prevParams:TwitchatDataTypes.EndingCreditsParams|null = null;
 	private startDelayTimeout:number = -1;
@@ -130,7 +127,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 			user.total ++;
 		});
-		console.log(res);
 		return res;
 	}
 
@@ -138,24 +134,30 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		const res:StyleValue = {
 			opacity: this.display? 1 : 0,
 			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
-			color: this.data?.params?.textColor,
+			fontFamily: this.data?.params?.fontEntry+", Inter",
+			color: this.data?.params?.colorEntry,
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
-		}
-		if(this.data?.params?.timing == 'speed') {
-			res.top = this.posY+"px";
 		}
 		return res;
 	}
 
-	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlot):string[] {
+	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
 		const res = ["category"];
 		if(this.data?.params?.showIcons === false) res.push("noIcon");
-		const itemCount = this.getEntryCountFor(item);
+		const itemCount = this.getEntryCountForSlot(item);
 		//If requesting 3 cols but there are only 2 items, switch to 2 cols mode
 		if(item.layout == "3cols" && itemCount == 2) res.push("layout_2cols");
 		//If requestion 3 or 3 cols but only 1 item is available, switch to 1 col mode
 		else if((item.layout == "3cols" && itemCount == 1) || (item.layout == "2cols" && itemCount == 1)) res.push("layout_col");
 		else res.push("layout_"+item.layout);
+		return res;
+	}
+
+	public getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			color: this.data?.params?.colorTitle,
+			fontFamily: this.data?.params?.fontTitle+", Inter",
+		}
 		return res;
 	}
 
@@ -168,6 +170,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
+
+		watch(()=>this.posY, ()=> {
+			(this.$refs.holder as HTMLDivElement).style.top = this.posY+"px";
+		});
 	}
 
 	public beforeUnmount(): void {
@@ -177,31 +183,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
 	}
 
-	public getIconFor(item:TwitchatDataTypes.EndingCreditsSlot):string {
-		switch(item.id) {
-			case "hypechats": return "hypeChat";
-			case "subs": return "sub";
-			case "subgifts": return "gift";
-			case "subsandgifts": return "sub";
-			case "cheers": return "bits";
-			case "raids": return "raid";
-			case "follows": return "follow";
-			case "hypetrains": return "train";
-			case "so_in": return "shoutout";
-			case "so_out": return "shoutout";
-			case "rewards": return "channelPoints";
-			case "bans": return "ban";
-			case "timeouts": return "timeout";
-			case "vips": return "vip";
-			case "mods": return "mod";
-		}
-		return "";
-	}
-
-	public getEntryCountFor(item:TwitchatDataTypes.EndingCreditsSlot):number {
+	public getEntryCountForSlot(item:TwitchatDataTypes.EndingCreditsSlotParams):number {
 		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id];
 		let count = 0;
-		switch(item.id) {
+		switch(item.slotType) {
 			case "hypechats": count = (this.data?.hypeChats || []).length; break;
 			case "subs": count = (this.data?.subs || []).length; break;
 			case "subgifts": count = (this.data?.subgifts || []).length; break;
@@ -237,6 +222,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
+			this.buildSlots();
 			this.reset();
 		}
 	}
@@ -248,7 +234,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(e.data && this.data) {
 			this.data.params = (e.data as unknown) as TwitchatDataTypes.EndingCreditsParams;
 			let resetScroll = false;
-			//Only restart delay if one of the related params changed
+			//Only restart scrolling from bottom if one of the related params changed
 			if(this.prevParams &&
 			(
 				this.prevParams.duration != this.data.params.duration
@@ -261,6 +247,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 			this.prevParams = this.data.params;
 
+			this.buildSlots();
 			this.reset(resetScroll);
 		}
 	}
@@ -326,7 +313,21 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		}
 
 		this.posY -= this.data?.params?.speed || 2;
-		
+	}
+
+	private buildSlots():void {
+		if(!this.data || !this.data.params) return;
+		this.slotList = [];
+		const slots = this.data.params.slots.filter(v=>this.getEntryCountForSlot(v) > 0);
+		slots.forEach(slotParams => {
+			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
+			this.slotList.push({
+				slot,
+				params:slotParams,
+				holderClasses:this.getCategoryClasses(slotParams),
+				titleStyles:this.getTitleStyles(slotParams),
+			})
+		})
 	}
 }
 

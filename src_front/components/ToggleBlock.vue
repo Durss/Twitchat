@@ -83,6 +83,9 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public noBackground!:boolean;
+
 	@Prop({type:Object})
 	public newflag!:{date:number, id:string};
 
@@ -97,6 +100,7 @@ export default class ToggleBlock extends Vue {
 		if(this.secondary !== false)	res.push("secondary");
 		if(this.alert !== false)		res.push("alert");
 		if(this.premium !== false)		res.push("premium");
+		if(this.noBackground !== false)	res.push("noBackground");
 		if(this.small !== false)		res.push("small");
 		else if(this.medium !== false)	res.push("medium");
 		return res;
@@ -316,6 +320,18 @@ export default class ToggleBlock extends Vue {
 			padding: .5em;
 			// margin-left: 1.4em;
 		}
+
+		&.premium {
+			.header {
+				.title {
+					color: white !important;
+				}
+			}
+		}
+	}
+
+	&.noBackground {
+		background-color: transparent;
 	}
 
 }

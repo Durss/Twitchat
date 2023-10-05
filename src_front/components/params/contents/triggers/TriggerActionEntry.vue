@@ -182,17 +182,18 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
-import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
+import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
+import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
 import TriggerActionHTTPCall from './entries/TriggerActionHTTPCall.vue';
@@ -204,12 +205,10 @@ import TriggerActionStreamInfoEntry from './entries/TriggerActionStreamInfoEntry
 import TriggerActionTTSEntry from './entries/TriggerActionTTSEntry.vue';
 import TriggerActionTriggerEntry from './entries/TriggerActionTriggerEntry.vue';
 import TriggerActionTriggerToggleEntry from './entries/TriggerActionTriggerToggleEntry.vue';
+import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
-import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 
 @Component({
 	components:{

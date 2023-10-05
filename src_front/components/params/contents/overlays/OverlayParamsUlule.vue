@@ -55,6 +55,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import DataStore from '@/store/DataStore';
+import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -96,6 +97,8 @@ export default class OverlayParamsUlule extends Vue {
 		if(this.param_goals.value) DataStore.set(DataStore.ULULE_GOALS, this.param_goals.value);
 		if(this.param_title.value) DataStore.set(DataStore.ULULE_TITLE, this.param_title.value);
 		if(this.param_currency.value) DataStore.set(DataStore.ULULE_CURRENCY, this.param_currency.value);
+
+		rebuildPlaceholdersCache();
 	}
 
 }
