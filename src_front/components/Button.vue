@@ -14,7 +14,7 @@
 
 		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loader">
 	
-		<Icon class="icon" v-if="icon && !loading" :name="icon" :theme="theme" alt="icon" />
+		<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
 		<span class="label" ref="label" v-if="$slots.default"><slot></slot></span>
 
@@ -179,6 +179,7 @@ export default class Button extends Vue {
 	user-select: none;
 	text-decoration: none !important;
 	font-size: 1rem;
+	color: var(--color-light);
 
 	.clickArea {
 		position: absolute;
@@ -300,6 +301,7 @@ export default class Button extends Vue {
 		max-width: 1em;
 		justify-self: center;
 		line-height: 1em;
+		color: inherit;
 		:deep(img) {
 			width: 100%;
 			height: 100%;
@@ -461,9 +463,6 @@ export default class Button extends Vue {
 
 	&.selected {
 		color: var(--color-button-selected);
-		.icon {
-			filter: invert();
-		}
 		.label {
 			font-weight: bold;
 			text-shadow: unset;

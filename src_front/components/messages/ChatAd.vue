@@ -268,6 +268,7 @@ export default class ChatAd extends Vue {
 <style scoped lang="less">
 .chatad{
 	.innerHolder {
+		position: relative;
 		.confirmClose {
 			position: absolute;
 			top: 0;

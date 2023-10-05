@@ -1,7 +1,8 @@
 <template>
 	<div  :class="classes">
 		<svg class="heartBg" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
-	 	viewBox="0 0 208.6 202.5">
+	 	viewBox="0 0 208.6 202.5"
+		v-if="light === false">
 			<path d="M151.6,0c-19.6,0-37,9.9-47.2,25C94,9.9,76.7,0,57.1,0C25.6,0,0,25.6,0,57.1c0,44.2,96.1,145.4,104.3,145.4S208.6,101.2,208.6,57.1C208.6,25.6,183.1,0,151.6,0z"/>
 		</svg>
 

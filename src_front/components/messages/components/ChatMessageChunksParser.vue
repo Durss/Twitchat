@@ -60,6 +60,7 @@ export default class ChatMessageChunksParser extends Vue {
 	}
 
 	public getUserClasses(username:string):StyleValue {
+		if(!this.$store("auth").twitch.user) return {color:"#c400da"};
 		const user = this.$store("users").getUserFrom(this.platform || "twitch", this.channel, undefined, username);
 		if(user.color) {
 			return {

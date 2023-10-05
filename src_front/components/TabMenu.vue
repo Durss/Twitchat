@@ -10,6 +10,7 @@
 				:small="small"
 				:secondary="themes && themes.length > index && themes[index] == 'secondary' || secondary"
 				:alert="themes && themes.length > index && themes[index] == 'alert' || alert"
+				:premium="themes && themes.length > index && themes[index] == 'premium' || premium"
 				:selected="value == item.value">{{ item.label }}</Button>
 			
 			<Transition name="slide">
@@ -42,6 +43,9 @@ export default class TabMenu extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
 
 	@Prop({type:Array, default:[]})
 	public values!:unknown[];

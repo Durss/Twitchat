@@ -28,6 +28,9 @@ export default class ProgressBar extends Vue {
 	public secondary!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public premium!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public alert!:boolean;
 
 	public get timeLeft():string { return Utils.formatDuration(this.duration * this.elapsedPercent) }
@@ -38,6 +41,7 @@ export default class ProgressBar extends Vue {
 		const list = ["progressbar"];
 		if(this.boostMode !== false) list.push('boostMode');
 		if(this.secondary !== false) list.push("secondary");
+		if(this.premium !== false) list.push("premium");
 		if(this.alert !== false) list.push("alert");
 		return list;
 	}
@@ -138,6 +142,18 @@ export default class ProgressBar extends Vue {
 
 	&.boostMode {
 		@c: darken(#00f0f0, 15%);
+		.fill {
+			background-color: @c;
+		}
+		.timer {
+			background-color: @c;
+			background: linear-gradient(90deg, @c 0%, @c 50%, @bg 50%, @bg 100%);
+			background-size: 200% 100%;
+		}
+	}
+
+	&.premium {
+		@c: var(--color-premium);
 		.fill {
 			background-color: @c;
 		}

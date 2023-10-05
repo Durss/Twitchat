@@ -104,7 +104,7 @@ export default class HeatScreenEditor extends Vue {
 		this.mouseUpHandler = (e:PointerEvent) => this.onMouseUp(e);
 		this.mouseMoveHandler = (e:PointerEvent) => this.onMouseMove(e);
 
-		document.addEventListener("keydown", this.keyDownHandler, true);
+		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
 		document.addEventListener("pointerup", this.mouseUpHandler);
 		document.addEventListener("pointermove", this.mouseMoveHandler);
 		
@@ -117,7 +117,7 @@ export default class HeatScreenEditor extends Vue {
 
 	public beforeUnmount():void {
 		this.disposed = true;
-		document.removeEventListener("keydown", this.keyDownHandler, true);
+		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
 		document.removeEventListener("pointerup", this.mouseUpHandler);
 		document.removeEventListener("pointermove", this.mouseMoveHandler);
 	}
@@ -457,8 +457,8 @@ export default class HeatScreenEditor extends Vue {
 .heatscreeneditor{
 
 	.scrollable {
-		width: 99%;
-		aspect-ratio: 16/9;
+		width: 100%;
+		aspect-ratio: 16/9.1;//No idea why this weird ratio avoids scrollbar to show up when zoomed out
 		overflow: auto;
 	}
 
@@ -467,6 +467,8 @@ export default class HeatScreenEditor extends Vue {
 		cursor: crosshair;
 		user-select: none;
 		position: relative;
+		width: 100%;
+		aspect-ratio: 16/9; 
 		.background {
 			top: 0;
 			left: 0;

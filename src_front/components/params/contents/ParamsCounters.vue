@@ -110,11 +110,11 @@
 						v-slot="{ item } : {item:UserEntry}">
 							<div class="card-item userItem">
 								<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-								<span class="login" @click="openUserCard(item.user)">{{ item.user.displayNameOriginal }}</span>
+								<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
 								<ParamItem class="value" noBackground
 									:paramData="item.param"
 									@input="onChangeValue(entry, item)" />
-								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" /></button>
+								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
 							</div>
 						</InfiniteList>
 					</template>
@@ -473,7 +473,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		this.idToLoading[entry.counter.id] = true;
 
 		clearTimeout(this.timeoutSearch);
-		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.counter.users!).slice(0, 5000));
+		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.counter.users!));
 		if(users.length > 0) {
 			const channelId = this.$store("auth").twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {

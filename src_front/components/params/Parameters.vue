@@ -169,6 +169,7 @@ export default class Parameters extends Vue {
 	public closed:boolean = true;
 	
 	private closing:boolean = false;
+	private keydownCaptureTarget:Element|null = null;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
 	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
@@ -200,6 +201,7 @@ export default class Parameters extends Vue {
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
+	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
 	
 	/**
 	 * If true, will display a search field at the top of the view to
@@ -250,11 +252,14 @@ export default class Parameters extends Vue {
 		});
 
 		this.keyDownHandler = (e:KeyboardEvent) => this.onKeyDown(e);
-		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
+		this.keyDownCaptureHandler = (e:KeyboardEvent) => this.onKeyDown(e, true);
+		document.addEventListener("keydown", this.keyDownHandler);
+		document.addEventListener("keydown", this.keyDownCaptureHandler, {capture:true});
 	}
 
 	public beforeUnmount():void {
-		document.removeEventListener("keydown", this.keyDownHandler, {capture:true});
+		document.removeEventListener("keydown", this.keyDownHandler);
+		document.removeEventListener("keydown", this.keyDownCaptureHandler, {capture:true});
 	}
 
 	public async open():Promise<void> {
@@ -342,10 +347,42 @@ export default class Parameters extends Vue {
 		this.$store("params").openParamsPage(page);
 	}
 
-	private onKeyDown(e:KeyboardEvent):void {
+	/**
+	 * Closes the window on escape if the focus isn't on an input.
+	 * The "keydownCaptureTarget" is here to store the currently focused
+	 * element with "capture" flag so it's called before the browser
+	 * natively removes focus from the field.
+	 * 
+	 * This avoids a tricky situation when user is writing on a field
+	 * and presses escape key. If we were listening to the keydown event
+	 * without the capture flag, the browser would first remove the focus
+	 * from the field, then call this function and the "activeElement"
+	 * wouldn't be the field anymore.
+	 * To avoid that, we listene to the keyDown event with capture flag
+	 * so it's called before the field loses focus.
+	 * BUT, if we were only doing this, a child component wouldn't be
+	 * able to stop the escpae key propagation (ex: the heat screen editor)
+	 * so the window wouldn't close if other things than just input
+	 * elements had focus.
+	 * The heat editor allows to drag areas and unselect them with the
+	 * escape key. This cannot generically be handle here, the event
+	 * needs to be stoped from the editor itself.
+	 * 
+	 * This is why we only register the focused element on capture and
+	 * use it on a non-capture event. This fixes both above situations.
+	 * 
+	 * @param e 
+	 * @param isCapture 
+	 */
+	private onKeyDown(e:KeyboardEvent, isCapture:boolean = false):void {
 		if(this.closed) return;
-		const node = document.activeElement?.nodeName;
-		if(e.key?.toLowerCase() == "escape" && node != "INPUT") {
+		if(isCapture) {
+			this.keydownCaptureTarget = document.activeElement;
+			return;
+		}
+		const node = this.keydownCaptureTarget ?? document.activeElement?.nodeName;
+		const isContentEditable = document.activeElement?.getAttribute("contenteditable");
+		if(e.key?.toLowerCase() == "escape" && node != "INPUT" && node != "TEXTAREA" && !isContentEditable) {
 			this.close();
 		}
 	}
