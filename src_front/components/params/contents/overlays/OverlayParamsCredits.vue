@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open || true" :class="classes" :title="$t('overlay.credits.title')" :icons="['credits']">
+	<ToggleBlock :open="open" :class="classes" :title="$t('overlay.credits.title')" :icons="['credits']">
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.credits.head") }}</div>
