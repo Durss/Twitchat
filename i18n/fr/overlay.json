@@ -95,6 +95,7 @@
 			"param_speed": "Vitesse de défilement ({VALUE}pixels / s)",
 			"param_scale": "Taille des textes",
 			"param_padding": "Espace entre les catégories",
+			"param_paddingTitle": "Espace entre le titre et les entrées",
 			"param_startDelay": "Attendre {VALUE}s avant de défiler",
 			"param_colorTitle":"Couleur des titres",
 			"param_colorEntry":"Couleur des entrées",
@@ -118,6 +119,7 @@
 			"delete_confirm_title":"Supprimer cette categorie ?",
 			"no_overlay":"Overlay non configuré or masqué",
 			"testBt":"Générer un faux générique",
+			"moderators_label":"MODERATEUR·ICES",
 			"categories": {
 				"text":"Texte libre",
 				"cheers":"Bits",

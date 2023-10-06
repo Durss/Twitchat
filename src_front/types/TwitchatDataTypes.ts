@@ -1513,6 +1513,7 @@ export namespace TwitchatDataTypes {
 	export interface EndingCreditsParams {
 		scale:number;
 		padding:number;
+		paddingTitle:number;
 		colorTitle:string;
 		colorEntry:string;
 		fontTitle:string;

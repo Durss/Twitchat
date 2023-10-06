@@ -95,6 +95,7 @@
 			"param_speed": "Scroll speed ({VALUE}pixels / s)",
 			"param_scale": "Text scale",
 			"param_padding": "Space between categories",
+			"param_paddingTitle": "Space between title and entries",
 			"param_startDelay": "Wait {VALUE}s before starting scrolling",
 			"param_colorTitle":"Titles color",
 			"param_colorEntry":"Entries color",
@@ -118,6 +119,7 @@
 			"delete_confirm_title":"Delete category?",
 			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Generate fake credits",
+			"moderators_label":"MODERATORS",
 			"categories": {
 				"cheers":"Bits",
 				"text":"Free text",

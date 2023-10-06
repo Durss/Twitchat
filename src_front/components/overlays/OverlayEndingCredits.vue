@@ -84,7 +84,7 @@
 						<div class="pollItems">
 							<div v-for="choice in entry.choices" class="pollItem">
 								<p><Icon name="checkmark" v-if="choice.win"/><span class="dot" v-else>• </span>{{ choice.title }}</p>
-								<p>{{ Math.round(choice.votes/entry.votes * 100) }}%</p>
+								<p v-if="item.params.showAmounts">{{ Math.round(choice.votes/entry.votes * 100) }}%</p>
 							</div>
 						</div>
 					</div>
@@ -94,7 +94,7 @@
 						<div class="pollItems">
 							<div v-for="choice in entry.outcomes" class="pollItem">
 								<p><Icon name="checkmark" v-if="choice.win"/><span class="dot" v-else>• </span>{{ choice.title }}</p>
-								<p>{{ choice.points }}<Icon name="channelPoints"/></p>
+								<p v-if="item.params.showAmounts">{{ choice.points }}<Icon name="channelPoints"/></p>
 							</div>
 						</div>
 					</div>
@@ -230,6 +230,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			color: this.data?.params?.colorTitle,
 			fontFamily: this.data?.params?.fontTitle+", Inter",
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			marginBottom: this.data?.params?.paddingTitle+"px",
 		}
 		return res;
 	}
@@ -511,6 +512,9 @@ interface SlotItem {
 				margin-right: .25em;
 				margin-left: -1em;
 			}
+			&:empty {
+				display: none;
+			}
 		}
 		.list {
 			gap: 1em;
@@ -627,6 +631,9 @@ interface SlotItem {
 				.list {
 					text-align: right;
 				}
+			}
+			.textContent {
+				white-space: pre-line;
 			}
 		}
 

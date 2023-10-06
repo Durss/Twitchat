@@ -16,6 +16,7 @@
 				<div class="globalParams">
 					<ParamItem :paramData="param_scale" v-model="data.scale" />
 					<ParamItem :paramData="param_padding" v-model="data.padding" />
+					<ParamItem :paramData="param_paddingTitle" v-model="data.paddingTitle" />
 					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
 					<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
 					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
@@ -182,6 +183,7 @@ export default class OverlayParamsCredits extends Vue {
 	public open!:boolean;
 	
 	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"min"};
+	public param_paddingTitle:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_paddingTitle", icon:"min"};
 	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
 	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
 	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
@@ -214,6 +216,7 @@ export default class OverlayParamsCredits extends Vue {
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
 		padding:100,
+		paddingTitle:30,
 		fontTitle:"Inter",
 		fontEntry:"Inter",
 		colorTitle:"#ffffff",
@@ -419,6 +422,7 @@ export default class OverlayParamsCredits extends Vue {
 			entry.sortByAmounts = false;
 			entry.showAmounts = false;
 			entry.layout = "3cols";
+			entry.label = this.$t("overlay.credits.moderators_label");
 			this.param_showBadges[id]	= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
 			this.param_showMods[id]		= {type:"boolean", value:true, icon:"mod", labelKey:"overlay.credits.param_showMods"};
 			this.param_showVIPs[id]		= {type:"boolean", value:true, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};

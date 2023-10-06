@@ -1086,6 +1086,7 @@ import Ajv from "ajv";
 				fontEntry: {type:"string", maxLength:100},
 				duration: {type:"integer", minimum:1, maximum:5000},
 				padding: {type:"integer", minimum:0, maximum:1000},
+				paddingTitle: {type:"integer", minimum:0, maximum:1000},
 				speed: {type:"integer", minimum:0, maximum:300},
 				startDelay: {type:"integer", minimum:0, maximum:30},
 				loop: {type:"boolean"},
