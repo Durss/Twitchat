@@ -3,7 +3,7 @@
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.credits.head") }}</div>
-				<input class="premium" type="text" v-model="overlayUrl" v-click2Select>
+				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.credits.css") }}</div>
 					<ul class="cssStructure">
@@ -12,9 +12,16 @@
 				</ToggleBlock>
 			</div>
 
-			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium primary :open="false">
+			<div class="item center" v-if="overlayExists">
+				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
+			</div>
+
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+
+			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">
 				<div class="globalParams">
 					<ParamItem :paramData="param_scale" v-model="data.scale" />
+					<ParamItem :paramData="param_padding" v-model="data.padding" />
 					<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
 					<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
 					<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
@@ -48,50 +55,63 @@
 							</template>
 							
 							<template #title>
-								<contenteditable class="label" tag="div" :ref="'label_'+element.id"
-								:contenteditable="true"
-								v-model="element.label"
-								:no-nl="true"
-								:no-html="true"
-								@click.stop
-								@returned="checkDefaultLabel(element)"
-								@input="limitLabelSize(element)"
-								@blur="checkDefaultLabel(element)" />
+								<div class="title">
+									<span class="default" v-if="element.slotType === 'text' && !element.label">{{ $t("overlay.credits.categories.text") }}</span>
+									<contenteditable class="label" tag="div" :ref="'label_'+element.id"
+									:contenteditable="true"
+									v-model="element.label"
+									:no-nl="true"
+									:no-html="true"
+									@click.stop
+									@returned="checkDefaultLabel(element)"
+									@input="limitLabelSize(element)"
+									@blur="checkDefaultLabel(element)" />
+								</div>
 							</template>
 
 							<template #right_actions>
 								<div class="rightActions">
 									<Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
-									premium
-									icon="premium"
+									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" />
+
 									<button class="deleteBt" transparent @click.stop="deleteSlot(element)"><Icon name="cross" /></button>
-									<button class="arrowBt"><Icon name="arrowRight" /></button>
 								</div>
 							</template>
 
 							<div class="content">
-								<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium">
-									<Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}
+								<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium && !isPremium">
+									<p><Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}</p>
+									<Button icon="premium" @click="openPremium()" light premium small>{{$t('premium.become_premiumBt')}}</Button>
 								</div>
 								<div class="card-item layout">
 									<!-- <PremiumLockLayer v-if="slotTypes.find(v => v.id == element.slotType)?.premium" /> -->
 									<div class="form">
+										<Icon name="layout" />
 										<label>{{ $t("overlay.credits.param_layout") }}</label>
 										<div class="layoutBtns">
-											<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="element.slotType != 'text'" />
-											<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="element.slotType != 'text'" />
-											<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
 											<Button icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
 											<Button icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
 											<Button icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-											<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="element.slotType != 'text'" />
-											<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="element.slotType != 'text'" />
+											<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
 										</div>
 									</div>
 								</div>
 
+								<template v-if="element.slotType == 'chatters'">
+									<ParamItem class="badges" :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_showBadges[element.id]"		v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -161,6 +181,7 @@ export default class OverlayParamsCredits extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
+	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"min"};
 	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
 	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
 	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
@@ -168,7 +189,7 @@ export default class OverlayParamsCredits extends Vue {
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
-	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:30, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:300, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
 	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
 	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
 	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
@@ -177,26 +198,39 @@ export default class OverlayParamsCredits extends Vue {
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_showBadges:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showVIPs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showChatters:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortByRoles:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
+	public overlayExists = false;
+	public sendingSummaryData = false;
 	public fontsReady:boolean = false;
 	public showSlotOptions:boolean = false;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:2,
+		padding:100,
 		fontTitle:"Inter",
 		fontEntry:"Inter",
 		colorTitle:"#ffffff",
 		colorEntry:"#ffffff",
-		textShadow:100,
+		textShadow:50,
 		timing:"speed",
 		startDelay:0,
-		duration:200,
+		duration:60,
 		speed:2,
 		loop:true,
 		showIcons:true,
 		slots:[],
 	};
 
+	private checkInterval!:number;
+	private subcheckTimeout!:number;
+	private overlayPresenceHandler!:()=>void;
 	private broadcastDebounce:number = -1;
 
 	public get overlayUrl():string { return this.$overlayURL("credits"); }
@@ -277,8 +311,30 @@ export default class OverlayParamsCredits extends Vue {
 		]
 
 		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
+		
+		this.overlayPresenceHandler = ()=> {
+			this.overlayExists = true;
+			clearTimeout(this.subcheckTimeout);
+		};
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+
+		//Regularly check if the overlay exists
+		this.checkInterval = window.setInterval(()=>{
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE);
+			clearTimeout(this.subcheckTimeout);
+			//If after 1,5s the overlay didn't answer, assume it doesn't exist
+			this.subcheckTimeout = setTimeout(()=>{
+				this.overlayExists = false;
+			}, 1500);
+		}, 2000);
 
 		this.saveParams();
+	}
+
+	public beforeUnmount():void {
+		clearInterval(this.checkInterval);
+		clearTimeout(this.subcheckTimeout);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
 	/**
@@ -352,12 +408,30 @@ export default class OverlayParamsCredits extends Vue {
 		};
 		
 		//Create parameters
-		this.param_customHTML[id] = {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
-		this.param_htmlTemplate[id] = {type:"string", value:"", longText:true, maxLength:1000};
-		this.param_maxItems[id] = {type:'number', min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
+		this.param_customHTML[id]	= {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
+		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
+		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
 		if(slotDef.hasAmount) {
-			entry.showAmounts = this.isPremium;
-			this.param_showAmounts[id] = {type:"boolean", value:false, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
+			entry.showAmounts = this.isPremium || slotDef.premium;
+			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
+		}
+		if(slotDef.id == "chatters") {
+			entry.showMods = true;
+			entry.showVIPs = false;
+			entry.showSubs = false;
+			entry.showChatters = false;
+			entry.showBadges = false;
+			entry.sortByRoles = false;
+			entry.sortByAmounts = false;
+			entry.showAmounts = false;
+			entry.layout = "3cols";
+			this.param_showBadges[id]	= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
+			this.param_showMods[id]		= {type:"boolean", value:true, icon:"mod", labelKey:"overlay.credits.param_showMods"};
+			this.param_showVIPs[id]		= {type:"boolean", value:true, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};
+			this.param_showSubs[id]		= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
+			this.param_showChatters[id]	= {type:"boolean", value:true, icon:"whispers", labelKey:"overlay.credits.param_showChatters"};
+			this.param_sortByRoles[id]	= {type:"boolean", value:true, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
+			this.param_sortByAmounts[id]= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
 		}
 		if(slotDef.id == "text") {
 			const placeholderList = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
@@ -365,6 +439,17 @@ export default class OverlayParamsCredits extends Vue {
 		}
 		if(!data) this.data.slots.push(entry);
 		this.saveParams();
+	}
+
+	/**
+	 * Send fake data
+	 */
+	public async testCredits():Promise<void> {
+		this.sendingSummaryData = true;
+		const summary = await this.$store("stream").getSummary(undefined, true, true);
+		console.log(summary);
+		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+		this.sendingSummaryData = false;
 	}
 
 	/**
@@ -377,9 +462,9 @@ export default class OverlayParamsCredits extends Vue {
 		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
 
 		clearTimeout(this.broadcastDebounce);
-		this.broadcastDebounce = setTimeout(() => {
+		// this.broadcastDebounce = setTimeout(() => {
 			PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (this.data as unknown) as JsonObject);
-		}, 100);
+		// }, 100);
 	}
 
 }
@@ -444,18 +529,36 @@ export default class OverlayParamsCredits extends Vue {
 						min-width: 1em;
 					}
 				}
-				.label {
-					cursor: text;
-					min-width: 2em;
-					font-weight: bold;
-					// flex-grow: 1;
-					padding: .25em .5em;
-					border-radius: var(--border-radius);
-					&:hover, &:active, &:focus {
-						.bevel();
-						background-color: var(--color-text-inverse-fader);
-						// border: 1px double var(--color-light);
-						// border-style: groove;
+				.title {
+					position: relative;
+					.label, .default {
+						cursor: text;
+						min-width: 2em;
+						font-weight: bold;
+						// flex-grow: 1;
+						padding: .25em .5em;
+						border-radius: var(--border-radius);
+
+						&.label {
+							&:hover, &:active, &:focus {
+								.bevel();
+								background-color: var(--color-text-inverse-fader);
+								// border: 1px double var(--color-light);
+								// border-style: groove;
+							}
+						}
+					}
+					.label {
+						position: relative;
+						z-index: 1;
+						min-width: 100px;
+					}
+					.default {
+						position: absolute;
+						text-wrap: nowrap;
+						top:0;
+						left:50%;
+						transform: translateX(-50%);
 					}
 				}
 				.rightActions {
@@ -468,10 +571,6 @@ export default class OverlayParamsCredits extends Vue {
 						:deep(input) {
 							text-align: center;
 						}
-					}
-					.arrowBt {
-						color: var(--color-text);
-						transition: transform .25s;
 					}
 					.deleteBt {
 						// color: red;
@@ -489,6 +588,9 @@ export default class OverlayParamsCredits extends Vue {
 						text-align: center;
 						.icon {
 							height: 1em;
+						}
+						.button {
+							margin-top: .5em;
 						}
 					}
 					.layout {
@@ -516,6 +618,9 @@ export default class OverlayParamsCredits extends Vue {
 							&:hover::before {
 								opacity: 1;
 							}
+							.icon {
+								height: 1em;
+							}
 							label {
 								flex-grow: 1;
 							}
@@ -538,19 +643,15 @@ export default class OverlayParamsCredits extends Vue {
 						}
 					}
 				}
-
-				&:not(.closed) {
-					.arrowBt {
-						transform: rotate(90deg);
-					}
-				}
 				&.premium {
 					border-color: var(--color-premium-extralight);
-					:deep(.header) {
-						background-color: var(--color-premium-fadest);
-					}
 					.paramitem {
 						background-color: var(--color-light-fadest);
+					}
+					:deep(.placeholderselector) {
+						.header {
+							color: var(--color-text);
+						}
 					}
 				}
 			}
@@ -580,6 +681,10 @@ export default class OverlayParamsCredits extends Vue {
 					flex-wrap: wrap;
 					position: relative;
 				}
+			}
+
+			&.center {
+				margin: auto;
 			}
 		}
 	}

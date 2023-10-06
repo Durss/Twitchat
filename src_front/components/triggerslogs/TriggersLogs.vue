@@ -167,7 +167,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 			background: var(--color-primary);
 			padding: .2em .5em;
 			border-radius: .5em;
-			color: var(--color-button);
+			color: var(--color-light);
 			cursor:pointer;
 
 			.icon {

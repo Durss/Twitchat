@@ -132,7 +132,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
-		this.$store("debug").simulateMessage(type, async (message)=> {
+		this.$store("debug").simulateMessage<TwitchatDataTypes.ChatMessageTypes>(type, async (message)=> {
 			switch(subAction) {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
 				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;

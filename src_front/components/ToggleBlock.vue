@@ -15,7 +15,11 @@
 			</div>
 			<slot name="title"></slot>
 
-			<slot name="right_actions"></slot>
+			<div class="rightSlot">
+				<slot name="right_actions"></slot>
+	
+				<button class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
+			</div>
 		</div>
 		<div class="content" v-if="opened" ref="content">
 			<slot></slot>
@@ -85,6 +89,9 @@ export default class ToggleBlock extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public noBackground!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public noArrow!:boolean;
 
 	@Prop({type:Object})
 	public newflag!:{date:number, id:string};
@@ -165,10 +172,10 @@ export default class ToggleBlock extends Vue {
 		flex-direction: row;
 		align-items: center;
 		transition: background-color .25s;
+		color: var(--color-text);
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
-			color: var(--color-text);
 			display: flex;
 			flex-direction: column;
 			gap: 0;
@@ -191,6 +198,31 @@ export default class ToggleBlock extends Vue {
 			object-fit: fill;
 			display: block;
 			margin:auto;
+		}
+
+		.rightSlot {
+			display: flex;
+			flex-direction: row;
+			align-self: stretch;
+			.arrowBt {
+				color: inherit;
+				transition: transform .25s;
+				transform: rotate(90deg);
+				flex-grow: 0;
+				flex-shrink: 1;
+				.icon {
+					display: inline-block;
+					height: 1em;
+				}
+			}
+		}
+
+	}
+	&.closed {
+		.header {
+			.arrowBt {
+				transform: rotate(0deg);
+			}
 		}
 	}
 
@@ -219,12 +251,10 @@ export default class ToggleBlock extends Vue {
 	&.error, &.alert{
 		background-color: var(--color-alert-fadest);
 		.header {
+			color: var(--color-light);
 			background-color: var(--color-alert);
 			&:hover {
 				background-color: var(--color-alert-light);
-			}
-			.title {
-				color: var(--color-button);
 			}
 		}
 	}
@@ -232,12 +262,10 @@ export default class ToggleBlock extends Vue {
 	&.premium{
 		background-color: var(--color-premium-fadest);
 		.header {
+			color: var(--color-light);
 			background-color: var(--color-premium);
 			&:hover {
 				background-color: var(--color-premium-light);
-			}
-			.title {
-				color: var(--color-button);
 			}
 		}
 	}
@@ -245,12 +273,10 @@ export default class ToggleBlock extends Vue {
 	&.primary{
 		background-color: var(--color-primary-fadest);
 		.header {
+			color: var(--color-light);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);
-			}
-			.title {
-				color: var(--color-button);
 			}
 		}
 	}
@@ -258,12 +284,10 @@ export default class ToggleBlock extends Vue {
 	&.secondary{
 		background-color: var(--color-secondary-fadest);
 		.header {
+			color: var(--color-light);
 			background-color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-secondary-light);
-			}
-			.title {
-				color: var(--color-button);
 			}
 		}
 	}
@@ -282,6 +306,7 @@ export default class ToggleBlock extends Vue {
 			background-color: transparent;
 			border-bottom-left-radius: var(--border-radius);
 			border-bottom: none;
+			color: var(--color-secondary);
 			&:hover {
 				background-color: var(--color-dark-fadest);
 			}
@@ -291,14 +316,14 @@ export default class ToggleBlock extends Vue {
 				align-items: center;
 				flex-direction: row;
 				line-height: 1.25em;
-				color: var(--color-secondary);
 				text-shadow: var(--text-shadow-contrast);
 				font-size: .8em;
-				&::before {
-					content:"►";
-					margin-left: .3em;
-					transform: rotate(90deg);
-					transition: transform .25s;
+			}
+			.rightSlot {
+				.arrowBt {
+					.icon {
+						height: .75em;
+					}
 				}
 			}
 		}
@@ -307,9 +332,6 @@ export default class ToggleBlock extends Vue {
 			background-color: transparent;
 			.header {
 				border-radius: var(--border-radius);
-				.title::before {
-					transform: rotate(0);
-				}
 				&:hover {
 					background-color: var(--color-dark-fadest);
 				}
@@ -319,14 +341,6 @@ export default class ToggleBlock extends Vue {
 		.content {
 			padding: .5em;
 			// margin-left: 1.4em;
-		}
-
-		&.premium {
-			.header {
-				.title {
-					color: white !important;
-				}
-			}
 		}
 	}
 

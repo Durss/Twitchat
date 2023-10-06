@@ -161,6 +161,7 @@ export default class ParamsAccountPatreon extends Vue {
 		align-items: center;
 		font-size: 1.25em;
 		flex-shrink: 1;
+		text-align: center;
 		.icon {
 			width: 3em;
 			height: 3em;

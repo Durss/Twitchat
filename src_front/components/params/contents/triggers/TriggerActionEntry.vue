@@ -5,6 +5,7 @@
 	@delete="$emit('delete')" />
 
 	<ToggleBlock v-else
+	noArrow
 	:error="isError"
 	:open="opened"
 	:title="title"

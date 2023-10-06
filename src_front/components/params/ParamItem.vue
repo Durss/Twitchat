@@ -946,7 +946,7 @@ export default class ParamItem extends Vue {
 
 	&.hasIcon {
 		.placeholders {
-			padding-left:1.5em;
+			margin-left:1.5em;
 		}
 	}
 

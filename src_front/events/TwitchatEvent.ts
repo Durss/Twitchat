@@ -32,6 +32,7 @@ export default class TwitchatEvent extends Event {
 	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
 	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
 	public static WHEEL_OVERLAY_PRESENCE:TwitchatEventType = "WHEEL_OVERLAY_PRESENCE";
+	public static CREDITS_OVERLAY_PRESENCE:TwitchatEventType = "CREDITS_OVERLAY_PRESENCE";
 	public static COUNTDOWN_START:TwitchatEventType = "COUNTDOWN_START";
 	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
 	public static TIMER_START:TwitchatEventType = "TIMER_START";
@@ -95,6 +96,7 @@ export default class TwitchatEvent extends Event {
 	public static GET_CURRENT_TRACK:TwitchatActionType = "GET_CURRENT_TRACK";
 	public static WHEEL_OVERLAY_START:TwitchatActionType = "WHEEL_OVERLAY_START";
 	public static GET_WHEEL_OVERLAY_PRESENCE:TwitchatActionType = "GET_WHEEL_OVERLAY_PRESENCE";
+	public static GET_CREDITS_OVERLAY_PRESENCE:TwitchatActionType = "GET_CREDITS_OVERLAY_PRESENCE";
 	public static GET_TIMER_OVERLAY_PRESENCE:TwitchatActionType = "GET_TIMER_OVERLAY_PRESENCE";
 	public static GET_CURRENT_TIMERS:TwitchatActionType = "GET_CURRENT_TIMERS";
 	public static SET_EMERGENCY_MODE:TwitchatActionType = "SET_EMERGENCY_MODE";
@@ -156,6 +158,7 @@ export const TwitchatEventTypeList = [
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",
 	"WHEEL_OVERLAY_PRESENCE",
+	"CREDITS_OVERLAY_PRESENCE",
 	"COUNTDOWN_START",
 	"COUNTDOWN_COMPLETE",
 	"TIMER_START",
@@ -223,6 +226,7 @@ export const TwitchatActionTypeList = [
 	"CENSOR_DELETED_MESSAGES_TOGGLE",
 	"GET_CURRENT_TRACK",
 	"GET_WHEEL_OVERLAY_PRESENCE",
+	"GET_CREDITS_OVERLAY_PRESENCE",
 	"WHEEL_OVERLAY_START",
 	"GET_CURRENT_TIMERS",
 	"GET_TIMER_OVERLAY_PRESENCE",

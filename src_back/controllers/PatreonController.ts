@@ -292,12 +292,13 @@ export default class PatreonController extends AbstractController {
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(200);
 				response.send("Patreon connection Done! You can close this page.");
+				Logger.success("Patreon: Server auth complete");
 			}else{
-				
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(500);
 				response.send("Patreon authentication failed. <a href=\""+this.authURL+"\">Try again</a>");
 				response.send({success:false, message:"Authentication failed"});
+				Logger.success("Patreon: Server auth failed");
 			}
 		}
 	}

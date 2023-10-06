@@ -175,7 +175,7 @@ export default class Button extends Vue {
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-	color: var(--color-button);
+	color: var(--color-light);
 	user-select: none;
 	text-decoration: none !important;
 	font-size: 1rem;
@@ -462,7 +462,7 @@ export default class Button extends Vue {
 	}
 
 	&.selected {
-		color: var(--color-button-selected);
+		color: var(--color-dark);
 		.label {
 			font-weight: bold;
 			text-shadow: unset;

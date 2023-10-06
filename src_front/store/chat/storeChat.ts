@@ -675,7 +675,7 @@ export const storeChat = defineStore('chat', {
 		},
 
 		sendRightClickHint():void {
-			StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message:TwitchatDataTypes.ChatMessageTypes)=> {
+			StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE,(message)=> {
 				const m = message as TwitchatDataTypes.MessageChatData;
 				const str = StoreProxy.i18n.t("chat.right_click_hint");
 				const chunks = TwitchUtils.parseMessageToChunks(str, undefined, true);

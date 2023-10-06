@@ -1254,7 +1254,7 @@ export namespace TwitchatDataTypes {
 		 */
 		lastActivityDate?:number;
 		/**
-		 * Number of subgofts the user made on this channel
+		 * Number of subgifts the user made on this channel
 		 * Only available after making a subgift
 		 */
 		totalSubgifts?:number;
@@ -1468,8 +1468,9 @@ export namespace TwitchatDataTypes {
 		{id:"subsandgifts",	premium:false,	hasAmount:true,		icon:"sub",				label:"overlay.credits.categories.subsandgifts",	defaultLabel:"overlay.credits.labels.subsandgifts",	amountLabel:"overlay.credits.amounts.subsandgifts"},
 		{id:"follows",		premium:false,	hasAmount:false,	icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
 		{id:"raids",		premium:false,	hasAmount:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
+		{id:"chatters",		premium:false,	hasAmount:true,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
 		{id:"hypechats",	premium:true,	hasAmount:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
-		{id:"hypetrains",	premium:true,	hasAmount:true,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains",	amountLabel:"overlay.credits.amounts.hypetrains"},
+		{id:"hypetrains",	premium:true,	hasAmount:false,	icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},
 		{id:"rewards",		premium:true,	hasAmount:true,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",		amountLabel:"overlay.credits.amounts.rewards"},
 		{id:"bans",			premium:true,	hasAmount:true,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",			amountLabel:"overlay.credits.amounts.bans"},
 		{id:"timeouts",		premium:true,	hasAmount:true,		icon:"timeout",			label:"overlay.credits.categories.timeouts",		defaultLabel:"overlay.credits.labels.timeouts",		amountLabel:"overlay.credits.amounts.timeouts"},
@@ -1477,7 +1478,6 @@ export namespace TwitchatDataTypes {
 		{id:"so_out",		premium:true,	hasAmount:true,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
 		{id:"polls",		premium:true,	hasAmount:true,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
 		{id:"predictions",	premium:true,	hasAmount:true,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
-		{id:"chatters",		premium:true,	hasAmount:true,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
 		{id:"text",			premium:true,	hasAmount:false,	icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
 	
@@ -1501,11 +1501,18 @@ export namespace TwitchatDataTypes {
 		htmlTemplate?:string;
 		showAmounts?:boolean;
 		showBadges?:boolean;
+		showMods?:boolean;
+		showVIPs?:boolean;
+		showSubs?:boolean;
+		sortByRoles?:boolean;
+		sortByAmounts?:boolean;
+		showChatters?:boolean;
 		text?:string,
 	}
 
 	export interface EndingCreditsParams {
 		scale:number;
+		padding:number;
 		colorTitle:string;
 		colorEntry:string;
 		fontTitle:string;

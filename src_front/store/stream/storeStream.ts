@@ -296,7 +296,7 @@ export const storeStream = defineStore('stream', {
 			}).catch(()=>{/*ignore*/});
 		},
 
-		async getSummary(offset:number = 0, includeParams:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
+		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const res = await TwitchUtils.loadCurrentStreamInfo([channelId]);
 			let prevDate:number = 0;
@@ -329,7 +329,7 @@ export const storeStream = defineStore('stream', {
 				result.streamDuration = Date.now() - dateOffset;
 			}
 
-			const messages = StoreProxy.chat.messages;
+			const messages = simulate? [] : StoreProxy.chat.messages;
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
 			for (let i = messages.length-1; i >= 0; i--) {
 				const m = messages[i];
@@ -340,6 +340,53 @@ export const storeStream = defineStore('stream', {
 					break;
 				}
 				prevDate = m.date;
+			}
+
+			if(simulate) {
+				//Generate fake data
+				for (let i = 0; i < 100; i++) {
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
+				}
+				for (let i = 0; i < 20; i++) {
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.CHEER, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageFollowingData>(TwitchatDataTypes.TwitchatMessageType.FOLLOWING, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=>{
+						message.is_gift = false;
+						message.is_giftUpgrade = false;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=>{
+						message.is_gift = true;
+						message.is_giftUpgrade = false;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeChatData>(TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(TwitchatDataTypes.TwitchatMessageType.REWARD, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageBanData>(TwitchatDataTypes.TwitchatMessageType.BAN, (message)=>{
+						delete message.duration_s;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageBanData>(TwitchatDataTypes.TwitchatMessageType.BAN, (message)=>{
+						message.duration_s = Math.ceil(Math.random()*666) + 1;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (message)=>{
+						message.received = false;
+					}, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (message)=>{
+						message.received = true;
+					}, false));
+				}
+
+				//Raid require API calls which are slowing down generation if we request many
+				for (let i = 0; i < 3; i++) {
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePollData>(TwitchatDataTypes.TwitchatMessageType.POLL, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePredictionData>(TwitchatDataTypes.TwitchatMessageType.PREDICTION, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeTrainSummaryData>(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRaidData>(TwitchatDataTypes.TwitchatMessageType.RAID, undefined, false));
+					
+				}
+			}
+			
+			for (let i = 0; i < messages.length; i++) {
+				const m = messages[i];
 				
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
@@ -421,9 +468,9 @@ export const storeStream = defineStore('stream', {
 								uid: m.user.id,
 								login: m.user.displayNameOriginal,
 								count: 0,
-								vip: chanInfo.is_vip,
-								mod: chanInfo.is_moderator,
-								sub: chanInfo.is_subscriber,
+								vip: chanInfo.is_vip || (simulate && Math.random() > .85),
+								mod: chanInfo.is_moderator || (simulate && Math.random() > .95),
+								sub: chanInfo.is_subscriber || (simulate && Math.random() > .75),
 								bans: 0,
 								tos: 0,
 								tosDuration: 0,
@@ -446,6 +493,7 @@ export const storeStream = defineStore('stream', {
 					}
 				}
 			}
+
 			return result;
 		},
 		

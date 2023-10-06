@@ -194,7 +194,7 @@ export default class Slider extends Vue {
 		background-color: var(--color-primary);
 		min-width: 1px;
 		z-index: 1;
-		transition: width .1s;
+		// transition: width .1s;
 	}
 
 	input {

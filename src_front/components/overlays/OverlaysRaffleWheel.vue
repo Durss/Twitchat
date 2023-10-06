@@ -97,6 +97,8 @@ export default class OverlaysRaffleWheel extends Vue {
 		this.resizeHandler();
 		window.addEventListener("resize", this.resizeHandler);
 
+		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE);
+		
 		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
 		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE); }
 

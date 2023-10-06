@@ -101,7 +101,7 @@ export default class ProgressBar extends Vue {
 		position: absolute;
 		font-family: var(--font-roboto);
 		background-color: var(--color-primary);
-		color: var(--color-button);
+		color: var(--color-light);
 		top: 0;
 		font-size: 15px;
 		padding: 2px 5px;

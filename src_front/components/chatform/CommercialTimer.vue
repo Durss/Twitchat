@@ -50,7 +50,7 @@ export default class CommercialTimer extends Vue {
 	width: 25px;
 	height: 25px;
 	border-radius: 50%;
-	color: var(--color-button);
+	color: var(--color-light);
 	background-color: var(--color-alert);
 	position: relative;
 	

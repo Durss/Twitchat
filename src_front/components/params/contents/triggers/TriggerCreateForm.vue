@@ -757,7 +757,7 @@ interface TriggerCategory{
 
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
-			color: var(--color-button);
+			color: var(--color-light);
 			background-color: var(--color-primary);
 			border-radius: var(--border-radius);
 			padding: 0 .5em;

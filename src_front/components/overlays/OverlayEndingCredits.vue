@@ -1,68 +1,106 @@
 <template>
-	<div class="overlayendingcredits" v-if="data && slotList" :style="styles" ref="holder">
+	<div class="overlayendingcredits" v-if="data && slotList && !noEntry" :style="styles" ref="holder">
 		<template v-for="item in slotList">
-			<div :class="item.holderClasses">
-				<h1 :style="item.titleStyles"><Icon :name="item.slot.icon" />{{ item.params.label }}</h1>
-				<div class="list">
-					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item hypechat">
-						<span class="login">{{entry.login}}</span>
+			<div :class="item.holderClasses" :style="item.categoryStyles">
+				<h1 :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
+				<div class="list" :style="item.entryStyles">
+					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
 							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
 							<span class="value">{{entry.amount}}</span>
 						</div>
 					</div>
 					
-					<div v-if="item.params.slotType == 'subs' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subs || []).concat().splice(0, item.params.maxEntries)" class="item sub">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'subs' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subs || []).concat().splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item subgift">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'cheers'" v-for="entry in (data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item bits">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'cheers'" v-for="entry in (data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.params.maxEntries)" class="item raids">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.params.maxEntries)" class="item follows">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item so_in">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item so_out">
-						<span class="login">{{entry.login}}</span>
+					<div v-if="item.params.slotType == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.params.maxEntries)" class="item trains">
-						<span class="login">{{ $t('train.ending_credits', {LEVEL:entry.level, PERCENT:entry.percent})}}</span>
+					<div v-if="item.params.slotType == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.params.maxEntries)" class="item">
+						<i18n-t scope="global" keypath="train.ending_credits" tag="span">
+							<template #LEVEL>
+								<strong>{{ entry.level }}</strong>
+							</template>
+							<template #PERCENT>
+								<strong>{{ entry.percent }}</strong>
+							</template>
+						</i18n-t>
 					</div>
 					
-					<div v-if="item.params.slotType == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.params.maxEntries)" class="item bans">
-						<span class="login">{{ entry.login }}</span>
+					<div v-if="item.params.slotType == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{ entry.login }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">{{ entry.bans }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.params.maxEntries)" class="item tos">
-						<span class="login">{{ entry.login }}</span>
+					<div v-if="item.params.slotType == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.params.maxEntries)" class="item">
+						<span class="info">{{ entry.login }}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'rewards'" v-for="entry in rewards.concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item rewards">
+					<div v-if="item.params.slotType == 'rewards'" v-for="entry in rewards.concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item">
 						<img :src="entry.reward.icon" alt="reward redeem icon" class="rewardIcon">
-						<span class="login">{{ entry.reward.name }}</span>
+						<span class="info">{{ entry.reward.name }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">x{{ entry.total }}</span>
+					</div>
+					
+					<div v-if="item.params.slotType == 'chatters'" v-for="entry in getSortedChatters(item.params)" class="item">
+						<Icon class="badge" v-if="item.params.showBadges && (entry.vip || entry.mod || entry.sub)"
+							:name="(entry.mod? 'mod' : (entry.vip? 'vip' : (entry.sub? 'sub' : 'min')))" />
+						<span class="info">{{ entry.login }}</span>
+						<span class="count" v-if="item.params.showAmounts === true"><Icon name="whispers" class="messageIcon" />{{ entry.count }}</span>
+					</div>
+					
+					<div v-if="item.params.slotType == 'polls'" v-for="entry in (data.polls || []).concat()" class="item">
+						<span class="info">{{ entry.title }}</span>
+						<div class="pollItems">
+							<div v-for="choice in entry.choices" class="pollItem">
+								<p><Icon name="checkmark" v-if="choice.win"/><span class="dot" v-else>• </span>{{ choice.title }}</p>
+								<p>{{ Math.round(choice.votes/entry.votes * 100) }}%</p>
+							</div>
+						</div>
+					</div>
+					
+					<div v-if="item.params.slotType == 'predictions'" v-for="entry in (data.predictions || []).concat()" class="item">
+						<span class="info">{{ entry.title }}</span>
+						<div class="pollItems">
+							<div v-for="choice in entry.outcomes" class="pollItem">
+								<p><Icon name="checkmark" v-if="choice.win"/><span class="dot" v-else>• </span>{{ choice.title }}</p>
+								<p>{{ choice.points }}<Icon name="channelPoints"/></p>
+							</div>
+						</div>
+					</div>
+					
+					<div v-if="item.params.slotType == 'text'" class="item text">
+						<p v-html="item.params.text"></p>
 					</div>
 				</div>
 			</div>
@@ -88,17 +126,22 @@ import Utils from '@/utils/Utils';
 export default class OverlayEndingCredits extends AbstractOverlay {
 
 	public display:boolean = false;
+	public noEntry:boolean = false;
 	public data:TwitchatDataTypes.StreamSummaryData|null = null;
-	public slotList:{slot:TwitchatDataTypes.EndingCreditsSlotDefinition, params:TwitchatDataTypes.EndingCreditsSlotParams, holderClasses:string[], titleStyles:StyleValue,}[] = [];
+	public slotList:SlotItem[] = [];
 	
 	private posY:number = 0;
 	private animFrame:number = -1;
+	private paused:boolean = false;
 	private prevParams:TwitchatDataTypes.EndingCreditsParams|null = null;
 	private startDelayTimeout:number = -1;
 	private entryCountCache:{[key:string]:number} = {}
+	private prevTs:number = 0;
 
+	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private summaryDataHandler!:(e:TwitchatEvent) => void;
 	private paramsDataHandler!:(e:TwitchatEvent) => void;
+	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
 	public get rewards() {
 		const res:{total:number, users:{login:string, uid:string, total:number}[], reward:(TwitchatDataTypes.StreamSummaryData["rewards"][0]["reward"])}[] = [];
@@ -130,19 +173,47 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		return res;
 	}
 
+	public getSortedChatters(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		let list = (this.data?.chatters || []).concat()
+		.filter(v=>{
+			if(v.count == 0) return false;
+			if(v.mod) return item.showMods;
+			else if(v.vip) return item.showVIPs;
+			else if(v.sub) return item.showSubs;
+			return item.showChatters;
+		})
+		.sort((a,b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+			if(item.sortByRoles) {
+				if(a.mod) scoreA +=10;
+				else if(a.vip) scoreA +=5;
+				else if(a.sub) scoreA +=2;
+				
+				if(b.mod) scoreB +=10;
+				else if(b.vip) scoreB +=5;
+				else if(b.sub) scoreB +=2;
+			}
+
+			if(item.sortByAmounts) {
+				if(a.count > b.count) scoreA ++;
+				if(a.count < b.count) scoreB ++;
+			}
+			return scoreB - scoreA;
+		});
+		return list.splice(0, item.maxEntries);
+	}
+
 	public get styles():StyleValue {
 		const res:StyleValue = {
 			opacity: this.display? 1 : 0,
 			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
-			fontFamily: this.data?.params?.fontEntry+", Inter",
-			color: this.data?.params?.colorEntry,
-			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 		}
 		return res;
 	}
 
 	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
-		const res = ["category"];
+		const res = ["category", item.slotType];
 		if(this.data?.params?.showIcons === false) res.push("noIcon");
 		const itemCount = this.getEntryCountForSlot(item);
 		//If requesting 3 cols but there are only 2 items, switch to 2 cols mode
@@ -157,30 +228,56 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		const res:StyleValue = {
 			color: this.data?.params?.colorTitle,
 			fontFamily: this.data?.params?.fontTitle+", Inter",
+			filter: "drop-shadow(.075em .075em 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+		}
+		return res;
+	}
+
+	public getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			color: this.data?.params?.colorEntry,
+			fontFamily: this.data?.params?.fontEntry+", Inter",
+			filter: "drop-shadow(.075em .075em 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+		}
+		return res;
+	}
+
+	public getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
 	}
 
 	public requestInfo():void {
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_SUMMARY_DATA, {includeParams:true, dateOffset:Date.parse("06/01/2023 18:27:02 GMT+0200")});
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_SUMMARY_DATA, {includeParams:true});
 	}
 
 	public beforeMount(): void {
+		PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE)
+		
+		this.keyupHandler = (e:KeyboardEvent) => this.onKeyup(e);
 		this.summaryDataHandler = (e:TwitchatEvent) => this.onSummaryData(e);
 		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE); }
+
+		document.addEventListener("keyup", this.keyupHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
 		watch(()=>this.posY, ()=> {
-			(this.$refs.holder as HTMLDivElement).style.top = this.posY+"px";
+			(this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
 		});
 	}
 
 	public beforeUnmount(): void {
 		cancelAnimationFrame(this.animFrame);
 		gsap.killTweensOf(this.$el as HTMLElement);
+		document.removeEventListener("keyup", this.keyupHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
 	public getEntryCountForSlot(item:TwitchatDataTypes.EndingCreditsSlotParams):number {
@@ -200,8 +297,12 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			case "rewards": count = (this.data?.rewards || []).length; break;
 			case "bans": count = (this.data?.chatters || []).filter(v=>v.bans > 0).length; break;
 			case "timeouts": count = (this.data?.chatters || []).filter(v=>v.tosDuration > 0).length; break;
+			case "polls": count = (this.data?.polls || []).length; break;
+			case "predictions": count = (this.data?.predictions || []).length; break;
 			case "vips": count = (this.data?.chatters || []).filter(v=>v.vip).length; break;
 			case "mods": count = (this.data?.chatters || []).filter(v=>v.mod).length; break;
+			case "text": count = item.text || item.label? 1 : 0; break;
+			case "chatters": count = this.getSortedChatters(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -214,6 +315,18 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	public formatDuration(seconds:number):string {
 		return Utils.formatDuration(seconds * 1000);
+	}
+
+	/**
+	 * Toggles scroll pause
+	 */
+	public onKeyup(event:KeyboardEvent):void {
+		if(event.code != "Space") return;
+		event.stopPropagation();
+		this.paused = !this.paused;
+		if(this.paused) {
+			gsap.killTweensOf(this.$el as HTMLElement);
+		}
 	}
 
 	/**
@@ -257,7 +370,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private reset(resetScroll:boolean = true):void {
 		this.display = false;
-		this.entryCountCache = {};
 		if(resetScroll) {
 			clearTimeout(this.startDelayTimeout)
 			cancelAnimationFrame(this.animFrame);
@@ -270,12 +382,15 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 * Starts scrolling credits
 	 */
 	private startScroll(resetScroll:boolean):void {
+		if(this.noEntry) return;
+
 		this.$nextTick().then(async () => {
 			if(this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
 					this.startDelayTimeout = setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
 				})
 			}
+			
 			if(!this.data?.params) return;//No params?!
 			this.display = true;
 			
@@ -285,13 +400,13 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				this.posY = window.innerHeight;
 
 				if(this.data?.params?.timing == 'duration') {
-					gsap.fromTo(holder, {top:this.posY}, {duration:this.data!.params!.duration, top:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
+					gsap.fromTo(holder, {translateY:this.posY}, {duration:this.data!.params!.duration, translateY:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
 						if(this.data?.params?.loop === true) {
 							this.reset(true);
 						}
 					}});
 				}else{
-					this.renderFrame();
+					this.renderFrame(performance.now());
 				}
 			}
 		})
@@ -300,8 +415,20 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	/**
 	 * Scrolls credits at a specific speed
 	 */
-	private renderFrame():void {
-		this.animFrame = requestAnimationFrame(()=>this.renderFrame());
+	private renderFrame(ts:number):void {
+		this.animFrame = requestAnimationFrame((ts)=>this.renderFrame(ts));
+		
+		if(this.paused) return;
+		if(this.noEntry) return;
+
+		if(!this.prevTs) {
+			this.prevTs = ts;
+			return;
+		}
+		
+		const fps = (ts - this.prevTs);
+		this.prevTs = ts;
+
 		const holder = this.$el as HTMLElement;
 		const bounds = holder.getBoundingClientRect();
 
@@ -312,23 +439,45 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			return;
 		}
 
-		this.posY -= this.data?.params?.speed || 2;
+		this.posY -= (this.data?.params?.speed || 2) / fps;
 	}
 
+	/**
+	 * Pre computes the slots parameters
+	 */
 	private buildSlots():void {
 		if(!this.data || !this.data.params) return;
 		this.slotList = [];
+		this.entryCountCache = {};
 		const slots = this.data.params.slots.filter(v=>this.getEntryCountForSlot(v) > 0);
+		let totalEntries = 0;
 		slots.forEach(slotParams => {
 			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
+			const entryCount = this.getEntryCountForSlot(slotParams);
+			totalEntries += entryCount;
+			//Pre compute styles and classes to avoid useless rerenders
 			this.slotList.push({
 				slot,
+				entryCount,
 				params:slotParams,
 				holderClasses:this.getCategoryClasses(slotParams),
 				titleStyles:this.getTitleStyles(slotParams),
+				entryStyles:this.getEntryStyles(slotParams),
+				categoryStyles:this.getCategoryStyles(slotParams),
 			})
-		})
+		});
+		this.noEntry = totalEntries == 0;
 	}
+}
+
+interface SlotItem {
+	slot:TwitchatDataTypes.EndingCreditsSlotDefinition;
+	params:TwitchatDataTypes.EndingCreditsSlotParams;
+	holderClasses:string[];
+	titleStyles:StyleValue;
+	entryStyles:StyleValue;
+	categoryStyles:StyleValue;
+	entryCount:number;
 }
 
 </script>
@@ -342,6 +491,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	width: 100%;
 	// background-color: red;
 	color: #fff;
+	will-change: transform;
 
 	.category {
 		font-family: "Inter";
@@ -370,32 +520,72 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			.item {
 				display: flex;
 				flex-direction: row;
-				align-items: flex-end;
 				justify-content: center;
 				font-size: 1.5em;
 				font-weight: 400;
 				.icon {
 					height: 1em;
 				}
-				&.hypechat {
-					.login {
+				.count {
+					margin-left: .5em;
+					font-weight: bold;
+					display: flex;
+					flex-direction: raw;
+					.icon {
+						margin-right: .25em;
+						height: 1em;
+						width: 1em;
+					}
+				}
+
+				.badge {
+					width: 1em;
+					min-width: 1em;
+					height: 1em;
+					min-height: 1em;
+					margin-right: .5em;
+				}
+
+				.rewardIcon {
+					margin-right: .5em;
+					height: 1em;
+				}
+			}
+		}
+		&.hypechats {
+			.list {
+				.item {
+					.info {
 						margin-right: .5em;
 					}
 					.amount {
 						font-weight: bold;
 					}
 				}
-				.count {
-					margin-left: .5em;
-					font-weight: bold;
-					.icon {
-						margin-right: .25em;
+			}
+		}
+		&.polls, &.predictions {
+			.list {
+				gap: 3em;
+				.item {
+					gap: .5em;
+					flex-direction: column;
+					min-width: 100%;
+					.info {
+						font-weight: bold;
 					}
-				}
-
-				.rewardIcon {
-					margin-right: .5em;
-					height: 1em;
+					.pollItems {
+						gap: .25em;
+						display: flex;
+						flex-direction: column;
+						max-width: 400px;
+						font-size: .9em;
+						.pollItem {
+							display: flex;
+							flex-direction: row;
+							justify-content: space-between;
+						}
+					}
 				}
 			}
 		}
@@ -412,6 +602,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 		&.layout_center {
 			.list {
+				width: 100%;
 				column-gap: 2em;
 				flex-direction: row;
 				flex-wrap: wrap;
@@ -435,6 +626,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				align-items: flex-end;
 			}
 		}
+
+		// &.layout_col {
+		// 	width: 100%;
+		// 	.list {
+		// 		width: 100%;
+		// 		align-items: center;
+		// 	}
+		// }
 
 		&.layout_colLeft {
 			.list {
@@ -464,6 +663,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				column-gap: 4em;
 				grid-template-columns: repeat(auto-fill, minmax(25%, 1fr));
 				.item {
+					max-width: 100%;
 					&:nth-child(3n+1) {
 						justify-self: end;
 					}
@@ -473,6 +673,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 					&:nth-child(3n) {
 						justify-self: start;
 					}
+					.info {
+						overflow: hidden;
+						text-overflow: ellipsis;
+					}	
 				}
 			}
 		}

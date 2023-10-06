@@ -258,7 +258,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 						.raidBt {
 							opacity: 1;
 							font-size: 2em;
-							color: var(--color-button);
+							color: var(--color-light);
 						}
 					}
 				}

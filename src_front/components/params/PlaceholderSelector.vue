@@ -1,6 +1,8 @@
 <template>
 	<ToggleBlock small :class="classes"
-	noBackground
+	:alert="alert"
+	:premium="premium"
+	:secondary="secondary"
 	:title="$t('global.placeholder_selector_title')"
 	:open="false">
 		<div class="list" v-if="localPlaceholders.length > 0">
@@ -211,7 +213,7 @@ export default class PlaceholderSelector extends Vue {
 			display: inline;
 			text-align: right;
 			font-weight: bold;
-			color: var(--color-button);
+			color: var(--color-light);
 			background-color: var(--color-primary);
 			&:hover {
 				background-color: var(--color-primary-light);

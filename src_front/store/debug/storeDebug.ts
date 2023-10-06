@@ -11,6 +11,7 @@ import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
 
+let streamInfoCache:TwitchDataTypes.ChannelInfo|null = null;
 const ponderatedRandomList:TwitchatDataTypes.TwitchatMessageStringType[] = [];
 
 export const storeDebug = defineStore('debug', {
@@ -136,7 +137,10 @@ export const storeDebug = defineStore('debug', {
 					};
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
-						fakeUser.channelInfo[uid].totalSubgifts = Math.floor(Math.random() * 1000);
+						m.is_gift = true;
+						fakeUser.channelInfo[user.id].totalSubgifts = Math.floor(Math.random() * 1000);
+					}else if(Math.random() > .8) {
+						m.is_giftUpgrade = true;
 					}
 					data = m;
 					break;
@@ -391,7 +395,7 @@ export const storeDebug = defineStore('debug', {
 										TwitchatDataTypes.TwitchatMessageType.CHEER,
 									]
 						const t = Utils.pickRand(types);
-						await this.simulateMessage(t, (message)=> {
+						await this.simulateMessage<TwitchatDataTypes.MessageCheerData|TwitchatDataTypes.MessageSubscriptionData|TwitchatDataTypes.MessageHypeChatData>(t, (message)=> {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 								//Simulate subgifts
 								if(Math.random() > .8) {
@@ -529,6 +533,10 @@ export const storeDebug = defineStore('debug', {
 						}
 						choices.push(entry);
 					}
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 5, min: 2 }
+					});
 					const m:TwitchatDataTypes.MessagePollData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -537,7 +545,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						choices,
 						duration_s:180,
-						title:"Who wins?",
+						title:lorem.generateSentences(1).replace(".","")+"?",
 						started_at:Date.now() - 2 * 60 * 1000,
 						ended_at:Date.now(),
 						winner,
@@ -558,6 +566,10 @@ export const storeDebug = defineStore('debug', {
 						totalUsers += voters;
 						outcomes.push({id:Utils.getUUID(), label:"Option "+(i+1), votes, voters});
 					}
+					const lorem = new LoremIpsum({
+						sentencesPerParagraph: { max: 8, min: 4 },
+						wordsPerSentence: { max: 5, min: 2 }
+					});
 					const m:TwitchatDataTypes.MessagePredictionData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -566,7 +578,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						outcomes,
 						duration_s:180,
-						title:"Who wins?",
+						title:lorem.generateSentences(1).replace(".","")+"?",
 						started_at:Date.now() - 2 * 60 * 1000,
 						ended_at:Date.now(),
 						pendingAnswer:false,
@@ -698,7 +710,8 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
-					const stream = (await TwitchUtils.loadChannelInfo([user.id]))[0];
+					const stream = streamInfoCache || (await TwitchUtils.loadChannelInfo([user.id]))[0];
+					streamInfoCache = stream;
 					const m:TwitchatDataTypes.MessageShoutoutData = {
 						platform:"twitch",
 						channel_id:user.id,
@@ -1399,7 +1412,7 @@ export const storeDebug = defineStore('debug', {
 			}
 
 			const messageType = forcedType? forcedType : Utils.pickRand(ponderatedRandomList);
-			return await this.simulateMessage(messageType, (data)=> {
+			return await this.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(messageType, (data)=> {
 				if(data.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(forcedMessage) {
 						data.message_chunks = TwitchUtils.parseMessageToChunks(forcedMessage, undefined, true);

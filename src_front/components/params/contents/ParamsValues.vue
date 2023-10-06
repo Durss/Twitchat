@@ -32,7 +32,7 @@
 			</form>
 		</section>
 
-		<ToggleBlock class="valueEntry" :open="false"
+		<ToggleBlock class="valueEntry" :open="false" noArrow
 		v-if="valueEntries.length > 0"
 		v-for="entry in valueEntries" :key="entry.value.id"
 		:title="entry.value.name">

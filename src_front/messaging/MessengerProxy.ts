@@ -639,7 +639,7 @@ export default class MessengerProxy {
 			const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 			const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
 			forcedMessage = forcedMessage.replace(/\{LOREM\}/gi, message);
-			await StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage, (m)=>{
+			await StoreProxy.debug.sendRandomFakeMessage<TwitchatDataTypes.ChatMessageTypes>(true, forcedMessage, (m)=>{
 				if(Config.instance.DEMO_MODE) m.fake = false;
 			});
 			return true;
@@ -675,7 +675,7 @@ export default class MessengerProxy {
 			
 			this.spamInterval = window.setInterval(()=> {
 				if(incMode) {
-					StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
+					StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							m.message = "Message "+(inc++);
 							m.message_chunks = TwitchUtils.parseMessageToChunks(m.message);
@@ -692,7 +692,7 @@ export default class MessengerProxy {
 					count --;
 					const lorem = new LoremIpsum({wordsPerSentence: { max: 8, min: 1 }});
 					const message = lorem.generateSentences(Math.round(Math.random()*2) + 1);
-					StoreProxy.debug.sendRandomFakeMessage(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{
+					StoreProxy.debug.sendRandomFakeMessage<TwitchatDataTypes.ChatMessageTypes>(true, forcedMessage.replace(/\{LOREM\}/gi, message), (m)=>{
 						//Force a specific reward via "/spam reward {REWARD_ID}"
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {

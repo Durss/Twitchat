@@ -578,7 +578,7 @@ export interface IDebugActions {
 	 * @param postOnChat 
 	 * @param allowConversations 
 	 */
-	simulateMessage(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, postOnChat?:boolean, allowConversations?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	simulateMessage<T>(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:T)=>void, postOnChat?:boolean, allowConversations?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
 	/**
 	 * Sends a fake notice of the specified type on chat
 	 * @param type 
@@ -586,14 +586,14 @@ export interface IDebugActions {
 	 * @param postOnChat 
 	 * @param allowConversations 
 	 */
-	simulateNotice(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, postOnChat?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	simulateNotice<T>(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:T)=>void, postOnChat?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
 	/**
 	 * Sends a random fake message of any type
 	 * @param postOnChat 
 	 * @param forcedMessage 
 	 * @param hook 
 	 */
-	sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	sendRandomFakeMessage<T>(postOnChat:boolean, forcedMessage?:string, hook?:(message:T)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes>;
 }
 
 
@@ -1086,7 +1086,7 @@ export interface IStreamActions {
 	/**
 	 * Get all current stream data
 	 */
-	getSummary(offset?:number, includeParams?:boolean):Promise<TwitchatDataTypes.StreamSummaryData>;
+	getSummary(offset?:number, includeParams?:boolean, simulate?:boolean):Promise<TwitchatDataTypes.StreamSummaryData>;
 }
 
 
