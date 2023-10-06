@@ -99,8 +99,8 @@
 						</div>
 					</div>
 					
-					<div v-if="item.params.slotType == 'text'" class="item text">
-						<p v-html="item.params.text"></p>
+					<div v-if="item.params.slotType == 'text'" class="item">
+						<p class="textContent" v-html="item.params.text"></p>
 					</div>
 				</div>
 			</div>
@@ -112,12 +112,12 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
+import { Linear } from 'gsap';
+import gsap from 'gsap/all';
+import { watch, type StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
-import gsap from 'gsap/all';
-import { Linear } from 'gsap';
-import { watch, type StyleValue } from 'vue';
-import Utils from '@/utils/Utils';
 
 @Component({
 	components:{},
@@ -221,6 +221,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		//If requestion 3 or 3 cols but only 1 item is available, switch to 1 col mode
 		else if((item.layout == "3cols" && itemCount == 1) || (item.layout == "2cols" && itemCount == 1)) res.push("layout_col");
 		else res.push("layout_"+item.layout);
+		if(item.slotType == "text" && !item.text) res.push("noText");
 		return res;
 	}
 
@@ -604,6 +605,15 @@ interface SlotItem {
 						align-items: flex-end;
 					}
 				}
+			}
+		}
+
+		&.text.noText {
+			h1 {
+				margin-bottom: 0;
+			}
+			.textContent {
+				display: none;
 			}
 		}
 
