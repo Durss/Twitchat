@@ -515,7 +515,7 @@ interface SlotItem {
 			gap: 1em;
 			display: flex;
 			flex-direction: column;
-			max-width: 800px;
+			max-width: 100vw;
 
 			.item {
 				display: flex;
@@ -578,13 +578,30 @@ interface SlotItem {
 						gap: .25em;
 						display: flex;
 						flex-direction: column;
-						max-width: 400px;
+						max-width: fit-content;
 						font-size: .9em;
 						.pollItem {
+							gap: 5em;
 							display: flex;
 							flex-direction: row;
 							justify-content: space-between;
 						}
+					}
+				}
+			}
+			&.layout_col {
+				.list {
+					text-align: center;
+					.item {
+						align-items: center;
+					}
+				}
+			}
+			&.layout_colRight {
+				.list {
+					text-align: right;
+					.item {
+						align-items: flex-end;
 					}
 				}
 			}
@@ -676,6 +693,7 @@ interface SlotItem {
 					.info {
 						overflow: hidden;
 						text-overflow: ellipsis;
+						line-height: 1.2em;
 					}	
 				}
 			}

@@ -465,7 +465,9 @@ export default class OverlayParamsCredits extends Vue {
 			if(slot.slotType !== "text") continue;
 			slot.text = (slot.text ||"").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(fakeDuration));
 			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, fakeDuration.toString());
-			slot.text = await Utils.parseGlobalPlaceholders(slot.text!);
+			if(slot.text) {
+				slot.text = await Utils.parseGlobalPlaceholders(slot.text!);
+			}
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (result as unknown) as JsonObject);
 	}
