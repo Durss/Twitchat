@@ -328,7 +328,7 @@ export const storeStream = defineStore('stream', {
 						const slot = result.params.slots[i];
 						if(slot.slotType !== "text") continue;
 						if(!slot.text) continue;
-						slot.text = await Utils.parseGlobalPlaceholders(slot.text!);
+						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
 					}
 				}
 			}

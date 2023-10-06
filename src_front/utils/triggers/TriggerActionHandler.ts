@@ -1754,7 +1754,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, stripHTMLTags:boolean = true):Promise<string> {
 		src = src.toString();//Make sure it's a string
 		let res = src.toString();
 		if(!res) return "";
@@ -2057,7 +2057,11 @@ export default class TriggerActionHandler {
 			}
 			
 			// console.log("RESULT = ",res);
-			return Utils.stripHTMLTags(res);
+			if(stripHTMLTags) {
+				return Utils.stripHTMLTags(res);
+			}else{
+				return res;
+			}
 			
 		}catch(error) {
 			console.error(error);

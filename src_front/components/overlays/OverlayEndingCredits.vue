@@ -617,6 +617,19 @@ interface SlotItem {
 			}
 		}
 
+		&.text {
+			&.layout_col {
+				.list {
+					text-align: center;
+				}
+			}
+			&.layout_colRight {
+				.list {
+					text-align: right;
+				}
+			}
+		}
+
 		&.layout_left {
 			.list {
 				column-gap: 2em;

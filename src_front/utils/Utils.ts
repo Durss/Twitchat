@@ -973,7 +973,7 @@ export default class Utils {
 	 * @param src 
 	 * @returns 
 	 */
-	public static async parseGlobalPlaceholders(src:string):Promise<string> {
+	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true):Promise<string> {
 		let placeholders = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
 		const trigger:TriggerData = {
 			id:"",
@@ -995,7 +995,7 @@ export default class Utils {
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			user:StoreProxy.auth.twitch.user,
 		};
-		return await TriggerActionHandler.instance.parsePlaceholders({}, placeholders, trigger, message, src);
+		return await TriggerActionHandler.instance.parsePlaceholders({}, placeholders, trigger, message, src, null, false, false, stripHTMLTags);
 
 	}
 }
