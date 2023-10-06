@@ -7,6 +7,8 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { TriggerEventPlaceholders, type TriggerData, TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -320,6 +322,13 @@ export const storeStream = defineStore('stream', {
 				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 				if(json) {
 					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+
+					//Parse "text" slots placholders
+					for (let i = 0; i < result.params.slots.length; i++) {
+						const slot = result.params.slots[i];
+						if(slot.slotType !== "text") continue;
+						slot.text = await Utils.parseGlobalPlaceholders(slot.text!);
+					}
 				}
 			}
 

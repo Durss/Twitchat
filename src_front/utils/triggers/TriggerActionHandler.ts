@@ -1754,7 +1754,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false):Promise<string> {
 		src = src.toString();//Make sure it's a string
 		let res = src.toString();
 		if(!res) return "";
@@ -1794,10 +1794,11 @@ export default class TriggerActionHandler {
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys | "duration" | "duration_ms";
+						let startDate = (streamInfos.streamStartedAt_ms || Date.now());
 						if(pointerLocal == "duration") {
-							value = Utils.formatDuration(Date.now() - (streamInfos.streamStartedAt_ms || Date.now()));
+							value = Utils.formatDuration(Date.now() - startDate);
 						}else if(pointerLocal == "duration_ms") {
-							value = (Date.now() - (streamInfos.streamStartedAt_ms || Date.now())).toString();
+							value = (Date.now() - startDate).toString();
 						}else{
 							value = streamInfos[pointerLocal]?.toString() || "";
 						}

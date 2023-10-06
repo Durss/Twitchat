@@ -1,9 +1,10 @@
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, TriggerEventPlaceholders } from '@/types/TriggerActionDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
 import { TwitchScopes } from './twitch/TwitchScopes';
 import TwitchUtils from './twitch/TwitchUtils';
+import TriggerActionHandler from './triggers/TriggerActionHandler';
 
 /**
  * Created by Durss
@@ -964,5 +965,37 @@ export default class Utils {
 		const twitchatFonts = new Set([...document.fonts.values()].map(v=>v.family));
 		this.fontsCache = [...fontAvailable.values()].concat([...twitchatFonts]);
 		return this.fontsCache;
+	}
+
+	/**
+	 * Parses global placeholders only
+	 * 
+	 * @param src 
+	 * @returns 
+	 */
+	public static async parseGlobalPlaceholders(src:string):Promise<string> {
+		let placeholders = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+		const trigger:TriggerData = {
+			id:"",
+			type:TriggerTypes.GLOBAL_PLACHOLDERS,
+			enabled:true,
+			actions:[],
+		};
+		const message:TwitchatDataTypes.MessageChatData = {
+			id:"",
+			channel_id:"",
+			platform:"twitch",
+			date:Date.now(),
+			is_short:false,
+			message:"",
+			message_html:"",
+			message_chunks:[],
+			message_size:0,
+			answers:[],
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			user:StoreProxy.auth.twitch.user,
+		};
+		return await TriggerActionHandler.instance.parsePlaceholders({}, placeholders, trigger, message, src);
+
 	}
 }

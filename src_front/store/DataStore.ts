@@ -145,8 +145,8 @@ export default class DataStore {
 	 * Makes asynchronous data migrations after being authenticated
 	 */
 	public static async migrateData(data:any):Promise<any> {
-		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 46;
+		let v = parseFloat(data[this.DATA_VERSION]) || 12;
+		let latestVersion = 46.1;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -291,6 +291,10 @@ export default class DataStore {
 		if(v==45) {
 			delete data["goxlrEnabled"];
 			this.addGoXLRReadMarkDefaults(data);
+			v = 46;
+		}
+		if(v==46) {
+			delete data[this.ENDING_CREDITS_PARAMS];
 			v = latestVersion;
 		}
 

@@ -228,7 +228,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		const res:StyleValue = {
 			color: this.data?.params?.colorTitle,
 			fontFamily: this.data?.params?.fontTitle+", Inter",
-			filter: "drop-shadow(.075em .075em 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 		}
 		return res;
 	}
@@ -237,7 +237,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		const res:StyleValue = {
 			color: this.data?.params?.colorEntry,
 			fontFamily: this.data?.params?.fontEntry+", Inter",
-			filter: "drop-shadow(.075em .075em 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 		}
 		return res;
 	}

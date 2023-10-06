@@ -12,12 +12,6 @@
 				</ToggleBlock>
 			</div>
 
-			<div class="item center" v-if="overlayExists">
-				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
-			</div>
-
-			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
-
 			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">
 				<div class="globalParams">
 					<ParamItem :paramData="param_scale" v-model="data.scale" />
@@ -46,7 +40,7 @@
         		handle=".slotHolder>.header"
 				v-model="data.slots">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
-						<ToggleBlock :class="getItemClasses(element)" :key="'item_'+element.id" :open="false">
+						<ToggleBlock class="slotHolder" :key="'item_'+element.id" :open="false" medium :premium="getDefinitionFromSlot(element.slotType).premium">
 							<template #left_actions>
 								<div class="icons">
 									<Icon name="dragZone" />
@@ -124,7 +118,7 @@
 					</template>
 				</draggable>
 
-				<Button class="addBt" transparent icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+				<Button class="addBt" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
 				
 				<div class="slotSelector" v-else>
 					<CloseButton @click="showSlotOptions = false" />
@@ -136,6 +130,12 @@
 					@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
 				</div>
 			</div>
+
+			<div class="item center" v-if="overlayExists">
+				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
+			</div>
+
+			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
 		</div>
 	</ToggleBlock>
 </template>
@@ -239,12 +239,6 @@ export default class OverlayParamsCredits extends Vue {
 	public get classes():string[] {
 		const res:string[] = ["overlayparamscredits"];
 		if(!this.isPremium) res.push("notPremium");
-		return res;
-	}
-
-	public getItemClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
-		const res:string[] = ["slotHolder"];
-		if(this.getDefinitionFromSlot(item.slotType).premium) res.push("premium");
 		return res;
 	}
 
@@ -455,16 +449,25 @@ export default class OverlayParamsCredits extends Vue {
 	/**
 	 * Saves current parameters
 	 */
-	private saveParams():void {
+	private async saveParams():Promise<void> {
 		this.data.fontTitle = this.data.fontTitle ?? "Inter";
 		this.data.fontEntry = this.data.fontEntry ?? "Inter";
 
 		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
 
 		clearTimeout(this.broadcastDebounce);
-		// this.broadcastDebounce = setTimeout(() => {
-			PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (this.data as unknown) as JsonObject);
-		// }, 100);
+
+		//Parse "text" slots placholders
+		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
+		const fakeDuration = Math.random() * 6 * 3600000 + 10*60000;
+		for (let i = 0; i < result.slots.length; i++) {
+			const slot = result.slots[i];
+			if(slot.slotType !== "text") continue;
+			slot.text = (slot.text ||"").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(fakeDuration));
+			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, fakeDuration.toString());
+			slot.text = await Utils.parseGlobalPlaceholders(slot.text!);
+		}
+		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (result as unknown) as JsonObject);
 	}
 
 }
@@ -508,14 +511,14 @@ export default class OverlayParamsCredits extends Vue {
 			.slotHolder {
 				position: relative;
 				margin: .25em 0;
-				border: 1px solid var(--color-text);
+				// border: 1px solid var(--color-text);
 				border-radius: var(--border-radius);
 				&>:deep(.header) {
 					cursor: move;
 					justify-content: space-between;
 					background-color: var(--color-text-fadest);
 					transition: background-color .2s;
-					border-bottom: 1px solid var(--color-text-fade);
+					// border-bottom: 1px solid var(--color-text-fade);
 					&:hover {
 						background-color: var(--color-text-fader);
 					}
@@ -659,17 +662,16 @@ export default class OverlayParamsCredits extends Vue {
 			&.slots {
 				.addBt {
 					box-shadow: none;
-					border: 1px solid var(--color-text);
+					// border: 1px solid var(--color-text);
 					display: flex;
 					margin: auto;
 					margin-top: .5em;
 					color: var(--color-text);
-					background-color: var(--color-light-fader);
 				}
 
 				.slotSelector {
 					color: var(--color-text);
-					border: 1px solid var(--color-text);
+					// border: 1px solid var(--color-text);
 					background-color: var(--color-light-fader);
 					margin-top: .5em;
 					padding: .5em 2.5em;
