@@ -426,7 +426,7 @@ export default class OverlayParamsCredits extends Vue {
 				entry.layout = "3cols";
 				entry.label = this.$t("overlay.credits.moderators_label");
 			}
-			if(!this.isPremium) {
+			if(entry.showMods === undefined || !this.isPremium) {
 				entry.showMods = true;
 				entry.showVIPs = false;
 				entry.showSubs = false;
