@@ -70,10 +70,8 @@ export default class ChatReward extends AbstractChatMessage {
 		});
 
 		finalList.sort((a,b)=>{
-			if(a.count != b.count) return b.count - a.count;
-			if(a.vo.reward.title < b.vo.reward.title) return -1;
-			if(a.vo.reward.title > b.vo.reward.title) return 1;
-			return 0;
+			// if(a.count != b.count) return b.count - a.count;
+			return a.vo.date - b.vo.date;
 		});
 		return finalList;
 	}
