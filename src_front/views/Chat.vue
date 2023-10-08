@@ -445,8 +445,12 @@ export default class Chat extends Vue {
 		this.renderFrame();
 		requestWakeLock();
 
-		for (let i = 0; i < this.$store('params').chatColumnsConfig.length + 5; i++) {
-			Utils.promisedTimeout(500).then(()=> this.buildIndex ++);
+		for (let i = 0; i < this.$store('params').chatColumnsConfig.length + 10; i++) {
+			Utils.promisedTimeout(500).then(()=> {
+				this.buildIndex ++;
+				//Necessary so side panels know where to open
+				this.computeWindowsSizes();
+			});
 		}
 	}
 
