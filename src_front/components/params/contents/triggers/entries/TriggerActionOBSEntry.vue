@@ -267,7 +267,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		this.filters = [];
 		if(this.source_conf.value != "") {
 			try {
-				this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value);
+				//the replace() is rather dirty... i made it so all items starts with their type, "source_xxx", "input_xxx", "scene_xxx"...
+				this.filters = await OBSWebsocket.instance.getSourceFilters(this.source_conf.value.replace(/[a-z]+_/gi, ""));
 			}catch(error) {
 				this.filters = []
 			}
