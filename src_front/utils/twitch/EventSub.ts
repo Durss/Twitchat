@@ -426,7 +426,6 @@ export default class EventSub {
 			live: false,
 			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
 			lastSoDoneDate:0,
-			streamStartedAt_ms:0,
 		}
 
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
@@ -721,7 +720,6 @@ export default class EventSub {
 			started_at:Date.now(),
 			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
 			lastSoDoneDate:0,
-			streamStartedAt_ms:0,
 		};
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),

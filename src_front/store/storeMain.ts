@@ -384,7 +384,7 @@ export const storeMain = defineStore("main", {
 				try {
 					const d = (e.data as unknown) as {offset:number, includeParams:boolean};
 					const summary = await StoreProxy.stream.getSummary(d.offset, d.includeParams === true);
-					PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject)
+					PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject)
 				}catch(error) {
 					console.error("An error occured when computing summary data");
 					console.error(error);

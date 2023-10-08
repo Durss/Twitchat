@@ -1794,7 +1794,7 @@ export default class TriggerActionHandler {
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys | "duration" | "duration_ms";
-						let startDate = (streamInfos.streamStartedAt_ms || Date.now());
+						let startDate = (streamInfos.started_at || Date.now());
 						if(pointerLocal == "duration") {
 							value = Utils.formatDuration(Date.now() - startDate);
 						}else if(pointerLocal == "duration_ms") {
@@ -2151,7 +2151,6 @@ export default class TriggerActionHandler {
 				viewers:c.viewer_count,
 				started_at:new Date(c.started_at).getTime(),
 				lastSoDoneDate:0,
-				streamStartedAt_ms:0,
 			}
 		}
 

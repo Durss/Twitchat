@@ -4,7 +4,7 @@
 			<div :class="item.holderClasses" :style="item.categoryStyles">
 				<h1 :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
 				<div class="list" :style="item.entryStyles">
-					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in (data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
+					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
 							<span class="currency">{{{EUR:"€",USD:"$", GBP:"£"}[entry.currency] || entry.currency}}</span>
@@ -16,17 +16,17 @@
 						<span class="info">{{entry.login}}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item">
+					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in makeUnique(item.params, data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'cheers'" v-for="entry in (data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item">
+					<div v-if="item.params.slotType == 'cheers'" v-for="entry in makeUnique(item.params, data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'raids'" v-for="entry in (data.raids || []).concat().splice(0, item.params.maxEntries)" class="item">
+					<div v-if="item.params.slotType == 'raids'" v-for="entry in makeUnique(item.params, data.raids || []).concat().splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
@@ -173,37 +173,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		return res;
 	}
 
-	public getSortedChatters(item:TwitchatDataTypes.EndingCreditsSlotParams) {
-		let list = (this.data?.chatters || []).concat()
-		.filter(v=>{
-			if(v.count == 0) return false;
-			if(v.mod) return item.showMods;
-			else if(v.vip) return item.showVIPs;
-			else if(v.sub) return item.showSubs;
-			return item.showChatters;
-		})
-		.sort((a,b)=> {
-			let scoreA = 0;
-			let scoreB = 0;
-			if(item.sortByRoles) {
-				if(a.mod) scoreA +=10;
-				else if(a.vip) scoreA +=5;
-				else if(a.sub) scoreA +=2;
-				
-				if(b.mod) scoreB +=10;
-				else if(b.vip) scoreB +=5;
-				else if(b.sub) scoreB +=2;
-			}
-
-			if(item.sortByAmounts) {
-				if(a.count > b.count) scoreA ++;
-				if(a.count < b.count) scoreB ++;
-			}
-			return scoreB - scoreA;
-		});
-		return list.splice(0, item.maxEntries);
-	}
-
 	public get styles():StyleValue {
 		const res:StyleValue = {
 			opacity: this.display? 1 : 0,
@@ -282,16 +251,20 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
+	/**
+	 * Get the number of entries to be displayed
+	 * @param item 
+	 */
 	public getEntryCountForSlot(item:TwitchatDataTypes.EndingCreditsSlotParams):number {
 		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id];
 		let count = 0;
 		switch(item.slotType) {
-			case "hypechats": count = (this.data?.hypeChats || []).length; break;
+			case "hypechats": count =  this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
 			case "subs": count = (this.data?.subs || []).length; break;
-			case "subgifts": count = (this.data?.subgifts || []).length; break;
-			case "subsandgifts": count = ([] as unknown[]).concat(this.data?.subgifts || [], this.data?.subs || []).length; break;
-			case "cheers": count = (this.data?.bits || []).length; break;
-			case "raids": count = (this.data?.raids || []).length; break;
+			case "subgifts": count = this.makeUnique(item, (this.data?.subgifts || [])).length; break;
+			case "subsandgifts": count = ([] as unknown[]).concat( this.makeUnique(item, this.data?.subgifts || []), this.data?.subs || []).length; break;
+			case "cheers": count =  this.makeUnique(item, (this.data?.bits || [])).length; break;
+			case "raids": count =  this.makeUnique(item, (this.data?.raids || [])).length; break;
 			case "follows": count = (this.data?.follows || []).length; break;
 			case "hypetrains": count = (this.data?.hypeTrains || []).length; break;
 			case "so_in": count = (this.data?.shoutouts || []).filter(v=>v.received === true).length; break;
@@ -312,6 +285,46 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	/**
+	 * Sorts a chatters list
+	 */
+	public getSortedChatters(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		let list = (this.data?.chatters || []).concat()
+		.filter(v=>{
+			if(v.count == 0) return false;
+			if(v.mod) return item.showMods;
+			else if(v.vip) return item.showVIPs;
+			else if(v.sub) return item.showSubs;
+			return item.showChatters;
+		})
+		.sort((a,b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+			if(item.sortByRoles) {
+				if(a.mod) scoreA +=10;
+				else if(a.vip) scoreA +=5;
+				else if(a.sub) scoreA +=2;
+				
+				if(b.mod) scoreB +=10;
+				else if(b.vip) scoreB +=5;
+				else if(b.sub) scoreB +=2;
+			}
+
+			if(item.sortByAmounts) {
+				if(a.count > b.count) scoreA ++;
+				if(a.count < b.count) scoreB ++;
+			}
+
+			if(item.sortByNames) {
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+		return list.splice(0, item.maxEntries);
+	}
+
+	/**
 	 * Converts milliseconds to duration
 	 * @param seconds 
 	 */
@@ -329,6 +342,79 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(this.paused) {
 			gsap.killTweensOf(this.$el as HTMLElement);
 		}
+	}
+
+	/**
+	 * Merge entries so we get only unique entries if requested by the parameters
+	 * 
+	 * @param slot 
+	 * @param values 
+	 */
+	public makeUnique<T>(slot:TwitchatDataTypes.EndingCreditsSlotParams, values:T[]):T[] {
+		//Didn't request unique values, just return the array
+		if(slot.uniqueUsers != true) return values;
+
+		let mergeKey!:keyof T;
+		let valueKey!:keyof T;
+
+		type KeysMatching<T, V> = {[K in keyof T]-?: T[K] extends V ? K : never}[keyof T];
+
+		switch(slot.slotType) {
+			case "hypechats": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["hypeChats"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["hypeChats"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "amount";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "subgifts":
+			case "subsandgifts": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["subgifts"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["subgifts"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "total";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "cheers": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["bits"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["bits"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "bits";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "raids": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["raids"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["raids"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "raiders";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+		}
+
+		const result:T[] = [];
+		const keyToUniqueItem:{[key:string]:T} = {};
+		for (let i = 0; i < values.length; i++) {
+			const v = values[i];
+			const key = v[mergeKey];
+			const val = v[valueKey];
+			if(keyToUniqueItem[key as string] != undefined) {
+				(keyToUniqueItem[key as string][valueKey] as number) += val as number;
+			}else{
+				const clone = JSON.parse(JSON.stringify(v));
+				keyToUniqueItem[key as string] = clone;
+				result.push(clone);
+			}
+		}
+		console.log("Make unique", result.length, values.length);
+		return result;
 	}
 
 	/**

@@ -138,7 +138,9 @@ export const storeDebug = defineStore('debug', {
 					m.message_size = TwitchUtils.computeMessageSize(chunks);
 					if(Math.random() > .8) {
 						m.is_gift = true;
-						fakeUser.channelInfo[user.id].totalSubgifts = Math.floor(Math.random() * 1000);
+						m.gift_count = Math.floor(Math.random() * 20);
+						m.gift_recipients = fakeUsers.concat().splice(0, m.gift_count);
+						fakeUser.channelInfo[user.id].totalSubgifts = m.gift_count;
 					}else if(Math.random() > .8) {
 						m.is_giftUpgrade = true;
 					}
@@ -149,17 +151,20 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					let bits = 0;
 					const cheerList:string[] = [];
-					for (const key in TwitchUtils.cheermoteCache[uid]) {
-						const cheer = TwitchUtils.cheermoteCache[uid][key];
-						const count = cheer.tiers.length;
-						for (let i = 0; i < count; i++) {
-							if(Math.random() > .98) {
-								const value = cheer.tiers[i].min_bits + Math.floor(Math.random()*cheer.tiers[i].min_bits * .99);
-								bits += value;
-								cheerList.push(cheer.prefix+value);
+					do {
+						for (const key in TwitchUtils.cheermoteCache[uid]) {
+							const cheer = TwitchUtils.cheermoteCache[uid][key];
+							const count = cheer.tiers.length;
+							for (let i = 0; i < count; i++) {
+								if(Math.random() > .98) {
+									const value = cheer.tiers[i].min_bits + Math.floor(Math.random()*cheer.tiers[i].min_bits * .99);
+									bits += value;
+									cheerList.push(cheer.prefix+value);
+								}
 							}
 						}
-					}
+					}while(bits === 0)
+
 					message += " "+Utils.shuffle(cheerList).join(" ");
 					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					await TwitchUtils.parseCheermotes( chunks, uid);
@@ -970,7 +975,6 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
-							streamStartedAt_ms:0,
 						}
 					};
 					data = m;
@@ -992,7 +996,6 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
-							streamStartedAt_ms:0,
 						}
 					};
 					data = m;

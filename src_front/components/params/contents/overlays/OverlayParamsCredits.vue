@@ -106,7 +106,9 @@
 									<ParamItem class="badges" :paramData="param_showBadges[element.id]"		v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem class="badges" :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem class="badges" :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem class="badges" :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
+								<ParamItem class="badges" :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -207,7 +209,9 @@ export default class OverlayParamsCredits extends Vue {
 	public param_showChatters:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByRoles:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortByName:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_uniqueUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -409,31 +413,44 @@ export default class OverlayParamsCredits extends Vue {
 		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
 		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
 		if(slotDef.hasAmount) {
-			entry.showAmounts = this.isPremium || slotDef.premium;
-			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
+			if(entry.showAmounts === undefined) {
+				entry.showAmounts = this.isPremium || slotDef.premium;
+			}else
+			if(!this.isPremium || slotDef.premium) {
+				entry.showAmounts = false;
+			}
+			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
 		}
 		if(slotDef.id == "chatters") {
-			entry.showMods = true;
-			entry.showVIPs = false;
-			entry.showSubs = false;
-			entry.showChatters = false;
-			entry.showBadges = false;
-			entry.sortByRoles = false;
-			entry.sortByAmounts = false;
-			entry.showAmounts = false;
-			entry.layout = "3cols";
-			entry.label = this.$t("overlay.credits.moderators_label");
+			if(entry.showMods === undefined) {
+				entry.layout = "3cols";
+				entry.label = this.$t("overlay.credits.moderators_label");
+			}
+			if(!this.isPremium) {
+				entry.showMods = true;
+				entry.showVIPs = false;
+				entry.showSubs = false;
+				entry.showChatters = false;
+				entry.showBadges = false;
+				entry.sortByRoles = false;
+				entry.sortByAmounts = false;
+				entry.showAmounts = false;
+			}
 			this.param_showBadges[id]	= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
 			this.param_showMods[id]		= {type:"boolean", value:true, icon:"mod", labelKey:"overlay.credits.param_showMods"};
 			this.param_showVIPs[id]		= {type:"boolean", value:true, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};
 			this.param_showSubs[id]		= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
 			this.param_showChatters[id]	= {type:"boolean", value:true, icon:"whispers", labelKey:"overlay.credits.param_showChatters"};
+			this.param_sortByName[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
 			this.param_sortByRoles[id]	= {type:"boolean", value:true, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
 			this.param_sortByAmounts[id]= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
 		}
 		if(slotDef.id == "text") {
 			const placeholderList = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
 			this.param_text[id] = {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+		}
+		if(slotDef.canMerge) {
+			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_uniqueUsers"};
 		}
 		if(!data) this.data.slots.push(entry);
 		this.saveParams();

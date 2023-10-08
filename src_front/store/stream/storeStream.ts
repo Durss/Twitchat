@@ -1,14 +1,12 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import Utils from '@/utils/Utils';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { TriggerEventPlaceholders, type TriggerData, TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -91,7 +89,6 @@ export const storeStream = defineStore('stream', {
 					category:category.name,
 					user:StoreProxy.auth.twitch.user,
 					lastSoDoneDate:0,
-					streamStartedAt_ms:0,
 				}
 				return true;
 			}
@@ -300,7 +297,6 @@ export const storeStream = defineStore('stream', {
 
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			const res = await TwitchUtils.loadCurrentStreamInfo([channelId]);
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
@@ -318,12 +314,23 @@ export const storeStream = defineStore('stream', {
 				polls:[],
 				predictions:[],
 			};
+
+			let dateOffset:number|undefined = offset;
+			//May replace the Twitch API call call with the following:
+			// StoreProxy.stream.currentStreamInfo[channelId]?.started_at
+			const res = await TwitchUtils.loadCurrentStreamInfo([channelId]);
+			if(res.length > 0) {
+				dateOffset = new Date(res[0].started_at).getTime();
+				result.streamDuration = Date.now() - dateOffset;
+			}
+
 			if(includeParams) {
+				//Load ending credits parameters
 				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 				if(json) {
 					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
 
-					//Parse "text" slots placholders
+					//Parse "text" slots placeholders
 					for (let i = 0; i < result.params.slots.length; i++) {
 						const slot = result.params.slots[i];
 						if(slot.slotType !== "text") continue;
@@ -333,24 +340,8 @@ export const storeStream = defineStore('stream', {
 				}
 			}
 
-			let dateOffset:number|undefined = offset;
-			if(res.length > 0) {
-				dateOffset = new Date(res[0].started_at).getTime();
-				result.streamDuration = Date.now() - dateOffset;
-			}
-
-			const messages = simulate? [] : StoreProxy.chat.messages;
+			const messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
-			for (let i = messages.length-1; i >= 0; i--) {
-				const m = messages[i];
-				if(dateOffset && m.date < dateOffset) break;
-				//If more than 4h past between the 2 messages, consider it's a different stream and stop there
-				if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
-					result.streamDuration = messages[messages.length - 1].date - m.date;
-					break;
-				}
-				prevDate = m.date;
-			}
 
 			if(simulate) {
 				//Generate fake data
@@ -392,6 +383,20 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeTrainSummaryData>(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRaidData>(TwitchatDataTypes.TwitchatMessageType.RAID, undefined, false));
 					
+				}
+			}else{
+				//Filter out messages based on the stream duration
+				for (let i = StoreProxy.chat.messages.length-1; i >= 0; i--) {
+					const m = StoreProxy.chat.messages[i];
+					if(dateOffset && m.date < dateOffset) break;
+
+					//If more than 4h past between the 2 messages, consider it's a different stream and stop there
+					if(!dateOffset && prevDate > 0 && prevDate - m.date > 4 * 60 * 60000) {
+						result.streamDuration = messages[messages.length - 1].date - m.date;
+						break;
+					}
+					messages.push(m);
+					prevDate = m.date;
 				}
 			}
 			
