@@ -436,6 +436,7 @@ export default class OverlayParamsCredits extends Vue {
 
 		if(slotDef.id == "rewards") {
 			if(entry.filterRewards == undefined || !this.isPremium) {
+				entry.showRewardUsers = false;
 				entry.filterRewards = false;
 				entry.rewardIds = [];
 			}

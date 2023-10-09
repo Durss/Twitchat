@@ -206,6 +206,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		else if((item.layout == "3cols" && itemCount == 1) || (item.layout == "2cols" && itemCount == 1)) res.push("layout_col");
 		else res.push("layout_"+item.layout);
 		if(item.slotType == "text" && !item.text) res.push("noText");
+		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
 		return res;
 	}
 
@@ -670,9 +671,14 @@ interface SlotItem {
 			}
 		}
 
+		&.largeSpace {
+			.list {
+				row-gap: 3em;
+			}
+		}
+
 		&.rewards {
 			.list {
-				row-gap: 4em;
 				.item {
 					flex-wrap: wrap;
 					width: fit-content;
