@@ -71,7 +71,10 @@
 						<span class="info">{{ entry.reward.name }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">x{{ entry.total }}</span>
 						<div class="userlist" v-if="item.params.showRewardUsers === true">
-							<div class="login" v-for="u in entry.users">{{ u.login }} x{{ u.total }}</div>
+							<div class="login" v-for="u in entry.users">
+								<span>{{ u.login }}</span>
+								<span v-if="item.params.showAmounts === true"> x{{ u.total }}</span>
+							</div>
 						</div>
 					</div>
 					
