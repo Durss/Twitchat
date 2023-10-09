@@ -297,6 +297,7 @@ export const storeStream = defineStore('stream', {
 
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
+			const isPremium = false;//StoreProxy.auth.isPremium;
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
@@ -333,6 +334,13 @@ export const storeStream = defineStore('stream', {
 					//Parse "text" slots placeholders
 					for (let i = 0; i < result.params.slots.length; i++) {
 						const slot = result.params.slots[i];
+						//Remove premium-only slots if not premium
+						if(!isPremium && !simulate
+						&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
+							result.params.slots.splice(i, 1);
+							i--;
+						}
+						//Parse placeholders on text slots
 						if(slot.slotType !== "text") continue;
 						if(!slot.text) continue;
 						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);

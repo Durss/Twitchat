@@ -8,7 +8,7 @@
 		"become_premiumBt":"Become premium",
 		"restricted_access":"This feature requires premium membership",
 		"features_title":"Premium features",
-
+		"premium_only_tt":"Premium only",
 		"supportTable":{
 			"headers":[
 				"Features",

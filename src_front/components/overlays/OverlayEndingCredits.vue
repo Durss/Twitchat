@@ -152,8 +152,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	public get styles():StyleValue {
 		const res:StyleValue = {
 			opacity: this.display? 1 : 0,
-			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
 		}
+		if(this.data?.params){
+			res.fontSize = [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em";
+		};
 		return res;
 	}
 
@@ -620,6 +622,7 @@ interface SlotItem {
 			display: flex;
 			flex-direction: column;
 			max-width: 100vw;
+			align-items: center;
 
 			.item {
 				display: flex;
@@ -654,21 +657,25 @@ interface SlotItem {
 					margin-right: .5em;
 					height: 1em;
 				}
-			}
-		}
-
-		&.rewards {
-			.item {
-				flex-wrap: wrap;
-				width: fit-content;
 				.userlist {
+					gap: .25em;
 					display: flex;
 					flex-direction: column;
 					align-items: center;
 					flex-basis: 100%;
 					margin-top: .5em;
-					font-size: .9em;
+					font-size: .8em;
 					font-weight: 300;
+				}
+			}
+		}
+
+		&.rewards {
+			.list {
+				row-gap: 4em;
+				.item {
+					flex-wrap: wrap;
+					width: fit-content;
 				}
 			}
 		}
@@ -835,6 +842,7 @@ interface SlotItem {
 				grid-template-columns: repeat(auto-fill, minmax(40%, 1fr));
 				.item {
 					&:nth-child(2n) {
+						align-self: flex-start;
 						justify-self: start;
 						justify-content: flex-start;
 						.userlist {
@@ -842,6 +850,7 @@ interface SlotItem {
 						}
 					}
 					&:nth-child(2n+1) {
+						align-self: flex-start;
 						justify-self: end;
 						justify-content: flex-end;
 						.userlist {
@@ -862,16 +871,19 @@ interface SlotItem {
 					&:nth-child(3n+1) {
 						justify-self: end;
 						justify-content: flex-end;
+						align-self: flex-start;
 						.userlist {
 							align-items: flex-end;
 						}
 					}
 					&:nth-child(3n+2) {
 						justify-self: center;
+						align-self: flex-start;
 					}
 					&:nth-child(3n) {
 						justify-self: start;
 						justify-content: flex-start;
+						align-self: flex-start;
 						.userlist {
 							align-items: flex-start;
 						}
