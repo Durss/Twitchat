@@ -367,7 +367,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Data that populates ParamItem components
 	 */
-	export interface ParameterData<T, U = unknown, V = unknown> {
+	export interface ParameterData<T, U = unknown, V = unknown, W = any> {
 		id?:number;
 		/**
 		 * Parameter type
@@ -461,7 +461,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Just a field to allow storage of random data if necessary
 		 */
-		storage?:unknown;
+		storage?:W;
 		/**
 		 * Children parameters
 		 */
@@ -509,7 +509,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Callback called when value is changed (if v-model can't be used)
 		 */
-		editCallback?:(data:any) => void;
+		editCallback?:(data:ParameterData<T, U, V, W>) => void;
 	}
 	export interface ParameterDataListValue<T> {
 		label?:string;
@@ -1510,6 +1510,9 @@ export namespace TwitchatDataTypes {
 		showChatters?:boolean;
 		uniqueUsers?:boolean;
 		text?:string,
+		filterRewards?:boolean,
+		showRewardUsers?:boolean,
+		rewardIds?:string[],
 	}
 
 	export interface EndingCreditsParams {

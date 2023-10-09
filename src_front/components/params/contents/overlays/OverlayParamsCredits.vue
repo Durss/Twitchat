@@ -98,17 +98,22 @@
 									</div>
 								</div>
 
-								<template v-if="element.slotType == 'chatters'">
-									<ParamItem class="badges" :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_showBadges[element.id]"		v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem class="badges" :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<template v-if="element.slotType == 'rewards'">
+									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
-								<ParamItem class="badges" :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
+									
+								<template v-if="element.slotType == 'chatters'">
+									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+								<ParamItem :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -144,15 +149,19 @@
 </template>
 
 <script lang="ts">
+import CloseButton from '@/components/CloseButton.vue';
 import Icon from '@/components/Icon.vue';
 import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 import Splitter from '@/components/Splitter.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
+import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
 import contenteditable from 'vue-contenteditable';
@@ -161,9 +170,8 @@ import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
-import Config from '@/utils/Config';
-import CloseButton from '@/components/CloseButton.vue';
-import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
@@ -211,6 +219,8 @@ export default class OverlayParamsCredits extends Vue {
 	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByName:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_text:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_filterRewards:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>} = {};
+	public param_showRewardUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_uniqueUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
@@ -397,9 +407,10 @@ export default class OverlayParamsCredits extends Vue {
 	/**
 	 * Adds a new category to the list
 	 */
-	public addSlot(slotDef:TwitchatDataTypes.EndingCreditsSlotDefinition, data?:TwitchatDataTypes.EndingCreditsSlotParams):void {
+	public async addSlot(slotDef:TwitchatDataTypes.EndingCreditsSlotDefinition, data?:TwitchatDataTypes.EndingCreditsSlotParams):Promise<void> {
 		let id = data?.id || Utils.getUUID();
 		let slotType = slotDef.id;
+		let rewards:TwitchDataTypes.Reward[] = [];
 		const entry:TwitchatDataTypes.EndingCreditsSlotParams = data || {
 			id,
 			slotType,
@@ -421,6 +432,33 @@ export default class OverlayParamsCredits extends Vue {
 			}
 			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
 		}
+
+		if(slotDef.id == "rewards") {
+			if(entry.filterRewards == undefined || !this.isPremium) {
+				entry.filterRewards = false;
+				entry.rewardIds = [];
+			}
+			this.param_showRewardUsers[id]	= {type:'boolean', value:false, icon:"user", labelKey:'overlay.credits.param_showRewardUsers'};
+			this.param_filterRewards[id]	= {type:'boolean', value:false, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', twitch_scopes:[TwitchScopes.LIST_REWARDS]};
+			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
+				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
+			}
+			let children:TwitchatDataTypes.ParameterData<boolean, unknown, unknown, TwitchDataTypes.Reward>[] = [];
+			for (let j = 0; j < rewards.length; j++) {
+				const r = rewards[j];
+				children.push({type:'boolean', value:entry.rewardIds!.includes(r.id), iconURL:r.image?.url_1x, label:r.title, storage:r, editCallback:(data)=> {
+					if(data.value === true && !entry.rewardIds!.includes(data.storage!.id)) {
+						entry.rewardIds!.push(data.storage!.id);
+					}
+					if(data.value === false && entry.rewardIds!.includes(data.storage!.id)) {
+						entry.rewardIds!.splice(entry.rewardIds!.indexOf(data.storage!.id), 1);
+						entry.rewardIds = entry.rewardIds!.filter(v=>v !== data.storage!.id);
+					}
+				}});
+			}
+			this.param_filterRewards[id].children = children;
+		}
+
 		if(slotDef.id == "chatters") {
 			if(entry.showMods === undefined) {
 				entry.layout = "3cols";
@@ -445,10 +483,12 @@ export default class OverlayParamsCredits extends Vue {
 			this.param_sortByRoles[id]	= {type:"boolean", value:true, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
 			this.param_sortByAmounts[id]= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
 		}
+
 		if(slotDef.id == "text") {
 			const placeholderList = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
 			this.param_text[id] = {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
 		}
+		
 		if(slotDef.canMerge) {
 			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_uniqueUsers"};
 		}

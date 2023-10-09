@@ -420,8 +420,8 @@ export default class MessageListFilter extends Vue {
 								placeholderKey:"chat.filters.commands_placeholder",
 								icon:"hide",
 								maxLength:1000000,
-								editCallback:(data:string[])=> {
-									this.config.commandsBlockList = data;
+								editCallback:(data)=> {
+									this.config.commandsBlockList = data.value;
 									this.saveData();
 								}};
 						paramData.children = [subParam];

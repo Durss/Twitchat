@@ -91,11 +91,11 @@
 
 						<div class="info" v-if="canListFollowers && followDate && !is_self" v-tooltip="$t('usercard.follow_date_tt')"><Icon name="follow" alt="follow date" class="icon"/>{{followDate}}</div>
 						<div class="info" v-else-if="canListFollowers && !is_self"><Icon name="unfollow" alt="no follow" class="icon"/>{{$t('usercard.not_following')}}</div>
-						<div class="info ban card-item alert" v-for="chan in bannedChannels">
+						<!-- <div class="info ban card-item alert" v-for="chan in bannedChannels">
 							<Icon :name="chan.duration? 'timeout' : 'ban'" class="icon"/>
 							<span>{{ chan.user.displayName }}</span>
 							<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
-						</div>
+						</div> -->
 					</div>
 					
 					<div class="ctas">

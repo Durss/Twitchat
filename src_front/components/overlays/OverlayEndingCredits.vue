@@ -66,10 +66,13 @@
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'rewards'" v-for="entry in rewards.concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item">
+					<div v-if="item.params.slotType == 'rewards'" v-for="entry in getRewards(item.params).concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item">
 						<img :src="entry.reward.icon" alt="reward redeem icon" class="rewardIcon">
 						<span class="info">{{ entry.reward.name }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">x{{ entry.total }}</span>
+						<div class="userlist" v-if="item.params.showRewardUsers === true">
+							<div class="login" v-for="u in entry.users">{{ u.login }} x{{ u.total }}</div>
+						</div>
 					</div>
 					
 					<div v-if="item.params.slotType == 'chatters'" v-for="entry in getSortedChatters(item.params)" class="item">
@@ -143,10 +146,24 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private paramsDataHandler!:(e:TwitchatEvent) => void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
-	public get rewards() {
+	public get styles():StyleValue {
+		const res:StyleValue = {
+			opacity: this.display? 1 : 0,
+			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
+		}
+		return res;
+	}
+
+	public getRewards(item:TwitchatDataTypes.EndingCreditsSlotParams) {
 		const res:{total:number, users:{login:string, uid:string, total:number}[], reward:(TwitchatDataTypes.StreamSummaryData["rewards"][0]["reward"])}[] = [];
 		let done:{[key:string]:number} = {};
+		//merge reward entries linked to the same reward
 		(this.data?.rewards || []).forEach(v=> {
+			//Ignore rewards that are no enabled if requested to only show some
+			if(item.filterRewards === true) {
+				if(!(item.rewardIds || []).includes(v.reward.id)) return;
+			}
+			//Reward not parsed yet, create an entry
 			if(done[v.reward.id] === undefined) {
 				let entry:typeof res[0] = {
 					 reward:v.reward,
@@ -158,6 +175,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			let index = done[v.reward.id];
 			const entry = res[index];
 			entry.total ++;
+			//Save all users linked to the current entry to the main reward entry
 			let user = entry.users.find(w=>v.uid == w.uid);
 			if(!user) {
 				user = {
@@ -170,14 +188,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 			user.total ++;
 		});
-		return res;
-	}
-
-	public get styles():StyleValue {
-		const res:StyleValue = {
-			opacity: this.display? 1 : 0,
-			fontSize: [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em",
-		}
 		return res;
 	}
 
@@ -269,7 +279,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			case "hypetrains": count = (this.data?.hypeTrains || []).length; break;
 			case "so_in": count = (this.data?.shoutouts || []).filter(v=>v.received === true).length; break;
 			case "so_out": count = (this.data?.shoutouts || []).filter(v=>v.received === false).length; break;
-			case "rewards": count = (this.data?.rewards || []).length; break;
+			case "rewards": count = (this.getRewards(item) || []).length; break;
 			case "bans": count = (this.data?.chatters || []).filter(v=>v.bans > 0).length; break;
 			case "timeouts": count = (this.data?.chatters || []).filter(v=>v.tosDuration > 0).length; break;
 			case "polls": count = (this.data?.polls || []).length; break;
@@ -643,6 +653,23 @@ interface SlotItem {
 				}
 			}
 		}
+
+		&.rewards {
+			.item {
+				flex-wrap: wrap;
+				width: fit-content;
+				.userlist {
+					display: flex;
+					flex-direction: column;
+					align-items: center;
+					flex-basis: 100%;
+					margin-top: .5em;
+					font-size: .9em;
+					font-weight: 300;
+				}
+			}
+		}
+
 		&.hypechats {
 			.list {
 				.item {
@@ -730,6 +757,12 @@ interface SlotItem {
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: flex-start;
+				.item {
+					justify-content: flex-start;
+					.userlist {
+						align-items: flex-start;
+					}
+				}
 			}
 		}
 
@@ -751,12 +784,24 @@ interface SlotItem {
 				flex-wrap: wrap;
 				align-items: center;
 				justify-content: flex-end;
+				.item {
+					justify-content: flex-end;
+					.userlist {
+						align-items: flex-end;
+					}
+				}
 			}
 		}
 
 		&.layout_colRight {
 			.list {
 				align-items: flex-end;
+				.item {
+					justify-content: flex-end;
+					.userlist {
+						align-items: flex-end;
+					}
+				}
 			}
 		}
 
@@ -771,6 +816,12 @@ interface SlotItem {
 		&.layout_colLeft {
 			.list {
 				align-items: flex-start;
+				.item {
+					justify-content: flex-start;
+					.userlist {
+						align-items: flex-start;
+					}
+				}
 			}
 		}
 
@@ -782,9 +833,17 @@ interface SlotItem {
 				.item {
 					&:nth-child(2n) {
 						justify-self: start;
+						justify-content: flex-start;
+						.userlist {
+							align-items: flex-start;
+						}
 					}
 					&:nth-child(2n+1) {
 						justify-self: end;
+						justify-content: flex-end;
+						.userlist {
+							align-items: flex-end;
+						}
 					}
 				}
 			}
@@ -799,12 +858,20 @@ interface SlotItem {
 					max-width: 100%;
 					&:nth-child(3n+1) {
 						justify-self: end;
+						justify-content: flex-end;
+						.userlist {
+							align-items: flex-end;
+						}
 					}
 					&:nth-child(3n+2) {
 						justify-self: center;
 					}
 					&:nth-child(3n) {
 						justify-self: start;
+						justify-content: flex-start;
+						.userlist {
+							align-items: flex-start;
+						}
 					}
 					.info {
 						overflow: hidden;

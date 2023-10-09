@@ -117,6 +117,8 @@
 			"param_customHTML":"Template HTML personnalisé",
 			"param_showAmounts":"Afficher les quantités",
 			"param_uniqueUsers":"Utilisateur·ices uniques\n(plusieurs évènements d'une même personne seront fusionnés en 1 seul)",
+			"param_filterRewards":"N'afficher que certaines récompenses",
+			"param_showRewardUsers":"Afficher la liste des personnes pour chaque récompense",
 			"premium_category":"Cette catégorie ne s'affichera PAS lorsque vous serez en live",
 			"delete_confirm_title":"Supprimer cette categorie ?",
 			"no_overlay":"Overlay non configuré or masqué",

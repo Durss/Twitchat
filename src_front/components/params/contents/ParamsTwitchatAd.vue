@@ -24,7 +24,7 @@
 					</ToggleBlock>
 			
 					<p class="card-item alert disableinstructions" v-html="$t('params.ad_disable_info')"></p>
-					<Button @click="openDonate()" light icon="coin">{{ $t('params.ad_disableBt') }}</Button>
+					<Button @click="openDonate()" light secondary icon="coin">{{ $t('params.ad_disableBt') }}</Button>
 					<Button @click="openPremium()" premium icon="premium">{{ $t('premium.become_premiumBt') }}</Button>
 				</template>
 			</div>

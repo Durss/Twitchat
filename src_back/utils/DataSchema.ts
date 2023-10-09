@@ -1111,12 +1111,20 @@ import Ajv from "ajv";
 							sortByRoles: {type:"boolean"},
 							sortByAmounts: {type:"boolean"},
 							uniqueUsers: {type:"boolean"},
+							filterRewards: {type:"boolean"},
+							showRewardUsers: {type:"boolean"},
 							label: {type:"string", maxLength:50},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},
 							customHTML: {type:"boolean"},
 							htmlTemplate: {type:"string", maxLength:5000},
 							text: {type:"string", maxLength:1000},
+							rewardIds: {
+								type:"array",
+								minItems:0,
+								maxItems:300,
+								items:{type:"string", maxLength:40},
+							},
 						}
 					}
 				}

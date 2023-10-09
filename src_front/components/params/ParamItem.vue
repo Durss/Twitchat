@@ -517,7 +517,7 @@ export default class ParamItem extends Vue {
 		this.$emit("update:modelValue", this.paramData.value);
 		this.$emit("change");
 		if(this.paramData.editCallback) {
-			this.paramData.editCallback(this.paramData.value);
+			this.paramData.editCallback(this.paramData);
 		}
 		this.buildChildren();
 		this.$nextTick().then(()=>{
@@ -536,7 +536,8 @@ export default class ParamItem extends Vue {
 				//Hide transition
 				const childrenItems = this.$refs.param_child as Vue[];
 				let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
-				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05,
+				gsap.killTweensOf(divs);
+				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025,
 					onComplete:()=> {
 						this.children = [];
 					}});
@@ -568,7 +569,8 @@ export default class ParamItem extends Vue {
 			//Show transitions
 			const childrenItems = this.$refs.param_child as Vue[];
 			let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
-			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
+			gsap.killTweensOf(divs);
+			gsap.from(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025, clearProps:"all"});
 		}
 		this.childrenExpanded = true;
 	}

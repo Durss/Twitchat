@@ -117,6 +117,8 @@
 			"param_customHTML":"Custom HTML template",
 			"param_showAmounts":"Show amounts",
 			"param_uniqueUsers":"Unique users\n(mutltiple events of the same user are merged into 1)",
+			"param_filterRewards":"Only show some rewards",
+			"param_showRewardUsers":"Show user list for each reward",
 			"premium_category":"This category will NOT show up when your stream is live",
 			"delete_confirm_title":"Delete category?",
 			"no_overlay":"Overlay not configured or hidden",
