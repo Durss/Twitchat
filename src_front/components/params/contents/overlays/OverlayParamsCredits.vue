@@ -252,7 +252,7 @@ export default class OverlayParamsCredits extends Vue {
 	private broadcastDebounce:number = -1;
 
 	public get overlayUrl():string { return this.$overlayURL("credits"); }
-	public get isPremium():boolean { return this.$store("auth").isPremium && false; }
+	public get isPremium():boolean { return this.$store("auth").isPremium; }
 
 	public get classes():string[] {
 		const res:string[] = ["overlayparamscredits"];

@@ -297,7 +297,7 @@ export const storeStream = defineStore('stream', {
 
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			const isPremium = false;//StoreProxy.auth.isPremium;
+			const isPremium = StoreProxy.auth.isPremium;
 			let prevDate:number = 0;
 			let result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
