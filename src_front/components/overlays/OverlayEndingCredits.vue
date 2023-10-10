@@ -12,13 +12,10 @@
 						</div>
 					</div>
 					
-					<div v-if="item.params.slotType == 'subs' || item.params.slotType == 'subsandgifts'" v-for="entry in (data.subs || []).concat().splice(0, item.params.maxEntries)" class="item">
-						<span class="info">{{entry.login}}</span>
-					</div>
-					
-					<div v-if="item.params.slotType == 'subgifts' || item.params.slotType == 'subsandgifts'" v-for="entry in makeUnique(item.params, data.subgifts || []).concat().sort((a,b)=>b.total-a.total).splice(0, item.params.maxEntries)" class="item">
-						<span class="info">{{entry.login}}</span>
-						<span class="count" v-if="item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.total }}</span>
+					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
+						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
+						<span class="info">{{entry.value.login}}</span>
+						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.value.total }}</span>
 					</div>
 					
 					<div v-if="item.params.slotType == 'cheers'" v-for="entry in makeUnique(item.params, data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item">
@@ -154,9 +151,49 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			opacity: this.display? 1 : 0,
 		}
 		if(this.data?.params){
-			res.fontSize = [.5, .75, 1, 1.5, 2][(this.data?.params!.scale || 3) - 1]+"em";
+			// 0 -> .5em
+			// 100 -> 5em
+			const v = (this.data?.params!.scale || 30)/100;
+			const minScale = .25;
+			const maxScale = 3;
+			res.fontSize = (v * (maxScale-minScale)+minScale)+"em";
 		};
 		return res;
+	}
+
+	public getSortedSubs(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		const subs = this.data?.subs || [];
+		const resubs = this.data?.resubs || [];
+		const subgifts = this.data?.subgifts || [];
+		let res: ({type:"sub", value:TwitchatDataTypes.StreamSummaryData["subs"][0]}
+				| {type:"resub", value:TwitchatDataTypes.StreamSummaryData["resubs"][0]}
+				| {type:"subgift", value:TwitchatDataTypes.StreamSummaryData["subgifts"][0]})[] = [];
+
+		if(item.showSubs !== false)		res = res.concat(subs.map(v=>{ return {type:"sub", value:v}}));
+		if(item.showResubs !== false)	res = res.concat(resubs.map(v=>{ return {type:"resub", value:v}}));
+		if(item.showSubgifts !== false)	res = res.concat(this.makeUnique(item, subgifts).map(v=>{ return {type:"subgift", value:v}}));
+		return res.sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+			if(item.sortBySubTypes) {
+				if(a.type == "subgift") scoreA += 10;
+				else if(a.type == "resub") scoreA += 5;
+				else scoreA += 2;
+
+				if(b.type == "subgift") scoreB += 10;
+				else if(b.type == "resub") scoreB += 5;
+				else scoreB += 2;
+			}
+			if(item.sortByNames){
+				if(a.value.login.toLowerCase() > b.value.login.toLowerCase()) scoreB ++;
+				if(a.value.login.toLowerCase() < b.value.login.toLowerCase()) scoreA ++;
+			}else {
+				if(a.type === "subgift") scoreA += a.value.total;
+				if(b.type === "subgift") scoreB += b.value.total;
+			}
+			
+			return scoreB - scoreA;
+		});
 	}
 
 	public getRewards(item:TwitchatDataTypes.EndingCreditsSlotParams) {
@@ -207,6 +244,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		else res.push("layout_"+item.layout);
 		if(item.slotType == "text" && !item.text) res.push("noText");
 		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
+		if(!item.label) res.push("noLabel");
 		return res;
 	}
 
@@ -276,16 +314,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		let count = 0;
 		switch(item.slotType) {
 			case "hypechats": count =  this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
-			case "subs": count = (this.data?.subs || []).length; break;
-			case "subgifts": count = this.makeUnique(item, (this.data?.subgifts || [])).length; break;
-			case "subsandgifts": count = ([] as unknown[]).concat( this.makeUnique(item, this.data?.subgifts || []), this.data?.subs || []).length; break;
+			case "subs": count = this.getSortedSubs(item).length; break;
 			case "cheers": count =  this.makeUnique(item, (this.data?.bits || [])).length; break;
 			case "raids": count =  this.makeUnique(item, (this.data?.raids || [])).length; break;
 			case "follows": count = (this.data?.follows || []).length; break;
 			case "hypetrains": count = (this.data?.hypeTrains || []).length; break;
 			case "so_in": count = (this.data?.shoutouts || []).filter(v=>v.received === true).length; break;
 			case "so_out": count = (this.data?.shoutouts || []).filter(v=>v.received === false).length; break;
-			case "rewards": count = (this.getRewards(item) || []).length; break;
+			case "rewards": count = this.getRewards(item).length; break;
 			case "bans": count = (this.data?.chatters || []).filter(v=>v.bans > 0).length; break;
 			case "timeouts": count = (this.data?.chatters || []).filter(v=>v.tosDuration > 0).length; break;
 			case "polls": count = (this.data?.polls || []).length; break;
@@ -385,8 +421,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				valueKey = val as keyof T;
 				break;
 			}
-			case "subgifts":
-			case "subsandgifts": {
+			case "subs": {
+				//FIXME
 				type keyType = keyof TwitchatDataTypes.StreamSummaryData["subgifts"][0];
 				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["subgifts"][0], number>;
 				let key:keyType = "login";
@@ -429,7 +465,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				result.push(clone);
 			}
 		}
-		console.log("Make unique", result.length, values.length);
 		return result;
 	}
 
@@ -439,6 +474,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
+			console.log(JSON.parse(JSON.stringify(this.data)));
 			this.buildSlots();
 			this.reset();
 		}
@@ -612,7 +648,7 @@ interface SlotItem {
 				height: 1em;
 				width: 1em;
 				margin-right: .25em;
-				margin-left: -1em;
+				margin-left: -1.5em;
 			}
 			&:empty {
 				display: none;
@@ -667,6 +703,14 @@ interface SlotItem {
 					margin-top: .5em;
 					font-size: .8em;
 					font-weight: 300;
+				}
+			}
+		}
+
+		&.noLabel {
+			h1 {
+				.icon {
+					margin-left: 0;
 				}
 			}
 		}

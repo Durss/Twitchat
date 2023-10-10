@@ -1080,7 +1080,7 @@ import Ajv from "ajv";
 				colorTitle: {type:"string", maxLength:9},
 				colorEntry: {type:"string", maxLength:9},
 				textShadow: {type:"number", minimum:0, maximum:100},
-				scale: {type:"integer", minimum:1, maximum:5},
+				scale: {type:"integer", minimum:0, maximum:100},
 				timing: {type:"string", maxLength:15},
 				fontTitle: {type:"string", maxLength:100},
 				fontEntry: {type:"string", maxLength:100},

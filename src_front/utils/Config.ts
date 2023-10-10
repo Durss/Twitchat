@@ -69,10 +69,6 @@ export default class Config {
 	 */
 	public TWITCH_SHOUTOUT_COOLDOWN_SAME_USER = 60 * 60 * 1000;
 	/**
-	 * Endpoint to list followers of another user will be shut down at this date
-	 */
-	public FOLLOWERS_API_SHUTDOWN_DATE = new Date("09-06-2023 00:00:00");
-	/**
 	 * Maximum custom user names we can create without being premium
 	 */
 	public MAX_CUSTOM_USERNAMES = 10;

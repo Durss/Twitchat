@@ -1459,12 +1459,10 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "subgifts" | "hypechats" | "hypetrains" | "predictions" | "subsandgifts";
+	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
 		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
-		{id:"subs",			premium:false,	hasAmount:false,	canMerge:false,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs"},
-		{id:"subgifts",		premium:false,	hasAmount:true,		canMerge:true,		icon:"gift",			label:"overlay.credits.categories.subgifts",		defaultLabel:"overlay.credits.labels.subgifts",		amountLabel:"overlay.credits.amounts.subgifts"},
-		{id:"subsandgifts",	premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subsandgifts",	defaultLabel:"overlay.credits.labels.subsandgifts",	amountLabel:"overlay.credits.amounts.subsandgifts"},
+		{id:"subs",			premium:false,	hasAmount:true,	canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs"},
 		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
 		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
 		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
@@ -1504,9 +1502,12 @@ export namespace TwitchatDataTypes {
 		showMods?:boolean;
 		showVIPs?:boolean;
 		showSubs?:boolean;
+		showResubs?:boolean;
+		showSubgifts?:boolean;
 		sortByNames?:boolean;
 		sortByRoles?:boolean;
 		sortByAmounts?:boolean;
+		sortBySubTypes?:boolean;
 		showChatters?:boolean;
 		uniqueUsers?:boolean;
 		text?:string,

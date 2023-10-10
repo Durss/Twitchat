@@ -146,7 +146,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 46.1;
+		let latestVersion = 46.2;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -295,6 +295,12 @@ export default class DataStore {
 		}
 		if(v==46) {
 			delete data[this.ENDING_CREDITS_PARAMS];
+			v = 46.1;
+		}
+		if(v==46.1) {
+			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
+				data[this.ENDING_CREDITS_PARAMS].scale = 30;
+			}
 			v = latestVersion;
 		}
 

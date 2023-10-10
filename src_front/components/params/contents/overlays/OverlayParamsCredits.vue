@@ -52,16 +52,14 @@
 							
 							<template #title>
 								<div class="title">
-									<span class="default" v-if="element.slotType === 'text' && !element.label">{{ $t("overlay.credits.categories.text") }}</span>
+									<span class="default" v-if="!element.label">{{ $t(getDefinitionFromSlot(element.slotType).label) }}</span>
 									<contenteditable class="label" tag="div" :ref="'label_'+element.id"
 									:contenteditable="true"
 									v-model="element.label"
 									:no-nl="true"
 									:no-html="true"
 									@click.stop
-									@returned="checkDefaultLabel(element)"
-									@input="limitLabelSize(element)"
-									@blur="checkDefaultLabel(element)" />
+									@input="limitLabelSize(element)" />
 								</div>
 							</template>
 
@@ -102,6 +100,15 @@
 								<template v-if="element.slotType == 'rewards'">
 									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+
+								<template v-if="element.slotType == 'subs'">
+									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
+									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
+									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
+									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 									
 								<template v-if="element.slotType == 'chatters'">
@@ -203,7 +210,7 @@ export default class OverlayParamsCredits extends Vue {
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
 	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:300, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
-	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:5, value:3, labelKey:"overlay.credits.param_scale", icon:"scale"};
+	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:100, value:30, labelKey:"overlay.credits.param_scale", icon:"scale"};
 	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
 	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
 	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown"};
@@ -213,9 +220,12 @@ export default class OverlayParamsCredits extends Vue {
 	public param_htmlTemplate:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_showBadges:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showSubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showResubs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showSubgifts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showMods:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showVIPs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showChatters:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_sortBySubTypes:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByRoles:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_sortByName:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -285,7 +295,6 @@ export default class OverlayParamsCredits extends Vue {
 		if(this.data.slots.length == 0) {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!);
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subgifts")!);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "raids")!);
 		}else{
@@ -459,22 +468,22 @@ export default class OverlayParamsCredits extends Vue {
 				}});
 			}
 			this.param_filterRewards[id].children = children;
-		}
+		}else
 
 		if(slotDef.id == "chatters") {
 			if(entry.showMods === undefined) {
-				entry.layout = "3cols";
-				entry.label = this.$t("overlay.credits.moderators_label");
+				entry.layout	= "3cols";
+				entry.label		= this.$t("overlay.credits.moderators_label");
 			}
 			if(entry.showMods === undefined || !this.isPremium) {
-				entry.showMods = true;
-				entry.showVIPs = false;
-				entry.showSubs = false;
-				entry.showChatters = false;
-				entry.showBadges = false;
-				entry.sortByRoles = false;
-				entry.sortByAmounts = false;
-				entry.showAmounts = false;
+				entry.showMods		= true;
+				entry.showVIPs		= false;
+				entry.showSubs		= false;
+				entry.showChatters	= false;
+				entry.showBadges	= false;
+				entry.sortByRoles	= false;
+				entry.sortByAmounts	= false;
+				entry.showAmounts	= false;
 			}
 			this.param_showBadges[id]	= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
 			this.param_showMods[id]		= {type:"boolean", value:true, icon:"mod", labelKey:"overlay.credits.param_showMods"};
@@ -484,15 +493,31 @@ export default class OverlayParamsCredits extends Vue {
 			this.param_sortByName[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
 			this.param_sortByRoles[id]	= {type:"boolean", value:true, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
 			this.param_sortByAmounts[id]= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
-		}
+		}else
 
 		if(slotDef.id == "text") {
-			const placeholderList = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
-			this.param_text[id] = {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+		}else
+
+		if(slotDef.id == "subs") {
+			if(entry.showSubs === undefined)		entry.showSubs = true;
+			if(entry.showResubs === undefined)		entry.showResubs = true;
+			if(entry.showSubgifts === undefined)	entry.showSubgifts = true;
+			if(entry.showBadges == undefined || !this.isPremium) entry.showBadges = false;
+			if(entry.sortByNames == undefined || !this.isPremium) entry.sortByNames = false;
+			if(entry.sortBySubTypes == undefined || !this.isPremium) entry.sortBySubTypes = false;
+			this.param_showSubs[id]			= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
+			this.param_showResubs[id]		= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
+			this.param_showSubgifts[id]		= {type:"boolean", value:true, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
+			this.param_showBadges[id]		= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showSubBadges'};
+			this.param_sortByName[id]		= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
+			this.param_sortBySubTypes[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes"};
 		}
 		
 		if(slotDef.canMerge) {
-			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_uniqueUsers"};
+			if(entry.uniqueUsers === undefined || !this.isPremium) entry.uniqueUsers = false;
+			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"merge", labelKey:"overlay.credits.param_uniqueUsers"};
 		}
 		if(!data) this.data.slots.push(entry);
 		this.saveParams();
@@ -624,6 +649,8 @@ export default class OverlayParamsCredits extends Vue {
 					.default {
 						position: absolute;
 						text-wrap: nowrap;
+						opacity: .8;
+						font-style: italic;
 						top:0;
 						left:50%;
 						transform: translateX(-50%);
