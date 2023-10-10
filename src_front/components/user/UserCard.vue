@@ -131,27 +131,6 @@
 							</div>
 						</div>
 					</div>
-					
-					<div class="card-item followings" v-if="!followingsDisabled">
-						<div class="header">
-							<h2 class="title">Following list <span class="count" v-if="followings">({{followings.length}})</span></h2>
-						</div>
-						<div class="card-item secondary disableDate">{{ $t("usercard.following_end", {DATE:endDateFormated}) }}</div>
-						<div class="card-item primary commonFollow" v-if="canListFollowings">{{commonFollowCount}} followings in common</div>
-						<transition name="scale">
-							<Icon class="loader" name="loader" v-if="loadingFollowings" />
-						</transition>
-		
-						<div v-if="errorFollowings" class="card-item alert errorMessage">Something went wrong while loading followings...</div>
-						<div v-if="suspiciousFollowFrequency" class="card-item secondary warn">This user has or has had a suspicious following behavior</div>
-		
-						<div class="list" v-if="!errorFollowings" ref="list">
-							<div v-for="u in followings" :class="myFollowings[u.to_id]===true? 'user common' : 'user'">
-								<a :href="'https://twitch.tv/'+u.to_login" target="_blank" class="login">{{u.to_name}}</a>
-								<div class="date">{{getFormatedFollowDate(u)}}</div>
-							</div>
-						</div>
-					</div>
 				</div>
 			</template>
 
@@ -202,10 +181,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 export default class UserCard extends Vue {
 
 	public error:boolean = false;
-	public errorFollowings:boolean = false;
-	public suspiciousFollowFrequency:boolean = false;
 	public loading:boolean = true;
-	public loadingFollowings:boolean = true;
 	public edittingLogin:boolean = true;
 	public manageBadges:boolean = false;
 	public manageUserNames:boolean = false;
@@ -217,10 +193,7 @@ export default class UserCard extends Vue {
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public fakeModMessage:TwitchatDataTypes.MessageChatData|null = null;
 	public currentStream:TwitchDataTypes.StreamInfo|null = null;
-	public followings:TwitchDataTypes.FollowingOld[] = [];
-	public myFollowings:{[key:string]:boolean} = {};
 	public followersCount:number = -1;
-	public commonFollowCount:number = 0;
 	public badges:TwitchatDataTypes.TwitchatUserBadge[] = [];
 	public subState:TwitchDataTypes.Subscriber|null = null;
 	public subStateLoaded:boolean = false;
@@ -230,19 +203,6 @@ export default class UserCard extends Vue {
 
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	private messageBuildInterval:number = -1;
-
-	public get followingsDisabled():boolean {
-		//Necessary Twitch API endpoint to get the followings of a user
-		//will be shut down at this date
-		return Date.now() >= Config.instance.FOLLOWERS_API_SHUTDOWN_DATE.getTime();
-	}
-
-	/**
-	 * Get formated old followers API shutdown date
-	 */
-	public get endDateFormated():string {
-		return Utils.formatDate(Config.instance.FOLLOWERS_API_SHUTDOWN_DATE, false);
-	}
 
 	/**
 	 * Returns the login instead of the display name if the display name contains
@@ -326,8 +286,6 @@ export default class UserCard extends Vue {
 
 	public mounted():void {
 		watch(() => this.$store("users").userCard, () => {
-			this.myFollowings = this.$store("users").myFollowings.twitch;
-
 			const card = this.$store("users").userCard;
 			if(card && card.user) {
 				this.user = this.$store("users").getUserFrom("twitch", card.channelId, card.user.id);
@@ -358,11 +316,7 @@ export default class UserCard extends Vue {
 	public async loadUserInfo():Promise<void> {
 		this.error = false;
 		this.loading = true;
-		this.followDate = "";
 		this.createDate = "";
-		this.followings = [];
-		this.loadingFollowings = true;
-		this.commonFollowCount = 0;
 		this.followersCount = -1;
 		this.followDate = "";
 		this.currentStream = null;
@@ -442,31 +396,6 @@ export default class UserCard extends Vue {
 		}
 
 		this.loading = false;
-		if(!this.error && this.user && !this.followingsDisabled) {
-			this.badges = this.user.channelInfo[this.channelId]?.badges ?? [];
-
-			await this.$nextTick();
-			gsap.from(this.$refs.avatar as HTMLDivElement, {duration:1, scale:0, ease:"back.out"})
-		
-			this.loadingFollowings = true;
-			try {
-				this.followings = await TwitchUtils.getFollowingsOld(this.user.id, -1, async(list)=> {
-					const firstPage = this.followings.length == 0;
-					this.followings = list;
-					this.commonFollowCount = 0;
-					this.computeCommonFollows();
-					if(firstPage) {
-						await this.$nextTick();
-						gsap.from(this.$refs.list as HTMLDivElement, {duration:.5, height:0, ease:"sin.inOut", clearProps:"all"});
-					}
-				});
-				this.checkFollowBotting();
-				this.computeCommonFollows();
-			}catch(error) {
-				this.errorFollowings = true;
-			}
-			this.loadingFollowings = false;
-		}
 	}
 
 	public openUserCard():void {
@@ -532,55 +461,6 @@ export default class UserCard extends Vue {
 	public copyID():void {
 		Utils.copyToClipboard(this.user!.id);
 		gsap.from(this.$refs.userID as HTMLDivElement, {scale:1.5, ease:"back.out"});
-	}
-
-	/**
-	 * Check how many followers we have in common
-	 */
-	public computeCommonFollows():void {
-		this.commonFollowCount = 0;
-		for (let i = 0; i < this.followings.length; i++) {
-			if(this.myFollowings[this.followings[i].to_id] === true) {
-				this.commonFollowCount ++;
-			}
-		}
-	}
-
-	/**
-	 * Check for suspicious following behavior
-	 */
-	private checkFollowBotting():void {
-		let followFrequency = 0;
-		let fastFollowStreakCount = 0;
-		let maxFastFollowStreakCount = 0;
-		let checkMaxDelay = 3600000 * 24 * 30 * 4;//Ignore followings older than 4 months
-		let recentFollowCount = 0;
-		//Compute following frequency
-		for (let i = 1; i < this.followings.length; i++) {
-			let prevDate = new Date(this.followings[i-1].followed_at).getTime();
-			let currentDate = new Date(this.followings[i].followed_at).getTime();
-			if(Date.now() - prevDate > checkMaxDelay) {
-				continue;
-			}
-
-			let diff = prevDate - currentDate;
-			followFrequency += diff/1000;
-			recentFollowCount ++;
-			if(diff < 30000) {
-				fastFollowStreakCount++;
-				maxFastFollowStreakCount = Math.max(maxFastFollowStreakCount, fastFollowStreakCount);
-			}else{
-				fastFollowStreakCount = 0;
-			}
-		}
-		followFrequency /= recentFollowCount;
-		
-		//If follow frequency is too high, and user has more than 10 follows (just in case it's a new user that followed a lot)
-		if((followFrequency < 3 && recentFollowCount > 10)
-		//Or if user followed more than 10 people with less than 30s between each
-		|| maxFastFollowStreakCount >= 10) {
-			this.suspiciousFollowFrequency = true
-		}
 	}
 
 	/**
