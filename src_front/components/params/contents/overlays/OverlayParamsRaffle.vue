@@ -19,7 +19,9 @@
 				<Button :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 			</div>
 
-			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
+
+			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
 			<div class="card-item item">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
@@ -56,6 +58,7 @@ export default class OverlayParamsRaffle extends Vue {
 
 	public loading = false;
 	public overlayExists = false;
+	public checkingOverlayAtStart:boolean = true;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
@@ -66,6 +69,7 @@ export default class OverlayParamsRaffle extends Vue {
 	public mounted():void {
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
+			this.checkingOverlayAtStart = false;
 			clearTimeout(this.subcheckTimeout);
 		};
 		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
@@ -77,6 +81,7 @@ export default class OverlayParamsRaffle extends Vue {
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
 			this.subcheckTimeout = setTimeout(()=>{
 				this.overlayExists = false;
+				this.checkingOverlayAtStart = false;
 			}, 1500);
 		}, 2000);
 	}
@@ -133,6 +138,10 @@ export default class OverlayParamsRaffle extends Vue {
 
 			&.center {
 				margin: auto;
+			}
+
+			&.loader {
+				height: 2.5em;
 			}
 
 			:deep(.icon) {
