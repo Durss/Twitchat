@@ -158,6 +158,7 @@ export const storeAuth = defineStore('auth', {
 	
 				const sMain = StoreProxy.main;
 				const sRewards = StoreProxy.rewards;
+				const sStream = StoreProxy.stream;
 				
 				try {
 					window.setInitMessage("migrating local parameter data");
@@ -189,40 +190,7 @@ export const storeAuth = defineStore('auth', {
 				EventSub.instance.connect();
 				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				sRewards.loadRewards();
-
-				//Preload stream info
-				TwitchUtils.loadCurrentStreamInfo([this.twitch.user.id]).then(async v=> {
-					let title = "";
-					let category = "";
-					let started_at = 0;
-					let tags:string[] = [];
-					let viewers = 0;
-					let live = false;
-					if(v.length == 0){
-						let [info] = await TwitchUtils.loadChannelInfo([this.twitch.user.id])
-						title		= info.title;
-						tags		= info.tags;
-						category	= info.game_name;
-					}else{
-						live		= true;
-						title		= v[0].title;
-						tags		= v[0].tags;
-						category	= v[0].game_name;
-						viewers		= v[0].viewer_count;
-						started_at	= new Date(v[0].started_at).getTime();
-
-					}
-					StoreProxy.stream.currentStreamInfo[this.twitch.user.id] = {
-						title,
-						category,
-						started_at,
-						tags,
-						live,
-						viewers,
-						user:this.twitch.user,
-						lastSoDoneDate:0,
-					};
-				});
+				sStream.loadStreamInfo("twitch", this.twitch.user.id);
 
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {
@@ -231,8 +199,8 @@ export const storeAuth = defineStore('auth', {
 						user.channelInfo[this.twitch.user.id].is_moderator = true;
 					})
 				});
-
-				StoreProxy.main.onAuthenticated();
+				
+				sMain.onAuthenticated();
 
 				if(cb) cb(true);
 				

@@ -1012,6 +1012,11 @@ export interface IStreamGetters {
 
 export interface IStreamActions {
 	/**
+	 * Preload the current stream info of the connected channel
+	 */
+	loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void>;
+
+	/**
 	 * Set current stream info
 	 * @param platform 
 	 * @param title 
@@ -1019,7 +1024,7 @@ export interface IStreamActions {
 	 * @param channelId 
 	 * @param tags 
 	 */
-	setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean>
+	updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean>
 	/**
 	 * Set outgoing raid info
 	 * @param infos 

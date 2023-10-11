@@ -1093,11 +1093,15 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION") == -1) {
-			entry.push({tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
+			entry.push({category:"stream", tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
 		}
 		
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION_MS") == -1) {
-			entry.push({tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
+			entry.push({category:"stream", tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "MY_STREAM_LIVE") == -1) {
+			entry.push({category:"stream", tag:"MY_STREAM_LIVE", descKey:"triggers.placeholders.my_stream_live", pointer:"__my_stream__.live", numberParsable:false, isUserID:false, globalTag:true, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}], example:"false"});
 		}
 
 		if(entry.findIndex(v=>v.tag == "ULULE_CAMPAIGN_NAME") == -1 && hasUlule) {

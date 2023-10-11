@@ -233,7 +233,7 @@ export const storeMain = defineStore("main", {
 				sVoice.voiceText.finalText = (e.data as {text:string}).text;
 			});
 			
-			PublicAPI.instance.initialize();
+			PublicAPI.instance.initialize(authenticate);
 			
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)

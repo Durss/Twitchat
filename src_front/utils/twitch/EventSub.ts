@@ -403,8 +403,10 @@ export default class EventSub {
 		let tags:string[] = [];
 		let started_at:number = 0;
 		let viewers:number = 0;
+		let live:boolean = false;
 		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
+			live = true;
 			title = streamInfos.title;
 			category = streamInfos.game_name;
 			tags = streamInfos.tags;
@@ -417,16 +419,24 @@ export default class EventSub {
 			tags = chanInfo.tags;
 		}
 
-		StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
-			title,
-			category,
-			tags,
-			started_at,
-			viewers,
-			live: false,
-			user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-			lastSoDoneDate:0,
+		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
+		if(!infos) {
+			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
+				title,
+				category,
+				tags,
+				started_at,
+				viewers,
+				live,
+				user: StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
+				lastSoDoneDate:0,
+			}
 		}
+		infos.title = title;
+		infos.category = category;
+		infos.tags = tags;
+		infos.viewers = viewers;
+		infos.live = live;
 
 		const message:TwitchatDataTypes.MessageStreamInfoUpdate = {
 			id:Utils.getUUID(),
@@ -710,17 +720,8 @@ export default class EventSub {
 	 * @param event 
 	 */
 	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
-		const me = StoreProxy.auth.twitch.user;
-		const streamInfo:TwitchatDataTypes.StreamInfo = {
-			tags:[],
-			title: "",
-			category:"",
-			live:false,
-			viewers:0,
-			started_at:Date.now(),
-			user: StoreProxy.users.getUserFrom("twitch", me.id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name),
-			lastSoDoneDate:0,
-		};
+		const streamInfo = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id]!;
+		streamInfo.live = topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON;
 		const message:TwitchatDataTypes.MessageStreamOnlineData | TwitchatDataTypes.MessageStreamOfflineData = {
 			date:Date.now(),
 			id:Utils.getUUID(),

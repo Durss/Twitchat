@@ -138,7 +138,6 @@
 				
 				<div class="slotSelector" v-else>
 					<CloseButton @click="showSlotOptions = false" />
-					<!-- <Button icon="cross" @click="showSlotOptions = false" alert :aria-label="$t('global.cancel')" /> -->
 					<Button class="slotBt"
 					v-for="slot in slotTypes"
 					:icon="slot.icon"
@@ -151,7 +150,8 @@
 				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
 			</div>
 
-			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
+			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
 		</div>
 	</ToggleBlock>
 </template>
@@ -209,7 +209,7 @@ export default class OverlayParamsCredits extends Vue {
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
 	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
-	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:300, value:2, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:1000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer"};
 	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:100, value:30, labelKey:"overlay.credits.param_scale", icon:"scale"};
 	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
 	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
@@ -238,6 +238,7 @@ export default class OverlayParamsCredits extends Vue {
 	public sendingSummaryData = false;
 	public fontsReady:boolean = false;
 	public showSlotOptions:boolean = false;
+	public checkingOverlayAtStart:boolean = true;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
 		scale:30,
 		padding:100,
@@ -250,7 +251,7 @@ export default class OverlayParamsCredits extends Vue {
 		timing:"speed",
 		startDelay:0,
 		duration:60,
-		speed:40,
+		speed:200,
 		loop:true,
 		showIcons:true,
 		slots:[],
@@ -334,6 +335,7 @@ export default class OverlayParamsCredits extends Vue {
 		
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
+			this.checkingOverlayAtStart = false;
 			clearTimeout(this.subcheckTimeout);
 		};
 		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
@@ -345,6 +347,7 @@ export default class OverlayParamsCredits extends Vue {
 			//If after 1,5s the overlay didn't answer, assume it doesn't exist
 			this.subcheckTimeout = setTimeout(()=>{
 				this.overlayExists = false;
+				this.checkingOverlayAtStart = false;
 			}, 1500);
 		}, 2000);
 
@@ -546,12 +549,14 @@ export default class OverlayParamsCredits extends Vue {
 		//Parse "text" slots placholders
 		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
 		const channelId = this.$store("auth").twitch.user.id
-		const fakeDuration = this.$store("stream").currentStreamInfo[channelId]?.started_at || 1 * 3600000 + 23 * 60000 + 45 * 1000;
+		let fakeStartDate = this.$store("stream").currentStreamInfo[channelId]?.started_at;
+		if(!fakeStartDate) fakeStartDate = Date.now() - (1 * 3600000 + 23 * 60000 + 45 * 1000);
+		console.log(this.$store("stream").currentStreamInfo[channelId]?.started_at);
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];
 			if(slot.slotType !== "text") continue;
-			slot.text = (slot.text ||"").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(fakeDuration));
-			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, fakeDuration.toString());
+			slot.text = (slot.text ||"").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
+			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());
 			if(slot.text) {
 				slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
 			}
@@ -778,6 +783,10 @@ export default class OverlayParamsCredits extends Vue {
 
 			&.center {
 				margin: auto;
+			}
+
+			&.loader {
+				height: 2.5em;
 			}
 		}
 	}

@@ -117,7 +117,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Linear } from 'gsap';
-import gsap from 'gsap/all';
 import { watch, type StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
@@ -140,6 +139,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private startDelayTimeout:number = -1;
 	private entryCountCache:{[key:string]:number} = {}
 	private prevTs:number = 0;
+	private scrollStarted_at:number = 0;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private summaryDataHandler!:(e:TwitchatEvent) => void;
@@ -298,7 +298,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 	public beforeUnmount(): void {
 		cancelAnimationFrame(this.animFrame);
-		gsap.killTweensOf(this.$el as HTMLElement);
 		document.removeEventListener("keyup", this.keyupHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
@@ -391,9 +390,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(event.code != "Space") return;
 		event.stopPropagation();
 		this.paused = !this.paused;
-		if(this.paused) {
-			gsap.killTweensOf(this.$el as HTMLElement);
-		}
 	}
 
 	/**
@@ -422,7 +418,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				break;
 			}
 			case "subs": {
-				//FIXME
 				type keyType = keyof TwitchatDataTypes.StreamSummaryData["subgifts"][0];
 				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["subgifts"][0], number>;
 				let key:keyType = "login";
@@ -491,11 +486,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			if(this.prevParams &&
 			(
 				this.prevParams.duration != this.data.params.duration
-				|| this.prevParams.speed != this.data.params.speed
 				|| this.prevParams.startDelay != this.data.params.startDelay
 				|| this.prevParams.timing != this.data.params.timing
 				|| this.prevParams.loop != this.data.params.loop
-				|| !this.data.params.loop
 			)) resetScroll = true;
 
 			this.prevParams = this.data.params;
@@ -513,7 +506,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(resetScroll) {
 			clearTimeout(this.startDelayTimeout)
 			cancelAnimationFrame(this.animFrame);
-			gsap.killTweensOf(this.$el as HTMLElement);
 		}
 		this.startScroll(resetScroll);
 	}
@@ -536,18 +528,20 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			
 			if(resetScroll) {
 				const holder = this.$el as HTMLElement;
-				const bounds = holder.getBoundingClientRect();
+				// const bounds = holder.getBoundingClientRect();
 				this.posY = window.innerHeight;
 
 				if(this.data?.params?.timing == 'duration') {
-					gsap.fromTo(holder, {translateY:this.posY}, {duration:this.data!.params!.duration, translateY:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
-						if(this.data?.params?.loop === true) {
-							this.reset(true);
-						}
-					}});
-				}else{
-					this.renderFrame(performance.now());
+					// gsap.fromTo(holder, {translateY:this.posY}, {duration:this.data!.params!.duration, translateY:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
+					// 	if(this.data?.params?.loop === true) {
+					// 		this.reset(true);
+					// 	}
+					// }});
+				// }else{
+					// this.renderFrame(performance.now());
+					this.scrollStarted_at = Date.now();
 				}
+				this.renderFrame(performance.now());
 			}
 		})
 	}
@@ -566,7 +560,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			return;
 		}
 		
-		const fps = (ts - this.prevTs);
+		const fps = Math.min(1000/30, (ts - this.prevTs)); //At least 30fps to cancel random lags i've seen
 		this.prevTs = ts;
 
 		const holder = this.$el as HTMLElement;
@@ -574,12 +568,18 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 		if(this.posY < -bounds.height) {
 			if(this.data?.params?.loop === true) {
-				this.reset(true);
+				this.scrollStarted_at = Date.now();
+				this.posY = window.innerHeight;
 			}
 			return;
 		}
 
-		this.posY -= (this.data?.params?.speed || 2) / fps;
+		if(this.data?.params?.timing == 'duration') {
+			const percent = Math.max(0, (Date.now() - this.scrollStarted_at) / (this.data?.params?.duration * 1000));
+			this.posY = window.innerHeight - (bounds.height + window.innerHeight) * percent;
+		}else{
+			this.posY -= (this.data?.params?.speed || 2) / 1000 * fps;
+		}
 	}
 
 	/**
@@ -675,6 +675,7 @@ interface SlotItem {
 					font-weight: bold;
 					display: flex;
 					flex-direction: raw;
+					align-items: center;
 					.icon {
 						margin-right: .25em;
 						height: 1em;

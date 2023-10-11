@@ -8,11 +8,15 @@ import { ComponentBase, Vue } from 'vue-facing-decorator';
 })
 export default class AbstractOverlay extends Vue {
 
+	private initDone:boolean = false;
 	private obsWebsocketConnectedHandler!:() => void;
 
 	public mounted():void {
 		this.requestInfo();
-		this.obsWebsocketConnectedHandler = () => this.requestInfo();
+		this.obsWebsocketConnectedHandler = () => {
+			if(!this.initDone) this.requestInfo();
+			this.initDone = true;//Avoids poential double init. Once when BrodcastChannel is ready and once when OBS-websocket is ready
+		}
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.obsWebsocketConnectedHandler);
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.TWITCHAT_READY, this.obsWebsocketConnectedHandler);
 	}

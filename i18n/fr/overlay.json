@@ -87,7 +87,7 @@
 			"head": "Affichez des crédits de fin de stream",
 			"css": "Changez l'apparence des crédits via ces sélecteurs CSS",
 			"parameters": "Paramètres",
-			"add_slotBt":"Ajouter une categorie",
+			"add_slotBt":"Ajouter une section",
 			"param_timing": "Timing de défilement",
 			"param_timing_speed": "Vitesse",
 			"param_timing_duration": "Durée",

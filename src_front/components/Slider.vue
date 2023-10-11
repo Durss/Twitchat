@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" @pointerdown="onMouseDown" @wheel="onMouseWheel">
-		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()">
+		<input type="range" v-model.number="localValue" :min="min" :max="max" :step="step" @pointerdown.capture.stop="" @input="renderBar()" ref="input">
 		<div class="gratuations" :style="gratuationsStyles"></div>
 		<div class="fill" :style="fillStyles"></div>
 	</div>
@@ -93,6 +93,9 @@ export default class Slider extends Vue {
 	}
 
 	public onMouseWheel(e?:WheelEvent):void {
+		//Don't allow control via mouse wheel if not focused
+		if(document.activeElement != this.$refs.input) return;
+
 		const add = e? (e.deltaY > 0)? -1 : 1 : 0;
 		const prevValue = this.localValue;
 		let v = this.localValue + add * this.step;

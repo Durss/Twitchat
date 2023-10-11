@@ -41,26 +41,21 @@ export default class PublicAPI extends EventDispatcher {
 	/**
 	 * Initializes the public API
 	 */
-	public async initialize():Promise<void> {
-		if(typeof BroadcastChannel == "undefined") return;
+	public async initialize(isMainApp:boolean):Promise<void> {
 		
-		this._bc = new BroadcastChannel("twitchat");
-
-		//If receiving data from another browser tab, broadcast it
-		this._bc.onmessage = (e: MessageEvent<unknown>):void => {
-			const event = e.data as {type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
-			const data = event.data as {id:string};
-			if(data.id){
-				if(this._idsDone[data.id] === true) return;
-				this._idsDone[data.id] = true;
+		if(typeof BroadcastChannel != "undefined") {
+			this._bc = new BroadcastChannel("twitchat");
+	
+			//If receiving data from another browser tab, broadcast it
+			this._bc.onmessage = (e: MessageEvent<unknown>):void => {
+				this.onMessage(e.data);
 			}
-			this.dispatchEvent(new TwitchatEvent(event.type, data));
 		}
 		
-		//Broadcast only to other browser tabs
-		this.broadcast(TwitchatEvent.TWITCHAT_READY);
+		//Broadcast twitchat ready state
+		if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
 		
-		await this.listenOBS();
+		await this.listenOBS(isMainApp);
 	}
 
 	/**
@@ -101,30 +96,43 @@ export default class PublicAPI extends EventDispatcher {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-	private listenOBS():Promise<void> {
+	private listenOBS(isMainApp:boolean):Promise<void> {
 		return new Promise((resolve,reject):void => {
 			//OBS api not ready yet, wait for it
 			if(!OBSWebsocket.instance.connected) {
-				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, () => {
-					this.listenOBS();
+				const connectHandler = () => {
+					OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, connectHandler);
+					if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
 					resolve();
-				});
-				return;
+				};
+				OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, connectHandler);
+			}else{
+				resolve();
 			}
 
-			this.broadcast(TwitchatEvent.TWITCHAT_READY);
-			
 			OBSWebsocket.instance.addEventListener("CustomEvent", (event:TwitchatEvent) => {
-				const e = event.data as {origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue};
-				if(e.type == undefined) return;
-				if(e.origin != "twitchat") return;
-				const data = e.data as {id:string};
-				if(data.id){
-					if(this._idsDone[data.id] === true) return;
-					this._idsDone[data.id] = true;
-				}
-				this.dispatchEvent(new TwitchatEvent(e.type, e.data));
-			})
+				this.onMessage(event.data, true);
+			});
 		});
+	}
+
+	/**
+	 * Called when receiving a message either from OBS os BroadcastChannel
+	 * @param event
+	 * @param checkOrigin 
+	 * @returns 
+	 */
+	private onMessage(event:unknown, checkOrigin:boolean = false):void {
+		const typedEvent = event as {origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
+
+		if(checkOrigin && typedEvent.origin != "twitchat") return;
+		if(typedEvent.type == undefined) return;
+
+		const data = typedEvent.data as {id:string};
+		if(data.id){
+			if(this._idsDone[data.id] === true) return;
+			this._idsDone[data.id] = true;
+		}
+		this.dispatchEvent(new TwitchatEvent(typedEvent.type, typedEvent.data));
 	}
 }

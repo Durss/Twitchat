@@ -63,7 +63,44 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
-		async setStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean> {
+		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
+			const infos:TwitchatDataTypes.StreamInfo = this.currentStreamInfo[channelId] || {
+				title:"",
+				category:"",
+				started_at:0,
+				tags:[],
+				live:false,
+				viewers:0,
+				lastSoDoneDate:0,
+				user:StoreProxy.users.getUserFrom(platform, channelId, channelId),
+			};
+
+			if(platform == "twitch") {
+				//Load current live infos if any
+				TwitchUtils.loadCurrentStreamInfo([channelId]).then(async v=> {
+					if(v.length == 0){
+						//Fallback to channel info
+						let [chanInfos] = await TwitchUtils.loadChannelInfo([channelId])
+						infos.live		= false;
+						infos.title		= chanInfos.title;
+						infos.tags		= chanInfos.tags;
+						infos.category	= chanInfos.game_name;
+						infos.viewers	= 0;
+					}else{
+						infos.live		= true;
+						infos.title		= v[0].title;
+						infos.tags		= v[0].tags;
+						infos.category	= v[0].game_name;
+						infos.viewers	= v[0].viewer_count;
+						infos.started_at= new Date(v[0].started_at).getTime();
+					}
+				});
+			}
+
+			this.currentStreamInfo[channelId] = infos;
+		},
+
+		async updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean> {
 			if(platform == "twitch") {
 				if(!await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags, branded, labels)) {
 					return false;
@@ -370,7 +407,6 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePredictionData>(TwitchatDataTypes.TwitchatMessageType.PREDICTION, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeTrainSummaryData>(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRaidData>(TwitchatDataTypes.TwitchatMessageType.RAID, undefined, false));
-					
 				}
 			}else{
 				//Filter out messages based on the stream duration
@@ -503,11 +539,10 @@ export const storeStream = defineStore('stream', {
 				if(json) {
 					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
 					
-					let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
+					let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 					if(simulate || !startDateBackup) {
-						StoreProxy.stream.currentStreamInfo[channelId].started_at = dateOffset;
+						StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
 					}
-					console.log(StoreProxy.stream.currentStreamInfo[channelId]?.started_at);
 
 					//Parse "text" slots placeholders
 					for (let i = 0; i < result.params.slots.length; i++) {
@@ -524,9 +559,7 @@ export const storeStream = defineStore('stream', {
 						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
 					}
 
-					if(startDateBackup) {
-						StoreProxy.stream.currentStreamInfo[channelId].started_at = startDateBackup;
-					}
+					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;
 				}
 			}
 
