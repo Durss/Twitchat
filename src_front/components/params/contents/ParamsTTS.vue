@@ -235,7 +235,11 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 	}
 
 	public setVoices():void {
-		this.param_voice.listValues = window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} });
+		if(window.speechSynthesis) {
+			this.param_voice.listValues = window.speechSynthesis.getVoices().map(x => { return {label:x.name, value:x.name} });
+		}else{
+			this.param_voice.listValues = [];
+		}
 	}
 
 	public async beforeMount():Promise<void> {
