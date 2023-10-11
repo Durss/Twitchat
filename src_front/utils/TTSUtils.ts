@@ -92,7 +92,7 @@ export default class TTSUtils {
 		if(clearQueue) {
 			this.pendingMessages = [];
 		}
-		window.speechSynthesis.cancel();
+		if(window.speechSynthesis) window.speechSynthesis.cancel();
 
 		//This is a shit workaround a change in browsers behavior.
 		//Before this, when calling "speechSynthesis.cancel()" the
@@ -192,10 +192,12 @@ export default class TTSUtils {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		this.voices = window.speechSynthesis.getVoices();
-		window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
-			this.voices = window.speechSynthesis.getVoices();
-		};
+		this.voices = window.speechSynthesis? window.speechSynthesis.getVoices() : [];
+		if(window.speechSynthesis) {
+			window.speechSynthesis.onvoiceschanged = () => { // in case they are not yet loaded
+				this.voices = window.speechSynthesis.getVoices();
+			};
+		}
 		
 		PublicAPI.instance.addEventListener(TwitchatEvent.STOP_TTS, ()=> {
 			this.stop();
@@ -599,11 +601,11 @@ export default class TTSUtils {
 				this.onReadComplete();
 			}
 	
-			window.speechSynthesis.speak(mess);
+			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
 	
 			if(paramsTTS.maxDuration > 0) {
 				this.stopTimeout = setTimeout(()=> {
-					window.speechSynthesis.cancel();
+					if(window.speechSynthesis) window.speechSynthesis.cancel();
 					this.onReadComplete();
 				}, paramsTTS.maxDuration * 1000);
 			}

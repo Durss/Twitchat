@@ -227,8 +227,10 @@ export const storeHeat = defineStore('heat', {
 																-rect.transform.globalRotation!);
 						rotatedClick.x -= rotatedTL.x;
 						rotatedClick.y -= rotatedTL.y;
-						const percentX = rotatedClick.x / rect.transform.width / rect.transform.globalScaleX!;
-						const percentY = rotatedClick.y / rect.transform.height / rect.transform.globalScaleY!;
+						const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
+						const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
+						const percentX = rotatedClick.x / dx;
+						const percentY = rotatedClick.y / dy;
 
 						//Send click info to browser source
 						OBSWebsocket.instance.socket.call("CallVendorRequest", {
