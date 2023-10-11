@@ -239,18 +239,18 @@ export default class OverlayParamsCredits extends Vue {
 	public fontsReady:boolean = false;
 	public showSlotOptions:boolean = false;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
-		scale:2,
+		scale:30,
 		padding:100,
 		paddingTitle:30,
 		fontTitle:"Inter",
 		fontEntry:"Inter",
-		colorTitle:"#ffffff",
-		colorEntry:"#ffffff",
+		colorTitle:"#e04e00",
+		colorEntry:"#039372",
 		textShadow:50,
 		timing:"speed",
 		startDelay:0,
 		duration:60,
-		speed:2,
+		speed:40,
 		loop:true,
 		showIcons:true,
 		slots:[],
@@ -303,7 +303,6 @@ export default class OverlayParamsCredits extends Vue {
 				const slot = this.data.slots[i];
 				const defaultSlot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType);
 				if(!defaultSlot) {
-					console.log("remove it ", slot.slotType);
 					//Remove deleted slot
 					this.data.slots.splice(i, 1);
 					i--;
@@ -529,7 +528,6 @@ export default class OverlayParamsCredits extends Vue {
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store("stream").getSummary(undefined, true, true);
-		console.log(summary);
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
@@ -547,7 +545,8 @@ export default class OverlayParamsCredits extends Vue {
 
 		//Parse "text" slots placholders
 		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
-		const fakeDuration = Math.random() * 6 * 3600000 + 10*60000;
+		const channelId = this.$store("auth").twitch.user.id
+		const fakeDuration = this.$store("stream").currentStreamInfo[channelId]?.started_at || 1 * 3600000 + 23 * 60000 + 45 * 1000;
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];
 			if(slot.slotType !== "text") continue;

@@ -317,36 +317,9 @@ export const storeStream = defineStore('stream', {
 			};
 
 			let dateOffset:number|undefined = offset;
-			//May replace the Twitch API call call with the following:
-			// StoreProxy.stream.currentStreamInfo[channelId]?.started_at
-			const res = await TwitchUtils.loadCurrentStreamInfo([channelId]);
-			if(res.length > 0) {
-				dateOffset = new Date(res[0].started_at).getTime();
-				result.streamDuration = Date.now() - dateOffset;
-			}
-
-			if(includeParams) {
-				//Load ending credits parameters
-				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
-				if(json) {
-					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
-
-					//Parse "text" slots placeholders
-					for (let i = 0; i < result.params.slots.length; i++) {
-						const slot = result.params.slots[i];
-						//Remove premium-only slots if not premium
-						if(!isPremium && !simulate
-						&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
-							result.params.slots.splice(i, 1);
-							i--;
-						}
-						//Parse placeholders on text slots
-						if(slot.slotType !== "text") continue;
-						if(!slot.text) continue;
-						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
-					}
-				}
-			}
+			//No custom offset defined, use the actual start of stream
+			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
+			console.log(StoreProxy.stream.currentStreamInfo[channelId]?.started_at);
 
 			const messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
@@ -520,6 +493,39 @@ export const storeStream = defineStore('stream', {
 							}
 						}
 						break;
+					}
+				}
+			}
+
+			if(includeParams) {
+				//Load ending credits parameters
+				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
+				if(json) {
+					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+					
+					let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
+					if(simulate || !startDateBackup) {
+						StoreProxy.stream.currentStreamInfo[channelId].started_at = dateOffset;
+					}
+					console.log(StoreProxy.stream.currentStreamInfo[channelId]?.started_at);
+
+					//Parse "text" slots placeholders
+					for (let i = 0; i < result.params.slots.length; i++) {
+						const slot = result.params.slots[i];
+						//Remove premium-only slots if not premium
+						if(!isPremium && !simulate
+						&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
+							result.params.slots.splice(i, 1);
+							i--;
+						}
+						//Parse placeholders on text slots
+						if(slot.slotType !== "text") continue;
+						if(!slot.text) continue;
+						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
+					}
+
+					if(startDateBackup) {
+						StoreProxy.stream.currentStreamInfo[channelId].started_at = startDateBackup;
 					}
 				}
 			}
