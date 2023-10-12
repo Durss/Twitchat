@@ -25,6 +25,7 @@ export namespace TwitchatDataTypes {
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
+		HEAT_DISTORT: "heatDistort",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections];
 	

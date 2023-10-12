@@ -181,6 +181,13 @@
 				"polls":"Show votes count",
 				"predictions":"Show channel points used"
 			}
+		},
+		"heatDistort": {
+			"title":"Image distort via Heat",
+			"description":"This overlay make it possible for your viewers to distort your stream rendering by clicking on it.",
+			"install":"This needs {HEAT} to be configured on your channel.\nYou'll also need to {SHADER} plugin on OBS.",
+			"install_heat_link":"Heat Twitch extension",
+			"install_shader_link":"install Shadertastic"
 		}
 	}
 }

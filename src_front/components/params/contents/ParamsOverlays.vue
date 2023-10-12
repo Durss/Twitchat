@@ -34,11 +34,12 @@
 		</div>
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
+		<OverrlayParamsHeatDistort class="block" :open="subContent == 'heatDistort'" :class="subContent == 'heatDistort'? 'selected' : ''" />
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
-		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
-		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
+		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>
@@ -58,6 +59,7 @@ import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
+import OverrlayParamsHeatDistort from './overlays/OverrlayParamsHeatDistort.vue';
 
 @Component({
 	components:{
@@ -69,6 +71,7 @@ import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
 		OverlayParamsCounter,
 		OverlayParamsCredits,
 		OverlayParamsHighlight,
+		OverrlayParamsHeatDistort,
 	},
 	emits:[]
 })

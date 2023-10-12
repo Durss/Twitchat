@@ -181,6 +181,13 @@
 				"polls":"Afficher le nombre de votes",
 				"predictions":"Afficher le nombre de points de chaîne"
 			}
+		},
+		"heatDistort": {
+			"title":"Distortion d'image via Heat",
+			"description":"Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
+			"install":"Nécessite de {HEAT} sur votre chaîne Twitch.\nVous aurez également besoin d'{SHADER} dans OBS.",
+			"install_heat_link":"configurer l'extension Heat",
+			"install_shader_link":"installer le plugin Shadertastic"
 		}
 	}
 }
