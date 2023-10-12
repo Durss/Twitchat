@@ -127,17 +127,17 @@
 						</ToggleBlock>
 					</template>
 				</draggable>
+			</div>
 
-				<Button class="addBt" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
-				
-				<div class="slotSelector" v-else>
-					<CloseButton @click="showSlotOptions = false" />
-					<Button class="slotBt"
-					v-for="slot in slotTypes"
-					:icon="slot.icon"
-					:premium="slot.premium"
-					@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
-				</div>
+			<Button class="item addBt" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+			
+			<div class="item slotSelector" v-else>
+				<CloseButton @click="showSlotOptions = false" />
+				<Button class="slotBt"
+				v-for="slot in slotTypes"
+				:icon="slot.icon"
+				:premium="slot.premium"
+				@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
 			</div>
 
 			<div class="item center" v-if="overlayExists">
@@ -752,32 +752,6 @@ export default class OverlayParamsCredits extends Vue {
 				}
 			}
 
-			&.slots {
-				.addBt {
-					box-shadow: none;
-					// border: 1px solid var(--color-text);
-					display: flex;
-					margin: auto;
-					margin-top: .5em;
-					color: var(--color-text);
-				}
-
-				.slotSelector {
-					color: var(--color-text);
-					// border: 1px solid var(--color-text);
-					background-color: var(--color-light-fader);
-					margin-top: .5em;
-					padding: .5em 2.5em;
-					border-radius: var(--border-radius);
-					gap: .5em;
-					display: flex;
-					justify-content: center;
-					flex-direction: row;
-					flex-wrap: wrap;
-					position: relative;
-				}
-			}
-
 			&.center {
 				margin: auto;
 			}
@@ -785,10 +759,30 @@ export default class OverlayParamsCredits extends Vue {
 			&.loader {
 				height: 2.5em;
 			}
+		}
 
-			&.installer {
-				margin-bottom: .5em;
-			}
+		.addBt {
+			box-shadow: none;
+			// border: 1px solid var(--color-text);
+			display: flex;
+			margin: auto;
+			color: var(--color-text);
+		}
+
+		.slotSelector {
+			position: relative;
+			color: var(--color-text);
+			// border: 1px solid var(--color-text);
+			background-color: var(--color-light-fader);
+			margin-top: .5em;
+			padding: .5em 2.5em;
+			border-radius: var(--border-radius);
+			gap: .5em;
+			display: flex;
+			justify-content: center;
+			flex-direction: row;
+			flex-wrap: wrap;
+			position: relative;
 		}
 	}
 
