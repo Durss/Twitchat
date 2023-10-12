@@ -10,6 +10,11 @@
 			</div>
 			
 			<OverlayInstaller class="item installer" id="timer" />
+			
+			<div class="item center actions">
+				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
+				<Button icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
+			</div>
 
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.timer.css") }}</div>
@@ -32,10 +37,6 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-			<div class="item center actions">
-				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
-				<Button icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
-			</div>
 		</div>
 	</ToggleBlock>
 </template>

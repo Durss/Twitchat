@@ -24,7 +24,7 @@
 
 			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
-			<div class="card-item item">
+			<div class="card-item item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
 					<template #MENU><Icon name="commands" class="icon" /></template>
 					<template #CMD><strong>/raffle</strong></template>
@@ -153,6 +153,10 @@ export default class OverlayParamsRaffle extends Vue {
 			ul {
 				margin-top: .5em;
 			}
+		}
+		.footer {
+			font-size: .8em;
+			font-style: italic;
 		}
 	}
 }

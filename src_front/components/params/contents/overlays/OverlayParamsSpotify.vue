@@ -10,7 +10,7 @@
 	
 			<OverlayParamsMusic />
 	
-			<i18n-t scope="global" tag="div" keypath="overlay.music_common.infos">
+			<i18n-t class="card-item footer" scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>
 					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 				</template>
@@ -87,6 +87,11 @@ export default class OverlayParamsSpotify extends Vue {
 				margin: auto;
 				max-width: 60vw;
 			}
+	
+		}
+		.footer {
+			font-size: .8em;
+			font-style: italic;
 		}
 	}
 }
