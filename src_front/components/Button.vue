@@ -61,6 +61,9 @@ export default class Button extends Vue {
 	public small!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public primary!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
 
 	@Prop({type:Boolean, default: false})
@@ -94,7 +97,6 @@ export default class Button extends Vue {
 	public file!:string;
 	
 	public checked = false;
-	public theme = "light";
 
 	public get nodeType():string {
 		if(this.to) return "router-link";
@@ -105,6 +107,7 @@ export default class Button extends Vue {
 	public get classes():string[] {
 		let list =  ["button"]
 		if(!this.$slots.default) list.push("noTitle");
+		if(this.primary !== false) list.push("primary");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
 		if(this.premium !== false) list.push("premium");
@@ -120,7 +123,6 @@ export default class Button extends Vue {
 
 	public mounted():void {
 		this.checked = this.modelValue;
-		if(this.light) this.theme = this.alert !== false? "alert" : this.secondary !== false? "secondary" : "primary";
 
 		watch(() => this.checked, (val:boolean) => {
 			this.$emit("update:modelValue", val);
@@ -198,7 +200,7 @@ export default class Button extends Vue {
 		top: -@offset;
 		left: -@offset;
 		border-radius: inherit;
-		background-color: var(--color-primary);
+		background-color: var(--color-button);//TODO set to var(--color-primary);
 		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
@@ -220,7 +222,7 @@ export default class Button extends Vue {
 		width: 100%;
 		height: 100%;
 		transition: all .15s;
-		background-color: var(--color-primary);
+		background-color: var(--color-button);//TODO set to var(--color-primary);
 	}
 
 	&.disabled {
@@ -243,7 +245,7 @@ export default class Button extends Vue {
 	&:not(.disabled){
 		&:hover {
 			.background {
-				background-color: var(--color-primary-light);
+				background-color: var(--color-button-light);//TODO set to var(--color-primary-light);
 			}
 		}
 	
@@ -253,7 +255,7 @@ export default class Button extends Vue {
 				top: -2px;
 			}
 			.background {
-				background-color: var(--color-primary-dark);
+				background-color: var(--color-button-dark);//TODO set to var(--color-primary-dark);
 				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
 			}
 		}
@@ -318,6 +320,27 @@ export default class Button extends Vue {
 
 	&.noTitle {
 		padding: .3em;
+	}
+
+	&.primary {
+		.background {
+			background-color: var(--color-primary);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-primary-light);//TODO set to var(--color-button-light);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-primary-dark);
+				}
+			}
+		}
+		.loadingBorder {
+			background-color: var(--color-primary);
+		}
 	}
 
 	&.secondary {
@@ -468,11 +491,21 @@ export default class Button extends Vue {
 			text-shadow: unset;
 		}
 		.background{
-			background-color: var(--color-primary-extralight);
+			background-color: var(--color-button-extralight);//TODO set to var(--color-primary-extralight);
 		}
 		&:active {
 			.background{
-				background-color: var(--color-primary);
+				background-color: var(--color-button);//TODO set to var(--color-primary);
+			}
+		}
+		&.primary {
+			.background{
+				background-color: var(--color-primary-extralight);
+			}
+			&:active {
+				.background{
+					background-color: var(--color-primary);
+				}
 			}
 		}
 		&.secondary {

@@ -3,13 +3,7 @@
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.credits.head") }}</div>
-				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
-				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div>{{ $t("overlay.credits.css") }}</div>
-					<ul class="cssStructure">
-						<li>.todo { ... }</li>
-					</ul>
-				</ToggleBlock>
+				<OverlayInstaller class="item installer" id="credits" />
 			</div>
 
 			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">
@@ -152,6 +146,13 @@
 
 			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
 			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+
+			<ToggleBlock class="item" small :title="$t('overlay.css_customization')" :open="false">
+				<div>{{ $t("overlay.credits.css") }}</div>
+				<ul class="cssStructure">
+					<li>.todo { ... }</li>
+				</ul>
+			</ToggleBlock>
 		</div>
 	</ToggleBlock>
 </template>
@@ -180,6 +181,7 @@ import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
@@ -193,6 +195,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 		ToggleButton,
 		contenteditable,
 		PremiumLockLayer,
+		OverlayInstaller,
 	}
 })
 export default class OverlayParamsCredits extends Vue {
@@ -262,7 +265,6 @@ export default class OverlayParamsCredits extends Vue {
 	private overlayPresenceHandler!:()=>void;
 	private broadcastDebounce:number = -1;
 
-	public get overlayUrl():string { return this.$overlayURL("credits"); }
 	public get isPremium():boolean { return this.$store("auth").isPremium; }
 
 	public get classes():string[] {
@@ -584,11 +586,6 @@ export default class OverlayParamsCredits extends Vue {
 				margin-bottom: .5em;
 			}
 
-			input {
-				width: 100%;
-				margin-bottom: .5em;
-			}
-
 			.globalParams {
 				gap: .25em;
 				display: flex;
@@ -787,6 +784,10 @@ export default class OverlayParamsCredits extends Vue {
 
 			&.loader {
 				height: 2.5em;
+			}
+
+			&.installer {
+				margin-bottom: .5em;
 			}
 		}
 	}

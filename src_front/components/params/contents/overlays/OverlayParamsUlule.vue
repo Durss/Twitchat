@@ -19,7 +19,8 @@
 
 			<ParamItem class="item shrink" :paramData="param_currency" @change="saveConfigs" />
 
-			<input class="item primary" type="text" v-model="overlayUrl" v-click2Select :disabled="!param_project.value">
+			<OverlayInstaller class="item installer" id="ulule" :url="overlayUrl" :disabled="!param_project.value" />
+
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.ulule.css") }}</div>
 				<ul class="cssStructure">
@@ -56,11 +57,13 @@ import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import DataStore from '@/store/DataStore';
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
 		ParamItem,
 		ToggleBlock,
+		OverlayInstaller,
 	},
 	emits:[],
 })

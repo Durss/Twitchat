@@ -15,9 +15,7 @@
 </template>
 
 <script lang="ts">
-import type { UluleTypes } from '@/types/UluleTypes';
 import ApiController from '@/utils/ApiController';
-import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';

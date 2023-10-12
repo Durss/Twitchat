@@ -5,7 +5,12 @@
 			
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
+				<OverlayInstaller class="item installer" id="wheel" />
+			</div>
+
+			<template v-if="overlayExists || true">
+				<Button class="item center" :loading="loading" @click="testWheel()" icon="test" primary>{{ $t('overlay.raffle.testBt') }}</Button>
+				
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>
 					<ul class="cssStructure">
@@ -13,11 +18,7 @@
 						<li>.wheel-item.selected { ... }</li>
 					</ul>
 				</ToggleBlock>
-			</div>
-
-			<div class="item center" v-if="overlayExists">
-				<Button :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
-			</div>
+			</template>
 
 			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
 
@@ -44,11 +45,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayInstaller,
 	}
 })
 export default class OverlayParamsRaffle extends Vue {
@@ -64,8 +67,6 @@ export default class OverlayParamsRaffle extends Vue {
 	private subcheckTimeout!:number;
 	private overlayPresenceHandler!:()=>void;
 	
-	public get overlayUrl():string { return this.$overlayURL("wheel"); }
-
 	public mounted():void {
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;

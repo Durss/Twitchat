@@ -1,7 +1,20 @@
 <template>
 	<div class="overlayparamsmusic">
 		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
-		<input class="primary" type="text" id="spotify_overlay_url" v-model="overlayUrl">
+			
+		<OverlayInstaller class="item installer" id="music" />
+		
+		<div class="params">
+			<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
+			<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
+			<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
+			<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
+			<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
+			<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
+			<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
+			<ParamItem :paramData="param_customTemplateToggle" />
+		</div>
+
 		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 			<div class="head">{{ $t("overlay.music_common.css") }}</div>
 			<ul class="cssStructure">
@@ -15,17 +28,6 @@
 				<li>#music_info_custom_template { ... }</li>
 			</ul>
 		</ToggleBlock>
-		
-		<div class="params">
-			<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
-			<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
-			<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
-			<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
-			<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
-			<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
-			<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
-			<ParamItem :paramData="param_customTemplateToggle" />
-		</div>
 
 	</div>
 </template>
@@ -38,39 +40,29 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
 		ParamItem,
 		ToggleBlock,
+		OverlayInstaller,
 	}
 })
 export default class OverlayParamsMusic extends Vue {
 
-	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false};
-	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false};
-	public param_autoHide:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false};
-	public param_autoHideErase:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
-	public param_showCover:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true};
-	public param_showArtist:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
-	public param_showTitle:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true};
-	public param_showProgress:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true};
-	public param_customTemplateToggle:TwitchatDataTypes.ParameterData<boolean>	= {type:"boolean", value:true};
-	public param_customTemplate:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"", longText:true};
-
-	public get overlayUrl():string { return this.$overlayURL("music"); }
+	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, labelKey:"overlay.music_common.no_scroll"};
+	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.open_from_left"};
+	public param_autoHideErase:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.auto_hide_erase"};
+	public param_showCover:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true, labelKey:"overlay.music_common.show_cover"};
+	public param_showArtist:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.show_artist"};
+	public param_showTitle:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:true, labelKey:"overlay.music_common.show_title"};
+	public param_showProgress:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:true, labelKey:"overlay.music_common.show_progress"};
+	public param_customTemplate:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"", longText:true, labelKey:"overlay.music_common.custom_template"};
+	public param_autoHide:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.auto_hide"};
+	public param_customTemplateToggle:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {type:"boolean", value:true, labelKey:"overlay.music_common.custom_template_toggle"};
 
 	public beforeMount():void {
-		this.param_noScroll.labelKey				= "overlay.music_common.no_scroll";
-		this.param_openFromLeft.labelKey			= "overlay.music_common.open_from_left";
-		this.param_autoHide.labelKey				= "overlay.music_common.auto_hide";
-		this.param_autoHideErase.labelKey			= "overlay.music_common.auto_hide_erase";
-		this.param_showCover.labelKey				= "overlay.music_common.show_cover";
-		this.param_showArtist.labelKey				= "overlay.music_common.show_artist";
-		this.param_showTitle.labelKey				= "overlay.music_common.show_title";
-		this.param_showProgress.labelKey			= "overlay.music_common.show_progress";
-		this.param_customTemplateToggle.labelKey	= "overlay.music_common.custom_template_toggle";
-		this.param_customTemplate.labelKey			= "overlay.music_common.custom_template";
 		this.param_customTemplate.placeholderList= [
 			{tag:"TITLE", descKey:"overlay.music_common.custom_template_placeholders.title"},
 			{tag:"ARTIST", descKey:"overlay.music_common.custom_template_placeholders.artist"},

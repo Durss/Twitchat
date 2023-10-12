@@ -16,6 +16,7 @@
 	@color-dark: #18181b;
 	@color-light: #EEEEEE;
 	@color-primary: #008667;
+	@color-button: #ffffff30;
 	@color-secondary: #e04e00;
 	@color-alert: #b71f1f;
 	@color-premium: #c400da;
@@ -54,6 +55,7 @@
 	--color-light: @color-light;
 	--color-dark: @color-dark;
 	--color-primary: @color-primary;
+	--color-button: @color-button;
 	--color-secondary: @color-secondary;
 	--color-alert: @color-alert;
 	--color-premium: @color-premium;
@@ -99,6 +101,7 @@
 	--color-light-light: lighten(@color-light, 10%);
 	--color-dark-light: lighten(@color-dark, 10%);
 	--color-primary-light: lighten(@color-primary, 8%);
+	--color-button-light: fade(@color-button, 35%);;
 	--color-secondary-light: lighten(@color-secondary, 13%);
 	--color-alert-light: lighten(@color-alert, 10%);
 	--color-premium-light: lighten(@color-premium, 10%);
@@ -106,6 +109,7 @@
 	--color-light-extralight: lighten(@color-light, 30%);
 	--color-dark-extralight: lighten(@color-dark, 30%);
 	--color-primary-extralight: saturate(lighten(@color-primary, 15%), 100%);
+	--color-button-extralight: fade(@color-button, 55%);
 	--color-secondary-extralight: saturate(lighten(@color-secondary, 30%), 100%);
 	--color-alert-extralight: saturate(lighten(@color-alert, 30%), 100%);
 	--color-premium-extralight: saturate(lighten(@color-premium, 30%), 100%);
@@ -113,6 +117,7 @@
 	--color-light-dark: darken(@color-light, 10%);
 	--color-dark-dark: darken(@color-dark, 10%);
 	--color-primary-dark: darken(@color-primary, 5%);
+	--color-button-dark: darken(@color-button, 5%);
 	--color-secondary-dark: darken(@color-secondary, 15%);
 	--color-alert-dark: darken(@color-alert, 10%);
 	--color-premium-dark: darken(@color-premium, 10%);
@@ -134,7 +139,8 @@
 body.light {
 	@color-dark: #18181b;
 	@color-light: #FFFFFF;
-	@color-primary: #039372;
+	// @color-primary: #039372;
+	@color-primary: #313135;
 	@color-secondary: #e04e00;
 	@color-alert: #b71f1f;
 	@color-text: #101010;

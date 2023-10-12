@@ -5,60 +5,8 @@
 			<a class="item demoLink" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="demo"></a>
 			
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
-			<input class="primary" type="text" id="highlight_overlay_url" v-model="overlayUrl" v-click2Select>
-			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
-				<div class="head">{{ $t("overlay.highlight.css") }}</div>
-				<ul class="cssStructure">
-					<li>#highlight_holder { ... }</li>
-					<li class="sublist">
-						<ul>
-							<li>#highlight_avatar { ... }</li>
-							<li>#highlight_infos { ... }</li>
-							<li class="sublist">
-								<ul>
-									<li>#highlight_login { ... }</li>
-									<li>#highlight_message { ... }</li>
-								</ul>
-							</li>
-						</ul>
-					</li>
-				</ul>
-				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
-					<ul class="cssStructure">
-						<li>#highlight_holder.position-tl { ... }</li>
-						<li>#highlight_holder.position-t { ... }</li>
-						<li>#highlight_holder.position-tr { ... }</li>
-						<li>#highlight_holder.position-l { ... }</li>
-						<li>#highlight_holder.position-m { ... }</li>
-						<li>#highlight_holder.position-r { ... }</li>
-						<li>#highlight_holder.position-bl { ... }</li>
-						<li>#highlight_holder.position-b { ... }</li>
-						<li>#highlight_holder.position-br { ... }</li>
-					</ul>
-				</ToggleBlock>
-				<ul class="cssStructure">
-					<li>#clip_holder { ... }</li>
-					<li class="sublist">
-						<ul>
-							<li>#clip_player { ... }</li>
-							<li>#clip_progressbar { ... }</li>
-						</ul>
-					</li>
-				</ul>
-				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
-					<ul class="cssStructure">
-						<li>#clip_holder.position-tl { ... }</li>
-						<li>#clip_holder.position-t { ... }</li>
-						<li>#clip_holder.position-tr { ... }</li>
-						<li>#clip_holder.position-l { ... }</li>
-						<li>#clip_holder.position-m { ... }</li>
-						<li>#clip_holder.position-r { ... }</li>
-						<li>#clip_holder.position-bl { ... }</li>
-						<li>#clip_holder.position-b { ... }</li>
-						<li>#clip_holder.position-br { ... }</li>
-					</ul>
-				</ToggleBlock>
-			</ToggleBlock>
+			
+			<OverlayInstaller class="item installer" id="chathighlight" />
 
 			<div class="card-item item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
@@ -102,9 +50,63 @@
 				</div>
 			</div>
 
-			<div class="item center" v-if="overlayExists">
-				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
-			</div>
+			<template v-if="overlayExists">
+				<Button class="item center" @click="testOverlay()" icon="test" primary>{{ $t('overlay.highlight.testBt') }}</Button>
+
+				<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
+					<div class="head">{{ $t("overlay.highlight.css") }}</div>
+					<ul class="cssStructure">
+						<li>#highlight_holder { ... }</li>
+						<li class="sublist">
+							<ul>
+								<li>#highlight_avatar { ... }</li>
+								<li>#highlight_infos { ... }</li>
+								<li class="sublist">
+									<ul>
+										<li>#highlight_login { ... }</li>
+										<li>#highlight_message { ... }</li>
+									</ul>
+								</li>
+							</ul>
+						</li>
+					</ul>
+					<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+						<ul class="cssStructure">
+							<li>#highlight_holder.position-tl { ... }</li>
+							<li>#highlight_holder.position-t { ... }</li>
+							<li>#highlight_holder.position-tr { ... }</li>
+							<li>#highlight_holder.position-l { ... }</li>
+							<li>#highlight_holder.position-m { ... }</li>
+							<li>#highlight_holder.position-r { ... }</li>
+							<li>#highlight_holder.position-bl { ... }</li>
+							<li>#highlight_holder.position-b { ... }</li>
+							<li>#highlight_holder.position-br { ... }</li>
+						</ul>
+					</ToggleBlock>
+					<ul class="cssStructure">
+						<li>#clip_holder { ... }</li>
+						<li class="sublist">
+							<ul>
+								<li>#clip_player { ... }</li>
+								<li>#clip_progressbar { ... }</li>
+							</ul>
+						</li>
+					</ul>
+					<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+						<ul class="cssStructure">
+							<li>#clip_holder.position-tl { ... }</li>
+							<li>#clip_holder.position-t { ... }</li>
+							<li>#clip_holder.position-tr { ... }</li>
+							<li>#clip_holder.position-l { ... }</li>
+							<li>#clip_holder.position-m { ... }</li>
+							<li>#clip_holder.position-r { ... }</li>
+							<li>#clip_holder.position-bl { ... }</li>
+							<li>#clip_holder.position-b { ... }</li>
+							<li>#clip_holder.position-br { ... }</li>
+						</ul>
+					</ToggleBlock>
+				</ToggleBlock>
+			</template>
 			
 			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
 			
@@ -132,11 +134,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayInstaller,
 	}
 })
 export default class OverlayParamsHighlight extends Vue {
@@ -151,8 +155,6 @@ export default class OverlayParamsHighlight extends Vue {
 	private subcheckTimeout!:number;
 	private overlayPresenceHandler!:()=>void;
 	
-	public get overlayUrl():string { return this.$overlayURL("chathighlight"); }
-
 	public beforeMount(): void {
 		this.placement = this.$store("chat").chatHighlightOverlayParams.position;
 
@@ -243,8 +245,6 @@ export default class OverlayParamsHighlight extends Vue {
 		}
 
 		.item {
-			display: flex;
-			flex-direction: column;
 			border-radius: .5em;
 
 			&.center {
@@ -253,6 +253,8 @@ export default class OverlayParamsHighlight extends Vue {
 			}
 
 			&.placement {
+				display: flex;
+				flex-direction: column;
 				.table {
 					display: flex;
 					flex-direction: row;

@@ -294,7 +294,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
 			this.sceneToCaching[currentScene] = false;
-			return {canvas:{width:1920, height:1080}, sources:[]};
+			return {canvas:{width:canvasW, height:canvasH}, sources:[]};
 		}
 
 		//Parse all scene items
@@ -762,6 +762,52 @@ export default class OBSWebsocket extends EventDispatcher {
 			screen:res.imageData,
 		}
 		return res.imageData;
+	}
+
+	/**
+	 * Create a browser source on the current scene.
+	 * Sets it as full screen 60fps and some other options to reduce risks with caching issues
+	 * 
+	 * @returns if an existing source has been found
+	 */
+	public async createBrowserSource(url:string, sourceName:string):Promise<boolean> {
+		//List all existing OBS sources
+		const inputList = await this.obs.call("GetInputList", {inputKind:"browser_source"});
+		const urlObj = new URL(url);
+		const pathToFind = urlObj.pathname;
+		const hostToFind = urlObj.hostname;
+		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
+		//Check if the source we're about to create already exists somewhere
+		for (let i = 0; i < inputList.inputs.length; i++) {
+			const input = inputList.inputs[i];
+			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
+			//If source URL contains both expected path and hostname, consider it's what' we're searching for
+			if((inputConf.inputSettings.url as string).indexOf(pathToFind) > -1
+			&& (inputConf.inputSettings.url as string).indexOf(hostToFind) > -1) {
+				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
+				break;
+			}
+		}
+		if(existingSource) {
+			//Create a new instance of the existing overlay
+			await OBSWebsocket.instance.socket.call("CreateSceneItem", {sceneName:"Scene", sourceName:existingSource.inputName});
+			return true;
+		}
+
+		//Create a new pre-configured browser source
+		const videoSettings = await this.obs.call("GetVideoSettings");
+		const sceneName = await this.getCurrentScene();
+		const inputSettings = {
+			fps: 60,
+			fps_custom: true,
+			width: videoSettings.baseWidth,
+			height: videoSettings.baseHeight,
+			url: url,
+			restart_when_active: true,
+			shutdown: true,
+		};
+		await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
+		return false;
 	}
 	
 	

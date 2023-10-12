@@ -8,7 +8,9 @@
 					<template #CMD2><mark>/timerStart</mark></template>
 				</i18n-t>
 			</div>
-			<input class="primary" type="text" v-model="overlayUrl" v-click2Select>
+			
+			<OverlayInstaller class="item installer" id="timer" />
+
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.timer.css") }}</div>
 				<ul class="cssStructure">
@@ -42,11 +44,13 @@
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
+		OverlayInstaller,
 	}
 })
 export default class OverlayParamsTimer extends Vue {
@@ -54,8 +58,6 @@ export default class OverlayParamsTimer extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
-	public get overlayUrl():string { return this.$overlayURL("timer"); }
-
 	public startTimer():void { this.$store("timer").timerStart(); }
 	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
 

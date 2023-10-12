@@ -148,22 +148,23 @@ export default class TabMenu extends Vue {
 			position: absolute;
 			background-color: var(--color-secondary-light);
 			display: block;
-			height: 10px;
+			height: 3px;
 			width: calc(100% - 1.5em);
 			align-self: center;
 			z-index: 0;
-			transition: transform .25s;
+			transition: height .25s;
 			border-bottom-right-radius: 20px;
 			border-bottom-left-radius: 20px;
 			max-width: calc(100% - .5em);
-			transform: translateY(3px);
+			transform: translateY(100%);
 			bottom: 0;
 		}
 
 
 		.slide-enter-from,
 		.slide-leave-to {
-			transform: translateY(-100%);
+			// transform: translateY(-100%);
+			height:0;
 		}
 	}
 }

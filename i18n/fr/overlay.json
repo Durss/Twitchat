@@ -3,6 +3,11 @@
 		"header": "Ajoutez des overlays à votre stream",
 		"unified": "Inclure tous les overlays d'un coup :",
 		"css_customization": "Personnalisation CSS",
+		"1click_install": "Installation en 1 clic",
+		"1click_install_tt": "Ajoute et configure l'overlay automatiquement sur la scène OBS actuelle",
+		"manual_installBt": "Installation manuelle",
+		"install_success":"Source OBS créée",
+		"install_success_exists":"Une source navigateur pour cet overlay existait déjà dans vos scènes.\nElle a été copiée dans votre scène courante.",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
