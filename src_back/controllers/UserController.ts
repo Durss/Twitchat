@@ -150,6 +150,7 @@ export default class UserController extends AbstractController {
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
+		const version = request.headers["app-version"];
 
 		//avoid saving private data to server
 		delete body.obsPass;
@@ -167,7 +168,7 @@ export default class UserController extends AbstractController {
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
 			if(!success) {
-				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login);
+				Logger.error(schemaValidator.errors?.length+" validation error(s) for user "+userInfo.login+"'s data (v"+version+")");
 				//Save schema errors if any
 				fs.writeFileSync(errorsFilePath, JSON.stringify(schemaValidator.errors), "utf-8")
 			}else if(fs.existsSync(errorsFilePath)) {
