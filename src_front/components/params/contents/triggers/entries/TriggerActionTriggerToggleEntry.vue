@@ -4,10 +4,7 @@
 		<div class="card-item field col" v-if="!action.triggerId">
 			<div class="item title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.triggerToggle.select')}}</div>
 	
-			<TriggerList class="list"
-				noEdit
-				:rewards="rewards"
-				@select="onSelectTrigger($event)" />
+			<SimpleTriggerList class="list" @select="onSelectTrigger" />
 		</div>
 
 		<template v-else>
@@ -16,11 +13,8 @@
 			<div class="card-item field">
 				<img src="@/assets/icons/broadcast.svg" class="icon">
 				<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
-				<TriggerList
-					noEdit
-					:triggerId="action.triggerId"
-					:rewards="rewards"
-					@select="action.triggerId = ''" />
+				<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" />
+				<button class="openTriggerBt" @click="openTrigger()"><Icon name="newTab" /></button>
 			</div>
 		</template>
 	</div>
@@ -33,11 +27,13 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerList from '../TriggerList.vue';
+import SimpleTriggerList from '../SimpleTriggerList.vue';
 
 @Component({
 	components:{
 		ParamItem,
 		TriggerList,
+		SimpleTriggerList,
 	},
 	emits:[],
 })
@@ -63,6 +59,11 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 	public onSelectTrigger(trigger:TriggerData):void {
 		this.action.triggerId = trigger.id;
 	}
+
+	public openTrigger():void {
+		const trigger = this.$store("triggers").triggerList.find(v=>v.id == this.action.triggerId);
+		if(trigger) this.$store("triggers").openTriggerEdition(trigger)
+	}
 }
 </script>
 
@@ -86,6 +87,14 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 			flex-grow: 1;
 			max-height: 300px;
 			overflow-y: auto;
+		}
+
+		.openTriggerBt{
+			height: 1em;
+			transition: transform .2s;
+			&:hover {
+				transform: scale(1.2);
+			}
 		}
 	}
 }

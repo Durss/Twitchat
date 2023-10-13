@@ -224,7 +224,7 @@ export interface TriggerLogStep {
 
 export interface SocketParams {
 	ip:string;
-	port:string;
+	port:number;
 	secured:boolean;
 }
 

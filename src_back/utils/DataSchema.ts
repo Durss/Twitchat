@@ -179,7 +179,7 @@ import Ajv from "ajv";
 						type:"object",
 						properties: {
 							type: {type:"string", maxLength:10},
-							repeatDuration: {type:"integer", minimum:0, maximum:48*60},
+							repeatDuration: {type:"number", minimum:0, maximum:48*60},
 							repeatMinMessages: {type:"integer", minimum:0, maximum:9999},
 							dates:{
 								type:"array",
@@ -593,7 +593,7 @@ import Ajv from "ajv";
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},
 		theme: {type:"string", maxLength:10},
-		obsIP: {type:"string", maxLength:20},
+		obsIP: {type:"string", maxLength:100},
 		obsPort: {type:"integer", minimum:0, maximum:65535},
 		updateIndex: {type:"integer"},
 		raffle_message: {type:"string", maxLength:500},
@@ -773,7 +773,7 @@ import Ajv from "ajv";
 		emergencyFollowers: {
 			type:"array",
 			minItems:0,
-			maxItems:100,
+			maxItems:1000,
 			items: {
 				type:"object",
 				additionalProperties: false,
@@ -981,7 +981,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				ip: {type:"string", maxLength:100},
-				port: {type:"string", maxLength:10},
+				port: {type:"integer", minimum:0, maximum:65535},
 				secured: {type:"boolean"},
 			}
 		},
@@ -1031,7 +1031,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				enabled: {type:"boolean"},
-				ip: {type:"string", maxLength:20},
+				ip: {type:"string", maxLength:100},
 				port: {type:"integer", minimum:0, maximum:65535},
 				chatScrollSources: {
 					type:"array",

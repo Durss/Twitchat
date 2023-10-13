@@ -863,6 +863,13 @@ export default class Chat extends Vue {
 			//on all cols including the last.
 			cols[1].size = 1 - cols[0].size;
 		}
+
+		//For some reason few people achieve to make negative width col.
+		//It shouldn't be possible and this shouldn't change anything to
+		//that but it's here for extra security
+		cols.forEach(v=> {
+			v.size = Math.max(0, Math.min(10, v.size));
+		})
 		
 		this.$store('params').saveChatColumnConfs();
 

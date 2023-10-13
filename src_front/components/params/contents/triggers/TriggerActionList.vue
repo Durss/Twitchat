@@ -361,7 +361,6 @@ export default class TriggerActionList extends Vue {
 	 */
 	public addActionAt(index:number):void {
 		const action:TriggerActionEmptyData = {
-			delay:0,
 			id:Utils.getUUID(),
 			type:null,
 		}

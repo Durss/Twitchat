@@ -385,7 +385,6 @@ export default class ParamItem extends Vue {
 		
 		if(this.modelValue !== null
 		&& this.modelValue !== undefined) {
-			console.log(this.paramData.labelKey, this.paramData.value, this.modelValue);
 			this.paramData.value = this.modelValue;
 		}
 
