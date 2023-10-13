@@ -88,10 +88,6 @@ export interface TriggerData {
 	 */
 	chatCommandParams?:TriggerChatCommandParam[];
 	/**
-	 * Schedule name for schedule related events
-	 */
-	scheduleName?:string;
-	/**
 	 * OBS source name for OBS source related events
 	 */
 	obsSource?:string;
@@ -164,7 +160,7 @@ export interface TriggerData {
 
 	/**
 	 * @deprecated Only here for typings on data migration.
-	 */
+	*/
 	prevKey?:string;
 }
 
@@ -230,7 +226,7 @@ export interface TriggerLogStep {
 
 export interface SocketParams {
 	ip:string;
-	port:string;
+	port:number;
 	secured:boolean;
 }
 

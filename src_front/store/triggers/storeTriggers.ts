@@ -90,6 +90,7 @@ export const storeTriggers = defineStore('triggers', {
 					if(v.type == "voicemod") return true;
 					if(v.type == "highlight") return true;
 					if(v.type == "trigger") return true;
+					if(v.type == "triggerToggle") return true;
 					if(v.type == "http") return true;
 					if(v.type == "ws") return true;
 					if(v.type == "poll") return true;

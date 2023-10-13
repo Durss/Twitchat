@@ -5,9 +5,9 @@
 			<div class="row">{{ $t("connexions.triggerSocket.usage") }}</div>
 
 			<form class="row" v-if="!connected" @submit.prevent="connect()">
-				<ParamItem class="item" :paramData="param_ip" autofocus />
-				<ParamItem class="item" :paramData="param_port" />
-				<ParamItem class="item" :paramData="param_secured" />
+				<ParamItem class="item" :paramData="param_ip" autofocus @change="onChangeValue"/>
+				<ParamItem class="item" :paramData="param_port" @change="onChangeValue"/>
+				<ParamItem class="item" :paramData="param_secured" @change="onChangeValue"/>
 		
 				<div class="ctas">
 					<Button type="reset" v-if="!connected" alert
@@ -55,13 +55,13 @@ export default class ConnectWebsocket extends Vue {
 	public showSuccess = false;
 	public connecting = false;
 	
-	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip"};
-	public param_port:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.port"};
+	public param_ip:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", labelKey:"connexions.triggerSocket.ip", maxLength:100};
+	public param_port:TwitchatDataTypes.ParameterData<number> = {value:3000, type:"number", labelKey:"connexions.triggerSocket.port", min:0, max:65535};
 	public param_secured:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"connexions.triggerSocket.secured"};
 
 	public get connected() { return WebsocketTrigger.instance.connected; }
 	public get canConnect():boolean {
-		return this.param_ip.value.length >= 7;// && this.param_port.value.length > 0;
+		return this.param_ip.value.length >= 7;// && this.param_port.value > 0;
 	}
 
 	public mounted():void {
@@ -69,7 +69,7 @@ export default class ConnectWebsocket extends Vue {
 		if(paramsStr) {
 			let params = JSON.parse(paramsStr) as SocketParams;
 			this.param_ip.value = params.ip;
-			this.param_port.value = params.port;
+			this.param_port.value = params.port || 3000;
 			this.param_secured.value = params.secured;
 		}
 	}
@@ -78,14 +78,8 @@ export default class ConnectWebsocket extends Vue {
 		let url = this.param_secured.value === true? "wss://" : "ws://";
 		url += this.param_ip.value;
 		const port = this.param_port.value;
-		if(port.length > 0) url += ":"+port;
+		if(port > 0) url += ":"+port;
 		this.connecting = true;
-
-		DataStore.set(DataStore.WEBSOCKET_TRIGGER, {
-			ip:this.param_ip.value,
-			port:this.param_port.value,
-			secured:this.param_secured.value,
-		});
 
 		WebsocketTrigger.instance.connect(url, false).then(()=> {
 			this.connecting = false;
@@ -104,6 +98,14 @@ export default class ConnectWebsocket extends Vue {
 	public disconnect():void {
 		DataStore.remove(DataStore.WEBSOCKET_TRIGGER);
 		WebsocketTrigger.instance.disconnect();
+	}
+
+	public onChangeValue():void {
+		DataStore.set(DataStore.WEBSOCKET_TRIGGER, {
+			ip:this.param_ip.value,
+			port:this.param_port.value,
+			secured:this.param_secured.value,
+		});
 	}
 }
 </script>

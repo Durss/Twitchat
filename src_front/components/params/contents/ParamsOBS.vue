@@ -87,9 +87,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	public showPermissions = false;
 	public openConnectForm = false;
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"Enabled", value:false};
-	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,
@@ -114,10 +111,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
 
-		if(port != undefined) this.obsPort_conf.value = parseInt(port);
-		if(pass != undefined) this.obsPass_conf.value = pass;
-		if(ip != undefined) this.obsIP_conf.value = ip;
-
 		if(port != undefined || pass != undefined || ip != undefined) {
 			this.connected = OBSWebsocket.instance.connected;
 			this.openConnectForm = !this.connected;
@@ -125,15 +118,11 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 			this.openConnectForm = true;
 		}
 		
-		this.param_enabled.value = this.$store("obs").connectionEnabled ?? false;
-
 		const storedPermissions = this.$store("obs").commandsPermissions;
 		this.permissions = JSON.parse(JSON.stringify(storedPermissions));//Clone object to break ref
+		this.param_enabled.value = this.$store("obs").connectionEnabled ?? false;
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
-		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
-		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
-		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
 		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
@@ -142,37 +131,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	}
 
 	public onNavigateBack(): boolean { return false; }
-
-	/**
-	 * Connect to OBS websocket
-	 */
-	public async connect():Promise<void> {
-		this.loading = true;
-		this.connectSuccess = false;
-		this.connectError = false;
-		const connected = await OBSWebsocket.instance.connect(
-							this.obsPort_conf.value.toString(),
-							this.obsPass_conf.value,
-							false,
-							this.obsIP_conf.value
-						);
-		if(connected) {
-			this.paramUpdate();
-			this.connected = true;
-			this.connectSuccess = true;
-			setTimeout(()=> {
-				this.connectSuccess = false;
-				this.openConnectForm = false;
-			}, 3000);
-		}else{
-			this.connectError = true;
-		}
-		this.loading = false;
-	}
-
-	public async disconnect():Promise<void> {
-		OBSWebsocket.instance.disconnect();
-	}
 
 	/**
 	 * Called when changing commands permisions
@@ -187,9 +145,6 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	private paramUpdate():void {
 		this.connected = false;
 		this.$store("obs").connectionEnabled = this.param_enabled.value;
-		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
-		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
-		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);
 		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
 		if(!this.param_enabled.value) {
 			OBSWebsocket.instance.disconnect();

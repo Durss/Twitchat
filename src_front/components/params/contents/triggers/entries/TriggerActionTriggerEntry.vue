@@ -245,6 +245,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	.disclaimer {
 		font-size: .9em;
-	line-height: 1.3em;	}
+		line-height: 1.3em;
+	}
 }
 </style>

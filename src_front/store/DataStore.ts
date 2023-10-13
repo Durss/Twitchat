@@ -145,8 +145,8 @@ export default class DataStore {
 	 * Makes asynchronous data migrations after being authenticated
 	 */
 	public static async migrateData(data:any):Promise<any> {
-		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 46.3;
+		let v = parseInt(data[this.DATA_VERSION]) || 12;
+		let latestVersion = 48.1;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -294,16 +294,19 @@ export default class DataStore {
 			v = 46;
 		}
 		if(v==46) {
-			delete data[this.ENDING_CREDITS_PARAMS];
-			v = 46.1;
+			this.migrateTriggersDelay(data);
+			v = 47;
 		}
-		if(v==46.1) {
+		if(v==47) {
+			this.fixDataTypes(data);
+			v = 48;
+		}
+		if(v==48) {
+			delete data[this.ENDING_CREDITS_PARAMS];
 			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
 				data[this.ENDING_CREDITS_PARAMS].scale = 30;
 			}
 			v = 46.2;
-		}
-		if(v==46.2) {
 			this.cleanupHeatTriggerActions(data);
 			v = latestVersion;
 		}
@@ -1080,8 +1083,7 @@ export default class DataStore {
 			switch(t.type) {
 				case TriggerTypes.CHAT_COMMAND: t.chatCommand = t.name; break;
 				case TriggerTypes.REWARD_REDEEM: t.rewardId = subkey; break;
-				case TriggerTypes.SCHEDULE: t.rewardId = t.name; break;
-				case TriggerTypes.OBS_SCENE: t.obsScene = t.name =subkey; break;
+				case TriggerTypes.OBS_SCENE: t.obsScene = t.name = subkey; break;
 				case TriggerTypes.OBS_SOURCE_ON: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.COUNTER_LOOPED:
@@ -1341,6 +1343,119 @@ export default class DataStore {
 		if(confs && !confs.chatReadMarkSources) {
 			confs.chatReadMarkSources = []
 			data[DataStore.GOXLR_CONFIG] = confs;
+		}
+	}
+
+	/**
+	 * Minor fixes of useless "delay" that were still injected to every triggers
+	 */
+	private static migrateTriggersDelay(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+
+		if(triggers) {
+			triggers.forEach(t => {
+				if(t.rewardId && t.type != TriggerTypes.REWARD_REDEEM) {
+					delete t.rewardId;//Compensate for migration mistake. Useless data
+				}
+				for (let i = 0; i < t.actions.length; i++) {
+					const a = t.actions[i];
+					//Remove old "0 second" delays not properly cleaned up
+					if(a.delay != undefined && a.type != "delay") {
+						delete a.delay;
+					}
+				}
+			})
+			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+
+	/**
+	 * Fixes lots of data types everywhere
+	 */
+	private static fixDataTypes(data:any):void {
+		const obsPort = data[DataStore.OBS_PORT];
+		const botMessages:{[key:string]:TwitchatDataTypes.BotMessageEntry} = data[DataStore.BOT_MESSAGES];
+		const chatCols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		const tts:TwitchatDataTypes.TTSParamsData = data[DataStore.TTS_PARAMS];
+		const emergency:TwitchatDataTypes.EmergencyParamsData = data[DataStore.EMERGENCY_PARAMS];
+		const websocket:TriggerActionDataTypes.SocketParams = data[DataStore.WEBSOCKET_TRIGGER];
+
+		if(obsPort) data[DataStore.OBS_PORT] = parseInt(obsPort) || 4455;
+
+		if(botMessages) {
+			for (const key in botMessages) {
+				let m = botMessages[key];
+				if(m.message == null) m.message = StoreProxy.i18n.tm("params.botMessages."+key);
+				if(m.enabled != true && m.enabled != false) m.enabled = false;
+			}
+			data[DataStore.BOT_MESSAGES] = botMessages;
+		}
+
+		if(chatCols) {
+			chatCols.forEach(c => {
+				c.size = Math.min(10, Math.max(0, c.size));
+			});
+			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
+		}
+
+		if(triggers) {
+			triggers.forEach(t => {
+				if(t.cooldown) {
+					if(!t.cooldown.user) t.cooldown.user = 0;
+					if(!t.cooldown.global) t.cooldown.global = 0;
+				}
+				if(t.rewardId && t.type != TriggerTypes.REWARD_REDEEM) {
+					console.log("Clean useless rewardId from", t);
+					delete t.rewardId;//Compensate for migration mistake. Useless data
+				}
+				for (let i = 0; i < t.actions.length; i++) {
+					const a = t.actions[i];
+					//Remove old "0 second" delays not properly cleaned up
+					if(a.delay != undefined && a.type != "delay") {
+						delete a.delay;
+					}
+					//Trigger action is missing msot important data, remove action
+					if((a.type == "trigger" || a.type == "triggerToggle") && !a.triggerId) {
+						console.log("Clean useless trigger action", a);
+						t.actions.splice(i, 1);
+						i--;
+					}
+				}
+			})
+			data[DataStore.TRIGGERS] = triggers;
+		}
+
+		if(tts) {
+			tts.readMessagePatern			= typeof tts.readMessagePatern == "string"? tts.readMessagePatern : "";
+			tts.readWhispersPattern			= typeof tts.readWhispersPattern == "string"? tts.readWhispersPattern : "";
+			tts.readNoticesPattern			= typeof tts.readNoticesPattern == "string"? tts.readNoticesPattern : "";
+			tts.readRewardsPattern			= typeof tts.readRewardsPattern == "string"? tts.readRewardsPattern : "";
+			tts.readSubsPattern				= typeof tts.readSubsPattern == "string"? tts.readSubsPattern : "";
+			tts.readSubgiftsPattern			= typeof tts.readSubgiftsPattern == "string"? tts.readSubgiftsPattern : "";
+			tts.readBitsPattern				= typeof tts.readBitsPattern == "string"? tts.readBitsPattern : "";
+			tts.readRaidsPattern			= typeof tts.readRaidsPattern == "string"? tts.readRaidsPattern : "";
+			tts.readFollowPattern			= typeof tts.readFollowPattern == "string"? tts.readFollowPattern : "";
+			tts.readPollsPattern			= typeof tts.readPollsPattern == "string"? tts.readPollsPattern : "";
+			tts.readBingosPattern			= typeof tts.readBingosPattern == "string"? tts.readBingosPattern : "";
+			tts.readRafflePattern			= typeof tts.readRafflePattern == "string"? tts.readRafflePattern : "";
+			tts.readPredictionsPattern		= typeof tts.readPredictionsPattern == "string"? tts.readPredictionsPattern : "";
+			tts.read1stMessageTodayPattern	= typeof tts.read1stMessageTodayPattern == "string"? tts.read1stMessageTodayPattern : "";
+			tts.read1stTimeChattersPattern	= typeof tts.read1stTimeChattersPattern == "string"? tts.read1stTimeChattersPattern : "";
+			tts.readAutomodPattern			= typeof tts.readAutomodPattern == "string"? tts.readAutomodPattern : "";
+			tts.readTimeoutsPattern			= typeof tts.readTimeoutsPattern == "string"? tts.readTimeoutsPattern : "";
+			tts.readBansPattern				= typeof tts.readBansPattern == "string"? tts.readBansPattern : "";
+			tts.readUnbansPattern			= typeof tts.readUnbansPattern == "string"? tts.readUnbansPattern : "";
+		}
+
+		if(emergency) {
+			if(!Array.isArray(emergency.toUsers)) emergency.toUsers = [];
+			data[DataStore.EMERGENCY_PARAMS] = emergency;
+		}
+
+		if(websocket) {
+			websocket.port = parseInt(websocket+"") || 3000;
+			data[DataStore.WEBSOCKET_TRIGGER] = websocket;
 		}
 	}
 
