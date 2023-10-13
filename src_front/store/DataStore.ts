@@ -145,7 +145,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 46;
+		let latestVersion = 47;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -290,6 +290,10 @@ export default class DataStore {
 		if(v==45) {
 			delete data["goxlrEnabled"];
 			this.addGoXLRReadMarkDefaults(data);
+			v = 46;
+		}
+		if(v==46) {
+			this.migrateTriggersDelay(data);
 			v = latestVersion;
 		}
 
@@ -1065,8 +1069,7 @@ export default class DataStore {
 			switch(t.type) {
 				case TriggerTypes.CHAT_COMMAND: t.chatCommand = t.name; break;
 				case TriggerTypes.REWARD_REDEEM: t.rewardId = subkey; break;
-				case TriggerTypes.SCHEDULE: t.rewardId = t.name; break;
-				case TriggerTypes.OBS_SCENE: t.obsScene = t.name =subkey; break;
+				case TriggerTypes.OBS_SCENE: t.obsScene = t.name = subkey; break;
 				case TriggerTypes.OBS_SOURCE_ON: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.OBS_SOURCE_OFF: t.obsSource = t.name = subkey; break;
 				case TriggerTypes.COUNTER_LOOPED:
@@ -1326,6 +1329,29 @@ export default class DataStore {
 		if(confs && !confs.chatReadMarkSources) {
 			confs.chatReadMarkSources = []
 			data[DataStore.GOXLR_CONFIG] = confs;
+		}
+	}
+
+	/**
+	 * Minor fixes of previous triggers migration leaving/generating useless props
+	 */
+	private static migrateTriggersDelay(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+
+		if(triggers) {
+			triggers.forEach(t => {
+				if(t.rewardId && t.type != TriggerTypes.REWARD_REDEEM) {
+					delete t.rewardId;//Compensate for migration mistake. Useless data
+				}
+				for (let i = 0; i < t.actions.length; i++) {
+					const a = t.actions[i];
+					//Remove old "0 second" delays not properly cleaned up
+					if(a.delay != undefined && a.type != "delay") {
+						delete a.delay;
+					}
+				}
+			})
+			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
 }

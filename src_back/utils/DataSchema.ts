@@ -131,7 +131,6 @@ import Ajv from "ajv";
 					rewardId:{type:"string", maxLength:100},
 					name:{type:"string", maxLength:100},
 					chatCommand:{type:"string", maxLength:100},
-					scheduleName:{type:"string", maxLength:100},
 					obsSource:{type:"string", maxLength:200},
 					obsScene:{type:"string", maxLength:200},
 					obsInput:{type:"string", maxLength:200},
