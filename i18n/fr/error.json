@@ -65,6 +65,7 @@
 		"paypal_sdk_init_failed": "L'initialization du SDK Paypal a échouée.",
 		"paypal_create_order_failure": "Une erreur est survenue lors de la création de la commande PayPal",
 		"paypal_order_failure": "Une erreur est survenue lors du traitement de votre don ou lors de votre ajout à la liste des donateurices. Contactez-moi à l'adresse {EMAIL} pour que l'on règle ce souci.",
+		"heat_areas_limit": "Vous avez atteint le maximum de 100 groupes",
 		"rate_limit": "Suite à un trop grand nombre de requêtes votre accès est retreint. Attendez une minute puis essayez à nouveau.",
 		"rate_limit_ban": "Vous avez été banni·e suite à une activité suspecte. Revenez dans plusieurs jours ou contactez moi à cette adresse {MAIL}."
 	}

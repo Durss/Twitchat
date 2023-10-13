@@ -177,11 +177,10 @@ export default class Button extends Vue {
 	align-items: center;
 	justify-content: center;
 	text-decoration: none;
-	color: var(--color-light);
 	user-select: none;
 	text-decoration: none !important;
 	font-size: 1rem;
-	color: var(--color-light);
+	color: var(--color-text);
 
 	.clickArea {
 		position: absolute;
@@ -323,6 +322,7 @@ export default class Button extends Vue {
 	}
 
 	&.primary {
+		color: var(--color-light);
 		.background {
 			background-color: var(--color-primary);
 		}
@@ -344,6 +344,7 @@ export default class Button extends Vue {
 	}
 
 	&.secondary {
+		color: var(--color-light);
 		.label {
 			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
 		}
@@ -368,6 +369,7 @@ export default class Button extends Vue {
 	}
 
 	&.alert {
+		color: var(--color-light);
 		.label {
 			text-shadow: none;
 		}
@@ -392,6 +394,7 @@ export default class Button extends Vue {
 	}
 
 	&.premium {
+		color: var(--color-light);
 		.label {
 			text-shadow: none;
 			opacity: 1;
@@ -485,7 +488,7 @@ export default class Button extends Vue {
 	}
 
 	&.selected {
-		color: var(--color-dark);
+		color: var(--color-text-inverse);
 		.label {
 			font-weight: bold;
 			text-shadow: unset;
@@ -499,6 +502,7 @@ export default class Button extends Vue {
 			}
 		}
 		&.primary {
+			color: var(--color-dark);
 			.background{
 				background-color: var(--color-primary-extralight);
 			}
@@ -509,6 +513,7 @@ export default class Button extends Vue {
 			}
 		}
 		&.secondary {
+			color: var(--color-dark);
 			.background{
 				background-color: var(--color-secondary-extralight);
 			}
@@ -519,6 +524,7 @@ export default class Button extends Vue {
 			}
 		}
 		&.alert {
+			color: var(--color-dark);
 			.background{
 				background-color: var(--color-alert-extralight);
 			}
@@ -529,6 +535,7 @@ export default class Button extends Vue {
 			}
 		}
 		&.premium {
+			color: var(--color-dark);
 			.background{
 				background-color: var(--color-premium-extralight);
 			}

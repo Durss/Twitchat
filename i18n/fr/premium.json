@@ -23,7 +23,7 @@
 				["Créer des badges personnalisés", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
 				["Attribuer des badges personnalisés", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
 				["Valeurs (AKA variables globales)", "MAX_VALUES", "MAX_VALUES", "MAX_VALUES_PREMIUM"],
-				["Écrans de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
+				["Groupes de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
 				["Générique de fin", "~", "~", 1],

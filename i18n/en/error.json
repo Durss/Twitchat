@@ -65,6 +65,7 @@
 		"paypal_sdk_init_failed": "Paypal SDK initialization failed.",
 		"paypal_create_order_failure": "Something went wrong when creating PayPal order",
 		"paypal_order_failure": "Something went wrong when processing your payment or registering you as a donor. Please contact me {EMAIL} to get things sorted out",
+		"heat_areas_limit": "You reached the maximum of 100 clickable areas",
 		"rate_limit": "You are being rate limited. Wait a minute and try again.",
 		"rate_limit_ban": "You have been banned from server after a suspicious activity. Come back in a few days or contact me at {MAIL}."
 	}
