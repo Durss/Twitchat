@@ -9,7 +9,7 @@
 			<div class="description" v-if="confirmData.description" v-html="confirmData.description"></div>
 			<div class="buttons">
 				<Button class="button" @click.stop="answer()" type="cancel" alert>{{ confirmData.noLabel ?? $t('global.cancel') }}</Button>
-				<Button class="button" @click.stop="answer(true)" premium>{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
+				<Button class="button" @click.stop="answer(true)" primary>{{ confirmData.yesLabel ?? $t('global.yes') }}</Button>
 			</div>
 		</div>
 	</div>

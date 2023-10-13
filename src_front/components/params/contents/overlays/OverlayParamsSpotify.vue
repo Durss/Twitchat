@@ -1,7 +1,17 @@
 <template>
 	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify']">
+		<template #right_actions>
+			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
+			target="_blank"
+			type="link"
+			class="youtubeBt"
+			icon="youtube"
+			alert
+			v-tooltip="$t('overlay.youtube_demo_tt')"
+			@click.stop/>
+		</template>
+
 		<div class="holder" v-if="spotifyConnected">
-			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank"><img src="@/assets/img/param_examples/spotifyVideo.jpg" class="demo"></a>
 	
 			<div class="card-item playerHolder">
 				<div class="label">{{ $t("global.example") }}</div>
@@ -18,8 +28,6 @@
 
 		</div>
 		<div class="holder" v-else>
-			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank"><img src="@/assets/img/param_examples/spotifyVideo.jpg" class="demo"></a>
-			
 			<div>{{ $t("overlay.music_common.music") }}</div>
 			<Button @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
 		</div>
@@ -66,6 +74,9 @@ export default class OverlayParamsSpotify extends Vue {
 
 <style scoped lang="less">
 .OverlayParamsSpotify{
+	.youtubeBt {
+		margin-right: .5em;
+	}
 
 	.holder {
 		display: flex;

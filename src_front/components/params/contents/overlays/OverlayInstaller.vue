@@ -68,13 +68,13 @@ export default class OverlayInstaller extends Vue {
 
 <style scoped lang="less">
 .overlayinstaller{
-	gap: .25em;
+	gap: 1em;
 	display: flex;
-	flex-direction: column;
+	flex-direction: row;
 	align-items: center;
+	justify-content: center;
 	width: 100%;
 	.createBt {
-		margin: auto;
 		display: flex;
 	}
 

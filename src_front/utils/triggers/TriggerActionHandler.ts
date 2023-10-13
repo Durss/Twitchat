@@ -367,7 +367,9 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK:{
-				const subEvent = message.areaId || message.obsSource;
+				let subEvent:string|undefined = undefined;
+				if(message.areaId) subEvent = message.areaId;
+				if(message.obsSource) subEvent = message.obsSource;
 				if(await this.executeTriggersByType(TriggerTypes.HEAT_CLICK, message, testMode, subEvent, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -638,6 +640,7 @@ export default class TriggerActionHandler {
 
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
+
 		
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {

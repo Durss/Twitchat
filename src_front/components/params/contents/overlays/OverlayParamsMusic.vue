@@ -112,6 +112,9 @@ export default class OverlayParamsMusic extends Vue {
 	gap: .5em;
 	display: flex;
 	flex-direction: column;
+	.youtubeBt {
+		margin-right: .5em;
+	}
 
 	.params {
 		width:100%;

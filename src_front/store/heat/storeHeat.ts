@@ -88,7 +88,6 @@ export const storeHeat = defineStore('heat', {
 		},
 
 		async handleClickEvent(event:HeatEvent):Promise<void> {
-
 			//Stop there if coordinates are missing, can't do anything without it
 			if(!event.coordinates) return;
 
@@ -128,6 +127,9 @@ export const storeHeat = defineStore('heat', {
 				}
 				user = { id:event.uid || "anon", login:"anon", channelInfo };
 			}
+			
+			//If user is banned, ignore its click
+			if(user.channelInfo![channelId]?.is_banned) return;
 
 			const message:TwitchatDataTypes.MessageHeatClickData = {
 				date:Date.now(),
@@ -145,12 +147,11 @@ export const storeHeat = defineStore('heat', {
 					y:event.coordinates.y * 100,
 				}
 			}
-			// TriggerActionHandler.instance.execute(message);
-			// TriggerActionHandler.instance.executeTriggersByType(TriggerTypes.HEAT_CLICK, message, false);
+			TriggerActionHandler.instance.execute(message);
 
+			//Parse all custom areas
 			const screens = StoreProxy.heat.screenList;
 			const obsScene = StoreProxy.main.currentOBSScene;
-			//Parse all screens
 			for (let i = 0; i < screens.length; i++) {
 				const s = screens[i];
 				//Screen disabled, ignore it
@@ -176,8 +177,11 @@ export const storeHeat = defineStore('heat', {
 				const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
 				const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
 				const ululeRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"ulule"}}).href;
+				const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+				const px = event.coordinates.x;
+				const py = event.coordinates.y;
 
-				//Init trigger data
+				//Init trigger data template
 				const action:TriggerActionChatData = {
 					id:Utils.getUUID(),
 					text:"",
@@ -187,7 +191,7 @@ export const storeHeat = defineStore('heat', {
 					id:Utils.getUUID(),
 					type:TriggerTypes.TWITCHAT_MESSAGE,
 					enabled:true,
-					actions:[action],
+					actions:[],
 					cooldown: {
 						user: 0,
 						global: 0,
@@ -195,10 +199,7 @@ export const storeHeat = defineStore('heat', {
 					}
 				}
 
-				const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
-				const px = event.coordinates.x;
-				const py = event.coordinates.y;
-
+				// Parse all available OBS sources
 				for (let i = 0; i < rects.sources.length; i++) {
 					const rect = rects.sources[i];
 					const x = rects.canvas.width * px;
@@ -207,13 +208,17 @@ export const storeHeat = defineStore('heat', {
 					const polygon = [bounds.globalTL!, bounds.globalTR!, bounds.globalBR!, bounds.globalBL!];
 					const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
-					//Click is outside overlay, ingore it
+					//Click is outside OBS source, ingore it
 					if(!isInside) continue;
 
-					const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
+					//Execute triggers related to that source
+					const clone = JSON.parse(JSON.stringify(message)) as typeof message;
 					clone.obsSource = rect.source.sourceName;
 					TriggerActionHandler.instance.execute(clone, event.testMode);
 
+					//If it's a browser source throw an "heat-click" event on the page with
+					//all necessary info about the click
+					//If it's a spotify or ulule overlay execute any requested action
 					if(rect.source.inputKind == "browser_source") {
 						let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
 						const url:string = settings.inputSettings.url as string;
@@ -256,8 +261,6 @@ export const storeHeat = defineStore('heat', {
 									page:await Utils.sha256(url)},
 							}
 						});
-						console.log(url);
-
 
 						//Spotify overlay
 						if(url.indexOf(spotifyRoute) > -1
@@ -265,29 +268,37 @@ export const storeHeat = defineStore('heat', {
 						&& SpotifyHelper.instance.isPlaying) {
 							//If anon users are not allowed, skip
 							if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
-							//If user is banned, skip
-							if(user.channelInfo![channelId]?.is_banned) continue;
+
+							const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
+							const a = JSON.parse(JSON.stringify(action)) as typeof action;
+							t.id = "heat_spotify_click";//Don't make this a random value or cooldown will break as it's based on this ID !
+							a.text = StoreProxy.chat.botMessages.heatSpotify.message;
+							t.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
+							t.actions.push(a);
 							
-							trigger.id = "heat_spotify_click";//Don't make this a random value or cooldown will break as it's based on this ID !
-							action.text = StoreProxy.chat.botMessages.heatSpotify.message;
-							trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
-							
-							TriggerActionHandler.instance.executeTrigger(trigger, message, event.testMode == true);
+							TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
 						}
 						if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
 							//If anon users are not allowed, skip
 							if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
-							//If user is banned, skip
-							if(user.channelInfo![channelId]?.is_banned) continue;
 
-							trigger.id = "heat_ulule_click";//Don't make this a random value or cooldown will break as it's based on this ID !
-							action.text = StoreProxy.chat.botMessages.heatUlule.message;
-							trigger.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
-							TriggerActionHandler.instance.executeTrigger(trigger, message, event.testMode == true);
+							const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
+							const a = JSON.parse(JSON.stringify(action)) as typeof action;
+							t.id = "heat_ulule_click";//Don't make this a random value or cooldown will break as it's based on this ID !
+							a.text = StoreProxy.chat.botMessages.heatUlule.message;
+							t.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
+							t.actions.push(a);
+
+							TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
 						}
 					}
 				}
 
+				/**
+				 * Send all available OBS source rects to the browser sources.
+				 * This is used by the heat overlay debug view:
+				 * @see OverlayHeatDebug.vue
+				 */
 				const rectPoints:number[][] = [];
 				rects.sources.forEach(v => {
 					const points = [
@@ -302,8 +313,6 @@ export const storeHeat = defineStore('heat', {
 					]
 					rectPoints.push(points);
 				});
-
-				//Send click info to browser source
 				OBSWebsocket.instance.socket.call("CallVendorRequest", {
 					requestType:"emit_event",
 					vendorName:"obs-browser",

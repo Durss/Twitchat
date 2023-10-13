@@ -425,6 +425,7 @@ export const storeMain = defineStore("main", {
 			 * Called when switching to another scene
 			 */
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
+				//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
 				if(!this.currentOBSScene) {
 					this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
 				}

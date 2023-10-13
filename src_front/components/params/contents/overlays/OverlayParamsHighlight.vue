@@ -1,9 +1,17 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
+		<template #right_actions>
+			<Button href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q"
+			target="_blank"
+			type="link"
+			class="youtubeBt"
+			icon="youtube"
+			alert
+			v-tooltip="$t('overlay.youtube_demo_tt')"
+			@click.stop/>
+		</template>
 		
 		<div class="holder">
-			<a class="item demoLink" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="demo"></a>
-			
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 			
 			<OverlayInstaller class="item installer" id="chathighlight" />
@@ -234,6 +242,9 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
+	.youtubeBt {
+		margin-right: .5em;
+	}
 	
 	.holder {
 		display: flex;

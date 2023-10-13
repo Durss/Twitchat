@@ -146,7 +146,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseFloat(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 46.2;
+		let latestVersion = 46.3;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -301,6 +301,10 @@ export default class DataStore {
 			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
 				data[this.ENDING_CREDITS_PARAMS].scale = 30;
 			}
+			v = 46.2;
+		}
+		if(v==46.2) {
+			this.cleanupHeatTriggerActions(data);
 			v = latestVersion;
 		}
 
@@ -1338,5 +1342,29 @@ export default class DataStore {
 			confs.chatReadMarkSources = []
 			data[DataStore.GOXLR_CONFIG] = confs;
 		}
+	}
+
+	/**
+	 * Cleans up heat trigger actions from useless data to avoid conflicts on execution
+	 */
+	private static cleanupHeatTriggerActions(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers) {
+			for (let i = 0; i < triggers.length; i++) {
+				const trigger = triggers[i];
+				if(trigger.type == TriggerTypes.HEAT_CLICK) {
+					if(trigger.heatClickSource == "obs") {
+						delete trigger.heatAreaIds;
+					}else if(trigger.heatClickSource == "area") {
+						delete trigger.heatObsSource;
+					}else {
+						delete trigger.heatAreaIds;
+						delete trigger.heatObsSource;
+					}
+				}
+			}
+		}
+
+		data[DataStore.TRIGGERS] = triggers;
 	}
 }

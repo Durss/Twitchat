@@ -553,7 +553,6 @@ export default class OverlayParamsCredits extends Vue {
 		const channelId = this.$store("auth").twitch.user.id
 		let fakeStartDate = this.$store("stream").currentStreamInfo[channelId]?.started_at;
 		if(!fakeStartDate) fakeStartDate = Date.now() - (1 * 3600000 + 23 * 60000 + 45 * 1000);
-		console.log(this.$store("stream").currentStreamInfo[channelId]?.started_at);
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];
 			if(slot.slotType !== "text") continue;
@@ -571,6 +570,9 @@ export default class OverlayParamsCredits extends Vue {
 
 <style scoped lang="less">
 .overlayparamscredits{
+	.youtubeBt {
+		margin-right: .5em;
+	}
 	
 	.slide-enter-from,
 	.slide-leave-to {

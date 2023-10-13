@@ -837,6 +837,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 
 		this.obs.on("CurrentProgramSceneChanged", (e:{sceneName:string}) => {
+			this.clearSourceTransformCache();
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_SCENE_CHANGE, e));
 		});
 
@@ -844,7 +845,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_MUTE_TOGGLE, e));
 		});
 
-		//This event is disabled as its very specific to media sources with playback control
+		//This event is disabled as it's very specific to media sources with playback control
 		//which are probably not much used
 		/*
 		this.obs.on("MediaInputActionTriggered", (e:{inputName:string, mediaAction:string}) => {

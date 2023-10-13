@@ -10,7 +10,7 @@
 					</i18n-t>
 				</div>
 			</div>
-			<div class="card-item item secondary info">
+			<div class="card-item item info">
 				<Icon name="alert" />
 				<i18n-t scope="global" tag="span" keypath="overlay.heatDistort.install">
 					<template #HEAT>

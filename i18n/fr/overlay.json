@@ -8,6 +8,7 @@
 		"manual_installBt": "Installation manuelle",
 		"install_success":"Source OBS créée",
 		"install_success_exists":"Une source navigateur pour cet overlay existait déjà dans vos scènes.\nElle a été copiée dans votre scène courante.",
+		"youtube_demo_tt":"Voir une démo sur Youtube",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
@@ -21,11 +22,11 @@
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS",
 			"no_overlay": "overlay non configuré ou masqué",
 			"start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
-			"testBt": "Tester"
+			"testBt": "Start a test animation"
 		},
 		"timer": {
 			"title": "Chronomètre & Compte à rebours",
-			"head": "Si vous lancez un chronomètre ou un compte à rebours avec les commandes {CMD1} ou {CMD2}, cet overlay affichera le temps écoulé ou restant.",
+			"head": "Si vous lancez un chronomètre ou un compte à rebours avec les commandes {CMD1} ou {CMD2}, cet overlay affichera leurs durées.",
 			"css": "Changez leur apparence via ces sélecteurs CSS",
 			"try_timerBt": "Tester le chronomère",
 			"try_countdownBt": "Tester un compte à rebours (2min)"
@@ -114,7 +115,7 @@
 			"param_showSubs":"Afficher les subs",
 			"param_showMods":"Afficher les modos",
 			"param_showVIPs":"Afficher les VIPs",
-			"param_showChatters":"Afficher les chatters",
+			"param_showChatters":"Afficher les autres chatters",
 			"param_showResubs":"Afficher les resubs",
 			"param_showSubgifts":"Afficher les subgifts",
 			"param_sortBySubTypes":"Trier par type de sub",
@@ -131,7 +132,7 @@
 			"premium_category":"Cette catégorie ne s'affichera PAS lorsque vous serez en live",
 			"delete_confirm_title":"Supprimer cette categorie ?",
 			"no_overlay":"Overlay non configuré or masqué",
-			"testBt":"Générer un faux générique",
+			"testBt":"Lancer un faux générique",
 			"moderators_label":"MODERATEUR·ICES",
 			"categories": {
 				"text":"Texte libre",
@@ -185,7 +186,7 @@
 		"heatDistort": {
 			"title":"Distortion d'image via Heat",
 			"description":"Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
-			"install":"Nécessite de {HEAT} sur votre chaîne Twitch.\nVous aurez également besoin d'{SHADER} dans OBS.",
+			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic"
 		}

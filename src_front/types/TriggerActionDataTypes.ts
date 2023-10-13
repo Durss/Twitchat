@@ -160,7 +160,7 @@ export interface TriggerData {
 	/**
 	 * Defines if user must click on an OBS source or a custom zone
 	 */
-	heatClickSource?:"obs" | "area";
+	heatClickSource?:"obs" | "area" | "all";
 
 	/**
 	 * @deprecated Only here for typings on data migration.

@@ -1,10 +1,18 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamscounter" :title="$t('overlay.counters.title')" :icons="['count']">
+		<template #right_actions>
+			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD"
+			target="_blank"
+			type="link"
+			class="youtubeBt"
+			icon="youtube"
+			alert
+			v-tooltip="$t('overlay.youtube_demo_tt')"
+			@click.stop/>
+		</template>
 		
 		
 		<div class="holder" v-if="counters.length == 0">
-			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank"><img src="@/assets/img/param_examples/counterVideo.jpg" class="demo"></a>
-
 			<p>{{ $t("overlay.counters.head_empty") }}</p>
 			<Button icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
@@ -12,8 +20,6 @@
 		</div>
 
 		<div class="holder" v-if="counters.length > 0">
-			<a class="item demoLink" href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank"><img src="@/assets/img/param_examples/counterVideo.jpg" class="demo"></a>
-
 			<div>{{ $t("overlay.counters.head") }}</div>
 			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.counters.css") }}</div>
@@ -135,6 +141,9 @@ export default class OverlayParamsCounter extends Vue {
 
 <style scoped lang="less">
 .overlayparamscounter{
+	.youtubeBt {
+		margin-right: .5em;
+	}
 	.holder {
 		gap: .5em;
 		display: flex;

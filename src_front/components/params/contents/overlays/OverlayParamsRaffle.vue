@@ -1,8 +1,17 @@
 <template>
 	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
+		<template #right_actions>
+			<Button href="https://www.youtube.com/watch?v=VB4FDqB5kMo"
+			target="_blank"
+			type="link"
+			class="youtubeBt"
+			icon="youtube"
+			alert
+			v-tooltip="$t('overlay.youtube_demo_tt')"
+			@click.stop/>
+		</template>
+
 		<div class="holder">
-			<a class="item demoLink" href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank"><img src="@/assets/img/param_examples/wheelVideo.jpg" class="demo"></a>
-			
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
 				<OverlayInstaller class="item installer" id="wheel" />
@@ -122,6 +131,9 @@ export default class OverlayParamsRaffle extends Vue {
 
 <style scoped lang="less">
 .overlayparamsraffle{
+	.youtubeBt {
+		margin-right: .5em;
+	}
 	.holder {
 		display: flex;
 		flex-direction: column;

@@ -8,6 +8,7 @@
 		"manual_installBt": "Manual install",
 		"install_success":"OBS source created",
 		"install_success_exists":"There already was a browser source for this overlay on your scenes.\nIt has been copied to your current scene.",
+		"youtube_demo_tt":"View demo on youtube",
 		"connection": {
 			"title": "The overlays need you to {OBS} or {DOCK}",
 			"obsBt": "connect with OBS",
@@ -21,11 +22,11 @@
 			"css": "You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
 			"no_overlay": "overlay not configured or hidden",
 			"start": "To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
-			"testBt": "Test"
+			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
 			"title": "Timer & Countdown",
-			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display the elapsed or remaining time.",
+			"head": "When starting a countdown or a timer with {CMD1} or {CMD2} commands, this overlay will display their durations.",
 			"css": "You can change the appearance of the timers by overriding these CSS values on OBS browser source params",
 			"try_timerBt": "Try timer",
 			"try_countdownBt": "Try countdown (2min)"
@@ -114,7 +115,7 @@
 			"param_showSubs":"Show subs",
 			"param_showMods":"Show mods",
 			"param_showVIPs":"Show VIPs",
-			"param_showChatters":"Show chatters",
+			"param_showChatters":"Show other chatters",
 			"param_showResubs":"Afficher les resubs",
 			"param_showSubgifts":"Afficher les subgifts",
 			"param_sortBySubTypes":"Trier par type de sub",
@@ -131,7 +132,7 @@
 			"premium_category":"This category will NOT show up when your stream is live",
 			"delete_confirm_title":"Delete category?",
 			"no_overlay":"Overlay not configured or hidden",
-			"testBt":"Generate fake credits",
+			"testBt":"Start fake credits",
 			"moderators_label":"MODERATORS",
 			"categories": {
 				"cheers":"Bits",
@@ -185,8 +186,8 @@
 		"heatDistort": {
 			"title":"Image distort via Heat",
 			"description":"This overlay make it possible for your viewers to distort your stream rendering by clicking on it.",
-			"install":"This needs {HEAT} to be configured on your channel.\nYou'll also need to {SHADER} plugin on OBS.",
-			"install_heat_link":"Heat Twitch extension",
+			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
+			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic"
 		}
 	}
