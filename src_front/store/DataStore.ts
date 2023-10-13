@@ -1337,7 +1337,7 @@ export default class DataStore {
 	}
 
 	/**
-	 * Minor fixes of previous triggers migration leaving/generating useless props
+	 * Minor fixes of useless "delay" that were still injected to every triggers
 	 */
 	private static migrateTriggersDelay(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];

@@ -186,7 +186,7 @@ export default class UserController extends AbstractController {
 			const diff = JsonPatch.compare(clone, body as any, false);
 			const cleanupFilePath = Config.USER_DATA_PATH+userInfo.user_id+"_cleanup.json";
 			if(diff?.length > 0) {
-				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data");
+				Logger.error("Invalid format, some data have been removed from "+userInfo.login+"'s data (v"+version+")");
 				console.log(diff);
 				fs.writeFileSync(cleanupFilePath, JSON.stringify(diff), "utf-8");
 			}else if(fs.existsSync(cleanupFilePath)) {
