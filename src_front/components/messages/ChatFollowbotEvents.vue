@@ -32,10 +32,6 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 
 	public expand:boolean = false;
 
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
-
 }
 </script>
 

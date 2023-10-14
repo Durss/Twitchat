@@ -1,13 +1,13 @@
 <template>
 	<div :class="classes">
-		<OverlaysRaffleWheel v-if="overlay=='wheel' || overlay=='unified'" />
-		<OverlayMusicPlayer v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions ref="music" class="music" />
-		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayTimer v-if="overlay=='timer' || overlay=='unified'" />
+		<OverlaysRaffleWheel v-if="overlay=='wheel' || overlay=='unified'" />
+		<OverlayEndingCredits v-if="overlay=='credits' || overlay=='unified'" />
+		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
+		<OverlayMusicPlayer v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions ref="music" class="music" />
 		<OverlayCounter v-if="overlay=='counter'" />
 		<OverlayUlule v-if="overlay=='ulule'" />
 		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
-		<OverlayEndingCredits v-if="overlay=='credits'" />
 	</div>
 </template>
 

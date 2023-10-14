@@ -232,5 +232,20 @@ export default class AbstractChatMessage extends Vue {
 		e.stopPropagation();
 	}
 
+	/**
+	 * Opens up a user card
+	 * @param user 
+	 */
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string):void {
+		this.$store("users").openUserCard(user, chanId);
+	}
+
+	/**
+	 * Delete current message from history
+	 */
+	public deleteMessage():void {
+		this.$store("chat").deleteMessage(this.messageData);
+	}
+
 }
 </script>

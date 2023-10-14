@@ -11,7 +11,7 @@
 					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #MODERATOR>
-					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
+					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 				</template>
 				<template #DURATION>
 					<strong>{{ formatedBanDuration }}</strong>
@@ -22,7 +22,7 @@
 					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #MODERATOR>
-					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
+					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 				</template>
 			</i18n-t>
 			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
@@ -75,10 +75,6 @@ export default class ChatBan extends AbstractChatMessage {
 
 		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id].is_banned
 						&& super.canModerateUser(this.messageData.user, this.messageData.channel_id);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	public async unbanUser():Promise<void> {

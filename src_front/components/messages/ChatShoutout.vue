@@ -83,10 +83,6 @@ export default class ChatShoutout extends AbstractChatMessage {
 		
 	}
 
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
-
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {

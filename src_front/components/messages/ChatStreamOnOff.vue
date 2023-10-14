@@ -76,10 +76,6 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		this.$store("accessibility").setAriaPolite(aria);
 	}
 
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
-
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {

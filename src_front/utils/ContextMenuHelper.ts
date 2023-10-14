@@ -207,7 +207,7 @@ export default class ContextMenuHelper {
 										!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
 										return;
 									}
-									StoreProxy.chat.deleteMessageByReference(m);
+									StoreProxy.chat.deleteMessage(m);
 								},
 							});
 				}

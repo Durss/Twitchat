@@ -4,12 +4,10 @@
 		
 		<img src="@/assets/icons/mod.svg" alt="mod" class="icon">
 
-		<ChatMessageInfoBadges :infos="badgeInfos" />
-
 		<div class="holder">
 			<i18n-t scope="global" tag="span" keypath="chat.autoban_join.message">
 				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 				</template>
 				<template #RULE>
 					<mark>{{ messageData.rule.label }}</mark>
@@ -56,12 +54,6 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 	public moderating = false;
 	public canUnban = true;
 	public canBlock = true;
-	public badgeInfos:TwitchatDataTypes.MessageBadgeData[] = [];
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
-		this.badgeInfos.push({type:"automod", tooltip:"<strong>Rule:</strong> "+this.messageData.rule.label});
-	}
 
 	public async unbanUser():Promise<void> {
 		this.moderating = true;

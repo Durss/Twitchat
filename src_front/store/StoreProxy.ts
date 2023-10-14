@@ -437,24 +437,24 @@ export interface IChatActions {
 	/**
 	 * Delete a message
 	 * @param message 
-	 * @param deleteData 
+	 * @param deleterData 
 	 * @param callEndpoint 
 	 */
-	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete a message by its ID
 	 * @param messageID 
-	 * @param deleteData 
+	 * @param deleterData 
 	 * @param callEndpoint 
 	 */
-	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	deleteMessageByID(messageID:string, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete a message by its reference
 	 * @param messageID 
-	 * @param deleteData 
+	 * @param deleterData 
 	 * @param callEndpoint 
 	 */
-	deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete all messages of a channel
 	 * @param channelId 

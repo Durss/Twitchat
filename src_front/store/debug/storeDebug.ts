@@ -511,6 +511,8 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						date:Date.now(),
 						type,
+						user,
+						triggerIdSource:StoreProxy.triggers.triggerList[0]?.id,
 						trackAdded: {
 							title: "Mitchiri Neko march",
 							artist: "Mitchiri MitchiriNeko",

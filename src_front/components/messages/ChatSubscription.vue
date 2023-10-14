@@ -13,7 +13,7 @@
 				<i18n-t scope="global" tag="span"
 				:keypath="giftRecipients.length > 1? 'chat.subscription.sub_gift' : 'chat.subscription.sub_gift_months'">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -27,7 +27,7 @@
 					<template #LIST>
 						<span class="additionalUsers" v-if="giftRecipients.length > 0"
 							v-for="u, index in giftRecipients" :key="u.id">
-							<a class="userlink" @click.stop="openUserCard(u)">{{u.displayName}}</a>
+							<a class="userlink" @click.stop="openUserCard(u, messageData.channel_id)">{{u.displayName}}</a>
 							<span v-if="(index == giftRecipients.length-2)">&nbsp;{{$t("global.and")}}&nbsp;</span>
 							<span v-else-if="index < giftRecipients.length-1">, </span>
 						</span>
@@ -48,10 +48,10 @@
 				<i18n-t scope="global" tag="span"
 				keypath="chat.subscription.sub_gift_upgrade">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #GIFTER>
-						<a class="userlink" @click.stop="openUserCard(messageData.gift_upgradeSender!)">{{messageData.gift_upgradeSender!.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.gift_upgradeSender!, messageData.channel_id)">{{messageData.gift_upgradeSender!.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -67,7 +67,7 @@
 				v-if="messageData.is_resub"
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.resub_prime' : 'chat.subscription.resub'">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -79,7 +79,7 @@
 				v-else
 				:keypath="messageData.tier == 'prime'? 'chat.subscription.sub_prime' : 'chat.subscription.sub'">
 					<template #USER>
-						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -158,10 +158,6 @@ export default class ChatSubscription extends AbstractChatMessage {
 
 	public beforeMount(): void {
 		
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 }
 </script>

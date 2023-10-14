@@ -131,7 +131,7 @@
 			"param_showRewardUsers":"Afficher la liste des personnes pour chaque récompense",
 			"premium_category":"Cette catégorie ne s'affichera PAS lorsque vous serez en live",
 			"delete_confirm_title":"Supprimer cette categorie ?",
-			"no_overlay":"Overlay non configuré or masqué",
+			"no_overlay":"Overlay non configuré ou masqué",
 			"testBt":"Lancer un faux générique",
 			"moderators_label":"MODERATEUR·ICES",
 			"categories": {

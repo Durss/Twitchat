@@ -1296,30 +1296,26 @@ export const storeChat = defineStore('chat', {
 			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
-		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
-			this.deleteMessageByID(message.id, deleter, callEndpoint)
-		},
-		
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
 			//Start from most recent messages to find it faster
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
 				if(messageID == m.id && !m.deleted) {
-					this.deleteMessageByReference(m, deleter, callEndpoint);
+					this.deleteMessage(m, deleter, callEndpoint);
 					break;
 				}
 			}
 		},
 		
-		deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
+		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {
-				//Called if closing an ad
 				messageList.splice(i, 1);
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
+
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const wsMessage = {
 					channel:message.channel_id,
@@ -1346,6 +1342,9 @@ export const storeChat = defineStore('chat', {
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					TwitchUtils.deleteMessages(message.channel_id, message.id);
 				}
+			}else{
+				messageList.splice(i, 1);
+				Database.instance.updateMessage(message);
 			}
 			
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
@@ -1547,7 +1546,7 @@ export const storeChat = defineStore('chat', {
 				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
 				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
 				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
-					this.deleteMessageByReference(m);
+					this.deleteMessage(m);
 				}
 			}
 		},

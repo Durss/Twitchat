@@ -90,6 +90,7 @@
 				"hype_train_cooled_down": "Train de la hype prêt",
 				"community_boost_complete": "Boost de stream",
 				"community_challenge_contribution": "Défis de communauté",
+				"music_added_to_queue": "Ajout de morceau via song request",
 				"pinned": "Alertes de messages épinglés",
 				"user_watch_streak": "Streams consécutifs vus",
 				"stream_online": "Stream commencé/arrêté",
@@ -379,6 +380,12 @@
 		},
 		"splitter": {
 			"label": "Nouveaux messages"
+		},
+		"added_to_queue": {
+			"title": "{USER} a ajouté le morceau suivant à la file d'attente :",
+			"open_track": "Ouvrir la page du morceau",
+			"ban_user": "Retirer la possibilité à cette personne d'ajouter des morceaux",
+			"unban_user": "Accorder la possibilité à cette personne d'ajouter des morceaux à nouveau"
 		}
 	}
 }

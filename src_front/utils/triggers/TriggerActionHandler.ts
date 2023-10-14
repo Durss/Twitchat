@@ -723,6 +723,7 @@ export default class TriggerActionHandler {
 
 		// console.log("PARSE STEPS", eventType, trigger, message);
 		let canExecute = true;
+		let executingUser:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 
 		//If it's a chat message check for permissions and cooldowns
 		if(!testMode) {
@@ -733,6 +734,9 @@ export default class TriggerActionHandler {
 			//Channel ID is necessary for follower check and chat message feedback is user is cooling down
 			if("user" in message && message.user
 			&& "channel_id" in message && message.channel_id) {
+				if(message.type != TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) { //Exclude it as it has a limited user type definition
+					executingUser = message.user;
+				}
 				//check user's permissions
 				if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 					log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is not allowed"});
@@ -1600,31 +1604,24 @@ export default class TriggerActionHandler {
 
 							//A track has been found and added
 							if(data) {
-								const addedToQueueMessage:TwitchatDataTypes.MessageMusicAddedToQueueData = {
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
+
+								const trackAddedMesssageData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
 									id:Utils.getUUID(),
 									date:Date.now(),
 									platform:"twitchat",
 									type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 									trackAdded:data,
-								}
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
-								//Execute "TRACK_ADDED_TO_QUEUE" trigger
-								this.executeTriggersByType(TriggerTypes.TRACK_ADDED_TO_QUEUE, addedToQueueMessage, false);
+									message:m,
+									user:executingUser,
+									triggerIdSource:trigger.id,
+								};
+								StoreProxy.chat.addMessage(trackAddedMesssageData);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
-									const messageLoc = message as TwitchatDataTypes.MessageChatData;
-									const triggerData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
-										id:Utils.getUUID(),
-										date:Date.now(),
-										platform:"twitchat",
-										type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-										trackAdded:data,
-										message:messageLoc.message,
-										user:messageLoc.user,
-									};
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
-									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, triggerData, step.confirmMessage, subEvent, false);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}

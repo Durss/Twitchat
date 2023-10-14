@@ -657,6 +657,10 @@ export default class MessageList extends Vue {
 				return this.config.filters.user_watch_streak !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+				return this.config.filters.music_added_to_queue == true;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: 
 			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
 				return true;

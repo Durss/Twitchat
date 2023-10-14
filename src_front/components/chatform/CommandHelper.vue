@@ -356,7 +356,7 @@ export default class CommandHelper extends Vue {
 		}
 
 		.button:not(:last-child) {
-			border-right: 1px solid var(--color-primary-extralight);
+			border-right: 1px solid var(--color-text);
 		}
 
 		.button:not(:first-child):not(:last-child) {

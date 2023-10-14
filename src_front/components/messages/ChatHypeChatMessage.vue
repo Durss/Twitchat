@@ -11,7 +11,7 @@
 			<div class="message">
 				
 			<a :href="'https://twitch.tv/'+messageData.message.user.login" target="_blank"
-				@click.stop.prevent="openUserCard(messageData.message.user)"
+				@click.stop.prevent="openUserCard(messageData.message.user, messageData.message.channel_id)"
 				class="login">{{messageData.message.user.displayName}} :</a>
 				<ChatMessageChunksParser :chunks="messageData.message.message_chunks" :channel="messageData.message.channel_id" :platform="messageData.platform" />
 			</div>
@@ -62,10 +62,6 @@ export default class ChatHypeChatMessage extends AbstractChatMessage {
 		setTimeout(()=> {
 			fill.style.width = "0%";
 		},0);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.message.channel_id);
 	}
 
 }

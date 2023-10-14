@@ -32,11 +32,6 @@ export default class ChatBingoResult extends AbstractChatMessage {
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageBingoData;
 
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
-
-
 }
 </script>
 

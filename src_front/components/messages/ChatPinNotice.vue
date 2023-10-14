@@ -53,10 +53,6 @@ export default class ChatPinNotice extends AbstractChatMessage {
 		}
 		return "chat.pin.unpinned";
 	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
 }
 </script>
 

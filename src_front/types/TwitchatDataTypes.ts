@@ -1671,7 +1671,7 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
-		music_added_to_queue:false,
+		music_added_to_queue:true,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
 		hype_train_cooled_down:true,
@@ -1818,6 +1818,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
 		TwitchatMessageType.USER_WATCH_STREAK,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+		TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
 		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
@@ -2294,7 +2295,7 @@ export namespace TwitchatDataTypes {
 		 */
 		totalSubDuration:number;
 		/**
-		 * Otional message sent when sharing our sub
+		 * Optional message sent when sharing our sub
 		 */
 		message?:string;
 		/**
@@ -2302,7 +2303,7 @@ export namespace TwitchatDataTypes {
 		 */
 		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
 		/**
-		 * Otional message sent when sharing our sub with emotes remplaced by HTML tags
+		 * Optional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
 		message_html?:string;
 		/**
@@ -2839,7 +2840,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Info about the track that's been added to the queue
 		 */
-		trackAdded:MusicTrackData|null;
+		trackAdded:MusicTrackData;
 		/**
 		 * User that added the track
 		 */
@@ -2848,6 +2849,10 @@ export namespace TwitchatDataTypes {
 		 * Message the user sent to add the track
 		 */
 		message?:string;
+		/**
+		 * Trigger ID that executed the song request
+		 */
+		triggerIdSource?:string;
 	}
 
 	/**

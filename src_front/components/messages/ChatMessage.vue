@@ -71,7 +71,7 @@
 			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
 
 			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
-				@click.stop.prevent="openUserCard(messageData.user)"
+				@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
 				data-login
@@ -81,7 +81,7 @@
 				<a :href="'https://twitch.tv/'+recipient.login" target="_blank"
 					class="login"
 					:style="getLoginStyles(recipient)"
-					@click.stop.prevent="openUserCard(recipient!)">{{recipient.displayName}}</a>
+					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id)">{{recipient.displayName}}</a>
 			</template>
 			
 			<span :class="getMessageClasses(messageData)">
@@ -523,13 +523,6 @@ export default class ChatMessage extends AbstractChatMessage {
 		this.staticClasses = staticClasses;
 		this.$store("accessibility").setAriaPolite(this.messageData.message);
 		this.updateSuspiciousState();
-	}
-
-	/**
-	 * Open a users' card
-	 */
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	/**

@@ -150,14 +150,10 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		if(!Config.instance.IS_PROD) {
-			const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-			this.localMessages = this.localMessages.concat(history).splice(0,50);
-		}
-
-		// watch(()=>this.localMessages, (v)=>{
-		// 	console.log("update");
-		// }, {deep:true})
+		// if(!Config.instance.IS_PROD) {
+		// 	const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+		// 	this.localMessages = this.localMessages.concat(history).splice(0,50);
+		// }
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;

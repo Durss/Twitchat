@@ -138,6 +138,10 @@
 	<ChatHistorySplitter class="message"
 		v-else-if="messageData.type == 'history_splitter'"
 		:messageData="messageData" />
+
+	<ChatTrackAddedToQueue class="message"
+		v-else-if="messageData.type == 'music_added_to_queue'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -178,6 +182,7 @@ import ChatUnban from './ChatUnban.vue';
 import ChatWatchStreak from './ChatWatchStreak.vue';
 import ChatHypeChatMessage from './ChatHypeChatMessage.vue';
 import ChatHistorySplitter from './ChatHistorySplitter.vue';
+import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
 
 @Component({
 	components:{
@@ -212,6 +217,7 @@ import ChatHistorySplitter from './ChatHistorySplitter.vue';
 		ChatCountdownResult,
 		ChatHypeChatMessage,
 		ChatPredictionResult,
+		ChatTrackAddedToQueue,
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
 		ChatMessageClipPending,

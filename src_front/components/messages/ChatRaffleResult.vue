@@ -5,7 +5,7 @@
 		
 		<i18n-t scope="global" tag="div" keypath="chat.raffle.title">
 			<template #USER v-if="user">
-				<a class="userlink" @click.stop="openUserCard(user!)">{{user!.displayName}}</a>
+				<a class="userlink" @click.stop="openUserCard(user!, messageData.winner.user?.channel_id)">{{user!.displayName}}</a>
 			</template>
 			<template #USER v-else><strong>{{messageData.winner.label}}</strong></template>
 		</i18n-t>
@@ -34,10 +34,6 @@ export default class ChatRaffleResult extends AbstractChatMessage {
 		const user = this.$store("users").getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
 
 		return user;
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.winner.user?.channel_id);
 	}
 }
 </script>

@@ -146,7 +146,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 48.1;
+		let latestVersion = 48.2;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -302,12 +302,14 @@ export default class DataStore {
 			v = 48;
 		}
 		if(v==48) {
-			delete data[this.ENDING_CREDITS_PARAMS];
 			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
 				data[this.ENDING_CREDITS_PARAMS].scale = 30;
 			}
-			v = 46.2;
 			this.cleanupHeatTriggerActions(data);
+			v = 48.1;
+		}
+		if(v==48.1) {
+			this.addSRFilter(data);
 			v = latestVersion;
 		}
 
@@ -349,9 +351,9 @@ export default class DataStore {
 
 		this.rawStore = await this.migrateData(json);//Migrate remote data if necessary
 
+		//Make sure we don't loose unsynced automod rules
+		//(should think of a generic way of doing this..)
 		if(automod && automod.keywordsFilters && automod.keywordsFilters.length > 0) {
-			//Make sure we don't loose unsynced automod rules
-			//(should think of a generic way of doing this..)
 			for (let i = 0; i < automod.keywordsFilters.length; i++) {
 				const el = automod.keywordsFilters[i];
 				if(!el.serverSync) {
@@ -1478,8 +1480,24 @@ export default class DataStore {
 					}
 				}
 			}
+			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+
+	/**
+	 * Adds new song request filter item to chat columns
+	 */
+	private static addSRFilter(data:any):void {
+		const chatCols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
+
+		if(chatCols) {
+			chatCols.forEach(c => {
+				c.filters.music_added_to_queue = false;
+			});
+			chatCols[0].filters.music_added_to_queue = true;
+			
+			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
 
-		data[DataStore.TRIGGERS] = triggers;
 	}
 }

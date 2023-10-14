@@ -6,10 +6,10 @@
 		
 		<i18n-t scope="global" tag="span" :keypath="messageData.moderator? 'global.moderation_action.unbanned_by' : 'global.moderation_action.unbanned'">
 			<template #USER>
-				<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 			</template>
 			<template #MODERATOR>
-				<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!)">{{messageData.moderator.displayName}}</a>
+				<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
 			</template>
 		</i18n-t>
 	</div>
@@ -37,10 +37,6 @@ export default class ChatBan extends AbstractChatMessage {
 			aria = this.$t("global.moderation_action.unbanned", {USER:this.messageData.user.displayName});
 		}
 		this.$store("accessibility").setAriaPolite(aria);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 }

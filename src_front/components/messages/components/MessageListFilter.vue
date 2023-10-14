@@ -253,6 +253,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "chat.filters.message_types.user_watch_streak";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]				= "chat.filters.message_types.music_added_to_queue";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]	= "chat.filters.message_types.community_challenge_contribution";
@@ -283,6 +284,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]					= "music";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints";
@@ -304,10 +306,6 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			TwitchatDataTypes.TwitchatMessageType.CHEER,
 			TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
-			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,
-			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			TwitchatDataTypes.TwitchatMessageType.RAID,
 			TwitchatDataTypes.TwitchatMessageType.PINNED,
 			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
@@ -316,10 +314,15 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.REWARD,
 			TwitchatDataTypes.TwitchatMessageType.POLL,
 			TwitchatDataTypes.TwitchatMessageType.PREDICTION,
+			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
+			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
+			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
 			TwitchatDataTypes.TwitchatMessageType.BINGO,
 			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 			TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
+			TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
 			TwitchatDataTypes.TwitchatMessageType.LEAVE,
 			TwitchatDataTypes.TwitchatMessageType.NOTICE,

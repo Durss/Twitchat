@@ -6,7 +6,7 @@
 		
 		<i18n-t scope="global" tag="span" keypath="chat.watch_streak.label">
 			<template #USER>
-				<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 			</template>
 			<template #COUNT>
 				<strong>{{ messageData.streak }}</strong>
@@ -32,10 +32,6 @@ export default class ChatWatchStreak extends AbstractChatMessage {
 	public mounted():void {
 		let aria = this.$t("chat.watch_streak.label", {USER:this.messageData.user.displayName, COUNT:this.messageData.streak});
 		this.$store("accessibility").setAriaPolite(aria);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 }

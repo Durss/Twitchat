@@ -8,7 +8,7 @@
 			<a class="userlink"
 			:href="'https://twitch.tv/'+u.login"
 			target="_blank"
-			@click.prevent="openUserCard(u)">{{u.displayName}}</a>
+			@click.prevent="openUserCard(u, messageData.channel_id)">{{u.displayName}}</a>
 			<span v-if="index < userList.length - 2 + remainingOffset">,&nbsp;</span>
 			<span v-else-if="index < userList.length - 1 + remainingOffset">&nbsp;{{$t("global.and")}}&nbsp;</span>
 		</span>
@@ -81,10 +81,6 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 			this.theme = "secondary";
 		}
 		this.$store("accessibility").setAriaPolite(message);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 	public copyJSON():void {

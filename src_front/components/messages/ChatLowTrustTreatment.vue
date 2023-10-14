@@ -59,10 +59,6 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 		|| this.messageData.monitored) res.push("alert");
 		return res;
 	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
-	}
 }
 </script>
 

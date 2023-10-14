@@ -59,7 +59,7 @@
 						<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.train.conductor_subs.user.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.train.conductor_subs!.user)">{{messageData.train.conductor_subs.user.displayName}}</a>
+						@click.stop.prevent="openUserCard(messageData.train.conductor_subs!.user, messageData.channel_id)">{{messageData.train.conductor_subs.user.displayName}}</a>
 	
 						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
 							<template #COUNT>
@@ -78,7 +78,7 @@
 						<a class="userlink"
 						:href="'https://twitch.tv/'+messageData.train.conductor_bits.user.login"
 						target="_blank"
-						@click.stop.prevent="openUserCard(messageData.train.conductor_bits!.user)">{{messageData.train.conductor_bits.user.displayName}}</a>
+						@click.stop.prevent="openUserCard(messageData.train.conductor_bits!.user, messageData.channel_id)">{{messageData.train.conductor_bits.user.displayName}}</a>
 						
 						<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
 							<template #COUNT>
@@ -194,10 +194,6 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 
 	public filter():void {
 		this.$emit("setCustomActivities", [...this.messageData.activities, this.messageData]);
-	}
-
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.messageData.channel_id);
 	}
 
 }
