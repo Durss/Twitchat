@@ -1,4 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
@@ -6,7 +7,6 @@ import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 
 /**
 * Created : 29/03/2022 
@@ -24,7 +24,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	
 	private sceneCacheKeySplitter:string = "_-___-___-_";
 	//Key : "sceneName" + sceneCacheKeySplitter + "sourceName"
-	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}}} = {};
+	private sceneSourceCache:{[key:string]:{ts:number, value:{scene:string, source:OBSSourceItem}[]}} = {};
 	private sceneDisplayRectsCache:{[key:string]:{ts:number, value:{canvas:{width:number, height:number}, sources:{sceneName:string, source:OBSSourceItem, transform:SourceTransform}[]}}} = {};
 	private sceneToCaching:{[key:string]:boolean} = {};
 	private cachedScreenshots:{[key:string]:{ts:number, screen:string}} = {};
@@ -543,15 +543,15 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setSourceState(sourceName:string, visible:boolean):Promise<void> {
 		if(!this.connected) return;
 		
-		//FIXME if the requested source is on multiple scenes, this will only toggle one of them
-		const item = await this.getSourceOnCurrentScene(sourceName);
-		if(item) {
-			await this.obs.call("SetSceneItemEnabled", {
-				sceneName:item.scene,
-				sceneItemId:item.source.sceneItemId,
-				sceneItemEnabled:visible
-			});
-			await Utils.promisedTimeout(50);
+		const items = await this.getSourceOnCurrentScene(sourceName);
+		if(items.length > 0) {
+			for (let i = 0; i < items.length; i++) {
+				await this.obs.call("SetSceneItemEnabled", {
+					sceneName:items[i].scene,
+					sceneItemId:items[i].source.sceneItemId,
+					sceneItemEnabled:visible
+				});
+			}
 		}
 	}
 
@@ -591,51 +591,56 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param sceneName 
 	 * @returns 
 	 */
-	public async getSourceOnCurrentScene(sourceName:string, sceneName = "", isGroup:boolean = false):Promise<{scene:string, source:OBSSourceItem}|null> {
-		const cacheKey = sceneName + this.sceneCacheKeySplitter + sourceName;
+	public async getSourceOnCurrentScene(sourceName:string):Promise<{scene:string, source:OBSSourceItem}[]> {
+		const scene = await this.obs.call("GetCurrentProgramScene");
+		const sceneName = scene.currentProgramSceneName;
 
-		//Searching for a source in the scene tree may take quite much time depending on the number
-		//of sources and nested scenes. If the resource has already been queried, send back cached data
-		if(this.sceneSourceCache[cacheKey]) {
-			return this.sceneSourceCache[cacheKey].value;
-		}
+		const getSourceListOn = async (target:string, isGroup:boolean):Promise<{scene:string, source:OBSSourceItem}[]> => {
 
-		if(!sceneName) {
-			const scene = await this.obs.call("GetCurrentProgramScene");
-			sceneName = scene.currentProgramSceneName;
-		}
-		let items:OBSSourceItem[] = [];
-		if(isGroup) {
-			//Search grouped item
-			const res = await this.obs.call("GetGroupSceneItemList", {sceneName:sceneName});
-			items = (res.sceneItems as unknown) as OBSSourceItem[];
-		}else{
-			//Search scene item
-			const res = await this.obs.call("GetSceneItemList", {sceneName});
-			items = (res.sceneItems as unknown) as OBSSourceItem[];
-		}
-		const item = items.find(v=> v.sourceName == sourceName);
-		if(item) {
-			const res = {scene:sceneName, source:item};
-			this.sceneSourceCache[cacheKey] = {ts:Date.now(), value:res};
-			return res;
-		}else{
-			//Item not found check on sub scenes and groups
+			const cacheKey = target + this.sceneCacheKeySplitter + sourceName;
+			//Searching for a source in the scene tree may take quite much time depending on the number
+			//of sources and nested scenes. If the resource has already been queried, send back cached data
+			if(this.sceneSourceCache[cacheKey]) {
+				return this.sceneSourceCache[cacheKey].value;
+			}
+
+			let result:{scene:string, source:OBSSourceItem}[] = [];
+			let items:OBSSourceItem[] = [];
+			if(isGroup) {
+				//Search in grouped items
+				const res = await this.obs.call("GetGroupSceneItemList", {sceneName:target});
+				items = (res.sceneItems as unknown) as OBSSourceItem[];
+			}else{
+				//Search in scene items
+				const res = await this.obs.call("GetSceneItemList", {sceneName:target});
+				items = (res.sceneItems as unknown) as OBSSourceItem[];
+			}
+
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.sourceName == sourceName) {
+					result.push( {scene:target, source:item} );
+				}
+			}
+
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.isGroup) {
 					//Search on sub group
-					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName, true);
-					if(res) return res;
+					const list = await getSourceListOn(item.sourceName, true);
+					if(list.length > 0) result = result.concat(list);
 				}else
 				//Search on sub scene
 				if(item.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-					const res = await this.getSourceOnCurrentScene(sourceName, item.sourceName);
-					if(res) return res;
+					const list = await getSourceListOn(item.sourceName, false);
+					if(list.length > 0) result = result.concat(list);
 				}
 			}
+			this.sceneSourceCache[cacheKey] = {ts:Date.now(), value:result};
+			return result;
 		}
-		return null;
+
+		return getSourceListOn(sceneName, false);
 	}
 
 	/**
