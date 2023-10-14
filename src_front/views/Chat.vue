@@ -677,7 +677,6 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.SEND_MESSAGE: {
 				const message = (e.data as JsonObject).message as string;
-				console.log("MESSAGE", e.data, message);
 				if(message) {
 					MessengerProxy.instance.sendMessage(message);
 				}
