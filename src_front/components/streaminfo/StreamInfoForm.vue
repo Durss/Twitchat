@@ -72,8 +72,8 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 })
 export default class StreamInfoForm extends AbstractSidePanel {
 
-	public param_savePreset:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
-	public param_namePreset:TwitchatDataTypes.ParameterData<string>		= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
+	public param_savePreset:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
+	public param_namePreset:TwitchatDataTypes.ParameterData<string>						= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
 
 	public title:string = "";
 	public tags:string[] = [];
@@ -125,7 +125,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			if(await this.$store("stream").setStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+			if(await this.$store("stream").updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
 				this.updateSuccess = true;
 				setTimeout(()=>{
 					this.updateSuccess = false;
@@ -189,7 +189,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
-		if(await this.$store("stream").setStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
+		if(await this.$store("stream").updateStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
 			this.updateSuccess = true;
 			setTimeout(()=>{
 				this.updateSuccess = false;
