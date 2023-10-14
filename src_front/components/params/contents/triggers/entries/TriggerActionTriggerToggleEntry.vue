@@ -92,6 +92,7 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 		.openTriggerBt{
 			height: 1em;
 			transition: transform .2s;
+			color: var(--color-text);
 			&:hover {
 				transform: scale(1.2);
 			}
