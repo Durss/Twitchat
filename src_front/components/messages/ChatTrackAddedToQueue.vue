@@ -1,5 +1,6 @@
 <template>
-	<div class="chattrackaddedtoqueue chatMessage">
+	<div class="chattrackaddedtoqueue chatMessage"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="music" alt="notice" class="icon"/>
