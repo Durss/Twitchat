@@ -4,7 +4,7 @@
 			<div class="leftForm">
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1693519200000, id:'parameters'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
-				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="onlineUsersTooltip" />
+				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store('params').appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
 				<!-- <ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
 			</div>
 
@@ -598,6 +598,8 @@ export default class ChatForm extends Vue {
 	 * updated when user list changes.
 	 */
 	public updateOnlineUsersTooltip(e:MouseEvent):void {
+		if(this.$store('params').appearance.showViewersCount.value !== true) return;
+		
 		let followCount = 0;
 		let onlineCount = 0;
 		const users = this.$store("users").users;
