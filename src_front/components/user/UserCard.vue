@@ -746,6 +746,7 @@ export default class UserCard extends Vue {
 			gap: 1em;
 			display: flex;
 			flex-direction: column;
+			padding-bottom: .5em;//Avoid glitchy scroll when pressing down a button if at the bottom of the scrollable holder
 			.card-item {
 				flex-shrink: 0;
 			}

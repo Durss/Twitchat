@@ -49,7 +49,7 @@
 			"command_placeholder": "!raffle",
 			"reward_join": "Participer via une récompense de points de chaîne",
 			"reward": "Récompense",
-			"duration": "Durée du tirage (minutes)",
+			"duration": "Durée du tirage ({VALUE} minutes)",
 			"limit_users": "Limiter le nombre de participant·es",
 			"max_users": "Maximum",
 			"multiple_join": "Autoriser à participer plusieurs fois",

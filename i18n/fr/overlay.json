@@ -188,7 +188,8 @@
 			"description":"Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
-			"install_shader_link":"installer le plugin Shadertastic"
+			"install_shader_link":"installer le plugin Shadertastic",
+			"add_overlay": "Créer une nouvelle distortion"
 		}
 	}
 }

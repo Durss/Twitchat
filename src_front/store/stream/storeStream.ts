@@ -544,7 +544,7 @@ export const storeStream = defineStore('stream', {
 						StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
 					}
 
-					//Parse "text" slots placeholders
+					//Parse "text" slots placeholders and remove premium-only slots
 					for (let i = 0; i < result.params.slots.length; i++) {
 						const slot = result.params.slots[i];
 						//Remove premium-only slots if not premium

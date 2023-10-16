@@ -10,6 +10,7 @@
 					</i18n-t>
 				</div>
 			</div>
+
 			<div class="card-item item info">
 				<Icon name="alert" />
 				<i18n-t scope="global" tag="span" keypath="overlay.heatDistort.install">
@@ -21,11 +22,14 @@
 					</template>
 				</i18n-t>
 			</div>
+
+			<Button class="item center" icon="add" primary>{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 		</div>
 	</ToggleBlock>
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
 import Icon from '@/components/Icon.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -34,11 +38,14 @@ import { Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		Icon,
+		Button,
 		ToggleBlock,
 	},
 	emits:[],
 })
 export default class OverrlayParamsHeatDistort extends Vue {
+
+	public distortionList:any[] = [];
 
 	public openHeat():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
@@ -62,6 +69,12 @@ export default class OverrlayParamsHeatDistort extends Vue {
 		.info {
 			a {
 				font-weight: bold;
+			}
+		}
+
+		.item {
+			&.center {
+				margin: auto;
 			}
 		}
 	}

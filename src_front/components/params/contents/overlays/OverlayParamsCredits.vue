@@ -59,10 +59,10 @@
 
 							<template #right_actions>
 								<div class="rightActions">
-									<Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
+									<!-- <Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
 									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
-									@click.prevent="openPremium()" />
+									@click.prevent="openPremium()" /> -->
 
 									<button class="deleteBt" transparent @click.stop="deleteSlot(element)"><Icon name="cross" /></button>
 								</div>

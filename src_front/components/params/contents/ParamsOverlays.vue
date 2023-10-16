@@ -34,7 +34,8 @@
 		</div>
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
-		<OverrlayParamsHeatDistort class="block" :open="subContent == 'heatDistort'" :class="subContent == 'heatDistort'? 'selected' : ''" />
+		<!-- TODO remove "|| true" debug -->
+		<!-- <OverrlayParamsHeatDistort class="block" :open="subContent == 'heatDistort' || true" :class="subContent == 'heatDistort'? 'selected' : ''" /> -->
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />

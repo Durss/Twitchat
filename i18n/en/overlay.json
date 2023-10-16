@@ -188,7 +188,8 @@
 			"description":"This overlay make it possible for your viewers to distort your stream rendering by clicking on it.",
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
-			"install_shader_link":"install Shadertastic"
+			"install_shader_link":"install Shadertastic",
+			"add_overlay": "Create new distortion"
 		}
 	}
 }
