@@ -15,6 +15,7 @@
 		"readMark_info":"Déplacer le marque-page via les encodeurs",
 		"readMark_select_encoder":"Sélectionnez un preset puis l'encodeur avec lequel déplacer le marque-page de cette colonne",
 		"pitch_warning":"⚠️ L'encodeur de pitch a des contraintes le rendant inadéquat pour défiler le tchat. Le défilement risque d'être saccadé ou de ne pas fonctionner selon les paramètres d'effet.",
+		"goxlrmini_alert":"Le contrôle du tchat depuis les encoders n'est pas possible depuis une GoXLR mini car elle ne possède pas les entrées nécessaires",
 		"infos":[
 			"Une fois votre GoXLR connectée vous pouvez la contrôler depuis les Triggers. Vous pouvez également effectuer des actions personnalisés lorsque vous utilisez l'un de ses boutons grâce aux évènement de Triggers dédiés.",
 			"Vous pouvez par exemple permettre à vos viewers d'activer un preset d'FX via une récompense de points de chaîne, une commande tchat, un sub, des bits, ...",

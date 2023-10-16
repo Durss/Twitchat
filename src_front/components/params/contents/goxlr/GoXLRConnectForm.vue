@@ -59,7 +59,9 @@ export default class GoXLRConnectForm extends Vue {
 		this.connecting = true;
 		try {
 			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
-				StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+				if(!this.$store("auth").isPremium) {
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+				}
 			});
 		}catch(error) {
 			console.log(error);

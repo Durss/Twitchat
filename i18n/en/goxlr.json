@@ -15,6 +15,7 @@
 		"readMark_info":"Move read marker with encoders",
 		"readMark_select_encoder":"Select an FX preset then the encoder you want to move this column's read marker with",
 		"pitch_warning":"⚠️ Pitch encoder has limits that makes it not very suitable for this usage. Scrolling might be glitchy or not work depending on some settings.",
+		"goxlrmini_alert":"Chat control from encoders is not possible on GoXLR mini has it's lacking necessary inputs",
 		"infos":[
 			"Once your GoXLR is connected you can control it or automate actions when using some of its buttons thanks to the Triggers system.",
 			"For example you can allow your viewers to enable an FX preset from a channel point rewards, a chat command, a subscription, bits, ...",

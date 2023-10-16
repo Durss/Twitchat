@@ -22,7 +22,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	private _connecting!: boolean;
 	private _currentProfile!: string;
 	private _profileList: string[] = [];
-	private _connectingPromise: Promise<void>|null= null;
+	private _connectingPromise: Promise<boolean>|null= null;
 	private _socket!: WebSocket;
 	private _autoReconnect: boolean = false;
 	private _id:number = 1;
@@ -79,12 +79,12 @@ export default class GoXLRSocket extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public connect(ip:string="127.0.0.1", port:number=14564): Promise<void> {
+	public connect(ip:string="127.0.0.1", port:number=14564): Promise<boolean> {
 		if(!StoreProxy.auth.isPremium) {
 			return Promise.reject("not premium");
 		}
 
-		if(this.connected) return Promise.resolve();
+		if(this.connected) return Promise.resolve(true);
 		if(this._connecting && this._connectingPromise) return this._connectingPromise;
 		this._connecting = true;
 		StoreProxy.params.setGoXLRConnectParams(ip, port);
@@ -116,7 +116,7 @@ export default class GoXLRSocket extends EventDispatcher {
 						}, 1000)
 					}catch(error) {
 						console.log(error);
-						reject(error);
+						resolve(false);
 					}
 				}
 			}
@@ -124,7 +124,7 @@ export default class GoXLRSocket extends EventDispatcher {
 			this._socket.onerror = (e) => {
 				this._connecting = false;
 				console.log("🎤 GoXLR connection failed");
-				reject(e);
+				resolve(false);
 			}
 		});
 		return this._connectingPromise;
@@ -654,7 +654,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				this._connecting = false;
 				this.connected = true;
 				this._autoReconnect = true;
-				this._initResolver();
+				this._initResolver(true);
 			}
 			this._status = reactive(result.Status)!;
 			this.status = this._status? this._status.mixers[this._deviceId] : null;
