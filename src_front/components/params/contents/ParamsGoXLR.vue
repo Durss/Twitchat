@@ -25,11 +25,11 @@
 			<img src="@/assets/img/goxlr_features.png" alt="goxlr" class="interfaceExample">
 		</template>
 
-		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
-			<section class="card-item alert error" v-if="noDevice">
-				<div class="item">{{ $t("goxlr.no_device") }}</div>
-			</section>
+		<section class="card-item alert error" v-if="connected && noDevice">
+			<div class="item">{{ $t("goxlr.no_device") }}</div>
+		</section>
 
+		<div class="fadeHolder" :style="subholderStyles" v-if="connected">
 			<ToggleBlock :icons="['scroll']" :title="$t('goxlr.scroll_info')">
 				<ParamItem class="item" :paramData="param_chatColIndexScroll" noBackground @change="onSelectChatColumnIndex()" />
 				
@@ -51,6 +51,10 @@
 					<GoXLRUI class="item" childMode knobMode v-model="knobSelectionReadMark" @change="onGoXLRSelectionChange(true)" />
 				</template>
 			</ToggleBlock>
+		</div>
+		
+		<div class="card-item secondary goxlrmini" v-if="connected && isGoXLRMini">
+			<Icon name="alert" />{{ $t("goxlr.goxlrmini_alert") }}
 		</div>
 		
 		<section class="card-item info">
@@ -114,6 +118,10 @@ export default class ParamsGoXLR extends Vue {
 	public param_chatColIndexScroll:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 	public param_chatColIndexMarkRead:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"goxlr.param_chat_col"};
 
+	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
+	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
+	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
+
 	public get holderStyles():StyleValue {
 		return {
 			opacity:this.param_enabled.value === true && !this.connecting? 1 : .5,
@@ -123,14 +131,10 @@ export default class ParamsGoXLR extends Vue {
 
 	public get subholderStyles():StyleValue {
 		return {
-			opacity:this.connected === true && !this.connecting? 1 : .35,
+			opacity:this.connected === true && !this.connecting && !this.isGoXLRMini? 1 : .35,
 			pointerEvents:this.connected === true && !this.connecting? "all" : "none",
 		};
 	}
-
-	public get connected():boolean { return GoXLRSocket.instance.connected === true; }
-	public get noDevice():boolean { return GoXLRSocket.instance.status == null; }
-	public get isGoXLRMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
 	public beforeMount():void {
 		this.param_enabled.value = this.$store("params").goxlrConfig.enabled;
@@ -235,6 +239,13 @@ export default class ParamsGoXLR extends Vue {
 			.emboss();
 			width: 200px;
 			border-radius: var(--border-radius);
+		}
+	}
+
+	.goxlrmini {
+		.icon {
+			height: 1em;
+			margin-right: .5em;
 		}
 	}
 

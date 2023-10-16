@@ -302,6 +302,12 @@ export default class DataStore {
 			v = 48;
 		}
 		if(v==48) {
+			//Some users still have an old trigger data format :/
+			//THey have an empty(?) object instead of an array
+			const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+			if(triggers && !Array.isArray(triggers)) {
+				data[DataStore.TRIGGERS] = [];
+			}
 			if(data[this.ENDING_CREDITS_PARAMS]?.scale) {
 				data[this.ENDING_CREDITS_PARAMS].scale = 30;
 			}
@@ -1354,7 +1360,7 @@ export default class DataStore {
 	private static migrateTriggersDelay(data:any):void {
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
 
-		if(triggers) {
+		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				if(t.rewardId && t.type != TriggerTypes.REWARD_REDEEM) {
 					delete t.rewardId;//Compensate for migration mistake. Useless data
@@ -1401,7 +1407,7 @@ export default class DataStore {
 			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
 
-		if(triggers) {
+		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				if(t.cooldown) {
 					if(!t.cooldown.user) t.cooldown.user = 0;
