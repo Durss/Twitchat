@@ -1049,10 +1049,16 @@ import Ajv from "ajv";
 					minItems:0,
 					maxItems:10,
 					items:{
-						type:"array",
-						minItems:0,
-						maxItems:2,
-						items:{type:"string", maxLength:30},
+							anyOf: [{
+								type:"array",
+								minItems:0,
+								maxItems:2,
+								items: { type: "string", maxLength: 30 },
+							},
+							//Can be null if only setting params for the 2nd column for example, the first
+							//index will be "null" until parameters are set
+							{ type: "null" },
+						]
 					}
 				}
 			}
