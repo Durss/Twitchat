@@ -173,9 +173,19 @@
 				"param_actions": "Action",
 				"param_actions_default": "Select an action...",
 				"param_track": "Track to add (name or URL)",
-				"param_confirmSongRequest": "Send confirmation message",
+				"param_confirmSongRequest": "Confirmation message (optional)",
+				"param_failSongRequest": "Send a message if song request failed (optional)",
+				"param_limit_duration":"Limit allowed track duration",
+				"param_max_duration":"Only allow tracks shorter than {VALUE} seconds",
 				"param_playlist": "Playlist (name, link or ID)",
-				"spotify_only": "Only works with Spotify"
+				"spotify_only": "Only works with Spotify",
+				"fail_reasons": {
+					"spotify_not_connected":"Twitchat is not connected with Spotify",
+					"wrong_url":"The given URL isn't a valid Spotify URL",
+					"max_duration":"The given track is longer than the {DURATION} maximum allowed",
+					"api":"Something went wrong when requesting Spotify to add the track to queue.",
+					"no_result":"No track found for given search"
+				}
 			},
 			"obs": {
 				"header": "This feature needs you to {LINK}",
@@ -520,7 +530,8 @@
 			"goxlr_fader_2_mute":"Fader 2 muted",
 			"goxlr_fader_3_mute":"Fader 3 muted",
 			"goxlr_fader_4_mute":"Fader 4 muted",
-			"announcement_color":"Couleur de l'annonce"
+			"announcement_color":"Couleur de l'annonce",
+			"track_add_fail_reason":"Track add fail reason"
 		},
 		"events": {
 			"CHAT_COMMAND": {

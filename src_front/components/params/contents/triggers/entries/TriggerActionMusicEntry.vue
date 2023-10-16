@@ -11,15 +11,19 @@
 	</div>
 
 	<div class="TriggerActionMusicEntry triggerActionForm" v-else>
-		<ParamItem 							:paramData="actions_conf" v-model="action.musicAction" />
-		<ParamItem v-if="showTrackInput"	:paramData="track_conf" v-model="action.track" />
-		<ParamItem v-if="showTrackInput"	:paramData="confirmSongRequest_conf" v-model="action.confirmMessage" />
-		<ParamItem v-if="showPlaylistInput"	:paramData="playlist_conf" v-model="action.playlist" />
+		<ParamItem 								:paramData="param_actions"			v-model="action.musicAction" />
+		<ParamItem v-if="showTrackInput"		:paramData="param_limitDuration"	v-model="action.limitDuration">
+			<ParamItem v-if="showTrackInput"	:paramData="param_maxDuration"		v-model="action.maxDuration" />
+		</ParamItem>
+		<ParamItem v-if="showTrackInput"		:paramData="param_track"			v-model="action.track" />
+		<ParamItem v-if="showTrackInput"		:paramData="param_confirmSongRequest" v-model="action.confirmMessage" />
+		<ParamItem v-if="showTrackInput"		:paramData="param_failSongRequest"	v-model="action.failMessage" />
+		<ParamItem v-if="showPlaylistInput"		:paramData="param_playlist"			v-model="action.playlist" />
 	</div>
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue, TriggerActionPlaceholders } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -40,14 +44,17 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	@Prop
 	declare triggerData:TriggerData;
 
-	public actions_conf:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music" };
-	public track_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500 };
-	public confirmSongRequest_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:500 };
-	public playlist_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500 };
+	public param_actions:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music", labelKey:"triggers.actions.music.param_actions" };
+	public param_limitDuration:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timer", labelKey:"triggers.actions.music.param_limit_duration" };
+	public param_maxDuration:TwitchatDataTypes.ParameterData<number> = { type:"number", value:300, icon:"timer", max:3600, labelKey:"triggers.actions.music.param_max_duration" };
+	public param_track:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500, labelKey:"triggers.actions.music.param_track" };
+	public param_confirmSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"checkmark", maxLength:500, labelKey:"triggers.actions.music.param_confirmSongRequest" };
+	public param_failSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"{FAIL_REASON}", icon:"cross", maxLength:500, labelKey:"triggers.actions.music.param_failSongRequest" };
+	public param_playlist:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500, labelKey:"triggers.actions.music.param_playlist" };
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
-	public get showTrackInput():boolean { return this.actions_conf.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
-	public get showPlaylistInput():boolean { return this.actions_conf.value == TriggerMusicTypes.START_PLAYLIST; }
+	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
+	public get showPlaylistInput():boolean { return this.param_actions.value == TriggerMusicTypes.START_PLAYLIST; }
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
@@ -57,12 +64,8 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 		events.push( {labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC} ),
 		
 		events = events.concat(MusicTriggerEvents());
-		this.actions_conf.value					= this.action.musicAction? this.action.musicAction : events[0].value;
-		this.actions_conf.listValues			= events;
-		this.actions_conf.labelKey				= "triggers.actions.music.param_actions";
-		this.track_conf.labelKey				= "triggers.actions.music.param_track";
-		this.confirmSongRequest_conf.labelKey	= "triggers.actions.music.param_confirmSongRequest";
-		this.playlist_conf.labelKey				= "triggers.actions.music.param_playlist";
+		this.param_actions.value		= this.action.musicAction? this.action.musicAction : events[0].value;
+		this.param_actions.listValues	= events;
 
 	}
 
@@ -70,9 +73,10 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.track_conf.placeholderList = list;
-		this.confirmSongRequest_conf.placeholderList = list.concat(TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
-		this.playlist_conf.placeholderList = list;
+		this.param_track.placeholderList = list;
+		this.param_confirmSongRequest.placeholderList = list.concat(TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
+		this.param_failSongRequest.placeholderList = list.concat(TriggerActionPlaceholders(this.action.type), TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE));
+		this.param_playlist.placeholderList = list;
 	}
 
 }

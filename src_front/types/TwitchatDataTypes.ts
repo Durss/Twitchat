@@ -2840,7 +2840,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Info about the track that's been added to the queue
 		 */
-		trackAdded:MusicTrackData;
+		trackAdded?:MusicTrackData;
 		/**
 		 * User that added the track
 		 */
@@ -2853,6 +2853,16 @@ export namespace TwitchatDataTypes {
 		 * Trigger ID that executed the song request
 		 */
 		triggerIdSource?:string;
+		/**
+		 * If set, adding to queue failed.
+		 * This contains the failure reason
+		 */
+		failReason?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result";
+		/**
+		 * Maximum allowed duration by the trigger action that
+		 * executed the track add
+		 */
+		maxDuration?:number;
 	}
 
 	/**

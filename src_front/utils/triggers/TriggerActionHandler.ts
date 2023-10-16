@@ -1561,11 +1561,14 @@ export default class TriggerActionHandler {
 					try {
 						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
 						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+SpotifyHelper.instance.connected});
+						let success = false;
+						let failReason:TwitchatDataTypes.MessageMusicAddedToQueueData["failReason"] = undefined;
+						if(!SpotifyHelper.instance.connected) failReason = "spotify_not_connected";
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
-							let data:TwitchatDataTypes.MusicTrackData|null = null;
+							let data:TwitchatDataTypes.MusicTrackData|undefined = undefined;
 							if(SpotifyHelper.instance.connected) {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
@@ -1578,12 +1581,18 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
 									log.error = true;
 									logStep.error = true;
+									failReason = "wrong_url";
 								}else{
 									//No URL given, search with API
 									track = await SpotifyHelper.instance.searchTrack(m);
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track success: "+(track != null)});
 								}
 								if(track) {
+									const maxDuration = (step.maxDuration || 0)*1000;
+									if(step.limitDuration === true && track.duration_ms > maxDuration) {
+										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
+										failReason = "max_duration";
+									}else
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
 										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
 										data = {
@@ -1594,29 +1603,38 @@ export default class TriggerActionHandler {
 											duration:track.duration_ms,
 											url:track.external_urls.spotify,
 										};
+										success = true;
 									}else{
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
 										log.error = true;
 										logStep.error = true;
+										failReason = "api";
 									}
+								}else{
+									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, nor result found for search \""+m+"\""});
+									log.error = true;
+									logStep.error = true;
+									failReason = "no_result";
 								}
 							}
+
+							const trackAddedMesssageData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
+								id:Utils.getUUID(),
+								date:Date.now(),
+								platform:"twitchat",
+								type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
+								trackAdded:data,
+								message:m,
+								user:executingUser,
+								triggerIdSource:trigger.id,
+								failReason,
+								maxDuration:step.maxDuration,
+							};
+							StoreProxy.chat.addMessage(trackAddedMesssageData);
 
 							//A track has been found and added
 							if(data) {
 								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
-
-								const trackAddedMesssageData:TwitchatDataTypes.MessageMusicAddedToQueueData = {
-									id:Utils.getUUID(),
-									date:Date.now(),
-									platform:"twitchat",
-									type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-									trackAdded:data,
-									message:m,
-									user:executingUser,
-									triggerIdSource:trigger.id,
-								};
-								StoreProxy.chat.addMessage(trackAddedMesssageData);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
@@ -1624,6 +1642,16 @@ export default class TriggerActionHandler {
 									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
+							}else{
+
+								//The step is requesting to send message if track failed to be added
+								if(step.failMessage) {
+									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
+									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
+									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failReason, {DURATION:Utils.formatDuration((step.maxDuration || 0)*1000)}));
+									MessengerProxy.instance.sendMessage(chatMessage);
+								}
+
 							}
 						}else
 						

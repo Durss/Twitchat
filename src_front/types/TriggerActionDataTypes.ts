@@ -399,6 +399,9 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	musicAction:TriggerMusicTypesValue;
 	track:string;
 	confirmMessage:string;
+	limitDuration?:boolean;
+	maxDuration?:number;
+	failMessage?:string;
 	playlist:string;
 }
 
@@ -714,6 +717,9 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 
 	const map:Partial<{[key in NonNullable<TriggerActionStringTypes>]:ITriggerPlaceholder<any>[]}> = {
 		//None
+		"music":[
+			{tag:"FAIL_REASON", descKey:'triggers.placeholders.track_add_fail_reason', pointer:"__track_fail__", numberParsable:false, isUserID:false},
+		]
 	}
 
 	actionPlaceholdersCache = map;

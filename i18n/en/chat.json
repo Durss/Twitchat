@@ -383,6 +383,7 @@
 		},
 		"added_to_queue": {
 			"title": "{USER} added following track to the queue:",
+			"title_fail": "{USER} failed adding a track to the queue.",
 			"open_track": "Open track's page",
 			"ban_user": "Prevent this user from adding other tracks",
 			"unban_user": "Allow this user to add tracks again"

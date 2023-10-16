@@ -1,5 +1,5 @@
 <template>
-	<button class="closebutton">
+	<button :class="classes">
 		<Icon class="icon" name="cross" :theme="theme"/>
 	</button>
 </template>
@@ -15,6 +15,18 @@ export default class CloseButton extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;
+
+	@Prop({type:Boolean, default:false})
+	public small!:boolean;
+
+	public classes:string[] = [];
+
+	public beforeMount():void {
+		this.classes.push("closebutton");
+		if(this.small !== false)  {
+			this.classes.push("small");
+		}
+	}
 
 }
 </script>
@@ -36,6 +48,9 @@ export default class CloseButton extends Vue {
 		.icon {
 			transform: scale(1.2);
 		}
+	}
+	&.small {
+		padding: .5em;
 	}
 }
 </style>

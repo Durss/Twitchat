@@ -174,9 +174,19 @@
 				"param_actions": "Action",
 				"param_actions_default": "Selectionnez une action...",
 				"param_track": "Morceau à ajouter (nom, URL ou ID)",
-				"param_confirmSongRequest": "Envoyer un message de confirmation",
+				"param_confirmSongRequest": "Message de confirmation (optionnel)",
+				"param_failSongRequest": "Message en cas d'échec (optionnel)",
+				"param_limit_duration":"Limiter la durée maximum autorisée",
+				"param_max_duration":"N'autoriser que les morceaux de moins de {VALUE} secondes",
 				"param_playlist": "Playlist (nom, URL ou ID)",
-				"spotify_only": "Fonctionne uniquement avec Spotify"
+				"spotify_only": "Fonctionne uniquement avec Spotify",
+				"fail_reasons": {
+					"spotify_not_connected":"Twitchat n'est pas connecté à Spotify",
+					"wrong_url":"L'URL donnée n'est pas une URL Spotify valide",
+					"max_duration":"Le morceau est plus long que le maximum autorisé de {DURATION}",
+					"api":"Une erreur a eu lieu lors de la demande d'ajout à Spotify.",
+					"no_result":"Aucun morceau trouvé pour la recherche donnée."
+				}
 			},
 			"obs": {
 				"header": "Veuillez {LINK}",
@@ -520,7 +530,8 @@
 			"goxlr_fader_2_mute":"Fader 2 mis en sourdine",
 			"goxlr_fader_3_mute":"Fader 3 mis en sourdine",
 			"goxlr_fader_4_mute":"Fader 4 mis en sourdine",
-			"announcement_color":"Couleur de l'annonce"
+			"announcement_color":"Couleur de l'annonce",
+			"track_add_fail_reason":"Raison de l'échec d'ajout du morceau"
 		},
 		"events": {
 			"CHAT_COMMAND": {

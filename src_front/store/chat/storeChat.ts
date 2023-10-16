@@ -1344,7 +1344,7 @@ export const storeChat = defineStore('chat', {
 				}
 			}else{
 				messageList.splice(i, 1);
-				Database.instance.updateMessage(message);
+				Database.instance.deleteMessage(message);
 			}
 			
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));

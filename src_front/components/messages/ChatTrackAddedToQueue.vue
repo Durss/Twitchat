@@ -1,13 +1,13 @@
 <template>
-	<div class="chattrackaddedtoqueue chatMessage"
+	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="music" alt="notice" class="icon"/>
-		<CloseButton class="closeBt" @click.stop="deleteMessage()" />
+		<CloseButton class="closeBt" @click.stop="deleteMessage()" small />
 
 		<div class="messageHolder">
-			<i18n-t scope="global" tag="span" keypath="chat.added_to_queue.title">
+			<i18n-t scope="global" tag="span" :keypath="messageData.trackAdded? 'chat.added_to_queue.title' : 'chat.added_to_queue.title_fail'">
 				<template #USER>
 					<template v-if="messageData.user">
 						<a class="userlink"
@@ -19,16 +19,20 @@
 				</template>
 			</i18n-t>
 
-			<div class="trackHolder">
-				<img :src="messageData.trackAdded?.cover" alt="cover" class="cover">
-				<div class="trackInfo">
-					<strong>{{ messageData.trackAdded.title }}</strong>
-					<span>{{ messageData.trackAdded.artist }}</span>
+			<div class="trackHolder" v-if="messageData.trackAdded">
+				<div class="coverAndInfos">
+					<img :src="messageData.trackAdded?.cover" alt="cover" class="cover">
+					<div class="trackInfo">
+						<strong>{{ messageData.trackAdded.title }}</strong>
+						<span>{{ messageData.trackAdded.artist }}</span>
+					</div>
 				</div>
 				<Button class="cta" icon="newTab" type="link" :href="messageData.trackAdded.url" target="_blank" v-tooltip="$t('chat.added_to_queue.open_track')" />
 				<Button class="cta" icon="music" v-if="canBanFromSR && !isBanned" @click.stop="banFromSR()" primary v-tooltip="$t('chat.added_to_queue.ban_user')" />
 				<Button class="cta" icon="noMusic" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
 			</div>
+
+			<div class="trackHolder" v-else>{{ $t("triggers.actions.music.fail_reasons."+messageData.failReason, {DURATION:maxDuration}) }}</div>
 		</div>
 	</div>
 </template>
@@ -40,6 +44,7 @@ import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -53,6 +58,12 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageMusicAddedToQueueData;
+
+	public classes:string[] = ["chattrackaddedtoqueue", "chatMessage", "highlight"];
+
+	public get maxDuration():string {
+		return Utils.formatDuration((this.messageData.maxDuration || 0) * 1000);
+	}
 
 	public get canBanFromSR():boolean {
 		if(!this.messageData.user) return false;
@@ -68,6 +79,12 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 		const trigger = this.$store("triggers").triggerList.find(v=>v.id === this.messageData.triggerIdSource);
 		if(!trigger || !trigger.permissions) return false;
 		return (trigger.permissions.usersRefused || []).findIndex(v=>v.toLowerCase() === this.messageData.user!.login.toLowerCase()) > -1;
+	}
+
+	public beforeMount(): void {
+		if(this.messageData.failReason) {
+			this.classes.push("error");
+		}
 	}
 
 	public banFromSR():void {
@@ -131,12 +148,23 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 		display: flex;
 		flex-direction: row;
 		align-items: center;
-		.trackInfo {
+		flex-wrap: wrap;
+		width: 100%;
+		.coverAndInfos {
+			flex-grow: 1;
+			gap: .5em;
 			display: flex;
-			flex-direction: column;
-		}
-		.cover {
-			height: 3em;
+			flex-direction: row;
+			align-items: center;
+			flex-basis: 200px;
+			flex-grow: 1;
+			.trackInfo {
+				display: flex;
+				flex-direction: column;
+			}
+			.cover {
+				height: 3em;
+			}
 		}
 
 		.cta {
