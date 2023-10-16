@@ -10,6 +10,8 @@ import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IRaffleActions, type IRaffleGetters, type IRaffleState } from '../StoreProxy';
 
 let currentRaffleData:TwitchatDataTypes.RaffleData | null = null;
+let confirmSpool:TwitchatDataTypes.TwitchatUser[] = [];
+let debounceConfirm:number = -1;
 
 export const storeRaffle = defineStore('raffle', {
 	state: () => ({
@@ -172,9 +174,26 @@ export const storeRaffle = defineStore('raffle', {
 				}
 				
 				if(sChat.botMessages.raffleJoin.enabled) {
-					let message = sChat.botMessages.raffleJoin.message;
-					message = message.replace(/\{USER\}/gi, user.displayNameOriginal)
-					MessengerProxy.instance.sendMessage(message, [user.platform]);
+					clearTimeout(debounceConfirm);
+					confirmSpool.push(user);
+					let message = "";
+					let userCount = 0;
+					while(message.length < 500 && userCount < confirmSpool.length) {
+						userCount ++;
+						message = sChat.botMessages.raffleJoin.message;
+						message = message.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).map(v=> v.displayNameOriginal).join(", @"));
+					}
+					
+					if(message.length >= 500) {
+						message = sChat.botMessages.raffleJoin.message;
+						message = message.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).map(v=> v.displayNameOriginal).join(", @"));
+						MessengerProxy.instance.sendMessage(message, [user.platform]);
+					}else if(message) {
+						debounceConfirm = setTimeout(() => {
+							confirmSpool = [];
+							MessengerProxy.instance.sendMessage(message, [user.platform]);
+						}, 500);
+					}
 				}
 				return true;
 			}
