@@ -136,6 +136,14 @@ export default class Config {
 	 * Maxium number of items per categories to be displayed when not premium
 	 */
 	public MAX_ENDING_CREDIT_ENTRIES = 10;
+	/**
+	 * Maxium number of distortion overlays
+	 */
+	public MAX_DISTORTION_OVERLAYS = 1;
+	/**
+	 * Maxium number of distortion overlays for premium
+	 */
+	public MAX_DISTORTION_OVERLAYS_PREMIUM = 20;//TODO limit counters count for premium. Unlimitted for now
 	
 	private _serverConfig!:ServerConfig;
 	

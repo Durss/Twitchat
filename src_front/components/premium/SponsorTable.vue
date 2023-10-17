@@ -1,6 +1,6 @@
 <template>
 	<div class="sponsortable card-item">
-		<table ref="list">
+		<table ref="list" @wheel="scrollList($event)">
 			<tr>
 				<th v-for="(h, index) in $tm('premium.supportTable.headers')"
 				:class="'card-item '+['', 'primary', 'secondary','premium'][index as number]"
@@ -13,7 +13,22 @@
 				</th>
 			</tr>
 			<tr v-for="(line, index) in entries" :ref="'row_'+index">
-				<td v-for="(item, index) in line">
+				<template v-if="line[1] == line[2]">
+					<td>• {{ line[0] }}</td>
+					<td colspan="2" class="half">
+						<Icon name="checkmark" v-if="line[1] === 1" />
+						<Icon name="cross" v-else-if="line[1] === 0" />
+						<span class="tild" v-else-if="($config.getParamByKey(line[1] as string) || line[1]) === '~'">~</span>
+						<template v-else>{{ $config.getParamByKey(line[1] as string) || line[1] }}</template>
+					</td>
+					<td class="premium">
+						<Icon name="checkmark" v-if="line[3] === 1" />
+						<Icon name="cross" v-else-if="line[3] === 0" />
+						<span class="tild" v-else-if="($config.getParamByKey(line[3] as string) || line[3]) === '~'">~</span>
+						<template v-else>{{ $config.getParamByKey(line[3] as string) || line[3] }}</template>
+					</td>
+				</template>
+				<td v-else v-for="(item, index) in line">
 					<template v-if="index==0">• </template>
 					<Icon name="checkmark" v-if="item === 1" />
 					<Icon name="cross" v-else-if="item === 0" />
@@ -32,7 +47,6 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { gsap } from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 
-
 @Component({
 	components:{},
 	emits:["scrollBy"]
@@ -40,6 +54,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class SponsorTable extends Vue {
 
 	public expanded:boolean = false;
+	private currentRowIndex:number = 0;
 
 	public get entries():(string|number)[][] {
 		let list = this.$tm('premium.supportTable.features') as (string|number)[][];
@@ -66,8 +81,9 @@ export default class SponsorTable extends Vue {
 	}
 
 	public expand(rowIndex:number, animate:boolean = true):void {
+		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-2, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
-		const item = (this.$refs["row_"+rowIndex] as HTMLTableRowElement[])[0];
+		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
 		const boundsList = list.getBoundingClientRect();
 		const boundsItem = item.getBoundingClientRect();
 		const height = boundsItem.bottom - boundsList.top;
@@ -78,14 +94,28 @@ export default class SponsorTable extends Vue {
 			setTimeout(()=>this.expand(rowIndex, animate), 30);
 			return;
 		}
-		gsap.to(list, {duration:animate? 1: 0, ease:"sine.inout", height});
+		const duration = animate?Math.min(1, Math.abs(added)/400):0;
+		gsap.to(list, {duration, ease:"sine.inout", height});
 		this.$emit("scrollBy", added);
 		if(added > 0 && animate) {
 			//Dunno which parent is the scrollable one. Try 2 levels upward.
 			//Too lazy to handle this on every parent integrating this component but there's the "@scrollBy"
 			//event fired just in case..
-			gsap.to((this.$el as HTMLElement).parentElement, {duration:animate?1:0, scrollTop:"+"+added});
-			gsap.to(((this.$el as HTMLElement).parentElement as HTMLElement).parentElement, {duration:animate?1:0, scrollTop:"+"+added});
+			let scrollableHolder = document.getElementById("paramContentScrollableHolder") as HTMLDivElement;
+			if(!scrollableHolder) scrollableHolder = (this.$el as HTMLElement).parentElement as HTMLDivElement;
+			gsap.killTweensOf(scrollableHolder);
+			gsap.to(scrollableHolder, {duration, scrollTop:scrollableHolder.scrollTop + added});
+			gsap.to(scrollableHolder, {duration, scrollTop:scrollableHolder.scrollTop + added});
+		}
+	}
+
+	public scrollList(event:WheelEvent):void {
+		const add = event.deltaY > 0? 3 : -3;
+		const newRow = this.currentRowIndex + add;
+		this.expand(newRow, true);
+
+		if(newRow == this.currentRowIndex) {
+			event.preventDefault();
 		}
 	}
 
@@ -108,7 +138,6 @@ export default class SponsorTable extends Vue {
 		width: 100%;
 		min-width: 100%;
 		overflow: hidden;
-		// border-radius: 0;
 		tr {
 			width: 100%;
 			th {
@@ -148,13 +177,20 @@ export default class SponsorTable extends Vue {
 					text-align: left;
 				}
 				&:nth-child(2) {
-					background-color: var(--color-primary-fadest);
+					font-weight: 400;
+					&:not(.half) {
+						background-color: var(--color-primary-fadest);
+					}
 				}
 				&:nth-child(3) {
 					background-color: var(--color-secondary-fader);
 				}
-				&:nth-child(4) {
+				&:nth-child(4), &.premium {
+					font-weight: 400;
 					background-color: var(--color-premium-fader);
+				}
+				&.half {
+					background-image: linear-gradient(90deg, var(--color-primary-fadest) 30%, var(--color-secondary-fader) 70%);
 				}
 				.icon {
 					height: 1em;
