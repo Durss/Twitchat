@@ -324,7 +324,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 			//If it's a notice type
 			if(triggerEvent.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-				this.$store("debug").simulateNotice(triggerEvent.testNoticeType, (data)=> {
+				this.$store("debug").simulateNotice<TwitchatDataTypes.MessageNoticeData>(triggerEvent.testNoticeType, (data)=> {
 					const m = data as TwitchatDataTypes.MessageNoticeData;
 					switch(m.noticeId) {
 						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
@@ -339,7 +339,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 				
 			//If it's any other message type
 			}else{
-				this.$store("debug").simulateMessage(triggerEvent.testMessageType, (data)=> {
+				this.$store("debug").simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 					let m = data
 					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
