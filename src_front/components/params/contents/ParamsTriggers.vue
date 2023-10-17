@@ -500,6 +500,11 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED || triggerEvent.value == TriggerTypes.GOXLR_FX_DISABLED) {
 						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).enabled = triggerEvent.value == TriggerTypes.GOXLR_FX_ENABLED;
 						(m as TwitchatDataTypes.MessageGoXLRFXEnableChangeData).fxIndex = Utils.pickRand([0,1,2,3,4,5]);
+					}else
+
+					if(triggerEvent.value == TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE) {
+						//Remove ban duration so it counts as a ban, not a timeout
+						(m as TwitchatDataTypes.MessageCommunityChallengeContributionData).challenge.progress = (m as TwitchatDataTypes.MessageCommunityChallengeContributionData).challenge.goal;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);
