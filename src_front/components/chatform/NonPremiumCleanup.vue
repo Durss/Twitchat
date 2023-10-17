@@ -144,6 +144,8 @@ import type { TriggerListEntry } from '../params/contents/triggers/TriggerList.v
 import TriggerListItem from '../params/contents/triggers/TriggerListItem.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 
+//TODO add distort overlays
+
 @Component({
 	components:{
 		Icon,

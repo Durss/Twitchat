@@ -14,7 +14,7 @@
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<OverlayInstaller class="item installer" id="wheel" />
+				<OverlayInstaller class="item installer" type="wheel" />
 			</div>
 
 			<template v-if="overlayExists || true">

@@ -189,10 +189,15 @@
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
+			"install_overlay":"It is advised you place this overlay and all other distortion overlays on a dedicated scene out of view.\nThen include that scene on every necessary scene.",
 			"add_overlay": "Create new distortion",
 			"param_enabled": "Distortion enabled",
 			"param_shape": "Distortion shape",
 			"permissions_title": "Permissions"
+		},
+		"tts": {
+			"title":"Text to speech",
+			"description":"Allows you to read messages from an overlay so you can better control audio."
 		}
 	}
 }

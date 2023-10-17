@@ -20,6 +20,10 @@
 			<button class="backBt" @click="showInput = false" v-if="obsConnected"><Icon name="back" /></button>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 		</div>
+
+		<div class="card-item instructions" v-if="showInput">
+			<slot name="instructions"></slot>
+		</div>
 	</div>
 </template>
 
@@ -27,7 +31,7 @@
 import Button from '@/components/Button.vue';
 import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -38,14 +42,23 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 })
 export default class OverlayInstaller extends Vue {
 
+	@Prop({type:String, default:""})
+	public id!:string;
+
 	@Prop()
-	public id!:TwitchatDataTypes.OverlayTypes;
+	public type!:TwitchatDataTypes.OverlayTypes;
 
 	@Prop({default:"", type:String})
 	public url!:string;
 
+	@Prop({default:{}, type:Object})
+	public sourceTransforms!:Partial<SourceTransform>;
+
 	@Prop({default:false, type:Boolean})
 	public disabled!:boolean;
+
+	@Prop({default:"", type:String})
+	public sourceSuffix!:string;
 
 	public showInput:boolean = false;
 	public showSuccess:boolean = false;
@@ -55,14 +68,20 @@ export default class OverlayInstaller extends Vue {
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; };
 
-	public get localURL():string { return this.url != ""? this.url : this.$overlayURL(this.id); };
+	public get localURL():string {
+		const url = new URL(this.url != "" ? this.url : this.$overlayURL(this.type));
+		if(this.id != "") url.searchParams.append("twitchat_overlay_id", this.id);
+		return url.href;
+	};
 
 	/**
 	 * Creates an OBS browser source
 	 */
 	public async createBrowserSource():Promise<void> {
 		clearTimeout(this.successTO);
-		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, "Twitchat_"+this.id);
+		let name = "Twitchat_"+this.type;
+		if(this.sourceSuffix) name += this.sourceSuffix;
+		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransforms);
 		this.showSuccess = true;
 		if(!this.isExistingSource) {
 			this.successTO = setTimeout(()=> {
@@ -77,13 +96,22 @@ export default class OverlayInstaller extends Vue {
 <style scoped lang="less">
 .overlayinstaller{
 	gap: 1em;
+	row-gap: .5em;
 	display: flex;
 	flex-direction: row;
 	align-items: center;
 	justify-content: center;
+	flex-wrap: wrap;
 	width: 100%;
 	.createBt {
 		display: flex;
+	}
+
+	.instructions {
+		.bevel();
+		background-color: var(--color-dark-fader);
+		flex-basis: 100%;
+		white-space: pre-line;
 	}
 
 	.field{

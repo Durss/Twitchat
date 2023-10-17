@@ -19,7 +19,7 @@
 
 			<ParamItem class="item shrink" :paramData="param_currency" @change="saveConfigs" />
 
-			<OverlayInstaller class="item installer" id="ulule" :url="overlayUrl" :disabled="!param_project.value" />
+			<OverlayInstaller class="item installer" type="ulule" :url="overlayUrl" :disabled="!param_project.value" />
 
 			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.ulule.css") }}</div>

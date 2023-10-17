@@ -2,7 +2,7 @@
 	<div class="overlayparamsmusic">
 		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
 			
-		<OverlayInstaller class="item installer" id="music" />
+		<OverlayInstaller class="item installer" type="music" :sourceTransforms="{width:400, height:100}" />
 		
 		<div class="params">
 			<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />

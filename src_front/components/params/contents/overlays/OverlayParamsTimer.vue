@@ -19,7 +19,7 @@
 				</i18n-t>
 			</div>
 			
-			<OverlayInstaller class="item installer" id="timer" />
+			<OverlayInstaller class="item installer" type="timer" />
 			
 			<div class="item center actions">
 				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>

@@ -35,12 +35,13 @@
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
 		<!-- TODO remove "|| true" debug -->
-		<OverrlayParamsHeatDistort class="block" :open="subContent == 'heatDistort' || true" :class="subContent == 'heatDistort'? 'selected' : ''" />
+		<OverlayParamsHeatDistort class="block" :open="subContent == 'heatDistort' || true" :class="subContent == 'heatDistort'? 'selected' : ''" />
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
+		<OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>
@@ -60,11 +61,13 @@ import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
-import OverrlayParamsHeatDistort from './overlays/OverrlayParamsHeatDistort.vue';
+import OverlayParamsHeatDistort from './overlays/OverlayParamsHeatDistort.vue';
+import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
 
 @Component({
 	components:{
 		Button,
+		OverlayParamsTTS,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
 		OverlayParamsRaffle,
@@ -72,7 +75,7 @@ import OverrlayParamsHeatDistort from './overlays/OverrlayParamsHeatDistort.vue'
 		OverlayParamsCounter,
 		OverlayParamsCredits,
 		OverlayParamsHighlight,
-		OverrlayParamsHeatDistort,
+		OverlayParamsHeatDistort,
 	},
 	emits:[]
 })

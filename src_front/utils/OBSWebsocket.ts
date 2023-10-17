@@ -359,8 +359,8 @@ export default class OBSWebsocket extends EventDispatcher {
 					sceneItemId:source.item.sceneItemId,
 				});
 				if(!visibleRes.sceneItemEnabled) continue;
-				 
-				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+				
+				let sourceTransform = source.item.sceneItemTransform;// await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
 				if(!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
@@ -804,12 +804,13 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns if an existing source has been found
 	 */
-	public async createBrowserSource(url:string, sourceName:string):Promise<boolean> {
+	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>):Promise<boolean> {
 		//List all existing OBS sources
 		const inputList = await this.obs.call("GetInputList", {inputKind:"browser_source"});
 		const urlObj = new URL(url);
 		const pathToFind = urlObj.pathname;
 		const hostToFind = urlObj.hostname;
+		const sceneName = await this.getCurrentScene();
 		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
 		//Check if the source we're about to create already exists somewhere
 		for (let i = 0; i < inputList.inputs.length; i++) {
@@ -824,18 +825,21 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 		if(existingSource) {
 			//Create a new instance of the existing overlay
-			await OBSWebsocket.instance.socket.call("CreateSceneItem", {sceneName:"Scene", sourceName:existingSource.inputName});
+			await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
+			//Name changed, update it
+			if(existingSource.inputName != sourceName) {
+				await this.obs.call("SetInputName", {inputName:existingSource.inputName, newInputName:sourceName});
+			}
 			return true;
 		}
 
 		//Create a new pre-configured browser source
 		const videoSettings = await this.obs.call("GetVideoSettings");
-		const sceneName = await this.getCurrentScene();
 		const inputSettings = {
 			fps: 60,
 			fps_custom: true,
-			width: videoSettings.baseWidth,
-			height: videoSettings.baseHeight,
+			width: sourceTransform?.width || videoSettings.baseWidth,
+			height: sourceTransform?.height || videoSettings.baseHeight,
 			url: url,
 			restart_when_active: true,
 			shutdown: true,
@@ -1078,6 +1082,7 @@ export interface OBSSourceItem {
 	sceneItemIndex:number;
 	sourceName:string;
 	sourceType:OBSSourceType;
+	sceneItemTransform:SourceTransform;
 }
 
 export interface OBSSceneItem {

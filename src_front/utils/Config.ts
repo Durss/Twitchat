@@ -133,10 +133,6 @@ export default class Config {
 	 */
 	public MAX_COUNTERS_PREMIUM = 10000;//TODO limit counters count for premium. Unlimitted for now
 	/**
-	 * Maxium number of items per categories to be displayed when not premium
-	 */
-	public MAX_ENDING_CREDIT_ENTRIES = 10;
-	/**
 	 * Maxium number of distortion overlays
 	 */
 	public MAX_DISTORTION_OVERLAYS = 1;

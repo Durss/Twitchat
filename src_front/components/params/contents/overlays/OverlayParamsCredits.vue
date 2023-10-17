@@ -3,7 +3,7 @@
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.credits.head") }}</div>
-				<OverlayInstaller class="item installer" id="credits" />
+				<OverlayInstaller class="item installer" type="credits" />
 			</div>
 
 			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">

@@ -319,10 +319,12 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		const selectedItem = this.source_conf.selectedListValue as SourceItem|undefined;
 
 		if(this.filter_conf.value == "") {
-			values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
-			values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
-			values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
-			values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
+			if(selectedItem && selectedItem.type != "scene"){
+				values.push({labelKey:"triggers.actions.obs.param_action_show", value:"show"});
+				values.push({labelKey:"triggers.actions.obs.param_action_hide", value:"hide"});
+				values.push({labelKey:"triggers.actions.obs.param_action_mute", value:"mute"});
+				values.push({labelKey:"triggers.actions.obs.param_action_unmute", value:"unmute"});
+			}
 
 			if(this.isMediaSource) {
 				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});

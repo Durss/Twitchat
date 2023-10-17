@@ -14,7 +14,7 @@
 		<div class="holder">
 			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
 			
-			<OverlayInstaller class="item installer" id="chathighlight" />
+			<OverlayInstaller class="item installer" type="chathighlight" />
 
 			<div class="card-item item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>

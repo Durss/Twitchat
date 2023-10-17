@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="overrlayparamsheatdistort" :title="$t('overlay.heatDistort.title')" :icons="['heat']">
+	<ToggleBlock class="overlayparamsheatdistort" :title="$t('overlay.heatDistort.title')" :icons="['heat']">
 		<div class="holder">
 			<div class="item">
 				<div class="info">
@@ -22,10 +22,16 @@
 					</template>
 				</i18n-t>
 			</div>
+			
+			<Button class="item center" icon="add" primary @click="addDistortion()"
+			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
-			<Button class="item center" icon="add" primary @click="addDistortion()">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			<div class="card-item maximumReached" v-else>
+				<p><Icon name="alert" />You've reached the maximum distortion overlay you can create</p>
+				<Button icon="premium" premium v-if="!isPremium">{{ $t("premium.become_premiumBt") }}</Button>
+			</div>
 
-			<template v-for="(item, index) in distortionList">
+			<template v-for="(item, index) in distortionList" :key="item.id">
 				<HeatDistorParams v-model="distortionList[index]" />
 			</template>
 		</div>
@@ -40,6 +46,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import HeatDistorParams from './heat/HeatDistorParams.vue';
 import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -50,9 +57,12 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
-export default class OverrlayParamsHeatDistort extends Vue {
+export default class OverlayParamsHeatDistort extends Vue {
 
 	public distortionList:TwitchatDataTypes.HeatDistortionData[] = [];
+
+	public get isPremium():boolean{ return this.$store("auth").isPremium; }
+	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 
 	public openHeat():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
@@ -83,7 +93,7 @@ export default class OverrlayParamsHeatDistort extends Vue {
 </script>
 
 <style scoped lang="less">
-.overrlayparamsheatdistort{
+.overlayparamsheatdistort{
 	.holder{
 		display: flex;
 		flex-direction: column;
@@ -104,6 +114,14 @@ export default class OverrlayParamsHeatDistort extends Vue {
 			&.center {
 				margin: auto;
 			}
+		}
+
+		.maximumReached {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			background-color: var(--color-secondary-fader);
 		}
 	}
 }

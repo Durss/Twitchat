@@ -10,11 +10,12 @@ export namespace TwitchatDataTypes {
 	
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout";
 	
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts";
 
 	export const ParamDeepSections = {
 		AD: "ad",
 		OBS: "obs",
+		TTS: "tts",
 		HEAT: "heat",
 		WHEEL: "wheel",
 		TIMER: "timer",
