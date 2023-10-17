@@ -23,7 +23,11 @@
 				</i18n-t>
 			</div>
 
-			<Button class="item center" icon="add" primary>{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			<Button class="item center" icon="add" primary @click="addDistortion()">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+
+			<template v-for="(item, index) in distortionList">
+				<HeatDistorParams v-model="distortionList[index]" />
+			</template>
 		</div>
 	</ToggleBlock>
 </template>
@@ -34,21 +38,45 @@ import Icon from '@/components/Icon.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
+import HeatDistorParams from './heat/HeatDistorParams.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
 		Icon,
 		Button,
 		ToggleBlock,
+		HeatDistorParams,
 	},
 	emits:[],
 })
 export default class OverrlayParamsHeatDistort extends Vue {
 
-	public distortionList:any[] = [];
+	public distortionList:TwitchatDataTypes.HeatDistortionData[] = [];
 
 	public openHeat():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+	}
+
+	public addDistortion():void {
+		this.distortionList.push({
+			id:Utils.getUUID(),
+			enabled:true,
+			obsSceneItemId:"",
+			obsSceneName:"",
+			shape:"",
+			permissions:{
+				all:true,
+				broadcaster:true,
+				follower:true,
+				follower_duration_ms:0,
+				mods:true,
+				vips:true,
+				subs:true,
+				usersAllowed:[],
+				usersRefused:[],
+			},
+		})
 	}
 
 }

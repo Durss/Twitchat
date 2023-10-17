@@ -26,7 +26,7 @@
 			<ToggleBlock class="block permissions"
 			v-if="connected"
 			:open="false"
-			:icons="['lock']"
+			:icons="['lock_fit']"
 			:title="$t('obs.permissions_title')">
 				<p class="info">{{ $t("obs.permissions_head") }}</p>
 				<PermissionsForm class="content" v-model="permissions" />

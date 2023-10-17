@@ -189,7 +189,10 @@
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic",
-			"add_overlay": "Créer une nouvelle distortion"
+			"add_overlay": "Créer une nouvelle distortion",
+			"param_enabled": "Distortion active",
+			"param_shape": "Distortion shape",
+			"permissions_title": "Permissions"
 		}
 	}
 }

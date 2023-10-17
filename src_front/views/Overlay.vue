@@ -24,6 +24,7 @@ import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -39,7 +40,7 @@ import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 })
 export default class Overlay extends Vue {
 
-	public overlay = "";
+	public overlay:TwitchatDataTypes.OverlayTypes|"" = "";
 
 	private heatEventHandler!:(event:{detail:{anonymous:boolean, x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}) => void;
 
@@ -50,7 +51,7 @@ export default class Overlay extends Vue {
 	}
 
 	public beforeMount():void {
-		this.overlay = this.$router.currentRoute.value.params.id as string;
+		this.overlay = this.$router.currentRoute.value.params.id as TwitchatDataTypes.OverlayTypes;
 	}
 
 	public mounted():void {

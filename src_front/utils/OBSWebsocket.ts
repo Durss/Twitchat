@@ -174,12 +174,41 @@ export default class OBSWebsocket extends EventDispatcher {
 	}> {
 		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 		
-		let res = await this.obs.call("GetSceneList");
-		return res as {
+		let res = await this.obs.call("GetSceneList") as {
 			currentProgramSceneName: string;
 			currentPreviewSceneName: string;
 			scenes: {sceneIndex:number, sceneName:string}[];
 		};
+		res.scenes.sort((a,b)=> b.sceneIndex - a.sceneIndex)
+		return res;
+	}
+	
+	/**
+	 * Get all the scene items of the given scene.
+	 * Loads child group's items as well
+	 * 
+	 * @returns 
+	 */
+	public async getSceneItems(sceneName:string):Promise<{item:OBSSourceItem, children:OBSSourceItem[]}[]> {
+		if(!this.connected) return [];
+		
+		//Get scene's items
+		let list = await this.obs.call("GetSceneItemList", {sceneName});
+		let items = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {
+			return {item:v, children:[] as OBSSourceItem[]};
+		});
+
+		//Get groups' items
+		for (let i = 0; i < items.length; i++) {
+			const entry = items[i];
+			if(entry.item.isGroup) {
+				//Load group's children
+				let groupList = await this.obs.call("GetGroupSceneItemList", {sceneName:entry.item.sourceName});
+				let groupItems = (groupList.sceneItems as unknown) as OBSSourceItem[]
+				entry.children = groupItems.sort((a,b)=> b.sceneItemIndex - a.sceneItemIndex);
+			}
+		}
+		return items.sort((a,b)=> b.item.sceneItemIndex - a.item.sceneItemIndex);
 	}
 	
 	/**
