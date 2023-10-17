@@ -37,8 +37,8 @@
 				</td>
 			</tr>
 		</table>
-		<button class="moreFeaturesBt" @click="expand(totalEntries-1); expanded = true" v-if="!expanded">▼</button>
-		<button class="moreFeaturesBt" @click="expand(10); expanded = false" v-else>▲</button>
+		<button class="moreFeaturesBt" @click="expand(totalEntries-1);" v-if="!expanded">▼</button>
+		<button class="moreFeaturesBt" @click="expand(10);" v-else>▲</button>
 	</div>
 </template>
 
@@ -53,8 +53,11 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class SponsorTable extends Vue {
 
-	public expanded:boolean = false;
-	private currentRowIndex:number = 0;
+	public currentRowIndex:number = 0;
+
+	public get expanded():boolean {
+		return this.currentRowIndex == this.entries.length-1;
+	}
 
 	public get entries():(string|number)[][] {
 		let list = this.$tm('premium.supportTable.features') as (string|number)[][];
@@ -81,7 +84,7 @@ export default class SponsorTable extends Vue {
 	}
 
 	public expand(rowIndex:number, animate:boolean = true):void {
-		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-2, rowIndex));
+		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-1, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
 		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
 		const boundsList = list.getBoundingClientRect();
