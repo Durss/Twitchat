@@ -583,7 +583,7 @@ export const storeUsers = defineStore('users', {
 
 		//Check if user is following
 		async checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean> {
-			if(channelId != StoreProxy.auth.twitch.user.id) {
+			if(channelId != StoreProxy.auth.twitch.user?.id) {
 				//Only get follower state for our own chan, ignore others as it won't be possible in the future
 				user.channelInfo[channelId].is_following = true;
 				return true;

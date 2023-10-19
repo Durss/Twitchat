@@ -224,6 +224,9 @@
 			<ParamItem :paramData="param_list" error />
 			<ParamItem :paramData="param_listEdit" />
 			<ParamItem :paramData="param_listEdit" error />
+			<ParamItem :paramData="param_duration" />
+			<ParamItem :paramData="param_duration" error />
+			{{ param_duration.value }}
 		</div>
 
 		<Splitter>Icons</Splitter>
@@ -297,6 +300,7 @@ export default class ComponentList extends Vue {
 	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
 	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
 	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"time", value:60, label:"Duration"};
 
 	private tooltipCreated:{[key:string]:boolean} = {};
 	

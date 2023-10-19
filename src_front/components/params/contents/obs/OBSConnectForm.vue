@@ -5,9 +5,9 @@
 		</transition>
 
 		<template v-if="!connected">
-			<ParamItem :paramData="obsPort_conf" class="param" />
-			<ParamItem :paramData="obsPass_conf" class="param" />
-			<ParamItem :paramData="obsIP_conf" class="param" />
+			<ParamItem :paramData="obsPort_conf" class="param" @change="paramUpdate()" />
+			<ParamItem :paramData="obsPass_conf" class="param" @change="paramUpdate()" />
+			<ParamItem :paramData="obsIP_conf" class="param" @change="paramUpdate()" />
 			
 			<ToggleBlock class="info" small :open="false" :title="$t('obs.how_to_title')">
 				<p>{{ $t("obs.how_to1") }}</p>
@@ -72,9 +72,6 @@ export default class OBSConnectForm extends Vue {
 			this.connected = OBSWebsocket.instance.connected;
 		}
 
-		watch(()=> this.obsPort_conf.value, () => { this.paramUpdate(); })
-		watch(()=> this.obsPass_conf.value, () => { this.paramUpdate(); })
-		watch(()=> this.obsIP_conf.value, () => { this.paramUpdate(); })
 		watch(()=> OBSWebsocket.instance.connected, () => { 
 			this.connected = OBSWebsocket.instance.connected;
 		});
@@ -114,7 +111,7 @@ export default class OBSConnectForm extends Vue {
 	/**
 	 * Called when changing OBS credentials
 	 */
-	private paramUpdate():void {
+	public paramUpdate():void {
 		this.connected = false;
 		DataStore.set("obsPort", this.obsPort_conf.value);
 		DataStore.set("obsPass", this.obsPass_conf.value);

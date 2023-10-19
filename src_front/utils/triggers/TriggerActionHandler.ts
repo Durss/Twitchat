@@ -835,7 +835,7 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[]};
+			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
 			log.steps.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
@@ -870,6 +870,8 @@ export default class TriggerActionHandler {
 					
 					if(!OBSWebsocket.instance.connected) {
 						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
+						log.error = true;
+						logStep.error = true;
 					}else{
 
 						if(step.text) {
@@ -931,6 +933,7 @@ export default class TriggerActionHandler {
 										if(!item) {
 											logStep.messages.push({date:Date.now(), value:"❌ source \""+step.sourceName+"\" not found"});
 											log.error = true;
+											logStep.error = true;
 										}else{
 											const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.itemId);
 											type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
@@ -1025,6 +1028,7 @@ export default class TriggerActionHandler {
 							}catch(error) {
 								console.error(error);
 								log.criticalError = true;
+								logStep.error = true;
 								logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+JSON.stringify(error)});
 							}
 						}
@@ -1141,6 +1145,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create poll as it's missing either the title or answers"});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1163,6 +1168,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create prediction as it's missing either the title or answers"});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
@@ -1185,6 +1191,7 @@ export default class TriggerActionHandler {
 					if(StoreProxy.raffle.checkRaffleJoin(message)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
 						log.error = true;
+						logStep.error = true;
 					}else{
 						logStep.messages.push({date:Date.now(), value:"✔ User joined the raffle"});
 					}
@@ -1266,6 +1273,7 @@ export default class TriggerActionHandler {
 							}else{
 								logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger is disabled"});
 								log.error = true;
+								logStep.error = true;
 							}
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger \""+step.triggerId+"\" not found"});
@@ -1273,6 +1281,7 @@ export default class TriggerActionHandler {
 					}else{
 						logStep.messages.push({date:Date.now(), value:"❌ Call trigger: no trigger defined"});
 						log.error = true;
+						logStep.error = true;
 					}
 				}else
 				
@@ -1286,6 +1295,7 @@ export default class TriggerActionHandler {
 							&& StoreProxy.triggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
 								logStep.messages.push({date:Date.now(), value:step.action + "❌ Cannot enable trigger \""+step.triggerId+"\". Premium limit reached."});
 								log.error = true;
+								logStep.error = true;
 							}else{
 								switch(step.action) {
 									case "enable": trigger.enabled = true; break;
@@ -1337,6 +1347,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Websocket not connected. Cannot send data: "+json});
 							log.error = true;
+							logStep.error = true;
 						}
 					}catch(error) {
 						console.error(error);
@@ -1347,10 +1358,11 @@ export default class TriggerActionHandler {
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
+					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+text+"\""});
 					const value = MathJS.evaluate(text);
 					if(!step.action) step.action = "ADD";
 
-					if(!isNaN(value)) {
+					if(!isNaN(value) && value != null && value != Infinity) {
 						const ids = step.counters;
 						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
@@ -1359,6 +1371,7 @@ export default class TriggerActionHandler {
 									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 									logStep.messages.push({date:Date.now(), value:logMessage});
 									log.error = true;
+									logStep.error = true;
 								}else
 								//Check if this step requests that this counter should update a user
 								//different than the default one (the one executing the command)
@@ -1403,6 +1416,10 @@ export default class TriggerActionHandler {
 								}
 							}
 						}
+					}else{
+						logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+						logStep.error = true;
+						log.error = true;
 					}
 				}else
 				
@@ -1416,6 +1433,7 @@ export default class TriggerActionHandler {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
+								logStep.error = true;
 							} else {
 								StoreProxy.values.updateValue(v.id, {value:text});
 								let logMessage = "Update Value \""+v.name+"\" to "+text;
@@ -1574,6 +1592,7 @@ export default class TriggerActionHandler {
 									}else{
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
 										log.error = true;
+										logStep.error = true;
 									}
 								}
 							}
@@ -1658,6 +1677,7 @@ export default class TriggerActionHandler {
 						console.error(error);
 						logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Exception: "+ error});
 						log.error = true;
+						logStep.error = true;
 					}
 				}else
 
@@ -1711,6 +1731,7 @@ export default class TriggerActionHandler {
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to set "+user.login+"'s username to \""+(newUsername || user.displayNameOriginal)+"\""});
 							log.error = true;
+							logStep.error = true;
 						}
 					}
 				}
@@ -1719,6 +1740,7 @@ export default class TriggerActionHandler {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
 				log.criticalError = true;
+				logStep.error = true;
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
 		}

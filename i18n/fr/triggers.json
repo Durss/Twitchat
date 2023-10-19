@@ -68,7 +68,7 @@
 			"param_yearly": "Annuel",
 			"param_action": "Type de programme",
 			"param_repeatDurationCondition": "Répéter dans le temps",
-			"param_repeatDurationValue": "Exécuter toutes les minutes | Exécuter toutes les {VALUE} minutes",
+			"param_repeatDurationValue": "Exécuter toutes les {VALUE}s",
 			"param_repeatMessageCondition": "Répéter après réception de messages",
 			"param_repeatMessageValue": "Exécuter après {VALUE} message reçus | Exécuter après {VALUE} messages reçus"
 		},

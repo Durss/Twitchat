@@ -60,11 +60,11 @@ export default class TriggerActionScheduleParams extends Vue {
 	@Prop
 	public triggerData!:TriggerData;
 
-	public param_action:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"date" };
-	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timeout" };
-	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:20, icon:"timeout", min:0, max:48*60 };
-	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers" };
-	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers", min:1, max:9999 };
+	public param_action:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"date", labelKey:"triggers.schedule.param_action" };
+	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timeout", labelKey:"triggers.schedule.param_repeatDurationCondition" };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"time", value:30 * 60, icon:"timeout", min:0, max:48*60, labelKey:"triggers.schedule.param_repeatDurationValue" };
+	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers", labelKey:"triggers.schedule.param_repeatMessageCondition" };
+	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers", min:1, max:9999, labelKey:"triggers.schedule.param_repeatMessageValue" };
 	public params_daily:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public params_monthly:TwitchatDataTypes.ParameterData<boolean>[] = [];
 	public params_yearly:TwitchatDataTypes.ParameterData<boolean>[] = [];
@@ -78,7 +78,7 @@ export default class TriggerActionScheduleParams extends Vue {
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
 				type:events[1].value as TriggerScheduleTypesValue,
-				repeatDuration:30,
+				repeatDuration:30 * 60,
 				repeatMinMessages:100,
 				dates:[],
 			}
@@ -89,11 +89,6 @@ export default class TriggerActionScheduleParams extends Vue {
 		const minMess									= this.triggerData.scheduleParams!.repeatMinMessages;
 		this.param_repeatDurationCondition.value		= duration != undefined && duration > 0;
 		this.param_repeatMessageCondition.value			= minMess != undefined && minMess > 0;
-		this.param_action.labelKey						= "triggers.schedule.param_action";
-		this.param_repeatDurationCondition.labelKey		= "triggers.schedule.param_repeatDurationCondition";
-		this.param_repeatDurationValue.labelKey			= "triggers.schedule.param_repeatDurationValue";
-		this.param_repeatMessageCondition.labelKey		= "triggers.schedule.param_repeatMessageCondition";
-		this.param_repeatMessageValue.labelKey			= "triggers.schedule.param_repeatMessageValue";
 
 		watch(()=>this.param_repeatDurationCondition.value, ()=> {
 			if(this.param_repeatDurationCondition.value === false) {

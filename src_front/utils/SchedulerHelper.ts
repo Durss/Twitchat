@@ -88,7 +88,7 @@ export default class SchedulerHelper {
 		this.unscheduleTrigger(trigger);
 		switch(trigger.scheduleParams.type) {
 			case TriggerScheduleTypes.REGULAR_REPEAT:{
-				let date = Date.now() + trigger.scheduleParams.repeatDuration * 60 * 1000;
+				let date = Date.now() + trigger.scheduleParams.repeatDuration * 1000;
 				if(trigger.type === TriggerTypes.TWITCHAT_AD) {
 					//Check if a date is stored on store and load it back.
 					//This avoids the possibility to have no ad by refreshing
@@ -157,9 +157,9 @@ export default class SchedulerHelper {
 				const waitFor = Math.min(timeFrame, Math.max(0, nextDate - Date.now() - timeFrame));
 				clearTimeout(this._adScheduleTimeout);
 				this._adScheduleTimeout = setTimeout(()=> {
-					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 60 * 1000 - waitFor) );
+					// console.log("Do reset. Deleted?"+message.deleted, "date:"+(Date.now() + this._adSchedule!.repeatDuration! * 1000 - waitFor) );
 					if(message.deleted === true) return;
-					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 60 * 1000 - waitFor;
+					e.date = Date.now() + this._adSchedule.scheduleParams!.repeatDuration! * 1000 - waitFor;
 					e.messageCount = 0;
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
 				}, waitFor);
@@ -185,7 +185,7 @@ export default class SchedulerHelper {
 				type:TriggerScheduleTypes.REGULAR_REPEAT,
 				// repeatDuration:10,
 				// repeatMinMessages:0,
-				repeatDuration:120,
+				repeatDuration:2 * 60 * 60,
 				repeatMinMessages:100,
 				dates:[],
 			}
@@ -218,8 +218,8 @@ export default class SchedulerHelper {
 		};
 
 		//Just a fail safe to avoid deploying fucked up data on production !
-		if(this._adSchedule.scheduleParams!.repeatDuration < 120) {
-			StoreProxy.main.alert("Ad schedule duration set to "+this._adSchedule.scheduleParams!.repeatDuration+" minutes instead of 120!");
+		if(this._adSchedule.scheduleParams!.repeatDuration < 2 * 60 * 60) {
+			StoreProxy.main.alert("Ad schedule duration set to "+this._adSchedule.scheduleParams!.repeatDuration+" seconds instead of 7200 (2h)!");
 		}else
 		if(this._adSchedule.scheduleParams!.repeatMinMessages < 100) {
 			StoreProxy.main.alert("Ad schedule min message count set to "+this._adSchedule.scheduleParams!.repeatMinMessages+" instead of 100!");
@@ -276,7 +276,7 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + schedule.repeatDuration * 60 * 1000;
+				e.date = Date.now() + schedule.repeatDuration * 1000;
 				e.messageCount = 0;
 				if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);

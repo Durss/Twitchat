@@ -68,7 +68,7 @@
 			"param_yearly": "Yearly",
 			"param_action": "Schedule type",
 			"param_repeatDurationCondition": "Time based repeat",
-			"param_repeatDurationValue": "Execute every minute | Execute every {VALUE} minutes",
+			"param_repeatDurationValue": "Execute every {VALUE}s",
 			"param_repeatMessageCondition": "Message based repeat",
 			"param_repeatMessageValue": "Must receive at least {VALUE} message | Must receive at least {VALUE} messages"
 		},

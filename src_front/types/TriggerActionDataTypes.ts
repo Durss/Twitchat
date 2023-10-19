@@ -219,6 +219,7 @@ export interface TriggerLogStep {
 	id:string;
 	date:number;
 	data:TriggerActionTypes;
+	error:boolean;
 	messages:{date:number, value:string}[];
 }
 

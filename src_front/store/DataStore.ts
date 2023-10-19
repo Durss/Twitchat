@@ -145,7 +145,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 49;
+		let latestVersion = 50;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -300,13 +300,17 @@ export default class DataStore {
 			this.fixDataTypes(data);
 			v = 48;
 		}
-		if(v==48) {
+		if(v==49) {
 			//Some users still have an old trigger data format :/
 			//THey have an empty(?) object instead of an array
 			const triggers:TriggerData[] = data[DataStore.TRIGGERS];
 			if(triggers && !Array.isArray(triggers)) {
 				data[DataStore.TRIGGERS] = [];
 			}
+			v = 49;
+		}
+		if(v==49) {
+			this.migrateScheduleActionDuration(data);
 			v = latestVersion;
 		}
 
@@ -1455,6 +1459,24 @@ export default class DataStore {
 		if(websocket) {
 			websocket.port = parseInt(websocket+"") || 3000;
 			data[DataStore.WEBSOCKET_TRIGGER] = websocket;
+		}
+	}
+
+	/**
+	 * Migrates schedule durations from minutes to seconds
+	 */
+	private static migrateScheduleActionDuration(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				if(t.type == TriggerTypes.SCHEDULE && t.scheduleParams && t.scheduleParams.repeatDuration > 0) {
+					console.log("migrate", t.scheduleParams.repeatDuration);
+					t.scheduleParams.repeatDuration *= 60;
+					console.log("new value is", t.scheduleParams.repeatDuration);
+				}
+			});
+			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
 }
