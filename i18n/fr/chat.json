@@ -93,7 +93,8 @@
 				"pinned": "Alertes de messages épinglés",
 				"user_watch_streak": "Streams consécutifs vus",
 				"stream_online": "Stream commencé/arrêté",
-				"hype_chat": "Hype chat"
+				"hype_chat": "Hype chat",
+				"ad_break_start": "Ad break started manually"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -269,6 +270,11 @@
 			"content": "Consultez les dernières mises à jour à tout moment avec la commande {CMD}",
 			"updatesBt": "Ouvrir les MàJ"
 		},
+		"adBreakScope": {
+			"header": "Alertes de pubs",
+			"content": "Tu souhaites que Twitchat t'alerte quand une publicité arrive ou est en cours ?\nTwitchat a besoin de nouvelles autorisations pour ça.",
+			"grantBt": "Ouvrir les autorisations"
+		},
 		"donor": {
 			"title": "❤ Merveilleuse personne ❤",
 			"info_1": "Merci encore pour ton soutien au travers de ton don.",
@@ -379,6 +385,9 @@
 		},
 		"splitter": {
 			"label": "Nouveaux messages"
+		},
+		"ad_break_start": {
+			"label": "{USER} a lancé une publicité de {DURATION}s"
 		}
 	}
 }

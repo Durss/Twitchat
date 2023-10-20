@@ -2,17 +2,21 @@
 	<div class="alert" v-if="message && message.length > 0" @click="close()">
 		<CloseButton v-if="!locked" />
 		<p v-html="message" class="label"></p>
+		<p>{{ $t("global.alert_support") }}<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.join_discordBt") }}</Button></p>
 	</div>
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
 import CloseButton from '@/components/CloseButton.vue';
+import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
+		Button,
 		CloseButton,
 	},
 })
@@ -21,6 +25,9 @@ export default class AlertView extends Vue {
 	public message = "";
 	public timeout!:number;
 	public locked:boolean = false;
+	public showContact:boolean = false;
+
+	public get discordUrl():string { return Config.instance.DISCORD_URL; }
 	
 	public mounted():void {
 		this.onWatchAlert();

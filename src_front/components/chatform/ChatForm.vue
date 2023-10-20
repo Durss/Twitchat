@@ -161,7 +161,7 @@
 	
 				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timer" />
 	
-				<CommercialTimer v-if="isCommercial" />
+				<CommercialTimer />
 	
 				<div v-if="$store('params').appearance.showViewersCount.value === true
 					&& streamInfo && streamInfo.viewers > 0"
@@ -401,8 +401,6 @@ export default class ChatForm extends Vue {
 	}
 
 	public get cypherConfigured():boolean { return this.$store("main").cypherKey?.length > 0; }
-
-	public get isCommercial():boolean { return this.$store("stream").commercialEnd != 0; }
 
 	public get pendingShoutoutCount():number {
 		const list = this.$store('users').pendingShoutouts[this.channelId];

@@ -442,6 +442,23 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_STARTED, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_APPROACHING, message, testMode, message.delay_ms.toString(), undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_COMPLETE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
@@ -533,6 +550,8 @@ export default class TriggerActionHandler {
 					}
 					break;
 				}
+
+				case TriggerTypes.AD_APPROACHING: keys[0] += this.HASHMAP_KEY_SPLITTER + (t.adBreakDelay || 0).toString(); break;
 
 				case TriggerTypes.REWARD_REDEEM: keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId; break;
 
@@ -1794,7 +1813,7 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for the current stream info
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
-						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys;
+						const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo;
 						value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
 						if(!value) value = (pointerLocal == "viewers")? "0" : "-none-";
 

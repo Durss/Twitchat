@@ -44,6 +44,8 @@
 		"clear": "Effacer",
 		"refresh": "Recharger",
 		"contact": "Contact : {MAIL}",
+		"join_discordBt": "Rejoindre Discord",
+		"alert_support": "Rejoinez le serveur Discord Twitchat pour demander de l'aide :",
 		"obs_connect": "Cette fonctionnalité nécessite de {LINK}",
 		"obs_connect_link": "se connecter à OBS",
 		"placeholder_selector_title": "Tag spéciaux remplacés dynamiquement",
@@ -70,7 +72,9 @@
 		"terms": "Conditions d'utilisation",
 		"privacy": "Politique de confidentialité",
 		"tooltips": {
-			"commercial": "Publicité",
+			"commercial": "Publicité en cours",
+			"commercial_soon": "Publicité en approche",
+			"commercial_snooze": "Repousser la publicité<br>de 5 minutes",
 			"boost": "Chaîne boostée",
 			"bits": "Bits",
 			"subs1": "Abonnements<br>niveau 1",
@@ -174,7 +178,9 @@
 			"moderator:read:chatters": "Lister les personnes présentes dans votre tchat",
 			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier",
 			"moderator:manage:shoutouts": "Envoyer des shoutouts",
-			"clips:edit": "Créer des clips"
+			"clips:edit": "Créer des clips",
+			"channel:read:ads":"Savoir quand une publicité va être lancée",
+			"channel:manage:ads":"Snooze une publicité en appproche"
 		},
 		"permissions": {
 			"broadcaster": "Diffuseur",

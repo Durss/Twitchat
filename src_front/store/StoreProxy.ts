@@ -83,11 +83,18 @@ export interface IMainState {
 	 * Current alert data (user alert() to populate)
 	 */
 	alertData: {
+		/**
+		 * Message to display
+		 */
 		message:string;
 		/**
 		 * defines if it's a critical error. It will remain on screen and won't be replacable
 		 */
 		critical:boolean;
+		/**
+		 * Show contact button (discord link)
+		 */
+		showContact:boolean;
 	};
 	/**
 	 * Current tooltip data to display
@@ -159,8 +166,9 @@ export interface IMainActions {
 	 * Opens up an alert at the top of the app on red bar
 	 * @param message 
 	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
+	 * @param showContact defines if contact info should be displayed (discord link)
 	 */
-	alert(message:string, isCritical?:boolean):void;
+	alert(message:string, isCritical?:boolean, showContact?:boolean):void;
 	/**
 	 * Opens up a confirm window requesting the user to confirm or cancel
 	 * @param title 
@@ -449,13 +457,6 @@ export interface IChatActions {
 	 */
 	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
-	 * Delete a message by its reference
-	 * @param messageID 
-	 * @param deleteData 
-	 * @param callEndpoint 
-	 */
-	deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
-	/**
 	 * Delete all messages of a channel
 	 * @param channelId 
 	 */
@@ -524,7 +525,7 @@ export interface IChatActions {
 	 * @param message 
 	 * @param user 
 	 */
-	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void;
+	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void;
 	/**
 	 * Reset the greeting history.
 	 */
@@ -986,13 +987,9 @@ export interface IStreamState {
 	 */
 	raidHistory: {uid:string, date:number}[];
 	/**
-	 * Date at which the current commercial will end
+	 * Date at which a commercial will start
 	 */
-	commercialEnd: number;
-	/**
-	 * Date at which we can start a new commercial
-	 */
-	startAdCooldown: number,
+	commercial: {[key in string]:TwitchatDataTypes.CommercialData};
 	/**
 	 * Can we start an ad ?
 	*/
@@ -1074,15 +1071,22 @@ export interface IStreamActions {
 	 */
 	deleteStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	/**
-	 * Set the date at which the current commervial ends
-	 * @param date 
+	 * Get the commercial info for the given channel
+	 * @param channelId 
 	 */
-	setCommercialEnd(date:number):void;
+	getCommercialInfo(channelId:string):TwitchatDataTypes.CommercialData;
+	/**
+	 * Set current and incoming commercial data
+	 * @param channelId 
+	 * @param data 
+	 * @param adStarter if set, sends a message on tchat to say who started the ad break
+	 */
+	setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser):void;
 	/**
 	 * Starts a commercial break
 	 * @param duration 
 	 */
-	startCommercial(duration:number):void;
+	startCommercial(channelId:string, duration:number):void;
 	/**
 	 * Get all current stream data
 	 */

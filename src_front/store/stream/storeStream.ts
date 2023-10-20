@@ -7,6 +7,9 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
+
+const commercialApproachingTimeouts:{[key:string]:number[]} = {};
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -18,8 +21,7 @@ export const storeStream = defineStore('stream', {
 		lastRaider: undefined,
 		shieldModeEnabled: false,
 		canStartAd: true,
-		commercialEnd: 0,//Date.now() + 120000,
-		startAdCooldown: 0,
+		commercial: {},
 		roomSettings:{},//channelId => settings
 		currentStreamInfo: {},//channelId => infos
 		raidHistory: [],
@@ -233,31 +235,85 @@ export const storeStream = defineStore('stream', {
 			DataStore.set(DataStore.STREAM_INFO_PRESETS, this.streamInfoPreset);
 		},
 
-		setCommercialEnd(date:number) {
-			this.commercialEnd = date;
-			if(date === 0) {
-				StoreProxy.chat.addMessage({
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					message:StoreProxy.i18n.t("global.moderation_action.commercial_complete"),
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
-				});
-			}else{
-				const duration = Math.round((date - Date.now())/1000);
-				StoreProxy.chat.addMessage({
-					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					message:StoreProxy.i18n.t("global.moderation_action.commercial_start", {DURATION:duration}),
-					noticeId:TwitchatDataTypes.TwitchatNoticeType.COMMERCIAL_COMPLETE
-				});
+		getCommercialInfo(channelId:string):TwitchatDataTypes.CommercialData {
+			let info = this.commercial[channelId];
+			if(!info) {
+				//No data yet, return fake data
+				info = {
+					adCooldown_ms:			0,
+					currentAdStart_at:		0,
+					remainingSnooze:		0,
+					currentAdDuration_ms:	0,
+					nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
+					nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
+				}
+				this.commercial[channelId] = info;
+				//Request data asynchronously.
+				//This will call the setCommercialInfo() with fresh new data
+				TwitchUtils.getAdSchedule();
 			}
+			return info;
 		},
 
-		startCommercial(duration:number):void {
+		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser) {
+			this.commercial[channelId] = data;
+			const remainingTime = data.nextAdStart_at - Date.now();
+
+			//Cleanup previously scheduled trigger messages
+			(commercialApproachingTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
+			commercialApproachingTimeouts[channelId] = []
+
+			//Re schedule new trigger messages at these given intervals
+			AD_APPROACHING_INTERVALS.forEach(ms => {
+				//If this interval has already passed, ignore it
+				if(remainingTime < ms) return;
+				//Schedule message
+				let to = setTimeout(()=>{
+					const message: TwitchatDataTypes.MessageAdBreakApproachingData = {
+						platform:"twitch",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						delay_ms:ms,
+						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING,
+						start_at:data.nextAdStart_at,
+					};
+					StoreProxy.chat.addMessage(message);
+				}, remainingTime - ms);
+				//Keep timeout's ref so we can clear it whenever needed
+				commercialApproachingTimeouts[channelId].push(to);
+			});
+
+			if(data.currentAdStart_at > 0 && data.currentAdDuration_ms > 0) {
+				let to = setTimeout(() => {
+					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
+						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						duration_s:Math.round(data.currentAdDuration_ms / 1000),
+						startedBy:adStarter,
+					}
+					StoreProxy.chat.addMessage(message);
+					TwitchUtils.getAdSchedule();//get fresh new ad schedul data
+				}, data.currentAdStart_at - Date.now() + data.currentAdDuration_ms);
+				commercialApproachingTimeouts[channelId].push(to);
+			}
+
+			if(adStarter) {
+				const message:TwitchatDataTypes.MessageAdBreakStartData = {
+					type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					duration_s:Math.round(data.currentAdDuration_ms / 1000),
+					startedBy:adStarter,
+				}
+				StoreProxy.chat.addMessage(message);
+			}
+			
+		},
+
+		startCommercial(channelId:string, duration:number):void {
 			if(!this.canStartAd) return;
 	
 			if(isNaN(duration)) duration = 30;
@@ -266,15 +322,15 @@ export const storeStream = defineStore('stream', {
 				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description")
 			).then(async () => {
 				try {
-					const res = await TwitchUtils.startCommercial(duration, StoreProxy.auth.twitch.user.id);
+					const res = await TwitchUtils.startCommercial(duration, channelId);
 					if(res && res.length > 0) {
 						this.canStartAd = false;
-						this.startAdCooldown = Date.now() + res.retry_after * 1000;
+						this.commercial[channelId].adCooldown_ms = res.retry_after * 1000;
 						setTimeout(()=>{
-							this.canStartAd = true;
-							this.startAdCooldown = 0;
-						}, this.startAdCooldown);
-						this.setCommercialEnd( Date.now() + res.length * 1000 );
+							this.commercial[channelId].adCooldown_ms = 0;
+						}, this.commercial[channelId].adCooldown_ms);
+					}else{
+						throw({message:"Invalid 0s length commercial duration"})
 					}
 				}catch(error) {
 					const e = (error as unknown) as {error:string, message:string, status:number}
@@ -285,12 +341,9 @@ export const storeStream = defineStore('stream', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						platform:"twitchat",
 						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-						message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message}),
+						message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message || "no detail :("}),
 					}
 					StoreProxy.chat.addMessage(notice);
-					if(e.message) {
-						StoreProxy.main.alert(e.message);
-					}
 				}
 			}).catch(()=>{/*ignore*/});
 		},

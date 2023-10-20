@@ -45,7 +45,7 @@
 				<Button class="createBt"
 					v-if="$store('auth').isPremium || $store('triggers').triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
 					icon="add"
-					v-newflag="{date:1693519200000, id:'paramsparams_triggers'}"
+					v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}"
 					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
 				<div class="card-item alert premiumLimit" v-else>

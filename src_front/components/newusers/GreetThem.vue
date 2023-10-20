@@ -150,10 +150,10 @@ export default class NewUsers extends Vue {
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		if(!Config.instance.IS_PROD) {
-			const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-			this.localMessages = this.localMessages.concat(history).splice(0,50);
-		}
+		// if(!Config.instance.IS_PROD) {
+			// const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+			// this.localMessages = this.localMessages.concat(history).splice(0,50);
+		// }
 
 		// watch(()=>this.localMessages, (v)=>{
 		// 	console.log("update");
@@ -201,16 +201,10 @@ export default class NewUsers extends Vue {
 	 * Called when a new message is received
 	 */
 	private async onAddMessage(event:GlobalEvent):Promise<void> {
-		const maxLength = 100;
 		const m = (event.data as TwitchatDataTypes.GreetableMessage);
 		if(!m.todayFirst) return;
 		
-		if(m.user.is_blocked === true) return;//Ignore blocked users
-		//Ignore self messages
-		if(m.user.id == StoreProxy.auth.twitch.user.id) return;
-		//Ignore bot messages
-		if(StoreProxy.users.knownBots[m.platform][m.user.login.toLowerCase()] === true) return;
-		
+		const maxLength = 100;
 		this.localMessages.push(m);
 		if(this.localMessages.length >= maxLength) {
 			this.localMessages = this.localMessages.slice(-maxLength);
@@ -234,7 +228,6 @@ export default class NewUsers extends Vue {
 			}
 		}
 	}
-
 
 	/**
 	 * Called when requesting an action from the public API

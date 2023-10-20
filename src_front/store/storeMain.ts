@@ -26,6 +26,8 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -38,6 +40,7 @@ export const storeMain = defineStore("main", {
 		alertData:{
 			message:"",
 			critical:false,
+			showContact:false,
 		},
 		tooltip: "",
 		cypherKey: "",
@@ -147,7 +150,7 @@ export const storeMain = defineStore("main", {
 				const res = await ApiController.call("configs");
 				jsonConfigs = res.json;
 			}catch(error) {
-				this.alert("Unable to contact server :(", true);
+				this.alert("Unable to contact server :(.", true);
 				console.log(error);
 				this.initComplete = true;
 				return;
@@ -265,9 +268,15 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 
 			//Warn the user about the automatic "ad" message sent every 2h
-			if(!DataStore.get(DataStore.TWITCHAT_AD_WARNED) && !sAuth.isDonor) {
+			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {
 				setTimeout(()=>{
 					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING);
+				}, 5000);
+			}else
+			//Warn the user about the new ad break capabilities
+			if(DataStore.get(DataStore.AD_BREAK_SCOPES_REQUEST) !== "true" && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE])) {
+				setTimeout(()=>{
+					sChat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST);
 				}, 5000);
 			}else
 			//Ask the user if they want to make their donation public
@@ -995,9 +1004,10 @@ export const storeMain = defineStore("main", {
 			}
 		},
 
-		alert(message:string, isCritical:boolean = false) {
+		alert(message:string, isCritical:boolean = false, showContact:boolean = false) {
 			this.alertData.message = message;
 			this.alertData.critical = isCritical;
+			this.alertData.showContact = showContact;
 		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {

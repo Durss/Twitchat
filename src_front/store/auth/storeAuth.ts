@@ -104,10 +104,11 @@ export const storeAuth = defineStore('auth', {
 					// if(twitchAuthResult && twitchAuthResult.expires_at < Date.now() - 60000*5) {
 						const res = await this.twitch_tokenRefresh(false);
 						if(!res) {
-							StoreProxy.main.alert("Unable to connect with Twitch API :(")
+							StoreProxy.main.alert("Unable to connect with Twitch API :(.", false, true);
 							return;
+						}else{
+							twitchAuthResult = res;
 						}
-						twitchAuthResult = res;
 					// }
 				}
 				if(!twitchAuthResult) {
@@ -170,7 +171,7 @@ export const storeAuth = defineStore('auth', {
 							//Force data sync popup to show up if remote
 							//data have been deleted
 							// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-							sMain.alert("An error occured while loading your parameters");
+							sMain.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
 							return;
 						}
 					}
@@ -178,7 +179,7 @@ export const storeAuth = defineStore('auth', {
 					//Parse data from storage
 					await sMain.loadDataFromStorage();
 				}catch(error) {
-					sMain.alert("An error occured when loading your parameters. Please try with another browser. Contact me on Twitch @durss.");
+					sMain.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
 					console.log(error);
 				}
 
@@ -223,6 +224,11 @@ export const storeAuth = defineStore('auth', {
 						lastSoDoneDate:0,
 					};
 				});
+
+				//Loads state of current or incoming ads
+				TwitchUtils.getAdSchedule();
+				//Refresh status every 10minutes
+				setInterval(()=>TwitchUtils.getAdSchedule(), 10 * 60000);
 
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {

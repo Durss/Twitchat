@@ -12,12 +12,15 @@
 						</i18n-t>
 					</div>
 				
-					<i18n-t v-else-if="p.id == 201 && p.value === true" class="info greetThem" scope="global" tag="div"
-					keypath="params.firstMessage_info">
-						<template #URL>
-							<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
-						</template>
-					</i18n-t>
+					<div v-else-if="p.id == 201 && p.value === true">
+						<Button small secondary icon="date" @click="resetGreetHistory()">{{$t('greet.resetBt')}}</Button>
+						<i18n-t class="info greetThem" scope="global" tag="div"
+						keypath="params.firstMessage_info">
+							<template #URL>
+								<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
+							</template>
+						</i18n-t>
+					</div>
 					
 					<i18n-t v-else-if="p.id == 213 && p.value === true" class="info pronouns" scope="global" tag="div"
 					keypath="params.showUserPronouns_based_on">
@@ -186,6 +189,12 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 	public requestPermission(scopes:TwitchScopesString[]):void {
 		this.$store("auth").requestTwitchScopes(scopes);
+	}
+
+	public resetGreetHistory():void {
+		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
+			this.$store("chat").resetGreetingHistory();
+		});
 	}
 
 }

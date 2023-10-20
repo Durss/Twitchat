@@ -367,6 +367,9 @@
 			"customUsername": {
 				"param_user": "Sélectionnez la personne dont éditer le pseudo",
 				"param_username": "Nouveau pseudo (laisser vide pour réinitialiser)"
+			},
+			"adBreak": {
+				"param_delay": "Durée avant le lancement de la pub"
 			}
 		},
 		"categories": {
@@ -517,6 +520,8 @@
 			"goxlr_fader_2_mute":"Fader 2 mis en sourdine",
 			"goxlr_fader_3_mute":"Fader 3 mis en sourdine",
 			"goxlr_fader_4_mute":"Fader 4 mis en sourdine",
+			"ad_break_duration":"Durée de la pub en secondes",
+			"ad_break_user":"Pseudo de la personne ayant lancé la pub (vide en cas de lancement automatique)",
 			"announcement_color":"Couleur de l'annonce"
 		},
 		"events": {
@@ -913,6 +918,18 @@
 			"ANNOUNCEMENTS": {
 				"label": "/announce",
 				"description": "Actions à exécuter lorsqu'un /announce est envoyé"
+			},
+			"AD_STARTED": {
+				"label": "Lancement d'une publicité",
+				"description": "Actions à exécuter lorsqu'une publicité débute"
+			},
+			"AD_APPROACHING": {
+				"label": "Lancement proche d'une publicité",
+				"description": "Actions à exécuter lorsqu'une publicité va bientôt débuter"
+			},
+			"AD_COMPLETE": {
+				"label": "Fin d'une publicité",
+				"description": "Actions à exécuter lorsqu'une publicité termine"
 			}
 		},
 		"musicEvents": {

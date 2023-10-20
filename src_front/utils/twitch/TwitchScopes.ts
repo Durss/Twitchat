@@ -29,7 +29,9 @@ export const TwitchScopes = {
 	EDIT_BANNED: "moderator:manage:banned_users",
 	AUTOMOD: "moderator:manage:automod",
 	SHIELD_MODE: "moderator:manage:shield_mode",
-	CLIPS: "clips:edit"
+	CLIPS: "clips:edit",
+	ADS_READ: "channel:read:ads",
+	ADS_SNOOZE: "channel:manage:ads"
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
@@ -65,3 +67,5 @@ TwitchScope2Icon[TwitchScopes.READ_MODS_AND_BANNED]		= "ban";
 TwitchScope2Icon[TwitchScopes.AUTOMOD]					= "automod";
 TwitchScope2Icon[TwitchScopes.SHIELD_MODE]				= "shield";
 TwitchScope2Icon[TwitchScopes.CLIPS]					= "clip";
+TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
+TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";

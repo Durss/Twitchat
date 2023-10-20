@@ -251,6 +251,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= "chat.filters.message_types.ad_break_start";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "chat.filters.message_types.user_watch_streak";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
@@ -281,6 +282,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= "ad";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train";
@@ -298,6 +300,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= [TwitchScopes.ADS_READ];
 
 		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
@@ -320,6 +323,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 			TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
+			TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
 			TwitchatDataTypes.TwitchatMessageType.LEAVE,
 			TwitchatDataTypes.TwitchatMessageType.NOTICE,
@@ -824,6 +828,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );

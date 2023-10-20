@@ -44,6 +44,8 @@
 		"clear": "Clear",
 		"refresh": "Refresh",
 		"contact": "Contact: {MAIL}",
+		"join_discordBt": "Join Discord",
+		"alert_support": "Please join Twitchat's Discord server to get help:",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",
@@ -70,7 +72,9 @@
 		"terms":"Terms of use",
 		"privacy":"Privacy policy",
 		"tooltips": {
-			"commercial": "Commercial",
+			"commercial": "Ad break running",
+			"commercial_soon": "Ad break sarting soon",
+			"commercial_snooze": "Delay ad for<br>5 minutes",
 			"boost": "Channel boosted",
 			"bits": "Bits",
 			"subs1": "Subs tier 1",
@@ -175,7 +179,9 @@
 			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode",
 			"moderator:manage:shoutouts": "Send shoutouts",
-			"clips:edit": "Create clips"
+			"clips:edit": "Create clips",
+			"channel:read:ads":"Read ad break info",
+			"channel:manage:ads":"Snooze an incoming ad break"
 		},
 		"permissions": {
 			"broadcaster": "Broadcaster",

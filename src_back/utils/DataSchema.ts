@@ -136,6 +136,7 @@ import Ajv from "ajv";
 					obsInput:{type:"string", maxLength:200},
 					obsFilter:{type:"string", maxLength:200},
 					created_at: {type:"integer", minimum:0, maximum:32503672800000},
+					adBreakDelay: {type:"integer", minimum:0, maximum:5 * 60000},
 					goxlrButtons:{
 						type:"array",
 						minItems:0,
@@ -606,6 +607,7 @@ import Ajv from "ajv";
 		greetHeight: {type:"number"},
 		adNextTS: {type:"integer"},
 		adWarned: {type:"boolean"},
+		adBreakScopesRequested: {type:"boolean"},
 		sponsorPublicPrompt: {type:"boolean"},
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},

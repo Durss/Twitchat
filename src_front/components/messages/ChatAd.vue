@@ -121,6 +121,19 @@
 				</div>
 			</div>
 	
+			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
+				<div class="header">
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<div class="title"><img src="@/assets/icons/ad.svg" class="icon small"> {{ $t('chat.adBreakScope.header') }}</div>
+				</div>
+				<div class="content">
+					<span>{{ $t("chat.adBreakScope.content") }}</span>
+				</div>
+				<div class="ctas">
+					<Button icon="lock_fit" light @click="grantAdScopes()">{{ $t('chat.adBreakScope.grantBt') }}</Button>
+				</div>
+			</div>
+	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
 				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
 				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
@@ -146,6 +159,7 @@ import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -182,6 +196,7 @@ export default class ChatAd extends Vue {
 	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
 	public get isSponsorPublicPrompt():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; }
 	public get isUpdateReminder():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; }
+	public get isAdBreakScopeRequest():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST; }
 	
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
@@ -230,6 +245,9 @@ export default class ChatAd extends Vue {
 		if(this.isAdWarning) {
 			DataStore.set(DataStore.TWITCHAT_AD_WARNED, true);
 		}
+		if(this.isAdBreakScopeRequest) {
+			DataStore.set(DataStore.AD_BREAK_SCOPES_REQUEST, true);
+		}
 		if(this.isSponsorPublicPrompt) {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
@@ -262,12 +280,20 @@ export default class ChatAd extends Vue {
 		DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 	}
 
+	public grantAdScopes():void {
+		this.$store("auth").requestTwitchScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
+		if(this.isAdBreakScopeRequest) {
+			DataStore.set(DataStore.AD_BREAK_SCOPES_REQUEST, true);
+		}
+	}
+
 }
 </script>
 
 <style scoped lang="less">
 .chatad{
 	.innerHolder {
+		font-weight: 300;
 		.confirmClose {
 			position: absolute;
 			top: 0;
@@ -297,8 +323,15 @@ export default class ChatAd extends Vue {
 			}
 		}
 	
-		& .header>.title {
-			font-size: 1.5em;
+		.header {
+			position: relative;
+			&>.title {
+				font-size: 1.5em;
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+				}
+			}
 		}
 		.content {
 			padding: .5em;
@@ -326,6 +359,9 @@ export default class ChatAd extends Vue {
 				background-color: fade(#000, 5);
 				border-radius: .5em;
 				padding: 0 .25em;
+			}
+			span {
+				white-space: pre-line;
 			}
 		}
 

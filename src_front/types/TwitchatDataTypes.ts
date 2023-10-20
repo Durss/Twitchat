@@ -743,6 +743,9 @@ export namespace TwitchatDataTypes {
 		tagIDs?: string[];
 	}
 
+	/**
+	 * Contains info about a stream
+	 */
 	export interface StreamInfo {
 		user:TwitchatUser;
 		title:string;
@@ -753,7 +756,36 @@ export namespace TwitchatDataTypes {
 		viewers:number;
 		lastSoDoneDate:number;
 	}
-	export type StreamInfoKeys = keyof StreamInfo;
+
+	/**
+	 * Contains data about current and incoming commercial
+	 */
+	export interface CommercialData {
+		/**
+		 * Date in milliseconds the next mid-roll will start
+		 */
+		nextAdStart_at:number;
+		/**
+		 * Date in milliseconds the current mid-roll started
+		 */
+		currentAdStart_at:number;
+		/**
+		 * Duration in milliseconds of the current md-roll
+		 */
+		currentAdDuration_ms:number;
+		/**
+		 * Number of snooze remaining
+		 */
+		remainingSnooze:number;
+		/**
+		 * Date in milliseconds a snooze will be unlocked
+		 */
+		nextSnooze_at:number;
+		/**
+		 * Milliseconds to wait before being able to start another ad break
+		 */
+		adCooldown_ms:number;
+	}
 
 	/**
 	 * Contains info about a countdown
@@ -832,6 +864,7 @@ export namespace TwitchatDataTypes {
 		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
 		DONATE_REMINDER:7,
 		UPDATE_REMINDER:8,
+		AD_BREAK_SCOPE_REQUEST:9,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 
@@ -1494,11 +1527,13 @@ export namespace TwitchatDataTypes {
 		CHAT_HIGHLIGHT:"chat_highlight",
 		FOLLOWBOT_LIST:"followbot_list",
 		COUNTER_UPDATE:"counter_update",
+		AD_BREAK_START:"ad_break_start",
 		OBS_STOP_STREAM:"obs_stop_stream",
 		HISTORY_SPLITTER:"history_splitter",
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
 		OBS_SCENE_CHANGE:"obs_scene_change",
+		AD_BREAK_COMPLETE:"ad_break_complete",
 		GOXLR_SOUND_INPUT:"goxlr_sound_input",
 		USER_WATCH_STREAK:"user_watch_streak",
 		OBS_SOURCE_TOGGLE:"obs_source_toggle",
@@ -1508,6 +1543,7 @@ export namespace TwitchatDataTypes {
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
+		AD_BREAK_APPROACHING:"ad_break_approaching",
 		MUSIC_ADDED_TO_QUEUE:"music_added_to_queue",
 		GOXLR_SAMPLE_COMPLETE:"goxlr_sample_complete",
 		OBS_INPUT_MUTE_TOGGLE:"obs_input_mute_toggle",
@@ -1562,6 +1598,7 @@ export namespace TwitchatDataTypes {
 		room_settings:true,
 		stream_online:true,
 		scope_request:true,
+		ad_break_start:true,
 		followbot_list:true,
 		stream_offline:true,
 		chat_highlight:false,//Used for "highlight on overlay" events
@@ -1574,6 +1611,7 @@ export namespace TwitchatDataTypes {
 		obs_scene_change:false,
 		obs_start_stream:false,
 		obs_source_toggle:false,
+		ad_break_complete:false,
 		obs_filter_toggle:false,
 		hype_train_cancel:false,
 		hype_train_summary:true,
@@ -1581,6 +1619,7 @@ export namespace TwitchatDataTypes {
 		low_trust_treatment:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
+		ad_break_approaching:false,
 		music_added_to_queue:false,
 		goxlr_sample_complete:false,
 		obs_input_mute_toggle:false,
@@ -1690,6 +1729,9 @@ export namespace TwitchatDataTypes {
 									| MessageGoXLRSampleCompleteData
 									| MessageGoXLRSoundInputData
 									| MessageHistorySplitterData
+									| MessageAdBreakStartData
+									| MessageAdBreakApproachingData
+									| MessageAdBreakCompleteData
 	;
 	
 	/**
@@ -1726,6 +1768,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
 		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
+		TwitchatMessageType.AD_BREAK_START,
 		TwitchatMessageType.USER_WATCH_STREAK,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
@@ -1787,10 +1830,12 @@ export namespace TwitchatDataTypes {
 
 	export type GreetableMessageTypes = Extract<ChatMessageTypes, {is_greetable_message?:boolean}>["type"];
 	//Ensure the object contains all requested keys
+	//This object is used to check if a message type is a greetable message
 	export const GreetableMessageTypesString:Record<GreetableMessageTypes, boolean> ={
 		cheer:true,
 		reward:true,
 		message:true,
+		hype_chat:true,
 		following:true,
 		subscription:true,
 		user_watch_streak:true,
@@ -3154,7 +3199,7 @@ export namespace TwitchatDataTypes {
 	 * Represents a hype chat message
 	 * These messages are also sent as standard messages
 	 */
-	export interface MessageHypeChatData extends AbstractTwitchatMessage {
+	export interface MessageHypeChatData extends GreetableMessage {
 		type:"hype_chat";
 		/**
 		 * User that created the marker
@@ -3269,6 +3314,51 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface MessageHistorySplitterData extends AbstractTwitchatMessage {
 		type:"history_splitter";
+	}
+
+	/**
+	 * Represents an ad break started manually
+	 */
+	export interface MessageAdBreakStartData extends AbstractTwitchatMessage {
+		type:"ad_break_start";
+		/**
+		 * Ad duration in seconds
+		 */
+		duration_s:number;
+		/**
+		 * User that started the ad break if not started automatically
+		 */
+		startedBy?:TwitchatUser;
+	}
+
+	/**
+	 * Represents an ad break started manually
+	 */
+	export interface MessageAdBreakApproachingData extends AbstractTwitchatMessage {
+		type:"ad_break_approaching";
+		/**
+		 * Date in milliseconds the ad will start
+		 */
+		start_at:number;
+		/**
+		 * Delay in milliseconds before ad break
+		 */
+		delay_ms:number;
+	}
+
+	/**
+	 * Represents an ad break started manually
+	 */
+	export interface MessageAdBreakCompleteData extends AbstractTwitchatMessage {
+		type:"ad_break_complete";
+		/**
+		 * Duration of the ad in seconds
+		 */
+		duration_s:number;
+		/**
+		 * User that started the ad break if not started automatically
+		 */
+		startedBy?:TwitchatUser;
 	}
 
 }

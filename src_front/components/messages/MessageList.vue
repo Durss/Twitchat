@@ -661,6 +661,10 @@ export default class MessageList extends Vue {
 			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
 				return true;
 			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
+				return this.config.filters.ad_break_start === true;
+			}
 
 			default: return false;
 		}

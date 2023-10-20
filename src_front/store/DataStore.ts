@@ -82,6 +82,7 @@ export default class DataStore {
 	public static GOXLR_CONFIG:string = "goxlrConfig";
 	public static RAID_HISTORY:string = "raidHistory";
 	public static SENT_MESSAGE_HISTORY:string = "sentMessageHistory";
+	public static AD_BREAK_SCOPES_REQUEST:string = "adBreakScopesRequested";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

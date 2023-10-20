@@ -21,7 +21,7 @@ import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } fro
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-let greetedUsers:{[key:string]:number} = {};
+let greetedUsersExpire_at:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
 
 export const storeChat = defineStore('chat', {
@@ -481,6 +481,14 @@ export const storeChat = defineStore('chat', {
 				twitch_scopes:[TwitchScopes.DELETE_MESSAGES],
 			},
 			{
+				id:"snooze",
+				cmd:"/snooze",
+				detailsKey:"params.commands.snooze_ad_break",
+				twitchCmd:true,
+				needModerator:true,
+				twitch_scopes:[TwitchScopes.ADS_SNOOZE],
+			},
+			{
 				id:"streamtitle",
 				cmd:"/setStreamTitle {title}",
 				detailsKey:"params.commands.streamTitle",
@@ -712,23 +720,22 @@ export const storeChat = defineStore('chat', {
 			if(!greetedUsersInitialized) {
 				greetedUsersInitialized = true;
 				const history = DataStore.get(DataStore.GREET_HISTORY);
-				greetedUsers = JSON.parse(history ?? "{}");
+				greetedUsersExpire_at = JSON.parse(history ?? "{}");
 				//Previously they were stored in an array instead of an object, convert it
-				if(Array.isArray(greetedUsers)) greetedUsers = {};
+				if(Array.isArray(greetedUsersExpire_at)) greetedUsersExpire_at = {};
 				const now = Date.now();
-				for (const key in greetedUsers) {
-					if(greetedUsers[key] < now - 24 * 60 * 60 * 1000) {
+				for (const key in greetedUsersExpire_at) {
+					if(greetedUsersExpire_at[key] < now - 24 * 60 * 60 * 1000) {
 						//Old entry, delete it
-						delete greetedUsers[key];
+						delete greetedUsersExpire_at[key];
 					}
 				}
-				DataStore.set(DataStore.GREET_HISTORY, greetedUsers);
+				DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at);
 			}
 
 			//Check if it's a greetable message
 			if(TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(message.type)) {
-				const mLoc = message as TwitchatDataTypes.GreetableMessage;
-				this.flagMessageAsFirstToday(mLoc, mLoc.user);
+				this.flagMessageAsFirstToday(message as TwitchatDataTypes.GreetableMessage);
 			}
 
 			switch(message.type) {
@@ -762,6 +769,8 @@ export const storeChat = defineStore('chat', {
 								id:Utils.getUUID(),
 								message,
 								platform:message.platform,
+								channel_id:message.channel_id,
+								user:message.user,
 								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
 							}
 							this.addMessage(hypeChatMessage);
@@ -1292,30 +1301,26 @@ export const storeChat = defineStore('chat', {
 			TTSUtils.instance.addMessageToQueue(message);
 		},
 		
-		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
-			this.deleteMessageByID(message.id, deleter, callEndpoint)
-		},
-		
 		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
 			//Start from most recent messages to find it faster
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
 				if(messageID == m.id && !m.deleted) {
-					this.deleteMessageByReference(m, deleter, callEndpoint);
+					this.deleteMessage(m, deleter, callEndpoint);
 					break;
 				}
 			}
 		},
 		
-		deleteMessageByReference(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
+		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {
-				//Called if closing an ad
 				messageList.splice(i, 1);
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
+
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				const wsMessage = {
 					channel:message.channel_id,
@@ -1342,6 +1347,9 @@ export const storeChat = defineStore('chat', {
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					TwitchUtils.deleteMessages(message.channel_id, message.id);
 				}
+			}else{
+				messageList.splice(i, 1);
+				Database.instance.deleteMessage(message);
 			}
 			
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
@@ -1504,22 +1512,29 @@ export const storeChat = defineStore('chat', {
 			}
 		},
 
-		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage, user:TwitchatDataTypes.TwitchatUser):void {
-			const lastActivityDate = message.user.channelInfo[message.channel_id].lastActivityDate;
-			message.user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void {
+			const user = message.user;
+			const has5hPassed = (user.channelInfo[message.channel_id].lastActivityDate || 0) + (5 * 60 * 60 * 1000) < Date.now();
+			user.channelInfo[message.channel_id].lastActivityDate = Date.now();
 
 			//Don't flag our own messages as first
-			if(message.channel_id == message.user.id) return;
+			if(message.channel_id == user.id) return;
+
+			//Ignore blocked users
+			if(user.is_blocked === true) return;
 
 			//Don't greet again if less than 5h have passed since last activity
-			if(lastActivityDate && lastActivityDate + (5 * 60 * 60 * 1000) > Date.now()) return;
+			if(!has5hPassed) return;
 
-			if(greetedUsers[user.id] && greetedUsers[user.id] > Date.now()) return;
-			if(user.is_blocked === true) return;//Ignore blocked users
+			//Don't greet a user already greeted
+			if(greetedUsersExpire_at[user.id] && greetedUsersExpire_at[user.id] > Date.now()) return;
+			
+			//Ignore bots
+			if(StoreProxy.users.knownBots[message.platform][user.login.toLowerCase()] === true) return;
 
 			message.todayFirst = true;
-			greetedUsers[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
-			DataStore.set(DataStore.GREET_HISTORY, greetedUsers, false);
+			greetedUsersExpire_at[user.id] = Date.now() + (1000 * 60 * 60 * 8);//expire after 8 hours
+			DataStore.set(DataStore.GREET_HISTORY, greetedUsersExpire_at, false);
 		},
 
 		resetGreetingHistory():void {
@@ -1531,7 +1546,7 @@ export const storeChat = defineStore('chat', {
 					u.channelInfo[chan].lastActivityDate = 0;
 				}
 			}
-			greetedUsers = {};
+			greetedUsersExpire_at = {};
 			//Reset greeting history
 			DataStore.remove(DataStore.GREET_HISTORY);
 		},
@@ -1543,7 +1558,7 @@ export const storeChat = defineStore('chat', {
 				if(m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE
 				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER
 				|| m.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING) {
-					this.deleteMessageByReference(m);
+					this.deleteMessage(m);
 				}
 			}
 		},

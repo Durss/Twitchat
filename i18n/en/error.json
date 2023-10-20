@@ -11,7 +11,7 @@
 		"load_user_ban": "Unable to load ban user states: {ERROR}",
 		"shoutout": "Shoutout failed",
 		"auto_shoutout": "You have not been raided yet",
-		"commercial_start": "An error occured when starting the commercial:{DETAILS}",
+		"commercial_start": "An error occured when starting the commercial: {DETAILS}",
 		"no_stream": "no stream found",
 		"user_param_missing": "Missing user name param",
 		"user_param_not_found": "User {USER} not found",
