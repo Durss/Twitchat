@@ -38,6 +38,7 @@
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak' || true" :class="subContent == 'adBreak'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>
@@ -56,6 +57,7 @@ import OverlayParamsRaffle from './overlays/OverlayParamsRaffle.vue';
 import OverlayParamsSpotify from './overlays/OverlayParamsSpotify.vue';
 import OverlayParamsTimer from './overlays/OverlayParamsTimer.vue';
 import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
+import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 
 @Component({
 	components:{
@@ -63,6 +65,7 @@ import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 		OverlayParamsUlule,
 		OverlayParamsTimer,
 		OverlayParamsRaffle,
+		OverlayParamsAdBreak,
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
 		OverlayParamsHighlight,
@@ -109,9 +112,11 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	.block {
 		width: 100%;
 		flex-grow: 1;
-		:deep(.icon) {
-			width: 1.5em;
-			height: 1.5em;
+		:deep(.header) {
+			.icon {
+				width: 1.5em;
+				height: 1.5em;
+			}
 		}
 
 		&.selected {

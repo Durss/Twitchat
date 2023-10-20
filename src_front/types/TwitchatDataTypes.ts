@@ -21,6 +21,7 @@ export namespace TwitchatDataTypes {
 		PATREON: "patreon",
 		PREMIUM: "premium",
 		COUNTER: "counter",
+		AD_BREAK: "adBreak",
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",

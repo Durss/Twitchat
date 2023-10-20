@@ -81,6 +81,23 @@
 			"project_goals":"Donation goals",
 			"project_currency":"Currency",
 			"project_goals_tt":"If you have multiple donation tiers, specify them here so the progress doesn't remains filled once the main goal has been reached"
+		},
+		"adBreak": {
+			"title":"Ad-break indicator",
+			"css": "You can change the appearance of the elements bar by overriding these CSS IDs on OBS browser source params",
+			"description":"Show when an ad-break is coming or running.",
+			"param_showApproaching":"Show when an ad is coming",
+			"param_showRunning":"Show when an ad is running",
+			"param_approachingDelay":"Only show when less than {VALUE}s are remaining",
+			"param_placement":"Overlay placement on screen",
+			"param_color":"Indicator's color",
+			"param_thickness":"Bar thickness",
+			"param_size":"Text size",
+			"param_style":"Display style",
+			"param_styles":{
+				"bar":"Progress bar",
+				"text":"Text"
+			}
 		}
 	}
 }

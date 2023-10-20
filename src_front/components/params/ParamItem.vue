@@ -302,6 +302,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.icon) res.push("hasIcon");
 		if(this.paramData.maxLength) res.push("maxLength");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
+		if(this.paramData.type == "time") res.push("time");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -974,6 +975,15 @@ export default class ParamItem extends Vue {
 
 	}
 
+	&.time {
+		.content > .holder {
+			.inputHolder {
+				flex-basis: 100px;
+				flex-grow: unset;
+			}
+		}
+	}
+
 	&.level_1,
 	&.level_2,
 	&.level_3,
@@ -991,12 +1001,12 @@ export default class ParamItem extends Vue {
 		width: calc(100% - @padding);
 		position: relative;
 		:deep(.holder) {
-			font-size: .9em;
+			// font-size: .9em;
 			&::before {
 				position: absolute;
-				left: -1.5em;
-				top: .2em;
-				font-size: 1.1em;
+				left: -1em;
+				top: .1em;
+				font-size: 1em;
 				content: "⤷";
 				display: block;
 			}
