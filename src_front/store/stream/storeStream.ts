@@ -1,3 +1,4 @@
+import type { JsonObject } from "type-fest";
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
@@ -8,6 +9,8 @@ import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 const commercialApproachingTimeouts:{[key:string]:number[]} = {};
 
@@ -311,6 +314,7 @@ export const storeStream = defineStore('stream', {
 				StoreProxy.chat.addMessage(message);
 			}
 			
+			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
 		},
 
 		startCommercial(channelId:string, duration:number):void {

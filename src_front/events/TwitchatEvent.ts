@@ -62,6 +62,9 @@ export default class TwitchatEvent extends Event {
 	public static OBS_FILTER_NAME_CHANGED:TwitchatEventType = "OBS_FILTER_NAME_CHANGED";
 	public static MERGE_TOGGLE:TwitchatEventType = "MERGE_TOGGLE";
 	public static SUMMARY_DATA:TwitchatEventType = "SUMMARY_DATA";
+	public static AD_BREAK_OVERLAY_PRESENCE:TwitchatEventType = "AD_BREAK_OVERLAY_PRESENCE";
+	public static AD_BREAK_OVERLAY_PARAMETERS:TwitchatEventType = "AD_BREAK_OVERLAY_PARAMETERS";
+	public static AD_BREAK_DATA:TwitchatEventType = "AD_BREAK_DATA";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -125,7 +128,9 @@ export default class TwitchatEvent extends Event {
 	public static STOP_PREDICTION:TwitchatActionType = "STOP_PREDICTION";
 	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
 	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
-	public static GET_SUMMARY_DATA:TwitchatActionType = "GET_SUMMARY_DATA";
+	public static GET_SUMMARY_DATA:TwitchatActionType = "GET_SUMMARY_DATA";	
+	public static GET_AD_BREAK_OVERLAY_PRESENCE:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PRESENCE";
+	public static GET_AD_BREAK_OVERLAY_PARAMETERS:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PARAMETERS";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -187,6 +192,9 @@ export const TwitchatEventTypeList = [
 	"MUSIC_PLAYER_HEAT_CLICK",
 	"MERGE_TOGGLE",
 	"SUMMARY_DATA",
+	"AD_BREAK_OVERLAY_PRESENCE",
+	"AD_BREAK_OVERLAY_PARAMETERS",
+	"AD_BREAK_DATA",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -253,5 +261,7 @@ export const TwitchatActionTypeList = [
 	"CREATE_RAFFLE",
 	"STOP_RAFFLE",
 	"GET_SUMMARY_DATA",
+	"GET_AD_BREAK_OVERLAY_PRESENCE",
+	"GET_AD_BREAK_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

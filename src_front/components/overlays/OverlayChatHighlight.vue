@@ -232,11 +232,9 @@ export default class OverlayChatHighlight extends Vue {
 		if(!holder) return;
 
 		const bounds = holder.getBoundingClientRect();
-		const winW = window.innerWidth;
-		const winH = window.innerHeight;
 
 		if(this.params.position.indexOf("r") > -1){
-			gsap.from(holder, {x:winW, duration:1, ease:"sine.out"});
+			gsap.from(holder, {x:"100%", duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position.indexOf("l") > -1){
 			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:1, ease:"sine.out"});
@@ -245,7 +243,7 @@ export default class OverlayChatHighlight extends Vue {
 			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position == "b"){
-			gsap.from(holder, {y:winH, duration:1, ease:"sine.out"});
+			gsap.from(holder, {y:"100%", duration:1, ease:"sine.out"});
 		}else
 		if(this.params.position == "m"){
 			gsap.from(holder, {scale:0, duration:1, ease:"back.out"});
@@ -330,6 +328,14 @@ export default class OverlayChatHighlight extends Vue {
 			border-top-left-radius: var(--border-radius);
 		}
 	
+		&.position-br {
+			bottom: .5em;
+			right: 0;
+			border-radius: 0;
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+	
 		.profilePic {
 			align-self: flex-start;
 			padding-right: .5em;
@@ -338,14 +344,6 @@ export default class OverlayChatHighlight extends Vue {
 				height: 3em;
 				border-radius: 50%;
 			}
-		}
-	
-		&.position-br {
-			bottom: .5em;
-			right: 0;
-			border-radius: 0;
-			border-top-left-radius: var(--border-radius);
-			border-bottom-left-radius: var(--border-radius);
 		}
 	
 		.infos {

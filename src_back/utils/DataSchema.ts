@@ -1079,6 +1079,28 @@ import Ajv from "ajv";
 				}
 			}
 		},
+
+		adBreakOverlayParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				showApproaching: {type:"boolean"},
+				showRunning: {type:"boolean"},
+				approachingDelay: {type:"integer", minimum:0, maximum:300},
+				approachingStyle: {type:"string", maxLength:50},
+				runningStyle: {type:"string", maxLength:50},
+				approachingSize: {type:"integer", minimum:0, maximum:100},
+				runningSize: {type:"integer", minimum:0, maximum:100},
+				approachingThickness: {type:"integer", minimum:0, maximum:100},
+				runningThickness: {type:"integer", minimum:0, maximum:100},
+				approachingColor: {type:"string", maxLength:50},
+				runningColor: {type:"string", maxLength:50},
+				approachingPlacement: {type:"string", maxLength:2},
+				runningPlacement: {type:"string", maxLength:2},
+				approachingLabel: {type:"string", maxLength:500},
+				runningLabel: {type:"string", maxLength:500}
+			}
+		}
 	}
 }
 

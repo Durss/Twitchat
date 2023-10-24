@@ -45,7 +45,8 @@
 					@blur="clampValue()">
 			</div>
 			
-			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'" class="holder text">
+			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
+			:class="paramData.type == 'time'? 'holder text time' : 'holder text'">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
@@ -929,7 +930,7 @@ export default class ParamItem extends Vue {
 			width: 100%;
 		}
 
-		&:has(.list, .number) .icon {
+		&:has(.list, .number, .time) .icon {
 			margin-top: .4em;
 		}
 
@@ -980,6 +981,10 @@ export default class ParamItem extends Vue {
 			.inputHolder {
 				flex-basis: 100px;
 				flex-grow: unset;
+
+			}
+			label {
+				margin-top: .4em;
 			}
 		}
 	}

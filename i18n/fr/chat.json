@@ -272,7 +272,7 @@
 		},
 		"adBreakScope": {
 			"header": "Alertes de pubs",
-			"content": "Tu souhaites que Twitchat t'alerte quand une publicité arrive ou est en cours ?\nTwitchat a besoin de nouvelles autorisations pour ça.",
+			"content": "Tu souhaites que Twitchat t'alerte quand une publicité arrive ou est en cours ?\nTwitchat nécessite de nouvelles autorisations !",
 			"grantBt": "Ouvrir les autorisations"
 		},
 		"donor": {

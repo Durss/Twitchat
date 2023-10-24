@@ -1479,6 +1479,27 @@ export namespace TwitchatDataTypes {
 		hypeTrains:{level:number, percent:number}[];
 	}
 
+	/**
+	 * Contains some info about the ad break overlay
+	 */
+	export interface AdBreakOverlayData {
+		showApproaching:boolean;
+		showRunning:boolean;
+		approachingDelay:number;
+		approachingStyle:"bar"|"text";
+		runningStyle:"bar"|"text";
+		approachingSize:number;
+		runningSize:number;
+		approachingThickness:number;
+		runningThickness:number;
+		approachingColor:string;
+		runningColor:string;
+		approachingPlacement:ScreenPosition;
+		runningPlacement:ScreenPosition;
+		approachingLabel:string;
+		runningLabel:string;
+	}
+
 
 
 	/**
@@ -1836,7 +1857,6 @@ export namespace TwitchatDataTypes {
 		cheer:true,
 		reward:true,
 		message:true,
-		hype_chat:true,
 		following:true,
 		subscription:true,
 		user_watch_streak:true,
@@ -3200,7 +3220,7 @@ export namespace TwitchatDataTypes {
 	 * Represents a hype chat message
 	 * These messages are also sent as standard messages
 	 */
-	export interface MessageHypeChatData extends GreetableMessage {
+	export interface MessageHypeChatData extends AbstractTwitchatMessage {
 		type:"hype_chat";
 		/**
 		 * User that created the marker

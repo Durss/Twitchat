@@ -1093,8 +1093,6 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						message:userMessage,
-						channel_id:user.id,
-						user:user,
 					};
 					data = m;
 					break;

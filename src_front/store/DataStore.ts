@@ -83,6 +83,7 @@ export default class DataStore {
 	public static RAID_HISTORY:string = "raidHistory";
 	public static SENT_MESSAGE_HISTORY:string = "sentMessageHistory";
 	public static AD_BREAK_SCOPES_REQUEST:string = "adBreakScopesRequested";
+	public static AD_BREAK_OVERLAY_PARAMS:string = "adBreakOverlayParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

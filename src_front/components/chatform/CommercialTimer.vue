@@ -64,8 +64,7 @@ export default class CommercialTimer extends Vue {
 	}
 
 	public refreshTimer():void {
-		// const maxSchedule	= 5 *60000;
-		const maxSchedule	= 50 * 60000;
+		const maxSchedule	= 5 *60000;
 		const channelId		= this.$store("auth").twitch.user.id;
 		const infos			= this.$store("stream").getCommercialInfo(channelId);
 		this.snoozeLeft		= infos.remainingSnooze;

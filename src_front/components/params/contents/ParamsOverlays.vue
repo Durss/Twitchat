@@ -38,7 +38,7 @@
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
-		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak' || true" :class="subContent == 'adBreak'? 'selected' : ''" />
+		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>

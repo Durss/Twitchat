@@ -5,7 +5,7 @@
 
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<Icon name="hypeChat" alt="hypeChat" class="icon"/>
+		<Icon name="hypeChat" alt="hypeChat" class="icon" theme="light"/>
 
 		<div class="holder">
 			<div class="message">

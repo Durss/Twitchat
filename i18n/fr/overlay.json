@@ -88,16 +88,20 @@
 			"description":"Affichez un décompte avant qu'une publicité soit lancée ou un décompte avant la fin d'une publicité en cours.",
 			"param_showApproaching":"Afficher lorsqu'une publicité arrive",
 			"param_showRunning":"Afficher lorsqu'une publicité est en cours",
-			"param_approachingDelay":"Afficher lorsqu'il reste moins de {VALUE}s avant le début",
+			"param_approachingDelay":"Afficher {VALUE}s avant le début de la pub",
 			"param_placement":"Position de l'overlay dans l'écran",
-			"param_color":"Couleur de l'indicateur",
+			"param_color":"Couleur",
 			"param_thickness":"Épaisseur de la barre",
 			"param_size":"Taille du texte",
 			"param_style":"Type d'affichage",
+			"param_label":"Texte",
+			"param_label_placeholder_timer":"Affiche le temps restant",
 			"param_styles":{
 				"bar":"Barre de progression",
 				"text":"Texte"
-			}
+			},
+			"ad_approaching":"Pub dans {'{'}TIMER{'}'}s",
+			"ad_running":"Pub: {'{'}TIMER{'}'}s"
 		}
 	}
 }

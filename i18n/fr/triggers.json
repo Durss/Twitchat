@@ -920,11 +920,11 @@
 				"description": "Actions à exécuter lorsqu'un /announce est envoyé"
 			},
 			"AD_STARTED": {
-				"label": "Lancement d'une publicité",
+				"label": "Début d'une publicité",
 				"description": "Actions à exécuter lorsqu'une publicité débute"
 			},
 			"AD_APPROACHING": {
-				"label": "Lancement proche d'une publicité",
+				"label": "Une publicité démarre bientôt",
 				"description": "Actions à exécuter lorsqu'une publicité va bientôt débuter"
 			},
 			"AD_COMPLETE": {

@@ -450,7 +450,7 @@
 				const shadowBlur = ((1-ease) * 5 + 2) + "px";
 				l.style.filter = "drop-shadow("+shadowOffset+" "+shadowOffset+" "+shadowBlur+" #7f7f7f7f)";
 			}
-			if(closing && loader.style.opacity == 0) {
+			if(closing && loader.style.opacity <= 0) {
 				loader.parentElement.removeChild(loader);
 			}else{
 				requestAnimationFrame((ts)=>renderFrame(ts));
@@ -461,6 +461,8 @@
 			document.body.classList.add("bg");
 			loader.style.display = "block";
 			renderFrame(0);
+		}else{
+			loader.parentElement.removeChild(loader);
 		}
 
 		function closeInitLoader() {

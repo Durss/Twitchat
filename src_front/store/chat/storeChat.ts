@@ -769,8 +769,6 @@ export const storeChat = defineStore('chat', {
 								id:Utils.getUUID(),
 								message,
 								platform:message.platform,
-								channel_id:message.channel_id,
-								user:message.user,
 								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
 							}
 							this.addMessage(hypeChatMessage);

@@ -922,7 +922,7 @@
 				"description": "Actions to execute when a mid-roll ad starts"
 			},
 			"AD_APPROACHING": {
-				"label": "Ad break will start",
+				"label": "Ad break starting soon",
 				"description": "Actions to execute when a mid-roll ad will start soon"
 			},
 			"AD_COMPLETE": {

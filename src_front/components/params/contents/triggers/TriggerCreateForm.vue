@@ -269,7 +269,9 @@ export default class TriggerCreateForm extends Vue {
 		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return true;
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE && !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return true;
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return true;
-		if((e.value == TriggerTypes.AD_APPROACHING || e.value == TriggerTypes.AD_STARTED) && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) return true;
+		if((e.value == TriggerTypes.AD_APPROACHING
+		|| e.value == TriggerTypes.AD_STARTED
+		 || e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) return true;
 
 		if(!TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])
 		&& (e.value == TriggerTypes.HYPE_TRAIN_CANCELED
@@ -302,7 +304,9 @@ export default class TriggerCreateForm extends Vue {
 		if(e.value == TriggerTypes.STREAM_INFO_UPDATE && !TwitchUtils.requestScopes([TwitchScopes.SET_STREAM_INFOS])) return;
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_ONLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.requestScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
-		if((e.value == TriggerTypes.AD_APPROACHING || e.value == TriggerTypes.AD_STARTED) && !TwitchUtils.requestScopes([TwitchScopes.ADS_READ])) return;
+		if((e.value == TriggerTypes.AD_APPROACHING
+		|| e.value == TriggerTypes.AD_STARTED
+		 || e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.requestScopes([TwitchScopes.ADS_READ])) return;
 
 		if((e.value == TriggerTypes.HYPE_TRAIN_CANCELED
 			|| e.value == TriggerTypes.HYPE_TRAIN_APPROACHING

@@ -380,6 +380,16 @@ export const storeMain = defineStore("main", {
 			});
 		
 			/**
+			 * Called when requesting ad break overlay parameters
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+				const data = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);
+				const ad = StoreProxy.stream.getCommercialInfo(StoreProxy.auth.twitch.user.id);
+				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, JSON.parse(data));
+				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (ad as unknown) as JsonObject);
+			});
+		
+			/**
 			 * Called when asking to toggle message merging
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {

@@ -1,4 +1,3 @@
-import gsap from "gsap/all";
 import type { JsonArray, JsonObject, JsonValue } from "type-fest";
 import { EventDispatcher } from "../events/EventDispatcher";
 import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEvent";
@@ -73,6 +72,7 @@ export default class PublicAPI extends EventDispatcher {
 	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
 		if(!data) data = {};
+		data = JSON.parse(JSON.stringify(data)) as JsonObject;
 		data.id = Utils.getUUID();
 		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
 

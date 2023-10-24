@@ -62,44 +62,7 @@
 
 			<div class="card-item item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
-				<div class="table">
-					<div class="item" :class="placement=='tl'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
-						<label for="mazePos_tl">┌</label>
-					</div>
-					<div class="item" :class="placement=='t'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="t" id="mazePos_t">
-						<label for="mazePos_t">┬</label>
-					</div>
-					<div class="item" :class="placement=='tr'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="tr" id="mazePos_tr">
-						<label for="mazePos_tr">┐</label>
-					</div>
-					<div class="item" :class="placement=='l'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="l" id="mazePos_l">
-						<label for="mazePos_l">├</label>
-					</div>
-					<div class="item" :class="placement=='m'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="m" id="mazePos_m">
-						<label for="mazePos_m">┼</label>
-					</div>
-					<div class="item" :class="placement=='r'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="r" id="mazePos_r">
-						<label for="mazePos_r">┤</label>
-					</div>
-					<div class="item" :class="placement=='bl'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="bl" id="mazePos_bl">
-						<label for="mazePos_bl">└</label>
-					</div>
-					<div class="item" :class="placement=='b'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="b" id="mazePos_b">
-						<label for="mazePos_b">┴</label>
-					</div>
-					<div class="item" :class="placement=='br'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="br" id="mazePos_br">
-						<label for="mazePos_br">┘</label>
-					</div>
-				</div>
+				<PlacementSelector v-model="placement" />
 			</div>
 
 			<div class="item center" v-if="overlayExists">
@@ -132,11 +95,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import PlacementSelector from '@/components/PlacementSelector.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
+		PlacementSelector,
 	}
 })
 export default class OverlayParamsHighlight extends Vue {

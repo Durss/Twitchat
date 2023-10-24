@@ -88,16 +88,20 @@
 			"description":"Show when an ad-break is coming or running.",
 			"param_showApproaching":"Show when an ad is coming",
 			"param_showRunning":"Show when an ad is running",
-			"param_approachingDelay":"Only show when less than {VALUE}s are remaining",
+			"param_approachingDelay":"Show {VALUE}s before ad-break",
 			"param_placement":"Overlay placement on screen",
 			"param_color":"Indicator's color",
 			"param_thickness":"Bar thickness",
 			"param_size":"Text size",
 			"param_style":"Display style",
+			"param_label":"Text label",
+			"param_label_placeholder_timer":"Show countdown",
 			"param_styles":{
 				"bar":"Progress bar",
 				"text":"Text"
-			}
+			},
+			"ad_approaching":"Ad in {'{'}TIMER{'}'}s",
+			"ad_running":"Ad: {'{'}TIMER{'}'}s"
 		}
 	}
 }
