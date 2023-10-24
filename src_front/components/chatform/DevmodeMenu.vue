@@ -3,6 +3,9 @@
 		<h1>Developer panel</h1>
 		<div class="list">
 			<!-- <Button small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
+			<!-- <Button small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</Button>
+			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
+			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequeence</Button>
 			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
@@ -10,6 +13,7 @@
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_warn')" icon="whispers">Twitchat Ad warn</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
+			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</Button>
 			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
@@ -78,7 +82,6 @@ import gsap from 'gsap';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
-import { typed } from 'mathjs';
 
 @Component({
 	components:{
@@ -139,6 +142,7 @@ export default class DevmodeMenu extends Vue {
 				case "discord":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DISCORD; break;
 				case "ad":					(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.DONATE; break;
 				case "ad_warn":				(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; break;
+				case "ad_break_api":		(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.AD_BREAK_SCOPE_REQUEST; break;
 				case "donor_public_prompt":	(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_SPONSOR_PUBLIC_PROMPT; break;
 				case "update_reminder":		(message as TwitchatDataTypes.MessageTwitchatAdData).adType = TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER; break;
 				case "soReceived":			(message as TwitchatDataTypes.MessageShoutoutData).received = true; break;
@@ -334,6 +338,25 @@ export default class DevmodeMenu extends Vue {
 			await Utils.promisedTimeout(100);
 		}
 	}
+
+	public simulateCommercialSequence():void {
+		const channelId = this.$store("auth").twitch.user.id;
+		const params:TwitchatDataTypes.CommercialData = {
+			adCooldown_ms:			0,
+			currentAdStart_at:		0,
+			remainingSnooze:		3,
+			currentAdDuration_ms:	0,
+			nextAdStart_at:			Date.now() + 1 * 60 * 1000,
+			nextSnooze_at:			Date.now() + 1 * 60 * 1000,
+		};
+		this.$store("stream").setCommercialInfo(channelId, params);
+
+		setTimeout(()=> {
+			params.currentAdStart_at = Date.now();
+			params.currentAdDuration_ms = 33000;
+			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user);
+		}, params.nextAdStart_at - Date.now())
+	}
 }
 
 type Subaction = "first"
@@ -351,6 +374,7 @@ type Subaction = "first"
 				| "raidOnline"
 				| "raidOffline"
 				| "ad"
+				| "ad_break_api"
 				| "hypeChat"
 				| "clip"
 				| "recent";

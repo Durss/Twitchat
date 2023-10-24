@@ -315,8 +315,8 @@ function buildApp() {
 				//date : contains the date at which something has been flagged as new
 				//id : id of the item flaged as new
 				//duration : duration during which the item should be flaged as new (1 month by default)
-				const {date, id} = binding.value;
-				const maxDuration = binding.value.duration || 30 * 24 * 60 * 60000;
+				const {date, id, duration} = binding.value;
+				const maxDuration = duration || 30 * 24 * 60 * 60000;
 				//Flag as new only for 1 month
 				if(Date.now() - date > maxDuration) return;
 
@@ -328,8 +328,10 @@ function buildApp() {
 
 				el.addEventListener("click", ()=>{
 					const flagsDone = JSON.parse(DataStore.get(DataStore.NEW_FLAGS) || "[]");
-					flagsDone.push(id);
-					DataStore.set(DataStore.NEW_FLAGS, flagsDone);
+					if(!flagsDone.includes(id)) {
+						flagsDone.push(id);
+						DataStore.set(DataStore.NEW_FLAGS, flagsDone);
+					}
 					el.classList.remove("newFlag");
 				});
 			}

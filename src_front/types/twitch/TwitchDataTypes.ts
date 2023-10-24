@@ -444,4 +444,15 @@ export namespace TwitchDataTypes {
 		};
         cost: number;
 	}
+
+	export interface AdSchedule {
+		next_ad_at:string;
+		last_ad_at:string;
+		snooze_refresh_at:string;
+		length_seconds:number;
+		preroll_free_time_seconds:number;
+		snooze_count:number;
+	}
+
+	export type AdSnooze = Pick<AdSchedule, "snooze_count" | "snooze_refresh_at" | "next_ad_at">;
 }

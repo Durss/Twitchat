@@ -68,7 +68,7 @@
 			"param_yearly": "Yearly",
 			"param_action": "Schedule type",
 			"param_repeatDurationCondition": "Time based repeat",
-			"param_repeatDurationValue": "Execute every minute | Execute every {VALUE} minutes",
+			"param_repeatDurationValue": "Execute every {VALUE}s",
 			"param_repeatMessageCondition": "Message based repeat",
 			"param_repeatMessageValue": "Must receive at least {VALUE} message | Must receive at least {VALUE} messages"
 		},
@@ -377,6 +377,9 @@
 			"customUsername": {
 				"param_user": "Select user to edit username of",
 				"param_username": "New username (leave empty to reset)"
+			},
+			"adBreak": {
+				"param_delay": "Delay before ad break starts"
 			}
 		},
 		"categories": {
@@ -530,6 +533,8 @@
 			"goxlr_fader_2_mute":"Fader 2 muted",
 			"goxlr_fader_3_mute":"Fader 3 muted",
 			"goxlr_fader_4_mute":"Fader 4 muted",
+			"ad_break_duration":"Ad break duration in seconds",
+			"ad_break_user":"Name of the moderator that started the ad break (empty if automatically started)",
 			"announcement_color":"Couleur de l'annonce",
 			"track_add_fail_reason":"Track add fail reason"
 		},
@@ -925,6 +930,18 @@
 			"ANNOUNCEMENTS": {
 				"label": "/announce",
 				"description": "Actions to execute when a /announce is sent on chat"
+			},
+			"AD_STARTED": {
+				"label": "Ad break started",
+				"description": "Actions to execute when a mid-roll ad starts"
+			},
+			"AD_APPROACHING": {
+				"label": "Ad break starting soon",
+				"description": "Actions to execute when a mid-roll ad will start soon"
+			},
+			"AD_COMPLETE": {
+				"label": "Ad break completed",
+				"description": "Actions to execute when a mid-roll ad completes"
 			}
 		},
 		"musicEvents": {

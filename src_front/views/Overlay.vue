@@ -9,6 +9,7 @@
 		<OverlayCounter v-if="overlay=='counter'" />
 		<OverlayUlule v-if="overlay=='ulule'" />
 		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
+		<OverlayAdBreak v-if="overlay=='adbreak'" />
 	</div>
 </template>
 
@@ -27,12 +28,14 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OverlayTTS from '@/components/params/contents/overlays/OverlayTTS.vue';
+import OverlayAdBreak from '@/components/overlays/OverlayAdBreak.vue';
 
 @Component({
 	components:{
 		OverlayTTS,
 		OverlayUlule,
 		OverlayTimer,
+		OverlayAdBreak,
 		OverlayCounter,
 		OverlayHeatDebug,
 		OverlayMusicPlayer,

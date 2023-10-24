@@ -230,6 +230,9 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 				}
+				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
+				}
 				
 				//Don't need to listen for this event for anyone else but the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
@@ -354,6 +357,11 @@ export default class EventSub {
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN:
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT: {
 				this.shoutoutEvent(topic, payload.event as TwitchEventSubDataTypes.ShoutoutInEvent | TwitchEventSubDataTypes.ShoutoutOutEvent);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN: {
+				this.adBreakEvent(topic, payload.event as TwitchEventSubDataTypes.AdBreakEvent);
 				break;
 			}
 
@@ -825,6 +833,18 @@ export default class EventSub {
 			}
 			StoreProxy.users.pendingShoutouts[channel_id] = list;
 		}
+	}
+	
+	/**
+	 * Called when an Ad break is started.
+	 * Either manually or automatically.
+	 */
+	public adBreakEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AdBreakEvent):void {
+		const infos = StoreProxy.stream.getCommercialInfo(event.broadcaster_user_id);
+		infos.currentAdStart_at = new Date(event.started_at).getTime();
+		infos.currentAdDuration_ms = event.length_seconds * 1000;
+		const starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
+		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, event.is_automatic? undefined : starter);
 	}
 	
 }

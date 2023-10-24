@@ -1019,6 +1019,7 @@ export default class TwitchUtils {
 		url.searchParams.append("length", duration.toString());
 		const res = await fetch(url, options);
 		const json = await res.json();
+		this.getAdSchedule();//Refreshes current ad schedule data
 		if(json.error) {
 			throw(json);
 		}else{
@@ -2258,6 +2259,89 @@ export default class TwitchUtils {
 		}
 		StoreProxy.main.alert(StoreProxy.i18n.t("error.marker_creation"));
 		return false;
+	}
+
+	/**
+	 * Gets Ad schedule
+	 */
+	public static async getAdSchedule():Promise<TwitchDataTypes.AdSchedule|null> {
+		if(!this.hasScopes([TwitchScopes.ADS_READ])) return null
+
+		const user = StoreProxy.auth.twitch.user;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads");
+		url.searchParams.append("broadcaster_id", user.id);
+		
+		const res = await fetch(url, {
+			method:"GET",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json = await res.json();
+			if(json.data && json.data.length > 0) {
+				const data = json.data[0] as TwitchDataTypes.AdSchedule;
+				const infos:TwitchatDataTypes.CommercialData = {
+					adCooldown_ms:			StoreProxy.stream.commercial[user.id].adCooldown_ms,
+					currentAdStart_at:		StoreProxy.stream.commercial[user.id].currentAdStart_at,
+					remainingSnooze:		data.snooze_count,
+					currentAdDuration_ms:	data.length_seconds,
+					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
+					nextSnooze_at:			new Date(data.snooze_refresh_at).getTime(),
+				};
+				StoreProxy.stream.setCommercialInfo(user.id, infos);
+				return data;
+			}
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.getAdSchedule();
+		}else if (res.status == 400) {
+			//Channel not live or no ad scheduled
+			const infos:TwitchatDataTypes.CommercialData = {
+				adCooldown_ms:			0,
+				currentAdStart_at:		0,
+				remainingSnooze:		0,
+				currentAdDuration_ms:	0,
+				nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60000,
+				nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60000,
+			};
+			StoreProxy.stream.setCommercialInfo(user.id, infos);
+		}
+		return null;
+	}
+
+	/**
+	 * Snooze next ad
+	 */
+	public static async snoozeNextAd():Promise<TwitchDataTypes.AdSnooze|null> {
+		if(!this.hasScopes([TwitchScopes.ADS_SNOOZE])) return null
+
+		const user = StoreProxy.auth.twitch.user;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads/schedule/snooze");
+		url.searchParams.append("broadcaster_id", user.id);
+		
+		const res = await fetch(url, {
+			method:"POST",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json = await res.json();
+			if(json.data && json.data.length > 0) {
+				const data = json.data[0] as TwitchDataTypes.AdSnooze;
+				const infos:TwitchatDataTypes.CommercialData = {
+					adCooldown_ms:			StoreProxy.stream.commercial[user.id].adCooldown_ms,
+					currentAdStart_at:		StoreProxy.stream.commercial[user.id].currentAdStart_at,
+					currentAdDuration_ms:	StoreProxy.stream.commercial[user.id].currentAdDuration_ms,
+					remainingSnooze:		data.snooze_count,
+					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
+					nextSnooze_at:			new Date(data.snooze_refresh_at).getTime(),
+				};
+				StoreProxy.stream.setCommercialInfo(user.id, infos);
+				return data;
+			}
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.snoozeNextAd();
+		}
+		return null;
 	}
 
 

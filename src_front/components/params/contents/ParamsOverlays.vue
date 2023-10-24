@@ -42,6 +42,7 @@
 		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" />
+		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>
@@ -63,6 +64,7 @@ import OverlayParamsUlule from './overlays/OverlayParamsUlule.vue';
 import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
 import OverlayParamsHeatDistort from './overlays/OverlayParamsHeatDistort.vue';
 import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
+import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 
 @Component({
 	components:{
@@ -71,6 +73,7 @@ import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
 		OverlayParamsUlule,
 		OverlayParamsTimer,
 		OverlayParamsRaffle,
+		OverlayParamsAdBreak,
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
 		OverlayParamsCredits,

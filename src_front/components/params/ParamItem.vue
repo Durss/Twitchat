@@ -48,7 +48,8 @@
 					@input="$emit('input')">
 			</div>
 			
-			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime'" class="holder text">
+			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
+			:class="paramData.type == 'time'? 'holder text time' : 'holder text'">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
@@ -73,6 +74,7 @@
 						:name="paramData.fieldName"
 						:id="'text'+key"
 						:type="paramData.type == 'datetime'? 'datetime-local' : paramData.type"
+						:step="paramData.type == 'time'? 1 : undefined"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						:disabled="premiumLocked || disabled !== false"
@@ -96,8 +98,7 @@
 						:disabled="premiumLocked || disabled !== false"
 						:name="paramData.fieldName"
 						:id="'text'+key"
-						type="color"
-						@input="$emit('input')">
+						type="color">
 				</div>
 			</div>
 			
@@ -233,6 +234,7 @@ import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -322,6 +324,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.maxLength) res.push("maxLength");
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		if(this.premiumLocked) res.push("cantUse");
+		if(this.paramData.type == "time") res.push("time");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -336,6 +339,8 @@ export default class ParamItem extends Vue {
 			count = parseFloat(this.paramData.value as string) ?? 0;
 			if(isNaN(count)) count = 0;
 			v = count.toString();
+		}else if(this.paramData.type == "time") {
+			v = Utils.formatDuration(parseInt(v+"") * 1000);
 		}
 		if(this.paramData.labelKey) {
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
@@ -364,7 +369,18 @@ export default class ParamItem extends Vue {
 	}
 
 	public get textValue():string {
-		return this.paramData.value as string;
+		if(this.paramData.type == "time") {
+			//Convert number value in milliseconds to "hh:mm:ss" string
+			const value = ((this.paramData.value as number) || 0);
+			const h_ms = 3600;
+			const m_ms = 60;
+			const h = Math.floor(value / h_ms);
+			const m = Math.floor((value - h * h_ms) / m_ms);
+			const s = Math.floor((value - h * h_ms - m * m_ms));
+			return Utils.toDigits(h)+":"+Utils.toDigits(m)+":"+Utils.toDigits(s);
+		}else{
+			return this.paramData.value as string;
+		}
 	}
 
 	public set textValue(value:string) {
@@ -377,19 +393,36 @@ export default class ParamItem extends Vue {
 				this.paramData.value = "_____this_is_a_fake_value_you_SHOULD_R3aLLY_N0T_use_hehehehehe_____";
 			}
 		}
-		this.paramData.value = value;
-		const input = this.$refs.input as HTMLInputElement;
-		let selectStart = input.selectionStart || value.length;
-		let selectEnd = input.selectionEnd;
-		
-		this.$nextTick().then(()=> {
-			const newInput = this.$refs.input as HTMLInputElement;
-			if(newInput == input) return;
-			//In case there was a switch between a <input> and a <textarea>, set the carret
-			//to the same place it was before the switch
-			newInput.selectionStart = selectStart;
-			newInput.selectionEnd = selectEnd;
-		})
+		if(this.paramData.type == "time") {
+			//Convert string input value "hh:mm:ss" to a number value in milliseconds
+			if(!/[0-9]{2}:[0-9]{2}:[0-9]{2}/gi.test(value)) {
+				//This line forces the component to rerun the "textValue" getter which parses the duration back
+				//to string even if the number hasn't changed. For exemple if field is set to "00:00:00" and user
+				//pressed the DEL key on any of the 3 components, the parsed number value will remain "0" which
+				//wouldn't trigger the "textValue" getter again and field would be like "00:--:00" instead
+				//if "00:00:00". Forcing change of the field here to an invalid value will make sure that
+				//setting the value back to the proper value will trigger appropriate watchers
+				this.paramData.value = "";
+				value = "00:00:00";
+			}
+			const [h,m,s] = value.split(":").map(v=>parseInt(v));
+			this.paramData.value = (h * 3600 + m * 60 + s) || 0;
+		}else{
+			this.paramData.value = value;
+			
+			const input = this.$refs.input as HTMLInputElement;
+			let selectStart = input.selectionStart || value.length;
+			let selectEnd = input.selectionEnd;
+			
+			this.$nextTick().then(()=> {
+				const newInput = this.$refs.input as HTMLInputElement;
+				if(newInput == input) return;
+				//In case there was a switch between a <input> and a <textarea>, set the carret
+				//to the same place it was before the switch
+				newInput.selectionStart = selectStart;
+				newInput.selectionEnd = selectEnd;
+			})
+		}
 	}
 
 	public beforeUpdate(): void {
@@ -514,12 +547,16 @@ export default class ParamItem extends Vue {
 		if(this.paramData.save === true) {
 			this.$store("params").updateParams();
 		}
-		this.$emit("update:modelValue", this.paramData.value);
-		this.$emit("change");
-		if(this.paramData.editCallback) {
-			this.paramData.editCallback(this.paramData);
+		if(this.paramData.type != "number" || this.paramData.value !== "") {
+			this.$emit("update:modelValue", this.paramData.value);
+			this.$emit("change");
+			if(this.paramData.editCallback) {
+				this.paramData.editCallback(this.paramData);
+			}
 		}
+
 		this.buildChildren();
+
 		this.$nextTick().then(()=>{
 			this.isLocalUpdate = false;
 		})
@@ -875,7 +912,7 @@ export default class ParamItem extends Vue {
 			width: 100%;
 		}
 
-		&:has(.list, .number) .icon {
+		&:has(.list, .number, .time) .icon {
 			margin-top: .4em;
 		}
 
@@ -912,6 +949,19 @@ export default class ParamItem extends Vue {
 			min-height: 2em;
 		}
 
+	}
+
+	&.time {
+		.content > .holder {
+			.inputHolder {
+				flex-basis: 100px;
+				flex-grow: unset;
+
+			}
+			label {
+				margin-top: .4em;
+			}
+		}
 	}
 
 	&.level_1,

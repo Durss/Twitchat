@@ -407,6 +407,7 @@ export default class PatreonController extends AbstractController {
 				};
 				return member;
 			});
+			
 			this.members = this.members.concat(members);
 			if(verbose)Logger.info("Patreon: "+this.members.length+" active members");
 			// fs.writeFileSync(Config.PATREON_MEMBERS_PATH.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");

@@ -20,16 +20,19 @@
 		<div class="content entries" v-else-if="!reloading">
 			<div v-for="item in logs" :key="item.id" :class="getTriggerClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
-					<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
-					<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
-					<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
-					<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
-					<!-- <div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div> -->
-					<div class="status" v-tooltip="'pending'" v-else><Icon name="loader" theme="light" /></div>
-					<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
-					<div class="date">{{ getFormatedDime(item.date) }}</div>
-					<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
-					<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
+					<div class="infos">
+						<img class="icon" :src="$image('icons/'+getTriggerInfo(item.trigger)?.icon+'.svg')">
+						<div class="status" v-tooltip="'error'" v-if="item.error"><img src="@/assets/icons/cross.svg"></div>
+						<div class="status" v-tooltip="'critical error'" v-else-if="item.criticalError"><img src="@/assets/icons/alert.svg"></div>
+						<div class="status" v-tooltip="'complete'" v-else-if="item.complete"><img src="@/assets/icons/checkmark.svg"></div>
+						<div class="status" v-tooltip="'skipped'" v-else-if="item.skipped"><img src="@/assets/icons/skip.svg"></div>
+						<div class="status" v-tooltip="'pending'" v-else><Icon name="loader" theme="light" /></div>
+						<div class="status" v-tooltip="'started from<br>Test button'" v-if="item.testMode"><img src="@/assets/icons/test.svg"></div>
+						<div class="date">{{ getFormatedDime(item.date) }}</div>
+						<div class="title" v-if="getTriggerInfo(item.trigger).event?.labelKey">{{ $t(getTriggerInfo(item.trigger).event?.labelKey as string) }}</div>
+						<div class="subtitle" v-if="getTriggerInfo(item.trigger)?.label != $t(getTriggerInfo(item.trigger).event?.labelKey as string)">{{ getTriggerInfo(item.trigger)!.label }}</div>
+					</div>
+					<Icon name="arrowRight" class="arrow" />
 				</div>
 				<div class="messages" v-if="idToExpandState[item.id] == true">
 					<ul class="messages">
@@ -41,9 +44,10 @@
 				</div>
 				<div class="steps" v-if="idToExpandState[item.id] == true">
 					<div v-for="step in item.steps" :class="getStepClasses(step)">
-						<div class="head" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
+						<div :class="getHeadClasses(step)" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
 							<span class="date">{{ getFormatedDime(step.date) }}</span>
 							<span>{{ step.data.type }}</span>
+							<Icon name="arrowRight" />
 						</div>
 						<ul class="messages" v-if="idToExpandState[step.id]">
 							<li v-for="mess in step.messages">
@@ -90,6 +94,14 @@ export default class TriggersLogs extends AbstractSidePanel {
 		const res = ["entry"];
 		if(log.error) res.push("secondary");
 		if(log.criticalError) res.push("alert");
+		if(this.idToExpandState[log.id]) res.push("open");
+		return res;
+	}
+
+	public getHeadClasses(step:TriggerLogStep):string[] {
+		const res = ["head"];
+		if(this.idToExpandState[step.id]) res.push("open");
+		if(step.error) res.push("secondary");
 		return res;
 	}
 
@@ -129,9 +141,6 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 <style scoped lang="less">
 .triggerslogs{
-	.head {
-		flex-shrink: 1;
-	}
 	.ctas {
 		margin-top: 1em;
 		gap: .5em;
@@ -162,32 +171,50 @@ export default class TriggersLogs extends AbstractSidePanel {
 		.head {
 			display: flex;
 			flex-direction: row;
-			align-items: center;
-			gap: .5em;
-			background: var(--color-primary);
+			background-color: var(--color-primary);
 			padding: .2em .5em;
 			border-radius: .5em;
 			color: var(--color-light);
+			transition: background-color.25s;
 			cursor:pointer;
-
-			.icon {
+			.arrow {
 				height: 1em;
+				justify-self: flex-end;
 			}
-			.status {
-				height: 1em;
-				img {
-					height: 100%;
+
+			.infos {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				flex-grow: 1;
+				.icon {
+					height: 1em;
+				}
+				.status {
+					height: 1em;
+					img {
+						height: 100%;
+					}
+				}
+	
+				.subtitle {
+					font-size: .8em;
+					background: var(--color-light);
+					color: var(--color-primary);
+					padding: 1.5px 5px;
+					border-radius: 5px;
 				}
 			}
-
-			.subtitle {
-				font-size: .8em;
-				background: var(--color-light);
-				color: var(--color-primary);
-				padding: 1.5px 5px;
-				border-radius: 5px;
+			&:hover {
+				background-color: var(--color-primary-light);
 			}
+		}
 
+		&.open {
+			.head > .arrow {
+				transform: rotate(90deg);
+			}
 		}
 
 		.date {
@@ -204,12 +231,29 @@ export default class TriggersLogs extends AbstractSidePanel {
 				flex-direction: column;
 				gap: .25em;
 				.head {
+					gap: .5em;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
 					align-self: flex-start;
-					background-color: var(--color-primary);
-				}
-				&.secondary {
-					.head {
-						background: var(--color-secondary);
+					background-color: var(--color-primary-dark);
+					transition: background-color.25s;
+					&:hover {
+						background-color: var(--color-primary);
+					}
+					.icon {
+						height: 1em;
+					}
+					&.open {
+						.icon {
+							transform: rotate(90deg);
+						}
+					}
+					&.secondary {
+						background-color: var(--color-secondary-dark);
+						&:hover {
+							background-color: var(--color-secondary);
+						}
 					}
 				}
 			}
@@ -227,12 +271,18 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 		&.secondary {
 			.head {
-				background: var(--color-secondary);
+				background-color: var(--color-secondary);
+				&:hover {
+					background-color: var(--color-secondary-light);
+				}
 			}
 		}
 		&.alert {
 			.head {
-				background: var(--color-alert);
+				background-color: var(--color-alert);
+				&:hover {
+					background-color: var(--color-alert-light);
+				}
 			}
 		}
 

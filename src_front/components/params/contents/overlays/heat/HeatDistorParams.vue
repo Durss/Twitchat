@@ -1,7 +1,7 @@
 <template>
 	<div class="heatdistorparams card-item">
 		<OverlayInstaller type="distort" :id="modelValue.id" :sourceSuffix="sourceSuffix">
-			<template #instructions>{{ $t("overlay.heatDistort.install_overlay") }}</template>
+			{{ $t("overlay.heatDistort.install_overlay") }}
 		</OverlayInstaller>
 		<ToggleBlock class="permissions" :open="false" medium :title="$t('overlay.heatDistort.permissions_title')" :icons="['lock_fit']">
 			<PermissionsForm v-model="modelValue.permissions" />

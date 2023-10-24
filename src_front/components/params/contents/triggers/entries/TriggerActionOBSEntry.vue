@@ -162,6 +162,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		}
 		this.transformEasing_conf.listValues = easingList;
 
+		this.transformEasing_conf.editCallback = (value) => this.action.animateEasing = value;
+		this.transformDuration_conf.editCallback = (value) => this.action.animateDuration = value;
 		if(this.action.animateEasing) this.transformEasing_conf.value = this.action.animateEasing;
 		if(this.action.animateDuration) this.transformDuration_conf.value = this.action.animateDuration;
 
@@ -196,8 +198,6 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		watch(()=>this.action_conf.value, ()=> this.cleanupData());
 		watch(()=>this.source_conf.value, ()=> this.onSourceChanged());
 		watch(()=>this.filter_conf.value, ()=> this.updateFilter());
-		watch(()=>this.transformEasing_conf.value, ()=> this.action.animateEasing = this.transformEasing_conf.value);
-		watch(()=>this.transformDuration_conf.value, ()=> this.action.animateDuration = this.transformDuration_conf.value);
 		watch(()=>this.selectedSourceName, ()=> {
 			if(this.source_conf.selectedListValue) {
 				this.action.sourceName = (this.source_conf.selectedListValue as SourceItem).name;
@@ -375,7 +375,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_move";
 		}else if(this.action.action == "resize") {
 			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_resize";
-		}if(this.action.action == "rotate") {
+		}else if(this.action.action == "rotate") {
 			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_rotate";
 		}else{
 			delete this.action.animateEasing;

@@ -1024,7 +1024,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageBanData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.BAN,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
@@ -1046,7 +1046,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageUnbanData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.UNBAN,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
@@ -1065,7 +1065,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageRaidStartData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
@@ -1082,7 +1082,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageWatchStreakData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
@@ -1109,7 +1109,7 @@ export const storeDebug = defineStore('debug', {
 					}
 					const m:TwitchatDataTypes.MessageHypeChatData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						message:userMessage,
@@ -1121,7 +1121,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK: {
 					const m:TwitchatDataTypes.MessageHeatClickData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						alt:Math.random() > .8,
@@ -1139,7 +1139,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON: {
 					const m:TwitchatDataTypes.MessageGoXLRButtonData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						button:Utils.pickRand((GoXLRTypes.ButtonTypes as unknown) as GoXLRTypes.ButtonTypesData[]),
@@ -1152,7 +1152,7 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE: {
 					const m:TwitchatDataTypes.MessageGoXLRFXEnableChangeData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						enabled:Math.random() > .5,
@@ -1165,11 +1165,24 @@ export const storeDebug = defineStore('debug', {
 				case TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE: {
 					const m:TwitchatDataTypes.MessageGoXLRSampleCompleteData = {
 						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
+						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						buttonId:Utils.pickRand(["SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight"]),
 						bank:Utils.pickRand(["SamplerSelectA", "SamplerSelectB", "SamplerSelectC"]),
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
+					const m:TwitchatDataTypes.MessageAdBreakStartData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
+						startedBy:user
 					};
 					data = m;
 					break;

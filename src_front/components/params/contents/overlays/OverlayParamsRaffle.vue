@@ -18,7 +18,7 @@
 			</div>
 
 			<template v-if="overlayExists || true">
-				<Button class="item center" :loading="loading" @click="testWheel()" icon="test" primary>{{ $t('overlay.raffle.testBt') }}</Button>
+				<Button class="item center" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 				
 				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
 					<div>{{ $t("overlay.raffle.css") }}</div>

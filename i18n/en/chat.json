@@ -94,7 +94,8 @@
 				"pinned": "Un/Pinned message notices",
 				"user_watch_streak": "Consecutive watch streak",
 				"stream_online": "Stream online/offline",
-				"hype_chat": "Hype chat"
+				"hype_chat": "Hype chat",
+				"ad_break_start": "Lancement manuel de publicité"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -270,6 +271,11 @@
 			"content": "View latest updates at any time using {CMD} command.",
 			"updatesBt": "Open updates"
 		},
+		"adBreakScope": {
+			"header": "Ad break alerts",
+			"content": "Want to get alerts when mid-roll ads are coming or playing?\nTwitchat needs new permission :)",
+			"grantBt": "Open autorizations"
+		},
 		"donor": {
 			"title": "❤ Hey lovely donor ❤",
 			"info_1": "Thank you again for supporting Twitchat with your donation.",
@@ -387,6 +393,9 @@
 			"open_track": "Open track's page",
 			"ban_user": "Prevent this user from adding other tracks",
 			"unban_user": "Allow this user to add tracks again"
+		},
+		"ad_break_start": {
+			"label": "{USER} started a {DURATION}s ad break"
 		}
 	}
 }

@@ -403,11 +403,6 @@ export default class MessengerProxy {
 			return true;
 		}else
 
-		if(cmd == "/commercial") {
-			StoreProxy.stream.startCommercial(params.length > 0? parseInt(params[0]) : 30);
-			return true;
-		}else
-
 		if(cmd == "/updates") {
 			// StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 			StoreProxy.params.openModal("updates");
@@ -416,6 +411,11 @@ export default class MessengerProxy {
 
 		if(cmd == "/tip") {
 			StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK);
+			return true;
+		}else
+
+		if(cmd == "/snooze") {
+			TwitchUtils.snoozeNextAd();
 			return true;
 		}else
 

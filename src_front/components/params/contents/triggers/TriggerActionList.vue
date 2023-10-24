@@ -55,6 +55,11 @@
 				:obsSources="obsSources"
 				:triggerData="triggerData"
 			/>
+
+			<TriggerAdApproachParams
+				v-if="isAdBreakApproach"
+				:triggerData="triggerData"
+			/>
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
@@ -141,6 +146,7 @@ import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
+import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 
 @Component({
 	components:{
@@ -151,6 +157,7 @@ import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 		TriggerActionEntry,
 		TriggerGoXLRParams,
 		TriggerConditionList,
+		TriggerAdApproachParams,
 		TriggerActionHeatParams,
 		TriggerActionScheduleParams,
 		TriggerActionChatCommandParams,
@@ -231,6 +238,7 @@ export default class TriggerActionList extends Vue {
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
+	public get isAdBreakApproach():boolean { return this.triggerData.type === TriggerTypes.AD_APPROACHING; }
 	public get isAnyChatMessageCommand():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
 	public get isHeatTrigger():boolean { return this.triggerData.type === TriggerTypes.HEAT_CLICK; }
 	public get hasCondition():boolean { return this.triggerData.conditions != undefined && this.triggerData.conditions.conditions.length > 0; }

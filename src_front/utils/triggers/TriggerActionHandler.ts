@@ -444,6 +444,23 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_STARTED, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_APPROACHING, message, testMode, message.delay_ms.toString(), undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE:{
+				if(await this.executeTriggersByType(TriggerTypes.AD_COMPLETE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
 
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
@@ -535,6 +552,8 @@ export default class TriggerActionHandler {
 					}
 					break;
 				}
+
+				case TriggerTypes.AD_APPROACHING: keys[0] += this.HASHMAP_KEY_SPLITTER + (t.adBreakDelay || 0).toString(); break;
 
 				case TriggerTypes.REWARD_REDEEM: keys[0] += this.HASHMAP_KEY_SPLITTER + t.rewardId; break;
 
@@ -842,7 +861,7 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), error:false, data:step, messages:[] as {date:number, value:string}[]};
+			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
 			log.steps.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
@@ -1035,6 +1054,7 @@ export default class TriggerActionHandler {
 							}catch(error) {
 								console.error(error);
 								log.criticalError = true;
+								logStep.error = true;
 								logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+JSON.stringify(error)});
 							}
 						}
@@ -1364,10 +1384,11 @@ export default class TriggerActionHandler {
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
+					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+text+"\""});
 					const value = MathJS.evaluate(text);
 					if(!step.action) step.action = "ADD";
 
-					if(!isNaN(value)) {
+					if(!isNaN(value) && value != null && value != Infinity) {
 						const ids = step.counters;
 						for (const c of StoreProxy.counters.counterList) {
 							if(ids.indexOf(c.id) > -1) {
@@ -1421,6 +1442,10 @@ export default class TriggerActionHandler {
 								}
 							}
 						}
+					}else{
+						logStep.messages.push({date:Date.now(), value:"New value is invalid: \""+value+"\""});
+						logStep.error = true;
+						log.error = true;
 					}
 				}else
 				
@@ -1767,6 +1792,7 @@ export default class TriggerActionHandler {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
 				log.criticalError = true;
+				logStep.error = true;
 			}
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
 		}
@@ -1821,7 +1847,7 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for the current stream info
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
-						const pointerLocal = pointer.replace('__my_stream__.', '') as TwitchatDataTypes.StreamInfoKeys | "duration" | "duration_ms";
+						const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo | "duration" | "duration_ms";
 						let startDate = (streamInfos.started_at || Date.now());
 						if(pointerLocal == "duration") {
 							value = Utils.formatDuration(Date.now() - startDate);

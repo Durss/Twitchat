@@ -135,6 +135,10 @@
 		v-else-if="messageData.type == 'hype_chat'"
 		:messageData="messageData" />
 
+	<ChatAdBreakStarted class="message"
+		v-else-if="messageData.type == 'ad_break_start'"
+		:messageData="messageData" />
+
 	<ChatHistorySplitter class="message"
 		v-else-if="messageData.type == 'history_splitter'"
 		:messageData="messageData" />
@@ -183,6 +187,7 @@ import ChatWatchStreak from './ChatWatchStreak.vue';
 import ChatHypeChatMessage from './ChatHypeChatMessage.vue';
 import ChatHistorySplitter from './ChatHistorySplitter.vue';
 import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
+import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
 
 @Component({
 	components:{
@@ -209,6 +214,7 @@ import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
 		ChatRoomSettings,
 		ChatRaffleResult,
 		ChatSubscription,
+		ChatAdBreakStarted,
 		ChatCommunityBoost,
 		ChatScopeRequester,
 		ChatHistorySplitter,

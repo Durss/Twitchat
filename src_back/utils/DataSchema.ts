@@ -136,6 +136,7 @@ import Ajv from "ajv";
 					obsInput:{type:"string", maxLength:200},
 					obsFilter:{type:"string", maxLength:200},
 					created_at: {type:"integer", minimum:0, maximum:32503672800000},
+					adBreakDelay: {type:"integer", minimum:0, maximum:5 * 60000},
 					goxlrButtons:{
 						type:"array",
 						minItems:0,
@@ -609,6 +610,7 @@ import Ajv from "ajv";
 		greetHeight: {type:"number"},
 		adNextTS: {type:"integer"},
 		adWarned: {type:"boolean"},
+		adBreakScopesRequested: {type:"boolean"},
 		sponsorPublicPrompt: {type:"boolean"},
 		cypherKey: {type:"string", maxLength:500},
 		raffle_showCountdownOverlay: {type:"boolean"},
@@ -1139,6 +1141,28 @@ import Ajv from "ajv";
 						}
 					}
 				}
+			}
+		},
+
+		adBreakOverlayParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				showApproaching: {type:"boolean"},
+				showRunning: {type:"boolean"},
+				approachingDelay: {type:"integer", minimum:0, maximum:300},
+				approachingStyle: {type:"string", maxLength:50},
+				runningStyle: {type:"string", maxLength:50},
+				approachingSize: {type:"integer", minimum:0, maximum:100},
+				runningSize: {type:"integer", minimum:0, maximum:100},
+				approachingThickness: {type:"integer", minimum:0, maximum:100},
+				runningThickness: {type:"integer", minimum:0, maximum:100},
+				approachingColor: {type:"string", maxLength:50},
+				runningColor: {type:"string", maxLength:50},
+				approachingPlacement: {type:"string", maxLength:2},
+				runningPlacement: {type:"string", maxLength:2},
+				approachingLabel: {type:"string", maxLength:500},
+				runningLabel: {type:"string", maxLength:500}
 			}
 		}
 	}

@@ -18,105 +18,68 @@
 
 			<div class="card-item item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
-				<div class="table">
-					<div class="item" :class="placement=='tl'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="tl" id="mazePos_tl">
-						<label for="mazePos_tl">┌</label>
-					</div>
-					<div class="item" :class="placement=='t'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="t" id="mazePos_t">
-						<label for="mazePos_t">┬</label>
-					</div>
-					<div class="item" :class="placement=='tr'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="tr" id="mazePos_tr">
-						<label for="mazePos_tr">┐</label>
-					</div>
-					<div class="item" :class="placement=='l'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="l" id="mazePos_l">
-						<label for="mazePos_l">├</label>
-					</div>
-					<div class="item" :class="placement=='m'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="m" id="mazePos_m">
-						<label for="mazePos_m">┼</label>
-					</div>
-					<div class="item" :class="placement=='r'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="r" id="mazePos_r">
-						<label for="mazePos_r">┤</label>
-					</div>
-					<div class="item" :class="placement=='bl'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="bl" id="mazePos_bl">
-						<label for="mazePos_bl">└</label>
-					</div>
-					<div class="item" :class="placement=='b'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="b" id="mazePos_b">
-						<label for="mazePos_b">┴</label>
-					</div>
-					<div class="item" :class="placement=='br'? 'selected' : ''">
-						<input type="radio" v-model="placement" value="br" id="mazePos_br">
-						<label for="mazePos_br">┘</label>
-					</div>
-				</div>
+				<PlacementSelector v-model="placement" />
 			</div>
 
-			<template v-if="overlayExists">
-				<Button class="item center" @click="testOverlay()" icon="test" primary>{{ $t('overlay.highlight.testBt') }}</Button>
-
-				<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
-					<div class="head">{{ $t("overlay.highlight.css") }}</div>
-					<ul class="cssStructure">
-						<li>#highlight_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#highlight_avatar { ... }</li>
-								<li>#highlight_infos { ... }</li>
-								<li class="sublist">
-									<ul>
-										<li>#highlight_login { ... }</li>
-										<li>#highlight_message { ... }</li>
-									</ul>
-								</li>
-							</ul>
-						</li>
-					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
-						<ul class="cssStructure">
-							<li>#highlight_holder.position-tl { ... }</li>
-							<li>#highlight_holder.position-t { ... }</li>
-							<li>#highlight_holder.position-tr { ... }</li>
-							<li>#highlight_holder.position-l { ... }</li>
-							<li>#highlight_holder.position-m { ... }</li>
-							<li>#highlight_holder.position-r { ... }</li>
-							<li>#highlight_holder.position-bl { ... }</li>
-							<li>#highlight_holder.position-b { ... }</li>
-							<li>#highlight_holder.position-br { ... }</li>
-						</ul>
-					</ToggleBlock>
-					<ul class="cssStructure">
-						<li>#clip_holder { ... }</li>
-						<li class="sublist">
-							<ul>
-								<li>#clip_player { ... }</li>
-								<li>#clip_progressbar { ... }</li>
-							</ul>
-						</li>
-					</ul>
-					<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
-						<ul class="cssStructure">
-							<li>#clip_holder.position-tl { ... }</li>
-							<li>#clip_holder.position-t { ... }</li>
-							<li>#clip_holder.position-tr { ... }</li>
-							<li>#clip_holder.position-l { ... }</li>
-							<li>#clip_holder.position-m { ... }</li>
-							<li>#clip_holder.position-r { ... }</li>
-							<li>#clip_holder.position-bl { ... }</li>
-							<li>#clip_holder.position-b { ... }</li>
-							<li>#clip_holder.position-br { ... }</li>
-						</ul>
-					</ToggleBlock>
-				</ToggleBlock>
-			</template>
+			<div class="item center" v-if="overlayExists">
+				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
+			</div>
 			
 			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
+
+			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="head">{{ $t("overlay.highlight.css") }}</div>
+				<ul class="cssStructure">
+					<li>#highlight_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#highlight_avatar { ... }</li>
+							<li>#highlight_infos { ... }</li>
+							<li class="sublist">
+								<ul>
+									<li>#highlight_login { ... }</li>
+									<li>#highlight_message { ... }</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
+						<li>#highlight_holder.position-tl { ... }</li>
+						<li>#highlight_holder.position-t { ... }</li>
+						<li>#highlight_holder.position-tr { ... }</li>
+						<li>#highlight_holder.position-l { ... }</li>
+						<li>#highlight_holder.position-m { ... }</li>
+						<li>#highlight_holder.position-r { ... }</li>
+						<li>#highlight_holder.position-bl { ... }</li>
+						<li>#highlight_holder.position-b { ... }</li>
+						<li>#highlight_holder.position-br { ... }</li>
+					</ul>
+				</ToggleBlock>
+				<ul class="cssStructure">
+					<li>#clip_holder { ... }</li>
+					<li class="sublist">
+						<ul>
+							<li>#clip_player { ... }</li>
+							<li>#clip_progressbar { ... }</li>
+						</ul>
+					</li>
+				</ul>
+				<ToggleBlock class="cssPositionning" small title="Holder's positionning" :open="false">
+					<ul class="cssStructure">
+						<li>#clip_holder.position-tl { ... }</li>
+						<li>#clip_holder.position-t { ... }</li>
+						<li>#clip_holder.position-tr { ... }</li>
+						<li>#clip_holder.position-l { ... }</li>
+						<li>#clip_holder.position-m { ... }</li>
+						<li>#clip_holder.position-r { ... }</li>
+						<li>#clip_holder.position-bl { ... }</li>
+						<li>#clip_holder.position-b { ... }</li>
+						<li>#clip_holder.position-br { ... }</li>
+					</ul>
+				</ToggleBlock>
+			</ToggleBlock>
 			
 			<div class="card-item item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
@@ -143,12 +106,14 @@ import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import OverlayInstaller from './OverlayInstaller.vue';
+import PlacementSelector from '@/components/PlacementSelector.vue';
 
 @Component({
 	components:{
 		Button,
 		ToggleBlock,
 		OverlayInstaller,
+		PlacementSelector,
 	}
 })
 export default class OverlayParamsHighlight extends Vue {

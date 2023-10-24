@@ -21,8 +21,8 @@
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 		</div>
 
-		<div class="card-item instructions" v-if="showInput">
-			<slot name="instructions"></slot>
+		<div class="card-item instructions" v-if="showInput && $slots.default">
+			<slot></slot>
 		</div>
 	</div>
 </template>
@@ -112,6 +112,8 @@ export default class OverlayInstaller extends Vue {
 		background-color: var(--color-dark-fader);
 		flex-basis: 100%;
 		white-space: pre-line;
+		line-height: 1.25em;
+		font-size: .85em;
 	}
 
 	.field{

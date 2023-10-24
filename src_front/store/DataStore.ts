@@ -83,6 +83,8 @@ export default class DataStore {
 	public static RAID_HISTORY:string = "raidHistory";
 	public static SENT_MESSAGE_HISTORY:string = "sentMessageHistory";
 	public static ENDING_CREDITS_PARAMS:string = "endingCreditsParams";
+	public static AD_BREAK_SCOPES_REQUEST:string = "adBreakScopesRequested";
+	public static AD_BREAK_OVERLAY_PARAMS:string = "adBreakOverlayParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -146,7 +148,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 48.2;
+		let latestVersion = 50;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -301,7 +303,7 @@ export default class DataStore {
 			this.fixDataTypes(data);
 			v = 48;
 		}
-		if(v==48) {
+		if(v==49) {
 			//Some users still have an old trigger data format :/
 			//THey have an empty(?) object instead of an array
 			const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -316,6 +318,10 @@ export default class DataStore {
 		}
 		if(v==48.1) {
 			this.addSRFilter(data);
+			v = 49;
+		}
+		if(v==49) {
+			this.migrateScheduleActionDuration(data);
 			v = latestVersion;
 		}
 
@@ -1505,5 +1511,23 @@ export default class DataStore {
 			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
 
+	}
+
+	/**
+	 * Migrates schedule durations from minutes to seconds
+	 */
+	private static migrateScheduleActionDuration(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				if(t.type == TriggerTypes.SCHEDULE && t.scheduleParams && t.scheduleParams.repeatDuration > 0) {
+					console.log("migrate", t.scheduleParams.repeatDuration);
+					t.scheduleParams.repeatDuration *= 60;
+					console.log("new value is", t.scheduleParams.repeatDuration);
+				}
+			});
+			data[DataStore.TRIGGERS] = triggers;
+		}
 	}
 }

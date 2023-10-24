@@ -75,6 +75,11 @@ export interface TriggerData {
 	 * Reward ID for reward related events
 	 */
 	rewardId?:string;
+	
+	/**
+	 * Delay before an ad starts
+	 */
+	adBreakDelay?:number;
 	/**
 	 * Chat command name for chat command related events
 	 */
@@ -577,6 +582,8 @@ export interface TriggerScheduleData {
 	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
+export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
+
 export const VIBRATION_PATTERNS = [
 	{id:"1", label:"∿_∿", pattern:[110, 50, 110]},
 	{id:"2", label:"∿_∿_∿", pattern:[110, 50, 110, 50, 110]},
@@ -679,6 +686,9 @@ export const TriggerTypes = {
 	GOXLR_INPUT_MUTE:"90",
 	GOXLR_INPUT_UNMUTE:"91",
 	ANNOUNCEMENTS:"92",
+	AD_STARTED:"93",
+	AD_APPROACHING:"94",
+	AD_COMPLETE:"95",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1058,6 +1068,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.GOXLR_INPUT_UNMUTE] = [
 		{tag:"FADER_INDEX", descKey:'triggers.placeholders.goxlr_fader_index', pointer:"faderIndex", numberParsable:true, isUserID:false, values:[{label:"Fader 1", value:1},{label:"Fader 2", value:2},{label:"Fader 3", value:3},{label:"Fader 4", value:4}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRSoundInputData>,
 	];
+	
+	map[TriggerTypes.AD_STARTED] = 
+	map[TriggerTypes.AD_COMPLETE] = [
+		{tag:"AD_DURATION", descKey:'triggers.placeholders.ad_break_duration', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData>,
+		{tag:"USER", descKey:'triggers.placeholders.ad_break_user', pointer:"startedBy.displayNameOriginal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData>,
+	];
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
@@ -1238,6 +1254,9 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
 		{category:TriggerEventTypeCategories.MOD, icon:"clip", labelKey:"triggers.events.CLIP_CREATED.label", value:TriggerTypes.CLIP_CREATED, descriptionKey:"triggers.events.CLIP_CREATED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE},
+		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
+		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
+		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
 		{newDate:1695422487772, category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},

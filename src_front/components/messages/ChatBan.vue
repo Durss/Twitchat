@@ -2,8 +2,8 @@
 	<div class="chatban chatMessage highlight alert">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
-		<Icon name="timeout" class="icon" v-if="messageData.duration_s" />
-		<Icon name="ban" class="icon" v-else />
+		<Icon name="timeout" class="icon" v-if="messageData.duration_s" theme="light" />
+		<Icon name="ban" class="icon" v-else theme="light" />
 		
 		<div class="content">
 			<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
