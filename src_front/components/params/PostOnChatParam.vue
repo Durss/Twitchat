@@ -218,5 +218,11 @@ export default class PostOnChatParam extends Vue {
 		background-color: var(--background-color-primary);
 		overflow: hidden;
 	}
+
+	:deep(.errorMessage) {
+		font-weight: normal;
+		color: var(--color-alert);
+		background-color: var(--color-light);
+	}
 }
 </style>

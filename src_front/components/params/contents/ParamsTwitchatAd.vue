@@ -13,7 +13,6 @@
 					botMessageKey="twitchatAd"
 					:noToggle="!isDonor"
 					clearToggle
-					secondary
 					noBackground
 					titleKey="params.ad_info"
 				/>
