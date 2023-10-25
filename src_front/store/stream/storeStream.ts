@@ -124,6 +124,7 @@ export const storeStream = defineStore('stream', {
 				if(this.raidHistory.length > 100) {
 					this.raidHistory.shift();
 				}
+				DataStore.set(DataStore.RAID_HISTORY, this.raidHistory);
 			}
 			//Send donation reminder if requested
 			if(StoreProxy.params.donationReminderEnabled) {

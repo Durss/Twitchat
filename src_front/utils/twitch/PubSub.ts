@@ -528,7 +528,7 @@ export default class PubSub extends EventDispatcher {
 			};
 			StoreProxy.stream.setRaiding(m);
 
-		}else if(data.type == "raid_go_v2" ||data.type == "raid_cancel_v2") {
+		}else if(data.type == "raid_cancel_v2") { //|| data.type == "raid_go_v2" //<= removed in favor of eventsub
 			StoreProxy.stream.setRaiding();
 
 

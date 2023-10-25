@@ -24,7 +24,7 @@
 					<Icon name="loader" v-if="entry.user.temporary" />
 					<img class="icon" v-else-if="entry.user.avatarPath" :src="entry.user.avatarPath" lazy>
 					<div class="login">{{ entry.user.login }}</div>
-					<div class="date">{{ getElapsedDuration(entry.date) }}</div>
+					<div class="date">{{ $t("liveusers.date", {DURATION:getElapsedDuration(entry.date)}) }}</div>
 				</a>
 			</div>
 			
@@ -258,7 +258,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 						.raidBt {
 							opacity: 1;
 							font-size: 2em;
-							color: var(--color-button);
+							color: var(--color-light);
 						}
 					}
 				}
