@@ -193,7 +193,7 @@
 			"add_overlay": "Créer une nouvelle distortion",
 			"param_enabled": "Distortion active",
 			"param_shape": "Distortion shape",
-			"permissions_title": "Permissions"
+			"permissions_title": "Personnes autorisées à cliquer"
 		},
 		"tts": {
 			"title":"Text to speech",

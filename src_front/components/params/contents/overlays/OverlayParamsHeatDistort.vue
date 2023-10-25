@@ -4,9 +4,6 @@
 			<div class="item">
 				<div class="info">
 					<i18n-t scope="global" tag="div" keypath="overlay.heatDistort.description">
-						<template #LINK>
-							<a href="https://ulule.com" target="_blank">{{ $t("overlay.ulule.description_link") }}</a>
-						</template>
 					</i18n-t>
 				</div>
 			</div>
@@ -28,11 +25,11 @@
 
 			<div class="card-item maximumReached" v-else>
 				<p><Icon name="alert" />You've reached the maximum distortion overlay you can create</p>
-				<Button icon="premium" premium v-if="!isPremium">{{ $t("premium.become_premiumBt") }}</Button>
+				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
 			</div>
 
 			<template v-for="(item, index) in distortionList" :key="item.id">
-				<HeatDistorParams v-model="distortionList[index]" />
+				<HeatDistortParams v-model="distortionList[index]" />
 			</template>
 		</div>
 	</ToggleBlock>
@@ -44,7 +41,7 @@ import Icon from '@/components/Icon.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import HeatDistorParams from './heat/HeatDistorParams.vue';
+import HeatDistortParams from './heat/HeatDistortParams.vue';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 
@@ -53,7 +50,7 @@ import Config from '@/utils/Config';
 		Icon,
 		Button,
 		ToggleBlock,
-		HeatDistorParams,
+		HeatDistortParams,
 	},
 	emits:[],
 })
@@ -87,6 +84,10 @@ export default class OverlayParamsHeatDistort extends Vue {
 				usersRefused:[],
 			},
 		})
+	}
+
+	public becomePremium():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 }

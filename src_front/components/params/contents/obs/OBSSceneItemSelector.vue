@@ -2,17 +2,21 @@
 	<div class="obssceneitemselector">
 		<div class="list">
 			<button v-for="scene in sceneList"
-			@click="listSceneItems(scene.sceneName)"
-			:class="sceneItemClasses(scene.sceneName)">{{ scene.sceneName }}</button>
+				@click="listSceneItems(scene.sceneName, true)"
+				:class="sceneItemClasses(scene.sceneName)">{{ scene.sceneName }}</button>
 		</div>
+
+		<div class="verticalSplitter"></div>
+
 		<div class="list">
-			<template v-for="source in sceneItems">
+			<template v-for="source in sceneItems" :key="source.item.sceneItemId">
 				<button @click="sourcePath[0] = source.item; sourcePath.splice(1);"
-				:class="sourceItemClasses(source.item)">{{ source.item.sourceName }}</button>
+					:class="sourceItemClasses(source.item)">{{ source.item.sourceName }}</button>
+
 				<div class="children" v-if="source.children.length">
-					<button class="child" v-for="child in source.children"
-					@click="sourcePath[0] = source.item; sourcePath[1] = child"
-					:class="sourceItemClasses(child)">{{ child.sourceName }}</button>
+					<button class="child" v-for="child in source.children" :key="child.sceneItemId"
+						@click="sourcePath[0] = source.item; sourcePath[1] = child"
+						:class="sourceItemClasses(child)">{{ child.sourceName }}</button>
 				</div>
 			</template>
 		</div>
@@ -31,7 +35,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 export default class OBSSceneItemSelector extends Vue {
 
 	@Prop({default:[]})
-	public modelValue!:string|Omit<OBSSourceItem, "sceneItemTransform">[];
+	public modelValue!:(string|Omit<OBSSourceItem, "sceneItemTransform">)[];
 
 	public loading:boolean = true;
 	public currentScene:string = "";
@@ -39,15 +43,41 @@ export default class OBSSceneItemSelector extends Vue {
 	public sceneItems:{item:OBSSourceItem, children:OBSSourceItem[]}[] = [];
 	public sceneList:{sceneIndex:number, sceneName:string}[] = [];
 
-	public mounted():void {
-		OBSWebsocket.instance.getScenes().then((result)=> {
-			this.sceneList = result.scenes;
-			this.loading = true;
-			this.listSceneItems(this.sceneList[0].sceneName);
-		});
+	private obsEventHandler!:()=>void;
 
-		watch(()=>this.currentScene, ()=> this.valueChanged(), {deep:true});
-		watch(()=>this.sourcePath, ()=> this.valueChanged(), {deep:true});
+	public mounted():void {
+		if(this.modelValue.length > 0 && typeof this.modelValue[0] === "string") {
+			this.currentScene = this.modelValue[0] as string;
+		}
+		if(this.modelValue.length > 1) {
+			this.sourcePath = this.modelValue.concat().filter(v=> typeof v != "string") as OBSSourceItem[];
+		}
+
+		this.$nextTick().then(()=> {
+			watch(()=>this.currentScene, ()=> this.valueChanged(), {deep:true});
+			watch(()=>this.sourcePath, ()=> this.valueChanged(), {deep:true});
+		})
+		
+		this.listScenes();
+
+		this.obsEventHandler = ()=> this.listScenes();
+		OBSWebsocket.instance.socket.on("SceneCreated", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("SceneRemoved", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("SceneNameChanged", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("SceneItemCreated", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("SceneItemRemoved", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("InputNameChanged", this.obsEventHandler);
+		OBSWebsocket.instance.socket.on("SceneItemListReindexed", this.obsEventHandler);
+	}
+
+	public beforeUnmount():void {
+		OBSWebsocket.instance.socket.off("SceneCreated", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("SceneRemoved", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("SceneNameChanged", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("SceneItemCreated", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("SceneItemRemoved", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("InputNameChanged", this.obsEventHandler);
+		OBSWebsocket.instance.socket.off("SceneItemListReindexed", this.obsEventHandler);
 	}
 
 	public sceneItemClasses(name:string):string[] {
@@ -64,17 +94,16 @@ export default class OBSSceneItemSelector extends Vue {
 		return res;
 	}
 
-	public async listSceneItems(sceneName:string):Promise<void> {
-		if(this.currentScene == sceneName) return;
-		this.sourcePath = [];
+	public async listSceneItems(sceneName:string, resetPath:boolean = false, force:boolean = false):Promise<void> {
+		if(this.currentScene == sceneName && force !== true) return;
+		if(resetPath) this.sourcePath = [];
 		this.currentScene = sceneName;
 		this.sceneItems = (await OBSWebsocket.instance.getSceneItems(this.currentScene));
-		console.log(this.sceneItems);
 
-		this.$emit("update:modelValue", [sceneName]);
+		this.valueChanged();
 	}
 
-	public valueChanged():void {
+	private valueChanged():void {
 		const path:(string|Omit<OBSSourceItem, "sceneItemTransform">)[] = [];
 		
 		if(this.currentScene) path.push(this.currentScene);
@@ -97,6 +126,16 @@ export default class OBSSceneItemSelector extends Vue {
 		this.$emit("update:modelValue", path);
 	}
 
+	private listScenes():void {
+		OBSWebsocket.instance.getScenes().then((result)=> {
+			this.sceneList = result.scenes;
+			this.loading = true;
+			if(this.currentScene) {
+				this.listSceneItems(this.currentScene, false, true);
+			}
+		});
+	}
+
 }
 </script>
 
@@ -105,6 +144,12 @@ export default class OBSSceneItemSelector extends Vue {
 	gap: 1em;
 	display: flex;
 	flex-direction: row;
+
+	.verticalSplitter{
+		width: 1px;
+		flex-shrink: 1;
+		background-color: var(--color-light-fade);
+	}
 	
 	.list {
 		gap: .25em;
@@ -112,18 +157,22 @@ export default class OBSSceneItemSelector extends Vue {
 		flex-direction: column;
 		max-height: 250px;
 		overflow-y: auto;
+		max-width: 50%;
+		flex-grow: 1;
 
 		button {
 			border-radius: var(--border-radius);
 			padding: .25em .5em;
 			text-align: left;
 			color: var(--color-text);
-			background-color:  var(--color-light-fadest);
-			transition: background-color .2s;
+			background-color:  var(--color-light-fade);
+			transition: background-color .2s, color .2s;
 			&:hover {
-				background-color:  var(--color-light-fader);
+				background-color:  var(--color-light);
+				color: var(--color-dark);
 			}
 			&.selected {
+				color: var(--color-light);
 				background-color:  var(--color-primary);
 				&:hover {
 					background-color:  var(--color-primary-light);

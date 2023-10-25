@@ -12,7 +12,7 @@
 		</template>
 		
 		<template v-else-if="showSuccess">
-			<p class="card-item existing" v-if="isExistingSource" @click="isExistingSource=showSuccess=false">{{$t("overlay.install_success_exists")}}</p>
+			<p class="card-item primary existing" v-if="isExistingSource" @click="isExistingSource=showSuccess=false">{{$t("overlay.install_success_exists")}}</p>
 			<p class="card-item primary success" v-else @click="showSuccess=false"><Icon name="checkmark" /> {{$t("overlay.install_success")}}</p>
 		</template>
 
@@ -38,7 +38,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{
 		Button,
 	},
-	emits:[],
+	emits:["obsSourceCreated"],
 })
 export default class OverlayInstaller extends Vue {
 
@@ -59,6 +59,9 @@ export default class OverlayInstaller extends Vue {
 
 	@Prop({default:"", type:String})
 	public sourceSuffix!:string;
+
+	@Prop({default:"", type:String})
+	public sceneName!:string;
 
 	public showInput:boolean = false;
 	public showSuccess:boolean = false;
@@ -81,13 +84,14 @@ export default class OverlayInstaller extends Vue {
 		clearTimeout(this.successTO);
 		let name = "Twitchat_"+this.type;
 		if(this.sourceSuffix) name += this.sourceSuffix;
-		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransforms);
+		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransforms, this.sceneName);
 		this.showSuccess = true;
 		if(!this.isExistingSource) {
 			this.successTO = setTimeout(()=> {
 				this.showSuccess = false;
 			}, 5000);
 		}
+		this.$emit("obsSourceCreated", {sourceName:name});
 	}
 
 }

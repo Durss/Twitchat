@@ -29,6 +29,7 @@
 				<a class="link" href="https://tiktok.com/@dursss" target="_blank"><img src="@/assets/img/tiktok.png" v-tooltip="'Tiktok'" alt="tiktok"></a>
 				<a class="link" href="https://github.com/durss" target="_blank"><img src="@/assets/img/github.png" v-tooltip="'Github'" alt="github"></a>
 				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"></a>
+				<a class="link" href="https://bsky.app/profile/durss.fr" target="_blank"><img src="@/assets/img/bluesky.webp" v-tooltip="'Bluesky'" alt="bluesky"></a>
 			</p>
 		</ToggleBlock>
 
