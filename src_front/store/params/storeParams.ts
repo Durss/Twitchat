@@ -30,7 +30,7 @@ export const storeParams = defineStore('params', {
 			mergeConsecutive:	 		{save:true, type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},
 			mergeConsecutive_maxSize:	{save:true, type:"number", value:100, labelKey:"params.mergeConsecutive_maxSize", id:226, parent:225, min:1, max:500},
 			mergeConsecutive_maxSizeTotal:{save:true, type:"number", value:1000, labelKey:"params.mergeConsecutive_maxSizeTotal", id:227, parent:225, min:10, max:2000},
-			mergeConsecutive_minDuration:{save:true, type:"number", value:30, labelKey:"params.mergeConsecutive_minDuration", id:228, parent:225, min:0, max:3600},
+			mergeConsecutive_minDuration:{save:true, type:"time", value:30, labelKey:"params.mergeConsecutive_minDuration", id:228, parent:225, min:0, max:10*3600},
 			groupIdenticalMessage:		{save:true, type:"boolean", value:true, labelKey:"params.groupIdenticalMessage", id:208, icon:"increment", example:"groupIdenticalMessage.gif"},
 			markAsRead: 				{save:true, type:"boolean", value:true, labelKey:"params.markAsRead", id:204, icon:"read"},
 			conversationsEnabled: 		{save:true, type:"boolean", value:true, labelKey:"params.conversationsEnabled", id:202, icon:"conversation", example:"conversation.gif"},
@@ -135,6 +135,7 @@ export const storeParams = defineStore('params', {
 					ad_break_start:false,
 					user_watch_streak:false,
 					hype_train_summary: false,
+					music_added_to_queue:false,
 					hype_train_cooled_down: false,
 					community_boost_complete: false,
 					community_challenge_contribution: false
@@ -200,6 +201,7 @@ export const storeParams = defineStore('params', {
 					ad_break_start:true,
 					user_watch_streak:true,
 					hype_train_summary: true,
+					music_added_to_queue:true,
 					hype_train_cooled_down: true,
 					community_boost_complete: true,
 					community_challenge_contribution: true
@@ -322,6 +324,7 @@ export const storeParams = defineStore('params', {
 					ad_break_start:false,
 					user_watch_streak:false,
 					hype_train_summary:false,
+					music_added_to_queue:false,
 					hype_train_cooled_down:false,
 					community_boost_complete:false,
 					community_challenge_contribution:false,

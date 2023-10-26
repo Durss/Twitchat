@@ -385,13 +385,15 @@ export default class MessageList extends Vue {
 
 			let result: TwitchatDataTypes.ChatMessageTypes[] = [];
 			let index = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
+			//Reset merged children references
+			this.messageIdToChildren = {};
 			
 			for (; index >= 0; index--) {
 				
 				const m = messages[index];
 				if (await this.shouldShowMessage(m)) {
 					//Merge messages if necessary
-					if(await this.mergeWithPrevious(m, index-1, messages, true)) continue;
+					if(await this.mergeWithPrevious(m, index-1, messages)) continue;
 
 					//Make sure message isn't pending for display
 					//This sometimes happens when stressing the list... Probably due
@@ -1602,7 +1604,7 @@ export default class MessageList extends Vue {
 	 * 
 	 * @returns true if the message has been merged
 	 */
-	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[], resetChildren:boolean = false):Promise<boolean> {
+	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[]):Promise<boolean> {
 		const isMergeable = TwitchatDataTypes.MergeableMessageTypesString.hasOwnProperty(newMessage.type)
 		&& TwitchatDataTypes.MergeableMessageTypesString[newMessage.type as TwitchatDataTypes.MergeableMessageTypes] === true;
 		if(!isMergeable) return false;
@@ -1619,9 +1621,12 @@ export default class MessageList extends Vue {
 
 		//If message size is higher than max allowed, don't merged
 		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			//Message longer than the max allowed size, don't merge
 			if(newMessage.message_size > maxSize) return false;
-			if((newMessage.occurrenceCount || 0) > 0) return false;//don't merge messages with multiple occurences flag
-			if(newMessage.twitch_announcementColor) return false;//don't merge announcements
+			//don't merge messages with multiple occurences flag
+			if((newMessage.occurrenceCount || 0) > 0) return false;
+			//don't merge announcements
+			if(newMessage.twitch_announcementColor) return false;
 		}
 
 		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
@@ -1634,13 +1639,14 @@ export default class MessageList extends Vue {
 			const prevMessage = messageList[i];
 			if(!await this.shouldShowMessage(prevMessage)) continue;
 			
-			//Check if prev message meets the condition to be merged witht the new one
-			if(prevMessage.type != newMessage.type) return false;//Prev displayable message isnt the same type, don't merge
+			//Prev displayable message isnt the same type, don't merge
+			if(prevMessage.type != newMessage.type) return false;
 
 			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
-			if(resetChildren) this.messageIdToChildren[prevMessage.id];
-			if(prevCast.user.id !== newCast.user.id) return false;//Not the same user don't merge
+			//Not the same user don't merge
+			if(prevCast.user.id !== newCast.user.id) return false;
 			
+			//Merging 2 chat messages from the same user...
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//don't merge messages with multiple occurences flag
 				if((prevMessage.occurrenceCount || 0) > 0) return false;
@@ -1650,9 +1656,24 @@ export default class MessageList extends Vue {
 				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 				//Too much time elapsed between the 2 messages
 				if(newMessage.date - prevDate > minDuration * 1000) return false;
-				//Parent message size is too big, don't merge
-				if(TwitchUtils.computeMessageSize(prevMessage.message_chunks) + newCast.message_size > maxSizeTotal) return false;
+				//If message is too big, don't merge
+
+				//Check forward for when doing a full chat refresh
+				let newSize = newCast.message_size;
+				if(this.messageIdToChildren[newMessage.id]) {
+					this.messageIdToChildren[newMessage.id].forEach(v=> newSize += (v as TwitchatDataTypes.MessageChatData).message_size);
+				}
+				if(newSize + newCast.message_size > maxSizeTotal) return false;
+				
+				//Check backward for when adding a new message
+				let prevSize = prevMessage.message_size
+				if(this.messageIdToChildren[prevMessage.id]) {
+					this.messageIdToChildren[prevMessage.id].forEach(v=> prevSize += (v as TwitchatDataTypes.MessageChatData).message_size);
+				}
+				if(prevSize + newCast.message_size > maxSizeTotal) return false;
 			}else
+
+			//MMerging 2 rewards from the same user...
 			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 				//Dont merge rewards with prompts unless they're the same reward type
