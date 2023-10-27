@@ -13,12 +13,6 @@
 			@add="$emit('addColumn', config)"
 			@change="fullListRefresh()"
 			@submit="forceConfig = false"/>
-
-		<button class="filteredMessages" v-if="customActivitiesDisplayed" @click="unlockListRefresh()">
-			<img src="@/assets/icons/back.svg" alt="back">
-			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">{{$t('chat.hype_train.filtered_title')}}</span>
-		</button>
-
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id" :id="'message_' + m.id + '_' + config.order">
@@ -83,6 +77,11 @@
 					@click="incrementLockedLiveCount(1)"><Icon name="add" /></button>
 			</div>
 		</div>
+
+		<button class="filteredMessages" v-if="customActivitiesDisplayed" @click="unlockListRefresh()">
+			<img src="@/assets/icons/back.svg" alt="back">
+			<span><img src="@/assets/icons/train.svg" alt="train" class="icon">{{$t('chat.hype_train.filtered_title')}}</span>
+		</button>
 
 		<div class="conversation" ref="conversationHolder" v-if="conversation.length > 0"
 			:style="conversationStyles"
@@ -844,20 +843,22 @@ export default class MessageList extends Vue {
 				const maxScroll = (messagesHolder.scrollHeight - messagesHolder.offsetHeight);
 				const vScroll = messagesHolder.scrollTop + scrollBy;
 
-				if(vScroll > maxScroll - 2) {
-					messagesHolder.scrollTop = maxScroll;
-					await this.onScroll(scrollBy);
-					if(this.pendingMessages.length == 0) {
-						this.unPause();
-					}
-				}else{
+				// if(vScroll > maxScroll - 2) {
+				// 	messagesHolder.scrollTop = maxScroll;
+				// 	await this.onScroll(scrollBy);
+				// 	if(this.pendingMessages.length == 0) {
+				// 		this.unPause();
+				// 	}
+				// }else{
 					gsap.to(messagesHolder, {
 						scrollTop: vScroll, duration: .5, ease: "power1.inOut", onUpdate:()=>{
 						}, onComplete: () => {
-							if (this.pendingMessages.length === 0) this.unPause();
+							if(Math.abs(messagesHolder.scrollTop - maxScroll) < 10){
+								if (this.pendingMessages.length === 0) this.unPause();
+							}
 						}
 					});
-				}
+				// }
 				break;
 			}
 
@@ -1762,6 +1763,7 @@ export default class MessageList extends Vue {
 		display: flex;
 		align-items: center;
 		margin-right: .5em;
+		z-index: 1;
 		img {
 			height: 1em;
 		}
@@ -1897,14 +1899,15 @@ export default class MessageList extends Vue {
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
-			color: var(--color-light);
 			font-size: .8em;
 			margin-bottom: .5em;
+			color: var(--color-text);
 			.label {
 				font-style: italic;
 				margin: 0 .5em;
 			}
 			button {
+				color: inherit;
 				height: 1.5em;
 				width: 1.5em;
 				padding: 2px;

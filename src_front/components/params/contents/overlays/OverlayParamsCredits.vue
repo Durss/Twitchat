@@ -97,9 +97,9 @@
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
-									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
-									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
 									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
+									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
+									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
 									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -300,6 +300,7 @@ export default class OverlayParamsCredits extends Vue {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "raids")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "chatters")!);
 		}else{
 
 			for (let i = 0; i < this.data.slots.length; i++) {
@@ -317,8 +318,8 @@ export default class OverlayParamsCredits extends Vue {
 						//Force amount value if missing
 						if(slot.showAmounts == undefined && defaultSlot.hasAmount) slot.showAmounts = true;
 					}
-					//Max entries field is premium only, if not premium force it to 10
-					if(!this.isPremium) slot.maxEntries = Config.instance.MAX_ENDING_CREDIT_ENTRIES;
+					//Max entries field is premium only, if not premium force it to 100
+					if(!this.isPremium) slot.maxEntries = 100;
 				}
 			}
 		
@@ -430,7 +431,7 @@ export default class OverlayParamsCredits extends Vue {
 			slotType,
 			label:this.$t(slotDef.defaultLabel),
 			layout:"col",
-			maxEntries:this.isPremium? 100 : Config.instance.MAX_ENDING_CREDIT_ENTRIES,
+			maxEntries:100,
 		};
 		
 		//Create parameters

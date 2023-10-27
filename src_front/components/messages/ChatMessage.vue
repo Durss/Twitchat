@@ -628,7 +628,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		//If we're a donor, just disable the ad and delete the message as a feedback
 		if(this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium) {
 			this.$store("chat").botMessages.twitchatAd.enabled = false;
-			this.$store("chat").deleteMessageByID(this.messageData.id);
+			this.$store("chat").deleteMessage(this.messageData, undefined, false);
 		}else{
 			this.openAdParams();
 		}
@@ -872,7 +872,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	.pronoun {
 		border-radius: 3px;
 		color: var(--color-text);
-		border: 1px solid var(--color-text);
+		border: 1px solid var(--color-text-fade);
 		padding: 0 2px;
 		margin-right: .25em;
 	}

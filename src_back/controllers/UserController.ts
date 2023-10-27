@@ -33,8 +33,8 @@ export default class UserController extends AbstractController {
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
-		if(fs.existsSync(Config.EARLY_TWITCHAT_DONORS)) {
-			const uids:string[] = JSON.parse(fs.readFileSync(Config.EARLY_TWITCHAT_DONORS, "utf-8"));
+		if(fs.existsSync(Config.earlyDonors)) {
+			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
 			for (let i = 0; i < uids.length; i++) {
 				this.earlyDonors[uids[i]] = true;
 			}

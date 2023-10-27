@@ -9,6 +9,7 @@
 		"restricted_access":"This feature requires premium membership",
 		"features_title":"Premium features",
 		"premium_only_tt":"Premium only",
+		"no_ad_info":"(only applies to streamers with +{FOLLOWERS} followers)",
 		"supportTable":{
 			"headers":[
 				"Features",
@@ -49,7 +50,8 @@
 				["Viewers pronouns", 1, 1, 1],
 				["Save chat messages", 1, 1, 1],
 				["Shoutouts queue", 1, 1, 1],
-				["Moderation options", 1, 1, 1]
+				["Moderation options", 1, 1, 1],
+				["Export messages on right click", 1, 1, 1]
 			]
 		},
 

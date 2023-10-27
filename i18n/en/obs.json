@@ -10,6 +10,9 @@
 		"form_ip":"OBS websocket IP",
 		"credentials_form_title":"OBS credentials",
 
+		"scenes": "Scenes",
+		"sources": "Sources",
+
 		"header":"Create your own twitch alerts, allow your mods basic control over your OBS and much more",
 		"install":"In order to work, this needs {OBS_VERSION}",
 		

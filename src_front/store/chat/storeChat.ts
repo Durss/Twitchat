@@ -1321,6 +1321,7 @@ export const storeChat = defineStore('chat', {
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {
 				messageList.splice(i, 1);
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad) Database.instance.deleteMessage(message);
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

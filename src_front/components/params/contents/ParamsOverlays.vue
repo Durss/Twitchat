@@ -3,7 +3,7 @@
 		<Icon name="overlay" class="icon" />
 		<div class="head">{{ $t("overlay.header") }}</div>
 
-		<div class="connectObs" v-if="!exchangeChannelAvailable">
+		<div class="card-item alert connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
 					<Button class="button"
@@ -107,10 +107,6 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		flex-direction: column;
 		gap: .5em;
 		align-items: center;
-		color: var(--color-light);
-		background-color: var(--color-alert);
-		padding: .5em;
-		border-radius: .5em;
 		.dockTuto {
 			text-align: center;
 			img {

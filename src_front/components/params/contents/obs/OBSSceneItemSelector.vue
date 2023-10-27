@@ -1,14 +1,16 @@
 <template>
 	<div class="obssceneitemselector">
 		<div class="list">
+			<div class="head">{{ $t("obs.scenes") }}</div>
 			<button v-for="scene in sceneList"
 				@click="listSceneItems(scene.sceneName, true)"
 				:class="sceneItemClasses(scene.sceneName)">{{ scene.sceneName }}</button>
 		</div>
 
-		<div class="verticalSplitter"></div>
+		<div class="verticalSplitter" v-if="sceneItems.length > -1"></div>
 
-		<div class="list">
+		<div class="list" v-if="sceneItems.length > 0">
+			<div class="head">{{ $t("obs.sources") }}</div>
 			<template v-for="source in sceneItems" :key="source.item.sceneItemId">
 				<button @click="sourcePath[0] = source.item; sourcePath.splice(1);"
 					:class="sourceItemClasses(source.item)">{{ source.item.sourceName }}</button>
@@ -19,6 +21,10 @@
 						:class="sourceItemClasses(child)">{{ child.sourceName }}</button>
 				</div>
 			</template>
+		</div>
+		<div class="list" v-else>
+			<div class="head">Sources</div>
+			<div class="placeholder">{{ $t("overlay.heatDistort.select_scene") }}</div>
 		</div>
 	</div>
 </template>
@@ -95,8 +101,8 @@ export default class OBSSceneItemSelector extends Vue {
 	}
 
 	public async listSceneItems(sceneName:string, resetPath:boolean = false, force:boolean = false):Promise<void> {
-		if(this.currentScene == sceneName && force !== true) return;
 		if(resetPath) this.sourcePath = [];
+		if(this.currentScene == sceneName && force !== true) return;
 		this.currentScene = sceneName;
 		this.sceneItems = (await OBSWebsocket.instance.getSceneItems(this.currentScene));
 
@@ -141,9 +147,10 @@ export default class OBSSceneItemSelector extends Vue {
 
 <style scoped lang="less">
 .obssceneitemselector{
-	gap: 1em;
+	gap: .5em;
 	display: flex;
 	flex-direction: row;
+	width: 100%;
 
 	.verticalSplitter{
 		width: 1px;
@@ -157,10 +164,20 @@ export default class OBSSceneItemSelector extends Vue {
 		flex-direction: column;
 		max-height: 250px;
 		overflow-y: auto;
-		max-width: 50%;
 		flex-grow: 1;
+		flex-basis: 50%;
+
+		.head {
+			text-align: center;
+			font-weight: bold;
+			margin-bottom: .5em;
+			padding: .5em 0;
+			border-bottom: 1px solid var(--color-light-fade);
+			background-color: var(--color-dark-fadest);
+		}
 
 		button {
+			font-size: 1rem;
 			border-radius: var(--border-radius);
 			padding: .25em .5em;
 			text-align: left;
@@ -178,6 +195,15 @@ export default class OBSSceneItemSelector extends Vue {
 					background-color:  var(--color-primary-light);
 				}
 			}
+		}
+
+		.placeholder {
+			font-size: 1rem;
+			background-color: var(--color-light-fade);
+			border-radius: var(--border-radius);
+			padding: .25em .5em;
+			opacity: .5;
+			text-align: center;
 		}
 
 		.children {

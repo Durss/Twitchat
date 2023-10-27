@@ -1,6 +1,15 @@
 <template>
 	<ToggleBlock class="overlayparamsheatdistort" :title="$t('overlay.heatDistort.title')" :icons="['heat']">
-		<div class="holder">
+
+		<div class="holder card-item alert" v-if="!obsConnected">
+			<p>{{ $t("heat.need_OBS") }}</p>
+			<Button class="button"
+				icon="obs"
+				light alert
+				@click="$store('params').openParamsPage(contentObs)">{{ $t('heat.need_OBS_connectBt') }}</Button>
+		</div>
+		
+		<div class="holder" v-else>
 			<div class="item">
 				<div class="info">
 					<i18n-t scope="global" tag="div" keypath="overlay.heatDistort.description">
@@ -24,12 +33,12 @@
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
 			<div class="card-item maximumReached" v-else>
-				<p><Icon name="alert" />You've reached the maximum distortion overlay you can create</p>
+				<p><Icon name="alert" />{{ $t("overlay.heatDistort.max_reached") }}</p>
 				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
 			</div>
 
 			<template v-for="(item, index) in distortionList" :key="item.id">
-				<HeatDistortParams v-model="distortionList[index]" />
+				<HeatDistortParams v-model="distortionList[index]" @delete="deleteDistorsion" />
 			</template>
 		</div>
 	</ToggleBlock>
@@ -44,6 +53,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -58,7 +68,9 @@ export default class OverlayParamsHeatDistort extends Vue {
 
 	public distortionList:TwitchatDataTypes.HeatDistortionData[] = [];
 
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get isPremium():boolean{ return this.$store("auth").isPremium; }
+	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 
 	public openHeat():void {
@@ -88,6 +100,10 @@ export default class OverlayParamsHeatDistort extends Vue {
 
 	public becomePremium():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+	}
+
+	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
+		this.distortionList = this.distortionList.filter(v=>v.id != data.id);
 	}
 
 }

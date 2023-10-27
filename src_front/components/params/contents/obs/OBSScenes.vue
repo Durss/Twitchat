@@ -2,14 +2,9 @@
 	<div class="obsscenes">
 		<div v-if="sceneParams.length == 0" class="card-item secondary noScene">{{ $t("obs.scenes_empty") }}</div>
 		<div class="list" v-else>
-			<div class="header">
-				<div>{{ $t("obs.scenes_col_name") }}</div>
-				<div>{{ $t("obs.scenes_col_cmd") }}</div>
-			</div>
 			<ParamItem v-for="p in sceneParams"
 				class="row"
 				:key="p.label"
-				noBackground
 				:paramData="p"
 				@change="onSceneCommandUpdate()"
 				ref="param"
@@ -63,7 +58,7 @@ export default class OBSScenes extends Vue {
 		}
 		await this.$nextTick();
 		const items = (this.$refs.param as Vue[]).map(v => v.$el);
-		gsap.from(items, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.025, delay:.25, clearProps:"all"});
+		gsap.from(items, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.01, delay:.25, clearProps:"all"});
 	}
 
 }
@@ -77,27 +72,18 @@ export default class OBSScenes extends Vue {
 	}
 
 	.list {
-		@inputWidth:150px;
-		@p:calc(100% - @inputWidth - 10px);
-		background: linear-gradient(90deg, rgba(255,255,255,0) calc(@p - 1px), var(--background-color-secondary) @p, rgba(255,255,255,0) calc(@p + 1px));
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+		.row {
+			align-items: center;
+			overflow: hidden;
 	
-		:deep(input) {
-			width: 100% !important;
-		}
-	
-		:deep(.inputHolder) {
-			max-width: @inputWidth !important;
-		}
-	
-		.header {
-			display: flex;
-			flex-direction: row;
-			justify-content: space-between;
-			background-color: var(--background-color-secondary);
-			padding: 10px;
-			border-top-left-radius: 5px;
-			border-top-right-radius: 5px;
-			margin-bottom: 10px;
+			:deep(input), :deep(.inputHolder) {
+				flex-basis: 150px;
+				width: 150px;
+				flex-grow: unset !important;
+			}
 		}
 	}
 }

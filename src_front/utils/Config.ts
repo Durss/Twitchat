@@ -139,7 +139,7 @@ export default class Config {
 	/**
 	 * Maxium number of distortion overlays for premium
 	 */
-	public MAX_DISTORTION_OVERLAYS_PREMIUM = 20;//TODO limit counters count for premium. Unlimitted for now
+	public MAX_DISTORTION_OVERLAYS_PREMIUM = 20;
 	
 	private _serverConfig!:ServerConfig;
 	
@@ -164,8 +164,8 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			// {platform:"twitch", login:"shakawah"},
-			// {platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"lydia__am"},
+			// {platform:"twitch", login:"dazjdm"},
 		];
 	}
 

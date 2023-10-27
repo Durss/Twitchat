@@ -145,18 +145,36 @@ export default class PatreonController extends AbstractController {
 			response.status(500);
 			response.send({success:false, message:json.error});
 		}else{
-			const members:PatreonMember[] = JSON.parse(fs.readFileSync(Config.PATREON_MEMBERS_PATH, "utf-8"));
+			const members:PatreonMember[] = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8"));
 			const memberships = json.data.relationships.memberships.data as {id:string, type:string}[];
 			
 			//Flag myself as donor from my ID as the campaign holder isn't flag as
 			//a donor of himself on patreon's data
-			let isMember = Config.credentials.patreon_my_uid === json.data.id;
+			let isMember = false;
+			let memberID = "";
+			if(Config.credentials.patreon_my_uid === json.data.id) {
+				isMember = true;
+				memberID = Config.credentials.patreon_my_uid;
+			}
 			
 			for (let i = 0; i < memberships.length; i++) {
 				const m = memberships[i];
 				if(members.findIndex(v=>v.id === m.id) > -1) {
 					isMember = true;
+					memberID = m.id;
 					break;
+				}
+			}
+			if(isMember) {
+				//Get twitch user
+				const userInfo = await Config.getUserFromToken(request.headers.authorization);
+				if(userInfo) {
+					let json = {};
+					if(fs.existsSync(Config.patreon2Twitch)) {
+						json = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
+					}
+					json[userInfo.user_id] = memberID;
+					fs.writeFileSync(Config.patreon2Twitch, JSON.stringify(json), "utf-8")
 				}
 			}
 			
@@ -174,7 +192,7 @@ export default class PatreonController extends AbstractController {
 	 */
 	public logout():void{
 		clearTimeout(this.tokenRefresh);
-		fs.rmSync(Config.PATREON_TOKEN_PATH);
+		fs.rmSync(Config.patreonToken);
 		this.authenticateLocal();//This will log the URI to call to authenticate the user
 	}
 
@@ -186,8 +204,8 @@ export default class PatreonController extends AbstractController {
 	 */
 	public async authenticateLocal():Promise<boolean> {
 		let token:PatreonToken|null = null;
-		if(fs.existsSync(Config.PATREON_TOKEN_PATH)) {
-			token = JSON.parse(fs.readFileSync(Config.PATREON_TOKEN_PATH, "utf-8"));
+		if(fs.existsSync(Config.patreonToken)) {
+			token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8"));
 		}
 		if(token) {
 			const url = new URL("https://www.patreon.com/api/oauth2/token");
@@ -209,7 +227,7 @@ export default class PatreonController extends AbstractController {
 				if(this.isFirstAuth){
 					Logger.success("Patreon: API ready");
 				}
-				fs.writeFileSync(Config.PATREON_TOKEN_PATH, JSON.stringify(token), "utf-8");
+				fs.writeFileSync(Config.patreonToken, JSON.stringify(token), "utf-8");
 				try {
 					await this.getCampaignID();
 					await this.refreshPatrons(this.isFirstAuth);
@@ -287,7 +305,7 @@ export default class PatreonController extends AbstractController {
 			const token:PatreonToken = json;
 			json.expires_at = Date.now() + token.expires_in;
 			//Save token
-			fs.writeFileSync(Config.PATREON_TOKEN_PATH, JSON.stringify(json), "utf-8");
+			fs.writeFileSync(Config.patreonToken, JSON.stringify(json), "utf-8");
 			if(await this.authenticateLocal()) {
 				response.header('Content-Type', 'text/html; charset=UTF-8');
 				response.status(200);
@@ -365,7 +383,7 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("page[size]", "1000");
 		if(offset) url.searchParams.append("page[cursor]", offset);
 
-		const token = JSON.parse(fs.readFileSync(Config.PATREON_TOKEN_PATH, "utf-8")) as PatreonToken;
+		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
 		const options = {
 			method:"GET",
 			headers:{
@@ -391,6 +409,7 @@ export default class PatreonController extends AbstractController {
 			if(verbose)Logger.info("Patreon: "+json.data.length+" members loaded");
 			// console.log(json);
 			const next = json.meta.pagination?.cursors?.next;
+			// fs.writeFileSync("/patrons.json", JSON.stringify(json), "utf-8");
 
 			//Only keep active patrons
 			const members = json.data.filter(v=>v.attributes.patron_status === "active_patron")
@@ -410,8 +429,8 @@ export default class PatreonController extends AbstractController {
 			
 			this.members = this.members.concat(members);
 			if(verbose)Logger.info("Patreon: "+this.members.length+" active members");
-			// fs.writeFileSync(Config.PATREON_MEMBERS_PATH.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
-			fs.writeFileSync(Config.PATREON_MEMBERS_PATH, JSON.stringify(this.members), "utf-8");
+			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
+			fs.writeFileSync(Config.patreonMembers, JSON.stringify(this.members), "utf-8");
 			if(next) {
 				//load next page
 				this.refreshPatrons(verbose, next);
@@ -428,7 +447,7 @@ export default class PatreonController extends AbstractController {
 	 */
 	public async getCampaignID():Promise<void> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");
-		const token = JSON.parse(fs.readFileSync(Config.PATREON_TOKEN_PATH, "utf-8")) as PatreonToken;
+		const token = JSON.parse(fs.readFileSync(Config.patreonToken, "utf-8")) as PatreonToken;
 		const options = {
 			method:"GET",
 			headers: {

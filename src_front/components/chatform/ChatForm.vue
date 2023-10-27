@@ -679,6 +679,12 @@ export default class ChatForm extends Vue {
 			this.$store("params").features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
 		}else
 		
+		if(isAdmin && cmd == "/mtest") {
+			for (let i = 0; i < 10; i++) {
+				MessengerProxy.instance.sendMessage("0123456789");
+			}
+		}else
+		
 		if(isAdmin && cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {

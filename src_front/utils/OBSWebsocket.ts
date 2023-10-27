@@ -804,7 +804,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns if an existing source has been found
 	 */
-	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>, sceneName?:string):Promise<boolean> {
+	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>, sceneName?:string, orderToBottom:boolean = false):Promise<boolean> {
 		//List all existing OBS sources
 		const inputList = await this.obs.call("GetInputList", {inputKind:"browser_source"});
 		const urlObj = new URL(url);
@@ -826,11 +826,15 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 		if(existingSource) {
 			//Create a new instance of the existing overlay
-			await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
+			const res = await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
+			if(res && orderToBottom) {
+				this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName})
+			}
 			//Name changed, update it
 			if(existingSource.inputName != sourceName) {
 				await this.obs.call("SetInputName", {inputName:existingSource.inputName, newInputName:sourceName});
 			}
+			await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
 			return true;
 		}
 
@@ -845,7 +849,11 @@ export default class OBSWebsocket extends EventDispatcher {
 			restart_when_active: true,
 			shutdown: true,
 		};
-		await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
+		const res = await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
+		if(res && orderToBottom) {
+			this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
+			await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+		}
 		return false;
 	}
 	

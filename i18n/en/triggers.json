@@ -176,7 +176,7 @@
 				"param_confirmSongRequest": "Confirmation message (optional)",
 				"param_failSongRequest": "Send a message if song request failed (optional)",
 				"param_limit_duration":"Limit allowed track duration",
-				"param_max_duration":"Only allow tracks shorter than {VALUE} seconds",
+				"param_max_duration":"Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist (name, link or ID)",
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {

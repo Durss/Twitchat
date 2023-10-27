@@ -116,7 +116,6 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { Linear } from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
@@ -469,7 +468,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
-			console.log(JSON.parse(JSON.stringify(this.data)));
 			this.buildSlots();
 			this.reset();
 		}
@@ -515,7 +513,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private startScroll(resetScroll:boolean):void {
 		if(this.noEntry) return;
-
+		
 		this.$nextTick().then(async () => {
 			if(this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
@@ -527,18 +525,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			this.display = true;
 			
 			if(resetScroll) {
-				const holder = this.$el as HTMLElement;
-				// const bounds = holder.getBoundingClientRect();
 				this.posY = window.innerHeight;
 
 				if(this.data?.params?.timing == 'duration') {
-					// gsap.fromTo(holder, {translateY:this.posY}, {duration:this.data!.params!.duration, translateY:-bounds.height, ease:Linear.easeNone, onComplete:()=>{
-					// 	if(this.data?.params?.loop === true) {
-					// 		this.reset(true);
-					// 	}
-					// }});
-				// }else{
-					// this.renderFrame(performance.now());
 					this.scrollStarted_at = Date.now();
 				}
 				this.renderFrame(performance.now());

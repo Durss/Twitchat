@@ -122,7 +122,7 @@
 			"given": "{MODERATOR} gave a shoutout to {USER} on room {CHANNEL}"
 		},
 		"room_settings": {
-			"title": "Reminder: {ROOM} room has the following restrictions:",
+			"title": "{ROOM} room has the following restrictions:",
 			"sub_only": "Sub only",
 			"emote_only": "Emote only",
 			"follow_only": "Followers only",

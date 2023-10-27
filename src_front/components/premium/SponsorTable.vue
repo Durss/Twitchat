@@ -34,6 +34,7 @@
 					<Icon name="cross" v-else-if="item === 0" />
 					<span class="tild" v-else-if="($config.getParamByKey(item as string) || item) === '~'">~</span>
 					<template v-else>{{ $config.getParamByKey(item as string) || item }}</template>
+					<i v-if="index == 0"><br>{{ $t("premium.no_ad_info", {FOLLOWERS:adMinFollowers}) }}</i>
 				</td>
 			</tr>
 		</table>
@@ -44,6 +45,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import { gsap } from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 
@@ -55,9 +57,8 @@ export default class SponsorTable extends Vue {
 
 	public currentRowIndex:number = 0;
 
-	public get expanded():boolean {
-		return this.currentRowIndex == this.entries.length-1;
-	}
+	public get expanded():boolean { return this.currentRowIndex == this.entries.length-1; }
+	public get adMinFollowers():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get entries():(string|number)[][] {
 		let list = this.$tm('premium.supportTable.features') as (string|number)[][];
@@ -176,6 +177,7 @@ export default class SponsorTable extends Vue {
 			td {
 				padding: .5em;
 				text-align: center;
+				vertical-align: middle;
 				&:nth-child(1) {
 					text-align: left;
 				}
@@ -201,6 +203,11 @@ export default class SponsorTable extends Vue {
 				.tild {
 					font-size: 2em;
 					line-height: .5em;
+				}
+				i {
+					line-height: 1.5em;
+					font-size: .85em;
+					opacity: .7;
 				}
 			}
 			&:not(:first-child):hover {

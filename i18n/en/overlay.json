@@ -190,10 +190,14 @@
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
 			"install_overlay":"It is advised you place this overlay and all other distortion overlays on a dedicated scene out of view.\nThen include that scene on every necessary scene.",
+			"select_target":"Select the scene or source you want the effect to be applied to",
+			"select_scene":"<- Select a scene",
+			"max_reached": "Vous avez atteint le maximum de distortions qu'il est possible de créer",
 			"add_overlay": "Create new distortion",
 			"param_enabled": "Distortion enabled",
 			"param_shape": "Distortion shape",
-			"permissions_title": "Users allowed to click"
+			"permissions_title": "Users allowed to click",
+			"delete_confirm":"Delete distortion?"
 		},
 		"tts": {
 			"title":"Text to speech",

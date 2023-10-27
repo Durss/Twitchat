@@ -10,8 +10,8 @@ credentials.json
 patreonToken.json
 announcements.json
 patreonMembers.json
-earlyDonors.json
 donors
+patreon
 beta
 env.conf
 

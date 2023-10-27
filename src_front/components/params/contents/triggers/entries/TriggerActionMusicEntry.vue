@@ -46,7 +46,7 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 
 	public param_actions:TwitchatDataTypes.ParameterData<TriggerMusicTypesValue, TriggerMusicTypesValue> = { type:"list", value:"0", listValues:[], icon:"music", labelKey:"triggers.actions.music.param_actions" };
 	public param_limitDuration:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timer", labelKey:"triggers.actions.music.param_limit_duration" };
-	public param_maxDuration:TwitchatDataTypes.ParameterData<number> = { type:"number", value:300, icon:"timer", max:3600, labelKey:"triggers.actions.music.param_max_duration" };
+	public param_maxDuration:TwitchatDataTypes.ParameterData<number> = { type:"time", value:300, icon:"timer", max:3600, labelKey:"triggers.actions.music.param_max_duration" };
 	public param_track:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"music", maxLength:500, labelKey:"triggers.actions.music.param_track" };
 	public param_confirmSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"checkmark", maxLength:500, labelKey:"triggers.actions.music.param_confirmSongRequest" };
 	public param_failSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"{FAIL_REASON}", icon:"cross", maxLength:500, labelKey:"triggers.actions.music.param_failSongRequest" };

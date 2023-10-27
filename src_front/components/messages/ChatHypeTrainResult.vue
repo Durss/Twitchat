@@ -89,7 +89,7 @@
 				</div>
 			</div>
 			
-			<Button v-if="!filtering && messageData.activities.length > 0" small icon="filters" @click="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
+			<Button v-if="!filtering && messageData.activities.length > 0" small icon="filters" @click.stop="filter()">{{ $t('chat.hype_train.filterBt') }}</Button>
 		</div>
 	</div>
 </template>

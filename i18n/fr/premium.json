@@ -9,6 +9,7 @@
 		"restricted_access":"Cette fonctionnalité nécessite d'être membre premium",
 		"features_title":"Fonctionnalités Premium",
 		"premium_only_tt":"Premium only",
+		"no_ad_info":"(ne concerne que les streamers avec +{FOLLOWERS} followers)",
 		"supportTable":{
 			"headers":[
 				"Fonctionnalités",
@@ -49,7 +50,8 @@
 				["Pronoms des viewers", 1, 1, 1],
 				["Enregistrer des messages", 1, 1, 1],
 				["File d'attente de shoutouts", 1, 1, 1],
-				["Options de modération", 1, 1, 1]
+				["Options de modération", 1, 1, 1],
+				["Export de messages au click droit", 1, 1, 1]
 			]
 		},
 

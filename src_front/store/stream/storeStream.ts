@@ -414,7 +414,6 @@ export const storeStream = defineStore('stream', {
 			let dateOffset:number|undefined = offset;
 			//No custom offset defined, use the actual start of stream
 			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
-			console.log(StoreProxy.stream.currentStreamInfo[channelId]?.started_at);
 
 			const messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};

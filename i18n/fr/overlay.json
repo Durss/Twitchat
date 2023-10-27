@@ -184,16 +184,20 @@
 			}
 		},
 		"heatDistort": {
-			"title":"Distortion d'image via Heat",
+			"title":"Distorsion d'image via Heat",
 			"description":"Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic",
 			"install_overlay":"Il est conseillé de placer cet overlay hors écran dans une scène dédiée.\nIncluez ensuite cette scène dans toutes les scènes nécessaires.",
-			"add_overlay": "Créer une nouvelle distortion",
-			"param_enabled": "Distortion active",
-			"param_shape": "Distortion shape",
-			"permissions_title": "Personnes autorisées à cliquer"
+			"select_target":"Selectionnez la scene ou la source sur laquelle appliquer les distorsions",
+			"select_scene":"<- Selectionnez une scène",
+			"max_reached": "You've reached the maximum distorsion overlay you can create",
+			"add_overlay": "Créer une nouvelle distorsion",
+			"param_enabled": "Distorsion active",
+			"param_shape": "Forme de la distorsion",
+			"permissions_title": "Personnes autorisées à cliquer",
+			"delete_confirm":"Supprimer la distorsion ?"
 		},
 		"tts": {
 			"title":"Text to speech",

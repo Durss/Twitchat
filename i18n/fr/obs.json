@@ -9,6 +9,9 @@
 		"form_pass": "Mot de passe du serveur",
 		"form_ip": "IP du serveur",
 		"credentials_form_title": "Identifiants de connexion",
+
+		"scenes": "Scènes",
+		"sources": "Sources",
 		
 		"header": "Créez vos propres alertes Twitch, permettez à vos viewers de contrôler votre OBS et plus encore...",
 		"install": "Nécessite {OBS_VERSION}",
