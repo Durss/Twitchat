@@ -103,7 +103,6 @@
 					}
 				}
 				if(col) params.col = col;
-				// console.log(actionName, params);
 				callTwitchat(actionName, params)
 			},
 
@@ -143,12 +142,10 @@
 							payload.settings.selectMode = true;
 							$SD.setSettings(context, payload.settings);
 							callTwitchat("CHAT_FEED_SELECT_ACTION_CANCEL");
-							console.log("CANCEL SELECT");
 						}, 5000);
 						break;
 					}
 				}
-				// console.log(actionName, params);
 				callTwitchat(actionName, params);
 			},
 			
@@ -238,7 +235,6 @@
 			});
 			
 			$SD.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
-				console.log('Stream Deck connected!', uuid);
 
 				$SD.getGlobalSettings();
 			});
@@ -306,8 +302,6 @@
 					if(changed) actions.SetGlobalSettings(settingsCache);
 				});
 			}catch(error) {
-				console.log("FAILED");
-				console.log(error);
 				connecting = false;
 				clearTimeout(reconnectTimeout);
 				reconnectTimeout = setTimeout(()=> {
@@ -322,7 +316,6 @@
 				//Listen for socket connection close to auto reconnect
 				websocketOBS.addListener("ConnectionClosed", (e)=> {
 					connecting = false;
-					console.log("Connection closed", e);
 					const changed = settingsCache.OBSWS_CONNECTED != false;
 					settingsCache.OBSWS_CONNECTED = false;
 					//If state has changed, tell the property inspector
@@ -382,6 +375,7 @@
 		 * Request Twitchat to perform an action
 		 */
 		function callTwitchat(actionName, data) {
+			if(!settingsCache.OBSWS_CONNECTED) return;
 			if(!data) data = {};
 			const eventData = { origin:"twitchat", type:actionName, data:JSON.parse(JSON.stringify(data)) }
 			websocketOBS.call("BroadcastCustomEvent", {eventData});

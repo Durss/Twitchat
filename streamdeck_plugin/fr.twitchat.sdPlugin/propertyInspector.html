@@ -15,6 +15,9 @@
 			padding-bottom: 4px;
 			display: none;
 		}
+		.infos {
+			display: none;
+		}
 		details a {
 			padding-right: 0;
 		}
@@ -45,11 +48,14 @@
 
 <body>
 	<div class="sdpi-wrapper">
-
-		<hr>
-
+		<div id="infos" class="infos">
+			<div class="sdpi-heading"><strong>⚠️ IMPORTANT ⚠️</strong></div>
+			<p>This plugin <strong>CANNOT</strong> control official Twitch chat.</p>
+			<p>It is made to control <a href="https://twitchat.fr" target="_blank">Twitchat.fr</a>, a full featured chat alternative for Twitch streamers.</p>
+		</div>
 		<form id="obsParams" class="obsParams" action="javascript:;" onsubmit="onConnect(event)">
 			<div class="sdpi-heading">OBS Websocket credentials</div>
+			
 			<div class="sdpi-item">
 				<div class="sdpi-item-label">Port</div>
 				<input class="sdpi-item-value" value="4455" placeholder="4455" id="OBSWS_PORT">
@@ -65,19 +71,12 @@
 			<div class="sdpi-item">
 				<button class="sdpi-item-value" type="submit">Connect</button>
 			</div>
-			<div class="sdpi-item">
-				<details class="sdpi-item-value">
-					<summary>Where can i find these values?</summary>
-					<p>You can find these values on OBS under the <strong>"Tools -> obs-websocket"</strong> menu.</p>
-					<p>
-						Make sure you have <strong>OBS 28+</strong>
-						<br><i>(or OBS 27 with <a href="https://github.com/obsproject/obs-websocket/releases" target="_blank">OBS-Websocket v5+</a> installed)</i>
-					</p>
-				</details>
-			</div>
+			<details class="sdpi-item-value">
+				<summary>Where can i find these values?</summary>
+				<p>You can find these values on OBS under the <strong>"Tools -> obs-websocket"</strong> menu.</p>
+				<p>Make sure you have <strong>OBS 28+</strong></p>
+			</details>
 		</form>
-
-		<div class="sdpi-heading hidden" data-chat-feed-read data-greet-feed-read>Parameters</div>
 
 		<div class="sdpi-item">
 			<div class="message description">
@@ -114,8 +113,6 @@
 				<strong class="hidden" data-send-message>Send a message. You can use any Twitch or Twitchat commands as well as custom chat commands created on the triggers</strong>
 			</div>
 		</div>
-
-		<hr>
 
 		<div type="range" class="sdpi-item hidden"
 		data-chat-feed-read
@@ -262,6 +259,7 @@
 		let actionName = "";
 		let globalSettings = {};
 		let isFirstUpdate = true;
+		let wasConnected = true;
 		if ($PI) {
 
 			$PI.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
@@ -272,7 +270,11 @@
 					populateGlobalSettings(settings);
 					if(isFirstUpdate) {
 						$PI.getSettings();
+					}else if(settings.OBSWS_CONNECTED != wasConnected) {
+						document.location.reload();
 					}
+					wasConnected = settings.OBSWS_CONNECTED;
+					isFirstUpdate = false;
 				});
 
 				$PI.onDidReceiveSettings($PI.actionInfo.action, (jsonObj) => {
@@ -282,26 +284,29 @@
 
 				actionName = $PI.actionInfo.action.split(".").pop();
 
-				//Make visible any component related to this action
-				const holders = document.querySelectorAll("[data-"+actionName+"]");
-				for (let i = 0; i < holders.length; i++) {
-					const el = holders[i];
-					el.classList.remove("hidden");
-				}
-
-				//Remove from the DOM any holder with a "hidden" class remaining
-				const holdersRemove = document.querySelectorAll(".hidden");
-				for (let i = 0; i < holdersRemove.length; i++) {
-					const el = holdersRemove[i];
-					el.parentElement.removeChild(el);
-				}
-
 				//Request settings
 				$PI.getGlobalSettings();
 			});
 		};
 
 		function populateGlobalSettings(settings) {
+
+			//Make visible any component related to this action
+			if(settings.OBSWS_CONNECTED) {
+				const holders = document.querySelectorAll("[data-"+actionName+"]");
+				for (let i = 0; i < holders.length; i++) {
+					const el = holders[i];
+					el.classList.remove("hidden");
+				}
+			}
+
+			//Remove from the DOM any holder with a "hidden" class remaining
+			const holdersRemove = document.querySelectorAll(".hidden");
+			for (let i = 0; i < holdersRemove.length; i++) {
+				const el = holdersRemove[i];
+				el.parentElement.removeChild(el);
+			}
+
 			//Populate list index selector
 			const colSelector = document.getElementById("colIndex");
 			if(colSelector) {
@@ -348,22 +353,26 @@
 			//Populate any form matching a global setting ID (like OBS credentials)
 			for (const key in settings) {
 				const input = document.getElementById(key);
-				if(input) {
+				if(input && settings[key]) {
 					input.value = settings[key];
 					if(input.dataset.hasOwnProperty("sync")) {
 						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key];
 					}
 				}
 			}
+			document.getElementById("infos").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 			document.getElementById("obsParams").style.display = settings.OBSWS_CONNECTED? "none" : "block";
+			document.getElementById("infos").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 			
 		}
 
 		function populateLocalSettings(settings) {
 			if(document.getElementById("value")) document.getElementById("value").innerHTML = "0";
+			console.log(settings);
 			for (const key in settings) {
 				const input = document.getElementById(key);
-				if(input) {
+				console.log(key, settings[key]);
+				if(input && settings[key]) {
 					input.value = settings[key];
 					if(input.dataset.hasOwnProperty("sync")) {
 						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key] ?? 1;
