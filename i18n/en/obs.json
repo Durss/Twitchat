@@ -25,6 +25,10 @@
 		"microphone_unmute":"Unmute command",
 		"microphone_default_entry":"- none -",
 
+		"browser_sources_title":"Browser sources",
+		"browser_sources_refresh":"Reload",
+		"browser_sources_refresh_all":"Reload all browser sources",
+
 		"scenes_title":"Control scenes",
 		"scenes_empty":"You have no scene on OBS",
 		"scenes_col_name":"OBS Scene",

@@ -47,6 +47,14 @@
 			:title="$t('obs.scenes_title')">
 				<OBSScenes />
 			</ToggleBlock>
+
+			<ToggleBlock class="block browserSources"
+			v-if="connected"
+			:open="false"
+			:icons="['internet']"
+			:title="$t('obs.browser_sources_title')">
+				<OBSBrowserSources />
+			</ToggleBlock>
 		</div>
 	</div>
 </template>
@@ -65,6 +73,7 @@ import type IParameterContent from './IParameterContent';
 import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import OBSScenes from './obs/OBSScenes.vue';
+import OBSBrowserSources from './obs/OBSBrowserSources.vue';
 
 
 @Component({
@@ -74,6 +83,7 @@ import OBSScenes from './obs/OBSScenes.vue';
 		ToggleBlock,
 		OBSConnectForm,
 		PermissionsForm,
+		OBSBrowserSources,
 		OBSAudioSourceForm,
 	},
 	emits:[]
