@@ -2706,17 +2706,22 @@ export default class TwitchUtils {
 		let message_html = "";
 		for (let i = 0; i < chunks.length; i++) {
 			const v = chunks[i];
+			const label = v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
 			if(v.type == "text") {
-				message_html += v.value.replace(/</g, "&lt;").replace(/>/g, "&gt;");//Avoid XSS attack
+				message_html += label;
 			}else if(v.type == "highlight") {
-				message_html += "<mark>"+v.value+"</mark>";
+				message_html += "<mark>"+label+"</mark>";
 			}else if(v.type == "url") {
-				const href = !/^https?/gi.test(v.value)? "https://"+v.value : v.value;
-				message_html += "<a href=\""+href+"\">"+v.value+"</a>";
+				const href = !/^https?/gi.test(label)? "https://"+label : label;
+				message_html += "<a href='"+encodeURI(href)+"'>"+label+"</a>";
 			}else if(v.type == "emote" || v.type == "cheermote") {
 				message_html += "<img src='"+(v.emoteHD || v.emote)+"' class='emote'>";
+			}else if(v.type == "user") {
+				message_html += "<span class='user'>"+label+"</span>";
 			}
 		}
+		console.log("PARSE", chunks);
+		console.log(message_html);
 		return message_html;
 	}
 
