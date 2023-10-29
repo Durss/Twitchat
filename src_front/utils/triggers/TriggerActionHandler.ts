@@ -1360,7 +1360,7 @@ export default class TriggerActionHandler {
 				if(step.type == "ws") {
 					const json:{[key:string]:number|string|boolean} = {};
 					for (const tag of step.params) {
-						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
+						const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent, false, false, false);
 						json[tag.toLowerCase()] = value;
 						if(step.topic) {
 							json.topic = step.topic;
@@ -1808,7 +1808,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, stripHTMLTags:boolean = true):Promise<string> {
+	private async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true):Promise<string> {
 		src = src.toString();//Make sure it's a string
 		let res = src.toString();
 		if(!res) return "";
@@ -2074,7 +2074,7 @@ export default class TriggerActionHandler {
 						chunks: for (let i = 0; i < chunks.length; i++) {
 							rebuilt.push(chunks[i])
 							root = (root as {[key:string]:unknown})[chunks[i]];
-							if(Array.isArray(root)) {
+							if(Array.isArray(root) && i < chunks.length - 1) {
 								root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]]).join(", ");
 								break chunks;
 							}
@@ -2098,10 +2098,13 @@ export default class TriggerActionHandler {
 				if(typeof value == "string" && removeFolderNavigation) {
 					value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 				}
+
+				if(typeof value != "string") value = JSON.stringify(value);
 				
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}
-
+			
+			
 			//Replace dynamic placeholders. These are user defined placeholders.
 			//Ex: to read a counter value, user must define a placeholder name that
 			//will be populated with the counter's value so this value can be used
@@ -2115,19 +2118,274 @@ export default class TriggerActionHandler {
 			if(removeRemainingTags) {
 				res = res.replace(/\{[^ }]+\}/g, "");
 			}
-			
+
 			// console.log("RESULT = ",res);
-			if(stripHTMLTags) {
-				return Utils.stripHTMLTags(res);
-			}else{
-				return res;
-			}
+			return removeHTMLtags? Utils.stripHTMLTags(res) : res;
 			
 		}catch(error) {
 			console.error(error);
 			return res;
 		}
 	}
+
+	// private async getValueFromPlaceholder(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, placeholder:string, subEvent?:string|null):Promise<unknown> {
+	// 	let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
+	// 	if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
+	// 	// console.log(placeholders);
+	// 	//No placeholders for this event type, just send back the source text
+	// 	if(placeholders.length == 0) return null;
+		
+	// 	const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+	// 	const isPremium = StoreProxy.auth.isPremium;
+
+	// 	for (const placeholder of placeholders) {
+	// 		let value:unknown = "";
+	// 		let cleanSubevent = true;
+	// 		placeholder.tag = placeholder.tag.toUpperCase();
+
+	// 		//Special pointers parsing.
+	// 		//Pointers starting with "__" are parsed here
+	// 		if(placeholder.pointer.indexOf("__")==0) {
+	// 			let pointer = placeholder.pointer.toLowerCase();
+	// 			/**
+	// 			 * If the placeholder requests for the current stream info
+	// 			 */
+	// 			if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
+	// 				const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo;
+	// 				value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
+	// 				if(!value) value = (pointerLocal == "viewers")? "0" : "-none-";
+
+	// 			/**
+	// 			 * If the placeholder requests for Ulule info
+	// 			 */
+	// 			}else if(pointer.indexOf("__ulule__") == 0 && ululeProject) {
+	// 				const pointerLocal = pointer.replace('__ulule__.', '');
+	// 				switch(pointerLocal) {
+	// 					case "url": value = ululeProject; break;
+	// 					case "name": {
+	// 						//This is a dirty duplicate of what's in OverlayParamsUlule.
+	// 						//Think about a cleaner way to do this
+	// 						let project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
+	// 						try {
+	// 							const apiRes = await ApiController.call("ulule/project", "GET", {project});
+	// 							if(apiRes.status == 200) {
+	// 								value = Utils.getQueryParameterByName("title") || apiRes.json.name_en || apiRes.json.name_fr || apiRes.json.name_ca || apiRes.json.name_de || apiRes.json.name_es || apiRes.json.name_it || apiRes.json.name_pt || apiRes.json.name_nl;
+	// 							}
+	// 						}catch(error){
+	// 							value = "";
+	// 						}
+	// 						break;
+	// 					}
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for trigger's info
+	// 			 */
+	// 			}else if(pointer.indexOf("__trigger__") == 0) {
+	// 				const pointerLocal = pointer.replace('__trigger__.', '');
+	// 				switch(pointerLocal) {
+	// 					case "name":{
+	// 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
+	// 						if(!value) value = "-no name-";
+	// 						break;
+	// 					}
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for the current OBS scene
+	// 			 */
+	// 			}else if(pointer.indexOf("__obs__") == 0) {
+	// 				const pointerLocal = pointer.replace('__obs__.', '');
+	// 				switch(pointerLocal) {
+	// 					case "scene": value = StoreProxy.main.currentOBSScene || "-none-"; break;
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for the current command
+	// 			 */
+	// 			}else if(pointer === "__command__") {
+	// 				value = subEvent || "-none-";
+	// 				cleanSubevent = false;
+					
+	// 			/**
+	// 			 * If the placeholder requests for the current timer value
+	// 			 */
+	// 			}else if(pointer.indexOf("__timer__") == 0) {
+	// 				const pointerLocal = pointer.replace('__timer__.', '');
+	// 				const timer = StoreProxy.timer.timer;
+	// 				if(timer) {
+	// 					let start = timer.startAt_ms;
+	// 					let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
+	// 					if(timer.paused) {
+	// 						elapsed -= Date.now() - timer.pausedAt!;
+	// 					}
+	// 					if(pointerLocal == "value") {
+	// 						value = Math.round(elapsed / 1000).toString();
+	// 					}else
+	// 					if(pointerLocal == "value_formated") {
+	// 						value = Utils.formatDuration(elapsed);
+	// 					}
+	// 				}else{
+	// 					value = "0";
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for the current countdown value
+	// 			 */
+	// 			}else if(pointer.indexOf("__countdown__") == 0) {
+	// 				const pointerLocal = pointer.replace('__countdown__.', '');
+	// 				const cd = StoreProxy.timer.countdown;
+	// 				if(cd) {
+	// 					let elapsed = Date.now() - cd.startAt_ms;
+	// 					if(cd.paused) {
+	// 						elapsed -= Date.now() - cd.pausedAt!;
+	// 					}
+	// 					const remaining = Math.ceil((cd.duration_ms - elapsed)/1000)*1000;
+	// 					if(pointerLocal == "value") {
+	// 						value = Math.round(remaining / 1000).toString();
+	// 					}else
+	// 					if(pointerLocal == "value_formated") {
+	// 						value = Utils.formatDuration(remaining);
+	// 					}else
+	// 					if(pointerLocal == "duration") {
+	// 						value = Math.round(cd.duration_ms / 1000).toString();
+	// 					}else
+	// 					if(pointerLocal == "duration_formated") {
+	// 						value = Utils.formatDuration(cd.duration_ms);
+	// 					}
+	// 				}else{
+	// 					value = "0";
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for a goxlr value
+	// 			 */
+	// 			}else if(pointer.indexOf("__goxlr__") == 0) {
+	// 				const pointerLocal = pointer.split(".").splice(1);
+	// 				if(pointerLocal[0] == "cough") {
+	// 					value = GoXLRSocket.instance.getButtonState( "Cough" ) === true ? "true" : "false";
+	// 				}else
+	// 				if(pointerLocal[0] == "profile") {
+	// 					value = GoXLRSocket.instance.currentProfile;
+	// 				}else
+	// 				if(pointerLocal[0] == "input") {
+	// 					type keys = "mic"|"chat"|"music"|"game"|"console"|"linein"|"system"|"sample";
+	// 					const input = pointerLocal[1] as keys;
+	// 					const hashmap:{[key in keys]:keyof GoXLRTypes.Volumes} = {
+	// 						mic:"Mic",
+	// 						chat:"Chat",
+	// 						music:"Music",
+	// 						game:"Game",
+	// 						console:"Console",
+	// 						linein:"LineIn",
+	// 						system:"System",
+	// 						sample:"Sample",
+	// 					}
+	// 					if(hashmap[input]) {
+	// 						value = GoXLRSocket.instance.getInputVolume( hashmap[input] ).toString();
+	// 					}else{
+	// 						value = "0";
+	// 					}
+	// 				}else
+	// 				if(pointerLocal[0] == "fx") {
+	// 					switch(pointerLocal[1]) {
+	// 						case "enabled": value = GoXLRSocket.instance.fxEnabled===true? "true" : "false"; break;
+	// 						case "preset": value = (GoXLRSocket.instance.activeEffectPreset + 1).toString(); break;
+	// 						case "megaphone": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectMegaphone")===true? "true" : "false"; break;
+	// 						case "robot": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectRobot")===true? "true" : "false"; break;
+	// 						case "hardtune": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectHardTune")===true? "true" : "false"; break;
+	// 						case "reverb": value = GoXLRSocket.instance.getButtonState("reverb").toString(); break;
+	// 						case "pitch": value = GoXLRSocket.instance.getButtonState("pitch").toString(); break;
+	// 						case "echo": value = GoXLRSocket.instance.getButtonState("echo").toString(); break;
+	// 						case "gender": value = GoXLRSocket.instance.getButtonState("gender").toString(); break;
+	// 					}
+	// 				}else
+	// 				if(pointerLocal[0] == "fader") {
+	// 					switch(pointerLocal[1]) {
+	// 						case "a": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader1Mute")===true? "true" : "false"; break;
+	// 						case "b": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader2Mute")===true? "true" : "false"; break;
+	// 						case "c": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader3Mute")===true? "true" : "false"; break;
+	// 						case "d": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader4Mute")===true? "true" : "false"; break;
+	// 					}
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for a counter's value
+	// 			 */
+	// 			}else if(pointer.indexOf("__counter__") == 0) {
+	// 				const counterPH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+	// 				const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
+	// 				if(counter) {
+	// 					if(!isPremium && counter.enabled == false) {
+	// 						value = "NOT_PREMIUM"
+	// 					}else
+	// 					if(counter.perUser === true) {
+	// 						//If it's a per-user counter, get the user's value
+	// 						let user = this.extractUserFromTrigger(trigger, message);
+	// 						if(user && counter.users && counter.users[user.id]) {
+	// 							value = counter.users[user.id].toString();
+	// 						}else{
+	// 							value = "0";
+	// 						}
+	// 					}else{
+	// 						//Simple counter, just get its value
+	// 						value = counter.value.toString();
+	// 					}
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for a value's value
+	// 			 */
+	// 			}else if(pointer.indexOf("__value__") == 0) {
+	// 				const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
+	// 				const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
+	// 				if(valueEntry) {
+	// 					if(!isPremium && valueEntry.enabled == false) {
+	// 						value = "NOT_PREMIUM"
+	// 					}else{
+	// 						value = valueEntry.value.toString();
+	// 					}
+	// 				}
+
+	// 			/**
+	// 			 * If the placeholder requests for currently playing music track
+	// 			 */
+	// 			}else if(pointer.indexOf("__current_track__") == 0 && SpotifyHelper.instance.currentTrack) {
+	// 				const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
+	// 				switch(pointerLocal) {
+	// 					case "title": value = SpotifyHelper.instance.currentTrack.title; break;
+	// 					case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
+	// 					case "album": value = SpotifyHelper.instance.currentTrack.album; break;
+	// 					case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
+	// 					case "url": value = SpotifyHelper.instance.currentTrack.url; break;
+	// 				}
+	// 			}
+	// 		}else{
+	// 			const chunks:string[] = placeholder.pointer.split(".");
+	// 			let root = message as unknown;
+
+	// 			//Dynamic parsing of the pointer
+	// 			try {
+	// 				//Dynamically search for the requested prop's value within the object
+	// 				const rebuilt:string[] = [];
+	// 				chunks: for (let i = 0; i < chunks.length; i++) {
+	// 					rebuilt.push(chunks[i])
+	// 					root = (root as {[key:string]:unknown})[chunks[i]];
+	// 					if(Array.isArray(root)) {
+	// 						root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]]).join(", ");
+	// 						break chunks;
+	// 					}
+	// 				}
+	// 				if(typeof root === "number") root = root.toString();
+	// 				value = root as string;
+	// 			}catch(error) {
+	// 				console.warn("Unable to find pointer for helper", placeholder);
+	// 				value = "";
+	// 			}
+	// 		}
+	// 	}
+	// }
+	// :/*
 
 	/**
 	 * Extracts a user from a trigger message based on the available placeholders

@@ -404,7 +404,7 @@
 			"user_avatar": "User avatar URL",
 			"chatter": "Chatter name",
 			"message": "Message content",
-			"message_chunks": "Message content as JSON",
+			"message_json": "Message content as JSON",
 			"message_html": "Message content as HTML",
 			"pinned_by": "User who pinned the mesage",
 			"pinned_by_id": "ID of the user who pinned the mesage",
