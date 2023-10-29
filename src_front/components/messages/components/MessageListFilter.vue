@@ -144,6 +144,7 @@ import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import MessageItem from '../MessageItem.vue';
 import CloseButton from '@/components/CloseButton.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -304,7 +305,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= [TwitchScopes.ADS_READ];
 
-		const sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
+		let sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
 			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			TwitchatDataTypes.TwitchatMessageType.CHEER,
@@ -335,6 +336,10 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.WHISPER,
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
+
+		if(!Config.instance.AD_API_AVAILABLE) {
+			sortedFilters = sortedFilters.filter(v=> v != TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START);
+		}
 
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
@@ -831,7 +836,9 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START );
+				if(Config.instance.AD_API_AVAILABLE) {
+					ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START );
+				}
 				ids.push( TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );

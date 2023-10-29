@@ -1884,9 +1884,15 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for trigger's info
 					 */
-					}else if(pointer === "__trigger__") {
-						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
-						if(!value) value = "-no name-";
+					}else if(pointer.indexOf("__trigger__") == 0) {
+						const pointerLocal = pointer.replace('__trigger__.', '');
+						switch(pointerLocal) {
+							case "name":{
+								value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
+								if(!value) value = "-no name-";
+								break;
+							}
+						}
 	
 					/**
 					 * If the placeholder requests for the current OBS scene
