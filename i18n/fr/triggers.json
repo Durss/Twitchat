@@ -394,6 +394,8 @@
 			"user_avatar": "URL de l'avatar",
 			"chatter": "Pseudo",
 			"message": "Message",
+			"message_chunks": "Message au format JSON",
+			"message_html": "Message au format HTML",
 			"pinned_by": "Pseudo de la personne ayant épinglé",
 			"pinned_by_id": "ID de la personne ayant épinglé",
 			"poll_title": "Titre du sondage",
