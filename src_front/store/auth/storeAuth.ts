@@ -225,10 +225,12 @@ export const storeAuth = defineStore('auth', {
 					};
 				});
 
-				//Loads state of current or incoming ads
-				TwitchUtils.getAdSchedule();
-				//Refresh status every 10minutes
-				setInterval(()=>TwitchUtils.getAdSchedule(), 10 * 60000);
+				if(Config.instance.AD_API_AVAILABLE) {
+					//Loads state of current or incoming ads
+					TwitchUtils.getAdSchedule();
+					//Refresh status every 10minutes
+					setInterval(()=>TwitchUtils.getAdSchedule(), 10 * 60000);
+				}
 
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {

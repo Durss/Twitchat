@@ -3,6 +3,7 @@ import SpotifyHelper from "@/utils/music/SpotifyHelper";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
+import Config from "@/utils/Config";
 
 /**
  * Util to strongly type string object paths.
@@ -1233,9 +1234,15 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
 		{category:TriggerEventTypeCategories.MOD, icon:"clip", labelKey:"triggers.events.CLIP_CREATED.label", value:TriggerTypes.CLIP_CREATED, descriptionKey:"triggers.events.CLIP_CREATED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE},
-		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
-		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
-		{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
+	];
+	if(Config.instance.AD_API_AVAILABLE) {
+		eventsCache.push(
+			{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
+			{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
+			{newDate:1697721208726, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
+		);
+	}
+	eventsCache.push(
 		{newDate:1695422487772, category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
@@ -1283,7 +1290,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"play", labelKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.label", value:TriggerTypes.GOXLR_SAMPLE_COMPLETE, descriptionKey:"triggers.events.GOXLR_SAMPLE_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE, goxlrMiniCompatible:false},
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"mute", labelKey:"triggers.events.GOXLR_INPUT_MUTE.label", value:TriggerTypes.GOXLR_INPUT_MUTE, descriptionKey:"triggers.events.GOXLR_INPUT_MUTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT, goxlrMiniCompatible:true},
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"unmute", labelKey:"triggers.events.GOXLR_INPUT_UNMUTE.label", value:TriggerTypes.GOXLR_INPUT_UNMUTE, descriptionKey:"triggers.events.GOXLR_INPUT_MUTE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT, goxlrMiniCompatible:true},
-	];
+	);
 	return eventsCache;
 }
 

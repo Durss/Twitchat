@@ -11,6 +11,12 @@ export default class Config {
 	private static _instance:Config;
 
 	/**
+	 * Twitch released a broken API.
+	 * This flag allows to disable everything related to this until they fix it
+	 */
+	public AD_API_AVAILABLE = false;
+
+	/**
 	 * Port for the twitchat's server services
 	 */
 	public SERVER_PORT = 3018;
