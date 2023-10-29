@@ -52,7 +52,7 @@ export default class OverlayInstaller extends Vue {
 	public url!:string;
 
 	@Prop({default:{}, type:Object})
-	public sourceTransforms!:Partial<SourceTransform>;
+	public sourceTransform!:Partial<SourceTransform>;
 
 	@Prop({default:false, type:Boolean})
 	public disabled!:boolean;
@@ -87,7 +87,7 @@ export default class OverlayInstaller extends Vue {
 		clearTimeout(this.successTO);
 		let name = "Twitchat_"+this.type;
 		if(this.sourceSuffix) name += this.sourceSuffix;
-		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransforms, this.sceneName, this.orderToBottom !== false);
+		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransform, this.sceneName, this.orderToBottom !== false);
 		this.showSuccess = true;
 		if(!this.isExistingSource) {
 			this.successTO = setTimeout(()=> {

@@ -17,7 +17,7 @@
 			<ToggleButton v-model="modelValue.enabled" />
 		</template>
 		<div class="heatdistorparams">
-			<ParamItem :paramData="param_shape" v-model="modelValue.shape" noBackground />
+			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
 	
 			<ToggleBlock class="permissions" :open="false" medium :title="$t('overlay.heatDistort.permissions_title')" :icons="['lock_fit']">
 				<PermissionsForm v-model="modelValue.permissions" />
@@ -37,17 +37,18 @@
 </template>
 
 <script lang="ts">
+import Button from '@/components/Button.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
-import OverlayInstaller from '../OverlayInstaller.vue';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import Button from '@/components/Button.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
+import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
+import OverlayInstaller from '../OverlayInstaller.vue';
+import { reactive } from 'vue';
 
 @Component({
 	components:{
@@ -66,17 +67,22 @@ export default class HeatDistortParams extends Vue {
 	@Prop
 	public modelValue!:TwitchatDataTypes.HeatDistortionData;
 
-	public obsSourcePath:string|Omit<OBSSourceItem, "sceneItemTransform">[] = [];
-	public selectedObsSourcePath:string|Omit<OBSSourceItem, "sceneItemTransform">[] = [];
+	public obsSourcePath:(string|Omit<OBSSourceItem, "sceneItemTransform">)[] = [];
+	public selectedObsSourcePath:(string|Omit<OBSSourceItem, "sceneItemTransform">)[] = [];
 
 	public param_shape:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"overlay.heatDistort.param_shape"};
 
 	public get sourcePathLabel():string {
-		if(this.selectedObsSourcePath.length > 1) {
-			return (this.selectedObsSourcePath[this.selectedObsSourcePath.length-1] as OBSSourceItem).sourceName
-		}else{
-			return this.selectedObsSourcePath[0] as string
+		const chunks:string[] = [];
+		for (let i = 0; i < this.selectedObsSourcePath.length; i++) {
+			const item = this.selectedObsSourcePath[i];
+			if(typeof item == "string") {
+				chunks.push(item);
+			}else{
+				chunks.push(item.sourceName);
+			}
 		}
+		return chunks.join(" => ")
 	}
 	
 	public get sourceSuffix():string {
@@ -85,7 +91,49 @@ export default class HeatDistortParams extends Vue {
 		return typeof item == "string"? " ("+item+")" : " ("+item.sourceName+")";
 	}
 
-	public async mounted():Promise<void> {
+	public async beforeMount():Promise<void> {
+		const values:TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.HeatDistortionData["effect"]>[] = [
+			{value:"liquid", label:"Liquid ripples"},
+			{value:"expand", label:"Expand"},
+			{value:"shrink", label:"Shrink"},
+		];
+		this.param_shape.listValues = values;
+
+		this.obsSourcePath = [];
+		if(this.modelValue.obsSceneName) {
+			this.obsSourcePath.push(this.modelValue.obsSceneName);
+		}
+		if(this.modelValue.obsGroupName) {
+			this.obsSourcePath.push({
+				inputKind:null,
+				isGroup:true,
+				sceneItemId:-1,
+				sourceName:this.modelValue.obsGroupName,
+				sourceType:"OBS_SOURCE_TYPE_SCENE",
+				sceneItemIndex:0,
+			});
+		}
+		if(this.modelValue.obsSceneItemId > -1) {
+			const sourceItem:Omit<OBSSourceItem, "sceneItemTransform"> = reactive({
+				inputKind:null,
+				isGroup:true,
+				sceneItemId:this.modelValue.obsSceneItemId,
+				sourceName:"",
+				sourceType:"OBS_SOURCE_TYPE_INPUT",
+				sceneItemIndex:0,
+			});
+			this.obsSourcePath.push(sourceItem);
+			OBSWebsocket.instance.getSceneItems(this.modelValue.obsGroupName || this.modelValue.obsSceneName).then((list)=>{
+				const source = list.find(v=> v.item.sceneItemId == this.modelValue.obsSceneItemId);
+				if(source?.item) {
+					sourceItem.sceneItemIndex = source.item.sceneItemIndex;
+					sourceItem.sourceName = source.item.sourceName;
+				}
+			});
+		}
+
+		this.selectedObsSourcePath = this.obsSourcePath;
+
 		// const res = await OBSWebsocket.instance.socket.call("GetSourceFilterList", {sourceName:"Scene 2"});
 		// const res = await OBSWebsocket.instance.socket.call("GetSceneItemTransform", {sceneItemId:11, sceneName:"Scene 3"});
 		// const res = await OBSWebsocket.instance.socket.call("GetInputSettings", {inputName:"test"});
@@ -105,6 +153,8 @@ export default class HeatDistortParams extends Vue {
 		// await OBSWebsocket.instance.socket.call('SetSceneItemIndex',{sceneName:"Scene 3", sceneItemId:res.sceneItemId, sceneItemIndex:0});
 		// res.sceneItemIds
 		// await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName:"Scene 3", sceneItemTransform:{positionX:3000, positionY:3000}});
+		const res = await OBSWebsocket.instance.socket.call("GetSourceFilterList", {sourceName:"Image"});
+		console.log(res);
 	}
 
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
@@ -112,7 +162,10 @@ export default class HeatDistortParams extends Vue {
 		if(typeof filterTarget != "string") filterTarget = filterTarget.sourceName;
 		const filterSettings = {
 			"displacement_map_source.displacement_map": data.sourceName,
-			"effect": "displacement_map_source"
+			"effect": "displacement_map_source",
+			"displacement_map_source.color_space":0,
+			"displacement_map_source.displacement_strength_x":.05,
+			"displacement_map_source.displacement_strength_y":.05,
 		};
 		const params = {
 						sourceName: filterTarget,
@@ -126,6 +179,22 @@ export default class HeatDistortParams extends Vue {
 
 	public submitObsSourcePath():void {
 		this.selectedObsSourcePath = this.obsSourcePath.concat();
+		if(this.selectedObsSourcePath.length == 1) {
+			//Only a scene is selected
+			this.modelValue.obsSceneName = this.selectedObsSourcePath[0] as string;
+		}else
+		if(this.selectedObsSourcePath.length == 2) {
+			//Scene AND source selecte
+			this.modelValue.obsSceneName = this.selectedObsSourcePath[0] as string;
+			this.modelValue.obsSceneItemId = (this.selectedObsSourcePath[1] as OBSSourceItem).sceneItemId;
+		}else
+		if(this.selectedObsSourcePath.length == 3) {
+			//A group and a source are selected
+			this.modelValue.obsSceneName = this.selectedObsSourcePath[0] as string;
+			this.modelValue.obsGroupName = (this.selectedObsSourcePath[1] as OBSSourceItem).sourceName;
+			this.modelValue.obsSceneItemId = (this.selectedObsSourcePath[2] as OBSSourceItem).sceneItemId;
+		}
+
 	}
 
 	public deleteEntry():void {

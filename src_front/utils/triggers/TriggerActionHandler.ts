@@ -1892,6 +1892,10 @@ export default class TriggerActionHandler {
 								if(!value) value = "-no name-";
 								break;
 							}
+							case "id":{
+								value = trigger.id;
+								break;
+							}
 						}
 	
 					/**

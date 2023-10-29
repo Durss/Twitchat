@@ -24,7 +24,10 @@
 		</div>
 		<div class="list" v-else>
 			<div class="head">Sources</div>
-			<div class="placeholder">{{ $t("overlay.heatDistort.select_scene") }}</div>
+			<div class="placeholder"> </div>
+			<div class="placeholder"> </div>
+			<div class="placeholder"> </div>
+			<!-- <div class="placeholder">{{ $t("overlay.heatDistort.select_scene") }}</div> -->
 		</div>
 	</div>
 </template>
@@ -95,6 +98,7 @@ export default class OBSSceneItemSelector extends Vue {
 	public sourceItemClasses(item:OBSSourceItem):string[] {
 		const res:string[] = [];
 		this.sourcePath.forEach(v=> {
+			if(v.sceneItemId == -1 && item.sourceName == v.sourceName) res.push("selected");
 			if(item.sceneItemId == v.sceneItemId) res.push("selected");
 		})
 		return res;
@@ -128,6 +132,8 @@ export default class OBSSceneItemSelector extends Vue {
 			})
 			path.push(...reduced);
 		}
+
+		console.log(path);
 
 		this.$emit("update:modelValue", path);
 	}
@@ -177,7 +183,6 @@ export default class OBSSceneItemSelector extends Vue {
 		}
 
 		button {
-			font-size: 1rem;
 			border-radius: var(--border-radius);
 			padding: .25em .5em;
 			text-align: left;
@@ -198,12 +203,18 @@ export default class OBSSceneItemSelector extends Vue {
 		}
 
 		.placeholder {
-			font-size: 1rem;
 			background-color: var(--color-light-fade);
 			border-radius: var(--border-radius);
 			padding: .25em .5em;
-			opacity: .5;
+			opacity: .4;
+			line-height: normal;
 			text-align: center;
+			&:nth-of-type(3) {
+				opacity: .2;
+			}
+			&:nth-of-type(4) {
+				opacity: .05;
+			}
 		}
 
 		.children {

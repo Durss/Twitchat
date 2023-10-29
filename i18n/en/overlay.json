@@ -195,7 +195,7 @@
 			"max_reached": "Vous avez atteint le maximum de distortions qu'il est possible de créer",
 			"add_overlay": "Create new distortion",
 			"param_enabled": "Distortion enabled",
-			"param_shape": "Distortion shape",
+			"param_shape": "Distortion type",
 			"permissions_title": "Users allowed to click",
 			"delete_confirm":"Delete distortion?"
 		},

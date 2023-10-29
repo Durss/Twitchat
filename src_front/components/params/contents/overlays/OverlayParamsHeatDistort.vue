@@ -54,6 +54,8 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import DataStore from '@/store/DataStore';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -73,6 +75,13 @@ export default class OverlayParamsHeatDistort extends Vue {
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 
+	public beforeMount():void {
+		const json = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
+		this.distortionList = json;
+
+		watch(()=>this.distortionList, () => this.saveData(), {deep:true});
+	}
+
 	public openHeat():void {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
 	}
@@ -81,9 +90,10 @@ export default class OverlayParamsHeatDistort extends Vue {
 		this.distortionList.push({
 			id:Utils.getUUID(),
 			enabled:true,
-			obsSceneItemId:"",
+			obsSceneItemId:-1,
 			obsSceneName:"",
-			shape:"",
+			obsGroupName:"",
+			effect:"liquid",
 			permissions:{
 				all:true,
 				broadcaster:true,
@@ -95,7 +105,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 				usersAllowed:[],
 				usersRefused:[],
 			},
-		})
+		});
 	}
 
 	public becomePremium():void {
@@ -104,6 +114,11 @@ export default class OverlayParamsHeatDistort extends Vue {
 
 	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
 		this.distortionList = this.distortionList.filter(v=>v.id != data.id);
+	}
+
+	public saveData():void {
+		console.log("SAVE");
+		DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
 	}
 
 }
@@ -139,6 +154,10 @@ export default class OverlayParamsHeatDistort extends Vue {
 			flex-direction: column;
 			align-items: center;
 			background-color: var(--color-secondary-fader);
+		}
+
+		&.alert {
+			align-items: center;
 		}
 	}
 }

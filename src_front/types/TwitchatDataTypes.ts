@@ -1494,9 +1494,10 @@ export namespace TwitchatDataTypes {
 	export interface HeatDistortionData {
 		id:string;
 		obsSceneName:string;
-		obsSceneItemId:string;
+		obsGroupName:string;
+		obsSceneItemId:number;
 		permissions:PermissionsData;
-		shape:string;
+		effect:"liquid"|"expand"|"shrink";
 		enabled:boolean;
 	}
 	

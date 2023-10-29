@@ -170,8 +170,7 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			// {platform:"twitch", login:"lydia__am"},
-			// {platform:"twitch", login:"dazjdm"},
+			// {platform:"twitch", login:"mewstelle"},
 		];
 	}
 

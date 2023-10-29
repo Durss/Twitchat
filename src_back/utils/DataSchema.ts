@@ -1164,6 +1164,24 @@ import Ajv from "ajv";
 				approachingLabel: {type:"string", maxLength:500},
 				runningLabel: {type:"string", maxLength:500}
 			}
+		},
+		overlayDistortions: {
+			type:"array",
+			minItems:0,
+			maxItems:20,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					obsSceneName: {type:"string", maxLength:40},
+					obsGroupName: {type:"string", maxLength:40},
+					obsSceneItemId: {type:"integer"},
+					permissions: { $ref: "defs.json#/definitions/permissions" },
+					effect: {enum: ["liquid", "expand", "shrink"]},
+					enabled: {type:"boolean"},
+				}
+			}
 		}
 	}
 }

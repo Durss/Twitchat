@@ -85,6 +85,7 @@ export default class DataStore {
 	public static ENDING_CREDITS_PARAMS:string = "endingCreditsParams";
 	public static AD_BREAK_SCOPES_REQUEST:string = "adBreakScopesRequested";
 	public static AD_BREAK_OVERLAY_PARAMS:string = "adBreakOverlayParams";
+	public static OVERLAY_DISTORTIONS:string = "overlayDistortions";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

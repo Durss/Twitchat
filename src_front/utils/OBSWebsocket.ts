@@ -852,7 +852,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		const res = await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
 		if(res && orderToBottom) {
 			this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
-			await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+			if(sourceTransform) {
+				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+			}
 		}
 		return false;
 	}
@@ -1080,7 +1082,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source";
+export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source"|null;
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
 export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}

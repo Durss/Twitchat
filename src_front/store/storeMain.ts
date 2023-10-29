@@ -411,6 +411,17 @@ export const storeMain = defineStore("main", {
 			});
 		
 			/**
+			 * Called when requesting a distortion overlay's data
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_DISTORT_OVERLAY_PARAMETERS, async (e:TwitchatEvent)=> {
+				const distortionID = (e.data as JsonObject || {}).distortionID;
+				const data = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]") as TwitchatDataTypes.HeatDistortionData[];
+				const params = data.find(v=>v.id == distortionID);
+
+				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, (params as unknown) as JsonObject);
+			});
+		
+			/**
 			 * Called when music player is clicked on the unified overlay
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
