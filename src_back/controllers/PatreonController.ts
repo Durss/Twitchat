@@ -18,6 +18,7 @@ export default class PatreonController extends AbstractController {
 	private tokenRefresh!:NodeJS.Timeout;
 	private smsWarned:boolean = false;
 	private patreonApiDown:boolean = false;
+	private webhookDebounce:NodeJS.Timeout|null = null;
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -348,7 +349,12 @@ export default class PatreonController extends AbstractController {
 		response.status(200);
 		response.send("OK");
 		try {
-			this.refreshPatrons(event != "members:create");
+			//Patreon sometimes sends double create webhook events.
+			//Debounce it to avoid concurrent patrons updates
+			if(this.webhookDebounce)clearTimeout(this.webhookDebounce);
+			this.webhookDebounce = setTimeout(() => {
+				this.refreshPatrons(event != "members:create");
+			}, 2000);
 			this.patreonApiDown = false;
 		}catch(error) {
 			this.patreonApiDown = true;

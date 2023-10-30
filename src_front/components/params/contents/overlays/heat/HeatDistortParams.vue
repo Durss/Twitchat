@@ -25,6 +25,7 @@
 			
 			<OverlayInstaller type="distort"
 			orderToBottom
+			:css="'html, body{ background-color:#808000;}'"
 			:id="modelValue.id"
 			:sourceSuffix="sourceSuffix"
 			:sourceTransform="{positionX:3000, positionY:3000}"
@@ -153,7 +154,8 @@ export default class HeatDistortParams extends Vue {
 		// await OBSWebsocket.instance.socket.call('SetSceneItemIndex',{sceneName:"Scene 3", sceneItemId:res.sceneItemId, sceneItemIndex:0});
 		// res.sceneItemIds
 		// await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName:"Scene 3", sceneItemTransform:{positionX:3000, positionY:3000}});
-		const res = await OBSWebsocket.instance.socket.call("GetSourceFilterList", {sourceName:"Image"});
+		// const res = await OBSWebsocket.instance.socket.call("GetSourceFilterList", {sourceName:"Image"});
+		const res = await OBSWebsocket.instance.socket.call("GetInputSettings", {inputName:"Twitchat_distort (Camera)"});
 		console.log(res);
 	}
 

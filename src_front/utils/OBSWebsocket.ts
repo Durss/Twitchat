@@ -804,7 +804,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @returns if an existing source has been found
 	 */
-	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>, sceneName?:string, orderToBottom:boolean = false):Promise<boolean> {
+	public async createBrowserSource(url:string, sourceName:string, sourceTransform:Partial<SourceTransform>, sceneName?:string, orderToBottom:boolean = false, css:string = ""):Promise<boolean> {
 		//List all existing OBS sources
 		const inputList = await this.obs.call("GetInputList", {inputKind:"browser_source"});
 		const urlObj = new URL(url);
@@ -841,6 +841,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		//Create a new pre-configured browser source
 		const videoSettings = await this.obs.call("GetVideoSettings");
 		const inputSettings = {
+			css,
 			fps: 60,
 			fps_custom: true,
 			width: sourceTransform?.width || videoSettings.baseWidth,

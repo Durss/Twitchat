@@ -14,7 +14,7 @@ export default class Config {
 	 * Twitch released a broken API.
 	 * This flag allows to disable everything related to this until they fix it
 	 */
-	public AD_API_AVAILABLE = false;
+	public AD_API_AVAILABLE = true;
 
 	/**
 	 * Port for the twitchat's server services

@@ -6,7 +6,7 @@
 			:loading="refreshingAll">{{ $t("obs.browser_sources_refresh_all") }}</Button>
 
 		<div class="card-item row" v-for="entry in sources" ref="row">
-			<p>{{ entry.source.sourceName }}</p>
+			<p>{{ entry.source.inputName }}</p>
 			<Button :icon="entry.success? 'checkmark' : 'refresh'"
 				@click="refreshSource(entry)"
 				:primary="entry.success"
@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import Button from '@/components/Button.vue';
-import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
+import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -31,10 +31,11 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class OBSBrowserSources extends Vue {
 
 	public refreshingAll:boolean = false;
-	public sources:{loading:boolean, success:boolean, source:OBSSourceItem}[] = [];
+	public sources:{loading:boolean, success:boolean, source:OBSInputItem}[] = [];
 
 	public async mounted():Promise<void> {
-		const sources = await OBSWebsocket.instance.getSources(false);
+		const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
+		const sources = (res.inputs as unknown) as OBSInputItem[];
 		this.sources = sources
 						.filter(v=> v.inputKind == "browser_source")
 						.map(v=>{
@@ -49,7 +50,7 @@ export default class OBSBrowserSources extends Vue {
 
 	public async refreshSource(entry:typeof this.sources[0]):Promise<void> {
 		entry.loading = true;
-		await OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.sourceName, propertyName:"refreshnocache"});
+		await OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.inputName, propertyName:"refreshnocache"});
 		await Utils.promisedTimeout(200);
 		entry.loading = false;
 		entry.success = true;

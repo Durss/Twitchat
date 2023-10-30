@@ -30,7 +30,7 @@ export default class AbstractDistortion extends Vue {
 	protected initialize(spritesheet:{cols:number, rows:number, uvScaleX:number, uvScaleY:number, frames:number, texture:string}):void{
 		this.shCols = spritesheet.cols;
 		this.shRows = spritesheet.rows;
-		
+		this.frames = spritesheet.frames;
 		this.uvScaleX = spritesheet.uvScaleX;
 		this.uvScaleY = spritesheet.uvScaleY;
 
@@ -115,7 +115,7 @@ export default class AbstractDistortion extends Vue {
 		// for (let i = 0; i < 10; i++) {
 			// addItem();
 		// }
-		this.addItem(this.buildItem());
+		// this.addItem(this.buildItem());
 		this.renderFrame();
 	}
 
@@ -128,13 +128,16 @@ export default class AbstractDistortion extends Vue {
 		
 		for (let i = 0; i < this.items.length; i++) {
 			const item = this.items[i];
-			item.scaleSpeed *= .995;
-			item.scale += item.scaleSpeed;
-			item.frame += item.alphaSpeed;
-			const frame = Math.max(0, Math.floor(item.frame));
+			if(!this.computeItem(item)) {
+				instancedMesh.count --;
+				this.items.splice(i, 1);
+				i--;
+				continue;
+			}
 			// item.angle += Math.PI/200;
-			// rotationMatrix.makeRotationZ(item.angle);
+			rotationMatrix.makeRotationZ(item.angle);
 			
+			const frame = Math.max(0, Math.min(this.frames-1, Math.floor(item.frame)));
 			if(frame <= 0 && item.alphaSpeed < 0) {
 				item.alphaSpeed = -item.alphaSpeed*.5;
 			}
@@ -148,11 +151,6 @@ export default class AbstractDistortion extends Vue {
 			instancedMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
 
 			instancedMesh.setMatrixAt(i, matrix);
-			if(item.frame >= this.shCols*this.shRows && item.alphaSpeed > 0) {
-				instancedMesh.count --;
-				this.items.splice(i, 1);
-				i--;
-			}
 		}
 		
 		instancedMesh.instanceMatrix.needsUpdate = true;
@@ -160,6 +158,13 @@ export default class AbstractDistortion extends Vue {
 
 		// Render the scene
 		renderer.render(scene, camera);
+	}
+
+	protected computeItem(item:IDistortItem):boolean {
+		item.scaleSpeed *= .995;
+		item.scale += item.scaleSpeed;
+		item.frame += item.alphaSpeed;
+		return !(item.frame >= this.shCols*this.shRows && item.alphaSpeed > 0);
 	}
 
 	protected buildItem(px?:number, py?:number):IDistortItem {

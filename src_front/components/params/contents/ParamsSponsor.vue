@@ -38,7 +38,7 @@
 			:subtitle="$t('sponsor.premium_subtitle')">
 				<p>{{ $t("sponsor.premium_details") }}</p>
 				<SponsorTable class="sponsorTable" />
-				<Button icon="patreon" class="patreonBt" href="https://www.patreon.com/bePatron?c=9093199" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
+				<Button icon="patreon" class="patreonBt" href="https://www.patreon.com/durss" target="_blank" type="link" premium>{{ $t("sponsor.donate_patreonBt") }}</Button>
 			</ToggleBlock>
 
 			<Button v-for="link in links" type="link" ref="button"
@@ -87,7 +87,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 
 	public links:{url:string, icon:string, key:string}[] = [
 		{url:"https://paypal.me/durss", icon:"paypal", key:"paypal"},
-		{url:"https://www.patreon.com/bePatron?c=9093199", icon:"patreon", key:"patreon"},
+		{url:"https://www.patreon.com/durss", icon:"patreon", key:"patreon"},
 		{url:"https://ko-fi.com/durss", icon:"kofi", key:"kofi"},
 		{url:"https://www.buymeacoffee.com/durss", icon:"coffee", key:"coffee"},
 		{url:"https://github.com/sponsors/Durss", icon:"github", key:"github"},
