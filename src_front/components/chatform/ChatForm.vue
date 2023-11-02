@@ -624,7 +624,9 @@ export default class ChatForm extends Vue {
 		if(this.openAutoComplete) return;
 
 		//Push message to history
-		this.sendHistory.push(this.message);
+		if(this.message != this.sendHistory[this.sendHistory.length-1]) {
+			this.sendHistory.push(this.message);
+		}
 		//Limit history size
 		const maxHistorySize = 100;
 		if(this.sendHistory.length > maxHistorySize) this.sendHistory = this.sendHistory.splice(-maxHistorySize);

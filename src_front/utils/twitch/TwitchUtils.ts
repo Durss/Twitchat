@@ -2621,7 +2621,9 @@ export default class TwitchUtils {
 				if(e.id.indexOf("7TV_") == 0) {
 					const stvE = SevenTVUtils.instance.getEmoteFromCode(code);
 					if(stvE) {
-						result.push( {type:"emote", value:"7TV: "+code, emote:stvE.urls[1][1], emoteHD:stvE.urls[stvE.urls.length-1][1]} );
+						const rootURL = stvE.host.url+"/";
+						const urls = stvE.host.files.filter(v=> v.format == "WEBP");
+						result.push( {type:"emote", value:"7TV: "+code, emote:rootURL + urls[0].name, emoteHD:rootURL + urls[urls.length-1].name} );
 					}else{
 						result.push( {type:"text", value:code} );
 					}

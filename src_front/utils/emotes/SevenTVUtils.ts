@@ -37,14 +37,16 @@ export default class SevenTVUtils {
 			const e = this.globalEmotesHashmaps[key];
 			if(emotesDone[e.id]) continue;
 			emotesDone[e.id] = true;
+			const rootURL = e.host.url+"/";
+			const urls = e.host.files.filter(v=> v.format == "WEBP");
 			res.push({
 				id: e.id,
 				code: e.name,
 				is_public:false,
 				images: {
-					url_1x: e.urls[0]?.[1] ?? "",
-					url_2x: e.urls[1]?.[1] ?? e.urls[0]?.[1] ?? "",
-					url_4x: e.urls[e.urls.length-1]?.[1],
+					url_1x: (rootURL + urls[0].name) ?? "",
+					url_2x: (rootURL + urls[1].name) ?? (rootURL + urls[0].name) ?? "",
+					url_4x: rootURL + urls[urls.length-1].name,
 				},
 				platform:"twitch",
 				source:"7TV"
@@ -56,14 +58,16 @@ export default class SevenTVUtils {
 				const e = chan[key];
 				if(emotesDone[e.id]) continue;
 				emotesDone[e.id] = true;
+				const rootURL = e.host.url+"/";
+				const urls = e.host.files.filter(v=> v.format == "WEBP");
 				res.push({
 					id: e.id,
 					code: e.name,
 					is_public:false,
 					images: {
-						url_1x: e.urls[0]?.[1] ?? "",
-						url_2x: e.urls[1]?.[1] ?? e.urls[0]?.[1] ?? "",
-						url_4x: e.urls[e.urls.length-1]?.[1],
+						url_1x: (rootURL + urls[0].name) ?? "",
+						url_2x: (rootURL + urls[1].name) ?? (rootURL + urls[0].name) ?? "",
+						url_4x: rootURL + urls[urls.length-1].name,
 					},
 					platform:"twitch",
 					source:"7TV"
@@ -101,6 +105,7 @@ export default class SevenTVUtils {
 		const allEmotes:SevenTVEmote[] = [];
 		const emotesDone:{[key:string]:boolean} = {};
 		const chunks = message.split(/\s/);
+
 		for (let i = 0; i < chunks.length; i++) {
 			const txt = chunks[i];
 			if(this.globalEmotesHashmaps[txt]) {
@@ -124,7 +129,7 @@ export default class SevenTVUtils {
 		for (let i = 0; i < allEmotes.length; i++) {
 			const e = allEmotes[i];
 			if(!e.name) continue;//apparently some emotes have no name...
-			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");//Escape regexp specific cahrs
+			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");//Escape regexp specific chars
 			const matches = [...message.matchAll(new RegExp(name, "gi"))];
 			
 			if(matches && matches.length > 0) {
@@ -171,9 +176,7 @@ export default class SevenTVUtils {
 		}
 		for (const key in this.channelEmotesHashmaps) {
 			const list = this.channelEmotesHashmaps[key];
-			if(this.channelEmotesHashmaps[key][code]) {
-				return this.channelEmotesHashmaps[key][code];
-			}
+			if(list[code]) return list[code];
 		}
 		return null;
 	}
@@ -207,10 +210,10 @@ export default class SevenTVUtils {
 
 	private async loadGlobalEmotes():Promise<void> {
 		try {
-			const res = await fetch("https://api.7tv.app/v2/emotes/global");
-			const json = (await res.json()) as SevenTVEmote[];
-			json.forEach(e => {
-				this.globalEmotesHashmaps[e.name] = e;
+			const res = await fetch("https://7tv.io/v3/emote-sets/global");
+			const json = (await res.json()) as SevenTVEmoteSet;
+			json.emotes.forEach(e => {
+				this.globalEmotesHashmaps[e.data.name] = e.data;
 			});
 		}catch(error) {
 			//
@@ -219,11 +222,11 @@ export default class SevenTVUtils {
 	
 	private async loadChannelEmotes(channelId:string):Promise<void> {
 		try {
-			const res = await fetch("https://api.7tv.app/v2/users/"+channelId+"/emotes");
-			const json = (await res.json()) as SevenTVEmote[];
+			const res = await fetch("https://7tv.io/v3/users/twitch/"+channelId);
+			const json = (await res.json()) as SevenTVResult;
 			this.channelEmotesHashmaps[channelId] = {};
-			json.forEach(e => {
-				this.channelEmotesHashmaps[channelId][e.name] = e;
+			json.emote_set.emotes.forEach(e => {
+				this.channelEmotesHashmaps[channelId][e.data.name] = e.data;
 			});
 		}catch(error) {
 			//
@@ -231,10 +234,99 @@ export default class SevenTVUtils {
 	}
 }
 
+// id:string;
+// name:string;
+// width:number[];
+// height:number[];
+// urls:[string, string][];
+
+
+interface SevenTVResult {
+	id: string;
+	platform: string;
+	username: string;
+	display_name: string;
+	linked_at: number;
+	emote_capacity: number;
+	emote_set_id?: any;
+	emote_set: SevenTVEmoteSet
+	user: SeventTVUser;
+}
+
+interface SeventTVUser {
+	id: string;
+	username: string;
+	display_name: string;
+	created_at: number;
+	avatar_url: string;
+	biography: string;
+	style: unknown;
+	roles: string[];
+	connections: {
+		id: string;
+		platform: string;
+		username: string;
+		display_name: string;
+		linked_at: number;
+		emote_capacity: number;
+		emote_set_id?: any;
+		emote_set: SevenTVEmoteSet;
+	}[];
+}
+
+interface SeventTVOwner {
+	id: string;
+	username: string;
+	display_name: string;
+	avatar_url: string;
+	style: unknown;
+	roles: string[];
+}
+
 interface SevenTVEmote {
-	id:string;
-	name:string;
-	width:number[];
-	height:number[];
-	urls:[string, string][];
+	id: string;
+	name: string;
+	flags: number;
+	lifecycle: number;
+	state: string[];
+	listed: boolean;
+	animated: boolean;
+	owner: SeventTVOwner;
+	host: {
+		url: string;
+		files: SevenTVFile[];
+	};
+}
+
+interface SevenTVEmoteSet {
+	id: string;
+	name: string;
+	flags: number;
+	tags: any[];
+	immutable: boolean;
+	privileged: boolean;
+	emotes: {
+		id: string;
+		/**
+		 * @deprecated don't use this ! Use data.name instead. This value contains invalid emote names
+		 */
+		name: string;
+		flags: number;
+		timestamp: number;
+		actor_id?: any;
+		data: SevenTVEmote;
+	}[];
+	emote_count: number;
+	capacity: number;
+	owner: SeventTVOwner
+}
+
+interface SevenTVFile {
+	name: string;
+	static_name: string;
+	width: number;
+	height: number;
+	frame_count: number;
+	size: number;
+	format: string;
 }
