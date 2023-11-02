@@ -35,13 +35,13 @@
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
 		<!-- TODO remove "|| true" debug -->
-		<OverlayParamsHeatDistort class="block" :open="subContent == 'heatDistort' || true" :class="subContent == 'heatDistort'? 'selected' : ''" />
+		<!-- <OverlayParamsHeatDistort class="block" :open="subContent == 'heatDistort' || true" :class="subContent == 'heatDistort'? 'selected' : ''" /> -->
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
-		<OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" />
+		<!-- <OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" /> -->
 		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>

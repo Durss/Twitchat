@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="header" @click.stop="toggle()" v-newflag="newflag">
+		<div class="header" @click.stop="toggle()">
 			<slot name="left_actions"></slot>
 			
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
@@ -92,9 +92,6 @@ export default class ToggleBlock extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public noArrow!:boolean;
-
-	@Prop({type:Object})
-	public newflag!:{date:number, id:string};
 
 	public opened = false;
 	public closing = false;

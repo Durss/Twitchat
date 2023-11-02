@@ -28,7 +28,7 @@
 			:title="$t(c.category.labelKey)"
 			:open="false"
 			:icons="c.category.icons"
-			:newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id+'_'+c.newDate} : undefined">
+			v-newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id+'_'+c.newDate} : undefined">
 				<i18n-t scope="global" tag="div" class="require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
 				keypath="triggers.music.require">

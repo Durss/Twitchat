@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="overlayparamsadbreak" :title="$t('overlay.adBreak.title')" :icons="['ad']">
+	<ToggleBlock class="overlayparamsadbreak" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
 		<div class="holder">
 			<div class="item">
 				<div class="info">{{ $t("overlay.adBreak.description") }}</div>
