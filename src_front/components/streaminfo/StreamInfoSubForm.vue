@@ -174,12 +174,15 @@ export default class StreamInfoSubForm extends Vue {
 	 * Makes sure a tag is valid
 	 */
 	private sanitizeTag(value:string):string {
+		return value.substring(0, 25);
+		/*
 		const allowedChars = "AＡÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄȺⱯꜲÆǼǢꜴꜶꜸꜺꜼBＢḂḄḆɃƂƁCＣĆĈĊČÇḈƇȻꜾἒBDＤḊĎḌḐḒḎĐƋƊƉꝹÐǱǄǲǅEＥÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚƐƎFＦḞƑꝻGＧǴĜḠĞĠǦĢǤƓꞠꝽꝾHＨĤḢḦȞḤḨḪĦⱧⱵꞍIＩÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬƗJＪĴɈKＫḰǨḲĶḴƘⱩꝀꝂꝄꞢLＬĿĹĽḶḸĻḼḺŁȽⱢⱠꝈꝆꞀǇǈMＭḾṀṂⱮƜNＮǸŃÑṄŇṆŅṊṈȠƝꞐꞤǊǋOＯÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘǪǬØǾƆƟꝊꝌƢꝎȢŒœPＰṔṖƤⱣꝐꝒꝔQＱꝖꝘɊRＲŔṘŘȐȒṚṜŖṞɌⱤꝚꞦꞂSＳẞŚṤŜṠŠṦṢṨȘŞⱾꞨꞄTＴṪŤṬȚŢṰṮŦƬƮȾꞆꜨUＵÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴɄVＶṼṾƲꝞɅꝠWＷẀẂŴẆẄẈⱲXＸẊẌYＹỲÝŶỸȲẎŸỶỴƳɎỾZＺŹẐŻŽẒẔƵȤⱿⱫꝢaａẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁąⱥɐꜳæǽǣꜵꜷꜹꜻꜽbｂḃḅḇƀƃɓcｃćĉċčçḉƈȼꜿↄdｄḋďḍḑḓḏđƌɖɗꝺǳǆeｅèéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛɇɛǝfｆḟƒꝼgｇǵĝḡğġǧģǥɠꞡᵹꝿhｈĥḣḧȟḥḩḫẖħⱨⱶɥƕiｉìíîĩīĭïḯỉǐȉȋịįḭɨıjｊĵǰɉkｋḱǩḳķḵƙⱪꝁꝃꝅꞣlｌŀĺľḷḹļḽḻſłƚɫⱡꝉꞁꝇǉmｍḿṁṃɱɯnｎǹńñṅňṇņṋṉƞɲŉꞑꞥǌoｏòóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộǫǭøǿɔꝋꝍɵƣȣꝏpｐṕṗƥᵽꝑꝓꝕqｑɋꝗꝙrｒŕṙřȑȓṛṝŗṟɍɽꝛꞧꞃsｓßśṥŝṡšṧṣṩșşȿꞩꞅẛtｔṫẗťṭțţṱṯŧƭʈⱦꞇꜩuｕùúûũṹūṻŭüǜǘǖǚủůűǔȕȗưừứữửựụṳųṷṵʉvｖṽṿʋꝟʌꝡwｗẁẃŵẇẅẘẉⱳxｘẋẍyｙỳýŷỹȳẏÿỷẙỵƴɏỿzｚźẑżžẓẕƶȥɀⱬꝣ";
 		if(this.triggerMode !== false) {
 			//Allow curly brackets and underscores so we can use placeholders as tags
 			return value.replace(new RegExp("[^"+allowedChars+"{}_]", "g"), "").substring(0, 25);
 		}
-		return value.replace(new RegExp("[^"+allowedChars+"]", "g"), "").substring(0, 25);
+		return value.replace(new RegExp("[^"+allowedChars+"-]", "g"), "").substring(0, 25);
+		*/
 	}
 
 	private async populate():Promise<void> {
