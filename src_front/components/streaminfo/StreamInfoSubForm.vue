@@ -156,7 +156,7 @@ export default class StreamInfoSubForm extends Vue {
 		for (let i = 0; i < this.localTags.length; i++) {
 			this.localTags[i] = this.sanitizeTag(this.localTags[i]);
 		}
-		this.$emit('update:tags', this.localTags)
+		this.$emit('update:tags', this.localTags.filter(v=>v.trim().length > 0))
 	}
 
 	/**
@@ -174,11 +174,12 @@ export default class StreamInfoSubForm extends Vue {
 	 * Makes sure a tag is valid
 	 */
 	private sanitizeTag(value:string):string {
+		const allowedChars = "AＡÀÁÂẦẤẪẨÃĀĂẰẮẴẲȦǠÄǞẢÅǺǍȀȂẠẬẶḀĄȺⱯꜲÆǼǢꜴꜶꜸꜺꜼBＢḂḄḆɃƂƁCＣĆĈĊČÇḈƇȻꜾἒBDＤḊĎḌḐḒḎĐƋƊƉꝹÐǱǄǲǅEＥÈÉÊỀẾỄỂẼĒḔḖĔĖËẺĚȄȆẸỆȨḜĘḘḚƐƎFＦḞƑꝻGＧǴĜḠĞĠǦĢǤƓꞠꝽꝾHＨĤḢḦȞḤḨḪĦⱧⱵꞍIＩÌÍÎĨĪĬİÏḮỈǏȈȊỊĮḬƗJＪĴɈKＫḰǨḲĶḴƘⱩꝀꝂꝄꞢLＬĿĹĽḶḸĻḼḺŁȽⱢⱠꝈꝆꞀǇǈMＭḾṀṂⱮƜNＮǸŃÑṄŇṆŅṊṈȠƝꞐꞤǊǋOＯÒÓÔỒỐỖỔÕṌȬṎŌṐṒŎȮȰÖȪỎŐǑȌȎƠỜỚỠỞỢỌỘǪǬØǾƆƟꝊꝌƢꝎȢŒœPＰṔṖƤⱣꝐꝒꝔQＱꝖꝘɊRＲŔṘŘȐȒṚṜŖṞɌⱤꝚꞦꞂSＳẞŚṤŜṠŠṦṢṨȘŞⱾꞨꞄTＴṪŤṬȚŢṰṮŦƬƮȾꞆꜨUＵÙÚÛŨṸŪṺŬÜǛǗǕǙỦŮŰǓȔȖƯỪỨỮỬỰỤṲŲṶṴɄVＶṼṾƲꝞɅꝠWＷẀẂŴẆẄẈⱲXＸẊẌYＹỲÝŶỸȲẎŸỶỴƳɎỾZＺŹẐŻŽẒẔƵȤⱿⱫꝢaａẚàáâầấẫẩãāăằắẵẳȧǡäǟảåǻǎȁȃạậặḁąⱥɐꜳæǽǣꜵꜷꜹꜻꜽbｂḃḅḇƀƃɓcｃćĉċčçḉƈȼꜿↄdｄḋďḍḑḓḏđƌɖɗꝺǳǆeｅèéêềếễểẽēḕḗĕėëẻěȅȇẹệȩḝęḙḛɇɛǝfｆḟƒꝼgｇǵĝḡğġǧģǥɠꞡᵹꝿhｈĥḣḧȟḥḩḫẖħⱨⱶɥƕiｉìíîĩīĭïḯỉǐȉȋịįḭɨıjｊĵǰɉkｋḱǩḳķḵƙⱪꝁꝃꝅꞣlｌŀĺľḷḹļḽḻſłƚɫⱡꝉꞁꝇǉmｍḿṁṃɱɯnｎǹńñṅňṇņṋṉƞɲŉꞑꞥǌoｏòóôồốỗổõṍȭṏōṑṓŏȯȱöȫỏőǒȍȏơờớỡởợọộǫǭøǿɔꝋꝍɵƣȣꝏpｐṕṗƥᵽꝑꝓꝕqｑɋꝗꝙrｒŕṙřȑȓṛṝŗṟɍɽꝛꞧꞃsｓßśṥŝṡšṧṣṩșşȿꞩꞅẛtｔṫẗťṭțţṱṯŧƭʈⱦꞇꜩuｕùúûũṹūṻŭüǜǘǖǚủůűǔȕȗưừứữửựụṳųṷṵʉvｖṽṿʋꝟʌꝡwｗẁẃŵẇẅẘẉⱳxｘẋẍyｙỳýŷỹȳẏÿỷẙỵƴɏỿzｚźẑżžẓẕƶȥɀⱬꝣ";
 		if(this.triggerMode !== false) {
 			//Allow curly brackets and underscores so we can use placeholders as tags
-			return Utils.replaceDiacritics(value).replace(/[^a-z0-9{}_]/gi, "").substring(0, 25);
+			return value.replace(new RegExp("[^"+allowedChars+"{}_]", "g"), "").substring(0, 25);
 		}
-		return Utils.replaceDiacritics(value).replace(/[^a-z0-9]/gi, "").substring(0, 25);
+		return value.replace(new RegExp("[^"+allowedChars+"]", "g"), "").substring(0, 25);
 	}
 
 	private async populate():Promise<void> {
