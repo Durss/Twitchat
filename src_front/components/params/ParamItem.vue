@@ -489,6 +489,11 @@ export default class ParamItem extends Vue {
 		//between <input> and <textarea> depending on the text length
 		//This won't affect first rendering, only subsequent ones
 		this.autofocusLocal = true;
+		
+		//Force a model value update.
+		//This is necessary for default values to be applied to the
+		//v-model value on first render.
+		if(this.modelValue, this.paramData.value) this.onEdit();
 	}
 
 	/**
