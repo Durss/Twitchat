@@ -45,15 +45,18 @@
 							</template>
 							
 							<template #title>
-								<div class="title">
-									<span class="default" v-if="!element.label">{{ $t(getDefinitionFromSlot(element.slotType).label) }}</span>
-									<contenteditable class="label" tag="div" :ref="'label_'+element.id"
-									:contenteditable="true"
-									v-model="element.label"
-									:no-nl="true"
-									:no-html="true"
-									@click.stop
-									@input="limitLabelSize(element)" />
+								<div class="titleHolder">
+									<div class="title">
+										<span class="default" v-if="!element.label">{{ $t(getDefinitionFromSlot(element.slotType).label) }}</span>
+										<contenteditable class="label" tag="div" :ref="'label_'+element.id"
+										:contenteditable="true"
+										v-model="element.label"
+										:no-nl="true"
+										:no-html="true"
+										@click.stop
+										@input="limitLabelSize(element)" />
+									</div>
+									<Icon name="edit" />
 								</div>
 							</template>
 
@@ -626,38 +629,53 @@ export default class OverlayParamsCredits extends Vue {
 						min-width: 1em;
 					}
 				}
-				.title {
-					position: relative;
-					.label, .default {
-						cursor: text;
-						min-width: 2em;
-						font-weight: bold;
-						// flex-grow: 1;
-						padding: .25em .5em;
-						border-radius: var(--border-radius);
-
-						&.label {
-							&:hover, &:active, &:focus {
-								.bevel();
-								background-color: var(--color-text-inverse-fader);
-								// border: 1px double var(--color-light);
-								// border-style: groove;
+				.titleHolder {
+					display: flex;
+					flex-direction: row;
+					align-items: center;
+					.icon {
+						height: 1em;
+					}
+					.title {
+						position: relative;
+						.label, .default {
+							cursor: text;
+							min-width: 2em;
+							font-weight: bold;
+							// flex-grow: 1;
+							padding: .25em .5em;
+							border-radius: var(--border-radius);
+	
+							&.label {
+								&:hover, &:active, &:focus {
+									.bevel();
+									background-color: var(--color-text-inverse-fader);
+									// border: 1px double var(--color-light);
+									// border-style: groove;
+								}
 							}
 						}
+						.label {
+							position: relative;
+							z-index: 1;
+							min-width: 100px;
+							padding-right: 2em;
+							word-break: break-word;
+							line-height: 1.2em;
+						}
+						.default {
+							position: absolute;
+							text-wrap: nowrap;
+							opacity: .8;
+							font-style: italic;
+							top:0;
+							left:50%;
+							transform: translateX(-50%);
+							padding-right: 2em;
+						}
 					}
-					.label {
-						position: relative;
-						z-index: 1;
-						min-width: 100px;
-					}
-					.default {
-						position: absolute;
-						text-wrap: nowrap;
-						opacity: .8;
-						font-style: italic;
-						top:0;
-						left:50%;
-						transform: translateX(-50%);
+					&>.icon {
+						margin-left: -1.5em;
 					}
 				}
 				.rightActions {
@@ -672,9 +690,19 @@ export default class OverlayParamsCredits extends Vue {
 						}
 					}
 					.deleteBt {
-						// color: red;
-						margin-right: .5em;
 						color: var(--color-text);
+						background-color: var(--color-alert);
+						margin: -.5em 0;
+						align-self: stretch;
+						padding: 0 .5em;
+						transition: all .25s;
+						.icon {
+							height: 1em;
+						}
+						&:hover {
+							padding: 0 .75em;
+							background-color: var(--color-alert-light);
+						}
 					}
 				}
 				.content {
@@ -728,6 +756,8 @@ export default class OverlayParamsCredits extends Vue {
 								gap: .5em;
 								display: flex;
 								flex-direction: row;
+								flex-wrap: wrap;
+								justify-content: flex-end;
 								.button {
 									width: 2em;
 									opacity: 1;//Do not fade when disabled as its holder will already be faded

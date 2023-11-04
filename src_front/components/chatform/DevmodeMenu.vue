@@ -396,6 +396,7 @@ type Subaction = "first"
 		color: var(--color-text);
 		align-self: center;
 		margin-bottom: 10px;
+		text-align: center;
 	}
 
 	.list {

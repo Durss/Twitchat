@@ -4,7 +4,6 @@
 			<Button href="https://www.youtube.com/watch?v=x_OnsPRA8Bs"
 			target="_blank"
 			type="link"
-			class="youtubeBt"
 			icon="youtube"
 			alert
 			v-tooltip="$t('overlay.youtube_demo_tt')"
@@ -77,10 +76,6 @@ export default class OverlayParamsTimer extends Vue {
 
 <style scoped lang="less">
 .overlaytimer{
-	.youtubeBt {
-		margin-right: .5em;
-	}
-
 	.holder {
 		display: flex;
 		flex-direction: column;

@@ -154,6 +154,17 @@ export default class ToggleBlock extends Vue {
 .toggleblock{
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
+	
+	//Set emote sizes only for top-level icons
+	&:deep(.header) {
+		&>.icon, &>.rightSlot>.icon {
+			height: 1em;
+			width: 1em;
+			object-fit: fill;
+			display: block;
+			margin:auto;
+		}
+	}
 
 	.header {
 		text-align: center;
@@ -189,14 +200,6 @@ export default class ToggleBlock extends Vue {
 			background-color: var(--toggle-block-header-background-hover);
 		}
 
-		:deep(.icon) {
-			height: 1em;
-			width: 1em;
-			object-fit: fill;
-			display: block;
-			margin:auto;
-		}
-
 		.rightSlot {
 			display: flex;
 			flex-direction: row;
@@ -207,6 +210,10 @@ export default class ToggleBlock extends Vue {
 				transform: rotate(90deg);
 				flex-grow: 0;
 				flex-shrink: 1;
+				height: 1em;
+				width: 1em;
+				align-self: center;
+				margin-left: .5em;
 				.icon {
 					display: inline-block;
 					height: 1em;

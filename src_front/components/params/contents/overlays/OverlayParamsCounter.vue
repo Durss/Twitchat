@@ -4,7 +4,6 @@
 			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD"
 			target="_blank"
 			type="link"
-			class="youtubeBt"
 			icon="youtube"
 			alert
 			v-tooltip="$t('overlay.youtube_demo_tt')"
@@ -141,9 +140,6 @@ export default class OverlayParamsCounter extends Vue {
 
 <style scoped lang="less">
 .overlayparamscounter{
-	.youtubeBt {
-		margin-right: .5em;
-	}
 	.holder {
 		gap: .5em;
 		display: flex;

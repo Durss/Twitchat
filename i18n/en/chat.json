@@ -273,8 +273,10 @@
 		},
 		"adBreakScope": {
 			"header": "Ad break alerts",
-			"content": "Want to get alerts when mid-roll ads are coming or playing?\nTwitchat needs new permission :)",
-			"grantBt": "Open autorizations"
+			"content": "Want to get alerts when mid-roll ads are coming or playing?\nTwitchat needs new permissions :)",
+			"grantBt": "Open autorizations",
+			"infos":"{DASHBOARD_LINK} must be enabled on your channel.",
+			"infos_link":"Mid-roll schedule"
 		},
 		"donor": {
 			"title": "❤ Hey lovely donor ❤",

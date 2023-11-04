@@ -4,7 +4,6 @@
 			<Button href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q"
 			target="_blank"
 			type="link"
-			class="youtubeBt"
 			icon="youtube"
 			alert
 			v-tooltip="$t('overlay.youtube_demo_tt')"
@@ -207,10 +206,6 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
-	.youtubeBt {
-		margin-right: .5em;
-	}
-	
 	.holder {
 		display: flex;
 		flex-direction: column;

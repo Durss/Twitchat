@@ -149,10 +149,8 @@ export default class OBSConnectForm extends Vue {
 	}
 	.param {
 		:deep(.inputHolder) {
-			max-width: 150px !important;
-		}
-		:deep(input) {
-			width: 150px !important;
+			flex-basis: 200px;
+			flex-grow: 0 !important;
 		}
 	}
 

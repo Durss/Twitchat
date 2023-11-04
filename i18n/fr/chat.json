@@ -274,7 +274,9 @@
 		"adBreakScope": {
 			"header": "Alertes de pubs",
 			"content": "Tu souhaites que Twitchat t'alerte quand une publicité arrive ou est en cours ?\nTwitchat nécessite de nouvelles autorisations !",
-			"grantBt": "Ouvrir les autorisations"
+			"grantBt": "Ouvrir les autorisations",
+			"infos":"Nécessite d'{DASHBOARD_LINK} dans votre dashboard Twitch",
+			"infos_link":"activer publicités mid-roll planifiées"
 		},
 		"donor": {
 			"title": "❤ Merveilleuse personne ❤",

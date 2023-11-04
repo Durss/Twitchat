@@ -132,6 +132,15 @@
 				<div class="ctas">
 					<Button icon="lock_fit" light @click="grantAdScopes()">{{ $t('chat.adBreakScope.grantBt') }}</Button>
 				</div>
+				
+				<div class="card-item secondary infos">
+					<Icon name="info" />
+					<i18n-t tag="span" scope="global" keypath="chat.adBreakScope.infos">
+						<template #DASHBOARD_LINK>
+							<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("chat.adBreakScope.infos_link") }}</a>
+						</template>
+					</i18n-t>
+				</div>
 			</div>
 	
 			<div class="confirmClose" ref="confirmClose" v-if="showConfirm">
@@ -363,6 +372,17 @@ export default class ChatAd extends Vue {
 			}
 			span {
 				white-space: pre-line;
+			}
+		}
+		
+		.infos {
+			margin: auto;
+			width: fit-content;
+			background-color: var(--color-secondary-fade);
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+				vertical-align: middle;
 			}
 		}
 

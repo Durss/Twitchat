@@ -4,7 +4,6 @@
 			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
 			target="_blank"
 			type="link"
-			class="youtubeBt"
 			icon="youtube"
 			alert
 			v-tooltip="$t('overlay.youtube_demo_tt')"
@@ -74,10 +73,6 @@ export default class OverlayParamsSpotify extends Vue {
 
 <style scoped lang="less">
 .OverlayParamsSpotify{
-	.youtubeBt {
-		margin-right: .5em;
-	}
-
 	.holder {
 		display: flex;
 		flex-direction: column;

@@ -700,6 +700,7 @@ export default class ParamItem extends Vue {
 				align-items: flex-start;
 				.inputHolder {
 					width: 100%;
+					flex-basis: unset;
 				}
 				label {
 					flex-basis: unset;

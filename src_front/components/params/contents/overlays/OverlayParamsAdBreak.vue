@@ -2,7 +2,11 @@
 	<ToggleBlock class="overlayparamsadbreak" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
 		<div class="holder">
 			<div class="item">
-				<div class="info">{{ $t("overlay.adBreak.description") }}</div>
+				<i18n-t tag="div" class="info" scope="global" keypath="overlay.adBreak.description">
+					<template #DASHBOARD_LINK>
+						<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
+					</template>
+				</i18n-t>
 			</div>
 			
 			<OverlayInstaller type="adbreak" />
@@ -23,7 +27,7 @@
 					<ParamItem :paramData="param_approachingLabel" noBackground v-model="localData.approachingLabel" class="label" />
 
 					<div class="center" v-if="overlayExists">
-						<Button :loading="testingApproaching" @click="testApproaching()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
+						<Button :loading="testingApproaching" @click="testApproaching()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
 					</div>
 					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 				</div>
@@ -45,7 +49,7 @@
 					<ParamItem :paramData="param_runningLabel" noBackground v-model="localData.runningLabel" class="label" />
 	
 					<div class="center" v-if="overlayExists">
-						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
+						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
 					</div>
 					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 				</div>
