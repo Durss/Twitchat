@@ -87,6 +87,7 @@ export default class Icon extends Vue {
 		max-width: 100%;
 		max-height: 100%;
 		object-fit: cover;
+		display: block;
 		* {
 			fill: currentColor !important;
 		}

@@ -1,5 +1,6 @@
 <template>
 	<div :class="classes" @click.stop="toggle()">
+		<Icon name="checkmark" class="checkmark" />
 		<div class="circle"></div>
 		<input type="checkbox" v-model="localValue" class="input">
 	</div>
@@ -33,6 +34,9 @@ export default class ToggleButton extends Vue {
 	@Prop({type:Boolean, default: false})
 	public modelValue!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public noCheckmark!:boolean;
+
 	public localValue:boolean = false;
 
 	public get classes():string[] {
@@ -42,6 +46,7 @@ export default class ToggleButton extends Vue {
 		if(this.secondary !== false) res.push("secondary");
 		if(this.alert !== false) res.push("alert");
 		if(this.premium !== false) res.push("premium");
+		if(this.noCheckmark !== false) res.push("noCheckmark");
 		if(this.localValue) res.push("selected");
 		return res;
 	}
@@ -74,6 +79,7 @@ export default class ToggleButton extends Vue {
 	transition: background-color .35s;
 	background-color: var(--background-color-fader);
 	.bevel();
+	overflow: hidden;
 
 	.circle {
 		transition: left .35s, background-color .35s;
@@ -85,6 +91,19 @@ export default class ToggleButton extends Vue {
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
 		border-radius: 50%;
+	}
+
+	.checkmark {
+		position: relative;
+		margin-left: .35em;
+		left: -50%;
+		top: 50%;
+		transform: translateY(-50%);
+		height: .7em;
+		width: fit-content;
+		display: block;
+		opacity: 0;
+		transition: opacity .5s, left .5s;
 	}
 
 	.input {
@@ -101,12 +120,22 @@ export default class ToggleButton extends Vue {
 		background-color: var(--background-color-fader);
 	}
 
+	&.noCheckmark {
+		.checkmark {
+			display: none;
+		}
+	}
+
 	&.selected {
 		opacity: 1;
 		background: var(--color-primary-light);
 		.circle {
 			left: calc(@size * 2 - @size + 1px);
 			background-color: var(--color-light);
+		}
+		.checkmark {
+			opacity: 1;
+			left: 0;
 		}
 
 		&:hover {
