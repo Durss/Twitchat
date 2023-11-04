@@ -22,7 +22,7 @@
 			"css": "You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
 			"no_overlay": "overlay not configured or hidden",
 			"start": "To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
-			"testBt": "Lancer une animation de test"
+			"testBt": "Start a test animation"
 		},
 		"timer": {
 			"title": "Timer & Countdown",
@@ -189,7 +189,8 @@
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
-			"install_overlay":"It is advised you place this overlay and all other distortion overlays on a dedicated scene out of view.\nThen include that scene on every necessary scene.",
+			"install_instructions_title":"Instructions",
+			"install_instructions":"Add a new browser source, specify the above URL, force it to 60fps, specify dimensions so that it fills the entire visible area, and then check the option \"disable when source is not visible\".\nThen, add a Shadertastic filter to the element you want to distort, choose the \"Displacement Map (Source)\" effect, set \"Color Space\" to \"RGB\", and in \"Displacement Map\", select the previously created browser source. Finally, adjust the \"Strength X/Y\" values based on the level of distortion you desire.",
 			"select_target":"Select the scene or source you want the effect to be applied to",
 			"select_scene":"<- Select a scene",
 			"max_reached": "Vous avez atteint le maximum de distortions qu'il est possible de créer",
@@ -206,7 +207,8 @@
 		"adBreak": {
 			"title":"Ad-break indicator",
 			"css": "You can change the appearance of the elements bar by overriding these CSS IDs on OBS browser source params",
-			"description":"Show when an ad-break is coming or running.",
+			"description":"Show when an ad-break is coming or running.\n{DASHBOARD_LINK} must be enabled on your channel.",
+			"description_link":"Mid-roll schedule",
 			"param_showApproaching":"Show when an ad is coming",
 			"param_showRunning":"Show when an ad is running",
 			"param_approachingDelay":"Show {VALUE}s before ad-break",
@@ -222,7 +224,8 @@
 				"text":"Text"
 			},
 			"ad_approaching":"Ad in {'{'}TIMER{'}'}s",
-			"ad_running":"Ad: {'{'}TIMER{'}'}s"
+			"ad_running":"Ad: {'{'}TIMER{'}'}s",
+			"testBt": "Test"
 		}
 	}
 }

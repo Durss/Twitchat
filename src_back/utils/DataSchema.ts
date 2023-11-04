@@ -1174,13 +1174,26 @@ import Ajv from "ajv";
 				additionalProperties: false,
 				properties: {
 					id: {type:"string", maxLength:40},
-					obsSceneName: {type:"string", maxLength:40},
-					obsGroupName: {type:"string", maxLength:40},
-					obsSceneItemId: {type:"integer"},
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					effect: {enum: ["liquid", "expand", "shrink"]},
 					enabled: {type:"boolean"},
-				}
+					obsItemPath: {
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							groupName: {type:"string", maxLength:500},
+							sceneName: {type:"string", maxLength:500},
+							source: {
+								type:"object",
+								additionalProperties: false,
+								properties: {
+									id: {type:"integer"},
+									name: {type:"string", maxLength:500},
+								}
+							}
+						}
+					}
+				},
 			}
 		}
 	}

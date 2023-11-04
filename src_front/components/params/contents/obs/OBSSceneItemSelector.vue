@@ -3,7 +3,7 @@
 		<div class="list">
 			<div class="head">{{ $t("obs.scenes") }}</div>
 			<button v-for="scene in sceneList"
-				@click="listSceneItems(scene.sceneName, true)"
+				@click="listSceneItems(scene.sceneName)"
 				:class="sceneItemClasses(scene.sceneName)">{{ scene.sceneName }}</button>
 		</div>
 
@@ -12,12 +12,12 @@
 		<div class="list" v-if="sceneItems.length > 0">
 			<div class="head">{{ $t("obs.sources") }}</div>
 			<template v-for="source in sceneItems" :key="source.item.sceneItemId">
-				<button @click="sourcePath[0] = source.item; sourcePath.splice(1);"
+				<button @click="selectItem(source.item)"
 					:class="sourceItemClasses(source.item)">{{ source.item.sourceName }}</button>
 
 				<div class="children" v-if="source.children.length">
 					<button class="child" v-for="child in source.children" :key="child.sceneItemId"
-						@click="sourcePath[0] = source.item; sourcePath[1] = child"
+						@click="selectItem(source.item)"
 						:class="sourceItemClasses(child)">{{ child.sourceName }}</button>
 				</div>
 			</template>
@@ -33,8 +33,7 @@
 </template>
 
 <script lang="ts">
-import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
-import { watch } from 'vue';
+import OBSWebsocket, { type OBSItemPath, type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -44,29 +43,15 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 export default class OBSSceneItemSelector extends Vue {
 
 	@Prop({default:[]})
-	public modelValue!:(string|Omit<OBSSourceItem, "sceneItemTransform">)[];
+	public modelValue!:OBSItemPath;
 
 	public loading:boolean = true;
-	public currentScene:string = "";
-	public sourcePath:OBSSourceItem[] = [];
 	public sceneItems:{item:OBSSourceItem, children:OBSSourceItem[]}[] = [];
 	public sceneList:{sceneIndex:number, sceneName:string}[] = [];
 
 	private obsEventHandler!:()=>void;
 
 	public mounted():void {
-		if(this.modelValue.length > 0 && typeof this.modelValue[0] === "string") {
-			this.currentScene = this.modelValue[0] as string;
-		}
-		if(this.modelValue.length > 1) {
-			this.sourcePath = this.modelValue.concat().filter(v=> typeof v != "string") as OBSSourceItem[];
-		}
-
-		this.$nextTick().then(()=> {
-			watch(()=>this.currentScene, ()=> this.valueChanged(), {deep:true});
-			watch(()=>this.sourcePath, ()=> this.valueChanged(), {deep:true});
-		})
-		
 		this.listScenes();
 
 		this.obsEventHandler = ()=> this.listScenes();
@@ -91,61 +76,48 @@ export default class OBSSceneItemSelector extends Vue {
 
 	public sceneItemClasses(name:string):string[] {
 		const res:string[] = [];
-		if(this.currentScene == name) res.push("selected");
+		if(this.modelValue.sceneName == name) res.push("selected");
 		return res;
 	}
 
 	public sourceItemClasses(item:OBSSourceItem):string[] {
 		const res:string[] = [];
-		this.sourcePath.forEach(v=> {
-			if(v.sceneItemId == -1 && item.sourceName == v.sourceName) res.push("selected");
-			if(item.sceneItemId == v.sceneItemId) res.push("selected");
-		})
+		if(item.sourceName == this.modelValue.groupName) res.push("selected");
+		if(item.sceneItemId == this.modelValue.source.id) res.push("selected");
 		return res;
 	}
 
-	public async listSceneItems(sceneName:string, resetPath:boolean = false, force:boolean = false):Promise<void> {
-		if(resetPath) this.sourcePath = [];
-		if(this.currentScene == sceneName && force !== true) return;
-		this.currentScene = sceneName;
-		this.sceneItems = (await OBSWebsocket.instance.getSceneItems(this.currentScene));
-
-		this.valueChanged();
+	public async listSceneItems(sceneName:string, resetPath:boolean = true):Promise<void> {
+		this.modelValue.sceneName = sceneName;
+		if(resetPath) {
+			this.modelValue.groupName = "";
+			this.modelValue.source.id = 0;
+			this.modelValue.source.name = "";
+		}
+		this.sceneItems = (await OBSWebsocket.instance.getSceneItems(this.modelValue.sceneName));
 	}
 
-	private valueChanged():void {
-		const path:(string|Omit<OBSSourceItem, "sceneItemTransform">)[] = [];
-		
-		if(this.currentScene) path.push(this.currentScene);
-
-		if(this.sourcePath.length > 0){
-			//Only keeps the declared props. OBS actuaally returns more like the transform which we don't care about
-			let reduced = this.sourcePath.map((v):Omit<OBSSourceItem, "sceneItemTransform">=> {
-				return {
-					inputKind:v.inputKind,
-					isGroup:v.isGroup,
-					sceneItemId:v.sceneItemId,
-					sceneItemIndex:v.sceneItemIndex,
-					sourceName:v.sourceName,
-					sourceType:v.sourceType,
-				}
-			})
-			path.push(...reduced);
+	public async selectItem(item:OBSSourceItem):Promise<void> {
+		if(item.isGroup) {
+			this.modelValue.groupName = item.sourceName;
+			this.modelValue.source.id = 0;
+			this.modelValue.source.name = "";
+		}else{
+			this.modelValue.source.id = item.sceneItemId;
+			this.modelValue.source.name = item.sourceName;
 		}
-
-		console.log(path);
-
-		this.$emit("update:modelValue", path);
 	}
 
 	private listScenes():void {
 		OBSWebsocket.instance.getScenes().then((result)=> {
 			this.sceneList = result.scenes;
 			this.loading = true;
-			if(this.currentScene) {
-				this.listSceneItems(this.currentScene, false, true);
+			if(this.modelValue.sceneName) {
+				this.listSceneItems(this.modelValue.sceneName, false);
 			}
 		});
+		
+		this.$emit("change");
 	}
 
 }

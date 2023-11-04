@@ -1,6 +1,7 @@
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 import type { GoXLRTypes } from "./GoXLRTypes";
+import type { OBSItemPath } from "@/utils/OBSWebsocket";
 
 export namespace TwitchatDataTypes {
 
@@ -1493,9 +1494,7 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface HeatDistortionData {
 		id:string;
-		obsSceneName:string;
-		obsGroupName:string;
-		obsSceneItemId:number;
+		obsItemPath:OBSItemPath
 		permissions:PermissionsData;
 		effect:"liquid"|"expand"|"shrink";
 		enabled:boolean;

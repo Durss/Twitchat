@@ -1190,6 +1190,14 @@ export interface SourceTransform {
 	globalBR? :{x:number, y:number};
 }
 
+export interface OBSItemPath {
+	sceneName:string;
+	groupName:string;
+	source:{
+		id:number;
+		name:string;
+	}
+}
 
 export type OBSMediaAction = "OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NONE" |
 							"OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PLAY" |

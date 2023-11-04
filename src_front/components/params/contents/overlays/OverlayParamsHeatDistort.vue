@@ -28,6 +28,10 @@
 					</template>
 				</i18n-t>
 			</div>
+
+			<template v-for="(item, index) in distortionList" :key="item.id">
+				<HeatDistortParams v-model="distortionList[index]" @delete="deleteDistorsion" />
+			</template>
 			
 			<Button class="item center" icon="add" primary @click="addDistortion()"
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
@@ -36,10 +40,6 @@
 				<p><Icon name="alert" />{{ $t("overlay.heatDistort.max_reached") }}</p>
 				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
 			</div>
-
-			<template v-for="(item, index) in distortionList" :key="item.id">
-				<HeatDistortParams v-model="distortionList[index]" @delete="deleteDistorsion" />
-			</template>
 		</div>
 	</ToggleBlock>
 </template>
@@ -90,10 +90,15 @@ export default class OverlayParamsHeatDistort extends Vue {
 		this.distortionList.push({
 			id:Utils.getUUID(),
 			enabled:true,
-			obsSceneItemId:-1,
-			obsSceneName:"",
-			obsGroupName:"",
 			effect:"liquid",
+			obsItemPath:{
+				groupName:"",
+				sceneName:"",
+				source:{
+					id:0,
+					name:"",
+				}
+			},
 			permissions:{
 				all:true,
 				broadcaster:true,

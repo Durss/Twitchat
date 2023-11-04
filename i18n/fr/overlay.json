@@ -22,7 +22,7 @@
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS",
 			"no_overlay": "overlay non configuré ou masqué",
 			"start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
-			"testBt": "Start a test animation"
+			"testBt": "Lancer une animation de test"
 		},
 		"timer": {
 			"title": "Chronomètre & Compte à rebours",
@@ -189,7 +189,8 @@
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic",
-			"install_overlay":"Il est conseillé de placer cet overlay hors écran dans une scène dédiée.\nIncluez ensuite cette scène dans toutes les scènes nécessaires.",
+			"install_instructions_title":"Instructions",
+			"install_instructions":"Ajoutez une source navigateur, spécifiez l'URL ci-dessus, forcez-la en 60fps, spécifiez des dimensions de sorte qu'elle occupe toute la surface visible puis cochez l'option \"désactiver lorsque la source n'est pas visible\".\nAjoutez ensuite un filtre Shadertastic sur l'élément à déformer, choisissez l'effet \"Displacement Map (Source)\", Color Space => RGB, puis dans \"Displacement Map\" sélectionnez la source navigateur précédemment créée. Réglez enfin les valeurs \"Strength X/Y\" en fonction de l'intensité de déformation que vous souhaitez.",
 			"select_target":"Selectionnez la scene ou la source sur laquelle appliquer les distorsions",
 			"select_scene":"<- Selectionnez une scène",
 			"max_reached": "You've reached the maximum distorsion overlay you can create",
@@ -206,7 +207,8 @@
 		"adBreak": {
 			"title":"Indicateur de publicité",
 			"css": "Changez l'apparence des éléments via ces sélecteurs CSS",
-			"description":"Affichez un décompte avant qu'une publicité soit lancée ou un décompte avant la fin d'une publicité en cours.",
+			"description":"Affichez un décompte avant qu'une publicité soit lancée ou un décompte avant la fin d'une publicité en cours.\nLes {DASHBOARD_LINK} doivent être activées sur votre chaîne.",
+			"description_link":"publicités mid-roll planifiées",
 			"param_showApproaching":"Afficher lorsqu'une publicité arrive",
 			"param_showRunning":"Afficher lorsqu'une publicité est en cours",
 			"param_approachingDelay":"Afficher {VALUE}s avant le début de la pub",
@@ -222,7 +224,8 @@
 				"text":"Texte"
 			},
 			"ad_approaching":"Pub dans {'{'}TIMER{'}'}s",
-			"ad_running":"Pub: {'{'}TIMER{'}'}s"
+			"ad_running":"Pub: {'{'}TIMER{'}'}s",
+			"testBt": "Tester"
 		}
 	}
 }
