@@ -1,34 +1,33 @@
 <template>
-	<div class="overlayparamsmusic">
-		<label for="spotify_overlay_url">{{ $t("overlay.music_common.music_url") }}</label>
+	<div class="overlayparamsmusic overlayParamsSection">
+		<div class="holder">
+			<OverlayInstaller type="music" :sourceTransforms="{width:400, height:100}" />
 			
-		<OverlayInstaller class="item installer" type="music" :sourceTransforms="{width:400, height:100}" />
-		
-		<div class="params">
-			<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
-			<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
-			<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
-			<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
-			<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
-			<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
-			<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
-			<ParamItem :paramData="param_customTemplateToggle" />
+			<div class="params">
+				<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
+				<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
+				<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
+				<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
+				<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
+				<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
+				<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
+				<ParamItem :paramData="param_customTemplateToggle" />
+			</div>
+	
+			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ $t("overlay.music_common.css") }}</div>
+				<ul class="cssStructure">
+					<li>#music_holder { ... }</li>
+					<li>#music_cover { ... }</li>
+					<li>#music_infos { ... }</li>
+					<li>#music_title { ... }</li>
+					<li>#music_artist { ... }</li>
+					<li>#music_progress { ... }</li>
+					<li>#music_progress_fill { ... }</li>
+					<li>#music_info_custom_template { ... }</li>
+				</ul>
+			</ToggleBlock>
 		</div>
-
-		<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-			<div class="head">{{ $t("overlay.music_common.css") }}</div>
-			<ul class="cssStructure">
-				<li>#music_holder { ... }</li>
-				<li>#music_cover { ... }</li>
-				<li>#music_infos { ... }</li>
-				<li>#music_title { ... }</li>
-				<li>#music_artist { ... }</li>
-				<li>#music_progress { ... }</li>
-				<li>#music_progress_fill { ... }</li>
-				<li>#music_info_custom_template { ... }</li>
-			</ul>
-		</ToggleBlock>
-
 	</div>
 </template>
 
@@ -109,18 +108,11 @@ export default class OverlayParamsMusic extends Vue {
 
 <style scoped lang="less">
 .overlayparamsmusic{
-	gap: .5em;
-	display: flex;
-	flex-direction: column;
-	.youtubeBt {
-		margin-right: .5em;
-	}
 
 	.params {
 		width:100%;
 		max-width: 410px;
 		margin: auto;
-		margin-top: 1em;
 		gap: .25em;
 		display: flex;
 		flex-direction: column;

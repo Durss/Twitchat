@@ -48,9 +48,9 @@
 			<template #right_actions>
 				<div class="actions">
 					<template v-if="entry.counter.enabled !== false">
+						<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
 						<span class="info min" v-tooltip="$t('counters.min_tt')" v-if="entry.counter.min !== false"><Icon name="min" alt="min" />{{ entry.counter.min }}</span>
 						<span class="info max" v-tooltip="$t('counters.max_tt')" v-if="entry.counter.max !== false"><Icon name="max" alt="max" />{{ entry.counter.max }}</span>
-						<span class="info loop" v-tooltip="$t('counters.loop_tt')" v-if="entry.counter.loop"><Icon name="loop" alt="loop" /></span>
 						<span class="info user" v-tooltip="$t('counters.user_tt')" v-if="entry.counter.perUser"><Icon name="user" alt="user" /> {{ Object.keys(entry.counter.users ?? {}).length }}</span>
 						<Button class="actionBt" v-tooltip="$t('counters.editBt')" icon="edit" @click.stop="editCounter(entry.counter)" />
 					</template>
@@ -660,6 +660,10 @@ interface UserEntry {
 				* {
 					pointer-events: none;
 				}
+			}
+			.icon {
+				height: 1em;
+				margin-left: .5em;
 			}
 		}
 		:deep(h2) {

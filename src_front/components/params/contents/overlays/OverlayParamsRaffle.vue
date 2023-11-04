@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsraffle" :title="$t('overlay.raffle.title')" :icons="['ticket']">
+	<ToggleBlock :open="open" class="overlayparamsraffle overlayParamsSection" :title="$t('overlay.raffle.title')" :icons="['ticket']">
 		<template #right_actions>
 			<Button href="https://www.youtube.com/watch?v=VB4FDqB5kMo"
 			target="_blank"
@@ -11,16 +11,15 @@
 		</template>
 
 		<div class="holder">
-			<div class="item">
-				<div class="info">{{ $t("overlay.raffle.head") }}</div>
-				<OverlayInstaller class="item installer" type="wheel" />
-			</div>
+			<div class="info">{{ $t("overlay.raffle.head") }}</div>
+
+			<OverlayInstaller type="wheel" />
 
 			<template v-if="overlayExists || true">
-				<Button class="item center" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
+				<Button class="center" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
 				
-				<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-					<div>{{ $t("overlay.raffle.css") }}</div>
+				<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+					<div class="cssHead">{{ $t("overlay.raffle.css") }}</div>
 					<ul class="cssStructure">
 						<li>.wheel-item { ... }</li>
 						<li>.wheel-item.selected { ... }</li>
@@ -28,11 +27,11 @@
 				</ToggleBlock>
 			</template>
 
-			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
+			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
 
-			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
-			<div class="card-item item footer">
+			<div class="card-item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
 					<template #MENU><Icon name="commands" class="icon" /></template>
 					<template #CMD><strong>/raffle</strong></template>
@@ -130,42 +129,5 @@ export default class OverlayParamsRaffle extends Vue {
 
 <style scoped lang="less">
 .overlayparamsraffle{
-	.holder {
-		display: flex;
-		flex-direction: column;
-		gap: .5em;
-		.item {
-
-			.info {
-				margin-bottom: .5em;
-			}
-
-			input {
-				width: 100%;
-				margin-bottom: .5em;
-			}
-
-			&.center {
-				margin: auto;
-			}
-
-			&.loader {
-				height: 2.5em;
-			}
-
-			:deep(.icon) {
-				height: 1em;
-				vertical-align: middle;
-			}
-
-			ul {
-				margin-top: .5em;
-			}
-		}
-		.footer {
-			font-size: .8em;
-			font-style: italic;
-		}
-	}
 }
 </style>

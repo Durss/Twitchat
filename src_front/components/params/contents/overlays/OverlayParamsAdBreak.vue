@@ -1,13 +1,11 @@
 <template>
-	<ToggleBlock class="overlayparamsadbreak" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
+	<ToggleBlock class="overlayparamsadbreak overlayParamsSection" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
 		<div class="holder">
-			<div class="item">
-				<i18n-t tag="div" class="info" scope="global" keypath="overlay.adBreak.description">
-					<template #DASHBOARD_LINK>
-						<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
-					</template>
-				</i18n-t>
-			</div>
+			<i18n-t tag="div" class="header" scope="global" keypath="overlay.adBreak.description">
+				<template #DASHBOARD_LINK>
+					<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
+				</template>
+			</i18n-t>
 			
 			<OverlayInstaller type="adbreak" />
 
@@ -55,12 +53,12 @@
 				</div>
 			</ParamItem>
 
-			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
+			<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="head">{{ $t("overlay.adBreak.css") }}</div>
 				<ul class="cssStructure">
 					<li>#todo { ... }</li>
 				</ul>
-			</ToggleBlock>
+			</ToggleBlock> -->
 		</div>
 	</ToggleBlock>
 </template>
@@ -220,20 +218,10 @@ export default class OverlayParamsAdBreak extends Vue {
 .overlayparamsadbreak{
 	
 	.holder {
-		display: flex;
-		flex-direction: column;
-		gap: .5em;
-
-		input {
-			width: 100%;
-		}
 		.children {
 			gap: .25em;
 			display: flex;
 			flex-direction: column;
-		}
-		.center {
-			align-self: center;
 		}
 		.placement {
 			position: relative;
@@ -279,21 +267,7 @@ export default class OverlayParamsAdBreak extends Vue {
 					flex-basis: 200px;
 				}
 			}
-			.placeholderselector  {
-				padding-left: 0;
-			}
 		}
 	}
-
-	.cssToggle {
-		width: 100%;
-		.head {
-			margin-bottom: .5em;
-		}
-		.cssPositionning {
-			margin-left: .6em;
-		}
-	}
-	
 }
 </style>

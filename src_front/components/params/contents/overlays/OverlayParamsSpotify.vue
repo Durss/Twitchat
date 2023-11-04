@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="OverlayParamsSpotify" title="Spotify" :icons="['spotify']">
+	<ToggleBlock :open="open" class="overlayparamsspotify overlayParamsSection" title="Spotify" :icons="['spotify']">
 		<template #right_actions>
 			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
 			target="_blank"
@@ -12,7 +12,7 @@
 
 		<div class="holder" v-if="spotifyConnected">
 	
-			<div class="card-item playerHolder">
+			<div class="card-item playerHolder center">
 				<div class="label">{{ $t("global.example") }}</div>
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
@@ -27,8 +27,8 @@
 
 		</div>
 		<div class="holder" v-else>
-			<div>{{ $t("overlay.music_common.music") }}</div>
-			<Button @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
+			<div class="header">{{ $t("overlay.music_common.music") }}</div>
+			<Button class="center" @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
 		</div>
 
 	</ToggleBlock>
@@ -72,32 +72,20 @@ export default class OverlayParamsSpotify extends Vue {
 </script>
 
 <style scoped lang="less">
-.OverlayParamsSpotify{
+.overlayparamsspotify{
 	.holder {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		gap: .5em;
-	
 		.playerHolder {
 			width: 100%;
 			max-width: 300px;
-			
 			.label {
 				text-align: center;
 				margin: 0;
 				margin-bottom: .5em;
 			}
-			
 			.player {
 				margin: auto;
 				max-width: 60vw;
 			}
-	
-		}
-		.footer {
-			font-size: .8em;
-			font-style: italic;
 		}
 	}
 }

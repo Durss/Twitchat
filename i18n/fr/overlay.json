@@ -45,7 +45,7 @@
 		},
 		"highlight": {
 			"title": "Mettre en avant",
-			"instruction": "Affiche un message ou un clip sur votre stream :",
+			"instruction": "Affiche un message ou un clip sur votre stream.",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
 			"message_pos": "Position du message",
 			"testBt": "Tester",
@@ -54,7 +54,6 @@
 		},
 		"music_common": {
 			"music": "Affichez la musique en cours de lecture sur votre stream et permettez à vos viewers de contrôler la lecture et ajouter des morceaux à la liste de lecture.",
-			"music_url": "Affichez la musique en cours de lecture en ajoutant cette URL dans une source de navigateur",
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
 			"no_scroll": "Désactiver le défilement",
 			"open_from_left": "Ouvrir depuis la gauche",

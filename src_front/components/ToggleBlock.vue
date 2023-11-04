@@ -304,13 +304,13 @@ export default class ToggleBlock extends Vue {
 
 
 	&.small {
-		// background-color: var(--color-dark-fadest);
 		.header {
 			padding: 0;
 			background-color: transparent;
 			border-bottom-left-radius: var(--border-radius);
 			border-bottom: none;
 			color: var(--color-secondary);
+			font-size: .7em;
 			&:hover {
 				background-color: var(--color-dark-fadest);
 			}
@@ -321,14 +321,6 @@ export default class ToggleBlock extends Vue {
 				flex-direction: row;
 				line-height: 1.25em;
 				text-shadow: var(--text-shadow-contrast);
-				font-size: .8em;
-			}
-			.rightSlot {
-				.arrowBt {
-					.icon {
-						height: .75em;
-					}
-				}
 			}
 		}
 

@@ -5,7 +5,7 @@
 		"unsupported_browser_detail":"Please use Google Chrome, Microsoft Edge or Safari.",
 		"supported_browsers":"Only works with Google Chrome, Microsoft Edge or Safari",
 		"remote_control":"If you want to use Twitchat on an incompatible browser, you can open the following page on one of the compatible browsers to capture your voice:",
-		"need_OBS":"This features needs you to connect with OBS.",
+		"need_OBS":"This feature needs you to connect with OBS.",
 		"obs_connectBt":"Connect with OBS",
 
 		"addBt":"Add voice action",

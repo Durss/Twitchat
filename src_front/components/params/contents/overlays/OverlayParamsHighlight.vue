@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamshighlight" :title="$t('overlay.highlight.title')" :icons="['highlight']">
+	<ToggleBlock :open="open" class="overlayparamshighlight overlayParamsSection" :title="$t('overlay.highlight.title')" :icons="['highlight']">
 		<template #right_actions>
 			<Button href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q"
 			target="_blank"
@@ -11,23 +11,23 @@
 		</template>
 		
 		<div class="holder">
-			<label for="highlight_overlay_url">{{ $t("overlay.highlight.instruction") }}</label>
+			<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
 			
-			<OverlayInstaller class="item installer" type="chathighlight" />
+			<OverlayInstaller class="installer" type="chathighlight" />
 
-			<div class="card-item item center placement">
+			<div class="card-item center placement">
 				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
 				<PlacementSelector v-model="placement" />
 			</div>
 
-			<div class="item center" v-if="overlayExists">
+			<div class="center" v-if="overlayExists">
 				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
 			</div>
 			
-			<div class="item center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
+			<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
 
-			<ToggleBlock class="cssToggle" small :title="$t('overlay.css_customization')" :open="false">
-				<div class="head">{{ $t("overlay.highlight.css") }}</div>
+			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
 					<li>#highlight_holder { ... }</li>
 					<li class="sublist">
@@ -80,7 +80,7 @@
 				</ToggleBlock>
 			</ToggleBlock>
 			
-			<div class="card-item item footer">
+			<div class="card-item footer">
 				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
 					<template #URL>
 						<a href="https://featured.chat" target="_blank">featured.chat</a>
@@ -206,93 +206,16 @@ export default class OverlayParamsHighlight extends Vue {
 
 <style scoped lang="less">
 .overlayparamshighlight{
-	.holder {
+
+	.placement {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
+		align-items: center;
+	}
 
-		input {
-			width: 100%;
-		}
-
-		.item {
-			border-radius: .5em;
-
-			&.center {
-				align-items: center;
-				margin: auto;
-			}
-
-			&.placement {
-				display: flex;
-				flex-direction: column;
-				.table {
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					justify-content: center;
-					@btSize: 25px;
-					width: @btSize * 3;
-					margin-top: .5em;
-					.item {
-						width: @btSize;
-						height: @btSize;
-						position: relative;
-						display: flex;
-						align-items: center;
-						justify-content: center;
-						border-radius: 5px;
-						background-color: rgba(255, 255, 255, .5);
-						border: 1px solid rgba(0, 0, 0, .15);
-						transition: background-color .2s;
-						&.selected {
-							background-color: var(--color-secondary);
-						}
-						&:hover {
-							background-color: var(--color-secondary-light);
-						}
-						label {
-							margin: 0;
-							padding: 0;
-						}
-						input {
-							margin: 0;
-							padding: 0;
-							opacity: 0;
-							position: absolute;
-							top:0;
-							left:0;
-							width: 100%;
-							height: 100%;
-							cursor: pointer;
-						}
-					}
-				}
-			}
-
-			&.footer {
-				font-size: .8em;
-				font-style: italic;
-			}
-			
-			ul {
-				margin-top: .5em;
-			}
-
-			img {
-				margin-top: .5em;
-			}
-		}
-
-		.cssToggle {
-			width: 100%;
-			.head {
-				margin-bottom: .5em;
-			}
-			.cssPositionning {
-				margin-left: .6em;
-			}
-		}
+	.cssPositionning {
+		margin-left: 1em;
+		width: fit-content;
 	}
 }
 </style>

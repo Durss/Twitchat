@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock class="overlayparamsheatdistort" :title="$t('overlay.heatDistort.title')" :icons="['heat']">
+	<ToggleBlock class="overlayparamsheatdistort overlayParamsSection" :title="$t('overlay.heatDistort.title')" :icons="['heat']">
 
 		<div class="holder card-item alert" v-if="!obsConnected">
 			<p>{{ $t("heat.need_OBS") }}</p>
@@ -10,24 +10,7 @@
 		</div>
 		
 		<div class="holder" v-else>
-			<div class="item">
-				<div class="info">
-					<i18n-t scope="global" tag="div" keypath="overlay.heatDistort.description">
-					</i18n-t>
-				</div>
-			</div>
-
-			<div class="card-item item info">
-				<Icon name="alert" />
-				<i18n-t scope="global" tag="span" keypath="overlay.heatDistort.install">
-					<template #HEAT>
-						<a @click="openHeat()">{{ $t("overlay.heatDistort.install_heat_link") }}</a>
-					</template>
-					<template #SHADER>
-						<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.install_shader_link") }}</a>
-					</template>
-				</i18n-t>
-			</div>
+			<div class="header">{{ $t("overlay.heatDistort.description") }}</div>
 
 			<template v-for="(item, index) in distortionList" :key="item.id">
 				<HeatDistortParams v-model="distortionList[index]" @delete="deleteDistorsion" />
@@ -39,6 +22,18 @@
 			<div class="card-item maximumReached" v-else>
 				<p><Icon name="alert" />{{ $t("overlay.heatDistort.max_reached") }}</p>
 				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			</div>
+
+			<div class="card-item item footer">
+				<Icon name="alert" />
+				<i18n-t scope="global" tag="span" keypath="overlay.heatDistort.install">
+					<template #HEAT>
+						<a @click="openHeat()">{{ $t("overlay.heatDistort.install_heat_link") }}</a>
+					</template>
+					<template #SHADER>
+						<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.install_shader_link") }}</a>
+					</template>
+				</i18n-t>
 			</div>
 		</div>
 	</ToggleBlock>
@@ -132,27 +127,6 @@ export default class OverlayParamsHeatDistort extends Vue {
 <style scoped lang="less">
 .overlayparamsheatdistort{
 	.holder{
-		display: flex;
-		flex-direction: column;
-		gap: .5em;
-
-		.icon {
-			height: 1em;
-			margin-right: .5em;
-		}
-
-		.info {
-			a {
-				font-weight: bold;
-			}
-		}
-
-		.item {
-			&.center {
-				margin: auto;
-			}
-		}
-
 		.maximumReached {
 			gap: .5em;
 			display: flex;

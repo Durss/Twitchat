@@ -1,12 +1,11 @@
 <template>
 	<ToggleBlock :open="open" :class="classes" :title="$t('overlay.credits.title')" :icons="['credits']">
 		<div class="holder">
-			<div class="item">
-				<div class="info">{{ $t("overlay.credits.head") }}</div>
-				<OverlayInstaller class="item installer" type="credits" />
-			</div>
+			<div class="header">{{ $t("overlay.credits.head") }}</div>
 
-			<ToggleBlock class="item" :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">
+			<OverlayInstaller class="installer" type="credits" />
+
+			<ToggleBlock :title="$t('overlay.credits.parameters')" medium secondary :open="false" :icons="['params']">
 				<div class="globalParams">
 					<ParamItem :paramData="param_scale" v-model="data.scale" />
 					<ParamItem :paramData="param_padding" v-model="data.padding" />
@@ -26,7 +25,7 @@
 				</div>
 			</ToggleBlock>
 
-			<div class="item slots">
+			<div class="slots">
 				<draggable
 				:animation="250"
 				group="description"
@@ -66,8 +65,7 @@
 									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" /> -->
-
-									<button class="deleteBt" transparent @click.stop="deleteSlot(element)"><Icon name="cross" /></button>
+									<Button class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
 								</div>
 							</template>
 
@@ -132,9 +130,9 @@
 				</draggable>
 			</div>
 
-			<Button class="item addBt" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+			<Button class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
 			
-			<div class="item slotSelector" v-else>
+			<div class="slotSelector" v-else>
 				<CloseButton @click="showSlotOptions = false" />
 				<Button class="slotBt"
 				v-for="slot in slotTypes"
@@ -143,19 +141,19 @@
 				@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
 			</div>
 
-			<div class="item center" v-if="overlayExists">
+			<div class="center" v-if="overlayExists">
 				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
 			</div>
 
-			<Icon class="item center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
-			<div class="item center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
 
-			<ToggleBlock class="item" small :title="$t('overlay.css_customization')" :open="false">
+			<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div>{{ $t("overlay.credits.css") }}</div>
 				<ul class="cssStructure">
 					<li>.todo { ... }</li>
 				</ul>
-			</ToggleBlock>
+			</ToggleBlock> -->
 		</div>
 	</ToggleBlock>
 </template>
@@ -271,7 +269,7 @@ export default class OverlayParamsCredits extends Vue {
 	public get isPremium():boolean { return this.$store("auth").isPremium; }
 
 	public get classes():string[] {
-		const res:string[] = ["overlayparamscredits"];
+		const res:string[] = ["overlayparamscredits", "overlayParamsSection"];
 		if(!this.isPremium) res.push("notPremium");
 		return res;
 	}
@@ -574,9 +572,6 @@ export default class OverlayParamsCredits extends Vue {
 
 <style scoped lang="less">
 .overlayparamscredits{
-	.youtubeBt {
-		margin-right: .5em;
-	}
 	
 	.slide-enter-from,
 	.slide-leave-to {
@@ -586,25 +581,15 @@ export default class OverlayParamsCredits extends Vue {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
-		.item {
 
-			.info {
-				margin-bottom: .5em;
-			}
+		.globalParams {
+			gap: .25em;
+			display: flex;
+			flex-direction: column;
+		}
 
-			.globalParams {
-				gap: .25em;
-				display: flex;
-				flex-direction: column;
-				:deep(.icon) {
-					height: 1em;
-					vertical-align: middle;
-				}
-			}
+		.slots {
 
-			ul {
-				margin-top: .5em;
-			}
 			.slotHolder {
 				position: relative;
 				margin: .25em 0;
@@ -615,7 +600,6 @@ export default class OverlayParamsCredits extends Vue {
 					justify-content: space-between;
 					background-color: var(--color-text-fadest);
 					transition: background-color .2s;
-					// border-bottom: 1px solid var(--color-text-fade);
 					&:hover {
 						background-color: var(--color-text-fader);
 					}
@@ -690,19 +674,9 @@ export default class OverlayParamsCredits extends Vue {
 						}
 					}
 					.deleteBt {
-						color: var(--color-text);
-						background-color: var(--color-alert);
 						margin: -.5em 0;
 						align-self: stretch;
-						padding: 0 .5em;
-						transition: all .25s;
-						.icon {
-							height: 1em;
-						}
-						&:hover {
-							padding: 0 .75em;
-							background-color: var(--color-alert-light);
-						}
+						border-radius: 0;
 					}
 				}
 				.content {
@@ -784,30 +758,10 @@ export default class OverlayParamsCredits extends Vue {
 					}
 				}
 			}
-
-			&.center {
-				margin: auto;
-			}
-
-			&.loader {
-				height: 2.5em;
-			}
 		}
-
-		.addBt {
-			box-shadow: none;
-			// border: 1px solid var(--color-text);
-			display: flex;
-			margin: auto;
-			color: var(--color-text);
-		}
-
 		.slotSelector {
 			position: relative;
-			color: var(--color-text);
-			// border: 1px solid var(--color-text);
 			background-color: var(--color-light-fader);
-			margin-top: .5em;
 			padding: .5em 2.5em;
 			border-radius: var(--border-radius);
 			gap: .5em;
@@ -815,7 +769,6 @@ export default class OverlayParamsCredits extends Vue {
 			justify-content: center;
 			flex-direction: row;
 			flex-wrap: wrap;
-			position: relative;
 		}
 	}
 

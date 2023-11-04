@@ -199,7 +199,7 @@ export default class OverlayCounter extends AbstractOverlay {
 			text-shadow: 0px 0px .05em black;
 			&.value {
 				font-weight: bold;
-				font-variant-numeric: ordinal;
+				font-variant-numeric: tabular-nums;
 			}
 			&.spacer {
 				margin: 0 .25em;
@@ -261,7 +261,6 @@ export default class OverlayCounter extends AbstractOverlay {
 				&.value {
 					font-weight: bold;
 					font-size: 1.25em;
-					font-variant-numeric: ordinal;
 				}
 			}
 		}

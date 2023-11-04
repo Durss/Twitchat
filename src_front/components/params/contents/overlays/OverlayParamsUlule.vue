@@ -1,28 +1,24 @@
 <template>
-	<ToggleBlock class="overlayparamsulule" :title="$t('overlay.ulule.title')" :icons="['ulule']">
+	<ToggleBlock class="overlayparamsulule overlayParamsSection" :title="$t('overlay.ulule.title')" :icons="['ulule']">
 		<div class="holder">
-			<div class="item">
-				<div class="info">
-					<i18n-t scope="global" tag="div" keypath="overlay.ulule.description">
-						<template #LINK>
-							<a href="https://ulule.com" target="_blank">{{ $t("overlay.ulule.description_link") }}</a>
-						</template>
-					</i18n-t>
-				</div>
-			</div>
+			<i18n-t class="header" scope="global" tag="div" keypath="overlay.ulule.description">
+				<template #LINK>
+					<a href="https://ulule.com" target="_blank">{{ $t("overlay.ulule.description_link") }}</a>
+				</template>
+			</i18n-t>
 
-			<ParamItem class="item" :paramData="param_project" @change="saveConfigs" />
+			<ParamItem :paramData="param_project" @change="saveConfigs" />
 
-			<ParamItem class="item" :paramData="param_title" @change="saveConfigs" />
+			<ParamItem :paramData="param_title" @change="saveConfigs" />
 
-			<ParamItem class="item" :paramData="param_goals" @change="saveConfigs" />
+			<ParamItem :paramData="param_goals" @change="saveConfigs" />
 
-			<ParamItem class="item shrink" :paramData="param_currency" @change="saveConfigs" />
+			<ParamItem class="shrinkField" :paramData="param_currency" @change="saveConfigs" />
 
-			<OverlayInstaller class="item installer" type="ulule" :url="overlayUrl" :disabled="!param_project.value" />
+			<OverlayInstaller type="ulule" :url="overlayUrl" :disabled="!param_project.value" />
 
-			<ToggleBlock small :title="$t('overlay.css_customization')" :open="false">
-				<div>{{ $t("overlay.ulule.css") }}</div>
+			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ $t("overlay.ulule.css") }}</div>
 				<ul class="cssStructure">
 					<li>#holder { ... }</li>
 					<li class="sublist">
@@ -109,22 +105,10 @@ export default class OverlayParamsUlule extends Vue {
 
 <style scoped lang="less">
 .overlayparamsulule{
-	
-	.holder {
-		display: flex;
-		flex-direction: column;
-		gap: .5em;
-
-		ul {
-			margin-top: .5em;
-		}
-
-		.item.shrink {
-			:deep(.inputHolder) {
-				max-width: 100px;
-			}
+	.shrinkField {
+		:deep(.inputHolder) {
+			max-width: 100px;
 		}
 	}
-	
 }
 </style>
