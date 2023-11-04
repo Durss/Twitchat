@@ -47,7 +47,6 @@
 		:title="$t('triggers.actions.chat.allowed_users')" :icons="['lock_fit']" medium primary>
 			<PermissionsForm v-model="triggerData.permissions" />
 		</ToggleBlock>
-		{{ triggerData.heatObsSource }}
 	</div>
 </template>
 
@@ -113,11 +112,6 @@ export default class TriggerActionHeatParams extends Vue {
 				alert:false,
 			}
 		}
-
-		watch(()=>this.obsSources, ()=> this.populateObsSources());
-	}
-
-	public mounted():void {
 		
 		const entries:TwitchatDataTypes.ParameterDataListValue<TriggerData["heatClickSource"]>[] = [
 			{value:'obs', labelKey:"heat.click_source_obs"},
@@ -127,10 +121,17 @@ export default class TriggerActionHeatParams extends Vue {
 		this.param_clickSource.listValues = entries;
 
 		this.populateObsSources();
+
+		watch(()=>this.obsSources, ()=> this.populateObsSources());
+	}
+
+	public mounted():void {
 		
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
 		const screenList = this.$store('heat').screenList;
+		console.log(this.triggerData.heatAreaIds);
+		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
 		for (let i = 0; i < this.triggerData.heatAreaIds!.length; i++) {
 			const id = this.triggerData.heatAreaIds![i];
 			let found = false;
@@ -167,10 +168,11 @@ export default class TriggerActionHeatParams extends Vue {
 	}
 
 	public cleanupData():void {
+		console.log(this.param_obsSources);
 		switch(this.param_clickSource.value) {
 			case "obs": {
 				this.triggerData.heatAreaIds = undefined;
-				this.triggerData.heatObsSource = this.param_obsSources.listValues![0].value;
+				this.triggerData.heatObsSource = this.param_obsSources.listValues? this.param_obsSources.listValues[0].value : "";
 				break;
 			}
 			case "area": {

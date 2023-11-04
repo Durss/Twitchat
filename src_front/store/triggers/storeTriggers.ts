@@ -25,7 +25,7 @@ export const storeTriggers = defineStore('triggers', {
 			const res = [];
 			for (const key in this.triggerList) {
 				const queue = this.triggerList[key].queue;
-				if(queue && !done[queue]) {
+				if(queue && !done[queue] && typeof queue == "string") {
 					done[queue] = true;
 					res.push(queue)
 				}

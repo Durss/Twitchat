@@ -184,7 +184,7 @@ export default class TriggerActionList extends Vue {
 	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
-	public param_queue:TwitchatDataTypes.ParameterData<string[]> = {value:[], type:"editablelist", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
+	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 	
 	private selectOffset = {x:0, y:0};
 	private scrollDir:number = 0;

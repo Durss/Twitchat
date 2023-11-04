@@ -162,8 +162,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		}
 		this.transformEasing_conf.listValues = easingList;
 
-		this.transformEasing_conf.editCallback = (value) => this.action.animateEasing = value;
-		this.transformDuration_conf.editCallback = (value) => this.action.animateDuration = value;
+		this.transformEasing_conf.editCallback = (param) => this.action.animateEasing = param.value;
+		this.transformDuration_conf.editCallback = (param) => this.action.animateDuration = param.value;
 		if(this.action.animateEasing) this.transformEasing_conf.value = this.action.animateEasing;
 		if(this.action.animateDuration) this.transformDuration_conf.value = this.action.animateDuration;
 
