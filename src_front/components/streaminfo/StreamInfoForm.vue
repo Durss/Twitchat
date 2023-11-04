@@ -39,6 +39,8 @@
 					<Button class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</Button>
 					<Button class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</Button>
 				</div>
+
+				<div class="card-item alert error" v-if="error" @click="error = ''"><Icon name="alert" />{{error}}</div>
 			</ToggleBlock>
 		</div>
 	</div>
@@ -76,6 +78,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public param_namePreset:TwitchatDataTypes.ParameterData<string>						= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
 
 	public title:string = "";
+	public error:string = "";
 	public tags:string[] = [];
 	public branded:boolean = false;
 	public updateSuccess:boolean = false;
@@ -125,13 +128,17 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			const channelId = StoreProxy.auth.twitch.user.id;
-			if(await this.$store("stream").updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
-				this.updateSuccess = true;
-				setTimeout(()=>{
-					this.updateSuccess = false;
-				}, 5000);
-			}else{
-				this.$store("main").alert( this.$t("error.stream_info_updating") );
+			try {
+				if(await this.$store("stream").updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+					this.updateSuccess = true;
+					setTimeout(()=>{
+						this.updateSuccess = false;
+					}, 5000);
+				}else{
+					this.error = this.$t("error.stream_info_updating");
+				}
+			}catch(error:any) {
+				this.error = this.$t("error.stream_info_updating")+"\n\n"+error.message.replace(/TagsRequest\.Tags /i, "");
 			}
 		}else {
 			this.presetEditing = null;
@@ -297,6 +304,18 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		flex-direction: row;
 		justify-content: center;
 		margin-top: .5em;
+	}
+
+	.error {
+		cursor: pointer;
+		margin-top: .5em;
+		text-align: center;
+		white-space: pre-line;
+		.icon {
+			height: 1em;
+			vertical-align: middle;
+			margin-right: .5em;
+		}
 	}
 
 	.success {

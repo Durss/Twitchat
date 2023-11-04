@@ -1166,8 +1166,8 @@ export default class TwitchUtils {
 				is_branded_content:branded,
 				content_classification_labels:labels.map(v=> { return {id:v.id, is_enabled:v.enabled} }),
 				//Make sure tags size and chars are valid
+				tags:tags.map(v=> v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅]/g, "").substring(0, 25).trim()),
 				// tags:tags.map(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
-				tags:tags.map(v=> v.substring(0, 25).trim()),
 				// delay:"0",
 				// broadcaster_language:"en",
 			})
@@ -2286,8 +2286,8 @@ export default class TwitchUtils {
 			if(json.data && json.data.length > 0) {
 				const data = json.data[0] as TwitchDataTypes.AdSchedule;
 				const infos:TwitchatDataTypes.CommercialData = {
-					adCooldown_ms:			StoreProxy.stream.commercial[user.id].adCooldown_ms,
-					currentAdStart_at:		StoreProxy.stream.commercial[user.id].currentAdStart_at,
+					adCooldown_ms:			StoreProxy.stream.commercial[user.id]?.adCooldown_ms || 0,
+					currentAdStart_at:		StoreProxy.stream.commercial[user.id]?.currentAdStart_at || 0,
 					remainingSnooze:		data.snooze_count,
 					currentAdDuration_ms:	data.length_seconds,
 					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
@@ -2728,8 +2728,6 @@ export default class TwitchUtils {
 				message_html += "<span class='user'>"+label+"</span>";
 			}
 		}
-		console.log("PARSE", chunks);
-		console.log(message_html);
 		return message_html;
 	}
 
