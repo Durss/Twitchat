@@ -121,7 +121,7 @@ export default class Button extends Vue {
 		return list;
 	}
 
-	public mounted():void {
+	public beforeMount():void {
 		this.checked = this.modelValue;
 
 		watch(() => this.checked, (val:boolean) => {

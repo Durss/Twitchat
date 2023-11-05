@@ -23,7 +23,7 @@
 		},
 		"params": {
 			"shieldmode": "Activer le mode bouclier Twitch",
-			"chatCommand":"Commande de chat",
+			"chatCommand":"Commande de tchat",
 			"autoEnableOnFollowbot":"Activer en cas de raid de followbot",
 			"autoEnableOnFollowbot_tt":"Un raid est détecté si<br>30 follows ont lieu avec moins<br>de 0,5s entre chaque",
 			"autoEnableOnShieldmode":"Synchroniser avec le mode bouclier",

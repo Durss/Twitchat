@@ -1496,7 +1496,10 @@ export namespace TwitchatDataTypes {
 		id:string;
 		obsItemPath:OBSItemPath
 		permissions:PermissionsData;
-		effect:"liquid"|"expand"|"shrink";
+		refuseAnon:boolean;
+		effect:"liquid"|"expand"|"shrink"|"heart";
+		filterName:string;
+		browserSourceName:string;
 		enabled:boolean;
 	}
 	

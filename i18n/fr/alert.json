@@ -1,7 +1,7 @@
 {
 	"alert": {
 		"header":"Laissez vos modérateurs vous alerter en cas d'urgence",
-		"command_title":"Commande de chat",
+		"command_title":"Commande de tchat",
 		"actions":"Actions",
 		"actions_triggers":"Faire plus d'actions avec les {LINK}",
 		"actions_triggers_link":"Triggers",

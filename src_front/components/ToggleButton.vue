@@ -2,6 +2,7 @@
 	<div :class="classes" @click.stop="toggle()">
 		<Icon name="checkmark" class="checkmark" />
 		<div class="circle"></div>
+		<Icon name="cross" class="cross" />
 		<input type="checkbox" v-model="localValue" class="input">
 	</div>
 </template>
@@ -88,13 +89,14 @@ export default class ToggleButton extends Vue {
 		transform: translateY(-50%);
 		left: 2px;
 		background-color: var(--color-primary);
+		background-color: var(--color-light);
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
 		border-radius: 50%;
 	}
 
 	.checkmark {
-		position: relative;
+		position: absolute;
 		margin-left: .35em;
 		left: -50%;
 		top: 50%;
@@ -104,6 +106,19 @@ export default class ToggleButton extends Vue {
 		display: block;
 		opacity: 0;
 		transition: opacity .5s, left .5s;
+	}
+
+	.cross {
+		position: absolute;
+		margin-right: .35em;
+		right: 0;
+		top: 50%;
+		transform: translateY(-50%);
+		height: .7em;
+		width: fit-content;
+		display: block;
+		opacity: 1;
+		transition: opacity .5s, right .5s;
 	}
 
 	.input {
@@ -121,7 +136,7 @@ export default class ToggleButton extends Vue {
 	}
 
 	&.noCheckmark {
-		.checkmark {
+		.checkmark, .cross {
 			display: none;
 		}
 	}
@@ -136,6 +151,10 @@ export default class ToggleButton extends Vue {
 		.checkmark {
 			opacity: 1;
 			left: 0;
+		}
+		.cross {
+			opacity: 0;
+			right: -50%;
 		}
 
 		&:hover {

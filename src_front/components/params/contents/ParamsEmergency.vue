@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsemergency parameterContent">
-		<Icon name="emergency" class="icon" />
+		<Icon name="emergency" />
 		
 		<p class="head">{{ $t("emergency.header") }}</p>
 		<ParamItem class="enableBt" :paramData="param_enable" />
@@ -18,7 +18,7 @@
 					</ToggleBlock>
 				</div>
 				<div class="card-item labeled">
-					<Icon name="mod" class="icon" />
+					<Icon name="mod" class="paramIcon" />
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
 							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
@@ -30,19 +30,18 @@
 
 			<section>
 				<Splitter class="splitter">{{ $t("emergency.actions.title") }}</Splitter>
-				<ParamItem :paramData="param_enableShieldMode" />
-				<div class="twitchParams" v-if="param_enableShieldMode.value == false">
-					<ParamItem class="hasDurationChild" :paramData="param_followersOnly" />
-					<ParamItem :paramData="param_subsOnly" />
-					<ParamItem :paramData="param_emotesOnly" />
-					<ParamItem class="hasDurationChild" :paramData="param_slowMode" />
-				</div>
+				<ParamItem :paramData="param_enableShieldMode" inverseChildrenCondition>
+					<ParamItem noBackground :paramData="param_followersOnly"	class="childItem"/>
+					<ParamItem noBackground :paramData="param_subsOnly"			class="childItem"/>
+					<ParamItem noBackground :paramData="param_emotesOnly"		class="childItem"/>
+					<ParamItem noBackground :paramData="param_slowMode"			class="childItem"/>
+				</ParamItem>
 				<ParamItem :paramData="param_noTrigger" />
 				<ParamItem :paramData="param_autoTO" />
 
 				<div v-if="!obsConnected">
 					<div class="card-item alert">
-						<img src="@/assets/icons/info.svg" alt="info" class="icon">
+						<Icon name="info" class="paramIcon" />
 						<i18n-t scope="global" class="label" tag="span" keypath="emergency.actions.obs_connect">
 							<template #LINK>
 								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
@@ -53,7 +52,7 @@
 				
 				<template v-else>
 					<div class="card-item labeled">
-						<Icon name="list" class="icon" />
+						<Icon name="list" class="paramIcon" />
 						<p>{{ $t("emergency.actions.obs_scene") }}</p>
 						<vue-select class="sourceSelector" label="label"
 							:placeholder="$t('emergency.actions.obs_scene_select')"
@@ -65,7 +64,7 @@
 					</div>
 					
 					<div class="card-item labeled">
-						<Icon name="show" class="icon" />
+						<Icon name="show" class="paramIcon" />
 						<p>{{ $t("emergency.actions.obs_sources") }} <br><i>{{ $t("emergency.actions.obs_sources_example") }}</i></p>
 						<vue-select class="sourceSelector" label="sourceName"
 							:placeholder="$t('emergency.actions.obs_sources_select')"
@@ -314,7 +313,17 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 				display: flex;
 				flex-direction: column;
 			}
+
+			.childItem {
+				margin-top: .25em;
+			}
 		}
+	}
+
+	.paramIcon {
+		height: 1em;
+		margin-right: .5em;
+		vertical-align: middle;
 	}
 
 }

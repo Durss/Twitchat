@@ -5,7 +5,6 @@
 		<OverlayEndingCredits v-if="overlay=='credits' || overlay=='unified'" />
 		<OverlayChatHighlight v-if="overlay=='chathighlight' || overlay=='unified'" />
 		<OverlayMusicPlayer v-if="overlay=='music' || overlay=='unified'" :embed="overlay=='unified'" keepEmbedTransitions ref="music" class="music" />
-		<OverlayTTS v-if="overlay=='tts' || overlay=='unified'" />
 		<OverlayCounter v-if="overlay=='counter'" />
 		<OverlayUlule v-if="overlay=='ulule'" />
 		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
@@ -28,13 +27,11 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OverlayTTS from '@/components/params/contents/overlays/OverlayTTS.vue';
 import OverlayAdBreak from '@/components/overlays/OverlayAdBreak.vue';
 import OverlayDistort from '@/components/overlays/OverlayDistort.vue';
 
 @Component({
 	components:{
-		OverlayTTS,
 		OverlayUlule,
 		OverlayTimer,
 		OverlayAdBreak,

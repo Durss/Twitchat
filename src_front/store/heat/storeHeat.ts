@@ -249,15 +249,18 @@ export const storeHeat = defineStore('heat', {
 									scaleY:rect.transform.globalScaleY!,
 									uid:user.id,
 									login:user.login,
+									isBroadcaster:user.channelInfo[channelId].is_broadcaster,
 									isSub:user.channelInfo[channelId].is_subscriber,
 									isBan:user.channelInfo[channelId].is_banned,
 									isMod:user.channelInfo[channelId].is_moderator,
 									isVip:user.channelInfo[channelId].is_vip,
 									isFollower:user.channelInfo[channelId].is_following,
+									followDate:user.channelInfo[channelId].following_date_ms,
 									testMode:event.testMode,
 									alt:event.alt,
 									ctrl:event.ctrl,
 									shift:event.shift,
+									channelId,
 									page:await Utils.sha256(url)},
 							}
 						});

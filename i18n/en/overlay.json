@@ -183,21 +183,31 @@
 			}
 		},
 		"heatDistort": {
-			"title":"Image distort via Heat",
+			"title":"OBS source distortion",
 			"description":"This overlay make it possible for your viewers to distort your stream rendering by clicking on it.",
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
 			"install_instructions_title":"Instructions",
 			"install_instructions":"Add a new browser source, specify the above URL, force it to 60fps, specify dimensions so that it fills the entire visible area, and then check the option \"disable when source is not visible\".\nThen, add a Shadertastic filter to the element you want to distort, choose the \"Displacement Map (Source)\" effect, set \"Color Space\" to \"RGB\", and in \"Displacement Map\", select the previously created browser source. Finally, adjust the \"Strength X/Y\" values based on the level of distortion you desire.",
-			"select_target":"Select the scene or source you want the effect to be applied to",
+			"select_target":"Select the OBS item you want the effect to be applied to",
 			"select_scene":"<- Select a scene",
 			"max_reached": "Vous avez atteint le maximum de distortions qu'il est possible de créer",
 			"add_overlay": "Create new distortion",
 			"param_enabled": "Distortion enabled",
 			"param_shape": "Distortion type",
+			"param_anon": "Reject anonymous clicks",
 			"permissions_title": "Users allowed to click",
-			"delete_confirm":"Delete distortion?"
+			"delete_confirm":"Delete distortion?",
+			"delete_confirm_desc":"If the overlay was installed automatically, the associated filter and browser source will be removed from OBS.",
+			"needs_scope": "This overlay requires missing authorizations",
+			"grant_scopeBt": "Open authorizations",
+			"distorsions": {
+				"ripples":"Liquid ripples",
+				"expand":"Magnifiying lenses",
+				"shrink":"Shrinking lenses",
+				"heart":"Hearts"
+			}
 		},
 		"tts": {
 			"title":"Text to speech",

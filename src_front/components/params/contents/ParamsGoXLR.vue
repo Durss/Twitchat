@@ -317,6 +317,11 @@ export default class ParamsGoXLR extends Vue {
 			.triggersBt {
 				margin: auto;
 			}
+			.icon {
+				height: 1em;
+				margin-right: .25em;
+				vertical-align: middle;
+			}
 		}
 		&.scroll {
 			margin: 0;

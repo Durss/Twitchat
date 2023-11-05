@@ -1,0 +1,106 @@
+<!-- 
+	This page allows to test displacement maps in a dumb way
+ -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Document</title>
+	<style>
+		canvas {
+			width: 512px;
+			height: 512px;
+		}
+	</style>
+</head>
+<body>
+	<script type="text/javascript">
+		// Assuming you have two image URLs: sourceImageURL and displacementMapURL
+
+		// Load source image
+		const sourceImage = new Image();
+		sourceImage.src = "grid.png";
+
+		// Load displacement map
+		const displacementMap = new Image();
+		displacementMap.src = "heart.png";
+
+		// Wait for both images to load
+		Promise.all([sourceImage, displacementMap].map(image => {
+		return new Promise(resolve => {
+			image.onload = resolve;
+		});
+		})).then(() => {
+			// Create a canvas element
+			const canvas = document.createElement('canvas');
+			canvas.width = sourceImage.width;
+			canvas.height = sourceImage.height;
+			const ctx = canvas.getContext('2d', {willReadFrequently:true});
+
+			// Create a canvas element
+			const canvasDisplacement = document.createElement('canvas');
+			canvasDisplacement.width = displacementMap.width;
+			canvasDisplacement.height = displacementMap.height;
+			const ctxDisplacement = canvasDisplacement.getContext('2d', {willReadFrequently:true});
+
+			// Draw the source image on the canvas
+			ctx.drawImage(sourceImage, 0, 0);
+			ctxDisplacement.drawImage(displacementMap, 0, 0);
+
+			// Get image data
+			const sourceImageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+			const sourceImageDataCopy = new ImageData(
+				new Uint8ClampedArray(sourceImageData.data),
+				sourceImageData.width,
+				sourceImageData.height
+			)
+			for (let i = 0; i < sourceImageData.data.length; i += 4) {
+				sourceImageData.data[i] = 0;       // Red channel
+				sourceImageData.data[i + 1] = 0;   // Green channel
+				sourceImageData.data[i + 2] = 0;   // Blue channel
+				sourceImageData.data[i + 3] = 0; // Alpha channel (fully opaque)
+			}
+			const displacementMapData = ctxDisplacement.getImageData(0, 0, canvasDisplacement.width, canvasDisplacement.height);
+
+			// Append canvas to the body or do something else with it
+			document.body.appendChild(canvas);
+
+			let strengh = 0;
+			let inc = 0;
+			function renderFrame() {
+				requestAnimationFrame(()=>renderFrame());
+				inc += .1;
+				const multiplicator = Math.cos(inc) + 1;
+				strengh = multiplicator * 20;
+				// Displace pixels
+				for (let y = 0; y < canvas.height; y++) {
+					for (let x = 0; x < canvas.width; x++) {
+						const sourceIndex = y * canvas.width * 4 + x * 4;
+						const displacementX = displacementMapData.data[sourceIndex] / 0xff - .5;
+						const displacementY = displacementMapData.data[sourceIndex + 1] / 0xff - .5;
+						const alpha = displacementMapData.data[sourceIndex + 3] / 0xff;
+
+						const newX = Math.round(x + displacementX * strengh * alpha);
+						const newY = Math.round(y + displacementY * strengh * alpha);
+
+						if (newX >= 0 && newX < canvas.width && newY >= 0 && newY < canvas.height) {
+							const targetIndex = newY * canvas.width * 4 + newX * 4;
+
+							sourceImageData.data[targetIndex] = sourceImageDataCopy.data[sourceIndex];
+							sourceImageData.data[targetIndex + 1] = sourceImageDataCopy.data[sourceIndex + 1];
+							sourceImageData.data[targetIndex + 2] = sourceImageDataCopy.data[sourceIndex + 2];
+							sourceImageData.data[targetIndex + 3] = sourceImageDataCopy.data[sourceIndex + 3];
+						}
+					}
+				}
+
+				// Put the modified image data back on the canvas
+				ctx.putImageData(sourceImageData, 0, 0);
+			}
+			renderFrame();
+		});
+
+	</script>
+</body>
+</html>

@@ -1174,6 +1174,8 @@ import Ajv from "ajv";
 				additionalProperties: false,
 				properties: {
 					id: {type:"string", maxLength:40},
+					filterName: {type:"string", maxLength:100},
+					browserSourceName: {type:"string", maxLength:100},
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					effect: {enum: ["liquid", "expand", "shrink"]},
 					enabled: {type:"boolean"},

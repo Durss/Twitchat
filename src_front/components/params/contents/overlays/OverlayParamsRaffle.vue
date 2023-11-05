@@ -32,7 +32,8 @@
 			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 			
 			<div class="card-item footer">
-				<i18n-t scope="global" tag="div" keypath="overlay.raffle.start">
+				<Icon name="info" />
+				<i18n-t scope="global" tag="span" keypath="overlay.raffle.start">
 					<template #MENU><Icon name="commands" class="icon" /></template>
 					<template #CMD><strong>/raffle</strong></template>
 				</i18n-t>

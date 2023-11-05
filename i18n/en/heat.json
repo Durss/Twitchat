@@ -8,7 +8,7 @@
 		"zone_interaction": "Custom interactive areas",
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Allow anonymous users to interact",
-		"anonymous": "User interactions are anonymous by default. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
+		"anonymous": "By default, Heat interactions are anonymous. To not be anonymous, viewers have to open the extension params, go on \"Manage access\" then click \"Grant\"",
 		"click_source":"User should click...",
 		"click_source_info_title":"Caching informations",
 		"click_source_info_description":"Detecting click on OBS sources requires lots of exchanges with OBS to compute the positions of your sources. Depending on your scenes complexity this may take some time. For performance reasons, your sources positions are cached for 30s. If a source is moved, it may take up to 30s for its new position to be taken into account. If you REALLY need it, you can use the  {CMD} command to manually clear the cache.",

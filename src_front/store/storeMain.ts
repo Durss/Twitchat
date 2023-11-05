@@ -418,7 +418,10 @@ export const storeMain = defineStore("main", {
 				const data = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]") as TwitchatDataTypes.HeatDistortionData[];
 				const params = data.find(v=>v.id == distortionID);
 
-				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, (params as unknown) as JsonObject);
+				const json = {
+					params:(params as unknown) as JsonObject
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, json);
 			});
 		
 			/**

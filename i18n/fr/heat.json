@@ -8,7 +8,7 @@
 		"zone_interaction": "Zones interactives personnalisées",
 		"param_cooldown": "Cooldown ({VALUE}s)",
 		"param_anon": "Autorisez les personnes anonymes à interagir",
-		"anonymous": "Par défaut les interactions sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
+		"anonymous": "Par défaut les interactions Heat sont anonymes. Pour ne pas être anonymes, les viewers doivent cliquer sur l'extension, aller dans \"Gérer les accès\" puis cliquer \"Autoriser\"",
 		"click_source":"L'utilisateur·ice doit cliquer...",
 		"click_source_info_title":"Informations de mise en cache",
 		"click_source_info_description":"La détection du clique sur une source OBS nécessite beaucoup d'échanges avec OBS pour calculer la position de vos sources. Selon la complexité de vos scènes OBS ceci peut prendre du temps. Pour des raisons de performance, la position de vos sources est mise en cache durant 30 secondes. Si une source est déplacée il peut falloir attendre jusqu'à 30s pour que sa nouvelle position soit prise en compte. Si vous en avez VRAIMENT besoin, la commande {CMD} permet de vider le cache.",
@@ -30,7 +30,7 @@
 		"debug":{
 			"description": "Heat ne fonctionne que lorsque vous êtes en live. Afin de pouvoir faire des tests sans lancer un live, cliquez dans la zone ci-dessous pour simuler une interaction.",
 			"popout": "Ouvrir dans une fenêtre séparée",
-			"obs": "Recalculer la position des sources OBS. Leurs position n'est recalculée que toutes les 30s par défaut. Cliquez pour forcer cette mise à jour si vous avez déplacé une source."
+			"obs": "Recalculer la position des sources OBS. Leurs positions ne sont recalculées que toutes les 30s par défaut. Cliquez ici pour forcer cette mise à jour si vous avez déplacé une source."
 		},
 		"areas":{
 			"description": "Définissez des zones cliquables personnalisées puis détectez lorsqu'elles sont cliquées depuis {TRIGGER_LINK}.",

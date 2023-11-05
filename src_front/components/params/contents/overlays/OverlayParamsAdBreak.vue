@@ -1,6 +1,15 @@
 <template>
 	<ToggleBlock class="overlayparamsadbreak overlayParamsSection" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
 		<div class="holder">
+
+			<div class="card-item alert center" v-if="!scopeGranted">
+				<p>{{ $t("overlay.heatDistort.needs_scope") }}</p>
+				<Button class="button"
+					icon="obs"
+					light alert
+					@click="grantScopes()">{{ $t('overlay.heatDistort.grant_scopeBt') }}</Button>
+			</div>
+
 			<i18n-t tag="div" class="header" scope="global" keypath="overlay.adBreak.description">
 				<template #DASHBOARD_LINK>
 					<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
@@ -77,6 +86,8 @@ import { Component, Vue } from 'vue-facing-decorator';
 import OverlayInstaller from './OverlayInstaller.vue';
 import ParamItem from '../../ParamItem.vue';
 import Button from '@/components/Button.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -132,6 +143,8 @@ export default class OverlayParamsAdBreak extends Vue {
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
 	private overlayPresenceHandler!:()=>void;
+
+	public get scopeGranted():boolean{ return TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);; }
 	
 	public beforeMount():void {
 		this.localData.approachingLabel = this.$t("overlay.adBreak.ad_approaching");
@@ -173,6 +186,10 @@ export default class OverlayParamsAdBreak extends Vue {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+	}
+
+	public grantScopes():void {
+		TwitchUtils.requestScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
 	}
 
 	public onChange():void {
@@ -268,6 +285,13 @@ export default class OverlayParamsAdBreak extends Vue {
 				}
 			}
 		}
+		&>.alert {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+		}
 	}
+
 }
 </style>

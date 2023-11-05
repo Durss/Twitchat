@@ -183,21 +183,31 @@
 			}
 		},
 		"heatDistort": {
-			"title":"Distorsion d'image via Heat",
+			"title":"Distorsion de source OBS",
 			"description":"Cet overlay permet à vos viewers de déformer l'image de votre stream en cliquant dessus.",
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic",
 			"install_instructions_title":"Instructions",
 			"install_instructions":"Ajoutez une source navigateur, spécifiez l'URL ci-dessus, forcez-la en 60fps, spécifiez des dimensions de sorte qu'elle occupe toute la surface visible puis cochez l'option \"désactiver lorsque la source n'est pas visible\".\nAjoutez ensuite un filtre Shadertastic sur l'élément à déformer, choisissez l'effet \"Displacement Map (Source)\", Color Space => RGB, puis dans \"Displacement Map\" sélectionnez la source navigateur précédemment créée. Réglez enfin les valeurs \"Strength X/Y\" en fonction de l'intensité de déformation que vous souhaitez.",
-			"select_target":"Selectionnez la scene ou la source sur laquelle appliquer les distorsions",
+			"select_target":"Selectionnez l'élément OBS sur lequel appliquer les distorsions",
 			"select_scene":"<- Selectionnez une scène",
 			"max_reached": "You've reached the maximum distorsion overlay you can create",
 			"add_overlay": "Créer une nouvelle distorsion",
 			"param_enabled": "Distorsion active",
 			"param_shape": "Type de distorsion",
+			"param_anon": "Refuser les clics anonymes",
 			"permissions_title": "Personnes autorisées à cliquer",
-			"delete_confirm":"Supprimer la distorsion ?"
+			"delete_confirm":"Supprimer la distorsion ?",
+			"delete_confirm_desc":"Si l'overlay a été installé automatiquement, le filtre et la source navigateur liés seront supprimés d'OBS.",
+			"needs_scope": "Cet overlay requiert des autorisations manquantes",
+			"grant_scopeBt": "Ouvrir les autorisations",
+			"distorsions": {
+				"ripples":"Ondulations liquides",
+				"expand":"Lentilles grossissantess",
+				"shrink":"Lentilles rétrécissantes",
+				"heart":"Coeurs"
+			}
 		},
 		"tts": {
 			"title":"Text to speech",

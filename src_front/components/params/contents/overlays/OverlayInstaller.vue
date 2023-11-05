@@ -66,6 +66,9 @@ export default class OverlayInstaller extends Vue {
 	@Prop({default:"", type:String})
 	public sceneName!:string;
 
+	@Prop({default:{}, type:Object})
+	public queryParams!:any;
+
 	@Prop({default:false, type:Boolean})
 	public orderToBottom!:boolean;
 
@@ -80,6 +83,11 @@ export default class OverlayInstaller extends Vue {
 	public get localURL():string {
 		const url = new URL(this.url != "" ? this.url : this.$overlayURL(this.type));
 		if(this.id != "") url.searchParams.append("twitchat_overlay_id", this.id);
+		if(this.queryParams) {
+			for (const key in this.queryParams) {
+				url.searchParams.append(key, this.queryParams[key]);
+			}
+		}
 		return url.href;
 	};
 

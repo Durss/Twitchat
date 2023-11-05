@@ -216,20 +216,11 @@ export default class ParamsList extends Vue implements IParameterContent {
 			&:not(:first-of-type) {
 				margin-top: 10px;
 			}
-			:deep(.icon) {
-				z-index: 1;
-				height: @iconSize;
-				width: @iconSize;
-				min-width: @iconSize;
-			}
 			:deep(.child) {
 				width:calc(100% - @iconSize - .5em);
 				.holder::before {
 					left: -@iconSize;
 				}
-			}
-			:deep(.content) {
-				align-items: center;
 			}
 			&.hasIcon::before {
 				content: "";
@@ -256,10 +247,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 				border-radius: .5em;
 				transition: font-size .25s;
 			}
-		}
-		
-		:deep(input[type='range']) {
-			width: 100%;
 		}
 
 		&:not(:last-child) {

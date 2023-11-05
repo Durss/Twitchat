@@ -1,6 +1,8 @@
 <script lang="ts">
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import * as THREE from 'three';
-import { ComponentBase, Vue } from 'vue-facing-decorator';
+import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
 
 /**
  * Following vars are declared here instead as class props
@@ -17,6 +19,9 @@ let uvOffsetAttribute!:THREE.InstancedBufferAttribute;
     name: "AbstractDistortion",
 })
 export default class AbstractDistortion extends Vue {
+
+	@Prop()
+	public params!:TwitchatDataTypes.HeatDistortionData;
 	
 	private maxInstances = 50000;
 	private items:IDistortItem[] = [];
@@ -26,6 +31,68 @@ export default class AbstractDistortion extends Vue {
 	private uvScaleX = 1;
 	private uvScaleY = 1;
 	private frames = 100;
+
+	private clickHandler!:(e:MouseEvent) => void;
+	
+	private heatEventHandler!:(event:{detail:HeatData}) => void;
+
+	public mounted():void {
+		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		this.heatEventHandler = (e) => this.onHeatClick(e);
+		
+		//@ts-ignore
+		window.addEventListener("heat-click", this.heatEventHandler);
+		document.body.addEventListener("click", this.clickHandler);
+	}
+
+	public beforeUnmount():void {
+		//@ts-ignore
+		window.removeEventListener("heat-click", this.heatEventHandler);
+		document.body.removeEventListener("click", this.clickHandler);
+
+		scene.clear();
+		camera.clear();
+		instancedMesh.clear();
+		renderer.dispose();
+	}
+
+	private onClick(e:MouseEvent):void {
+		const vec3 = this.screenToWorld(e.clientX, e.clientY);
+		this.addItem(this.buildItem(vec3.x, vec3.y));
+	}
+	
+	private async onHeatClick(event:{detail:HeatData}):Promise<void> {
+		if(this.params.enabled == false) return;
+
+		const data = event.detail;
+		const infos:TwitchatDataTypes.UserChannelInfo = {
+			badges: [],
+			following_date_ms:data.followDate,
+			online:false,
+			is_new:false,
+			is_gifter:false,
+			is_raider:false,
+			is_banned:data.isBan,
+			is_broadcaster:data.isBroadcaster,
+			is_following:data.isFollower,
+			is_moderator:data.isMod,
+			is_subscriber:data.isSub,
+			is_vip:data.isVip,
+		};
+		const channelInfo:{[key:string]:TwitchatDataTypes.UserChannelInfo} = {};
+		channelInfo[data.channelId] = infos;
+		const user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo"> = {
+			id:event.detail.uid,
+			login:event.detail.login,
+			channelInfo
+		}
+		
+		//Stop there if user isn't allowed
+		if(!await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return;
+
+		const vec3 = this.screenToWorld(event.detail.x * window.innerWidth, event.detail.y * window.innerHeight);
+		this.addItem(this.buildItem(vec3.x, vec3.y));
+	}
 
 	protected initialize(spritesheet:{cols:number, rows:number, uvScaleX:number, uvScaleY:number, frames:number, texture:string}):void{
 		this.shCols = spritesheet.cols;
@@ -177,7 +244,7 @@ export default class AbstractDistortion extends Vue {
 			alphaSpeed:-(Math.random()*.5)-1,
 			scaleSpeed:Math.random() * 0.05 + .05,
 			// scaleSpeed:Math.random() * 0.05 + .01,
-			angle:0,
+			angle:Math.random() * Math.PI * 2,
 		};
 	}
 
@@ -205,5 +272,29 @@ export interface IDistortItem {
 	alphaSpeed:number,
 	scaleSpeed:number,
 	angle:number,
+}
+
+interface HeatData {
+	channelId:string;
+	anonymous:boolean;
+	x:number;
+	y:number;
+	rotation:number;
+	scaleX:number;
+	scaleY:number;
+	uid:string;
+	login:string;
+	isSub:boolean;
+	isBan:boolean;
+	isMod:boolean;
+	isVip:boolean;
+	isBroadcaster:boolean;
+	isFollower:boolean;
+	followDate:number;
+	testMode:boolean;
+	alt:boolean;
+	ctrl:boolean;
+	shift:boolean;
+	page:string;
 }
 </script>

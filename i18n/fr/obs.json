@@ -35,6 +35,6 @@
 		"scenes_title": "Contrôle des scènes",
 		"scenes_empty": "Aucune scène trouvée",
 		"scenes_col_name": "Scène OBS",
-		"scenes_col_cmd": "Commande de chat"
+		"scenes_col_cmd": "Commande de tchat"
 	}
 }

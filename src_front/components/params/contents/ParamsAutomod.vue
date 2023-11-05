@@ -21,7 +21,7 @@
 
 			<section class="card-item">
 				<div class="ruleList" v-if="automodData.keywordsFilters.length > 0">
-					<ToggleBlock class="rule" medium primary
+					<ToggleBlock class="rule" medium
 					v-for="f in automodData.keywordsFilters"
 					:key="f.id"
 					:title="f.label.length > 0? f.label : $t('automod.rule.new')"
@@ -29,7 +29,7 @@
 						<template #right_actions>
 							<div class="actions">
 								<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
-								<Button icon="trash" alert small class="deleteBt" @click.stop="deleteRule(f)" />
+								<Button icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
 							</div>
 						</template>
 						<div class="ruleContent">
@@ -323,12 +323,11 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 						display: flex;
 						flex-direction: row;
 						.deleteBt {
-							margin: calc(-.5em - 1px);
-							margin-left: 0;
+							margin: -.5em 0;
 							border-radius: 0;
-							:deep(.icon){
-								height: 1.5em;
-							}
+							// :deep(.icon){
+							// 	height: 1.5em;
+							// }
 						}
 					}
 					.ruleContent {

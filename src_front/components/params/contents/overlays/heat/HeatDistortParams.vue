@@ -21,19 +21,19 @@
 		@click="deleteEntry(false)">{{ $t("global.cancel") }}</Button>
 	</div>
 
-	<ToggleBlock :title="sourcePathLabel" medium  v-else>
+	<ToggleBlock :title="sourcePathLabel" medium :alert="!modelValue.enabled" v-else>
+		<template #left_actions>
+			<ToggleButton v-model="modelValue.enabled" big :alert="!modelValue.enabled" />
+		</template>
 		<template #right_actions>
 			<Button class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
-		<template #left_actions>
-			<ToggleButton v-model="modelValue.enabled" />
-		</template>
 		<div class="heatdistorparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
-	
-			<ToggleBlock class="permissions" :open="false" medium :title="$t('overlay.heatDistort.permissions_title')" :icons="['lock_fit']">
-				<PermissionsForm v-model="modelValue.permissions" />
-			</ToggleBlock>
+			{{ modelValue.effect }}
+			<ParamItem :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
+				<PermissionsForm class="permissions" v-model="modelValue.permissions" />
+			</ParamItem>
 		</div>
 	</ToggleBlock>
 </template>
@@ -60,7 +60,7 @@ import OverlayInstaller from '../OverlayInstaller.vue';
 		OverlayInstaller,
 		OBSSceneItemSelector,
 	},
-	emits:["delete"],
+	emits:["delete", "created"],
 })
 export default class HeatDistortParams extends Vue {
 	
@@ -69,7 +69,8 @@ export default class HeatDistortParams extends Vue {
 
 	public overlayInstalled:boolean = false;
 	
-	public param_shape:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"overlay.heatDistort.param_shape"};
+	public param_shape:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", icon:"distort", labelKey:"overlay.heatDistort.param_shape"};
+	public param_anon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"anon", labelKey:"overlay.heatDistort.param_anon", tooltipKey:"heat.anonymous"};
 
 	private updateDebounce:number = -1;
 	private obsEventHandler!:()=>void;
@@ -87,14 +88,15 @@ export default class HeatDistortParams extends Vue {
 		if(this.modelValue.obsItemPath.source.name) suffix = this.modelValue.obsItemPath.source.name;
 		else if(this.modelValue.obsItemPath.groupName) suffix = this.modelValue.obsItemPath.groupName;
 		else if(this.modelValue.obsItemPath.sceneName) suffix = this.modelValue.obsItemPath.sceneName;
-		return "("+suffix+")";
+		return " ("+suffix+")";
 	}
 
 	public async beforeMount():Promise<void> {
 		const values:TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.HeatDistortionData["effect"]>[] = [
-			{value:"liquid", label:"Liquid ripples"},
-			{value:"expand", label:"Expand"},
-			{value:"shrink", label:"Shrink"},
+			{value:"liquid", labelKey:"overlay.heatDistort.distorsions.ripples"},
+			{value:"expand", labelKey:"overlay.heatDistort.distorsions.expand"},
+			{value:"shrink", labelKey:"overlay.heatDistort.distorsions.shrink"},
+			{value:"heart", labelKey:"overlay.heatDistort.distorsions.heart"},
 		];
 		this.param_shape.listValues = values;
 
@@ -117,27 +119,8 @@ export default class HeatDistortParams extends Vue {
 	}
 
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
-		let filterTarget = "";
-		if(this.modelValue.obsItemPath.source.name) filterTarget = this.modelValue.obsItemPath.source.name;
-		else if(this.modelValue.obsItemPath.groupName) filterTarget = this.modelValue.obsItemPath.groupName;
-		else if(this.modelValue.obsItemPath.sceneName) filterTarget = this.modelValue.obsItemPath.sceneName;
-
-		const filterSettings = {
-			"displacement_map_source.displacement_map": data.sourceName,
-			"effect": "displacement_map_source",
-			"displacement_map_source.color_space":0,
-			"displacement_map_source.displacement_strength_x":.05,
-			"displacement_map_source.displacement_strength_y":.05,
-		};
-		const params = {
-						sourceName: filterTarget,
-						filterKind:"shadertastic_filter",
-						filterName:"Heat Distortion",
-						filterSettings
-					};
-		 await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
-
-		 this.overlayInstalled = true;
+		this.$emit("created", data.sourceName, this.modelValue, this.sourceSuffix);
+		this.overlayInstalled = true;
 	}
 
 	public deleteEntry(confirm:boolean = true):void {
@@ -145,7 +128,8 @@ export default class HeatDistortParams extends Vue {
 			this.$emit("delete", this.modelValue);
 			return;
 		}
-		this.$confirm(this.$t("overlay.heatDistort.delete_confirm"))
+
+		this.$confirm(this.$t("overlay.heatDistort.delete_confirm"), this.$t("overlay.heatDistort.delete_confirm_desc"))
 		.then(()=> {
 			this.$emit("delete", this.modelValue);
 		}).catch(()=>{/* ignore */});
@@ -196,6 +180,7 @@ export default class HeatDistortParams extends Vue {
 		padding: .5em;
 		border-radius: var(--border-radius);
 		background-color: var(--color-dark-fadest);
+		height: 250px;
 	}
 
 	.cancelBt {
@@ -203,6 +188,10 @@ export default class HeatDistortParams extends Vue {
 	}
 	&.selectMode {
 		.emboss()
+	}
+
+	.permissions {
+		max-width: unset;
 	}
 }
 .deleteBt {

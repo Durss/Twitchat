@@ -810,20 +810,25 @@ export default class OBSWebsocket extends EventDispatcher {
 		const urlObj = new URL(url);
 		const pathToFind = urlObj.pathname;
 		const hostToFind = urlObj.hostname;
-		if(!sceneName) sceneName = await this.getCurrentScene();
+		const idToFind = urlObj.searchParams.get("twitchat_overlay_id");
+		sourceName = sourceName.substring(0, 100);
+		
 		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
 		//Check if the source we're about to create already exists somewhere
 		for (let i = 0; i < inputList.inputs.length; i++) {
 			const input = inputList.inputs[i];
 			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
-			const url = inputConf.inputSettings.url as string || "";
+			const url = new URL(inputConf.inputSettings.url as string || "");
 			//If source URL contains both expected path and hostname, consider it's what's we're searching for
-			if(url.indexOf(pathToFind) > -1
-			&& url.indexOf(hostToFind) > -1) {
+			if(url.pathname == pathToFind && url.hostname == hostToFind) {
+				//If a twitchat overlay ID is expected check if it exists
+				if(idToFind && url.searchParams.get("twitchat_overlay_id") != idToFind) continue;
 				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
 				break;
 			}
 		}
+
+		if(!sceneName) sceneName = await this.getCurrentScene();
 		if(existingSource) {
 			//Create a new instance of the existing overlay
 			const res = await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
@@ -834,7 +839,9 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(existingSource.inputName != sourceName) {
 				await this.obs.call("SetInputName", {inputName:existingSource.inputName, newInputName:sourceName});
 			}
-			await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
+				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+			}
 			return true;
 		}
 
@@ -853,7 +860,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const res = await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
 		if(res && orderToBottom) {
 			this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
-			if(sourceTransform) {
+			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
 				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
 			}
 		}

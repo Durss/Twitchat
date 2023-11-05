@@ -26,7 +26,7 @@
 					<div class="title">{{ c.name }}</div>
 					<!-- <input class="primary" type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select> -->
 					<!-- <OverlayCounter class="counterExample" embed :staticCounterData="c" v-if="!c.perUser" /> -->
-					<OverlayInstaller class="installer" type="counter" :url="getOverlayUrl(c)" :sourceTransform="getOverlayTransform(c)" />
+					<OverlayInstaller class="installer" type="counter" :id="c.id" :sourceSuffix="c.name" :queryParams="{cid:c.id}" :sourceTransform="getOverlayTransform(c)" />
 				</div>
 			</div>
 
@@ -119,6 +119,7 @@ export default class OverlayParamsCounter extends Vue {
 		min:false,
 		max:false,
 	}
+	
 	public progressExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
 		placeholderKey:"",
@@ -133,8 +134,6 @@ export default class OverlayParamsCounter extends Vue {
 	public get counters():TwitchatDataTypes.CounterData[] {
 		return this.$store('counters').counterList;
 	}
-
-	public getOverlayUrl(counter:TwitchatDataTypes.CounterData):string { return this.$overlayURL("counter", [{k:"cid", v:counter.id}]); }
 
 	public getOverlayTransform(counter:TwitchatDataTypes.CounterData):Partial<SourceTransform> {
 		if(counter.perUser == true) {

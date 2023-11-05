@@ -22,35 +22,11 @@ import { Elastic } from 'gsap/all';
 export default class DistortionLiquid extends AbstractDistortion {
 
 	@Prop()
-	public params!:TwitchatDataTypes.HeatDistortionData
-
-	private clickHandler!:(e:MouseEvent) => void;
-	private heatEventHandler!:(event:{detail:{anonymous:boolean, x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}) => void;
+	declare params:TwitchatDataTypes.HeatDistortionData;
 
 	public mounted():void {
 		// super.initialize({cols:1, rows:1, uvScaleX:256/256, uvScaleY:256/256, frames:1, texture:twirl});
 		super.initialize({cols:16, rows:8, uvScaleX:256/4096, uvScaleY:256/2048, frames:128, texture:ripples});
-		this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		document.body.addEventListener("click", this.clickHandler);
-		
-		this.heatEventHandler = (e) => this.onHeatClick(e);
-		//@ts-ignore
-		window.addEventListener("heat-click", this.heatEventHandler);
-	}
-
-	public beforeUnmount():void {
-		document.body.removeEventListener("click", this.clickHandler);
-		//@ts-ignore
-		window.removeEventListener("heat-click", this.heatEventHandler);
-	}
-
-	public onClick(e:MouseEvent):void {
-		const vec3 = this.screenToWorld(e.clientX, e.clientY);
-		this.addItem(this.buildItem(vec3.x, vec3.y))
-	}
-	
-	private onHeatClick(event:{detail:{anonymous:boolean, x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):void {
-		console.log("CLICK");
 	}
 
 	// protected buildItem(px?:number, py?:number):IDistortItem {
@@ -64,6 +40,17 @@ export default class DistortionLiquid extends AbstractDistortion {
 	// 	gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false});
 	// 	return item;
 	// }
+	protected buildItem(px?:number, py?:number):IDistortItem {
+		const item = super.buildItem(px, py);
+		item.alphaSpeed = 0;
+		item.frame = 0;
+		item.scale = .001;
+		item.scaleSpeed = 0;
+		item.angle = Math.random() * Math.PI * 2;
+		let scale = 20 * Math.random() + 3;
+		gsap.to(item, {scale, frame:128, ease:"linear.none", duration:Math.max(1, scale * .25)});
+		return item;
+	}
 	// protected computeItem(item:IDistortItem):boolean {
 	// 	return item.scale > 0;
 	// 	// item.scaleSpeed *= .995;

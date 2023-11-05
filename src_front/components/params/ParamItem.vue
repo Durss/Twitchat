@@ -211,7 +211,7 @@
 		<transition
 		@enter="onShowItem"
 		@leave="onHideItem">
-			<div class="child" ref="param_child_slot" v-if="($slots.default || $slots.child) && (paramData.value === true || paramData.type != 'boolean')">
+			<div class="child" ref="param_child_slot" v-if="showChildren">
 				<slot></slot>
 				<slot name="child"></slot>
 			</div>
@@ -288,6 +288,9 @@ export default class ParamItem extends Vue {
 	@Prop({type:Boolean, default: false})
 	public autoFade!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public inverseChildrenCondition!:boolean;
+
 	@Prop({type:Number, default: 0})
 	public tabindex!:number;
 
@@ -301,6 +304,14 @@ export default class ParamItem extends Vue {
 	private childrenExpanded:boolean = false;
 
 	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
+	
+	public get showChildren():boolean {
+		return (this.$slots.default != undefined || this.$slots.child != undefined)
+			&& (
+				((this.inverseChildrenCondition === false && this.paramData.value === true)
+				|| (this.inverseChildrenCondition !== false && this.paramData.value === false))
+				|| this.paramData.type != 'boolean');
+	}
 
 	public get premiumLocked():boolean { return this.premium !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
 
