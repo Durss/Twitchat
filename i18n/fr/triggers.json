@@ -399,6 +399,7 @@
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
+			"trigger_id": "ID du trigger actuel",
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
 			"user_avatar": "URL de l'avatar",

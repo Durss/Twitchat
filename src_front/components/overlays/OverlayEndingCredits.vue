@@ -291,7 +291,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
 		watch(()=>this.posY, ()=> {
-			(this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
+			// (this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
+			(this.$refs.holder as HTMLDivElement).style.marginTop = this.posY+"px";
 		});
 	}
 
@@ -616,11 +617,11 @@ interface SlotItem {
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	position: absolute;
 	width: 100%;
 	// background-color: red;
 	color: #fff;
 	will-change: transform;
+	will-change: margin-top;
 
 	.category {
 		font-family: "Inter";
@@ -633,6 +634,7 @@ interface SlotItem {
 			margin-bottom: 1em;
 			font-size: 2.5em;
 			text-align: center;
+			z-index: 1;
 			.icon {
 				height: 1em;
 				width: 1em;

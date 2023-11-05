@@ -818,6 +818,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		for (let i = 0; i < inputList.inputs.length; i++) {
 			const input = inputList.inputs[i];
 			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
+			//Ignore local file sources
+			if(inputConf.inputSettings.is_local_file === true) continue;
 			const url = new URL(inputConf.inputSettings.url as string || "");
 			//If source URL contains both expected path and hostname, consider it's what's we're searching for
 			if(url.pathname == pathToFind && url.hostname == hostToFind) {

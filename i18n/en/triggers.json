@@ -399,6 +399,7 @@
 		},
 		"placeholders": {
 			"trigger_name":"Current trigger name",
+			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_id": "User ID",
 			"user_avatar": "User avatar URL",

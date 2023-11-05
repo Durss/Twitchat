@@ -6,7 +6,11 @@
 			:loading="refreshingAll">{{ $t("obs.browser_sources_refresh_all") }}</Button>
 
 		<div class="card-item row" v-for="entry in sources" ref="row">
-			<p>{{ entry.source.inputName }}</p>
+			<div class="infos">
+				<p class="name">{{ entry.source.inputName }}</p>
+				<p class="url" v-if="entry.localFile">{{ entry.url }}</p>
+				<a v-else class="url" :href="entry.url" target="_blank">{{ entry.url }}</a>
+			</div>
 			<Button :icon="entry.success? 'checkmark' : 'refresh'"
 				@click="refreshSource(entry)"
 				:primary="entry.success"
@@ -31,7 +35,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 export default class OBSBrowserSources extends Vue {
 
 	public refreshingAll:boolean = false;
-	public sources:{loading:boolean, success:boolean, source:OBSInputItem}[] = [];
+	public sources:{loading:boolean, success:boolean, source:OBSInputItem, url:string, localFile:boolean}[] = [];
 
 	public async mounted():Promise<void> {
 		const res = await OBSWebsocket.instance.socket.call("GetInputList", {inputKind:"browser_source"});
@@ -39,8 +43,19 @@ export default class OBSBrowserSources extends Vue {
 		this.sources = sources
 						.filter(v=> v.inputKind == "browser_source")
 						.map(v=>{
-							return {loading:false, success:false, source:v}
+							return {loading:false, success:false, source:v, url:"", localFile:false}
 						});
+
+		this.sources.forEach(v=> {
+			OBSWebsocket.instance.getSourceSettings(v.source.inputName).then(res => {
+				v.localFile = res.inputSettings.is_local_file === true;
+				if(v.localFile) {
+					v.url = res.inputSettings.local_file as string || "";
+				}else{
+					v.url = res.inputSettings.url as string || "";
+				}
+			});
+		})
 
 		await this.$nextTick();
 		
@@ -79,11 +94,28 @@ export default class OBSBrowserSources extends Vue {
 		align-self: center;
 	}
 	.row {
+		gap: 1em;
 		display: flex;
 		flex-direction: row;
 		justify-content: space-between;
 		align-items: center;
 		overflow: hidden;
+
+		.infos {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			flex-shrink: 1;
+			.name {
+				font-weight: bold;
+			}
+			.url {
+				font-size: .75em;
+			}
+		}
+		.button {
+			flex-shrink: 0;
+		}
 	}
 }
 </style>

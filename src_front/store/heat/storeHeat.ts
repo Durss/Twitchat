@@ -221,7 +221,11 @@ export const storeHeat = defineStore('heat', {
 					//If it's a spotify or ulule overlay execute any requested action
 					if(rect.source.inputKind == "browser_source") {
 						let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
-						const url:string = settings.inputSettings.url as string;
+						let url:string = settings.inputSettings.url as string;
+						const isLocalFile = settings.inputSettings.is_local_file === true;
+						if(isLocalFile) {
+							url = settings.inputSettings.local_file as string || "";
+						}
 						
 						//Compute click position relative to the browser source
 						const rotatedClick = Utils.rotatePointAround({x, y},
@@ -237,13 +241,24 @@ export const storeHeat = defineStore('heat', {
 						const percentX = rotatedClick.x / dx;
 						const percentY = rotatedClick.y / dy;
 
+						let overlayID = "";
+						if(!isLocalFile) {
+							try {
+								const parsedUrl = new URL(url);
+								overlayID = parsedUrl.searchParams.get("twitchat_overlay_id") || "";
+							}catch(error){}
+						}
+
 						//Send click info to browser source
 						OBSWebsocket.instance.socket.call("CallVendorRequest", {
 							requestType:"emit_event",
 							vendorName:"obs-browser",
 							requestData:{
 								event_name:"heat-click",
-								event_data:{anonymous, x:percentX, y:percentY,
+								event_data:{
+									anonymous,
+									x:percentX,
+									y:percentY,
 									rotation:rect.transform.globalRotation,
 									scaleX:rect.transform.globalScaleX!,
 									scaleY:rect.transform.globalScaleY!,
@@ -261,6 +276,7 @@ export const storeHeat = defineStore('heat', {
 									ctrl:event.ctrl,
 									shift:event.shift,
 									channelId,
+									twitchatOverlayID:overlayID,
 									page:await Utils.sha256(url)},
 							}
 						});

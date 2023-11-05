@@ -34,7 +34,7 @@
 		</div>
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
-		<OverlayParamsHeatDistort v-if="debugMode" class="block" :open="subContent == 'heatDistort'" :class="subContent == 'heatDistort'? 'selected' : ''" />
+		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="subContent == 'heatDistort'? 'selected' : ''" />
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
@@ -93,29 +93,9 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 	
-	private keyupHandler!:(e:KeyboardEvent) => void;
-
 	public onNavigateBack(): boolean { return false; }
 
 	public get subContent() { return this.$store("params").currentPageSubContent; }
-
-	public beforeMount():void {
-
-		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
-		document.addEventListener("keyup", this.keyupHandler);
-	}
-	
-	public beforeUnmount():void {
-		document.removeEventListener("keyup", this.keyupHandler);
-	}
-
-	/**
-	 * Show a debug field on CTRL+ALT+D
-	 * @param e 
-	 */
-	public onKeyUp(e:KeyboardEvent):void {
-		this.debugMode = !this.debugMode;
-	}
 
 }
 </script>

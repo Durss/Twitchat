@@ -63,6 +63,7 @@ export default class AbstractDistortion extends Vue {
 	
 	private async onHeatClick(event:{detail:HeatData}):Promise<void> {
 		if(this.params.enabled == false) return;
+		if(event.detail.twitchatOverlayID != this.params.id) return;
 
 		const data = event.detail;
 		const infos:TwitchatDataTypes.UserChannelInfo = {
@@ -296,5 +297,6 @@ interface HeatData {
 	ctrl:boolean;
 	shift:boolean;
 	page:string;
+	twitchatOverlayID:string;
 }
 </script>
