@@ -26,11 +26,16 @@ export default class DistortionExpand extends AbstractDistortion {
 	protected buildItem(px?:number, py?:number):IDistortItem {
 		const item = super.buildItem(px, py);
 		item.alphaSpeed = 0;
-		item.frame = Math.round(Math.random()*50);
+		item.frame = 65;//Math.round(Math.random()*50);
 		item.scale = .001;
 		item.scaleSpeed = 0;
 		item.angle = Math.PI;
-		gsap.to(item, {scale:3 + Math.random()*2, angle:0, ease:Elastic.easeOut, duration:1});
+		let scale = 3 + Math.random()*2;
+		if(Math.random() > .98) {
+			scale = 15 + Math.random()*5;
+			item.frame = 0;
+		}
+		gsap.to(item, {scale, angle:0, ease:Elastic.easeOut, duration:1});
 		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false});
 		return item;
 	}

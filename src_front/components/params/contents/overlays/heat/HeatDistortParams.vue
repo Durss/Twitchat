@@ -30,7 +30,6 @@
 		</template>
 		<div class="heatdistorparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
-			{{ modelValue.effect }}
 			<ParamItem :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
 				<PermissionsForm class="permissions" v-model="modelValue.permissions" />
 			</ParamItem>
