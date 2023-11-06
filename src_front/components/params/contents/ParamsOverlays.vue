@@ -41,7 +41,7 @@
 		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
 		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
 		<!-- <OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" /> -->
-		<OverlayParamsAdBreak class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
+		<OverlayParamsAdBreak v-if="adStuffAvailable" class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
 		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
 	</div>
 </template>
@@ -92,7 +92,8 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
-	
+		public get adStuffAvailable():boolean { return Config.instance.AD_API_AVAILABLE; }
+
 	public onNavigateBack(): boolean { return false; }
 
 	public get subContent() { return this.$store("params").currentPageSubContent; }
