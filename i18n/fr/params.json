@@ -70,7 +70,7 @@
 		"ad_info": "Message envoyé toutes les 2 heures (si vous avez reçu au moins 100 messages et avez plus de 50 followers)",
 		"ad_disable_info": "Pour désactiver ce message faites un don ou devenez membre Premium 💝",
 		"ad_disableBt": "Faire un don",
-		"ad_bot_info_title": "Puis-je envoyer ce message avec nightbot / wizebot / ... ?",
+		"ad_bot_info_title": "Puis-je envoyer ce message avec nightbot / wizebot / ... ?",
 		"ad_bot_info_content": "Oui\r\n\r\nPar défaut le message est envoyé en votre nom.\r\nMais vous pouvez configurer ce message sur n'importe quel bot si vous préférez.\r\n\r\nTwitchat n'enverra pas ce message tant qu'un message contenant <strong>twitchat.fr</strong> sera envoyé dans le tchat au moins toutes les 2h.",
 		"saveHistory": "Conserver l'historique de tchat\r\n(vous retrouverez les messages après avoir rechargé Twitchat)",
 		"clearHistory": "Effacer l'historique",
@@ -107,13 +107,13 @@
 			"premium": "Premium"
 		},
 		"botMessages": {
-			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} !",
+			"raffleStart": "/announce 🎉🎉🎉 Le tirage au sort a commencé 🎉🎉🎉 Rejoignez le tirage avec la commande {CMD} ?",
 			"raffle": "/announce 🎉🎉🎉 {USER} a remporté le tirage au sort 🎉🎉🎉",
 			"raffleJoin": "VoteYea {USER} tu as rejoint le tirage au sort.",
 			"bingoStart": "/announce 🎉🎉🎉 Un bingo a débuté 🎉🎉🎉 {GOAL}",
 			"bingo": "/announce 🎉🎉🎉 {USER} remporte le bingo 🎉🎉🎉",
 			"shoutout": "/announce Allez voir {USER} {URL} . Son dernier stream était \"{TITLE}\" dans la catégorie \"{CATEGORY}\".",
-			"twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jettes-y un œil KomodoHype",
+			"twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jettes-y un œil KomodoHype",
 			"chatSuggStart": "/announce Faites votre suggestion envoyant \"{CMD} votre suggestion\". Votre suggestion doit faire moins de {LENGTH} caractères.",
 			"heatSpotify": "SingsNote \"{CURRENT_TRACK_TITLE}\" par \"{CURRENT_TRACK_ARTIST}\" - {CURRENT_TRACK_URL}",
 			"heatUlule": "Soutenez la campagne \"{ULULE_CAMPAIGN_NAME}\" - {ULULE_CAMPAIGN_URL}"

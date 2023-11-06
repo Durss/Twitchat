@@ -33,15 +33,15 @@
 			"sort_points": "Points"
 		},
 		"delete_confirm": {
-			"title": "Supprimer ?",
+			"title": "Supprimer ?",
 			"desc": "Les données du compteur seront perdues."
 		},
 		"reset_users_confirm":{
-			"title": "Reset ?",
+			"title": "Reset ?",
 			"desc": "Souhaitez-vous remettre tous les viewers à zéro ?"
 		},
 		"delete_users_confirm":{
-			"title": "Supprimer ?",
+			"title": "Supprimer ?",
 			"desc": "Souhaitez-vous supprimer tous les viewers ?"
 		}
 	}

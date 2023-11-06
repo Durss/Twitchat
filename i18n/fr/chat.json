@@ -15,7 +15,7 @@
 		"fake_tag_tt": "Ceci est un faux message. Vous êtes seul·e à le voir.",
 		"soBt": "Shoutout",
 		"right_click_hint_highlight": "clic droit",
-		"right_click_hint": "PogChamp PogChamp PogChamp Hey ! Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options !",
+		"right_click_hint": "PogChamp PogChamp PogChamp Hey ? Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options ?",
 		"form": {
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Commandes",
@@ -189,7 +189,7 @@
 		},
 		"bits": "{USER} a envoyé 1 bit | {USER} a envoyé {BITS} bits",
 		"boosted": "Votre chaîne a été mise en avant auprès de {COUNT} personnes",
-		"train_cooldown": "Le train de la hype peut à nouveau être déclenché !",
+		"train_cooldown": "Le train de la hype peut à nouveau être déclenché ?",
 		"follow": "{USER} vous suit",
 		"raid": {
 			"text": "{USER} a lancé un raid sur votre chaîne avec {COUNT} personne. | {USER} a lancé un raid sur votre chaîne avec {COUNT} personnes."
@@ -236,8 +236,8 @@
 		},
 		"sponsor": {
 			"title": "💝 Me soutenir 💝",
-			"head": "Tu apprécies Twitchat ?<br>Ca m'a pris <strong>plus d'un an</strong> de travail sans revenus à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée !",
-			"head_reminder": "J'espère que ton stream s'est bien passé ?<br>Tu as souhaité recevoir un rappel de don en fin de stream, le voici donc 😁!",
+			"head": "Tu apprécies Twitchat ?<br>Ca m'a pris <strong>plus d'un an</strong> de travail sans revenus à temps plein pour le créer.<br>Je le mets gratuitement à disposition mais, <strong>si tu peux te le permettre</strong> un don me nourrira et emerveillera ma journée ?",
+			"head_reminder": "J'espère que ton stream s'est bien passé ?<br>Tu as souhaité recevoir un rappel de don en fin de stream, le voici donc 😁!",
 			"tipBt_aria": "Voir les options de dons",
 			"tipBt": "🌞 Emerveiller ma journée 🌞",
 			"remind_meBt": "Rappel en fin de stream",
@@ -249,7 +249,7 @@
 		},
 		"discord": {
 			"title": "Rejoins-nous sur Discord",
-			"content": "Tu as une idée de fonctionnalité ou un problème à remonter ?<br>Dis-le moi sur Discord !",
+			"content": "Tu as une idée de fonctionnalité ou un problème à remonter ?<br>Dis-le moi sur Discord !",
 			"joinBt": "Rejoindre le Discord"
 		},
 		"adalert": {
@@ -283,13 +283,13 @@
 			"info_1": "Merci encore pour ton soutien au travers de ton don.",
 			"info_2": "Une liste de toutes les personnes ayant fait un don est disponible dans la {LINK}",
 			"info_2_link": "section @:params.categories.donate",
-			"info_3": "Par défaut les dons sont anonymes mais tu peux rendre tien public !",
+			"info_3": "Par défaut les dons sont anonymes mais tu peux rendre tien public ?",
 			"thanks": "Merci ❤.",
 			"thanks_change": "Tu peux changer d'avis à tout moment dans la {LINK}",
 			"thanks_change_link": "section @:params.categories.donate",
 			"publicBt": "Rendre mon don public",
 			"close_confirm": {
-				"info_1": "Es-tu sûr·e d'avoir lu le message ?",
+				"info_1": "Es-tu sûr·e d'avoir lu le message ?",
 				"info_2": "Il est vraiment important",
 				"cancelBt": "Retour",
 				"confirmBt": "Oui, fermer"
@@ -311,9 +311,9 @@
 			"banBt": "Ban",
 			"blockBt": "Block",
 			"ban_confirm_title": "Bannir {USER}",
-			"ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
+			"ban_confirm_desc": "Voulez-vous vraiment bannir cette personne ?",
 			"block_confirm_title": "Bloquer {USER}",
-			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
+			"block_confirm_desc": "Voulez-vous vraiment bloquer cette personnes ?<br>Elle sera supprimée de vos followers."
 		},
 		"context_menu": {
 			"profile": "Profil",
@@ -384,7 +384,7 @@
 			"created": "Marqueur créé avec succès"
 		},
 		"watch_streak": {
-			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages !"
+			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages ?"
 		},
 		"splitter": {
 			"label": "Nouveaux messages"

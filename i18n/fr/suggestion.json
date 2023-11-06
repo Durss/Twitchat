@@ -12,7 +12,7 @@
 		"state_header": "{0} suggestion | {0} suggestions",
 		"state_pickBt": "Choisir une entrée aléatoire",
 		"state_closeBt": "Fermer les suggestions",
-		"state_close_confirm_title": "Fermer ?",
+		"state_close_confirm_title": "Fermer ?",
 		"state_close_confirm_desc": "Toutes les suggestions seront perdues.",
 		"maxLength": "Longueur max du texte",
 		"alternative_tool":"Pour une solution dédiée plus complète, jetez-un oeil à {LINK}",

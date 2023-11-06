@@ -15,7 +15,7 @@
 			"placeholder_conflict": "Another value already uses this placeholder"
 		},
 		"delete_confirm": {
-			"title": "Delete ?",
+			"title": "Delete?",
 			"desc": "Any trigger having a reference to this value will stop working properly."
 		}
 	}

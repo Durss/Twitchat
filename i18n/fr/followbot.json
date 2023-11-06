@@ -13,13 +13,13 @@
 		"unfollow_tt":"Supprimer de<br>mes followers",
 		"details_tt":"Ouvrir le profil",
 		"ignore_tt":"Ignorer cette personne",
-		"ban_all_confirm_title":"Bannir tout le monde ?",
+		"ban_all_confirm_title":"Bannir tout le monde ?",
 		"ban_all_confirm_desc":"Toutes les personnes de la liste seront bannies définitivement.",
 		"unfollow_confirm_title":"Supprimer les followers?",
 		"unfollow_confirm_desc":"Toutes les personnes de la liste seront supprimées de vos followers.",
-		"clear_confirm_title":"Terminer l'examen ?",
-		"clear_confirm_desc":"Cette liste sera perdue !<br>Vous pourrez <a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">retrouver les personnes bannies</a> de votre chaîne.",
-		"later_confirm_title":"Examiner plus tard ?",
+		"clear_confirm_title":"Terminer l'examen ?",
+		"clear_confirm_desc":"Cette liste sera perdue ?<br>Vous pourrez <a href=\"https://www.twitch.tv/settings/security\" target=\"_blank\">retrouver les personnes bannies</a> de votre chaîne.",
+		"later_confirm_title":"Examiner plus tard ?",
 		"later_confirm_desc":"Vous serez invité·e à nouveau à examiner cette liste au prochain lancement de Twitchat"
 	}
 }

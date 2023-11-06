@@ -1,7 +1,7 @@
 {
 	"obs": {
 		"connection_success": "Connecté à OBS",
-		"how_to_title": "Où trouver ces valeurs ?",
+		"how_to_title": "Où trouver ces valeurs ?",
 		"how_to1": "Sur OBS, ouvrez \"Tools => obs-websocket Settings\".",
 		"how_to2": "Vous voudrez probablement utiliser l'IP {IP}",
 		"ip_advice": "Vous voudrez probablement utiliser l'adresse IP 127.0.0.1 au lieu de celle indiquée par OBS",

@@ -33,7 +33,7 @@
 			"sort_points":"Points"
 		},
 		"delete_confirm": {
-			"title": "Delete ?",
+			"title": "Delete?",
 			"desc": "Counter's data will be lost."
 		},
 		"reset_users_confirm":{

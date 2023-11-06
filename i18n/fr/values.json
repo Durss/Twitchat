@@ -15,7 +15,7 @@
 			"placeholder_conflict": "Une autre valeur utilise déjà ce placeholder"
 		},
 		"delete_confirm": {
-			"title": "Supprimer ?",
+			"title": "Supprimer ?",
 			"desc": "Tout trigger faisant référence à ce compteur ne fonctionnera plus correctement."
 		}
 	}

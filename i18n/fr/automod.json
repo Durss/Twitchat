@@ -2,11 +2,11 @@
 	"automod": {
 		"header": "Suppression de messages automatisée",
 		"ban_usernames": "Bannir les personnes dont le pseudo correspond à une règle",
-		"delete_confirm_title": "Supprimer la règle ?",
+		"delete_confirm_title": "Supprimer la règle ?",
 		"delete_confirm_description": "Cela ne peut pas être annulé",
 		"disclaimers":{
 			"why":{
-				"title":"Pourquoi cette fonctionnalité ?",
+				"title":"Pourquoi cette fonctionnalité ?",
 				"contents":[
 					"Twitch a déjà une fonctionnalité de \"termes bloqués\", mais elle est très basique et ne permet pas un filtrage complexe.",
 					"Si vous bloquez le mot <mark>twitchat</mark>, les viewers peuvent facilement contourner cette restriction en écrivant <mark>twit_chat</mark> ou <mark>twitch🅐t</mark> et une infinité d'alternatives.",
@@ -21,7 +21,7 @@
 				]
 			},
 			"delete":{
-				"title":"La suppression d'un message est-elle efficace contre le doxxing* ?",
+				"title":"La suppression d'un message est-elle efficace contre le doxxing* ?",
 				"contents":[
 					"Non.", 
 					"",

@@ -1,7 +1,7 @@
 {
 	"summary": {
 		"title": "Résumé du stream",
-		"no_data": "On dirait qu'il ne s'est pas passé grand chose durant votre stream 😔.\r\nJe suis certain que le prochain sera mieux !",
+		"no_data": "On dirait qu'il ne s'est pas passé grand chose durant votre stream 😔.\r\nJe suis certain que le prochain sera mieux ?",
 		"stream_duration": "Durée du stream:",
 		"csv_exportBt": "Export CSV",
 		"data_messages":"Messages envoyés",

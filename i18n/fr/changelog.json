@@ -55,13 +55,13 @@
 				"i": "show",
 				"l": "Anti backseat troll",
 				"g": "update_images/spoiler_1st.gif",
-				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
+				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
 			},
 			{
 				"i": "voicemod",
 				"l": "Voicemod",
 				"g": "update_images/voicemod.png",
-				"d": "Nouvelles actions de Trigger pour Voicemod pour activer le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination !"
+				"d": "Nouvelles actions de Trigger pour Voicemod pour activer le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination!"
 			},
 			{
 				"i": "placeholder",
@@ -71,7 +71,7 @@
 			{
 				"i": "premium",
 				"l": "Fonctionnalités premium",
-				"d": "Ce qui devait arriver arriva !<br>D'une certaine façon Twitchat a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir que ce travail porte plus ses fruits.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon !<br><br><i>Pssst ! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
+				"d": "Ce qui devait arriver arriva!<br>D'une certaine façon Twitchat a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1 an et demi. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir que ce travail porte plus ses fruits.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon!<br><br><i>Pssst! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
 			},
 			{
 				"l": "Et plus encore...",
@@ -79,8 +79,8 @@
 			}
 		],
 		"forceRead": {
-			"title": "EH OH TU LIS !",
-			"description": "J'ai travaillé pendant +2 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans !",
+			"title": "EH OH TU LIS!",
+			"description": "J'ai travaillé pendant +2 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans!",
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt":"ui pardon je lis 🥺",
 			"fuBt":"menfou 🤪"

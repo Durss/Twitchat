@@ -40,7 +40,7 @@
 			"message_cmd_placeholder": "Commande pour rejoindre le tirage"
 		},
 		"delete_confirm": {
-			"title": "Fermer le tirage ?",
+			"title": "Fermer le tirage ?",
 			"description": "La liste des participant·es sera perdue."
 		},
 		"params": {

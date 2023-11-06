@@ -1,7 +1,7 @@
 {
 	"emergency":{
 		"header":"Effectuez des actions automatiques pour vous protéger en cas de raid haineux, doxxing ou tout comportement toxique.",
-		"enable_confirm":"Activer le mode urgence ?",
+		"enable_confirm":"Activer le mode urgence ?",
 		"enabled":"Mode urgence activé",
 		"disabled":"Mode urgence désactivé",
 		"start": {

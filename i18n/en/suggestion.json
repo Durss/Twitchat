@@ -12,7 +12,7 @@
 		"state_header": "{0} suggestion | {0} suggestions",
 		"state_pickBt": "Pick a random entry",
 		"state_closeBt": "Close suggestions",
-		"state_close_confirm_title": "Close ?",
+		"state_close_confirm_title": "Close?",
 		"state_close_confirm_desc": "All suggestions will be lost.",
 		"maxLength": "Max message length",
 		"alternative_tool":"For a standalone tool with more options, check out {LINK}",
