@@ -238,8 +238,8 @@ export const storeHeat = defineStore('heat', {
 						rotatedClick.y -= rotatedTL.y;
 						const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
 						const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
-						const percentX = rotatedClick.x / dx;
-						const percentY = rotatedClick.y / dy;
+						const percentX = (rotatedClick.x) / dx;
+						const percentY = (rotatedClick.y) / dy;
 
 						let overlayID = "";
 						if(!isLocalFile) {

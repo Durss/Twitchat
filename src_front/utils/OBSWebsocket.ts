@@ -366,11 +366,14 @@ export default class OBSWebsocket extends EventDispatcher {
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
+				sourceTransform.positionX -= sourceTransform.cropLeft * sourceTransform.globalScaleX!;
+				sourceTransform.positionY -= sourceTransform.cropTop * sourceTransform.globalScaleY!;
 
 				//Compute the center of the source on the local space
 				let coords = this.getSourceCenterFromTransform(sourceTransform);
 				sourceTransform.globalCenterX = coords.cx;
 				sourceTransform.globalCenterY = coords.cy;
+				console.log(source.item.sourceName, JSON.parse(JSON.stringify(sourceTransform)));
 
 				if(scene.parentTransform) {
 					//Apply parent rotation
@@ -407,8 +410,8 @@ export default class OBSWebsocket extends EventDispatcher {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
 					let px = sourceTransform.globalCenterX!;
 					let py = sourceTransform.globalCenterY!;
-					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2
-					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2
+					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2;
+					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2;
 					const angle_rad = sourceTransform.rotation * Math.PI / 180;
 					const cos_angle = Math.cos(angle_rad);
 					const sin_angle = Math.sin(angle_rad);
@@ -1009,8 +1012,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	private getSourceCenterFromTransform(transform:SourceTransform) {
 		let a = -transform.rotation * Math.PI / 180;
-		let width = transform.width - transform.cropLeft - transform.cropRight;
-		let height = transform.height - transform.cropTop - transform.cropBottom;
+		let width = transform.width;// - transform.cropLeft - transform.cropRight;
+		let height = transform.height;// - transform.cropTop - transform.cropBottom;
 		let w = width / 2;
 		let h = height / 2;
 

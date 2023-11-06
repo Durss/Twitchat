@@ -11,7 +11,7 @@
 		:sourceSuffix="sourceSuffix"
 		:disabled="modelValue.obsItemPath.sceneName == ''"
 		:sourceTransform="{positionX:3000, positionY:3000}"
-		:sceneName="modelValue.obsItemPath.groupName || modelValue.obsItemPath.sceneName"
+		:sceneName="modelValue.obsItemPath.sceneName"
 		@obsSourceCreated="onObsSourceCreated">
 			<h2><Icon name="info" />{{ $t("overlay.heatDistort.install_instructions_title") }}</h2>
 			<p>{{ $t("overlay.heatDistort.install_instructions") }}</p>

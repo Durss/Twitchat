@@ -17,7 +17,7 @@
 
 				<div class="children" v-if="source.children.length">
 					<button class="child" v-for="child in source.children" :key="child.sceneItemId"
-						@click="selectItem(source.item)"
+						@click="selectItem(source.item); selectItem(child)"
 						:class="sourceItemClasses(child)">{{ child.sourceName }}</button>
 				</div>
 			</template>
