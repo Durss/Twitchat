@@ -13,7 +13,7 @@
 
 		<div class="holder">
 
-			<div class="card-item" v-if="$store('triggers').triggerList?.length === 0">{{ $t("triggers.usage") }}</div>
+			<div class="card-item" v-if="noTrigger">{{ $t("triggers.usage") }}</div>
 
 			<div class="ctas" v-if="showForm || currentTriggerData">
 				<Button class="cta resyncBt" small
@@ -44,7 +44,7 @@
 			<template v-if="showList && !showForm">
 				<Button class="createBt"
 					v-if="$store('auth').isPremium || $store('triggers').triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
-					icon="add"
+					icon="add" primary
 					v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}"
 					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
 
@@ -138,6 +138,10 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		return e?.testMessageType != undefined;
 	}
 
+	public get noTrigger():boolean {
+		return this.$store("triggers").triggerList?.length === 0;
+	}
+
 	public beforeMount():void {
 		//List all available trigger types
 		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList().concat();
@@ -149,10 +153,9 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 			this.listRewards();
 		}
-		const list = this.$store("triggers").triggerList;
 		//No trigger yet, just show form
-		if(list.length == 0) {
-			this.showForm = true;
+		if(this.noTrigger) {
+			// this.showForm = true;
 			this.headerKey = "triggers.header_select_trigger";
 		}
 

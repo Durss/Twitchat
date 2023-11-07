@@ -59,13 +59,11 @@
 				<div v-for="e in c.events" :key="e.value" :class="getTriggerClasses(e)"
 				v-newflag="e.newDate? {date:c.newDate, id:'triggerEvent_'+e.value} : undefined">
 					<TTButton class="triggerBt"
+						:icon="e.icon"
 						:premium="e.premium === true"
 						:disabled="disabledEntry(e)"
 						v-tooltip="disabledEntry(e)? $t(e.disabledReasonLabelKey ?? 'triggers.noChannelPoints_tt') : ''"
 						@click.capture="disabledEntry(e)? requestScope(e) : selectTriggerType(e)">
-						<template #icon>
-							<img :src="getTriggerIcon(e)">
-						</template>
 						{{ $t(e.labelKey!) }}
 					</TTButton>
 				</div>
@@ -112,7 +110,6 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
-import { max } from 'mathjs';
 
 @Component({
 	components:{

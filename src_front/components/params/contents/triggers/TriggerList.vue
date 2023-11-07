@@ -1,8 +1,8 @@
 <template>
 	<div :class="classes">
-		<div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div>
+		<!-- <div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div> -->
 
-		<SwitchButton v-else-if="noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
+		<SwitchButton v-if="flatTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
 		<div class="list" v-show="filterState === false" v-if="renderedList">
 			<div class="item" v-for="item in flatTriggerList"
