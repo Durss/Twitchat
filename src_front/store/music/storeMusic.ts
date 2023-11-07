@@ -6,6 +6,8 @@ import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
 export const storeMusic = defineStore('music', {
 	state: () => ({
 		spotifyAuthParams: null,
+
+		spotifyConsecutiveErrors: 0,
 		
 		musicPlayerParams: {
 			autoHide:false,

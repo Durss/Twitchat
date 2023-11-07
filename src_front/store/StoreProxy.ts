@@ -662,6 +662,10 @@ export interface IMusicState {
 	 */
 	spotifyAuthParams: SpotifyAuthResult|null;
 	/**
+	 * Stores consecutive API exceptions
+	 */
+	spotifyConsecutiveErrors: number;
+	/**
 	 * Current Spotify auth token
 	 */
 	spotifyAuthToken: SpotifyAuthToken|null;

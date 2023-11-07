@@ -45,8 +45,8 @@ export default class ButtonNotification extends Vue {
 
 	&::before {
 		//Offset "new flag" so it's closer to the icon
-		top: .25em;;
-		left: .25em;;
+		top: .25em;
+		left: .25em;
 	}
 
 	.icon {

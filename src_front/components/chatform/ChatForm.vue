@@ -182,6 +182,11 @@
 						v-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						@click="toggleVoiceBot()" />
 				</transition>
+
+				<transition name="blink">
+					<Icon class="spotify" name="spotify" v-if="$store('music').spotifyConsecutiveErrors > 5"
+					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
+				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
@@ -1129,6 +1134,16 @@ export default class ChatForm extends Vue {
 					height: 1em;
 					margin-left: .1em;
 				}
+			}
+
+			.spotify {
+				background: var(--color-alert);
+				height: 2em;
+				width: 2em;
+				align-items: stretch;
+				display: block;
+				padding: .25em;
+				border-radius: .5em;
 			}
 		}
 	}

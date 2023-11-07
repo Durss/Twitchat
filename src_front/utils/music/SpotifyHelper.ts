@@ -155,9 +155,11 @@ export default class SpotifyHelper {
 			console.log(error);
 			this.connected = false;
 			rebuildPlaceholdersCache();
+			StoreProxy.music.spotifyConsecutiveErrors ++;
 			throw(error);
 		}
 
+		StoreProxy.music.spotifyConsecutiveErrors = 0;
 		this.setToken(json);
 	}
 
@@ -191,6 +193,7 @@ export default class SpotifyHelper {
 				if(json.access_token) {
 					this.setToken(json);
 					refreshSuccess = true;
+					StoreProxy.music.spotifyConsecutiveErrors = 0;
 				}
 			}catch(error) {
 				console.log("[SPOTIFY] Token refresh failed");
@@ -198,6 +201,7 @@ export default class SpotifyHelper {
 			}
 		}
 		if(!refreshSuccess){
+			StoreProxy.music.spotifyConsecutiveErrors ++;
 			this.connected = false;
 			rebuildPlaceholdersCache();
 
@@ -231,6 +235,7 @@ export default class SpotifyHelper {
 		}
 		if(res.status < 204 && res.status >= 200) {
 			try {
+				StoreProxy.music.spotifyConsecutiveErrors = 0;
 				return await res.json();
 			}catch(error) {
 			}
@@ -257,12 +262,14 @@ export default class SpotifyHelper {
 		try {
 			const json = await res.json();
 			const tracks = json.tracks as SearchTrackResult;
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			if(tracks.items.length == 0) {
 				return null;
 			}else{
 				return tracks.items[0];
 			}
 		}catch(error) {
+			StoreProxy.music.spotifyConsecutiveErrors ++;
 			return null;
 		}
 	}
@@ -286,12 +293,14 @@ export default class SpotifyHelper {
 		try {
 			const json = await res.json();
 			const tracks = json.playlists as SearchPlaylistResult;
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			if(tracks.items.length == 0) {
 				return null;
 			}else{
 				return tracks.items[0];
 			}
 		}catch(error) {
+			StoreProxy.music.spotifyConsecutiveErrors ++;
 			return null;
 		}
 	}
@@ -309,6 +318,7 @@ export default class SpotifyHelper {
 		}
 		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
 		if(res.status == 204) {
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}else
 		if(res.status == 401) {
@@ -331,6 +341,7 @@ export default class SpotifyHelper {
 					throw(new Error(""))
 				}
 			}catch(error) {
+				StoreProxy.music.spotifyConsecutiveErrors ++;
 				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
 			}
 		}
@@ -356,6 +367,7 @@ export default class SpotifyHelper {
 			if(res.status > 401) throw("error");
 		}catch(error) {
 			//API crashed, try again 5s later
+			StoreProxy.music.spotifyConsecutiveErrors ++;
 			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 5000);
 			return;
 		}
@@ -368,6 +380,7 @@ export default class SpotifyHelper {
 			//No content, nothing is playing
 			this._isPlaying = false;
 			this._getTrackTimeout = setTimeout(()=> this.getCurrentTrack(), 10000);
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return;
 		}
 		
@@ -603,6 +616,7 @@ export default class SpotifyHelper {
 			return false;
 		}
 		if(res.status == 204) {
+			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}
 		if(res.status == 404) {
@@ -612,6 +626,7 @@ export default class SpotifyHelper {
 					StoreProxy.main.alert( StoreProxy.i18n.t("music.spotify_play") );
 				}
 			}catch(error){
+				StoreProxy.music.spotifyConsecutiveErrors ++;
 				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}else
@@ -626,6 +641,7 @@ export default class SpotifyHelper {
 					throw(new Error(""))
 				}
 			}catch(error) {
+				StoreProxy.music.spotifyConsecutiveErrors ++;
 				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}
