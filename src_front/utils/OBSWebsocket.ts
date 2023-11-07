@@ -78,9 +78,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
 		
 		try {
-			this.connectInfo.ip = ip;
-			this.connectInfo.port = port;
-			this.connectInfo.pass = pass;
+			this.connectInfo.ip = ip.trim();
+			this.connectInfo.port = port.trim();
+			this.connectInfo.pass = pass.trim();
 			const protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});
@@ -366,8 +366,19 @@ export default class OBSWebsocket extends EventDispatcher {
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
-				sourceTransform.positionX -= sourceTransform.cropLeft * sourceTransform.globalScaleX!;
-				sourceTransform.positionY -= sourceTransform.cropTop * sourceTransform.globalScaleY!;
+
+				const rotationRad = sourceTransform.rotation * Math.PI / 180;
+				let cosTheta = Math.cos(rotationRad);
+				let sinTheta = Math.sin(rotationRad);
+				const w = sourceTransform.cropLeft * sourceTransform.globalScaleX!;
+				const h = sourceTransform.cropTop * sourceTransform.globalScaleY!;
+				sourceTransform.positionX -= w * cosTheta - h * sinTheta;
+				sourceTransform.positionY -= h * cosTheta + w * sinTheta;
+				// sourceTransform.positionX -= sourceTransform.cropLeft * sourceTransform.globalScaleX! * Math.cos(rotationRad) + sourceTransform.cropTop * sourceTransform.globalScaleY! * Math.sin(rotationRad);
+				// sourceTransform.positionY -= sourceTransform.cropTop * sourceTransform.globalScaleY! * Math.cos(rotationRad) + sourceTransform.cropLeft * sourceTransform.globalScaleX! * Math.sin(rotationRad);;
+				console.log("OFFSETS");
+				console.log(sourceTransform.cropLeft, w * cosTheta - h * sinTheta);
+				console.log(sourceTransform.cropTop, h * cosTheta + w * sinTheta);
 
 				//Compute the center of the source on the local space
 				let coords = this.getSourceCenterFromTransform(sourceTransform);

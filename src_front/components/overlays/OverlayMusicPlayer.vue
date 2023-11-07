@@ -129,11 +129,9 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 				this.cover = obj.cover;
 				this.isPlaying = true;
 				let customTrackInfo = obj.params.customInfoTemplate;
-				if(this.customTrackInfo.length > 0) {
-					customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
-					customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
-					customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-				}
+				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
+				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
+				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 				this.customTrackInfo = customTrackInfo;
 
 				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
@@ -201,11 +199,9 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			this.cover = this.staticTrackData.cover;
 			this.isPlaying = true;
 			let customTrackInfo = this.params.customInfoTemplate;
-			if(this.customTrackInfo.length > 0) {
-				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist);
-				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title);
-				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-			}
+			customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
+			customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
+			customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
 			this.customTrackInfo = customTrackInfo;
 
 			const newProgress = 600/this.staticTrackData.duration;

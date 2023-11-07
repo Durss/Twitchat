@@ -180,7 +180,7 @@
 			"moderator:manage:shoutouts": "Envoyer des shoutouts",
 			"clips:edit": "Créer des clips",
 			"channel:read:ads":"Savoir quand une publicité va être lancée",
-			"channel:manage:ads":"Snooze une publicité en appproche"
+			"channel:manage:ads":"Reporter une publicité en appproche"
 		},
 		"permissions": {
 			"broadcaster": "Diffuseur",

@@ -93,6 +93,7 @@ export default class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
 	public generatingHistory = false;
+	private commercialTO:number = -1;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -346,12 +347,13 @@ export default class DevmodeMenu extends Vue {
 			currentAdStart_at:		0,
 			remainingSnooze:		3,
 			currentAdDuration_ms:	0,
-			nextAdStart_at:			Date.now() + 1 * 60 * 1000,
+			nextAdStart_at:			Date.now() + .5 * 60 * 1000,
 			nextSnooze_at:			Date.now() + 1 * 60 * 1000,
 		};
 		this.$store("stream").setCommercialInfo(channelId, params);
 
-		setTimeout(()=> {
+		clearTimeout(this.commercialTO);
+		this.commercialTO = setTimeout(()=> {
 			params.currentAdStart_at = Date.now();
 			params.currentAdDuration_ms = 33000;
 			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user);

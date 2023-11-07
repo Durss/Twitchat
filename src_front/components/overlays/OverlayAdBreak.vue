@@ -211,6 +211,7 @@ export default class OverlayAdBreak extends AbstractOverlay {
 		const isAdRunning	= this.adData.currentAdStart_at + this.adData.currentAdDuration_ms - Date.now() > 0 && this.adData.currentAdStart_at > 0;
 		//Check if an ad is coming in less than a minute
 		const isAdApproaching	= this.adData.nextAdStart_at > 0;
+
 		if(!isAdRunning && !isAdApproaching) {
 			this.adType = "none";
 			return;

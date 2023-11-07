@@ -340,6 +340,7 @@ export const storeStream = defineStore('stream', {
 				commercialApproachingTimeouts[channelId].push(to);
 			}
 
+			//If ad has been started by someone, notify on tchat
 			if(adStarter) {
 				const message:TwitchatDataTypes.MessageAdBreakStartData = {
 					type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
