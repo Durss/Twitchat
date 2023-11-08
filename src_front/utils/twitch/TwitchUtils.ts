@@ -14,12 +14,13 @@ import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
 */
 export default class TwitchUtils {
 
-	public static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
-	public static rewardsCache:TwitchDataTypes.Reward[] = [];
-	public static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
-
+	public static adsAPIHistory:{date:number, api:TwitchDataTypes.AdSchedule, internal:TwitchatDataTypes.CommercialData}[] = [];
+	
+	private static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
+	private static rewardsCache:TwitchDataTypes.Reward[] = [];
+	private static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
 	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 
@@ -2289,11 +2290,18 @@ export default class TwitchUtils {
 					adCooldown_ms:			StoreProxy.stream.commercial[user.id]?.adCooldown_ms || 0,
 					currentAdStart_at:		StoreProxy.stream.commercial[user.id]?.currentAdStart_at || 0,
 					remainingSnooze:		data.snooze_count,
-					currentAdDuration_ms:	data.length_seconds,
-					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
-					nextSnooze_at:			new Date(data.snooze_refresh_at).getTime(),
+					currentAdDuration_ms:	data.length_seconds * 1000,
+					nextAdStart_at:			new Date(typeof data.next_ad_at == "number"? data.next_ad_at * 1000 : data.next_ad_at).getTime(),//Thank you twitch for writing a completely wrong documentation...don't know if they'll change the doc or the service, so i handle both cases
+					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),//Thank you twitch for writing a completely wrong documentation...don't know if they'll change the doc or the service, so i handle both cases
 				};
 				StoreProxy.stream.setCommercialInfo(user.id, infos);
+				this.adsAPIHistory.push({
+					date:Date.now(),
+					api:data,
+					internal:infos,
+				});
+				//Limit history size
+				if(this.adsAPIHistory.length > 1000) this.adsAPIHistory.splice(1);
 				return data;
 			}
 		}else if(res.status == 429) {

@@ -396,7 +396,7 @@ export default class SpotifyHelper {
 		}
 		
 		json = json!;
-
+		StoreProxy.music.spotifyConsecutiveErrors = 0;
 
 		if(json.currently_playing_type == "episode") {
 			const episode = await this.getEpisodeInfos();

@@ -446,9 +446,9 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface AdSchedule {
-		next_ad_at:string;
-		last_ad_at:string;
-		snooze_refresh_at:string;
+		next_ad_at:string|number;
+		last_ad_at:string|number;
+		snooze_refresh_at:string|number;
 		length_seconds:number;
 		preroll_free_time_seconds:number;
 		snooze_count:number;

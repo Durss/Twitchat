@@ -672,6 +672,13 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
+		if(cmd == "/adslogs") {
+			const data = JSON.stringify(TwitchUtils.adsAPIHistory);
+			const blob = new Blob([data], { type: 'application/json' });
+			const url = window.URL.createObjectURL(blob);
+			window.open(url, "_blank");
+		}else
+		
 		if(isAdmin && cmd == "/tenorgifload") {
 			console.log(this.$store("chat").messages);
 			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));

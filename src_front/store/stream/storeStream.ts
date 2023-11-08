@@ -12,7 +12,7 @@ import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 
-const commercialApproachingTimeouts:{[key:string]:number[]} = {};
+const commercialTimeouts:{[key:string]:number[]} = {};
 
 export const storeStream = defineStore('stream', {
 	state: () => ({
@@ -301,8 +301,8 @@ export const storeStream = defineStore('stream', {
 			const remainingTime = data.nextAdStart_at - Date.now();
 
 			//Cleanup previously scheduled trigger messages
-			(commercialApproachingTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
-			commercialApproachingTimeouts[channelId] = []
+			(commercialTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
+			commercialTimeouts[channelId] = []
 
 			//Re schedule new trigger messages at these given intervals
 			AD_APPROACHING_INTERVALS.forEach(ms => {
@@ -321,10 +321,10 @@ export const storeStream = defineStore('stream', {
 					StoreProxy.chat.addMessage(message);
 				}, remainingTime - ms);
 				//Keep timeout's ref so we can clear it whenever needed
-				commercialApproachingTimeouts[channelId].push(to);
+				commercialTimeouts[channelId].push(to);
 			});
 
-			if(data.currentAdStart_at > 0 && data.currentAdDuration_ms > 0) {
+			if(data.currentAdStart_at + data.currentAdDuration_ms > Date.now()) {
 				let to = setTimeout(() => {
 					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
@@ -335,9 +335,11 @@ export const storeStream = defineStore('stream', {
 						startedBy:adStarter,
 					}
 					StoreProxy.chat.addMessage(message);
-					TwitchUtils.getAdSchedule();//get fresh new ad schedul data
-				}, data.currentAdStart_at - Date.now() + data.currentAdDuration_ms);
-				commercialApproachingTimeouts[channelId].push(to);
+					setTimeout(()=> {
+						TwitchUtils.getAdSchedule();//get fresh new ad schedule data
+					}, 10000);
+				}, data.currentAdStart_at + data.currentAdDuration_ms - Date.now());
+				commercialTimeouts[channelId].push(to);
 			}
 
 			//If ad has been started by someone, notify on tchat
