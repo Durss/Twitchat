@@ -160,33 +160,50 @@ export default class OverlayParamsHeatDistort extends Vue {
 	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
 		const holder = this.$refs["distortion_"+data.id] as Vue[];
 		gsap.to(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
-			this.distortionList = this.distortionList.filter(v=>v.id != data.id);
-
-			let sourceName = "";
-			if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
-			else if(data.obsItemPath.groupName) sourceName = data.obsItemPath.groupName;
-			else if(data.obsItemPath.sceneName) sourceName = data.obsItemPath.sceneName;
-			
-			//Attempt to cleanup OBS from related filter and sources.
-			//Won't work if user changed the filter's name or browser source's name
-			//Won't work if user created filter and brower source manually instead of
-			//the 1-click install button
-			if(data.filterName) {
-				OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
-					console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
-				});
-			}
-
-			if(data.browserSourceName) {
-				OBSWebsocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
-				.then(res => {
-					if(res.sceneItemId) {
-						OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+			(async()=> {
+				this.distortionList = this.distortionList.filter(v=>v.id != data.id);
+	
+				let sourceName = "";
+				if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
+				else if(data.obsItemPath.groupName) sourceName = data.obsItemPath.groupName;
+				else if(data.obsItemPath.sceneName) sourceName = data.obsItemPath.sceneName;
+				
+				//Attempt to cleanup OBS from related filter and sources.
+				//Won't work if user changed the filter's name or browser source's name
+				//Won't work if user created filter and brower source manually instead of
+				//the 1-click install button
+				if(data.browserSourceName) {
+					//The browser source is registered on the value object, remove it
+					try {
+						const res = await OBSWebsocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
+						if(res.sceneItemId) {
+							await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+						}
+					}catch(error) {
+						console.log("No source found on given scene for given ID", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName});
 					}
-				}).catch(()=> {
-					console.log("No source found on given scene for given ID", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName});
-				})
-			}
+				}else{
+					//The browser is unknown because user created the overlay manualy
+					//Get the filter's params to extract the browser source name
+					const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
+					if(filters.length == 0) return;
+					const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
+					console.log(filter);
+					await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+					if(filter) {
+						const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
+						OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+							console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+						});
+					}
+				}
+	
+				if(data.filterName) {
+					OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+						console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+					});
+				}
+			})();
 		}});
 	}
 

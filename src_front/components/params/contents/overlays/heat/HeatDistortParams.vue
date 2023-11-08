@@ -146,7 +146,8 @@ export default class HeatDistortParams extends Vue {
 			else if(this.modelValue.obsItemPath.groupName) filterTarget = this.modelValue.obsItemPath.groupName;
 			else if(this.modelValue.obsItemPath.sceneName) filterTarget = this.modelValue.obsItemPath.sceneName;
 			const filters = await OBSWebsocket.instance.getSourceFilters(filterTarget);
-			this.overlayInstalled = filters.findIndex(v=>v.filterKind == "shadertastic_filter") > -1;
+			const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
+			this.overlayInstalled = filter != undefined;
 		}, 100);
 	}
 
