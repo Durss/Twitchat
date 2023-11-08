@@ -134,8 +134,10 @@ export default class CommandHelper extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 
-		watch(()=>this.$store("stream").startAdCooldown, ()=>{
-			this.adCooldown = this.$store("stream").startAdCooldown - Date.now();
+		const uid = this.$store("auth").twitch.user.id;
+
+		watch(()=>this.$store("stream").commercial[uid].adCooldown_ms, ()=>{
+			this.adCooldown = this.$store("stream").commercial[uid].adCooldown_ms - Date.now();
 		});
 
 		const channelId = this.$store("auth").twitch.user.id;
@@ -143,12 +145,13 @@ export default class CommandHelper extends Vue {
 			this.populateSettings();
 		}, {deep:true});
 
-		this.adCooldown = Math.max(0, this.$store("stream").startAdCooldown - Date.now());
+		this.adCooldown = Math.max(0, this.$store("stream").commercial[uid].adCooldown_ms - Date.now());
 		this.adCooldownInterval = window.setInterval(()=>{
 			if(this.adCooldown === 0) return;
 			this.adCooldown -= 1000;
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
+
 
 		this.populateSettings();
 	}
@@ -167,7 +170,8 @@ export default class CommandHelper extends Vue {
 		if(!TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL])) {
 			this.$store("auth").requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
 		}else if(this.canStartCommercial){
-			this.$store("stream").startCommercial(duration);
+			const uid = this.$store("auth").twitch.user.id;
+			this.$store("stream").startCommercial(uid, duration);
 			this.close();
 		}
 	}
