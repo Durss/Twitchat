@@ -593,7 +593,7 @@ export const storeUsers = defineStore('users', {
 				user.channelInfo[channelId].is_following = true;
 				return true;
 			}
-			if(user.id && StoreProxy.params.appearance.highlightNonFollowers.value === true) {
+			if(user.id) {
 				if(user.channelInfo[channelId].is_following == null) {
 					try {
 						// console.log("Check if ", user.displayName, "follows", channelId, "or", StoreProxy.auth.twitch.user.id);
