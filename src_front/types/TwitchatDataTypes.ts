@@ -2,6 +2,7 @@ import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 import type { GoXLRTypes } from "./GoXLRTypes";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
+import type { JsonObject } from 'type-fest';
 
 export namespace TwitchatDataTypes {
 
@@ -1501,6 +1502,35 @@ export namespace TwitchatDataTypes {
 		filterName:string;
 		browserSourceName:string;
 		enabled:boolean;
+	}
+	
+	/**
+	 * Represents a click event sent to the browser sources when
+	 * a click occurs on heat
+	 */
+		export interface HeatClickData extends JsonObject{
+		channelId:string;
+		anonymous:boolean;
+		x:number;
+		y:number;
+		rotation:number;
+		scaleX:number;
+		scaleY:number;
+		uid:string;
+		login:string;
+		isSub:boolean;
+		isBan:boolean;
+		isMod:boolean;
+		isVip:boolean;
+		isBroadcaster:boolean;
+		isFollower:boolean;
+		followDate:number;
+		testMode:boolean;
+		alt:boolean;
+		ctrl:boolean;
+		shift:boolean;
+		page:string;
+		twitchatOverlayID:string;
 	}
 	
 	/**

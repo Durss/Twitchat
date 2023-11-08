@@ -1,16 +1,17 @@
+import type HeatEvent from '@/events/HeatEvent';
 import type { HeatScreen } from '@/types/HeatDataTypes';
+import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
+import SpotifyHelper from '@/utils/music/SpotifyHelper';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IHeatActions, IHeatGetters, IHeatState } from '../StoreProxy';
-import type HeatEvent from '@/events/HeatEvent';
 import StoreProxy from '../StoreProxy';
-import { TriggerTypes, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import SpotifyHelper from '@/utils/music/SpotifyHelper';
 
 export const storeHeat = defineStore('heat', {
 	state: () => ({
@@ -199,6 +200,8 @@ export const storeHeat = defineStore('heat', {
 					}
 				}
 
+				const distortions:TwitchatDataTypes.HeatDistortionData[] = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
+
 				// Parse all available OBS sources
 				for (let i = 0; i < rects.sources.length; i++) {
 					const rect = rects.sources[i];
@@ -215,6 +218,62 @@ export const storeHeat = defineStore('heat', {
 					const clone = JSON.parse(JSON.stringify(message)) as typeof message;
 					clone.obsSource = rect.source.sourceName;
 					TriggerActionHandler.instance.execute(clone, event.testMode);
+						
+					//Compute click position relative to the browser source
+					const rotatedClick = Utils.rotatePointAround({x, y},
+															{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+															-rect.transform.globalRotation!);
+					const rotatedTL = Utils.rotatePointAround(rect.transform.globalTL!,
+															{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+															-rect.transform.globalRotation!);
+					rotatedClick.x -= rotatedTL.x;
+					rotatedClick.y -= rotatedTL.y;
+					const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
+					const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
+					const percentX = (rotatedClick.x) / dx;
+					const percentY = (rotatedClick.y) / dy;
+					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
+						requestType:"emit_event",
+						vendorName:"obs-browser",
+						requestData:{
+							event_name:"heat-click",
+							event_data: {
+								anonymous,
+								x:percentX,
+								y:percentY,
+								channelId,
+								uid:user.id,
+								login:user.login,
+								rotation:rect.transform.globalRotation!,
+								scaleX:rect.transform.globalScaleX!,
+								scaleY:rect.transform.globalScaleY!,
+								isBroadcaster:user.channelInfo[channelId].is_broadcaster,
+								isSub:user.channelInfo[channelId].is_subscriber,
+								isBan:user.channelInfo[channelId].is_banned,
+								isMod:user.channelInfo[channelId].is_moderator,
+								isVip:user.channelInfo[channelId].is_vip,
+								isFollower:user.channelInfo[channelId].is_following || false,
+								followDate:user.channelInfo[channelId].following_date_ms,
+								testMode:event.testMode || false,
+								alt:event.alt || false,
+								ctrl:event.ctrl || false,
+								shift:event.shift || false,
+								twitchatOverlayID:"",
+								page:"",
+							}
+						}
+					};
+
+					//If a distortion targets the current element, reroute events to its related browser source
+					for (let j = 0; j < distortions.length; j++) {
+						const d = distortions[j];
+						const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
+						if(rect.sceneName == name || rect.source.sourceName == name) {
+							const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
+							clickClone.requestData.event_data.twitchatOverlayID = d.id;
+							OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+						}
+					}
 
 					//If it's a browser source throw an "heat-click" event on the page with
 					//all necessary info about the click
@@ -226,20 +285,6 @@ export const storeHeat = defineStore('heat', {
 						if(isLocalFile) {
 							url = settings.inputSettings.local_file as string || "";
 						}
-						
-						//Compute click position relative to the browser source
-						const rotatedClick = Utils.rotatePointAround({x, y},
-																{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
-																-rect.transform.globalRotation!);
-						const rotatedTL = Utils.rotatePointAround(rect.transform.globalTL!,
-																{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
-																-rect.transform.globalRotation!);
-						rotatedClick.x -= rotatedTL.x;
-						rotatedClick.y -= rotatedTL.y;
-						const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
-						const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
-						const percentX = (rotatedClick.x) / dx;
-						const percentY = (rotatedClick.y) / dy;
 
 						let overlayID = "";
 						if(!isLocalFile) {
@@ -249,37 +294,11 @@ export const storeHeat = defineStore('heat', {
 							}catch(error){}
 						}
 
+						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
+						clickClone.requestData.event_data.page = url;
+						clickClone.requestData.event_data.twitchatOverlayID = overlayID;
 						//Send click info to browser source
-						OBSWebsocket.instance.socket.call("CallVendorRequest", {
-							requestType:"emit_event",
-							vendorName:"obs-browser",
-							requestData:{
-								event_name:"heat-click",
-								event_data:{
-									anonymous,
-									x:percentX,
-									y:percentY,
-									rotation:rect.transform.globalRotation,
-									scaleX:rect.transform.globalScaleX!,
-									scaleY:rect.transform.globalScaleY!,
-									uid:user.id,
-									login:user.login,
-									isBroadcaster:user.channelInfo[channelId].is_broadcaster,
-									isSub:user.channelInfo[channelId].is_subscriber,
-									isBan:user.channelInfo[channelId].is_banned,
-									isMod:user.channelInfo[channelId].is_moderator,
-									isVip:user.channelInfo[channelId].is_vip,
-									isFollower:user.channelInfo[channelId].is_following,
-									followDate:user.channelInfo[channelId].following_date_ms,
-									testMode:event.testMode,
-									alt:event.alt,
-									ctrl:event.ctrl,
-									shift:event.shift,
-									channelId,
-									twitchatOverlayID:overlayID,
-									page:await Utils.sha256(url)},
-							}
-						});
+						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
 
 						//Spotify overlay
 						if(url.indexOf(spotifyRoute) > -1

@@ -7,6 +7,8 @@ import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import DataStore from '@/store/DataStore';
 
 /**
 * Created : 29/03/2022 
@@ -321,6 +323,11 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		});
 
+		const distortions:TwitchatDataTypes.HeatDistortionData[] = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
+		distortions.forEach(d=> {
+			sourcesToWatch.push( d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName );
+		})
+
 		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
 			this.sceneToCaching[currentScene] = false;
 			return {canvas:{width:canvasW, height:canvasH}, sources:[]};
@@ -361,30 +368,19 @@ export default class OBSWebsocket extends EventDispatcher {
 				if(!visibleRes.sceneItemEnabled) continue;
 				
 				let sourceTransform = source.item.sceneItemTransform;// await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+
 				if(!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
 
-				const rotationRad = sourceTransform.rotation * Math.PI / 180;
-				let cosTheta = Math.cos(rotationRad);
-				let sinTheta = Math.sin(rotationRad);
-				const w = sourceTransform.cropLeft * sourceTransform.globalScaleX!;
-				const h = sourceTransform.cropTop * sourceTransform.globalScaleY!;
-				sourceTransform.positionX -= w * cosTheta - h * sinTheta;
-				sourceTransform.positionY -= h * cosTheta + w * sinTheta;
-				// sourceTransform.positionX -= sourceTransform.cropLeft * sourceTransform.globalScaleX! * Math.cos(rotationRad) + sourceTransform.cropTop * sourceTransform.globalScaleY! * Math.sin(rotationRad);
-				// sourceTransform.positionY -= sourceTransform.cropTop * sourceTransform.globalScaleY! * Math.cos(rotationRad) + sourceTransform.cropLeft * sourceTransform.globalScaleX! * Math.sin(rotationRad);;
-				console.log("OFFSETS");
-				console.log(sourceTransform.cropLeft, w * cosTheta - h * sinTheta);
-				console.log(sourceTransform.cropTop, h * cosTheta + w * sinTheta);
+				this.compensateCrop(sourceTransform)
 
 				//Compute the center of the source on the local space
 				let coords = this.getSourceCenterFromTransform(sourceTransform);
 				sourceTransform.globalCenterX = coords.cx;
 				sourceTransform.globalCenterY = coords.cy;
-				console.log(source.item.sourceName, JSON.parse(JSON.stringify(sourceTransform)));
 
 				if(scene.parentTransform) {
 					//Apply parent rotation
@@ -1014,12 +1010,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	/**
 	 * Get the center of a rectangle depending on its pivot point placement
 	 * 
-	 * @param pivotType 
-	 * @param pivotX 
-	 * @param pivotY 
-	 * @param width 
-	 * @param height 
-	 * @param rotation_deg 
+	 * @param transform
 	 */
 	private getSourceCenterFromTransform(transform:SourceTransform) {
 		let a = -transform.rotation * Math.PI / 180;
@@ -1087,6 +1078,74 @@ export default class OBSWebsocket extends EventDispatcher {
 		let cy = py + displacementY;
 
 		return { x: px, y: py, cx, cy };
+	}
+
+	/**
+	 * Compensate crops from position
+	 * 
+	 * @param transform
+	 */
+	private compensateCrop(transform:SourceTransform) {
+		let a = transform.rotation * Math.PI / 180;
+		let w = transform.cropLeft * transform.globalScaleX!;
+		let h = transform.cropTop * transform.globalScaleY!;
+
+		//Define width and height offset depending on the pivot point type
+		switch (transform.alignment) {
+			//center
+			case 0:
+				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
+				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				break;
+			//center left
+			case 1:
+				w = transform.cropLeft * transform.globalScaleX!;
+				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				break;
+			//center right
+			case 2:
+				w = -transform.cropRight * transform.globalScaleX!;
+				h = (transform.cropTop - transform.cropBottom) / 2 * transform.globalScaleY!;
+				break;
+			//top center
+			case 4:
+				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
+				h = transform.cropTop * transform.globalScaleY!;
+				break;
+			//top left
+			case 5:
+				w = transform.cropLeft * transform.globalScaleX!;
+				h = transform.cropTop * transform.globalScaleY!;
+				break;
+			//top right
+			case 6:
+				w = -transform.cropRight * transform.globalScaleX!;
+				h = transform.cropTop * transform.globalScaleY!;
+				break;
+			//bottom center
+			case 8:
+				w = (transform.cropLeft - transform.cropRight) / 2 * transform.globalScaleX!;
+				h = -transform.cropBottom * transform.globalScaleY!;
+				break;
+			//bottom left
+			case 9:
+				w = transform.cropLeft * transform.globalScaleX!;
+				h = -transform.cropBottom * transform.globalScaleY!;
+				break;
+			//bottom right
+			case 10:
+				w = -transform.cropRight * transform.globalScaleX!;
+				h = -transform.cropBottom * transform.globalScaleY!;
+				break;
+			default:
+				break;
+		}
+
+		//Get top left corner coordinates
+		let cosTheta = Math.cos(a);
+		let sinTheta = Math.sin(a);
+		transform.positionX -= w * cosTheta - h * sinTheta;
+		transform.positionY -= h * cosTheta + w * sinTheta;
 	}
 
 	/**

@@ -34,7 +34,7 @@ export default class AbstractDistortion extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
-	private heatEventHandler!:(event:{detail:HeatData}) => void;
+	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
@@ -61,7 +61,7 @@ export default class AbstractDistortion extends Vue {
 		this.addItem(this.buildItem(vec3.x, vec3.y));
 	}
 	
-	private async onHeatClick(event:{detail:HeatData}):Promise<void> {
+	private async onHeatClick(event:{detail:TwitchatDataTypes.HeatClickData}):Promise<void> {
 		if(this.params.enabled == false) return;
 		if(event.detail.twitchatOverlayID != this.params.id) return;
 
@@ -275,28 +275,4 @@ export interface IDistortItem {
 	angle:number,
 }
 
-interface HeatData {
-	channelId:string;
-	anonymous:boolean;
-	x:number;
-	y:number;
-	rotation:number;
-	scaleX:number;
-	scaleY:number;
-	uid:string;
-	login:string;
-	isSub:boolean;
-	isBan:boolean;
-	isMod:boolean;
-	isVip:boolean;
-	isBroadcaster:boolean;
-	isFollower:boolean;
-	followDate:number;
-	testMode:boolean;
-	alt:boolean;
-	ctrl:boolean;
-	shift:boolean;
-	page:string;
-	twitchatOverlayID:string;
-}
 </script>
