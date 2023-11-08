@@ -1384,8 +1384,17 @@ export default class TriggerActionHandler {
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
-					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+text+"\""});
-					const value = MathJS.evaluate(text);
+					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+message+"\" => \""+text+"\""});
+					let value:any = "";
+					try {
+						value = MathJS.evaluate(text);
+					}catch(error) {
+						let logMessage = "❌ Invalid arithmetic operation: \""+text+"\"";
+						logStep.messages.push({date:Date.now(), value:logMessage});
+						log.error = true;
+						logStep.error = true;
+						
+					}
 					if(!step.action) step.action = "ADD";
 
 					if(!isNaN(value) && value != null && value != Infinity) {
@@ -2544,11 +2553,18 @@ export default class TriggerActionHandler {
 			}else{
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
+				let valueNum = null;
+				try {
+					const num = MathJS.evaluate(expectation);
+					if(!isNaN(num)) valueNum = num;
+				}catch(error) {
+					valueNum = value;
+				}
 				switch(c.operator) {
-					case "<": localRes = parseInt(value) < parseInt(expectation); break;
-					case "<=": localRes = parseInt(value) <= parseInt(expectation); break;
-					case ">": localRes = parseInt(value) > parseInt(expectation); break;
-					case ">=": localRes = parseInt(value) >= parseInt(expectation); break;
+					case "<": localRes = parseInt(value) < valueNum; break;
+					case "<=": localRes = parseInt(value) <= valueNum; break;
+					case ">": localRes = parseInt(value) > valueNum; break;
+					case ">=": localRes = parseInt(value) >= valueNum; break;
 					case "=": localRes = value.toLowerCase() == expectation.toLowerCase(); break;
 					case "!=": localRes = value.toLowerCase() != expectation.toLowerCase(); break;
 					case "contains": localRes = value.toLowerCase().indexOf(expectation.toLowerCase()) > -1; break;

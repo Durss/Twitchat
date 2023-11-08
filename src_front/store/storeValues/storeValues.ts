@@ -7,6 +7,7 @@ import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy
 import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
+import * as MathJS from 'mathjs';
 
 export const storeValues = defineStore('values', {
 	state: () => ({
@@ -36,12 +37,21 @@ export const storeValues = defineStore('values', {
 
 		updateValue(id:string, data:Partial<TwitchatDataTypes.ValueData>):void {
 			let prevValue = "";
+			let value:any = null;
+			if(data.value != undefined) {
+				try {
+					const num = MathJS.evaluate(data.value);
+					if(!isNaN(num)) value = num;
+				}catch(error) {
+					value = data.value;
+				}
+			}
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
 					const d = this.valueList[i];
 					prevValue = d.value;
+					if(value) d.value = value;
 					if(data.name) d.name = data.name;
-					if(data.value) d.value = data.value;
 					if(data.placeholderKey) d.placeholderKey = data.placeholderKey;
 
 					if(d.value != prevValue) {
