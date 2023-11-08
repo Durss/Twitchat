@@ -152,6 +152,7 @@ export default class CommandHelper extends Vue {
 			if(this.adCooldown < 0) this.adCooldown = 0;
 		}, 1000);
 
+
 		this.populateSettings();
 	}
 

@@ -364,7 +364,7 @@ export const storeStream = defineStore('stream', {
 			if(isNaN(duration)) duration = 30;
 			StoreProxy.main.confirm(
 				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.title"),
-				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description")
+				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description", {DURATION:duration})
 			).then(async () => {
 				try {
 					const res = await TwitchUtils.startCommercial(duration, channelId);
