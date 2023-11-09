@@ -371,8 +371,8 @@ export default class DevmodeMenu extends Vue {
 			platform:"twitchat",
 			type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 			actions:[
-				{icon:"broadcast", label:"Trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2", theme:"primary"},
-				{icon:"url", label:"Url", url:"https://www.google.fr", theme:"secondary"},
+				{icon:"broadcast", label:"Trigger", actionType:"trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2", theme:"primary"},
+				{icon:"url", label:"Url", actionType:"url", url:"https://www.google.fr", theme:"secondary"},
 			],
 			user:{
 				name:"Blableblibloup",
