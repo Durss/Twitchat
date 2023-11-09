@@ -6,6 +6,7 @@
 			<!-- <Button small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</Button>
 			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
 			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequeence</Button>
+			<Button small @click="simulateCustomMessage()" icon="edit">Custom message</Button>
 			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'discord')" icon="whispers">Discord</Button>
@@ -358,6 +359,33 @@ export default class DevmodeMenu extends Vue {
 			params.currentAdDuration_ms = 33000;
 			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user);
 		}, params.nextAdStart_at - Date.now())
+	}
+
+	public simulateCustomMessage():void {
+		// const text = "Coucouu ça bouuum ?? durssSLIP boudin3Hello";
+		const text = "Duis incididunt esse ex sit commodo cillum do cillum excepteur. Et ullamco reprehenderit cillum magna. Aliquip pariatur ut esse consectetur laboris aliquip aute. Occaecat non dolore esse in tempor minim tempor commodo dolore pariatur quis adipisicing et.";
+		const chunks = TwitchUtils.parseMessageToChunks(text,undefined, true);
+		const message:TwitchatDataTypes.MessageCustomData = {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			platform:"twitchat",
+			type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+			actions:[
+				{icon:"broadcast", label:"Trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2", theme:"primary"},
+				{icon:"url", label:"Url", url:"https://www.google.fr", theme:"secondary"},
+			],
+			user:{
+				name:"Blableblibloup",
+				color:"#808000"
+			},
+			icon:"twitchat",
+			highlightColor:"default",
+			message:text,
+			message_chunks:chunks,
+			message_html:TwitchUtils.messageChunksToHTML(chunks),
+		};
+
+		this.$store("chat").addMessage(message);
 	}
 }
 

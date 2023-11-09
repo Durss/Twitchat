@@ -16,7 +16,10 @@
 					@duplicate="duplicateTrigger($event)"
 					@test="$emit('testTrigger',$event)"
 					@select="$emit('select', $event)"
-					/>
+					>
+						<span class="triggerId" v-if="debugMode" v-click2Select
+						@click.stop="">{{ item.trigger.id }}</span>
+					</TriggerListItem>
 			</div>
 		</div>
 		
@@ -34,7 +37,10 @@
 						@duplicate="duplicateTrigger($event)"
 						@test="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)"
-					/>
+					>
+						<span class="triggerId" v-if="debugMode" v-click2Select
+						@click.stop="">{{ item.trigger.id }}sss</span>
+					</TriggerListItem>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -78,6 +84,7 @@ export default class TriggerList extends Vue {
 	@Prop({default:null})
 	public triggerId!:string|null;
 
+	public debugMode:boolean = false;
 	public filterState:boolean = true;
 	public renderedList:boolean = true;
 	public renderedCat:boolean = true;
@@ -90,6 +97,8 @@ export default class TriggerList extends Vue {
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
 	public buildBatchSize = 25;
+	
+	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public get flatTriggerList():TriggerListEntry[] {
 		let list:TriggerListEntry[] = [];
@@ -126,10 +135,14 @@ export default class TriggerList extends Vue {
 		});
 		
 		this.startSequentialBuild();
+
+		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keyup", this.keyupHandler);
 	}
 	
 	public beforeUnmount():void {
 		clearInterval(this.buildInterval);
+		document.removeEventListener("keyup", this.keyupHandler);
 	}
 
 	private startSequentialBuild():void {
@@ -243,6 +256,17 @@ export default class TriggerList extends Vue {
 		}
 	}
 
+/**
+ * Show a debug field on CTRL+ALT+D
+ * @param e 
+ */
+public onKeyUp(e:KeyboardEvent):void {
+	if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+		this.debugMode = !this.debugMode;
+		e.preventDefault();
+	}
+}
+
 }
 
 type SortTypes = "list" | "category";
@@ -293,6 +317,17 @@ export interface TriggerListEntry {
 				display: flex;
 				flex-direction: column;
 				gap: 2px;
+			}
+		}
+		.triggerId {
+			cursor: help !important;
+			font-size: .8em;
+			font-family: 'Courier New', Courier, monospace;
+			opacity: .75;
+			&::before {
+				content: "ID: ";
+				font-family: Inter;
+				font-weight: bold;
 			}
 		}
 	}

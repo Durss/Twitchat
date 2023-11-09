@@ -452,7 +452,7 @@ export default class MessageList extends Vue {
 
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
-		if(m.col != undefined && m.col != this.config.order) return false;
+		if(m.col != undefined && m.col > -1 && m.col != this.config.order) return false;
 		
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
 		if (m.deleted) {
@@ -669,6 +669,10 @@ export default class MessageList extends Vue {
 			
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
 				return this.config.filters.ad_break_start === true;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
+				return true;
 			}
 
 			default: return false;

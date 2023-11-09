@@ -185,17 +185,18 @@ export default class OverlayParamsHeatDistort extends Vue {
 				}else{
 					//The browser is unknown because user created the overlay manualy
 					//Get the filter's params to extract the browser source name
-					const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
-					if(filters.length == 0) return;
-					const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
-					console.log(filter);
-					await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
-					if(filter) {
-						const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
-						OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
-							console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
-						});
-					}
+					//TODO
+					// const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
+					// if(filters.length == 0) return;
+					// const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
+					// console.log(filter);
+					// await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+					// if(filter) {
+					// 	const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
+					// 	OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+					// 		console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+					// 	});
+					// }
 				}
 	
 				if(data.filterName) {

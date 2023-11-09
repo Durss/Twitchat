@@ -116,6 +116,7 @@
 				"delete": "Supprimer",
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
+				"action_customChat": "Notification Twitchat",
 				"action_bingo": "Lancer un bingo",
 				"action_chatSugg": "Suggestions de tchat",
 				"action_raffle": "Lancer un tirage au sort",
@@ -380,6 +381,29 @@
 			},
 			"adBreak": {
 				"param_delay": "Durée avant le lancement de la pub"
+			},
+			"customChat": {
+				"param_icon": "Icône",
+				"param_message": "Message",
+				"param_error": "Afficher comme une erreur",
+				"param_user": "Pseudo utilisateur",
+				"param_user_color": "Couleur du pseudo",
+				"param_style": "Style du message",
+				"param_style_message": "Message",
+				"param_style_highlight": "Mise en avant",
+				"param_style_error": "Erreur",
+				"param_highlight_color": "Couleur de mise en avant",
+				"param_col": "Colonne dans laquelle envoyer le message",
+				"param_col_all": "Toutes",
+				"param_action_type": "Type d'action",
+				"param_action_type_trigger": "Executer un trigger",
+				"param_action_type_url": "Ouvrir une page",
+				"param_action_url": "URL",
+				"param_action_trigger": "Trigger",
+				"param_action_label": "Texte du bouton",
+				"param_action_icon": "Icône du bouton",
+				"param_action_theme": "Style du bouton",
+				"add_actionBt": "Ajouter une action"
 			}
 		},
 		"categories": {

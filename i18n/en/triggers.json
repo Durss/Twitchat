@@ -116,6 +116,7 @@
 				"dynamic_placeholder_info":"This action allows you to create a custom placeholder that you can use on subsequent actions.",
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
+				"action_customChat": "Twitchat notification",
 				"action_bingo": "Start a bingo",
 				"action_chatSugg": "Chat suggestions",
 				"action_raffle": "Start a raffle",
@@ -380,6 +381,29 @@
 			},
 			"adBreak": {
 				"param_delay": "Delay before ad break starts"
+			},
+			"customChat": {
+				"param_icon": "Icon",
+				"param_message": "Message",
+				"param_error": "Display as an error",
+				"param_user": "Username",
+				"param_user_color": "Username color",
+				"param_style": "Message style",
+				"param_style_message": "Message",
+				"param_style_highlight": "Highlight",
+				"param_style_error": "Error",
+				"param_highlight_color": "Highlight color",
+				"param_col": "Chat column to show the message to",
+				"param_col_all": "All",
+				"param_action_type": "Action type",
+				"param_action_type_trigger": "Execute a trigger",
+				"param_action_type_url": "Open a page",
+				"param_action_url": "URL",
+				"param_action_trigger": "Trigger",
+				"param_action_label": "Button label",
+				"param_action_icon": "Button icon",
+				"param_action_theme": "Button style",
+				"add_actionBt": "Add an action"
 			}
 		},
 		"categories": {

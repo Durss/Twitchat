@@ -45,6 +45,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerCustomBadgesData
 								| TriggerCustomUsernameData
 								| TriggerActionValueData
+								| TriggerActionCustomMessageData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -341,6 +342,11 @@ export interface TriggerActionObsData extends TriggerActionData{
 export interface TriggerActionChatData extends TriggerActionData{
 	type:"chat";
 	text:string;
+}
+
+export interface TriggerActionCustomMessageData extends TriggerActionData{
+	type:"customChat";
+	customMessage:TwitchatDataTypes.MessageCustomDataAPI;
 }
 
 export interface TriggerActionTTSData extends TriggerActionData{

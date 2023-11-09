@@ -146,6 +146,10 @@
 	<ChatTrackAddedToQueue class="message"
 		v-else-if="messageData.type == 'music_added_to_queue'"
 		:messageData="messageData" />
+
+	<ChatCustomMessage class="message"
+		v-else-if="messageData.type == 'custom'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -188,6 +192,7 @@ import ChatHypeChatMessage from './ChatHypeChatMessage.vue';
 import ChatHistorySplitter from './ChatHistorySplitter.vue';
 import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
 import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
+import ChatCustomMessage from './ChatCustomMessage.vue';
 
 @Component({
 	components:{
@@ -214,6 +219,7 @@ import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
 		ChatRoomSettings,
 		ChatRaffleResult,
 		ChatSubscription,
+		ChatCustomMessage,
 		ChatAdBreakStarted,
 		ChatCommunityBoost,
 		ChatScopeRequester,

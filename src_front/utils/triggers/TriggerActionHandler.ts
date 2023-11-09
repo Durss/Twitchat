@@ -1795,6 +1795,28 @@ export default class TriggerActionHandler {
 							logStep.error = true;
 						}
 					}
+				}else
+
+				//Handle custom chat messages
+				if(step.type == "customChat") {
+					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage.message || "", subEvent);
+					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
+					const customMessage:TwitchatDataTypes.MessageCustomData = {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitchat",
+						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+						actions:step.customMessage.actions,
+						user:step.customMessage.user,
+						icon:step.customMessage.icon,
+						highlightColor:step.customMessage.highlightColor,
+						message:text,
+						message_chunks:chunks,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						col:step.customMessage.col,
+					};
+			
+					StoreProxy.chat.addMessage(customMessage);
 				}
 					
 			}catch(error) {

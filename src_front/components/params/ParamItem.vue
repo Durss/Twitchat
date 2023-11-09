@@ -4,8 +4,8 @@
 	@mouseleave="$emit('mouseleave', $event, paramData)"
 	@click.capture="clickItem($event)">
 		<div class="content">
-			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="icon" />
-			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="icon">
+			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="paramIcon" />
+			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
 
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
@@ -132,6 +132,36 @@
 				</select>
 			</div>
 			
+			<div v-if="paramData.type == 'imagelist'" class="holder list">
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
+				<label :for="'imagelist'+key" v-html="label" v-tooltip="tooltip"></label>
+				<vue-select class="listField"
+					label="label"
+					ref="vueSelect"
+					:id="'imagelist'+key"
+					:placeholder="placeholder"
+					v-model="paramData.value"
+					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
+					:calculate-position="$placeDropdown"
+					@option:selected="onEdit()"
+					appendToBody
+					:submitSearchOnBlur="true"
+					:options="paramData.listValues"
+				>
+					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+						<Icon class="image" v-if="option.icon" :name="option.icon" />
+						<div class="image" v-else></div>
+					</template>
+
+					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+						<Icon class="image" v-if="option.icon" :name="option.icon" />
+					</template>
+				</vue-select>
+			</div>
+			
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -235,6 +265,7 @@ import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Utils from '@/utils/Utils';
+import { isReactive, isRef, reactive } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -306,11 +337,12 @@ export default class ParamItem extends Vue {
 	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
 	
 	public get showChildren():boolean {
-		return (this.$slots.default != undefined || this.$slots.child != undefined)
-			&& (
-				((this.inverseChildrenCondition === false && this.paramData.value === true)
-				|| (this.inverseChildrenCondition !== false && this.paramData.value === false))
-				|| this.paramData.type != 'boolean');
+		let state = (this.paramData.type == 'boolean' && this.paramData.value === true)
+				|| (this.paramData.type == 'string' && this.paramData.value != "")
+				|| !!this.paramData.value;
+		if(this.inverseChildrenCondition) state = !state;
+
+		return (this.$slots.default != undefined || this.$slots.child != undefined) && state;
 	}
 
 	public get premiumLocked():boolean { return this.premium !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
@@ -667,7 +699,7 @@ export default class ParamItem extends Vue {
 	}
 	
 	private updateSelectedListValue():void {
-		if(this.paramData.type == "list" && this.paramData.listValues) {
+		if((this.paramData.type == "list" || this.paramData.type == "imagelist") && this.paramData.listValues) {
 			this.paramData.selectedListValue = this.paramData.listValues.find(v=>v.value == this.paramData.value);
 		}
 	}
@@ -797,8 +829,7 @@ export default class ParamItem extends Vue {
 		
 
 		.helpIcon {
-			@size: 20px;
-			width: @size;
+			width: 20px;
 			margin-right: .25em;
 		}
 
@@ -929,7 +960,7 @@ export default class ParamItem extends Vue {
 			width: 100%;
 		}
 
-		&:has(.list, .number, .time) .icon {
+		&:has(.list, .number, .time) .paramIcon {
 			margin-top: .4em;
 		}
 

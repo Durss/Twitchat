@@ -137,6 +137,7 @@ export default class TwitchatEvent extends Event {
 	public static GET_AD_BREAK_OVERLAY_PRESENCE:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PRESENCE";
 	public static GET_AD_BREAK_OVERLAY_PARAMETERS:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PARAMETERS";
 	public static GET_DISTORT_OVERLAY_PARAMETERS:TwitchatActionType = "GET_DISTORT_OVERLAY_PARAMETERS";
+	public static CUSTOM_CHAT_MESSAGE:TwitchatActionType = "CUSTOM_CHAT_MESSAGE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -275,5 +276,6 @@ export const TwitchatActionTypeList = [
 	"GET_AD_BREAK_OVERLAY_PRESENCE",
 	"GET_AD_BREAK_OVERLAY_PARAMETERS",
 	"GET_DISTORT_OVERLAY_PARAMETERS",
+	"CUSTOM_CHAT_MESSAGE",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

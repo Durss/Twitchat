@@ -455,6 +455,29 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Called when pushing custom messages on Twitchat
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_CHAT_MESSAGE, (e:TwitchatEvent)=> {
+				const data = e.data as TwitchatDataTypes.MessageCustomDataAPI;
+				const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const message:TwitchatDataTypes.MessageCustomData = {
+					id: Utils.getUUID(),
+					date: Date.now(),
+					platform: "twitchat",
+					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					actions: data.actions,
+					message: data.message,
+					message_chunks: chunks,
+					message_html: TwitchUtils.messageChunksToHTML(chunks),
+					col: data.col,
+					style: data.style,
+					icon: data.icon,
+					user: data.user,
+				};
+				StoreProxy.chat.addMessage(message);
+			});
+
+			/**
 			 * Called when switching to another scene
 			 */
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {

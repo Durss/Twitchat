@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsheat parameterContent" @keyup="onKeyUp">
+	<div class="paramsheat parameterContent">
 		<Icon name="heat" alt="heat icon" class="icon" />
 
 		<div class="head">

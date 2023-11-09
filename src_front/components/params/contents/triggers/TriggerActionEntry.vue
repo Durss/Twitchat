@@ -48,6 +48,9 @@
 	
 				<Button class="button" @click="selectActionType('chat')"
 					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</Button>
+	
+				<Button class="button" @click="selectActionType('customChat')"
+					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</Button>
 					
 				<Button class="button" @click.capture="selectActionType('poll')"
 					v-if="hasChannelPoints"
@@ -160,6 +163,7 @@
 		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomChatEntry v-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -210,6 +214,7 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
+import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
 
 @Component({
 	components:{
@@ -237,6 +242,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 		TriggerActionVoicemodEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionCustomUsername,
+		TriggerActionCustomChatEntry,
 		TriggerActionStreamInfoEntry,
 		TriggerActionVibratePhoneEntry,
 		TriggerActionTriggerToggleEntry,

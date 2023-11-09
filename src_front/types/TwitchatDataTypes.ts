@@ -379,7 +379,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime"|"time";
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime"|"time"|"imagelist";
 		/**
 		 * Parameter value
 		 */
@@ -1652,6 +1652,7 @@ export namespace TwitchatDataTypes {
 		CHEER:"cheer",
 		TIMER:"timer",
 		BINGO:"bingo",
+		CUSTOM:"custom",
 		PINNED:"pinned",
 		RAFFLE:"raffle",
 		REWARD:"reward",
@@ -1728,6 +1729,7 @@ export namespace TwitchatDataTypes {
 		cheer:true,
 		timer:true,
 		bingo:true,
+		custom:true,
 		raffle:true,
 		reward:true,
 		notice:true,
@@ -1891,6 +1893,7 @@ export namespace TwitchatDataTypes {
 									| MessageAdBreakStartData
 									| MessageAdBreakApproachingData
 									| MessageAdBreakCompleteData
+									| MessageCustomData
 	;
 	
 	/**
@@ -3505,7 +3508,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an ad break started manually
+	 * Represents an ad break approaching
 	 */
 	export interface MessageAdBreakApproachingData extends AbstractTwitchatMessage {
 		type:"ad_break_approaching";
@@ -3520,7 +3523,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents an ad break started manually
+	 * Represents an ad break completing
 	 */
 	export interface MessageAdBreakCompleteData extends AbstractTwitchatMessage {
 		type:"ad_break_complete";
@@ -3533,5 +3536,74 @@ export namespace TwitchatDataTypes {
 		 */
 		startedBy?:TwitchatUser;
 	}
+
+	/**
+	 * Represents a custom message sent via API
+	 */
+	export interface MessageCustomData extends AbstractTwitchatMessage {
+		type:"custom";
+		/**
+		 * User name
+		 */
+		user?:{
+			name:string,
+			color?:string
+		};
+		/**
+		 * Message sent
+		 */
+		message?:string;
+		/**
+		 * Message sent (raw chunks)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		/**
+		 * Message sent (html parsed)
+		 */
+		message_html?:string;
+		/**
+		 * Icon ID
+		 */
+		icon?:string;
+		/**
+		 * Optional highlight color
+		 */
+		highlightColor?:string;
+		/**
+		 * Message style
+		 */
+		style?:"message"|"highlight"|"error";
+		/**
+		 * CTAs to add on the message
+		 */
+		actions?:{
+			/**
+			 * Button's icon
+			 */
+			icon?:string;
+			/**
+			 * Button's label
+			 */
+			label:string,
+			/**
+			 * Type of action to executee
+			 */
+			actionType?:"url"|"trigger",
+			/**
+			 * URL to open in a new tab for "url" type.
+			 */
+			url?:string,
+			/**
+			 * Trigger ID to execute for "trigger" type.
+			 */
+			triggerId?:string,
+			/**
+			 * Button's style
+			 */
+			theme?:"primary"|"secondary"|"alert"|""|"default",
+		}[];
+	}
+
+	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user">
 
 }

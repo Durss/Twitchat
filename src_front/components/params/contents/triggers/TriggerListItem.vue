@@ -5,7 +5,10 @@
 		v-tooltip="{content:getCategoryLabel(entryData),placement:'left'}">
 			<img v-if="entryData.iconURL" :src="entryData.iconURL" class="icon" :style="{backgroundColor:entryData.iconBgColor}">
 			<Icon v-else-if="entryData.icon" :name="entryData.icon" class="icon" :style="{backgroundColor:entryData.iconBgColor}" />
-			<span>{{entryData.label}}</span>
+			<div class="label">
+				<span>{{entryData.label}}</span>
+				<slot></slot>
+			</div>
 		</button>
 
 		<div class="toggle"
@@ -83,6 +86,11 @@ export default class TriggerListItem extends Vue {
 
 	&:hover {
 		background-color: var(--background-color-fader);
+	}
+	.label {
+		display: flex;
+		align-items: flex-start;
+		flex-direction: column;
 	}
 	
 	.button {

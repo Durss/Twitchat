@@ -457,6 +457,42 @@ import Ajv from "ajv";
 											items: {type:"string", maxLength:0},//Not the right type but it will never be filled
 										},
 									}
+								},
+								customMessage: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										message: {type:"string", maxLength:1000},
+										icon: {type:"string", maxLength:100},
+										col: {type:"integer", maximum:100},
+										style: {enum: ["highlight","error","message"]},
+										highlightColor: {type:"string", maxLength:10},
+										user:{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												name: {type:"string", maxLength:25},
+												color: {type:"string", maxLength:10},
+											}
+										},
+										actions:{
+											type:"array",
+											minItems:0,
+											maxItems:20,
+											items: {
+												type: "object",
+												additionalProperties: false,
+												properties: {
+													icon: {type:"string", maxLength:100},
+													label: {type:"string", maxLength:50},
+													url: {type:"string", maxLength:1000},
+													triggerId: {type:"string", maxLength:50},
+													actionType: {enum: ["url","trigger"]},
+													theme: {enum: ["primary","secondary","alert","","default"]},
+												}
+											}
+										}
+									}
 								}
 							}
 						},

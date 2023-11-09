@@ -55,13 +55,15 @@ export default class ChatMessageChunksParser extends Vue {
 	}
 
 	public openProfile(username:string):void {
-		const user = this.$store("users").getUserFrom(this.platform || "twitch", this.channel, undefined, username);
+		const channelId = this.channel || this.$store("auth").twitch.user.id;
+		const user = this.$store("users").getUserFrom(this.platform || "twitch", channelId, undefined, username);
 		this.$store("users").openUserCard(user);
 	}
 
 	public getUserClasses(username:string):StyleValue {
+		const channelId = this.channel || this.$store("auth").twitch.user.id;
 		if(!this.$store("auth").twitch.user) return {color:"#c400da"};
-		const user = this.$store("users").getUserFrom(this.platform || "twitch", this.channel, undefined, username);
+		const user = this.$store("users").getUserFrom(this.platform || "twitch", channelId, undefined, username);
 		if(user.color) {
 			return {
 				color: Utils.getUserColor(user),
