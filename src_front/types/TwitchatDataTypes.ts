@@ -3588,7 +3588,7 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Type of action to executee
 			 */
-			actionType?:"url"|"trigger",
+			actionType?:"url"|"trigger"|"message",
 			/**
 			 * URL to open in a new tab for "url" type.
 			 */
@@ -3597,6 +3597,10 @@ export namespace TwitchatDataTypes {
 			 * Trigger ID to execute for "trigger" type.
 			 */
 			triggerId?:string,
+			/**
+			 * Message to send on chat for "message" type.
+			 */
+			message?:string,
 			/**
 			 * Button's style
 			 */

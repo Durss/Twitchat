@@ -484,10 +484,11 @@ import Ajv from "ajv";
 												additionalProperties: false,
 												properties: {
 													icon: {type:"string", maxLength:100},
-													label: {type:"string", maxLength:50},
+													label: {type:"string", maxLength:100},
 													url: {type:"string", maxLength:1000},
+													message: {type:"string", maxLength:500},
 													triggerId: {type:"string", maxLength:50},
-													actionType: {enum: ["url","trigger"]},
+													actionType: {enum: ["url","trigger","message"]},
 													theme: {enum: ["primary","secondary","alert","","default"]},
 												}
 											}

@@ -15,17 +15,26 @@
 		<ParamItem :paramData="param_message" v-if="action.customMessage.user" v-model="action.customMessage.message" />
 		
 		<div class="actions">
-			<div v-for="(cta, index) in action.customMessage.actions" :key="index" class="card-item action">
+			<ToggleBlock :title="cta.label || 'action'" :icons="cta.icon? [cta.icon] : []" medium v-for="(cta, index) in action.customMessage.actions" :key="index" :open="false" class="actison">
+
+				<template #right_actions>
+					<div class="actionList">
+						<Button small alert
+							icon="trash"
+							@click="deleteAction(index)"
+							v-tooltip="$t('global.delete')"/>
+					</div>
+				</template>
+				<ParamItem :paramData="actionParams[index].label" v-model="cta.label" noBackground />
 				<ParamItem :paramData="actionParams[index].icon" v-model="cta.icon" noBackground />
 				<ParamItem :paramData="actionParams[index].theme" v-model="cta.theme" noBackground />
 				<ParamItem :paramData="actionParams[index].actionType" v-model="cta.actionType" noBackground>
 					<ParamItem :paramData="actionParams[index].url" v-model="cta.url" v-if="cta.actionType == 'url'" noBackground />
+					<ParamItem :paramData="actionParams[index].message" v-model="cta.message" v-else-if="cta.actionType == 'message'" noBackground />
 					<SimpleTriggerList class="child list" v-else-if="!cta.triggerId" @select="(id:string) => cta.triggerId = id" />
 					<SimpleTriggerList class="child" v-else :filteredItemId="cta.triggerId" @click="cta.triggerId = ''" />
 				</ParamItem>
-				<ParamItem :paramData="actionParams[index].label" v-model="cta.label" noBackground />
-				<Button class="deleteBt" icon="trash" @click="delAction(index)" alert>{{ $t("global.delete") }}</Button>
-			</div>
+			</ToggleBlock>
 			<Button class="addBt" icon="add" @click="addAction()">{{ $t("triggers.actions.customChat.add_actionBt") }}</Button>
 		</div>
 
@@ -39,28 +48,31 @@
 import Button from '@/components/Button.vue';
 import ChatCustomMessage from '@/components/messages/ChatCustomMessage.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { TriggerActionCustomMessageData, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { ITriggerPlaceholder, TriggerActionCustomMessageData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { reactive } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		Button,
 		ParamItem,
+		ToggleBlock,
 		SimpleTriggerList,
 		ChatCustomMessage,
 	},
 	emits:[],
 })
-export default class TriggerActionCustomChatEntry extends Vue {
+export default class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
-	public action!:TriggerActionCustomMessageData;
+	declare action:TriggerActionCustomMessageData;
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
 	public actionParams:Key2ParamMap[] = [];
 	
@@ -75,9 +87,27 @@ export default class TriggerActionCustomChatEntry extends Vue {
 	private iconList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 	private buttonThemes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["theme"]>[] = [];
 	private actionTypes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["actionType"]>[] = [];
+	private placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	public get messageData():TwitchatDataTypes.MessageCustomData {
 		const chunks = TwitchUtils.parseMessageToChunks(this.action.customMessage.message || "", undefined, true);
+		const actions = (JSON.parse(JSON.stringify(this.action.customMessage.actions)) || []) as NonNullable<typeof this.action.customMessage.actions>;
+		for (let i = 0; i < actions.length; i++) {
+			const a = actions[i];
+			if(a.label) {
+				a.label = a.label.replace(/\{.*?\}/gi, "***");
+			}
+			switch(a.actionType) {
+				case "message":{
+					a.message = (a.message || "").replace(/\{.*?\}/gi, "***");
+					break;
+				}
+				case "url":{
+					a.url = (a.url || "").replace(/\{.*?\}/gi, "***");
+					break;
+				}
+			}
+		}
 		return  {
 			id:"",
 			col:-1,
@@ -88,7 +118,7 @@ export default class TriggerActionCustomChatEntry extends Vue {
 			style:this.action.customMessage.style,
 			user:this.action.customMessage.user,
 			icon:this.action.customMessage.icon,
-			actions:this.action.customMessage.actions,
+			actions,
 			message: this.action.customMessage.message,
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
@@ -144,6 +174,7 @@ export default class TriggerActionCustomChatEntry extends Vue {
 		this.actionTypes = [
 			{value:"url", labelKey:"triggers.actions.customChat.param_action_type_url"},
 			{value:"trigger", labelKey:"triggers.actions.customChat.param_action_type_trigger"},
+			{value:"message", labelKey:"triggers.actions.customChat.param_action_type_chat"},
 		];
 		for (let i = 0; i < this.action.customMessage.actions.length; i++) {
 			const a = this.action.customMessage.actions[i];
@@ -151,6 +182,10 @@ export default class TriggerActionCustomChatEntry extends Vue {
 		}
 	}
 
+	/**
+	 * Add a new action
+	 * @param source 
+	 */
 	public addAction(source?:NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]):void {
 		if(!source) {
 			source = {
@@ -170,14 +205,30 @@ export default class TriggerActionCustomChatEntry extends Vue {
 			actionType:{type:'list', value:'', listValues:this.actionTypes, labelKey:'triggers.actions.customChat.param_action_type'},
 			url:{type:"string", value:"", maxLength: 1000, labelKey:"triggers.actions.customChat.param_action_url"},
 			triggerId:{type:"string", value:""},
-			label:{type:"string", value:"", maxLength:40, labelKey:"triggers.actions.customChat.param_action_label"},
+			label:{type:"string", value:"", maxLength:100, labelKey:"triggers.actions.customChat.param_action_label"},
 			theme:{type:"list", value:'', listValues:this.buttonThemes, labelKey:"triggers.actions.customChat.param_action_theme"},
+			message:{type:"string", value:'', maxLength:500, longText:true, placeholderList:this.placeholderList, labelKey:"triggers.actions.customChat.param_action_message"},
 		}
 		this.actionParams.push(params);
 	}
 
-	public delAction(index:number):void {
+	/**
+	 * Delete an action by its index
+	 * @param index 
+	 */
+	public deleteAction(index:number):void {
 		this.action.customMessage.actions!.splice(index, 1);
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.placeholderList = list;
+		this.param_message.placeholderList = this.placeholderList;
+		for (let i = 0; i < this.actionParams.length; i++) {
+			this.actionParams[i].message.placeholderList = this.placeholderList;
+		}
 	}
 
 }
@@ -233,6 +284,17 @@ type Key2ParamMap = {
 			.deleteBt {
 				align-self: center;
 			}
+		}
+	}
+	.actionList {
+		align-self: stretch;
+		margin: -.5em 0;
+		justify-self: stretch;
+		flex-shrink: 0;
+		button {
+			height: 100%;
+			border-radius: 0;
+			padding: 0 .5em;
 		}
 	}
 }

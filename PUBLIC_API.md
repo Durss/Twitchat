@@ -729,11 +729,14 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
     actions?: {
 		icon?:string;
 		label:string;
-		actionType?:"url"|"trigger";
+		actionType?:"url"|"trigger"|"message";
 		//Page to open in a new tab for "url" actionType
 		url?:string;
-		//User CTRL+Alt+D on your triggers list to show their IDs
+		//Trigger to execute for "trigger" actionType.
+		//Use CTRL+Alt+D on your triggers list to show their IDs
 		triggerId?:string;
+		//Message sent on chat for "message" actionType
+		message?:string;
 		theme?:"default"|"primary"|"secondary"|"alert";
     }[];
 }

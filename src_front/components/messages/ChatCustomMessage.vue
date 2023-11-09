@@ -20,7 +20,7 @@
 				:primary="action.theme == 'primary'"
 				:secondary="action.theme == 'secondary'"
 				@click.stop="onClickButton(action)"
-				>{{ action.label.substring(0,40) }}</Button>
+				>{{ action.label }}</Button>
 			</div>
 		</div>
 		
@@ -38,6 +38,8 @@ import CloseButton from '../CloseButton.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import Button from '../Button.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import Utils from '@/utils/Utils';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 @Component({
 	components:{
@@ -87,13 +89,18 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 		return res;
 	}
 
-	public onClickButton(data:NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]):void {
+	public async onClickButton(data:NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]):Promise<void> {
 		if(this.demo !== false) return;
 
 		switch(data.actionType) {
 			case "trigger": {
 				const trigger = this.$store("triggers").triggerList.find(v=> v.id == data.triggerId);
 				if(trigger) TriggerActionHandler.instance.executeTrigger(trigger, this.messageData, false);
+				break
+			}
+			case "message": {
+				const message = await Utils.parseGlobalPlaceholders(data.message || "")
+				MessengerProxy.instance.sendMessage(message);
 				break
 			}
 			case "url": break;//<a> tag already handled the action
@@ -106,12 +113,15 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 .chatcustommessage{
 	min-height: 1.75em;
 	padding-right: 2em;
+	max-width: 100%;
 	.closeBt {
 		z-index: 0;
 	}
 	.ctas {
 		gap: .5em;
 		display: flex;
+		flex-wrap: wrap;
+		max-width: 100%;
 	}
 	.messageHolder {
 		overflow: hidden;
@@ -136,6 +146,10 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 					color: var(--color-text);
 					font-weight: normal;
 				}
+			}
+
+			.message {
+				word-break: break-word;
 			}
 		}
 	}

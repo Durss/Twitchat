@@ -1801,12 +1801,29 @@ export default class TriggerActionHandler {
 				if(step.type == "customChat") {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage.message || "", subEvent);
 					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
+					const actions = (JSON.parse(JSON.stringify(step.customMessage.actions)) || []) as NonNullable<typeof step.customMessage.actions>;
+					for (let i = 0; i < actions.length; i++) {
+						const a = actions[i];
+						if(a.label) {
+							a.label = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a.label, subEvent);
+						}
+						switch(a.actionType) {
+							case "message":{
+								a.message = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a.message || "", subEvent);
+								break;
+							}
+							case "url":{
+								a.url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a.url || "", subEvent);
+								break;
+							}
+						}
+					}
 					const customMessage:TwitchatDataTypes.MessageCustomData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						platform:"twitchat",
 						type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
-						actions:step.customMessage.actions,
+						actions,
 						user:step.customMessage.user,
 						icon:step.customMessage.icon,
 						highlightColor:step.customMessage.highlightColor,
