@@ -770,13 +770,13 @@ export namespace TwitchatDataTypes {
 	 */
 	export interface CommercialData {
 		/**
+		 * Date in milliseconds the previous mid-roll started
+		 */
+		prevAdStart_at:number;
+		/**
 		 * Date in milliseconds the next mid-roll will start
 		 */
 		nextAdStart_at:number;
-		/**
-		 * Date in milliseconds the current mid-roll started
-		 */
-		currentAdStart_at:number;
 		/**
 		 * Duration in milliseconds of the current md-roll
 		 */
@@ -789,10 +789,6 @@ export namespace TwitchatDataTypes {
 		 * Date in milliseconds a snooze will be unlocked
 		 */
 		nextSnooze_at:number;
-		/**
-		 * Milliseconds to wait before being able to start another ad break
-		 */
-		adCooldown_ms:number;
 	}
 
 	/**

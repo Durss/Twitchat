@@ -281,10 +281,9 @@ export const storeStream = defineStore('stream', {
 			if(!info) {
 				//No data yet, return fake data
 				info = {
-					adCooldown_ms:			0,
-					currentAdStart_at:		0,
 					remainingSnooze:		0,
 					currentAdDuration_ms:	0,
+					prevAdStart_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
 					nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
 					nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
 				}
@@ -324,7 +323,30 @@ export const storeStream = defineStore('stream', {
 				commercialTimeouts[channelId].push(to);
 			});
 
-			if(data.currentAdStart_at + data.currentAdDuration_ms > Date.now()) {
+			let startDate:number = 0;
+			if(data.prevAdStart_at + data.currentAdDuration_ms >= Date.now()){
+				startDate = data.prevAdStart_at;
+			}else {
+				startDate = data.nextAdStart_at;
+			}
+
+			//Schedule ad start message
+			let to = setTimeout(() => {
+				//If ad has been started by someone, notify on tchat
+				const message:TwitchatDataTypes.MessageAdBreakStartData = {
+					type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					duration_s:Math.round(data.currentAdDuration_ms / 1000),
+					startedBy:adStarter,
+				}
+				StoreProxy.chat.addMessage(message);
+			}, startDate - Date.now());
+			commercialTimeouts[channelId].push(to);
+
+			//Schedule ad break complete message
+			if(startDate + data.currentAdDuration_ms > Date.now()) {
 				let to = setTimeout(() => {
 					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
@@ -338,29 +360,14 @@ export const storeStream = defineStore('stream', {
 					setTimeout(()=> {
 						TwitchUtils.getAdSchedule();//get fresh new ad schedule data
 					}, 10000);
-				}, data.currentAdStart_at + data.currentAdDuration_ms - Date.now());
+				}, startDate + data.currentAdDuration_ms - Date.now());
 				commercialTimeouts[channelId].push(to);
-			}
-
-			//If ad has been started by someone, notify on tchat
-			if(adStarter) {
-				const message:TwitchatDataTypes.MessageAdBreakStartData = {
-					type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					duration_s:Math.round(data.currentAdDuration_ms / 1000),
-					startedBy:adStarter,
-				}
-				StoreProxy.chat.addMessage(message);
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
 		},
 
 		startCommercial(channelId:string, duration:number):void {
-			if(!this.canStartAd) return;
-	
 			if(isNaN(duration)) duration = 30;
 			StoreProxy.main.confirm(
 				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.title"),
@@ -368,13 +375,7 @@ export const storeStream = defineStore('stream', {
 			).then(async () => {
 				try {
 					const res = await TwitchUtils.startCommercial(duration, channelId);
-					if(res && res.length > 0) {
-						this.canStartAd = false;
-						this.commercial[channelId].adCooldown_ms = res.retry_after * 1000;
-						setTimeout(()=>{
-							this.commercial[channelId].adCooldown_ms = 0;
-						}, this.commercial[channelId].adCooldown_ms);
-					}else{
+					if(!res || res.length == 0) {
 						throw({message:"Invalid 0s length commercial duration"})
 					}
 				}catch(error) {

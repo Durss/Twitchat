@@ -2282,17 +2282,31 @@ export default class TwitchUtils {
 			method:"GET",
 			headers:this.headers,
 		});
+		console.log("GET AD");
 		if(res.status == 200) {
 			const json = await res.json();
 			if(json.data && json.data.length > 0) {
 				const data = json.data[0] as TwitchDataTypes.AdSchedule;
+				//TODO remove that debug !
+				// const data:TwitchDataTypes.AdSchedule = {
+				// 	"snooze_count": 3,
+				// 	"snooze_refresh_at": 0,
+				// 	"next_ad_at": (Date.now() + .2 * 60000)/1000,
+				// 	"length_seconds": 15,
+				// 	"last_ad_at": (Date.now() - 60*60000)/1000,
+				// 	"preroll_free_time_seconds": 3534
+				// }
+				const prevInfo = StoreProxy.stream.getCommercialInfo(user.id);
+				//Thank you twitch for writing a completely wrong documentation...
+				//don't know if they'll change the doc or the service, so i handle both cases
 				const infos:TwitchatDataTypes.CommercialData = {
-					adCooldown_ms:			StoreProxy.stream.commercial[user.id]?.adCooldown_ms || 0,
-					currentAdStart_at:		StoreProxy.stream.commercial[user.id]?.currentAdStart_at || 0,
 					remainingSnooze:		data.snooze_count,
 					currentAdDuration_ms:	data.length_seconds * 1000,
-					nextAdStart_at:			new Date(typeof data.next_ad_at == "number"? data.next_ad_at * 1000 : data.next_ad_at).getTime(),//Thank you twitch for writing a completely wrong documentation...don't know if they'll change the doc or the service, so i handle both cases
-					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),//Thank you twitch for writing a completely wrong documentation...don't know if they'll change the doc or the service, so i handle both cases
+					//Thank you twitch for writing a wrong documentation...
+					//Don't know if they'll change the doc or fix service, so i handle both cases
+					nextAdStart_at:			new Date(typeof data.next_ad_at == "number"? data.next_ad_at * 1000 : data.next_ad_at).getTime(),
+					prevAdStart_at:			new Date(typeof data.last_ad_at == "number"? data.last_ad_at * 1000 : data.last_ad_at).getTime(),
+					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),
 				};
 				StoreProxy.stream.setCommercialInfo(user.id, infos);
 				this.adsAPIHistory.push({
@@ -2310,10 +2324,9 @@ export default class TwitchUtils {
 		}else if (res.status == 400) {
 			//Channel not live or no ad scheduled
 			const infos:TwitchatDataTypes.CommercialData = {
-				adCooldown_ms:			0,
-				currentAdStart_at:		0,
 				remainingSnooze:		0,
 				currentAdDuration_ms:	0,
+				prevAdStart_at:			Date.now() + 360 * 24 * 60 * 60000,
 				nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60000,
 				nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60000,
 			};
@@ -2340,11 +2353,11 @@ export default class TwitchUtils {
 			const json = await res.json();
 			if(json.data && json.data.length > 0) {
 				const data = json.data[0] as TwitchDataTypes.AdSnooze;
+				const prevInfo = StoreProxy.stream.getCommercialInfo(user.id);
 				const infos:TwitchatDataTypes.CommercialData = {
-					adCooldown_ms:			StoreProxy.stream.commercial[user.id].adCooldown_ms,
-					currentAdStart_at:		StoreProxy.stream.commercial[user.id].currentAdStart_at,
-					currentAdDuration_ms:	StoreProxy.stream.commercial[user.id].currentAdDuration_ms,
+					currentAdDuration_ms:	prevInfo.currentAdDuration_ms,
 					remainingSnooze:		data.snooze_count,
+					prevAdStart_at:			prevInfo.prevAdStart_at,
 					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
 					nextSnooze_at:			new Date(data.snooze_refresh_at).getTime(),
 				};

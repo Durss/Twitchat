@@ -513,13 +513,16 @@ export namespace TwitchEventSubDataTypes {
 		viewer_count: number;
 		started_at: string;
 	}
+	
 	export interface AdBreakEvent {
-		length_seconds: number;
-		started_at: string;
-		is_automatic: boolean;
-		broadcaster_user_id: string;
-		requester_user_id: string;
-		broadcaster_user_login: string;
-		requester_user_login: string;
+		broadcaster_user_id:string;
+		broadcaster_user_login:string;
+		broadcaster_user_name:string;
+		requester_user_id:string;
+		requester_user_login:string;
+		requester_user_name:string;
+		length_seconds:number;
+		is_automatic:boolean;
+		started_at:string
 	}
 }

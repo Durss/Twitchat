@@ -64,18 +64,30 @@ export default class CommercialTimer extends Vue {
 	}
 
 	public refreshTimer():void {
-		const maxSchedule	= 5 *60000;
-		const channelId		= this.$store("auth").twitch.user.id;
-		const infos			= this.$store("stream").getCommercialInfo(channelId);
-		this.snoozeLeft		= infos.remainingSnooze;
-		this.snoozeMax		= Math.max(3, infos.remainingSnooze);//Not 100% sure we get 3 snooze max so we get the max of both values
+		const maxSchedule		= 5 *60000;
+		const channelId			= this.$store("auth").twitch.user.id;
+		const infos				= this.$store("stream").getCommercialInfo(channelId);
+		this.snoozeLeft			= infos.remainingSnooze;
+		this.snoozeMax			= Math.max(3, infos.remainingSnooze);//Not 100% sure we get 3 snooze max so we get the max of both values
 		//Check if an ad is rolling
-		this.isAdRunning	= infos.currentAdStart_at + infos.currentAdDuration_ms - Date.now() > 0 && infos.currentAdStart_at > 0;
-		//Check if an ad is coming in less than a minute
-		this.isAdComing		= infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule;
-		const date			= this.isAdRunning? infos.currentAdStart_at + infos.currentAdDuration_ms : infos.nextAdStart_at;
-		this.timeLeft		= Math.max(0, Math.round((date - Date.now())/1000));
-		this.timeLeftFormated = Utils.formatDuration(this.timeLeft * 1000);
+		this.isAdComing			= false;
+		this.isAdRunning		= false;
+		let startDate:number	= 0;
+		if(infos.prevAdStart_at + infos.currentAdDuration_ms >= Date.now()){
+			this.isAdRunning	= true;
+			startDate			= infos.prevAdStart_at + infos.currentAdDuration_ms;
+		}else
+		if(Date.now() > infos.nextAdStart_at && Date.now() < infos.nextAdStart_at + infos.currentAdDuration_ms) {
+			this.isAdRunning	= true;
+			startDate			= infos.nextAdStart_at + infos.currentAdDuration_ms;
+		}else
+		if(infos.nextAdStart_at > 0 && infos.nextAdStart_at - Date.now() < maxSchedule) {
+			this.isAdComing		= true;
+			startDate			= infos.nextAdStart_at;
+		}
+		//Check if an ad is coming in less than 5 minutes
+		this.timeLeft			= Math.max(0, Math.round((startDate - Date.now())/1000));
+		this.timeLeftFormated	= Utils.formatDuration(this.timeLeft * 1000);
 
 		const prevShow = this.showTimer;
 		this.showTimer = (this.isAdRunning || this.isAdComing) && this.timeLeft > 0;

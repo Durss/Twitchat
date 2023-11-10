@@ -995,10 +995,6 @@ export interface IStreamState {
 	 */
 	commercial: {[key in string]:TwitchatDataTypes.CommercialData};
 	/**
-	 * Can we start an ad ?
-	*/
-	canStartAd: boolean,
-	/**
 	 * Is shield mode enabled?
 	 */
 	shieldModeEnabled: boolean,
