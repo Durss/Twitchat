@@ -180,7 +180,7 @@ import Ajv from "ajv";
 						type:"object",
 						properties: {
 							type: {type:"string", maxLength:10},
-							repeatDuration: {type:"number", minimum:0, maximum:48*60},
+							repeatDuration: {type:"number", minimum:0, maximum:48*60000},
 							repeatMinMessages: {type:"integer", minimum:0, maximum:9999},
 							dates:{
 								type:"array",
@@ -622,7 +622,7 @@ import Ajv from "ajv";
 		ululeProject: {type:"string", maxLength:200},
 		ululeGoals: {type:"string", maxLength:200},
 		ululeTitle: {type:"string", maxLength:100},
-		ululeCurrency: {type:"string", maxLength:2},
+		ululeCurrency: {type:"string", maxLength:5},
 		heatEnabled: {type:"boolean"},
 		customUsernames: {
 			type:"object",
@@ -1069,7 +1069,7 @@ import Ajv from "ajv";
 		raidHistory: {
 			type:"array",
 			minItems:0,
-			maxItems:10,
+			maxItems:1000,
 			items:{
 				type:"object",
 				additionalProperties: false,

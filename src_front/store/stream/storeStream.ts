@@ -121,7 +121,7 @@ export const storeStream = defineStore('stream', {
 					date:Date.now(),
 				});
 				//Limit history to 100 entries
-				if(this.raidHistory.length > 100) {
+				if(this.raidHistory.length > 1000) {
 					this.raidHistory.shift();
 				}
 				DataStore.set(DataStore.RAID_HISTORY, this.raidHistory);
