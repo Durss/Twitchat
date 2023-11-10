@@ -444,7 +444,8 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:{
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:
+			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT:{
 				if(await this.executeTriggersByType(TriggerTypes.AD_STARTED, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;

@@ -1175,7 +1175,8 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: 
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT: {
 					const m:TwitchatDataTypes.MessageAdBreakStartData = {
 						platform:"twitch",
 						type,

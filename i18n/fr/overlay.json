@@ -226,7 +226,7 @@
 			"param_thickness":"Épaisseur de la barre",
 			"param_size":"Taille du texte",
 			"param_style":"Type d'affichage",
-			"param_label":"Texte",
+			"param_label":"Texte (optionnel)",
 			"param_label_placeholder_timer":"Affiche le temps restant",
 			"param_styles":{
 				"bar":"Barre de progression",

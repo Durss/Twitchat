@@ -49,9 +49,8 @@ export default class OverlayAdBreak extends AbstractOverlay {
 	public adData:TwitchatDataTypes.CommercialData|null = null;
 	public parameters:TwitchatDataTypes.AdBreakOverlayData|null = null;
 	
-	private dateEnd:number = 0;
-	private dateStart:number = 0;
 	private disposed:boolean = false;
+	private hidding:boolean = false;
 	private progressPercent:number = 0;
 
 	private adBreakDataHandler!:(e:TwitchatEvent) => void;
@@ -183,12 +182,7 @@ export default class OverlayAdBreak extends AbstractOverlay {
 	 */
 	private async onParameters(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
-			const prevStyle = this.adType == 'approaching'? this.parameters?.approachingStyle : this.parameters?.runningStyle;
 			this.parameters = (e.data as unknown) as TwitchatDataTypes.AdBreakOverlayData;
-			const newStyle = this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
-			if(prevStyle != newStyle) {
-				this.populate();
-			}
 		}
 	}
 	
@@ -197,97 +191,91 @@ export default class OverlayAdBreak extends AbstractOverlay {
 	 */
 	private onAdBreak(e:TwitchatEvent):void {
 		if(e.data) {
+			this.show = false;
 			this.adData = (e.data as unknown) as TwitchatDataTypes.CommercialData;
-			this.populate();
 		}
-	}
-
-	private populate():void {
-		gsap.killTweensOf(this);
-
-		if(!this.adData) return;
-		
-		//Check if an ad is rolling
-		const isAdRunning	= this.adData.currentAdStart_at + this.adData.currentAdDuration_ms - Date.now() > 0 && this.adData.currentAdStart_at > 0;
-		//Check if an ad is coming in less than a minute
-		const isAdApproaching	= this.adData.nextAdStart_at > 0;
-
-		if(!isAdRunning && !isAdApproaching) {
-			this.adType = "none";
-			return;
-		}
-		if(isAdRunning && this.parameters?.showRunning !== true) {
-			this.adType = "none";
-			return;
-		}
-		if(isAdApproaching && this.parameters?.showApproaching !== true) {
-			this.adType = "none";
-			return;
-		}
-
-		const adType		= isAdRunning? "running" : "approaching";
-		const delay			= isAdRunning? 0 :  (this.parameters?.approachingDelay || 30) * 1000;
-		const adDuration	= isAdRunning? this.adData.currentAdDuration_ms : Math.min(this.adData.nextAdStart_at - Date.now(), delay);
-		// const timeLeft		= Math.max(0, Math.round(date - Date.now()));
-		this.component		= adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
-		this.dateStart		= isAdRunning? this.adData.currentAdStart_at : Math.max(Date.now(), this.adData.nextAdStart_at - delay);
-		this.dateEnd		= this.dateStart + adDuration;
-		this.adType			= adType;
-		this.progressPercent= 0;
-
-		/*
-		gsap.to(this, {delay, duration:this.dateEnd, timeLeft:0, progressPercent:100, ease:Linear.easeNone, onStart:()=>{
-			
-			if(this.component == "text") {
-				this.$nextTick().then(()=>{
-					this.showCard();
-				})
-			}
-		}, onComplete:()=>{
-			if(this.component == "text") {
-				this.hideCard();
-			}else{
-				this.adType = "none";
-			}
-		}});
-		//*/
 	}
 
 	private renderFrame():void {
 		if(this.disposed) return;
 
 		requestAnimationFrame(()=>this.renderFrame());
-		
-		if(this.dateStart > Date.now() || this.dateEnd < Date.now()) {
-			if(this.component == "text") {
-				//Hid if progress greater than 0 to avoid spamming hideCard() call indefinitely
-				if(this.progressPercent > 0) this.hideCard();
-			}else{
-				this.show = false;
-			}
-			this.progressPercent = 0;
-			return;
+
+		if(!this.adData || !this.parameters) return;
+
+		let isAdComing		= false;
+		let isAdRunning		= false;
+		let duration:number	= (this.parameters?.approachingDelay || 30) * 1000;
+		let startDate:number= 0;
+		if(this.adData.prevAdStart_at + this.adData.currentAdDuration_ms >= Date.now()){
+			isAdRunning		= true;
+			startDate		= this.adData.prevAdStart_at + this.adData.currentAdDuration_ms;
+			duration		= this.adData.currentAdDuration_ms;
+		}else
+		if(Date.now() > this.adData.nextAdStart_at && Date.now() < this.adData.nextAdStart_at + this.adData.currentAdDuration_ms) {
+			isAdRunning		= true;
+			startDate		= this.adData.nextAdStart_at + this.adData.currentAdDuration_ms;
+			duration		= this.adData.currentAdDuration_ms;
+		}else
+		if(this.adData.nextAdStart_at > 0 && this.adData.nextAdStart_at - Date.now() < duration) {
+			isAdComing		= true;
+			startDate		= this.adData.nextAdStart_at;
 		}
 
-		if(this.component == "text") {
-			this.showCard();
-		}else{
-			this.show = true;
+		if(!isAdRunning && !isAdComing) {
+			this.adType = "none";
+			this.doHide();
+			return;
+		}
+		if(isAdRunning && this.parameters?.showRunning !== true) {
+			this.adType = "none";
+			this.doHide();
+			return;
+		}
+		if(isAdComing && this.parameters?.showApproaching !== true) {
+			this.adType = "none";
+			this.doHide();
+			return;
 		}
 		
-		const duration = (this.dateEnd - this.dateStart);
-		this.progressPercent = (Date.now() - this.dateStart) / duration;
+		this.adType		= isAdRunning? "running" : "approaching";
+		this.component	= this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
+		this.progressPercent = 1 - (startDate - Date.now()) / duration;
+		
+		if(this.progressPercent <= 0) {
+			this.doHide();
+			return;
+		}else{
+			this.doShow();
+		}
 		
 		let label = this.adType == "approaching"? this.parameters?.approachingLabel : this.parameters?.runningLabel;
-		this.label = label?.replace(/\{TIMER\}/gi, Utils.formatDuration(900 + duration * (1- this.progressPercent))) || "";
+		this.label = label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "";
+	}
+
+	private doShow():void {
+		if(this.show) return;
+		this.show = true;
+		if(this.component == "text") {
+			this.showCard();
+		}
+	}
+
+	private doHide():void {
+		if(this.hidding || !this.show) return;
+		if(this.component == "text") {
+			this.hideCard();
+		}else{
+			this.show = false;
+		}
 	}
 
 	/**
 	 * Open the text card
 	 */
 	private async showCard():Promise<void> {
-		if(this.show) return;
 		this.show = true;
+		this.hidding = false;
 		await this.$nextTick();
 		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
 		const holder = this.$refs.holder as HTMLDivElement;
@@ -316,7 +304,7 @@ export default class OverlayAdBreak extends AbstractOverlay {
 	 * Closes the text card
 	 */
 	private async hideCard():Promise<void> {
-		if(!this.show) return;
+		this.hidding = true;
 		const placement = this.adType == "approaching"? this.parameters?.approachingPlacement : this.parameters?.runningPlacement;
 		const holder = this.$refs.holder as HTMLDivElement;
 		if(!holder || !placement) return;

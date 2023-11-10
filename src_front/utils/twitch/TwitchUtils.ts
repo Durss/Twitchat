@@ -2287,12 +2287,12 @@ export default class TwitchUtils {
 			const json = await res.json();
 			if(json.data && json.data.length > 0) {
 				const data = json.data[0] as TwitchDataTypes.AdSchedule;
-				//TODO remove that debug !
+				//Debug data
 				// const data:TwitchDataTypes.AdSchedule = {
 				// 	"snooze_count": 3,
 				// 	"snooze_refresh_at": 0,
 				// 	"next_ad_at": (Date.now() + .2 * 60000)/1000,
-				// 	"length_seconds": 15,
+				// 	"length_seconds": 30,
 				// 	"last_ad_at": (Date.now() - 60*60000)/1000,
 				// 	"preroll_free_time_seconds": 3534
 				// }

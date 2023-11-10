@@ -108,7 +108,7 @@ export default class OverlayParamsAdBreak extends Vue {
 
 	public param_showApproaching:TwitchatDataTypes.ParameterData<boolean>	= {type:"boolean", value:false, icon:"timer", labelKey:"overlay.adBreak.param_showApproaching"};
 	public param_showRunning:TwitchatDataTypes.ParameterData<boolean>		= {type:"boolean", value:false, icon:"play", labelKey:"overlay.adBreak.param_showRunning"};
-	public param_approachingDelay:TwitchatDataTypes.ParameterData<number>	= {type:"time", value:30, max:5*60, icon:"timer", labelKey:"overlay.adBreak.param_approachingDelay"};
+	public param_approachingDelay:TwitchatDataTypes.ParameterData<number>	= {type:"number", value:30, max:5*60, icon:"timer", labelKey:"overlay.adBreak.param_approachingDelay"};
 	public param_approachingStyle:TwitchatDataTypes.ParameterData<TwitchatDataTypes.AdBreakOverlayData["approachingStyle"], TwitchatDataTypes.AdBreakOverlayData["approachingStyle"]>
 																			= {type:"list", value:"bar", listValues:[], icon:"overlay", labelKey:"overlay.adBreak.param_style"};
 	public param_runningStyle:TwitchatDataTypes.ParameterData<TwitchatDataTypes.AdBreakOverlayData["runningStyle"], TwitchatDataTypes.AdBreakOverlayData["runningStyle"]>
@@ -200,9 +200,8 @@ export default class OverlayParamsAdBreak extends Vue {
 	public testApproaching():void {
 		this.testingApproaching = true;
 		const data:TwitchatDataTypes.CommercialData = {
-			adCooldown_ms:0,
 			currentAdDuration_ms: 0,
-			currentAdStart_at: 0,
+			prevAdStart_at: 0,
 			nextAdStart_at: Date.now() + this.localData.approachingDelay * 1000,
 			nextSnooze_at: 0,
 			remainingSnooze: 3,
@@ -216,9 +215,8 @@ export default class OverlayParamsAdBreak extends Vue {
 	public testRunning():void {
 		this.testingRunning = true;
 		const data:TwitchatDataTypes.CommercialData = {
-			adCooldown_ms:0,
 			currentAdDuration_ms: 30000,
-			currentAdStart_at: Date.now(),
+			prevAdStart_at: Date.now(),
 			nextAdStart_at: 0,
 			nextSnooze_at: 0,
 			remainingSnooze: 3,

@@ -226,7 +226,7 @@
 			"param_thickness":"Bar thickness",
 			"param_size":"Text size",
 			"param_style":"Display style",
-			"param_label":"Text label",
+			"param_label":"Text label (optional)",
 			"param_label_placeholder_timer":"Show countdown",
 			"param_styles":{
 				"bar":"Progress bar",

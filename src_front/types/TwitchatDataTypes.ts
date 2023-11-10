@@ -1696,6 +1696,7 @@ export namespace TwitchatDataTypes {
 		OBS_FILTER_TOGGLE:"obs_filter_toggle",
 		HYPE_TRAIN_CANCEL:"hype_train_cancel",
 		HYPE_TRAIN_SUMMARY:"hype_train_summary",
+		AD_BREAK_START_CHAT:"ad_break_start_chat",
 		HYPE_TRAIN_PROGRESS:"hype_train_progress",
 		HYPE_TRAIN_COMPLETE:"hype_train_complete",
 		LOW_TRUST_TREATMENT:"low_trust_treatment",
@@ -1755,9 +1756,9 @@ export namespace TwitchatDataTypes {
 		room_settings:true,
 		stream_online:true,
 		scope_request:true,
-		ad_break_start:true,
 		followbot_list:true,
 		stream_offline:true,
+		ad_break_start:false,
 		chat_highlight:false,//Used for "highlight on overlay" events
 		counter_update:false,
 		goxlr_fx_state:false,
@@ -1774,6 +1775,7 @@ export namespace TwitchatDataTypes {
 		hype_train_summary:true,
 		goxlr_sound_input:false,
 		low_trust_treatment:true,
+		ad_break_start_chat:true,
 		hype_train_progress:false,
 		hype_train_complete:false,
 		ad_break_approaching:false,
@@ -1926,9 +1928,9 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.TWITCHAT_AD,
 		TwitchatMessageType.SUBSCRIPTION,
 		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
-		TwitchatMessageType.AD_BREAK_START,
 		TwitchatMessageType.USER_WATCH_STREAK,
 		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
+		TwitchatMessageType.AD_BREAK_START_CHAT,
 		TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
 		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
 		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
@@ -3492,7 +3494,7 @@ export namespace TwitchatDataTypes {
 	 * Represents an ad break started manually
 	 */
 	export interface MessageAdBreakStartData extends AbstractTwitchatMessage {
-		type:"ad_break_start";
+		type:"ad_break_start" | "ad_break_start_chat";
 		/**
 		 * Ad duration in seconds
 		 */

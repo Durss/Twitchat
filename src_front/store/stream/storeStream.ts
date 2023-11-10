@@ -334,7 +334,7 @@ export const storeStream = defineStore('stream', {
 			let to = setTimeout(() => {
 				//If ad has been started by someone, notify on tchat
 				const message:TwitchatDataTypes.MessageAdBreakStartData = {
-					type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+					type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
 					id:Utils.getUUID(),
 					date:Date.now(),
 					platform:"twitch",
