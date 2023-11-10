@@ -14,29 +14,53 @@
 
 		<ParamItem :paramData="param_message" v-if="action.customMessage.user" v-model="action.customMessage.message" />
 		
-		<div class="actions">
-			<ToggleBlock :title="cta.label || 'action'" :icons="cta.icon? [cta.icon] : []" medium v-for="(cta, index) in action.customMessage.actions" :key="index" :open="false" class="actison">
+		<draggable
+		class="actions"
+		v-model="action.customMessage.actions"
+		itemKey="id"
+		group="ctas" 
+		ghost-class="ghost"
+		direction="vertical"
+		handle=".header"
+		:animation="250">
+			<template #item="{element, index}:{element:NonNullable<TwitchatDataTypes.MessageCustomData['actions']>[number], index:number}">
+				<ToggleBlock :title="element.label || 'action'" :icons="element.icon? [element.icon] : []" :open="false" medium:open="false" class="actison">
 
-				<template #right_actions>
-					<div class="actionList">
-						<Button small alert
-							icon="trash"
-							@click="deleteAction(index)"
-							v-tooltip="$t('global.delete')"/>
+					<template #left_actions>
+						<div class="actionList">
+							<Button small
+								icon="dragZone"
+								class="orderBt"
+								v-tooltip="$t('triggers.reorder_tt')"
+								@click.stop
+							/>
+						</div>
+					</template>
+
+					<template #right_actions>
+						<div class="actionList">
+							<Button small alert
+								icon="trash"
+								@click="deleteAction(index)"
+								v-tooltip="$t('global.delete')"/>
+						</div>
+					</template>
+
+					<div class="ctaForm">
+						<ParamItem :paramData="actionParams[index].label" v-model="element.label" noBackground />
+						<ParamItem :paramData="actionParams[index].icon" v-model="element.icon" noBackground />
+						<ParamItem :paramData="actionParams[index].theme" v-model="element.theme" noBackground />
+						<ParamItem :paramData="actionParams[index].actionType" v-model="element.actionType" noBackground>
+							<ParamItem :paramData="actionParams[index].url" v-model="element.url" v-if="element.actionType == 'url'" noBackground />
+							<ParamItem :paramData="actionParams[index].message" v-model="element.message" v-else-if="element.actionType == 'message'" noBackground />
+							<SimpleTriggerList class="child list" v-else-if="!element.triggerId" @select="(id:string) => element.triggerId = id" />
+							<SimpleTriggerList class="child" v-else :filteredItemId="element.triggerId" @click="element.triggerId = ''" />
+						</ParamItem>
 					</div>
-				</template>
-				<ParamItem :paramData="actionParams[index].label" v-model="cta.label" noBackground />
-				<ParamItem :paramData="actionParams[index].icon" v-model="cta.icon" noBackground />
-				<ParamItem :paramData="actionParams[index].theme" v-model="cta.theme" noBackground />
-				<ParamItem :paramData="actionParams[index].actionType" v-model="cta.actionType" noBackground>
-					<ParamItem :paramData="actionParams[index].url" v-model="cta.url" v-if="cta.actionType == 'url'" noBackground />
-					<ParamItem :paramData="actionParams[index].message" v-model="cta.message" v-else-if="cta.actionType == 'message'" noBackground />
-					<SimpleTriggerList class="child list" v-else-if="!cta.triggerId" @select="(id:string) => cta.triggerId = id" />
-					<SimpleTriggerList class="child" v-else :filteredItemId="cta.triggerId" @click="cta.triggerId = ''" />
-				</ParamItem>
-			</ToggleBlock>
-			<Button class="addBt" icon="add" @click="addAction()">{{ $t("triggers.actions.customChat.add_actionBt") }}</Button>
-		</div>
+				</ToggleBlock>
+			</template>
+		</draggable>
+		<Button class="addBt" icon="add" @click="addAction()">{{ $t("triggers.actions.customChat.add_actionBt") }}</Button>
 
 		<div class="message">
 			<ChatCustomMessage :messageData="messageData" tabindex="-1" demo />
@@ -56,10 +80,13 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import draggable from 'vuedraggable';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
 		Button,
+		draggable,
 		ParamItem,
 		ToggleBlock,
 		SimpleTriggerList,
@@ -189,6 +216,7 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 	public addAction(source?:NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]):void {
 		if(!source) {
 			source = {
+				id:Utils.getUUID(),
 				label:"",
 				icon:"",
 				theme:"",
@@ -201,6 +229,7 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 		}
 
 		const params:Key2ParamMap = {
+			id:{type:"boolean", value:false},
 			icon:{type:'imagelist', value:'', listValues:this.iconList.concat(), labelKey:'triggers.actions.customChat.param_action_icon'},
 			actionType:{type:'list', value:'', listValues:this.actionTypes, labelKey:'triggers.actions.customChat.param_action_type'},
 			url:{type:"string", value:"", maxLength: 1000, labelKey:"triggers.actions.customChat.param_action_url"},
@@ -260,14 +289,14 @@ type Key2ParamMap = {
 			max-width: 100px;
 		}
 	}
+	.addBt {
+		margin: auto;
+	}
 
 	.actions {
 		gap: .25em;
 		display: flex;
 		flex-direction: column;
-		.addBt {
-			align-self: center;
-		}
 		.action {
 			gap: .5em;
 			display: flex;
@@ -285,6 +314,11 @@ type Key2ParamMap = {
 				align-self: center;
 			}
 		}
+		.ctaForm {
+			gap: .25em;
+			display: flex;
+			flex-direction: column;
+		}
 	}
 	.actionList {
 		align-self: stretch;
@@ -295,6 +329,10 @@ type Key2ParamMap = {
 			height: 100%;
 			border-radius: 0;
 			padding: 0 .5em;
+		}
+		.orderBt {
+			box-shadow: unset;
+			margin-left: -.5em;
 		}
 	}
 }

@@ -3575,6 +3575,7 @@ export namespace TwitchatDataTypes {
 		 * CTAs to add on the message
 		 */
 		actions?:{
+			id?:string;
 			/**
 			 * Button's icon
 			 */

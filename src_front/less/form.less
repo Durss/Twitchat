@@ -86,9 +86,10 @@ button {
 
 .vs__dropdown-toggle {
 	.bevel();
-	box-sizing: border-box !important;
-	border-radius: --border-radius !important;
-	background-color: var(--background-color-fader) !important;
+	background-color: var(--background-color-fader);
+	border: none;
+	border-radius: var(--border-radius);
+	margin: 0;
 
 	.vs__deselect {
 		svg {
@@ -121,7 +122,6 @@ button {
 
 .vs__selected-options > .vs__search {
 	margin: 0;
-	border-radius: var(--border-radius);
 	&::placeholder {
 		font-style: italic;
 		color: var(--color-text-fade);
@@ -130,7 +130,7 @@ button {
 
 .vs__dropdown-option {
 	&.vs__dropdown-option--highlight {
-		background-color: var(--color-primary);
+		background-color: var(--color-secondary);
 		.listIcon {
 			filter: brightness(10);
 		}

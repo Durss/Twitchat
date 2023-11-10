@@ -483,6 +483,7 @@ import Ajv from "ajv";
 												type: "object",
 												additionalProperties: false,
 												properties: {
+													id: {type:"string", maxLength:50},
 													icon: {type:"string", maxLength:100},
 													label: {type:"string", maxLength:100},
 													url: {type:"string", maxLength:1000},
