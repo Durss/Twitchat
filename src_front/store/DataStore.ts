@@ -1548,12 +1548,15 @@ export default class DataStore {
 				if(!t.queue) {
 					const infos = Utils.getTriggerDisplayInfo(t);
 					let name = Utils.slugify(infos.label || "automatic_queue");
+					if(t.type == TriggerTypes.REWARD_REDEEM) {
+						name = "channelpoints-reward";
+					}
 					if(count[name] === undefined) count[name] = 0;
 					if(count[name] > 0) name +="_"+count[name];
 					count[name] ++;
 					
 					t.queue = name;
-					console.log("Set queue to", t.queue);
+					console.log("Set queue to", name);
 				}
 			});
 			data[DataStore.TRIGGERS] = triggers;
