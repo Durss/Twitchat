@@ -105,11 +105,11 @@ export default class StreamInfoSubForm extends Vue {
 
 	public beforeMount():void {
 
-		watch(()=>this.title, ()=> { console.log("title"); this.populate(); });
-		watch(()=>this.tags, ()=> { console.log("tags"); this.populate(); });
-		watch(()=>this.category, ()=> { console.log("category"); this.populate(); });
-		watch(()=>this.labels, ()=> { console.log("labels"); this.populate(); });
-		watch(()=>this.branded, ()=> { console.log("branded"); this.populate(); });
+		watch(()=>this.title, ()=> { this.populate(); });
+		watch(()=>this.tags, ()=> { this.populate(); });
+		watch(()=>this.category, ()=> { this.populate(); });
+		watch(()=>this.labels, ()=> { this.populate(); });
+		watch(()=>this.branded, ()=> { this.populate(); });
 		watch(()=>this.localCategories, ()=> {
 			const value = this.localCategories.length > 0? this.localCategories[0] : null;
 			this.$emit('update:category', value);
