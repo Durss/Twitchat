@@ -46,6 +46,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerCustomUsernameData
 								| TriggerActionValueData
 								| TriggerActionCustomMessageData
+								| TriggerActionHeatClickData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -582,6 +583,11 @@ export interface TriggerActionStreamInfoData extends TriggerActionData{
 	labels?:{id:string, enabled:boolean}[];
 }
 
+export interface TriggerActionHeatClickData extends TriggerActionData{
+	type:"heat_click";
+
+}
+
 export interface TriggerScheduleData {
 	type:TriggerScheduleTypesValue|"0";
 	repeatDuration:number;
@@ -1107,6 +1113,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
 	for (k in map) {
 		let entry = map[k]!;
+		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
+			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
+		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
 		}

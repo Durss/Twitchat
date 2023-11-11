@@ -51,7 +51,7 @@ export default class OverlayDistort extends AbstractOverlay {
 	public async onParametersHandler(e:TwitchatEvent):Promise<void> {
 		const {params} = (e.data as unknown) as {params:TwitchatDataTypes.HeatDistortionData};
 		//If it's not for us, stop there
-		if(params.id != this.distortionID) return;
+		if(!params || params.id != this.distortionID) return;
 		this.distortionData = params;
 	}
 	

@@ -194,7 +194,7 @@ export const storeAuth = defineStore('auth', {
 					//Loads state of current or incoming ads
 					TwitchUtils.getAdSchedule();
 					//Refresh status every 10minutes
-					setInterval(()=>TwitchUtils.getAdSchedule(), 10 * 60000);
+					setInterval(()=>TwitchUtils.getAdSchedule(), 1 * 60000);
 				}
 
 				//Preload moderators of the channel and flag them accordingly

@@ -2,12 +2,12 @@
 	<div class="triggerconditionlistitem">
 		<Icon name="dragZone" class="dragIcon" />
 
-		<ParamItem class="placeholder" noBackground :paramData="param_placeholder" @change="updateOperators()" v-model="condition.placeholder" :key="'ph_'+condition.id" />
+		<ParamItem class="placeholder" noBackground :paramData="param_placeholder" @change="updateOperators(true)" v-model="condition.placeholder" :key="'ph_'+condition.id" />
 
 		<ParamItem class="operator" noBackground :paramData="param_operator" v-model="condition.operator" :key="'op_'+condition.id" />
 
 		<ParamItem class="value" v-if="forceCustom !== true && param_value_list.listValues" noBackground :paramData="param_value_list" v-model="condition.value" :key="'vl_'+condition.id" @change="onSelectFixedValue()" />
-		<ParamItem class="value" v-else noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" />
+		<ParamItem class="value" v-else noBackground :paramData="param_value" v-model="condition.value" :key="'v_'+condition.id" placeholdersAsPopout />
 
 		<div class="ctas">
 			<Button small icon="group"
@@ -53,6 +53,7 @@ export default class TriggerConditionListItem extends Vue {
 	public param_value:TwitchatDataTypes.ParameterData<string, string> = {type:"string", value:""}
 	public param_value_list:TwitchatDataTypes.ParameterData<string, unknown> = {type:"list", value:""}
 
+	private firstRender:boolean = true;
 	private CUSTOM:string = "@___CUSTOM_VALUE___@";
 
 	public beforeMount():void {
@@ -109,11 +110,13 @@ export default class TriggerConditionListItem extends Vue {
 			placeholderList.push({label:this.condition.placeholder, value:this.condition.placeholder});
 		}
 		this.param_placeholder.listValues = placeholderList;
+		this.param_value.placeholderList = placeholders;
 		//Wait for list to render and update its internal "selectedListValue" value.
 		//Might be something fixable within the ParamItem component to avoid that
 		//async behavior, but too lazy for now :3
 		this.$nextTick().then(()=>{
 			this.updateOperators();
+			this.firstRender = false;
 		})
 	}
 
@@ -121,7 +124,9 @@ export default class TriggerConditionListItem extends Vue {
 	 * Removes arithmetical operators if the placeholder
 	 * isn't defined as number parsable.
 	 */
-	public updateOperators():void {
+	public updateOperators(inputOrigin:boolean = false):void {
+		if(inputOrigin && this.firstRender) return;
+
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
 		const placeholderRef = placeholders.find(v=> v.tag.toLowerCase() === this.condition.placeholder.toLowerCase());
 		const cmdParamRef = this.triggerData.chatCommandParams?.find(v=> v.tag == this.condition.placeholder);
@@ -147,9 +152,12 @@ export default class TriggerConditionListItem extends Vue {
 
 			//If condition's value does not exist on the fixed ones, force
 			//custom field to be displayed with that value.
-			if(this.condition.value && list.findIndex(v=> (v.value as string).toString().toLowerCase() == this.condition.value.toLowerCase()) == -1) {
+			const item = list.find(v=> (v.value as any).toString().toLowerCase() == (this.condition.value as any).toString().toLowerCase())
+			if(this.condition.value && !item) {
 				this.forceCustom = true;
 			}
+			
+			if(item) this.condition.value = item.value as string;
 		}else{
 			delete this.param_value_list.listValues;
 		}

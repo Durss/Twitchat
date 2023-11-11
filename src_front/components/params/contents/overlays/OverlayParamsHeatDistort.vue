@@ -67,17 +67,14 @@ import gsap from 'gsap/all';
 })
 export default class OverlayParamsHeatDistort extends Vue {
 
-	public distortionList:TwitchatDataTypes.HeatDistortionData[] = [];
-
+	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get isPremium():boolean{ return this.$store("auth").isPremium; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
+	public get distortionList():TwitchatDataTypes.HeatDistortionData[] { return this.$store("heat").distortionList; }
 
 	public beforeMount():void {
-		const json = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
-		this.distortionList = json;
-
 		watch(()=>this.distortionList, () => this.saveData(), {deep:true});
 	}
 
@@ -161,7 +158,12 @@ export default class OverlayParamsHeatDistort extends Vue {
 		const holder = this.$refs["distortion_"+data.id] as Vue[];
 		gsap.to(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
 			(async()=> {
-				this.distortionList = this.distortionList.filter(v=>v.id != data.id);
+				for (let i = 0; i < this.distortionList.length; i++) {
+					const d = this.distortionList[i];
+					if(d.id == data.id) {
+						this.distortionList.splice(i,1);
+					}
+				}
 	
 				let sourceName = "";
 				if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
@@ -213,7 +215,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 		for (let i = 0; i < this.distortionList.length; i++) {
 			const data = {
 				params:(this.distortionList[i] as unknown) as JsonObject
-			}
+			};
 			PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, data);
 		}
 	}

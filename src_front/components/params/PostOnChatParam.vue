@@ -13,7 +13,7 @@
 		>
 		
 			<PlaceholderSelector class="placeholders"
-				v-if="placeholderTarget && placeholders && showMessage"
+				v-if="placeholderTarget && placeholders"
 				v-model="textParam.value"
 				:target="placeholderTarget"
 				:placeholders="placeholders"

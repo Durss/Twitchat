@@ -841,7 +841,9 @@ export default class EventSub {
 	 */
 	public adBreakEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AdBreakEvent):void {
 		const infos = StoreProxy.stream.getCommercialInfo(event.broadcaster_user_id);
-		infos.nextAdStart_at = new Date(typeof event.started_at == "number"? event.started_at * 1000 : event.started_at).getTime(),//Thank you twitch for writing a completely wrong documentation...don't know if they'll change the doc or the service, so i handle both cases
+		//Thank you twitch for writing a completely wrong documentation...
+		//don't know if they'll change the doc or the service, so i handle both cases
+		infos.nextAdStart_at = new Date(typeof event.started_at == "number"? event.started_at * 1000 : event.started_at).getTime(),
 		infos.currentAdDuration_ms = event.length_seconds * 1000;
 		const starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
 		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, event.is_automatic? undefined : starter);

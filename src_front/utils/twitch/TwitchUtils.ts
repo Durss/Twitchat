@@ -2282,7 +2282,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers:this.headers,
 		});
-		console.log("GET AD");
+		
 		if(res.status == 200) {
 			const json = await res.json();
 			if(json.data && json.data.length > 0) {
@@ -2291,14 +2291,11 @@ export default class TwitchUtils {
 				// const data:TwitchDataTypes.AdSchedule = {
 				// 	"snooze_count": 3,
 				// 	"snooze_refresh_at": 0,
-				// 	"next_ad_at": (Date.now() + .2 * 60000)/1000,
+				// 	"next_ad_at": (Date.now() + 2.1 * 60000)/1000,
 				// 	"length_seconds": 30,
 				// 	"last_ad_at": (Date.now() - 60*60000)/1000,
 				// 	"preroll_free_time_seconds": 3534
 				// }
-				const prevInfo = StoreProxy.stream.getCommercialInfo(user.id);
-				//Thank you twitch for writing a completely wrong documentation...
-				//don't know if they'll change the doc or the service, so i handle both cases
 				const infos:TwitchatDataTypes.CommercialData = {
 					remainingSnooze:		data.snooze_count,
 					currentAdDuration_ms:	data.length_seconds * 1000,

@@ -2,7 +2,7 @@
 	<div class="triggerconditionlistgroupitem card-item">
 		<template v-for="c in  condition " :key="c.id">
 			<div class="group" v-if="c.type == 'group'">
-				<Button class="operator" small noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
+				<Button class="operator" small secondary noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
 					$t('triggers.condition.operators.' + c.operator) }}</Button>
 
 				<draggable class="draggable" v-model="c.conditions" direction="vertical" group="condition" item-key="id"
@@ -102,7 +102,7 @@ export default class TriggerConditionListGroupItem extends Vue {
 		flex-grow: 1;
 		position: relative;
 		padding-left: 1.25em;
-		border-left: 1px solid var(--color-light);
+		border-left: 1px solid var(--color-text);
 		border-top-left-radius: 10px;
 		border-bottom-left-radius: 10px;
 		min-height: 2em;

@@ -349,16 +349,54 @@ mark {
 }
 
 .tippy-box[data-theme~='twitchat'] {
-	// @color: var(--color-secondary-fade);
 	@color: var(--color-secondary);
 	color:var(--color-text-light);
     background-color: @color;
 	font-size: 1rem;
 	word-wrap: break-word;
 	white-space: pre-line;
-	// backdrop-filter: blur(5px);
-	// text-shadow: 0px 0px 5px rgba(0,0,0,1);//var(--text-shadow-contrast);
-	// box-shadow: 3px 3px 3px rgba(0,0,0,.35);
+	&[data-placement^='top']  > .tippy-arrow::before {
+		border-top-color: @color;
+	}
+	&[data-placement^='left']  > .tippy-arrow::before {
+		border-left-color: @color;
+	}
+	&[data-placement^='bottom']  > .tippy-arrow::before {
+		border-bottom-color: @color;
+	}
+	&[data-placement^='right']  > .tippy-arrow::before {
+		border-right-color: @color;
+	}
+}
+
+.tippy-box[data-theme~='light'] {
+	@color: var(--color-light);
+	color:var(--color-text-light);
+    background-color: @color;
+	font-size: 1rem;
+	word-wrap: break-word;
+	white-space: pre-line;
+	&[data-placement^='top']  > .tippy-arrow::before {
+		border-top-color: @color;
+	}
+	&[data-placement^='left']  > .tippy-arrow::before {
+		border-left-color: @color;
+	}
+	&[data-placement^='bottom']  > .tippy-arrow::before {
+		border-bottom-color: @color;
+	}
+	&[data-placement^='right']  > .tippy-arrow::before {
+		border-right-color: @color;
+	}
+}
+
+.tippy-box[data-theme~='dark'] {
+	@color: var(--color-dark);
+	color:var(--color-text-light);
+    background-color: @color;
+	font-size: 1rem;
+	word-wrap: break-word;
+	white-space: pre-line;
 	&[data-placement^='top']  > .tippy-arrow::before {
 		border-top-color: @color;
 	}

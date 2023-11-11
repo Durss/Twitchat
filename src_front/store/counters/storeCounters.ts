@@ -175,7 +175,7 @@ export const storeCounters = defineStore('counters', {
 					const min = c.min || 0;
 					counterValue = min + counterValue - c.max;
 					looped = true;
-					canReloop = counterValue > c.max;
+					canReloop = counterValue > c.max && c.min != c.max;//last condition avoids infinite loop
 				}else{
 					counterValue = c.max || 0;
 					maxed = true;
@@ -185,7 +185,7 @@ export const storeCounters = defineStore('counters', {
 					const max = c.max || 0;
 					counterValue = max - (c.min - counterValue);
 					looped = true;
-					canReloop = counterValue < c.min;
+					canReloop = counterValue < c.min && c.min != c.max;//last condition avoids infinite loop
 				}else{
 					counterValue = c.min || 0;
 					mined = true;

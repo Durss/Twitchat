@@ -222,6 +222,7 @@
 			v-model="paramData.value"
 			:secondary="secondary"
 			:premium="premium"
+			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
 			@insert="insertPlaceholder"
 		/>
@@ -325,6 +326,9 @@ export default class ParamItem extends Vue {
 	@Prop({type:Number, default: 0})
 	public tabindex!:number;
 
+	@Prop({type:Boolean, default: false})
+	public placeholdersAsPopout!:boolean;
+
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
@@ -368,6 +372,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.disabled || this.disabled == true) res.push("disabled");
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
+		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -1047,6 +1052,27 @@ export default class ParamItem extends Vue {
 	&.hasIcon {
 		.placeholders {
 			margin-left:1.5em;
+		}
+	}
+
+	&.popoutMode {
+		.placeholders {
+			position: absolute;
+			right: 0;
+			// top: 2px;
+			top: calc(50%);
+			transform: translateY(-50%);
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+			background-color: var(--color-secondary);
+			overflow: hidden;
+			display: flex;
+			height: calc(100% - 4px);
+		}
+		.inputHolder {
+			input {
+				padding-right: 1.5em !important;
+			}
 		}
 	}
 

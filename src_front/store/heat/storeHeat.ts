@@ -7,7 +7,6 @@ import Utils from '@/utils/Utils';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IHeatActions, IHeatGetters, IHeatState } from '../StoreProxy';
@@ -16,6 +15,7 @@ import StoreProxy from '../StoreProxy';
 export const storeHeat = defineStore('heat', {
 	state: () => ({
 		screenList:[],
+		distortionList:[],
 	} as IHeatState),
 
 
@@ -200,7 +200,6 @@ export const storeHeat = defineStore('heat', {
 					}
 				}
 
-				const distortions:TwitchatDataTypes.HeatDistortionData[] = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
 
 				// Parse all available OBS sources
 				for (let i = 0; i < rects.sources.length; i++) {
@@ -265,8 +264,8 @@ export const storeHeat = defineStore('heat', {
 					};
 
 					//If a distortion targets the current element, reroute events to its related browser source
-					for (let j = 0; j < distortions.length; j++) {
-						const d = distortions[j];
+					for (let j = 0; j < this.distortionList.length; j++) {
+						const d = this.distortionList[j];
 						const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
 						if(rect.sceneName == name || rect.source.sourceName == name) {
 							const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;

@@ -1784,6 +1784,10 @@ export interface IHeatState {
 	 * List of clickable areas
 	 */
 	screenList:HeatScreen[];
+	/**
+	 * List of distortion overlays
+	 */
+	distortionList:TwitchatDataTypes.HeatDistortionData[];
 }
 
 export interface IHeatGetters {

@@ -84,7 +84,7 @@
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
 				
 				<Button class="button" @click="selectActionType('value')"
-				 	v-newflag="{date:1693519200000, id:'params_value'}"
+				 	v-newflag="{date:1693519200000, id:'params_triggerAction_value'}"
 					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</Button>
 				
 				<Button class="button" @click="selectActionType('count')"
@@ -114,17 +114,17 @@
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('goxlr')"
-				 	v-newflag="{date:1693519200000, id:'params_goxlr'}"
+				 	v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
 					icon="goxlr" premium
 					:disabled="!goxlrEnabled"
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('customBadges')"
-				 	v-newflag="{date:1693519200000, id:'params_custombadges'}"
+				 	v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('customUsername')"
-				 	v-newflag="{date:1693519200000, id:'params_customusername'}"
+				 	v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
 					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</Button>
 				
 				<Button class="button" @click="selectActionType('trigger')"
@@ -142,6 +142,12 @@
 				<Button class="button" @click.capture="selectActionType('ws')"
 					:disabled="!wsConnected"
 					icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
+				
+				<Button class="button" @click.capture="selectActionType('heat_click')"
+					:disabled="!heatClickEnabled"
+					v-newflag="{date:1699651768211, id:'params_triggerAction_clickHeat'}"
+					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_clickHeat_tt')"
+					icon="distort">{{ $t('triggers.actions.common.action_clickHeat') }}</Button>
 			</div>
 		</div>
 
@@ -181,7 +187,7 @@ import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -276,6 +282,7 @@ export default class TriggerActionEntry extends Vue {
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
+	public get heatClickEnabled():boolean { return (this.$store('heat').distortionList || []).length > 0; }
 	public get hasChannelPoints():boolean {
 		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
 	}
@@ -409,6 +416,12 @@ export default class TriggerActionEntry extends Vue {
 	 */
 	public selectActionType(type:TriggerActionStringTypes):void {
 		switch(type) {
+			case "heat_click": {
+				if(!this.heatClickEnabled) {
+					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HEAT_DISTORT);
+					return;
+				}break
+			}
 			case "poll": {
 				if(!this.canCreatePoll) {
 					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);

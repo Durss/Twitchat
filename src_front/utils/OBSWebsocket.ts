@@ -323,7 +323,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		});
 
-		const distortions:TwitchatDataTypes.HeatDistortionData[] = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]");
+		const distortions = StoreProxy.heat.distortionList;
 		distortions.forEach(d=> {
 			sourcesToWatch.push( d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName );
 		})

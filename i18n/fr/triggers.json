@@ -146,7 +146,9 @@
 				"action_goxlr": "Contrôler la GoXLR",
 				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",
 				"action_customBadges": "Badges personnalisés",
-				"action_customUsername": "Pseudo personnalisé"
+				"action_customUsername": "Pseudo personnalisé",
+				"action_clickHeat": "Cliquer une distorsion",
+				"action_clickHeat_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie ?",
@@ -301,7 +303,7 @@
 				"action_add": "Ajouter",
 				"action_del": "Soustraire",
 				"action_set": "Remplacer la valeur",
-				"user_source_title": "Sélectionnez l'utilisateur mettre à jour pour ce compteur : | Sélectionnez l'utilisateur mettre à jour pour ces compteurs :",
+				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les personnes",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
@@ -565,7 +567,8 @@
 			"ad_break_duration":"Durée de la pub en secondes",
 			"ad_break_user":"Pseudo de la personne ayant lancé la pub (vide en cas de lancement automatique)",
 			"announcement_color":"Couleur de l'annonce",
-			"track_add_fail_reason":"Raison de l'échec d'ajout du morceau"
+			"track_add_fail_reason":"Raison de l'échec d'ajout du morceau",
+			"now":"Date en millisecondes"
 		},
 		"events": {
 			"CHAT_COMMAND": {

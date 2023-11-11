@@ -2,7 +2,7 @@
 	<div class="triggeractioncountentry triggerActionForm">
 		<div class="card-item list">
 			<label class="listLabel">
-				<img src="@/assets/icons/count.svg" class="icon">
+				<Icon name="count" class="icon" />
 				<span>{{ $t(param_counters.labelKey as string) }}</span>
 			</label>
 			<vue-select class="itemSelector"
@@ -20,7 +20,7 @@
 
 		<div class="card-item counterList" v-if="selectedPerUserCounters.length > 0 && userSourceOptions.length > 1">
 			<div class="head">
-				<img src="@/assets/icons/user.svg" class="icon">
+				<Icon name="user" class="icon" />
 				<span>{{ $tc("triggers.actions.count.user_source_title", selectedPerUserCounters.length) }}</span>
 			</div>
 			<div class="card-item primary" v-for="item in selectedPerUserCounters" :key="item.id">
@@ -192,7 +192,7 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 		flex-direction: column;
 		.head {
 			margin-bottom: .25em;
-			img {
+			.icon {
 				height: 1em;
 				margin-right: .5em;
 			}

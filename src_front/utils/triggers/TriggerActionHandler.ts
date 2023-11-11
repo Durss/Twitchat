@@ -1385,12 +1385,12 @@ export default class TriggerActionHandler {
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
 					text = text.replace(/,/gi, ".");
-					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+message+"\" => \""+text+"\""});
+					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+step.addValue+"\" => \""+text+"\""});
 					let value:any = "";
 					try {
 						value = MathJS.evaluate(text);
 					}catch(error) {
-						let logMessage = "❌ Invalid arithmetic operation: \""+text+"\"";
+						let logMessage = "❌ Invalid arithmetic operation: \""+step.addValue+"\"";
 						logStep.messages.push({date:Date.now(), value:logMessage});
 						log.error = true;
 						logStep.error = true;
@@ -2114,6 +2114,15 @@ export default class TriggerActionHandler {
 							case "album": value = SpotifyHelper.instance.currentTrack.album; break;
 							case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
 							case "url": value = SpotifyHelper.instance.currentTrack.url; break;
+						}
+	
+					/**
+					 * If the placeholder requests for date
+					 */
+					}else if(pointer.indexOf("__date__") == 0) {
+						const pointerLocal = pointer.replace('__date__.', '');
+						switch(pointerLocal) {
+							case "now": value = Date.now().toString(); break;
 						}
 					}
 				}else{

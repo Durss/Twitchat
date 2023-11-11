@@ -146,7 +146,9 @@
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
-				"action_customUsername": "Custom username"
+				"action_customUsername": "Custom username",
+				"action_clickHeat": "Click a distortion",
+				"action_clickHeat_tt": "You firs tneed to create a distortion to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -565,7 +567,8 @@
 			"ad_break_duration":"Ad break duration in seconds",
 			"ad_break_user":"Name of the moderator that started the ad break (empty if automatically started)",
 			"announcement_color":"Couleur de l'annonce",
-			"track_add_fail_reason":"Track add fail reason"
+			"track_add_fail_reason":"Track add fail reason",
+			"now":"Date in milliseconds"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -33,16 +33,16 @@
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
-		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="subContent == 'credits'? 'selected' : ''" />
-		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="subContent == 'heatDistort'? 'selected' : ''" />
-		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="subContent == 'wheel'? 'selected' : ''" />
-		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="subContent == 'highlight'? 'selected' : ''" />
-		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
-		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="subContent == 'timer'? 'selected' : ''" />
-		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="subContent == 'counter'? 'selected' : ''" />
-		<!-- <OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="subContent == 'tts'? 'selected' : ''" /> -->
-		<OverlayParamsAdBreak v-if="adStuffAvailable" class="block" :open="subContent == 'adBreak'" :class="subContent == 'adBreak'? 'selected' : ''" />
-		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="subContent == 'ulule'? 'selected' : ''" />
+		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="allowHighlight && subContent == 'credits'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="allowHighlight && subContent == 'heatDistort'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="allowHighlight && subContent == 'wheel'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="allowHighlight && subContent == 'highlight'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="allowHighlight && subContent == 'timer'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="allowHighlight && subContent == 'counter'? 'selected' : ''" @click="allowHighlight = false" />
+		<!-- <OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="allowHighlight && subContent == 'tts'? 'selected' : ''" /> -->
+		<OverlayParamsAdBreak v-if="adStuffAvailable" class="block" :open="subContent == 'adBreak'" :class="allowHighlight && subContent == 'adBreak'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="allowHighlight && subContent == 'ulule'? 'selected' : ''" @click="allowHighlight = false" />
 	</div>
 </template>
 
@@ -85,6 +85,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
+	public allowHighlight:boolean = true;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }

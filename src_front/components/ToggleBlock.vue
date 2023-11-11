@@ -23,6 +23,7 @@
 		</div>
 		<div class="content" v-if="opened" ref="content">
 			<slot></slot>
+			<slot name="content"></slot>
 		</div>
 	</div>
 </template>

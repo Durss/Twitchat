@@ -415,8 +415,7 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_DISTORT_OVERLAY_PARAMETERS, async (e:TwitchatEvent)=> {
 				const distortionID = (e.data as JsonObject || {}).distortionID;
-				const data = JSON.parse(DataStore.get(DataStore.OVERLAY_DISTORTIONS) || "[]") as TwitchatDataTypes.HeatDistortionData[];
-				const params = data.find(v=>v.id == distortionID);
+				const params = StoreProxy.heat.distortionList.find(v=>v.id == distortionID);
 
 				const json = {
 					params:(params as unknown) as JsonObject
@@ -1014,6 +1013,12 @@ export const storeMain = defineStore("main", {
 			const raidHistoryParams = DataStore.get(DataStore.RAID_HISTORY);
 			if(raidHistoryParams) {
 				sStream.raidHistory = JSON.parse(raidHistoryParams);
+			}
+
+			//Init heat distortions
+			const heatDistortionParams = DataStore.get(DataStore.OVERLAY_DISTORTIONS);
+			if(heatDistortionParams) {
+				sHeat.distortionList = JSON.parse(heatDistortionParams);
 			}
 			
 

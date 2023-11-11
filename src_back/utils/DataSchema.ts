@@ -993,16 +993,16 @@ import Ajv from "ajv";
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
 					enabled:{type:"boolean"},
-					value: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+					value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[
-							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
 					max: {
 						anyOf:[
-							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
@@ -1012,7 +1012,7 @@ import Ajv from "ajv";
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						}
 					}
 				}

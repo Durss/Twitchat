@@ -433,8 +433,10 @@ export default class TriggerActionList extends Vue {
 		}
 
 		this.scrollDir = 0;
-		if(e.clientY > document.body.clientHeight * .8) this.scrollDir = (e.clientY - document.body.clientHeight * .8) * .1;
-		if(e.clientY < document.body.clientHeight * .2) this.scrollDir = -(document.body.clientHeight * .2) * .1;
+		if(y2-y1 > 10) {
+			if(e.clientY > document.body.clientHeight * .8) this.scrollDir = (e.clientY - document.body.clientHeight * .8) * .1;
+			if(e.clientY < document.body.clientHeight * .2) this.scrollDir = -(document.body.clientHeight * .2) * .1;
+		}
 
 		this.selectedActions = selected;
 

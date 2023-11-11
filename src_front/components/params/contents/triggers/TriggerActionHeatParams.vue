@@ -168,11 +168,10 @@ export default class TriggerActionHeatParams extends Vue {
 	}
 
 	public cleanupData():void {
-		console.log(this.param_obsSources);
 		switch(this.param_clickSource.value) {
 			case "obs": {
 				this.triggerData.heatAreaIds = undefined;
-				this.triggerData.heatObsSource = this.param_obsSources.listValues? this.param_obsSources.listValues[0].value : "";
+				this.triggerData.heatObsSource = this.param_obsSources.listValues && this.param_obsSources.listValues.length > 0? this.param_obsSources.listValues[0].value : "";
 				break;
 			}
 			case "area": {
