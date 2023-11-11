@@ -597,6 +597,10 @@ export default class ParamItem extends Vue {
 			}
 		}
 
+		if(this.paramData.type == "imagelist") {
+			if(this.paramData.value === null) this.paramData.value = "";
+		}
+
 		if(this.paramData.save === true) {
 			this.$store("params").updateParams();
 		}

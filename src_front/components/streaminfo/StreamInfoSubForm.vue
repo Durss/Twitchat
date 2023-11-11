@@ -95,7 +95,7 @@ export default class StreamInfoSubForm extends Vue {
 
 	public localTags:string[] = [];
 	public localCategories:TwitchDataTypes.StreamCategory[] = [];
-	public loadingLabels:boolean = true;
+	public loadingLabels:boolean = false;
 
 	public get classes():string[] {
 		let res = ["streaminfosubform"];
@@ -105,11 +105,11 @@ export default class StreamInfoSubForm extends Vue {
 
 	public beforeMount():void {
 
-		watch(()=>this.title, ()=> { this.populate(); });
-		watch(()=>this.tags, ()=> { this.populate(); });
-		watch(()=>this.category, ()=> { this.populate(); });
-		watch(()=>this.labels, ()=> { this.populate(); });
-		watch(()=>this.branded, ()=> { this.populate(); });
+		watch(()=>this.title, ()=> { console.log("title"); this.populate(); });
+		watch(()=>this.tags, ()=> { console.log("tags"); this.populate(); });
+		watch(()=>this.category, ()=> { console.log("category"); this.populate(); });
+		watch(()=>this.labels, ()=> { console.log("labels"); this.populate(); });
+		watch(()=>this.branded, ()=> { console.log("branded"); this.populate(); });
 		watch(()=>this.localCategories, ()=> {
 			const value = this.localCategories.length > 0? this.localCategories[0] : null;
 			this.$emit('update:category', value);
@@ -186,6 +186,8 @@ export default class StreamInfoSubForm extends Vue {
 	}
 
 	private async populate():Promise<void> {
+		if(this.loadingLabels) return;
+
 		this.param_title.value	= this.param_title.value = this.title;
 		this.param_branded.value= this.branded === true;
 		this.localTags			= this.param_tags.value = this.tags;
@@ -196,7 +198,6 @@ export default class StreamInfoSubForm extends Vue {
 			this.loadingLabels = true;
 			//Load classification labels from Twitch
 			const res = await TwitchUtils.getContentClassificationLabels();
-			this.loadingLabels = false;
 			for (let i = 0; i < res.length; i++) {
 				const label = res[i];
 				//This label is automatically set from game selection, no need to make it selectable
@@ -211,6 +212,8 @@ export default class StreamInfoSubForm extends Vue {
 				this.param_labels[i].value = true;
 			}
 		}
+
+		this.loadingLabels = false;
 	}
 
 	private populatePlaceholders():void {

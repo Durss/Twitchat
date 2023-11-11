@@ -80,9 +80,9 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
 		
 		try {
-			this.connectInfo.ip = ip.trim();
-			this.connectInfo.port = port.trim();
-			this.connectInfo.pass = pass.trim();
+			this.connectInfo.ip = (ip || "").trim();
+			this.connectInfo.port = (port || "").trim();
+			this.connectInfo.pass = (pass || "").trim();
 			const protocol = (ip == "127.0.0.1" || ip == "localhost") ? "ws://" : "wss://";
 			const portValue = port && port?.length > 0 && port != "0"? ":"+port : "";
 			await this.obs.connect(protocol + ip + portValue, pass, {rpcVersion: 1});

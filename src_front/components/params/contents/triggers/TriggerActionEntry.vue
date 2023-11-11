@@ -143,11 +143,11 @@
 					:disabled="!wsConnected"
 					icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
 				
-				<Button class="button" @click.capture="selectActionType('heat_click')"
+				<!-- <Button class="button" @click.capture="selectActionType('heat_click')"
 					:disabled="!heatClickEnabled"
 					v-newflag="{date:1699651768211, id:'params_triggerAction_clickHeat'}"
 					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_clickHeat_tt')"
-					icon="distort">{{ $t('triggers.actions.common.action_clickHeat') }}</Button>
+					icon="distort">{{ $t('triggers.actions.common.action_clickHeat') }}</Button> -->
 			</div>
 		</div>
 

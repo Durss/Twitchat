@@ -283,9 +283,9 @@ export const storeStream = defineStore('stream', {
 				info = {
 					remainingSnooze:		0,
 					currentAdDuration_ms:	0,
-					prevAdStart_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
-					nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
-					nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60 * 1000,//Set it a year later to make sure it doesn't impact stuff
+					prevAdStart_at:			0,
+					nextAdStart_at:			0,
+					nextSnooze_at:			0,
 				}
 				this.commercial[channelId] = info;
 				//Request data asynchronously.

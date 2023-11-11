@@ -173,7 +173,6 @@ export default class StreamInfoForm extends AbstractSidePanel {
 			this.title = p.title;
 			this.labels = p.labels || [];
 			this.branded = p.branded === true;
-			console.log(p);
 			if(p.categoryID) {
 				const game = await TwitchUtils.getCategoryByID(p.categoryID);
 				game.box_art_url = game.box_art_url.replace("{width}", "52").replace("{height}", "72");
