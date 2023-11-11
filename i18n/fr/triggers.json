@@ -103,8 +103,8 @@
 			"param_cmd_params": "Paramètres de commande optionnels",
 			"param_cmd_params_tt": "Ceci permet d'extraire des portions du message et de les injecter dans les actions à exécuter par le bais de placeholders.",
 			"param_cmd_params_placeholder": "ajouter un paramètre...",
-			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
-			"param_cmd_params_example_result": "Resultat :",
+			"param_cmd_params_example": "Exemple d'utilisation de la commande :",
+			"param_cmd_params_example_result": "Resultat :",
 			"param_cmd_params_type_tt": "Type de donnée. Sélectionnez \"User\" pour que Twitchat charge les données de la personne"
 		},
 		"actions": {
@@ -195,7 +195,7 @@
 				"header": "Veuillez {LINK}",
 				"header_link": "connecter OBS",
 				"media_source": "Si vous utilisez un tag dans l'URL d'une source média, les caractères de navigation {CMD1} et {CMD2} seront supprimés pour des raisons de sécurité.",
-				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
+				"media_source_example": " : si vous configurez l'URL {PATH1}, vos viewers ne pourront pas envoyer {PATH2}",
 				"param_action": "Action",
 				"param_show_filter": "Visibilité du filtre",
 				"param_source": "Élément OBS",
@@ -288,7 +288,7 @@
 				"topic_placeholder": "valeur personnalisée...",
 				"output_placeholder": "Enregistrer le résultat de la requête dans le placeholder",
 				"output_placeholder_placeholder": "placeholder...",
-				"select_param": "Choisissez les paramètres à inclure :",
+				"select_param": "Choisissez les paramètres à inclure :",
 				"protocol_error": "A cause de restrictions de sécurité, seules les addresses 127.0.0.1 ou localhost peuvent être appelées en HTTP. Utilisez une URL en HTTPS pour tout autre adresse.",
 				"need_to_connect": "Cette action nécessite de vous {LINK}",
 				"need_to_connect_link": "connecter à un serveur websocket",
@@ -303,7 +303,7 @@
 				"action_add": "Ajouter",
 				"action_del": "Soustraire",
 				"action_set": "Remplacer la valeur",
-				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs :",
+				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
 				"user_source_everyone": "Toutes les personnes",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
@@ -311,7 +311,11 @@
 			"value": {
 				"value_label": "Valeur",
 				"select_label": "Valeurs à mettre à jour",
-				"select_placeholder": "Sélectionnez une valeur..."
+				"select_placeholder": "Sélectionnez une valeur...",
+				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour cette valeur : | Sélectionnez l'utilisateur à mettre à jour pour ces valeurs :",
+				"user_source_sender": "Personne déclenchant le trigger",
+				"user_source_everyone": "Toutes les personnes",
+				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"random": {
 				"min_label": "Valeur min (inclus)",
@@ -607,7 +611,7 @@
 				"label": "Viewer de retour",
 				"description": "Actions à exécuter lorsqu'une personne écrit dans votre tchat après avoir parlé 2 fois au cours des 30 derniers jours.{INFO}",
 				"description_info": "(ceci n'existe peut-être plus dans Twitch)",
-				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus l'utiliser :("
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus l'utiliser :("
 			},
 			"PRESENTATION": {
 				"label": "Présentation",

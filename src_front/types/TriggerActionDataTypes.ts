@@ -550,6 +550,13 @@ export interface TriggerActionValueData extends TriggerActionData{
 	 * Value IDs to update
 	 */
 	values:string[];
+	/**
+	 * Specifies weither a per-user value should be updated
+	 * based on the user executing the action (@see VALUE_EDIT_SOURCE_SENDER)
+	 * or if everyone should be updated (@see VALUE_EDIT_SOURCE_EVERYONE)
+	 * or a user whose name is stored on a placeholder (string name of the placeholder)
+	 */
+	valueUserSources:{[key:string]:string};
 }
 
 export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
@@ -723,6 +730,8 @@ export interface ITriggerPlaceholder<T> extends TwitchatDataTypes.PlaceholderEnt
 export const USER_PLACEHOLDER:string = "USER";
 export const USER_ID_PLACEHOLDER:string = "USER_ID";
 export const VALUE_PLACEHOLDER_PREFIX:string = "VALUE_";
+export const VALUE_EDIT_SOURCE_SENDER:string = "SENDER";
+export const VALUE_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
 export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
 export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";

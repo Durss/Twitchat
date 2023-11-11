@@ -265,6 +265,13 @@ import Ajv from "ajv";
 										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
 									},
 								},
+								valueUserSources: {
+									type:"object",
+									additionalProperties: false,
+									patternProperties: {
+										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
+									},
+								},
 								placeholder:{type:"string", maxLength:20},
 								outputPlaceholder:{type:"string", maxLength:20},
 								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
@@ -975,8 +982,16 @@ import Ajv from "ajv";
 					id: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
-					value: {type:"string", maxLength:1000000},
+					value: {type:"string", maxLength:100000},
 					enabled:{type:"boolean"},
+					perUser: {type:"boolean"},
+					users: {
+						type:"object",
+						additionalProperties: true,
+						patternProperties: {
+							".*": {type:"string", maxLength:100000},
+						}
+					}
 				}
 			}
 		},

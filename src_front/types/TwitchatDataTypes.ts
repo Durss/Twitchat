@@ -140,6 +140,14 @@ export namespace TwitchatDataTypes {
 		 */
 		value:string;
 		/**
+		 * Is the value is global (false) or per user (true)
+		 */
+		perUser:boolean;
+		/**
+		 * Users values
+		 */
+		users?:{[key:string]:string};
+		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
 		 * premium and have more than the maximum counters allowed 

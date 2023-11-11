@@ -5,18 +5,36 @@
 		"addBt":"Create new value",
 		"editBt":"Edit value",
 		"max_values_reached":"Vous avez atteint le maximum de {COUNT} valeurs pouvant être créées",
+		"user_not_found":"user not found",
 
 		"form":{
 			"name":"Name",
 			"name_conflict":"A value with the same name already exists",
 			"value":"Value",
+			"more": "More options",
+			"value_user": "Every user has their own value",
+			"username": "Name",
+			"userValue": "Value",
 			"placholder": "Custom placeholder name {'{'}VALUE_{VALUE}{'}'}",
 			"placholder_tt": "This value will allow you<br>to get this value<br>in any trigger action",
-			"placeholder_conflict": "Another value already uses this placeholder"
+			"placeholder_conflict": "Another value already uses this placeholder",
+			"load_all_users": "Load all users",
+			"clear_all_users": "Delete all users",
+			"reset_all_users": "Reset all users",
+			"no_users": "no user yet",
+			"search":"Search user..."
 		},
 		"delete_confirm": {
 			"title": "Delete?",
 			"desc": "Any trigger having a reference to this value will stop working properly."
+		},
+		"reset_users_confirm":{
+			"title": "Reset?",
+			"desc": "Reset all users to empty value?"
+		},
+		"delete_users_confirm":{
+			"title": "Delete?",
+			"desc": "Delete all users?"
 		}
 	}
 }

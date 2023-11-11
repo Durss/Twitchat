@@ -18,16 +18,30 @@
 			></vue-select>
 		</div>
 
+		<div class="card-item valueList" v-if="selectedPerUserValue.length > 0 && userSourceOptions.length > 1">
+			<div class="head">
+				<Icon name="user" class="icon" />
+				<span>{{ $tc("triggers.actions.value.user_source_title", selectedPerUserValue.length) }}</span>
+			</div>
+			<div class="card-item primary" v-for="item in selectedPerUserValue" :key="item.id">
+				<label :for="'select_'+item.id" class="name">{{ item.name }}</label>
+				<select :id="'select_'+item.id" v-model="action.valueUserSources[item.id]">
+					<option v-for="opt in userSourceOptions" :value="opt.key">{{ $t(opt.labelKey, {PLACEHOLDER:opt.key.toUpperCase()}) }}</option>
+				</select>
+			</div>
+		</div>
+
 		<ParamItem :paramData="param_value" v-model="action.newValue" />
 	</div>
 </template>
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { ITriggerPlaceholder, TriggerActionValueData, TriggerData } from '@/types/TriggerActionDataTypes';
+import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -42,8 +56,42 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 	@Prop
 	declare triggerData:TriggerData;
 
+	private userPLaceholders:ITriggerPlaceholder<any>[] = [];
+
 	public param_values:TwitchatDataTypes.ParameterData<string[], string> = {type:"list", labelKey:"triggers.actions.value.select_label", value:[], listValues:[]}
 	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.value.value_label", value:""}
+
+	/**
+	 * Build user trigger source list
+	 */
+	public get userSourceOptions():{key:string, labelKey:string}[] {
+		const res:{key:string, labelKey:string}[] = [
+			//Add static sources "sender" and "everyone"
+			{labelKey:"triggers.actions.value.user_source_sender", key:VALUE_EDIT_SOURCE_SENDER},
+			{labelKey:"triggers.actions.value.user_source_everyone", key:VALUE_EDIT_SOURCE_EVERYONE}
+		];
+
+		//Add command's placeholders
+		if(this.triggerData.chatCommandParams) {
+			this.triggerData.chatCommandParams.forEach(v=> {
+				res.push({labelKey:"triggers.actions.value.user_source_placeholder", key:v.tag});
+			});
+		}
+
+		//Add global placeholders that may contain a user name
+		this.userPLaceholders.filter(v=>v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX)==-1).forEach(v=> {
+			res.push({labelKey:"triggers.actions.value.user_source_placeholder", key:v.tag});
+		})
+		return res;
+	}
+
+	/**
+	 * Get value data of any per-user value added to the selection
+	 */
+	public get selectedPerUserValue():TwitchatDataTypes.ValueData[] {
+		return this.$store("values").valueList
+		.filter(v=>v.perUser === true && this.action.values.findIndex(v2=>v2 === v.id) > -1);
+	}
 
 
 	public beforeMount(): void {
@@ -52,7 +100,7 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 		const values:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("values").valueList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
-			return v.value != this.triggerData.counterId
+			return v.value != this.triggerData.valueId
 		});
 		
 		//Init value's list if necessary
@@ -69,12 +117,33 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 		}
 		
 		this.param_values.listValues = values;
+
+		watch(()=>this.selectedPerUserValue, ()=> this.updatePerUserValueSources());
+		this.updatePerUserValueSources();
+	}
+
+	/**
+	 * Initialize the "valueUserSources" data property if not
+	 * existing yet and set "SENDER" default value
+	 */
+	private updatePerUserValueSources():void {
+		//Init per-user value sources if necessary
+		for (let i = 0; i < this.selectedPerUserValue.length; i++) {
+			const c = this.selectedPerUserValue[i];
+			if(!this.action.valueUserSources) {
+				this.action.valueUserSources = {};
+			}
+			if(!this.action.valueUserSources[c.id]) {
+				this.action.valueUserSources[c.id] = VALUE_EDIT_SOURCE_SENDER;
+			}
+		}
 	}
 
 	/**
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.userPLaceholders = list.filter(v=>v.numberParsable !== true);
 		this.param_value.placeholderList = list;
 	}
 
@@ -112,7 +181,7 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 		flex-direction: column;
 		.head {
 			margin-bottom: .25em;
-			img {
+			.icon {
 				height: 1em;
 				margin-right: .5em;
 			}

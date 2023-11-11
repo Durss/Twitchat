@@ -311,7 +311,11 @@
 			"value": {
 				"value_label":"Value",
 				"select_label":"Values to update",
-				"select_placeholder":"Select a value..."
+				"select_placeholder":"Select a value...",
+				"user_source_title":"Select the user to update for this value: | Select the user to update for those values:",
+				"user_source_sender":"User calling the trigger",
+				"user_source_everyone":"All users",
+				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"random":{
 				"min_label":"Min value (included)",

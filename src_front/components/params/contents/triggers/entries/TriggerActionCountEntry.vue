@@ -154,7 +154,7 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		this.userPLaceholders = list.filter(v=>v.numberParsable !== true)
+		this.userPLaceholders = list.filter(v=>v.numberParsable !== true);
 		this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 

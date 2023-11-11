@@ -193,11 +193,8 @@ export const storeCounters = defineStore('counters', {
 			}
 			
 			if(c.perUser) {
-				if(user) {
-					c.users![user.id] = counterValue;
-				}else if(userId){
-					c.users![userId] = counterValue;
-				}
+				const uid = (user? user.id : userId) || "";
+				c.users![uid] = counterValue;
 			}else{
 				c.value = counterValue;
 			}

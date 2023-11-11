@@ -5,18 +5,36 @@
 		"addBt":"Créer une valeur",
 		"editBt":"Editer la valeur",
 		"max_values_reached":"You reached the maximum of {COUNT} values that can be created",
+		"user_not_found": "personne introuvable",
 
 		"form":{
 			"name":"Nom",
 			"name_conflict":"Une valeur du même nom existe déjà",
 			"value":"Valeur",
+			"more": "Plus d'options",
+			"username": "Nom",
+			"userValue": "Valeur",
+			"value_user": "Chaque viewer possède sa propre valeur",
 			"placholder": "Nom de placeholder personnalisé {'{'}VALUE_{VALUE}{'}'}",
 			"placholder_tt": "Cette valeur vous permettra<br>de récupérer la valeur<br>dans n'importe<br>quelle action de trigger",
-			"placeholder_conflict": "Une autre valeur utilise déjà ce placeholder"
+			"placeholder_conflict": "Une autre valeur utilise déjà ce placeholder",
+			"load_all_users": "Charger tous les viewers",
+			"clear_all_users": "Supprimer les viewers",
+			"reset_all_users": "Tout mettre à zéro",
+			"no_users": "aucune entrée",
+			"search": "Chercher quelqu'un..."
 		},
 		"delete_confirm": {
 			"title": "Supprimer ?",
 			"desc": "Tout trigger faisant référence à ce compteur ne fonctionnera plus correctement."
+		},
+		"reset_users_confirm":{
+			"title": "Reset ?",
+			"desc": "Souhaitez-vous vider la valeur de tous les viewers?"
+		},
+		"delete_users_confirm":{
+			"title": "Supprimer ?",
+			"desc": "Souhaitez-vous supprimer tous les viewers ?"
 		}
 	}
 }

@@ -529,7 +529,6 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	
 			this.$store("counters").updateCounter(entry.counter);
 		})
-
 	}
 
 	/**

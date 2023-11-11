@@ -35,26 +35,60 @@ export const storeValues = defineStore('values', {
 			rebuildPlaceholdersCache();
 		},
 
-		updateValue(id:string, data:Partial<TwitchatDataTypes.ValueData>):void {
+		editValueParams(id:string, data:Partial<TwitchatDataTypes.ValueData>):void {
 			let prevValue = "";
-			let value:any = null;
-			if(data.value != undefined) {
-				try {
-					const num = MathJS.evaluate(data.value);
-					if(!isNaN(num)) value = num;
-				}catch(error) {
-					value = data.value;
-				}
-			}
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
 					const d = this.valueList[i];
 					prevValue = d.value;
-					if(value) d.value = value;
+					if(data.value) d.value = data.value;
 					if(data.name) d.name = data.name;
 					if(data.placeholderKey) d.placeholderKey = data.placeholderKey;
 
 					if(d.value != prevValue) {
+						const message:TwitchatDataTypes.MessageValueUpdateData = {
+							date:Date.now(),
+							type:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,
+							id:Utils.getUUID(),
+							platform:"twitchat",
+							value:d,
+							newValue: d.value,
+							oldValue: prevValue,
+						};
+						StoreProxy.chat.addMessage(message);
+					}
+					break;
+				}
+			}
+			this.saveValues();
+		},
+
+		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+			let prevValue = "";
+			if(value != undefined) {
+				value = value.toString();
+				try {
+					const num = MathJS.evaluate(value);
+					if(!isNaN(num)) value = num.toString();
+				}catch(error) {}
+			}
+			for (let i = 0; i < this.valueList.length; i++) {
+				if(this.valueList[i].id == id) {
+					const d = this.valueList[i];
+			
+					if(d.perUser) {
+						if(!d.users) d.users = {};
+						const uid = (user? user.id : userId) || "";
+						prevValue = d.users![uid];
+						d.users![uid] = value;
+					}else{
+						prevValue = d.value;
+						d.value = value;
+					}
+					//Do no execute triggers if edditing a user by it ID.
+					//If only "userId" is given, don't execute it so we can update
+					//loads of values at once without cloagging the trigger system
+					if(!userId && d.value != prevValue) {
 						const message:TwitchatDataTypes.MessageValueUpdateData = {
 							date:Date.now(),
 							type:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE,

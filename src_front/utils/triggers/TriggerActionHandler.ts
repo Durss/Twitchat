@@ -1446,7 +1446,7 @@ export default class TriggerActionHandler {
 									if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
 									if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
 									if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
-									if(user) logMessage += " for @"+user.displayNameOriginal+")";
+									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 									logMessage += ". New value is "+c.value;
 									logStep.messages.push({date:Date.now(), value:logMessage});
 								}
@@ -1465,14 +1465,49 @@ export default class TriggerActionHandler {
 					const ids = step.values;
 					for (const v of StoreProxy.values.valueList) {
 						if(ids.indexOf(v.id) > -1) {
+							console.log("Edit", v, text);
+							console.log(step);
 							if(v.enabled == false && !isPremium) {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
 								logStep.error = true;
-							} else {
-								StoreProxy.values.updateValue(v.id, {value:text});
-								let logMessage = "Update Value \""+v.name+"\" to "+text;
+							} else
+							//Check if this step requests that this value should update a user
+							//different than the default one (the one executing the command)
+							if(v.perUser
+							&& step.valueUserSources
+							&& step.valueUserSources[v.id]
+							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
+							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE) {
+								log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
+								
+								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
+								for (let i = 0; i < users.length; i++) {
+									const user = users[i];
+									if(!v.perUser || (user && !user.temporary && !user.errored)) StoreProxy.values.updateValue(v.id, text, user);
+									let logMessage = "Update \""+v.name+"\", "+text;
+									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+									logStep.messages.push({date:Date.now(), value:logMessage});
+								}
+
+							//Check if requested to edit all users of a value
+							}else if(v.perUser
+							&& v.users
+							&& step.valueUserSources
+							&& step.valueUserSources[v.id]
+							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE){
+								logStep.messages.push({date:Date.now(), value:"Update all users, "+text});
+								for (const uid in v.users) {
+									StoreProxy.values.updateValue(v.id, text, undefined, uid);
+								}
+
+							//Standard value edition (either current user or a non-per-user value)
+							}else {
+								let user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+								if(!v.perUser || (user && !user.temporary && !user.errored)) StoreProxy.values.updateValue(v.id, text, user);
+								let logMessage = "Update \""+v.name+"\" to \""+text+"\"";
+								if(user) logMessage += " (for @"+user.displayNameOriginal+")";
 								logStep.messages.push({date:Date.now(), value:logMessage});
 							}
 						}
@@ -1837,9 +1872,9 @@ export default class TriggerActionHandler {
 					StoreProxy.chat.addMessage(customMessage);
 				}
 					
-			}catch(error) {
+			}catch(error:any) {
 				console.error(error);
-				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+JSON.stringify(error)});
+				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+error.message+" "+error.stack});
 				log.criticalError = true;
 				logStep.error = true;
 			}

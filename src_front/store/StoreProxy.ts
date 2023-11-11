@@ -1862,11 +1862,19 @@ export interface IValuesActions {
 	 */
 	addValue(data:TwitchatDataTypes.ValueData):void;
 	/**
-	 * Update a value
+	 * Update a value's params
 	 * @param id
 	 * @param data 
 	 */
-	updateValue(id:string, data:Partial<TwitchatDataTypes.ValueData>):void;
+	editValueParams(id:string, data:Partial<TwitchatDataTypes.ValueData>):void;
+	/**
+	 * Update a value
+	 * @param id
+	 * @param valuee
+	 * @param user 
+	 * @param userId  
+	 */
+	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
 	 * Delete a value
 	 * @param data 
