@@ -38,7 +38,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData, COUNTER_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -70,7 +70,8 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 		const res:{key:string, labelKey:string}[] = [
 			//Add static sources "sender" and "everyone"
 			{labelKey:"triggers.actions.count.user_source_sender", key:COUNTER_EDIT_SOURCE_SENDER},
-			{labelKey:"triggers.actions.count.user_source_everyone", key:COUNTER_EDIT_SOURCE_EVERYONE}
+			{labelKey:"triggers.actions.count.user_source_everyone", key:COUNTER_EDIT_SOURCE_EVERYONE},
+			{labelKey:"triggers.actions.count.user_source_chatters", key:COUNTER_EDIT_SOURCE_CHATTERS},
 		];
 
 		//Add command's placeholders

@@ -724,21 +724,25 @@ export default class TriggerActionHandler {
 		}
 			
 		//Wait for potential previous trigger of the exact same type to finish their execution
-		const queueKey = trigger.queue || trigger.id;
-		log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
+		const queueKey = trigger.queue;// || trigger.id;
+		const queue:Promise<void>[] = [];
+		let triggerResolver: (()=>void) | null = null;
 		
-		if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
-		const queue = this.triggerTypeToQueue[queueKey];
-		const eventBusy = queue.length > 0;
-		let prom = queue[queue.length-1] ?? Promise.resolve();
-		let triggerResolver!: ()=>void;
-		queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
-		if(eventBusy) {
-			log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
-		}
-		await prom;
-		if(eventBusy) {
-			log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
+		if(queueKey) {
+			log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
+			
+			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
+			const queue = this.triggerTypeToQueue[queueKey];
+			const eventBusy = queue.length > 0;
+			let prom = queue[queue.length-1] ?? Promise.resolve();
+			queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
+			if(eventBusy) {
+				log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
+			}
+			await prom;
+			if(eventBusy) {
+				log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
+			}
 		}
 
 		// console.log("PARSE STEPS", eventType, trigger, message);
@@ -850,9 +854,9 @@ export default class TriggerActionHandler {
 		log.skipped = !canExecute;
 
 		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
-		if(!canExecute) {
+		if(!canExecute && queue.length > 0) {
 			queue.shift();
-			triggerResolver();//Proceed to next trigger in current queue
+			if(triggerResolver != null) (triggerResolver as () => void)();//Proceed to next trigger in current queue
 			return false;
 		}
 
@@ -1415,7 +1419,8 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
-								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE) {
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
+								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
 									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									
 									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
@@ -1433,9 +1438,26 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources
 								&& step.counterUserSources[c.id]
 								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE){
-									logStep.messages.push({date:Date.now(), value:"Update all users, \""+step.action+"\" "+value+" ("+text+")"});
+									logStep.messages.push({date:Date.now(), value:"Update all existing users, \""+step.action+"\" "+value+" ("+text+")"});
 									for (const uid in c.users) {
 										StoreProxy.counters.increment(c.id, step.action, value, undefined, uid);
+									}
+
+								//Check if requested to edit all current chatters of a counter
+								}else if(c.perUser
+								&& c.users
+								&& step.counterUserSources
+								&& step.counterUserSources[c.id]
+								&& step.counterUserSources[c.id] == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS){
+									logStep.messages.push({date:Date.now(), value:"Update all chatters, \""+step.action+"\" "+value+" ("+text+")"});
+									const list = StoreProxy.users.users
+									for (let i = 0; i < list.length; i++) {
+										const user = list[i];
+										if(user.channelInfo[channel_id]
+										//If user is online or their last acitivity on chat was less than 10min ago 
+										&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+											StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
+										}
 									}
 
 								//Standard counter edition (either current user or a non-per-user counter)
@@ -1479,7 +1501,8 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
-							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE) {
+							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
+							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
 								log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
 								
 								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
@@ -1497,9 +1520,26 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources
 							&& step.valueUserSources[v.id]
 							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE){
-								logStep.messages.push({date:Date.now(), value:"Update all users, "+text});
+								logStep.messages.push({date:Date.now(), value:"Update all existing users, "+text});
 								for (const uid in v.users) {
 									StoreProxy.values.updateValue(v.id, text, undefined, uid);
+								}
+
+							//Check if requested to edit all current chatters of a value
+							}else if(v.perUser
+							&& v.users
+							&& step.valueUserSources
+							&& step.valueUserSources[v.id]
+							&& step.valueUserSources[v.id] == TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS){
+								logStep.messages.push({date:Date.now(), value:"Update all chatters, "+text});
+								const list = StoreProxy.users.users
+								for (let i = 0; i < list.length; i++) {
+									const user = list[i];
+									if(user.channelInfo[channel_id]
+									//If user is online or their last acitivity on chat was less than 10min ago 
+									&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+										StoreProxy.values.updateValue(v.id, text, undefined, user.id);
+									}
 								}
 
 							//Standard value edition (either current user or a non-per-user value)
@@ -1881,8 +1921,12 @@ export default class TriggerActionHandler {
 			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
 		}
 		
-		queue.shift();
-		triggerResolver();//Proceed to next trigger in current queue
+		if(queue) {
+			queue.shift();
+			if(triggerResolver != null) {
+				(triggerResolver as () => void)();//Proceed to next trigger in current queue
+			}
+		}
 		log.complete = true;
 
 		// console.log("Steps parsed", actions);

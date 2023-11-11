@@ -20,6 +20,7 @@
 		"resyncRewardsBt_tt": "Si vous avez modifié vos récompenses de points de chaîne, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
+		"delete_actions_confirm": "Supprimer toutes les action ?",
 		"reorder_tt": "Réordonner",
 		"noChannelPoints_tt": "Vous n'êtes pas affilié·e ou n'avez pas autorisé Twitchat à contrôler ceci",
 		"triggers_list": "Vos triggers {COUNT}",
@@ -305,7 +306,8 @@
 				"action_set": "Remplacer la valeur",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
-				"user_source_everyone": "Toutes les personnes",
+				"user_source_everyone": "Toutes les personne ayant déjà un compteur",
+				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"value": {
@@ -314,7 +316,8 @@
 				"select_placeholder": "Sélectionnez une valeur...",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour cette valeur : | Sélectionnez l'utilisateur à mettre à jour pour ces valeurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
-				"user_source_everyone": "Toutes les personnes",
+				"user_source_everyone": "Toutes les personne ayant déjà un compteur",
+				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"random": {

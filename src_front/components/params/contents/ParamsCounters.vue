@@ -265,7 +265,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			for (let i = 0; i < counters.length; i++) {
 				const c = counters[i];
 				if(c.id == this.editedCounter?.id) continue;
-				if(c.placeholderKey.toLowerCase() === placeholder) {
+				if(c.placeholderKey && c.placeholderKey.toLowerCase() === placeholder) {
 					exists = true;
 					continue;
 				}

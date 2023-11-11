@@ -528,7 +528,8 @@ export interface TriggerActionCounterData extends TriggerActionData{
 	/**
 	 * Specifies weither a per-user counter should be updated
 	 * based on the user executing the action (@see COUNTER_EDIT_SOURCE_SENDER)
-	 * or if everyone should be updated (@see COUNTER_EDIT_SOURCE_EVERYONE)
+	 * or if every existing user should be updated (@see COUNTER_EDIT_SOURCE_EVERYONE)
+	 * or if all current chatters should be updated (@see COUNTER_EDIT_SOURCE_CHATTERS)
 	 * or a user whose name is stored on a placeholder (string name of the placeholder)
 	 */
 	counterUserSources:{[key:string]:string};
@@ -553,7 +554,8 @@ export interface TriggerActionValueData extends TriggerActionData{
 	/**
 	 * Specifies weither a per-user value should be updated
 	 * based on the user executing the action (@see VALUE_EDIT_SOURCE_SENDER)
-	 * or if everyone should be updated (@see VALUE_EDIT_SOURCE_EVERYONE)
+	 * or if every existing user should be updated (@see VALUE_EDIT_SOURCE_EVERYONE)
+	 * or if all current chatters should be updated (@see VALUE_EDIT_SOURCE_CHATTERS)
 	 * or a user whose name is stored on a placeholder (string name of the placeholder)
 	 */
 	valueUserSources:{[key:string]:string};
@@ -732,9 +734,11 @@ export const USER_ID_PLACEHOLDER:string = "USER_ID";
 export const VALUE_PLACEHOLDER_PREFIX:string = "VALUE_";
 export const VALUE_EDIT_SOURCE_SENDER:string = "SENDER";
 export const VALUE_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
+export const VALUE_EDIT_SOURCE_CHATTERS:string = "CHATTERS";
 export const COUNTER_VALUE_PLACEHOLDER_PREFIX:string = "COUNTER_VALUE_";
 export const COUNTER_EDIT_SOURCE_SENDER:string = "SENDER";
 export const COUNTER_EDIT_SOURCE_EVERYONE:string = "EVERYONE";
+export const COUNTER_EDIT_SOURCE_CHATTERS:string = "CHATTERS";
 
 /**
  * Placeholders related to a trigger action type

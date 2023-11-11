@@ -37,7 +37,7 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE } from '@/types/TriggerActionDataTypes';
+import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
@@ -68,7 +68,8 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 		const res:{key:string, labelKey:string}[] = [
 			//Add static sources "sender" and "everyone"
 			{labelKey:"triggers.actions.value.user_source_sender", key:VALUE_EDIT_SOURCE_SENDER},
-			{labelKey:"triggers.actions.value.user_source_everyone", key:VALUE_EDIT_SOURCE_EVERYONE}
+			{labelKey:"triggers.actions.value.user_source_everyone", key:VALUE_EDIT_SOURCE_EVERYONE},
+			{labelKey:"triggers.actions.value.user_source_chatters", key:VALUE_EDIT_SOURCE_CHATTERS},
 		];
 
 		//Add command's placeholders

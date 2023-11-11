@@ -11,9 +11,9 @@
 			<ParamItem :paramData="param_action" v-model="action.action" />
 
 			<div class="card-item field">
-				<img src="@/assets/icons/broadcast.svg" class="icon">
+				<Icon name="broadcast"/>
 				<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
-				<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" />
+				<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" primary />
 				<button class="openTriggerBt" @click="openTrigger()"><Icon name="newTab" /></button>
 			</div>
 		</template>
@@ -56,8 +56,8 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 		this.param_action.listValues = values;
 	}
 
-	public onSelectTrigger(trigger:TriggerData):void {
-		this.action.triggerId = trigger.id;
+	public onSelectTrigger(triggerID:string):void {
+		this.action.triggerId = triggerID;
 	}
 
 	public openTrigger():void {

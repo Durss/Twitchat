@@ -266,6 +266,7 @@ export const storeMain = defineStore("main", {
 			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
+			console.log(!TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]));
 
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {

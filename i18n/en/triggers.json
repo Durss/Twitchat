@@ -20,6 +20,7 @@
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
+		"delete_actions_confirm": "Delete all actions?",
 		"reorder_tt": "Reorder",
 		"noChannelPoints_tt": "You are not a Twitch affiliate or you have refused Twitchat to control this",
 		"triggers_list": "Your triggers {COUNT}",
@@ -305,7 +306,8 @@
 				"action_set":"Set value",
 				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
 				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All users",
+				"user_source_everyone":"All existing counters",
+				"user_source_chatters":"All users on chat",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"value": {
@@ -314,7 +316,8 @@
 				"select_placeholder":"Select a value...",
 				"user_source_title":"Select the user to update for this value: | Select the user to update for those values:",
 				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All users",
+				"user_source_everyone":"All existing counters",
+				"user_source_chatters":"All users on chat",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"random":{

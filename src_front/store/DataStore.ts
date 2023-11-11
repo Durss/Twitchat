@@ -149,7 +149,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 50;
+		let latestVersion = 51;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -304,7 +304,7 @@ export default class DataStore {
 			this.fixDataTypes(data);
 			v = 48;
 		}
-		if(v==49) {
+		if(v==48) {
 			//Some users still have an old trigger data format :/
 			//THey have an empty(?) object instead of an array
 			const triggers:TriggerData[] = data[DataStore.TRIGGERS];
@@ -323,6 +323,10 @@ export default class DataStore {
 		}
 		if(v==49) {
 			this.migrateScheduleActionDuration(data);
+			v = 50;
+		}
+		if(v==50) {
+			this.setDefaultQueuesToTriggers(data);
 			v = latestVersion;
 		}
 
@@ -1526,6 +1530,30 @@ export default class DataStore {
 					console.log("migrate", t.scheduleParams.repeatDuration);
 					t.scheduleParams.repeatDuration *= 60;
 					console.log("new value is", t.scheduleParams.repeatDuration);
+				}
+			});
+			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+
+	/**
+	 * Migrates schedule durations from minutes to seconds
+	 */
+	private static setDefaultQueuesToTriggers(data:any):void {
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		const count:{[key:string]:number} = {};
+
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				if(!t.queue) {
+					const infos = Utils.getTriggerDisplayInfo(t);
+					let name = Utils.slugify(infos.label || "automatic_queue");
+					if(count[name] === undefined) count[name] = 0;
+					if(count[name] > 0) name +="_"+count[name];
+					count[name] ++;
+					
+					t.queue = name;
+					console.log("Set queue to", t.queue);
 				}
 			});
 			data[DataStore.TRIGGERS] = triggers;

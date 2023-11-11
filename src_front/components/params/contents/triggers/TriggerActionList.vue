@@ -456,6 +456,14 @@ export default class TriggerActionList extends Vue {
 		const nodeName = (e.target as HTMLElement).nodeName;
 		if(["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
 
+		if(e.key == "Delete" && this.selectedActions.length > 0) {
+			this.$confirm(this.$t("triggers.delete_actions_confirm")).then(async ()=> {
+				while(this.triggerData.actions.length > 0) {
+					this.triggerData.actions.shift();
+				}
+			}).catch(()=> {});
+		}else
+
 		if(e.key == "c" && e.ctrlKey && this.selectedActions.length > 0) {
 			const clipboar:TriggerActionTypes[] = [];
 			for (let i = 0; i < this.triggerData.actions.length; i++) {

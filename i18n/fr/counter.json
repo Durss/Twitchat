@@ -28,7 +28,9 @@
 			"clear_all_users": "Supprimer les viewers",
 			"reset_all_users": "Tout mettre à zéro",
 			"no_users": "aucune entrée",
-			"search": "Chercher quelqu'un..."
+			"search": "Chercher quelqu'un...",
+			"sort_name":"Nom",
+			"sort_points":"Points"
 		},
 		"delete_confirm": {
 			"title": "Supprimer ?",

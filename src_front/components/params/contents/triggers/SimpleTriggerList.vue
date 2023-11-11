@@ -1,6 +1,6 @@
 <template>
 	<div class="simpletriggerlist" v-if="triggerList.length > 0 && filteredItemId == ''">
-		<div class="item"
+		<div :class="classes(false)"
 		v-for="item in triggerList" :key="item.id"
 		@click="$emit('select', item.id)">
 			<img class="icon" :src="item.iconURL" v-if="item.iconURL" :style="{backgroundColor:item.iconBG}">
@@ -9,11 +9,12 @@
 		</div>
 	</div>
 
-	<div class="item"
+	<div :class="classes(true)"
 	v-else-if="triggerList.length === 1"
 	@click="$emit('select', triggerList[0].id)">
 		<img class="icon" :src="triggerList[0].iconURL" v-if="triggerList[0].iconURL" :style="{backgroundColor:triggerList[0].iconBG}">
 		<Icon class="icon" :name="triggerList[0].icon" v-else-if="triggerList[0].icon" />
+		<Icon class="icon trash" name="trash" />
 		<span class="label">{{ triggerList[0].label }}</span>
 	</div>
 
@@ -32,8 +33,18 @@ export default class SimpleTriggerList extends Vue {
 
 	@Prop({type:String, default:""})
 	public filteredItemId!:string;
+
+	@Prop({type:Boolean, default:false})
+	public primary!:boolean;
 	
 	public triggerList:{id:string, label:string, icon?:string, iconURL?:string, iconBG?:string}[] = [];
+
+	public classes(selected:boolean):string[] {
+		const res:string[] = ["item"];
+		if(selected) res.push("selected");
+		if(this.primary !== false) res.push("primary");
+		return res;
+	}
 	
 	public mounted():void {
 		//Remove deleted triggers
@@ -75,17 +86,36 @@ export default class SimpleTriggerList extends Vue {
 	transition: background-color .2s;
 	cursor: pointer;
 	border-radius: var(--border-radius);
-	padding: 2px;
-	padding-right: 5px;
+	padding: .25em .5em;
 	font-size: .9em;
+	color: var(--color-text);
 	.icon {
 		height: 1.5em;
 		width: 1.5em;
 		border-radius: var(--border-radius);
 		object-fit: contain;
 	}
+	.trash {
+		display: none;
+	}
 	&:hover {
 		background-color: var(--background-color-fader);
+		&.selected {
+			.icon {
+				display: none;
+				&.trash {
+					display: block;
+				}
+			}
+			background-color: var(--color-alert);
+		}
+	}
+	&.primary {
+		color: var(--color-light);
+		background-color: var(--color-primary);
+		&:hover {
+			background-color: var(--color-alert);
+		}
 	}
 }
 
