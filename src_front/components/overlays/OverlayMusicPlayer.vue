@@ -42,6 +42,7 @@ import { Component, Prop } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee';
 import 'vue3-marquee/dist/style.css';
 import AbstractOverlay from './AbstractOverlay.vue';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{
@@ -132,7 +133,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 				customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
 				customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
 				customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-				this.customTrackInfo = customTrackInfo;
+				this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
 
 				const newProgress = (obj.trackPlaybackPos/obj.trackDuration);
 				this.progress = newProgress;
@@ -202,7 +203,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
 			customTrackInfo = customTrackInfo.replace(/\{TITLE\}/gi, this.title || "no music");
 			customTrackInfo = customTrackInfo.replace(/\{COVER\}/gi, this.cover);
-			this.customTrackInfo = customTrackInfo;
+			this.customTrackInfo = DOMPurify.sanitize(customTrackInfo);
 
 			const newProgress = 600/this.staticTrackData.duration;
 			this.progress = newProgress;

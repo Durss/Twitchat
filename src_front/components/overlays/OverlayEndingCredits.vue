@@ -102,8 +102,8 @@
 						</div>
 					</div>
 					
-					<div v-if="item.params.slotType == 'text'" class="item">
-						<p class="textContent" v-html="item.params.text"></p>
+					<div v-if="item.params.slotType == 'text' && item.params.text" class="item">
+						<p class="textContent" v-html="safeHTML(item.params.text)"></p>
 					</div>
 				</div>
 			</div>
@@ -119,6 +119,7 @@ import Utils from '@/utils/Utils';
 import { watch, type StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{},
@@ -158,6 +159,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			res.fontSize = (v * (maxScale-minScale)+minScale)+"em";
 		};
 		return res;
+	}
+
+	public safeHTML(html:string):string {
+		return DOMPurify.sanitize(html);
 	}
 
 	public getSortedSubs(item:TwitchatDataTypes.EndingCreditsSlotParams) {

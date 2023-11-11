@@ -38,6 +38,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{}
@@ -124,7 +125,7 @@ export default class OverlayChatHighlight extends Vue {
 
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
 		
-		this.message = data.message!;
+		this.message = DOMPurify.sanitize(data.message!);
 		this.user = data.user!;
 		this.params = data.params!;
 		this.clipData = null;

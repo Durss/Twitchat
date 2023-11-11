@@ -35,6 +35,7 @@ import gsap from 'gsap/all';
 import type { StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay.vue';
+import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{},
@@ -250,7 +251,7 @@ export default class OverlayAdBreak extends AbstractOverlay {
 		}
 		
 		let label = this.adType == "approaching"? this.parameters?.approachingLabel : this.parameters?.runningLabel;
-		this.label = label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "";
+		this.label = DOMPurify.sanitize(label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "");
 	}
 
 	private doShow():void {

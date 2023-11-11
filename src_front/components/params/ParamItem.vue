@@ -329,6 +329,9 @@ export default class ParamItem extends Vue {
 	@Prop({type:Boolean, default: false})
 	public placeholdersAsPopout!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public forceChildDisplay!:boolean;
+
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
@@ -341,6 +344,7 @@ export default class ParamItem extends Vue {
 	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
 	
 	public get showChildren():boolean {
+		if(this.forceChildDisplay !== false) return true;
 		let state = (this.paramData.type == 'boolean' && this.paramData.value === true)
 				|| (this.paramData.type == 'string' && this.paramData.value != "")
 				|| !!this.paramData.value;

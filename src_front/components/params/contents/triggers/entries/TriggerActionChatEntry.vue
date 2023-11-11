@@ -1,6 +1,7 @@
 <template>
 	<div class="triggeractionchatentry triggerActionForm">
 		<ParamItem :paramData="message_conf" v-model="action.text"
+		forceChildDisplay
 		:error="cmdNameConflict"
 		:errorMessage="$t('triggers.actions.chat.loop')">
 			<ToggleBlock class="commands" :title="$t('triggers.actions.chat.commands_list')" small :open="false">
