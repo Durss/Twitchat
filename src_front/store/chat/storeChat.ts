@@ -1052,25 +1052,41 @@ export const storeChat = defineStore('chat', {
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
 						// console.log("Merge attempt");
-						const len = Math.max(0, messageList.length-20);//Only check within the last 20 messages
+						const len = Math.max(0, messageList.length-30);//Only check within the last 30 messages
 						for (let i = messageList.length-1; i > len; i--) {
 							const m = messageList[i];
-							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION || !message.gift_recipients) continue;
+							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+							|| !message.is_gift
+							|| !message.gift_recipients
+							|| message.channel_id != m.channel_id) {
+								if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+									const json = {
+										isGift1:message.is_gift,
+										isGift2:m.is_gift,
+										ischannelID1:message.channel_id,
+										ischannelID2:m.channel_id,
+										recipients1:message.gift_recipients,
+										recipients2:m.gift_recipients,
+									}
+									console.log("[SUBSCRIPTION MERGE] cannot merge gift:", json);
+								}
+								continue;
+							}
 							// console.log("Found sub ", m);
-							//If the message is a subgift from the same user with the same tier and
-							//happened in the last 5s, merge it.
+							//If the message is a subgift from the same user with the same tier on
+							//the same channel and happened in the last 5s, merge it.
 							if(m.tier == message.tier && m.user.id == message.user.id
-								&& message.date - m.date < 5000) {
+							&& Math.abs(message.date - m.date) < 5000) {
 								// console.log("MERGE IT !");
 								if(!m.gift_recipients) m.gift_recipients = [];
 								m.date = Date.now();//Update timestamp
-								for (let i = 0; i < message.gift_recipients.length; i++) {
-									m.gift_recipients.push(message.gift_recipients[i]);
+								for (let j = 0; j < message.gift_recipients.length; j++) {
+									m.gift_recipients.push(message.gift_recipients[j]);
 								}
 								m.gift_count = m.gift_recipients.length;
 								return;
 							}
-							// console.log("Dont merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
+							console.log("[SUBSCRIPTION MERGE] Dont merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
 						}
 					}
 					break;

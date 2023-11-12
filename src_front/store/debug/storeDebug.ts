@@ -870,6 +870,7 @@ export const storeDebug = defineStore('debug', {
 							placeholderKey:"",
 							name:"Fake value",
 							value:lorem.generateSentences(1),
+							perUser:false,
 						}
 					}
 					const m:TwitchatDataTypes.MessageValueUpdateData = {

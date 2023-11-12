@@ -330,20 +330,23 @@ export const storeStream = defineStore('stream', {
 				startDate = data.nextAdStart_at;
 			}
 
-			//Schedule ad start message
-			let to = setTimeout(() => {
-				//If ad has been started by someone, notify on tchat
-				const message:TwitchatDataTypes.MessageAdBreakStartData = {
-					type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
-					id:Utils.getUUID(),
-					date:Date.now(),
-					platform:"twitch",
-					duration_s:Math.round(data.currentAdDuration_ms / 1000),
-					startedBy:adStarter,
-				}
-				StoreProxy.chat.addMessage(message);
-			}, startDate - Date.now());
-			commercialTimeouts[channelId].push(to);
+			const startDelay = startDate - Date.now();
+			if(startDelay > 0) {
+				//Schedule ad start message
+				let to = setTimeout(() => {
+					//If ad has been started by someone, notify on tchat
+					const message:TwitchatDataTypes.MessageAdBreakStartData = {
+						type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						platform:"twitch",
+						duration_s:Math.round(data.currentAdDuration_ms / 1000),
+						startedBy:adStarter,
+					}
+					StoreProxy.chat.addMessage(message);
+				}, startDate - Date.now());
+				commercialTimeouts[channelId].push(to);
+			}
 
 			//Schedule ad break complete message
 			if(startDate + data.currentAdDuration_ms > Date.now()) {

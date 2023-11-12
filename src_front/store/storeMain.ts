@@ -266,7 +266,6 @@ export const storeMain = defineStore("main", {
 			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
-			console.log(!TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]));
 
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {
@@ -721,7 +720,6 @@ export const storeMain = defineStore("main", {
 								const index1 = encoderParams.values.indexOf(prevValue);
 								const index2 = encoderParams.values.indexOf(value);
 								const delta = Math.round((index2 - index1)/encoderParams.step);
-								console.log(index1, index2, encoderParams.step);
 								//Scroll chat column
 								if(j == 0) {
 									PublicAPI.instance.broadcast(TwitchatEvent.CHAT_FEED_SCROLL, { col:i, scrollBy:delta }, true);

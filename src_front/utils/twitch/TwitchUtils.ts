@@ -2291,10 +2291,11 @@ export default class TwitchUtils {
 				// const data:TwitchDataTypes.AdSchedule = {
 				// 	"snooze_count": 3,
 				// 	"snooze_refresh_at": 0,
-				// 	"next_ad_at": (Date.now() + 2.1 * 60000)/1000,
-				// 	"length_seconds": 30,
-				// 	"last_ad_at": (Date.now() - 60*60000)/1000,
-				// 	"preroll_free_time_seconds": 3534
+				// 	"next_ad_at": (new Date("Sun Nov 12 2023 00:44:00 GMT+0100").getTime())/1000,
+				// 	// "next_ad_at": (Date.now() - 3 * 24 * 60 * 60000)/1000,
+				// 	"length_seconds": 60,
+				// 	"last_ad_at": 0,
+				// 	"preroll_free_time_seconds": 0,
 				// }
 				const infos:TwitchatDataTypes.CommercialData = {
 					remainingSnooze:		data.snooze_count,

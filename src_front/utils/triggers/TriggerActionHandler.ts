@@ -1907,7 +1907,10 @@ export default class TriggerActionHandler {
 						message_chunks:chunks,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						col:step.customMessage.col,
+						style:step.customMessage.style,
 					};
+
+					logStep.messages.push({date:Date.now(), value:"Send message type \""+customMessage.style+"\": \""+text+"\""});
 			
 					StoreProxy.chat.addMessage(customMessage);
 				}
