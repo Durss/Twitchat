@@ -194,14 +194,14 @@ export const storeCounters = defineStore('counters', {
 			
 			if(c.perUser) {
 				const uid = (user? user.id : userId) || "";
-				c.users![uid] = counterValue;
+				c.users![uid] = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 			}else{
-				c.value = counterValue;
+				c.value = parseFloat(counterValue.toString());//Forcing parsing as float. For some unsolved reason there was very few cases where value became a string
 			}
 
-			//Do no execute triggers if edditing a user by it ID.
+			//Do not execute triggers if edditing a user by their ID.
 			//If only "userId" is given, don't execute it so we can update
-			//loads of counters at once without cloagging the trigger system
+			//loads of counters at once without clogging the trigger system
 			if(!userId) {
 				const message:TwitchatDataTypes.MessageCounterUpdateData = {
 					date:Date.now(),
