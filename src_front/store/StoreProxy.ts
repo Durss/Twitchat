@@ -1086,7 +1086,7 @@ export interface IStreamActions {
 	 * @param data 
 	 * @param adStarter if set, sends a message on tchat to say who started the ad break
 	 */
-	setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser):void;
+	setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart?:boolean):void;
 	/**
 	 * Starts a commercial break
 	 * @param duration 

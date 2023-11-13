@@ -845,8 +845,20 @@ export default class EventSub {
 		//don't know if they'll change the doc or the service, so i handle both cases
 		infos.nextAdStart_at = new Date(typeof event.started_at == "number"? event.started_at * 1000 : event.started_at).getTime(),
 		infos.currentAdDuration_ms = event.length_seconds * 1000;
-		const starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
-		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, event.is_automatic? undefined : starter);
+		let starter:TwitchatDataTypes.TwitchatUser | undefined = undefined;
+		if(!event.is_automatic) {
+			starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
+		}
+		TwitchUtils.adsAPIHistory.push({
+			date:Date.now(),
+			api:event,
+			internal:infos,
+		})
+		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, starter, true);
+
+		setTimeout(() => {
+			TwitchUtils.getAdSchedule()
+		}, infos.currentAdDuration_ms + 60000);
 	}
 	
 }

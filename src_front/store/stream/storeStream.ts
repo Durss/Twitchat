@@ -295,7 +295,7 @@ export const storeStream = defineStore('stream', {
 			return info;
 		},
 
-		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser) {
+		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart:boolean = false) {
 			this.commercial[channelId] = data;
 			const remainingTime = data.nextAdStart_at - Date.now();
 
@@ -323,6 +323,14 @@ export const storeStream = defineStore('stream', {
 				commercialTimeouts[channelId].push(to);
 			});
 
+			//Force ad start a liuttle before the timer completes
+			//This is a workaround Twitch not starting ad at the given date but only
+			//a few seconds to a minute or more after that.
+			let to = setTimeout(() => {
+				TwitchUtils.startCommercial(data.currentAdDuration_ms, channelId);
+			}, remainingTime - 1000);
+			commercialTimeouts[channelId].push(to);
+
 			let startDate:number = 0;
 			if(data.prevAdStart_at + data.currentAdDuration_ms >= Date.now()){
 				startDate = data.prevAdStart_at;
@@ -330,22 +338,17 @@ export const storeStream = defineStore('stream', {
 				startDate = data.nextAdStart_at;
 			}
 
-			const startDelay = startDate - Date.now();
-			if(startDelay > 0) {
-				//Schedule ad start message
-				let to = setTimeout(() => {
-					//If ad has been started by someone, notify on tchat
-					const message:TwitchatDataTypes.MessageAdBreakStartData = {
-						type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
-						id:Utils.getUUID(),
-						date:Date.now(),
-						platform:"twitch",
-						duration_s:Math.round(data.currentAdDuration_ms / 1000),
-						startedBy:adStarter,
-					}
-					StoreProxy.chat.addMessage(message);
-				}, startDate - Date.now());
-				commercialTimeouts[channelId].push(to);
+			if(isStart) {
+				//If ad has been started by someone, notify on tchat
+				const message:TwitchatDataTypes.MessageAdBreakStartData = {
+					type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+					id:Utils.getUUID(),
+					date:Date.now(),
+					platform:"twitch",
+					duration_s:Math.round(data.currentAdDuration_ms / 1000),
+					startedBy:adStarter,
+				}
+				StoreProxy.chat.addMessage(message);
 			}
 
 			//Schedule ad break complete message

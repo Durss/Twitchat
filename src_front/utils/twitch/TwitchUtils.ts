@@ -8,6 +8,7 @@ import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
+import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 
 /**
 * Created : 19/01/2021 
@@ -16,7 +17,7 @@ export default class TwitchUtils {
 
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
-	public static adsAPIHistory:{date:number, api:TwitchDataTypes.AdSchedule, internal:TwitchatDataTypes.CommercialData}[] = [];
+	public static adsAPIHistory:{date:number, api:TwitchDataTypes.AdSchedule|TwitchEventSubDataTypes.AdBreakEvent, internal:TwitchatDataTypes.CommercialData}[] = [];
 	
 	private static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	private static rewardsCache:TwitchDataTypes.Reward[] = [];
@@ -2324,9 +2325,9 @@ export default class TwitchUtils {
 			const infos:TwitchatDataTypes.CommercialData = {
 				remainingSnooze:		0,
 				currentAdDuration_ms:	0,
-				prevAdStart_at:			Date.now() + 360 * 24 * 60 * 60000,
-				nextAdStart_at:			Date.now() + 360 * 24 * 60 * 60000,
-				nextSnooze_at:			Date.now() + 360 * 24 * 60 * 60000,
+				prevAdStart_at:			0,
+				nextAdStart_at:			0,
+				nextSnooze_at:			0,
 			};
 			StoreProxy.stream.setCommercialInfo(user.id, infos);
 		}
