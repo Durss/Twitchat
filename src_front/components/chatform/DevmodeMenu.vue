@@ -346,7 +346,7 @@ export default class DevmodeMenu extends Vue {
 		const params:TwitchatDataTypes.CommercialData = {
 			prevAdStart_at:			0,
 			remainingSnooze:		3,
-			currentAdDuration_ms:	0,
+			currentAdDuration_ms:	15,
 			nextAdStart_at:			Date.now() + .5 * 60 * 1000,
 			nextSnooze_at:			Date.now() + 1 * 60 * 1000,
 		};
@@ -356,7 +356,7 @@ export default class DevmodeMenu extends Vue {
 		this.commercialTO = setTimeout(()=> {
 			params.prevAdStart_at = Date.now();
 			params.currentAdDuration_ms = 33000;
-			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user);
+			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user, true);
 		}, params.nextAdStart_at - Date.now())
 	}
 

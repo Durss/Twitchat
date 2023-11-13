@@ -2357,8 +2357,8 @@ export default class TwitchUtils {
 					currentAdDuration_ms:	prevInfo.currentAdDuration_ms,
 					remainingSnooze:		data.snooze_count,
 					prevAdStart_at:			prevInfo.prevAdStart_at,
-					nextAdStart_at:			new Date(data.next_ad_at).getTime(),
-					nextSnooze_at:			new Date(data.snooze_refresh_at).getTime(),
+					nextAdStart_at:			new Date(typeof data.next_ad_at == "number"? data.next_ad_at * 1000 : data.next_ad_at).getTime(),
+					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),
 				};
 				StoreProxy.stream.setCommercialInfo(user.id, infos);
 				return data;

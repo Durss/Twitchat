@@ -180,6 +180,9 @@ export default class OverlayParamsAdBreak extends Vue {
 				this.overlayExists = false;
 			}, 1500);
 		}, 2000);
+
+		//Forces first data init save
+		this.onChange();
 	}
 
 	public beforeUnmount():void {
