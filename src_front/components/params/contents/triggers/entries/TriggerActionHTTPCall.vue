@@ -7,7 +7,6 @@
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method">
 			<ParamItem class="row item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
 		</ParamItem>
-		{{ action }}
 
 		<ParamItem class="row item" :paramData="param_customHeaders" v-model="action.customHeaders">
 			<div class="headerList">
