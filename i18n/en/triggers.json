@@ -244,6 +244,7 @@
 				"param_action_mute": "Mute source",
 				"param_action_unmute": "Unmute source",
 				"param_action_replay": "Restart playback",
+				"param_action_stop": "Stop playback",
 				"param_action_move": "Move source",
 				"param_action_rotate": "Rotate source",
 				"param_action_resize": "Resize source"

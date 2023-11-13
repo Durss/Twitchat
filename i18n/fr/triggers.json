@@ -244,6 +244,7 @@
 				"param_action_mute": "Couper l'audio",
 				"param_action_unmute": "Réactiver l'audio",
 				"param_action_replay": "Relancer la lecture",
+				"param_action_stop": "Arrêter la lecture",
 				"param_action_move": "Déplacer la source",
 				"param_action_rotate": "Rotation de la source",
 				"param_action_resize": "Redimensionner la source"

@@ -315,7 +315,7 @@ export interface TriggerActionDelayData extends TriggerActionData{
 	delay:number;
 }
 
-export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"switch_to"|"move"|"rotate"|"resize";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
+export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"switch_to"|"move"|"rotate"|"resize";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
 	action:TriggerActionObsDataAction;
