@@ -1330,13 +1330,30 @@ export default class TriggerActionHandler {
 				
 				//Handle http call trigger action
 				if(step.type == "http") {
-					const options = {method:step.method};
+					const options:RequestInit = {method:step.method};
+					const body:{[key:string]:string} = {};
+					const headers:{[key:string]:string} = {};
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
 					for (const tag of step.queryParams) {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
-						url.searchParams.append(tag.toLowerCase(), text);
+						if(step.method == "POST" && step.sendAsBody == true) {
+							body[tag.toLowerCase()] = text;
+						}else{
+							url.searchParams.append(tag.toLowerCase(), text);
+						}
+					}
+					if(step.method == "POST" && step.sendAsBody == true) {
+						options.body = JSON.stringify(body);
+					}
+					if(step.customHeaders === true) {
+						for (let i = 0; i < (step.headers || []).length; i++) {
+							const h = step.headers![i];
+							const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, h.value, subEvent);
+							headers[h.key] = value;
+						}
+						options.headers = headers;
 					}
 					try {
 						logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});

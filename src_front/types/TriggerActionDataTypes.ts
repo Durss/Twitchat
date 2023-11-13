@@ -435,6 +435,9 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	url:string;
 	method:TriggerActionHTTPCallDataAction;
 	queryParams:string[];
+	sendAsBody?:boolean;
+	customHeaders?:boolean;
+	headers?:{key:string, value:string}[];
 	outputPlaceholder?:string;
 }
 
