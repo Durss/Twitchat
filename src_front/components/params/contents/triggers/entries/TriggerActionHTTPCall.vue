@@ -4,7 +4,25 @@
 			:error="securityError"
 			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
 		
-		<ParamItem class="row item" :paramData="param_method" v-model="action.method" />
+		<ParamItem class="row item" :paramData="param_method" v-model="action.method">
+			<ParamItem class="row item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
+		</ParamItem>
+		{{ action }}
+
+		<ParamItem class="row item" :paramData="param_customHeaders" v-model="action.customHeaders">
+			<div class="headerList">
+				<div class="header head">
+					<div>Key</div>
+					<div>Value</div>
+				</div>
+				<div v-for="(a, index) in action.headers" class="header">
+					<input type="text" v-model="action.headers![index].key">
+					<input type="text" v-model="action.headers![index].value">
+					<Button class="deleteBt" icon="trash" @click="delHeader(index)" alert />
+				</div>
+				<Button class="addBt" icon="add" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</Button>
+			</div>
+		</ParamItem>
 
 		<div class="card-item tags">
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
@@ -42,9 +60,11 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import Button from '@/components/Button.vue';
 
 @Component({
 	components:{
+		Button,
 		ParamItem,
 		ToggleButton,
 	},
@@ -64,6 +84,8 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
 	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
+	public param_sendAsBody:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"triggers.actions.http_ws.send_as_body" };
+	public param_customHeaders:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"triggers.actions.http_ws.custom_headers" };
 
 	public beforeMount():void {
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
@@ -102,6 +124,24 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 		});
 	}
 
+	/**
+	 * Called when "add header" button is clicked
+	 */
+	public addHeader():void {
+		if(!this.action.headers) this.action.headers = [];
+		this.action.headers.push({
+			key:"",
+			value:"",
+		});
+	}
+
+	/**
+	 * Called when "delete header" button is clicked
+	 */
+	public delHeader(index:number):void {
+		this.action.headers?.splice(index, 1);
+	}
+
 }
 </script>
 
@@ -119,11 +159,14 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 		display: flex;
 		flex-direction: column;
 		font-size: .8em;
+		max-height: 375px;
+		overflow-y: auto;
 		.card-item {
 			display: flex;
 			flex-direction: row;
 			align-items: center;
 			cursor: pointer;
+			flex-shrink: 0;
 			&:hover {
 				background-color: var(--color-light-fade);
 			}
@@ -146,6 +189,35 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 			width: fit-content;
 			margin-right: .5em;
 			margin-bottom: .5em;
+		}
+	}
+	.headerList {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		.header {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			flex: 1;
+			&.head {
+				background-color: var(--grayout);
+				justify-content: space-around;
+				width: calc(100% - 1.5em);
+				padding: .25em;
+				border-radius: var(--border-radius);
+			}
+			input {
+				width: 100%;
+				min-width: unset;
+				max-width: unset;
+			}
+			.deleteBt {
+				flex-shrink: 0;
+			}
+		}
+		.addBt {
+			align-self: center;
 		}
 	}
 }

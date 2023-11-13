@@ -253,6 +253,20 @@ import Ajv from "ajv";
 								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},
 								method: {type:"string", maxLength:10},
+								sendAsBody: {type:"boolean"},
+								customHeaders: {type:"boolean"},
+								headers:{
+									type:"array",
+									minItems:0,
+									maxItems:2,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										patternProperties: {
+											".*": {type: "string", maxLength: 1000},
+										},
+									},
+								},
 								addValue: {type:"string", maxLength:100},
 								counter: {type:"string", maxLength:40},
 								faderId: {type:"string", maxLength:20},

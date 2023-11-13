@@ -54,7 +54,7 @@ export default class Icon extends Vue {
 			this.svg = this.$store("main").iconCache[this.name];
 			return;
 		}
-	
+		
 		try {
 			const imgRes = await fetch(this.$image("icons/"+this.name+".svg"));
 			if(imgRes.status <200 || imgRes.status > 204) {
