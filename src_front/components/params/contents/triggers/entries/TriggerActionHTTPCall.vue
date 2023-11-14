@@ -5,18 +5,18 @@
 			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
 		
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method">
-			<ParamItem class="row item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
+			<ParamItem class="row child item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
 		</ParamItem>
 
 		<ParamItem class="row item" :paramData="param_customHeaders" v-model="action.customHeaders">
 			<div class="headerList">
-				<div class="header head">
+				<div class="header head" v-if="action.headers && action.headers.length > 0">
 					<div>Key</div>
 					<div>Value</div>
 				</div>
 				<div v-for="(a, index) in action.headers" class="header">
 					<input type="text" v-model="action.headers![index].key">
-					<input type="text" v-model="action.headers![index].value">
+					<ParamItem :paramData="getParamHeaderValue(index)" placeholdersAsPopout v-model="action.headers![index].value" noBackground />
 					<Button class="deleteBt" icon="trash" @click="delHeader(index)" alert />
 				</div>
 				<Button class="addBt" icon="add" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</Button>
@@ -78,6 +78,7 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 	public securityError:boolean = false;
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public parameters:{placeholder:ITriggerPlaceholder<any>, enabled:boolean}[] = [];
 	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
@@ -85,6 +86,14 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_sendAsBody:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"triggers.actions.http_ws.send_as_body" };
 	public param_customHeaders:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"triggers.actions.http_ws.custom_headers" };
+	public param_headerValues:TwitchatDataTypes.ParameterData<string>[] = [];
+
+	public getParamHeaderValue(index:number):TwitchatDataTypes.ParameterData<string> {
+		if(this.param_headerValues.length>index) return this.param_headerValues[index];
+		const param:TwitchatDataTypes.ParameterData<string> = {type:'string', value:"", placeholderList:this.placeholderList};
+		this.param_headerValues[index] = param;
+		return param;
+	}
 
 	public beforeMount():void {
 		this.param_method.listValues	= (["GET","PUT","POST","PATCH","DELETE"] as TriggerActionHTTPCallDataAction[]).map(v=> {return {value:v, label:v}});
@@ -115,6 +124,7 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.placeholderList = list;
 		this.parameters = list.map(v=> {
 			return  {
 				placeholder:v,
@@ -200,16 +210,30 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 			flex-direction: row;
 			flex: 1;
 			&.head {
-				background-color: var(--grayout);
+				gap: 0;
+				width: calc(100% - 1.6em);
 				justify-content: space-around;
-				width: calc(100% - 1.5em);
-				padding: .25em;
-				border-radius: var(--border-radius);
+				div {
+					background-color: var(--grayout);
+					padding: .25em;
+					text-align: center;
+					&:first-child{
+						margin-right: 1px;
+						border-top-left-radius: var(--border-radius);
+						border-bottom-left-radius: var(--border-radius);
+					}
+					&:not(:first-child){
+						border-top-right-radius: var(--border-radius);
+						border-bottom-right-radius: var(--border-radius);
+					}
+				}
 			}
-			input {
-				width: 100%;
-				min-width: unset;
-				max-width: unset;
+			*:not(.button) {
+				width: 50%;
+				flex-grow: 1;
+				// width: 100%;
+				// min-width: unset;
+				// max-width: unset;
 			}
 			.deleteBt {
 				flex-shrink: 0;

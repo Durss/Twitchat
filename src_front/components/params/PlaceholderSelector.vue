@@ -9,6 +9,7 @@
 	:interactiveDebounce="1000"
 	:theme="$store('main').theme"
 	:appendTo='tooltipTarget'
+	:trigger="popoutMode !== false? 'click' : 'mouseenter'"
 	:class="classes">
 		<template #default>
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>

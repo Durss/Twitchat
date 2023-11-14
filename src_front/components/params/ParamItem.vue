@@ -1025,23 +1025,14 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	&.level_1,
-	&.level_2,
-	&.level_3,
-	&.level_4 {
-		.child {
-			width: 100%;
-		}
-	}
-
-	&.child, .child {
+	&.child {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;
 		@padding:1.5em;
 		width: calc(100% - @padding);
 		position: relative;
-		:deep(.holder) {
+		.holder {
 			// font-size: .9em;
 			&::before {
 				position: absolute;

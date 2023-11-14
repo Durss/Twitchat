@@ -102,7 +102,7 @@
 			"param_cmd_placeholder": "/command...",
 			"param_ctx_menu": "Add to moderation actions (right click a message)",
 			"param_cmd_params": "Optional command params",
-			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custome placeholders for later use on any action of the trigger",
+			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custom placeholders for later use on any action of the trigger",
 			"param_cmd_params_placeholder": "add a parameter...",
 			"param_cmd_params_example": "Command usage example:",
 			"param_cmd_params_example_result": "Result:",
@@ -149,7 +149,7 @@
 				"action_customBadges": "Custom user badges",
 				"action_customUsername": "Custom username",
 				"action_clickHeat": "Click a distortion",
-				"action_clickHeat_tt": "You firs tneed to create a distortion to use this action"
+				"action_clickHeat_tt": "You first need to create a distortion to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
