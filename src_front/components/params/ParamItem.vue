@@ -1026,7 +1026,7 @@ export default class ParamItem extends Vue {
 		}
 	}
 
-	&.child {
+	&.child, :deep(.parameter-child) {
 		margin-left: auto;
 		margin-right: 0;
 		margin-top: 5px;

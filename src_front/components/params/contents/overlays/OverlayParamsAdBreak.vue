@@ -20,18 +20,18 @@
 
 			<ParamItem :paramData="param_showApproaching" v-model="localData.showApproaching">
 				<div class="children">
-					<ParamItem :paramData="param_approachingStyle" noBackground v-model="localData.approachingStyle" />
-					<ParamItem :paramData="param_approachingDelay" noBackground v-model="localData.approachingDelay" />
-					<ParamItem :paramData="param_approachingSize" noBackground v-model="localData.approachingSize" />
-					<ParamItem :paramData="param_approachingThickness" v-if="localData.approachingStyle == 'bar'" noBackground v-model="localData.approachingThickness" />
-					<ParamItem :paramData="param_approachingColor" noBackground v-model="localData.approachingColor" />
-					<div class="placement">
+					<ParamItem class="child" :paramData="param_approachingStyle" noBackground v-model="localData.approachingStyle" />
+					<ParamItem class="child" :paramData="param_approachingDelay" noBackground v-model="localData.approachingDelay" />
+					<ParamItem class="child" :paramData="param_approachingSize" noBackground v-model="localData.approachingSize" />
+					<ParamItem class="child" :paramData="param_approachingThickness" v-if="localData.approachingStyle == 'bar'" noBackground v-model="localData.approachingThickness" />
+					<ParamItem class="child" :paramData="param_approachingColor" noBackground v-model="localData.approachingColor" />
+					<div class="placement parameter-child">
 						<div class="holder">
 							<p><Icon name="move" class="icon" />{{ $t("overlay.adBreak.param_placement") }}</p>
 							<PlacementSelector v-model="localData.approachingPlacement" :sidesOnly="localData.approachingStyle == 'bar'" />
 						</div>
 					</div>
-					<ParamItem :paramData="param_approachingLabel" noBackground v-model="localData.approachingLabel" class="label" />
+					<ParamItem class="child" :paramData="param_approachingLabel" noBackground v-model="localData.approachingLabel" />
 
 					<div class="center" v-if="overlayExists">
 						<Button :loading="testingApproaching" @click="testApproaching()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
@@ -43,17 +43,17 @@
 
 			<ParamItem :paramData="param_showRunning" v-model="localData.showRunning">
 				<div class="children">
-					<ParamItem :paramData="param_runningStyle" noBackground v-model="localData.runningStyle" />
-					<ParamItem :paramData="param_runningSize" noBackground v-model="localData.runningSize" />
-					<ParamItem :paramData="param_runningThickness" v-if="localData.runningStyle == 'bar'" noBackground v-model="localData.runningThickness" />
-					<ParamItem :paramData="param_runningColor" noBackground v-model="localData.runningColor" />
-					<div class="placement">
+					<ParamItem class="child" :paramData="param_runningStyle" noBackground v-model="localData.runningStyle" />
+					<ParamItem class="child" :paramData="param_runningSize" noBackground v-model="localData.runningSize" />
+					<ParamItem class="child" :paramData="param_runningThickness" v-if="localData.runningStyle == 'bar'" noBackground v-model="localData.runningThickness" />
+					<ParamItem class="child" :paramData="param_runningColor" noBackground v-model="localData.runningColor" />
+					<div class="placement parameter-child">
 						<div class="holder">
 							<p><Icon name="move" class="icon" />{{ $t("overlay.adBreak.param_placement") }}</p>
 							<PlacementSelector v-model="localData.runningPlacement" :sidesOnly="localData.runningStyle == 'bar'" />
 						</div>
 					</div>
-					<ParamItem :paramData="param_runningLabel" noBackground v-model="localData.runningLabel" class="label" />
+					<ParamItem class="child" :paramData="param_runningLabel" noBackground v-model="localData.runningLabel" />
 	
 					<div class="center" v-if="overlayExists">
 						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>

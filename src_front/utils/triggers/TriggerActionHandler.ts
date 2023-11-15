@@ -23,6 +23,8 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import Config from "../Config";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import gsap from "gsap";
+import HeatSocket from "../twitch/HeatSocket";
+import HeatEvent from "@/events/HeatEvent";
 
 /**
 * Created : 22/04/2022 
@@ -1689,7 +1691,6 @@ export default class TriggerActionHandler {
 					try {
 						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
 						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+SpotifyHelper.instance.connected});
-						let success = false;
 						let failReason:TwitchatDataTypes.MessageMusicAddedToQueueData["failReason"] = undefined;
 						if(!SpotifyHelper.instance.connected) failReason = "spotify_not_connected";
 						//Adding a track to the queue
@@ -1731,7 +1732,6 @@ export default class TriggerActionHandler {
 											duration:track.duration_ms,
 											url:track.external_urls.spotify,
 										};
-										success = true;
 									}else{
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
 										log.error = true;
@@ -1935,9 +1935,83 @@ export default class TriggerActionHandler {
 
 				//Handle custom chat messages
 				if(step.type == "heat_click") {
-					
+					let x = "0";
+					let y = "0";
+					let ctrl = false;
+					let alt = false;
+					let shift = false;
+					if(step.heatClickData.forward === true && message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
+						x = (message.coords.x * 100).toString();
+						y = (message.coords.y * 100).toString();
+						ctrl = message.ctrl;
+						alt = message.alt;
+						shift = message.shift;
+					}else{
+						try {
+							x = MathJS.evaluate(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.x, subEvent));
+						}catch(error){
+							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for X coordinate \""+step.heatClickData.x+"\""});
+							log.error = true;
+							logStep.error = true;
+						}
+						try {
+							y = MathJS.evaluate(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.y, subEvent));
+						}catch(error){
+							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for Y coordinate \""+step.heatClickData.y+"\""});
+							log.error = true;
+							logStep.error = true;
+						}
+						if(isNaN(parseFloat(x))) {
+							x = "50"
+							logStep.messages.push({date:Date.now(), value:"❌ Invalid X coordinate. Fallback to 50%"});
+							log.error = true;
+							logStep.error = true;
+						};
+						if(isNaN(parseFloat(y))) {
+							y = "50"
+							logStep.messages.push({date:Date.now(), value:"❌ Invalid Y coordinate. Fallback to 50%"});
+							log.error = true;
+							logStep.error = true;
+						};
+						ctrl = step.heatClickData.ctrl;
+						alt = step.heatClickData.alt;
+						shift = step.heatClickData.shift;
+					}
+					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
+						requestType:"emit_event",
+						vendorName:"obs-browser",
+						requestData:{
+							event_name:"heat-click",
+							event_data: {
+								anonymous:true,
+								x:parseFloat(x)/100,
+								y:parseFloat(y)/100,
+								channelId:channel_id,
+								uid:executingUser?.id || "",
+								login:executingUser?.login || "",
+								testMode:true,
+								alt,
+								ctrl,
+								shift,
+								twitchatOverlayID:step.heatClickData.overlayId,
+								page:"",
+								followDate:0,
+								isBan:false,
+								isBroadcaster:false,
+								isFollower:false,
+								isMod:false,
+								isSub:false,
+								isVip:false,
+								rotation:1,
+								scaleX:1,
+								scaleY:1,
+							}
+						}
+					};
+					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
+					OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
 				}
-					
+				
 			}catch(error:any) {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+error.message+" "+error.stack});

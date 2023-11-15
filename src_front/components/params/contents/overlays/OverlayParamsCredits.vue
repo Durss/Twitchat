@@ -296,11 +296,11 @@ export default class OverlayParamsCredits extends Vue {
 		});
 		
 		if(this.data.slots.length == 0) {
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!);
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!);
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!);
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "raids")!);
-			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "chatters")!);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!, undefined, true);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!, undefined, true);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "cheers")!, undefined, true);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "raids")!, undefined, true);
+			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "chatters")!, undefined, true);
 		}else{
 
 			for (let i = 0; i < this.data.slots.length; i++) {
@@ -422,7 +422,7 @@ export default class OverlayParamsCredits extends Vue {
 	/**
 	 * Adds a new category to the list
 	 */
-	public async addSlot(slotDef:TwitchatDataTypes.EndingCreditsSlotDefinition, data?:TwitchatDataTypes.EndingCreditsSlotParams):Promise<void> {
+	public async addSlot(slotDef:TwitchatDataTypes.EndingCreditsSlotDefinition, data?:TwitchatDataTypes.EndingCreditsSlotParams, isDefautlSlot:boolean = false):Promise<void> {
 		let id = data?.id || Utils.getUUID();
 		let slotType = slotDef.id;
 		let rewards:TwitchDataTypes.Reward[] = [];
@@ -478,7 +478,9 @@ export default class OverlayParamsCredits extends Vue {
 		if(slotDef.id == "chatters") {
 			if(entry.showMods === undefined) {
 				entry.layout	= "3cols";
-				entry.label		= this.$t("overlay.credits.moderators_label");
+				if(isDefautlSlot) {
+					entry.label		= this.$t("overlay.credits.moderators_label");
+				}
 			}
 			if(entry.showMods === undefined || !this.isPremium) {
 				entry.showMods		= true;

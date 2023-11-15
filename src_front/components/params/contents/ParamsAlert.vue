@@ -30,7 +30,7 @@
 				</template>
 			</i18n-t>
 	
-			<Button class="testBt" icon="test" secondary @click="testAlert()">{{ $t('alert.testBt') }}</Button>
+			<Button class="testBt" icon="test" @click="testAlert()">{{ $t('alert.testBt') }}</Button>
 		</section>
 	</div>
 </template>

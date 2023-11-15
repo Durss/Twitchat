@@ -42,6 +42,8 @@ export default class DistortionLiquid extends AbstractDistortion {
 	// }
 	protected buildItem(px?:number, py?:number):IDistortItem {
 		const item = super.buildItem(px, py);
+		if(px != undefined) item.x = px;
+		if(py != undefined) item.y = py;
 		item.alphaSpeed = 0;
 		item.frame = 0;
 		item.scale = .001;

@@ -3376,6 +3376,10 @@ export namespace TwitchatDataTypes {
 		 * Number of consecutive streams the user watched
 		 */
 		streak:number;
+		/**
+		 * Number of channel points earned
+		 */
+		channelPointsEarned:number;
 	}
 
 	/**

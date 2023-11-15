@@ -45,7 +45,7 @@
 			"name":"Nom de la règle",
 			"keywords":"Règle (accepte les <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Tester vos regexp</a>)",
 			"sync":"Enregistrer sur le serveur",
-			"sync_tt":"Si la règle contient des informations personnelles vous pouvez choisir de ne pas l'enregistrer sur le serveur. Vous les perdrez si vous videz vos cookies.",
+			"sync_tt":"Si la règle contient des informations personnelles vous pouvez choisir de ne pas l'enregistrer sur le serveur.\nLa règle sera perdue si vous videz vos cookies.",
 			"emergency":"Démarrer le mode urgence",
 			"emergency_tt":"Si un message correspond à cette règle, le mode urgence sera activé",
 			"firstTime":"Appliquer seulement aux personnes parlant pour la 1ère fois dans votre tchat",

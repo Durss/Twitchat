@@ -16,7 +16,7 @@
 
 				<Button title="Connect" type="submit" class="connectBt" :loading="loading" />
 			</form>
-			<Button v-else title="Disconnect" @click="disconnect()" class="connectBt" :loading="loading" icon="cross" />
+			<Button v-else @click="disconnect()" class="connectBt" :loading="loading" alert icon="cross">Disconnect</Button>
 		</div>
 
 		<div class="lists">
@@ -86,6 +86,9 @@ export default class PublicApiTest extends Vue {
 			if(a.key > b.key) return 1;
 			return 0;
 		});
+		//@ts-ignore
+		this.eventList.push({key:"CUSTOM_CHAT_MESSAGE", active:false, data:null});
+
 		this.actionList = TwitchatActionTypeList.concat().map(v=>{
 			return {key:v};
 		}).sort((a,b)=> {
@@ -134,7 +137,15 @@ export default class PublicApiTest extends Vue {
 	}
 
 	public async executeAction(action:{key:TwitchatEventType|TwitchatActionType}):Promise<void> {
-		PublicAPI.instance.broadcast(action.key);
+		let data:{[key:string]:any} = {};
+		if(action.key == "CUSTOM_CHAT_MESSAGE") {
+			data.message = "This is message";
+			data.user = {
+				name:"Twitch",
+				color:"#dF841f",
+			};
+		}
+		PublicAPI.instance.broadcast(action.key, data);
 	}
 
 	private initAPI():void {
@@ -166,9 +177,9 @@ export default class PublicApiTest extends Vue {
 .publicapitest{
 	padding: 1em;
 	.connectForm {
-		max-width: 400px;
+		max-width: fit-content;
 		margin: auto;
-		background: var(--color-light);
+		//background: var(--color-light);
 
 		text-align: center;
 
@@ -188,6 +199,10 @@ export default class PublicApiTest extends Vue {
 				display: none;
 			}
 		}
+	}
+
+	.connectBt {
+		margin: auto;
 	}
 
 	.lists {
@@ -219,9 +234,6 @@ export default class PublicApiTest extends Vue {
 				margin-bottom: 5px;
 				font-size: .7em;
 				flex-grow: 1;
-				:deep(.content) {
-					background-color: white;
-				}
 				&.active {
 					opacity: 1;
 				}

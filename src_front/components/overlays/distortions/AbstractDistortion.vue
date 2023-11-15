@@ -89,7 +89,7 @@ export default class AbstractDistortion extends Vue {
 		}
 		
 		//Stop there if user isn't allowed
-		if(!await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return;
+		if(!event.detail.testMode && !await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return;
 
 		const vec3 = this.screenToWorld(event.detail.x * window.innerWidth, event.detail.y * window.innerHeight);
 		this.addItem(this.buildItem(vec3.x, vec3.y));

@@ -668,7 +668,7 @@ export default class MessageList extends Vue {
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
-				return this.config.filters.ad_break_start === true;
+				return this.config.filters.ad_break_start_chat === true;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {

@@ -385,7 +385,7 @@
 			"created": "Marqueur créé avec succès"
 		},
 		"watch_streak": {
-			"label": "{USER} a regardé {COUNT} streams consécutifs ce mois-ci et a déclenché une série de visionnages ?"
+			"label": "{USER} a regardé {COUNT} streams consécutifs et a déclenché une série de visionnages ?"
 		},
 		"splitter": {
 			"label": "Nouveaux messages"

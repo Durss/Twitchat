@@ -531,6 +531,7 @@
 			"new_value":"New value",
 			"old_value":"Old value",
 			"watch_streak": "Watch streak count",
+			"points_earned": "Channel points earned",
 			"obs_scene": "Current OBS scene name",
 			"viewer_count": "Viewers watching your stream",
 			"obs_scene_name": "Name of the new OBS scene",
