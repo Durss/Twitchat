@@ -132,7 +132,7 @@ export interface IMainState {
 	 * Hashmap linking an icon name to its SVG to avoid spamming useless
 	 * requests
 	 */
-	iconCache:{[key:string]:string};
+	iconCache:{[key:string]:string|Promise<void>};
 }
 
 export interface IMainGetters {
