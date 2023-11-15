@@ -1067,7 +1067,8 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						user:fakeUser,
 						channel_id:uid,
-						streak:Utils.pickRand([3,6,9]),//Not sure thera are other valid values than 3
+						streak:Utils.pickRand([3,5,7,10,15]),//Not sure these are valid values
+						channelPointsEarned:Utils.pickRand([350,450]),//Not sure there are other valid values
 					};
 					data = m;
 					break;

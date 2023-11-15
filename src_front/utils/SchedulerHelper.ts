@@ -185,8 +185,8 @@ export default class SchedulerHelper {
 				type:TriggerScheduleTypes.REGULAR_REPEAT,
 				// repeatDuration:10,
 				// repeatMinMessages:0,
-				repeatDuration:2 * 60 * 60,
-				repeatMinMessages:100,
+				repeatDuration:10,//2 * 60 * 60,
+				repeatMinMessages:1,//00,
 				dates:[],
 			}
 		}

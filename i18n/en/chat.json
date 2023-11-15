@@ -381,7 +381,7 @@
 			"created": "Marker created successfully"
 		},
 		"watch_streak":{
-			"label": "{USER} watched {COUNT} consecutive streams this month and sparked a watch streak!"
+			"label": "{USER} watched {COUNT} consecutive streams and sparked a watch streak!"
 		},
 		"splitter": {
 			"label": "New messages"
