@@ -148,8 +148,8 @@
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
 				"action_customUsername": "Custom username",
-				"action_clickHeat": "Click a distortion",
-				"action_clickHeat_tt": "You first need to create a distortion to use this action"
+				"action_heat_click": "Click a distortion",
+				"action_heat_click_tt": "You first need to create a distortion to use this action"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -372,7 +372,7 @@
 				"param_fader_linein":"Line In",
 				"param_fader_system":"System",
 				"param_fader_sample":"Sample",
-				"param_faderValue": "Volume (0 <-> 253)",
+				"param_faderValue": "Volume (0 => 253)",
 				"param_profile":"Profile",
 				"action_fx_on": "Enable FX",
 				"action_fx_off": "Disable FX",
@@ -419,6 +419,15 @@
 				"param_action_icon": "Button icon",
 				"param_action_theme": "Button style",
 				"add_actionBt": "Add an action"
+			},
+			"heat_click": {
+				"param_overlay":"Overlay to send the click to",
+				"param_forward":"Forward current click data to overlay",
+				"param_x":"X coordinate (in %: 0 => 100)",
+				"param_y":"Y coordinate (in %: 0 => 100)",
+				"param_ctrl":"Ctrl key pressed",
+				"param_shift":"Shift key pressed",
+				"param_alt":"Alt key pressed"
 			}
 		},
 		"categories": {
@@ -535,8 +544,8 @@
 			"ulule_campaign_name": "Campaign name",
 			"ulule_campaign_name_example": "My awesome project",
 			"heat_anonymous": "Is click from an anonymous user?",
-			"heat_coord_x": "X coordinate of the click in percent (0 <-> 100)",
-			"heat_coord_y": "Y coordinate of the click in percent (0 <-> 100)",
+			"heat_coord_x": "X coordinate of the click in percent (0 => 100)",
+			"heat_coord_y": "Y coordinate of the click in percent (0 => 100)",
 			"heat_key_alt": "Is ALT key pressed?",
 			"heat_key_shift": "Is SHIFT key pressed?",
 			"heat_key_ctrl": "Is CTRL key pressed?",
@@ -934,7 +943,7 @@
 				"description_info": "(Needs Twitch extension \"Heat\". See Heat section to install it)"
 			},
 			"CLIP_CREATED": {
-				"label": "Clip created",
+				"label": "Clip created from Twitchat",
 				"description": "Actions to execute when a clip is created from Twitchat {INFO}",
 				"description_info": "(only called after using /clip command from Twitchat)"
 			},

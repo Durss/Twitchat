@@ -15,12 +15,25 @@
 			<template v-for="(item, index) in distortionList" :key="item.id">
 				<HeatDistortParams v-model="distortionList[index]" @delete="deleteDistorsion" @created="distortionCreated" :ref="'distortion_'+item.id" />
 			</template>
+
+			<div class="card-item alert error" v-if="shaderstasticError" @click="shaderstasticError = false" ref="error">
+				<Icon name="alert" /> 
+				<i18n-t scope="global" keypath="overlay.heatDistort.shadertastic_missing">
+					<template #URL>
+						<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.shadertastic_missing_url") }}</a>
+					</template>
+				</i18n-t>
+			</div>
 			
 			<Button class="item center" icon="add" primary @click="addDistortion()"
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
 			<div class="card-item maximumReached" v-else>
-				<p><Icon name="alert" />{{ $t("overlay.heatDistort.max_reached") }}</p>
+				<p class="label"><Icon name="alert" />
+					<i18n-t scope="global" keypath="overlay.heatDistort.max_reached">
+						<template #COUNT>{{ premiumCount }}</template>
+					</i18n-t>
+				</p>
 				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
 			</div>
 
@@ -67,11 +80,13 @@ import gsap from 'gsap/all';
 })
 export default class OverlayParamsHeatDistort extends Vue {
 
+	public shaderstasticError:boolean = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get isPremium():boolean{ return this.$store("auth").isPremium; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
+	public get premiumCount():number{ return Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM; }
 	public get distortionList():TwitchatDataTypes.HeatDistortionData[] { return this.$store("heat").distortionList; }
 
 	public beforeMount():void {
@@ -86,6 +101,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 		const id = Utils.getUUID();
 		this.distortionList.push({
 			id,
+			name:"",
 			enabled:true,
 			refuseAnon:false,
 			effect:"liquid",
@@ -151,7 +167,19 @@ export default class OverlayParamsHeatDistort extends Vue {
 						filterName,
 						filterSettings
 					};
-		 await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+		try {
+			await OBSWebsocket.instance.socket.call("CreateSourceFilter", params);
+		}catch(error) {
+			this.shaderstasticError = true;
+			//Remove browser source created before
+			const sceneItem = await OBSWebsocket.instance.searchSceneItemId(sourceName, vo.obsItemPath.sceneName);
+			if(sceneItem) {
+				await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneItemId:sceneItem.itemId, sceneName:vo.obsItemPath.sceneName});
+			}
+
+			await this.$nextTick();
+			gsap.from(this.$refs["error"] as HTMLDivElement, {duration:.5, ease:"back.out", padding:0, height:0, delay:.5});
+		}
 	}
 
 	public deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):void {
@@ -231,11 +259,30 @@ export default class OverlayParamsHeatDistort extends Vue {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
-			background-color: var(--color-secondary-fader);
+			background-color: var(--color-premium-fader);
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+			}
+			.label {
+				text-align: center;
+				white-space: pre-line;
+				line-height: 1.25em;
+			}
 		}
-
+		
 		&.alert {
 			align-items: center;
+		}
+		.error {
+			text-align: center;
+			white-space: pre-line;
+			line-height: 1.25em;
+			cursor: pointer;
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+			}
 		}
 	}
 }

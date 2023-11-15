@@ -38,10 +38,10 @@
 
 <script lang="ts">
 import ParamItem from '@/components/params/ParamItem.vue';
-import { COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData, COUNTER_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
+import { COUNTER_EDIT_SOURCE_CHATTERS, COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
 
 @Component({

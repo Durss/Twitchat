@@ -516,6 +516,19 @@ import Ajv from "ajv";
 											}
 										}
 									}
+								},
+								heatClickData: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										overlayId: {type:"string", maxLength:50},
+										x: {type:"string", maxLength:500},
+										y: {type:"string", maxLength:500},
+										forward: {type:"boolean"},
+										ctrl: {type:"boolean"},
+										shift: {type:"boolean"},
+										alt: {type:"boolean"},
+									}
 								}
 							}
 						},
@@ -1241,6 +1254,7 @@ import Ajv from "ajv";
 				additionalProperties: false,
 				properties: {
 					id: {type:"string", maxLength:40},
+					name: {type:"string", maxLength:100},
 					filterName: {type:"string", maxLength:100},
 					browserSourceName: {type:"string", maxLength:100},
 					permissions: { $ref: "defs.json#/definitions/permissions" },

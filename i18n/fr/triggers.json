@@ -148,8 +148,8 @@
 				"action_goxlr_tt": "Vous devez connecter votre GoXLR dans les paramètres",
 				"action_customBadges": "Badges personnalisés",
 				"action_customUsername": "Pseudo personnalisé",
-				"action_clickHeat": "Cliquer une distorsion",
-				"action_clickHeat_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action"
+				"action_heat_click": "Cliquer une distorsion",
+				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie ?",
@@ -372,7 +372,7 @@
 				"param_fader_linein":"Line In",
 				"param_fader_system":"System",
 				"param_fader_sample":"Sample",
-				"param_faderValue": "Volume (0 <-> 253)",
+				"param_faderValue": "Volume (0 => 253)",
 				"param_profile":"Profile",
 				"action_fx_on": "Activer FX",
 				"action_fx_off": "Désactiver FX",
@@ -419,6 +419,15 @@
 				"param_action_icon": "Icône du bouton",
 				"param_action_theme": "Style du bouton",
 				"add_actionBt": "Ajouter une action"
+			},
+			"heat_click": {
+				"param_overlay":"Overlay sur lequel déclencher un clic",
+				"param_forward":"Transmettre les données actuelles de clic à l'overlay",
+				"param_x":"Coordonée X (en % : 0 => 100)",
+				"param_y":"Coordonée Y (en % : 0 => 100)",
+				"param_ctrl":"Touche Ctrl pressée",
+				"param_shift":"Touche Shift pressée",
+				"param_alt":"Touche Alt pressée"
 			}
 		},
 		"categories": {
@@ -535,8 +544,8 @@
 			"ulule_campaign_name": "Nom de la campagne",
 			"ulule_campaign_name_example": "Mon super projet",
 			"heat_anonymous": "L'utilsateur·ice est anonyme ?",
-			"heat_coord_x": "Coordonnées X du clic en pourcents (0 <-> 100)",
-			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 <-> 100)",
+			"heat_coord_x": "Coordonnées X du clic en pourcents (0 => 100)",
+			"heat_coord_y": "Coordonnées Y du clic en pourcents (0 => 100)",
 			"heat_key_alt": "Touche ALT enfoncée ?",
 			"heat_key_shift": "Touche SHIFT enfoncée ?",
 			"heat_key_ctrl": "Touche CTRL enfoncée ?",
@@ -936,7 +945,7 @@
 				"description_info": "(Requiert l'extension Twitch \"Heat\". Consultez la section Heat pour l'installer)"
 			},
 			"CLIP_CREATED": {
-				"label": "Clip créé",
+				"label": "Clip créé depuis Twitchat",
 				"description": "Actions à exécuter lorsque quelqu'un clip est créé depuis Twitchat {INFO}",
 				"description_info": "(appelé seulement lorsqu'un clip est créé via la commande /clip depuis Twitchat)"
 			},

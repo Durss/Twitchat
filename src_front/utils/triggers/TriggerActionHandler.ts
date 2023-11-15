@@ -1931,6 +1931,11 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Send message type \""+customMessage.style+"\": \""+text+"\""});
 			
 					StoreProxy.chat.addMessage(customMessage);
+				}else
+
+				//Handle custom chat messages
+				if(step.type == "heat_click") {
+					
 				}
 					
 			}catch(error:any) {

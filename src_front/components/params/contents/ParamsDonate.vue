@@ -505,6 +505,7 @@ export default class ParamsDonate extends Vue {
 <style scoped lang="less">
 .paramssubscribe{
 	.info {
+		margin: auto;
 		line-height: 1.25em;
 		p:first-of-type {
 			display: inline;

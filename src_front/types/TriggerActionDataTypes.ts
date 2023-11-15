@@ -478,6 +478,19 @@ export interface TriggerActionVibrateData extends TriggerActionData{
 	pattern:string;
 }
 
+export interface TriggerActionHeatClickData extends TriggerActionData{
+	type:"heat_click";
+	heatClickData:{
+		x:string;
+		y:string;
+		forward:boolean;
+		ctrl:boolean;
+		shift:boolean;
+		alt:boolean;
+		overlayId:string;
+	}
+}
+
 
 export const TriggerActionGoXLRDataActionList = [
 	{code:"fx_on", mini:false},

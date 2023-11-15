@@ -51,7 +51,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 	
 	/**
-	 * Sets the currently active preset index (0 <-> 5)
+	 * Sets the currently active preset index (0 => 5)
 	 * @param name
 	 */
 	public set activeEffectPreset(index:number) {
@@ -60,7 +60,7 @@ export default class GoXLRSocket extends EventDispatcher {
 	}
 
 	/**
-	 * Gets the currently active preset index (0 <-> 5)
+	 * Gets the currently active preset index (0 => 5)
 	 */
 	public get activeEffectPreset():number { return this._currentFXIndex; }
 

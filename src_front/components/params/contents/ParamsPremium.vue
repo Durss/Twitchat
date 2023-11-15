@@ -45,6 +45,7 @@ export default class ParamsPremium extends Vue {
 <style scoped lang="less">
 .paramspremium {
 	.info {
+		margin: auto;
 		line-height: 1.25em;
 		p:first-of-type {
 			display: inline;

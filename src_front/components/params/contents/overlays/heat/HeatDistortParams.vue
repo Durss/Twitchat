@@ -21,18 +21,45 @@
 		@click="deleteEntry(false)">{{ $t("global.cancel") }}</Button>
 	</div>
 
-	<ToggleBlock :title="sourcePathLabel" medium :alert="!modelValue.enabled" v-else>
+	<ToggleBlock medium :alert="!modelValue.enabled" v-else>
 		<template #left_actions>
 			<ToggleButton v-model="modelValue.enabled" big :alert="!modelValue.enabled" />
 		</template>
+
 		<template #right_actions>
 			<Button class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
+							
+		<template #title>
+			<div class="titleHolder">
+				<div class="title">
+					<span class="default" v-if="!modelValue.name">{{ sourcePathLabel }} <Icon name="edit" /></span>
+					<contenteditable class="label" tag="div"
+					:contenteditable="true"
+					v-model="modelValue.name"
+					:no-nl="true"
+					:no-html="true"
+					@click.stop
+					@input="limitLabelSize()" />
+				</div>
+				<Icon name="edit" v-if="modelValue.name" />
+			</div>
+		</template>
+
 		<div class="heatdistorparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
 			<ParamItem :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
 				<PermissionsForm class="permissions" v-model="modelValue.permissions" />
 			</ParamItem>
+			
+			<div v-if="!heatEnabled" class="card-item alert">
+				<Icon name="alert" />
+				<i18n-t scope="global" keypath="overlay.heatDistort.heat_disabled">
+					<template #LINK>
+						<a @click.stop="openHeat()">{{ $t("overlay.heatDistort.heat_disabled_link") }}</a>
+					</template>
+				</i18n-t>
+			</div>
 		</div>
 	</ToggleBlock>
 </template>
@@ -43,18 +70,23 @@ import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
 import OverlayInstaller from '../OverlayInstaller.vue';
+import HeatSocket from '@/utils/twitch/HeatSocket';
+import Icon from '@/components/Icon.vue';
+import contenteditable from 'vue-contenteditable';
 
 @Component({
 	components:{
+		Icon,
 		Button,
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
+		contenteditable,
 		PermissionsForm,
 		OverlayInstaller,
 		OBSSceneItemSelector,
@@ -74,7 +106,10 @@ export default class HeatDistortParams extends Vue {
 	private updateDebounce:number = -1;
 	private obsEventHandler!:()=>void;
 
+	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
+
 	public get sourcePathLabel():string {
+		if(this.modelValue.name) return this.modelValue.name;
 		const chunks:string[] = [];
 		if(this.modelValue.obsItemPath.sceneName) chunks.push(this.modelValue.obsItemPath.sceneName);
 		if(this.modelValue.obsItemPath.groupName) chunks.push(this.modelValue.obsItemPath.groupName);
@@ -91,6 +126,8 @@ export default class HeatDistortParams extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		if(!this.modelValue.name) this.modelValue.name = "";
+		
 		const values:TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.HeatDistortionData["effect"]>[] = [
 			{value:"liquid", labelKey:"overlay.heatDistort.distorsions.ripples"},
 			{value:"expand", labelKey:"overlay.heatDistort.distorsions.expand"},
@@ -117,9 +154,12 @@ export default class HeatDistortParams extends Vue {
 		OBSWebsocket.instance.socket.off("SourceFilterCreated", this.obsEventHandler);
 	}
 
+	public openHeat():void {
+		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+	}
+
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {
 		this.$emit("created", data.sourceName, this.modelValue, this.sourceSuffix);
-		this.overlayInstalled = true;
 	}
 
 	public deleteEntry(confirm:boolean = true):void {
@@ -151,6 +191,28 @@ export default class HeatDistortParams extends Vue {
 		}, 100);
 	}
 
+	/**
+	 * Limit the size of the label.
+	 * Can't use maxLength because it's a content-editable tag.
+	 * @param item 
+	 */
+	public async limitLabelSize():Promise<void> {
+		const sel = window.getSelection();
+		if(sel && sel.rangeCount > 0) {
+			//Save caret index
+			var range = sel.getRangeAt(0);
+			let caretIndex = range.startOffset;
+			await this.$nextTick();
+			//Limit label's size
+			this.modelValue.name = this.modelValue.name.substring(0, 100);
+			await this.$nextTick();
+			//Reset caret to previous position
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.modelValue.name.length, caretIndex-1));
+		}else{
+			this.modelValue.name = this.modelValue.name.substring(0, 100);
+		}
+	}
+
 }
 </script>
 
@@ -158,6 +220,7 @@ export default class HeatDistortParams extends Vue {
 .heatdistorparams{
 	gap: .5em;
 	display: flex;
+	overflow: hidden;
 	flex-direction: column;
 
 	h2 {
@@ -173,6 +236,8 @@ export default class HeatDistortParams extends Vue {
 
 	.permissions {
 		align-self: center;
+		margin-top: .5em;
+		padding-left: 1.5em
 	}
 
 	.sceneSelector {
@@ -193,9 +258,64 @@ export default class HeatDistortParams extends Vue {
 	.permissions {
 		max-width: unset;
 	}
+	.alert {
+		text-align: center;
+	}
 }
 .deleteBt {
 	margin: -.5em 0;
 	border-radius: 0;
+}
+.titleHolder {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	flex-grow: 1;
+	.icon {
+		height: 1em;
+		vertical-align: middle;
+	}
+	.title {
+		position: relative;
+		.label, .default {
+			cursor: text;
+			min-width: 2em;
+			font-weight: bold;
+			// flex-grow: 1;
+			padding: .25em .5em;
+			border-radius: var(--border-radius);
+
+			&.label {
+				&:hover, &:active, &:focus {
+					.bevel();
+					background-color: var(--color-text-inverse-fader);
+					// border: 1px double var(--color-light);
+					// border-style: groove;
+				}
+			}
+		}
+		.label {
+			position: relative;
+			z-index: 1;
+			min-width: 100px;
+			padding-right: 2em;
+			word-break: break-word;
+			line-height: 1.2em;
+		}
+		.default {
+			position: absolute;
+			text-wrap: nowrap;
+			opacity: .8;
+			font-style: italic;
+			top:0;
+			left:50%;
+			transform: translateX(-50%);
+			padding-right: 2em;
+		}
+	}
+	&>.icon {
+		margin-left: -1.5em;
+	}
 }
 </style>

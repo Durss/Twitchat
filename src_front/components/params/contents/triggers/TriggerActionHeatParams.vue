@@ -1,7 +1,7 @@
 <template>
 	<div class="TriggerActionHeatParams">
 		
-		<ParamItem noBackground :paramData="param_clickSource" v-model="triggerData.heatClickSource" @change="cleanupData()" />
+		<ParamItem noBackground :paramData="param_clickSource" v-model="triggerData.heatClickSource" @change="cleanupData" />
 		
 		<template v-if="param_clickSource.value=='area'">
 			<div>
@@ -84,7 +84,7 @@ export default class TriggerActionHeatParams extends Vue {
 	
 	public param_clickSource:TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]> = {type:"list", value:"obs", listValues:[], labelKey:"heat.click_source", icon:"click"};
 	public param_obsSources:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[], labelKey:"heat.obs_source", icon:"obs"};
-	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"user", tooltipKey:"heat.anonymous"};
+	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"anon", tooltipKey:"heat.anonymous"};
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };
 	public param_userCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_userCD" };
 
@@ -130,7 +130,6 @@ export default class TriggerActionHeatParams extends Vue {
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
 		const screenList = this.$store('heat').screenList;
-		console.log(this.triggerData.heatAreaIds);
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
 		for (let i = 0; i < this.triggerData.heatAreaIds!.length; i++) {
 			const id = this.triggerData.heatAreaIds![i];
@@ -167,7 +166,9 @@ export default class TriggerActionHeatParams extends Vue {
 		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
-	public cleanupData():void {
+	public cleanupData(prevValue:any, newValue:any):void {
+		if(prevValue === newValue) return;
+		
 		switch(this.param_clickSource.value) {
 			case "obs": {
 				this.triggerData.heatAreaIds = undefined;
@@ -175,7 +176,7 @@ export default class TriggerActionHeatParams extends Vue {
 				break;
 			}
 			case "area": {
-				this.triggerData.heatAreaIds = [];
+				this.triggerData.heatAreaIds = this.triggerData.heatAreaIds || [];
 				this.triggerData.heatObsSource = undefined;
 				break;
 			}

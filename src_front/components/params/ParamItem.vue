@@ -545,7 +545,7 @@ export default class ParamItem extends Vue {
 		//Force a model value update.
 		//This is necessary for default values to be applied to the
 		//v-model value on first render.
-		if(this.modelValue, this.paramData.value) this.onEdit();
+		if(this.modelValue != this.paramData.value) this.onEdit();
 	}
 
 	/**
@@ -609,8 +609,9 @@ export default class ParamItem extends Vue {
 			this.$store("params").updateParams();
 		}
 		if(this.paramData.type != "number" || this.paramData.value !== "") {
+			const prevValue = this.modelValue;
 			this.$emit("update:modelValue", this.paramData.value);
-			this.$emit("change");
+			this.$emit("change", prevValue, this.paramData.value);
 			if(this.paramData.editCallback) {
 				this.paramData.editCallback(this.paramData);
 			}

@@ -31,7 +31,7 @@
 				group="description"
 				ghostClass="ghost"
 				item-key="id"
-        		handle=".slotHolder>.header"
+				handle=".slotHolder>.header"
 				v-model="data.slots">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
 						<ToggleBlock class="slotHolder" :key="'item_'+element.id" :open="false" medium :premium="getDefinitionFromSlot(element.slotType).premium">
@@ -168,10 +168,11 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
 import contenteditable from 'vue-contenteditable';
@@ -180,8 +181,6 @@ import draggable from 'vuedraggable';
 import Button from '../../../Button.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({

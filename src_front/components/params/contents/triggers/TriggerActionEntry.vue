@@ -143,11 +143,11 @@
 					:disabled="!wsConnected"
 					icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
 				
-				<!-- <Button class="button" @click.capture="selectActionType('heat_click')"
+				<Button class="button" @click.capture="selectActionType('heat_click')"
 					:disabled="!heatClickEnabled"
 					v-newflag="{date:1699651768211, id:'params_triggerAction_clickHeat'}"
-					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_clickHeat_tt')"
-					icon="distort">{{ $t('triggers.actions.common.action_clickHeat') }}</Button> -->
+					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_heat_click_tt')"
+					icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</Button>
 			</div>
 		</div>
 
@@ -170,6 +170,7 @@
 		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomChatEntry v-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
+		<TriggerActionClickHeatEntry v-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -221,6 +222,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
+import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.vue';
 
 @Component({
 	components:{
@@ -246,6 +248,7 @@ import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
+		TriggerActionClickHeatEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionCustomUsername,
 		TriggerActionCustomChatEntry,
@@ -383,6 +386,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "vibrate") icons.push( 'vibrate' );
 		if(this.action.type == "customBadges") icons.push( 'badge' );
 		if(this.action.type == "customUsername") icons.push( 'user' );
+		if(this.action.type == "heat_click") icons.push( 'distort' );
 		return icons;
 	}
 

@@ -80,34 +80,41 @@ export const storeTriggers = defineStore('triggers', {
 			function cleanEmptyActions(actions:TriggerActionTypes[]):TriggerActionTypes[] {
 				return actions.filter(v=> {
 					if(v.type == null) return false;
-					if(v.type == "obs") return true;//v.sourceName?.length > 0;
-					if(v.type == "chat") return true;//v.text?.length > 0;
-					if(v.type == "music") return true;
-					if(v.type == "tts") return true;
-					if(v.type == "raffle") return true;
-					if(v.type == "raffle_enter") return true;
-					if(v.type == "bingo") return true;
-					if(v.type == "voicemod") return true;
-					if(v.type == "highlight") return true;
-					if(v.type == "trigger") return true;
-					if(v.type == "triggerToggle") return true;
-					if(v.type == "http") return true;
-					if(v.type == "ws") return true;
-					if(v.type == "poll") return true;
-					if(v.type == "prediction") return true;
-					if(v.type == "count") return true;
-					if(v.type == "value") return true;
-					if(v.type == "random") return true;
-					if(v.type == "stream_infos") return true;
-					if(v.type == "delay") return true;
-					if(v.type == "goxlr") return true;
-					if(v.type == "customBadges") return true;
-					if(v.type == "customUsername") return true;
-					if(v.type == "chatSugg") return true;
-					if(v.type == "customChat") return true;
-					console.warn("Trigger action type not whitelisted on store : "+v.type);
-					return false;
-				})
+					return true;
+				});
+				// .filter(v=> {
+				// 	if(v.type == null) return false;
+				// 	if(v.type == null) return false;
+				// 	if(v.type == "obs") return true;//v.sourceName?.length > 0;
+				// 	if(v.type == "chat") return true;//v.text?.length > 0;
+				// 	if(v.type == "music") return true;
+				// 	if(v.type == "tts") return true;
+				// 	if(v.type == "raffle") return true;
+				// 	if(v.type == "raffle_enter") return true;
+				// 	if(v.type == "bingo") return true;
+				// 	if(v.type == "voicemod") return true;
+				// 	if(v.type == "highlight") return true;
+				// 	if(v.type == "trigger") return true;
+				// 	if(v.type == "triggerToggle") return true;
+				// 	if(v.type == "http") return true;
+				// 	if(v.type == "ws") return true;
+				// 	if(v.type == "poll") return true;
+				// 	if(v.type == "prediction") return true;
+				// 	if(v.type == "count") return true;
+				// 	if(v.type == "value") return true;
+				// 	if(v.type == "random") return true;
+				// 	if(v.type == "stream_infos") return true;
+				// 	if(v.type == "delay") return true;
+				// 	if(v.type == "goxlr") return true;
+				// 	if(v.type == "customBadges") return true;
+				// 	if(v.type == "customUsername") return true;
+				// 	if(v.type == "chatSugg") return true;
+				// 	if(v.type == "customChat") return true;
+				// 	if(v.type == "vibrate") return true;
+				// 	if(v.type == "heat_click") return true;
+				// 	console.warn("Trigger action type not whitelisted on store : "+v.type);
+				// 	return false;
+				// })
 
 			}
 			
