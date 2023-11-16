@@ -171,7 +171,7 @@ export default class Config {
 		if(this.IS_PROD) return [];
 		return [
 			{platform:"twitch", login:"shakawah"},
-			{platform:"twitch", login:"andythefrenchy"},
+			// {platform:"twitch", login:"andythefrenchy"},
 		];
 	}
 

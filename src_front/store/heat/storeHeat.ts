@@ -208,7 +208,11 @@ export const storeHeat = defineStore('heat', {
 					const x = rects.canvas.width * px;
 					const y = rects.canvas.height * py;
 					const bounds = rect.transform;
-					const polygon = [bounds.globalTL!, bounds.globalTR!, bounds.globalBR!, bounds.globalBL!];
+					const tl = {x:bounds.globalTL!.x + (bounds.cropLeft || 0), y:bounds.globalTL!.y + (bounds.cropTop || 0)}!
+					const tr = {x:bounds.globalTR!.x - (bounds.cropRight || 0), y:bounds.globalTR!.y + (bounds.cropTop || 0)}!
+					const br = {x:bounds.globalBR!.x - (bounds.cropRight || 0), y:bounds.globalBR!.y - (bounds.cropBottom || 0)}!
+					const bl = {x:bounds.globalBL!.x + (bounds.cropLeft || 0), y:bounds.globalBL!.y - (bounds.cropBottom || 0)}!
+					const polygon = [tl, tr, br, bl];
 					const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
 					//Click is outside OBS source, ingore it
