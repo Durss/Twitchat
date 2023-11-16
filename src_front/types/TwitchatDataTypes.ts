@@ -2470,6 +2470,18 @@ export namespace TwitchatDataTypes {
 		 * @see MergeableMessage
 		 */
 		message_size: number;
+		/**
+		 * Is message pinned ?
+		 */
+		pinnned:boolean;
+		/**
+		 * Pin duration in ms if message is pinned
+		 */
+		pinnDuration_ms:number;
+		/**
+		 * Raw IRC data of the message
+		 */
+		raw_data?:any;
 	}
 
 	/**

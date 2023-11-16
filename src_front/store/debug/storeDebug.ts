@@ -180,6 +180,8 @@ export const storeDebug = defineStore('debug', {
 						message_size:TwitchUtils.computeMessageSize(chunks),
 						user:fakeUser,
 						bits,
+						pinnned:Math.random() > .5,
+						pinnDuration_ms:Utils.pickRand([60,120,300,600,1200,3600,7200]) * 1000,
 					};
 					data = m;
 					break;

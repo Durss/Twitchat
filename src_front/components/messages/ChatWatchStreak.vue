@@ -11,6 +11,9 @@
 			<template #COUNT>
 				<strong>{{ messageData.streak }}</strong>
 			</template>
+			<template #POINTS>
+				<strong>{{ messageData.channelPointsEarned }}</strong>
+			</template>
 		</i18n-t>
 	</div>
 </template>
