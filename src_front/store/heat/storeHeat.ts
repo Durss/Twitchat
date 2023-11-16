@@ -94,9 +94,10 @@ export const storeHeat = defineStore('heat', {
 
 			const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK) != undefined;
 			const isOverlay = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
+			const isDistortion = this.distortionList.filter(v=>v.enabled).length > 0
 			
 			//If nothing requests for heat click events, ignore it
-			if(!isTrigger && !isOverlay) return;
+			if(!isTrigger && !isOverlay && !isDistortion) return;
 
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
@@ -266,7 +267,10 @@ export const storeHeat = defineStore('heat', {
 					//If a distortion targets the current element, reroute events to its related browser source
 					for (let j = 0; j < this.distortionList.length; j++) {
 						const d = this.distortionList[j];
+						//Ignore disabled and trigger-only distortions
+						if(d.enabled && !d.triggerOnly) return;
 						const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
+						//Is click on source ?
 						if(rect.sceneName == name || rect.source.sourceName == name) {
 							const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
 							clickClone.requestData.event_data.twitchatOverlayID = d.id;

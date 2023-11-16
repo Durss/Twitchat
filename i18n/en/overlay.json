@@ -197,6 +197,8 @@
 			"param_enabled": "Distortion enabled",
 			"param_shape": "Distortion type",
 			"param_anon": "Reject anonymous clicks",
+			"param_triggerOnly": "Handle interactions from triggers",
+			"param_triggerOnly_tt": "Enable this if you want to allow clicks yourself from triggers.\nEx: you can allow a user to click for a specific amount of time after a sub, bits, channel points rewards, ...",
 			"permissions_title": "Users allowed to click",
 			"delete_confirm":"Delete distortion?",
 			"delete_confirm_desc":"If the overlay was installed automatically, the associated filter and browser source will be removed from OBS.",

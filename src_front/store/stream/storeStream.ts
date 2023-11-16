@@ -297,7 +297,15 @@ export const storeStream = defineStore('stream', {
 
 		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart:boolean = false) {
 			this.commercial[channelId] = data;
-			const remainingTime = data.nextAdStart_at - Date.now();
+
+			let startDate:number = 0;
+			if(data.prevAdStart_at + data.currentAdDuration_ms >= Date.now()){
+				startDate = data.prevAdStart_at;
+			}else {
+				startDate = data.nextAdStart_at;
+			}
+
+			const remainingTime = startDate - Date.now();
 
 			//Cleanup previously scheduled trigger messages
 			(commercialTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
@@ -307,6 +315,10 @@ export const storeStream = defineStore('stream', {
 			AD_APPROACHING_INTERVALS.forEach(ms => {
 				//If this interval has already passed, ignore it
 				if(remainingTime < ms) return;
+				TwitchUtils.adsAPIHistory.push({
+					date:Date.now(),
+					log:"Schedule approaching ad trigger in "+((remainingTime-ms)/1000)+"s"
+				});
 				//Schedule message
 				let to = setTimeout(()=>{
 					const message: TwitchatDataTypes.MessageAdBreakApproachingData = {
@@ -317,6 +329,10 @@ export const storeStream = defineStore('stream', {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING,
 						start_at:data.nextAdStart_at,
 					};
+					TwitchUtils.adsAPIHistory.push({
+						date:Date.now(),
+						log:"Trigger ad approaching in "+((remainingTime-ms)/1000)+"s"
+					});
 					StoreProxy.chat.addMessage(message);
 				}, remainingTime - ms);
 				//Keep timeout's ref so we can clear it whenever needed
@@ -326,16 +342,19 @@ export const storeStream = defineStore('stream', {
 			//Force ad start a liuttle before the timer completes
 			//This is a workaround Twitch not starting ad at the given date but only
 			//a few seconds to a minute or more after that.
-			let to = setTimeout(() => {
-				TwitchUtils.startCommercial(data.currentAdDuration_ms, channelId);
-			}, remainingTime - 1000);
-			commercialTimeouts[channelId].push(to);
-
-			let startDate:number = 0;
-			if(data.prevAdStart_at + data.currentAdDuration_ms >= Date.now()){
-				startDate = data.prevAdStart_at;
-			}else {
-				startDate = data.nextAdStart_at;
+			if(remainingTime > 0) {
+				TwitchUtils.adsAPIHistory.push({
+					date:Date.now(),
+					log:"Wait for "+(remainingTime/1000)+"s before forcing an ad"
+				});
+				let to = setTimeout(() => {
+					TwitchUtils.adsAPIHistory.push({
+						date:Date.now(),
+						log:"Approaching timer complete. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
+					});
+					TwitchUtils.startCommercial(data.currentAdDuration_ms/1000, channelId);
+				}, remainingTime - 1000);
+				commercialTimeouts[channelId].push(to);
 			}
 
 			if(isStart) {
@@ -348,6 +367,10 @@ export const storeStream = defineStore('stream', {
 					duration_s:Math.round(data.currentAdDuration_ms / 1000),
 					startedBy:adStarter,
 				}
+				TwitchUtils.adsAPIHistory.push({
+					date:Date.now(),
+					log:"Trigger ad start",
+				});
 				StoreProxy.chat.addMessage(message);
 			}
 
@@ -362,12 +385,21 @@ export const storeStream = defineStore('stream', {
 						duration_s:Math.round(data.currentAdDuration_ms / 1000),
 						startedBy:adStarter,
 					}
+					TwitchUtils.adsAPIHistory.push({
+						date:Date.now(),
+						log:"Trigger ad complete"
+					});
 					StoreProxy.chat.addMessage(message);
 					setTimeout(()=> {
 						TwitchUtils.getAdSchedule();//get fresh new ad schedule data
 					}, 10000);
 				}, startDate + data.currentAdDuration_ms - Date.now());
 				commercialTimeouts[channelId].push(to);
+				
+				TwitchUtils.adsAPIHistory.push({
+					date:Date.now(),
+					log:"Schedule ad complete trigger in "+((startDate+data.currentAdDuration_ms - Date.now())/1000)+"s"
+				});
 			}
 			
 			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);

@@ -27,6 +27,9 @@
 			
 			<Button class="item center" icon="add" primary @click="addDistortion()"
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			
+			<Button class="item center" icon="add" premium @click="expandPremiumInfo = true"
+			v-else-if="!expandPremiumInfo">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
 			<div class="card-item maximumReached" v-else>
 				<p class="label"><Icon name="alert" />
@@ -80,6 +83,7 @@ import gsap from 'gsap/all';
 })
 export default class OverlayParamsHeatDistort extends Vue {
 
+	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
@@ -104,6 +108,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 			name:"",
 			enabled:true,
 			refuseAnon:false,
+			triggerOnly:false,
 			effect:"liquid",
 			filterName:"",
 			browserSourceName:"",

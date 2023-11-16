@@ -846,12 +846,13 @@ export default class EventSub {
 		infos.nextAdStart_at = new Date(typeof event.started_at == "number"? event.started_at * 1000 : event.started_at).getTime(),
 		infos.currentAdDuration_ms = event.length_seconds * 1000;
 		let starter:TwitchatDataTypes.TwitchatUser | undefined = undefined;
-		if(!event.is_automatic) {
+		//Don't show notification if ad started by ourself or automatically
+		if(!event.is_automatic && event.broadcaster_user_id != event.requester_user_id) {
 			starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
 		}
 		TwitchUtils.adsAPIHistory.push({
 			date:Date.now(),
-			api:event,
+			es:event,
 			internal:infos,
 		})
 		StoreProxy.stream.setCommercialInfo(event.broadcaster_user_id, infos, starter, true);

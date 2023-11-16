@@ -17,7 +17,7 @@ export default class TwitchUtils {
 
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
-	public static adsAPIHistory:{date:number, api:TwitchDataTypes.AdSchedule|TwitchEventSubDataTypes.AdBreakEvent, internal:TwitchatDataTypes.CommercialData}[] = [];
+	public static adsAPIHistory:{date:number, log?:string, api?:TwitchDataTypes.AdSchedule, es?:TwitchEventSubDataTypes.AdBreakEvent, internal?:TwitchatDataTypes.CommercialData}[] = [];
 	
 	private static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	private static rewardsCache:TwitchDataTypes.Reward[] = [];
@@ -1005,6 +1005,11 @@ export default class TwitchUtils {
 	 */
 	public static async startCommercial(duration:number, channelId:string):Promise<TwitchDataTypes.Commercial|null> {
 		if(!this.hasScopes([TwitchScopes.START_COMMERCIAL])) return null;
+		
+		TwitchUtils.adsAPIHistory.push({
+			date:Date.now(),
+			log:"Start a commercial for "+duration+"s"
+		});
 		
 		const validDurations = [30, 60, 90, 120, 150, 180];
 		//Invalid duration, force it to 30s
@@ -2273,7 +2278,12 @@ export default class TwitchUtils {
 	 * Gets Ad schedule
 	 */
 	public static async getAdSchedule():Promise<TwitchDataTypes.AdSchedule|null> {
-		if(!this.hasScopes([TwitchScopes.ADS_READ])) return null
+		if(!this.hasScopes([TwitchScopes.ADS_READ])) return null;
+		
+		TwitchUtils.adsAPIHistory.push({
+			date:Date.now(),
+			log:"Request ad schedule"
+		});
 
 		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads");
@@ -2292,8 +2302,8 @@ export default class TwitchUtils {
 				// const data:TwitchDataTypes.AdSchedule = {
 				// 	"snooze_count": 3,
 				// 	"snooze_refresh_at": 0,
-				// 	"next_ad_at": (new Date("Sun Nov 12 2023 00:44:00 GMT+0100").getTime())/1000,
-				// 	// "next_ad_at": (Date.now() - 3 * 24 * 60 * 60000)/1000,
+				// 	// "next_ad_at": (new Date("Sun Nov 12 2023 00:44:00 GMT+0100").getTime())/1000,
+				// 	"next_ad_at": (Date.now() + 1 * 60 * 60000)/1000,
 				// 	"length_seconds": 60,
 				// 	"last_ad_at": 0,
 				// 	"preroll_free_time_seconds": 0,
@@ -2307,12 +2317,13 @@ export default class TwitchUtils {
 					prevAdStart_at:			new Date(typeof data.last_ad_at == "number"? data.last_ad_at * 1000 : data.last_ad_at).getTime(),
 					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),
 				};
-				StoreProxy.stream.setCommercialInfo(user.id, infos);
 				this.adsAPIHistory.push({
 					date:Date.now(),
+					log:"Ad schedule loaded",
 					api:data,
 					internal:infos,
 				});
+				StoreProxy.stream.setCommercialInfo(user.id, infos);
 				//Limit history size
 				if(this.adsAPIHistory.length > 1000) this.adsAPIHistory.splice(1);
 				return data;

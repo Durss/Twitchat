@@ -1260,6 +1260,7 @@ import Ajv from "ajv";
 					permissions: { $ref: "defs.json#/definitions/permissions" },
 					effect: {enum: ["liquid", "expand", "shrink"]},
 					enabled: {type:"boolean"},
+					triggerOnly: {type:"boolean"},
 					refuseAnon: {type:"boolean"},
 					obsItemPath: {
 						type:"object",

@@ -268,7 +268,7 @@ export default class TriggerCreateForm extends Vue {
 		if(e.value == TriggerTypes.FOLLOWED_STREAM_OFFLINE && !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return true;
 		if((e.value == TriggerTypes.AD_APPROACHING
 		|| e.value == TriggerTypes.AD_STARTED
-		 || e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) return true;
+		|| e.value == TriggerTypes.AD_COMPLETE) && !TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) return true;
 
 		if(!TwitchUtils.hasScopes([TwitchScopes.READ_HYPE_TRAIN])
 		&& (e.value == TriggerTypes.HYPE_TRAIN_CANCELED

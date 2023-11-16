@@ -1507,6 +1507,7 @@ export namespace TwitchatDataTypes {
 		filterName:string;
 		browserSourceName:string;
 		enabled:boolean;
+		triggerOnly:boolean;
 	}
 	
 	/**

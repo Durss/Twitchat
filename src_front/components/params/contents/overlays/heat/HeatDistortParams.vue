@@ -48,8 +48,10 @@
 
 		<div class="heatdistorparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
-			<ParamItem :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
-				<PermissionsForm class="permissions" v-model="modelValue.permissions" />
+			<ParamItem :paramData="param_triggerOnly" v-model="modelValue.triggerOnly" noBackground inverseChildrenCondition>
+				<ParamItem class="offset" :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
+					<PermissionsForm class="permissions" v-model="modelValue.permissions" />
+				</ParamItem>
 			</ParamItem>
 			
 			<div v-if="!heatEnabled" class="card-item alert">
@@ -101,6 +103,7 @@ export default class HeatDistortParams extends Vue {
 	public overlayInstalled:boolean = false;
 	
 	public param_shape:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", icon:"distort", labelKey:"overlay.heatDistort.param_shape"};
+	public param_triggerOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"broadcast", labelKey:"overlay.heatDistort.param_triggerOnly", tooltipKey:"overlay.heatDistort.param_triggerOnly_tt"};
 	public param_anon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"anon", labelKey:"overlay.heatDistort.param_anon", tooltipKey:"heat.anonymous"};
 
 	private updateDebounce:number = -1;
@@ -232,6 +235,10 @@ export default class HeatDistortParams extends Vue {
 			vertical-align: middle;
 			margin-right: .25em;
 		}
+	}
+
+	.offset {
+		margin-top: .5em;
 	}
 
 	.permissions {

@@ -197,6 +197,8 @@
 			"param_enabled": "Distorsion active",
 			"param_shape": "Type de distorsion",
 			"param_anon": "Refuser les clics anonymes",
+			"param_triggerOnly": "Gérer les interactions depuis les triggers",
+			"param_triggerOnly_tt": "Activez ceci pour gérer les autorisations de click vous-même via les triggers.\nEx: vous pouvez n'autoriser les clicks durant une certaine durée après un sub, des bits, une récompense de points de chaîne, ...",
 			"permissions_title": "Personnes autorisées à cliquer",
 			"delete_confirm":"Supprimer la distorsion ?",
 			"delete_confirm_desc":"Si l'overlay a été installé automatiquement, le filtre et la source navigateur liés seront supprimés d'OBS.",
