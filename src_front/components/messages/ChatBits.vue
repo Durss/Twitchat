@@ -143,6 +143,7 @@ export default class ChatBits extends AbstractChatMessage {
 		width: 100%;
 		transition: transform 10s;
 		will-change: transform;
+		transform-origin: left top;
 	}
 	&.level0 {
 		background-image: linear-gradient(90deg,#8205b4,#9146ff,#8205b4);
