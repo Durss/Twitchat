@@ -127,6 +127,7 @@ export default class PubSub extends EventDispatcher {
 					subscriptions.push("chat_moderator_actions."+myUID+"."+uid);
 					subscriptions.push("automod-queue."+myUID+"."+uid);
 					subscriptions.push("low-trust-users."+myUID+"."+uid);
+					subscriptions.push("pinned-chat-updates-v1."+uid);
 					// subscriptions.push("user-moderation-notifications."+myUID+"."+uid);
 					// subscriptions.push("channel-ad-poll-update-events."+uid);
 					// subscriptions.push("pv-watch-party-events."+uid);
@@ -1284,7 +1285,7 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private async pinMessageEvent(data:PubSubDataTypes.PinMessage, channel_id:string):Promise<void> {
 		let message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
-		let attempts = 5;
+		let attempts = 10;
 		
 		do {
 			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
@@ -1297,12 +1298,12 @@ export default class PubSub extends EventDispatcher {
 		}while(!message && attempts > 0)
 
 		if(message) {
-			if(data.type == "CHEER") {
+			if(data.message.type == "CHEER") {
 				//Cheer pins
 				const cheer = message as TwitchatDataTypes.MessageCheerData;
 				cheer.pinnned = true;
-				cheer.pinDuration_ms = (data.ends_at - data.starts_at),
-				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.metadata.level] || 0;
+				cheer.pinDuration_ms = (data.message.ends_at - data.message.starts_at),
+				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.message.metadata.level] || 0;
 				//Forces triggers to execute
 				TriggerActionHandler.instance.execute(cheer);
 
