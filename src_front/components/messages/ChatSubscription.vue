@@ -114,7 +114,7 @@
 				</i18n-t>
 			</div>
 			
-			<div class="quote" v-if="messageData.message">
+			<div class="quote dark" v-if="messageData.message">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
 		</div>

@@ -13,6 +13,7 @@
 		"spam_linkBt": "Spam link to channel",
 		"stream_summaryBt": "Stream summary",
 		"raid_liveBt": "Live channels",
-		"raid_historyBt": "Raid history"
+		"raid_historyBt": "Raid history",
+		"target_channel_offline": "The channel you're raiding is offline!"
 	}
 }
