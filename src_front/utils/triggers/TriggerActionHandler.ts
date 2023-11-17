@@ -362,11 +362,11 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT:{
-				if(await this.executeTriggersByType(TriggerTypes.HYPE_CHAT, message, testMode, undefined, undefined, forcedTriggerId)) {
-					return;
-				}break;
-			}
+			// case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT:{
+			// 	if(await this.executeTriggersByType(TriggerTypes.HYPE_CHAT, message, testMode, undefined, undefined, forcedTriggerId)) {
+			// 		return;
+			// 	}break;
+			// }
 
 			case TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK:{
 				let subEvent:string|undefined = undefined;
