@@ -24,10 +24,10 @@
 				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
 			</div>
 			
-			<div class="quote dark" v-if="messageData.message_html">
+			<div class="quote" v-if="messageData.message_html">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
-			<div class="quote dark" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
+			<div class="quote" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
 				<ChatMessageChunksParser :chunks="child.message_chunks" :channel="child.channel_id" :platform="child.platform" />
 			</div>
 		</div>

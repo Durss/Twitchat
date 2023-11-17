@@ -110,7 +110,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 		flex-direction: row;
 		flex-wrap: wrap;
 		.infos {
-			opacity: .8;
+			//opacity: .8;
 			flex-grow: 1;
 			flex-basis: 200px;
 			.category {
@@ -123,7 +123,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 				padding: 2px 10px;
 				font-style: normal;
 				border-radius: var(--border-radius);
-				background-color: var(--color-light-fader);
+				background-color: var(--background-color-fadest);
 			}
 		}
 		.soButton {

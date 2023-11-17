@@ -136,22 +136,9 @@
 		color: var(--color-text);
 		padding: 0.25em;
 		line-height: 1.2em;
-		background-color: var(--background-color-fader);
 		border-radius: var(--border-radius);
-		// &::before {
-		// 	content: "“";
-		// 	font-family: var(--font-nunito);
-		// 	font-style: normal;
-		// 	font-size: 2em;
-		// 	line-height: .25em;
-		// 	vertical-align: text-bottom;
-		// 	margin-right: .25em;
-		// 	opacity: .75;
-		// }
-		&.dark {
-			.bevel();
-			background-color: var(--grayout);
-		}
+		border-left: 2px solid var(--background-color-fader);
+		background-image: linear-gradient(90deg, var(--background-color-fadest), rgba(255,255,255,0));
 	}
 	
 	.cheermote, .emote {
@@ -188,8 +175,8 @@
 					font-style: normal;
 					font-weight: normal;
 					border-radius: var(--border-radius);
-					color: var(--color-dark);
-					background-color: rgba(255,255,255,.75);
+					color: var(--color-text);
+					background-color: var(--background-color-fadest);
 					.icon {
 						height: 1em;
 						vertical-align: text-top;

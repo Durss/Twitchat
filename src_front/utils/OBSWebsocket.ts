@@ -7,8 +7,6 @@ import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
 import Utils from './Utils';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import DataStore from '@/store/DataStore';
 
 /**
 * Created : 29/03/2022 
@@ -18,6 +16,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	private static _instance:OBSWebsocket;
 
 	public connected:boolean = false;
+	public logs:{date:number, info:string, data?:any}[] = [];
 	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
@@ -293,12 +292,18 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return {canvas:{width:1920, height:1080}, sources:[]};
 		const currentScene  = await this.getCurrentScene();
 		
+		this.log("Requesting display rects");
+
 		//If current scene is cached, just send back cached data
 		const cache = this.sceneDisplayRectsCache[currentScene];
-		if(cache && Date.now()-cache.ts < 30000) return this.sceneDisplayRectsCache[currentScene].value;
+		if(cache && Date.now()-cache.ts < 30000) {
+			this.log("return cached data", this.sceneDisplayRectsCache[currentScene].value);
+			return this.sceneDisplayRectsCache[currentScene].value;
+		}
 
 		//If caching is in progress from a previous request, wait a little
 		if(this.sceneToCaching[currentScene] === true) {
+			this.log("Caching in progress, return already cached data", cache.value)
 			if(cache) return cache.value;
 			return {canvas:{width:1920, height:1080}, sources:[]};
 		}
@@ -316,34 +321,40 @@ export default class OBSWebsocket extends EventDispatcher {
 		const canvasW:number = videoSettings.baseWidth;
 		const canvasH:number = videoSettings.baseHeight;
 		const sourcesToWatch:string[] = [];
+		this.log(`Canvas sizes is ${videoSettings.baseWidth}x${videoSettings.baseHeight}`)
 
 		StoreProxy.triggers.triggerList.forEach(v=> {
 			if(v.type == TriggerTypes.HEAT_CLICK && v.heatObsSource && v.enabled){
 				sourcesToWatch.push(v.heatObsSource);
 			}
 		});
-
+		
 		const distortions = StoreProxy.heat.distortionList;
 		distortions.forEach(d=> {
 			sourcesToWatch.push( d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName );
-		})
+		});
+		this.log("OBS sources and Distorsions sources linked to an enabled trigger", sourcesToWatch);
+		this.log("Is overlay interaction enabled (spotify/ulule)? "+ (isOverlayInteraction?"true":"false"));
 
 		if(sourcesToWatch.length === 0 && !isOverlayInteraction) {
 			this.sceneToCaching[currentScene] = false;
+			this.log("No source to watch for")
 			return {canvas:{width:canvasW, height:canvasH}, sources:[]};
 		}
-
+		
 		//Parse all scene items
 		for (let j = 0; j < sceneList.length; j++) {
 			const scene = sceneList[j];
 			
 			if(scenesDone[scene.name] == true) continue;
 			scenesDone[scene.name] = true;
-
+			
 			let list:{sceneItems: JsonObject[]} = {sceneItems:[]};
 			if(scene.isGroup === true){
+				this.log("Parse children for group: "+ scene.name);
 				list = await this.obs.call("GetGroupSceneItemList", {sceneName:scene.name});
 			}else{
+				this.log("Parse children for scene: "+ scene.name);
 				list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
 			}
 			let items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
@@ -357,6 +368,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					sceneName:source.parent,
 					sceneItemId:source.item.sceneItemId,
 				});
+				this.log("Checking visibility of '"+ source.item.sourceName+ "' in '"+ source.parent+"'. Visible:"+(visibleRes?"true":"false"));
 				if(!visibleRes.sceneItemEnabled) continue;
 
 				//If no trigger request for this source's events and if it's not a browser source or a group or a scene, ignore it
@@ -364,22 +376,26 @@ export default class OBSWebsocket extends EventDispatcher {
 				&& !source.item.isGroup
 				&& source.item.inputKind != "browser_source"
 				&& !sourcesToWatch.includes(source.item.sourceName)) {
+					this.log("Source '"+source.item.sourceName+"' is not a scene, not a group, not a browser source and not part of the watched sources. Ignore it")
 					continue;
 				}
 				
-				let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+				// let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
+				let sourceTransform = source.item.sceneItemTransform;
 				if(!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
 					sourceTransform.globalRotation = 0;
 				}
 
-				this.compensateCrop(sourceTransform)
+				this.compensateCrop(sourceTransform);
+				this.log("Transform data compensated for crop", JSON.parse(JSON.stringify(sourceTransform)));
 
 				//Compute the center of the source on the local space
 				let coords = this.getSourceCenterFromTransform(sourceTransform);
 				sourceTransform.globalCenterX = coords.cx;
 				sourceTransform.globalCenterY = coords.cy;
+				this.log("Computed source center", coords.y);
 
 				if(scene.parentTransform) {
 					//Apply parent rotation
@@ -407,7 +423,10 @@ export default class OBSWebsocket extends EventDispatcher {
 					const scaled = this.applyParentScale({x:sourceTransform.globalCenterX, y:sourceTransform.globalCenterY}, pt);
 					sourceTransform.globalCenterX = scaled.x;
 					sourceTransform.globalCenterY = scaled.y;
+					this.log("Applied parent transform", {parentTransform:scene.parentTransform, sourceTransform:JSON.parse(JSON.stringify(sourceTransform))});
 				}
+				
+				this.log("Source type is:"+source.item.sourceType);
 
 				//Is it a source?
 				if((source.item.sourceType == "OBS_SOURCE_TYPE_INPUT"
@@ -419,7 +438,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2;
 					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2;
 					const angle_rad = sourceTransform.rotation * Math.PI / 180;
-					const cos_angle = Math.cos(angle_rad);
+					const cos_angle = Math.cos(angle_rad);	
 					const sin_angle = Math.sin(angle_rad);
 					sourceTransform.globalRotation = sourceTransform.rotation;
 					sourceTransform.globalBL = {x:px - hw * cos_angle - hh * sin_angle, y:py - hw * sin_angle + hh * cos_angle};
@@ -431,7 +450,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					}
 				}
 				
-				//If it's a scene item, add it to the scene list
+				//If it's a scene item, add it to the scene list to parse it later
 				if(source.item.sourceType == "OBS_SOURCE_TYPE_SCENE" || source.item.isGroup) {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
 					sceneList.push( {
@@ -896,6 +915,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	private initialize():void {
 		this.obs = new OBSWebSocket();
 
+		this.logs = reactive([]);
+
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;
 			if(this.autoReconnect) {
@@ -1171,6 +1192,10 @@ export default class OBSWebsocket extends EventDispatcher {
 		const x = scaledX + parentTransform.globalCenterX!;
 		const y = scaledY + parentTransform.globalCenterY!;
 		return { x, y };
+	}
+
+	private log(info:string, data?:any):void {
+		this.logs.push({date:Date.now(), info, data})
 	}
 }
 

@@ -41,6 +41,7 @@
 			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').closeModal()" />
 			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').closeModal()" />
 			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').closeModal()" />
+			<ObsHeatLogs			class="popin" v-if="$store('params').currentModal == 'obsHeatLogs'" @close="$store('params').closeModal()" />
 			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').closeModal()" />
 			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').closeModal()" />
 			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
@@ -90,6 +91,7 @@
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
 			@triggersLogs="$store('params').openModal('triggersLogs')"
+			@obsHeatLogs="$store('params').openModal('obsHeatLogs')"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
@@ -164,6 +166,7 @@ import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
+import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -206,6 +209,7 @@ import Login from './Login.vue';
 		Parameters,
 		RaffleForm,
 		TTUserList,
+		ObsHeatLogs,
 		MessageList,
 		DevmodeMenu,
 		RewardsList,

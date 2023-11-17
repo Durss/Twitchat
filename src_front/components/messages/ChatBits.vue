@@ -17,7 +17,7 @@
 				</template>
 			</i18n-t>
 	
-			<div class="quote dark" v-if="messages.length > 0">
+			<div class="quote" v-if="messages.length > 0">
 				<span v-tooltip="messages.length > 1? mess.bits+' bits' : null" v-for="mess in messages"><ChatMessageChunksParser :chunks="mess.message_chunks" :channel="mess.channel_id" :platform="mess.platform" /></span>
 			</div>
 		</div>
@@ -26,10 +26,10 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
-import { isReactive, watch } from 'vue';
 
 @Component({
 	components:{

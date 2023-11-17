@@ -1,7 +1,7 @@
 <template>
 	<div class="overlayparamsmusic overlayParamsSection">
 		<div class="holder">
-			<OverlayInstaller type="music" :sourceTransforms="{width:400, height:100}" />
+			<OverlayInstaller type="music" :sourceTransform="{width:400, height:100}" />
 			
 			<div class="params">
 				<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />

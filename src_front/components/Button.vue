@@ -12,7 +12,7 @@
 		<span v-if="loading" class="loadingBorder"></span>
 		<span class="background"></span>
 
-		<img v-if="icon && loading" :src="$image('loader/loader.svg')" class="loaderSpinning">
+		<Icon v-if="icon && loading" name="loader" />
 	
 		<Icon class="icon" v-if="icon && !loading" :name="icon" alt="icon" />
 		<span class="icon" v-if="$slots.icon"><slot name="icon"></slot></span>
@@ -228,7 +228,7 @@ export default class Button extends Vue {
 		opacity: .5;
 		cursor: not-allowed;
 		.label, .icon {
-			opacity: .5;
+			// opacity: .5;
 		}
 	}
 	&.loading {
@@ -258,12 +258,6 @@ export default class Button extends Vue {
 				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
 			}
 		}
-	}
-	.loaderSpinning {
-		width: 1em;
-		height: 1em;
-		z-index: 0;
-		object-fit: contain;
 	}
 	.icon, .label {
 		transition: all .25s;
