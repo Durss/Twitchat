@@ -1297,12 +1297,12 @@ export default class PubSub extends EventDispatcher {
 		}while(!message && attempts > 0)
 
 		if(message) {
-			if(data.type == "CHEER") {
+			if(data.message.type == "CHEER") {
 				//Cheer pins
 				const cheer = message as TwitchatDataTypes.MessageCheerData;
 				cheer.pinnned = true;
-				cheer.pinDuration_ms = (data.ends_at - data.starts_at),
-				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.metadata.level] || 0;
+				cheer.pinDuration_ms = (data.message.ends_at - data.message.starts_at),
+				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.message.metadata.level] || 0;
 				//Forces triggers to execute
 				TriggerActionHandler.instance.execute(cheer);
 
