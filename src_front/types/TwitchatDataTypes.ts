@@ -2475,9 +2475,13 @@ export namespace TwitchatDataTypes {
 		 */
 		pinnned:boolean;
 		/**
+		 * Pin level
+		 */
+		pinLevel:number;//0|1|2|3|4|5|6|7;
+		/**
 		 * Pin duration in ms if message is pinned
 		 */
-		pinnDuration_ms:number;
+		pinDuration_ms:number;
 		/**
 		 * Raw IRC data of the message
 		 */

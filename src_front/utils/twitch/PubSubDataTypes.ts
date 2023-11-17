@@ -61,6 +61,15 @@ export namespace PubSubDataTypes {
 			ends_at: number;
 			sent_at: number;
 		}
+		type: "CHEER"|"???",
+		starts_at: number,
+		updated_at: number,
+		ends_at: number,
+		sent_at: number,
+		metadata: {
+			bitsAmount: number,
+			level: "ONE"|"TWO"|"THREE"|"FOUR"|"FIVE"|"SIX"|"SEVEN"|"EIGHT"
+		}
 	}
 
 	export interface PinUpdateMessage {

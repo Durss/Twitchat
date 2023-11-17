@@ -8,6 +8,7 @@ import Config from '../Config';
 import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
+import TriggerActionHandler from '../triggers/TriggerActionHandler';
 
 /**
 * Created : 13/01/2022 
@@ -1282,11 +1283,11 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a message is pinned
 	 */
 	private async pinMessageEvent(data:PubSubDataTypes.PinMessage, channel_id:string):Promise<void> {
-		let message:TwitchatDataTypes.MessageChatData|undefined;
+		let message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
 		let attempts = 5;
 		
 		do {
-			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|undefined;
+			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
 			if(!message) {
 				//Message not found because probably not received on IRC yet.
 				//Wait a little and try again
@@ -1296,29 +1297,41 @@ export default class PubSub extends EventDispatcher {
 		}while(!message && attempts > 0)
 
 		if(message) {
-			const m:TwitchatDataTypes.MessagePinData = {
-				id:data.id,
-				date:Date.now(),
-				platform:"twitch",
-				type:"pinned",
-				pinnedAt_ms:data.message.starts_at * 1000,
-				updatedAt_ms:data.message.starts_at * 1000,
-				unpinAt_ms:data.message.ends_at * 1000,
-				chatMessage: message,
-				moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
-			};
-			message.is_pinned = true;
-			let timeoutRef = -1;
-			if(data.message.ends_at*1000 > Date.now()) {
-				//Schedule automatic unpin
-				timeoutRef = setTimeout(()=> {
-					this.unpinMessageEvent(m, channel_id);
-				}, data.message.ends_at*1000 - Date.now());
+			if(data.type == "CHEER") {
+				//Cheer pins
+				const cheer = message as TwitchatDataTypes.MessageCheerData;
+				cheer.pinnned = true;
+				cheer.pinDuration_ms = (data.ends_at - data.starts_at),
+				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.metadata.level] || 0;
+				//Forces triggers to execute
+				TriggerActionHandler.instance.execute(cheer);
 
-				m.timeoutRef = timeoutRef;
+			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				//Simple pinned message
+				const m:TwitchatDataTypes.MessagePinData = {
+					id:data.id,
+					date:Date.now(),
+					platform:"twitch",
+					type:"pinned",
+					pinnedAt_ms:data.message.starts_at * 1000,
+					updatedAt_ms:data.message.starts_at * 1000,
+					unpinAt_ms:data.message.ends_at * 1000,
+					chatMessage: message,
+					moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
+				};
+				message.is_pinned = true;
+				let timeoutRef = -1;
+				if(data.message.ends_at*1000 > Date.now()) {
+					//Schedule automatic unpin
+					timeoutRef = setTimeout(()=> {
+						this.unpinMessageEvent(m, channel_id);
+					}, data.message.ends_at*1000 - Date.now());
+	
+					m.timeoutRef = timeoutRef;
+				}
+				StoreProxy.chat.addMessage(m);
+				StoreProxy.chat.saveMessage(m.chatMessage);
 			}
-			StoreProxy.chat.addMessage(m);
-			StoreProxy.chat.saveMessage(m.chatMessage);
 		}
 	}
 

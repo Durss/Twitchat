@@ -25,6 +25,8 @@
 			</div>
 		</div>
 
+		<div class="card-item alert infos" v-if="targetChannelOffline"><Icon name="alert" />{{ $t("raid.target_channel_offline") }}</div>
+
 		<div class="card-item secondary infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
 
 		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
@@ -63,7 +65,7 @@
 			<Button light @click="openSummary()" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
-		<Button icon="cross" alert @click="cancelRaid()">{{ $t('global.cancel') }}</Button>
+		<Button icon="cross" alert @click="cancelRaid()" v-if="canCancel">{{ $t('global.cancel') }}</Button>
 
 	</div>
 </template>
@@ -88,6 +90,7 @@ export default class RaidState extends Vue {
 
 	public timeLeft = "";
 	public censorCount = false;
+	public targetChannelOffline = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 	public timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
@@ -98,6 +101,13 @@ export default class RaidState extends Vue {
 	private timerInterval!:number;
 
 	public get raidInfo() { return this.$store("stream").currentRaid!; }
+	public get canCancel() {
+		return true;
+		// if(!this.user) return false;
+		// const chaninfo = this.$store("auth").twitch.user.channelInfo[this.user.id];
+		// if(!chaninfo) return false;
+		// return chaninfo.is_broadcaster || chaninfo.is_moderator;
+	}
 
 	public getBanDuration(user:TwitchatDataTypes.TwitchatUser):string {
 		const chanInfo = user.channelInfo[this.$store("auth").twitch.user.id];
@@ -117,6 +127,8 @@ export default class RaidState extends Vue {
 		if(raid) {
 			this.user = raid.user;
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
+			const liveInfos = await TwitchUtils.loadCurrentStreamInfo([this.user.id]);
+			this.targetChannelOffline = liveInfos.length == 0;
 		}
 
 		const userlist = this.$store("users").users;
@@ -163,7 +175,10 @@ export default class RaidState extends Vue {
 
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
-		if(seconds <= 0) return;
+		if(seconds <= 0) {
+			this.$store("stream").onRaidComplete();
+			return;
+		}
 		this.timeLeft = Utils.formatDuration(seconds);
 	}
 

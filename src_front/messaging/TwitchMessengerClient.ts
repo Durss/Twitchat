@@ -786,8 +786,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
 			message_size:TwitchUtils.computeMessageSize(chunks),
 			raw_data:tags,
-			pinnned:false,//TODO
-			pinnDuration_ms:0,//TODO
+			pinnned:false,
+			pinLevel:0,
+			pinDuration_ms:0,
 		}));
 	}
 

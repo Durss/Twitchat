@@ -1,6 +1,8 @@
 <template>
-	<div :class="classes"
-	@contextmenu="onContextMenu($event, messageData, $el)">
+	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
+		<div class="fader" ref="fader" v-if="messageData.pinnned"></div>
+		<div class="fill" ref="fill" v-if="messageData.pinnned"></div>
+		
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="bits" alt="bits" class="icon"/>
@@ -15,12 +17,9 @@
 				</template>
 			</i18n-t>
 	
-			<div class="quote" v-if="messages.length > 0">
+			<div class="quote dark" v-if="messages.length > 0">
 				<span v-tooltip="messages.length > 1? mess.bits+' bits' : null" v-for="mess in messages"><ChatMessageChunksParser :chunks="mess.message_chunks" :channel="mess.channel_id" :platform="mess.platform" /></span>
 			</div>
-	
-			<!-- <div class="quote" v-if="children" v-for="child in children">
-			</div> -->
 		</div>
 	</div>
 </template>
@@ -30,6 +29,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import { isReactive, watch } from 'vue';
 
 @Component({
 	components:{
@@ -45,11 +45,7 @@ export default class ChatBits extends AbstractChatMessage {
 	@Prop
 	declare childrenList:TwitchatDataTypes.MessageCheerData[];
 
-	public get classes():string[] {
-		let res = ["chatbits", "chatMessage", "highlight"];
-		if(this.messageData.deleted === true) res.push("deleted");
-		return res;
-	}
+	public classes:string[] = [];
 
 	public get totalBits():number {
 		let res = this.messageData.bits;
@@ -73,10 +69,42 @@ export default class ChatBits extends AbstractChatMessage {
 	public mounted():void {
 		const reason = this.$tc("chat.bits", {COUNT:this.totalBits, USER:this.messageData.user.displayName});
 		this.$store("accessibility").setAriaPolite(reason+" "+this.messageData.message);
+		this.computeState();
+		watch(()=>this.messageData.pinnned, ()=> this.computeState() );
 	}
 
 	public openUserCard():void {
 		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+	}
+
+	private computeClasses():void {
+		let res = ["chatbits", "chatMessage", "highlight"];
+		if(this.messageData.deleted === true) res.push("deleted");
+		if(this.messageData.pinnned === true) {
+			res.push("pinned");
+			res.push("level"+this.messageData.pinLevel);
+		}
+		this.classes = res;
+	}
+
+	private async computeState():Promise<void> {
+		this.computeClasses();
+
+		if(!this.messageData.pinnned) return;
+		
+		
+		await this.$nextTick();
+
+		const fill = this.$refs.fill as HTMLDivElement;
+		if(!fill) return;
+		
+		const duration = this.messageData.pinDuration_ms / 1000;
+		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
+		fill.style.transition = "width "+remainingDuration+"s linear";
+		fill.style.width = "100%";
+		setTimeout(()=> {
+			fill.style.width = "0%";
+		},0);
 	}
 
 }
@@ -84,24 +112,61 @@ export default class ChatBits extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatbits{
+	@border: .25em;
+	background-size: 200%;
+	background-position: 100% center;
+	overflow: hidden;
 
-	.quote {
-		margin-top: .25em;
-		.splitter {
-			width: 100%;
-			background: var(--background-color-fade);
-			height: 1px;
-			max-width: 5em;
-			margin: .5em auto;
+	&.pinned {
+		padding: .5em;
+	
+		* {
+			z-index: 0;
 		}
-		span:not(:first-of-type) {
-			border-left: 2px solid var(--color-secondary);
-			margin-left: 1em;
-			padding-left: 1em;
-		}
-		span:not(:only-child):hover {
-			outline: 1px solid var(--color-text);
-		}
+	}
+
+	.fader {
+		background-color: var(--grayout);//rgba(0, 0, 0, .75);
+		position: absolute;
+		top: @border;
+		left: @border;
+		width: calc(100% - @border * 2);
+		height: calc(100% - @border * 2);
+		z-index: 0;
+		border-radius: calc(var(--border-radius) / 1.5);
+	}
+	.fill {
+		background-color: rgba(255, 255, 255, .9);
+		position: absolute;
+		bottom: 0;
+		left: 0;
+		height: @border;
+		width: 100%;
+		transition: width 10s;
+	}
+	&.level0 {
+		background-image: linear-gradient(90deg,#8205b4,#9146ff,#8205b4);
+	}
+	&.level1 {
+		background-image: linear-gradient(90deg,#1e69ff,#578fff,#1e69ff);
+	}
+	&.level2 {
+		background-image: linear-gradient(90deg,#009919,#00bba4,#009919);
+	}
+	&.level3 {
+		background-image: linear-gradient(90deg,#ff6905,#fdb210,#ffff75,#fdb210,#ff6905);
+	}
+	&.level4 {
+		background-image: linear-gradient(90deg,#f7262c,#fa1ed2,#f093f9,#fa1ed2,#f7262c);
+	}
+	&.level5 {
+		background-image: linear-gradient(90deg,#00c8af,#1e69ff,#9146ff,#fa1ed2,#9146ff,#1e69ff,#00c8af);
+	}
+	&.level6 {
+		background-image: linear-gradient(90deg,#1e69ff,#9146ff,#fa1ed2,#ea7078,#fdb210,#fafa19,#fdb210,#ea7078,#fa1ed2,#9146ff,#1e69ff);
+	}
+	&.level7 {
+		background-image: linear-gradient(90deg,#fa1ed2,#9146ff,#00fafa,#beff00,#ffb800,#beff00,#00fafa,#9146ff,#fa1ed2);
 	}
 }
 </style>

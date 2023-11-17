@@ -1048,8 +1048,6 @@ export const storeChat = defineStore('chat', {
 				}
 
 				//New sub
-
-				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {

@@ -132,22 +132,25 @@
 	.quote {
 		font-style: italic;
 		word-break: break-word;
-		margin: 0;
 		display: block;
 		color: var(--color-text);
+		padding: 0.25em;
 		line-height: 1.2em;
 		background-color: var(--background-color-fader);
-		padding: 0.5em;
-		border-radius: 0.5em;
-		&::before {
-			content: "“";
-			font-family: var(--font-nunito);
-			font-style: normal;
-			font-size: 2em;
-			line-height: .25em;
-			vertical-align: text-bottom;
-			margin-right: .25em;
-			opacity: .75;
+		border-radius: var(--border-radius);
+		// &::before {
+		// 	content: "“";
+		// 	font-family: var(--font-nunito);
+		// 	font-style: normal;
+		// 	font-size: 2em;
+		// 	line-height: .25em;
+		// 	vertical-align: text-bottom;
+		// 	margin-right: .25em;
+		// 	opacity: .75;
+		// }
+		&.dark {
+			.bevel();
+			background-color: var(--grayout);
 		}
 	}
 	

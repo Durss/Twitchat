@@ -13,6 +13,7 @@
 		"spam_linkBt": "Spam le lien vers la chaîne",
 		"stream_summaryBt": "Résumé du stream",
 		"raid_liveBt": "Chaînes en live",
-		"raid_historyBt": "Historique de raids"
+		"raid_historyBt": "Historique de raids",
+		"target_channel_offline": "La chaîne que vous êtes sur le point de raid n'est pas en ligne !"
 	}
 }

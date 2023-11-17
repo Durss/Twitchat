@@ -261,6 +261,7 @@ export default class OverlayCounter extends AbstractOverlay {
 				&.value {
 					font-weight: bold;
 					font-size: 1.25em;
+					font-variant-numeric: tabular-nums;
 				}
 			}
 		}

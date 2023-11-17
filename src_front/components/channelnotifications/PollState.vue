@@ -25,7 +25,7 @@
 			</template>
 		</i18n-t>
 
-		<div class="item actions">
+		<div class="item actions" v-if="me.channelInfo[poll.channel_id]?.is_moderator">
 			<Button alert @click="endPoll()" :loading="loading">{{ $t("poll.state.endBt") }}</Button>
 		</div>
 	</div>
