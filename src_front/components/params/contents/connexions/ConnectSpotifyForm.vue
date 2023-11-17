@@ -2,8 +2,6 @@
 	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
 			<div v-if="!connected">{{ $t("connexions.spotify.usage") }}</div>
-
-			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 	
 			<div class="info" v-if="!connected && !authenticating">
 				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
@@ -23,6 +21,8 @@
 					:loading="loading"
 					:disabled="!canConnect">{{ $t('global.connect') }}</Button>
 			</form>
+
+			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 	
 			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
@@ -87,7 +87,7 @@ export default class ConnectSpotifyForm extends Vue {
 		}
 	}
 
-	public async mounted():Promise<void> {
+	public async beforeMount():Promise<void> {
 		this.paramClient.value = SpotifyHelper.instance.clientID;
 		this.paramSecret.value = SpotifyHelper.instance.clientSecret;
 
@@ -104,7 +104,8 @@ export default class ConnectSpotifyForm extends Vue {
 					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);
 					this.showSuccess = true;
 				}catch(e:unknown) {
-					this.error = (e as {error:string, error_description:string}).error_description;
+					const castError = (e as {error:string, error_description:string});
+					this.error = castError.error ?? castError.error_description;
 					this.showSuccess = false;
 					console.log(e);
 					this.$store("main").alert("Oops... something went wrong");

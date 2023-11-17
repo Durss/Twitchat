@@ -98,7 +98,7 @@ export default class SpotifyHelper {
 		DataStore.set(DataStore.SPOTIFY_APP_PARAMS, {
 			client:clientId,
 			secret:clientSecret,
-		})
+		});
 	}
 
 	/**
@@ -148,7 +148,8 @@ export default class SpotifyHelper {
 			if(res.status==200) {
 				json = await res.json();
 			}else{
-				throw("");
+				const err:{error?:string} = await res.json();
+				throw(err || {error:"unknown spotify auth error"});
 			}
 		}catch(error) {
 			StoreProxy.main.alert("Spotify authentication failed");
