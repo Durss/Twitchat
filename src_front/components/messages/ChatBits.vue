@@ -92,7 +92,6 @@ export default class ChatBits extends AbstractChatMessage {
 
 		if(!this.messageData.pinnned) return;
 		
-		
 		await this.$nextTick();
 
 		const fill = this.$refs.fill as HTMLDivElement;
@@ -100,11 +99,11 @@ export default class ChatBits extends AbstractChatMessage {
 		
 		const duration = this.messageData.pinDuration_ms / 1000;
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
-		fill.style.transition = "width "+remainingDuration+"s linear";
-		fill.style.width = "100%";
+		fill.style.transition = "transform "+remainingDuration+"s linear";
+		fill.style.transform = "scale(100%)";
 		setTimeout(()=> {
-			fill.style.width = "0%";
-		},0);
+			fill.style.transform = "scale(0)";
+		},100);
 	}
 
 }
@@ -142,7 +141,8 @@ export default class ChatBits extends AbstractChatMessage {
 		left: 0;
 		height: @border;
 		width: 100%;
-		transition: width 10s;
+		transition: transform 10s;
+		will-change: transform;
 	}
 	&.level0 {
 		background-image: linear-gradient(90deg,#8205b4,#9146ff,#8205b4);
