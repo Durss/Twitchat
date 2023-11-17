@@ -585,8 +585,6 @@ export default class EventSub {
 			date:Date.now(),
 			user,
 			bits:event.bits ?? -1,
-			pinnned:false,//TODO
-			pinnDuration_ms:0,//TODO
 			message:event.message,
 			message_chunks:chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
