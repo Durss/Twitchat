@@ -303,7 +303,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		//If caching is in progress from a previous request, wait a little
 		if(this.sceneToCaching[currentScene] === true) {
-			this.log("Caching in progress, return already cached data", cache.value)
+			this.log("Caching in progress, return already cached data", cache ? cache.value : undefined)
 			if(cache) return cache.value;
 			return {canvas:{width:1920, height:1080}, sources:[]};
 		}
@@ -395,7 +395,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				let coords = this.getSourceCenterFromTransform(sourceTransform);
 				sourceTransform.globalCenterX = coords.cx;
 				sourceTransform.globalCenterY = coords.cy;
-				this.log("Computed source center", coords.y);
+				this.log("Computed source center", coords);
 
 				if(scene.parentTransform) {
 					//Apply parent rotation
@@ -426,7 +426,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					this.log("Applied parent transform", {parentTransform:scene.parentTransform, sourceTransform:JSON.parse(JSON.stringify(sourceTransform))});
 				}
 				
-				this.log("Source type is:"+source.item.sourceType);
+				this.log("Source type is: "+source.item.sourceType);
 
 				//Is it a source?
 				if((source.item.sourceType == "OBS_SOURCE_TYPE_INPUT"
@@ -1195,7 +1195,10 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	private log(info:string, data?:any):void {
-		this.logs.push({date:Date.now(), info, data})
+		this.logs.push({date:Date.now(), info, data});
+		if(this.logs.length > 5000) {
+			this.logs.shift();
+		}
 	}
 }
 

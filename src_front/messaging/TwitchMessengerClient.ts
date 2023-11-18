@@ -250,7 +250,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -370,7 +370,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/commercial": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
-					StoreProxy.stream.startCommercial(channelId, duration);
+					StoreProxy.stream.startCommercial(channelId, duration, noConfirm);
 					return true;
 				}
 				case "/shield":  {

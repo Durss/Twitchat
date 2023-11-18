@@ -170,11 +170,11 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"shakawah"},
-			{platform:"twitch", login:"guile"},
-			{platform:"twitch", login:"anastasia_rose_official"},
-			{platform:"twitch", login:"pyka"},
-			{platform:"twitch", login:"hanawins"},
+			// {platform:"twitch", login:"shakawah"},
+			// {platform:"twitch", login:"guile"},
+			// {platform:"twitch", login:"anastasia_rose_official"},
+			// {platform:"twitch", login:"pyka"},
+			// {platform:"twitch", login:"hanawins"},
 		];
 	}
 

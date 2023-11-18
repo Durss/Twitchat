@@ -1091,7 +1091,7 @@ export interface IStreamActions {
 	 * Starts a commercial break
 	 * @param duration 
 	 */
-	startCommercial(channelId:string, duration:number):void;
+	startCommercial(channelId:string, duration:number, noConfirm?:boolean):Promise<void>;
 	/**
 	 * Get all current stream data
 	 */

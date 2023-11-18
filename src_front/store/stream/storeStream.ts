@@ -405,31 +405,36 @@ export const storeStream = defineStore('stream', {
 			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
 		},
 
-		startCommercial(channelId:string, duration:number):void {
+		async startCommercial(channelId:string, duration:number, noConfirm:boolean = false):Promise<void> {
 			if(isNaN(duration)) duration = 30;
-			StoreProxy.main.confirm(
-				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.title"),
-				StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description", {DURATION:duration})
-			).then(async () => {
+			if(!noConfirm) {
 				try {
-					const res = await TwitchUtils.startCommercial(duration, channelId);
-					if(!res || res.length == 0) {
-						throw({message:"Invalid 0s length commercial duration"})
-					}
+					await StoreProxy.main.confirm(
+						StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.title"),
+						StoreProxy.i18n.t("global.moderation_action.commercial_start_confirm.description", {DURATION:duration})
+					);
 				}catch(error) {
-					const e = (error as unknown) as {error:string, message:string, status:number}
-					
-					const notice:TwitchatDataTypes.MessageNoticeData = {
-						id:Utils.getUUID(),
-						date:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
-						platform:"twitchat",
-						noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
-						message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message || "no detail :("}),
-					}
-					StoreProxy.chat.addMessage(notice);
+					return;
 				}
-			}).catch(()=>{/*ignore*/});
+			}
+			try {
+				const res = await TwitchUtils.startCommercial(duration, channelId);
+				if(!res || res.length == 0) {
+					throw({message:"Invalid "+duration+"s length commercial duration"})
+				}
+			}catch(error) {
+				const e = (error as unknown) as {error:string, message:string, status:number}
+				
+				const notice:TwitchatDataTypes.MessageNoticeData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+					platform:"twitchat",
+					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
+					message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message || "no detail :("}),
+				}
+				StoreProxy.chat.addMessage(notice);
+			}
 		},
 
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {

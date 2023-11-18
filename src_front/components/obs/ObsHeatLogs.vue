@@ -12,14 +12,26 @@
 				<Icon name="loader" class="loader" v-if="searching" />
 				<button v-else-if="search" @click="param_search.value = search = ''; searching=false;"><Icon name="cross" /></button>
 			</div>
-
+			
+			
 			<div v-if="logs.length == 0" class="noResult">- no result -</div>
-
-			<div v-else v-for="log in logs" class="card-item entry">
-				<span class="date">{{ formatDate(log.date) }}</span>
-				<span>{{ log.info }}</span>
-				<div>{{ JSON.stringify(log.data) }}</div>
-			</div>
+			<template v-else>
+				<div class="ctas">
+					<Button class="downloadBt" icon="download" @click="downloadLogs()">Download logs</Button>
+					<Button class="resetBt" icon="download" alert @click="clearLogs()">Clear logs</Button>
+				</div>
+				
+				<div v-for="(log, index) in logs" class="card-item entry">
+					<div class="head" @click="expandState[index] = !expandState[index] ?? true">
+						<div class="row">
+							<span class="date">{{ formatDate(log.date) }}</span>
+							<span>{{ log.info }}</span>
+						</div>
+						<button v-if="log.data"><Icon :name="expandState[index] === true? 'hide' : 'show'" /></button>
+					</div>
+					<div class="body" v-click2Select v-if="log.data != undefined && expandState[index]">{{ JSON.stringify(log.data) }}</div>
+				</div>
+			</template>
 		</div>
 	</div>
 </template>
@@ -32,9 +44,11 @@ import Utils from '@/utils/Utils';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import ParamItem from '../params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Button from '../Button.vue';
 
 @Component({
 	components:{
+		Button,
 		ParamItem,
 		CloseButton,
 	},
@@ -44,11 +58,13 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 
 	public search:string = "";
 	public searching:boolean = false;
+	public expandState:boolean[] = [];
 	public param_search:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"search..."};
 
 	private searchTO:number = -1;
 
 	public get logs() {
+		this.expandState = [];
 		if(this.param_search.value) {
 			const reg = new RegExp(this.search, "gi");
 			return OBSWebsocket.instance.logs.filter(v=> {
@@ -69,10 +85,23 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 		this.open();
 	}
 
+	public async clearLogs():Promise<void> {
+		OBSWebsocket.instance.logs = [];
+	}
+
+	public async downloadLogs():Promise<void> {
+		const data = JSON.stringify(this.logs);
+		const blob = new Blob([data], { type: 'application/json' });
+		const url = window.URL.createObjectURL(blob);
+		window.open(url, "_blank");
+	}
+
 	public async onSearch():Promise<void> {
+		this.searching = true;
 		clearTimeout(this.searchTO);
 		this.searchTO = setTimeout(()=>{
 			this.search = this.param_search.value;
+			this.searching = false;
 		}, 250)
 	}
 
@@ -93,6 +122,7 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 			color: var(--color-text);
 			height: 1em;
 			margin-left: -2em;
+			margin-right: .5em;
 			cursor: pointer;
 			z-index: 1;
 			.icon {
@@ -107,14 +137,49 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 		}
 	}
 
+	.ctas {
+		margin: auto;
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+	}
+
 	.entries {
-		gap: .25em;
+		gap: .5em;
+		font-size: .8em;
 		.entry {
 			flex-shrink: 0;
-			.date {
-				font-size: .7em;
-				margin-right: .5em;
-			}	
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			.head {
+				gap: 1em;
+				display: flex;
+				flex-direction: row;
+				line-height: 1.5em;
+				.row {
+					flex-grow: 1;
+					.date {
+						font-size: .7em;
+						margin-right: .5em;
+					}
+				}
+				button {
+					cursor: pointer;
+					color: var(--color-text);
+					flex-shrink: 0;
+					.icon {
+						height: 1em;
+					}
+				}
+			}
+			.body {
+				font-size: .9em;
+				font-family: 'Courier New', Courier, monospace;
+				word-wrap: break-word;
+				max-height: 500px;
+				overflow-y: auto;
+			}
 		}
 	}
 

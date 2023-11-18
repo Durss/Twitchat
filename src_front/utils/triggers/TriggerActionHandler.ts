@@ -1082,7 +1082,7 @@ export default class TriggerActionHandler {
 					if(message.platform != "twitchat") platforms.push(message.platform);
 					// console.log(platforms, text);
 					logStep.messages.push({date:Date.now(), value:"Send Message \""+text+"\""});
-					MessengerProxy.instance.sendMessage(text, platforms);
+					MessengerProxy.instance.sendMessage(text, platforms, undefined, undefined, true);
 					if(trigger.type == TriggerTypes.ANY_MESSAGE) {
 						this.lastAnyMessageSent = text;
 					}

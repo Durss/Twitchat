@@ -54,7 +54,7 @@ export default class MessengerProxy {
 	 * @param channelId 
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
-	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData):Promise<boolean> {
+	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChat, noConfirm:boolean = false):Promise<boolean> {
 		if(replyTo) {
 			targetPlatforms = [replyTo.platform!];
 			channelId = replyTo.channel_id;
@@ -68,7 +68,7 @@ export default class MessengerProxy {
 		// console.log("          to:", channelId);
 		// console.log("          on:", targetPlatforms);
 		if(!hasPlatform || targetPlatforms!.indexOf("twitch")>-1) {
-			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo)) {
+			if(!TwitchMessengerClient.instance.sendMessage(channelId, message, replyTo, noConfirm)) {
 				return false;
 			}
 		}
