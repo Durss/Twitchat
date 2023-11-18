@@ -408,9 +408,10 @@ export default class TriggerActionList extends Vue {
 
 		const offsetBounds = (this.$el as HTMLElement).getBoundingClientRect();
 		
-		const x1 = Math.min(offsetBounds.width, Math.max(0, Math.min(this.selectOffset.x, e.clientX - offsetBounds.left)));
+		const margin = 20;
+		const x1 = Math.min(offsetBounds.width + margin, Math.max(0, Math.min(this.selectOffset.x - margin, e.clientX - offsetBounds.left)));
 		const y1 = Math.min(offsetBounds.height, Math.max(0, Math.min(this.selectOffset.y, e.clientY - offsetBounds.top)));
-		const x2 = Math.min(offsetBounds.width, Math.max(this.selectOffset.x, e.clientX - offsetBounds.left));
+		const x2 = Math.min(offsetBounds.width + margin, Math.max(this.selectOffset.x - margin, e.clientX - offsetBounds.left));
 		const y2 = Math.min(offsetBounds.height, Math.max(this.selectOffset.y, e.clientY - offsetBounds.top));
 		this.selectStyles.left = x1+"px";
 		this.selectStyles.top = y1+"px";

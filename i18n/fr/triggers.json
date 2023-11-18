@@ -504,6 +504,7 @@
 			"track_added_album": "Album du morceau ajouté",
 			"track_added_cover": "Image du morceau ajouté",
 			"track_added_url": "URL du morceau ajouté",
+			"track_added_fail": "Raison de l'échec d'ajout à la file d'attente",
 			"train_level": "Niveau actuel",
 			"train_percent": "Progression du niveau actuel (0 -> 100)",
 			"train_end_level": "Niveau atteint",
@@ -759,6 +760,10 @@
 			"TRACK_ADDED_TO_QUEUE": {
 				"label": "Morceau ajouté à la file d'attente",
 				"description": "Actions à exécuter lorsqu'un morceau est ajouté à la liste de lecture"
+			},
+			"TRACK_ADD_TO_QUEUE_FAILED": {
+				"label": "Echec d'ajout d'un morceau à la file d'attente",
+				"description": "Actions à exécuter lorsque l'ajout d'un morceau à liste de lecture échoue"
 			},
 			"MUSIC_START": {
 				"label": "Début de lecture d'une musique",

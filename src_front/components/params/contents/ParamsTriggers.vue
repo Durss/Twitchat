@@ -508,6 +508,11 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					if(triggerEvent.value == TriggerTypes.COMMUNITY_CHALLENGE_COMPLETE) {
 						//Remove ban duration so it counts as a ban, not a timeout
 						(m as TwitchatDataTypes.MessageCommunityChallengeContributionData).challenge.progress = (m as TwitchatDataTypes.MessageCommunityChallengeContributionData).challenge.goal;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED) {
+						//Remove ban duration so it counts as a ban, not a timeout
+						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = Utils.pickRand(["spotify_not_connected", "wrong_url", "no_result", "api", "max_duration"]);
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

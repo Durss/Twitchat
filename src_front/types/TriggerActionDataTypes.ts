@@ -727,6 +727,7 @@ export const TriggerTypes = {
 	AD_STARTED:"93",
 	AD_APPROACHING:"94",
 	AD_COMPLETE:"95",
+	TRACK_ADD_TO_QUEUE_FAILED:"96",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -955,6 +956,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"ADDED_TRACK_ALBUM", descKey:'triggers.placeholders.track_added_album', pointer:"trackAdded.album", numberParsable:false, isUserID:false, example:"Fake Album"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{tag:"ADDED_TRACK_COVER", descKey:'triggers.placeholders.track_added_cover', pointer:"trackAdded.cover", numberParsable:false, isUserID:false, example:StoreProxy.image("img/musicExampleCover.jpg")} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{tag:"ADDED_TRACK_URL", descKey:'triggers.placeholders.track_added_url', pointer:"trackAdded.url", numberParsable:false, isUserID:false, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+	];
+	
+	map[TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED] = [
+		{tag:"ADD_FAIL_REASON", descKey:'triggers.placeholders.track_added_fail', pointer:"failReason", numberParsable:false, isUserID:false, values:[{label:"spotify_not_connected", value:"spotify_not_connected"}, {label:"wrong_url", value:"wrong_url"}, {label:"no_result", value:"no_result"}, {label:"api", value:"api"}, {label:"max_duration", value:"max_duration"}], example:"spotify_not_connected"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 	];
 	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [
@@ -1353,6 +1358,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"loop", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{newDate:1693519200000, beta:true, category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"placeholder", labelKey:"triggers.events.VALUE_UPDATE.label", value:TriggerTypes.VALUE_UPDATE, descriptionKey:"triggers.events.VALUE_UPDATE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
+		{newDate:1697721208726, category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.label", value:TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED, descriptionKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 		{newDate:1693519200000, premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
