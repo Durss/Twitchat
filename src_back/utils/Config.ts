@@ -14,9 +14,13 @@ export default class Config {
 	
 	public static get lifetimeDonorStep():number{ return 89; }
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
+	public static get earlyDonors(): string { return this.DONORS_DATA_FOLDER + "earlyDonors.json"; }
 	public static get donorsAnonStates(): string { return this.DONORS_DATA_FOLDER + "public_states.json"; }
 	public static get donorsPublicList(): string { return this.DONORS_DATA_FOLDER + "public_cache.json"; }
 	public static get donorsLevels(): number[] { return [0,20,30,50,80,100,200,300,400,500,999999]; }
+	public static get patreonToken(): string { return this.PATREON_DATA_FOLDER + "patreonToken.json"; }
+	public static get patreonMembers(): string { return this.PATREON_DATA_FOLDER + "patreonMembers.json"; }
+	public static get patreon2Twitch(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
 
 	public static get credentials():Credentials {
 		if(!this.credentialsCache) {
@@ -95,22 +99,6 @@ export default class Config {
 		});
 	}
 
-	public static get PATREON_TOKEN_PATH(): string {
-		return this.getEnvData({
-			dev: path.join(__dirname, "/../../patreonToken.json"),
-			beta: path.join(__dirname, "../patreonToken.json"),
-			prod: path.join(__dirname, "../patreonToken.json"),
-		});
-	}
-
-	public static get PATREON_MEMBERS_PATH(): string {
-		return this.getEnvData({
-			dev: path.join(__dirname, "/../../patreonMembers.json"),
-			beta: path.join(__dirname, "../patreonMembers.json"),
-			prod: path.join(__dirname, "../patreonMembers.json"),
-		});
-	}
-
 	public static get ANNOUNCEMENTS_PATH(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../announcements.json"),
@@ -119,16 +107,6 @@ export default class Config {
 		});
 	}
 
-	/**
-	 * List of user ID that supported twitchat with 10€ or more
-	 */
-	public static get EARLY_TWITCHAT_DONORS(): string {
-		return this.getEnvData({
-			dev: path.join(__dirname, "/../../earlyDonors.json"),
-			beta: path.join(__dirname, "../earlyDonors.json"),
-			prod: path.join(__dirname, "../earlyDonors.json"),
-		});
-	}
 
 	/**
 	 * Get if SMS warning for patreon requesting authentication is enabled
@@ -167,6 +145,17 @@ export default class Config {
 			dev: path.join(__dirname, "../../donors/"),
 			beta: path.join(__dirname, "../../twitchat/donors/"),
 			prod: path.join(__dirname, "../donors/"),
+		});
+	}
+	
+	/**
+	 * Folder containing patreon infos
+	 */
+	public static get PATREON_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "../../patreon/"),
+			beta: path.join(__dirname, "../patreon/"),
+			prod: path.join(__dirname, "../patreon/"),
 		});
 	}
 	
