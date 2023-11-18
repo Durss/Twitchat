@@ -255,7 +255,7 @@ import Ajv from "ajv";
 								headers:{
 									type:"array",
 									minItems:0,
-									maxItems:2,
+									maxItems:20,
 									items:{
 										type:"object",
 										additionalProperties: false,
