@@ -49,24 +49,35 @@ export default class Icon extends Vue {
 	
 	private async loadImage():Promise<void> {
 		// this.$store("main").iconCache = {};//Disable cache for debug
-		if(this.$store("main").iconCache[this.name]) {
-			this.svg = this.$store("main").iconCache[this.name];
+		let cache = this.$store("main").iconCache[this.name];
+		//Icon is pending for loading, wait for it
+		if(cache && typeof cache != "string") {
+			await cache;
+			cache = this.$store("main").iconCache[this.name];
+		}
+
+		//If icon is loaded, load it from cache
+		if(cache && typeof cache == "string") {
+			this.svg = cache;
 			return;
 		}
-	
+		
+		//Icon not yet loaded, load it
 		try {
-			const imgRes = await fetch(this.$image("icons/"+this.name+".svg"));
-			if(imgRes.status <200 || imgRes.status > 204) {
-				this.error = true;
-			}else{
-				this.svg = (await imgRes.text())
-				.replace(/<style[^<]*<\/ ?style>/gim, "")//Cleanup styles
-				.replace(/<!--[^<]*-->/g, "")//Cleanup comments
-				.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
-				.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
-				.replace(/>\s+</g, '><');//cleanup spaces between tags
-				this.$store("main").iconCache[this.name] = this.svg;
-			}
+			this.$store("main").iconCache[this.name] = fetch(this.$image("icons/"+this.name+".svg"))
+			.then(async (imgRes) => {
+				if(imgRes.status <200 || imgRes.status > 204) {
+					this.error = true;
+				}else{
+					this.svg = (await imgRes.text())
+					.replace(/<style[^<]*<\/ ?style>/gim, "")//Cleanup styles
+					.replace(/<!--[^<]*-->/g, "")//Cleanup comments
+					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
+					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
+					.replace(/>\s+</g, '><');//cleanup spaces between tags
+					this.$store("main").iconCache[this.name] = this.svg;
+				}
+			});
 		}catch(error) {
 			this.error = true;
 		}

@@ -785,6 +785,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			message_chunks:chunks,
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
 			message_size:TwitchUtils.computeMessageSize(chunks),
+			raw_data:tags,
+			pinnned:false,
+			pinLevel:0,
+			pinDuration_ms:0,
 		}));
 	}
 
@@ -964,6 +968,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//the "raw_message" event.
 		//Let's wait a frame so the props are parsed
 		await Utils.promisedTimeout(0);
+		const category = (data.tags as tmi.ChatUserstate)["msg-param-category"] as string;
 		switch(data.command) {
 			case "USERNOTICE": {
 				//Handle announcement messages
@@ -975,7 +980,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}else
 
 				//Handle viewer milestone (AKA consecutive watched streams)
-				if(((data.tags as tmi.ChatUserstate)["msg-param-category"] as unknown) === "watch-streak") {
+				if(category === "watch-streak" || category === "watch-fk") {
 					const tags = data.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
@@ -986,6 +991,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						date:Date.now(),
 						platform:"twitch",
 						streak:tags["msg-param-value"] as number,
+						channelPointsEarned:tags["msg-param-copoReward"] as number,
 						user,
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));

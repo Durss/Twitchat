@@ -1656,6 +1656,11 @@ export default class MessageList extends Vue {
 				&& newMessage.reward.id != prevMessage.reward.id) return false;
 				if(newMessage.message_html && !prevMessage.message_html) return false;
 				if(!newMessage.message_html && prevMessage.message_html) return false;
+			}else
+			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
+				//Dont merge rewards with prompts unless they're the same reward type
+				if(newMessage.pinnned || prevMessage.pinnned) return false;
 			}
 			
 			//Merge with previous message

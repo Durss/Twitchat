@@ -122,13 +122,5 @@ export default class ChatReward extends AbstractChatMessage {
 	.item:not(:last-child) {
 		margin-bottom: 1px;
 	}
-
-	.quote {
-		margin-top: .5em;
-		&.dark {
-			.bevel();
-			background-color: var(--background-color-primary);
-		}
-	}
 }
 </style>

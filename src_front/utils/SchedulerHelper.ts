@@ -198,7 +198,7 @@ export default class SchedulerHelper {
 			actions: [],
 			scheduleParams:{
 				type:TriggerScheduleTypes.REGULAR_REPEAT,
-				repeatDuration:5,
+				repeatDuration:5 * 60,
 				repeatMinMessages:0,
 				dates:[],
 			}
@@ -211,7 +211,7 @@ export default class SchedulerHelper {
 			actions: [],
 			scheduleParams:{
 				type:TriggerScheduleTypes.REGULAR_REPEAT,
-				repeatDuration:1/60,//Every seconds
+				repeatDuration:1,//Every seconds
 				repeatMinMessages:0,
 				dates:[],
 			}

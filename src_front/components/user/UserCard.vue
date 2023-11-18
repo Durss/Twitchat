@@ -806,6 +806,7 @@ export default class UserCard extends Vue {
 						margin-left: .5em;
 						// font-family: Azeret;
 						font-size: .8em;
+						font-variant-numeric: tabular-nums;
 					}
 				}
 			}

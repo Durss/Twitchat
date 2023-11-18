@@ -634,7 +634,11 @@ export default class ChatMessage extends AbstractChatMessage {
 	public disableAd():void{
 		//If we're a donor, just disable the ad and delete the message as a feedback
 		if(this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium) {
-			this.$store("chat").botMessages.twitchatAd.enabled = false;
+			this.$store("chat").updateBotMessage({
+											key:"twitchatAd",
+											enabled:false,
+											message:this.$store("chat").botMessages.twitchatAd.message
+										});
 			this.$store("chat").deleteMessageByID(this.messageData.id);
 		}else{
 			this.openAdParams();

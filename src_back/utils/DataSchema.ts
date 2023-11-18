@@ -250,6 +250,20 @@ import Ajv from "ajv";
 								soundID: {type:"string", maxLength:100},
 								triggerKey: {type:"string", maxLength:100},
 								method: {type:"string", maxLength:10},
+								sendAsBody: {type:"boolean"},
+								customHeaders: {type:"boolean"},
+								headers:{
+									type:"array",
+									minItems:0,
+									maxItems:2,
+									items:{
+										type:"object",
+										additionalProperties: false,
+										patternProperties: {
+											".*": {type: "string", maxLength: 1000},
+										},
+									},
+								},
 								addValue: {type:"string", maxLength:100},
 								counter: {type:"string", maxLength:40},
 								faderId: {type:"string", maxLength:20},
@@ -952,16 +966,16 @@ import Ajv from "ajv";
 					name: {type:"string", maxLength:50},
 					placeholderKey: {type:"string", maxLength:50},
 					enabled:{type:"boolean"},
-					value: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+					value: {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 					min: {
 						anyOf:[
-							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
 					max: {
 						anyOf:[
-							{type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							{type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 							{type:"boolean"},
 						]
 					},
@@ -971,7 +985,7 @@ import Ajv from "ajv";
 						type:"object",
 						additionalProperties: true,
 						patternProperties: {
-							".*": {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
+							".*": {type:"number", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 						}
 					}
 				}

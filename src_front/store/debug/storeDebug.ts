@@ -6,7 +6,7 @@ import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import { watch, type UnwrapRef } from 'vue';
+import { watch, type UnwrapRef, reactive } from 'vue';
 import type { IDebugActions, IDebugGetters, IDebugState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
@@ -171,6 +171,9 @@ export const storeDebug = defineStore('debug', {
 						message_size:TwitchUtils.computeMessageSize(chunks),
 						user:fakeUser,
 						bits,
+						pinnned:false,
+						pinDuration_ms:0,
+						pinLevel:0,
 					};
 					data = m;
 					break;
@@ -1067,7 +1070,8 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						user:fakeUser,
 						channel_id:uid,
-						streak:Utils.pickRand([3,6,9]),//Not sure thera are other valid values than 3
+						streak:Utils.pickRand([3,5,7,10,15]),//Not sure these are valid values
+						channelPointsEarned:Utils.pickRand([350,450]),//Not sure there are other valid values
 					};
 					data = m;
 					break;
@@ -1170,6 +1174,8 @@ export const storeDebug = defineStore('debug', {
 			}
 
 			data.fake = true;
+
+			data = reactive(data);
 			
 			if(hook) {
 				if(hook(data) === false) return data;

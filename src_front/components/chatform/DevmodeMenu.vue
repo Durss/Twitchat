@@ -20,7 +20,7 @@
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
 			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
 			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>
-			<Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button>
+			<!-- <Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button> -->
 			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
 			<Button small @click="simulateEvent($event, 'message', 'presentation')" icon="firstTime">Presentation</Button>
 			<Button small @click="simulateEvent($event, 'message', 'recent')" icon="alert">Recent account</Button>
@@ -29,6 +29,7 @@
 			<Button small @click="simulateEvent($event, 'raid', 'raidOnline')" icon="raid">Incoming raid online</Button>
 			<Button small @click="startFakeRaid()" icon="raid">Outgoing raid</Button>
 			<Button small @click="simulateEvent($event, 'cheer')" icon="bits">Bits</Button>
+			<Button small @click="simulateEvent($event, 'cheer', 'cheer_pin')" icon="bits">Pinned cheer</Button>
 			<Button small @click="simulateEvent($event, 'subscription')" icon="sub">Sub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'resub')" icon="sub">ReSub</Button>
 			<Button small @click="simulateEvent($event, 'subscription', 'gift')" icon="gift">Subgifts</Button>
@@ -82,6 +83,7 @@ import gsap from 'gsap';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Button from '../Button.vue';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 @Component({
 	components:{
@@ -152,6 +154,24 @@ export default class DevmodeMenu extends Vue {
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "cheer_pin": {
+					setTimeout(()=> {
+						const m = (message as TwitchatDataTypes.MessageCheerData);
+						const durations = [60,120,300,600,1200,3600,7200];
+						const ranges = [0,200,500,1000,2000,5000,10000];
+						//Find the which bits range the number of bits corresponds to
+						let index = (ranges.findIndex(v=> v > m.bits) ?? 1) - 1;
+						if(index < 0) index = ranges.length - 1;
+						m.bits = Utils.pickRand(ranges);
+						index = ranges.findIndex(v=> v === m.bits);
+						m.pinDuration_ms = durations[index] * 1000;
+						m.pinLevel = index;
+						m.pinnned = true;
+						// this.$store("chat").addMessage(m);
+						TriggerActionHandler.instance.execute(m);
+					}, 3000)
+					break;
+				}
 				case "hypeChat": {
 					const m = (message as TwitchatDataTypes.MessageChatData);
 					const level = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
@@ -388,6 +408,7 @@ type Subaction = "first"
 				| "ad_break_api"
 				| "hypeChat"
 				| "clip"
+				| "cheer_pin"
 				| "recent";
 
 </script>
