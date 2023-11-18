@@ -138,7 +138,7 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 	}
 
 	.ctas {
-		margin: auto;
+		margin: 0 auto;
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
