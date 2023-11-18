@@ -13,7 +13,9 @@
 				<button v-else-if="search" @click="param_search.value = search = ''; searching=false;"><Icon name="cross" /></button>
 			</div>
 
-			<div v-for="log in logs" class="card-item entry">
+			<div v-if="logs.length == 0" class="noResult">- no result -</div>
+
+			<div v-else v-for="log in logs" class="card-item entry">
 				<span class="date">{{ formatDate(log.date) }}</span>
 				<span>{{ log.info }}</span>
 				<div>{{ JSON.stringify(log.data) }}</div>
@@ -114,6 +116,12 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 				margin-right: .5em;
 			}	
 		}
+	}
+
+	.noResult {
+		text-align: center;
+		margin-top: 1em;
+		font-style: italic;
 	}
 }
 </style>

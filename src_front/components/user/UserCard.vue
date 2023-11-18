@@ -116,7 +116,7 @@
 						</div>
 					</div>
 
-					<div class="card-item description" v-if="userDescription">{{userDescription}}</div>
+					<div class="card-item description quote" v-if="userDescription">{{userDescription}}</div>
 				
 					<div class="card-item messages" v-if="messageHistory.length > 0">
 						<div class="header">
@@ -722,24 +722,6 @@ export default class UserCard extends Vue {
 			flex-shrink: 0;
 			align-self: center;
 			text-align: center;
-			&::before {
-				content: "“";
-				font-family: var(--font-nunito);
-				font-style: normal;
-				font-size: 2em;
-				line-height: .25em;
-				vertical-align: text-bottom;
-				margin-right: .25em;
-			}
-			&::after {
-				content: "”";
-				font-family: var(--font-nunito);
-				font-style: normal;
-				font-size: 2em;
-				line-height: .25em;
-				margin-left: .25em;
-				vertical-align: text-bottom;
-			}
 		}
 	
 		.scrollable {
@@ -753,84 +735,22 @@ export default class UserCard extends Vue {
 			}
 		}
 	
-		.followings, .messages {
+		.messages {
 			display: flex;
 			flex-direction: column;
 	
 			&.messages {
 				.list {
+					gap: 1em;
 					max-height: min(50vh, 300px);
 					overflow-y: auto;
 					text-align: left;
-				}
-			}
-	
-			&.followings {
-				gap: .5em;
-				display: flex;
-				flex-direction: column;
-				min-height: unset;
-				.commonFollow, .disableDate {
-					font-size: .8em;
-					font-style: italic;
-					align-self: center;
-				}
-	
-				.warn {
-					margin: .5em auto;
-				}
-	
-				.loader {
-					height: 2em;
-					margin: .5em auto;
-	
-					&.scale-enter-active {
-						transition: all .25s;
-					}
-	
-					&.scale-leave-active {
-						transition: all .25s;
-					}
-	
-					&.scale-enter-from,
-					&.scale-leave-to {
-						height: 0;
-						margin: 0 auto;
-					}
-				}
-				
-				.list {
-					@itemWidth: 140px;
-					display: grid;
-					gap: .5em;
-					grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
-	
-					.user {
-						gap: .25em;
-						display: flex;
-						flex-direction: column;
-	
-						&.common {
-							padding: .25em .5em;
-							border-radius: var(--border-radius);
-							background-color: var(--color-primary-fader);
-						}
-	
-						.login {
-							display: inline-block;
-							text-overflow: ellipsis;
-							overflow: hidden;
-							width: @itemWidth;
-							text-decoration: none;
-							white-space:nowrap;
-							line-height: 1.2em;
-						}
-						.date {
-							font-size: .7em;
-						}
+					.subholder {
+						margin-bottom: 3px;
 					}
 				}
 			}
+	
 		}
 	}
 }
