@@ -114,7 +114,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		this.saving = true;
 		if(this.param_savePreset.value === true || this.presetEditing) {
 			const preset:TwitchatDataTypes.StreamInfoPreset = {
-				name:this.presetEditing?.name ?? this.param_namePreset.value,
+				name:this.presetEditing?.name?.substring(0, 50) ?? this.param_namePreset.value,
 				id:Utils.getUUID(),
 				title:this.title,
 			}

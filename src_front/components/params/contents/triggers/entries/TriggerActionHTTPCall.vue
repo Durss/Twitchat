@@ -19,7 +19,7 @@
 					<ParamItem :paramData="getParamHeaderValue(index)" placeholdersAsPopout v-model="action.headers![index].value" noBackground />
 					<Button class="deleteBt" icon="trash" @click="delHeader(index)" alert />
 				</div>
-				<Button class="addBt" icon="add" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</Button>
+				<Button class="addBt" icon="add" v-if="(action.headers || []).length < 20" @click="addHeader()">{{ $t("triggers.actions.http_ws.add_headerBt") }}</Button>
 			</div>
 		</ParamItem>
 

@@ -7,9 +7,8 @@ build
 /server
 /userData_fake_production
 credentials.json
-patreonToken.json
 announcements.json
-patreonMembers.json
+patreon
 donors
 patreon
 beta
