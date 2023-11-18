@@ -54,7 +54,7 @@ export default class MessengerProxy {
 	 * @param channelId 
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
-	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChat, noConfirm:boolean = false):Promise<boolean> {
+	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false):Promise<boolean> {
 		if(replyTo) {
 			targetPlatforms = [replyTo.platform!];
 			channelId = replyTo.channel_id;
