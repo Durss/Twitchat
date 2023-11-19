@@ -331,7 +331,7 @@ export const storeStream = defineStore('stream', {
 					};
 					TwitchUtils.adsAPIHistory.push({
 						date:Date.now(),
-						log:"Trigger ad approaching in "+((remainingTime-ms)/1000)+"s"
+						log:"Trigger ad approaching in "+(ms/1000)+"s"
 					});
 					StoreProxy.chat.addMessage(message);
 				}, remainingTime - ms);
@@ -345,15 +345,15 @@ export const storeStream = defineStore('stream', {
 			if(remainingTime > 0) {
 				TwitchUtils.adsAPIHistory.push({
 					date:Date.now(),
-					log:"Wait for "+(remainingTime/1000)+"s before forcing an ad"
+					log:"Wait for "+(remainingTime/1000)+"s (with 5s margin) before forcing an ad"
 				});
 				let to = setTimeout(() => {
 					TwitchUtils.adsAPIHistory.push({
 						date:Date.now(),
-						log:"Approaching timer complete. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
+						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
 					TwitchUtils.startCommercial(data.currentAdDuration_ms/1000, channelId);
-				}, remainingTime - 1000);
+				}, remainingTime - 5000);
 				commercialTimeouts[channelId].push(to);
 			}
 

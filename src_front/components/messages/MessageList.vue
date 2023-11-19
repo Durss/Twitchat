@@ -1345,10 +1345,10 @@ export default class MessageList extends Vue {
 			this.conversationMode = false;
 
 			let messageList: TwitchatDataTypes.MessageChatData[] = [];
-			for (let i = 0; i < this.$store("chat").messages.length; i++) {
+			for (let i = this.$store("chat").messages.length - 1; i >= 0; i--) {
 				const mess = this.$store("chat").messages[i];
 				if (mess.type == "message" && mess.user.id == m.user.id) {
-					messageList.push(mess);
+					messageList.unshift(mess);
 					if (messageList.length > 100) break;//Limit to 100 for perf reasons
 				}
 			}
