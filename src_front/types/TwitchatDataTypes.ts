@@ -2997,12 +2997,20 @@ export namespace TwitchatDataTypes {
 		 * If set, adding to queue failed.
 		 * This contains the failure reason
 		 */
-		failReason?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result";
+		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result";
+		/**
+		 * Textual reason for the failure
+		 */
+		failReason?:string;
 		/**
 		 * Maximum allowed duration by the trigger action that
 		 * executed the track add
 		 */
 		maxDuration?:number;
+		/**
+		 * Search made to add a track
+		 */
+		search?:string;
 	}
 
 	/**

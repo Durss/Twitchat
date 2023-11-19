@@ -189,7 +189,7 @@
 					"wrong_url":"L'URL donnée n'est pas une URL Spotify valide",
 					"max_duration":"Le morceau est plus long que le maximum autorisé de {DURATION}",
 					"api":"Une erreur a eu lieu lors de la demande d'ajout à Spotify.",
-					"no_result":"Aucun morceau trouvé pour la recherche donnée."
+					"no_result":"Aucun morceau trouvé pour la recherche \"{SEARCH}\"."
 				}
 			},
 			"obs": {
@@ -505,6 +505,10 @@
 			"track_added_cover": "Image du morceau ajouté",
 			"track_added_url": "URL du morceau ajouté",
 			"track_added_fail": "Raison de l'échec d'ajout à la file d'attente",
+			"track_added_fail_code": "Code d'échec d'ajout à la file d'attente",
+			"track_search_query": "Recherche effectuée",
+			"track_added_by": "Pseudo de la personne ayant demandé à ajouter le morceau",
+			"track_added_by_id": "ID de la personne ayant demandé à ajouter le morceau",
 			"train_level": "Niveau actuel",
 			"train_percent": "Progression du niveau actuel (0 -> 100)",
 			"train_end_level": "Niveau atteint",

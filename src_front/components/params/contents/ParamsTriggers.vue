@@ -511,8 +511,9 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					}else
 
 					if(triggerEvent.value == TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED) {
-						//Remove ban duration so it counts as a ban, not a timeout
-						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = Utils.pickRand(["spotify_not_connected", "wrong_url", "no_result", "api", "max_duration"]);
+						const code = Utils.pickRand<TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"]>(["spotify_not_connected", "wrong_url", "no_result", "api", "max_duration"]);
+						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failCode = code;
+						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = this.$t("triggers.actions.music.fail_reasons."+code, {DURATION:"03:33", SEARCH:"Mitchiri Neko March"});
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

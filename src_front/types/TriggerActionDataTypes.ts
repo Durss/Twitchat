@@ -951,6 +951,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 	
 	map[TriggerTypes.TRACK_ADDED_TO_QUEUE] = [
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeReward>,
+		{tag:"SEARCH_QUERY", descKey:'triggers.placeholders.track_search_query', pointer:"search", numberParsable:false, isUserID:false, example:"Mitchiri Neko March"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{tag:"ADDED_TRACK_ARTIST", descKey:'triggers.placeholders.track_added_artist', pointer:"trackAdded.artist", numberParsable:false, isUserID:false, example:"Mitchiri Neko"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{tag:"ADDED_TRACK_TITLE", descKey:'triggers.placeholders.track_added_title', pointer:"trackAdded.title", numberParsable:false, isUserID:false, example:"Mitchiri Neko march"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 		{tag:"ADDED_TRACK_ALBUM", descKey:'triggers.placeholders.track_added_album', pointer:"trackAdded.album", numberParsable:false, isUserID:false, example:"Fake Album"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
@@ -959,7 +962,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	];
 	
 	map[TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED] = [
-		{tag:"ADD_FAIL_REASON", descKey:'triggers.placeholders.track_added_fail', pointer:"failReason", numberParsable:false, isUserID:false, values:[{label:"spotify_not_connected", value:"spotify_not_connected"}, {label:"wrong_url", value:"wrong_url"}, {label:"no_result", value:"no_result"}, {label:"api", value:"api"}, {label:"max_duration", value:"max_duration"}], example:"spotify_not_connected"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
+		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeReward>,
+		{tag:"SEARCH_QUERY", descKey:'triggers.placeholders.track_search_query', pointer:"search", numberParsable:false, isUserID:false, example:"Mitchiri Neko March"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{tag:"ADD_FAIL_CODE", descKey:'triggers.placeholders.track_added_fail_code', pointer:"failCode", numberParsable:false, isUserID:false, values:[{label:"spotify_not_connected", value:"spotify_not_connected"}, {label:"wrong_url", value:"wrong_url"}, {label:"no_result", value:"no_result"}, {label:"api", value:"api"}, {label:"max_duration", value:"max_duration"}], example:"spotify_not_connected"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{tag:"ADD_FAIL_REASON", descKey:'triggers.placeholders.track_added_fail', pointer:"failReason", numberParsable:false, isUserID:false, example:"Something went wrong"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 	];
 	
 	map[TriggerTypes.STREAM_INFO_UPDATE] = [

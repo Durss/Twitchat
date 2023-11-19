@@ -32,7 +32,7 @@
 				<Button class="cta" icon="noMusic" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
 			</div>
 
-			<div class="trackHolder" v-else>{{ $t("triggers.actions.music.fail_reasons."+messageData.failReason, {DURATION:maxDuration}) }}</div>
+			<div class="trackHolder" v-else>{{ $t("triggers.actions.music.fail_reasons."+messageData.failCode, {DURATION:maxDuration, SEARCH:messageData.search}) }}</div>
 		</div>
 	</div>
 </template>
@@ -62,7 +62,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	public classes:string[] = ["chattrackaddedtoqueue", "chatMessage", "highlight"];
 
 	public get maxDuration():string {
-		return Utils.formatDuration((this.messageData.maxDuration || 0) * 1000);
+		return Utils.formatDuration((this.messageData.maxDuration || 0) * 1000)+"s";
 	}
 
 	public get canBanFromSR():boolean {
@@ -82,7 +82,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	}
 
 	public beforeMount(): void {
-		if(this.messageData.failReason) {
+		if(this.messageData.failCode) {
 			this.classes.push("error");
 		}
 	}

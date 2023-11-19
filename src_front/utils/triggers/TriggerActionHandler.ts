@@ -1,7 +1,9 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
+import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import gsap from "gsap";
 import * as MathJS from 'mathjs';
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
@@ -9,6 +11,7 @@ import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import ApiController from "../ApiController";
+import Config from "../Config";
 import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
@@ -20,11 +23,6 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import Config from "../Config";
-import type { GoXLRTypes } from "@/types/GoXLRTypes";
-import gsap from "gsap";
-import HeatSocket from "../twitch/HeatSocket";
-import HeatEvent from "@/events/HeatEvent";
 
 /**
 * Created : 22/04/2022 
@@ -230,6 +228,12 @@ export default class TriggerActionHandler {
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_START:
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP: {
 				const event = message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_START? TriggerTypes.MUSIC_START : TriggerTypes.MUSIC_STOP;
+				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+			case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
+				const event = message.failCode? TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED : TriggerTypes.TRACK_ADDED_TO_QUEUE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -1691,10 +1695,11 @@ export default class TriggerActionHandler {
 					try {
 						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
 						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+SpotifyHelper.instance.connected});
-						let failReason:TwitchatDataTypes.MessageMusicAddedToQueueData["failReason"] = undefined;
-						if(!SpotifyHelper.instance.connected) failReason = "spotify_not_connected";
+						let failCode:TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"] = undefined;
+						if(!SpotifyHelper.instance.connected) failCode = "spotify_not_connected";
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
+							const maxDuration = (step.maxDuration || 0)*1000;
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
 							let data:TwitchatDataTypes.MusicTrackData|undefined = undefined;
@@ -1710,17 +1715,16 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Unsupported track URL : "+m});
 									log.error = true;
 									logStep.error = true;
-									failReason = "wrong_url";
+									failCode = "wrong_url";
 								}else{
 									//No URL given, search with API
 									track = await SpotifyHelper.instance.searchTrack(m);
 									logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Search track success: "+(track != null)});
 								}
 								if(track) {
-									const maxDuration = (step.maxDuration || 0)*1000;
 									if(step.limitDuration === true && track.duration_ms > maxDuration) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
-										failReason = "max_duration";
+										failCode = "max_duration";
 									}else
 									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
 										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
@@ -1736,13 +1740,13 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
 										log.error = true;
 										logStep.error = true;
-										failReason = "api";
+										failCode = "api";
 									}
 								}else{
 									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, nor result found for search \""+m+"\""});
 									log.error = true;
 									logStep.error = true;
-									failReason = "no_result";
+									failCode = "no_result";
 								}
 							}
 
@@ -1755,7 +1759,9 @@ export default class TriggerActionHandler {
 								message:m,
 								user:executingUser,
 								triggerIdSource:trigger.id,
-								failReason,
+								failCode,
+								failReason:StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration(maxDuration)+"s", SEARCH:m}),
+								search:m,
 								maxDuration:step.maxDuration,
 							};
 							StoreProxy.chat.addMessage(trackAddedMesssageData);
@@ -1776,7 +1782,7 @@ export default class TriggerActionHandler {
 								if(step.failMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
 									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.failMessage, subEvent, false);
-									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failReason, {DURATION:Utils.formatDuration((step.maxDuration || 0)*1000)}));
+									chatMessage = chatMessage.replace(/\{FAIL_REASON\}/gi, StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration((step.maxDuration || 0)*1000), SEARCH:m}));
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 
