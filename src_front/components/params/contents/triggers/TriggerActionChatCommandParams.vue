@@ -85,6 +85,9 @@ export default class TriggerActionChatCommandParams extends Vue {
 				alert:true,
 			}
 		}
+		if(typeof this.triggerData.chatCommandAliases == "string") {
+			delete this.triggerData.chatCommandAliases;
+		}
 	}
 
 	public onUpdateCommand():void {
@@ -94,7 +97,10 @@ export default class TriggerActionChatCommandParams extends Vue {
 
 		//Make sure no other chat command has the same name
 		const triggers = this.$store("triggers").triggerList;
-		const aliases = this.triggerData.chatCommandAliases?.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0) ?? []
+		let aliases:string[] = [];
+		if(this.triggerData.chatCommandAliases) {
+			this.triggerData.chatCommandAliases.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0);
+		}
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
 		
 		//Check if aliases contain the main command
