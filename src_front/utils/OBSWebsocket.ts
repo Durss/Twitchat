@@ -139,6 +139,19 @@ export default class OBSWebsocket extends EventDispatcher {
 		return true;
 	}
 
+	/**
+	 * Logs data
+	 */
+	public log(info:string, data?:any):void {
+		this.logs.push({date:Date.now(), info, data});
+		if(this.logs.length > 5000) {
+			this.logs.shift();
+		}
+	}
+
+	/**
+	 * Stops OBS stream
+	 */
 	public async stopStreaming():Promise<void> {
 		if(!this.connected) return;
 		const status = await this.obs.call("GetStreamStatus");
@@ -1192,13 +1205,6 @@ export default class OBSWebsocket extends EventDispatcher {
 		const x = scaledX + parentTransform.globalCenterX!;
 		const y = scaledY + parentTransform.globalCenterY!;
 		return { x, y };
-	}
-
-	private log(info:string, data?:any):void {
-		this.logs.push({date:Date.now(), info, data});
-		if(this.logs.length > 5000) {
-			this.logs.shift();
-		}
 	}
 }
 

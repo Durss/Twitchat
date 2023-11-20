@@ -172,203 +172,210 @@ export const storeHeat = defineStore('heat', {
 					}
 				}
 			}
+			
+			//If OBS websocket is not connected, stop there
+			if(!OBSWebsocket.instance.connected) return;
 
-			//If OBS websocket is connected, check which sources are under pointer.
+			OBSWebsocket.instance.log("Heat click");
+			
+			//OBS websocket is connected, check which sources are under pointer.
 			//Checks for clickable overlays (spotify, ulule) as well as triggers related to sources
-			if(OBSWebsocket.instance.connected) {
-				const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
-				const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
-				const ululeRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"ulule"}}).href;
-				const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
-				const px = event.coordinates.x;
-				const py = event.coordinates.y;
+			const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
+			const spotifyRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"music"}}).href;
+			const ululeRoute = StoreProxy.router.resolve({name:"overlay", params:{id:"ulule"}}).href;
+			const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
+			const px = event.coordinates.x;
+			const py = event.coordinates.y;
 
-				//Init trigger data template
-				const action:TriggerActionChatData = {
-					id:Utils.getUUID(),
-					text:"",
-					type:'chat',
+			//Init trigger data template
+			const action:TriggerActionChatData = {
+				id:Utils.getUUID(),
+				text:"",
+				type:'chat',
+			}
+			const trigger:TriggerData = {
+				id:Utils.getUUID(),
+				type:TriggerTypes.TWITCHAT_MESSAGE,
+				enabled:true,
+				actions:[],
+				cooldown: {
+					user: 0,
+					global: 0,
+					alert:false,
 				}
-				const trigger:TriggerData = {
-					id:Utils.getUUID(),
-					type:TriggerTypes.TWITCHAT_MESSAGE,
-					enabled:true,
-					actions:[],
-					cooldown: {
-						user: 0,
-						global: 0,
-						alert:false,
-					}
-				}
+			}
 
 
-				// Parse all available OBS sources
-				for (let i = 0; i < rects.sources.length; i++) {
-					const rect = rects.sources[i];
-					const x = rects.canvas.width * px;
-					const y = rects.canvas.height * py;
-					const bounds = rect.transform;
-					const tl = {x:bounds.globalTL!.x + (bounds.cropLeft || 0), y:bounds.globalTL!.y + (bounds.cropTop || 0)}!
-					const tr = {x:bounds.globalTR!.x - (bounds.cropRight || 0), y:bounds.globalTR!.y + (bounds.cropTop || 0)}!
-					const br = {x:bounds.globalBR!.x - (bounds.cropRight || 0), y:bounds.globalBR!.y - (bounds.cropBottom || 0)}!
-					const bl = {x:bounds.globalBL!.x + (bounds.cropLeft || 0), y:bounds.globalBL!.y - (bounds.cropBottom || 0)}!
-					const polygon = [tl, tr, br, bl];
-					const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
+			// Parse all available OBS sources
+			for (let i = 0; i < rects.sources.length; i++) {
+				const rect = rects.sources[i];
+				const x = rects.canvas.width * px;
+				const y = rects.canvas.height * py;
+				const bounds = rect.transform;
+				const tl = {x:bounds.globalTL!.x + (bounds.cropLeft || 0), y:bounds.globalTL!.y + (bounds.cropTop || 0)}!
+				const tr = {x:bounds.globalTR!.x - (bounds.cropRight || 0), y:bounds.globalTR!.y + (bounds.cropTop || 0)}!
+				const br = {x:bounds.globalBR!.x - (bounds.cropRight || 0), y:bounds.globalBR!.y - (bounds.cropBottom || 0)}!
+				const bl = {x:bounds.globalBL!.x + (bounds.cropLeft || 0), y:bounds.globalBL!.y - (bounds.cropBottom || 0)}!
+				const polygon = [tl, tr, br, bl];
+				const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
-					//Click is outside OBS source, ingore it
-					if(!isInside) continue;
+				OBSWebsocket.instance.log("Is click inside source \""+rect.source.sourceName+"\"?"+isInside);
 
-					//Execute triggers related to that source
-					const clone = JSON.parse(JSON.stringify(message)) as typeof message;
-					clone.obsSource = rect.source.sourceName;
-					TriggerActionHandler.instance.execute(clone, event.testMode);
-						
-					//Compute click position relative to the browser source
-					const rotatedClick = Utils.rotatePointAround({x, y},
-															{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
-															-rect.transform.globalRotation!);
-					const rotatedTL = Utils.rotatePointAround(rect.transform.globalTL!,
-															{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
-															-rect.transform.globalRotation!);
-					rotatedClick.x -= rotatedTL.x;
-					rotatedClick.y -= rotatedTL.y;
-					const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
-					const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
-					const percentX = (rotatedClick.x) / dx;
-					const percentY = (rotatedClick.y) / dy;
-					const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
-						requestType:"emit_event",
-						vendorName:"obs-browser",
-						requestData:{
-							event_name:"heat-click",
-							event_data: {
-								anonymous,
-								x:percentX,
-								y:percentY,
-								channelId,
-								uid:user.id,
-								login:user.login,
-								rotation:rect.transform.globalRotation!,
-								scaleX:rect.transform.globalScaleX!,
-								scaleY:rect.transform.globalScaleY!,
-								isBroadcaster:user.channelInfo[channelId].is_broadcaster,
-								isSub:user.channelInfo[channelId].is_subscriber,
-								isBan:user.channelInfo[channelId].is_banned,
-								isMod:user.channelInfo[channelId].is_moderator,
-								isVip:user.channelInfo[channelId].is_vip,
-								isFollower:user.channelInfo[channelId].is_following || false,
-								followDate:user.channelInfo[channelId].following_date_ms,
-								testMode:event.testMode || false,
-								alt:event.alt || false,
-								ctrl:event.ctrl || false,
-								shift:event.shift || false,
-								twitchatOverlayID:"",
-								page:"",
-							}
-						}
-					};
+				//Click is outside OBS source, ingore it
+				if(!isInside) continue;
 
-					//If a distortion targets the current element, reroute events to its related browser source
-					for (let j = 0; j < this.distortionList.length; j++) {
-						const d = this.distortionList[j];
-						//Ignore disabled and trigger-only distortions
-						if(d.enabled && !d.triggerOnly) return;
-						const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
-						//Is click on source ?
-						if(rect.sceneName == name || rect.source.sourceName == name) {
-							const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
-							clickClone.requestData.event_data.twitchatOverlayID = d.id;
-							OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
-						}
-					}
-
-					//If it's a browser source throw an "heat-click" event on the page with
-					//all necessary info about the click
-					//If it's a spotify or ulule overlay execute any requested action
-					if(rect.source.inputKind == "browser_source") {
-						let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
-						let url:string = settings.inputSettings.url as string;
-						const isLocalFile = settings.inputSettings.is_local_file === true;
-						if(isLocalFile) {
-							url = settings.inputSettings.local_file as string || "";
-						}
-
-						let overlayID = "";
-						if(!isLocalFile) {
-							try {
-								const parsedUrl = new URL(url);
-								overlayID = parsedUrl.searchParams.get("twitchat_overlay_id") || "";
-							}catch(error){}
-						}
-
-						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
-						clickClone.requestData.event_data.page = url;
-						clickClone.requestData.event_data.twitchatOverlayID = overlayID;
-						//Send click info to browser source
-						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
-
-						//Spotify overlay
-						if(url.indexOf(spotifyRoute) > -1
-						&& StoreProxy.chat.botMessages.heatSpotify.enabled
-						&& SpotifyHelper.instance.isPlaying) {
-							//If anon users are not allowed, skip
-							if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
-
-							const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
-							const a = JSON.parse(JSON.stringify(action)) as typeof action;
-							t.id = "heat_spotify_click";//Don't make this a random value or cooldown will break as it's based on this ID !
-							a.text = StoreProxy.chat.botMessages.heatSpotify.message;
-							t.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
-							t.actions.push(a);
-							
-							TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
-						}
-						if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
-							//If anon users are not allowed, skip
-							if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
-
-							const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
-							const a = JSON.parse(JSON.stringify(action)) as typeof action;
-							t.id = "heat_ulule_click";//Don't make this a random value or cooldown will break as it's based on this ID !
-							a.text = StoreProxy.chat.botMessages.heatUlule.message;
-							t.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
-							t.actions.push(a);
-
-							TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
-						}
-					}
-				}
-
-				/**
-				 * Send all available OBS source rects to the browser sources.
-				 * This is used by the heat overlay debug view:
-				 * @see OverlayHeatDebug.vue
-				 */
-				const rectPoints:number[][] = [];
-				rects.sources.forEach(v => {
-					const points = [
-						v.transform.globalTL!.x,
-						v.transform.globalTL!.y,
-						v.transform.globalTR!.x,
-						v.transform.globalTR!.y,
-						v.transform.globalBR!.x,
-						v.transform.globalBR!.y,
-						v.transform.globalBL!.x,
-						v.transform.globalBL!.y,
-					]
-					rectPoints.push(points);
-				});
-				OBSWebsocket.instance.socket.call("CallVendorRequest", {
+				//Execute triggers related to that source
+				const clone = JSON.parse(JSON.stringify(message)) as typeof message;
+				clone.obsSource = rect.source.sourceName;
+				TriggerActionHandler.instance.execute(clone, event.testMode);
+					
+				//Compute click position relative to the browser source
+				const rotatedClick = Utils.rotatePointAround({x, y},
+														{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+														-rect.transform.globalRotation!);
+				const rotatedTL = Utils.rotatePointAround(rect.transform.globalTL!,
+														{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
+														-rect.transform.globalRotation!);
+				rotatedClick.x -= rotatedTL.x;
+				rotatedClick.y -= rotatedTL.y;
+				const dx = Math.sqrt(Math.pow(bounds.globalTR!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalTR!.y - bounds.globalTL!.y, 2));
+				const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
+				const percentX = (rotatedClick.x) / dx;
+				const percentY = (rotatedClick.y) / dy;
+				const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
 					requestType:"emit_event",
 					vendorName:"obs-browser",
 					requestData:{
-						event_name:"heat-rects",
-						//Sending as string because vendor request doesn't seem to handle array of numbers.
-						//I receive an empty array on the other side
-						event_data:{rects:JSON.stringify(rectPoints)},
+						event_name:"heat-click",
+						event_data: {
+							anonymous,
+							x:percentX,
+							y:percentY,
+							channelId,
+							uid:user.id,
+							login:user.login,
+							rotation:rect.transform.globalRotation!,
+							scaleX:rect.transform.globalScaleX!,
+							scaleY:rect.transform.globalScaleY!,
+							isBroadcaster:user.channelInfo[channelId].is_broadcaster,
+							isSub:user.channelInfo[channelId].is_subscriber,
+							isBan:user.channelInfo[channelId].is_banned,
+							isMod:user.channelInfo[channelId].is_moderator,
+							isVip:user.channelInfo[channelId].is_vip,
+							isFollower:user.channelInfo[channelId].is_following || false,
+							followDate:user.channelInfo[channelId].following_date_ms,
+							testMode:event.testMode || false,
+							alt:event.alt || false,
+							ctrl:event.ctrl || false,
+							shift:event.shift || false,
+							twitchatOverlayID:"",
+							page:"",
+						}
 					}
-				});
+				};
+
+				//If a distortion targets the current element, reroute events to its related browser source
+				for (let j = 0; j < this.distortionList.length; j++) {
+					const d = this.distortionList[j];
+					//Ignore disabled and trigger-only distortions
+					if(d.enabled && d.triggerOnly) break;
+					const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
+					//Is click on source ?
+					if(rect.sceneName == name || rect.source.sourceName == name) {
+						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
+
+						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
+						clickClone.requestData.event_data.twitchatOverlayID = d.id;
+						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+					}
+				}
+
+				//If it's a browser source throw an "heat-click" event on the page with
+				//all necessary info about the click
+				//If it's a spotify or ulule overlay execute any requested action
+				if(rect.source.inputKind == "browser_source") {
+					let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
+					let url:string = settings.inputSettings.url as string;
+					const isLocalFile = settings.inputSettings.is_local_file === true;
+					if(isLocalFile) {
+						url = settings.inputSettings.local_file as string || "";
+					}
+
+					let overlayID = "";
+					if(!isLocalFile) {
+						try {
+							const parsedUrl = new URL(url);
+							overlayID = parsedUrl.searchParams.get("twitchat_overlay_id") || "";
+						}catch(error){}
+					}
+
+					const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
+					clickClone.requestData.event_data.page = url;
+					clickClone.requestData.event_data.twitchatOverlayID = overlayID;
+					//Send click info to browser source
+					OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+
+					//Spotify overlay
+					if(url.indexOf(spotifyRoute) > -1
+					&& StoreProxy.chat.botMessages.heatSpotify.enabled
+					&& SpotifyHelper.instance.isPlaying) {
+						//If anon users are not allowed, skip
+						if(anonymous && StoreProxy.chat.botMessages.heatSpotify.allowAnon !== true) continue;
+
+						const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
+						const a = JSON.parse(JSON.stringify(action)) as typeof action;
+						t.id = "heat_spotify_click";//Don't make this a random value or cooldown will break as it's based on this ID !
+						a.text = StoreProxy.chat.botMessages.heatSpotify.message;
+						t.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
+						t.actions.push(a);
+						
+						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
+					}
+					if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
+						//If anon users are not allowed, skip
+						if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
+
+						const t = JSON.parse(JSON.stringify(trigger)) as typeof trigger;
+						const a = JSON.parse(JSON.stringify(action)) as typeof action;
+						t.id = "heat_ulule_click";//Don't make this a random value or cooldown will break as it's based on this ID !
+						a.text = StoreProxy.chat.botMessages.heatUlule.message;
+						t.cooldown!.global = StoreProxy.chat.botMessages.heatUlule.cooldown!;
+						t.actions.push(a);
+
+						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
+					}
+				}
 			}
+
+			/**
+			 * Send all available OBS source rects to the browser sources.
+			 * This is used by the heat overlay debug view:
+			 * @see OverlayHeatDebug.vue
+			 */
+			const rectPoints:number[][] = [];
+			rects.sources.forEach(v => {
+				const points = [
+					v.transform.globalTL!.x,
+					v.transform.globalTL!.y,
+					v.transform.globalTR!.x,
+					v.transform.globalTR!.y,
+					v.transform.globalBR!.x,
+					v.transform.globalBR!.y,
+					v.transform.globalBL!.x,
+					v.transform.globalBL!.y,
+				]
+				rectPoints.push(points);
+			});
+			OBSWebsocket.instance.socket.call("CallVendorRequest", {
+				requestType:"emit_event",
+				vendorName:"obs-browser",
+				requestData:{
+					event_name:"heat-rects",
+					//Sending as string because vendor request doesn't seem to handle array of numbers.
+					//I receive an empty array on the other side
+					event_data:{rects:JSON.stringify(rectPoints)},
+				}
+			});
 		}
 
 	} as IHeatActions
