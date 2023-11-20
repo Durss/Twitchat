@@ -312,7 +312,7 @@ export default class SpotifyHelper {
 	 * @param uri Spotify URI of the track to add. Get one with "searchTrack()" method
 	 * @returns if a track has been added or not
 	 */
-	public async addToQueue(uri:string, isRetry:boolean = false):Promise<boolean> {
+	public async addToQueue(uri:string, isRetry:boolean = false):Promise<boolean|"NO_ACTIVE_DEVICE"> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
@@ -335,11 +335,12 @@ export default class SpotifyHelper {
 				const json = await res.json();
 				if(json.error.reason == "NO_ACTIVE_DEVICE") {
 					StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.no_device") );
+					return "NO_ACTIVE_DEVICE";
 
 				}else if(json.error.message) {
 					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
-					throw(new Error(""))
+					throw(new Error("unknown error"))
 				}
 			}catch(error) {
 				StoreProxy.music.spotifyConsecutiveErrors ++;

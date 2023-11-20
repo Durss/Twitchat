@@ -188,6 +188,7 @@
 					"wrong_url":"The given URL isn't a valid Spotify URL",
 					"max_duration":"The given track is longer than the {DURATION} maximum allowed",
 					"api":"Something went wrong when requesting Spotify to add the track to queue.",
+					"no_active_device":"Start playback manually in Spotify first to enable control via the API.",
 					"no_result":"No track found for given search \"{SEARCH}\"."
 				}
 			},

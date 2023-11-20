@@ -189,6 +189,7 @@
 					"wrong_url":"L'URL donnée n'est pas une URL Spotify valide",
 					"max_duration":"Le morceau est plus long que le maximum autorisé de {DURATION}",
 					"api":"Une erreur a eu lieu lors de la demande d'ajout à Spotify.",
+					"no_active_device":"Lancez d'abord une lecture manuellement dans Spotify pour permettre son contrôle via l'API",
 					"no_result":"Aucun morceau trouvé pour la recherche \"{SEARCH}\"."
 				}
 			},

@@ -2997,7 +2997,7 @@ export namespace TwitchatDataTypes {
 		 * If set, adding to queue failed.
 		 * This contains the failure reason
 		 */
-		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result";
+		failCode?:undefined|"spotify_not_connected" | "wrong_url" | "max_duration" | "api" | "no_result" | "no_active_device";
 		/**
 		 * Textual reason for the failure
 		 */

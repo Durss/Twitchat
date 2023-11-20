@@ -731,14 +731,14 @@ export default class TriggerActionHandler {
 			
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue;// || trigger.id;
-		const queue:Promise<void>[] = [];
+		let queue:Promise<void>[] = [];
 		let triggerResolver: (()=>void) | null = null;
 		
 		if(queueKey) {
 			log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
 			
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
-			const queue = this.triggerTypeToQueue[queueKey];
+			queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
 			let prom = queue[queue.length-1] ?? Promise.resolve();
 			queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
@@ -860,8 +860,8 @@ export default class TriggerActionHandler {
 		log.skipped = !canExecute;
 
 		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
-		if(!canExecute && queue.length > 0) {
-			queue.shift();
+		if(!canExecute) {
+			if(queue.length > 0) queue.shift();
 			if(triggerResolver != null) (triggerResolver as () => void)();//Proceed to next trigger in current queue
 			return false;
 		}
@@ -1693,10 +1693,17 @@ export default class TriggerActionHandler {
 				//Handle music actions
 				if(step.type == "music") {
 					try {
-						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
-						logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected? "+SpotifyHelper.instance.connected});
 						let failCode:TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"] = undefined;
-						if(!SpotifyHelper.instance.connected) failCode = "spotify_not_connected";
+						logStep.messages.push({date:Date.now(), value:"[MUSIC] Execute music action: "+step.musicAction});
+						if(SpotifyHelper.instance.connected) {
+							logStep.messages.push({date:Date.now(), value:"[SPOTIFY] Spotify connected"});
+						}else{
+							logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Spotify NOT connected"});
+							log.error = true;
+							logStep.error = true;
+							failCode = "spotify_not_connected";
+						}
+						
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							const maxDuration = (step.maxDuration || 0)*1000;
@@ -1725,22 +1732,30 @@ export default class TriggerActionHandler {
 									if(step.limitDuration === true && track.duration_ms > maxDuration) {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
 										failCode = "max_duration";
-									}else
-									if(await SpotifyHelper.instance.addToQueue(track.uri)) {
-										logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
-										data = {
-											title:track.name,
-											artist:track.artists[0].name,
-											album:track.album.name,
-											cover:track.album.images[0].url,
-											duration:track.duration_ms,
-											url:track.external_urls.spotify,
-										};
-									}else{
-										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
-										log.error = true;
-										logStep.error = true;
-										failCode = "api";
+									}else {
+										let success = await SpotifyHelper.instance.addToQueue(track.uri);
+										if(success === true) {
+											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
+											data = {
+												title:track.name,
+												artist:track.artists[0].name,
+												album:track.album.name,
+												cover:track.album.images[0].url,
+												duration:track.duration_ms,
+												url:track.external_urls.spotify,
+											};
+										}else if(success == "NO_ACTIVE_DEVICE") {
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] No active device found"});
+											log.error = true;
+											logStep.error = true;
+											failCode = "no_active_device";
+
+										}else{
+											logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Add to queue failed"});
+											log.error = true;
+											logStep.error = true;
+											failCode = "api";
+										}
 									}
 								}else{
 									logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Searching track failed, nor result found for search \""+m+"\""});
@@ -2029,9 +2044,9 @@ export default class TriggerActionHandler {
 		
 		if(queue) {
 			queue.shift();
-			if(triggerResolver != null) {
-				(triggerResolver as () => void)();//Proceed to next trigger in current queue
-			}
+		}
+		if(triggerResolver != null) {
+			(triggerResolver as () => void)();//Proceed to next trigger in current queue
 		}
 		log.complete = true;
 

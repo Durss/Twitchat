@@ -738,12 +738,12 @@ export const TriggerTypes = {
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
 
-export interface ITriggerPlaceholder<T> extends TwitchatDataTypes.PlaceholderEntry {
+export interface ITriggerPlaceholder<T, U=unknown> extends TwitchatDataTypes.PlaceholderEntry {
 	pointer:Path<T>;
 	isUserID:boolean;
 	numberParsable:boolean;
 	customTag?:boolean;
-	values?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
+	values?:TwitchatDataTypes.ParameterDataListValue<U>[];
 }
 
 export const USER_PLACEHOLDER:string = "USER";
@@ -965,7 +965,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:USER_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by', pointer:"user.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<SafeReward>,
 		{tag:USER_ID_PLACEHOLDER, descKey:'triggers.placeholders.track_added_by_id', pointer:"user.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<SafeReward>,
 		{tag:"SEARCH_QUERY", descKey:'triggers.placeholders.track_search_query', pointer:"search", numberParsable:false, isUserID:false, example:"Mitchiri Neko March"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
-		{tag:"ADD_FAIL_CODE", descKey:'triggers.placeholders.track_added_fail_code', pointer:"failCode", numberParsable:false, isUserID:false, values:[{label:"spotify_not_connected", value:"spotify_not_connected"}, {label:"wrong_url", value:"wrong_url"}, {label:"no_result", value:"no_result"}, {label:"api", value:"api"}, {label:"max_duration", value:"max_duration"}], example:"spotify_not_connected"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
+		{tag:"ADD_FAIL_CODE", descKey:'triggers.placeholders.track_added_fail_code', pointer:"failCode", numberParsable:false, isUserID:false, values:[{label:"spotify_not_connected", value:"spotify_not_connected"}, {label:"wrong_url", value:"wrong_url"}, {label:"no_result", value:"no_result"}, {label:"api", value:"api"}, {label:"max_duration", value:"max_duration"}, {label:"spotify_not_connected", value:"spotify_not_connected"}], example:"spotify_not_connected"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData, TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"]>,
 		{tag:"ADD_FAIL_REASON", descKey:'triggers.placeholders.track_added_fail', pointer:"failReason", numberParsable:false, isUserID:false, example:"Something went wrong"} as ITriggerPlaceholder<TwitchatDataTypes.MessageMusicAddedToQueueData>,
 	];
 	
