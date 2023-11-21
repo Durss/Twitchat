@@ -117,9 +117,10 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 				}
 
 				.infos {
-					gap: .5em;
+					column-gap: .5em;
 					display: flex;
 					flex-direction: row;
+					flex-wrap: wrap;
 					.users, .outcomeTitle {
 						display: flex;
 						flex-direction: row;

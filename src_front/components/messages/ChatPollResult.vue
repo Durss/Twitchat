@@ -110,9 +110,10 @@ export default class ChatPollResult extends AbstractChatMessage {
 				flex-wrap: wrap;
 				gap: 2px;
 				.infos {
-					gap: .5em;
+					column-gap: .5em;
 					display: flex;
 					flex-direction: row;
+					flex-wrap: wrap;
 					.users, .choiceTitle {
 						display: flex;
 						flex-direction: row;
