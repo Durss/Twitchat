@@ -634,12 +634,14 @@ export default class ParamItem extends Vue {
 			if(this.children.length > 0) {
 				//Hide transition
 				const childrenItems = this.$refs.param_child as Vue[];
-				let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
-				gsap.killTweensOf(divs);
-				gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025,
-					onComplete:()=> {
-						this.children = [];
-					}});
+				if(childrenItems) {
+					let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];
+					gsap.killTweensOf(divs);
+					gsap.to(divs, {overflow:"hidden", height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.025,
+						onComplete:()=> {
+							this.children = [];
+						}});
+				}
 			}
 			return;
 		}
@@ -664,7 +666,7 @@ export default class ParamItem extends Vue {
 		this.children = children;
 		await this.$nextTick();
 
-		if(children.length > 0 && !this.childrenExpanded){
+		if(children.length > 0 && !this.childrenExpanded && this.$refs.param_child){
 			//Show transitions
 			const childrenItems = this.$refs.param_child as Vue[];
 			let divs:HTMLDivElement[] = childrenItems.map(v => v.$el) as HTMLDivElement[];

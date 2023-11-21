@@ -136,7 +136,7 @@
 		:messageData="messageData" />
 
 	<ChatAdBreakStarted class="message"
-		v-else-if="messageData.type == 'ad_break_start'"
+		v-else-if="messageData.type == 'ad_break_start_chat'"
 		:messageData="messageData" />
 
 	<ChatHistorySplitter class="message"

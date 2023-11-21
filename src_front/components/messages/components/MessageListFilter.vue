@@ -47,7 +47,7 @@
 						<Button @click="preset('revenues')" icon="coin" small>{{ $t('chat.filters.preset_revenues') }}</Button>
 					</div>
 
-					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" />
+					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage">
@@ -252,9 +252,9 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= "chat.filters.message_types.ad_break_start";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "chat.filters.message_types.user_watch_streak";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
+		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= "chat.filters.message_types.ad_break_start_chat";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]				= "chat.filters.message_types.music_added_to_queue";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
@@ -284,9 +284,9 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= "ad";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train";
+		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= "ad";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]					= "music";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost";
@@ -303,7 +303,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= [TwitchScopes.READ_HYPE_TRAIN];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START]						= [TwitchScopes.ADS_READ];
+		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]				= [TwitchScopes.ADS_READ];
 
 		let sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
@@ -327,7 +327,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
 			TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 			TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-			TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
+			TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT,
 			TwitchatDataTypes.TwitchatMessageType.JOIN,
 			TwitchatDataTypes.TwitchatMessageType.LEAVE,
 			TwitchatDataTypes.TwitchatMessageType.NOTICE,
@@ -338,7 +338,7 @@ export default class MessageListFilter extends Vue {
 		];
 
 		if(!Config.instance.AD_API_AVAILABLE) {
-			sortedFilters = sortedFilters.filter(v=> v != TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START);
+			sortedFilters = sortedFilters.filter(v=> v != TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT);
 		}
 
 		this.filters = [];
@@ -707,7 +707,7 @@ export default class MessageListFilter extends Vue {
 
 	/**
 	 * Called when preview message is clicked.
-	 * ONly usefull for touch interface so we can close it by clicking it
+	 * Only usefull for touch interface so we can close it by clicking it
 	 */
 	public clickPreview(e:MouseEvent):void {
 		e.stopPropagation();
@@ -837,7 +837,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
 				if(Config.instance.AD_API_AVAILABLE) {
-					ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START );
+					ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT );
 				}
 				ids.push( TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
