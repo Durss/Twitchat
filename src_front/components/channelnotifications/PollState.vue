@@ -136,9 +136,9 @@ export default class PollState extends Vue {
 			.emboss();
 			display: flex;
 			flex-direction: row;
-			border-radius: 10px;
-			padding: 7px 15px;
-			font-size: 16px;
+			border-radius: var(--border-radius);
+			padding: .25em .5em;
+			font-size: em;
 			background-color: var(--color-secondary-fadest);
 			transition: background-size .2s;
 			justify-content: space-between;

@@ -26,7 +26,7 @@
 						</div>
 						<div class="points">
 							<Icon class="icon" name="channelPoints" />
-							{{o.votes}}
+							{{o.votes.toLocaleString()}}
 						</div>
 					</div>
 					<div :style="getOutcomeStyles(o)" class="bar"></div>

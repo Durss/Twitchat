@@ -215,12 +215,12 @@ export default class PredictionState extends Vue {
 			.color {
 				.emboss();
 				background-color: #387aff;
-				width: 20px;
-				height: 20px;
+				width: 1em;
+				height: 1em;
 				display: inline-block;
 				border-radius: 50%;
 				align-self: center;
-				margin-right: 5px;
+				margin-right: .5em;
 			}
 			&:first-of-type {
 				.color, .winBt {
@@ -229,10 +229,10 @@ export default class PredictionState extends Vue {
 			}
 
 			.winBt {
-				height: 30px;
-				width: 30px;
+				height: 1.25em;
+				width: 1.25em;
 				background-color: #387aff;
-				margin-right: 5px;
+				margin-right: .5em;
 				padding: 0px;
 				:deep(.icon) {
 					width: 18px;
@@ -245,9 +245,9 @@ export default class PredictionState extends Vue {
 				flex-grow: 1;
 				display: flex;
 				flex-direction: row;
-				border-radius: 10px;
-				padding: 4px 15px;
-				font-size: 16px;
+				border-radius: var(--border-radius);
+				padding: .25em .5em;
+				font-size: 1em;
 				color: var(--color-light);
 				@c: var(--color-secondary);
 				transition: background-size .2s;
@@ -265,18 +265,18 @@ export default class PredictionState extends Vue {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						padding: 5px;
-						border-radius: 5px;
+						padding: .25em .5em;
+						border-radius: var(--border-radius);
 						background-color: rgba(0, 0, 0, .25);
 						font-size: .8em;
 
 						&:not(:last-child) {
-							margin-right: 5px;
+							margin-right: .25em;
 						}
 
 						.icon {
 							height: 1em;
-							margin-right: 5px;
+							margin-right: .25em;
 						}
 					}
 				}
