@@ -14,21 +14,22 @@
 
 			<div class="outcomes">
 				<div v-for="o in messageData.outcomes" :key="o.id" :class="getOutcomeClasses(o)">
-					<div :style="getOutcomeStyles(o)" class="bar">
+					<div class="infos">
 						<div class="outcomeTitle">
-							<Icon class="check" name="checkmark" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
+							<Icon class="check" name="checkmark" />
 							{{o.label}}
 						</div>
 						<div class="percent">{{getOutcomePercent(o)}}%</div>
 						<div class="users">
-							<Icon class="icon" name="user" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
+							<Icon class="icon" name="user" />
 							{{o.voters}}
 						</div>
 						<div class="points">
-							<Icon class="icon" name="channelPoints" :theme="messageData.winner?.id === o.id?'dark' : 'light'"/>
+							<Icon class="icon" name="channelPoints" />
 							{{o.votes}}
 						</div>
 					</div>
+					<div :style="getOutcomeStyles(o)" class="bar"></div>
 				</div>
 			</div>
 		</div>
@@ -97,10 +98,10 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 			font-style: italic;
 		}
 		.outcomes {
-			margin-top: 5px;
+			margin-top: .5em;
 			display: flex;
 			flex-direction: column;
-			gap: 2px;
+			gap: .5em;
 			width: 100%;
 
 			.outcome {
@@ -109,33 +110,43 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					&:not(:first-of-type) {
 						.bar {
 							@c: #f50e9b;
-							background: linear-gradient(to right, @c 100%, @c 100%);
+							background-image: linear-gradient(to right, @c 100%, @c 100%);
 							background-color: fade(@c, 20%);
-							background-repeat: no-repeat;
 						}
 					}
 				}
 
-				.check {
-					height: 1em;
-					display: none;
-					margin-right: .5em;
-				}
+				.infos {
+					gap: .5em;
+					display: flex;
+					flex-direction: row;
+					.users, .outcomeTitle {
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+					}
+					.outcomeTitle {
+						font-weight: bold;
 
+						.check {
+							display: none;
+						}
+					}
+					.icon {
+						color: var(--color-text);
+						height: 1em;
+						margin-right: .25em;
+					}
+				}
 
 				.bar {
 					width: 100%;
-					display: flex;
-					flex-direction: row;
-					flex-wrap: wrap;
-					gap: 2px;
-					padding: 3px;
+					height: 5px;
 					border-radius: 5px;
 					@c: #387aff;
 					background: linear-gradient(to right, @c 100%, @c 100%);
 					background-color: fade(@c, 20%);
 					background-repeat: no-repeat;
-					justify-content: space-evenly;
 
 					.percent, .users, .points, .outcomeTitle {
 						display: flex;
@@ -159,15 +170,20 @@ export default class ChatPredictionResult extends AbstractChatMessage {
 					}
 				}
 				&.winner {
-					.check { display: inline; }
-					.percent, .users, .points, .outcomeTitle {
-						color: var(--color-dark);
-						font-weight: bold;
-						background-color: rgba(255,255,255,.7);//var(--color-light);
+					font-weight: 400;
+					color: var(--color-secondary);
+					.icon {
+						color: var(--color-secondary);
 					}
-					// .bar {
-					// 	border: 1px solid var(--color-light);
-					// }
+					.bar {
+						@c: var(--color-secondary-fade);
+						background-image: linear-gradient(to right, @c 100%, @c 100%);
+						background-color: var(--color-secondary-fader);
+					}
+					.infos > .outcomeTitle > .check {
+						display: block;
+						margin-left: -1.25em;
+					}
 				}
 			}
 		}

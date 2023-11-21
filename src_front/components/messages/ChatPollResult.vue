@@ -14,16 +14,17 @@
 
 			<div class="choices">
 				<div v-for="o in messageData.choices" :key="o.id" class="choice" :class="getChoiceClasses(o)">
-					<div class="bar" :style="getChoiceStyles(o)">
+					<div class="infos">
 						<div class="choiceTitle">
-							<Icon class="check" name="checkmark" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
+							<Icon class="check" name="checkmark" />
 							{{o.label}}
 						</div>
 						<div class="users">
-							<Icon class="icon" name="user" :theme="o.votes == maxVotesValue?'dark' : 'light'"/>
+							<Icon class="icon" name="user" />
 							{{o.votes}}
 						</div>
 					</div>
+					<div class="bar" :style="getChoiceStyles(o)"></div>
 				</div>
 			</div>
 		</div>
@@ -98,70 +99,62 @@ export default class ChatPollResult extends AbstractChatMessage {
 			font-style: italic;
 		}
 		.choices {
-			margin-top: 5px;
+			margin-top: .5em;
 			display: flex;
 			flex-direction: column;
-			gap: 2px;
+			gap: .5em;
 			width: 100%;
 			.choice {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
 				gap: 2px;
-				&.winner {
-					.bar > .choiceTitle > .check {
-						display: block;
-					}
-				}
-				.bar {
-					width: 100%;
+				.infos {
+					gap: .5em;
 					display: flex;
 					flex-direction: row;
-					flex-wrap: wrap;
-					padding: 3px;
-					border-radius: 5px;
-					@c: var(--background-color-fader);
-					background: linear-gradient(to right, @c 100%, @c 100%);
-					background-color: var(--background-color-fader);
-					background-repeat: no-repeat;
-					justify-content: space-evenly;
-
 					.users, .choiceTitle {
 						display: flex;
 						flex-direction: row;
 						align-items: center;
-						padding: 5px;
-						border-radius: 5px;
-						color: var(--color-text-light);
-						background-color: rgba(0,0,0,.5);//var(--background-color-fade);
-						font-size: .9em;
-
-						.icon {
-							height: 1em;
-							margin-right: 5px;
-						}
 					}
 					.choiceTitle {
 						font-weight: bold;
-						font-size: 1em;
 
 						.check {
-							height: 1em;
-							margin-right: .5em;
 							display: none;
 						}
 					}
+					.icon {
+						color: var(--color-text);
+						height: 1em;
+						margin-right: .25em;
+					}
+				}
+				.bar {
+					width: 100%;
+					height: 5px;
+					border-radius: 5px;
+					@c: var(--background-color-fade);
+					background: linear-gradient(to right, @c 100%, @c 100%);
+					background-color: var(--background-color-fader);
+					background-repeat: no-repeat;
 				}
 				&.winner {
-					.check { display: inline; }
-					.users, .choiceTitle {
-						color: var(--color-dark);
-						font-weight: bold;
-						background-color: rgba(255,255,255,.7);//var(--color-light);
+					font-weight: 400;
+					color: var(--color-secondary);
+					.icon {
+						color: var(--color-secondary);
 					}
-					// .bar {
-					// 	border: 1px solid var(--color-light);
-					// }
+					.infos > .choiceTitle > .check {
+						display: block;
+						margin-left: -1.25em;
+					}
+					.bar {
+						@c: var(--color-secondary-fade);
+						background-image: linear-gradient(to right, @c 100%, @c 100%);
+						background-color: var(--color-secondary-fader);
+					}
 				}
 			}
 		}

@@ -483,7 +483,7 @@ export default class UserCard extends Vue {
 	 */
 	private loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"]
+		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer", "user_watch_streak"]
 		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
 			const mess = this.$store("chat").messages[i];
 			if(!allowedTypes.includes(mess.type)) continue;
@@ -500,6 +500,8 @@ export default class UserCard extends Vue {
 			}else if(mess.type == "cheer" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}else if(mess.type == "reward" && mess.user.id == uid) {
+				messageList.unshift(mess);
+			}else if(mess.type == "user_watch_streak" && mess.user.id == uid) {
 				messageList.unshift(mess);
 			}
 			if (messageList.length > 100) break;//Limit message count for perf reasons

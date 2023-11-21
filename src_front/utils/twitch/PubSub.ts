@@ -9,6 +9,7 @@ import Utils from "../Utils";
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
 import TriggerActionHandler from '../triggers/TriggerActionHandler';
+import Database from '@/store/Database';
 
 /**
 * Created : 13/01/2022 
@@ -1302,8 +1303,10 @@ export default class PubSub extends EventDispatcher {
 				//Cheer pins
 				const cheer = message as TwitchatDataTypes.MessageCheerData;
 				cheer.pinnned = true;
-				cheer.pinDuration_ms = (data.message.ends_at - data.message.starts_at),
+				cheer.pinDuration_ms = (data.message.ends_at - data.message.starts_at) * 1000,
 				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.message.metadata.level] || 0;
+				//Update DB message with new data
+				Database.instance.updateMessage(cheer);
 				//Forces triggers to execute
 				TriggerActionHandler.instance.execute(cheer);
 
@@ -1369,7 +1372,7 @@ export default class PubSub extends EventDispatcher {
 		if(pinMessage) {
 			pinMessage.chatMessage.is_pinned = false;
 			let moderator:TwitchatDataTypes.TwitchatUser|undefined;
-			if("unpinned_by" in data) {
+			if("unpinned_by" in data && Object.keys(data.unpinned_by).length > 0) {
 				moderator = StoreProxy.users.getUserFrom("twitch", channel_id, data.unpinned_by.id, data.unpinned_by.display_name.toLowerCase(), data.unpinned_by.display_name)
 			}
 			const m:TwitchatDataTypes.MessageUnpinData = {

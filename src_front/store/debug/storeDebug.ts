@@ -1084,6 +1084,7 @@ export const storeDebug = defineStore('debug', {
 							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
 						})
 					}
+					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageWatchStreakData = {
 						platform:"twitch",
 						type,
@@ -1093,6 +1094,10 @@ export const storeDebug = defineStore('debug', {
 						channel_id:uid,
 						streak:Utils.pickRand([3,5,7,10,15]),//Not sure these are valid values
 						channelPointsEarned:Utils.pickRand([350,450]),//Not sure there are other valid values
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						message_size:0,
 					};
 					data = m;
 					break;

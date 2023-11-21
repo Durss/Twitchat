@@ -18,7 +18,7 @@ import MessengerClientEvent from "./MessengerClientEvent";
 export default class TwitchMessengerClient extends EventDispatcher {
 
 	private static _instance:TwitchMessengerClient;
-	private _client!:any;
+	private _client!:tmi.Client;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
 	private _connected:boolean = false;
@@ -672,19 +672,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.twitch_isHighlighted	= tags["msg-id"] === "highlighted-message";
 		data.is_short				= tags["emote-only"] === true;
 		if(tags["msg-param-color"]) data.twitch_announcementColor= tags["msg-param-color"].toLowerCase();
-		const hypeChatPaidAmount:number = parseInt(tags["pinned-chat-paid-amount"]);
-		if(!isNaN(hypeChatPaidAmount) && hypeChatPaidAmount > 0) {
-			const exponent:number	= parseInt(tags["pinned-chat-paid-exponent"]) || 2;
-			const levelName:string	= tags["chat-paid-level"];
-			const levelName2Index:{[key:string]:number}	= {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9};
-			const levelIndex:number	= levelName2Index[levelName] ?? 0;
-			data.twitch_hypeChat	= {
-										level:levelIndex,
-										amount:hypeChatPaidAmount/Math.pow(10, exponent),
-										currency:tags["pinned-chat-paid-currency"],
-										duration_s:[30, 150, 60*5, 60*10, 60*30, 60*60, 60*60*2, 60*60*3, 60*60*4, 60*60*5][levelIndex] ?? 30
-									};
-		}
 
 		//Send reward redeem message if the message comes from an "highlight my message" reward
 		if(data.twitch_isHighlighted) {
@@ -981,9 +968,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 				//Handle viewer milestone (AKA consecutive watched streams)
 				if(category === "watch-streak" || category === "watch-fk") {
+					console.log("===WATCH STREAK===");
+					console.log(messageCloned);
+					console.log(data);
 					const tags = data.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
+					
+					const params = data.params as string[];
+					const message = params[1];
+					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
+					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
+					const message_size = TwitchUtils.computeMessageSize(message_chunks);
+
 					const eventData:TwitchatDataTypes.MessageWatchStreakData = {
 						channel_id: channelId,
 						id:Utils.getUUID(),
@@ -993,6 +990,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						streak:tags["msg-param-value"] as number,
 						channelPointsEarned:tags["msg-param-copoReward"] as number,
 						user,
+						message_chunks,
+						message_html,
+						message_size,
 					};
 					this.dispatchEvent(new MessengerClientEvent("WATCH_STREAK", eventData));
 				}

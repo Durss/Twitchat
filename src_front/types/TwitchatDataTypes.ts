@@ -1980,6 +1980,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export type MergeableMessageTypes = Extract<ChatMessageTypes, {message_size?:number}>["type"];
+	
 	//Ensure the object contains all requested keys
 	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
 		message:true,
@@ -1987,6 +1988,7 @@ export namespace TwitchatDataTypes {
 		whisper:true,
 		cheer:true,
 		subscription:false,
+		user_watch_streak:false,
 	}
 	export interface MergeableMessage {
 		/**
@@ -3405,6 +3407,23 @@ export namespace TwitchatDataTypes {
 		 * Number of channel points earned
 		 */
 		channelPointsEarned:number;
+		/**
+		 * Text message content
+		 */
+		message?:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
+		message_html?:string;
+		/**
+		 * @see MergeableMessage
+		 */
+		message_size:number;
 	}
 
 	/**

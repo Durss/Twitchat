@@ -373,6 +373,7 @@ export default class ContextMenuHelper {
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 				//Add splitter after previous item if any
 				if(options.length > 0) options[options.length-1].divided = true;
@@ -516,6 +517,7 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageStreamOnlineData
 								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageMusicAddedToQueueData
+								| TwitchatDataTypes.MessageWatchStreakData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
 
 		StoreProxy.main.messageExportState = "progress";

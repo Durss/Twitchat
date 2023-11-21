@@ -13,7 +13,7 @@
 				</template>
 			</i18n-t>
 	
-			<ChatMessage class="message" :messageData="messageData.chatMessage" lightMode />
+			<ChatMessage class="quote" :messageData="messageData.chatMessage" lightMode />
 		</div>
 	</div>
 </template>
@@ -62,21 +62,19 @@ export default class ChatPinNotice extends AbstractChatMessage {
 		flex-grow: 1;
 		display: flex;
 		flex-direction: column;
-		.message {
-			padding: .25em;
-			width: 100%;
-			flex-grow: 1;
+		.quote {
 			font-size: 1em;
-			background-color: var(--background-color-primary);
 		}
 	}
 
 	&.unpinned {
 		.holder {
-			.message {
-				text-decoration: line-through;
+			.quote {
 				opacity: .75;
-				font-style: italic;
+				text-decoration: line-through;
+				&:hover {
+					text-decoration: none;
+				}
 			}
 		}
 	}

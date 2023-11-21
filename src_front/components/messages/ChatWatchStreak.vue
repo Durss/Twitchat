@@ -1,20 +1,27 @@
 <template>
-	<div class="chatwatchstreak chatMessage highlight">
+	<div class="chatwatchstreak chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="watchStreak" alt="notice" class="icon"/>
 		
-		<i18n-t scope="global" tag="span" keypath="chat.watch_streak.label">
-			<template #USER>
-				<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
-			</template>
-			<template #COUNT>
-				<strong>{{ messageData.streak }}</strong>
-			</template>
-			<template #POINTS>
-				<strong>{{ messageData.channelPointsEarned }}</strong>
-			</template>
-		</i18n-t>
+		<div class="holder">
+			<i18n-t scope="global" tag="span" keypath="chat.watch_streak.label">
+				<template #USER>
+					<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
+				</template>
+				<template #COUNT>
+					<strong>{{ messageData.streak }}</strong>
+				</template>
+				<template #POINTS>
+					<strong>{{ messageData.channelPointsEarned }}</strong>
+				</template>
+			</i18n-t>
+
+			<div class="quote">
+				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
+			</div>
+		</div>
 	</div>
 </template>
 
@@ -22,9 +29,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
-	components:{},
+	components:{
+		ChatMessageChunksParser,
+	},
 	emits:["onRead"]
 })
 export default class ChatWatchStreak extends AbstractChatMessage {
@@ -42,5 +52,11 @@ export default class ChatWatchStreak extends AbstractChatMessage {
 
 <style scoped lang="less">
 .chatwatchstreak{
+
+	.holder {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+	}
 }
 </style>
