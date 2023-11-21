@@ -122,6 +122,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				})
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[v.id].online = true;
+				u.channelInfo[v.id].is_broadcaster = true;
 				
 				//Init stream info
 				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
@@ -950,32 +951,29 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		},990)
 	}
 
-	private async raw_message(messageCloned: { [property: string]: unknown }, data: { [property: string]: unknown }):Promise<void> {
+	private async raw_message(raw: { [property: string]: unknown }, parsed: { [property: string]: unknown }):Promise<void> {
 		//TMI parses the "badges" and "badge-info" props right AFTER dispatching
 		//the "raw_message" event.
 		//Let's wait a frame so the props are parsed
 		await Utils.promisedTimeout(0);
-		const category = (data.tags as tmi.ChatUserstate)["msg-param-category"] as string;
-		switch(data.command) {
+		const category = (parsed.tags as tmi.ChatUserstate)["msg-param-category"] as string;
+		switch(parsed.command) {
 			case "USERNOTICE": {
 				//Handle announcement messages
-				if(((data.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
-					const params = data.params as string[];
-					const tags = data.tags as tmi.ChatUserstate;
+				if(((parsed.tags as tmi.ChatUserstate)["msg-id"] as unknown) === "announcement") {
+					const params = parsed.params as string[];
+					const tags = parsed.tags as tmi.ChatUserstate;
 					tags.username = tags.login;
 					this.onMessage(params[0], tags, params[1], false);
 				}else
 
 				//Handle viewer milestone (AKA consecutive watched streams)
 				if(category === "watch-streak" || category === "watch-fk") {
-					console.log("===WATCH STREAK===");
-					console.log(messageCloned);
-					console.log(data);
-					const tags = data.tags as tmi.ChatUserstate;
+					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
 					
-					const params = data.params as string[];
+					const params = parsed.params as string[];
 					const message = params[1];
 					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
 					const message_html = TwitchUtils.messageChunksToHTML(message_chunks);
@@ -999,9 +997,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 				//Handle subgift summaries
 				//Grabs the number of subgifts made on the channel and store it to the user
-				if((data.tags as tmi.ChatUserstate)["msg-param-sender-count"]) {
+				if((parsed.tags as tmi.ChatUserstate)["msg-param-sender-count"]) {
 					// console.log("RECEIVED SUBGIFT INFO", data);
-					const tags = data.tags as tmi.ChatUserstate;
+					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
 					const total = typeof tags["msg-param-sender-count"] == "string"? parseInt(tags["msg-param-sender-count"]) : -1;
@@ -1015,16 +1013,16 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 
 			case "USERSTATE": {
-				const [channelName] = (data as {params:string[]}).params;
+				const [channelName] = (parsed as {params:string[]}).params;
 				const channelId = this.getChannelID(channelName);
-				TwitchUtils.loadEmoteSets(channelId, ((data as tmi.UserNoticeState).tags["emote-sets"] ?? []).split(","));
+				TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? []).split(","));
 				break;
 			}
 
 			//Using this instead of the "notice" event from TMI as it's not
 			//fired for many notices whereas here we get them all
 			case "NOTICE": {
-				let [msgid, url, cmd, channel, message] = (data.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+				let [msgid, url, cmd, channel, message] = (parsed.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
 				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {

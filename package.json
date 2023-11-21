@@ -66,6 +66,7 @@
 		"grapheme-splitter": "^1.0.4",
 		"gsap": "^3.10.4",
 		"isomorphic-dompurify": "^1.9.0",
+		"lande": "^1.0.10",
 		"less-loader": "^8.0.0",
 		"lorem-ipsum": "^2.0.8",
 		"mathjs": "^11.5.1",

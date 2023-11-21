@@ -24,7 +24,7 @@ export default class Config {
 
 	public static get credentials():Credentials {
 		if(!this.credentialsCache) {
-			this.credentialsCache = JSON.parse(fs.readFileSync("credentials.json", "utf8"));
+			this.credentialsCache = JSON.parse(fs.readFileSync("credentials/credentials.json", "utf8"));
 		}
 		return this.credentialsCache;
 	}

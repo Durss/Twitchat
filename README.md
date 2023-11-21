@@ -89,7 +89,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 <br>
 
 # Project setup
-First create a `credentials.json` file on the root directory and fill in these values :
+First create a `credentials` folder on the root directory, create a `credentials.json` file inside it and fill in these values :
 ```json
 {
 	"server_port": 3018,
@@ -215,7 +215,7 @@ node server/boostrap.js
 All the following MUST be done on a seperate folder from the GIT project.\
 [Compile the project](#compile-project) and push the content of the `server` folder on your server root.\
 Next to this file, create a `public` folder and push the content of your local `dist` folder inside it.\
-Also add the `credentials.json` file at the root of the project.\
+Also add the `credentials` folder at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
 \
@@ -227,7 +227,7 @@ Here is the expected file structure:\
   ├─ utils/\
   ├─ bootstrap.js\
   ├─ env.conf\
-  ├─ credentials.json\
+  ├─ credentials\
 <br>
 <br>
 <br>

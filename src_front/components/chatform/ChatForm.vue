@@ -268,6 +268,8 @@ import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
+import PatreonHelper from '@/utils/patreon/PatreonHelper';
+import HeatSocket from '@/utils/twitch/HeatSocket';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -283,10 +285,8 @@ import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
 import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
-import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
-import PatreonHelper from '@/utils/patreon/PatreonHelper';
-import HeatSocket from '@/utils/twitch/HeatSocket';
+import TimerCountDownInfo from './TimerCountDownInfo.vue';
 
 @Component({
 	components:{

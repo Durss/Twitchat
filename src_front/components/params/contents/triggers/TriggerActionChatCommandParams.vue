@@ -163,14 +163,6 @@ export default class TriggerActionChatCommandParams extends Vue {
 			}
 		}
 	}
-
-	.permissions {
-		// margin: auto;
-	}
-
-	.grow {
-		// width: 100%;
-	}
 	.moreOptions {
 		gap: .5em;
 		display: flex;
