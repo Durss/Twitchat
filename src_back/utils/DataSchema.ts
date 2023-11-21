@@ -38,18 +38,18 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				id: {type:"string", maxLength:50},
-				type: {type:"string", maxLength:15},
-				operator: {type:"string", maxLength:15},
+				type: {const:"group"},
+				operator: {type:"string", maxLength:20},
 				conditions:{
 					type:"array",
 					minItems:0,
 					maxItems:100,
-					items: {
-						anyOf: [
-								{ $ref: "#/definitions/condition" },
-								{ $ref: "#/definitions/conditionGroup" },
-							]
-						}
+					items:{
+						type: "object",
+						if: { properties: { type: {const:"group"} } },
+						then: { $ref: "#/definitions/conditionGroup" },
+						else: { $ref: "#/definitions/condition" }
+					}
 				}
 			}
 		},
@@ -58,7 +58,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				id: {type:"string", maxLength:50},
-				type: {type:"string", maxLength:15},
+				type: {const:"condition"},
 				placeholder: {type:"string", maxLength:100},
 				operator: {type:"string", maxLength:20},
 				value: {
