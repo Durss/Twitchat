@@ -85,8 +85,8 @@ export default class TriggerActionChatCommandParams extends Vue {
 				alert:true,
 			}
 		}
-		if(typeof this.triggerData.chatCommandAliases == "string") {
-			delete this.triggerData.chatCommandAliases;
+		if(!this.triggerData.chatCommandAliases || typeof this.triggerData.chatCommandAliases == "string") {
+			this.triggerData.chatCommandAliases = [];
 		}
 	}
 

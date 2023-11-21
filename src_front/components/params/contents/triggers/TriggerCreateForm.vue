@@ -18,11 +18,13 @@
 			</template>
 		</i18n-t>
 
+		<ParamItem class="searchForm" :paramData="param_search" @change="onSearch()" />
 
+		<div class="card-item noResult" v-if="param_search.value && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 				
 		<!-- Main menu -->
-		<div class="list" v-if="!selectedTriggerType">
-			<ToggleBlock class="category"
+		<div :class="param_search.value? 'list search' : 'list'" v-if="!selectedTriggerType">
+			<component :is="param_search.value? 'div' : 'ToggleBlock'" class="category"
 			v-for="c in eventCategories"
 			:key="c.category.labelKey"
 			:title="$t(c.category.labelKey)"
@@ -30,7 +32,7 @@
 			:icons="c.category.icons"
 			v-newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id+'_'+c.newDate} : undefined">
 				<i18n-t scope="global" tag="div" class="require"
-				v-if="!musicServiceAvailable && isMusicCategory(c.category)"
+				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !param_search.value"
 				keypath="triggers.music.require">
 					<template #URL>
 						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
@@ -38,7 +40,7 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="require"
-				v-if="!obsConnected && isOBSCategory(c.category)"
+				v-if="!obsConnected && isOBSCategory(c.category) && !param_search.value"
 				keypath="triggers.obs.require">
 					<template #URL>
 						<a @click="openOBS()">{{ $t("triggers.obs.require_url") }}</a>
@@ -46,7 +48,7 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="require"
-				v-if="isCountersAndValueCategory(c.category)"
+				v-if="isCountersAndValueCategory(c.category) && !param_search.value"
 				keypath="triggers.count.require">
 					<template #URL_COUNTERS>
 						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
@@ -67,7 +69,7 @@
 						{{ $t(e.labelKey!) }}
 					</TTButton>
 				</div>
-			</ToggleBlock>
+			</component>
 		</div>
 
 		<!-- Sub menu (rewards, counters, obs sources and scenes,... ) -->
@@ -97,7 +99,7 @@
 import Button from '@/components/Button.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
-import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerActionTypes, type TriggerData, type TriggerEventTypeCategoryID, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
+import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -109,11 +111,13 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
 import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
 	components:{
 		TTButton:Button,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
+		ParamItem,
 		ToggleBlock,
 		TriggerActionList,
 	},
@@ -136,6 +140,7 @@ export default class TriggerCreateForm extends Vue {
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
 	public subtriggerList:TriggerEntry[] = [];
 	public eventCategories:TriggerCategory[] = [];
+	public param_search:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:40, placeholderKey:"global.search_placeholder"};
 	
 	private temporaryTrigger:TriggerData|null = null;
 
@@ -178,6 +183,25 @@ export default class TriggerCreateForm extends Vue {
 	}
 
 	public beforeMount():void {
+		this.populate();
+
+		watch(()=>this.obsSources, ()=> {
+			if(this.selectedTriggerType) {
+				this.selectTriggerType(this.selectedTriggerType);
+			}
+		});
+		watch(()=>this.rewards, ()=> {
+			if(this.selectedTriggerType) {
+				this.selectTriggerType(this.selectedTriggerType);
+			}
+		});
+	}
+
+	/**
+	 * Populates the form
+	 */
+	public populate():void {
+		this.eventCategories = [];
 		const triggers = TriggerTypesDefinitionList().concat();
 		//Create button/display data for all available triggers
 		let triggerTypeList:TriggerEntry[] = triggers.map( v=> {
@@ -189,7 +213,13 @@ export default class TriggerCreateForm extends Vue {
 				isCategory:false,
 				newDate:v.newDate,
 			}
-		});
+		})
+		if(this.param_search.value) {
+			const premiumSearch = this.param_search.value.toLowerCase() == "premium"
+			const reg = new RegExp(this.param_search.value, "i");
+			triggerTypeList = triggerTypeList.filter(v=> reg.test(v.label) || (premiumSearch && v.trigger?.premium === true));
+		}
+		if(triggerTypeList.length === 0) return;
 		
 		//Remove affiliates-only triggers if not affiliate or partner
 		if(!this.$store("auth").twitch.user.is_affiliate && !this.$store("auth").twitch.user.is_partner) {
@@ -232,17 +262,6 @@ export default class TriggerCreateForm extends Vue {
 			})
 			if(newDate > 0) v.newDate = newDate;
 		})
-
-		watch(()=>this.obsSources, ()=> {
-			if(this.selectedTriggerType) {
-				this.selectTriggerType(this.selectedTriggerType);
-			}
-		});
-		watch(()=>this.rewards, ()=> {
-			if(this.selectedTriggerType) {
-				this.selectTriggerType(this.selectedTriggerType);
-			}
-		});
 	}
 
 	/**
@@ -626,6 +645,10 @@ export default class TriggerCreateForm extends Vue {
 		});
 		this.subtriggerList = list;
 	}
+
+	public onSearch():void {
+		this.populate();
+	}
 }
 
 interface TriggerEntry{
@@ -665,10 +688,27 @@ interface TriggerCategory{
 		text-align: center;
 	}
 
+	.searchForm {
+		margin-bottom: 1em;
+		:deep(input){
+			text-align: center;
+		}
+	}
+
+	.noResult {
+		margin:auto;
+		text-align: center;
+		font-style: italic;
+	}
+
 	.list {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
+		
+		&.search {
+			gap: 0;
+		}
 
 		.category{
 			position: relative;
