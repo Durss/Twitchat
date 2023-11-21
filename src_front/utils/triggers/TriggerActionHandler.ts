@@ -740,13 +740,11 @@ export default class TriggerActionHandler {
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
-			let prom = queue[queue.length-1] ?? Promise.resolve();
 			queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
 			if(eventBusy) {
 				log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
-			}
-			await prom;
-			if(eventBusy) {
+				let prom = queue[queue.length-1] ?? Promise.resolve();
+				await prom;
 				log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
 			}
 		}
@@ -764,14 +762,22 @@ export default class TriggerActionHandler {
 			//Channel ID is necessary for follower check and chat message feedback is user is cooling down
 			if("user" in message && message.user
 			&& "channel_id" in message && message.channel_id) {
-				if(message.type != TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) { //Exclude it as it has a limited user type definition
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
+					//Heat click messages have a limited type definition.
+					//Get the full user from those limited data
+					executingUser = await StoreProxy.users.getUserFrom(message.platform, message.channel_id, message.user.id, message.user.login);
+				}else{
 					executingUser = message.user;
 				}
 				//check user's permissions
+				if(trigger.permissions) {
+					log.messages.push({date:Date.now(), value:"Checking if "+message.user.login+" has the permission to use this trigger"});
+				}
 				if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
 					log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is not allowed"});
 					canExecute = false;
 				}else if(trigger.cooldown){
+					log.messages.push({date:Date.now(), value:"Checking if "+message.user.login+" is on cooldown or not"});
 					//User cooldown
 					const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
 					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
@@ -835,6 +841,7 @@ export default class TriggerActionHandler {
 		let passesCondition = true;
 		//If trigger has conditions, check if the condition passes or not
 		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
+			log.messages.push({date:Date.now(), value:"Checking if conditions are fulfilled or not"});
 			if(!testMode
 			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
 				log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
@@ -861,6 +868,9 @@ export default class TriggerActionHandler {
 
 		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
 		if(!canExecute) {
+			log.messages.push({date:Date.now(), value:"❌ Trigger is not allowed to execute"});
+			passesCondition = false;
+			log.error = true;
 			if(queue.length > 0) queue.shift();
 			if(triggerResolver != null) (triggerResolver as () => void)();//Proceed to next trigger in current queue
 			return false;
@@ -2307,13 +2317,14 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for currently playing music track
 					 */
 					}else if(pointer.indexOf("__current_track__") == 0 && SpotifyHelper.instance.currentTrack) {
-						const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
+						const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys | "spotify_is_playing";
 						switch(pointerLocal) {
 							case "title": value = SpotifyHelper.instance.currentTrack.title; break;
 							case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
 							case "album": value = SpotifyHelper.instance.currentTrack.album; break;
 							case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
 							case "url": value = SpotifyHelper.instance.currentTrack.url; break;
+							case "spotify_is_playing": value = SpotifyHelper.instance.isPlaying? "true" : "false"; break;
 						}
 	
 					/**

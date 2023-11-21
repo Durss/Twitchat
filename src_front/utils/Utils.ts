@@ -290,11 +290,11 @@ export default class Utils {
 	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
 		
-		if(permissions.usersAllowed?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
+		if(permissions.usersAllowed && permissions.usersAllowed.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return true;
 		}
 		
-		if(permissions.usersRefused?.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
+		if(permissions.usersRefused && permissions.usersRefused.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return false;
 		}
 

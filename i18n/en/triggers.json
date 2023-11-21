@@ -95,7 +95,7 @@
 				"AND":"AND",
 				"OR":"OR"
 			},
-			"custom_value": "Valeur personnalisée..."
+			"custom_value": "Custom value..."
 		},
 		"slash_cmd":{
 			"param_cmd": "Command",
@@ -510,6 +510,7 @@
 			"track_search_query": "Search query",
 			"track_added_by": "Name of the user who requested to add the track",
 			"track_added_by_id": "ID of the user that requested to add the track",
+			"spotify_is_playing": "Is spotify currently playing?",
 			"train_level": "Current level",
 			"train_percent": "Current level progression (0 -> 100)",
 			"train_end_level": "Level reached",
