@@ -79,22 +79,29 @@ export default class GoogleController extends AbstractController {
 			//Google typing is wrong. Fix that mistake with this dirty typing
 			const data = res.data as {data:translate_v2.Schema$TranslationsListResponse};
 			if(data.data.translations) {
-				const translation = data.data.translations[0].translatedText
-				Logger.success("Translate success:", translation);
-				response.header('Content-Type', 'application/json');
-				response.status(200);
-				response.send(JSON.stringify({success:true, data:{translation:data.data.translations[0].translatedText}}));
+				const translation = data.data.translations[0].translatedText;
+				if(translation == params.text) {
+					Logger.success("Translate success with no change:", translation);
+					response.header('Content-Type', 'application/json');
+					response.status(204);
+					response.send(JSON.stringify({success:true, data:{translation:""}}));
+				}else{
+					Logger.success("Translate success:", translation);
+					response.header('Content-Type', 'application/json');
+					response.status(200);
+					response.send(JSON.stringify({success:true, data:{translation}}));
+				}
 			}else{
 				Logger.error("Translate failed");
 				response.header('Content-Type', 'application/json');
-				response.status(404);
-				response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"TRANSLATE_FAIL"}));
+				response.status(204);
+				response.send(JSON.stringify({success:true, data:{translation:""}}));
 			}
-			
+
 		}catch(error) {
-			Logger.error("Translate failed");
+			Logger.error("Translate failed for language "+params.langSource);
 			response.header('Content-Type', 'application/json');
-			response.status(404);
+			response.status(500);
 			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"TRANSLATE_FAIL"}));
 		};
 	}

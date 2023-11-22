@@ -2,19 +2,21 @@
 	<div class="paramslist">
 		<div class="row" v-for="(p, key) in params" :key="key" v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
 			<div :class="getClasses(p, key as string)">
-				<ParamItem :paramData="p" noBackground>
-					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="card-item alert info obsConnect">
-						<img src="@/assets/icons/alert.svg">
-						<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
-							<template #LINK>
-								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
-							</template>
-						</i18n-t>
+				<ParamItem :paramData="p" noBackground autoFade>
+					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
+						<div class="card-item alert">
+							<img src="@/assets/icons/alert.svg">
+							<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
+								<template #LINK>
+									<a @click="$store('params').openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
+								</template>
+							</i18n-t>
+						</div>
 					</div>
 				
-					<div v-else-if="p.id == 201 && p.value === true">
+					<div v-else-if="p.id == 201 && p.value === true" class="config">
 						<Button small secondary icon="date" @click="resetGreetHistory()">{{$t('greet.resetBt')}}</Button>
-						<i18n-t class="info greetThem" scope="global" tag="div"
+						<i18n-t class="greetThem" scope="global" tag="div"
 						keypath="params.firstMessage_info">
 							<template #URL>
 								<a href='https://chatters.alxios.com' target='_blank'>chatters.alxios.com</a>
@@ -22,15 +24,17 @@
 						</i18n-t>
 					</div>
 					
-					<i18n-t v-else-if="p.id == 213 && p.value === true" class="info pronouns" scope="global" tag="div"
-					keypath="params.showUserPronouns_based_on">
-						<template #URL1>
-							<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
-						</template>
-						<template #URL2>
-							<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
-						</template>
-					</i18n-t>
+					<div v-else-if="p.id == 213 && p.value === true" class="config">
+						<i18n-t class="pronouns" scope="global" tag="div"
+						keypath="params.showUserPronouns_based_on">
+							<template #URL1>
+								<a href='https://pronouns.alejo.io' target='_blank'>Alejo.io</a>
+							</template>
+							<template #URL2>
+								<a href='https://pronoundb.org/' target='_blank'>PronounDB</a>
+							</template>
+						</i18n-t>
+					</div>
 	
 					<div v-else-if="p.id == 215 && p.value === true" class="config">
 						<PostOnChatParam class="item"
@@ -56,17 +60,19 @@
 						@click="$store('chat').clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
 					</div>
 	
-					<div v-else-if="isMissingScope(p) && p.value == true" class="card-item alert info scope">
-						<img src="@/assets/icons/lock_fit.svg">
-						<p class="label">{{ $t("params.scope_missing") }}</p>
-						<Button small alert
-							class="grantBt"
-							icon="unlock"
-							@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
+					<div v-else-if="isMissingScope(p) && p.value == true" class="config">
+						<div class="card-item alert">
+							<img src="@/assets/icons/lock_fit.svg">
+							<p class="label">{{ $t("params.scope_missing") }}</p>
+							<Button small alert
+								class="grantBt"
+								icon="unlock"
+								@click="requestPermission(p.twitch_scopes!)">{{ $t('global.grant_scope') }}</Button>
+						</div>
 					</div>
 				</ParamItem>
 	
-				<div v-if="p.id == 12 && fakeMessageData">
+				<div v-if="p.id == 12 && fakeMessageData" class="config">
 					<ChatMessage class="chatMessage" :messageData="fakeMessageData" contextMenuOff />
 				</div>
 			</div>
@@ -183,6 +189,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 		let res = ["item", key];
 		if(p.icon) res.push("hasIcon");
 		if(p.value === false) res.push("off");
+		if(p.premiumOnly === true) res.push("premium");
 		if(this.isDisabled(p)) res.push("disabled");
 		return res;
 	}
@@ -205,21 +212,20 @@ export default class ParamsList extends Vue implements IParameterContent {
 	padding-top: .25em;
 	.row {
 		position: relative;
-		@iconSize: 1.25em;
+		@iconSize: 1em;
 
 		&>.item {
-			border-radius: .5em;
-			background-color: var(--background-color-fadest);
 			padding: .25em;
 			position: relative;
-			transition: opacity .2s;
+			border-radius: .5em;
+			background-color: var(--background-color-fader);
 			&:not(:first-of-type) {
 				margin-top: 10px;
 			}
 			:deep(.child) {
 				width:calc(100% - @iconSize - .5em);
 				.holder::before {
-					left: -@iconSize;
+					left: -@iconSize - .25em;
 				}
 			}
 			&.hasIcon::before {
@@ -235,10 +241,8 @@ export default class ParamsList extends Vue implements IParameterContent {
 				background-color: var(--background-color-fadest);
 			}
 
-			&.off {
-				opacity: .5;
+			&.off:not(.premium) {
 				background-color: var(--background-color-fadest);
-				// background-color: var(--color-secondary-fadest);
 			}
 
 			.chatMessage {
@@ -247,15 +251,22 @@ export default class ParamsList extends Vue implements IParameterContent {
 				border-radius: .5em;
 				transition: font-size .25s;
 			}
+			&.premium {
+				background-color: var(--color-premium-fadest);
+			}
 		}
 
 		&:not(:last-child) {
 			margin-bottom: 10px;
 		}
 
-		.info, .config {
+		.config {
 			overflow: hidden;
-			padding: 4px;
+			padding: .5em 0 0 0;
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: flex-start;
 			img {
 				height: 1em;
 				vertical-align: middle;
@@ -271,10 +282,10 @@ export default class ParamsList extends Vue implements IParameterContent {
 				}
 			}
 	
-			&.obsConnect, &.scope {
-				margin-left: calc(@iconSize + 10px);
-				padding-left: 0;
+			.alert {
+				margin-left: calc(@iconSize + .5em);
 				text-align: center;
+				align-self: stretch;
 				p {
 					font-size: .8em;
 				}
@@ -288,13 +299,18 @@ export default class ParamsList extends Vue implements IParameterContent {
 					margin: .5em auto;
 				}
 			}
-	
-			&.pronouns, &.spoiler, &.greetThem {
+			.pronouns, .spoiler, .greetThem {
 				font-size: .8em;
 				opacity: .9;
 			}
-	
 		}
+
+		.hasIcon {
+			.config {
+				padding-left: @iconSize + .5em;
+			}
+		}
+
 	}
 }
 </style>

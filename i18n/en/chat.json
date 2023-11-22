@@ -342,7 +342,8 @@
 			"unblock":"Unblock",
 			"to":"Timeout",
 			"export":"Download screen",
-			"export_clipboard":"Copy screen to clipboard"
+			"export_clipboard":"Copy screen to clipboard",
+			"translate":"Translate message"
 		},
 		"custom_badge": {
 			"label": {

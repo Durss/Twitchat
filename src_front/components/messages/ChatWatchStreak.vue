@@ -21,6 +21,7 @@
 			<div class="quote">
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
+			<MessageTranslation :messageData="messageData" />
 		</div>
 	</div>
 </template>
@@ -30,9 +31,11 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
 	components:{
+		MessageTranslation,
 		ChatMessageChunksParser,
 	},
 	emits:["onRead"]

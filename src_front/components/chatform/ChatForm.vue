@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="holder" @click="debug">
 			<div class="leftForm">
-				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1693519200000, id:'parameters'}" />
+				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1704102299000, id:'parameters_1'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
 				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store('params').appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
 				<!-- <ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
@@ -287,6 +287,7 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import lande from 'lande';
 
 @Component({
 	components:{
@@ -474,10 +475,12 @@ export default class ChatForm extends Vue {
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
 		
-		// ApiController.call("google/translate", "POST", {langSource:"en", langTarget:"fr", text:"this is a test !"}, false)
+		// console.log(lande("joyeux anniversaire !"));
+		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
+		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
+		// ApiController.call("google/translate", "POST", obj, false)
 		// .then(res=>{
 		// 	console.log("Translated", res.json.data.translation);
-
 		// });
 	}
 

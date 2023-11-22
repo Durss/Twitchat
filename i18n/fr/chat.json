@@ -342,7 +342,8 @@
 			"unblock": "Débloquer",
 			"to": "Ban temporaire",
 			"export":"Télécharger une capture",
-			"export_clipboard":"Copier une capture dans le presse-papier"
+			"export_clipboard":"Copier une capture dans le presse-papier",
+			"translate":"Traduire le message"
 		},
 		"custom_badge": {
 			"label": {

@@ -13,6 +13,10 @@ import TwitchUtils from "./twitch/TwitchUtils";
 import domtoimage from 'dom-to-image-more';
 import Utils from "./Utils";
 import Config from "./Config";
+import lande from "lande";
+import ApiController from "./ApiController";
+import Database from "@/store/Database";
+import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 
 /**
 * Created : 07/04/2023 
@@ -98,7 +102,7 @@ export default class ContextMenuHelper {
 						});
 			}
 	
-			//Trakc/untrack user
+			//Track/untrack user
 			if(user.is_tracked) {
 				options.push({ 
 							label: t("chat.context_menu.untrack"),
@@ -362,6 +366,31 @@ export default class ContextMenuHelper {
 			});
 		}
 
+		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [];
+		if(StoreProxy.auth.isPremium
+		&& TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)
+		&& !(message as TwitchatDataTypes.TranslatableMessage).translation
+		&& spokenLanguages.length > 0
+		) {
+			const translatable = message as TwitchatDataTypes.TranslatableMessage;
+			const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
+			if(text.length >= 4) {
+				const res = lande ( text );
+				const iso3 = res[0][0] as keyof typeof TranslatableLanguagesMap;
+				//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
+				//Also force english if first returned lang is Affrikaan and second is english.
+				//It detects most inglish messages as Afrikaan.
+				const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
+				if(lang && !spokenLanguages.includes(lang.iso1)) {
+					options.push({ 
+								label: t("chat.context_menu.translate"),
+								icon: this.getIcon("icons/translate.svg"),
+								onClick: () => this.translate(translatable, lang, spokenLanguages[0], text),
+							});
+				}
+			}
+		}
+
 		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 		if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
@@ -461,6 +490,27 @@ export default class ContextMenuHelper {
 				TwitchUtils.blockUser(message.user);
 			}
 		})
+	}
+
+	/**
+	 * Translates a message
+	 */
+	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], langTarget:string, text:string):void {
+		ApiController.call("google/translate", "POST", {langSource:langSource.iso1, langTarget, text:text}, false)
+		.then(res=>{
+			if(res.json.data.translation) {
+				message.translation = {
+					flagISO:langSource.flag,
+					languageCode:langSource.iso1,
+					languageName:langSource.name,
+					translation:res.json.data.translation,
+				}
+				Database.instance.updateMessage(message as TwitchatDataTypes.ChatMessageTypes);
+			}
+		}).catch((error)=>{
+			//ignore
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.no_translation"));
+		});
 	}
 
 	/**

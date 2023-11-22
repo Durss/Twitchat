@@ -79,6 +79,8 @@
 		"mergeConsecutive_maxSize": "Do not merge the message if it's longer than {VALUE} chars",
 		"mergeConsecutive_maxSizeTotal": "Maximum total size of the merged messages",
 		"mergeConsecutive_minDuration": "Merge only if duration between the 2 messages is lower than {VALUE}s",
+		"autoTranslateFirst": "Translate 1st message of a user when necessary",
+		"autoTranslateFirst_lang": "Languages you're able to read",
 		"categories": {
 			"main": "Parameters",
 			"ad": "Parameters",

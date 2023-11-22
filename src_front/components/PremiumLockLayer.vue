@@ -50,10 +50,15 @@ export default class PremiumLockLayer extends Vue {
 	.button {
 		opacity: 0;
 		transition: opacity .25s;
+		&:active {
+			//Make sure button stays centered.
+			//Button natively translateY() itself when active
+			transform: translate(-50%, calc( -50% + 2px));
+		}
 	}
 	&>.icon {
-		height: 2em !important;
-		width: 2em;
+		height: 1.75em;
+		width: 1.75em;
 		transition: opacity .25s;
 	}
 	&:hover {

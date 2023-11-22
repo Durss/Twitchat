@@ -15,14 +15,14 @@
 						<div class="search">
 							<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
 						</div>
-						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1693519200000, id:'params_chatfeatures'}">{{$t('params.categories.features')}}</Button>
+						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1704102299000, id:'params_chatfeatures_1'}">{{$t('params.categories.features')}}</Button>
 						<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1693519200000, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
 						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
 						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
-						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}">{{$t('params.categories.triggers')}}</Button>
+						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1704102299000, id:'paramsparams_triggers_1'}">{{$t('params.categories.triggers')}}</Button>
 						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues" v-newflag="{date:1693519200000, id:'paramsparams_values'}">{{$t('params.categories.values')}}</Button>
 						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
-						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays" v-newflag="{date:1698940079057, id:'params_overlays'}">{{$t('params.categories.overlays')}}</Button>
+						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays" v-newflag="{date:1704102299000, id:'params_overlays_1'}">{{$t('params.categories.overlays')}}</Button>
 						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
 						<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
 						<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>

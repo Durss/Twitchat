@@ -30,6 +30,7 @@
 			<div class="quote" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
 				<ChatMessageChunksParser :chunks="child.message_chunks" :channel="child.channel_id" :platform="child.platform" />
 			</div>
+			<MessageTranslation :messageData="messageData" />
 		</div>
 	</div>
 </template>
@@ -39,9 +40,11 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
 	components:{
+		MessageTranslation,
 		ChatMessageChunksParser,
 	},
 	emits:["onRead"],

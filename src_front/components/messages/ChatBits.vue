@@ -20,6 +20,7 @@
 			<div class="quote" v-if="messages.length > 0">
 				<span v-tooltip="messages.length > 1? mess.bits+' bits' : null" v-for="mess in messages"><ChatMessageChunksParser :chunks="mess.message_chunks" :channel="mess.channel_id" :platform="mess.platform" /></span>
 			</div>
+			<MessageTranslation :messageData="messageData" />
 		</div>
 	</div>
 </template>
@@ -30,9 +31,11 @@ import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
 	components:{
+		MessageTranslation,
 		ChatMessageChunksParser,
 	},
 	emits:["onRead"],
@@ -100,12 +103,11 @@ export default class ChatBits extends AbstractChatMessage {
 		const duration = this.messageData.pinDuration_ms / 1000;
 		const remainingDuration = Math.max(0, duration - (Date.now() - this.messageData.date)/1000);
 		fill.style.transition = "transform "+remainingDuration+"s linear";
-		fill.style.transform = "scale(100%)";
+		fill.style.transform = "scaleX(100%)";
 		setTimeout(()=> {
-			fill.style.transform = "scale(0)";
+			fill.style.transform = "scaleX(0)";
 		},100);
 	}
-
 }
 </script>
 

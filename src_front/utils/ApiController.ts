@@ -64,7 +64,7 @@ export default class ApiController {
 				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit") );
 			}
 		}else
-		if(res.status != 200 && attemptIndex < 5 && res.status != 401) {
+		if(retryOnFail && res.status != 200 && res.status != 204 && attemptIndex < 5 && res.status != 401) {
 			await Utils.promisedTimeout(1000);
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}

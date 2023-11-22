@@ -357,11 +357,19 @@ mark {
 	word-break: break-word;
 	display: block;
 	color: var(--color-text);
-	padding: 0.25em;
 	line-height: 1.2em;
 	border-radius: var(--border-radius);
 	border-left: 2px solid var(--background-color-fader);
 	background-image: linear-gradient(90deg, var(--background-color-fadest), rgba(255,255,255,0));
+	padding: .5em;
+	&.primary {
+		border-left-color: var(--color-primary-fade);
+		background-image: linear-gradient(90deg, var(--color-primary-fadest), rgba(255,255,255,0));
+	}
+	&.secondary {
+		border-left-color: var(--color-secondary-fade);
+		background-image: linear-gradient(90deg, var(--color-secondary-fadest), rgba(255,255,255,0));
+	}
 }
 
 .tippy-box[data-theme~='twitchat'] {

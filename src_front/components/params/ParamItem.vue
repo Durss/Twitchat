@@ -23,7 +23,7 @@
 				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
 					v-model="paramData.value"
 					:secondary="secondary"
-					:premium="premium"
+					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
 					:id="'toggle'+key" />
 			</div>
@@ -110,12 +110,12 @@
 				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
 				:secondary="secondary"
-				:premium="premium"
+				:premium="premiumOnlyLocal"
 				:disabled="premiumLocked || disabled !== false"
 				:alert="alert || errorLocal" />
 			</div>
 			
-			<div v-if="paramData.type == 'list'" class="holder list">
+			<div v-if="paramData.type == 'list' && paramData.multiple !== true" class="holder list">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
@@ -130,6 +130,43 @@
 						:value="a.value"
 						:disabled="a.disabled === true">{{a.label != undefined? a.label : $t(a.labelKey!)}}</option>
 				</select>
+			</div>
+			
+			<div v-if="paramData.type == 'list' && paramData.multiple === true" class="holder list">
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
+				<label :for="'editablelist'+key" v-html="label" v-tooltip="tooltip"></label>
+				<vue-select class="listField"
+					label="label"
+					ref="vueSelect"
+					:id="'editablelist'+key"
+					:placeholder="placeholder"
+					v-model="paramData.value"
+					:calculate-position="$placeDropdown"
+					@option:selected="onEdit()"
+					appendToBody
+					:options="paramData.listValues"
+					:submitSearchOnBlur="true"
+					:multiple="true"
+					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
+				>
+					<template #no-options="{ search, searching, loading }">
+						<div>{{ $t("global.empty_list1") }}</div>
+						<div>{{ $t("global.empty_list2") }}</div>
+					</template>
+
+					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+						<CountryFlag v-if="option.flag" :iso="option.flag" mode="squared" />
+						{{option.label}}
+					</template>
+
+					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
+						<CountryFlag v-if="option.flag" :iso="option.flag" mode="squared" />
+						{{option.label}}
+					</template>
+				</vue-select>
 			</div>
 			
 			<div v-if="paramData.type == 'imagelist'" class="holder list">
@@ -221,7 +258,7 @@
 			:placeholders="paramData.placeholderList"
 			v-model="paramData.value"
 			:secondary="secondary"
-			:premium="premium"
+			:premium="premiumOnlyLocal"
 			:popoutMode="placeholdersAsPopout"
 			:alert="alert || errorLocal"
 			@insert="insertPlaceholder"
@@ -233,7 +270,7 @@
 			:key="'child_'+index+c.id"
 			:paramData="c"
 			:secondary="secondary"
-			:premium="premium"
+			:premium="premiumOnlyLocal"
 			:alert="alert || errorLocal"
 			noBackground
 			:autoFade="autoFade"
@@ -266,13 +303,15 @@ import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Utils from '@/utils/Utils';
-import { isReactive, isRef, reactive } from 'vue';
+import CountryFlag from 'vue3-country-flag-icon';
+import 'vue3-country-flag-icon/dist/CountryFlag.css';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
 	components:{
 		Button,
 		Slider,
+		CountryFlag,
 		ToggleButton,
 		PremiumLockLayer,
 		PlaceholderSelector,
@@ -336,6 +375,7 @@ export default class ParamItem extends Vue {
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
 	public errorLocal:boolean = false
+	public premiumOnlyLocal:boolean = false
 	public autofocusLocal:boolean = false
 
 	private isLocalUpdate:boolean = false;
@@ -353,18 +393,18 @@ export default class ParamItem extends Vue {
 		return (this.$slots.default != undefined || this.$slots.child != undefined) && state;
 	}
 
-	public get premiumLocked():boolean { return this.premium !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
+	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
 
 	public get classes():string[] {
 		const res = ["paramitem"];
 		if(this.noBackground === false) {
 			res.push("card-item");
-			if(this.premium !== false) res.push("premium");
-			if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
-			if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
+			if(this.premiumOnlyLocal !== false) res.push("premium");
 		}else{
 			res.push("no-bg");
 		}
+		if(this.paramData.type == "boolean" && this.paramData.value !== true) res.push("unselected");
+		if(this.paramData.type == "string" && this.paramData.value !== "") res.push("unselected");
 		if(this.errorLocal !== false) res.push("error");
 		else if(this.paramData.twitch_scopes && !TwitchUtils.hasScopes(this.paramData.twitch_scopes)) res.push("error");
 		if(this.longText) res.push("longText");
@@ -483,6 +523,7 @@ export default class ParamItem extends Vue {
 
 	public beforeMount(): void {
 		this.autofocusLocal = this.autofocus;
+		this.premiumOnlyLocal = this.premium !== false || this.paramData.premiumOnly === true;
 		this.setErrorState(this.error || this.paramData.error === true);
 		
 		if(this.modelValue !== null
@@ -520,7 +561,7 @@ export default class ParamItem extends Vue {
 		
 		this.buildChildren();
 		
-		if(this.paramData.listValues && this.paramData.listValues.length > 0) {
+		if(this.paramData.listValues && this.paramData.listValues.length > 0 && this.paramData.multiple !== true) {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
 			if(!this.paramData.listValues.find(v=>v.value === this.paramData.value)) {
@@ -801,7 +842,9 @@ export default class ParamItem extends Vue {
 	}
 
 	&.unselected.autoFade {
-		opacity: .4;
+		.content {
+			opacity: .5;
+		}
 	}
 
 	&.maxLength {
@@ -841,6 +884,7 @@ export default class ParamItem extends Vue {
 			height: 1em;
 			align-self: flex-start;
 			margin-right: .5em;
+			flex-shrink: 0;
 		}
 		
 

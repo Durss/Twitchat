@@ -44,6 +44,7 @@
 		"clear": "Effacer",
 		"refresh": "Recharger",
 		"contact": "Contact : {MAIL}",
+		"translation": "Traduction",
 		"join_discordBt": "Rejoindre Discord",
 		"alert_support": "Rejoinez le serveur Discord Twitchat pour demander de l'aide :",
 		"obs_connect": "Cette fonctionnalité nécessite de {LINK}",

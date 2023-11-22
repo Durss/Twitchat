@@ -778,12 +778,14 @@ export const storeMain = defineStore("main", {
 						const pointer = sParams.$state[c][k as TwitchatDataTypes.ParameterCategory];
 						if(typeof pointer.value === 'boolean') {
 							pointer.value = (v == "true");
-						}
+						}else
 						if(typeof pointer.value === 'string') {
 							pointer.value = v;
-						}
+						}else
 						if(typeof pointer.value === 'number') {
 							pointer.value = parseFloat(v);
+						}else{
+							pointer.value = JSON.parse(v);
 						}
 					}
 				}

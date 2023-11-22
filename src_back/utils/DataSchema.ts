@@ -665,6 +665,13 @@ import Ajv from "ajv";
 		"p:mergeConsecutive_maxSize": {type:"integer", minimum:1, maximum:500},
 		"p:mergeConsecutive_maxSizeTotal": {type:"integer", minimum:10, maximum:2000},
 		"p:mergeConsecutive_minDuration": {type:"integer", minimum:0, maximum:3600},
+		"p:autoTranslateFirst": {type:"boolean"},
+		"p:autoTranslateFirstLang":{
+			type:"array",
+			minItems:0,
+			maxItems:60,
+			items:{type:"string", maxLength:3},
+		},
 		v: {type:"number"},
 		collapseParamAdInfo: {type:"boolean"},
 		lang: {type:"string", maxLength:4},

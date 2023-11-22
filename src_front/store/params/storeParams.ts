@@ -13,6 +13,7 @@ import type { IParamsActions, IParamsGetters, IParamsState } from '../StoreProxy
 import StoreProxy from '../StoreProxy';
 import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
+import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -27,6 +28,8 @@ export const storeParams = defineStore('params', {
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			saveHistory: 				{save:true, type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history", storage:{vnew:{date:1693519200000, id:'params_chathistory'}}},
+			autoTranslateFirst: 		{save:true, type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:1704102299000, id:'params_translate'}}, premiumOnly:true},
+			autoTranslateFirstLang:		{save:true, type:"list", value:["en"] as string[], multiple:true, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:230, parent:229, icon:"voice", storage:{vnew:{date:1693519200000, id:'params_translate'}}},
 			mergeConsecutive:	 		{save:true, type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},
 			mergeConsecutive_maxSize:	{save:true, type:"number", value:100, labelKey:"params.mergeConsecutive_maxSize", id:226, parent:225, min:1, max:500},
 			mergeConsecutive_maxSizeTotal:{save:true, type:"number", value:1000, labelKey:"params.mergeConsecutive_maxSizeTotal", id:227, parent:225, min:10, max:2000},

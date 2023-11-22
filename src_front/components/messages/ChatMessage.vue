@@ -89,6 +89,7 @@
 					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 				</span>
 				<span class="deleted" v-if="getDeletedMessage(messageData)">{{getDeletedMessage(messageData)}}</span>
+				<MessageTranslation class="textTranslation" :messageData="messageData" />
 			</span>
 			
 			<span :class="getChildMessageClasses(m)"
@@ -153,12 +154,14 @@ import AbstractChatMessage from './AbstractChatMessage.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
+import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
 	components:{
 		Button,
 		ChatModTools,
 		CustomUserBadges,
+		MessageTranslation,
 		ChatMessageInfoBadges,
 		ChatMessageChunksParser,
 	},
@@ -728,11 +731,12 @@ export default class ChatMessage extends AbstractChatMessage {
 
 		&.deleted, .messageChild.deleted {
 			.message, &.messageChild.deleted {
-				.text { display: none; }
+				.text, .textTranslation { display: none; }
 			}
 			&:hover{
 				.message, &.messageChild {
 					.text { display: inline; }
+					.textTranslation { display: block; }
 					.deleted { display: none; }
 				}
 			}

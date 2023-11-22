@@ -405,6 +405,10 @@ export namespace TwitchatDataTypes {
 		 */
 		options?:string[];
 		/**
+		 * Can select multiple entries for "list" type ?
+		 */
+		multiple?:boolean;
+		/**
 		 * Disable input to only keep title (used for shoutout param)
 		 */
 		noInput?:boolean;
@@ -514,6 +518,10 @@ export namespace TwitchatDataTypes {
 		 */
 		disabled?:boolean;
 		/**
+		 * Defines if user must be premium to set this parameter
+		 */
+		premiumOnly?:boolean;
+		/**
 		 * Show an error state
 		 */
 		error?:boolean;
@@ -527,11 +535,30 @@ export namespace TwitchatDataTypes {
 		editCallback?:(data:ParameterData<T, U, V, W>) => void;
 	}
 	export interface ParameterDataListValue<T> {
+		/**
+		 * Raw text label
+		 */
 		label?:string;
+		/**
+		 * i18n key of the labal
+		 */
 		labelKey?:string;
+		/**
+		 * Value of the entry
+		 */
 		value:T;
-		icon?:string;
+		/**
+		 * Is entry disabled?
+		*/
 		disabled?:boolean;
+		/**
+		 * Icon name of the entry
+		 */
+		icon?:string;
+		/**
+		 * Flag ISO code. Only used by the ParamItem with "list" type and "multiple" flag on
+		 */
+		flag?:string;
 		// [parameter: string]: unknown;
 	}
 
@@ -2047,9 +2074,17 @@ export namespace TwitchatDataTypes {
 	export interface TranslatableMessage {
 		translation?:{
 			/**
-			 * Original language
+			 * ISO 639-1 code for the flag icon
 			 */
-			lang:string;
+			flagISO:string;
+			/**
+			 * Original ISO 639-1 language code
+			 */
+			languageCode:string;
+			/**
+			 * Original language name
+			 */
+			languageName:string;
 			/**
 			 * Translated message
 			 */
