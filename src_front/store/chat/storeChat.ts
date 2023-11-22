@@ -775,7 +775,8 @@ export const storeChat = defineStore('chat', {
 								Database.instance.updateMessage(message);
 							}
 						}).catch((error)=>{
-							//ignore
+							translatable.translation_failed = true;
+							Database.instance.updateMessage(message);
 						});
 					}
 				}

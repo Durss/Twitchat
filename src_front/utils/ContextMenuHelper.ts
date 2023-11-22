@@ -511,7 +511,8 @@ export default class ContextMenuHelper {
 				Database.instance.updateMessage(message as TwitchatDataTypes.ChatMessageTypes);
 			}
 		}).catch((error)=>{
-			//ignore
+			message.translation_failed = true;
+			Database.instance.updateMessage(message as TwitchatDataTypes.ChatMessageTypes);
 			StoreProxy.main.alert(StoreProxy.i18n.t("error.no_translation"));
 		});
 	}

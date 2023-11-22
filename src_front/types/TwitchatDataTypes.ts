@@ -2092,6 +2092,10 @@ export namespace TwitchatDataTypes {
 			translation:string;
 		}
 		/**
+		 * Set to true if translation gave nothing or an error
+		 */
+		translation_failed?:boolean;
+		/**
 		 * Text message content
 		 */
 		message?:string;
