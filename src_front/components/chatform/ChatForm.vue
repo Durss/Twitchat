@@ -474,6 +474,11 @@ export default class ChatForm extends Vue {
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
 		
+		// ApiController.call("google/translate", "POST", {langSource:"en", langTarget:"fr", text:"this is a test !"}, false)
+		// .then(res=>{
+		// 	console.log("Translated", res.json.data.translation);
+
+		// });
 	}
 
 	public beforeUnmount():void {

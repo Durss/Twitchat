@@ -24,7 +24,7 @@ export default class Config {
 
 	public static get credentials():Credentials {
 		if(!this.credentialsCache) {
-			this.credentialsCache = JSON.parse(fs.readFileSync("credentials/credentials.json", "utf8"));
+			this.credentialsCache = JSON.parse(fs.readFileSync(this.CREDENTIALS_ROOT+"credentials.json", "utf8"));
 		}
 		return this.credentialsCache;
 	}
@@ -80,6 +80,14 @@ export default class Config {
 			dev: path.join(__dirname, "/../../dist/"),
 			beta: path.join(__dirname, "../public/"),
 			prod: path.join(__dirname, "../public/"),
+		});
+	}
+
+	public static get CREDENTIALS_ROOT(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../credentials/"),
+			beta: path.join(__dirname, "../credentials/"),
+			prod: path.join(__dirname, "../credentials/"),
 		});
 	}
 
@@ -252,6 +260,8 @@ interface Credentials {
 	patreon_webhook_secret:string;
 
 	tenor_secret:string;
+	youtube_key:string;
+	google_key:string;
 
 	paypal_client_id:string;
 	paypal_client_secret:string;

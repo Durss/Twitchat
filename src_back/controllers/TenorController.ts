@@ -39,7 +39,13 @@ export default class TenorController extends AbstractController {
 	* PRIVATE METHODS *
 	*******************/
 
-	public async getSearchGif(request:FastifyRequest, response:FastifyReply):Promise<void> {
+	/**
+	 * Search for GIFs
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
+	private async getSearchGif(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		//If a query has been executed less than the "rateLimit" duration ago, add the
 		//request to queue.
 		if(Date.now() - this.lastApiCallDate < this.rateLimit) {

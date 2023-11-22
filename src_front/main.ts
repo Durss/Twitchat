@@ -70,8 +70,9 @@ if(sLang) lang = sLang;
 const i18n = createI18n({
 	locale:lang,
 	fallbackLocale: 'en',
-	fallbackWarn:false,
-	warnHtmlInMessage: 'off',
+	warnHtmlInMessage:'off',
+	silentFallbackWarn:!Config.instance.IS_PROD,
+	silentTranslationWarn:!Config.instance.IS_PROD,
 	// modifiers:{
 	// 	strong:(str)=> "<strong>"+str+"</strong>",
 	// }

@@ -2032,11 +2032,48 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatUser;
 	}
+	
+
+	export type TranslatableMessageTypes = Extract<ChatMessageTypes, {translation?:TranslatableMessage["translation"]}>["type"];
+	//Ensure the object contains all requested keys
+	export const TranslatableMessageTypesString:Record<TranslatableMessageTypes, boolean> = {
+		cheer:true,
+		reward:true,
+		whisper:true,
+		message:true,
+		subscription:true,
+		user_watch_streak:true,
+	}
+	export interface TranslatableMessage {
+		translation?:{
+			/**
+			 * Original language
+			 */
+			lang:string;
+			/**
+			 * Translated message
+			 */
+			translation:string;
+		}
+		/**
+		 * Text message content
+		 */
+		message?:string;
+		/**
+		 * Message splitted by chunks types (text, url and emote)
+		 */
+		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		/**
+		 * Message content as HTML
+		 * All emotes are replaced by HTML tags
+		 */
+		message_html?:string;
+	}
 
 	/**
 	 * A regular user's message
 	 */
-	export interface MessageChatData extends GreetableMessage, MergeableMessage {
+	export interface MessageChatData extends GreetableMessage, MergeableMessage, TranslatableMessage {
 		type:"message";
 		/**
 		 * Channel ID the message has been posted in
@@ -2182,7 +2219,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Whisper message 
 	 */
-	export interface MessageWhisperData extends AbstractTwitchatMessage {
+	export interface MessageWhisperData extends AbstractTwitchatMessage, TranslatableMessage {
 		type:"whisper";
 		channel_id:string;
 		/**
@@ -2373,7 +2410,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a new subscription message
 	 */
-	export interface MessageSubscriptionData extends GreetableMessage {
+	export interface MessageSubscriptionData extends GreetableMessage, TranslatableMessage {
 		channel_id: string;
 		type:"subscription";
 		/**
@@ -2445,7 +2482,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a bits data
 	 */
-	export interface MessageCheerData extends GreetableMessage, MergeableMessage {
+	export interface MessageCheerData extends GreetableMessage, MergeableMessage, TranslatableMessage {
 		channel_id: string;
 		type:"cheer";
 		/**
@@ -2493,7 +2530,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a reward redeem message
 	 */
-	export interface MessageRewardRedeemData extends GreetableMessage, MergeableMessage {
+	export interface MessageRewardRedeemData extends GreetableMessage, MergeableMessage, TranslatableMessage {
 		channel_id: string;
 		type:"reward";
 		/**
@@ -3393,7 +3430,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a user watch streak
 	 */
-	export interface MessageWatchStreakData extends GreetableMessage {
+	export interface MessageWatchStreakData extends GreetableMessage, TranslatableMessage {
 		type:"user_watch_streak";
 		/**
 		 * User that created the marker

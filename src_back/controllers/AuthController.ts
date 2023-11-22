@@ -25,12 +25,6 @@ export default class AuthController extends AbstractController {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	
-	
-	
-	/*******************
-	* PRIVATE METHODS *
-	*******************/
 	public async initialize():Promise<void> {
 		this.server.get('/api/auth/twitch', async (request, response) => await this.twitchAuth(request, response));
 		this.server.get('/api/auth/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
@@ -44,6 +38,12 @@ export default class AuthController extends AbstractController {
 		this.server.get('/api/refreshtoken', async (request, response) => await this.refreshToken(request, response, true));
 		this.server.get('/api/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
 	}
+	
+	
+	
+	/*******************
+	* PRIVATE METHODS *
+	*******************/
 
 	/**
 	 * Generates an access token from an auth code for a Twitch session
@@ -51,7 +51,7 @@ export default class AuthController extends AbstractController {
 	 * @param {*} request 
 	 * @param {*} response 
 	 */
-	async twitchAuth(request:FastifyRequest, response:FastifyReply) {
+	private async twitchAuth(request:FastifyRequest, response:FastifyReply) {
 		const params = URL.parse(request.url, true).query;
 		
 		let url = "https://id.twitch.tv/oauth2/token";

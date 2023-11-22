@@ -297,5 +297,13 @@ type ApiEndpoints =  {
 			errorCode?:string;
 			data: {orderId:string},
 		}
+	},
+	"google/translate": {
+		POST: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
+			data:{translation?:string},
+		}
 	}
 }
