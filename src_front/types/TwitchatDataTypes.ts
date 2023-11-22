@@ -434,7 +434,8 @@ export namespace TwitchatDataTypes {
 		 */
 		step?:number;
 		/**
-		 * Maximum text length for "string" type
+		 * Maximum text length for "string" type or max items for "list" type
+		 * with "multiple" enabled
 		 */
 		maxLength?:number;
 		/**

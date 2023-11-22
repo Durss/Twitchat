@@ -80,7 +80,8 @@
 		"mergeConsecutive_maxSizeTotal": "Longueur maximale totale des messages fusionnés",
 		"mergeConsecutive_minDuration": "Fusionner uniquement si moins de {VALUE}s séparent les messages",
 		"autoTranslateFirst": "Traduire le 1er message d'une personne si nécessaire",
-		"autoTranslateFirst_lang": "Langues que vous savez lire",
+		"autoTranslateFirst_lang": "Langue dans laquelle traduire",
+		"autoTranslateFirst_spoken": "Langues que vous savez lire",
 		"categories": {
 			"main": "Paramètres",
 			"ad": "Paramètres",

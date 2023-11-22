@@ -748,8 +748,10 @@ export const storeChat = defineStore('chat', {
 			//Live translation if first message of the day
 			if(isTodaysFirst && sAuth.isPremium
 			&& sParams.features.autoTranslateFirst.value === true
+			&& sParams.features.autoTranslateFirstLang.value
+			&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0
 			&& TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
-				const spokenLanguages = sParams.features.autoTranslateFirstLang.value as string[] || [];
+				const spokenLanguages = sParams.features.autoTranslateFirstSpoken.value as string[] || [];
 				const translatable = message as TwitchatDataTypes.TranslatableMessage;
 				const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";
 				if(text.length >= 4 && spokenLanguages.length > 0) {
@@ -760,7 +762,8 @@ export const storeChat = defineStore('chat', {
 					//It detects most inglish messages as Afrikaan.
 					const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 					if(lang && !spokenLanguages.includes(lang.iso1)) {
-						ApiController.call("google/translate", "POST", {langSource:lang.iso1, langTarget:spokenLanguages[0], text:text}, false)
+						const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
+						ApiController.call("google/translate", "POST", {langSource:lang.iso1, langTarget, text:text}, false)
 						.then(res=>{
 							if(res.json.data.translation) {
 								translatable.translation = {

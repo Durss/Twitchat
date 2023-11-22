@@ -669,6 +669,12 @@ import Ajv from "ajv";
 		"p:autoTranslateFirstLang":{
 			type:"array",
 			minItems:0,
+			maxItems:1,
+			items:{type:"string", maxLength:3},
+		},
+		"p:autoTranslateFirstSpoken":{
+			type:"array",
+			minItems:0,
 			maxItems:60,
 			items:{type:"string", maxLength:3},
 		},

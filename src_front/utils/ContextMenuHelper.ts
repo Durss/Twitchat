@@ -366,8 +366,10 @@ export default class ContextMenuHelper {
 			});
 		}
 
-		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [];
+		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstSpoken.value as string[] || [];
+		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [])[0];
 		if(StoreProxy.auth.isPremium
+		&& langTarget
 		&& TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)
 		&& !(message as TwitchatDataTypes.TranslatableMessage).translation
 		&& spokenLanguages.length > 0
@@ -385,7 +387,7 @@ export default class ContextMenuHelper {
 					options.push({ 
 								label: t("chat.context_menu.translate"),
 								icon: this.getIcon("icons/translate.svg"),
-								onClick: () => this.translate(translatable, lang, spokenLanguages[0], text),
+								onClick: () => this.translate(translatable, lang, text),
 							});
 				}
 			}
@@ -495,7 +497,8 @@ export default class ContextMenuHelper {
 	/**
 	 * Translates a message
 	 */
-	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], langTarget:string, text:string):void {
+	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
+		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
 		ApiController.call("google/translate", "POST", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.json.data.translation) {

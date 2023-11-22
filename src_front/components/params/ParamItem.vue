@@ -150,6 +150,7 @@
 					:options="paramData.listValues"
 					:submitSearchOnBlur="true"
 					:multiple="true"
+					:selectable="() => (paramData.value as unknown[] || []).length < (paramData.maxLength || 999)"
 					:reduce="(v:TwitchatDataTypes.ParameterDataListValue<unknown>) => v.value"
 				>
 					<template #no-options="{ search, searching, loading }">
