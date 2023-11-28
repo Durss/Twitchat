@@ -1,7 +1,7 @@
 import StoreProxy from '@/store/StoreProxy'
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
 import Utils from '@/utils/Utils'
-import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes'
+import type { SpotifyAuthResult } from '@/types/spotify/SpotifyDataTypes'
 import Chat from '@/views/Chat.vue'
 import Home from '@/views/Home.vue'
 import Logout from '@/views/Logout.vue'
@@ -150,6 +150,29 @@ const routes: Array<RouteRecordRaw> = [
 				}
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				sPatreon.setPatreonAuthResult(params);
+			}else{
+				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );
+			}
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
+		path: '/youtube/auth',
+		name: 'youtube/auth',
+		redirect:() => {
+			const sMain = StoreProxy.main;
+			const sParams = StoreProxy.params;
+			const sYoutube = StoreProxy.youtube;
+			if(Utils.getQueryParameterByName("code")) {
+				const params = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+				sYoutube.setYoutubeAuthResult(params);
 			}else{
 				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );
 			}

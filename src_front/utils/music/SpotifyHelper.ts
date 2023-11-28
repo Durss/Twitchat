@@ -9,7 +9,7 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import ApiController from "../ApiController";
-import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "./SpotifyDataTypes";
+import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
 
 /**
 * Created : 23/05/2022 

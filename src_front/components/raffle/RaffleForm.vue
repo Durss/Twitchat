@@ -22,8 +22,11 @@
 
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
-				<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" />
-				<div class="card-item">
+
+				<ParamItem class="duration" :paramData="command_value" :autofocus="true" v-if="triggerMode !== false" />
+				<ParamItem class="duration" :paramData="command" :autofocus="true" @change="onValueChange()" v-else />
+
+				<div class="card-item" v-if="triggerMode === false">
 					<ParamItem noBackground :paramData="reward" :autofocus="true" @change="onValueChange()" v-if="reward_value.listValues!.length > 1" />
 					<div class="tips">
 						<img src="@/assets/icons/info.svg">
@@ -190,15 +193,15 @@ export default class RaffleForm extends AbstractSidePanel {
 
 	public mode:"chat"|"sub"|"manual" = "chat";
 		
-	public command:TwitchatDataTypes.ParameterData<boolean>					= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
+	public command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
 	public command_value:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public reward:TwitchatDataTypes.ParameterData<boolean>					= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
+	public reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
 	public reward_value:TwitchatDataTypes.ParameterData<string>				= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
 	public enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
-	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
+	public maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
 	public maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
 	public multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join"};
-	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
+	public ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
 	public ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
 	public ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};
 	public ponderateVotes_subT2:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_subT2", twitch_scopes:[TwitchScopes.LIST_SUBSCRIBERS]};
@@ -304,8 +307,8 @@ export default class RaffleForm extends AbstractSidePanel {
 				this.command.value = this.action.raffleData.command != undefined;
 				this.command_value.value = this.action.raffleData.command || "";
 				this.enterDuration.value = this.action.raffleData.duration_s/60;
-				this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 				this.maxUsersToggle.value = this.maxEntries.value > 0;
+				this.maxEntries.value = this.action.raffleData.maxEntries ?? 0;
 				this.multipleJoin.value = this.action.raffleData.multipleJoin === true;
 				this.reward.value = this.action.raffleData.reward_id != undefined;
 				this.reward_value.value = this.action.raffleData.reward_id || "";
@@ -369,6 +372,7 @@ export default class RaffleForm extends AbstractSidePanel {
 		watch(()=>this.ponderateVotes_subT2.value, () => this.onValueChange());
 		watch(()=>this.ponderateVotes_subT3.value, () => this.onValueChange());
 		watch(()=>this.ponderateVotes_subgift.value, () => this.onValueChange());
+		watch(()=>this.maxEntries.value, () => this.onValueChange());
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList();
@@ -425,6 +429,7 @@ export default class RaffleForm extends AbstractSidePanel {
 
 	public onValueChange():void {
 		if(this.action) {
+			if(this.triggerMode !== false) this.command.value = true;
 			this.action.raffleData = this.finalData;
 		}
 	}

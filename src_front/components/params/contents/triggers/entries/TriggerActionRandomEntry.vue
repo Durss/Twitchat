@@ -133,7 +133,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	declare triggerData:TriggerData;
 
 	public itemValue:string = "";
-	public itemChunks:TwitchDataTypes.ParseMessageChunk[][] = [];
+	public itemChunks:TwitchatDataTypes.ParseMessageChunk[][] = [];
 	public buildIndex:number = 0;
 	public disposed:boolean = false;
 	public openTriggerList:boolean = false;
@@ -181,7 +181,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 		this.buildNextListBatch();
 	}
 
-	public getChunksFromItem(src:string):TwitchDataTypes.ParseMessageChunk[] {
+	public getChunksFromItem(src:string):TwitchatDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(src, undefined, true);
 	}
 

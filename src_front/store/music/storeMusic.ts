@@ -1,4 +1,4 @@
-import type { SpotifyAuthResult } from '@/utils/music/SpotifyDataTypes';
+import type { SpotifyAuthResult } from '@/types/spotify/SpotifyDataTypes';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';

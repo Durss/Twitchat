@@ -12,7 +12,7 @@
 		</template>
 		
 		<tooltip v-else-if="(chunk.type == 'emote' || chunk.type == 'cheermote') && $store('params').appearance.showEmotes.value !== false"
-		:content="'<img src='+chunk.emoteHD+' width=\'112\' class=\'emote\'><br><center>'+chunk.value+'</center>'">
+		:content="chunk.emoteHD? '<center><img src='+chunk.emoteHD+' width=\'112\' class=\'emote\'><br>'+chunk.value+'</center>' : ''">
 			<img :src="chunk.emote" :class='chunk.type' :alt="chunk.value" loading="lazy">
 		</tooltip>
 
@@ -27,7 +27,6 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import type { StyleValue } from 'vue';
@@ -46,9 +45,9 @@ export default class ChatMessageChunksParser extends Vue {
 	public channel!:string;
 
 	@Prop
-	public chunks!:TwitchDataTypes.ParseMessageChunk[];
+	public chunks!:TwitchatDataTypes.ParseMessageChunk[];
 
-	public copyLink(e:MouseEvent, chunk:TwitchDataTypes.ParseMessageChunk):void {
+	public copyLink(e:MouseEvent, chunk:TwitchatDataTypes.ParseMessageChunk):void {
 		Utils.copyToClipboard(chunk.value);
 		e.stopPropagation();
 		gsap.fromTo(e.currentTarget, {scale:1.5, filter:"brightness(4)"}, {scale:1, filter:"brightness(1)", duration:0.2, clearProps:"all"});

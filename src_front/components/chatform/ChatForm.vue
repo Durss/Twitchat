@@ -262,7 +262,6 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import ApiController from '@/utils/ApiController';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
@@ -287,7 +286,6 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import lande from 'lande';
 
 @Component({
 	components:{
@@ -356,12 +354,12 @@ export default class ChatForm extends Vue {
 		return this.$store('stream').currentStreamInfo[this.$store("auth").twitch.user.id];
 	}
 
-	public get announcementTitle():TwitchDataTypes.ParseMessageChunk[] {
+	public get announcementTitle():TwitchatDataTypes.ParseMessageChunk[] {
 		const title = this.announcement!.title[this.$i18n.locale] || this.announcement!.title["en"];
 		return TwitchUtils.parseMessageToChunks(title, undefined, true);
 	}
 
-	public get announcementMessage():TwitchDataTypes.ParseMessageChunk[] {
+	public get announcementMessage():TwitchatDataTypes.ParseMessageChunk[] {
 		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"];
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}

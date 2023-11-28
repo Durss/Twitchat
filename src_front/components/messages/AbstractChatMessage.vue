@@ -236,8 +236,8 @@ export default class AbstractChatMessage extends Vue {
 	 * Opens up a user card
 	 * @param user 
 	 */
-	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string):void {
-		this.$store("users").openUserCard(user, chanId);
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string, platform?:TwitchatDataTypes.ChatPlatform):void {
+		this.$store("users").openUserCard(user, chanId, platform);
 	}
 
 	/**

@@ -1829,6 +1829,7 @@ export default class MessageList extends Vue {
 			width: 100%;
 			height: 10000px;
 			background: var(--grayout);
+			// background: var(--color-dark);
 			border-bottom: 2px solid var(--splitter-color);
 			box-shadow: 0px 0 5px 0px rgba(0, 0, 0, .5);
 			position: absolute;

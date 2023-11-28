@@ -4,13 +4,14 @@ import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import type { SpotifyAuthResult, SpotifyAuthToken } from "@/utils/music/SpotifyDataTypes";
+import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 
 /**
 * Created : 23/09/2022 
@@ -45,6 +46,7 @@ export default class StoreProxy {
 	public static rewards:IRewardsState & IRewardsGetters & IRewardsActions & {$state:IRewardsState, $reset:()=>void};
 	public static heat:IHeatState & IHeatGetters & IHeatActions & {$state:IHeatState, $reset:()=>void};
 	public static patreon:IPatreonState & IPatreonGetters & IPatreonActions & {$state:IPatreonState, $reset:()=>void};
+	public static youtube:IYoutubeState & IYoutubeGetters & IYoutubeActions & {$state:IYoutubeState, $reset:()=>void};
 	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
@@ -424,7 +426,7 @@ export interface IChatActions {
 	/**
 	 * Preload message history from IndexedDB
 	 */
-	preloadMessageHistory():void;
+	preloadMessageHistory():Promise<void>;
 	/**
 	 * Clears database history message history from IndexedDB
 	 */
@@ -1335,6 +1337,7 @@ export interface IUsersState {
 	userCard: {
 		user:TwitchatDataTypes.TwitchatUser|null,
 		channelId?:string,
+		platform?:TwitchatDataTypes.ChatPlatform,
 	}|null;
 	/**
 	 * Contains custom user names used for display on place of the actual username
@@ -1518,7 +1521,7 @@ export interface IUsersActions {
 	 * @param user 
 	 * @param channelId 
 	 */
-	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string):void;
+	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string, platform?:TwitchatDataTypes.ChatPlatform):void;
 	/**
 	 * Load my following list
 	 */
@@ -1885,4 +1888,26 @@ export interface IValuesActions {
 	 * @param  
 	 */
 	saveValues():void;
+}
+
+
+
+
+export interface IYoutubeState {
+	/**
+	 * Youtube app params
+	 */
+	youtubeAuthParams: YoutubeAuthResult|null;
+	/**
+	 * Current Youtube auth token
+	 */
+	youtubeAuthToken: YoutubeAuthToken|null;
+}
+
+export interface IYoutubeGetters {
+}
+
+export interface IYoutubeActions {
+	setYoutubeAuthResult(value:{code:string,csrf:string}|null):void;
+	authenticate():Promise<boolean>;
 }

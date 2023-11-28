@@ -1,15 +1,14 @@
+import Database from '@/store/Database';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from "lorem-ipsum";
 import { EventDispatcher } from "../../events/EventDispatcher";
 import Config from '../Config';
 import Utils from "../Utils";
+import TriggerActionHandler from '../triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
-import TriggerActionHandler from '../triggers/TriggerActionHandler';
-import Database from '@/store/Database';
 
 /**
 * Created : 13/01/2022 
@@ -680,7 +679,7 @@ export default class PubSub extends EventDispatcher {
 			}
 			
 			//Build usable emotes set
-			let chunks:TwitchDataTypes.ParseMessageChunk[] = [];
+			let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 			let words:string[] = [];
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const el = localObj.message.content.fragments[i];

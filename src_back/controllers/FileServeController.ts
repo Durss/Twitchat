@@ -12,7 +12,8 @@ import {Readable} from "stream";
 */
 export default class FileServeController extends AbstractController {
 
-	private cachedAnnouncements:string = "[]";
+	private announcements_cache:string = "[]";
+	private config_cache:string = "";
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -52,7 +53,7 @@ export default class FileServeController extends AbstractController {
 
 		//Initialize cache
 		if(fs.existsSync(Config.ANNOUNCEMENTS_PATH)) {
-			this.cachedAnnouncements = fs.readFileSync(Config.ANNOUNCEMENTS_PATH, "utf-8");
+			this.announcements_cache = fs.readFileSync(Config.ANNOUNCEMENTS_PATH, "utf-8");
 		}
 	}
 	
@@ -77,28 +78,42 @@ export default class FileServeController extends AbstractController {
 	}
 
 	private getConfigs(request:FastifyRequest, response:FastifyReply):void {
+		let config = this.config_cache;
+		if(!config) {
+			const json = {
+				twitch_client_id:Config.credentials.twitch_client_id,
+				twitch_scopes:Config.credentials.twitch_scopes,
+		
+				spotify_scopes:Config.credentials.spotify_scopes,
+				spotify_client_id:Config.credentials.spotify_client_id,
+				
+				patreon_client_id:Config.credentials.patreon_client_id,
+				patreon_scopes:Config.credentials.patreon_scopes,
+				
+				paypal_client_id:Config.credentials.paypal_client_id,
+				
+				contact_mail:Config.credentials.contact_mail,
+
+				youtube_client_id:"",
+				youtube_scopes:[] as string[],
+			};
+				
+			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;
+			if(youtubeCredentials) {
+				json.youtube_client_id = youtubeCredentials.client_id;
+				json.youtube_scopes = Config.credentials.youtube_scopes;
+			}
+			this.config_cache = config = JSON.stringify(json);
+		}
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(JSON.stringify({
-			twitch_client_id:Config.credentials.twitch_client_id,
-			twitch_scopes:Config.credentials.twitch_scopes,
-	
-			spotify_scopes:Config.credentials.spotify_scopes,
-			spotify_client_id:Config.credentials.spotify_client_id,
-			
-			patreon_client_id:Config.credentials.patreon_client_id,
-			patreon_scopes:Config.credentials.patreon_scopes,
-			
-			paypal_client_id:Config.credentials.paypal_client_id,
-			
-			contact_mail:Config.credentials.contact_mail,
-		}));
+		response.send(config);
 	}
 
 	private getAnnouncements(request:FastifyRequest, response:FastifyReply):void {
 		response.header('Content-Type', 'application/json');
 		response.status(200);
-		response.send(this.cachedAnnouncements);
+		response.send(this.announcements_cache);
 	}
 
 	private postAnnouncement(request:FastifyRequest, response:FastifyReply):void {
@@ -136,8 +151,8 @@ export default class FileServeController extends AbstractController {
 		if(versionMax.length >= 2) announce.versionMax = versionMax;
 		list.push(announce);
 
-		this.cachedAnnouncements = JSON.stringify(list);
-		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.cachedAnnouncements, "utf-8");
+		this.announcements_cache = JSON.stringify(list);
+		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.announcements_cache, "utf-8");
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
@@ -160,8 +175,8 @@ export default class FileServeController extends AbstractController {
 			list.splice(index, 1);
 		}
 
-		this.cachedAnnouncements = JSON.stringify(list);
-		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.cachedAnnouncements, "utf-8");
+		this.announcements_cache = JSON.stringify(list);
+		fs.writeFileSync(Config.ANNOUNCEMENTS_PATH, this.announcements_cache, "utf-8");
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);

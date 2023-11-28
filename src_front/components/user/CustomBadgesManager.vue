@@ -222,8 +222,10 @@ export default class CustomBadgesManager extends Vue {
 	.header {
 		display: flex;
 		flex-direction: row;
+		align-items: center;
 		.backBt {
 			padding: .85em 1em;
+			color:var(--color-text);
 			.icon {
 				height: 1em;
 				transition: transform .15s;
@@ -237,6 +239,7 @@ export default class CustomBadgesManager extends Vue {
 		h1 {
 			font-size: 2em;
 			text-align: center;
+			flex-grow: 1;
 		}
 	}
 

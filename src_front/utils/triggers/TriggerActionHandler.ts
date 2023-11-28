@@ -18,7 +18,7 @@ import TTSUtils from "../TTSUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
-import type { SearchTrackItem } from "../music/SpotifyDataTypes";
+import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";

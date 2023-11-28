@@ -18,8 +18,6 @@ import App from './App.vue';
 import Icon from './components/Icon.vue';
 import './less/index.less';
 import router from './router';
-import DataStore from './store/DataStore';
-import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeAccessibility } from './store/accessibility/storeAccessibility';
 import { storeAccount } from './store/account/storeAccount';
 import { storeAdmin } from './store/admin/storeAdmin';
@@ -29,6 +27,7 @@ import { storeBingo } from './store/bingo/storeBingo';
 import { storeChat } from './store/chat/storeChat';
 import { storeChatSuggestion } from './store/chatSugg/storeChatSuggestion';
 import { storeCounters } from './store/counters/storeCounters';
+import DataStore from './store/DataStore';
 import { storeDebug } from './store/debug/storeDebug';
 import { storeEmergency } from './store/emergency/storeEmergency';
 import { storeHeat } from './store/heat/storeHeat';
@@ -41,6 +40,7 @@ import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeValues } from './store/storeValues/storeValues';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
@@ -48,6 +48,7 @@ import { storeTriggers } from './store/triggers/storeTriggers';
 import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
 import { storeVoice } from './store/voice/storeVoice';
+import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
 
@@ -192,7 +193,7 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon"|"values") => {
+	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon"|"values"|"youtube") => {
 		switch(id) {
 			case "main": return StoreProxy.main;
 			case "account": return StoreProxy.account;
@@ -221,6 +222,7 @@ function buildApp() {
 			case "rewards": return StoreProxy.rewards;
 			case "heat": return StoreProxy.heat;
 			case "patreon": return StoreProxy.patreon;
+			case "youtube": return StoreProxy.youtube;
 			case "values": return StoreProxy.values;
 		}
 	}
@@ -264,6 +266,7 @@ function buildApp() {
 	StoreProxy.counters = storeCounters();
 	StoreProxy.heat = storeHeat();
 	StoreProxy.patreon = storePatreon();
+	StoreProxy.youtube = storeYoutube();
 	StoreProxy.values = storeValues();
 	StoreProxy.router = router;
 	

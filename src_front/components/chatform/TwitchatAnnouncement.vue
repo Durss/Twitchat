@@ -63,18 +63,17 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
-import ParamItem from '../params/ParamItem.vue';
-import Config from '@/utils/Config';
 import Splitter from '../Splitter.vue';
-import Utils from '@/utils/Utils';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
+import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
@@ -105,11 +104,11 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 	public param_patreonOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_patreonOnly", icon:"patreon"};
 	public param_heatOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"announcement.param_heatOnly", icon:"heat"};
 
-	public getAnnouncementTitle(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchDataTypes.ParseMessageChunk[] {
+	public getAnnouncementTitle(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchatDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(a.title[this.$i18n.locale], undefined, true);
 	}
 
-	public getAnnouncementMessage(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchDataTypes.ParseMessageChunk[] {
+	public getAnnouncementMessage(a:TwitchatDataTypes.TwitchatAnnouncementData):TwitchatDataTypes.ParseMessageChunk[] {
 		return TwitchUtils.parseMessageToChunks(a.text[this.$i18n.locale], undefined, true);
 	}
 

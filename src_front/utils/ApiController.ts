@@ -6,6 +6,7 @@ import Config from "./Config";
 import type { PatreonData } from "./patreon/PatreonDataTypes";
 import type { TenorGif } from "@/types/TenorDataTypes";
 import Utils from "./Utils";
+import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 
 /**
 * Created : 13/07/2023 
@@ -305,5 +306,29 @@ type ApiEndpoints =  {
 			errorCode?:string;
 			data:{translation?:string},
 		}
-	}
+	},
+	"youtube/oauthURL": {
+		GET: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
+			data:{url?:string},
+		}
+	},
+	"youtube/authenticate": {
+		POST: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
+			data:{token?:YoutubeAuthToken},
+		}
+	},
+	"youtube/refreshtoken": {
+		POST: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
+			data:{token?:YoutubeAuthToken},
+		}
+	},
 }

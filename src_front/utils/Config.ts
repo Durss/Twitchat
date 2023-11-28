@@ -170,8 +170,8 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"lara6683"},
-			{platform:"twitch", login:"origatwitch"},
+			// {platform:"twitch", login:"lara6683"},
+			// {platform:"twitch", login:"origatwitch"},
 		];
 	}
 
@@ -228,6 +228,14 @@ export default class Config {
 	 * Contact mail
 	 */
 	public get CONTACT_MAIL():string { return this._serverConfig.contact_mail; }
+	/**
+	 * Youtube's client ID
+	*/
+	public get YOUTUBE_CLIENT_ID():string { return this._serverConfig.youtube_client_id; }
+	/**
+	 * Youtube's scopes
+	 */
+	public get YOUTUBE_SCOPES():string[] { return this._serverConfig.youtube_scopes; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -302,4 +310,6 @@ export interface ServerConfig {
 	patreon_scopes: string;
 	paypal_client_id: string;
 	contact_mail: string;
+	youtube_client_id: string;
+	youtube_scopes: string[];
 }

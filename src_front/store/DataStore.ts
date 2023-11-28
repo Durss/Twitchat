@@ -86,6 +86,7 @@ export default class DataStore {
 	public static AD_BREAK_SCOPES_REQUEST:string = "adBreakScopesRequested";
 	public static AD_BREAK_OVERLAY_PARAMS:string = "adBreakOverlayParams";
 	public static OVERLAY_DISTORTIONS:string = "overlayDistortions";
+	public static YOUTUBE_AUTH_TOKEN:string = "YOUTUBE_AUTH_TOKEN";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -112,6 +113,7 @@ export default class DataStore {
 		this.ANNOUNCEMENTS_READ,
 		this.NEW_FLAGS,
 		this.SENT_MESSAGE_HISTORY,
+		this.YOUTUBE_AUTH_TOKEN,
 	];
 	
 	

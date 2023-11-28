@@ -190,6 +190,16 @@ export default class Config {
 	}
 
 	/**
+	 * Gets youtube client ID if any
+	 */
+	public static get YOUTUBE_CREDENTIALS():{client_id: string;project_id: string;auth_uri: string;token_uri: string;auth_provider_x509_cert_url: string;client_secret: string;redirect_uris: string[];javascript_origins: string[]}|null {
+		const filePath = this.CREDENTIALS_ROOT + this.credentials.youtube_key;
+		if(!fs.existsSync(filePath)) return null;
+		const file = JSON.parse(fs.readFileSync(filePath, "utf-8") || "{web:{}}");
+		return file.web;
+	}
+
+	/**
 	 * Extract a data from an hasmap depending on the current environment.
 	 * @param map
 	 * @returns {any}
@@ -261,6 +271,7 @@ interface Credentials {
 
 	tenor_secret:string;
 	youtube_key:string;
+	youtube_scopes:string[];
 	google_key:string;
 
 	paypal_client_id:string;

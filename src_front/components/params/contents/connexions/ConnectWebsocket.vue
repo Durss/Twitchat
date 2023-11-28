@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="connectwebsocket" title="Trigger websocket" :icons="['broadcast']">
+	<ToggleBlock class="connectwebsocket" title="Trigger websocket" :icons="['broadcast']">
 		<div class="holder">
 
 			<div class="row">{{ $t("connexions.triggerSocket.usage") }}</div>
@@ -51,7 +51,6 @@ import ParamItem from '../../ParamItem.vue';
 export default class ConnectWebsocket extends Vue {
 
 	public error = false;
-	public open = false;
 	public showSuccess = false;
 	public connecting = false;
 	

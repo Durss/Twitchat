@@ -267,7 +267,7 @@ export const storeUsers = defineStore('users', {
 				}
 			}
 			
-			if(!user.temporary) {
+			if(!user.temporary && user.platform == "twitch") {
 				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
@@ -640,9 +640,9 @@ export const storeUsers = defineStore('users', {
 			this.myFollowers[user.platform][user.id] = Date.now();
 		},
 
-		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string) {
+		openUserCard(user:TwitchatDataTypes.TwitchatUser, channelId?:string, platform?:TwitchatDataTypes.ChatPlatform) {
 			if(user) {
-				this.userCard = {user, channelId};
+				this.userCard = {user, channelId, platform};
 			}else{
 				this.userCard = null;
 			}

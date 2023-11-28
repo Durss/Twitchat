@@ -227,14 +227,6 @@ export namespace TwitchDataTypes {
 		scale: "1.0" | "2.0" | "3.0";
 		theme_mode: "light" | "dark";
 	}
-	export interface ParseMessageChunk {
-		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
-		value: string;
-		emote?: string;
-		emoteHD?: string;
-		href?: string;
-		username?: string;
-	}
 
 	export interface Reward {
 		broadcaster_name: string;

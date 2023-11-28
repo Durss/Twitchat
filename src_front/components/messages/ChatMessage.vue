@@ -43,6 +43,8 @@
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 			
+			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.platform_youtube')" />
+
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 				<img :src="b.icon.sd" v-for="(b,index) in filteredBadges" :key="index" class="badge" v-tooltip="b.title">
 	
@@ -71,7 +73,7 @@
 			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
 
 			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
-				@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id)"
+				@click.stop.prevent="openUserCard(messageData.user, messageData.channel_id, messageData.platform)"
 				@mouseenter="hoverNickName($event)"
 				@mouseleave="outNickName($event)"
 				data-login
@@ -81,7 +83,7 @@
 				<a :href="'https://twitch.tv/'+recipient.login" target="_blank"
 					class="login"
 					:style="getLoginStyles(recipient)"
-					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id)">{{recipient.displayName}}</a>
+					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id, messageData.platform)">{{recipient.displayName}}</a>
 			</template>
 			
 			<span :class="getMessageClasses(messageData)">
@@ -151,10 +153,10 @@ import { Component, Prop } from 'vue-facing-decorator';
 import Button from '../Button.vue';
 import CustomUserBadges from '../user/CustomUserBadges.vue';
 import AbstractChatMessage from './AbstractChatMessage.vue';
+import MessageTranslation from './MessageTranslation.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 import ChatModTools from './components/ChatModTools.vue';
-import MessageTranslation from './MessageTranslation.vue';
 
 @Component({
 	components:{
@@ -204,7 +206,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public isAnnouncement:boolean = false;
 	public automodInProgress:boolean = false;
 	public userBannedOnChannels:string = "";
-	public localMessageChunks:TwitchDataTypes.ParseMessageChunk[] = [];
+	public localMessageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
@@ -773,7 +775,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	.icon {
-		opacity: 0.75;
+		// opacity: 0.75;
 		height: 1em;
 		vertical-align: middle;
 
@@ -783,14 +785,15 @@ export default class ChatMessage extends AbstractChatMessage {
 
 		&.convBt {
 			cursor: pointer;
-			&:hover {
-				opacity: .75;
+			:deep(svg) {
+				height: 1em;
 			}
 		}
 	}
 	.mod {
 		display: inline-flex;
 		margin-right: .4em;
+		vertical-align: middle;
 	}
 
 	.infoBadges, .noAutospoilBt {
@@ -811,6 +814,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	.userBadges {
 		display: inline;
 		margin-right: .4em;
+		color: var(--color-text);
 	}
 
 	.badge, :deep(.customUserBadge) {

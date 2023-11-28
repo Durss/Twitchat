@@ -68,6 +68,7 @@
 		"heat_areas_limit": "You reached the maximum of 100 clickable areas",
 		"rate_limit": "You are being rate limited. Wait a minute and try again.",
 		"rate_limit_ban": "You have been banned from server after a suspicious activity. Come back in a few days or contact me at {MAIL}.",
-		"no_translation": "Message cannot be translated sorry :("
+		"no_translation": "Message cannot be translated sorry :(",
+		"youtube_connect_expired": "Your Youtube session has expired. Please reconnect."
 	}
 }

@@ -604,7 +604,7 @@ export const storeChat = defineStore('chat', {
 
 
 	actions: {
-		preloadMessageHistory():void {
+		async preloadMessageHistory():Promise<void> {
 			if(StoreProxy.params.features.saveHistory.value === false) return;
 			Database.instance.getMessageList().then(res=>{
 				if(res.length === 0) return;

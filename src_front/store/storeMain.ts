@@ -28,6 +28,7 @@ import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -1023,8 +1024,8 @@ export const storeMain = defineStore("main", {
 			}
 			
 
-			Database.instance.connect().then(()=> {
-				StoreProxy.chat.preloadMessageHistory();
+			Database.instance.connect().then(async ()=> {
+				await StoreProxy.chat.preloadMessageHistory();
 				
 				//Reload devmode state
 				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
@@ -1056,6 +1057,11 @@ export const storeMain = defineStore("main", {
 				sOBS.connectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass, true, ip);
 			}
+
+			/**
+			 * Connect to Youtube (won't do anything if no credentials are available)
+			 */
+			YoutubeHelper.instance.connect();
 		},
 
 		alert(message:string, isCritical:boolean = false, showContact:boolean = false) {

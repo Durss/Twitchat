@@ -1,6 +1,6 @@
 <template>
 	<div class="chatmodtools" @mouseleave="closeToOptions()">
-		<Icon name="ban" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()"/>
+		<Icon name="ban" alt="ban" v-tooltip="$t('chat.mod_tools.banBt')" @click.stop="banUser()" theme="alert"/>
 		<Icon name="timeout" alt="timeout"
 		@click.stop="openToOptions()"
 		v-tooltip="'Timeout'" />
@@ -126,14 +126,10 @@ export default class ChatModTools extends Vue {
 	flex-direction: row;
 
 	.icon {
-		opacity: 0.75;
 		height: 1em;
 		width: 1em;
 		vertical-align: middle;
 		cursor: pointer;
-		&:hover {
-			opacity: .75;
-		}
 		&:not(:last-child) {
 			margin-right: .25em;
 		}

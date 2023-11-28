@@ -313,7 +313,6 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
@@ -344,7 +343,7 @@ export default class ComponentList extends Vue {
 	public disabled:boolean = false;
 	public progresses:number[] = [];
 	public iconList:string[] = [];
-	public messageChunks:TwitchDataTypes.ParseMessageChunk[] = [];
+	public messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 
 	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};

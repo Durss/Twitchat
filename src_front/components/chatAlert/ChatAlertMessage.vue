@@ -12,7 +12,6 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 
 @Component({
 	components:{
@@ -23,7 +22,7 @@ export default class ChatAlertMessage extends Vue {
 
 	public message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData | null = null;
 
-	public get chunks():TwitchDataTypes.ParseMessageChunk[] {
+	public get chunks():TwitchatDataTypes.ParseMessageChunk[] {
 		let chunks = this.message!.message_chunks.concat();
 		const cmd = this.$store("main").chatAlertParams.chatCmd.trim().toLowerCase().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		let clone = JSON.parse(JSON.stringify(chunks[0]));

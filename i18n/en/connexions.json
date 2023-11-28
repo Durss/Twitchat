@@ -18,6 +18,11 @@
 			"secured":"Secured",
 			"success":"Socket is now connected",
 			"usage":"Connect to an external websocket server (ex: Chataigne) and send it data from any Trigger."
+		},
+		
+		"youtube":{
+			"header":"Show your Youtube's chat in Twitchat.",
+			"success":"Youtube is now connected"
 		}
 	}
 }

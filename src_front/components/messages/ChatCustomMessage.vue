@@ -7,6 +7,7 @@
 				<Icon v-if="messageData.icon" :name="messageData.icon" />
 				<span class="username" :style="userStyles" v-if="messageData.user?.name">{{ messageData.user.name }}</span>
 				<span class="message" v-if="messageData.message_chunks"><ChatMessageChunksParser :chunks="messageData.message_chunks" /></span>
+				<span class="message" v-else-if="messageData.message">{{messageData.message}}</span>
 			</div>
 			
 			<div class="ctas" v-if="messageData.actions">

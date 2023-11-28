@@ -149,14 +149,6 @@ export default class PredictionForm extends AbstractSidePanel {
 			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10;
 			this.voteDuration.value = d;
 		}
-	}
-
-	public async mounted():Promise<void> {
-		watch(()=>this.voiceControl, ()=>{
-			if(this.voiceControl && !this.voiceController) {
-				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
-			}
-		});
 
 		if(this.triggerMode && this.action.predictionData) {
 			this.voteDuration.value = this.action.predictionData.voteDuration;
@@ -165,6 +157,14 @@ export default class PredictionForm extends AbstractSidePanel {
 				this.answers[i] = this.action.predictionData.answers[i];
 			}
 		}
+	}
+
+	public async mounted():Promise<void> {
+		watch(()=>this.voiceControl, ()=>{
+			if(this.voiceControl && !this.voiceController) {
+				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			}
+		});
 
 		if(this.triggerMode === false) {
 			super.open();

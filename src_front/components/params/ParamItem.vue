@@ -922,6 +922,7 @@ export default class ParamItem extends Vue {
 						right: .5em;
 						bottom: .5em;
 						transform: unset;
+						pointer-events: none;
 					}
 					input {
 						width: 100%;

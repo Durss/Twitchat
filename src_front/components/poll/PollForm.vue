@@ -116,14 +116,6 @@ export default class PollForm extends AbstractSidePanel {
 			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2;
 			this.param_duration.value = d;
 		}
-	}
-
-	public async mounted():Promise<void> {
-		watch(()=>this.voiceControl, ()=>{
-			if(this.voiceControl && !this.voiceController) {
-				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
-			}
-		});
 
 		if(this.triggerMode && this.action.pollData) {
 			this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
@@ -134,6 +126,14 @@ export default class PollForm extends AbstractSidePanel {
 				this.answers[i] = this.action.pollData.answers[i];
 			}
 		}
+	}
+
+	public async mounted():Promise<void> {
+		watch(()=>this.voiceControl, ()=>{
+			if(this.voiceControl && !this.voiceController) {
+				this.voiceController = new FormVoiceControllHelper(this.$el, this.close, this.submitForm);
+			}
+		});
 		
 		if(this.triggerMode === false) {
 			super.open();

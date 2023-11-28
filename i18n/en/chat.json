@@ -16,6 +16,7 @@
 		"soBt": "Shoutout",
 		"right_click_hint_highlight":"right clicking",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey! Try @:chat.right_click_hint_highlight on this message to discover lots of options!",
+		"platform_youtube": "Message send\non Youtube",
 		"form": {
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Chat commands",

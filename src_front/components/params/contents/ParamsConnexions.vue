@@ -8,6 +8,8 @@
 			<OBSConnectForm />
 		</ToggleBlock>
 
+		<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="subContent == 'youtube'? 'selected' : ''" />
+
 		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
 
 		<!-- <ToggleBlock class="item" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'selected' : ''">
@@ -26,10 +28,13 @@ import ConnectSpotifyForm from './connexions/ConnectSpotifyForm.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import OBSConnectForm from './obs/OBSConnectForm.vue';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
+import ConnectYoutube from './connexions/ConnectYoutube.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
 		ToggleBlock,
+		ConnectYoutube,
 		OBSConnectForm,
 		ConnectWebsocket,
 		ConnectSpotifyForm,
@@ -42,6 +47,8 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 	public get subContent() { return this.$store("params").currentPageSubContent; }
+	
+	public get youtubeEnabled() { return Config.instance.YOUTUBE_CLIENT_ID; }
 }
 </script>
 

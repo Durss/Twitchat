@@ -25,7 +25,7 @@
 			<template v-else-if="!loading && !error">
 				<CloseButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
-					<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+					<a :href="profilePage" target="_blank">
 						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
 						<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 					</a>
@@ -37,7 +37,7 @@
 						<CustomUserBadges :tooltip="$t('usercard.remove_badgesBt')" :user="user" @select="removeCustomBadge" :channelId="channelId" />
 						
 						<template v-if="!edittingLogin">
-							<a :href="'https://www.twitch.tv/'+user!.login" target="_blank">
+							<a :href="profilePage" target="_blank">
 								<span class="label">{{user.displayName}}</span>
 								<span class="translation" v-if="translateUsername">({{user.login}})</span>
 							</a>
@@ -64,14 +64,14 @@
 						</form>
 					</div>
 					<span v-if="user.displayName != user.displayNameOriginal" class="originalName">({{ user.displayNameOriginal }})</span>
-					<span v-if="user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
+					<span v-if="isTwitchProfile && user.pronouns" class="pronouns">({{ user.pronounsLabel }})</span>
 					<div class="userID" v-tooltip="$t('global.copy')" @click="copyID()" ref="userID">#{{user.id}}</div>
 				</div>
 				
-				<ChatModTools class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
+				<ChatModTools v-if="isTwitchProfile" class="modActions" :messageData="fakeModMessage" :canDelete="false" canBlock v-show="!manageBadges && !manageUserNames" />
 
 				<div class="scrollable" v-show="!manageBadges && !manageUserNames">
-					<div class="infoList">
+					<div class="infoList" v-if="isTwitchProfile">
 						<div class="info" v-tooltip="$t('usercard.creation_date_tt')"><Icon name="date" alt="account creation date" class="icon"/>{{createDate}}</div>
 						
 						<div class="info" v-if="followersCount > -1"><Icon name="follow_outline" class="icon"/>{{ $tc("usercard.followers", followersCount, {COUNT:followersCount}) }}</div>
@@ -99,11 +99,11 @@
 					</div>
 					
 					<div class="ctas">
-						<Button type="link" small icon="newtab" :href="'https://www.twitch.tv/'+user!.login" target="_blank">{{$t('usercard.profileBt')}}</Button>
-						<Button type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
-						<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
-						<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-						<Button v-if="$store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+						<Button type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</Button>
+						<Button v-if="isTwitchProfile" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+						<Button v-if="isTwitchProfile && !is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+						<Button v-if="isTwitchProfile && is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+						<Button v-if="isTwitchProfile && $store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
 					</div>
 					
 					<div class="card-item secondary liveInfo" v-if="currentStream">
@@ -182,6 +182,7 @@ export default class UserCard extends Vue {
 
 	public error:boolean = false;
 	public loading:boolean = true;
+	public isTwitchProfile:boolean = false;
 	public edittingLogin:boolean = true;
 	public manageBadges:boolean = false;
 	public manageUserNames:boolean = false;
@@ -237,6 +238,21 @@ export default class UserCard extends Vue {
 	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	/**
+	 * Get user's profile page
+	 */
+	public get profilePage():string{
+		switch(this.$store("users").userCard!.platform) {
+			case "twitch": {
+				return "https://www.twitch.tv/"+this.user!.login;
+			}
+			case "youtube": {
+				return "https://www.youtube.com/channel/"+this.user!.id;
+			}
+		}
+		return "#";
+	}
+
+	/**
 	 * Get connected channels the user is banned in.
 	 * Only reliable info is from our own chan. Other's chan info depends on weither we were here
 	 * when the user got banned
@@ -288,7 +304,7 @@ export default class UserCard extends Vue {
 		watch(() => this.$store("users").userCard, () => {
 			const card = this.$store("users").userCard;
 			if(card && card.user) {
-				this.user = this.$store("users").getUserFrom("twitch", card.channelId, card.user.id);
+				this.user = this.$store("users").getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
 				this.dateOffsetTimeout = setInterval(() => {
@@ -326,6 +342,20 @@ export default class UserCard extends Vue {
 		this.edittingLogin = false;
 		this.manageBadges = false;
 		this.manageUserNames = false;
+		this.isTwitchProfile = this.$store("users").userCard!.platform == "twitch";
+
+		if(!this.$store("users").userCard) {
+			this.loading = false;
+		}
+		
+		if(!this.isTwitchProfile) {
+			this.loading = false;
+			this.user = this.$store("users").userCard!.user;
+			this.customLogin = this.user?.displayName || "";
+			this.loadHistory(this.user!.id);
+			return;
+		}
+
 		try {
 			let user = this.user!;
 			const loadFromLogin = user.login != this.$store("users").tmpDisplayName;
@@ -591,6 +621,7 @@ export default class UserCard extends Vue {
 					margin-left: .25em;
 					.icon {
 						height: 100%;
+						display: block;
 						:deep(svg) {
 							vertical-align: top;
 						}

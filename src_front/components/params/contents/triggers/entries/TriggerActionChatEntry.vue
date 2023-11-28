@@ -84,6 +84,7 @@ export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 	}
 
 	.commands {
+		margin-left: 1.5em;
 		:deep(.content){
 			display: grid;
 			grid-gap: 4px;
@@ -101,9 +102,6 @@ export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 				background-color: var(--color-dark-fadest);
 			}
 		}
-	}
-	:deep(input) {
-		flex-grow: 1;
 	}
 }
 </style>

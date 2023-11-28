@@ -27,6 +27,7 @@ export namespace TwitchatDataTypes {
 		PATREON: "patreon",
 		PREMIUM: "premium",
 		COUNTER: "counter",
+		YOUTUBE: "youtube",
 		AD_BREAK: "adBreak",
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",
@@ -244,6 +245,22 @@ export namespace TwitchatDataTypes {
 		allowAnon?:boolean;
 	}
 	export type BotMessageField = keyof IBotMessage;
+	
+	/**
+	 * Details about a message chunk.
+	 * Chat messages are converted to arrays of chunks. Each chunks
+	 * can have several types.
+	 * The message can the be built back with the <ChatMessageChunksParser> component
+	 * @see ChatMessageChunksParser
+	 */
+	export interface ParseMessageChunk {
+		type: "text" | "emote" | "cheermote" | "url" | "highlight" | "user";
+		value: string;
+		emote?: string;
+		emoteHD?: string;
+		href?: string;
+		username?: string;
+	}
 
 	/**
 	 * Chat room settings
@@ -1135,6 +1152,8 @@ export namespace TwitchatDataTypes {
 		begin: number;
 		end: number;
 		id: string;
+		sd?: string;
+		hd?: string;
 	}
 
 	/**
@@ -2102,7 +2121,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
@@ -2130,7 +2149,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks:ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
@@ -2277,7 +2296,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks:ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
@@ -2504,7 +2523,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Optional message sent when sharing our sub with emotes remplaced by HTML tags
 		 */
@@ -2540,7 +2559,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Text message with cheermotes replaced by HTML tags
 		 */
@@ -2595,7 +2614,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		*/
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
 		*/
@@ -3491,7 +3510,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message splitted by chunks types (text, url and emote)
 		 */
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Message content as HTML
 		 * All emotes are replaced by HTML tags
@@ -3688,7 +3707,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Message sent (raw chunks)
 		 */
-		message_chunks?:TwitchDataTypes.ParseMessageChunk[];
+		message_chunks?:ParseMessageChunk[];
 		/**
 		 * Message sent (html parsed)
 		 */

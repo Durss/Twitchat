@@ -1,5 +1,6 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
@@ -8,7 +9,6 @@ import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
 import SevenTVUtils from "../emotes/SevenTVUtils";
 import { TwitchScopes, type TwitchScopesString } from "./TwitchScopes";
-import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 
 /**
 * Created : 19/01/2021 
@@ -2502,7 +2502,7 @@ export default class TwitchUtils {
 	/**
 	 * Splits the message in chunks of type emote", "text" and "url"
 	 */
-	public static parseMessageToChunks(message:string, emotes?:string|TwitchatDataTypes.EmoteDef[], customParsing = false):TwitchDataTypes.ParseMessageChunk[] {
+	public static parseMessageToChunks(message:string, emotes?:string|TwitchatDataTypes.EmoteDef[], customParsing = false, platform:TwitchatDataTypes.ChatPlatform = "twitch"):TwitchatDataTypes.ParseMessageChunk[] {
 
 		let emotesList:TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string")? [] : emotes;
 
@@ -2522,7 +2522,7 @@ export default class TwitchUtils {
 			return protectedRanges;
 		}
 
-		if(!emotes || typeof emotes == "string") {
+		if(platform == "twitch" && (!emotes || typeof emotes == "string")) {
 			if(!emotes || emotes.length == 0) {
 				//Attempt to parse emotes manually.
 				//TMI doesn't sends back proper emotes tag when sending
@@ -2626,7 +2626,7 @@ export default class TwitchUtils {
 			}
 		}
 		
-		const result:TwitchDataTypes.ParseMessageChunk[] = [];
+		const result:TwitchatDataTypes.ParseMessageChunk[] = [];
 		if(emotesList && emotesList.length > 0) {
 			//Sort emotes by start position
 			emotesList.sort((a,b) => a.begin - b.begin);
@@ -2664,8 +2664,10 @@ export default class TwitchUtils {
 					}else{
 						result.push( {type:"text", value:code} );
 					}
-				}else{
+				}else if(platform == "twitch") {
 					result.push( {type:"emote", value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/4.0"} );
+				}else if(platform == "youtube") {
+					result.push( {type:"emote", value:code, emote:e.sd, emoteHD:e.hd} );
 				}
 				cursor = e.end + 1;
 			}
@@ -2684,7 +2686,7 @@ export default class TwitchUtils {
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
 					const islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v)
-					const node:TwitchDataTypes.ParseMessageChunk = {
+					const node:TwitchatDataTypes.ParseMessageChunk = {
 						type:islink? "url" : "text",
 						value:v,
 					};
@@ -2708,7 +2710,7 @@ export default class TwitchUtils {
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
 					const isUsername = /(@[a-z0-9_]{3,25})/gi.test(v)
-					const node:TwitchDataTypes.ParseMessageChunk = {
+					const node:TwitchatDataTypes.ParseMessageChunk = {
 						type:isUsername? "user" : "text",
 						value:v,
 					};
@@ -2729,7 +2731,7 @@ export default class TwitchUtils {
 	 * Emotes and cheermotes count as 2 chars
 	 * @param message 
 	 */
-	public static computeMessageSize(messageChunks:TwitchDataTypes.ParseMessageChunk[]):number {
+	public static computeMessageSize(messageChunks:TwitchatDataTypes.ParseMessageChunk[]):number {
 		let size = 0;
 		messageChunks.forEach(v=> {
 			if(v.type == "emote" || v.type == "cheermote") size += 1;
@@ -2741,7 +2743,7 @@ export default class TwitchUtils {
 	/**
 	 * Replaces emotes by <img> tags and URL to <a> tags on the message
 	 */
-	public static messageChunksToHTML(chunks:TwitchDataTypes.ParseMessageChunk[]):string {
+	public static messageChunksToHTML(chunks:TwitchatDataTypes.ParseMessageChunk[]):string {
 		let message_html = "";
 		for (let i = 0; i < chunks.length; i++) {
 			const v = chunks[i];
@@ -2790,7 +2792,7 @@ export default class TwitchUtils {
 	 * Parses cheermotes codes and replace/add necessary chunks
 	 * Modifies the chunks array in place
 	 */
-	public static async parseCheermotes(chunks:TwitchDataTypes.ParseMessageChunk[], channel_id:string):Promise<TwitchDataTypes.ParseMessageChunk[]> {
+	public static async parseCheermotes(chunks:TwitchatDataTypes.ParseMessageChunk[], channel_id:string):Promise<TwitchatDataTypes.ParseMessageChunk[]> {
 		let cheermotes:TwitchDataTypes.CheermoteSet[];
 		try {
 			cheermotes = await this.loadCheermoteList(channel_id);
@@ -2823,7 +2825,7 @@ export default class TwitchUtils {
 						reg.lastIndex = 0;
 						const isCheermote = reg.test(v);
 						//Create new chunk node
-						const node:TwitchDataTypes.ParseMessageChunk = {
+						const node:TwitchatDataTypes.ParseMessageChunk = {
 							type: isCheermote? "cheermote" : "text",
 							value:v,
 						};
@@ -2857,7 +2859,7 @@ export default class TwitchUtils {
 	 * this method with the words you want to convert to "highlight" nodes
 	 * Modifies the chunks array in place
 	 */
-	public static highlightChunks(chunks:TwitchDataTypes.ParseMessageChunk[], words:string[]):TwitchDataTypes.ParseMessageChunk[] {
+	public static highlightChunks(chunks:TwitchatDataTypes.ParseMessageChunk[], words:string[]):TwitchatDataTypes.ParseMessageChunk[] {
 		for (let i = 0; i < words.length; i++) {
 			const word = words[i].toLowerCase();
 			for (let j = 0; j < chunks.length; j++) {
@@ -2878,7 +2880,7 @@ export default class TwitchUtils {
 					reg.lastIndex = 0;
 					const isWord = reg.test(v);
 					//Create new chunk node
-					const node:TwitchDataTypes.ParseMessageChunk = {
+					const node:TwitchatDataTypes.ParseMessageChunk = {
 						type: isWord? "highlight" : "text",
 						value:v,
 					};
