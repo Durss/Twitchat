@@ -36,7 +36,7 @@ export default class AbstractChatMessage extends Vue {
 	 * Check if the currently authenticated user can moderate the message
 	 */
 	public canModerateUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
-		const authenticatedUser = this.$store("auth").twitch.user;
+		const authenticatedUser = user.platform == "youtube"? this.$store("auth").youtube.user : this.$store("auth").twitch.user;
 		return (
 					//If broadcaster of the channel... or
 					authenticatedUser.channelInfo[channelId]?.is_broadcaster ||

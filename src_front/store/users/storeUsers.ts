@@ -24,6 +24,8 @@ interface BatchItem {
 const userList:TwitchatDataTypes.TwitchatUser[] = [];
 //FIXME few duplicates happen in the userlist
 
+//TODO make massive refactoring on user ban/block logic. There are ban/block calls everywhere on the app intead of here.
+
 const unbanFlagTimeouts:{[key:string]:number} = {};
 const userMaps:Partial<{[key in TwitchatDataTypes.ChatPlatform]:{
 	idToUser:{[key:string]:TwitchatDataTypes.TwitchatUser},

@@ -100,8 +100,8 @@ import type IParameterContent from './IParameterContent';
 export default class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
-	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
-	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false};
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
+	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"automod.ban_usernames"};
 	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -152,11 +152,9 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	}
 
 	public beforeMount():void {
-		this.param_enabled.labelKey		= "global.enable";
 		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
 		this.param_enabled.value		= this.automodData.enabled;
 		this.param_banUserNames.value	= this.automodData.banUserNames;
-		this.param_banUserNames.labelKey= "automod.ban_usernames";
 		this.automodData.keywordsFilters.forEach(v=> {
 			this.initRule(v);
 		});
@@ -275,7 +273,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 				.result {
 					margin:auto;
 					text-align: center;
-					margin-top: calc(-.5em - 4px);
+					margin-top: -.5em;
 					padding: .25em .5em;
 					width: calc(100% - 1.5em);
 					background-color: var(--color-secondary-fadest);

@@ -35,7 +35,7 @@ export interface YoutubeLiveBroadcast {
 			liveChatId: string;
 		};
 		status: {
-			lifeCycleStatus: "complete"|"created"|"live"|"liveStarting"|"ready"|"revoked"|"testStarting"|"testing";
+			lifeCycleStatus: "complete" | "created" | "live" | "liveStarting" | "ready" | "revoked" | "testStarting" | "testing";
 			privacyStatus: string;
 			recordingStatus: string;
 			madeForKids: boolean;
@@ -88,7 +88,6 @@ export interface YoutubeMessages {
 			hasDisplayContent: boolean;
 			displayMessage: string;
 			textMessageDetails: {
-
 				messageText: string;
 			};
 		};
@@ -101,6 +100,37 @@ export interface YoutubeMessages {
 			isChatOwner: boolean;
 			isChatSponsor: boolean;
 			isChatModerator: boolean;
+		};
+	}[];
+}
+
+export interface YoutubeChannelInfo {
+	etag: string;
+	pageInfo: PageInfo;
+	items: {
+		kind: string;
+		etag: string;
+		id: string;
+		snippet: {
+			title: string;
+			description: string;
+			customUrl: string;
+			publishedAt: string;
+			thumbnails: {
+				default: ThumbnailInfo;
+				medium: ThumbnailInfo;
+				high: ThumbnailInfo;
+			};
+			localized: {
+				title: string;
+				description: string;
+			};
+			country: string;
+		};
+		status: {
+			privacyStatus: string;
+			isLinked: boolean;
+			longUploadsStatus: string;
 		};
 	}[];
 }

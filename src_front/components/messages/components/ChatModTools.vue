@@ -12,7 +12,7 @@
 			<Button alert :aria-label="$t('chat.mod_tools.to43200_aria')"			@click.stop="timeoutUser(3600*12)" small>{{$t('chat.mod_tools.to43200')}}</Button>
 			<Button alert :aria-label="$t('chat.mod_tools.to1w_aria')"			@click.stop="timeoutUser(3600*24*7)" small>{{$t('chat.mod_tools.to1w')}}</Button>
 		</div>
-		<Icon name="trash" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete"/>
+		<Icon name="trash" alt="trash" v-tooltip="$t('global.delete')" @click.stop="deleteMessage()" v-if="canDelete && messageData.deleted !== true"/>
 		<Icon name="block" alt="trash" v-tooltip="$t('chat.mod_tools.blockBt')" @click.stop="blockUser()" v-if="canBlock !== false"/>
 	</div>
 </template>
@@ -25,6 +25,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Button from '../../Button.vue';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -39,11 +40,10 @@ export default class ChatModTools extends Vue {
 	
 	@Prop
 	public canDelete!:boolean;
-	@Prop({
-			type:Boolean,
-			default:false,
-		})
+
+	@Prop({type:Boolean,default:false,})
 	public canBlock!:boolean;
+	
 	@Prop
 	public messageData!:TwitchatDataTypes.MessageChatData;
 	
@@ -60,7 +60,16 @@ export default class ChatModTools extends Vue {
 				//Avoid banning user for real if doing it from a fake message
 				this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
 			}else{
-				TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+				switch(this.messageData.platform) {
+					case "twitch": {
+						TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, undefined, this.$t("global.moderation_action.ban_reason"));
+						break;
+					}
+					case "youtube": {
+						YoutubeHelper.instance.banUser(this.messageData.user.id);
+						break;
+					}
+				}
 			}
 		})
 	}
@@ -86,7 +95,16 @@ export default class ChatModTools extends Vue {
 			//Avoid banning user for real if doing it from a fake message
 			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
 		}else{
-			TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
+			switch(this.messageData.platform) {
+				case "twitch": {
+					TwitchUtils.banUser(this.messageData.user, this.messageData.channel_id, duration);
+					break;
+				}
+				case "youtube": {
+					YoutubeHelper.instance.banUser(this.messageData.user.id, duration);
+					break;
+				}
+			}
 		}
 	}
 

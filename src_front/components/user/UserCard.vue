@@ -26,7 +26,7 @@
 				<CloseButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
-						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar">
+						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar" referrerpolicy="no-referrer">
 						<div class="live" v-if="currentStream">LIVE - <span class="viewers">{{ currentStream.viewer_count }}<Icon name="user" /></span></div>
 					</a>
 					<div class="title">

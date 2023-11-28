@@ -17,6 +17,7 @@ import lande from "lande";
 import ApiController from "./ApiController";
 import Database from "@/store/Database";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
+import YoutubeHelper from "./youtube/YoutubeHelper";
 
 /**
 * Created : 07/04/2023 
@@ -53,7 +54,7 @@ export default class ContextMenuHelper {
 	 */
 	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, canModerateMessage:boolean=false, canModerateUser:boolean=false, htmlNode:HTMLElement):void {
 		const t		= StoreProxy.i18n.t;
-		const me	= StoreProxy.auth.twitch.user;
+		const me	= message.platform == "youtube"? StoreProxy.auth.youtube.user : StoreProxy.auth.twitch.user;
 		const options:CMTypes.MenuItem[]= [];
 		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
@@ -300,7 +301,7 @@ export default class ContextMenuHelper {
 								customClass:classesBan,
 								onClick: () => {
 									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-									TwitchUtils.unbanUser(user, message.channel_id);
+									this.unbanUser(user, message.channel_id);
 								},
 							});
 				}else{
@@ -321,7 +322,7 @@ export default class ContextMenuHelper {
 								customClass:classesBan,
 								onClick: () => {
 									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
-									TwitchUtils.unbanUser(user, me.id);
+									this.unbanUser(user, me.id);
 								},
 							});
 					}else{
@@ -335,23 +336,25 @@ export default class ContextMenuHelper {
 				}
 	
 				//Block/unblock user
-				if(message.user.is_blocked) {
-					options.push({ 
-								label: t("chat.context_menu.unblock"),
-								icon: this.getIcon("icons/unblock.svg"),
-								customClass:classesBlock,
-								onClick: () => {
-									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
-									TwitchUtils.unblockUser(user);
-								},
-							});
-				}else{
-					options.push({ 
-								label: t("chat.context_menu.block"),
-								icon: this.getIcon("icons/block.svg"),
-								customClass:classesBlock,
-								onClick: () => this.blockUser(message),
-							});
+				if(message.platform == "twitch") {
+					if(message.user.is_blocked) {
+						options.push({ 
+									label: t("chat.context_menu.unblock"),
+									icon: this.getIcon("icons/unblock.svg"),
+									customClass:classesBlock,
+									onClick: () => {
+										if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+										TwitchUtils.unblockUser(user);
+									},
+								});
+					}else{
+						options.push({ 
+									label: t("chat.context_menu.block"),
+									icon: this.getIcon("icons/block.svg"),
+									customClass:classesBlock,
+									onClick: () => this.blockUser(message),
+								});
+					}
 				}
 			}
 
@@ -456,7 +459,14 @@ export default class ContextMenuHelper {
 			//Avoid banning user for real if doing it from a fake message
 			StoreProxy.users.flagBanned(message.platform, message.channel_id, message.user.id, duration);
 		}else{
-			TwitchUtils.banUser(message.user, message.channel_id, duration);
+			switch(message.platform) {
+				case "twitch":
+					TwitchUtils.banUser(message.user, message.channel_id, duration);
+					break;
+				case "youtube":
+					YoutubeHelper.instance.banUser(message.user.id, duration);
+					break;
+			}
 		}
 	}
 
@@ -472,9 +482,30 @@ export default class ContextMenuHelper {
 				//Avoid banning user for real if doing it from a fake message
 				StoreProxy.users.flagBanned(message.platform, channelId, message.user.id);
 			}else{
-				TwitchUtils.banUser(message.user, channelId, undefined, t("global.moderation_action.ban_reason"));
+				switch(message.platform) {
+					case "twitch":
+						TwitchUtils.banUser(message.user, channelId, undefined, t("global.moderation_action.ban_reason"));
+						break;
+					case "youtube":
+						YoutubeHelper.instance.banUser(message.user.id);
+						break;
+				}
 			}
 		})
+	}
+
+	/**
+	 * Unbans a user
+	 */
+	private unbanUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
+		switch(user.platform) {
+			case "twitch":
+				TwitchUtils.unbanUser(user, channelId);
+				break;
+			case "youtube":
+				YoutubeHelper.instance.unbanUser(user.id);
+				break;
+		}
 	}
 
 	/**

@@ -1,6 +1,6 @@
-import StoreProxy from "@/store/StoreProxy";
+import StoreProxy, { type RequireField } from "@/store/StoreProxy";
 import ApiController from "../ApiController";
-import type { YoutubeAuthToken, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
+import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
 import DataStore from "@/store/DataStore";
 import { reactive } from "vue";
 import Utils from "../Utils";
@@ -23,6 +23,7 @@ export default class YoutubeHelper {
 	private _refreshTimeout:number = -1;
 	private _creditsUsed:number = 0;
 	private _emotes:{[key:string]:string} = {};
+	private _uidToBanID:{[key:string]:string} = {};
 	
 	constructor() {
 	
@@ -110,6 +111,37 @@ export default class YoutubeHelper {
 	/**
 	 * Get the current live broadcast
 	 */
+	public async getUserInfo():Promise<void> {
+		this._creditsUsed ++;
+		let url = new URL("https://www.googleapis.com/youtube/v3/channels");
+		url.searchParams.append("part", "id");
+		url.searchParams.append("part", "snippet");
+		url.searchParams.append("part", "status");
+		url.searchParams.append("mine", "true");
+		let res = await fetch(url, {method:"GET", headers:this.headers});
+		if(res.status == 200) {
+			const json = await res.json() as YoutubeChannelInfo;
+			const userData = json.items[0];
+			const user = StoreProxy.users.getUserFrom("youtube", userData.id, userData.id, userData.snippet.title, userData.snippet.title);
+			user.avatarPath = userData.snippet.thumbnails.default.url || userData.snippet.thumbnails.medium.url;
+			const chanInfos = user.channelInfo[userData.id];
+			chanInfos.is_broadcaster = true;
+			chanInfos.is_moderator = true;
+			user.donor = {
+				earlyDonor:false,
+				isPremiumDonor:false,
+				level:0,
+				noAd:false,
+				state:false,
+				upgrade:false,
+			};
+			StoreProxy.auth.youtube.user = user as RequireField<TwitchatDataTypes.TwitchatUser, "donor">;
+		}
+	}
+
+	/**
+	 * Get the current live broadcast
+	 */
 	public async getCurrentLiveBroadcast():Promise<YoutubeLiveBroadcast|null> {
 		clearTimeout(this._pollTimeout);
 		this._creditsUsed ++;
@@ -124,6 +156,7 @@ export default class YoutubeHelper {
 		let res = await fetch(url, {method:"GET", headers:this.headers});
 		if(res.status == 200) {
 			let json = await res.json() as YoutubeLiveBroadcast;
+			//Sort by life cycle status importance
 			json.items.sort((a,b)=> {
 				if(a.status.lifeCycleStatus == "live" && b.status.lifeCycleStatus != "live") return -1;
 				if(a.status.lifeCycleStatus != "live" && b.status.lifeCycleStatus == "live") return 1;
@@ -137,6 +170,8 @@ export default class YoutubeHelper {
 				if(a.status.lifeCycleStatus != "testing" && b.status.lifeCycleStatus == "testing") return 1;
 				return 0;
 			})
+			//Get first item corresponding to a live running or coming.
+			//Prioritise items with higher "live" status meaning
 			let item = json.items.find(v=>v.status.lifeCycleStatus == "live");
 			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "liveStarting");
 			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "ready");
@@ -195,37 +230,33 @@ export default class YoutubeHelper {
 				const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
 				const chanInfos = user.channelInfo[this.channelId];
 				chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
-				chanInfos.is_moderator = m.authorDetails.isChatModerator;
+				chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
 				user.is_partner = m.authorDetails.isChatSponsor;
 				user.avatarPath = m.authorDetails.profileImageUrl;
 				
 				//Add badge if not already specified
 				if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
 					chanInfos.badges.push({
-						icon:{
-							sd:StoreProxy.image("/icons/broadcaster.svg"),
-						},
+						icon:{sd:"broadcaster"},
 						id:"broadcaster",
+						title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
 					})
-				}
-				
+				}else
 				//Add badge if not already specified
 				if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
 					chanInfos.badges.push({
-						icon:{
-							sd:StoreProxy.image("/icons/mod.svg"),
-						},
+						icon:{sd:"mod"},
 						id:"moderator",
+						title:StoreProxy.i18n.t("chat.message.badges.moderator"),
 					})
 				}
 				
 				//Add badge if not already specified
 				if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
 					chanInfos.badges.push({
-						icon:{
-							sd:StoreProxy.image("/icons/partner.svg"),
-						},
+						icon:{sd:"partner"},
 						id:"partner",
+						title:StoreProxy.i18n.t("chat.message.badges.partner"),
 					})
 				}
 
@@ -274,6 +305,91 @@ export default class YoutubeHelper {
 		clearTimeout(this._refreshTimeout);
 		DataStore.remove(DataStore.YOUTUBE_AUTH_TOKEN);
 	}
+
+	/**
+	 * Ban a user for the given duration or permanently
+	 * @param userId 
+	 * @param duration_s 
+	 * @returns 
+	 */
+	public async banUser(userId:string, duration_s:number = 0):Promise<string> {
+		this._creditsUsed += 50;
+		
+		const params:{snippet:{liveChatId:string, type:string, bannedUserDetails:{channelId:string}, banDurationSeconds?:number}} = {
+			snippet: {
+				liveChatId:this._currentLiveId,
+				type:duration_s > 0? "temporary" : "permanent",
+				bannedUserDetails: {
+					channelId:userId,
+				}
+			}
+		};
+		if(duration_s > 0) {
+			params.snippet.banDurationSeconds = duration_s;
+		}
+		
+		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/bans");
+		url.searchParams.append("part", "snippet");
+		const body = JSON.stringify(params);
+
+		let res = await fetch(url, {method:"POST", headers:this.headers, body});
+		if(res.status == 200) {
+			StoreProxy.users.flagBanned("youtube", this.channelId, userId, duration_s);
+			const json = await res.json();
+			this._uidToBanID[userId] = json.id
+			return json.id;
+		}else{
+			return "";
+		}
+	}
+
+	/**
+	 * Unban a user
+	 * @param userId 
+	 * @returns 
+	 */
+	public async unbanUser(userId:string):Promise<void> {
+		this._creditsUsed += 50;
+
+		//Youtube API is pure shit.
+		//One cannot unban a user unless they have a Ban ID which they can
+		//only get after banning the user.
+		//I keep the ban ID in the _uidToBanID hashmap lcoally but it will
+		//be lost after a twitchat restart.
+		//Also if the user got banned by a mod it will simply not be possible
+		//to unban them from the API as we won't get the necessery Ban ID.
+		//And no endpoint allows to retreive a Ban ID for an arbitrary user
+		if(!this._uidToBanID[userId]) return;
+		
+		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/bans");
+		url.searchParams.append("id", this._uidToBanID[userId]);
+
+		let res = await fetch(url, {method:"DELETE", headers:this.headers});
+		if(res.status == 200 || res.status == 204) {
+			StoreProxy.users.flagUnbanned("youtube", this.channelId, userId);
+		}else{
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
+		}
+	}
+
+	/**
+	 * Deletes a message by its ID
+	 * @param messageId 
+	 * @returns 
+	 */
+	public async deleteMessage(messageId:string):Promise<void> {
+		this._creditsUsed += 50;
+		
+		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
+		url.searchParams.append("id", messageId);
+
+		let res = await fetch(url, {method:"DELETE", headers:this.headers});
+		if(res.status == 200 || res.status == 204) {
+			//
+		}else{
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
+		}
+	}
 	
 	
 	
@@ -313,11 +429,10 @@ export default class YoutubeHelper {
 			this.connected = true;
 			
 			if(Object.keys(this._emotes).length == 0) {
+				await this.getUserInfo();
 				const emotesQuery = await fetch("/youtube/emote_list.json");
 				let json = await emotesQuery.json();
 				this._emotes = json;
-				console.log("EMOTE LIST");
-				console.log(json);
 			}
 			return true;
 		}else {

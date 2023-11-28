@@ -21,6 +21,7 @@ import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -1409,7 +1410,17 @@ export const storeChat = defineStore('chat', {
 				}
 				
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-					TwitchUtils.deleteMessages(message.channel_id, message.id);
+					switch(message.platform) {
+						case "twitch":{
+							TwitchUtils.deleteMessages(message.channel_id, message.id);
+							break;
+						}
+						case "youtube":{
+							YoutubeHelper.instance.deleteMessage(message.id);
+							break;
+						}
+					}
+					Database.instance.updateMessage(message);
 				}
 			}else{
 				messageList.splice(i, 1);

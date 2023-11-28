@@ -241,7 +241,7 @@ export interface IAccountActions {
 
 
 
-type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>
+export type RequireField<T, K extends keyof T> = T & Required<Pick<T, K>>
 
 export type IAuthState = {
 	/**
@@ -457,7 +457,7 @@ export interface IChatActions {
 	 * @param deleterData 
 	 * @param callEndpoint 
 	 */
-	deleteMessageByID(messageID:string, deleteData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
+	deleteMessageByID(messageID:string, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete all messages of a channel
 	 * @param channelId 
