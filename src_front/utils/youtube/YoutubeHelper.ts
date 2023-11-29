@@ -59,9 +59,13 @@ export default class YoutubeHelper {
 		const token	= DataStore.get(DataStore.YOUTUBE_AUTH_TOKEN);
 		if(token) {
 			this._token = JSON.parse(token);
-			this.refreshToken().then(()=> {
-				//This will start automatic polling session
+			this.refreshToken().then(async ()=> {
+				await this.loadUserInfoAndEmotes();
+				//Wait 5s so messages have time to load from DB to avoid duplicates
+				//after loading history from youtube.
+				//Yeah... extremely dirty way of dealing with async stuff... but I haven't slep for 26h T_T
 				setTimeout(()=> {
+					//This will start automatic polling session
 					this.getCurrentLiveBroadcast();
 				}, 5000)
 			})
@@ -99,7 +103,8 @@ export default class YoutubeHelper {
 			}, token.expiry_date - Date.now() - 60000);
 			this.connected = true;
 			//This will start automatic polling session
-			this.getCurrentLiveBroadcast();
+			await this.loadUserInfoAndEmotes();
+			await this.getCurrentLiveBroadcast();
 			return token;
 		}else {
 			this._token = null;
@@ -427,13 +432,6 @@ export default class YoutubeHelper {
 				this.refreshToken();
 			}, token.expiry_date - Date.now() - 60000);
 			this.connected = true;
-			
-			if(Object.keys(this._emotes).length == 0) {
-				await this.getUserInfo();
-				const emotesQuery = await fetch("/youtube/emote_list.json");
-				let json = await emotesQuery.json();
-				this._emotes = json;
-			}
 			return true;
 		}else {
 			this._token = null;
@@ -467,5 +465,17 @@ export default class YoutubeHelper {
 			})
 		}
 		return TwitchUtils.parseMessageToChunks(src, emoteDefs, false, "youtube");
+	}
+
+	/**
+	 * Loads user and emotes
+	 */
+	private async loadUserInfoAndEmotes():Promise<void> {
+		if(Object.keys(this._emotes).length == 0) {
+			await this.getUserInfo();
+			const emotesQuery = await fetch("/youtube/emote_list.json");
+			let json = await emotesQuery.json();
+			this._emotes = json;
+		}
 	}
 }

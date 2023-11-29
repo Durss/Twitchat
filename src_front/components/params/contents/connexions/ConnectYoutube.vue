@@ -1,13 +1,12 @@
 <template>
 	<ToggleBlock :open="open" class="connectyoutube" title="Youtube" :icons="['youtube']">
 		<div class="holder">
+			<div class="card-item primary" v-if="connected && showSuccess" @click="showSuccess = false">{{ $t("connexions.youtube.success") }}</div>
 			<div>{{ $t("connexions.youtube.header") }}</div>
 			<Button icon="youtube" @click="oauth()" :loading="loading" v-if="!connected">{{ $t("global.connect") }}</Button>
 			<Button icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</Button>
 			
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
-	
-			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.youtube.success") }}</div>
 		</div>
 	</ToggleBlock>
 </template>
