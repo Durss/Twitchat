@@ -1063,10 +1063,12 @@ export default class TriggerActionHandler {
 									}
 								}
 								if(step.waitMediaEnd === true && (action == "show" || action == "replay")) {
-									logStep.messages.push({date:Date.now(), value:"Wait for media to complete playing..."});
+									logStep.messages.push({date:Date.now(), value:"Wait for media \""+step.sourceName+"\" to complete playing..."});
 									await new Promise<void>((resolve, reject)=> {
 										const handler = (e:TwitchatEvent) => {
-											logStep.messages.push({date:Date.now(), value:"Media playing complete."});
+											const d = e.data as {inputName:string};
+											if(d.inputName != step.sourceName) return;
+											logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
 											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
 											resolve();
 										}

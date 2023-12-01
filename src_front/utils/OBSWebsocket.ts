@@ -978,6 +978,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		});
 		
 		this.obs.on("MediaInputPlaybackEnded", async (e:{inputName:string}) => {
+			this.log("Media playback complete: "+e.inputName);
 			this.dispatchEvent(new TwitchatEvent(TwitchatEvent.OBS_PLAYBACK_ENDED, e));
 		});
 
