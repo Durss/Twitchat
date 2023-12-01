@@ -121,7 +121,7 @@ interface LogAds {
 interface LogYoutube {
 	date:number;
 	log?:string;
-	quota?:number;
+	credits?:number;
 	liveID?:string;
 	error?:unknown;
 }

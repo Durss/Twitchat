@@ -509,10 +509,12 @@ export default class MessengerProxy {
 		
 		if(cmd == "/adslogs") {
 			Logger.instance.download("ads");
+			return true;
 		}else
 		
 		if(cmd == "/youtubelogs") {
 			Logger.instance.download("youtube");
+			return true;
 		}else
 
 		if(cmd == "/streamsummary") {

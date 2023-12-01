@@ -485,6 +485,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public clearSourceTransformCache():void {
 		this.sceneDisplayRectsCache = {};
+		this.sceneSourceCache = {};
 	}
 
 	/**
@@ -624,6 +625,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 	/**
 	 * Gets the ID of a scene item by its name
+	 * Kinda useless as it doesn't search in nested groups and sources -_-
 	 * @param sourceName 
 	 * @param sceneName will search on current scene if not specified
 	 * @returns 

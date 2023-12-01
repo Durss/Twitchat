@@ -104,7 +104,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 	public idToExpandState:{[key:string]:boolean} = {};
 
 	public get logs():LogTrigger[] {
-		return Logger.instance.getLogs("triggers");
+		return Logger.instance.getLogs("triggers").reverse();
 	}
 
 	public getTriggerClasses(log:LogTrigger):string[] {
@@ -254,6 +254,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 					display: inline-flex;
 					flex-direction: column;
 					gap: .25em;
+					max-width: 90%;
 					.head {
 						gap: .5em;
 						display: flex;
