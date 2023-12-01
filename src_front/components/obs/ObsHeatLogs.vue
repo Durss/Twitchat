@@ -1,8 +1,8 @@
 <template>
 	<div class="obsheatlogs sidePanel">
 		<div class="head">
-			<h1 class="title">OBS/Heat logs</h1>
-			<div class="subtitle">Get logs about what happens when you click on OBS sources via heat</div>
+			<h1 class="title">OBS logs</h1>
+			<div class="subtitle">Get logs about what happens with OBS-websocket</div>
 			<CloseButton @click="close" />
 		</div>
 		

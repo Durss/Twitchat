@@ -67,7 +67,7 @@
 			<Button small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</Button>
 			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
-			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS/heat logs</Button>
+			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
 			<Button small secondary type="link" :href="pubsubHistoryLink" target="_blank" icon="download" v-if="pubsubHistoryLink">Download</Button>
 		</div>
