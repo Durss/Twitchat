@@ -514,6 +514,10 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						const code = Utils.pickRand<TwitchatDataTypes.MessageMusicAddedToQueueData["failCode"]>(["spotify_not_connected", "wrong_url", "no_result", "api", "max_duration"]);
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failCode = code;
 						(m as TwitchatDataTypes.MessageMusicAddedToQueueData).failReason = this.$t("triggers.actions.music.fail_reasons."+code, {DURATION:"03:33", SEARCH:"Mitchiri Neko March"});
+					}else
+
+					if(triggerEvent.value == TriggerTypes.AD_APPROACHING) {
+						(m as TwitchatDataTypes.MessageAdBreakApproachingData).delay_ms = trigger.adBreakDelay || 0;
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

@@ -33,16 +33,16 @@
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
 		</div>
 		
-		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="allowHighlight && subContent == 'credits'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="allowHighlight && subContent == 'heatDistort'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="allowHighlight && subContent == 'wheel'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="allowHighlight && subContent == 'highlight'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="allowHighlight && subContent == 'timer'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="allowHighlight && subContent == 'counter'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="allowHighlight && subContent == 'credits'? 'selected' : ''" @click="allowHighlight = false" ref="credits" />
+		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="allowHighlight && subContent == 'heatDistort'? 'selected' : ''" @click="allowHighlight = false" ref="heatDistort" />
+		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="allowHighlight && subContent == 'wheel'? 'selected' : ''" @click="allowHighlight = false" ref="wheel" />
+		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="allowHighlight && subContent == 'highlight'? 'selected' : ''" @click="allowHighlight = false" ref="highlight" />
+		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" ref="spotify" />
+		<OverlayParamsTimer class="block" :open="subContent == 'timer'" :class="allowHighlight && subContent == 'timer'? 'selected' : ''" @click="allowHighlight = false" ref="timer" />
+		<OverlayParamsCounter class="block" :open="subContent == 'counter'" :class="allowHighlight && subContent == 'counter'? 'selected' : ''" @click="allowHighlight = false" ref="counter" />
 		<!-- <OverlayParamsTTS class="block" :open="subContent == 'tts'" :class="allowHighlight && subContent == 'tts'? 'selected' : ''" /> -->
-		<OverlayParamsAdBreak v-if="adStuffAvailable" class="block" :open="subContent == 'adBreak'" :class="allowHighlight && subContent == 'adBreak'? 'selected' : ''" @click="allowHighlight = false" />
-		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="allowHighlight && subContent == 'ulule'? 'selected' : ''" @click="allowHighlight = false" />
+		<OverlayParamsAdBreak v-if="adStuffAvailable" class="block" :open="subContent == 'adBreak'" :class="allowHighlight && subContent == 'adBreak'? 'selected' : ''" @click="allowHighlight = false" ref="adBreak" />
+		<OverlayParamsUlule class="block" :open="subContent == 'ulule'" :class="allowHighlight && subContent == 'ulule'? 'selected' : ''" @click="allowHighlight = false" ref="ulule" />
 	</div>
 </template>
 
@@ -99,7 +99,14 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public get subContent() { return this.$store("params").currentPageSubContent; }
 
+	public mounted():void {
+		if(this.subContent) {
+			const holder = (this.$refs[this.subContent] as Vue)?.$el;
+			if(holder) holder.scrollIntoView();
+		}
+	}
 }
+
 </script>
 
 <style scoped lang="less">
@@ -120,12 +127,14 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	.block {
 		width: 100%;
 		flex-grow: 1;
+		border: 0 solid transparent;
+		transition: border-width .25s;
 
 		&.selected {
-			border: 5px solid transparent;
+			border-width: 5px;
 			border-radius: 1em;
 			animation: blink .5s 3 forwards;
-			animation-delay: 1s;
+			animation-delay: .5s;
 			@keyframes blink {
 				0% {
 					border-color: var(--color-secondary);

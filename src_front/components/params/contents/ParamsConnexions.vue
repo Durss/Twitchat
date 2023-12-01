@@ -4,19 +4,19 @@
 
 		<p class="head">{{ $t("connexions.header") }}</p>
 
-		<ToggleBlock class="item" title="OBS websocket" :icons="['obs']" :open="subContent == 'obs'" :class="subContent == 'obs'? 'selected' : ''">
+		<ToggleBlock class="item" title="OBS websocket" :icons="['obs']" :open="subContent == 'obs'" :class="allowHighlight && subContent == 'obs'? 'selected' : ''" @click="allowHighlight = false">
 			<OBSConnectForm />
 		</ToggleBlock>
 
-		<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="subContent == 'youtube'? 'selected' : ''" />
+		<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'selected' : ''" @click="allowHighlight = false" />
 
-		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="subContent == 'spotify'? 'selected' : ''" />
+		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" />
 
 		<!-- <ToggleBlock class="item" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'selected' : ''">
 			<ParamsAccountPatreon />
 		</ToggleBlock> -->
 		
-		<ConnectWebsocket class="item" :open="subContent == 'websocket'" :class="subContent == 'websocket'? 'selected' : ''" />
+		<ConnectWebsocket class="item" :open="subContent == 'websocket'" :class="allowHighlight && subContent == 'websocket'? 'selected' : ''" @click="allowHighlight = false" />
 	</div>
 </template>
 
@@ -44,11 +44,21 @@ import Config from '@/utils/Config';
 })
 export default class ParamsConnexions extends Vue implements IParameterContent {
 
+	public allowHighlight:boolean = true;
+
 	public onNavigateBack(): boolean { return false; }
 
 	public get subContent() { return this.$store("params").currentPageSubContent; }
 	
 	public get youtubeEnabled() { return Config.instance.YOUTUBE_CLIENT_ID; }
+
+	public async mounted():Promise<void> {
+		await this.$nextTick();
+		if(this.subContent) {
+			const holder = (this.$refs[this.subContent] as Vue)?.$el;
+			if(holder) holder.scrollIntoView();
+		}
+	}
 }
 </script>
 
@@ -56,12 +66,15 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 .paramsconnexions{
 	.item {
 		width: 100%;
+		flex-grow: 1;
+		border: 0 solid transparent;
+		transition: border-width .25s;
 
 		&.selected {
-			border: 5px solid transparent;
+			border-width: 5px;
 			border-radius: 1em;
 			animation: blink .5s 3 forwards;
-			animation-delay: 1s;
+			animation-delay: .5s;
 			@keyframes blink {
 				0% {
 					border-color: var(--color-secondary);

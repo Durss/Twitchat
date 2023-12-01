@@ -1198,6 +1198,33 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE: {
+					const m:TwitchatDataTypes.MessageAdBreakCompleteData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
+						startedBy:user
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING: {
+					console.log("APPROACHING");
+					const m:TwitchatDataTypes.MessageAdBreakApproachingData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						delay_ms:30000,
+						start_at:Date.now() + 30000,
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;

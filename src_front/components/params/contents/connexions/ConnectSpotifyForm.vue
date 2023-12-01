@@ -1,7 +1,10 @@
 <template>
 	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
 		<div class="holder">
-			<div v-if="!connected">{{ $t("connexions.spotify.usage") }}</div>
+			<template v-if="!connected">
+				<div>{{ $t("connexions.spotify.usage") }}</div>
+				<div class="card-item secondary">{{ $t("connexions.spotify.usage_premium") }}</div>
+			</template>
 	
 			<div class="info" v-if="!connected && !authenticating">
 				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
@@ -35,7 +38,10 @@
 						<a @click="openTriggers()">{{ $t("connexions.spotify.usage_connected_triggers") }}</a>
 					</template>
 				</i18n-t>
-				<Button class="connectBt" @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</Button>
+
+				<div class="card-item secondary">{{ $t("connexions.spotify.usage_premium") }}</div>
+
+				<Button @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</Button>
 			</template>
 	
 			<Icon v-if="authenticating" name="loader" />

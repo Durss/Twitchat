@@ -45,6 +45,7 @@ import AbstractSidePanel from '../AbstractSidePanel.vue';
 import ParamItem from '../params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Button from '../Button.vue';
+import Logger from '@/utils/Logger';
 
 @Component({
 	components:{
@@ -67,12 +68,12 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 		this.expandState = [];
 		if(this.param_search.value) {
 			const reg = new RegExp(this.search, "gi");
-			return OBSWebsocket.instance.logs.filter(v=> {
+			return Logger.instance.getLogs("obs").filter(v=> {
 				reg.lastIndex = 0
 				return reg.test(v.info)
 			});
 		}else{
-			return OBSWebsocket.instance.logs;
+			return Logger.instance.getLogs("obs");
 		}
 	}
 	
@@ -83,10 +84,11 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 
 	public async mounted():Promise<void> {
 		this.open();
+		console.log(Logger.instance.getLogs("obs"));
 	}
 
 	public async clearLogs():Promise<void> {
-		OBSWebsocket.instance.logs = [];
+		Logger.instance.clear("obs")
 	}
 
 	public async downloadLogs():Promise<void> {

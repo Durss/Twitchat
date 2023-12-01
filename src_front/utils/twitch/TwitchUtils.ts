@@ -1,9 +1,9 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataTypes";
 import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
+import Logger from "../Logger";
 import Utils from "../Utils";
 import BTTVUtils from "../emotes/BTTVUtils";
 import FFZUtils from "../emotes/FFZUtils";
@@ -17,8 +17,6 @@ export default class TwitchUtils {
 
 	public static cheermoteCache:{[key:string]:TwitchDataTypes.CheermoteSet[]} = {};
 	public static emotesCache:TwitchatDataTypes.Emote[] = [];
-	public static adsAPIHistory:{date:number, log?:string, api?:TwitchDataTypes.AdSchedule, es?:TwitchEventSubDataTypes.AdBreakEvent, internal?:TwitchatDataTypes.CommercialData}[] = [];
-	
 	private static badgesCache:{[key:string]:{[key:string]:{[key:string]:TwitchatDataTypes.TwitchatUserBadge}}} = {};
 	private static rewardsCache:TwitchDataTypes.Reward[] = [];
 	private static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
@@ -1006,8 +1004,7 @@ export default class TwitchUtils {
 	public static async startCommercial(duration:number, channelId:string):Promise<TwitchDataTypes.Commercial|null> {
 		if(!this.hasScopes([TwitchScopes.START_COMMERCIAL])) return null;
 		
-		TwitchUtils.adsAPIHistory.push({
-			date:Date.now(),
+		Logger.instance.log("ads", {
 			log:"Start a commercial for "+duration+"s"
 		});
 		
@@ -2280,8 +2277,7 @@ export default class TwitchUtils {
 	public static async getAdSchedule():Promise<TwitchDataTypes.AdSchedule|null> {
 		if(!this.hasScopes([TwitchScopes.ADS_READ])) return null;
 		
-		TwitchUtils.adsAPIHistory.push({
-			date:Date.now(),
+		Logger.instance.log("ads", {
 			log:"Request ad schedule"
 		});
 
@@ -2317,15 +2313,12 @@ export default class TwitchUtils {
 					prevAdStart_at:			new Date(typeof data.last_ad_at == "number"? data.last_ad_at * 1000 : data.last_ad_at).getTime(),
 					nextSnooze_at:			new Date(typeof data.snooze_refresh_at == "number"? data.snooze_refresh_at * 1000 : data.snooze_refresh_at).getTime(),
 				};
-				this.adsAPIHistory.push({
-					date:Date.now(),
+				Logger.instance.log("ads", {
 					log:"Ad schedule loaded",
 					api:data,
 					internal:infos,
 				});
 				StoreProxy.stream.setCommercialInfo(user.id, infos);
-				//Limit history size
-				if(this.adsAPIHistory.length > 1000) this.adsAPIHistory.splice(1);
 				return data;
 			}
 		}else if(res.status == 429) {

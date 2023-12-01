@@ -6,19 +6,20 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import gsap from "gsap";
 import * as MathJS from 'mathjs';
 import type { JsonObject } from "type-fest";
-import { reactive } from "vue";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
-import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerLog, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
+import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import ApiController from "../ApiController";
 import Config from "../Config";
+import type { LogTrigger, LogTriggerStep } from "../Logger";
+import Logger from "../Logger";
 import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
-import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
 import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
@@ -32,7 +33,6 @@ export default class TriggerActionHandler {
 	private static _instance:TriggerActionHandler;
 
 	public emergencyMode:boolean = false;
-	public logHistory:TriggerLog[] = reactive([]);
 
 	// private actionsSpool:TwitchatDataTypes.ChatMessageTypes[] = [];
 	private userCooldowns:{[key:string]:number} = {};
@@ -683,28 +683,25 @@ export default class TriggerActionHandler {
 	 * Execute a specific trigger
 	 */
 	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false):Promise<boolean> {
-		let log:TriggerLog = {
+		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
+
+		let log:Omit<LogTrigger, "date"> = {
 			id:Utils.getUUID(),
 			trigger,
-			date:Date.now(),
 			complete:false,
 			skipped:false,
 			error:false,
 			criticalError:false,
 			data: message,
 			testMode,
-			steps:[],
-			messages:[],
+			entries:[],
 		};
-		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
 
 		const isPremium = StoreProxy.auth.isPremium;
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS,TriggerTypes.TWITCHAT_MESSAGE]
-		if(!noLogs.includes(trigger.type))	this.logHistory.unshift(log);
-		//Only keep last 100 triggers
-		if(this.logHistory.length > 100)	this.logHistory.pop();
+		if(!noLogs.includes(trigger.type))	Logger.instance.log("triggers", log);
 	
 		//Special case for friends stream start/stop notifications
 		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
@@ -735,17 +732,17 @@ export default class TriggerActionHandler {
 		let triggerResolver: (()=>void) | null = null;
 		
 		if(queueKey) {
-			log.messages.push({date:Date.now(), value:"Execute trigger in queue \""+queueKey+"\""});
+			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""});
 			
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
 			queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
 			if(eventBusy) {
-				log.messages.push({date:Date.now(), value:"A trigger is already executing in this queue, wait for it to complete"});
+				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete"});
 				let prom = queue[queue.length-1] ?? Promise.resolve();
 				await prom;
-				log.messages.push({date:Date.now(), value:"Pending trigger complete, continue process"});
+				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process"});
 			}
 		}
 
@@ -771,13 +768,13 @@ export default class TriggerActionHandler {
 				}
 				//check user's permissions
 				if(trigger.permissions) {
-					log.messages.push({date:Date.now(), value:"Checking if "+message.user.login+" has the permission to use this trigger"});
+					log.entries.push({date:Date.now(), type:"message", value:"Checking if "+message.user.login+" has the permission to use this trigger"});
 				}
 				if(trigger.permissions && !await Utils.checkPermissions(trigger.permissions, message.user, message.channel_id)) {
-					log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is not allowed"});
+					log.entries.push({date:Date.now(), type:"message", value:"❌ User "+message.user.login+" is not allowed"});
 					canExecute = false;
 				}else if(trigger.cooldown){
-					log.messages.push({date:Date.now(), value:"Checking if "+message.user.login+" is on cooldown or not"});
+					log.entries.push({date:Date.now(), type:"message", value:"Checking if "+message.user.login+" is on cooldown or not"});
 					//User cooldown
 					const key = triggerId+this.HASHMAP_KEY_SPLITTER+message.user.id;
 					if(this.userCooldowns[key] > 0 && this.userCooldowns[key] > now) {
@@ -787,7 +784,7 @@ export default class TriggerActionHandler {
 							const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 							MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 						}
-						log.messages.push({date:Date.now(), value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
+						log.entries.push({date:Date.now(), type:"message", value:"❌ User "+message.user.login+" is on cooldown for "+remaining_s});
 						log.error = true;
 					}
 					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
@@ -801,7 +798,7 @@ export default class TriggerActionHandler {
 						const text = StoreProxy.i18n.t("global.cooldown", {USER:message.user.login, DURATION:remaining_s});
 						MessengerProxy.instance.sendMessage(text, [message.platform], message.channel_id);
 					}
-					log.messages.push({date:Date.now(), value:"❌ Trigger is on global cooldown for "+remaining_s});
+					log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is on global cooldown for "+remaining_s});
 					log.error = true;
 				}
 				else if(trigger.cooldown && trigger.cooldown.global > 0) this.globalCooldowns[triggerId] = now + trigger.cooldown.global * 1000;
@@ -831,7 +828,7 @@ export default class TriggerActionHandler {
 				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
 					const param = trigger.chatCommandParams[i];
 					dynamicPlaceholders[param.tag] = params[i] || "";
-					log.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
+					log.entries.push({date:Date.now(), type:"message", value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
 				}
 			}
 		}
@@ -841,16 +838,16 @@ export default class TriggerActionHandler {
 		let passesCondition = true;
 		//If trigger has conditions, check if the condition passes or not
 		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
-			log.messages.push({date:Date.now(), value:"Checking if conditions are fulfilled or not"});
+			log.entries.push({date:Date.now(), type:"message", value:"Checking if conditions are fulfilled or not"});
 			if(!testMode
 			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
-				log.messages.push({date:Date.now(), value:"❌ Conditions not fulfilled"});
+				log.entries.push({date:Date.now(), type:"message", value:"❌ Conditions not fulfilled"});
 				passesCondition = false;
 				log.error = true;
 			}else if(testMode){
-				log.messages.push({date:Date.now(), value:"✔ Trigger is being tested, force condition to pass"});
+				log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger is being tested, force condition to pass"});
 			}else{
-				log.messages.push({date:Date.now(), value:"✔ Conditions fulfilled"});
+				log.entries.push({date:Date.now(), type:"message", value:"✔ Conditions fulfilled"});
 			}
 	
 			//Filter actions to execute based on whether the condition is matched or not
@@ -861,14 +858,14 @@ export default class TriggerActionHandler {
 
 		if(!trigger || !actions || actions.length == 0) {
 			canExecute = false;
-			log.messages.push({date:Date.now(), value:"Trigger has no child actions"});
+			log.entries.push({date:Date.now(), type:"message", value:"Trigger has no child actions"});
 		}
 		
 		log.skipped = !canExecute;
 
 		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
 		if(!canExecute) {
-			log.messages.push({date:Date.now(), value:"❌ Trigger is not allowed to execute"});
+			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is not allowed to execute"});
 			passesCondition = false;
 			log.error = true;
 			if(queue.length > 0) queue.shift();
@@ -882,8 +879,8 @@ export default class TriggerActionHandler {
 		}
 
 		for (const step of actions) {
-			const logStep:TriggerActionDataTypes.TriggerLogStep = {id:Utils.getUUID(), date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
-			log.steps.push(logStep);
+			const logStep:LogTriggerStep = {id:Utils.getUUID(), type:"step", date:Date.now(), data:step, messages:[] as {date:number, value:string}[], error:false};
+			log.entries.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
 				
@@ -1160,7 +1157,7 @@ export default class TriggerActionHandler {
 								user,
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
-							log.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
+							log.entries.push({date:Date.now(), type:"message", value:"Highlight message \""+text+"\""});
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
 						}
 						StoreProxy.chat.isChatMessageHighlighted = true;
@@ -1173,7 +1170,7 @@ export default class TriggerActionHandler {
 				//Handle TTS action
 				if(step.type == "tts" && message) {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
-					log.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
+					log.entries.push({date:Date.now(), type:"message", value:"TTS read message \""+text+"\""});
 					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
 				}else
 				
@@ -1455,7 +1452,7 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
-									log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
+									log.entries.push({date:Date.now(), type:"message", value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									
 									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 									for (let i = 0; i < users.length; i++) {
@@ -1521,8 +1518,6 @@ export default class TriggerActionHandler {
 					const ids = step.values;
 					for (const v of StoreProxy.values.valueList) {
 						if(ids.indexOf(v.id) > -1) {
-							console.log("Edit", v, text);
-							console.log(step);
 							if(v.enabled == false && !isPremium) {
 								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
@@ -1537,7 +1532,7 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
-								log.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
+								log.entries.push({date:Date.now(), type:"message", value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
 								
 								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 								for (let i = 0; i < users.length; i++) {
@@ -1924,9 +1919,9 @@ export default class TriggerActionHandler {
 
 				//Handle custom chat messages
 				if(step.type == "customChat") {
-					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage.message || "", subEvent);
+					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customMessage?.message || "", subEvent);
 					const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);
-					const actions = (JSON.parse(JSON.stringify(step.customMessage.actions)) || []) as NonNullable<typeof step.customMessage.actions>;
+					const actions = (JSON.parse(JSON.stringify(step.customMessage?.actions)) || []) as NonNullable<typeof step.customMessage.actions>;
 					for (let i = 0; i < actions.length; i++) {
 						const a = actions[i];
 						if(a.label) {
@@ -2058,6 +2053,7 @@ export default class TriggerActionHandler {
 		if(triggerResolver != null) {
 			(triggerResolver as () => void)();//Proceed to next trigger in current queue
 		}
+		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 		log.complete = true;
 
 		// console.log("Steps parsed", actions);
@@ -2401,265 +2397,6 @@ export default class TriggerActionHandler {
 		}
 	}
 
-	// private async getValueFromPlaceholder(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, placeholder:string, subEvent?:string|null):Promise<unknown> {
-	// 	let placeholders = TriggerEventPlaceholders(trigger.type).concat() ?? [];//Clone it to avoid modifying original
-	// 	if(actionPlaceholder.length > 0) placeholders = placeholders.concat(actionPlaceholder);
-	// 	// console.log(placeholders);
-	// 	//No placeholders for this event type, just send back the source text
-	// 	if(placeholders.length == 0) return null;
-		
-	// 	const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
-	// 	const isPremium = StoreProxy.auth.isPremium;
-
-	// 	for (const placeholder of placeholders) {
-	// 		let value:unknown = "";
-	// 		let cleanSubevent = true;
-	// 		placeholder.tag = placeholder.tag.toUpperCase();
-
-	// 		//Special pointers parsing.
-	// 		//Pointers starting with "__" are parsed here
-	// 		if(placeholder.pointer.indexOf("__")==0) {
-	// 			let pointer = placeholder.pointer.toLowerCase();
-	// 			/**
-	// 			 * If the placeholder requests for the current stream info
-	// 			 */
-	// 			if(pointer.indexOf("__my_stream__") == 0 && StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]) {
-	// 				const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo;
-	// 				value = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id]?.[pointerLocal]?.toString() || "";
-	// 				if(!value) value = (pointerLocal == "viewers")? "0" : "-none-";
-
-	// 			/**
-	// 			 * If the placeholder requests for Ulule info
-	// 			 */
-	// 			}else if(pointer.indexOf("__ulule__") == 0 && ululeProject) {
-	// 				const pointerLocal = pointer.replace('__ulule__.', '');
-	// 				switch(pointerLocal) {
-	// 					case "url": value = ululeProject; break;
-	// 					case "name": {
-	// 						//This is a dirty duplicate of what's in OverlayParamsUlule.
-	// 						//Think about a cleaner way to do this
-	// 						let project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
-	// 						try {
-	// 							const apiRes = await ApiController.call("ulule/project", "GET", {project});
-	// 							if(apiRes.status == 200) {
-	// 								value = Utils.getQueryParameterByName("title") || apiRes.json.name_en || apiRes.json.name_fr || apiRes.json.name_ca || apiRes.json.name_de || apiRes.json.name_es || apiRes.json.name_it || apiRes.json.name_pt || apiRes.json.name_nl;
-	// 							}
-	// 						}catch(error){
-	// 							value = "";
-	// 						}
-	// 						break;
-	// 					}
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for trigger's info
-	// 			 */
-	// 			}else if(pointer.indexOf("__trigger__") == 0) {
-	// 				const pointerLocal = pointer.replace('__trigger__.', '');
-	// 				switch(pointerLocal) {
-	// 					case "name":{
-	// 						value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
-	// 						if(!value) value = "-no name-";
-	// 						break;
-	// 					}
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for the current OBS scene
-	// 			 */
-	// 			}else if(pointer.indexOf("__obs__") == 0) {
-	// 				const pointerLocal = pointer.replace('__obs__.', '');
-	// 				switch(pointerLocal) {
-	// 					case "scene": value = StoreProxy.main.currentOBSScene || "-none-"; break;
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for the current command
-	// 			 */
-	// 			}else if(pointer === "__command__") {
-	// 				value = subEvent || "-none-";
-	// 				cleanSubevent = false;
-					
-	// 			/**
-	// 			 * If the placeholder requests for the current timer value
-	// 			 */
-	// 			}else if(pointer.indexOf("__timer__") == 0) {
-	// 				const pointerLocal = pointer.replace('__timer__.', '');
-	// 				const timer = StoreProxy.timer.timer;
-	// 				if(timer) {
-	// 					let start = timer.startAt_ms;
-	// 					let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
-	// 					if(timer.paused) {
-	// 						elapsed -= Date.now() - timer.pausedAt!;
-	// 					}
-	// 					if(pointerLocal == "value") {
-	// 						value = Math.round(elapsed / 1000).toString();
-	// 					}else
-	// 					if(pointerLocal == "value_formated") {
-	// 						value = Utils.formatDuration(elapsed);
-	// 					}
-	// 				}else{
-	// 					value = "0";
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for the current countdown value
-	// 			 */
-	// 			}else if(pointer.indexOf("__countdown__") == 0) {
-	// 				const pointerLocal = pointer.replace('__countdown__.', '');
-	// 				const cd = StoreProxy.timer.countdown;
-	// 				if(cd) {
-	// 					let elapsed = Date.now() - cd.startAt_ms;
-	// 					if(cd.paused) {
-	// 						elapsed -= Date.now() - cd.pausedAt!;
-	// 					}
-	// 					const remaining = Math.ceil((cd.duration_ms - elapsed)/1000)*1000;
-	// 					if(pointerLocal == "value") {
-	// 						value = Math.round(remaining / 1000).toString();
-	// 					}else
-	// 					if(pointerLocal == "value_formated") {
-	// 						value = Utils.formatDuration(remaining);
-	// 					}else
-	// 					if(pointerLocal == "duration") {
-	// 						value = Math.round(cd.duration_ms / 1000).toString();
-	// 					}else
-	// 					if(pointerLocal == "duration_formated") {
-	// 						value = Utils.formatDuration(cd.duration_ms);
-	// 					}
-	// 				}else{
-	// 					value = "0";
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for a goxlr value
-	// 			 */
-	// 			}else if(pointer.indexOf("__goxlr__") == 0) {
-	// 				const pointerLocal = pointer.split(".").splice(1);
-	// 				if(pointerLocal[0] == "cough") {
-	// 					value = GoXLRSocket.instance.getButtonState( "Cough" ) === true ? "true" : "false";
-	// 				}else
-	// 				if(pointerLocal[0] == "profile") {
-	// 					value = GoXLRSocket.instance.currentProfile;
-	// 				}else
-	// 				if(pointerLocal[0] == "input") {
-	// 					type keys = "mic"|"chat"|"music"|"game"|"console"|"linein"|"system"|"sample";
-	// 					const input = pointerLocal[1] as keys;
-	// 					const hashmap:{[key in keys]:keyof GoXLRTypes.Volumes} = {
-	// 						mic:"Mic",
-	// 						chat:"Chat",
-	// 						music:"Music",
-	// 						game:"Game",
-	// 						console:"Console",
-	// 						linein:"LineIn",
-	// 						system:"System",
-	// 						sample:"Sample",
-	// 					}
-	// 					if(hashmap[input]) {
-	// 						value = GoXLRSocket.instance.getInputVolume( hashmap[input] ).toString();
-	// 					}else{
-	// 						value = "0";
-	// 					}
-	// 				}else
-	// 				if(pointerLocal[0] == "fx") {
-	// 					switch(pointerLocal[1]) {
-	// 						case "enabled": value = GoXLRSocket.instance.fxEnabled===true? "true" : "false"; break;
-	// 						case "preset": value = (GoXLRSocket.instance.activeEffectPreset + 1).toString(); break;
-	// 						case "megaphone": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectMegaphone")===true? "true" : "false"; break;
-	// 						case "robot": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectRobot")===true? "true" : "false"; break;
-	// 						case "hardtune": value = GoXLRSocket.instance.getIsToggleButtonActive("EffectHardTune")===true? "true" : "false"; break;
-	// 						case "reverb": value = GoXLRSocket.instance.getButtonState("reverb").toString(); break;
-	// 						case "pitch": value = GoXLRSocket.instance.getButtonState("pitch").toString(); break;
-	// 						case "echo": value = GoXLRSocket.instance.getButtonState("echo").toString(); break;
-	// 						case "gender": value = GoXLRSocket.instance.getButtonState("gender").toString(); break;
-	// 					}
-	// 				}else
-	// 				if(pointerLocal[0] == "fader") {
-	// 					switch(pointerLocal[1]) {
-	// 						case "a": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader1Mute")===true? "true" : "false"; break;
-	// 						case "b": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader2Mute")===true? "true" : "false"; break;
-	// 						case "c": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader3Mute")===true? "true" : "false"; break;
-	// 						case "d": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader4Mute")===true? "true" : "false"; break;
-	// 					}
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for a counter's value
-	// 			 */
-	// 			}else if(pointer.indexOf("__counter__") == 0) {
-	// 				const counterPH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.COUNTER_VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
-	// 				const counter = StoreProxy.counters.counterList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === counterPH.toLowerCase());
-	// 				if(counter) {
-	// 					if(!isPremium && counter.enabled == false) {
-	// 						value = "NOT_PREMIUM"
-	// 					}else
-	// 					if(counter.perUser === true) {
-	// 						//If it's a per-user counter, get the user's value
-	// 						let user = this.extractUserFromTrigger(trigger, message);
-	// 						if(user && counter.users && counter.users[user.id]) {
-	// 							value = counter.users[user.id].toString();
-	// 						}else{
-	// 							value = "0";
-	// 						}
-	// 					}else{
-	// 						//Simple counter, just get its value
-	// 						value = counter.value.toString();
-	// 					}
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for a value's value
-	// 			 */
-	// 			}else if(pointer.indexOf("__value__") == 0) {
-	// 				const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
-	// 				const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
-	// 				if(valueEntry) {
-	// 					if(!isPremium && valueEntry.enabled == false) {
-	// 						value = "NOT_PREMIUM"
-	// 					}else{
-	// 						value = valueEntry.value.toString();
-	// 					}
-	// 				}
-
-	// 			/**
-	// 			 * If the placeholder requests for currently playing music track
-	// 			 */
-	// 			}else if(pointer.indexOf("__current_track__") == 0 && SpotifyHelper.instance.currentTrack) {
-	// 				const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys;
-	// 				switch(pointerLocal) {
-	// 					case "title": value = SpotifyHelper.instance.currentTrack.title; break;
-	// 					case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
-	// 					case "album": value = SpotifyHelper.instance.currentTrack.album; break;
-	// 					case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
-	// 					case "url": value = SpotifyHelper.instance.currentTrack.url; break;
-	// 				}
-	// 			}
-	// 		}else{
-	// 			const chunks:string[] = placeholder.pointer.split(".");
-	// 			let root = message as unknown;
-
-	// 			//Dynamic parsing of the pointer
-	// 			try {
-	// 				//Dynamically search for the requested prop's value within the object
-	// 				const rebuilt:string[] = [];
-	// 				chunks: for (let i = 0; i < chunks.length; i++) {
-	// 					rebuilt.push(chunks[i])
-	// 					root = (root as {[key:string]:unknown})[chunks[i]];
-	// 					if(Array.isArray(root)) {
-	// 						root = (root as {[key:string]:string}[]).map(v=> v[chunks[i+2]]).join(", ");
-	// 						break chunks;
-	// 					}
-	// 				}
-	// 				if(typeof root === "number") root = root.toString();
-	// 				value = root as string;
-	// 			}catch(error) {
-	// 				console.warn("Unable to find pointer for helper", placeholder);
-	// 				value = "";
-	// 			}
-	// 		}
-	// 	}
-	// }
-	// :/*
-
 	/**
 	 * Extracts a user from a trigger message based on the available placeholders
 	 */
@@ -2687,7 +2424,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Converts a placeholder to a user by search a user from their display name
 	 */
-	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog):Promise<TwitchatDataTypes.TwitchatUser[]> {
+	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
 		
 		//Not ideal but if there are multiple users they're concatenated in
@@ -2702,14 +2439,16 @@ export default class TriggerActionHandler {
 				//I can't just use "message.platform" as this contains "twitchat" for messages
 				//like raffle and bingo results. Full user loading only happens if "twitch"
 				//platform is specified, the user would remain in a temporary state otherwise
-				StoreProxy.users.getUserFrom("twitch", channel_id, undefined, undefined, displayName.trim(), (userData)=>{
+				//[EDIT] basic workaround applied bellow
+				const platform = message.platform == "twitchat"? "twitch" : message.platform;
+				StoreProxy.users.getUserFrom(platform, channel_id, undefined, undefined, displayName.trim(), (userData)=>{
 					let user:TwitchatDataTypes.TwitchatUser|undefined;
 					if(userData.errored || userData.temporary) {
-						log.messages.push({date:Date.now(), value:"❌ Custom user loading failed!"});
+						log.entries.push({date:Date.now(), type:"message", value:"❌ Custom user loading failed!"});
 						user = undefined;
 					}else{
 						user = userData;
-						log.messages.push({date:Date.now(), value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
+						log.entries.push({date:Date.now(), type:"message", value:"✔ Custom user loading complete: "+user.displayName+"(#"+user.id+")"});
 					}
 					resolve(user);
 				});
@@ -2803,7 +2542,7 @@ export default class TriggerActionHandler {
 	 * @param log 
 	 * @param subEvent 
 	 */
-	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:TriggerLog, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
+	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
@@ -2811,6 +2550,10 @@ export default class TriggerActionHandler {
 			if(c.type == "group") {
 				localRes = await this.checkConditions(c.operator, c.conditions, trigger, message, log, dynamicPlaceholders, subEvent);
 			}else{
+				//Some user got corrupted data where those 3 values were missing
+				//This is a fail-safe
+				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
+
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				let valueNum = null;
@@ -2835,7 +2578,7 @@ export default class TriggerActionHandler {
 					case "not_starts_with": localRes = !value.toLowerCase().startsWith(expectation.toLowerCase()); break;
 					default: localRes = false;
 				}
-				log.messages.push({date:Date.now(), value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
+				log.entries.push({date:Date.now(), type:"message", value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
 			}
 			
 			if(index == 0) res = localRes;

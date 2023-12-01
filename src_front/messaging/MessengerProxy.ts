@@ -13,6 +13,7 @@ import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
 import OBSWebsocket from "@/utils/OBSWebsocket";
+import Logger from "@/utils/Logger";
 /**
 * Created : 26/09/2022 
 */
@@ -504,6 +505,14 @@ export default class MessengerProxy {
 		if(isAdmin && cmd == "/betamigrate") {
 			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
+		}else
+		
+		if(cmd == "/adslogs") {
+			Logger.instance.download("ads");
+		}else
+		
+		if(cmd == "/youtubelogs") {
+			Logger.instance.download("youtube");
 		}else
 
 		if(cmd == "/streamsummary") {

@@ -36,13 +36,30 @@
 				</div>
 				<div class="messages" v-if="idToExpandState[item.id] == true">
 					<ul class="messages">
-						<li v-for="mess in item.messages">
-							<span class="date">{{ getFormatedDime(mess.date) }}</span>
-							<span>{{ mess.value }}</span>
+						<li v-for="entry in item.entries">
+							<template v-if="entry.type == 'message'">
+								<span class="date">{{ getFormatedDime(entry.date) }}</span>
+								<span>{{ entry.value }}</span>
+							</template>
+							<template v-else>
+								<div :class="getStepClasses(entry)">
+									<div :class="getHeadClasses(entry)" @click="idToExpandState[entry.id] = !idToExpandState[entry.id]">
+										<span class="date">{{ getFormatedDime(entry.date) }}</span>
+										<span>{{ entry.data.type }}</span>
+										<Icon name="arrowRight" />
+									</div>
+									<ul class="messages" v-if="idToExpandState[entry.id]">
+										<li v-for="mess in entry.messages">
+											<span class="date">{{ getFormatedDime(mess.date) }}</span>
+											<span>{{ mess.value }}</span>
+										</li>
+									</ul>
+								</div>
+							</template>
 						</li>
 					</ul>
 				</div>
-				<div class="steps" v-if="idToExpandState[item.id] == true">
+				<!-- <div class="steps" v-if="idToExpandState[item.id] == true">
 					<div v-for="step in item.steps" :class="getStepClasses(step)">
 						<div :class="getHeadClasses(step)" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
 							<span class="date">{{ getFormatedDime(step.date) }}</span>
@@ -56,16 +73,16 @@
 							</li>
 						</ul>
 					</div>
-				</div>
+				</div> -->
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TriggerData, TriggerLog, TriggerLogStep } from '@/types/TriggerActionDataTypes';
+import type { TriggerData } from '@/types/TriggerActionDataTypes';
+import Logger, { type LogTrigger, type LogTriggerStep } from '@/utils/Logger';
 import Utils from '@/utils/Utils';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel.vue';
 import Button from '../Button.vue';
@@ -86,11 +103,11 @@ export default class TriggersLogs extends AbstractSidePanel {
 
 	public idToExpandState:{[key:string]:boolean} = {};
 
-	public get logs():TriggerLog[] {
-		return TriggerActionHandler.instance.logHistory;
+	public get logs():LogTrigger[] {
+		return Logger.instance.getLogs("triggers");
 	}
 
-	public getTriggerClasses(log:TriggerLog):string[] {
+	public getTriggerClasses(log:LogTrigger):string[] {
 		const res = ["entry"];
 		if(log.error) res.push("secondary");
 		if(log.criticalError) res.push("alert");
@@ -98,14 +115,14 @@ export default class TriggersLogs extends AbstractSidePanel {
 		return res;
 	}
 
-	public getHeadClasses(step:TriggerLogStep):string[] {
+	public getHeadClasses(step:LogTriggerStep):string[] {
 		const res = ["head"];
 		if(this.idToExpandState[step.id]) res.push("open");
 		if(step.error) res.push("secondary");
 		return res;
 	}
 
-	public getStepClasses(step:TriggerLogStep):string[] {
+	public getStepClasses(step:LogTriggerStep):string[] {
 		const res = ["step"];
 		if(step.error) res.push("secondary");
 		return res;
@@ -132,7 +149,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 	}
 
 	public clearList():void {
-		TriggerActionHandler.instance.logHistory.splice(0);
+		Logger.instance.clear("triggers");
 		this.refreshList();
 	}
 
@@ -221,50 +238,48 @@ export default class TriggersLogs extends AbstractSidePanel {
 			font-size: .7em;
 		}
 
-		.steps {
-			padding-left: 1.5em;
-			display: flex;
-			flex-direction: column;
-			gap: .5em;
-			.step {
-				display: flex;
-				flex-direction: column;
-				gap: .25em;
-				.head {
-					gap: .5em;
-					display: flex;
-					flex-direction: row;
-					align-items: center;
-					align-self: flex-start;
-					background-color: var(--color-primary-dark);
-					transition: background-color.25s;
-					&:hover {
-						background-color: var(--color-primary);
-					}
-					.icon {
-						height: 1em;
-					}
-					&.open {
-						.icon {
-							transform: rotate(90deg);
-						}
-					}
-					&.secondary {
-						background-color: var(--color-secondary-dark);
-						&:hover {
-							background-color: var(--color-secondary);
-						}
-					}
-				}
-			}
-		}
 		.messages {
 			padding-left: .5em;
 			font-size: .9em;
 			list-style-position: inside;
+			display: flex;
+			flex-direction: column;
+			gap: .5em;
+			
 			li {
 				.date {
 					margin-right: .5em;
+				}
+				.step {
+					display: inline-flex;
+					flex-direction: column;
+					gap: .25em;
+					.head {
+						gap: .5em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
+						align-self: flex-start;
+						background-color: var(--color-primary-dark);
+						transition: background-color.25s;
+						&:hover {
+							background-color: var(--color-primary);
+						}
+						.icon {
+							height: 1em;
+						}
+						&.open {
+							.icon {
+								transform: rotate(90deg);
+							}
+						}
+						&.secondary {
+							background-color: var(--color-secondary-dark);
+							&:hover {
+								background-color: var(--color-secondary);
+							}
+						}
+					}
 				}
 			}
 		}

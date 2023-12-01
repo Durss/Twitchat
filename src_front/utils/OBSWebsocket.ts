@@ -6,6 +6,7 @@ import { reactive } from 'vue';
 import { EventDispatcher } from '../events/EventDispatcher';
 import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEvent';
 import TwitchatEvent from '../events/TwitchatEvent';
+import Logger from './Logger';
 import Utils from './Utils';
 
 /**
@@ -16,7 +17,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	private static _instance:OBSWebsocket;
 
 	public connected:boolean = false;
-	public logs:{date:number, info:string, data?:any}[] = [];
 	
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
@@ -143,10 +143,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * Logs data
 	 */
 	public log(info:string, data?:any):void {
-		this.logs.push({date:Date.now(), info, data});
-		if(this.logs.length > 5000) {
-			this.logs.shift();
-		}
+		Logger.instance.log("obs", {info, data});
 	}
 
 	/**
@@ -927,8 +924,6 @@ export default class OBSWebsocket extends EventDispatcher {
 	*******************/
 	private initialize():void {
 		this.obs = new OBSWebSocket();
-
-		this.logs = reactive([]);
 
 		this.obs.addListener("ConnectionClosed", ()=> {
 			this.connected = false;

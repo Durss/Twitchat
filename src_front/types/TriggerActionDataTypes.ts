@@ -210,28 +210,6 @@ export interface TriggerCooldownData {
 	alert:boolean;
 }
 
-export interface TriggerLog {
-	id:string;
-	trigger:TriggerData;
-	date:number;
-	testMode:boolean;
-	complete:boolean;
-	skipped:boolean;
-	error:boolean;
-	criticalError:boolean;
-	data:TwitchatDataTypes.ChatMessageTypes;
-	messages:{date:number, value:string}[];
-	steps:TriggerLogStep[];
-}
-
-export interface TriggerLogStep {
-	id:string;
-	date:number;
-	error:boolean;
-	data:TriggerActionTypes;
-	messages:{date:number, value:string}[];
-}
-
 export interface SocketParams {
 	ip:string;
 	port:number;
