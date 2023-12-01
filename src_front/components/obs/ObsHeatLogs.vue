@@ -37,15 +37,14 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-facing-decorator';
-import CloseButton from '../CloseButton.vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
-import Utils from '@/utils/Utils';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import ParamItem from '../params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Button from '../Button.vue';
 import Logger from '@/utils/Logger';
+import Utils from '@/utils/Utils';
+import { Component } from 'vue-facing-decorator';
+import AbstractSidePanel from '../AbstractSidePanel.vue';
+import Button from '../Button.vue';
+import CloseButton from '../CloseButton.vue';
+import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
@@ -84,7 +83,6 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 
 	public async mounted():Promise<void> {
 		this.open();
-		console.log(Logger.instance.getLogs("obs"));
 	}
 
 	public async clearLogs():Promise<void> {
