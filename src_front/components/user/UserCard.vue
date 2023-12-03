@@ -288,6 +288,14 @@ export default class UserCard extends Vue {
 		return label;
 	}
 
+	public get platform():TwitchatDataTypes.ChatPlatform {
+		const card = this.$store("users").userCard;
+		if(card) {
+			return card.platform || card.user?.platform || "twitch";
+		}
+		return "twitch";
+	}
+
 	/**
 	 * Get a formated timeout duration
 	 * @param duration 
@@ -342,7 +350,7 @@ export default class UserCard extends Vue {
 		this.edittingLogin = false;
 		this.manageBadges = false;
 		this.manageUserNames = false;
-		this.isTwitchProfile = this.$store("users").userCard!.platform == "twitch";
+		this.isTwitchProfile = this.platform == "twitch";
 
 		if(!this.$store("users").userCard) {
 			this.loading = false;

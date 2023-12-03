@@ -438,7 +438,7 @@ export default class MessengerProxy {
 					username = user[0].login;
 				}
 				const user = StoreProxy.users.getUserFrom("twitch", channelId, undefined, username);
-				StoreProxy.users.openUserCard( user );
+				StoreProxy.users.openUserCard( user, channelId, "twitch");
 			}
 			return true;
 		}else
@@ -450,7 +450,7 @@ export default class MessengerProxy {
 			}else{
 				const userInfo = res[0];
 				const user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, userInfo.id, userInfo.login, userInfo.display_name);
-				StoreProxy.users.openUserCard(user);
+				StoreProxy.users.openUserCard(user, channelId, "twitch");
 			}
 			return true;
 		}

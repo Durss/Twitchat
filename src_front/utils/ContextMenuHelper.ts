@@ -181,7 +181,7 @@ export default class ContextMenuHelper {
 			options.push({ 
 						label: t("chat.context_menu.profile"),
 						icon: this.getIcon("icons/user.svg"),
-						onClick: () => StoreProxy.users.openUserCard(user, message.channel_id),
+						onClick: () => StoreProxy.users.openUserCard(user, message.channel_id, user.platform),
 					});
 	
 			//Moderation actions
