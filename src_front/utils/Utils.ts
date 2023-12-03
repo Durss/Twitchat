@@ -633,7 +633,7 @@ export default class Utils {
 			if(typeof(v) == "object" && local.hasOwnProperty(key)) {
 				if(log) console.log("Merge sub object", key);
 				//Deep merge sub objects
-				this.mergeRemoteObject(v, local[key] as JsonObject);
+				this.mergeRemoteObject(v as JsonObject, local[key] as JsonObject);
 
 			}else{
 				if(log) console.log("REPLACE");

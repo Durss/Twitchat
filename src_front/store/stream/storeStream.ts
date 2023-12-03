@@ -11,6 +11,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
+import Logger from '@/utils/Logger';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 
@@ -315,8 +316,7 @@ export const storeStream = defineStore('stream', {
 			AD_APPROACHING_INTERVALS.forEach(ms => {
 				//If this interval has already passed, ignore it
 				if(remainingTime < ms) return;
-				TwitchUtils.adsAPIHistory.push({
-					date:Date.now(),
+				Logger.instance.log("ads", {
 					log:"Schedule approaching ad trigger in "+((remainingTime-ms)/1000)+"s"
 				});
 				//Schedule message
@@ -329,8 +329,7 @@ export const storeStream = defineStore('stream', {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING,
 						start_at:data.nextAdStart_at,
 					};
-					TwitchUtils.adsAPIHistory.push({
-						date:Date.now(),
+					Logger.instance.log("ads", {
 						log:"Trigger ad approaching in "+(ms/1000)+"s"
 					});
 					StoreProxy.chat.addMessage(message);
@@ -343,13 +342,11 @@ export const storeStream = defineStore('stream', {
 			//This is a workaround Twitch not starting ad at the given date but only
 			//a few seconds to a minute or more after that.
 			if(remainingTime > 0) {
-				TwitchUtils.adsAPIHistory.push({
-					date:Date.now(),
+				Logger.instance.log("ads", {
 					log:"Wait for "+(remainingTime/1000)+"s (with 5s margin) before forcing an ad"
 				});
 				let to = setTimeout(() => {
-					TwitchUtils.adsAPIHistory.push({
-						date:Date.now(),
+					Logger.instance.log("ads", {
 						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
 					TwitchUtils.startCommercial(data.currentAdDuration_ms/1000, channelId);
@@ -367,8 +364,7 @@ export const storeStream = defineStore('stream', {
 					duration_s:Math.round(data.currentAdDuration_ms / 1000),
 					startedBy:adStarter,
 				}
-				TwitchUtils.adsAPIHistory.push({
-					date:Date.now(),
+				Logger.instance.log("ads", {
 					log:"Trigger ad start",
 				});
 				StoreProxy.chat.addMessage(message);
@@ -385,8 +381,7 @@ export const storeStream = defineStore('stream', {
 						duration_s:Math.round(data.currentAdDuration_ms / 1000),
 						startedBy:adStarter,
 					}
-					TwitchUtils.adsAPIHistory.push({
-						date:Date.now(),
+					Logger.instance.log("ads", {
 						log:"Trigger ad complete"
 					});
 					StoreProxy.chat.addMessage(message);
@@ -396,8 +391,7 @@ export const storeStream = defineStore('stream', {
 				}, startDate + data.currentAdDuration_ms - Date.now());
 				commercialTimeouts[channelId].push(to);
 				
-				TwitchUtils.adsAPIHistory.push({
-					date:Date.now(),
+				Logger.instance.log("ads", {
 					log:"Schedule ad complete trigger in "+((startDate+data.currentAdDuration_ms - Date.now())/1000)+"s"
 				});
 			}

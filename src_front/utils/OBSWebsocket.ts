@@ -169,7 +169,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			return;
 		}
 
-		const eventData = { origin:"twitchat", type, data }
+		const eventData = { origin:"twitchat", type, data } as JsonObject;
 		this.obs.call("BroadcastCustomEvent", {eventData});
 	}
 	

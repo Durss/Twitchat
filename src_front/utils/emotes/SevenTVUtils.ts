@@ -44,8 +44,8 @@ export default class SevenTVUtils {
 				code: e.name,
 				is_public:false,
 				images: {
-					url_1x: (rootURL + urls[0].name) ?? "",
-					url_2x: (rootURL + urls[1].name) ?? (rootURL + urls[0].name) ?? "",
+					url_1x: (rootURL + urls[0].name) || "",
+					url_2x: (rootURL + urls[1].name) || (rootURL + urls[0].name) || "",
 					url_4x: rootURL + urls[urls.length-1].name,
 				},
 				platform:"twitch",
@@ -65,8 +65,8 @@ export default class SevenTVUtils {
 					code: e.name,
 					is_public:false,
 					images: {
-						url_1x: (rootURL + urls[0].name) ?? "",
-						url_2x: (rootURL + urls[1].name) ?? (rootURL + urls[0].name) ?? "",
+						url_1x: (rootURL + urls[0].name) || "",
+						url_2x: (rootURL + urls[1].name) || (rootURL + urls[0].name) || "",
 						url_4x: rootURL + urls[urls.length-1].name,
 					},
 					platform:"twitch",

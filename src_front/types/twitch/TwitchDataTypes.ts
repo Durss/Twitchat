@@ -224,8 +224,8 @@ export namespace TwitchDataTypes {
 		emote_set_id: string;
 		owner_id: string;
 		format: ("static" | "animated")[];
-		scale: "1.0" | "2.0" | "3.0";
-		theme_mode: "light" | "dark";
+		scale: ("1.0" | "2.0" | "3.0")[];
+		theme_mode: ("light" | "dark")[];
 	}
 
 	export interface Reward {

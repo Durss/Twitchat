@@ -39,7 +39,7 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private lastAnyMessageSent:string = "";
 	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {};
-	private triggerTypeToQueue:{[key:string]:Promise<void>[]} = {};
+	private triggerTypeToQueue:{[key:string]:{promise:Promise<void>, resolver:()=>void}[]} = {};
 	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo}|null = null;
 	private triggerType2Triggers:{[key:string]:TriggerData[]} = {};
 	private HASHMAP_KEY_SPLITTER:string = "_";
@@ -728,8 +728,7 @@ export default class TriggerActionHandler {
 			
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue;// || trigger.id;
-		let queue:Promise<void>[] = [];
-		let triggerResolver: (()=>void) | null = null;
+		let queue:typeof this.triggerTypeToQueue[string] = [];
 		
 		if(queueKey) {
 			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""});
@@ -737,10 +736,14 @@ export default class TriggerActionHandler {
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
-			queue.push( new Promise<void>(async (resolve, reject)=> { triggerResolver = resolve }) );
+
+			let resolver!: ()=>void;
+			const promise = new Promise<void>(async (resolve, reject)=> { resolver = resolve });
+			queue.push( {promise, resolver} );
+
 			if(eventBusy) {
 				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete"});
-				let prom = queue[queue.length-1] ?? Promise.resolve();
+				let prom = queue[queue.length-2]?.promise ?? Promise.resolve();
 				await prom;
 				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process"});
 			}
@@ -868,8 +871,10 @@ export default class TriggerActionHandler {
 			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is not allowed to execute"});
 			passesCondition = false;
 			log.error = true;
-			if(queue.length > 0) queue.shift();
-			if(triggerResolver != null) (triggerResolver as () => void)();//Proceed to next trigger in current queue
+			if(queue.length > 0) {
+				const item = queue.shift();
+				if(item) item.resolver();
+			}
 			return false;
 		}
 
@@ -1067,11 +1072,14 @@ export default class TriggerActionHandler {
 									await new Promise<void>((resolve, reject)=> {
 										const handler = (e:TwitchatEvent) => {
 											const d = e.data as {inputName:string};
+											logStep.messages.push({date:Date.now(), value:"Playback complete "+d.inputName});
 											if(d.inputName != step.sourceName) return;
 											logStep.messages.push({date:Date.now(), value:"Media \""+step.sourceName+"\" playing complete."});
 											OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
+											logStep.messages.push({date:Date.now(), value:"Resolve "+resolve});
 											resolve();
 										}
+										logStep.messages.push({date:Date.now(), value:"Handler created..."});
 										OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, handler);
 									})
 								}
@@ -2053,10 +2061,11 @@ export default class TriggerActionHandler {
 		}
 		
 		if(queue) {
-			queue.shift();
-		}
-		if(triggerResolver != null) {
-			(triggerResolver as () => void)();//Proceed to next trigger in current queue
+			let item = queue.shift();
+			if(item) {
+				log.entries.push({date:Date.now(), type:"message", value:"✔ Resolve queue "+queueKey});
+				item.resolver();//Proceed to next trigger in current queue
+			}
 		}
 		log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger execution complete"});
 		log.complete = true;

@@ -42,9 +42,9 @@ export default class FFZUtils {
 				code: e.name,
 				is_public:false,
 				images: {
-					url_1x: e.urls[1] ?? "",
-					url_2x: e.urls[2] ?? e.urls[1] ?? "",
-					url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
+					url_1x: e.urls[1] || "",
+					url_2x: e.urls[2] || e.urls[1] || "",
+					url_4x: e.urls[4] || e.urls[2] || e.urls[1] || "",
 				},
 				platform:"twitch",
 				source:"FFZ"
@@ -61,9 +61,9 @@ export default class FFZUtils {
 					code: e.name,
 					is_public:false,
 					images: {
-						url_1x: e.urls[1] ?? "",
-						url_2x: e.urls[2] ?? e.urls[1] ?? "",
-						url_4x: e.urls[4] ?? e.urls[2] ?? e.urls[1] ?? "",
+						url_1x: e.urls[1] || "",
+						url_2x: e.urls[2] || e.urls[1] || "",
+						url_4x: e.urls[4] || e.urls[2] || e.urls[1] || "",
 					},
 					platform:"twitch",
 					source:"FFZ"

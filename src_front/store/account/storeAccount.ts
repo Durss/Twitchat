@@ -1,7 +1,6 @@
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
 import type { UnwrapRef } from 'vue'
 import type { IAccountActions, IAccountGetters, IAccountState } from '../StoreProxy'
-import StoreProxy from '../StoreProxy'
 
 export const storeAccount = defineStore('account', {
 	state: () => ({

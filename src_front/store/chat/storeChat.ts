@@ -1068,7 +1068,7 @@ export const storeChat = defineStore('chat', {
 							cost:message.reward.cost,
 							title:message.reward.title,
 						},
-					}
+					} as JsonObject;
 					PublicAPI.instance.broadcast(TwitchatEvent.REWARD_REDEEM, wsMessage);
 					break;
 				}

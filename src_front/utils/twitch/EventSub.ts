@@ -6,6 +6,7 @@ import Config from "../Config";
 import Utils from "../Utils";
 import { TwitchScopes } from "./TwitchScopes";
 import TwitchUtils from "./TwitchUtils";
+import Logger from "../Logger";
 
 /**
 * Created : 02/12/2022 
@@ -853,8 +854,7 @@ export default class EventSub {
 		if(!event.is_automatic && event.broadcaster_user_id != event.requester_user_id) {
 			starter = StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.requester_user_id, event.requester_user_login);
 		}
-		TwitchUtils.adsAPIHistory.push({
-			date:Date.now(),
+		Logger.instance.log("ads", {
 			es:event,
 			internal:infos,
 		})

@@ -183,7 +183,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				//channels with specified credentials
 				const options:tmi.Options = {
 					options: { debug: false, skipUpdatingEmotesets:true, },
-					connection: { reconnect: true, maxReconnectInverval:2000 },
+					connection: { reconnect: true, maxReconnectInterval:2000 },
 					channels:this._channelList.concat(),
 				};
 				options.identity = {
@@ -486,7 +486,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._client.on('giftpaidupgrade', this.giftpaidupgrade.bind(this));
 		this._client.on('anongiftpaidupgrade', this.anongiftpaidupgrade.bind(this));
 		this._client.on("ban", this.onBanUser.bind(this));
-		this._client.on("timeout", this.onBanUser.bind(this));
+		this._client.on("timeout", this.onTimeoutUser.bind(this));
 		this._client.on("raided", this.raided.bind(this));
 		this._client.on("disconnected", this.disconnected.bind(this));
 		this._client.on("clearchat", this.clearchat.bind(this));
@@ -911,8 +911,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		if(!msgID) return;
 		this.dispatchEvent(new MessengerClientEvent("DELETE_MESSAGE", msgID));
 	}
+	// ban(channel, username, reason) {
+	// timeout(channel, username, seconds, reason) {
+	private onTimeoutUser(channel: string, username: string, reason: string, duration: number, userstate: tmi.TimeoutUserstate):void {
+		this.onBanUser(channel, username, reason, userstate, duration);
+	}
 
-	private onBanUser(channel: string, username: string, reason: string, duration?: number|{"room-id":string,"target-user-id":string,"tmi-sent-id":string}):void {
+	private onBanUser(channel: string, username: string, reason: string, userstate: tmi.BanUserstate, duration?:number):void {
 		//Wait 900ms before doing anything.
 		//This is a work around an Eventsub limitation.
 		//Eventsub does not allow to be notified for banned users of another channel
