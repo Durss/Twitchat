@@ -343,6 +343,10 @@ export default class MessengerProxy {
 			return true;
 		}else
 
+		if(cmd == "/__stopobsstream__") {
+			OBSWebsocket.instance.stopStreaming();
+		}else
+
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {
 			if(TwitchUtils.requestScopes([TwitchScopes.START_RAID])) {
 				//If starting a raid with /raid without specifying a user
