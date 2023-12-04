@@ -42,7 +42,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ParamsOBS from '@/components/params/contents/ParamsOBS.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
@@ -55,7 +55,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamsOBS,
 		ParamItem,
 		ToggleBlock,
@@ -110,7 +110,7 @@ export default class PublicApiTest extends Vue {
 		this.connectError = false;
 
 		//Make sure OBS will connect
-		this.$store("obs").connectionEnabled = true;
+		this.$store.obs.connectionEnabled = true;
 		
 		const connected = await OBSWebsocket.instance.connect(
 							this.obsPort_conf.value.toString(),
@@ -150,8 +150,7 @@ export default class PublicApiTest extends Vue {
 
 	private initAPI():void {
 		//@ts-ignore
-		OBSWebsocket.instance.socket.on("CustomEvent",
-		(e:{origin:"twitchat", type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
+		OBSWebsocket.instance.socket.on("CustomEvent", (e:{origin:"twitchat", type:TwitchatEventType, data:JsonObject | JsonArray | JsonValue}) => {
 			if(e.type == undefined) return;
 			if(e.origin != "twitchat") return;
 			const data = e.data as {id:string};

@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="follow" alt="follow" class="icon" />
 
@@ -15,7 +15,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -33,7 +33,7 @@ export default class ChatFollow extends AbstractChatMessage {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 }

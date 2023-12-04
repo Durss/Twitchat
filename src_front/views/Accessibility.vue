@@ -1,6 +1,6 @@
 <template>
 	<div class="accessibility">
-		<div aria-live="polite" role="alert" class="ariaPolite">{{$store("accessibility").ariaPolite}}</div>
+		<div aria-live="polite" role="alert" class="ariaPolite">{{$store.accessibility.ariaPolite}}</div>
 	</div>
 </template>
 

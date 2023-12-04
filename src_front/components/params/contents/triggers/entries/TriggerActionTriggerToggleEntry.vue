@@ -61,8 +61,8 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 	}
 
 	public openTrigger():void {
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id == this.action.triggerId);
-		if(trigger) this.$store("triggers").openTriggerEdition(trigger)
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id == this.action.triggerId);
+		if(trigger) this.$store.triggers.openTriggerEdition(trigger)
 	}
 }
 </script>

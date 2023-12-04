@@ -1,6 +1,6 @@
 <template>
 	<div class="chatroomsettings chatMessage highlight primary">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<img class="icon lock" src="@/assets/icons/lock.svg" />
 		<div class="content">
 			<div>
@@ -33,19 +33,19 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ToggleBlock,
 		ChatTipAndTrickAd,
@@ -58,8 +58,8 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;
 
 	public get isMod():boolean {
-		const authUser = this.$store("auth")[this.messageData.platform].user;
-		const user = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName)
+		const authUser = this.$store.auth[this.messageData.platform].user;
+		const user = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, authUser.id, authUser.login, authUser.displayName)
 		return user.channelInfo[this.messageData.channel_id].is_moderator && TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 	}
 
@@ -79,7 +79,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 			if(res) {
 				(this.$refs[prop] as HTMLDivElement).classList.add("disabled");
 			}else {
-				this.$store("main").alert(this.$t("error.room_settings_update"));
+				this.$store.main.alert(this.$t("error.room_settings_update"));
 			}
 		});
 	}

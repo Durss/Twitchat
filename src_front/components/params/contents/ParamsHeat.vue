@@ -34,7 +34,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import HeatSocket from '@/utils/twitch/HeatSocket';
@@ -47,7 +47,7 @@ import HeatDebug from './heat/HeatDebug.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		HeatDebug,
 		HeatScreenList,
@@ -65,7 +65,7 @@ export default class ParamsHeat extends Vue {
 	private debouncer:number = -1;
 	private keyupHandler!:(e:KeyboardEvent) => void;
 		
-	public get subContent() { return this.$store("params").currentPageSubContent; }
+	public get subContent() { return this.$store.params.currentPageSubContent; }
 
 	public get holderStyles():StyleValue {
 		return {
@@ -78,7 +78,7 @@ export default class ParamsHeat extends Vue {
 		if(DataStore.get(DataStore.HEAT_ENABLED) === "true") {
 			this.param_enabled.value = true;
 		}
-		this.param_debugChan.value = this.$store("auth").twitch.user.id;
+		this.param_debugChan.value = this.$store.auth.twitch.user.id;
 
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyupHandler);
@@ -107,7 +107,7 @@ export default class ParamsHeat extends Vue {
 	 */
 	public toggleState():void {
 		if(this.param_enabled.value) {
-			HeatSocket.instance.connect( this.$store("auth").twitch.user.id );
+			HeatSocket.instance.connect( this.$store.auth.twitch.user.id );
 		}else{
 			HeatSocket.instance.disconnect();
 		}

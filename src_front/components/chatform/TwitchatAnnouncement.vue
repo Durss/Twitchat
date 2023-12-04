@@ -38,7 +38,7 @@
 					</div>
 					<div class="infos">
 						<div class="title">
-							<strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></strong>
+							<strong><ChatMessageChunksParser :chunks="getAnnouncementTitle(a)" :channel="$store.auth.twitch.user.id" platform="twitch" /></strong>
 						</div>
 						<div class="restrictions">
 							<span v-if="a.versionMax" class="version">version max v{{a.versionMax}}</span>
@@ -52,7 +52,7 @@
 							<span v-if="a.dateEnd" class="split">=&gt;</span>
 							<span v-if="a.dateEnd">{{ formatDate(a.dateEnd) }}</span>
 						</p>
-						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" :channel="$store('auth').twitch.user.id" platform="twitch" /></p>
+						<p class="text"><ChatMessageChunksParser :chunks="getAnnouncementMessage(a)" :channel="$store.auth.twitch.user.id" platform="twitch" /></p>
 					</div>
 				</div>
 			</div>
@@ -67,8 +67,8 @@ import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
 import Splitter from '../Splitter.vue';
@@ -78,7 +78,7 @@ import ParamItem from '../params/ParamItem.vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		Splitter,
 		ParamItem,
 		CloseButton,
@@ -131,7 +131,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 			method:"GET",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
+				"Authorization": "Bearer "+this.$store.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			}
 		}
@@ -172,7 +172,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				method:"POST",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
+					"Authorization": "Bearer "+this.$store.auth.twitch.access_token,
 					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 				body:JSON.stringify(data)
@@ -202,7 +202,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 				method:"DELETE",
 				headers: {
 					"Content-Type": "application/json",
-					"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
+					"Authorization": "Bearer "+this.$store.auth.twitch.access_token,
 					'App-Version': import.meta.env.PACKAGE_VERSION,
 				},
 				body:JSON.stringify({id})

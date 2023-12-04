@@ -37,14 +37,14 @@ export default class App extends Vue {
 	private mouseDownHandler!:(e:MouseEvent) => boolean;
 	private mouseMoveHandler!:(e:MouseEvent) => boolean;
 
-	public get dyslexicFont():boolean { return this.$store("params").appearance.dyslexicFont.value as boolean; }
+	public get dyslexicFont():boolean { return this.$store.params.appearance.dyslexicFont.value as boolean; }
 
 	public get classes():string[] {
 		let res = ["app"];
 		if(this.dyslexicFont === true) res.push("dyslexicFont");
 		if(this.$route.meta.overflow === true) res.push("overflow");
 		if(this.demoMode === true) res.push("demoMode");
-		res.push("messageSize_"+this.$store("params").appearance.defaultSize.value);
+		res.push("messageSize_"+this.$store.params.appearance.defaultSize.value);
 		return res;
 	}
 
@@ -52,7 +52,7 @@ export default class App extends Vue {
 		this.resizeHandler = ()=> this.onWindowResize();
 		window.addEventListener("resize", this.resizeHandler);
 		this.onWindowResize();
-		watch(()=> this.$store("main").initComplete, ()=> this.hideMainLoader())
+		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
 		
 		if(this.demoMode) {
@@ -95,7 +95,7 @@ export default class App extends Vue {
 			if(target.tagName == "BUTTON" || target.tagName == "A"
 			|| target.classList.contains("buttonnotification")
 			|| target.classList.contains("switchbutton")
-			|| target.classList.contains("togglebutton")
+			|| target.classList.contains("ToggleButton.vue")
 			|| target.classList.contains("button")
 			|| target.classList.contains("toggle")
 			|| target.classList.contains("timercountdowninfo")
@@ -121,7 +121,7 @@ export default class App extends Vue {
 	}
 
 	private hideMainLoader():void {
-		if(this.$store("main").initComplete === true) {
+		if(this.$store.main.initComplete === true) {
 			//@ts-ignore
 			closeInitLoader();//Method declared on index.html
 		}

@@ -85,14 +85,14 @@ import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import OverlayInstaller from './OverlayInstaller.vue';
 import ParamItem from '../../ParamItem.vue';
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		OverlayInstaller,

@@ -71,10 +71,10 @@ export default class SponsorTable extends Vue {
 
 	public clickHeader(index:number):void {
 		if(index == 2) {
-			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 		}
 		if(index == 3) {
-			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 		}
 	}
 

@@ -25,7 +25,7 @@
 			<div class="topForm" v-if="showList">
 				<div class="row">
 					<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
-					<select v-model.number="$store('params').greetThemAutoDelete">
+					<select v-model.number="$store.params.greetThemAutoDelete">
 						<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 					</select>
 				</div>
@@ -107,7 +107,7 @@ export default class NewUsers extends Vue {
 		for (let i = 0; i < durations.length; i++) {
 			res.unshift({seconds:durations[i], label:Math.round(durations[i]/60).toString()+"m"});
 		}
-		const v = this.$store("params").greetThemAutoDelete
+		const v = this.$store.params.greetThemAutoDelete
 		if(!durations.includes(v)) {
 			res.unshift({seconds:v, label:Math.round(v/60).toString()+"m"});
 		}
@@ -124,17 +124,17 @@ export default class NewUsers extends Vue {
 		
 		const autoDeleteStore = DataStore.get(DataStore.GREET_AUTO_DELETE_AFTER);
 		if(autoDeleteStore != null) {
-			this.$store("params").greetThemAutoDelete = parseInt(autoDeleteStore);
+			this.$store.params.greetThemAutoDelete = parseInt(autoDeleteStore);
 		}
 
 		//Save new "auto delete after" value when changed
-		watch(()=>this.$store("params").greetThemAutoDelete, ()=>{
-			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.$store("params").greetThemAutoDelete);
+		watch(()=>this.$store.params.greetThemAutoDelete, ()=>{
+			DataStore.set(DataStore.GREET_AUTO_DELETE_AFTER, this.$store.params.greetThemAutoDelete);
 		});
 
 		//Automatically deletes messages after the configured delay
 		this.deleteInterval = setInterval(()=> {
-			const delay = this.$store("params").greetThemAutoDelete;
+			const delay = this.$store.params.greetThemAutoDelete;
 			if(delay == -1) return;
 
 			const clearTimeoffset = Date.now() - delay * 1000;
@@ -151,7 +151,7 @@ export default class NewUsers extends Vue {
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
 		// if(!Config.instance.IS_PROD) {
-			// const history = this.$store("chat").messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+			// const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
 			// this.localMessages = this.localMessages.concat(history).splice(0,50);
 		// }
 
@@ -288,7 +288,7 @@ export default class NewUsers extends Vue {
 	 */
 	public resetHistory():void {
 		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
-			this.$store("chat").resetGreetingHistory();
+			this.$store.chat.resetGreetingHistory();
 		});
 	}
 

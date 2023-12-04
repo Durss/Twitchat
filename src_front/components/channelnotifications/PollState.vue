@@ -35,12 +35,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ProgressBar,
 	}
 })
@@ -51,9 +51,9 @@ export default class PollState extends Vue {
 	
 	private disposed = false;
 
-	public get poll():TwitchatDataTypes.MessagePollData { return this.$store("poll").data!; }
+	public get poll():TwitchatDataTypes.MessagePollData { return this.$store.poll.data!; }
 
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
 
 	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice):number {
 		let totalVotes = 0;
@@ -99,7 +99,7 @@ export default class PollState extends Vue {
 				await TwitchUtils.endPoll(this.poll.id, this.poll.channel_id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alert( "An error occurred while deleting the poll" );
+				this.$store.main.alert( "An error occurred while deleting the poll" );
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -116,7 +116,7 @@ export default class PollState extends Vue {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.poll.creator!);
+		this.$store.users.openUserCard(this.poll.creator!);
 	}
 }
 </script>

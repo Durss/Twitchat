@@ -28,9 +28,9 @@ export default class GoogleController extends AbstractController {
 	******************/
 	public async initialize(): Promise<void> {
 		this.server.get('/api/youtube/oauthURL', async (request, response) => await this.getYoutubeOauthURL(request, response));
+		this.server.get('/api/google/translate', async (request, response) => await this.getTranslation(request, response));
 		this.server.post('/api/youtube/authenticate', async (request, response) => await this.postYoutubeAuthenticate(request, response));
 		this.server.post('/api/youtube/refreshtoken', async (request, response) => await this.postYoutubeRefreshToken(request, response));
-		this.server.post('/api/google/translate', async (request, response) => await this.postTranslation(request, response));
 		
 		//Authenticate with foofle API for translation API
 		const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
@@ -199,8 +199,8 @@ export default class GoogleController extends AbstractController {
 	 * @param request 
 	 * @param response 
 	 */
-	private async postTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
-		const params:any = request.body;
+	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		const params:any = request.query;
 
 		try {
 

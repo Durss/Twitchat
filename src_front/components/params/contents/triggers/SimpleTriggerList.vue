@@ -48,7 +48,7 @@ export default class SimpleTriggerList extends Vue {
 	
 	public mounted():void {
 		//Remove deleted triggers
-		const triggers = this.$store("triggers").triggerList;
+		const triggers = this.$store.triggers.triggerList;
 		
 		triggers.forEach(t=> {
 			if(this.filteredItemId != "") {

@@ -6,7 +6,7 @@
 			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 
-			<Button class="actionBt" small v-if="!showRaidHistory && $store('stream').raidHistory.length > 0" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
+			<Button class="actionBt" small v-if="!showRaidHistory && $store.stream.raidHistory.length > 0" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
 			<Button class="actionBt" small v-if="showRaidHistory" icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
 		</div>
 		
@@ -74,13 +74,13 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 	emits:["close"]
@@ -94,19 +94,19 @@ export default class LiveFollowings extends AbstractSidePanel {
 	public showRaidHistory = false;
 
 	public get lastRaidedUserID():string {
-		if(this.$store("stream").raidHistory.length == 0) return "";
+		if(this.$store.stream.raidHistory.length == 0) return "";
 		return this.sortedRaidHistory[0].uid;
 	}
 
 	public get sortedRaidHistory() {
-		return this.$store("stream").raidHistory.sort((a,b)=> b.date-a.date);
+		return this.$store.stream.raidHistory.sort((a,b)=> b.date-a.date);
 	}
 
 	public get sortedRaidHistoryPopulated():{date:number, user:TwitchatDataTypes.TwitchatUser}[] {
 		return this.sortedRaidHistory.map(v=> {
 			return {
 				date:v.date,
-				user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, v.uid)
+				user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, v.uid)
 			}
 		});
 	}
@@ -142,7 +142,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 	}
 
 	public async grantPermission():Promise<void> {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_FOLLOWINGS]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.LIST_FOLLOWINGS]);
 	}
 
 	private async updateList():Promise<void> {

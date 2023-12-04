@@ -15,7 +15,7 @@
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'donor_public_prompt')" icon="whispers">Donor prompt</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'update_reminder')" icon="whispers">Update reminder</Button>
 			<Button small @click="simulateEvent($event, 'twitchat_ad', 'ad_break_api')" icon="whispers">Ad break scopes</Button>
-			<Button small @click="$store('chat').sendRightClickHint()" icon="whispers">Right click hint</Button>
+			<Button small @click="$store.chat.sendRightClickHint()" icon="whispers">Right click hint</Button>
 			<Button small @click="simulateEvent($event, 'join')" icon="enter">Join</Button>
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
@@ -84,12 +84,12 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { reactive } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["close", "triggersLogs", "obsHeatLogs"]
 })
@@ -140,7 +140,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
-		this.$store("debug").simulateMessage<TwitchatDataTypes.ChatMessageTypes>(type, async (message)=> {
+		this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(type, async (message)=> {
 			switch(subAction) {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
 				case "raidOnline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = true;break;
@@ -170,7 +170,7 @@ export default class DevmodeMenu extends Vue {
 						m.pinDuration_ms = durations[index] * 1000;
 						m.pinLevel = index;
 						m.pinnned = true;
-						// this.$store("chat").addMessage(m);
+						// this.$store.chat.addMessage(m);
 						TriggerActionHandler.instance.execute(m);
 					}, 3000)
 					break;
@@ -220,7 +220,7 @@ export default class DevmodeMenu extends Vue {
 			if(event.ctrlKey && message.hasOwnProperty("user")) {
 				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
 			}
-			this.$store("chat").addMessage(message);
+			this.$store.chat.addMessage(message);
 		}, false);
 	}
 
@@ -259,7 +259,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateAutomod():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			let words:string[] = [];
 			do {
@@ -272,7 +272,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateAutomodTwitchat():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			m.automod = {
 				enabled:true,
@@ -288,7 +288,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateBlockedUser():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			m.user.is_blocked = true;
 			return true;
@@ -296,7 +296,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateSuspicious():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			m.twitch_isSuspicious = true;
 			return true;
@@ -304,7 +304,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateRestricted():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageChatData);
 			m.twitch_isRestricted = true;
 			const users:TwitchatDataTypes.TwitchatUser[] = [];
@@ -320,7 +320,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public restrictUser():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageLowtrustTreatmentData);
 			m.restricted = true;
 			m.monitored = false;
@@ -329,7 +329,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public monitorUser():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageLowtrustTreatmentData);
 			m.restricted = false;
 			m.monitored = true;
@@ -338,7 +338,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public unflagUser():void {
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (message)=> {
 			const m = (message as TwitchatDataTypes.MessageLowtrustTreatmentData);
 			m.restricted = false;
 			m.monitored = false;
@@ -347,7 +347,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public async startFakeRaid():Promise<void> {
-		const me = this.$store("auth").twitch.user;
+		const me = this.$store.auth.twitch.user;
 		const user = await StoreProxy.users.getUserFrom("twitch", me.id, undefined, "TwitchGaming");
 		const m:TwitchatDataTypes.RaidInfo = {
 			channel_id: me.id,
@@ -364,7 +364,7 @@ export default class DevmodeMenu extends Vue {
 		const fakeUsers = await TwitchUtils.getFakeUsers();
 
 		for (let i = 0; i < 30; i++) {
-			this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=> {
 				const m = message as TwitchatDataTypes.MessageSubscriptionData;
 				if(!user) user = m.user;
 				else m.user = user;
@@ -378,7 +378,7 @@ export default class DevmodeMenu extends Vue {
 	}
 
 	public simulateCommercialSequence():void {
-		const channelId = this.$store("auth").twitch.user.id;
+		const channelId = this.$store.auth.twitch.user.id;
 		const params:TwitchatDataTypes.CommercialData = {
 			prevAdStart_at:			0,
 			remainingSnooze:		3,
@@ -386,13 +386,13 @@ export default class DevmodeMenu extends Vue {
 			nextAdStart_at:			Date.now() + .5 * 60 * 1000,
 			nextSnooze_at:			Date.now() + 1 * 60 * 1000,
 		};
-		this.$store("stream").setCommercialInfo(channelId, params);
+		this.$store.stream.setCommercialInfo(channelId, params);
 
 		clearTimeout(this.commercialTO);
 		this.commercialTO = setTimeout(()=> {
 			params.prevAdStart_at = Date.now();
 			params.currentAdDuration_ms = 33000;
-			this.$store("stream").setCommercialInfo(channelId, params, this.$store("auth").twitch.user, true);
+			this.$store.stream.setCommercialInfo(channelId, params, this.$store.auth.twitch.user, true);
 		}, params.nextAdStart_at - Date.now())
 	}
 
@@ -420,7 +420,7 @@ export default class DevmodeMenu extends Vue {
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
 		};
 
-		this.$store("chat").addMessage(message);
+		this.$store.chat.addMessage(message);
 	}
 }
 

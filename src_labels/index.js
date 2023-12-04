@@ -2,6 +2,12 @@
  * This process takes all the JSON files within the "i18n" folder,
  * compiles them all together and output the static/labels.json file
  */
+// import * as fs from "fs";
+// import * as path from "path";
+// import {fileURLToPath} from 'url';
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
+
 const fs = require("fs");
 const path = require("path");
 

@@ -2,7 +2,7 @@
 	<div class="alertview" v-if="message && message.length > 0" @click="close()">
 		<CloseButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
-		<div v-if="$store('main').alertData.showContact" class="contact">
+		<div v-if="$store.main.alertData.showContact" class="contact">
 			<span>{{ $t("global.alert_support") }}</span>
 			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.join_discordBt") }}</Button>
 		</div>
@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import CloseButton from '@/components/CloseButton.vue';
 import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
@@ -19,7 +19,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 })
@@ -33,7 +33,7 @@ export default class AlertView extends Vue {
 	
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => this.$store("main").alertData.message, () => {
+		watch(() => this.$store.main.alertData.message, () => {
 			this.onWatchAlert();
 		});
 	}
@@ -41,7 +41,7 @@ export default class AlertView extends Vue {
 	public async onWatchAlert():Promise<void> {
 		if(this.locked) return;
 
-		let mess = this.$store("main").alertData;
+		let mess = this.$store.main.alertData;
 		if(mess && mess.message.length > 0) {
 			this.message = mess.message;
 			await this.$nextTick();
@@ -71,7 +71,7 @@ export default class AlertView extends Vue {
 		if(this.locked) return;
 		
 		clearTimeout(this.timeout);
-		this.$store("main").alertData.message = "";
+		this.$store.main.alertData.message = "";
 	}
 }
 </script>

@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="music" alt="notice" class="icon"/>
 		<CloseButton class="closeBt" @click.stop="deleteMessage()" small />
@@ -13,7 +13,7 @@
 						<a class="userlink"
 							:href="'https://twitch.tv/'+messageData.user.login"
 							target="_blank"
-							@click.stop.prevent="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+							@click.stop.prevent="openUserCard(messageData.user!)">{{messageData.user.displayName}}</a>
 					</template>
 					<template v-else><strong>???</strong></template>
 				</template>
@@ -40,16 +40,16 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 	emits:["onRead"]
@@ -68,7 +68,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	public get canBanFromSR():boolean {
 		if(!this.messageData.user) return false;
 		if(!this.messageData.triggerIdSource) return false;
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id === this.messageData.triggerIdSource);
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id === this.messageData.triggerIdSource);
 		if(!trigger) return false;
 		return trigger.permissions != undefined;
 	}
@@ -76,7 +76,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	public get isBanned():boolean {
 		if(!this.messageData.user) return false;
 		if(!this.messageData.triggerIdSource) return false;
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id === this.messageData.triggerIdSource);
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id === this.messageData.triggerIdSource);
 		if(!trigger || !trigger.permissions) return false;
 		return (trigger.permissions.usersRefused || []).findIndex(v=>v.toLowerCase() === this.messageData.user!.login.toLowerCase()) > -1;
 	}
@@ -89,7 +89,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 
 	public banFromSR():void {
 		if(!this.messageData.user) return;
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id === this.messageData.triggerIdSource);
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id === this.messageData.triggerIdSource);
 		if(!trigger) return;
 
 		if(!trigger.permissions) {
@@ -111,7 +111,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 
 	public unBanFromSR():void {
 		if(!this.messageData.user) return;
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id === this.messageData.triggerIdSource);
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id === this.messageData.triggerIdSource);
 		if(!trigger || !trigger.permissions) return;
 
 		const list = (trigger.permissions.usersRefused || []);

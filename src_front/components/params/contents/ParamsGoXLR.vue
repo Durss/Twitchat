@@ -8,7 +8,7 @@
 			</template>
 		</i18n-t>
 
-		<template v-if="$store('auth').isPremium">
+		<template v-if="$store.auth.isPremium">
 			<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 	
 			<section v-if="connecting" class="card-item">
@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
@@ -97,7 +97,7 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		GoXLRUI,
 		Splitter,
 		ParamItem,
@@ -137,11 +137,11 @@ export default class ParamsGoXLR extends Vue {
 	}
 
 	public beforeMount():void {
-		this.param_enabled.value = this.$store("params").goxlrConfig.enabled;
+		this.param_enabled.value = this.$store.params.goxlrConfig.enabled;
 		const cols:TwitchatDataTypes.ParameterDataListValue<number>[] = [
 			{value:-1, labelKey:"global.select_placeholder"}
 		];
-		for (let i = 0; i < this.$store("params").chatColumnsConfig.length; i++) {
+		for (let i = 0; i < this.$store.params.chatColumnsConfig.length; i++) {
 			cols.push({value:i, label:(i+1).toString()});
 		}
 		this.param_chatColIndexScroll.listValues = cols;
@@ -152,28 +152,28 @@ export default class ParamsGoXLR extends Vue {
 	 * Called when clicking triggers button
 	 */
 	public openTriggers():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 	/**
 	 * Called when toggling the "enabled" state
 	 */
 	public toggleState():void {
-		this.$store("params").setGoXLREnabled(this.param_enabled.value);
+		this.$store.params.setGoXLREnabled(this.param_enabled.value);
 	}
 
 	/**
 	 * Opens the premium param page
 	 */
 	public openPremium():void{
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
 	 * Called when selecting a new chat column index
 	 */
 	public onSelectChatColumnIndex():void {
-		const configs = this.$store("params").goxlrConfig;
+		const configs = this.$store.params.goxlrConfig;
 		if(this.param_chatColIndexScroll.value > -1) {
 			this.knobSelectionScroll = configs.chatScrollSources[this.param_chatColIndexScroll.value] || [];
 		}
@@ -197,7 +197,7 @@ export default class ParamsGoXLR extends Vue {
 
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexMarkRead.value;
-			this.$store("params").setGoXLRChatColReadMarkParams(index, list);
+			this.$store.params.setGoXLRChatColReadMarkParams(index, list);
 		}else{
 			//Extract last knob ID
 			const knobs = this.knobSelectionScroll.filter(v => v == "reverb" || v == "echo" || v == "pitch" || v == "gender");
@@ -209,7 +209,7 @@ export default class ParamsGoXLR extends Vue {
 
 			this.showEncoderWarning = list[list.length-1] == "pitch";
 			const index = this.param_chatColIndexScroll.value;
-			this.$store("params").setGoXLRChatColScrollParams(index, list);
+			this.$store.params.setGoXLRChatColScrollParams(index, list);
 		}
 	}
 }

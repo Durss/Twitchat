@@ -1,6 +1,6 @@
 <template>
 	<div class="chatban chatMessage highlight alert">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="timeout" class="icon" v-if="messageData.duration_s" theme="light" />
 		<Icon name="ban" class="icon" v-else theme="light" />
@@ -34,13 +34,13 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
-import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage';
+import TTButton from '../TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["onRead"]
 })
@@ -71,7 +71,7 @@ export default class ChatBan extends AbstractChatMessage {
 				aria = this.$t("global.moderation_action.banned", {USER:this.messageData.user.displayName});
 			}
 		}
-		this.$store("accessibility").setAriaPolite(aria);
+		this.$store.accessibility.setAriaPolite(aria);
 
 		this.showUnbanBt = this.messageData.user.channelInfo[this.messageData.channel_id].is_banned
 						&& super.canModerateUser(this.messageData.user, this.messageData.channel_id);

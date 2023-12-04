@@ -28,7 +28,7 @@ import DataStore from '@/store/DataStore';
 import VoiceController from '@/utils/voice/VoiceController';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import LangSelector from '../LangSelector.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -36,7 +36,7 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ToggleBlock,
 		LangSelector,
@@ -54,8 +54,8 @@ export default class VoiceControlForm extends Vue {
 	public lang:string = "";
 
 	public get started():boolean { return VoiceController.instance.started; }
-	public get tempText():string { return this.sttOnly === false? this.$store("voice").voiceText.tempText : VoiceController.instance.tempText; }
-	public get finalText():string { return this.sttOnly === false? this.$store("voice").voiceText.finalText : VoiceController.instance.finalText; }
+	public get tempText():string { return this.sttOnly === false? this.$store.voice.voiceText.tempText : VoiceController.instance.tempText; }
+	public get finalText():string { return this.sttOnly === false? this.$store.voice.voiceText.finalText : VoiceController.instance.finalText; }
 
 	public beforeMount():void {
 		let userLang = navigator.language;
@@ -79,7 +79,7 @@ export default class VoiceControlForm extends Vue {
 
 	private updateLang():void {
 		VoiceController.instance.lang = this.lang;
-		this.$store("voice").setVoiceLang(this.lang);
+		this.$store.voice.setVoiceLang(this.lang);
 	}
 
 }

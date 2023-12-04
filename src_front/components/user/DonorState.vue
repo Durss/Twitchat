@@ -34,11 +34,11 @@ import DonorPublicState from './DonorPublicState.vue';
 })
 export default class DonorState extends Vue {
 
-	public get isPremium():boolean { return this.$store("auth").isPremium; }
-	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
+	public get isPremium():boolean { return this.$store.auth.isPremium; }
+	public get donorLevel():number { return this.$store.auth.twitch.user.donor.level; }
 
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 }
 </script>
@@ -66,10 +66,6 @@ export default class DonorState extends Vue {
 		}
 	}
 	
-	.card-item {
-		margin-top: 1em;
-	}
-
 	.premiumDisabled {
 		cursor: pointer;
 		position: relative;
@@ -91,6 +87,7 @@ export default class DonorState extends Vue {
 	}
 
 	.publicState {
+		margin-top: 1em;
 		max-width: 300px;
 	}
 }

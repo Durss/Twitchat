@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@mouseover="$emit('onOverMessage', messageData, $event)"
 	>
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<img v-if="messageData.restricted" src="@/assets/icons/lock_fit.svg" alt="notice" class="icon">
 		<img v-else src="@/assets/icons/shield.svg" alt="notice" class="icon">
@@ -42,7 +42,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},

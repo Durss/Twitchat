@@ -64,14 +64,14 @@ import ApiController from '@/utils/ApiController';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ToggleButton,
 	},
@@ -146,11 +146,11 @@ export default class TTUserList extends AbstractSidePanel {
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
-				this.$store("main").alert(json.message);
+				this.$store.main.alert(json.message);
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			this.$store("main").alert("An error occured while loading users<br>");
+			this.$store.main.alert("An error occured while loading users<br>");
 		}
 		this.loading = false;
 	}

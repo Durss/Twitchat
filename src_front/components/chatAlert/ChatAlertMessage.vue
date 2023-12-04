@@ -24,7 +24,7 @@ export default class ChatAlertMessage extends Vue {
 
 	public get chunks():TwitchatDataTypes.ParseMessageChunk[] {
 		let chunks = this.message!.message_chunks.concat();
-		const cmd = this.$store("main").chatAlertParams.chatCmd.trim().toLowerCase().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+		const cmd = this.$store.main.chatAlertParams.chatCmd.trim().toLowerCase().replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		let clone = JSON.parse(JSON.stringify(chunks[0]));
 		clone.value = clone.value.replace(new RegExp("^"+cmd, "gi"), "");
 		chunks[0] = clone;
@@ -32,9 +32,9 @@ export default class ChatAlertMessage extends Vue {
 	}
 
 	public mounted():void {
-		watch(() => this.$store("main").chatAlert, async (message) => {
-			if(message && this.$store("main").chatAlertParams.message === true
-			&& this.$store("params").features.alertMode.value === true) {
+		watch(() => this.$store.main.chatAlert, async (message) => {
+			if(message && this.$store.main.chatAlertParams.message === true
+			&& this.$store.params.features.alertMode.value === true) {
 				this.message = message;
 			}
 		})

@@ -75,13 +75,13 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 	},
 	emits:["close", "select"]
 })
@@ -111,8 +111,8 @@ export default class EmoteSelector extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		if(Object.keys(this.$store("chat").emoteSelectorCache).length > 0) {
-			this.users = this.$store("chat").emoteSelectorCache;
+		if(Object.keys(this.$store.chat.emoteSelectorCache).length > 0) {
+			this.users = this.$store.chat.emoteSelectorCache;
 		}else{
 
 			const emotes = await TwitchUtils.getEmotes();
@@ -126,7 +126,7 @@ export default class EmoteSelector extends Vue {
 			
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
-				const user = this.$store("users").getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
+				const user = this.$store.users.getUserFrom("twitch", undefined, u.id, u.login, u.display_name);
 				user.avatarPath = tmpList.find(v=>v.id == user.id)!.profile_image_url;
 				userList.push(user);
 			}
@@ -206,7 +206,7 @@ export default class EmoteSelector extends Vue {
 				emotes: [],
 			};
 	
-			if(this.$store("params").appearance.bttvEmotes.value === true) {
+			if(this.$store.params.appearance.bttvEmotes.value === true) {
 				//Add BTTV emotes
 				sets.push({
 						user:{
@@ -231,7 +231,7 @@ export default class EmoteSelector extends Vue {
 				});
 			}
 	
-			if(this.$store("params").appearance.sevenTVEmotes.value === true) {
+			if(this.$store.params.appearance.sevenTVEmotes.value === true) {
 				//Add 7TV emotes
 				sets.push({
 						user:{
@@ -256,7 +256,7 @@ export default class EmoteSelector extends Vue {
 				});
 			}
 	
-			if(this.$store("params").appearance.ffzEmotes.value === true) {
+			if(this.$store.params.appearance.ffzEmotes.value === true) {
 				//Add FFZ emotes
 				sets.push({
 						user:{
@@ -282,7 +282,7 @@ export default class EmoteSelector extends Vue {
 			}
 	
 			//Save it to storage to avoid loading everything back again
-			this.$store("chat").setEmoteSelectorCache(sets);
+			this.$store.chat.setEmoteSelectorCache(sets);
 			this.users = sets;
 		}
 

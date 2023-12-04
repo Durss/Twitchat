@@ -90,14 +90,14 @@ import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 import type { SourceTransform } from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		OverlayCounter,
 		OverlayInstaller,
@@ -132,7 +132,7 @@ export default class OverlayParamsCounter extends Vue {
 	}
 	
 	public get counters():TwitchatDataTypes.CounterData[] {
-		return this.$store('counters').counterList;
+		return this.$store.counters.counterList;
 	}
 
 	public getOverlayTransform(counter:TwitchatDataTypes.CounterData):Partial<SourceTransform> {
@@ -144,7 +144,7 @@ export default class OverlayParamsCounter extends Vue {
 	}
 
 	public createCounter():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 }

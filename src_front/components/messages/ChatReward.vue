@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<div class="holder">
 			<div v-for="entry in rewardList" :key="entry.vo.id" class="item">
@@ -21,7 +21,7 @@
 					</template>
 				</i18n-t>
 				
-				<div class="quote" v-if="$store('params').appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
+				<div class="quote" v-if="$store.params.appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
 			</div>
 			
 			<div class="quote" v-if="messageData.message_html">
@@ -38,7 +38,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
 
@@ -93,7 +93,7 @@ export default class ChatReward extends AbstractChatMessage {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 }
 </script>

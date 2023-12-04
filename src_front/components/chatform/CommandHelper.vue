@@ -25,10 +25,10 @@
 		<ParamItem class="roomParam" :paramData="param_emotesOnly"	@change="setEmoteOnly()"	noBackground @click="requestRoomSettingsScopes()" />
 		<ParamItem class="roomParam" :paramData="param_slowMode"	@change="setSlowMode()"		noBackground @click="requestRoomSettingsScopes()" />
 		
-		<div class="card-item raid" v-if="$store('stream').currentRaid">
+		<div class="card-item raid" v-if="$store.stream.currentRaid">
 			<div class="title">
 				<Icon name="raid" />
-				Raiding {{$store('stream').currentRaid!.user.displayName}}
+				Raiding {{$store.stream.currentRaid!.user.displayName}}
 			</div>
 			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" alert>{{ $t("global.cancel") }}</Button>
 		</div>
@@ -62,12 +62,12 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 	},
 	emits:[ "close" ]
@@ -95,34 +95,34 @@ export default class CommandHelper extends Vue {
 	private clickHandler!:(e:MouseEvent) => void;
 	
 	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
-	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
+	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get canStartCommercial():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_COMMERCIAL]) && this.hasChannelPoints; }
 	public get canClearChat():boolean { return TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES]); }
 	public get canRaid():boolean { return TwitchUtils.hasScopes([TwitchScopes.START_RAID]); }
-	public get isAdmin():boolean { return this.$store("auth").twitch.user.is_admin === true; }
+	public get isAdmin():boolean { return this.$store.auth.twitch.user.is_admin === true; }
 
 	public get canCreatePrediction():boolean {
 		if(!this.hasChannelPoints) return false;
 		if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) return false;
-		return this.$store("prediction").data?.id == undefined
-			|| this.$store("prediction").data?.channel_id !== StoreProxy.auth.twitch.user.id;
+		return this.$store.prediction.data?.id == undefined
+			|| this.$store.prediction.data?.channel_id !== StoreProxy.auth.twitch.user.id;
 	}
 
 	public get canCreatePoll():boolean {
 		if(!this.hasChannelPoints) return false;
 		if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) return false;
-		return this.$store("poll").data?.id == undefined
-			|| this.$store("poll").data?.channel_id !== StoreProxy.auth.twitch.user.id;
+		return this.$store.poll.data?.id == undefined
+			|| this.$store.poll.data?.channel_id !== StoreProxy.auth.twitch.user.id;
 	}
 
 	public async beforeMount():Promise<void> {
 		//Fake raid to test "raiding" card
-		// this.$store('stream').currentRaid = {
-		// 	channel_id:this.$store("auth").twitch.user.id,
+		// this.$store.stream.currentRaid = {
+		// 	channel_id:this.$store.auth.twitch.user.id,
 		// 	startedAt:Date.now(),
 		// 	timerDuration_s:9999999999,
-		// 	user:this.$store("auth").twitch.user,
+		// 	user:this.$store.auth.twitch.user,
 		// 	viewerCount:855,
 		// };
 
@@ -131,21 +131,21 @@ export default class CommandHelper extends Vue {
 		this.param_emotesOnly.labelKey		= "cmdmenu.emotesOnly";
 		this.param_slowMode.labelKey		= "cmdmenu.slowMode";
 
-		const uid = this.$store("auth").twitch.user.id;
+		const uid = this.$store.auth.twitch.user.id;
 
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 
-		// watch(()=>this.$store("stream").commercial[uid].prevAdStart_at, ()=>{
-		// 	this.adCooldown = this.$store("stream").commercial[uid].prevAdStart_at - Date.now();
+		// watch(()=>this.$store.stream.commercial[uid].prevAdStart_at, ()=>{
+		// 	this.adCooldown = this.$store.stream.commercial[uid].prevAdStart_at - Date.now();
 		// });
 
-		// const channelId = this.$store("auth").twitch.user.id;
-		// watch(()=>this.$store("stream").roomSettings[channelId], ()=>{
+		// const channelId = this.$store.auth.twitch.user.id;
+		// watch(()=>this.$store.stream.roomSettings[channelId], ()=>{
 		// 	this.populateSettings();
 		// }, {deep:true});
 
-		// this.adCooldown = Math.max(0, this.$store("stream").commercial[uid].prevAdStart_at - Date.now());
+		// this.adCooldown = Math.max(0, this.$store.stream.commercial[uid].prevAdStart_at - Date.now());
 		// this.adCooldownInterval = window.setInterval(()=>{
 		// 	if(this.adCooldown === 0) return;
 		// 	this.adCooldown -= 1000;
@@ -168,10 +168,10 @@ export default class CommandHelper extends Vue {
 
 	public startAd(duration:number):void {
 		if(!this.canStartCommercial) {
-			this.$store("auth").requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
+			this.$store.auth.requestTwitchScopes([TwitchScopes.START_COMMERCIAL]);
 		}else {
-			const uid = this.$store("auth").twitch.user.id;
-			this.$store("stream").startCommercial(uid, duration);
+			const uid = this.$store.auth.twitch.user.id;
+			this.$store.stream.startCommercial(uid, duration);
 			this.close();
 		}
 	}
@@ -181,7 +181,7 @@ export default class CommandHelper extends Vue {
 			case "poll": {
 				if(!this.hasChannelPoints) return;
 				if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS])) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
 					return;
 				}
 				if(!this.canCreatePoll) return;
@@ -190,7 +190,7 @@ export default class CommandHelper extends Vue {
 			case "pred": {
 				if(!this.hasChannelPoints) return;
 				if(!TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
 					return;
 				}
 				if(!this.canCreatePrediction) return;
@@ -198,19 +198,19 @@ export default class CommandHelper extends Vue {
 			}
 			case "streamInfo": {
 				if(!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
 					return;
 				}
 				break;
 			}
 		}
-		this.$store("params").openModal(type)
+		this.$store.params.openModal(type)
 		this.close();
 	}
 
 	public clearChat():void {
 		if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-			this.$store("auth").requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
+			this.$store.auth.requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
 		}else{
 			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
 		}
@@ -245,8 +245,8 @@ export default class CommandHelper extends Vue {
 	private async populateSettings():Promise<void> {
 		this.ignoreUpdates = true;
 
-		const channelId = this.$store("auth").twitch.user.id;
-		let settings = this.$store("stream").roomSettings[channelId] ?? {};
+		const channelId = this.$store.auth.twitch.user.id;
+		let settings = this.$store.stream.roomSettings[channelId] ?? {};
 		this.param_followOnly.value	= typeof settings.followOnly == "number";
 		this.param_subOnly.value	= settings.subOnly;
 		this.param_emotesOnly.value	= settings.emotesOnly;
@@ -323,12 +323,12 @@ export default class CommandHelper extends Vue {
 
 	public requestRoomSettingsScopes():void {
 		if(TwitchUtils.hasScopes([TwitchScopes.SET_ROOM_SETTINGS])) return;
-		this.$store("auth").requestTwitchScopes([TwitchScopes.SET_ROOM_SETTINGS]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.SET_ROOM_SETTINGS]);
 	}
 
 	public requestRaidScopes():void {
 		if(TwitchUtils.hasScopes([TwitchScopes.START_RAID])) return;
-		this.$store("auth").requestTwitchScopes([TwitchScopes.START_RAID]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.START_RAID]);
 	}
 }
 </script>

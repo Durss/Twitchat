@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@click="open()"
-	v-if="$store('auth').twitch.user.donor.state === true || !$store('auth').twitch.user.donor.noAd">
+	v-if="$store.auth.twitch.user.donor.state === true || !$store.auth.twitch.user.donor.noAd">
 		<CloseButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -44,7 +44,7 @@ import { gsap } from 'gsap';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ToggleBlock,
 		PostOnChatParam,
@@ -59,7 +59,7 @@ export default class ParamsTwitchatAd extends Vue {
 	public collapse:boolean = true;
 	public blink:boolean = false;
 	
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
+	public get isDonor():boolean { return this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
 	public get adMinFollowersCount():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
 
 	public get classes():string[] {
@@ -70,12 +70,12 @@ export default class ParamsTwitchatAd extends Vue {
 	}
 
 	public beforeMount():void {
-		const subContent = this.$store("params").currentPageSubContent;
+		const subContent = this.$store.params.currentPageSubContent;
 		if(subContent == "ad") {
 			this.blink = true;
 			setTimeout(()=>{
 				this.blink = false;
-				this.$store("params").currentPageSubContent = "";
+				this.$store.params.currentPageSubContent = "";
 			}, 3000);
 		}
 		this.collapse = DataStore.get(DataStore.COLLAPSE_PARAM_AD_INFO) === "true" && this.expand === false && subContent != "ad";
@@ -83,13 +83,13 @@ export default class ParamsTwitchatAd extends Vue {
 		watch(()=>this.expand, ()=> {
 			if(this.expand !== false) this.collapse = false;
 		})
-		watch(()=>this.$store("params").currentPageSubContent, ()=> {
-			if(this.$store("params").currentPageSubContent === "ad") {
+		watch(()=>this.$store.params.currentPageSubContent, ()=> {
+			if(this.$store.params.currentPageSubContent === "ad") {
 				this.collapse = false;
 				this.blink = true;
 				setTimeout(()=>{
 					this.blink = false;
-					this.$store("params").currentPageSubContent = "";
+					this.$store.params.currentPageSubContent = "";
 				}, 3000);
 			}
 		})
@@ -122,11 +122,11 @@ export default class ParamsTwitchatAd extends Vue {
 	}
 
 	public openDonate():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.DONATE);
 	}
 
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 }

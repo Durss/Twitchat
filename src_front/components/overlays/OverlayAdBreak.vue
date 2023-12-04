@@ -34,7 +34,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import type { StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay.vue';
+import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
 
 @Component({

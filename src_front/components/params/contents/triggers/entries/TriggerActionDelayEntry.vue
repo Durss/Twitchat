@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
 import contenteditable from 'vue-contenteditable';
@@ -31,7 +31,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		contenteditable,
 	},

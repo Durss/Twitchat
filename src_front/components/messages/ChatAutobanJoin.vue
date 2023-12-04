@@ -1,6 +1,6 @@
 <template>
 	<div class="chatautobanjoin chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<img src="@/assets/icons/mod.svg" alt="mod" class="icon">
 
@@ -35,13 +35,13 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ChatMessageInfoBadges,
 	},
 	emits:["onRead"],

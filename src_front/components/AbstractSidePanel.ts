@@ -1,4 +1,3 @@
-<script lang="ts">
 import { gsap } from "gsap";
 import { ComponentBase, Vue } from 'vue-facing-decorator';
 
@@ -58,4 +57,3 @@ export default class AbstractSidePanel extends Vue {
 	}
 
 }
-</script>

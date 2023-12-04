@@ -64,12 +64,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ProgressBar,
 	},
 	emits:["close"]
@@ -98,12 +98,12 @@ export default class RaffleState extends Vue {
 	
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
 		if(!entry.user) return null;
-		return this.$store("users").getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
+		return this.$store.users.getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
 	}
 
 	public beforeMount():void {
-		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayName}];
-		this.raffleData			= this.$store("raffle").data!;
+		this.winnerPlaceholders	= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayName}];
+		this.raffleData			= this.$store.raffle.data!;
 
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
@@ -120,7 +120,7 @@ export default class RaffleState extends Vue {
 	public closeRaffle():void {
 		this.$confirm(this.$t('raffle.delete_confirm.title'), this.$t('raffle.delete_confirm.description'))
 		.then(async ()=> {
-			this.$store("raffle").stopRaffle();
+			this.$store.raffle.stopRaffle();
 			this.$emit("close");
 		}).catch(()=> {
 			//ignore
@@ -129,13 +129,13 @@ export default class RaffleState extends Vue {
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
 		if(!user) return;
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 	public async pickWinner():Promise<void> {
 		this.picking = true;
 		
-		await this.$store("raffle").pickWinner();
+		await this.$store.raffle.pickWinner();
 
 		this.picking = false;
 	}

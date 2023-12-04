@@ -28,7 +28,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
@@ -36,7 +36,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["obsSourceCreated"],
 })

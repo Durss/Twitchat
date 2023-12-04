@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { HeatArea, HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -51,7 +51,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 	},
 	emits:["update", "close"],
@@ -139,7 +139,7 @@ export default class HeatScreenEditor extends Vue {
 
 	public onSelectOBSScene():void {
 		if(this.params_target.value == "obs") {
-			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
 			return;
 		}
 		this.screen.activeOBSScene = this.params_target.value;

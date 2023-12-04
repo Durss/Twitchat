@@ -39,9 +39,8 @@ import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import { Vue3Marquee } from 'vue3-marquee';
-import 'vue3-marquee/dist/style.css';
-import AbstractOverlay from './AbstractOverlay.vue';
+import { Vue3Marquee } from 'vue3-marquee'
+import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
@@ -172,7 +171,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 		}
 		if(this.embed) {
 			//Called when seeking
-			watch(()=>this.$store("music").musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
+			watch(()=>this.$store.music.musicPlayerParams, ()=> this.onTrackChangeLocal(), {deep:true});
 			this.onTrackChangeLocal();
 		}
 	}
@@ -193,7 +192,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 	private onTrackChangeLocal():void {
-		this.params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		this.params = this.$store.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		if(this.staticTrackData) {
 			this.artist = this.staticTrackData.artist;
 			this.title = this.staticTrackData.title;

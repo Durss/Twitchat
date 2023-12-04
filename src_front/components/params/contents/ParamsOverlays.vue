@@ -9,7 +9,7 @@
 					<Button class="button"
 						icon="obs"
 						light alert
-						@click="$store('params').openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
+						@click="$store.params.openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
 				</template>
 				<template #DOCK>
 					<Button class="button"
@@ -34,7 +34,7 @@
 		</div>
 		
 		<OverlayParamsCredits class="block" :open="subContent == 'credits'" :class="allowHighlight && subContent == 'credits'? 'selected' : ''" @click="allowHighlight = false" ref="credits" />
-		<OverlayParamsHeatDistort v-if="$store('main').devmode" class="block" :open="subContent == 'heatDistort'" :class="allowHighlight && subContent == 'heatDistort'? 'selected' : ''" @click="allowHighlight = false" ref="heatDistort" />
+		<OverlayParamsHeatDistort v-if="$store.main.devmode" class="block" :open="subContent == 'heatDistort'" :class="allowHighlight && subContent == 'heatDistort'? 'selected' : ''" @click="allowHighlight = false" ref="heatDistort" />
 		<OverlayParamsRaffle class="block" :open="subContent == 'wheel'" :class="allowHighlight && subContent == 'wheel'? 'selected' : ''" @click="allowHighlight = false" ref="wheel" />
 		<OverlayParamsHighlight class="block" :open="subContent == 'highlight'" :class="allowHighlight && subContent == 'highlight'? 'selected' : ''" @click="allowHighlight = false" ref="highlight" />
 		<OverlayParamsSpotify class="block" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" ref="spotify" />
@@ -52,7 +52,7 @@ import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import type IParameterContent from './IParameterContent';
 import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
 import OverlayParamsHighlight from './overlays/OverlayParamsHighlight.vue';
@@ -67,7 +67,7 @@ import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		OverlayParamsTTS,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
@@ -97,7 +97,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public get subContent() { return this.$store("params").currentPageSubContent; }
+	public get subContent() { return this.$store.params.currentPageSubContent; }
 
 	public mounted():void {
 		if(this.subContent) {

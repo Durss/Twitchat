@@ -108,11 +108,11 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["showModal"]
 })
@@ -134,10 +134,10 @@ export default class ChatTipAndTrickAd extends Vue {
 	}
 
 	public openModal(modal:string):void { this.$emit("showModal", modal); }
-	public startTimer():void { this.$store("timer").timerStart(); }
-	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
-	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
+	public startTimer():void { this.$store.timer.timerStart(); }
+	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
+	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
 	public onRightClick(e:MouseEvent):void {
 		if(e.ctrlKey) {

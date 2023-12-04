@@ -22,11 +22,11 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from './Button.vue';
+import TTButton from './TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["update:modelValue"],
 })

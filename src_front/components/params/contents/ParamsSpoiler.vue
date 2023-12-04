@@ -70,14 +70,14 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public beforeMount(): void {
 
-		this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data) => {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data) => {
 			const m = data as TwitchatDataTypes.MessageChatData;
 			m.spoiler = true;
 			this.spoilerExample = m;
 		}, false);
 
-		if (this.$store("chat").spoilerParams.permissions) {
-			this.chatCommandPerms = this.$store("chat").spoilerParams.permissions;
+		if (this.$store.chat.spoilerParams.permissions) {
+			this.chatCommandPerms = this.$store.chat.spoilerParams.permissions;
 		}
 
 		watch(() => this.chatCommandPerms, () => this.save(), { deep: true })
@@ -86,7 +86,7 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 	public save():void {
-		this.$store("chat").setSpoilerParams({
+		this.$store.chat.setSpoilerParams({
 			permissions: this.chatCommandPerms,
 			autoSpoilNewUsers: this.param_autospoil.value,
 		});

@@ -20,7 +20,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { ITriggerPlaceholder, TriggerActionStreamInfoData, TriggerData } from '@/types/TriggerActionDataTypes';
 
 @Component({

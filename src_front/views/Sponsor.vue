@@ -24,12 +24,12 @@
 <script lang="ts">
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
-import Button from '../components/Button.vue';
+import TTButton from '../components/TTButton.vue';
 import { gsap } from 'gsap';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamsSponsor,
 	}
 })

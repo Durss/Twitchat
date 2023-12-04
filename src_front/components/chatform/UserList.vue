@@ -15,7 +15,7 @@
 						:href="'https://twitch.tv/'+u.login"
 						@click.prevent="openUserCard(u)"
 						v-for="u in currentChan.users[key]" :key="u.id">
-							<Icon name="unfollow" v-if="$store('params').appearance.highlightNonFollowers.value === true && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
+							<Icon name="unfollow" v-if="$store.params.appearance.highlightNonFollowers.value === true && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
 							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 									src="@/assets/icons/timeout.svg"
@@ -46,13 +46,13 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		ToggleBlock,
 	},
@@ -75,7 +75,7 @@ export default class UserList extends Vue {
 		const list:TwitchatDataTypes.TwitchatUser[] = [];
 		for (const uid in this.channels) {
 			const chan = this.channels[uid];
-			list.push(this.$store("users").getUserFrom(chan.platform, chan.channelId, chan.channelId));
+			list.push(this.$store.users.getUserFrom(chan.platform, chan.channelId, chan.channelId));
 		}
 		return list;
 	}
@@ -91,7 +91,7 @@ export default class UserList extends Vue {
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
-		if(this.$store("params").appearance.highlightNonFollowers.value === true
+		if(this.$store.params.appearance.highlightNonFollowers.value === true
 		&& user.channelInfo[this.currentChanId!]?.is_following === false) res.push("noFollow");
 		return res;
 	}
@@ -105,7 +105,7 @@ export default class UserList extends Vue {
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
-		watch(() => this.$store("users").users, () => {
+		watch(() => this.$store.users.users, () => {
 			this.updateList();
 		});
 		this.updateList();
@@ -134,7 +134,7 @@ export default class UserList extends Vue {
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.currentChanId!);
+		this.$store.users.openUserCard(user, this.currentChanId!);
 	}
 
 	private open():void {
@@ -168,7 +168,7 @@ export default class UserList extends Vue {
 
 		this.debounceTo = setTimeout(()=> {
 			// const s = Date.now();
-			const userList = this.$store("users").users;
+			const userList = this.$store.users.users;
 			
 			const channels:{[key:string]:ChannelUserList} = {};
 			for (let i = 0; i < userList.length; i++) {

@@ -27,7 +27,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
@@ -38,7 +38,7 @@ import TriggerConditionListItem from './TriggerConditionListItem.vue';
 @Component({
 	name: "TriggerConditionListGroupItem",
 	components: {
-		Button,
+		Button: TTButton,
 		draggable,
 		ParamItem,
 		TriggerConditionListItem,

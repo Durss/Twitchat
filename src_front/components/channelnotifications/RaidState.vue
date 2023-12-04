@@ -75,14 +75,14 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { gsap } from 'gsap';
 import MessengerProxy from '@/messaging/MessengerProxy';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 	}
 })
@@ -100,17 +100,17 @@ export default class RaidState extends Vue {
 	private timerStart = 0;
 	private timerInterval!:number;
 
-	public get raidInfo() { return this.$store("stream").currentRaid!; }
+	public get raidInfo() { return this.$store.stream.currentRaid!; }
 	public get canCancel() {
 		return true;
 		// if(!this.user) return false;
-		// const chaninfo = this.$store("auth").twitch.user.channelInfo[this.user.id];
+		// const chaninfo = this.$store.auth.twitch.user.channelInfo[this.user.id];
 		// if(!chaninfo) return false;
 		// return chaninfo.is_broadcaster || chaninfo.is_moderator;
 	}
 
 	public getBanDuration(user:TwitchatDataTypes.TwitchatUser):string {
-		const chanInfo = user.channelInfo[this.$store("auth").twitch.user.id];
+		const chanInfo = user.channelInfo[this.$store.auth.twitch.user.id];
 		const remaining = chanInfo.banEndDate! - Date.now();
 		return Utils.formatDuration(remaining)+"s";
 	}
@@ -121,9 +121,9 @@ export default class RaidState extends Vue {
 			this.updateTimer();
 		}, 250);
 
-		this.censorCount = this.$store('params').appearance.showViewersCount.value !== true;
+		this.censorCount = this.$store.params.appearance.showViewersCount.value !== true;
 		
-		const raid = this.$store("stream").currentRaid;
+		const raid = this.$store.stream.currentRaid;
 		if(raid) {
 			this.user = raid.user;
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
@@ -131,8 +131,8 @@ export default class RaidState extends Vue {
 			this.targetChannelOffline = liveInfos.length == 0;
 		}
 
-		const userlist = this.$store("users").users;
-		const me = this.$store("auth").twitch.user;
+		const userlist = this.$store.users.users;
+		const me = this.$store.auth.twitch.user;
 		const bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		const timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		//Check for banned and timedout users stille connected to the chat
@@ -176,7 +176,7 @@ export default class RaidState extends Vue {
 	public updateTimer():void {
 		const seconds = this.timerDuration - (Date.now() - this.timerStart);
 		if(seconds <= 0) {
-			this.$store("stream").onRaidComplete();
+			this.$store.stream.onRaidComplete();
 			return;
 		}
 		this.timeLeft = Utils.formatDuration(seconds);
@@ -193,11 +193,11 @@ export default class RaidState extends Vue {
 	}
 
 	public openSummary():void {
-		this.$store("params").openModal("streamSummary");
+		this.$store.params.openModal("streamSummary");
 	}
 
 	public openUserCard(u:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(u);
+		this.$store.users.openUserCard(u);
 	}
 
 	public copybannedUsers():void {

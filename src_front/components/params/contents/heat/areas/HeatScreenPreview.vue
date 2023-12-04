@@ -51,8 +51,8 @@ export default class HeatScreenPreview extends Vue {
 
 	public get canEnable():boolean {
 		let max = this.$config.MAX_CUSTOM_HEAT_SCREENS;
-		if(this.$store("auth").isPremium) max = this.$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM;
-		return this.$store("heat").screenList.filter(v=>v.enabled).length < max || this.screen.enabled != false;
+		if(this.$store.auth.isPremium) max = this.$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM;
+		return this.$store.heat.screenList.filter(v=>v.enabled).length < max || this.screen.enabled != false;
 	}
 	
 	public get polygons():{id:string, svgData:string}[] {

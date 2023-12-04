@@ -3,7 +3,7 @@
 		<div class="fader" ref="fader" v-if="messageData.pinnned"></div>
 		<div class="fill" ref="fill" v-if="messageData.pinnned"></div>
 		
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="bits" alt="bits" class="icon"/>
 
@@ -29,7 +29,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
 
@@ -71,13 +71,13 @@ export default class ChatBits extends AbstractChatMessage {
 
 	public mounted():void {
 		const reason = this.$tc("chat.bits", {COUNT:this.totalBits, USER:this.messageData.user.displayName});
-		this.$store("accessibility").setAriaPolite(reason+" "+this.messageData.message);
+		this.$store.accessibility.setAriaPolite(reason+" "+this.messageData.message);
 		this.computeState();
 		watch(()=>this.messageData.pinnned, ()=> this.computeState() );
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	private computeClasses():void {

@@ -49,8 +49,8 @@ import { TriggerEventPlaceholders, type TriggerActionBingoData, type TriggerData
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -59,7 +59,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		ParamItem,
 		CloseButton,
@@ -119,7 +119,7 @@ export default class BingoForm extends AbstractSidePanel {
 		this.maxValue.labelKey		= "bingo.form.max_value";
 		this.customValue.labelKey	= "bingo.form.custom_value";
 
-		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.form.winner_placeholder", example:this.$store("auth").twitch.user.displayName}];
+		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.form.winner_placeholder", example:this.$store.auth.twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
 			if(this.action.bingoData.guessNumber) this.mode = "num";
 			if(this.action.bingoData.guessEmote) this.mode = "emote";
@@ -148,7 +148,7 @@ export default class BingoForm extends AbstractSidePanel {
 	 * Start a bingo
 	 */
 	public onSubmit():void {
-		this.$store("bingo").startBingo(this.finalData);
+		this.$store.bingo.startBingo(this.finalData);
 		super.close();
 	}
 

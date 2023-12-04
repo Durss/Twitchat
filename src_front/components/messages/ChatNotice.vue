@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<!-- {{messageData.channel}} -->
 		<Icon :name="icon" :theme="theme" />
 		<span class="message" v-html="message"></span>
@@ -10,7 +10,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -62,7 +62,7 @@ export default class ChatNotice extends AbstractChatMessage {
 			case TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE:		this.icon = "shield"; this.theme="light"; break;
 			case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:	this.icon = "emergency"; this.theme="light"; break;
 		}
-		this.$store("accessibility").setAriaPolite(this.message);
+		this.$store.accessibility.setAriaPolite(this.message);
 	}
 }
 </script>

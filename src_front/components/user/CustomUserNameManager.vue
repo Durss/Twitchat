@@ -6,9 +6,9 @@
 		</div>
 
 		<div class="list">
-			<div class="card-item user" v-for="u, key in $store('users').customUsernames">
+			<div class="card-item user" v-for="u, key in $store.users.customUsernames">
 				<button class="deleteBt" v-tooltip="$t('usercard.manage_usernames_removeBt')" @click="deleteCustomName(key as string)"><Icon name="cross" theme="alert" /></button>
-				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ $store("users").getUserFrom(u.platform, u.channel, key as string).displayNameOriginal }}</span>
+				<span class="original" v-tooltip="$t('usercard.manage_usernames_real_tt')">{{ $store.users.getUserFrom(u.platform, u.channel, key as string).displayNameOriginal }}</span>
 				<span class="rename" v-tooltip="$t('usercard.manage_usernames_custom_tt')">({{ u.name }})</span>
 			</div>
 		</div>
@@ -17,28 +17,28 @@
 
 <script lang="ts">
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 	},
 	emits:["close"],
 })
 export default class CustomUserNameManager extends Vue {
 
 	public async mounted():Promise<void> {
-		const customUsernames = this.$store("users").customUsernames;
+		const customUsernames = this.$store.users.customUsernames;
 		for (const uid in customUsernames) {
 			const u = customUsernames[uid];
-			this.$store("users").getUserFrom(u.platform, u.channel, uid);
+			this.$store.users.getUserFrom(u.platform, u.channel, uid);
 		}
 	}
 
 	public deleteCustomName(uid:string):void {
-		this.$store("users").removeCustomUsername(uid);
+		this.$store.users.removeCustomUsername(uid);
 	}
 
 }

@@ -13,11 +13,11 @@
 			</template>
 
 			<template #content v-if="noTooltip === false">
-				<div class="list" v-if="$store('users').customBadgeList.length > 0">
+				<div class="list" v-if="$store.users.customBadgeList.length > 0">
 					<Button light secondary small icon="edit" class="editBt"
 					@click="$emit('manageBadges')">{{ $t("usercard.manage_badgesBt") }}</Button>
 
-					<button :class="getBadgeClasses(badge)" v-for="badge in $store('users').customBadgeList" :key="badge.id" @click="addBadge(badge.id)">
+					<button :class="getBadgeClasses(badge)" v-for="badge in $store.users.customBadgeList" :key="badge.id" @click="addBadge(badge.id)">
 						<img :src="badge.img">
 					</button>
 				</div>
@@ -32,12 +32,12 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 	},
 	emits:["manageBadges", "limitReached"],
 })
@@ -63,9 +63,9 @@ export default class CustomBadgeSelector extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			const badgeId = this.$store("users").createCustomBadge(base64Img);
+			const badgeId = this.$store.users.createCustomBadge(base64Img);
 			if(badgeId !== false) {
-				this.$store("users").giveCustomBadge(this.user!, badgeId as string, this.channelId);
+				this.$store.users.giveCustomBadge(this.user!, badgeId as string, this.channelId);
 			}
 			input.value = "";
 		});
@@ -73,12 +73,12 @@ export default class CustomBadgeSelector extends Vue {
 
 	public getBadgeClasses(badge:TwitchatDataTypes.TwitchatCustomUserBadge):string[] {
 		const res:string[] = ["badge"];
-		if(!this.$store("auth").isPremium && badge.enabled === false) res.push("disabled");
+		if(!this.$store.auth.isPremium && badge.enabled === false) res.push("disabled");
 		return res;
 	}
 
 	public addBadge(id:string):void {
-		if(!this.$store("users").giveCustomBadge(this.user!, id as string, this.channelId)) {
+		if(!this.$store.users.giveCustomBadge(this.user!, id as string, this.channelId)) {
 			this.$emit("limitReached");
 		}
 	}

@@ -37,7 +37,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay.vue';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{}

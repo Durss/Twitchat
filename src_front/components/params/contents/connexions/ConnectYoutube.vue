@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ApiController from '@/utils/ApiController';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
@@ -20,7 +20,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 	},
 	emits:[],
@@ -35,17 +35,17 @@ export default class ConnectYoutube extends Vue {
 	public get connected():boolean { return YoutubeHelper.instance.connected; }
 
 	public async beforeMount():Promise<void> {
-		const youtubeAuthParams = this.$store("youtube").youtubeAuthParams;
+		const youtubeAuthParams = this.$store.youtube.youtubeAuthParams;
 		if(youtubeAuthParams) {
 			this.open = true;	
 			this.loading = true;
 
 			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:youtubeAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store("main").alert(csrf.message || "Youtube authentication failed");
+				this.$store.main.alert(csrf.message || "Youtube authentication failed");
 			}else{
 				try {
-					if(!await this.$store("youtube").authenticate()) {
+					if(!await this.$store.youtube.authenticate()) {
 						throw(new Error());
 					}
 					this.showSuccess = true;
@@ -54,12 +54,12 @@ export default class ConnectYoutube extends Vue {
 					this.error = castError.error ?? castError.error_description;
 					this.showSuccess = false;
 					console.log(e);
-					this.$store("main").alert("Oops... something went wrong");
+					this.$store.main.alert("Oops... something went wrong");
 				}
 			}
 
 			this.loading = false;
-			this.$store("youtube").setYoutubeAuthResult(null);
+			this.$store.youtube.setYoutubeAuthResult(null);
 		}
 	}
 

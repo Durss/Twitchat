@@ -26,7 +26,7 @@
 	
 			<i18n-t scope="global" tag="div" class="infos" keypath="alert.actions_triggers">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("alert.actions_triggers_link") }}</a>
 				</template>
 			</i18n-t>
 	
@@ -42,7 +42,7 @@ import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
@@ -51,7 +51,7 @@ import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -93,7 +93,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
 
 	public beforeMount():void {
-		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store("main").chatAlertParams));
+		let params:TwitchatDataTypes.AlertParamsData = JSON.parse(JSON.stringify(this.$store.main.chatAlertParams));
 		if(params) {
 			//Prefill forms from storage
 			this.param_chatCommand.value = params.chatCmd;
@@ -106,7 +106,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 		}
 
 		watch(()=>this.finalData, ()=> {
-			this.$store("main").setChatAlertParams(this.finalData);
+			this.$store.main.setChatAlertParams(this.finalData);
 		}, {deep:true});
 	}
 
@@ -121,7 +121,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			platform:"twitch",
 			date: Date.now(),
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			user: this.$store("users").getUserFrom("twitch", uid, uid),
+			user: this.$store.users.getUserFrom("twitch", uid, uid),
 			answers: [],
 			channel_id:uid,
 			message: str,
@@ -130,7 +130,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 			message_size: TwitchUtils.computeMessageSize(chunks),
 			is_short:false,
 		}
-		this.$store("main").executeChatAlert(message);
+		this.$store.main.executeChatAlert(message);
 	}
 
 }

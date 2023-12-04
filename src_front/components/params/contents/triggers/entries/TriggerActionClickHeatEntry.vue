@@ -19,7 +19,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import { TriggerTypes, type ITriggerPlaceholder, type TriggerActionHeatClickData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
@@ -56,7 +56,7 @@ export default class TriggerActionClickHeatEntry extends AbstractTriggerActionEn
 				ctrl:false,
 			}
 		}
-		this.param_overlay.listValues = this.$store("heat").distortionList.map( v=> {
+		this.param_overlay.listValues = this.$store.heat.distortionList.map( v=> {
 			let label = "";
 			if(v.name) {
 				label = v.name;

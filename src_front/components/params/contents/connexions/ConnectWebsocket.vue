@@ -31,7 +31,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { SocketParams } from '@/types/TriggerActionDataTypes';
@@ -42,7 +42,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		ParamItem,
 	},

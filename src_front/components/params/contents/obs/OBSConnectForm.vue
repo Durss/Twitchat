@@ -37,13 +37,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 	},

@@ -45,11 +45,11 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["close"]
 })
@@ -57,20 +57,20 @@ export default class BingoState extends Vue {
 
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
-	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store("bingo").data!; }
+	public get bingoData():TwitchatDataTypes.BingoConfig { return this.$store.bingo.data!; }
 
 	public mounted():void {
-		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.username_placeholder", example:this.$store("auth").twitch.user.displayName}]
+		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.username_placeholder", example:this.$store.auth.twitch.user.displayName}]
 	}
 
 	public closeBingo():void {
-		this.$store("bingo").stopBingo();
+		this.$store.bingo.stopBingo();
 		this.$emit("close");
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser | null):void {
 		if(!user) return;
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 }

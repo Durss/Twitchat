@@ -21,7 +21,7 @@
 import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import gsap from 'gsap';
@@ -29,7 +29,7 @@ import gsap from 'gsap';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 	}
 })
 export default class CommercialTimer extends Vue {
@@ -65,8 +65,8 @@ export default class CommercialTimer extends Vue {
 
 	public refreshTimer():void {
 		const maxSchedule		= 5 *60000;
-		const channelId			= this.$store("auth").twitch.user.id;
-		const infos				= this.$store("stream").getCommercialInfo(channelId);
+		const channelId			= this.$store.auth.twitch.user.id;
+		const infos				= this.$store.stream.getCommercialInfo(channelId);
 		this.snoozeLeft			= infos.remainingSnooze;
 		this.snoozeMax			= Math.max(3, infos.remainingSnooze);//Not 100% sure we get 3 snooze max so we get the max of both values
 		//Check if an ad is rolling

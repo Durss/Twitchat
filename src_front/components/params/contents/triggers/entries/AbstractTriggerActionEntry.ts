@@ -1,4 +1,3 @@
-<script lang="ts">
 import { TriggerEventPlaceholders, type ITriggerPlaceholder, type TriggerActionData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { watch } from 'vue';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
@@ -106,4 +105,3 @@ export default class AbstractTriggerActionEntry extends Vue {
 	}
 
 }
-</script>

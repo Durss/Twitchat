@@ -50,7 +50,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
 import Icon from '../Icon.vue';
@@ -58,7 +58,7 @@ import Icon from '../Icon.vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		ParamItem,
 		AutoCompleteForm,
 	},

@@ -32,13 +32,13 @@ import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/Twitch
 import gsap from 'gsap';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleButton,
 	},
@@ -70,7 +70,7 @@ export default class ScopeSelector extends Vue {
 		const scopes:TwitchScopesString[] = JSON.parse(JSON.stringify(Config.instance.TWITCH_APP_SCOPES));
 
 		const disabled:string[] = ["chat:read", "chat:edit", "moderator:manage:announcements"];
-		const userScopes = this.$store("auth").twitch.scopes ?? [];
+		const userScopes = this.$store.auth.twitch.scopes ?? [];
 		for (let i = 0; i < disabled.length; i++) {
 			if(userScopes.indexOf(disabled[i]) == -1) {
 				userScopes.unshift(disabled[i]);

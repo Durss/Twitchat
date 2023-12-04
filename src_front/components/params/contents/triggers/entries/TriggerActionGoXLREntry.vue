@@ -20,7 +20,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
 

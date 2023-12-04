@@ -4,25 +4,25 @@
 			<div class="leftForm">
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1704102299000, id:'parameters_1'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
-				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store('params').appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
-				<!-- <ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" /> -->
+				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
+				<ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" />
 			</div>
 
 			
 			<form @submit.prevent="" class="inputForm">
 				<Icon class="loader" name="loader" v-if="loading" />
 				
-				<div class="inputHolder" v-if="!error && !$store('chat').spamingFakeMessages">
+				<div class="inputHolder" v-if="!error && !$store.chat.spamingFakeMessages">
 
-					<div class="replyTo" v-if="$store('chat').replyTo">
-						<button class="closeBt" type="button" @click="$store('chat').replyTo = null"><Icon name="cross"/></button>
+					<div class="replyTo" v-if="$store.chat.replyTo">
+						<button class="closeBt" type="button" @click="$store.chat.replyTo = null"><Icon name="cross"/></button>
 						<div class="content">
 							<i18n-t scope="global" keypath="chat.form.reply_to" tag="span" class="head">
 								<template #USER>
-									<a class="userlink" @click.stop="openUserCard($store('chat').replyTo!.user, $store('chat').replyTo!.channel_id)">{{$store("chat").replyTo!.user.displayName}}</a>
+									<a class="userlink" @click.stop="openUserCard($store.chat.replyTo!.user, $store.chat.replyTo!.channel_id)">{{$store.chat.replyTo!.user.displayName}}</a>
 								</template>
 							</i18n-t>
-							<span class="message">{{ $store('chat').replyTo!.message }}</span>
+							<span class="message">{{ $store.chat.replyTo!.message }}</span>
 						</div>
 					</div>
 
@@ -31,10 +31,10 @@
 						<div class="content">
 							<span class="title">
 								<Icon name="alert" />
-								<ChatMessageChunksParser :chunks="announcementTitle" :channel="$store('auth').twitch.user.id" platform="twitch" />
+								<ChatMessageChunksParser :chunks="announcementTitle" :channel="$store.auth.twitch.user.id" platform="twitch" />
 							</span>
 							<span class="message">
-								<ChatMessageChunksParser :chunks="announcementMessage" :channel="$store('auth').twitch.user.id" platform="twitch" />
+								<ChatMessageChunksParser :chunks="announcementMessage" :channel="$store.auth.twitch.user.id" platform="twitch" />
 							</span>
 						</div>
 					</div>
@@ -52,7 +52,7 @@
 				</div>
 
 				<Button class="spam" alert
-					v-if="$store('chat').spamingFakeMessages"
+					v-if="$store.chat.spamingFakeMessages"
 					icon="cross"
 					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
 				
@@ -78,7 +78,7 @@
 						icon="poll"
 						v-tooltip="{content:$t('chat.form.pollBt_aria'), showOnCreate:shouldShowTooltip('poll'), onHidden:()=>onHideTooltip('poll')}"
 						@click="openNotifications('poll')"
-						v-if="$store('poll').data?.id" />
+						v-if="$store.poll.data?.id" />
 				</transition>
 	
 				<transition name="blink">
@@ -86,7 +86,7 @@
 						icon="prediction"
 						v-tooltip="{content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
 						@click="openNotifications('prediction')"
-						v-if="$store('prediction').data?.id" />
+						v-if="$store.prediction.data?.id" />
 				</transition>
 	
 				<transition name="blink">
@@ -99,9 +99,9 @@
 	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
-						v-if="$store('raffle').data && $store('raffle').data!.mode == 'chat'"
+						v-if="$store.raffle.data && $store.raffle.data!.mode == 'chat'"
 						icon="ticket"
-						:count="$store('raffle').data!.entries? $store('raffle').data!.entries.length : 0"
+						:count="$store.raffle.data!.entries? $store.raffle.data!.entries.length : 0"
 						v-tooltip="{content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
 						@click="openNotifications('raffle')" />
 				</transition>
@@ -109,7 +109,7 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.bingoBt_aria')"
 						icon="bingo"
-						v-if="$store('bingo').data"
+						v-if="$store.bingo.data"
 						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
 						@click="openNotifications('bingo')" />
 				</transition>
@@ -119,13 +119,13 @@
 						icon="chatPoll"
 						v-tooltip="{content:$t('chat.form.suggBt_aria'), showOnCreate:shouldShowTooltip('chatsuggState'), onHidden:()=>onHideTooltip('chatsuggState')}"
 						@click="openModal('chatsuggState')"
-						v-if="$store('chatSuggestion').data != null" />
+						v-if="$store.chatSuggestion.data != null" />
 				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.whispersBt_aria')"
 						icon="whispers"
-						:count="$store('chat').whispersUnreadCount"
+						:count="$store.chat.whispersUnreadCount"
 						v-if="whispersAvailable"
 						v-tooltip="$t('chat.form.whispersBt_aria')"
 						@click="openModal('whispers')" />
@@ -134,15 +134,15 @@
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pinsBt_aria')"
 						icon="save"
-						v-if="$store('chat').pinedMessages.length > 0"
-						:count="$store('chat').pinedMessages.length"
+						v-if="$store.chat.pinedMessages.length > 0"
+						:count="$store.chat.pinedMessages.length"
 						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
 						@click="openModal('pins')" />
 				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification aria-label="Toggle messages encryption"
-						:icon="$store('main').cypherEnabled? 'lock' : 'unlock'"
+						:icon="$store.main.cypherEnabled? 'lock' : 'unlock'"
 						@click="toggleCypher()"
 						v-if="cypherConfigured"
 						v-tooltip="'Send encrypted<br>messages'" />
@@ -157,13 +157,13 @@
 						@click="removeChatHighlight()" />
 				</transition>
 	
-				<CommunityBoostInfo v-if="$store('stream').communityBoostState" />
+				<CommunityBoostInfo v-if="$store.stream.communityBoostState" />
 	
-				<TimerCountDownInfo v-if="$store('timer').countdown || $store('timer').timer" />
+				<TimerCountDownInfo v-if="$store.timer.countdown || $store.timer.timer" />
 	
 				<CommercialTimer />
 	
-				<div v-if="$store('params').appearance.showViewersCount.value === true
+				<div v-if="$store.params.appearance.showViewersCount.value === true
 					&& streamInfo && streamInfo.viewers > 0"
 					v-tooltip="$t('chat.form.viewer_count')"
 					class="viewCount"
@@ -184,7 +184,7 @@
 				</transition>
 
 				<transition name="blink">
-					<Icon class="spotify" name="spotify" v-if="$store('music').spotifyConsecutiveErrors > 5"
+					<Icon class="spotify" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
 					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
 				</transition>
 	
@@ -192,7 +192,7 @@
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
 						icon="debug"
 						@click="$emit('update:showDevMenu',true);"
-						v-if="$store('main').devmode" />
+						v-if="$store.main.devmode" />
 				</transition>
 	
 				<transition name="blink">
@@ -200,8 +200,8 @@
 						v-if="emergencyButtonEnabled"
 						icon="emergency"
 						alert
-						:aria-label="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
-						v-tooltip="$store('emergency').emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						:aria-label="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
+						v-tooltip="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 						@click="toggleEmergencyMode()" />
 				</transition>
 			</div>
@@ -212,7 +212,7 @@
 				<Button class="muteBt" :aria-label="$t('chat.form.muteTTSBt_aria')"
 					icon="mute"
 					secondary
-					v-if="$store('tts').speaking"
+					v-if="$store.tts.speaking"
 					v-tooltip="{content:$t('chat.form.muteTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(false)" />
 			</transition>
@@ -221,7 +221,7 @@
 				<Button class="muteBt" :aria-label="$t('chat.form.clearTTSBt_aria')"
 					icon="muteAll"
 					secondary
-					v-if="$store('tts').speaking"
+					v-if="$store.tts.speaking"
 					v-tooltip="{content:$t('chat.form.clearTTSBt_aria'), placement:'left'}"
 					@click="stopTTS(true)" />
 			</transition>
@@ -229,18 +229,18 @@
 			<transition name="slide">
 				<Button class="voicemodBt" :aria-label="$t('chat.form.resetVoiceBt_aria')"
 				secondary
-				v-if="$store('voice').voicemodParams.voiceIndicator && $store('voice').voicemodCurrentVoice.id != 'nofx'"
+				v-if="$store.voice.voicemodParams.voiceIndicator && $store.voice.voicemodCurrentVoice.id != 'nofx'"
 				v-tooltip="{content:$t('chat.form.resetVoiceBt_aria'), placement:'left'}"
 				@click="resetVoiceEffect()">
 				<template #icon>
-					<img :src="'data:image/png;base64,' + $store('voice').voicemodCurrentVoice.image" alt="">
+					<img :src="'data:image/png;base64,' + $store.voice.voicemodCurrentVoice.image" alt="">
 					</template>
 				</Button>
 			</transition>
 		</div>
 
 		<transition name="slide">
-			<MessageExportIndicator class="contentWindows exportIndicator" v-if="$store('main').messageExportState" />
+			<MessageExportIndicator class="contentWindows exportIndicator" v-if="$store.main.messageExportState" />
 		</transition>
 
 		<AutocompleteChatForm class="contentWindows"
@@ -276,7 +276,7 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
@@ -289,7 +289,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		CommercialTimer,
 		ButtonNotification,
@@ -347,11 +347,11 @@ export default class ChatForm extends Vue {
 	}
 
 	public get emergencyButtonEnabled():boolean {
-		return this.$store("emergency").params.enabled === true;
+		return this.$store.emergency.params.enabled === true;
 	}
 
 	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
-		return this.$store('stream').currentStreamInfo[this.$store("auth").twitch.user.id];
+		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
 	}
 
 	public get announcementTitle():TwitchatDataTypes.ParseMessageChunk[] {
@@ -374,14 +374,14 @@ export default class ChatForm extends Vue {
 			const a = actions[i];
 			if(VoiceAction[a+"_IS_GLOBAL" as VAKeys] !== true) continue;
 			const id:string = VoiceAction[a as VAKeys] as string;
-			const action = (this.$store("voice").voiceActions as VoiceAction[]).find(v=> v.id == id);
+			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(!action?.sentences) return false;
 		}
 		return true;
 	}
 
 	public get chatHighlightEnabled():boolean {
-		return this.$store("chat").isChatMessageHighlighted;
+		return this.$store.chat.isChatMessageHighlighted;
 	}
 
 	public get openAutoComplete():boolean {
@@ -389,7 +389,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers = this.$store("chat").whispers;
+		const whispers = this.$store.chat.whispers;
 		for (const key in whispers) {
 			if (whispers[key].length > 0) return true;
 		}
@@ -399,15 +399,15 @@ export default class ChatForm extends Vue {
 	public get classes():string[] {
 		let res = ["chatform"];
 		if(this.loading) res.push("loading");
-		if(this.$store("main").cypherEnabled) res.push("cypherMode");
-		if(this.$store("emergency").emergencyStarted) res.push("emergencyMode");
+		if(this.$store.main.cypherEnabled) res.push("cypherMode");
+		if(this.$store.emergency.emergencyStarted) res.push("emergencyMode");
 		return res;
 	}
 
-	public get cypherConfigured():boolean { return this.$store("main").cypherKey?.length > 0; }
+	public get cypherConfigured():boolean { return this.$store.main.cypherKey?.length > 0; }
 
 	public get pendingShoutoutCount():number {
-		const list = this.$store('users').pendingShoutouts[this.channelId];
+		const list = this.$store.users.pendingShoutouts[this.channelId];
 		if(!list) return 0;
 
 		return list.length;
@@ -476,7 +476,7 @@ export default class ChatForm extends Vue {
 		// console.log(lande("joyeux anniversaire !"));
 		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
 		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
-		// ApiController.call("google/translate", "POST", obj, false)
+		// ApiController.call("google/translate", "GET", obj, false)
 		// .then(res=>{
 		// 	console.log("Translated", res.json.data.translation);
 		// });
@@ -496,7 +496,7 @@ export default class ChatForm extends Vue {
 	}
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void {
-		this.$store("params").openModal(modal);
+		this.$store.params.openModal(modal);
 	}
 
 	public async closeAnnouncement():Promise<void> {
@@ -514,7 +514,7 @@ export default class ChatForm extends Vue {
 			method:"GET",
 			headers: {
 				"Content-Type": "application/json",
-				"Authorization": "Bearer "+this.$store("auth").twitch.access_token,
+				"Authorization": "Bearer "+this.$store.auth.twitch.access_token,
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			}
 		}
@@ -532,9 +532,9 @@ export default class ChatForm extends Vue {
 					if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
 				}
 				//Check donor only condition
-				if(a.donorsOnly === true && !this.$store("auth").twitch.user.donor.state) continue;
+				if(a.donorsOnly === true && !this.$store.auth.twitch.user.donor.state) continue;
 				//Check premium only condition
-				if(a.premiumOnly === true && !this.$store("auth").isPremium) continue;
+				if(a.premiumOnly === true && !this.$store.auth.isPremium) continue;
 				//Check patreon only condition
 				if(a.patreonOnly === true && !PatreonHelper.instance.isMember) continue;
 				//Check patreon only condition
@@ -590,10 +590,10 @@ export default class ChatForm extends Vue {
 	 * Toggle parameters display
 	 */
 	public toggleParams():void {
-		if(this.$store("params").currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
-			this.$store("params").openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
+		if(this.$store.params.currentPage == TwitchatDataTypes.ParameterPages.CLOSE) {
+			this.$store.params.openParamsPage( TwitchatDataTypes.ParameterPages.MAIN_MENU );
 		}else{
-			this.$store("params").openParamsPage( TwitchatDataTypes.ParameterPages.CLOSE );
+			this.$store.params.openParamsPage( TwitchatDataTypes.ParameterPages.CLOSE );
 		}
 	}
 
@@ -607,11 +607,11 @@ export default class ChatForm extends Vue {
 	 * updated when user list changes.
 	 */
 	public updateOnlineUsersTooltip(e:MouseEvent):void {
-		if(this.$store('params').appearance.showViewersCount.value !== true) return;
+		if(this.$store.params.appearance.showViewersCount.value !== true) return;
 		
 		let followCount = 0;
 		let onlineCount = 0;
-		const users = this.$store("users").users;
+		const users = this.$store.users.users;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
 			
@@ -623,7 +623,7 @@ export default class ChatForm extends Vue {
 		}
 		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
-		if(this.$store("params").appearance.highlightNonFollowers.value === true) {
+		if(this.$store.params.appearance.highlightNonFollowers.value === true) {
 			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
 			res += " / <img src='"+this.$image('icons/unfollow.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
 		}
@@ -648,15 +648,15 @@ export default class ChatForm extends Vue {
 
 		const params = this.message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
-		const sChat = this.$store("chat");
-		const isAdmin = this.$store("auth").twitch.user.is_admin === true;
+		const sChat = this.$store.chat;
+		const isAdmin = this.$store.auth.twitch.user.is_admin === true;
 		let noticeId:TwitchatDataTypes.TwitchatNoticeStringType|undefined;
 		let noticeMessage:string|undefined;
 		params.forEach((v, i) => { params[i] = v.trim() });
 
 		if(cmd == "/cypherkey") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
-			this.$store("main").setCypherKey(params[0]);
+			this.$store.main.setCypherKey(params[0]);
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
 			noticeMessage = "Cypher key successfully configured !";
 			this.message = "";
@@ -664,7 +664,7 @@ export default class ChatForm extends Vue {
 
 		if(cmd == "/cypherreset") {
 			//Secret feature hehehe ( ͡~ ͜ʖ ͡°)
-			this.$store("main").setCypherKey("");
+			this.$store.main.setCypherKey("");
 			TwitchCypherPlugin.instance.cypherKey = "";
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.CYPHER_KEY;
 			noticeMessage = "Cypher key removed successfully.";
@@ -679,17 +679,17 @@ export default class ChatForm extends Vue {
 		}else
 		
 		if(isAdmin && cmd == "/tenorgifload") {
-			console.log(this.$store("chat").messages);
+			console.log(this.$store.chat.messages);
 			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 		
 		if(isAdmin && cmd == "/max1") {
-			this.$store("params").features.mergeConsecutive_maxSize.value = parseInt(params[0]);
+			this.$store.params.features.mergeConsecutive_maxSize.value = parseInt(params[0]);
 		}else
 		
 		if(isAdmin && cmd == "/max2") {
-			this.$store("params").features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
+			this.$store.params.features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
 		}else
 		
 		if(isAdmin && cmd == "/mtest") {
@@ -702,24 +702,24 @@ export default class ChatForm extends Vue {
 			//Allows to display a message on chat from its raw JSON
 			try {
 				const json = JSON.parse(params.join(""));
-				this.$store("chat").addMessage(json);
+				this.$store.chat.addMessage(json);
 				this.message = "";
 				return;
 			}catch(error) {
-				this.$store("main").alert("Invalid or missing JSON");
+				this.$store.main.alert("Invalid or missing JSON");
 			}
 		}else{
 
 			//Send message
 			try {
-				if(this.$store("main").cypherEnabled) {
+				if(this.$store.main.cypherEnabled) {
 					this.message = await TwitchCypherPlugin.instance.encrypt(this.message);
 				}
 				this.loading = true;
-				const replyTo = this.$store("chat").replyTo ?? undefined;
+				const replyTo = this.$store.chat.replyTo ?? undefined;
 				if(await MessengerProxy.instance.sendMessage(this.message, undefined, undefined, replyTo)) {
 					this.message = "";
-					this.$store("chat").replyTo = null;
+					this.$store.chat.replyTo = null;
 				}
 				this.loading = false;
 			}catch(error) {
@@ -752,19 +752,19 @@ export default class ChatForm extends Vue {
 	 * Toggle secret cypher keyboard
 	 */
 	public toggleCypher():void {
-		this.$store("main").setCypherEnabled(!this.$store("main").cypherEnabled);
+		this.$store.main.setCypherEnabled(!this.$store.main.cypherEnabled);
 	}
 
 	/**
 	 * Start the mergency mode
 	 */
 	public toggleEmergencyMode():void {
-		if(!this.$store("emergency").emergencyStarted) {
+		if(!this.$store.emergency.emergencyStarted) {
 			this.$confirm(this.$t("emergency.enable_confirm")).then(()=>{
-				this.$store("emergency").setEmergencyMode(true);
+				this.$store.emergency.setEmergencyMode(true);
 			}).catch(()=>{});
 		}else{
-			this.$store("emergency").setEmergencyMode(false);
+			this.$store.emergency.setEmergencyMode(false);
 		}
 	}
 
@@ -783,7 +783,7 @@ export default class ChatForm extends Vue {
 	 * Remove the currently highlighted message
 	 */
 	public removeChatHighlight():void {
-		this.$store("chat").highlightChatMessageOverlay();
+		this.$store.chat.highlightChatMessageOverlay();
 	}
 
 	/**
@@ -916,13 +916,13 @@ export default class ChatForm extends Vue {
 	 * Open a user's card
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser, channel_id:string):void {
-		this.$store("users").openUserCard(user, channel_id);
+		this.$store.users.openUserCard(user, channel_id);
 	}
 
 	private onUpdateTrackedUserList():void {
 		const res = [];
-		for (let i = 0; i < this.$store("users").users.length; i++) {
-			const u = this.$store("users").users[i];
+		for (let i = 0; i < this.$store.users.users.length; i++) {
+			const u = this.$store.users.users[i];
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUserCount = res.length;

@@ -67,12 +67,12 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 	},
 	emits:["close"]
@@ -103,29 +103,29 @@ export default class ChatChangelog extends Vue {
 						this.$tm("changelog.fix") as TwitchatDataTypes.ChangelogEntry[],
 					];
 		const allowedTypes = Object.values(TwitchatDataTypes.ParameterPages) as TwitchatDataTypes.ParameterPagesStringType[];
-		const sParams = this.$store("params");
+		const sParams = this.$store.params;
 		let allowedParams:string[] = [];
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").features));
-		allowedParams = allowedParams.concat(Object.keys(this.$store("params").appearance));
+		allowedParams = allowedParams.concat(Object.keys(this.$store.params.features));
+		allowedParams = allowedParams.concat(Object.keys(this.$store.params.appearance));
 		changelogs.forEach(v=> {
 			if(!Array.isArray(v))return;
 			v.forEach(v=>{
 				if(v.a && v.a.page && !allowedTypes.includes(v.a.page)) {
-					this.$store("main").alert("Invalid parameter page \""+v.a.page+"\" for changelog entry \""+v.l+"\"");
+					this.$store.main.alert("Invalid parameter page \""+v.a.page+"\" for changelog entry \""+v.l+"\"");
 				}
 				if(v.a && v.a.param) {
 					const chunks:string[] = v.a.param.split(".");
 					//@ts-ignore
 					if(!sParams[chunks[0]]?.[chunks[1]]) {
-						this.$store("main").alert("Invalid parameter value \""+v.a.param+"\" for changelog entry \""+v.l+"\"");
+						this.$store.main.alert("Invalid parameter value \""+v.a.param+"\" for changelog entry \""+v.l+"\"");
 					}
 				}
 			})
 		})
 	}
 
-	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store("params").openParamsPage(page); }
+	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType):void { this.$store.params.openParamsPage(page); }
 
 }
 </script>

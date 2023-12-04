@@ -1,6 +1,6 @@
 <template>
 	<div class="chatshoutout chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<Icon name="shoutout" alt="shoutout" class="icon"/>
 
@@ -59,12 +59,12 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
-import Button from '../Button.vue';
+import AbstractChatMessage from './AbstractChatMessage';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["onRead"]
 })
@@ -76,7 +76,7 @@ export default class ChatShoutout extends AbstractChatMessage {
 	public shoutoutLoading = false;
 
 	public get channel():TwitchatDataTypes.TwitchatUser {
-		return this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+		return this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 	}
 
 	public mounted():void {
@@ -86,9 +86,9 @@ export default class ChatShoutout extends AbstractChatMessage {
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("users").shoutout(this.$store("auth").twitch.user.id, this.messageData.user);
+			await this.$store.users.shoutout(this.$store.auth.twitch.user.id, this.messageData.user);
 		}catch(error) {
-			this.$store("main").alert(this.$t("error.shoutout"));
+			this.$store.main.alert(this.$t("error.shoutout"));
 			console.log(error);
 		}
 		this.shoutoutLoading = false;

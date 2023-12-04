@@ -3,7 +3,7 @@
 		<div class="innerHolder">
 			<div v-if="isDonate || isDonateReminder" class="card-item primary sponsor">
 				<div class="header">
-					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store('params').donationReminderEnabled" />
+					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store.params.donationReminderEnabled" />
 					<div class="title">{{ $t('chat.sponsor.title') }}</div>
 				</div>
 				<div class="content" v-html="isDonateReminder? $t('chat.sponsor.head_reminder') : $t('chat.sponsor.head')"></div>
@@ -14,8 +14,8 @@
 					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</Button>
 					
 					<template v-if="!isDonateReminder">
-						<Button v-if="!$store('params').donationReminderEnabled" secondary
-							@click.stop="$store('params').donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</Button>
+						<Button v-if="!$store.params.donationReminderEnabled" secondary
+							@click.stop="$store.params.donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</Button>
 						<div v-else class="card-item secondary center">{{ $t("chat.sponsor.reminder_scheduled") }}</div>
 					</template>
 				</div>
@@ -156,7 +156,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -172,7 +172,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		CloseButton,
 		ToggleBlock,
@@ -242,13 +242,13 @@ export default class ChatAd extends Vue {
 	}
 
 	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
-	public openParamItem(paramPath:string):void { this.$store("params").searchParamByPath(paramPath); }
-	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store("params").openParamsPage(page, subContent); }
+	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }
+	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
 	public deleteMessage():void {
 		if(this.isUpdate) {
-			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
-				DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
+			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
+				DataStore.set(DataStore.UPDATE_INDEX, this.$store.main.latestUpdateIndex);
 			}
 		}
 		if(this.isAdWarning) {
@@ -261,7 +261,7 @@ export default class ChatAd extends Vue {
 			DataStore.set(DataStore.TWITCHAT_SPONSOR_PUBLIC_PROMPT, true);
 		}
 		
-		this.$store("chat").deleteMessage(this.messageData);
+		this.$store.chat.deleteMessage(this.messageData);
 	}
 
 	public confirmGngngnClose():void {
@@ -273,7 +273,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public async simulateEvent(type:TwitchatDataTypes.TwitchatMessageStringType):Promise<void> {
-		this.$store("debug").simulateMessage(type, async (message)=> {
+		this.$store.debug.simulateMessage(type, async (message)=> {
 			//
 		});
 	}
@@ -290,7 +290,7 @@ export default class ChatAd extends Vue {
 	}
 
 	public grantAdScopes():void {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);
 		if(this.isAdBreakScopeRequest) {
 			DataStore.set(DataStore.AD_BREAK_SCOPES_REQUEST, true);
 		}

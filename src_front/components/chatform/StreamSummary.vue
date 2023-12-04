@@ -81,17 +81,17 @@
 
 <script lang="ts">
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
 import CloseButton from '../CloseButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Icon from '../Icon.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 	emits:["close"],
@@ -134,7 +134,7 @@ export default class StreamSummary extends AbstractSidePanel {
 
 	public async beforeMount():Promise<void> {
 
-		const res = await TwitchUtils.loadCurrentStreamInfo([this.$store("auth").twitch.user.id]);
+		const res = await TwitchUtils.loadCurrentStreamInfo([this.$store.auth.twitch.user.id]);
 		let prevDate:number = 0;
 		let dateOffset:number|null = null;
 		if(res.length > 0) {
@@ -148,7 +148,7 @@ export default class StreamSummary extends AbstractSidePanel {
 		}
 
 		const userActivities:{[key:string]:UserActivities} = {};
-		const messages = this.$store("chat").messages;
+		const messages = this.$store.chat.messages;
 		const userParsed:{[key:string]:boolean} = {};
 		this.noData = true;
 		
@@ -359,7 +359,7 @@ export default class StreamSummary extends AbstractSidePanel {
 	 * Open a users' card
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.$store("auth").twitch.user.id);
+		this.$store.users.openUserCard(user, this.$store.auth.twitch.user.id);
 	}
 
 	public exportCSV(globalData:boolean = false):void {

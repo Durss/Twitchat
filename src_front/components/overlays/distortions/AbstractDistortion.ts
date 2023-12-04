@@ -1,4 +1,3 @@
-<script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import * as THREE from 'three';
@@ -106,11 +105,11 @@ export default class AbstractDistortion extends Vue {
 		scene = new THREE.Scene();
 
 		// Create a camera
-		const aspect = window.innerWidth / window.innerHeight;
+		const aspectRatio = window.innerWidth / window.innerHeight;
 		const frustumSize = 10;
 		camera = new THREE.OrthographicCamera(
-			frustumSize * aspect / -2, 
-			frustumSize * aspect / 2, 
+			frustumSize * aspectRatio / -2, 
+			frustumSize * aspectRatio / 2, 
 			frustumSize / 2, 
 			frustumSize / -2, 
 			1, 
@@ -126,9 +125,16 @@ export default class AbstractDistortion extends Vue {
 
 		// Create a renderer
 		renderer = new THREE.WebGLRenderer({canvas});
-		renderer.setClearColor(new THREE.Color(0x808000), 1);
+		renderer.setClearColor(new THREE.Color(0x808000), 0);
+		// renderer.setClearColor(new THREE.Color(0x808000), 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
+
+		const backgroundGeometry = new THREE.PlaneGeometry(frustumSize * aspectRatio / 2, frustumSize);
+		const backgroundMaterial = new THREE.MeshBasicMaterial({ color: 0x808000 });
+		const background = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+		background.position.x = -frustumSize * aspectRatio / 4;
+		scene.add(background);
 		
 		// Load the texture
 		const textureLoader = new THREE.TextureLoader();
@@ -274,5 +280,3 @@ export interface IDistortItem {
 	scaleSpeed:number,
 	angle:number,
 }
-
-</script>

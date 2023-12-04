@@ -6,20 +6,19 @@ import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
-import { createApp, type DirectiveBinding, type VNode } from 'vue';
+import { createApp, type DirectiveBinding, type IStore, type VNode } from 'vue';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import CountryFlag from 'vue-country-flag-next';
+// import 'vue-country-flag-next/dist/CountryFlag.css';
 import App from './App.vue';
 import Icon from './components/Icon.vue';
 import './less/index.less';
 import router from './router';
 import { storeAccessibility } from './store/accessibility/storeAccessibility';
-import { storeAccount } from './store/account/storeAccount';
 import { storeAdmin } from './store/admin/storeAdmin';
 import { storeAuth } from './store/auth/storeAuth';
 import { storeAutomod } from './store/automod/storeAutomod';
@@ -51,6 +50,7 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
+import { storeAccount } from './store/account/storeAccount';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -190,43 +190,6 @@ function buildApp() {
 		return () => popper.destroy()
 	}
 	
-	/**
-	 * Global helper to place a dropdown list
-	 */
-	const storeAccess = (id:"main"|"account"|"auth"|"automod"|"bingo"|"chat"|"chatSuggestion"|"emergency"|"music"|"obs"|"params"|"poll"|"prediction"|"raffle"|"stream"|"timer"|"triggers"|"tts"|"users"|"voice"|"debug"|"accessibility"|"admin"|"counters"|"rewards"|"heat"|"patreon"|"values"|"youtube") => {
-		switch(id) {
-			case "main": return StoreProxy.main;
-			case "account": return StoreProxy.account;
-			case "auth": return StoreProxy.auth;
-			case "automod": return StoreProxy.automod;
-			case "bingo": return StoreProxy.bingo;
-			case "chat": return StoreProxy.chat;
-			case "chatSuggestion": return StoreProxy.chatSuggestion;
-			case "emergency": return StoreProxy.emergency;
-			case "music": return StoreProxy.music;
-			case "obs": return StoreProxy.obs;
-			case "params": return StoreProxy.params;
-			case "poll": return StoreProxy.poll;
-			case "prediction": return StoreProxy.prediction;
-			case "raffle": return StoreProxy.raffle;
-			case "stream": return StoreProxy.stream;
-			case "timer": return StoreProxy.timer;
-			case "triggers": return StoreProxy.triggers;
-			case "tts": return StoreProxy.tts;
-			case "users": return StoreProxy.users;
-			case "voice": return StoreProxy.voice;
-			case "debug": return StoreProxy.debug;
-			case "accessibility": return StoreProxy.accessibility;
-			case "admin": return StoreProxy.admin;
-			case "counters": return StoreProxy.counters;
-			case "rewards": return StoreProxy.rewards;
-			case "heat": return StoreProxy.heat;
-			case "patreon": return StoreProxy.patreon;
-			case "youtube": return StoreProxy.youtube;
-			case "values": return StoreProxy.values;
-		}
-	}
-	
 	const app = createApp(App)
 	.use(pinia);
 	
@@ -236,7 +199,6 @@ function buildApp() {
 	StoreProxy.image = image;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.main = (storeMain() as unknown) as IMainState & IMainGetters & IMainActions & { $state: IMainState; $reset:()=>void };
-	StoreProxy.account = storeAccount();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.auth = (storeAuth() as unknown) as IAuthState & IAuthGetters & IAuthActions & { $state: IAuthState; $reset:()=>void };
 	StoreProxy.automod = storeAutomod();
@@ -268,7 +230,40 @@ function buildApp() {
 	StoreProxy.patreon = storePatreon();
 	StoreProxy.youtube = storeYoutube();
 	StoreProxy.values = storeValues();
+	StoreProxy.account = storeAccount();
 	StoreProxy.router = router;
+
+	const storeAccess:IStore = {
+		account:			StoreProxy.account,
+		main:				StoreProxy.main,
+		auth:				StoreProxy.auth,
+		automod:			StoreProxy.automod,
+		bingo:				StoreProxy.bingo,
+		chat:				StoreProxy.chat,
+		chatSuggestion:		StoreProxy.chatSuggestion,
+		emergency:			StoreProxy.emergency,
+		music:				StoreProxy.music,
+		obs:				StoreProxy.obs,
+		params:				StoreProxy.params,
+		poll:				StoreProxy.poll,
+		prediction:			StoreProxy.prediction,
+		raffle:				StoreProxy.raffle,
+		stream:				StoreProxy.stream,
+		timer:				StoreProxy.timer,
+		triggers:			StoreProxy.triggers,
+		tts:				StoreProxy.tts,
+		users:				StoreProxy.users,
+		voice:				StoreProxy.voice,
+		debug:				StoreProxy.debug,
+		accessibility:		StoreProxy.accessibility,
+		admin:				StoreProxy.admin,
+		counters:			StoreProxy.counters,
+		rewards:			StoreProxy.rewards,
+		heat:				StoreProxy.heat,
+		patreon:			StoreProxy.patreon,
+		youtube:			StoreProxy.youtube,
+		values:				StoreProxy.values,
+	}
 	
 	app.use(router)
 	.use(i18n)
@@ -343,13 +338,12 @@ function buildApp() {
 		beforeUnmount(el:HTMLElement, binding:unknown) {
 		}
 	});
-	app.config.globalProperties.$i18n = i18n;
 	app.config.globalProperties.$image = image;
 	app.config.globalProperties.$config = Config.instance;
 	app.config.globalProperties.$confirm = confirm;
-	app.config.globalProperties.$store = storeAccess;
 	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
+	app.config.globalProperties.$store = storeAccess;
 	
 	window.addEventListener("beforeinstallprompt", (e:Event)=> {
 		e.preventDefault();

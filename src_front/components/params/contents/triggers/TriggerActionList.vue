@@ -128,7 +128,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -150,7 +150,7 @@ import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		draggable,
 		ParamItem,
@@ -294,10 +294,10 @@ export default class TriggerActionList extends Vue {
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED:
-				return this.$store("counters").counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
+				return this.$store.counters.counterList.find(v=>v.id == this.triggerData.counterId)?.name ?? "COUNTER NOT FOUND";
 
 			case TriggerTypes.VALUE_UPDATE:
-				return this.$store("values").valueList.find(v=>v.id == this.triggerData.valueId)?.name ?? "VALUE NOT FOUND";
+				return this.$store.values.valueList.find(v=>v.id == this.triggerData.valueId)?.name ?? "VALUE NOT FOUND";
 		}
 		return "...";
 	}
@@ -309,7 +309,7 @@ export default class TriggerActionList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.param_queue.options = this.$store("triggers").queues;
+		this.param_queue.options = this.$store.triggers.queues;
 		if(this.triggerData.actions.length === 0) {
 			this.addActionAt(0);
 		}
@@ -474,11 +474,11 @@ export default class TriggerActionList extends Vue {
 				}
 			}
 			this.selectedActions = [];
-			this.$store("triggers").clipboard = clipboar;
+			this.$store.triggers.clipboard = clipboar;
 		}else
-		if(e.key == "v" && e.ctrlKey && this.$store("triggers").clipboard.length > 0) {
-			for (let i = 0; i < this.$store("triggers").clipboard.length; i++) {
-				const action = JSON.parse(JSON.stringify(this.$store("triggers").clipboard[i])) as TriggerActionTypes;
+		if(e.key == "v" && e.ctrlKey && this.$store.triggers.clipboard.length > 0) {
+			for (let i = 0; i < this.$store.triggers.clipboard.length; i++) {
+				const action = JSON.parse(JSON.stringify(this.$store.triggers.clipboard[i])) as TriggerActionTypes;
 				action.id = Utils.getUUID();//Override ID by a new one to avoid conflicts
 				action.condition = this.matchingCondition;
 				this.triggerData.actions.push(action);

@@ -20,7 +20,7 @@
 					v-tooltip="{content:tooltip, followCursor:'horizontal'}"
 					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
 				
-				<ToggleButton v-if="!paramData.noInput" class="toggleButton"
+				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
@@ -159,13 +159,13 @@
 					</template>
 
 					<template v-slot:option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
-						<CountryFlag v-if="option.flag" :iso="option.flag" mode="squared" />
-						{{option.label}}
+						<CountryFlag v-if="option.flag" :country="option.flag" size="small" />
+						<span class="text">{{option.label}}</span>
 					</template>
 
 					<template #selected-option="option:TwitchatDataTypes.ParameterDataListValue<unknown>">
-						<CountryFlag v-if="option.flag" :iso="option.flag" mode="squared" />
-						{{option.label}}
+						<CountryFlag v-if="option.flag" :country="option.flag" size="small" />
+						<span class="text">{{option.label}}</span>
 					</template>
 				</vue-select>
 			</div>
@@ -298,19 +298,18 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Utils from '@/utils/Utils';
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import CountryFlag from 'vue-country-flag-next';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
 	components:{
-		Button,
+		Button: TTButton,
 		Slider,
 		CountryFlag,
 		ToggleButton,
@@ -394,7 +393,7 @@ export default class ParamItem extends Vue {
 		return (this.$slots.default != undefined || this.$slots.child != undefined) && state;
 	}
 
-	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store("auth").isPremium && this.noPremiumLock === false; }
+	public get premiumLocked():boolean { return this.premiumOnlyLocal !== false && !this.$store.auth.isPremium && this.noPremiumLock === false; }
 
 	public get classes():string[] {
 		const res = ["paramitem"];
@@ -602,7 +601,7 @@ export default class ParamItem extends Vue {
 			this.paramData.value = false;
 			this.setErrorState(false);
 			event.stopPropagation();
-			this.$store("auth").requestTwitchScopes(this.paramData.twitch_scopes);
+			this.$store.auth.requestTwitchScopes(this.paramData.twitch_scopes);
 		}
 	}
 
@@ -648,7 +647,7 @@ export default class ParamItem extends Vue {
 		}
 
 		if(this.paramData.save === true) {
-			this.$store("params").updateParams();
+			this.$store.params.updateParams();
 		}
 		if(this.paramData.type != "number" || this.paramData.value !== "") {
 			const prevValue = this.modelValue;
@@ -688,7 +687,7 @@ export default class ParamItem extends Vue {
 			return;
 		}
 
-		const list = this.$store("params").$state;
+		const list = this.$store.params.$state;
 		let children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 		for (const key in list) {
 			const params = list[key as TwitchatDataTypes.ParameterCategory];

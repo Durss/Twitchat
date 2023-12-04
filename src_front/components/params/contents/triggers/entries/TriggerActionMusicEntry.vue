@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.music.header">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("triggers.actions.music.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -28,7 +28,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 
 @Component({

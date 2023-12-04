@@ -4,14 +4,14 @@
 		<template v-if="chunk.type == 'text'">{{ chunk.value }}</template>
 
 		<template v-if="chunk.type == 'user'">
-			<a class="login" v-if="$store('params').appearance.highlightusernames.value == true"
+			<a class="login" v-if="$store.params.appearance.highlightusernames.value == true"
 			@click.stop="openProfile(chunk.username!)"
 			:style="getUserClasses(chunk.username!)"
 			target="_blank">{{ chunk.value }}</a>
 			<template v-else>{{ chunk.value }}</template>
 		</template>
 		
-		<tooltip v-else-if="(chunk.type == 'emote' || chunk.type == 'cheermote') && $store('params').appearance.showEmotes.value !== false"
+		<tooltip v-else-if="(chunk.type == 'emote' || chunk.type == 'cheermote') && $store.params.appearance.showEmotes.value !== false"
 		:content="chunk.emoteHD? '<center><img src='+chunk.emoteHD+' width=\'112\' class=\'emote\'><br>'+chunk.value+'</center>' : ''">
 			<img :src="chunk.emote" :class='chunk.type' :alt="chunk.value" loading="lazy">
 		</tooltip>
@@ -54,15 +54,15 @@ export default class ChatMessageChunksParser extends Vue {
 	}
 
 	public openProfile(username:string):void {
-		const channelId = this.channel || this.$store("auth").twitch.user.id;
-		const user = this.$store("users").getUserFrom(this.platform || "twitch", channelId, undefined, username);
-		this.$store("users").openUserCard(user);
+		const channelId = this.channel || this.$store.auth.twitch.user.id;
+		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);
+		this.$store.users.openUserCard(user);
 	}
 
 	public getUserClasses(username:string):StyleValue {
-		const channelId = this.channel || this.$store("auth").twitch.user.id;
-		if(!this.$store("auth").twitch.user) return {color:"#c400da"};
-		const user = this.$store("users").getUserFrom(this.platform || "twitch", channelId, undefined, username);
+		const channelId = this.channel || this.$store.auth.twitch.user.id;
+		if(!this.$store.auth.twitch.user) return {color:"#c400da"};
+		const user = this.$store.users.getUserFrom(this.platform || "twitch", channelId, undefined, username);
 		if(user.color) {
 			return {
 				color: Utils.getUserColor(user),

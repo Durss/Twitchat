@@ -82,7 +82,7 @@ export default class AutocompleteChatForm extends Vue {
 	public mounted():void {
 		this.selectedIndex = 0;
 		
-		this.triggerCommands = this.$store("triggers").triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
+		this.triggerCommands = this.$store.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
 		
 		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
@@ -108,7 +108,7 @@ export default class AutocompleteChatForm extends Vue {
 		if(item.type == "cmdS") {
 			if(item.disabled) {
 				if(item.rawCmd && item.rawCmd.twitch_scopes) {
-					this.$store("auth").requestTwitchScopes(item.rawCmd.twitch_scopes);
+					this.$store.auth.requestTwitchScopes(item.rawCmd.twitch_scopes);
 				}
 			}else{
 				this.$emit("selectItem", item.cmd);
@@ -178,10 +178,10 @@ export default class AutocompleteChatForm extends Vue {
 	 */
 	private onSearchChange():void {
 		let res:ListItem[] = [];
-		const sUsers = this.$store("users");
-		const sAuth = this.$store("auth");
-		const sChat = this.$store("chat");
-		const sTTS = this.$store("tts");
+		const sUsers = this.$store.users;
+		const sAuth = this.$store.auth;
+		const sChat = this.$store.chat;
+		const sTTS = this.$store.tts;
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			//Search for users
@@ -202,15 +202,15 @@ export default class AutocompleteChatForm extends Vue {
 			//Search for emotes
 			if(this.emotes) {
 				let emotes = TwitchUtils.emotesCache ?? [];
-				if(this.$store("params").appearance.bttvEmotes.value === true) {
+				if(this.$store.params.appearance.bttvEmotes.value === true) {
 					emotes = emotes.concat(BTTVUtils.instance.emotes);
 				}
 				
-				if(this.$store("params").appearance.sevenTVEmotes.value === true) {
+				if(this.$store.params.appearance.sevenTVEmotes.value === true) {
 					emotes = emotes.concat(SevenTVUtils.instance.emotes);
 				}
 				
-				if(this.$store("params").appearance.ffzEmotes.value === true) {
+				if(this.$store.params.appearance.ffzEmotes.value === true) {
 					emotes = emotes.concat(FFZUtils.instance.emotes);
 				}
 

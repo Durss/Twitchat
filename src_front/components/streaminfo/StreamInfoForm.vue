@@ -53,8 +53,8 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
@@ -63,7 +63,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		CloseButton,
 		ToggleBlock,
@@ -91,7 +91,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public presetEditing:TwitchatDataTypes.StreamInfoPreset|null = null;
 
 	public get presets():TwitchatDataTypes.StreamInfoPreset[] {
-		return this.$store("stream").streamInfoPreset;
+		return this.$store.stream.streamInfoPreset;
 	}
 
 	public beforeMount(): void {
@@ -123,13 +123,13 @@ export default class StreamInfoForm extends AbstractSidePanel {
 			if(this.category) preset.categoryID = this.category.id
 			if(this.tags.length > 0) preset.tags = this.tags.concat();
 			if(this.presetEditing) preset.id = this.presetEditing.id;
-			this.$store("stream").saveStreamInfoPreset(preset)
+			this.$store.stream.saveStreamInfoPreset(preset)
 		}
 		//If not editing, update the stream info
 		if(!this.presetEditing) {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			try {
-				if(await this.$store("stream").updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+				if(await this.$store.stream.updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
 					this.updateSuccess = true;
 					setTimeout(()=>{
 						this.updateSuccess = false;
@@ -157,7 +157,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	 * @param p 
 	 */
 	public async deletePreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
-		this.$store("stream").deleteStreamInfoPreset(p);
+		this.$store.stream.deleteStreamInfoPreset(p);
 	}
 
 	/**
@@ -182,7 +182,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 				}
 			}
 		}catch(error) {
-			this.$store("main").alert( this.$t("stream.stream_info_preset_edit") );
+			this.$store.main.alert( this.$t("stream.stream_info_preset_edit") );
 		}
 
 		this.loading = false;
@@ -195,13 +195,13 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
-		if(await this.$store("stream").updateStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
+		if(await this.$store.stream.updateStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
 			this.updateSuccess = true;
 			setTimeout(()=>{
 				this.updateSuccess = false;
 			}, 5000);
 		}else{
-			this.$store("main").alert( this.$t("error.stream_info_updating") );
+			this.$store.main.alert( this.$t("error.stream_info_updating") );
 		}
 		this.saving = false;
 		this.populate();
@@ -240,7 +240,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 			}
 		}catch(error) {
 			console.log(error);
-			this.$store("main").alert( this.$t("error.stream_info_loading") );
+			this.$store.main.alert( this.$t("error.stream_info_loading") );
 		}
 
 		this.loading = false;

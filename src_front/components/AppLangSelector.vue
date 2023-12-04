@@ -3,13 +3,13 @@
 		<div class="row">
 			<input type="radio" name="language" id="lang_fr" value="fr" v-model="$i18n.locale">
 			<label for="lang_fr">
-				<CountryFlag iso="fr" mode="squared" class="flag" />Français
+				<CountryFlag country="fr" class="flag" /><span class="text">Français</span>
 			</label>
 		</div>
 		<div class="row">
 			<input type="radio" name="language" id="lang_en" value="en" v-model="$i18n.locale">
 			<label for="lang_en">
-				<CountryFlag iso="us" mode="squared" class="flag" />English
+				<CountryFlag country="us" class="flag" /><span class="text">English</span>
 			</label>
 		</div>
 	</form>
@@ -19,8 +19,7 @@
 import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import CountryFlag from 'vue-country-flag-next';
 
 @Component({
 	components:{
@@ -62,13 +61,12 @@ export default class AppLangSelector extends Vue {
 			border-left: 1px solid rgba(0, 0, 0, .25);
 			background-color: var(--color-primary);
 			&::before{
-				content: "●";
+				content: "◌";
 				position: absolute;
 				left: .5em;
 			}
-			.flag {
-				margin-right: .5em;
-				transform: scaleX(1.25);
+			.text {
+				margin-left: .5em;
 			}
 		}
 		input{
@@ -81,7 +79,7 @@ export default class AppLangSelector extends Vue {
 			font-weight: bold;
 			background-color: var(--color-secondary);
 			&::before{
-				content: "◌";
+				content: "●";
 			}
 		}
 	}

@@ -2,23 +2,23 @@
 	<div :class="classes">
 		<div class="top" ref="top">
 			<div class="scrollable" ref="scrollable" @scroll="onScrollColumns()">
-				<div class="column" v-for="c, index in $store('params').chatColumnsConfig"
+				<div class="column" v-for="c, index in $store.params.chatColumnsConfig"
 				:ref="'column_'+c.id"
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder" v-if="buildIndex >= index">
-						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store('params').features.firstMessage.value === true" />
+						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
-							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store('params').openModal(v)"
+							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store.params.openModal(v)"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
 					</div>
 		
 					<div class="dragBt"
-						v-if="$store('params').chatColumnsConfig.length > 1
-						&& (c.order == 0 || $store('params').chatColumnsConfig.length > 2)"
+						v-if="$store.params.chatColumnsConfig.length > 1
+						&& (c.order == 0 || $store.params.chatColumnsConfig.length > 2)"
 						@dblclick="expandCol(c)"
 						@pointerdown="startDrag($event, c)">
 						<div class="grip"></div>
@@ -27,32 +27,32 @@
 			</div>
 		</div>
 
-		<Teleport v-if="panelsColumnTarget && buildIndex >= 1 + $store('params').chatColumnsConfig.length" :to="panelsColumnTarget">
+		<Teleport v-if="panelsColumnTarget && buildIndex >= 1 + $store.params.chatColumnsConfig.length" :to="panelsColumnTarget">
 			<VoiceTranscript class="tts" />
 
-			<PollForm				class="popin" v-if="$store('params').currentModal == 'poll'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
-			<ChatSuggestionForm		class="popin" v-if="$store('params').currentModal == 'chatsuggForm'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
-			<RaffleForm				class="popin" v-if="$store('params').currentModal == 'raffle'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
-			<PredictionForm			class="popin" v-if="$store('params').currentModal == 'pred'" @close="$store('params').closeModal()" :voiceControl="voiceControl" />
-			<BingoForm				class="popin" v-if="$store('params').currentModal == 'bingo'" @close="$store('params').closeModal()" />
-			<LiveFollowings			class="popin" v-if="$store('params').currentModal == 'liveStreams'" @close="$store('params').closeModal()" />
-			<StreamInfoForm			class="popin" v-if="$store('params').currentModal == 'streamInfo'" @close="$store('params').closeModal()" />
-			<TTUserList				class="popin" v-if="$store('params').currentModal == 'TTuserList'" @close="$store('params').closeModal()" />
-			<PinedMessages			class="popin" v-if="$store('params').currentModal == 'pins'" @close="$store('params').closeModal()" />
-			<TimerForm				class="popin" v-if="$store('params').currentModal == 'timer'" @close="$store('params').closeModal()" />
-			<TriggersLogs			class="popin" v-if="$store('params').currentModal == 'triggersLogs'" @close="$store('params').closeModal()" />
-			<ObsHeatLogs			class="popin" v-if="$store('params').currentModal == 'obsHeatLogs'" @close="$store('params').closeModal()" />
-			<TrackedUsers			class="popin" v-if="$store('params').currentModal == 'tracked'" @close="$store('params').closeModal()" />
-			<WhispersState			class="popin" v-if="$store('params').currentModal == 'whispers'" @close="$store('params').closeModal()" />
-			<ChatSuggestionState	class="popin" v-if="$store('params').currentModal == 'chatsuggState'" @close="$store('params').closeModal()" />
-			<MessageSearch			class="popin" v-if="$store('params').currentModal == 'search'" @close="$store('params').closeModal()" />
-			<TwitchatAnnouncement	class="popin" v-if="$store('params').currentModal == 'twitchatAnnouncement'" @close="$store('params').closeModal()" />
-			<StreamSummary			class="popin" v-if="$store('params').currentModal == 'streamSummary'" @close="$store('params').closeModal()" />
+			<PollForm				class="popin" v-if="$store.params.currentModal == 'poll'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<ChatSuggestionForm		class="popin" v-if="$store.params.currentModal == 'chatsuggForm'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
+			<BingoForm				class="popin" v-if="$store.params.currentModal == 'bingo'" @close="$store.params.closeModal()" />
+			<LiveFollowings			class="popin" v-if="$store.params.currentModal == 'liveStreams'" @close="$store.params.closeModal()" />
+			<StreamInfoForm			class="popin" v-if="$store.params.currentModal == 'streamInfo'" @close="$store.params.closeModal()" />
+			<TTUserList				class="popin" v-if="$store.params.currentModal == 'TTuserList'" @close="$store.params.closeModal()" />
+			<PinedMessages			class="popin" v-if="$store.params.currentModal == 'pins'" @close="$store.params.closeModal()" />
+			<TimerForm				class="popin" v-if="$store.params.currentModal == 'timer'" @close="$store.params.closeModal()" />
+			<TriggersLogs			class="popin" v-if="$store.params.currentModal == 'triggersLogs'" @close="$store.params.closeModal()" />
+			<ObsHeatLogs			class="popin" v-if="$store.params.currentModal == 'obsHeatLogs'" @close="$store.params.closeModal()" />
+			<TrackedUsers			class="popin" v-if="$store.params.currentModal == 'tracked'" @close="$store.params.closeModal()" />
+			<WhispersState			class="popin" v-if="$store.params.currentModal == 'whispers'" @close="$store.params.closeModal()" />
+			<ChatSuggestionState	class="popin" v-if="$store.params.currentModal == 'chatsuggState'" @close="$store.params.closeModal()" />
+			<MessageSearch			class="popin" v-if="$store.params.currentModal == 'search'" @close="$store.params.closeModal()" />
+			<TwitchatAnnouncement	class="popin" v-if="$store.params.currentModal == 'twitchatAnnouncement'" @close="$store.params.closeModal()" />
+			<StreamSummary			class="popin" v-if="$store.params.currentModal == 'streamSummary'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
 
-		<Teleport v-if="panelsColumnTarget && buildIndex >= 2 + $store('params').chatColumnsConfig.length" :to="panelsColumnTarget">
+		<Teleport v-if="panelsColumnTarget && buildIndex >= 2 + $store.params.chatColumnsConfig.length" :to="panelsColumnTarget">
 			<ChannelNotifications
 				:currentContent="currentNotificationContent"
 				@close="currentNotificationContent=''"
@@ -63,15 +63,15 @@
 
 		<div class="bottom">
 			<ChatForm class="chatForm" ref="chatForm"
-				v-if="buildIndex >= 3 + $store('params').chatColumnsConfig.length"
-				@poll="$store('params').openModal('poll')"
-				@chatpoll="$store('params').openModal('chatsuggForm')"
-				@pred="$store('params').openModal('pred')"
-				@raffle="$store('params').openModal('raffle')"
-				@bingo="$store('params').openModal('bingo')"
-				@liveStreams="$store('params').openModal('liveStreams')"
-				@TTuserList="$store('params').openModal('TTuserList')"
-				@pins="$store('params').openModal('pins')"
+				v-if="buildIndex >= 3 + $store.params.chatColumnsConfig.length"
+				@poll="$store.params.openModal('poll')"
+				@chatpoll="$store.params.openModal('chatsuggForm')"
+				@pred="$store.params.openModal('pred')"
+				@raffle="$store.params.openModal('raffle')"
+				@bingo="$store.params.openModal('bingo')"
+				@liveStreams="$store.params.openModal('liveStreams')"
+				@TTuserList="$store.params.openModal('TTuserList')"
+				@pins="$store.params.openModal('pins')"
 				@search="searchMessage"
 				@setCurrentNotification="setCurrentNotification"
 				v-model:showEmotes="showEmotes" @update:showEmotes="(v:boolean) => showEmotes = v"
@@ -90,14 +90,14 @@
 
 		<DevmodeMenu class="contentWindows devmode"
 			v-if="showDevMenu"
-			@triggersLogs="$store('params').openModal('triggersLogs')"
-			@obsHeatLogs="$store('params').openModal('obsHeatLogs')"
+			@triggersLogs="$store.params.openModal('triggersLogs')"
+			@obsHeatLogs="$store.params.openModal('obsHeatLogs')"
 			@close="showDevMenu = false" />
 
 		<!-- <MessageList class="contentWindows feed"
 			v-if="showFeed"
 			@showModal="(v:string) => currentModal = v"
-			:maxMessages="50 ?? $store('params').appearance.historySize.value" /> -->
+			:maxMessages="50 ?? $store.params.appearance.historySize.value" /> -->
 
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
@@ -117,19 +117,19 @@
 			v-if="showShoutout"
 			@close="showShoutout = false" />
 		
-		<Parameters v-if="buildIndex >= 5 + $store('params').chatColumnsConfig.length" />
+		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
 		
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
 
-		<Changelog v-if="$store('params').currentModal == 'updates'" @close="$store('params').closeModal()" />
+		<Changelog v-if="$store.params.currentModal == 'updates'" @close="$store.params.closeModal()" />
 
-		<Gngngn v-if="$store('params').currentModal == 'gngngn'" @close="$store('params').closeModal()" />
+		<Gngngn v-if="$store.params.currentModal == 'gngngn'" @close="$store.params.closeModal()" />
 		
-		<Login v-if="$store('params').currentModal == 'login'" @close="$store('params').closeModal()" scopeOnly />
+		<Login v-if="$store.params.currentModal == 'login'" @close="$store.params.closeModal()" scopeOnly />
 
-		<ChatAlertMessage v-if="buildIndex >= 4 + $store('params').chatColumnsConfig.length" />
+		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
 		
 		<Accessibility />
 
@@ -138,7 +138,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import BingoForm from '@/components/bingo/BingoForm.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
@@ -195,7 +195,7 @@ import Login from './Login.vue';
 @Component({
 	components:{
 		Login,
-		Button,
+		Button: TTButton,
 		Gngngn,
 		ChatForm,
 		UserList,
@@ -267,9 +267,9 @@ export default class Chat extends Vue {
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	
-	public get splitViewVertical():boolean { return this.$store("params").appearance.splitViewVertical.value as boolean; }
-	public get showEmergencyFollows():boolean { return this.$store("emergency").follows.length > 0 && !this.$store("emergency").emergencyStarted; }
-	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store("auth").isPremium; }
+	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
+	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
+	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store.auth.isPremium; }
 
 	public get classes():string[] {
 		const res = ["chat"];
@@ -279,7 +279,7 @@ export default class Chat extends Vue {
 
 	public getColStyles(col:TwitchatDataTypes.ChatColumnsConfig):{[key:string]:string} {
 		let size = col.size * 100;
-		const cols = this.$store('params').chatColumnsConfig;
+		const cols = this.$store.params.chatColumnsConfig;
 		if(cols.length == 1) {
 			return {
 				width:"100%",
@@ -307,7 +307,7 @@ export default class Chat extends Vue {
 		//Check user reached a new donor level
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
 
-		this.mustDisableItems_precalc = this.$store("main").nonPremiumLimitExceeded;
+		this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
 		
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
@@ -320,44 +320,44 @@ export default class Chat extends Vue {
 		};
 
 		//Auto opens the prediction status if pending for completion
-		watch(() => this.$store("prediction").data, (newValue, prevValue) => {
-			let prediction = this.$store("prediction").data;
+		watch(() => this.$store.prediction.data, (newValue, prevValue) => {
+			let prediction = this.$store.prediction.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction");
 		});
 
 		//Auto opens the poll status if terminated
-		watch(() => this.$store("poll").data, (newValue, prevValue) => {
-			let poll = this.$store("poll").data;
+		watch(() => this.$store.poll.data, (newValue, prevValue) => {
+			let poll = this.$store.poll.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(poll && isNew) this.setCurrentNotification("poll");
 		});
 
 		//Auto opens the bingo status when created
-		watch(() => this.$store("bingo").data, () => {
-			let bingo = this.$store("bingo").data;
+		watch(() => this.$store.bingo.data, () => {
+			let bingo = this.$store.bingo.data;
 			if(bingo) this.setCurrentNotification("bingo");
 		});
 
 		//Auto opens the raffle status when created
-		watch(() => this.$store("raffle").data, () => {
-			let raffle = this.$store("raffle").data;
+		watch(() => this.$store.raffle.data, () => {
+			let raffle = this.$store.raffle.data;
 			if(raffle && (raffle.command || raffle.reward_id)) this.setCurrentNotification("raffle");
 		});
 
 		//Watch for columns changes
-		watch(() => this.$store('params').chatColumnsConfig, () => {
+		watch(() => this.$store.params.chatColumnsConfig, () => {
 			this.computeWindowsSizes();
 		}, {deep:true});
 
 		//Watch for columns changes
-		watch(() => this.$store('auth').newScopesToRequest, () => {
-			if(this.$store('auth').newScopesToRequest.length === 0) return null;
-			this.$store("params").openModal("login");
+		watch(() => this.$store.auth.newScopesToRequest, () => {
+			if(this.$store.auth.newScopesToRequest.length === 0) return null;
+			this.$store.params.openModal("login");
 		}, {deep:true});
 
 		//Watch for current modal to be displayed
-		watch(()=>this.$store("params").currentModal, (value)=>{
+		watch(()=>this.$store.params.currentModal, (value)=>{
 			this.voiceControl = false;
 
 			//Make sure the column holding modals is visible
@@ -370,11 +370,11 @@ export default class Chat extends Vue {
 		})
 
 		//Handle chat alert feature
-		watch(() => this.$store("main").chatAlert, async () => {
-			if(this.$store("main").chatAlert != null) {
-				if(this.$store("params").features.alertMode.value !== true) return;
+		watch(() => this.$store.main.chatAlert, async () => {
+			if(this.$store.main.chatAlert != null) {
+				if(this.$store.params.features.alertMode.value !== true) return;
 				
-				const params = this.$store("main").chatAlertParams;
+				const params = this.$store.main.chatAlertParams;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
 					gsap.fromTo(this.$el, {x:-10}, {duration:0.01, x:10, clearProps:"x", repeat:60});
@@ -400,14 +400,14 @@ export default class Chat extends Vue {
 		});
 
 		//Reset emotes cache if changing BTTV/FFZ/7TV states
-		watch(()=> this.$store("params").appearance.bttvEmotes.value, ()=> {
-			this.$store("chat").emoteSelectorCache = [];
+		watch(()=> this.$store.params.appearance.bttvEmotes.value, ()=> {
+			this.$store.chat.emoteSelectorCache = [];
 		})
-		watch(()=> this.$store("params").appearance.ffzEmotes.value, ()=> {
-			this.$store("chat").emoteSelectorCache = [];
+		watch(()=> this.$store.params.appearance.ffzEmotes.value, ()=> {
+			this.$store.chat.emoteSelectorCache = [];
 		})
-		watch(()=> this.$store("params").appearance.sevenTVEmotes.value, ()=> {
-			this.$store("chat").emoteSelectorCache = [];
+		watch(()=> this.$store.params.appearance.sevenTVEmotes.value, ()=> {
+			this.$store.chat.emoteSelectorCache = [];
 		})
 
 		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
@@ -449,7 +449,7 @@ export default class Chat extends Vue {
 		this.renderFrame();
 		requestWakeLock();
 
-		for (let i = 0; i < this.$store('params').chatColumnsConfig.length + 10; i++) {
+		for (let i = 0; i < this.$store.params.chatColumnsConfig.length + 10; i++) {
 			Utils.promisedTimeout(500).then(()=> {
 				this.buildIndex ++;
 				//Necessary so side panels know where to open
@@ -525,58 +525,58 @@ export default class Chat extends Vue {
 			case TwitchatEvent.BINGO_TOGGLE: notif = 'bingo'; break;
 			case TwitchatEvent.RAFFLE_TOGGLE: notif = 'raffle'; break;
 			case TwitchatEvent.VIEWERS_COUNT_TOGGLE:
-				this.$store("params").appearance.showViewersCount.value = !this.$store("params").appearance.showViewersCount.value;
-				this.$store("params").updateParams();
+				this.$store.params.appearance.showViewersCount.value = !this.$store.params.appearance.showViewersCount.value;
+				this.$store.params.updateParams();
 				break;
 
 			case TwitchatEvent.MOD_TOOLS_TOGGLE:
-				this.$store("params").features.showModTools.value = !this.$store("params").features.showModTools.value;
-				this.$store("params").updateParams();
+				this.$store.params.features.showModTools.value = !this.$store.params.features.showModTools.value;
+				this.$store.params.updateParams();
 				break;
 
 			case TwitchatEvent.GET_COLS_COUNT:
-				PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT,{count:this.$store('params').chatColumnsConfig.length});
+				PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT,{count:this.$store.params.chatColumnsConfig.length});
 				break;
 
 			case TwitchatEvent.CENSOR_DELETED_MESSAGES_TOGGLE:
-				this.$store("params").appearance.censorDeletedMessages.value = !this.$store("params").appearance.censorDeletedMessages.value;
-				this.$store("params").updateParams();
+				this.$store.params.appearance.censorDeletedMessages.value = !this.$store.params.appearance.censorDeletedMessages.value;
+				this.$store.params.updateParams();
 				break;
 
 			case TwitchatEvent.CREATE_POLL:
-				this.$store('params').openModal('poll');
+				this.$store.params.openModal('poll');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_POLL:{
-				const poll = this.$store("poll").data;
+				const poll = this.$store.poll.data;
 				if(!poll) return;
 				try {
 					await TwitchUtils.endPoll(poll.id, poll.channel_id);
 				}catch(error) {
-					this.$store("main").alert(this.$t("error.twitch_poll_delete"));
+					this.$store.main.alert(this.$t("error.twitch_poll_delete"));
 				}
 				break;
 			}
 
 			case TwitchatEvent.CREATE_PREDICTION:
-				this.$store('params').openModal('pred');
+				this.$store.params.openModal('pred');
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
 			case TwitchatEvent.STOP_PREDICTION:{
-				const prediction = this.$store("prediction").data;
+				const prediction = this.$store.prediction.data;
 				if(!prediction) return;
 				try {
 					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					this.$store("main").alert(this.$t("error.twitch_prediction_delete"))
+					this.$store.main.alert(this.$t("error.twitch_prediction_delete"))
 				}
 				break;
 			}
 
 			case TwitchatEvent.RAFFLE_START:{
-				this.$store('params').openModal('raffle')
+				this.$store.params.openModal('raffle')
 				await this.$nextTick();
 				this.voiceControl = true;
 				break;
@@ -584,7 +584,7 @@ export default class Chat extends Vue {
 			case TwitchatEvent.RAFFLE_END:{
 				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
-					this.$store("raffle").stopRaffle();
+					this.$store.raffle.stopRaffle();
 				}).catch(()=> {
 					//ignore
 				});
@@ -593,18 +593,18 @@ export default class Chat extends Vue {
 
 			case TwitchatEvent.START_EMERGENCY:{
 				this.$confirm(this.$t("emergency.enable_confirm"), undefined, undefined, undefined, undefined, true).then(()=>{
-					this.$store("emergency").setEmergencyMode(true);
+					this.$store.emergency.setEmergencyMode(true);
 				}).catch(()=>{});
 				break;
 			}
 			case TwitchatEvent.STOP_EMERGENCY:{
-				this.$store("emergency").setEmergencyMode(false);
+				this.$store.emergency.setEmergencyMode(false);
 				break;
 			}
 
 			case TwitchatEvent.COUNTER_GET: {
 				const id = (e.data as JsonObject).cid as string;
-				this.$store("counters").broadcastCounterValue(id);
+				this.$store.counters.broadcastCounterValue(id);
 				break;
 			}
 
@@ -612,18 +612,18 @@ export default class Chat extends Vue {
 				const id = (e.data as JsonObject).counterId as string;
 				const action = (e.data as JsonObject).counterAction as TriggerActionCountDataAction;
 				const value = parseInt((e.data as JsonObject).countAdd as string);
-				const counter = this.$store("counters").counterList.find(v=>v.id == id);
+				const counter = this.$store.counters.counterList.find(v=>v.id == id);
 				if(counter && !isNaN(value)) {
-					this.$store("counters").increment(id, action || "ADD", value);
+					this.$store.counters.increment(id, action || "ADD", value);
 				}
 				break;
 			}
 
 			case TwitchatEvent.EXECUTE_TRIGGER: {
 				const id = (e.data as JsonObject).triggerId as string;
-				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
 				if(trigger) {
-					const me = this.$store("auth").twitch.user;
+					const me = this.$store.auth.twitch.user;
 					const fakeMessage:TwitchatDataTypes.MessageChatData = {
 						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -646,7 +646,7 @@ export default class Chat extends Vue {
 			case TwitchatEvent.TOGGLE_TRIGGER: {
 				const id = (e.data as JsonObject).triggerId as string;
 				const action = (e.data as JsonObject).triggerAction as string || "enable";
-				const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+				const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
 				if(trigger) {
 					switch(action.toLowerCase()){
 						case "enable":	trigger.enabled = true; break;
@@ -658,7 +658,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.COUNTER_GET_ALL: {
-				const counters = this.$store("counters").counterList.map(v=> {
+				const counters = this.$store.counters.counterList.map(v=> {
 					return {
 						id:v.id,
 						name:v.name,
@@ -672,7 +672,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.TRIGGERS_GET_ALL: {
-				const triggers = this.$store("triggers").triggerList.map(v=> {
+				const triggers = this.$store.triggers.triggerList.map(v=> {
 					return {
 						id:v.id,
 						name:Utils.getTriggerDisplayInfo(v).label,
@@ -685,7 +685,7 @@ export default class Chat extends Vue {
 			}
 
 			case TwitchatEvent.CLEAR_CHAT_HIGHLIGHT: {
-				this.$store("chat").highlightChatMessageOverlay();
+				this.$store.chat.highlightChatMessageOverlay();
 				break;
 			}
 
@@ -701,9 +701,9 @@ export default class Chat extends Vue {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
 				if(durationMs > 0) {
-					this.$store("timer").timerAdd(durationMs);
+					this.$store.timer.timerAdd(durationMs);
 				}else{
-					this.$store("timer").timerRemove(-durationMs);
+					this.$store.timer.timerRemove(-durationMs);
 				}
 				break;
 			}
@@ -712,9 +712,9 @@ export default class Chat extends Vue {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
 				if(durationMs > 0) {
-					this.$store("timer").countdownAdd(durationMs);
+					this.$store.timer.countdownAdd(durationMs);
 				}else{
-					this.$store("timer").countdownRemove(-durationMs);
+					this.$store.timer.countdownRemove(-durationMs);
 				}
 				break;
 			}
@@ -729,10 +729,10 @@ export default class Chat extends Vue {
 		}
 
 		if(modal) {
-			if(this.$store('params').currentModal == modal) {
-				this.$store('params').openModal("");
+			if(this.$store.params.currentModal == modal) {
+				this.$store.params.openModal("");
 			}else{
-				this.$store('params').openModal(modal);
+				this.$store.params.openModal(modal);
 			}
 		}
 	}
@@ -752,7 +752,7 @@ export default class Chat extends Vue {
 	 * Called when searching for a message
 	 */
 	public searchMessage(str:string):void {
-		this.$store('params').openModal('search');
+		this.$store.params.openModal('search');
 	}
 
 	/**
@@ -770,7 +770,7 @@ export default class Chat extends Vue {
 	 * @param col 
 	 */
 	public expandCol(col:TwitchatDataTypes.ChatColumnsConfig):void{
-		const colList = this.$store("params").chatColumnsConfig;
+		const colList = this.$store.params.chatColumnsConfig;
 		let totalSize = 0;
 		for (let i = 0; i < colList.length; i++) {
 			const c = colList[i];
@@ -788,8 +788,8 @@ export default class Chat extends Vue {
 	 * Add a chat column
 	 */
 	public addColumn(ref:TwitchatDataTypes.ChatColumnsConfig):void {
-		let col = this.$store("params").addChatColumn(ref);
-		const colList = this.$store("params").chatColumnsConfig;
+		let col = this.$store.params.addChatColumn(ref);
+		const colList = this.$store.params.chatColumnsConfig;
 		let totalSize = 0;
 		for (let i = 0; i < colList.length; i++) {
 			const c = colList[i];
@@ -853,7 +853,7 @@ export default class Chat extends Vue {
 
 		if(!this.resizing) return;
 		
-		const cols = this.$store('params').chatColumnsConfig;
+		const cols = this.$store.params.chatColumnsConfig;
 		const holder = this.$refs.scrollable as HTMLDivElement;
 		const holderBounds = holder.getBoundingClientRect();
 		for (let i = 0; i < cols.length; i++) {
@@ -884,7 +884,7 @@ export default class Chat extends Vue {
 			v.size = Math.max(0, Math.min(10, v.size));
 		})
 		
-		this.$store('params').saveChatColumnConfs();
+		this.$store.params.saveChatColumnConfs();
 
 		this.computeWindowsSizes();
 	}
@@ -897,7 +897,7 @@ export default class Chat extends Vue {
 	 */
 	private async computeWindowsSizes():Promise<void> {
 		await this.$nextTick();
-		const cols = this.$store('params').chatColumnsConfig;
+		const cols = this.$store.params.chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let colId = "";
 		let index = 0;

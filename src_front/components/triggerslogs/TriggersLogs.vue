@@ -84,15 +84,15 @@ import type { TriggerData } from '@/types/TriggerActionDataTypes';
 import Logger, { type LogTrigger, type LogTriggerStep } from '@/utils/Logger';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 	emits:["close"]
@@ -104,7 +104,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 	public idToExpandState:{[key:string]:boolean} = {};
 
 	public get logs():LogTrigger[] {
-		return Logger.instance.getLogs("triggers").reverse();
+		return Logger.instance.getLogs("triggers").concat().reverse();
 	}
 
 	public getTriggerClasses(log:LogTrigger):string[] {

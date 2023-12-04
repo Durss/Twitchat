@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<Icon name="online" alt="online" class="icon" v-if="isOnline"/>
 		<Icon name="offline" alt="offline" class="icon" v-else/>
@@ -39,12 +39,12 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["onRead"]
 })
@@ -57,7 +57,7 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 	public classes:string[] = ["chatstreamonoff", "chatMessage", "highlight"];
 
 	public get isMe():boolean {
-		return this.messageData.info.user.id == this.$store("auth").twitch.user.id;
+		return this.messageData.info.user.id == this.$store.auth.twitch.user.id;
 	}
 
 	public get isOnline():boolean {
@@ -73,15 +73,15 @@ export default class ChatStreamOnOff extends AbstractChatMessage {
 			this.classes.push("offline", "error");
 			aria = this.$t("chat.stream.offline", {USER:this.messageData.info.user.displayName});
 		}
-		this.$store("accessibility").setAriaPolite(aria);
+		this.$store.accessibility.setAriaPolite(aria);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("users").shoutout(this.$store("auth").twitch.user.id, this.messageData.info.user);
+			await this.$store.users.shoutout(this.$store.auth.twitch.user.id, this.messageData.info.user);
 		}catch(error) {
-			this.$store("main").alert(this.$t("error.shoutout"));
+			this.$store.main.alert(this.$t("error.shoutout"));
 			console.log(error);
 		}
 		this.shoutoutLoading = false;

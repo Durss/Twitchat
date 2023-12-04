@@ -23,13 +23,13 @@
 import Config from '@/utils/Config';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ToggleBlock,
 	},

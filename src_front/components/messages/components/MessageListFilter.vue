@@ -13,7 +13,7 @@
 				<img src="@/assets/icons/cross.svg" alt="delete column" class="icon">
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
-			v-if="$store('params').chatColumnsConfig.length < $config.MAX_CHAT_COLUMNS">
+			v-if="$store.params.chatColumnsConfig.length < $config.MAX_CHAT_COLUMNS">
 				<img src="@/assets/icons/add.svg" alt="add column" class="icon">
 			</button>
 			<button class="addBt" @click="moveColumn(-1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
@@ -21,7 +21,7 @@
 				<img src="@/assets/icons/left.svg" alt="add column" class="icon">
 			</button>
 			<button class="addBt" @click="moveColumn(1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
-			v-if="config.order < $store('params').chatColumnsConfig.length-1">
+			v-if="config.order < $store.params.chatColumnsConfig.length-1">
 				<img src="@/assets/icons/right.svg" alt="add column" class="icon">
 			</button>
 		</div>
@@ -105,7 +105,7 @@
 					clearToggle
 					@change="saveData()"
 					v-model="config.showPanelsHere"
-					v-if="$store('params').chatColumnsConfig.length > 1" />
+					v-if="$store.params.chatColumnsConfig.length > 1" />
 			</div>
 
 			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
@@ -130,7 +130,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
@@ -148,7 +148,7 @@ import Config from '@/utils/Config';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		MessageItem,
 		ToggleBlock,
@@ -198,7 +198,7 @@ export default class MessageListFilter extends Vue {
 
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
-		if(this.$store("params").appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
+		if(this.$store.params.appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
 		if(this.expand || this.forceConfig) res.push("expand");
 		if(this.forceConfig) res.push("fullSize");
 		if(this.showCTA) res.push("ctaMode");
@@ -206,7 +206,7 @@ export default class MessageListFilter extends Vue {
 	}
 
 	public get canDelete():boolean {
-		return this.$store('params').chatColumnsConfig.length > 1;
+		return this.$store.params.chatColumnsConfig.length > 1;
 	}
 
 	public beforeMount(): void {
@@ -479,7 +479,7 @@ export default class MessageListFilter extends Vue {
 		});
 
 		watch(()=>this.config.showPanelsHere, ()=> {
-			const cols = this.$store("params").chatColumnsConfig;
+			const cols = this.$store.params.chatColumnsConfig;
 			if(this.config.showPanelsHere) {
 				cols.forEach(v=> {
 					if(v.showPanelsHere && v.id != this.config.id) {
@@ -529,31 +529,31 @@ export default class MessageListFilter extends Vue {
 
 		this.messagesCache[type] = [];
 		if(type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateNotice(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
@@ -563,7 +563,7 @@ export default class MessageListFilter extends Vue {
 
 		}else
 		if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = false;
@@ -571,7 +571,7 @@ export default class MessageListFilter extends Vue {
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = true;
@@ -583,7 +583,7 @@ export default class MessageListFilter extends Vue {
 
 		}else
 		if(type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = false;
@@ -591,7 +591,7 @@ export default class MessageListFilter extends Vue {
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = true;
@@ -603,7 +603,7 @@ export default class MessageListFilter extends Vue {
 
 		}else{
 
-			this.$store('debug').simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				this.loadingPreview = false;
 	
 				if(!data || !this.mouseOverToggle) return;
@@ -653,7 +653,7 @@ export default class MessageListFilter extends Vue {
 		await this.$nextTick();
 
 		this.subMessagesCache[type] = [];
-		this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 			this.loadingPreview = false;
 			if(!data || !this.mouseOverToggle) return;
 			
@@ -683,13 +683,13 @@ export default class MessageListFilter extends Vue {
 		}, false, false);
 		
 		if(type == "automod") {
-			this.$store('debug').simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 
 				const dataCast = data as TwitchatDataTypes.MessageChatData;
 				dataCast.twitch_isRestricted = true;
 				const users:TwitchatDataTypes.TwitchatUser[] = [];
-				const list = this.$store("users").users;
+				const list = this.$store.users.users;
 				for (let i = 0; i < list.length; i++) {
 					users.push(list[i]);
 					if(Math.random() > .3) break;
@@ -743,7 +743,7 @@ export default class MessageListFilter extends Vue {
 	public saveData():void {
 		this.$nextTick(()=> {
 			let selectedIndex = -1;
-			const cols = this.$store("params").chatColumnsConfig;
+			const cols = this.$store.params.chatColumnsConfig;
 			for (let i = 0; i < cols.length; i++) {
 				const col = cols[i];
 				if(col.showPanelsHere === true) selectedIndex = i;
@@ -755,7 +755,7 @@ export default class MessageListFilter extends Vue {
 		});
 
 		this.$emit("change");
-		this.$store("params").saveChatColumnConfs();
+		this.$store.params.saveChatColumnConfs();
 	}
 
 	/**
@@ -878,10 +878,10 @@ export default class MessageListFilter extends Vue {
 	 * Called when requesting to delete the current column
 	 */
 	public deleteColumn():void {
-		this.$store("main")
+		this.$store.main
 		.confirm(this.$t("chat.delete_col_confirm_title"), this.$t("chat.delete_col_confirm_desc"))
 		.then(()=> {
-			this.$store("params").delChatColumn(this.config);
+			this.$store.params.delChatColumn(this.config);
 		})
 	}
 
@@ -889,7 +889,7 @@ export default class MessageListFilter extends Vue {
 	 * Called when requesting to move a column
 	 */
 	public moveColumn(direction:-1|1):void {
-		this.$store("params").moveChatColumn(this.config, direction);
+		this.$store.params.moveChatColumn(this.config, direction);
 	}
 
 	/**
@@ -1003,14 +1003,14 @@ export default class MessageListFilter extends Vue {
 
 		//Search if a "missing scopes" message exists and delete it
 		//A new one will be created after if necessary
-		const list = this.$store("chat").messages;
+		const list = this.$store.chat.messages;
 		//Only check within the last 100 messages, not a big deal if it
 		//remains in the list in such case and low risks this happens
 		for (let i = list.length-1; i > Math.max(0, list.length - 100); i--) {
 			const m = list[i];
 			if(m.col == this.config.order && m.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST) {
 				//Message found, delete it
-				this.$store("chat").deleteMessage(m);
+				this.$store.chat.deleteMessage(m);
 				break;
 			}
 		}
@@ -1018,7 +1018,7 @@ export default class MessageListFilter extends Vue {
 		//Send a message on this column to warn for missing scopes
 		if(!this.forceConfig && missingScopes.length > 0) {
 			const dedupeDict:{[key:string]:boolean} = {};
-			this.$store("chat").addMessage({
+			this.$store.chat.addMessage({
 				type:TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST,
 				date:Date.now(),
 				col:this.config.order,

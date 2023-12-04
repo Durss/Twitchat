@@ -15,7 +15,7 @@ import type { ITriggerPlaceholder, TriggerActionHighlightData, TriggerData } fro
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 
 @Component({
@@ -50,7 +50,7 @@ export default class TriggerActionHighlightEntry extends AbstractTriggerActionEn
 	}
 
 	public openHighlightParams(){
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	/**

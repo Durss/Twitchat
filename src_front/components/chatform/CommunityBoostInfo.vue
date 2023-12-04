@@ -28,19 +28,19 @@ export default class CommunityBoostInfo extends Vue {
 	public get roundProgressValue():number { return Math.floor(this.interpolatedProgress); }
 
 	public get progress():number {
-		let communityBoostState = this.$store("stream").communityBoostState;
+		let communityBoostState = this.$store.stream.communityBoostState;
 		if(!communityBoostState) return 0;
 		return communityBoostState.progress;
 	}
 
 	public get target():number {
-		let communityBoostState = this.$store("stream").communityBoostState;
+		let communityBoostState = this.$store.stream.communityBoostState;
 		if(!communityBoostState) return 0;
 		return communityBoostState.goal;
 	}
 
 	public get percent():number {
-		if(!this.$store("stream").communityBoostState) return 0;
+		if(!this.$store.stream.communityBoostState) return 0;
 		return Math.round(this.progress/this.target * 100);
 	}
 

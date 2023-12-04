@@ -29,9 +29,11 @@ import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OverlayAdBreak from '@/components/overlays/OverlayAdBreak.vue';
 import OverlayDistort from '@/components/overlays/OverlayDistort.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
+		Button: TTButton,
 		OverlayUlule,
 		OverlayTimer,
 		OverlayAdBreak,

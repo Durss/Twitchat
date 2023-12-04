@@ -46,12 +46,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ProgressBar,
 	}
 })
@@ -62,14 +62,14 @@ export default class PredictionState extends Vue {
 	
 	private disposed = false;
 
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
 
 	public get prediction():TwitchatDataTypes.MessagePredictionData {
-		return this.$store("prediction").data!;
+		return this.$store.prediction.data!;
 	}
 
 	public get canAnswer():boolean {
-		return this.prediction.channel_id == this.$store("auth").twitch.user.id;
+		return this.prediction.channel_id == this.$store.auth.twitch.user.id;
 	}
 
 	public get classes():string[] {
@@ -116,7 +116,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alert(this.$t('error.prediction_outcome'));
+				this.$store.main.alert(this.$t('error.prediction_outcome'));
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -132,7 +132,7 @@ export default class PredictionState extends Vue {
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store("main").alert(this.$t('error.prediction_delete'));
+				this.$store.main.alert(this.$t('error.prediction_delete'));
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -141,7 +141,7 @@ export default class PredictionState extends Vue {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.prediction.creator!);
+		this.$store.users.openUserCard(this.prediction.creator!);
 	}
 
 	private renderFrame():void {

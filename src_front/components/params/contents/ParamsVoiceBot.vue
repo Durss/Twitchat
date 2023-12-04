@@ -18,7 +18,7 @@
 		
 		<div class="card-item alert connectObs" v-if="!obsConnected">
 			<div>{{ $t("voice.need_OBS") }}</div>
-			<Button class="button" icon="obs" light alert @click="$store('params').openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
+			<Button class="button" icon="obs" light alert @click="$store.params.openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -27,7 +27,7 @@
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { Component, Vue } from 'vue-facing-decorator';
 import VoiceControlForm from '../../voice/VoiceControlForm.vue';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import VoiceController from '@/utils/voice/VoiceController';
 import Config from '@/utils/Config';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -35,7 +35,7 @@ import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		VoiceControlForm,
 	},
 	emits:[]

@@ -3,11 +3,11 @@
 		<ParamItem :paramData="param_userSource" v-model="action.customBadgeUserSource" />
 		
 		<div class="card-item">
-			<div class="list" v-if="$store('users').customBadgeList.length > 0">
+			<div class="list" v-if="$store.users.customBadgeList.length > 0">
 				<CustomBadgeSelector noTooltip v-tooltip="$t('triggers.actions.customBadge.param_add_badgeBt')" />
 				<draggable
 				class="group"
-				v-model="$store('users').customBadgeList" 
+				v-model="$store.users.customBadgeList" 
 				:group="{ name: 'badge', pull: 'clone', put: false }"
 				item-key="id"
 				ghost-class="ghost"
@@ -83,7 +83,7 @@ import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITri
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
@@ -137,11 +137,11 @@ export default class TriggerActionCustomBadge extends AbstractTriggerActionEntry
 		if(!this.action.customBadgeUserSource) this.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
 		
 		this.badgesAdd = this.action.customBadgeAdd.map(v=> {
-			return {id:v, img:this.$store("users").customBadgeList.find(w=>w.id === v)?.img || ""};
+			return {id:v, img:this.$store.users.customBadgeList.find(w=>w.id === v)?.img || ""};
 		}).filter(v=>v.img != "");
 
 		this.badgesDel = this.action.customBadgeDel.map(v=> {
-			return {id:v, img:this.$store("users").customBadgeList.find(w=>w.id === v)?.img || ""};
+			return {id:v, img:this.$store.users.customBadgeList.find(w=>w.id === v)?.img || ""};
 		}).filter(v=>v.img != "");
 	}
 

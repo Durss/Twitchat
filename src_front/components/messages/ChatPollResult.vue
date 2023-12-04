@@ -1,6 +1,6 @@
 <template>
 	<div class="chatpollresult chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<Icon name="poll" alt="icon" class="icon"/>
 		<div class="content">
 			<div class="title">{{messageData.title}}</div>
@@ -34,7 +34,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -47,7 +47,7 @@ export default class ChatPollResult extends AbstractChatMessage {
 
 	public maxVotesValue:number = 0;
 	
-	public get me():TwitchatDataTypes.TwitchatUser { return this.$store("auth").twitch.user; }
+	public get me():TwitchatDataTypes.TwitchatUser { return this.$store.auth.twitch.user; }
 
 	public getChoiceClasses(o:TwitchatDataTypes.MessagePollDataChoice):string[] {
 		const res = ["outcome"];
@@ -78,7 +78,7 @@ export default class ChatPollResult extends AbstractChatMessage {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.creator!);
+		this.$store.users.openUserCard(this.messageData.creator!);
 	}
 
 }

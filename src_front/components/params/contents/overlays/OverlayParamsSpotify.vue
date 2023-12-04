@@ -21,14 +21,14 @@
 	
 			<i18n-t class="card-item footer" scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>
-					<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
+					<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 				</template>
 			</i18n-t>
 
 		</div>
 		<div class="holder" v-else>
 			<div class="header">{{ $t("overlay.music_common.music") }}</div>
-			<Button class="center" @click="$store('params').openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
+			<Button class="center" @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
 		</div>
 
 	</ToggleBlock>
@@ -38,7 +38,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -46,7 +46,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		OverlayParamsMusic,

@@ -12,9 +12,14 @@ for(var i = 0; i < emojis.length; i++) {
 }
 console.log(map)
  */
-const fs = require("fs");
-const path = require("path");
+import * as fs from "fs";
+import * as path from "path";
+import {fileURLToPath} from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const emoteFolder = path.join(__dirname, "../static/youtube/emotes");
+
 if(!fs.existsSync(emoteFolder)) {
 	fs.mkdirSync(emoteFolder, {recursive:true});
 }

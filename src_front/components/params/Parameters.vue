@@ -13,7 +13,7 @@
 	
 					<div class="buttonList">
 						<div class="search">
-							<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+							<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
 						</div>
 						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1704102299000, id:'params_chatfeatures_1'}">{{$t('params.categories.features')}}</Button>
 						<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1693519200000, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
@@ -58,7 +58,7 @@
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search" id="paramContentScrollableHolder">
 				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
-					<input type="text" :placeholder="$t('params.search')" v-model="$store('params').currentParamSearch" v-autofocus>
+					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
 				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
@@ -104,7 +104,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import DonorState from '../user/DonorState.vue';
@@ -134,7 +134,7 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamsOBS,
 		ParamsTTS,
 		DonorState,
@@ -172,8 +172,8 @@ export default class Parameters extends Vue {
 	private keydownCaptureTarget:Element|null = null;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
-	public get donorLevel():number { return this.$store("auth").twitch.user.donor.level; }
-	public get isDonor():boolean { return this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium; }
+	public get donorLevel():number { return this.$store.auth.twitch.user.donor.level; }
+	public get isDonor():boolean { return this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
 	public get contentClose():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CLOSE; }
 	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
 	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }
@@ -215,9 +215,9 @@ export default class Parameters extends Vue {
 
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
-	public get content():TwitchatDataTypes.ParameterPagesStringType { return this.$store("params").currentPage; }
+	public get content():TwitchatDataTypes.ParameterPagesStringType { return this.$store.params.currentPage; }
 	
-	public get search():string { return this.$store("params").currentParamSearch; }
+	public get search():string { return this.$store.params.currentParamSearch; }
 
 	public get classes():string[] {
 		let res = ["parameters", "sidePanel"];
@@ -233,7 +233,7 @@ export default class Parameters extends Vue {
 			this.open();
 		}
 
-		watch(() => this.$store('params').currentPage, (value:TwitchatDataTypes.ParameterPagesStringType, oldValue:TwitchatDataTypes.ParameterPagesStringType) => {
+		watch(() => this.$store.params.currentPage, (value:TwitchatDataTypes.ParameterPagesStringType, oldValue:TwitchatDataTypes.ParameterPagesStringType) => {
 			if(value === this.history[this.history.length-1]) this.history.pop();
 			if(value != TwitchatDataTypes.ParameterPages.CLOSE
 			 && value != TwitchatDataTypes.ParameterPages.MAIN_MENU) {
@@ -246,7 +246,7 @@ export default class Parameters extends Vue {
 			if(value != TwitchatDataTypes.ParameterPages.MAIN_MENU) this.filteredParams = [];
 		});
 
-		watch(() => this.$store("params").currentParamSearch, (value:string) => {
+		watch(() => this.$store.params.currentParamSearch, (value:string) => {
 			if(value) this.openPage(this.contentMain);
 			this.filterParams(value);
 		});
@@ -291,13 +291,13 @@ export default class Parameters extends Vue {
 			this.closing = false;
 			this.closed = true;
 			this.filteredParams = [];
-			this.$store("params").closeParameters();
+			this.$store.params.closeParameters();
 		}});
 	}
 
 	public back():void {
 		const content = this.$refs.currentContent as IParameterContent;
-		this.$store("params").currentParamSearch = "";
+		this.$store.params.currentParamSearch = "";
 		
 		//Check if current content wants to override the navigation
 		if(content && content.onNavigateBack && content.onNavigateBack() === true) return;
@@ -310,8 +310,8 @@ export default class Parameters extends Vue {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 		const IDsDone:{[key:number]:boolean} = {};
-		for (const categoryID in this.$store("params").$state) {
-			const category = this.$store("params").$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData<unknown>};
+		for (const categoryID in this.$store.params.$state) {
+			const category = this.$store.params.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData<unknown>};
 			for (const prop in category) {
 				const data:TwitchatDataTypes.ParameterData<unknown> = category[prop];
 				
@@ -344,7 +344,7 @@ export default class Parameters extends Vue {
 		//Check if current content wants to override the navigation
 		if(content && content.reload) content.reload();
 
-		this.$store("params").openParamsPage(page);
+		this.$store.params.openParamsPage(page);
 	}
 
 	/**

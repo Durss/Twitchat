@@ -50,7 +50,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -59,7 +59,7 @@ import ParamsSponsor from './ParamsSponsor.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		ParamsSponsor,
 	}

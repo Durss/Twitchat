@@ -1,6 +1,6 @@
 <template>
 	<div class="chathypetrainresult chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<Icon name="train" alt="icon" class="icon"/>
 		<div class="infoHolder">
 			<i18n-t scope="global" tag="strong" keypath="chat.hype_train.summary_title">
@@ -97,12 +97,12 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["setCustomActivities", "onRead"]
 })

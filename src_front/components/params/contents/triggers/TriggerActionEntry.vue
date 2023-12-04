@@ -100,8 +100,8 @@
 				
 				<Button class="button" @click.capture="selectActionType('tts')"
 					icon="tts"
-					:disabled="!$store('tts').params.enabled"
-					v-tooltip="$store('tts').params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
+					:disabled="!$store.tts.params.enabled"
+					v-tooltip="$store.tts.params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
 				
 				<Button class="button" @click.capture="selectActionType('music')"
 					icon="spotify"
@@ -182,7 +182,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
@@ -226,7 +226,7 @@ import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.v
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		PollForm,
 		ParamItem,
 		BingoForm,
@@ -285,9 +285,9 @@ export default class TriggerActionEntry extends Vue {
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
-	public get heatClickEnabled():boolean { return (this.$store('heat').distortionList || []).length > 0; }
+	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get hasChannelPoints():boolean {
-		return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner;
+		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
 
 	/**
@@ -423,61 +423,61 @@ export default class TriggerActionEntry extends Vue {
 		switch(type) {
 			case "heat_click": {
 				if(!this.heatClickEnabled) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HEAT_DISTORT);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HEAT_DISTORT);
 					return;
 				}break
 			}
 			case "poll": {
 				if(!this.canCreatePoll) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_POLLS]);
 					return;
 				}break
 			}
 			case "prediction": {
 				if(!this.canCreatePrediction) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_PREDICTIONS]);
 					return;
 				}break
 			}
 			case "stream_infos": {
 				if(!this.canEditStreamInfo) {
-					this.$store("auth").requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+					this.$store.auth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
 					return;
 				}break
 			}
 			case "music": {
 				if(!this.spotifyConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 					return;
 				}break
 			}
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
 					return;
 				}break
 			}
 			case "goxlr": {
 				if(!this.goxlrEnabled) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.GOXLR);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.GOXLR);
 					return;
 				}break
 			}
 			case "obs": {
 				if(!this.obsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 					return;
 				}break
 			}
 			case "ws": {
 				if(!this.wsConnected) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.WEBSOCKET);
 					return;
 				}break
 			}
 			case "tts": {
-				if(!this.$store('tts').params.enabled) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
+				if(!this.$store.tts.params.enabled) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TTS);
 					return;
 				}break
 			}

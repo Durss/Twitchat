@@ -29,11 +29,11 @@
 		
 		<template v-if="messageData.user.is_blocked !== true || messageData.user.stop_block_censor === true">
 
-			<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+			<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 			
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
-			<Icon v-if="!disableConversation && isConversation && $store('params').features.conversationsEnabled.value && !lightMode"
+			<Icon v-if="!disableConversation && isConversation && $store.params.features.conversationsEnabled.value && !lightMode"
 				class="icon convBt"
 				name="conversation"
 				@click.stop="$emit('showConversation', $event, messageData)" />
@@ -70,7 +70,7 @@
 				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
 			
 			<span class="pronoun"
-				v-if="messageData.user.pronounsLabel && $store('params').features.showUserPronouns.value===true"
+				v-if="messageData.user.pronounsLabel && $store.params.features.showUserPronouns.value===true"
 				v-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
 			
 			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
@@ -153,9 +153,9 @@ import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CustomUserBadges from '../user/CustomUserBadges.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import MessageTranslation from './MessageTranslation.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
@@ -163,7 +163,7 @@ import ChatModTools from './components/ChatModTools.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ChatModTools,
 		CustomUserBadges,
 		MessageTranslation,
@@ -216,14 +216,14 @@ export default class ChatMessage extends AbstractChatMessage {
 	
 	
 	public get showNofollow():boolean{
-		return this.$store("params").appearance.highlightNonFollowers.value === true
+		return this.$store.params.appearance.highlightNonFollowers.value === true
 		&& this.channelInfo.is_following === false;
 	}
 
 	public get classes():string[] {
 		const res					= this.staticClasses.concat();
 		const message				= this.messageData;
-		const censorDeletedMessages	= this.$store("params").appearance.censorDeletedMessages.value === true;
+		const censorDeletedMessages	= this.$store.params.appearance.censorDeletedMessages.value === true;
 
 		if(censorDeletedMessages)				res.push("censor");
 		if(this.hypeChat)						res.push("hypeChat");
@@ -243,7 +243,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	}
 
 	public get showModTools():boolean {
-		return this.showModToolsPreCalc && this.$store("params").features.showModTools.value === true;
+		return this.showModToolsPreCalc && this.$store.params.features.showModTools.value === true;
 	}
 
 	/**
@@ -259,7 +259,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * mostly non-latin chars
 	 */
 	public get translateUsername():boolean {
-		if(this.$store("params").appearance.translateNames.value !== true) return false;
+		if(this.$store.params.appearance.translateNames.value !== true) return false;
 
 		const dname = this.messageData.user.displayNameOriginal.toLowerCase();
 		const uname = this.messageData.user.login.toLowerCase();
@@ -272,8 +272,8 @@ export default class ChatMessage extends AbstractChatMessage {
 	public get filteredBadges():TwitchatDataTypes.TwitchatUserBadge[] {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
 		
-		if(this.$store("params").appearance.showBadges.value
-		&& this.$store("params").appearance.minimalistBadges.value !== true) {
+		if(this.$store.params.appearance.showBadges.value
+		&& this.$store.params.appearance.minimalistBadges.value !== true) {
 			return this.badges ?? [];
 		}
 		return [];
@@ -287,8 +287,8 @@ export default class ChatMessage extends AbstractChatMessage {
 		
 		let badges:{label:string, class?:string}[] = [];
 
-		if(this.$store("params").appearance.showBadges.value === true
-		&& this.$store("params").appearance.minimalistBadges.value === true
+		if(this.$store.params.appearance.showBadges.value === true
+		&& this.$store.params.appearance.minimalistBadges.value === true
 		&& this.badges) {
 			for (let i = 0; i < this.badges.length; i++) {
 				const b = this.badges[i];
@@ -319,7 +319,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	public getDeletedMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):string {
 		if(message.type != "message") return "";
 
-		const censor = (this.$store("params").appearance.censorDeletedMessages.value===true)
+		const censor = (this.$store.params.appearance.censorDeletedMessages.value===true)
 		if(message.deletedData) {
 			return censor ? this.$t("chat.message.deleted_by", {USER:message.deletedData.deleter.displayName}) : "";
 		}else if(message.deleted){
@@ -333,7 +333,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public getMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
 		const res:string[]		= ["message"];
-		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+		const spoilersEnabled	= this.$store.params.features.spoilersEnabled.value === true;
 
 		if(message.deleted)	res.push("deleted");
 		if(spoilersEnabled && message.spoiler === true) res.push("spoiler");
@@ -347,7 +347,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
 		const res:string[] = ["messageChild"];
-		const spoilersEnabled	= this.$store("params").features.spoilersEnabled.value === true;
+		const spoilersEnabled	= this.$store.params.features.spoilersEnabled.value === true;
 
 		if(message.deleted) res.push("deleted");
 		if(spoilersEnabled && message.spoiler) res.push("spoiler");
@@ -396,7 +396,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 
 		//Creation date is loaded asynchronously, watch for it if requested
-		if(this.$store("params").appearance.recentAccountUserBadge.value === true) {
+		if(this.$store.params.appearance.recentAccountUserBadge.value === true) {
 			const setRecentBadge = (list:TwitchatDataTypes.MessageBadgeData[]) => {
 				const age = Date.now() - (mess.user.created_at_ms || 0);
 				if(age < 7 * 24 * 60 * 60000) {
@@ -427,7 +427,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			
 			//Add "first day on your chat" badge
 			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
-			&& this.$store("params").appearance.firstUserBadge.value === true) {
+			&& this.$store.params.appearance.firstUserBadge.value === true) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.NEW_USER});
 			}
 			//Manage twitch automod content
@@ -529,7 +529,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		
 		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
-		this.$store("accessibility").setAriaPolite(this.messageData.message);
+		this.$store.accessibility.setAriaPolite(this.messageData.message);
 		this.updateSuspiciousState();
 	}
 
@@ -538,7 +538,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public hoverNickName(event:MouseEvent):void {
 		if(this.messageData.type == "whisper") return;
-		if(this.$store("params").features.userHistoryEnabled.value) {
+		if(this.$store.params.features.userHistoryEnabled.value) {
 			this.$emit('showUserMessages', event, this.messageData);
 		}
 	}
@@ -548,7 +548,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public outNickName(event:MouseEvent):void {
 		if(this.messageData.type == "whisper") return;
-		if(this.$store("params").features.userHistoryEnabled.value) {
+		if(this.$store.params.features.userHistoryEnabled.value) {
 			this.$emit('unscheduleMessageOpen', event, this.messageData);
 		}
 	}
@@ -578,11 +578,11 @@ export default class ChatMessage extends AbstractChatMessage {
 		this.automodInProgress = true;
 		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
-			this.$store("main").alert(this.$t("error.mod_message"));
+			this.$store.main.alert(this.$t("error.mod_message"));
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.
-			this.$store("chat").deleteMessage(this.messageData);
+			this.$store.chat.deleteMessage(this.messageData);
 		}
 		this.automodInProgress = false;
 	}
@@ -602,7 +602,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.highlightOverlayAvailable = res;
 		});
 		if(!this.highlightOverlayAvailable) {
-			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "highlight");
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "highlight");
 			return;
 		}
 		this.clipHighlightLoading = true;
@@ -612,10 +612,10 @@ export default class ChatMessage extends AbstractChatMessage {
 				mp4:this.clipInfo!.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
 				duration:this.clipInfo!.duration,
 			},
-			params:this.$store("chat").chatHighlightOverlayParams,
+			params:this.$store.chat.chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-		this.$store("chat").isChatMessageHighlighted = true;
+		this.$store.chat.isChatMessageHighlighted = true;
 		await Utils.promisedTimeout(1000);
 		this.clipHighlightLoading = false;
 	}
@@ -634,13 +634,13 @@ export default class ChatMessage extends AbstractChatMessage {
 	 */
 	public disableAd():void{
 		//If we're a donor, just disable the ad and delete the message as a feedback
-		if(this.$store("auth").twitch.user.donor.state || this.$store("auth").isPremium) {
-			this.$store("chat").updateBotMessage({
+		if(this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium) {
+			this.$store.chat.updateBotMessage({
 											key:"twitchatAd",
 											enabled:false,
-											message:this.$store("chat").botMessages.twitchatAd.message
+											message:this.$store.chat.botMessages.twitchatAd.message
 										});
-			this.$store("chat").deleteMessage(this.messageData, undefined, false);
+			this.$store.chat.deleteMessage(this.messageData, undefined, false);
 		}else{
 			this.openAdParams();
 		}
@@ -650,7 +650,7 @@ export default class ChatMessage extends AbstractChatMessage {
 	 * Open ad params page
 	 */
 	public openAdParams():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.AD)
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.AD)
 	}
 
 	/**

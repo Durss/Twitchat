@@ -50,13 +50,13 @@
 
 <script lang="ts">
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 	}
@@ -66,8 +66,8 @@ export default class OverlayParamsTimer extends Vue {
 	@Prop({default:false})
 	public open!:boolean;
 	
-	public startTimer():void { this.$store("timer").timerStart(); }
-	public startCountdown():void { this.$store("timer").countdownStart(2 * 60 * 1000); }
+	public startTimer():void { this.$store.timer.timerStart(); }
+	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
 
 }
 </script>

@@ -91,13 +91,13 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import InfiniteList from '../InfiniteList.vue';
 import { useTippy } from 'vue-tippy';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		InfiniteList,
 	},
 	emits:["close"]
@@ -121,10 +121,10 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	public async mounted():Promise<void> {
 		//Load users by batch to avoid potential lag on open
-		this.followers = this.$store("emergency").follows;
+		this.followers = this.$store.emergency.follows;
 		
 		watch(()=>this.search, ()=> {
-			const list = this.$store("emergency").follows;
+			const list = this.$store.emergency.follows;
 			const reg = new RegExp(this.search, "gi");
 			this.followers = [];
 			for (let i = 0; i < list.length; i++) {
@@ -154,7 +154,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 	public openCard(follower:TwitchatDataTypes.MessageFollowingData):void {
-		this.$store("users").openUserCard(follower.user, follower.channel_id);
+		this.$store.users.openUserCard(follower.user, follower.channel_id);
 	}
 	
 	public async ban(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
@@ -179,7 +179,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 	public async removeEntry(follow:TwitchatDataTypes.MessageFollowingData):Promise<void> {
-		this.$store("emergency").ignoreEmergencyFollower(follow);
+		this.$store.emergency.ignoreEmergencyFollower(follow);
 	}
 		
 	public async banAll():Promise<void> {
@@ -212,7 +212,7 @@ export default class EmergencyFollowsListModal extends Vue {
 
 	public clearList():void {
 		this.$confirm(this.$t("followbot.clear_confirm_title"), this.$t("followbot.clear_confirm_desc")).then(()=>{
-			this.$store("emergency").clearEmergencyFollows();
+			this.$store.emergency.clearEmergencyFollows();
 		}).catch(()=>{/*ignore*/});
 	}
 

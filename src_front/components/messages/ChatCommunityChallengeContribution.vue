@@ -1,6 +1,6 @@
 <template>
 	<div class="chatcommunitychallengecontribution chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="channelPoints" alt="reward" class="icon"/>
 
@@ -38,7 +38,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -50,7 +50,7 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 	declare messageData:TwitchatDataTypes.MessageCommunityChallengeContributionData;
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	public get percent():number {

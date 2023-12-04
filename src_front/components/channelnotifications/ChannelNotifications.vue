@@ -27,8 +27,8 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import BingoState from './BingoState.vue';
 import HypeTrainState from './HypeTrainState.vue';
@@ -39,7 +39,7 @@ import RaidState from './RaidState.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		PollState,
 		RaidState,
 		BingoState,
@@ -57,24 +57,24 @@ export default class ChannelNotifications extends AbstractSidePanel {
 	
 	// private clickHandler!:(e:MouseEvent) => void;
 
-	public get showRaid():boolean { return this.$store("stream").currentRaid != null; }
-	public get showHypeTrain():boolean { return this.$store("stream").hypeTrain != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store("poll").data?.id != null; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store("prediction").data?.id != null; }
-	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store("raffle").data != null && this.$store("raffle").data!.mode == "chat"; }
-	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store("bingo").data != null; }
+	public get showRaid():boolean { return this.$store.stream.currentRaid != null; }
+	public get showHypeTrain():boolean { return this.$store.stream.hypeTrain != undefined; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null; }
+	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.data != null && this.$store.raffle.data!.mode == "chat"; }
+	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
 
 	public get showClose():boolean {
 		return (this.showPoll
 			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
-			|| this.$store('chat').searchMessages != "")
+			|| this.$store.chat.searchMessages != "")
 		;
 	}
 
 	public get whispersAvailable():boolean {
-		const whispers = this.$store("chat").whispers;
+		const whispers = this.$store.chat.whispers;
 		for (const key in whispers) {
 			if (whispers[key].length > 0) return true;
 		}

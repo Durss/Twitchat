@@ -47,8 +47,8 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
@@ -57,7 +57,7 @@ import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		CloseButton,
 		PlaceholderSelector,
@@ -103,10 +103,10 @@ export default class PollForm extends AbstractSidePanel {
 		this.param_points.labelKey		= 'poll.form.additional_votes_amount';
 		this.param_duration.labelKey	= 'poll.form.vote_duration';
 
-		if(this.$store("main").tempStoreValue) {
-			const titlePrefill = this.$store("main").tempStoreValue as string;
+		if(this.$store.main.tempStoreValue) {
+			const titlePrefill = this.$store.main.tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
-			this.$store("main").tempStoreValue = null;
+			this.$store.main.tempStoreValue = null;
 		}
 		
 		if(this.triggerMode !== false) {

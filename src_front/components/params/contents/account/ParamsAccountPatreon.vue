@@ -15,7 +15,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="premiumDonor" v-else-if="$store('auth').twitch.user.donor.isPremiumDonor === true">
+		<div class="premiumDonor" v-else-if="$store.auth.twitch.user.donor.isPremiumDonor === true">
 			<div class="card-item premium large">
 				<Icon name="premium" theme="light" />
 				<div>{{ $t("premium.premium_donor1") }}</div>
@@ -62,7 +62,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
@@ -71,7 +71,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:[],
 })
@@ -85,7 +85,7 @@ export default class ParamsAccountPatreon extends Vue {
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
 	public get isMember():boolean { return PatreonHelper.instance.isMember; }
-	public get isEarlyDonor():boolean { return this.$store('auth').twitch.user.donor.earlyDonor; }
+	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
 		const {json} = await ApiController.call("patreon/isApiDown");
@@ -93,24 +93,24 @@ export default class ParamsAccountPatreon extends Vue {
 		
 		
 		// PatreonHelper.instance.connect();
-		const authParams = this.$store("patreon").patreonAuthParams;
+		const authParams = this.$store.patreon.patreonAuthParams;
 		if(authParams) {
 			this.authenticating = true;
 
 			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:authParams.csrf});
 			if(!csrf.success) {
-				this.$store("main").alert(csrf.message || "Patreon authentication failed");
+				this.$store.main.alert(csrf.message || "Patreon authentication failed");
 			}else{
 				try {
 					await PatreonHelper.instance.authenticate(authParams.code);
 				}catch(e:unknown) {
 					console.log(e);
-					this.$store("main").alert("Oops... something went wrong");
+					this.$store.main.alert("Oops... something went wrong");
 				}
 			}
 
 			this.authenticating = false;
-			this.$store("patreon").setPatreonAuthResult(null);
+			this.$store.patreon.setPatreonAuthResult(null);
 		}
 
 	}
@@ -134,7 +134,7 @@ export default class ParamsAccountPatreon extends Vue {
 	}
 
 	public openDonate():void {
-		this.$store("params").openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM)
+		this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM)
 	}
 }
 </script>

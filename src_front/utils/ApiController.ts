@@ -300,7 +300,7 @@ type ApiEndpoints =  {
 		}
 	},
 	"google/translate": {
-		POST: {
+		GET: {
 			success:boolean,
 			error?:string;
 			errorCode?:string;

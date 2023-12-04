@@ -96,7 +96,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerEventTypeCategory } from '@/types/TriggerActionDataTypes';
 import { TriggerEventTypeCategories, TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
@@ -116,7 +116,7 @@ import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
 	components:{
-		TTButton:Button,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
+		TTButton:TTButton,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
 		ParamItem,
 		ToggleBlock,
 		TriggerActionList,
@@ -150,7 +150,7 @@ export default class TriggerCreateForm extends Vue {
 
 	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
-	public get hasChannelPoints():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
+	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 
 	/**
 	 * Gets a trigger's icon
@@ -222,7 +222,7 @@ export default class TriggerCreateForm extends Vue {
 		if(triggerTypeList.length === 0) return;
 		
 		//Remove affiliates-only triggers if not affiliate or partner
-		if(!this.$store("auth").twitch.user.is_affiliate && !this.$store("auth").twitch.user.is_partner) {
+		if(!this.$store.auth.twitch.user.is_affiliate && !this.$store.auth.twitch.user.is_partner) {
 			triggerTypeList = triggerTypeList.filter(v=> {
 				return v.value != TriggerTypes.REWARD_REDEEM
 				&& v.value != TriggerTypes.COMMUNITY_CHALLENGE_PROGRESS
@@ -515,7 +515,7 @@ export default class TriggerCreateForm extends Vue {
 			};
 
 			if(this.subtriggerList.length == 0) {
-				this.$store("triggers").addTrigger(this.temporaryTrigger)
+				this.$store.triggers.addTrigger(this.temporaryTrigger)
 				this.$emit("selectTrigger", this.temporaryTrigger);
 			}
 		}
@@ -569,7 +569,7 @@ export default class TriggerCreateForm extends Vue {
 			case TriggerTypes.VALUE_UPDATE: this.temporaryTrigger.valueId = entry.value; break;
 		}
 
-		this.$store("triggers").addTrigger(this.temporaryTrigger);
+		this.$store.triggers.addTrigger(this.temporaryTrigger);
 		this.$emit("selectTrigger", this.temporaryTrigger);
 	}
 	
@@ -577,42 +577,42 @@ export default class TriggerCreateForm extends Vue {
 	 * Open connexions parameters
 	 */
 	public openConnexions():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 
 	/**
 	 * Open OBS parameters
 	 */
 	public openOBS():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
 	}
 
 	/**
 	 * Open counters parameters
 	 */
 	public openCounters():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 	/**
 	 * Open values parameters
 	 */
 	public openValues():void {
-		this.$store('params').openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
 	}
 
 	/**
 	 * Requests access to rewards
 	 */
 	public requestRewardsScope():void {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.LIST_REWARDS]);
 	}
 
 	/**
 	 * Lists Counters
 	 */
 	public async listCounters():Promise<void> {
-		const list = this.$store("counters").counterList.sort((a,b)=> {
+		const list = this.$store.counters.counterList.sort((a,b)=> {
 			if(a.name < b.name) return -1;
 			if(a.name > b.name) return 1;
 			return 0;
@@ -631,7 +631,7 @@ export default class TriggerCreateForm extends Vue {
 	 * Lists Values
 	 */
 	public async listValues():Promise<void> {
-		const list = this.$store("values").valueList.sort((a,b)=> {
+		const list = this.$store.values.valueList.sort((a,b)=> {
 			if(a.name < b.name) return -1;
 			if(a.name > b.name) return 1;
 			return 0;

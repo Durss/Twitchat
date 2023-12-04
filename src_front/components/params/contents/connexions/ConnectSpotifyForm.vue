@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
@@ -61,7 +61,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 	},
@@ -97,14 +97,14 @@ export default class ConnectSpotifyForm extends Vue {
 		this.paramClient.value = SpotifyHelper.instance.clientID;
 		this.paramSecret.value = SpotifyHelper.instance.clientSecret;
 
-		const spotifyAuthParams = this.$store("music").spotifyAuthParams;
+		const spotifyAuthParams = this.$store.music.spotifyAuthParams;
 		if(spotifyAuthParams) {
 			this.open = true;	
 			this.authenticating = true;
 
 			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store("main").alert(csrf.message || "Spotify authentication failed");
+				this.$store.main.alert(csrf.message || "Spotify authentication failed");
 			}else{
 				try {
 					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);
@@ -114,13 +114,13 @@ export default class ConnectSpotifyForm extends Vue {
 					this.error = castError.error ?? castError.error_description;
 					this.showSuccess = false;
 					console.log(e);
-					this.$store("main").alert("Oops... something went wrong");
+					this.$store.main.alert("Oops... something went wrong");
 				}
 			}
 
 			this.authenticating = false;
 			this.loading = false;
-			this.$store("music").setSpotifyAuthResult(null);
+			this.$store.music.setSpotifyAuthResult(null);
 		}
 	}
 
@@ -129,11 +129,11 @@ export default class ConnectSpotifyForm extends Vue {
 	}
 
 	public openOverlays():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.SPOTIFY);
 	}
 	
 	public openTriggers():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 }

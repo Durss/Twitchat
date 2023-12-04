@@ -69,7 +69,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ChatCustomMessage from '@/components/messages/ChatCustomMessage.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionCustomMessageData, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -78,14 +78,14 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { reactive } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import draggable from 'vuedraggable';
 import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		draggable,
 		ParamItem,
 		ToggleBlock,
@@ -179,7 +179,7 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 		this.iconList = keys.map(v=> {return {value:v, icon:v, label:v}});
 		this.param_icon.listValues = this.iconList.concat();
 
-		const cols = this.$store("params").chatColumnsConfig.length;
+		const cols = this.$store.params.chatColumnsConfig.length;
 		const params:TwitchatDataTypes.ParameterDataListValue<number>[] = [];
 		params.push({value:-1, labelKey:"triggers.actions.customChat.param_col_all"})
 		for (let i = 0; i < cols; i++) params.push({value:i, label:(i+1).toString()});

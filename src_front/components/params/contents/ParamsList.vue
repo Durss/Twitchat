@@ -8,7 +8,7 @@
 							<img src="@/assets/icons/alert.svg">
 							<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 								<template #LINK>
-									<a @click="$store('params').openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
+									<a @click="$store.params.openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
 								</template>
 							</i18n-t>
 						</div>
@@ -47,17 +47,17 @@
 					</div>
 	
 					<div v-else-if="p.id == 216 && p.value === true" class="config">
-						<Button small secondary @click="$store('params').openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
+						<Button small secondary @click="$store.params.openParamsPage(contentSpoiler)">{{$t('global.configure')}}</Button>
 					</div>
 	
 					<div v-else-if="p.id == 217 && p.value === true" class="config">
-						<Button small secondary @click="$store('params').openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
+						<Button small secondary @click="$store.params.openParamsPage(contentAlert)">{{$t('global.configure')}}</Button>
 					</div>
 	
 					<div v-else-if="p.id == 224 && p.value === true" class="config">
 						<Button small secondary
 						v-newflag="{date:1695691108070, id:'params_clearHistory'}"
-						@click="$store('chat').clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
+						@click="$store.chat.clearHistory()" icon="trash">{{$t('params.clearHistory')}}</Button>
 					</div>
 	
 					<div v-else-if="isMissingScope(p) && p.value == true" class="config">
@@ -88,14 +88,14 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ChatMessage,
 		PostOnChatParam,
@@ -126,9 +126,9 @@ export default class ParamsList extends Vue implements IParameterContent {
 		}else{
 			if(!this.category) return {};
 
-			for (const key in this.$store("params").$state[this.category]) {
-				if(this.$store("params").$state[this.category][key].parent) continue;
-				res[key] = (this.$store("params").$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData<unknown>})[key] as TwitchatDataTypes.ParameterData<unknown>;
+			for (const key in this.$store.params.$state[this.category]) {
+				if(this.$store.params.$state[this.category][key].parent) continue;
+				res[key] = (this.$store.params.$state[this.category] as {[key:string]:TwitchatDataTypes.ParameterData<unknown>})[key] as TwitchatDataTypes.ParameterData<unknown>;
 			}
 		}
 		return res;
@@ -140,14 +140,14 @@ export default class ParamsList extends Vue implements IParameterContent {
 
 	public async beforeMount(): Promise<void> {
 		await new Promise((resolve)=> {
-			this.$store("debug").simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			(data)=> {
 				this.fakeMessageData = data as TwitchatDataTypes.MessageChatData;
 				resolve(null);
 			}, false, false);
 		});
 		
-		const me = this.$store("auth").twitch.user;
+		const me = this.$store.auth.twitch.user;
 		this.soPlaceholders = [
 			{
 				tag:"USER",
@@ -195,12 +195,12 @@ export default class ParamsList extends Vue implements IParameterContent {
 	}
 
 	public requestPermission(scopes:TwitchScopesString[]):void {
-		this.$store("auth").requestTwitchScopes(scopes);
+		this.$store.auth.requestTwitchScopes(scopes);
 	}
 
 	public resetGreetHistory():void {
 		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
-			this.$store("chat").resetGreetingHistory();
+			this.$store.chat.resetGreetingHistory();
 		});
 	}
 

@@ -48,15 +48,15 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		ProgressBar,
 		CloseButton,
@@ -69,7 +69,7 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 	public disposed = false;
 	public progressPercent = 0;
 
-	public get poll():TwitchatDataTypes.ChatSuggestionData { return this.$store("chatSuggestion").data!; }
+	public get poll():TwitchatDataTypes.ChatSuggestionData { return this.$store.chatSuggestion.data!; }
 
 	public get entries():{data:TwitchatDataTypes.ChatSuggestionDataChoice, selected:boolean}[] {
 		let list = this.poll.winners.map(v=> { return {data:v, selected:true} });
@@ -129,19 +129,19 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 				}
 			}
 		}
-		this.$store("raffle").pickWinner(data);
+		this.$store.raffle.pickWinner(data);
 	}
 
 	public closePoll():void {
 		this.$confirm(this.$t("suggestion.state_close_confirm_title"), this.$t("suggestion.state_close_confirm_desc"))
 		.then(async ()=> {
 			await super.close();
-			this.$store("chatSuggestion").setChatSuggestion(null);
+			this.$store.chatSuggestion.setChatSuggestion(null);
 		}).catch(()=>{});
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 	public deleteEntery(entry:TwitchatDataTypes.ChatSuggestionDataChoice):void {

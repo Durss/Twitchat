@@ -38,7 +38,7 @@ export default class TriggerActionSlashCommandParams extends Vue {
 		this.cmdNameConflict = false;
 
 		//Make sure no other chat command has the same name
-		const triggers = this.$store("triggers").triggerList;
+		const triggers = this.$store.triggers.triggerList;
 		const mainCmd = this.triggerData.chatCommand?.toLowerCase() || "";
 		
 		//Check if any other trigger contain the same command
@@ -55,7 +55,7 @@ export default class TriggerActionSlashCommandParams extends Vue {
 		}
 
 		//Check if a global slash command exists with the same name
-		const globalCmds = this.$store("chat").commands;
+		const globalCmds = this.$store.chat.commands;
 		for (let i = 0; i < globalCmds.length; i++) {
 			const entry = globalCmds[i];
 			if(entry.cmd.split(" ")[0].toLowerCase() === mainCmd) {

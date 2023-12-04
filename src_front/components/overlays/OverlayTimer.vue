@@ -19,7 +19,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay.vue';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{}

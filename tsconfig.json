@@ -8,16 +8,19 @@
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"skipLibCheck": true,
+		"allowJs": true,
 		"esModuleInterop": true,
 		"allowSyntheticDefaultImports": true,
 		"forceConsistentCasingInFileNames": true,
 		"useDefineForClassFields": true,
 		"sourceMap": true,
+		"ignoreDeprecations": "5.0",
 		"baseUrl": ".",
 		"types": [
 			"webpack-env",
 			"vite/client",
-			"dom-screen-wake-lock"
+			"dom-screen-wake-lock",
+			"vue3-marquee/dist/vue3-marquee.d.ts"
 		],
 		"paths": {
 			"@/*": [

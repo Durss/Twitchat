@@ -38,7 +38,7 @@
 					<div class="item center">{{ $t("voicemod.voices_infos") }}</div>
 					<i18n-t scope="global" tag="div" class="item small" keypath="voicemod.voices_triggers">
 						<template #LINK>
-							<a @click="$store('params').openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
+							<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
 						</template>
 					</i18n-t>
 					<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
@@ -155,7 +155,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	public async populate():Promise<void> {
 		this.voices = VoicemodWebSocket.instance.voices;
 		this.voiceParams = [];
-		const storeParams = this.$store("voice").voicemodParams as TwitchatDataTypes.VoicemodParamsData;
+		const storeParams = this.$store.voice.voicemodParams as TwitchatDataTypes.VoicemodParamsData;
 
 		//Build hashmap for faster access
 		for (const key in storeParams.commandToVoiceID) {
@@ -196,15 +196,15 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 			chatCmdPerms:this.permissions,
 			commandToVoiceID,
 		}
-		this.$store("voice").setVoicemodParams(data);
+		this.$store.voice.setVoicemodParams(data);
 	}
 
 	/**
 	 * Prefills the forms
 	 */
 	private prefill():void {
-		const params:TwitchatDataTypes.VoicemodParamsData = this.$store("voice").voicemodParams;
-		this.param_enabled.value = this.$store("voice").voicemodParams.enabled === true;
+		const params:TwitchatDataTypes.VoicemodParamsData = this.$store.voice.voicemodParams;
+		this.param_enabled.value = this.$store.voice.voicemodParams.enabled === true;
 		if(params.enabled === true) {
 			this.param_enabled.value = true;
 			this.param_voiceIndicator.value = params.voiceIndicator;

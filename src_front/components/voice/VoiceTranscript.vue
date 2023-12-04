@@ -25,12 +25,12 @@ export default class VoiceTranscript extends Vue {
 	public get text():string {
 		// return "Cillum reprehenderit incididunt";
 		// return "Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo. Cillum reprehenderit incididunt et ea elit nostrud consectetur est ut incididunt adipisicing nostrud. Commodo adipisicing aliqua mollit ullamco et ea exercitation. Id sint quis non magna anim minim voluptate nisi minim qui pariatur deserunt cillum ad. Anim duis cupidatat qui labore. Ut eu sint ea ex esse duis et commodo.";
-		if(this.$store("voice").voiceText.rawTempText) return this.$store("voice").voiceText.rawTempText;
-		return this.$store("voice").voiceText.finalText;
+		if(this.$store.voice.voiceText.rawTempText) return this.$store.voice.voiceText.rawTempText;
+		return this.$store.voice.voiceText.finalText;
 	}
 
 	public mounted():void {
-		watch(()=> this.$store("voice").voiceText.rawTempText, async ()=>{
+		watch(()=> this.$store.voice.voiceText.rawTempText, async ()=>{
 			if(!this.show){
 				this.show = true;
 				await this.$nextTick();
@@ -39,7 +39,7 @@ export default class VoiceTranscript extends Vue {
 				gsap.to(holder, {duration:.25, y:"0%"});
 			}
 		});
-		watch(()=> this.$store("voice").voiceText.finalText, async (value:string)=>{
+		watch(()=> this.$store.voice.voiceText.finalText, async (value:string)=>{
 			if(value != "") {
 				this.hide();
 			}
@@ -51,7 +51,7 @@ export default class VoiceTranscript extends Vue {
 		
 		const holder = this.$refs.holder as HTMLDivElement;
 		gsap.killTweensOf(holder);
-		let len = this.$store("voice").voiceText.finalText.length;
+		let len = this.$store.voice.voiceText.finalText.length;
 		if(isNaN(len) || len < 0) len = 1;
 		const delay = force? 0 : Math.min(2, len * .025);
 		gsap.to(holder, {delay, duration:.25, y:"120%", clearProps:"all", onComplete:()=>{

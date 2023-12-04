@@ -67,7 +67,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
@@ -84,7 +84,7 @@ import contenteditable from 'vue-contenteditable';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
@@ -158,7 +158,7 @@ export default class HeatDistortParams extends Vue {
 	}
 
 	public openHeat():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
 	}
 
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {

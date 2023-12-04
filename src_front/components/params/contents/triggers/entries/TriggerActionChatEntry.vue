@@ -20,7 +20,7 @@ import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
@@ -51,7 +51,7 @@ export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 	}
 
 	public get sortedCommands():TwitchatDataTypes.CommandData[] {
-		let res = this.$store('chat').commands.filter(v=>v.twitchCmd);
+		let res = this.$store.chat.commands.filter(v=>v.twitchCmd);
 		res.sort((a, b)=> {
 			if(a.cmd > b.cmd) return 1;
 			if(a.cmd < b.cmd) return -1;

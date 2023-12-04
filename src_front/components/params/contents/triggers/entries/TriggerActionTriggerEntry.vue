@@ -98,15 +98,15 @@ export default class TriggerActionTriggerEntry extends Vue {
 	}
 
 	public onSelectTrigger(id:string):void {
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id == id);
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id == id);
 		if(!trigger) return;
 		this.action.triggerId = trigger.id;
 		this.buildDependencyLoop();
 	}
 
 	public openTrigger():void {
-		const trigger = this.$store("triggers").triggerList.find(v=>v.id == this.action.triggerId);
-		if(trigger) this.$store("triggers").openTriggerEdition(trigger)
+		const trigger = this.$store.triggers.triggerList.find(v=>v.id == this.action.triggerId);
+		if(trigger) this.$store.triggers.openTriggerEdition(trigger)
 	}
 
 	private buildDependencyLoop():void {
@@ -123,7 +123,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 
 	private recursiveLoopCheck(base:TriggerData, doneIds:{[key:string]:boolean} = {}):TriggerData[] {
 		if(!this.action.triggerId) return [];
-		const triggers = this.$store("triggers").triggerList;
+		const triggers = this.$store.triggers.triggerList;
 		let found:TriggerData[] = [];
 
 		if(!base.actions) return [];

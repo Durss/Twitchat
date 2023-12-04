@@ -131,24 +131,22 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
-import DataStore from '@/store/DataStore';
+import TTButton from '@/components/TTButton.vue';
+import ThemeSelector from '@/components/ThemeSelector.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
-import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
+import CountryFlag from 'vue-country-flag-next';
 import { Component, Vue } from 'vue-facing-decorator';
-import Splitter from '../components/Splitter.vue';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import Splitter from '../components/Splitter.vue';
 import Login from './Login.vue';
-import ThemeSelector from '@/components/ThemeSelector.vue';
 
 @Component({
 	components:{
 		Login,
-		Button,
+		Button: TTButton,
 		Splitter,
 		CountryFlag,
 		AnchorsMenu,

@@ -21,7 +21,7 @@
 					<Icon name="mod" class="paramIcon" />
 					<i18n-t scope="global" tag="p" keypath="emergency.start.also">
 						<template #LINK>
-							<a @click="$store('params').openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
+							<a @click="$store.params.openParamsPage(contentAutomod)">{{ $t("emergency.start.also_link") }}</a>
 						</template>
 					</i18n-t>
 				</div>
@@ -44,7 +44,7 @@
 						<Icon name="info" class="paramIcon" />
 						<i18n-t scope="global" class="label" tag="span" keypath="emergency.actions.obs_connect">
 							<template #LINK>
-								<a @click="$store('params').openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
+								<a @click="$store.params.openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
 							</template>
 						</i18n-t>
 					</div>
@@ -144,7 +144,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
-	public get userName():string { return this.$store('auth').twitch.user.login; } 
+	public get userName():string { return this.$store.auth.twitch.user.login; } 
 	
 	public get obsSources_filtered():OBSSourceItem[] {
 		let sources = this.obsSources.concat();
@@ -177,7 +177,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 	public async beforeMount():Promise<void> {
 
-		const storeParams						= this.$store("emergency").params;
+		const storeParams						= this.$store.emergency.params;
 		this.param_enable.value					= storeParams.enabled;
 		this.param_noTrigger.value				= storeParams.noTriggers;
 		this.param_autoTO.value					= storeParams.toUsers ||[];
@@ -211,7 +211,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 		await this.listOBSSources();
 
 		watch(()=>this.finalData, ()=> {
-			this.$store("emergency").setEmergencyParams(this.finalData);
+			this.$store.emergency.setEmergencyParams(this.finalData);
 		}, {deep:true});
 		
 		watch(()=> OBSWebsocket.instance.connected, () => { 
@@ -259,7 +259,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 
 		this.param_obsScene.listValues = list;
 		//Prefill form from storage
-		this.selectedOBSScene = list.find(v=>v.value == this.$store("emergency").params.obsScene) ?? null;
+		this.selectedOBSScene = list.find(v=>v.value == this.$store.emergency.params.obsScene) ?? null;
 	}
 
 	/**
@@ -281,7 +281,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 		const list = [];
 		for (let i = 0; i < this.obsSources.length; i++) {
 			const el = this.obsSources[i];
-			if((this.$store("emergency").params.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
+			if((this.$store.emergency.params.obsSources as string[]).findIndex(v => v === el.sourceName) > -1) {
 				list.push(el);
 			}
 		}

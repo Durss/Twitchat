@@ -41,13 +41,13 @@ export default class OBSScenes extends Vue {
 		const params = this.sceneParams
 		.map(v=> {return { scene:v.storage as {sceneIndex:number, sceneName:string}, command:v.value }})
 		.filter(v=> (v.command ?? "") != "");
-		this.$store("obs").setOBSSceneCommands(params);
+		this.$store.obs.setOBSSceneCommands(params);
 	}
 
 	private async listScenes():Promise<void> {
 		this.sceneParams = []
 		const res = await OBSWebsocket.instance.getScenes();
-		const storedScenes = this.$store("obs").sceneCommands;
+		const storedScenes = this.$store.obs.sceneCommands;
 		for (let i = 0; i < res.scenes.length; i++) {
 			const scene = res.scenes[i] as {sceneIndex:number, sceneName:string};
 			const storedScene = storedScenes.find((s:{scene:{sceneName:string}}) => s.scene.sceneName === scene.sceneName);

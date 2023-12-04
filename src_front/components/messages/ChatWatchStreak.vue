@@ -1,7 +1,7 @@
 <template>
 	<div class="chatwatchstreak chatMessage highlight"
 	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="watchStreak" alt="notice" class="icon"/>
 		
@@ -29,7 +29,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
 
@@ -47,7 +47,7 @@ export default class ChatWatchStreak extends AbstractChatMessage {
 	
 	public mounted():void {
 		let aria = this.$t("chat.watch_streak.label", {USER:this.messageData.user.displayName, COUNT:this.messageData.streak});
-		this.$store("accessibility").setAriaPolite(aria);
+		this.$store.accessibility.setAriaPolite(aria);
 	}
 
 }

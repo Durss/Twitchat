@@ -1,12 +1,12 @@
 <template>
 	<div class="chatadbreakstarted chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="ad" alt="follow" class="icon" />
 
 		<i18n-t scope="global" tag="span" keypath="chat.ad_break_start.label">
 			<template #USER>
-				<a v-if="messageData.startedBy" class="userlink" @click.stop="openUserCard(messageData.startedBy)">{{messageData.startedBy.displayName}}</a>
+				<a v-if="messageData.startedBy" class="userlink" @click.stop="openUserCard(messageData.startedBy!)">{{messageData.startedBy!.displayName}}</a>
 				<strong v-else>???</strong>
 			</template>
 			<template #DURATION>
@@ -20,7 +20,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import Icon from '../Icon.vue';
 
 @Component({
@@ -37,7 +37,7 @@ export default class ChatAdBreakStarted extends AbstractChatMessage {
 	public duration:string = "";
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 	public beforeMount(): void {

@@ -40,7 +40,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import { watch } from 'vue';
 
 @Component({
@@ -90,7 +90,7 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 	 * Get value data of any per-user value added to the selection
 	 */
 	public get selectedPerUserValue():TwitchatDataTypes.ValueData[] {
-		return this.$store("values").valueList
+		return this.$store.values.valueList
 		.filter(v=>v.perUser === true && this.action.values.findIndex(v2=>v2 === v.id) > -1);
 	}
 
@@ -98,7 +98,7 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 	public beforeMount(): void {
 		//If trigger is related to a value event (looped, maxed, mined) remove it
 		//from the editable value to avoid infinite loop
-		const values:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("values").valueList.map(v=>{
+		const values:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.values.valueList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
 			return v.value != this.triggerData.valueId

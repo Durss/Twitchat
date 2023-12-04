@@ -1,5 +1,5 @@
 <template>
-	<div class="premiumlocklayer" v-if="!$store('auth').isPremium">
+	<div class="premiumlocklayer" v-if="!$store.auth.isPremium">
 		<Icon name="premium" class="icon" />
 		<Button icon="premium" @click="openPremium()" premium>{{$t('premium.become_premiumBt')}}</Button>
 	</div>
@@ -8,13 +8,13 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from './Button.vue';
+import TTButton from './TTButton.vue';
 import Icon from './Icon.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 	},
 	emits:[],
 })
@@ -24,7 +24,7 @@ export default class PremiumLockLayer extends Vue {
 	 * Open premium section
 	 */
 	 public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 }

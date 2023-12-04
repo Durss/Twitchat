@@ -41,14 +41,14 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Logger from '@/utils/Logger';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		CloseButton,
 	},

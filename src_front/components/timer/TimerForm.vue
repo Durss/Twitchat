@@ -45,15 +45,15 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		ParamItem,
 		CloseButton,
@@ -72,12 +72,12 @@ export default class TimerForm extends AbstractSidePanel {
 	}
 
 	public createTimer():void {
-		this.$store("timer").timerStart();
+		this.$store.timer.timerStart();
 	}
 
 	public createCountdown():void {
 		let duration = this.param_duration.value;
-		this.$store("timer").countdownStart(duration * 1000);
+		this.$store.timer.countdownStart(duration * 1000);
 	}
 }
 </script>

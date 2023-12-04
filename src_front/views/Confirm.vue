@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import FormVoiceControllHelper from '@/components/voice/FormVoiceControllHelper';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
@@ -27,7 +27,7 @@ import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHe
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		VoiceGlobalCommandsHelper,
 	}
 })
@@ -46,7 +46,7 @@ export default class Confirm extends Vue {
 		this.keyDownHandler = (e:KeyboardEvent) => this.onDownUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("keydown", this.keyDownHandler, {capture:true});
-		watch(() => this.$store("main").confirmData, async () => {
+		watch(() => this.$store.main.confirmData, async () => {
 			await Utils.promisedTimeout(50);
 			this.onConfirmChanged();
 		});
@@ -58,7 +58,7 @@ export default class Confirm extends Vue {
 	}
 
 	public async onConfirmChanged():Promise<void> {
-		const d = this.$store("main").confirmData;
+		const d = this.$store.main.confirmData;
 		
 		let hidden = d == null;
 
@@ -128,7 +128,7 @@ export default class Confirm extends Vue {
 	}
 
 	public answer(confirm = false):void {
-		const d = this.$store("main").confirmData;
+		const d = this.$store.main.confirmData;
 		if(!d) return;
 		
 		if(confirm) {
@@ -140,7 +140,7 @@ export default class Confirm extends Vue {
 				d.cancelCallback!();
 			}
 		}
-		this.$store("main").closeConfirm();
+		this.$store.main.closeConfirm();
 	}
 }
 </script>

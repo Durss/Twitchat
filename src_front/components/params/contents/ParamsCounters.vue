@@ -126,7 +126,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
@@ -141,7 +141,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		InfiniteList,
@@ -197,7 +197,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 
 
 	public get counterEntries():CounterEntry[] {
-		const list = this.$store('counters').counterList;
+		const list = this.$store.counters.counterList;
 		return list.map((v) => {
 			const min = v.min == false ? Number.MIN_SAFE_INTEGER : v.min as number;
 			const max = v.min == false ? Number.MAX_SAFE_INTEGER : v.max as number;
@@ -209,21 +209,21 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	}
 
 	public get canCreateCounters():boolean {
-		if(this.$store("auth").isPremium) return true;
-		const count = this.$store("counters").counterList.filter(v=>v.enabled != false).length;
+		if(this.$store.auth.isPremium) return true;
+		const count = this.$store.counters.counterList.filter(v=>v.enabled != false).length;
 		return count < this.$config.MAX_COUNTERS;
 	}
 
 	public openTriggers():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 	public getUserFromID(id:string):TwitchatDataTypes.TwitchatUser {
-		return this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, id);
+		return this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, id);
 	}
 
 	public openOverlays():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	public mounted(): void {
@@ -239,7 +239,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		}
 
 		watch(()=> this.param_title.value, ()=> {
-			const counters = this.$store("counters").counterList;
+			const counters = this.$store.counters.counterList;
 			const name = this.param_title.value.toLowerCase();
 			let exists = false;
 			for (let i = 0; i < counters.length; i++) {
@@ -259,7 +259,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 				return;
 			}
 			//Check if a placeholder with the same name already exists
-			const counters = this.$store("counters").counterList;
+			const counters = this.$store.counters.counterList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
 			let exists = false;
 			for (let i = 0; i < counters.length; i++) {
@@ -281,7 +281,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 * Opens the premium page
 	 */
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -320,9 +320,9 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		};
 		if(this.editedCounter) {
 			this.editedCounter = null;
-			this.$store("counters").updateCounter(data);
+			this.$store.counters.updateCounter(data);
 		}else{
-			this.$store("counters").addCounter(data);
+			this.$store.counters.addCounter(data);
 		}
 		this.showForm = false;
 		this.cancelForm();
@@ -339,7 +339,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			}else{
 				entry.counter.value = entry.param.value;
 			}
-			this.$store("counters").updateCounter(entry.counter);
+			this.$store.counters.updateCounter(entry.counter);
 		}, 250);
 	}
 
@@ -349,7 +349,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public deleteCounter(entry:CounterEntry):void {
 		this.$confirm(this.$t("counters.delete_confirm.title"), this.$t("counters.delete_confirm.desc")).then(()=>{
-			this.$store("counters").delCounter(entry.counter);
+			this.$store.counters.delCounter(entry.counter);
 		}).catch(()=>{/* ignore */});
 	}
 
@@ -394,7 +394,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 * Open a user's profile info
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 	/**
@@ -404,7 +404,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		if(!counterEntry.counter.users) return;
 		delete counterEntry.counter.users[userEntry.user.id];
 		this.idToUsers[counterEntry.counter.id] = this.idToUsers[counterEntry.counter.id]!.filter(v=>v.user.id != userEntry.user.id);
-		this.$store("counters").updateCounter(counterEntry.counter);
+		this.$store.counters.updateCounter(counterEntry.counter);
 	}
 	
 	/**
@@ -455,7 +455,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 					this.idToUsers[counter.id] = [{
 							hide:false,
 							param:reactive({type:"number", value:value, min:counter.min || undefined, max:counter.max || undefined}),
-							user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, u.id, u.login, u.display_name),
+							user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}
 			}
@@ -475,11 +475,11 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.counter.users!));
 		if(users.length > 0) {
-			const channelId = this.$store("auth").twitch.user.id;
+			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {
 				let value = (entry.counter.users && entry.counter.users[u.id])? entry.counter.users![u.id] : 0;
 				const param:TwitchatDataTypes.ParameterData<number> = reactive({type:'number', value, min:entry.counter.min || undefined, max:entry.counter.max || undefined});
-				const user = this.$store("users").getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
+				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
 				const res:UserEntry = { param, user, hide:false };
 				return res;
@@ -511,7 +511,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 				}
 			}
 
-			this.$store("counters").updateCounter(entry.counter);
+			this.$store.counters.updateCounter(entry.counter);
 		});
 	}
 
@@ -527,7 +527,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			//Reset view data
 			this.idToUsers[entry.counter.id] = [];
 	
-			this.$store("counters").updateCounter(entry.counter);
+			this.$store.counters.updateCounter(entry.counter);
 		})
 	}
 
@@ -568,10 +568,10 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 */
 	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
 		if(!this.canCreateCounters) {
-			this.$store("main").alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
+			this.$store.main.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
 		}else{
 			counter.enabled = true;
-			this.$store("counters").saveCounters();
+			this.$store.counters.saveCounters();
 		}
 	}
 }

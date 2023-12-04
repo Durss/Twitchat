@@ -538,3 +538,29 @@ body.light {
 		}
 	}
 }
+
+.flag {
+	width: 52px;
+	height: 39px;
+	background-size: 52px 39px;
+
+	&.normal-flag {
+		@scale: .4;
+		transform: scale(@scale) !important;
+		margin: ((-39px * (1-@scale)) / 2) ((-52px * (1-@scale)) / 2) !important;
+		vertical-align: bottom !important;
+		// width: 52px * @scale;
+		// height: 39px * @scale;
+		// background-size: 52px * @scale 10660px * @scale;
+	}
+
+	&.small-flag {
+		@scale: .4;
+		transform: scale(@scale) !important;
+		margin: ((-39px * (1-@scale)) / 2) ((-52px * (1-@scale)) / 2) !important;
+		vertical-align: bottom !important;
+		// width: 52px * @scale;
+		// height: 39px * @scale;
+		// background-size: 52px * @scale 10660px * @scale;
+	}
+}

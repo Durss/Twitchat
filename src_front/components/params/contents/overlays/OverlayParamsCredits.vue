@@ -178,7 +178,7 @@ import { watch } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -186,7 +186,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		Splitter,
 		draggable,
 		ParamItem,
@@ -265,7 +265,7 @@ export default class OverlayParamsCredits extends Vue {
 	private overlayPresenceHandler!:()=>void;
 	private broadcastDebounce:number = -1;
 
-	public get isPremium():boolean { return this.$store("auth").isPremium; }
+	public get isPremium():boolean { return this.$store.auth.isPremium; }
 
 	public get classes():string[] {
 		const res:string[] = ["overlayparamscredits", "overlayParamsSection"];
@@ -367,7 +367,7 @@ export default class OverlayParamsCredits extends Vue {
 	 * Opens the premium section
 	 */
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -535,7 +535,7 @@ export default class OverlayParamsCredits extends Vue {
 	 */
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
-		const summary = await this.$store("stream").getSummary(undefined, true, true);
+		const summary = await this.$store.stream.getSummary(undefined, true, true);
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
@@ -553,8 +553,8 @@ export default class OverlayParamsCredits extends Vue {
 
 		//Parse "text" slots placholders
 		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
-		const channelId = this.$store("auth").twitch.user.id
-		let fakeStartDate = this.$store("stream").currentStreamInfo[channelId]?.started_at;
+		const channelId = this.$store.auth.twitch.user.id
+		let fakeStartDate = this.$store.stream.currentStreamInfo[channelId]?.started_at;
 		if(!fakeStartDate) fakeStartDate = Date.now() - (1 * 3600000 + 23 * 60000 + 45 * 1000);
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];

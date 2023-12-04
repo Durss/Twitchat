@@ -22,7 +22,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
@@ -33,7 +33,7 @@ import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 	},
@@ -52,15 +52,15 @@ export default class GoXLRConnectForm extends Vue {
 
 	public get connected():boolean { return GoXLRSocket.instance.connected; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
-	public get isPremium():boolean { return this.$store("auth").isPremium; }
+	public get isPremium():boolean { return this.$store.auth.isPremium; }
 
 	public async connect():Promise<void> {
 		this.error = false;
 		this.connecting = true;
 		try {
 			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
-				if(!this.$store("auth").isPremium) {
-					this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+				if(!this.$store.auth.isPremium) {
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}
 			});
 		}catch(error) {

@@ -1,4 +1,3 @@
-<script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ContextMenuHelper from '@/utils/ContextMenuHelper';
@@ -36,7 +35,7 @@ export default class AbstractChatMessage extends Vue {
 	 * Check if the currently authenticated user can moderate the message
 	 */
 	public canModerateUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
-		const authenticatedUser = user.platform == "youtube"? this.$store("auth").youtube.user : this.$store("auth").twitch.user;
+		const authenticatedUser = user.platform == "youtube"? this.$store.auth.youtube.user : this.$store.auth.twitch.user;
 		return (
 					//If broadcaster of the channel... or
 					authenticatedUser.channelInfo[channelId]?.is_broadcaster ||
@@ -65,7 +64,7 @@ export default class AbstractChatMessage extends Vue {
 
 		this.refreshDate();
 		//Watch for "relative" param update to refresh time accordingly
-		watch(()=>this.$store("params").appearance.displayTimeRelative.value, ()=> {
+		watch(()=>this.$store.params.appearance.displayTimeRelative.value, ()=> {
 			clearTimeout(this.refreshTimeout);
 			this.refreshDate();
 		})
@@ -86,7 +85,7 @@ export default class AbstractChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			this.applyStyles();
 	
-			const params = this.$store("params").appearance;
+			const params = this.$store.params.appearance;
 			watch(()=> params.highlight1stEver.value, ()=> this.applyStyles());
 			watch(()=> params.highlight1stEver_color.value, ()=> this.applyStyles());
 			watch(()=> params.highlight1stToday.value, ()=> this.applyStyles());
@@ -115,7 +114,7 @@ export default class AbstractChatMessage extends Vue {
 	 * Refreshes the date at a regular interval if needed
 	 */
 	public refreshDate() {
-		const elapsedMode = this.$store("params").appearance.displayTimeRelative.value === true;
+		const elapsedMode = this.$store.params.appearance.displayTimeRelative.value === true;
 		const d = new Date(this.messageData.date);
 		
 		if(elapsedMode) {
@@ -154,7 +153,7 @@ export default class AbstractChatMessage extends Vue {
 		if(this.messageData.automod) return;
 
 		const holder = this.$el as HTMLElement;
-		const params = this.$store("params").appearance;
+		const params = this.$store.params.appearance;
 		const chanInfo = this.messageData.user.channelInfo[this.messageData.channel_id];
 		let color = "";
 		if(this.messageData.twitch_isFirstMessage && params.highlight1stEver.value === true) {
@@ -237,15 +236,14 @@ export default class AbstractChatMessage extends Vue {
 	 * @param user 
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string, platform?:TwitchatDataTypes.ChatPlatform):void {
-		this.$store("users").openUserCard(user, chanId, platform);
+		this.$store.users.openUserCard(user, chanId, platform);
 	}
 
 	/**
 	 * Delete current message from history
 	 */
 	public deleteMessage():void {
-		this.$store("chat").deleteMessage(this.messageData);
+		this.$store.chat.deleteMessage(this.messageData);
 	}
 
 }
-</script>

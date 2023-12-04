@@ -150,8 +150,8 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -162,7 +162,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		ParamItem,
 		ToggleBlock,
@@ -220,7 +220,7 @@ export default class RaffleForm extends AbstractSidePanel {
 	private voiceController!:FormVoiceControllHelper;
 
 	public get hasRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]) && this.reward_value.listValues!.length > -1; }
-	public get isAffiliate():boolean { return this.$store("auth").twitch.user.is_affiliate || this.$store("auth").twitch.user.is_partner; }
+	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 
 	/**
 	 * Gets subs filtered by the current filters
@@ -282,8 +282,8 @@ export default class RaffleForm extends AbstractSidePanel {
 	public get canListSubs():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS]); }
 
 	public beforeMount(): void {
-		this.winnerPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayNameOriginal}];
-		this.joinPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store("auth").twitch.user.displayNameOriginal}];
+		this.winnerPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal}];
+		this.joinPlaceholders		= [{tag:"USER", descKey:"raffle.params.username_placeholder", example:this.$store.auth.twitch.user.displayNameOriginal}];
 		this.command.children		= [this.command_value];
 		this.reward.children		= [this.reward_value];
 
@@ -409,7 +409,7 @@ export default class RaffleForm extends AbstractSidePanel {
 			}
 		}
 
-		this.$store("raffle").startRaffle(payload);
+		this.$store.raffle.startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
 		}else{
@@ -421,9 +421,9 @@ export default class RaffleForm extends AbstractSidePanel {
 	
 	public openParam(page:TwitchatDataTypes.ParameterPagesStringType):void {
 		if(this.triggerMode) {
-			this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 		}else{
-			this.$store("params").openParamsPage(page);
+			this.$store.params.openParamsPage(page);
 		}
 	}
 
@@ -435,7 +435,7 @@ export default class RaffleForm extends AbstractSidePanel {
 	}
 
 	public requestSubPermission():void {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.LIST_SUBSCRIBERS]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.LIST_SUBSCRIBERS]);
 	}
 	
 }

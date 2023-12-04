@@ -80,7 +80,7 @@ import UnicodeUtils from '@/utils/UnicodeUtils';
 import Utils from '@/utils/Utils';
 import { reactive, watch, type StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
@@ -89,7 +89,7 @@ import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -152,7 +152,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	}
 
 	public beforeMount():void {
-		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store("automod").params)));
+		this.automodData				= reactive(JSON.parse(JSON.stringify(this.$store.automod.params)));
 		this.param_enabled.value		= this.automodData.enabled;
 		this.param_banUserNames.value	= this.automodData.banUserNames;
 		this.automodData.keywordsFilters.forEach(v=> {
@@ -206,7 +206,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	 * Save automod params
 	 */
 	public save():void {
-		this.$store("automod").setAutomodParams(this.automodData);
+		this.$store.automod.setAutomodParams(this.automodData);
 	}
 
 	/**

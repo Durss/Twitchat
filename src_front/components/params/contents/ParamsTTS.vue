@@ -80,7 +80,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
@@ -90,7 +90,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -243,7 +243,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 	}
 
 	public async beforeMount():Promise<void> {
-		let params: TwitchatDataTypes.TTSParamsData = this.$store("tts").params;
+		let params: TwitchatDataTypes.TTSParamsData = this.$store.tts.params;
 		
 		this.setVoices();
 
@@ -399,7 +399,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		this.param_inactivityPeriodToggle.value		= this.param_inactivityPeriod.value > 0;
 
 		watch(()=>this.finalData, ()=> {
-			this.$store("tts").setTTSParams(this.finalData);
+			this.$store.tts.setTTSParams(this.finalData);
 		}, {deep:true});
 	}
 

@@ -1,8 +1,17 @@
 import { fileURLToPath, URL } from 'url';
-
-import { defineConfig } from 'vite';
 import vue from '@vitejs/plugin-vue';
+import { defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
+
+/**
+ * Plugin is not bundled properly.
+ * After upgrading project to module type, the import got broken.
+ * We should only have to to loadVersion() but the function is
+ * actually on a "loadVersion.default".
+ * The following is a safe fallback solution.
+ * @see https://github.com/vitejs/vite/issues/5694
+*/
+const loadVersionPlugin = (loadVersion as any).default || loadVersion;
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -11,7 +20,10 @@ export default defineConfig({
 		port:8080,
 	},
 
-	plugins: [vue(),loadVersion()],
+	plugins: [
+		vue(),
+		loadVersionPlugin()
+	],
 
 	optimizeDeps: {
 		// exclude: ['tmi.js'],
@@ -27,7 +39,7 @@ export default defineConfig({
 
 	resolve: {
 		alias: {
-			'@': fileURLToPath(new URL('./src_front', import.meta.url))
+			'@': fileURLToPath(new URL('./src_front', import.meta.url)),
 		}
 	},
 
@@ -40,5 +52,6 @@ export default defineConfig({
 				`
 			}
 		}
-	}
+	},
+	
 });

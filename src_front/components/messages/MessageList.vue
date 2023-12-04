@@ -121,7 +121,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import MessageItem from './MessageItem.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
@@ -130,7 +130,7 @@ import { Linear } from 'gsap/all';
 
 @Component({
 	components: {
-		Button,
+		Button: TTButton,
 		MessageItem,
 		CloseButton,
 		MessageListFilter,
@@ -193,7 +193,7 @@ export default class MessageList extends Vue {
 		let res = ["messagelist"];
 		if (this.lightMode) res.push("lightMode");
 		if (this.lockScroll) res.push("lockScroll");
-		if (this.$store("params").appearance.alternateMessageBackground.value !== false) res.push("alertnateBackground");
+		if (this.$store.params.appearance.alternateMessageBackground.value !== false) res.push("alertnateBackground");
 		return res;
 	}
 
@@ -226,7 +226,7 @@ export default class MessageList extends Vue {
 	public async beforeMount(): Promise<void> {
 
 		//If text size is changed, scroll to bottom of tchat
-		watch(() => this.$store("params").appearance.defaultSize.value, async () => {
+		watch(() => this.$store.params.appearance.defaultSize.value, async () => {
 			await this.$nextTick();
 			const el = this.$refs.chatMessageHolder as HTMLDivElement;
 			const maxScroll = (el.scrollHeight - el.offsetHeight);
@@ -234,10 +234,10 @@ export default class MessageList extends Vue {
 			this.computeMaxMessageCount();
 		});
 
-		watch(()=>this.$store("params").features.mergeConsecutive.value, async () => this.fullListRefresh());
-		watch(()=>this.$store("params").features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
-		watch(()=>this.$store("params").features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
-		watch(()=>this.$store("params").features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
+		watch(()=>this.$store.params.features.mergeConsecutive.value, async () => this.fullListRefresh());
+		watch(()=>this.$store.params.features.mergeConsecutive_maxSize.value, async () => this.fullListRefresh());
+		watch(()=>this.$store.params.features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
+		watch(()=>this.$store.params.features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
 
 		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
@@ -321,7 +321,7 @@ export default class MessageList extends Vue {
 		if(this.hovered) return;
 
 		this.hovered = true;
-		if (this.lightMode || !this.$store("params").features.lockAutoScroll.value) return;
+		if (this.lightMode || !this.$store.params.features.lockAutoScroll.value) return;
 		const scrollDown = !this.lockScroll;
 		this.lockScroll = true;
 
@@ -696,7 +696,7 @@ export default class MessageList extends Vue {
 		//add the new message to the pending list
 		if (this.lockScroll) {
 			this.pendingMessages.push(m);
-			if(this.$store("params").features.liveMessages.value === true) {
+			if(this.$store.params.features.liveMessages.value === true) {
 				//add to "live message" list if allowed
 				this.lockedLiveMessages.push(m);
 				this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
@@ -756,7 +756,7 @@ export default class MessageList extends Vue {
 		switch (e.type) {
 			case TwitchatEvent.CHAT_FEED_READ: {
 				if (count === 0) count = 1;
-				const messageList = this.$store("chat").messages;
+				const messageList = this.$store.chat.messages;
 				let offset = messageList.length-1;
 				let currentMessageIndex = -1;
 				if(this.markedAsReadDate === 0) this.markedAsReadDate = Date.now();
@@ -873,7 +873,7 @@ export default class MessageList extends Vue {
 			}
 
 			case TwitchatEvent.CHAT_FEED_SELECT: {
-				const messageList = this.$store("chat").messages;
+				const messageList = this.$store.chat.messages;
 				let offset = messageList.length-1;
 				let currentMessageIndex = -1;
 				let add = 1;
@@ -939,7 +939,7 @@ export default class MessageList extends Vue {
 					this.showSelectionError();
 					return;
 				}
-				this.$store("chat").deleteMessage(this.selectedMessage);
+				this.$store.chat.deleteMessage(this.selectedMessage);
 				this.selectedItem = null;
 				this.selectedMessage = null;
 				this.selectionDate = 0;
@@ -964,9 +964,9 @@ export default class MessageList extends Vue {
 					return;
 				}
 				if(this.selectedMessage.is_saved !== true) {
-					this.$store("chat").saveMessage(this.selectedMessage);
+					this.$store.chat.saveMessage(this.selectedMessage);
 				}else{
-					this.$store("chat").unsaveMessage(this.selectedMessage);
+					this.$store.chat.unsaveMessage(this.selectedMessage);
 				}
 				break;
 			}
@@ -976,7 +976,7 @@ export default class MessageList extends Vue {
 					this.showSelectionError();
 					return;
 				}
-				this.$store("chat").highlightChatMessageOverlay(this.selectedMessage);
+				this.$store.chat.highlightChatMessageOverlay(this.selectedMessage);
 				break;
 			}
 
@@ -985,7 +985,7 @@ export default class MessageList extends Vue {
 					this.showSelectionError();
 					return;
 				}
-				this.$store("users").shoutout(this.selectedMessage.channel_id, this.selectedMessage.user);
+				this.$store.users.shoutout(this.selectedMessage.channel_id, this.selectedMessage.user);
 				break;
 			}
 
@@ -1227,7 +1227,7 @@ export default class MessageList extends Vue {
 		if(!this.lockScroll) return;
 		if(this.loadingOldMessage || this.filteredMessages.length === 0) return;
 		
-		const list = this.$store("chat").messages;
+		const list = this.$store.chat.messages;
 		this.loadingOldMessage = true;
 		
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
@@ -1345,8 +1345,8 @@ export default class MessageList extends Vue {
 			this.conversationMode = false;
 
 			let messageList: TwitchatDataTypes.MessageChatData[] = [];
-			for (let i = this.$store("chat").messages.length - 1; i >= 0; i--) {
-				const mess = this.$store("chat").messages[i];
+			for (let i = this.$store.chat.messages.length - 1; i >= 0; i--) {
+				const mess = this.$store.chat.messages[i];
 				if (mess.type == "message" && mess.user.id == m.user.id) {
 					messageList.unshift(mess);
 					if (messageList.length > 100) break;//Limit to 100 for perf reasons
@@ -1423,7 +1423,7 @@ export default class MessageList extends Vue {
 	public toggleMarkRead(m: TwitchatDataTypes.ChatMessageTypes, event?: MouseEvent): void {
 
 		//Do nothing if feature isn't enabled
-		if (this.$store("params").features.markAsRead.value !== true) return;
+		if (this.$store.params.features.markAsRead.value !== true) return;
 
 		if (event) {
 			let target = event.target as HTMLElement;
@@ -1513,7 +1513,7 @@ export default class MessageList extends Vue {
 		// const el = this.$refs.chatMessageHolder as HTMLDivElement;
 		const el = this.$el as HTMLDivElement;
 		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
-		const size = this.$store("params").appearance.defaultSize.value as number;
+		const size = this.$store.params.appearance.defaultSize.value as number;
 		this.virtualMessageHeight = (32 + 9) * sizesRatio[size-1];//32 = min content height ; 9 = top+bottom padding
 		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 10;
 		if(newCount != this.maxMessages) {
@@ -1620,9 +1620,9 @@ export default class MessageList extends Vue {
 			if(isMergeable) delete this.messageIdToChildren[newMessage.id];
 			return false;
 		}
-		const maxSize		= this.$store("params").features.mergeConsecutive_maxSize.value as number;
-		const maxSizeTotal	= this.$store("params").features.mergeConsecutive_maxSizeTotal.value as number;
-		const minDuration	= this.$store("params").features.mergeConsecutive_minDuration.value as number;
+		const maxSize		= this.$store.params.features.mergeConsecutive_maxSize.value as number;
+		const maxSizeTotal	= this.$store.params.features.mergeConsecutive_maxSizeTotal.value as number;
+		const minDuration	= this.$store.params.features.mergeConsecutive_minDuration.value as number;
 
 		//If message size is higher than max allowed, don't merged
 		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {

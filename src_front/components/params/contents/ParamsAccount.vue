@@ -43,7 +43,7 @@
 		</section>
 		
 		<section class="card-item dataSync">
-			<ParamItem class="param" :paramData="$store('account').syncDataWithServer" v-model="syncEnabled" noBackground />
+			<ParamItem class="param" :paramData="$store.account.syncDataWithServer" v-model="syncEnabled" noBackground />
 			<Button class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</Button>
 		</section>
 	</div>
@@ -61,7 +61,7 @@ import TTSUtils from '@/utils/TTSUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
@@ -73,7 +73,7 @@ import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		DonorState,
 		ToggleBlock,
@@ -98,9 +98,9 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	public authenticating = false;
 	public CSRFToken:string = "";
 
-	public get canInstall():boolean { return this.$store("main").ahsInstaller != null; }
+	public get canInstall():boolean { return this.$store.main.ahsInstaller != null; }
 	public get userName():string { return StoreProxy.auth.twitch.user.displayName; }
-	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state || this.$store("auth").isPremium; }
+	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
 	public get donorLevel():number { return StoreProxy.auth.twitch.user.donor.level; }
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; } 
 	public get userPP():string {
@@ -123,35 +123,35 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 	public logout():void {
-		this.$store("auth").logout();
+		this.$store.auth.logout();
 		this.$router.push({name:'logout'});
 	}
 
 	public latestUpdates():void {
-		this.$store("params").closeParameters();
-		this.$store("params").openModal("updates");
-		// this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
+		this.$store.params.closeParameters();
+		this.$store.params.openModal("updates");
+		// this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATES);
 	}
 
 	public ahs():void {
-		const ahsInstaller = this.$store("main").ahsInstaller;
+		const ahsInstaller = this.$store.main.ahsInstaller;
 		if(!ahsInstaller) return;
 		// Show the prompt
 		ahsInstaller.prompt();
 	}
 
 	public eraseData():void {
-		this.$store("main").confirm(this.$t('account.erase_confirm_title'), this.$t('account.erase_confirm_description'))
+		this.$store.main.confirm(this.$t('account.erase_confirm_title'), this.$t('account.erase_confirm_description'))
 		.then(()=>{
 			DataStore.clear(true);
-			this.$store("params").$reset();
-			this.$store("automod").$reset();
-			this.$store("emergency").$reset();
-			this.$store("music").$reset();
-			this.$store("obs").$reset();
-			this.$store("triggers").$reset();
-			this.$store("tts").$reset();
-			this.$store("voice").$reset();
+			this.$store.params.$reset();
+			this.$store.automod.$reset();
+			this.$store.emergency.$reset();
+			this.$store.music.$reset();
+			this.$store.obs.$reset();
+			this.$store.triggers.$reset();
+			this.$store.tts.$reset();
+			this.$store.voice.$reset();
 			OBSWebsocket.instance.disconnect();
 			VoicemodWebSocket.instance.disconnect();
 			TTSUtils.instance.enabled = false;
@@ -170,7 +170,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 			const {json} = await ApiController.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 		}catch(e) {
-			this.$store("main").alert(this.$t("error.csrf_failed"));
+			this.$store.main.alert(this.$t("error.csrf_failed"));
 		}
 		this.generatingCSRF = false;
 	}

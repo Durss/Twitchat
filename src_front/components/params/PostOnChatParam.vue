@@ -92,7 +92,7 @@ export default class PostOnChatParam extends Vue {
 	private focusHandler!:(e:FocusEvent) => void;
 
 	public async mounted():Promise<void> {
-		const data					= this.$store("chat").botMessages[ this.botMessageKey ];
+		const data					= this.$store.chat.botMessages[ this.botMessageKey ];
 		this.textParam.value		= data.message;
 		this.enabledParam.labelKey	= this.titleKey;
 		this.enabledParam.value		= data.enabled || this.noToggle !== false;
@@ -132,7 +132,7 @@ export default class PostOnChatParam extends Vue {
 	public async saveParams(saveToStore = true):Promise<void> {
 		//Avoid useless save on mount
 		if(saveToStore){
-			this.$store("chat").updateBotMessage({
+			this.$store.chat.updateBotMessage({
 											key:this.botMessageKey,
 											enabled:this.enabledParam.value,
 											message:this.textParam.value
@@ -158,7 +158,7 @@ export default class PostOnChatParam extends Vue {
 		this.adPreview = null;
 		await this.$nextTick();
 
-		const me = this.$store("auth").twitch.user;
+		const me = this.$store.auth.twitch.user;
 		let rawMessage = this.textParam.value.normalize("NFC");
 
 		if(this.placeholders) {

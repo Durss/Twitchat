@@ -119,9 +119,9 @@
 
 		<div class="card-item success" v-else>
 			<div class="card-item primary">{{ $t("donate.success", {AMOUNT:amount}) }}</div>
-			<DonorBadge class="badge" :level="$store('auth').twitch.user.donor.level" />
+			<DonorBadge class="badge" :level="$store.auth.twitch.user.donor.level" />
 			<div>{{ $t("donate.success_details") }}</div>
-			<ParamItem  :paramData="param_automaticMessage" v-model="$store('chat').botMessages.twitchatAd.enabled" />
+			<ParamItem  :paramData="param_automaticMessage" v-model="$store.chat.botMessages.twitchatAd.enabled" />
 		</div>
 
 		<div class="card-item alert error critical" v-if="paypalError"><Icon name=alert />{{ $t("donate.paypal_error") }}</div>
@@ -211,7 +211,7 @@ export default class ParamsDonate extends Vue {
 	public async mounted():Promise<void> {
 		this.loadPaypalLibrary();
 
-		if(this.$store("params").currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM) {
+		if(this.$store.params.currentPageSubContent == TwitchatDataTypes.ParamDeepSections.PREMIUM) {
 			this.amount = this.$config.LIFETIME_DONOR_VALUE;
 		}
 
@@ -258,7 +258,7 @@ export default class ParamsDonate extends Vue {
 				this.buildPaypalForm();
 			}else{
 				this.paypalError = true;
-				this.$store("main").alert(this.$t("error.paypal_sdk_init_failed"))
+				this.$store.main.alert(this.$t("error.paypal_sdk_init_failed"))
 			}
 		}else{
 			this.buildPaypalForm();
@@ -344,8 +344,8 @@ export default class ParamsDonate extends Vue {
 					try {
 						const orderRes = await ApiController.call("paypal/complete_order", "POST", obj);
 						if(orderRes.json.success === true) {
-							await this.$store("auth").loadUserState(this.$store("auth").twitch.user.id);
-							this.$store("auth").twitch.user.donor.state = true;
+							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
+							this.$store.auth.twitch.user.donor.state = true;
 							//Hide all buttons
 							this.buttons.forEach(v=> v.close());
 							this.success = true;
@@ -581,8 +581,8 @@ export default class ParamsDonate extends Vue {
 				left: 0;
 				text-align: center;
 				border-radius: 1em;
+				border-top-left-radius: 0;
 				padding: .5em;
-				padding-top: .75em;
 				font-size: .65em;
 				white-space: nowrap;
 				width: fit-content;

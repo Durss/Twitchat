@@ -13,7 +13,7 @@
 	</div>
 </template>
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import type { TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import { reactive, watch } from 'vue';
@@ -22,7 +22,7 @@ import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TriggerConditionListGroupItem,
 	},
 	emits:[],

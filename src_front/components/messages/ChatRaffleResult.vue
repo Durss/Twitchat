@@ -16,7 +16,7 @@
 import { storeParams } from '@/store/params/storeParams';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -31,7 +31,7 @@ export default class ChatRaffleResult extends AbstractChatMessage {
 	public get user():TwitchatDataTypes.TwitchatUser|null {
 		const w = this.messageData.winner;
 		if(!w.user) return null;
-		const user = this.$store("users").getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
+		const user = this.$store.users.getUserFrom(w.user.platform, w.user.channel_id, w.user.id);
 
 		return user;
 	}

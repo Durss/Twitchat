@@ -101,7 +101,7 @@ import Utils from '@/utils/Utils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -109,7 +109,7 @@ import PlacementSelector from '@/components/PlacementSelector.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 		PlacementSelector,
@@ -128,7 +128,7 @@ export default class OverlayParamsHighlight extends Vue {
 	private overlayPresenceHandler!:()=>void;
 	
 	public beforeMount(): void {
-		this.placement = this.$store("chat").chatHighlightOverlayParams.position;
+		this.placement = this.$store.chat.chatHighlightOverlayParams.position;
 
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -150,7 +150,7 @@ export default class OverlayParamsHighlight extends Vue {
 			const data:TwitchatDataTypes.ChatHighlightParams = {
 				position:this.placement,
 			}
-			this.$store("chat").setChatHighlightOverlayParams(data);
+			this.$store.chat.setChatHighlightOverlayParams(data);
 		})
 	}
 
@@ -189,7 +189,7 @@ export default class OverlayParamsHighlight extends Vue {
 			platform:"twitch",
 			date: Date.now(),
 			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			user: this.$store("users").getUserFrom("twitch", uid, uid),
+			user: this.$store.users.getUserFrom("twitch", uid, uid),
 			answers: [],
 			channel_id:uid,
 			message: text,
@@ -198,7 +198,7 @@ export default class OverlayParamsHighlight extends Vue {
 			message_size: TwitchUtils.computeMessageSize(chunks),
 			is_short: false,
 		}
-		this.$store("chat").highlightChatMessageOverlay(message);
+		this.$store.chat.highlightChatMessageOverlay(message);
 	}
 
 }

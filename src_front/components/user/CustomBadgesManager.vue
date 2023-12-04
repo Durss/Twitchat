@@ -24,15 +24,15 @@
 
 			<template v-if="selectedBadgeId">
 				
-				<div class="card-item secondary disabledInfo" v-if="!$store('auth').isPremium && selectedBadge?.enabled === false">
+				<div class="card-item secondary disabledInfo" v-if="!$store.auth.isPremium && selectedBadge?.enabled === false">
 					<div>{{ $t("usercard.badge_disabled") }}</div>
 					<i18n-t scope="global" keypath="usercard.badge_diusabled_notPremium" v-if="!canEnableABadge">
 						<template #MAX>{{ $config.MAX_CUSTOM_BADGES }}</template>
 						<template #MAX_PREMIUM>{{ $config.MAX_CUSTOM_BADGES_PREMIUM }}</template>
 					</i18n-t>
 					<div v-else class="enableToggle">
-						<label for="reactivate_badge" @click="selectedBadge.enabled = !selectedBadge.enabled; saveBadges()">{{ $t("usercard.badge_users_reactivate") }}</label>
-						<ToggleButton secondary id="reactivate_badge" v-model="selectedBadge.enabled" @change="saveBadges()" />
+						<label for="reactivate_badge" @click="selectedBadge!.enabled = !selectedBadge!.enabled; saveBadges()">{{ $t("usercard.badge_users_reactivate") }}</label>
+						<ToggleButton secondary id="reactivate_badge" v-model="selectedBadge!.enabled" @change="saveBadges()" />
 					</div>
 				</div>
 				
@@ -60,14 +60,14 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
 import ToggleButton from '../ToggleButton.vue';
 import Config from '@/utils/Config';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleButton,
 	},
 	emits:["close"],
@@ -80,18 +80,19 @@ export default class CustomBadgesManager extends Vue {
 	
 	private userList:TwitchatDataTypes.TwitchatUser[] = [];
 
-	public get badgesList() { return this.$store('users').customBadgeList; }
-	public get selectedBadge() { return this.$store('users').customBadgeList.find(v=>v.id == this.selectedBadgeId); }
-	public get canEnableABadge() { return this.$store('users').customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
+	public get badgesList() { return this.$store.users.customBadgeList; }
+	public get selectedBadge() { return this.$store.users.customBadgeList.find(v=>v.id == this.selectedBadgeId); }
+	public get canEnableABadge() { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length < Config.instance.MAX_CUSTOM_BADGES; }
 
 	/**
 	 * Get classes for the given badge ID
 	 */
 	public getBadgeClasses(badgeId:string):string[] {
+		this.$store.users
 		const res = ["badge"];
-		const badge = this.$store('users').customBadgeList.find(v=>v.id == badgeId);
+		const badge = this.$store.users.customBadgeList.find(v=>v.id == badgeId);
 		if(this.selectedBadgeId == badgeId) res.push("selected");
-		if(badge && badge.enabled === false && !this.$store('auth').isPremium) res.push("disabled");
+		if(badge && badge.enabled === false && !this.$store.auth.isPremium) res.push("disabled");
 		return res;
 	}
 
@@ -100,7 +101,7 @@ export default class CustomBadgesManager extends Vue {
 	 */
 	public getUserList(badgeId:string):TwitchatDataTypes.TwitchatUser[] {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
-		const userBadges = this.$store('users').customUserBadges;
+		const userBadges = this.$store.users.customUserBadges;
 		for (const uid in userBadges) {
 			if(userBadges[uid].findIndex(v=> v.id == badgeId) > -1) {
 				const user = this.userList.find(v=>v.id == uid);
@@ -111,19 +112,19 @@ export default class CustomBadgesManager extends Vue {
 	}
 
 	public beforeMount():void {
-		const userBadges = this.$store('users').customUserBadges;
+		const userBadges = this.$store.users.customUserBadges;
 		const uids = Object.keys(userBadges);
-		const channelId = this.$store("auth").twitch.user.id;
+		const channelId = this.$store.auth.twitch.user.id;
 		this.userList = [];
 		uids.forEach(id=> {
 			if(userBadges[id].length === 0) return;
-			this.userList.push(this.$store("users").getUserFrom(userBadges[id][0].platform, channelId, id));
+			this.userList.push(this.$store.users.getUserFrom(userBadges[id][0].platform, channelId, id));
 		});
 		this.loading = false;
 
 		watch(()=>this.badgeName, ()=> this.onUpdateName());
 
-		this.selectBadge(this.$store('users').customBadgeList[0].id);
+		this.selectBadge(this.$store.users.customBadgeList[0].id);
 	}
 
 	/**
@@ -137,7 +138,7 @@ export default class CustomBadgesManager extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			this.$store("users").createCustomBadge(base64Img);
+			this.$store.users.createCustomBadge(base64Img);
 		});
 	}
 
@@ -152,7 +153,7 @@ export default class CustomBadgesManager extends Vue {
 		if(!files || files.length == 0) return;
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
-			this.$store("users").updateCustomBadgeImage(this.selectedBadgeId, base64Img);
+			this.$store.users.updateCustomBadgeImage(this.selectedBadgeId, base64Img);
 			input.value = "";
 		});
 	}
@@ -162,7 +163,7 @@ export default class CustomBadgesManager extends Vue {
 	 * @param badgeId 
 	 */
 	public selectBadge(badgeId:string):void {
-		const badge = this.$store('users').customBadgeList.find(v=>v.id == badgeId);
+		const badge = this.$store.users.customBadgeList.find(v=>v.id == badgeId);
 		if(!badge) return;
 		this.selectedBadgeId = badge.id;
 		this.badgeName = badge.name || "";
@@ -173,12 +174,12 @@ export default class CustomBadgesManager extends Vue {
 	 * @param badgeId 
 	 */
 	public deleteBadge(badgeId:string):void {
-		this.$store("main").confirm(this.$t("usercard.delete_badge_confirm.title"), this.$t("usercard.delete_badge_confirm.description"))
+		this.$store.main.confirm(this.$t("usercard.delete_badge_confirm.title"), this.$t("usercard.delete_badge_confirm.description"))
 		.then(v=> {
-			this.$store("users").deleteCustomBadge(badgeId);
+			this.$store.users.deleteCustomBadge(badgeId);
 			this.$nextTick().then(()=>{
-				if(this.$store('users').customBadgeList.length > 0) {
-					this.selectedBadgeId = this.$store('users').customBadgeList[0].id;
+				if(this.$store.users.customBadgeList.length > 0) {
+					this.selectedBadgeId = this.$store.users.customBadgeList[0].id;
 				}else{
 					this.selectedBadgeId = "";
 				}
@@ -191,17 +192,17 @@ export default class CustomBadgesManager extends Vue {
 	 * @param user 
 	 */
 	public removeBadgeFromUser(badgeId:string, user:TwitchatDataTypes.TwitchatUser):void {
-		const channelId = this.$store("auth").twitch.user.id;
-		this.$store("users").removeCustomBadge(user, badgeId, channelId);
+		const channelId = this.$store.auth.twitch.user.id;
+		this.$store.users.removeCustomBadge(user, badgeId, channelId);
 	}
 
 	/**
 	 * Called when badge name is updated
 	 */
 	public onUpdateName():void {
-		const badge = this.$store('users').customBadgeList.find(v=>v.id == this.selectedBadgeId);
+		const badge = this.$store.users.customBadgeList.find(v=>v.id == this.selectedBadgeId);
 		if(!badge) return;
-		this.$store("users").updateCustomBadgeName(badge.id, this.badgeName);
+		this.$store.users.updateCustomBadgeName(badge.id, this.badgeName);
 	}
 
 	/**
@@ -209,7 +210,7 @@ export default class CustomBadgesManager extends Vue {
 	 */
 	public saveBadges():void {
 		console.log("save");
-		this.$store("users").saveCustomBadges();
+		this.$store.users.saveCustomBadges();
 	}
 
 }

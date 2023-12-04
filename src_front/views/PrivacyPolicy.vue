@@ -485,7 +485,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import CloseButton from '@/components/CloseButton.vue';
 import Icon from '@/components/Icon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
@@ -500,7 +500,7 @@ import Config from '@/utils/Config';
 	components:{
 		Icon,
 		Login,
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ThemeSelector,
 	},
@@ -521,7 +521,7 @@ export default class PrivacyPolicy extends Vue {
 	public openDataMnagerForm():void {
 		this.showDataManager = true;
 		this.auhtenticating = true;
-		this.$store("auth").twitch_tokenRefresh(false)
+		this.$store.auth.twitch_tokenRefresh(false)
 		.then(result => {
 			console.log("AUTH RESULT", result);
 			this.auhtenticated = result != undefined;
@@ -542,7 +542,7 @@ export default class PrivacyPolicy extends Vue {
 				Utils.downloadFile("twitchat_data.json", data);
 				await Utils.promisedTimeout(1000);
 			}else{
-				this.$store("main").alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
+				this.$store.main.alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
 			}
 			this.downloadingData = false;
 		});

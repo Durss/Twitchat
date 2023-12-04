@@ -1,4 +1,3 @@
-<script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { ComponentBase, Vue } from 'vue-facing-decorator';
@@ -32,4 +31,3 @@ export default class AbstractOverlay extends Vue {
 	 */
 	public requestInfo():void {}
 }
-</script>

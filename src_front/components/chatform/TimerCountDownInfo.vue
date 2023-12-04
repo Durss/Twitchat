@@ -1,6 +1,6 @@
 <template>
 	<div class="timercountdowninfo">
-		<div class="timer" v-if="$store('timer').timer"
+		<div class="timer" v-if="$store.timer.timer"
 		@mouseenter="hoverTimer = true"
 		@mouseleave="hoverTimer = false">
 			<img src="@/assets/icons/timer.svg" alt="timer">
@@ -8,7 +8,7 @@
 			<div v-if="hoverTimer" @click="stopTimer()">{{ $t("global.stop") }}</div>
 		</div>
 
-		<div class="countdown" v-if="$store('timer').countdown"
+		<div class="countdown" v-if="$store.timer.countdown"
 		@mouseenter="hoverCountdown = true"
 		@mouseleave="hoverCountdown = false">
 			<img src="@/assets/icons/countdown.svg" alt="countdown">
@@ -40,8 +40,8 @@ export default class TimerCountDownInfo extends Vue {
 			this.computeValues();
 		}, 1000);
 		this.computeValues();
-		watch(() => this.$store("timer").timer, () => this.computeValues(), {deep:true} );
-		watch(() => this.$store("timer").countdown, () => this.computeValues(), {deep:true} );
+		watch(() => this.$store.timer.timer, () => this.computeValues(), {deep:true} );
+		watch(() => this.$store.timer.countdown, () => this.computeValues(), {deep:true} );
 	}
 
 	public beforeUnmount():void {
@@ -49,7 +49,7 @@ export default class TimerCountDownInfo extends Vue {
 	}
 
 	public computeValues():void {
-		const countdown = this.$store("timer").countdown;
+		const countdown = this.$store.timer.countdown;
 		if(countdown) {
 			let elapsed = Date.now() - countdown.startAt_ms;
 			if(countdown.paused) {
@@ -59,7 +59,7 @@ export default class TimerCountDownInfo extends Vue {
 			const remaining = Math.round((countdown.duration_ms - elapsed)/1000)*1000;
 			this.countdown = Utils.formatDuration(remaining);
 		}
-		const timer = this.$store("timer").timer;
+		const timer = this.$store.timer.timer;
 		if(timer) {
 			let elapsed = Math.round((Date.now() - timer.startAt_ms + timer.offset_ms)/1000)*1000;
 			if(timer.paused) {
@@ -69,8 +69,8 @@ export default class TimerCountDownInfo extends Vue {
 		}
 	}
 
-	public stopTimer():void { this.$store("timer").timerStop() }
-	public stopCountdown():void { this.$store("timer").countdownStop() }
+	public stopTimer():void { this.$store.timer.timerStop() }
+	public stopCountdown():void { this.$store.timer.countdownStop() }
 
 }
 </script>

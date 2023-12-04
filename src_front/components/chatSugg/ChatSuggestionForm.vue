@@ -54,8 +54,8 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import PermissionsForm from '../PermissionsForm.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -65,7 +65,7 @@ import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/Trig
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		CloseButton,
 		ToggleBlock,
@@ -161,7 +161,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	}
 
 	public submitChatPoll():void {
-		this.$store("chatSuggestion").setChatSuggestion(this.dataObject);
+		this.$store.chatSuggestion.setChatSuggestion(this.dataObject);
 		this.close();
 	}
 

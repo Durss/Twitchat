@@ -32,7 +32,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
@@ -41,7 +41,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 	},
 	emits:[],

@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon :name="icon" alt="notice" class="icon" :theme="theme"/>
 
@@ -32,7 +32,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -66,7 +66,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 		
 		let message = "";
 		this.channelName = "---";
-		const chan = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+		const chan = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 		if(chan) {
 			this.channelName = "#"+chan.login;
 		}
@@ -80,7 +80,7 @@ export default class ChatJoinLeave extends AbstractChatMessage {
 			this.icon = "leave";
 			this.theme = "secondary";
 		}
-		this.$store("accessibility").setAriaPolite(message);
+		this.$store.accessibility.setAriaPolite(message);
 	}
 
 	public copyJSON():void {

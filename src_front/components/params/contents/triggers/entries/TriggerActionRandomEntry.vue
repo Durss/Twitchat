@@ -36,7 +36,7 @@
 
 					<div class="content">
 						<span class="label" v-if="!indexToEditState[index]">
-							<ChatMessageChunksParser v-if="buildIndex >= index" :chunks="itemChunks[index]" :channel="$store('auth').twitch.user.id" platform="twitch" />
+							<ChatMessageChunksParser v-if="buildIndex >= index" :chunks="itemChunks[index]" :channel="$store.auth.twitch.user.id" platform="twitch" />
 						</span>
 
 						<textarea v-if="indexToEditState[index]"
@@ -94,7 +94,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
@@ -108,11 +108,11 @@ import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TabMenu,
 		ParamItem,
 		TriggerList,
@@ -147,7 +147,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
-		const t = this.$store("triggers").triggerList.find(v=>v.id === triggerId);
+		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);
 		if(!t) return {label:"TRIGGER NOT FOUND", icon:"alert"};
 		return Utils.getTriggerDisplayInfo(t);
 	}
@@ -163,7 +163,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 		this.buildIndex = 0;
 
 		//Remove deleted triggers
-		const triggers = this.$store("triggers").triggerList;
+		const triggers = this.$store.triggers.triggerList;
 		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
 		this.openTriggerList = this.action.triggers.length == 0;
 		

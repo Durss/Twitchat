@@ -82,13 +82,13 @@ import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		draggable,
 		ToggleBlock,
 		VoiceGlobalCommands,
@@ -108,7 +108,7 @@ export default class VoiceTriggerList extends Vue {
 	public beforeMount():void {
 		type VAKeys = keyof typeof VoiceAction;
 		this.actions = [];
-		this.actions = JSON.parse(JSON.stringify(this.$store("voice").voiceActions));
+		this.actions = JSON.parse(JSON.stringify(this.$store.voice.voiceActions));
 
 		for (let i = 0; i < this.actions.length; i++) {
 			const a = this.actions[i];
@@ -165,7 +165,7 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 	public deleteAction(id:string|undefined):void {
-		this.$store("main").confirm(this.$t("voice.delete_confirm_title"),this.$t("voice.delete_confirm_desc"))
+		this.$store.main.confirm(this.$t("voice.delete_confirm_title"),this.$t("voice.delete_confirm_desc"))
 		.then(()=>{
 			const index = this.actions.findIndex(v => v.id == id);
 			this.actions.splice(index, 1);
@@ -250,7 +250,7 @@ export default class VoiceTriggerList extends Vue {
 		let list:VoiceAction[] = [];
 		list = list.concat(this.actions);
 		list = list.concat(this.globalCommands);
-		this.$store("voice").setVoiceActions(list);
+		this.$store.voice.setVoiceActions(list);
 	}
 
 }

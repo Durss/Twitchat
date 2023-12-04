@@ -38,15 +38,15 @@ import GlobalEvent from '@/events/GlobalEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		MessageItem,
 		CloseButton,
 		ToggleBlock,
@@ -71,7 +71,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 		this.selectedUser = user;
 		const uid = user.id;
 		let list:TwitchatDataTypes.ChatMessageTypes[] = [];
-		const messageList = this.$store("chat").messages;
+		const messageList = this.$store.chat.messages;
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer"];
 		// for (let i = messageList.length-1; i > Math.max(0, messageList.length-100); i--) {
 		for (let i = 0; i < messageList.length; i++) {
@@ -102,7 +102,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 	}
 
 	public untrackUser(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").untrackUser(user);
+		this.$store.users.untrackUser(user);
 		this.onUpdateList();
 	}
 
@@ -130,8 +130,8 @@ export default class TrackedUsers extends AbstractSidePanel {
 
 	private onUpdateList():void {
 		const res = [];
-		for (let i = 0; i < this.$store("users").users.length; i++) {
-			const u = this.$store("users").users[i];
+		for (let i = 0; i < this.$store.users.users.length; i++) {
+			const u = this.$store.users.users[i];
 			if(u.is_tracked) res.push(u);
 		}
 		this.trackedUsers = res;
@@ -141,7 +141,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.selectedUser);
+		this.$store.users.openUserCard(this.selectedUser);
 	}
 
 	private scrollToBottom():void {

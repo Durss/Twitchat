@@ -2,7 +2,7 @@
 	<div class="chatscoperequester chatMessage highlight alert">
 		<CloseButton @click="deleteMessage()" theme="light" />
 
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
 
@@ -26,13 +26,13 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 	},
 	emits:["onRead", "openFilters"]
@@ -51,7 +51,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	}
 
 	public requestScopes():void {
-		this.$store("auth").newScopesToRequest = this.messageData.twitch_scopes;
+		this.$store.auth.newScopesToRequest = this.messageData.twitch_scopes;
 	}
 
 	public openFilters():void {
@@ -59,7 +59,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	}
 
 	public deleteMessage():void {
-		this.$store("chat").deleteMessage(this.messageData);
+		this.$store.chat.deleteMessage(this.messageData);
 	}
 
 }

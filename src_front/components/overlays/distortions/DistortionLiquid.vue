@@ -5,7 +5,7 @@
 
 <script lang="ts">
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractDistortion, { type IDistortItem } from './AbstractDistortion.vue';
+import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 import ripples from '@/assets/img/distortions/ripples_sh.png';
 import hearts from '@/assets/img/distortions/hearts_sh.png';
 import bubbles from '@/assets/img/distortions/bubbles_sh.png';
@@ -41,6 +41,7 @@ export default class DistortionLiquid extends AbstractDistortion {
 	// 	return item;
 	// }
 	protected buildItem(px?:number, py?:number):IDistortItem {
+		console.log(px)
 		const item = super.buildItem(px, py);
 		if(px != undefined) item.x = px;
 		if(py != undefined) item.y = py;

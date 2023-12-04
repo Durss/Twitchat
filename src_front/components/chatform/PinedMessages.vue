@@ -3,8 +3,8 @@
 		<div class="head">
 			<div class="title">
 				<Icon name="save" />
-				<i18n-t scope="global" tag="h1" keypath="pin.title" :plural="$store('chat').pinedMessages.length">
-					<template #COUNT>{{ $store('chat').pinedMessages.length }}</template>
+				<i18n-t scope="global" tag="h1" keypath="pin.title" :plural="$store.chat.pinedMessages.length">
+					<template #COUNT>{{ $store.chat.pinedMessages.length }}</template>
 				</i18n-t>
 			</div>
 			<CloseButton @click="close()" />
@@ -12,7 +12,7 @@
 		<div class="content">
 
 			<div class="list">
-				<div v-for="m in $store('chat').pinedMessages" :key="m.id" class="messageItem">
+				<div v-for="m in $store.chat.pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<Button :aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
@@ -42,8 +42,8 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 import StoreProxy from '@/store/StoreProxy';
@@ -52,7 +52,7 @@ import Icon from '../Icon.vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ChatMessage,
 	},
@@ -78,8 +78,8 @@ export default class PinedMessages extends AbstractSidePanel {
 	 * @param m 
 	 */
 	public async unpin(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
-		this.$store("chat").unsaveMessage(m);
-		if(this.$store("chat").pinedMessages.length === 0) {
+		this.$store.chat.unsaveMessage(m);
+		if(this.$store.chat.pinedMessages.length === 0) {
 			this.close();
 		}
 	}
@@ -93,7 +93,7 @@ export default class PinedMessages extends AbstractSidePanel {
 			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 		}else{
 			this.highlightLoading = true;
-			this.$store("chat").highlightChatMessageOverlay(m);
+			this.$store.chat.highlightChatMessageOverlay(m);
 			await Utils.promisedTimeout(1000);
 			this.highlightLoading = false;
 		}

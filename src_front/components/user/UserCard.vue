@@ -50,7 +50,7 @@
 								<template #content>
 									<div style="text-align: center">
 										<div>{{ $t('usercard.edit_loginBt_tt') }}</div>
-										<div class="list" v-if="Object.keys($store('users').customUsernames).length > 0">
+										<div class="list" v-if="Object.keys($store.users.customUsernames).length > 0">
 											<Button light secondary small icon="edit" @click="manageUserNames = true">{{ $t("usercard.manage_usernamesBt") }}</Button>
 										</div>
 									</div>
@@ -100,10 +100,10 @@
 					
 					<div class="ctas">
 						<Button type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</Button>
-						<Button v-if="isTwitchProfile" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store('auth').twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+						<Button v-if="isTwitchProfile" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
 						<Button v-if="isTwitchProfile && !is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
 						<Button v-if="isTwitchProfile && is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-						<Button v-if="isTwitchProfile && $store('tts').params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+						<Button v-if="isTwitchProfile && $store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
 					</div>
 					
 					<div class="card-item secondary liveInfo" v-if="currentStream">
@@ -157,7 +157,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
@@ -168,7 +168,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		MessageItem,
 		ChatModTools,
@@ -241,7 +241,7 @@ export default class UserCard extends Vue {
 	 * Get user's profile page
 	 */
 	public get profilePage():string{
-		switch(this.$store("users").userCard!.platform) {
+		switch(this.platform) {
 			case "twitch": {
 				return "https://www.twitch.tv/"+this.user!.login;
 			}
@@ -262,7 +262,7 @@ export default class UserCard extends Vue {
 		let res:{user:TwitchatDataTypes.TwitchatUser, duration?:number}[] = [];
 		for (const uid in this.user!.channelInfo) {
 			if(this.user.channelInfo[uid].is_banned !== true) continue;
-			let entry:{user:TwitchatDataTypes.TwitchatUser, duration?:number} = {user:this.$store("users").getUserFrom(this.user.platform, uid, uid)}
+			let entry:{user:TwitchatDataTypes.TwitchatUser, duration?:number} = {user:this.$store.users.getUserFrom(this.platform, uid, uid)}
 			if(this.user.channelInfo[uid].banEndDate) {
 				const duration = this.user.channelInfo[uid].banEndDate! - Date.now();
 				if(duration > 0) entry.duration = duration;
@@ -278,7 +278,7 @@ export default class UserCard extends Vue {
 	public get ttsReadBtLabel(): string {
 		if(!this.user) return "";
 		const username = this.user.login.toLowerCase();
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
+		const permissions: TwitchatDataTypes.PermissionsData = this.$store.tts.params.ttsPerms;
 		let label = "";
 		if (permissions.usersAllowed.findIndex(v=>v.toLowerCase() === username) == -1) {
 			label = this.$t("tts.read_user_start_light", {USER:username})
@@ -289,7 +289,7 @@ export default class UserCard extends Vue {
 	}
 
 	public get platform():TwitchatDataTypes.ChatPlatform {
-		const card = this.$store("users").userCard;
+		const card = this.$store.users.userCard;
 		if(card) {
 			return card.platform || card.user?.platform || "twitch";
 		}
@@ -309,10 +309,10 @@ export default class UserCard extends Vue {
 	}
 
 	public mounted():void {
-		watch(() => this.$store("users").userCard, () => {
-			const card = this.$store("users").userCard;
+		watch(() => this.$store.users.userCard, () => {
+			const card = this.$store.users.userCard;
 			if(card && card.user) {
-				this.user = this.$store("users").getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
+				this.user = this.$store.users.getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
 				this.loadUserInfo();
 				this.dateOffsetTimeout = setInterval(() => {
@@ -334,7 +334,7 @@ export default class UserCard extends Vue {
 	}
 
 	public close():void {
-		this.$store("users").openUserCard(null);
+		this.$store.users.openUserCard(null);
 	}
 
 	public async loadUserInfo():Promise<void> {
@@ -352,13 +352,13 @@ export default class UserCard extends Vue {
 		this.manageUserNames = false;
 		this.isTwitchProfile = this.platform == "twitch";
 
-		if(!this.$store("users").userCard) {
+		if(!this.$store.users.userCard) {
 			this.loading = false;
 		}
 		
 		if(!this.isTwitchProfile) {
 			this.loading = false;
-			this.user = this.$store("users").userCard!.user;
+			this.user = this.$store.users.userCard!.user;
 			this.customLogin = this.user?.displayName || "";
 			this.loadHistory(this.user!.id);
 			return;
@@ -366,14 +366,14 @@ export default class UserCard extends Vue {
 
 		try {
 			let user = this.user!;
-			const loadFromLogin = user.login != this.$store("users").tmpDisplayName;
+			const loadFromLogin = user.login != this.$store.users.tmpDisplayName;
 			const users = await TwitchUtils.loadUserInfo(loadFromLogin? undefined : [user.id], loadFromLogin? [user.login] : undefined);
 			if(users.length > 0) {
 				const u = users[0];
 				user.login = u.login;
 				user.displayName = u.display_name;
 				user.displayNameOriginal = u.display_name;
-				this.customLogin = this.$store("users").customUsernames[u.id]?.name || u.display_name;
+				this.customLogin = this.$store.users.customUsernames[u.id]?.name || u.display_name;
 				this.createDate = Utils.formatDate(new Date(u.created_at));
 				this.userDescription = u.description;
 				if(!user.avatarPath) user.avatarPath = u.profile_image_url;
@@ -409,7 +409,7 @@ export default class UserCard extends Vue {
 						this.subStateLoaded = true;
 					});
 				}
-				this.$store("users").loadUserPronouns(user);
+				this.$store.users.loadUserPronouns(user);
 				this.fakeModMessage = {
 					id:Utils.getUUID(),
 					platform:"twitch",
@@ -444,11 +444,11 @@ export default class UserCard extends Vue {
 	}
 
 	public trackUser():void {
-		this.$store("users").trackUser(this.user!);
+		this.$store.users.trackUser(this.user!);
 	}
 	
 	public untrackUser():void {
-		this.$store("users").untrackUser(this.user!);
+		this.$store.users.untrackUser(this.user!);
 	}
 
 	/**
@@ -467,7 +467,7 @@ export default class UserCard extends Vue {
 	 */
 	public submitCustomLogin():void {
 		this.edittingLogin = false;
-		if(!this.$store("users").setCustomUsername(this.user!, this.customLogin, this.channelId)) {
+		if(!this.$store.users.setCustomUsername(this.user!, this.customLogin, this.channelId)) {
 			this.manageUserNames = true;
 		}
 		//Update customLogin from the actual displayname.
@@ -481,16 +481,16 @@ export default class UserCard extends Vue {
 	 * @param id 
 	 */
 	removeCustomBadge(id:string):void {
-		this.$store("users").removeCustomBadge(this.user!, id, this.channelId);
+		this.$store.users.removeCustomBadge(this.user!, id, this.channelId);
 	}
 
 	/**
 	 * Toggles whether the TTS should read this user's messages
 	 */
 	public toggleReadUser(): void {
-		const permissions: TwitchatDataTypes.PermissionsData = this.$store("tts").params.ttsPerms;
+		const permissions: TwitchatDataTypes.PermissionsData = this.$store.tts.params.ttsPerms;
 		const read = permissions.usersAllowed.findIndex(v=>v.toLowerCase() === this.user!.login.toLowerCase()) == -1;
-		this.$store("tts").ttsReadUser(this.user!, read);
+		this.$store.tts.ttsReadUser(this.user!, read);
 	}
 
 	/**
@@ -522,8 +522,8 @@ export default class UserCard extends Vue {
 	private loadHistory(uid:string):void {
 		const messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 		const allowedTypes:TwitchatDataTypes.TwitchatMessageStringType[] = ["following", "message", "reward", "subscription", "shoutout", "whisper", "ban", "unban", "cheer", "user_watch_streak"]
-		for (let i = this.$store("chat").messages.length-1; i > 0; i--) {
-			const mess = this.$store("chat").messages[i];
+		for (let i = this.$store.chat.messages.length-1; i > 0; i--) {
+			const mess = this.$store.chat.messages[i];
 			if(!allowedTypes.includes(mess.type)) continue;
 			if(mess.type == "shoutout" && mess.user.id == uid) {
 				messageList.unshift(mess);

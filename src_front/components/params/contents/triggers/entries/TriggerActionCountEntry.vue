@@ -42,7 +42,7 @@ import { COUNTER_EDIT_SOURCE_CHATTERS, COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDI
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
@@ -92,14 +92,14 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 	 * Get counter data of any per-user counter added to the selection
 	 */
 	public get selectedPerUserCounters():TwitchatDataTypes.CounterData[] {
-		return this.$store("counters").counterList
+		return this.$store.counters.counterList
 		.filter(v=>v.perUser === true && this.action.counters.findIndex(v2=>v2 === v.id) > -1);
 	}
 
 	public beforeMount(): void {
 		//If trigger is related to a counter event (looped, maxed, mined) remove it
 		//from the editable counter to avoid infinite loop
-		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store("counters").counterList.map(v=>{
+		const counters:TwitchatDataTypes.ParameterDataListValue<string>[] = this.$store.counters.counterList.map(v=>{
 			return {value:v.id, label:v.name};
 		}).filter(v=> {
 			return v.value != this.triggerData.counterId

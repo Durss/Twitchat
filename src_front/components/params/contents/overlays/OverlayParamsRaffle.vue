@@ -50,14 +50,14 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import type { JsonArray } from "type-fest";
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../../Button.vue';
+import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 	}

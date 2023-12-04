@@ -30,6 +30,7 @@
 	<style>
 		body {
 			background-color: transparent;
+			padding: 0;
 		}
 		body.bg {
 			background-color: #18181b;
@@ -106,6 +107,9 @@
 			justify-content: center;
 			text-align: center;
 			border-radius: 5vw;
+			position: fixed;
+			top: 0;
+			left: 0;
 		}
 
 		.light>#loader-init>.logo,
@@ -142,6 +146,7 @@
 		 * This is mostly done for OBS overlays as the cache
 		 * there seems to be a little annoying sometimes
 		 */
+		let errorCount = 0;
 		function onLoadError(error, script) {
 			const SERVER_PORT = 3018;
 			const IS_PROD = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
@@ -150,17 +155,13 @@
 				API_PATH = document.location.protocol+"//"+document.location.hostname+":"+SERVER_PORT+"/api";
 			}
 
+			errorCount ++;
 			const url = new URL(API_PATH+"/script");
-			let date = parseInt(url.searchParams.get("ck"));
-			let counter = parseInt(url.searchParams.get("cki"));
-			if(isNaN(counter)) counter = 0;
-			if(!isNaN(date) && Date.now() - date > 30 * 1000) counter = 0;
-			counter ++;
 			url.searchParams.set("ck", Date.now());
-			url.searchParams.set("cki", counter);
+			url.searchParams.set("cki", errorCount);
 			document.getElementById("loader-init").style.display = "none";
 			//Stop spamming script refresh after 10 attempts
-			if(counter <= 10) {
+			if(errorCount <= 10) {
 				setTimeout(()=>{
 					script.parentElement.removeChild(script);
 					let s = document.createElement('script');
@@ -170,7 +171,7 @@
 					s.src = url.href;
 					s.addEventListener("error", (error)=>onLoadError(error, s));
 					document.head.append(s);
-				}, 250)
+				}, errorCount * 500)
 			}else{
 				document.getElementById("error").style.display = "flex";
 			}
@@ -317,7 +318,7 @@
 	<!-- built files will be auto injected -->
 	
 	<div id="error" style="display: none;">
-		<div>Twitchat failed loading :(</div>
+		<div>Twitchat loading failed :(</div>
 		<div>Try refreshing and cleaning up your cache!</div>
 	</div>
 

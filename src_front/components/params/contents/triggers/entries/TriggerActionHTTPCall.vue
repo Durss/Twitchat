@@ -58,12 +58,12 @@ import type { ITriggerPlaceholder, TriggerActionHTTPCallData, TriggerActionHTTPC
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
-import Button from '@/components/Button.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleButton,
 	},

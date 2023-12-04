@@ -32,7 +32,7 @@
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from './Button.vue';
+import TTButton from './TTButton.vue';
 
 /**
  * To add actions on the right or left of the header
@@ -46,7 +46,7 @@ import Button from './Button.vue';
 @Component({
 	name:"ToggleBlock",
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["startDrag"],
 })

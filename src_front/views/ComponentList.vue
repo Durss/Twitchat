@@ -300,7 +300,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Checkbox from '@/components/Checkbox.vue';
 import Icon from '@/components/Icon.vue';
 import ProgressBar from '@/components/ProgressBar.vue';
@@ -309,18 +309,20 @@ import Splitter from '@/components/Splitter.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import TabMenu from '@/components/TabMenu.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import ToggleButton from '@/components/ToggleButton.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
+import type { TwitchDataTypes } from '@/types//twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
+import ToggleButton from '@/components/ToggleButton.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		Slider,
 		TabMenu,
 		Checkbox,
@@ -363,8 +365,7 @@ export default class ComponentList extends Vue {
 		let iconList = import.meta.glob("@/assets/icons/*.svg");
 		const keys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
 		this.iconList = keys;
-		const json = import.meta.globEager("@/utils/twitch/staticEmoteList.json");
-		const emotes = json[Object.keys(json)[0]].default;
+		const emotes = staticEmotes as TwitchDataTypes.Emote[];
 		TwitchUtils.loadEmoteSets("", [], emotes).then(()=> {
 			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss sit amet google.fr DinoDance", undefined, true);
 		})

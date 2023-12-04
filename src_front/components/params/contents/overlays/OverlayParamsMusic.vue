@@ -4,13 +4,13 @@
 			<OverlayInstaller type="music" :sourceTransform="{width:400, height:100}" />
 			
 			<div class="params">
-				<ParamItem :paramData="param_noScroll" v-model="$store('music').musicPlayerParams.noScroll" />
-				<ParamItem :paramData="param_openFromLeft" v-model="$store('music').musicPlayerParams.openFromLeft" />
-				<ParamItem :paramData="param_autoHide" v-model="$store('music').musicPlayerParams.autoHide" />
-				<ParamItem :paramData="param_showCover" v-model="$store('music').musicPlayerParams.showCover" />
-				<ParamItem :paramData="param_showArtist" v-model="$store('music').musicPlayerParams.showArtist" />
-				<ParamItem :paramData="param_showTitle" v-model="$store('music').musicPlayerParams.showTitle" />
-				<ParamItem :paramData="param_showProgress" v-model="$store('music').musicPlayerParams.showProgressbar" />
+				<ParamItem :paramData="param_noScroll" v-model="$store.music.musicPlayerParams.noScroll" />
+				<ParamItem :paramData="param_openFromLeft" v-model="$store.music.musicPlayerParams.openFromLeft" />
+				<ParamItem :paramData="param_autoHide" v-model="$store.music.musicPlayerParams.autoHide" />
+				<ParamItem :paramData="param_showCover" v-model="$store.music.musicPlayerParams.showCover" />
+				<ParamItem :paramData="param_showArtist" v-model="$store.music.musicPlayerParams.showArtist" />
+				<ParamItem :paramData="param_showTitle" v-model="$store.music.musicPlayerParams.showTitle" />
+				<ParamItem :paramData="param_showProgress" v-model="$store.music.musicPlayerParams.showProgressbar" />
 				<ParamItem :paramData="param_customTemplateToggle" />
 			</div>
 	
@@ -68,7 +68,7 @@ export default class OverlayParamsMusic extends Vue {
 			{tag:"COVER", descKey:"overlay.music_common.custom_template_placeholders.cover"},
 		];
 
-		const params = this.$store("music").musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
+		const params = this.$store.music.musicPlayerParams as TwitchatDataTypes.MusicPlayerParamsData;
 		this.param_autoHide.children				= [this.param_autoHideErase];
 		this.param_autoHideErase.value				= params.erase;
 		this.param_customTemplateToggle.children	= [this.param_customTemplate];
@@ -79,7 +79,7 @@ export default class OverlayParamsMusic extends Vue {
 			this.saveData();
 		})
 
-		watch(() => this.$store("music").musicPlayerParams, () => {
+		watch(() => this.$store.music.musicPlayerParams, () => {
 			this.saveData();
 		},  {deep:true});
 
@@ -95,10 +95,10 @@ export default class OverlayParamsMusic extends Vue {
 	private saveData():void {
 		let template = this.param_customTemplate.value;
 		if(!this.param_customTemplateToggle.value) template = "";
-		this.$store("music").musicPlayerParams.customInfoTemplate = template;
-		this.$store("music").musicPlayerParams.erase = this.param_autoHideErase.value;
+		this.$store.music.musicPlayerParams.customInfoTemplate = template;
+		this.$store.music.musicPlayerParams.erase = this.param_autoHideErase.value;
 
-		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store("music").musicPlayerParams);
+		DataStore.set(DataStore.MUSIC_PLAYER_PARAMS, this.$store.music.musicPlayerParams);
 		//This forces overlay refresh
 		SpotifyHelper.instance.getCurrentTrack();
 	}

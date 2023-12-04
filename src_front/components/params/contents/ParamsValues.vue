@@ -12,7 +12,7 @@
 
 		<section v-if="!showForm">
 			<Button icon="add" @click="showForm = true" v-if="canCreateValues">{{ $t('values.addBt') }}</Button>
-			<div class="card-item secondary" v-else-if="$store('auth').isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
+			<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
 			<template v-else>
 				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
 				<Button slot="footer" class="item" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
@@ -102,7 +102,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import InfiniteList from '@/components/InfiniteList.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -116,7 +116,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		InfiniteList,
@@ -141,11 +141,11 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	public param_userSpecific:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"values.form.value_user", icon:"user"};
 	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:20, labelKey:"values.form.placholder", icon:"broadcast", tooltipKey:"values.form.placholder_tt", allowedCharsRegex:"A-z0-9_"};
 
-	public get maxValues():number { return this.$store('auth').isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
-	public get canCreateValues():boolean { return this.$store('values').valueList.length < this.maxValues; }
+	public get maxValues():number { return this.$store.auth.isPremium? Config.instance.MAX_VALUES_PREMIUM : Config.instance.MAX_VALUES; }
+	public get canCreateValues():boolean { return this.$store.values.valueList.length < this.maxValues; }
 
 	public get valueEntries():ValueEntry[] {
-		const list = this.$store("values").valueList;
+		const list = this.$store.values.valueList;
 		return list.map((v):ValueEntry => {
 			return {
 					value:v,
@@ -155,15 +155,15 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	}
 
 	public openTriggers():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
 
 	public getUserFromID(id:string):TwitchatDataTypes.TwitchatUser {
-		return this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, id);
+		return this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, id);
 	}
 
 	public openOverlays():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
 	}
 
 	public mounted(): void {
@@ -175,7 +175,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 		}
 
 		watch(()=> this.param_title.value, ()=> {
-			const values = this.$store("values").valueList;
+			const values = this.$store.values.valueList;
 			const name = this.param_title.value.toLowerCase();
 			let exists = false;
 			for (let i = 0; i < values.length; i++) {
@@ -195,7 +195,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 				return;
 			}
 			//Check if a placeholder with the same name already exists
-			const values = this.$store("values").valueList;
+			const values = this.$store.values.valueList;
 			const placeholder = this.param_placeholder.value.toLowerCase();
 			let exists = false;
 			for (let i = 0; i < values.length; i++) {
@@ -246,9 +246,9 @@ export default class ParamsValues extends Vue implements IParameterContent {
 		};
 		if(this.editedValue) {
 			this.editedValue = null;
-			this.$store("values").editValueParams(data.id, data);
+			this.$store.values.editValueParams(data.id, data);
 		}else{
-			this.$store("values").addValue(data);
+			this.$store.values.addValue(data);
 		}
 		this.showForm = false;
 		this.cancelForm();
@@ -265,7 +265,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 			}else{
 				entry.value.value = entry.param.value;
 			}
-			this.$store("values").updateValue(entry.value.id, entry.value.value);
+			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		}, 250);
 	}
 
@@ -275,7 +275,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	 */
 	public deleteValue(entry:ValueEntry):void {
 		this.$confirm(this.$t("values.delete_confirm.title"), this.$t("values.delete_confirm.desc")).then(()=>{
-			this.$store("values").delValue(entry.value);
+			this.$store.values.delValue(entry.value);
 		}).catch(()=>{/* ignore */});
 	}
 
@@ -309,14 +309,14 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	 * Called when clicking premium button
 	 */
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
 	 * Open a user's profile info
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user);
+		this.$store.users.openUserCard(user);
 	}
 
 	/**
@@ -326,7 +326,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 		if(!entry.value.users) return;
 		delete entry.value.users[userEntry.user.id];
 		this.idToUsers[entry.value.id] = this.idToUsers[entry.value.id]!.filter(v=>v.user.id != userEntry.user.id);
-		this.$store("values").updateValue(entry.value.id, entry.value.value);
+		this.$store.values.updateValue(entry.value.id, entry.value.value);
 	}
 	
 	/**
@@ -377,7 +377,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 					this.idToUsers[value.id] = [{
 							hide:false,
 							param:reactive({type:"string", value:v}),
-							user:this.$store("users").getUserFrom("twitch", this.$store("auth").twitch.user.id, u.id, u.login, u.display_name),
+							user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}
 			}
@@ -397,11 +397,11 @@ export default class ParamsValues extends Vue implements IParameterContent {
 		clearTimeout(this.timeoutSearch);
 		const users = await TwitchUtils.loadUserInfo(Object.keys(entry.value.users!));
 		if(users.length > 0) {
-			const channelId = this.$store("auth").twitch.user.id;
+			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {
 				let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id] : "";
 				const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', value});
-				const user = this.$store("users").getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
+				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
 				const res:UserEntry = { param, user, hide:false };
 				return res;
@@ -431,7 +431,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 				}
 			}
 
-			this.$store("values").updateValue(entry.value.id, entry.value.value);
+			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		});
 	}
 
@@ -447,7 +447,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 			//Reset view data
 			this.idToUsers[entry.value.id] = [];
 	
-			this.$store("values").updateValue(entry.value.id, entry.value.value);
+			this.$store.values.updateValue(entry.value.id, entry.value.value);
 		})
 	}
 }

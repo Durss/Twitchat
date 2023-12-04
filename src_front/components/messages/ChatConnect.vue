@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<Icon class="icon" :name="(messageData.type=='connect'? 'checkmark' : 'cross')"/>
 		
 		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
@@ -17,7 +17,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -40,7 +40,7 @@ export default class ChatConnect extends AbstractChatMessage {
 	}
 
 	public mounted(): void {
-		const chan = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
+		const chan = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id);
 		if(chan) {
 			this.channelName = " #"+chan.login;
 			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.CONNECT) {
@@ -48,7 +48,7 @@ export default class ChatConnect extends AbstractChatMessage {
 			}else{
 				this.message = this.$t("chat.connect.off", {PLATFORM:this.messageData.platform})
 			}
-			this.$store("accessibility").setAriaPolite(this.message);
+			this.$store.accessibility.setAriaPolite(this.message);
 		}
 	}
 }

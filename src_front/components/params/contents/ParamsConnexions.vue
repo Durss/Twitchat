@@ -48,7 +48,7 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 
 	public onNavigateBack(): boolean { return false; }
 
-	public get subContent() { return this.$store("params").currentPageSubContent; }
+	public get subContent() { return this.$store.params.currentPageSubContent; }
 	
 	public get youtubeEnabled() { return Config.instance.YOUTUBE_CLIENT_ID; }
 

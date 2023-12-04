@@ -125,7 +125,7 @@ export default class HypeTrainState extends Vue {
 
 	public get trainData():TwitchatDataTypes.HypeTrainStateData {
 		//This view can't exist if no hype train isn't started, it's safe to force "!"
-		return this.$store("stream").hypeTrain!;
+		return this.$store.stream.hypeTrain!;
 	}
 
 	public get duration():string {
@@ -176,7 +176,7 @@ export default class HypeTrainState extends Vue {
 
 	public mounted():void {
 		this.dataChange();
-		watch(()=>this.$store("stream").hypeTrain, ()=>this.dataChange());
+		watch(()=>this.$store.stream.hypeTrain, ()=>this.dataChange());
 
 		if(this.trainData.conductor_subs) {
 			this.conductor_subs = this.trainData.conductor_subs;
@@ -268,7 +268,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser):void {
-		this.$store("users").openUserCard(user, this.trainData.channel_id);
+		this.$store.users.openUserCard(user, this.trainData.channel_id);
 	}
 
 	private renderFrame():void {

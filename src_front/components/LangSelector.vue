@@ -7,8 +7,8 @@
 		:calculate-position="$placeDropdown"
 		>
 			<template v-slot:option="option">
-				<CountryFlag :iso="getISOFromLang(option.value[1][0])" mode="rounded" class="flag" />
-				{{ option.label }}
+				<CountryFlag :country="getISOFromLang(option.value[1][0])" size="small" class="flag" />
+				<span class="text">{{ option.label }}</span>
 			</template>
 		</vue-select>
 		
@@ -20,8 +20,8 @@
 		:calculate-position="$placeDropdown"
 		>
 			<template v-slot:option="option">
-				<CountryFlag :iso="getISOFromLang(option.value[0])" mode="rounded" class="flag" />
-				{{ option.label }}
+				<CountryFlag :country="getISOFromLang(option.value[0])" size="small" class="flag" />
+				<span class="text">{{ option.label }}</span>
 			</template>
 		</vue-select>
 	</div>
@@ -31,8 +31,7 @@
 import { Languages } from '@/Languages';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import CountryFlag from 'vue-country-flag-next';
 
 @Component({
 	components:{
@@ -121,8 +120,8 @@ export default class LangSelector extends Vue {
 		width: 50%;
 	}
 
-	.flag {
-		margin-right: .25em;
+	.text {
+		margin-left: .25em;
 	}
 }
 </style>

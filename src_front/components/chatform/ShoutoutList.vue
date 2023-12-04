@@ -1,7 +1,7 @@
 <template>
 	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
-		v-model="$store('users').pendingShoutouts[channelId]" 
+		v-model="$store.users.pendingShoutouts[channelId]" 
 		direction="vertical"
 		group="users"
 		item-key="id"
@@ -9,7 +9,7 @@
 		@end="onMoveItem">
 			<template #item="{element, index}:{element:TwitchatDataTypes.ShoutoutHistoryItem, index:number}">
 				<div class="item">
-					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store('users').pendingShoutouts[channelId]!.length > 1" >
+					<img src="@/assets/icons/dragZone.svg" class="drag" v-if="$store.users.pendingShoutouts[channelId]!.length > 1" >
 					<Button class="deleteBt" icon="cross" small alert @click="deleteItem(element)" />
 					<img v-if="element.user.avatarPath && getDelay(element.executeIn) > 0" :src="element.user.avatarPath" class="avatar">
 					<Icon name="loader" v-if="getDelay(element.executeIn) <= 0" class="loader" />
@@ -29,12 +29,12 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		draggable,
 	},
 	emits:["close"],
@@ -54,7 +54,7 @@ export default class ShoutoutList extends Vue {
 	}
 
 	public beforeMount():void {
-		this.channelId = this.$store("auth").twitch.user.id;
+		this.channelId = this.$store.auth.twitch.user.id;
 	}
 
 	public mounted():void {
@@ -73,7 +73,7 @@ export default class ShoutoutList extends Vue {
 		}, 1000);
 
 		//Watch for any change on the list and reset the local timer
-		watch(()=>this.$store("users").pendingShoutouts[this.channelId], ()=> {
+		watch(()=>this.$store.users.pendingShoutouts[this.channelId], ()=> {
 			this.timerOffset = 0;
 		}, {deep:true});
 	}
@@ -86,11 +86,11 @@ export default class ShoutoutList extends Vue {
 
 	public onMoveItem():void {
 		//Forces timers refresh
-		this.$store("users").executePendingShoutouts();
+		this.$store.users.executePendingShoutouts();
 	}
 
 	public deleteItem(item:TwitchatDataTypes.ShoutoutHistoryItem):void {
-		const list = this.$store("users").pendingShoutouts[this.channelId]!;
+		const list = this.$store.users.pendingShoutouts[this.channelId]!;
 		const index = list.findIndex(v=>v.id == item.id);
 		list.splice(index, 1);
 		if(list.length === 0) this.close();

@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -55,7 +55,7 @@ import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocke
 import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{

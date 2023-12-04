@@ -33,7 +33,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -44,7 +44,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
@@ -97,7 +97,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 		this.slashCmdAlert = this.param_cmd.value.trim().charAt(0) == "/";
 
 		//Make sure no other chat command has the same name
-		const triggers = this.$store("triggers").triggerList;
+		const triggers = this.$store.triggers.triggerList;
 		let aliases:string[] = [];
 		if(this.triggerData.chatCommandAliases) {
 			this.triggerData.chatCommandAliases.concat().map(v=>v.toLowerCase()).filter(v=>v.length > 0);

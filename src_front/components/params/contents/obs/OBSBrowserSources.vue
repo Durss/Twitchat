@@ -20,7 +20,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
@@ -28,7 +28,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button
+		Button: TTButton,
 	},
 	emits:[],
 })

@@ -172,7 +172,7 @@ export default class TriggerList extends Vue {
 		this.triggerCategories = [];
 		TriggerTypesDefinitionList().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
-		let triggerList = this.$store("triggers").triggerList;
+		let triggerList = this.$store.triggers.triggerList;
 
 		//Sort by type so they're properly splitted into categories later
 		triggerList.sort((a,b) => {
@@ -226,21 +226,21 @@ export default class TriggerList extends Vue {
 	}
 
 	public deleteTrigger(entry:TriggerListEntry):void {
-		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
-			this.$store("triggers").deleteTrigger(entry.trigger.id);
+		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(()=>{
+			this.$store.triggers.deleteTrigger(entry.trigger.id);
 			this.populateTriggers();
 		}).catch(error=>{});
 	}
 
 	public duplicateTrigger(entry:TriggerListEntry):void {
 		console.log(entry.trigger.id);
-		this.$store("triggers").duplicateTrigger(entry.trigger.id);
+		this.$store.triggers.duplicateTrigger(entry.trigger.id);
 		this.populateTriggers();
 }
 
 	public onChangeTrigger(item:TriggerListEntry):void {
-		if(!this.$store("auth").isPremium
-		&& this.$store("triggers").triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
+		if(!this.$store.auth.isPremium
+		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
 			setTimeout(()=>{
 				item.trigger.enabled = false;
 			}, 350);
@@ -252,7 +252,7 @@ export default class TriggerList extends Vue {
 				}
 			}, 150);
 		}else{
-			this.$store("triggers").saveTriggers();
+			this.$store.triggers.saveTriggers();
 		}
 	}
 

@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -25,7 +25,7 @@ import Utils from '@/utils/Utils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 
 @Component({

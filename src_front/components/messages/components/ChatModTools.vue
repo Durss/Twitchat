@@ -24,12 +24,12 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import Button from '../../Button.vue';
+import TTButton from '../../TTButton.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["deleteMessage", "deleteUser"]
 })
@@ -58,7 +58,7 @@ export default class ChatModTools extends Vue {
 			this.$emit('deleteUser', this.messageData);
 			if(this.messageData.fake === true) {
 				//Avoid banning user for real if doing it from a fake message
-				this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
+				this.$store.users.flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id);
 			}else{
 				switch(this.messageData.platform) {
 					case "twitch": {
@@ -81,7 +81,7 @@ export default class ChatModTools extends Vue {
 			this.$emit('deleteUser', this.messageData);
 			if(this.messageData.fake === true) {
 				//Avoid blocking user for real if doing it from a fake message
-				this.$store("users").flagBlocked(this.messageData.platform, this.messageData.user.id);
+				this.$store.users.flagBlocked(this.messageData.platform, this.messageData.user.id);
 			}else{
 				TwitchUtils.blockUser(this.messageData.user);
 			}
@@ -93,7 +93,7 @@ export default class ChatModTools extends Vue {
 		this.$emit('deleteUser', this.messageData);
 		if(this.messageData.fake === true) {
 			//Avoid banning user for real if doing it from a fake message
-			this.$store("users").flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
+			this.$store.users.flagBanned(this.messageData.platform, this.messageData.channel_id, this.messageData.user.id, duration);
 		}else{
 			switch(this.messageData.platform) {
 				case "twitch": {

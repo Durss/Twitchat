@@ -1,7 +1,7 @@
 <template>
 	<div class="messagetranslation quote primary" v-if="messageData.translation">
-		<!-- <CountryFlag v-if="messageData.translation.flagISO" :iso="messageData.translation.flagISO" mode="squared" class="flag" v-tooltip="messageData.translation.languageName" /> -->
-		<Icon name="translate" class="flag" v-tooltip="$t('global.translation')" />
+		<!-- <CountryFlag v-if="messageData.translation.flagISO" :country="messageData.translation.flagISO" class="flag" v-tooltip="messageData.translation.languageName" /> -->
+		<Icon name="translate" class="flagIcon" v-tooltip="$t('global.translation')" />
 		<span>{{ messageData.translation.translation }}</span>
 	</div>
 </template>
@@ -9,8 +9,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import CountryFlag from 'vue3-country-flag-icon';
-import 'vue3-country-flag-icon/dist/CountryFlag.css';
+import CountryFlag from 'vue-country-flag-next';
 import Icon from '../Icon.vue';
 
 @Component({
@@ -40,7 +39,7 @@ export default class MessageTranslation extends Vue {
 .messagetranslation{
 	font-size: 1em;
 	margin-top: .25em;
-	.flag {
+	.flagIcon {
 		margin-right: .5em;
 		height: 1.2em;
 	}

@@ -57,7 +57,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
@@ -69,7 +69,7 @@ import SponsorTable from '@/components/premium/SponsorTable.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -125,7 +125,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	}
 
 	public clickPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	public clickItem():void {

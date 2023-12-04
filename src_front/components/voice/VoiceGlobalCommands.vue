@@ -48,7 +48,7 @@ export default class VoiceGlobalCommands extends Vue {
 
 			const id:string = VoiceAction[a as VAKeys] as string;
 			let text = "";
-			const action = (this.$store("voice").voiceActions as VoiceAction[]).find(v=> v.id == id);
+			const action = (this.$store.voice.voiceActions as VoiceAction[]).find(v=> v.id == id);
 			if(action?.sentences) text = action.sentences;
 
 			this.items.push({

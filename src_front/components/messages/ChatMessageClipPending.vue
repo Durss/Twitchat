@@ -1,6 +1,6 @@
 <template>
 	<div class="chatmessageclippending chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="clip" alt="notice" class="icon"/>
 		
@@ -28,12 +28,12 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonObject } from 'type-fest';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["onRead"]
 })
@@ -48,14 +48,14 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 	public interval:number = -1;
 
 	public mounted():void {
-		this.$store("accessibility").setAriaPolite(this.$t("global.moderation_action.clip_creating", {LINK:""}));
+		this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_creating", {LINK:""}));
 		
 		/*
 		//No idea why, but the watcher does not work :(
 		watch(()=>this.messageData.loading, ()=> {
 			console.log("CHANGE 1");
 			this.loading = false;
-			this.$store("accessibility").setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
+			this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
 		});
 		//*/
 
@@ -69,9 +69,9 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 				clearInterval(this.interval);
 				if(this.error) {
 
-					this.$store("accessibility").setAriaPolite(this.$t("error.clip_creation"));
+					this.$store.accessibility.setAriaPolite(this.$t("error.clip_creation"));
 				}else{
-					this.$store("accessibility").setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
+					this.$store.accessibility.setAriaPolite(this.$t("global.moderation_action.clip_created", {LINK:""}));
 				}
 			}
 		}, 1000);
@@ -85,10 +85,10 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 	public highlight(): void {
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
 			clip:this.messageData.clipData,
-			params:this.$store("chat").chatHighlightOverlayParams,
+			params:this.$store.chat.chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
-		this.$store("chat").isChatMessageHighlighted = true;
+		this.$store.chat.isChatMessageHighlighted = true;
 	}
 
 }

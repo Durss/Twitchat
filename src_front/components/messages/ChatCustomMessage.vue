@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" :style="styles">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<div class="messageHolder">
 			<div class="content">
@@ -32,12 +32,12 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
 import CloseButton from '../CloseButton.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import MessengerProxy from '@/messaging/MessengerProxy';
@@ -45,7 +45,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ChatMessageChunksParser,
 	},
@@ -95,7 +95,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 
 		switch(data.actionType) {
 			case "trigger": {
-				const trigger = this.$store("triggers").triggerList.find(v=> v.id == data.triggerId);
+				const trigger = this.$store.triggers.triggerList.find(v=> v.id == data.triggerId);
 				if(trigger) TriggerActionHandler.instance.executeTrigger(trigger, this.messageData, false);
 				break
 			}

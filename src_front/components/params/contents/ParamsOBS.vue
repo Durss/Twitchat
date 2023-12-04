@@ -128,9 +128,9 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 			this.openConnectForm = true;
 		}
 		
-		const storedPermissions = this.$store("obs").commandsPermissions;
+		const storedPermissions = this.$store.obs.commandsPermissions;
 		this.permissions = JSON.parse(JSON.stringify(storedPermissions));//Clone object to break ref
-		this.param_enabled.value = this.$store("obs").connectionEnabled ?? false;
+		this.param_enabled.value = this.$store.obs.connectionEnabled ?? false;
 
 		watch(()=> this.param_enabled.value, () => { this.paramUpdate(); })
 		watch(()=> this.permissions, () => { this.onPermissionChange(); }, { deep:true })
@@ -146,7 +146,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	 * Called when changing commands permisions
 	 */
 	public async onPermissionChange():Promise<void> {
-		this.$store("obs").setObsCommandsPermissions(this.permissions);
+		this.$store.obs.setObsCommandsPermissions(this.permissions);
 	}
 
 	/**
@@ -154,7 +154,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	 */
 	private paramUpdate():void {
 		this.connected = false;
-		this.$store("obs").connectionEnabled = this.param_enabled.value;
+		this.$store.obs.connectionEnabled = this.param_enabled.value;
 		DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.param_enabled.value);
 		if(!this.param_enabled.value) {
 			OBSWebsocket.instance.disconnect();

@@ -24,7 +24,7 @@ export default class ThemeSelector extends Vue {
 	}
 
 	public toggleTheme():void {
-		this.$store("main").toggleTheme(this.lightMode? "light" : "dark");
+		this.$store.main.toggleTheme(this.lightMode? "light" : "dark");
 	}
 
 }

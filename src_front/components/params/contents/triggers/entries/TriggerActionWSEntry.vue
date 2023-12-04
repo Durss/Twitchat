@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.http_ws.need_to_connect">
 				<template #LINK>
-					<a @click="$store('params').openParamsPage(contentConnexions)">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentConnexions)">{{ $t("triggers.actions.http_ws.need_to_connect_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -43,7 +43,7 @@ import type { ITriggerPlaceholder, TriggerActionWSData, TriggerData } from '@/ty
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import AbstractTriggerActionEntry from './AbstractTriggerActionEntry.vue';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{

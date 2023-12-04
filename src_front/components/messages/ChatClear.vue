@@ -1,6 +1,6 @@
 <template>
 	<div class="chatclear chatMessage highlight">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<i18n-t scope="global" tag="span" keypath="chat.clear.title">
 			<template #ROOM><strong>#{{room}}</strong></template>
@@ -21,7 +21,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
@@ -35,11 +35,11 @@ export default class ChatClear extends AbstractChatMessage {
 	public room:string = "";
 
 	public mounted():void {
-		this.room = this.$store("users").getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id).login;
+		this.room = this.$store.users.getUserFrom(this.messageData.platform, this.messageData.channel_id, this.messageData.channel_id).login;
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user!);
+		this.$store.users.openUserCard(this.messageData.user!);
 	}
 
 }

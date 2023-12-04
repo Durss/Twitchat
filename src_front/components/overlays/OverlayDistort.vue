@@ -12,7 +12,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay.vue';
+import AbstractOverlay from './AbstractOverlay';
 import DistortionLiquid from './distortions/DistortionLiquid.vue';
 import DistortionExpand from './distortions/DistortionExpand.vue';
 import DistortShrink from './distortions/DistortShrink.vue';

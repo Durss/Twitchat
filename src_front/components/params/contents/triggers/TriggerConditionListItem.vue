@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, TriggerEventPlaceholders, type TriggerCondition, type TriggerConditionGroup, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
@@ -31,7 +31,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -89,12 +89,12 @@ export default class TriggerConditionListItem extends Vue {
 			//If it's a counter tag, get counter's name
 			if(v.tag.indexOf(COUNTER_VALUE_PLACEHOLDER_PREFIX) > -1) {
 				const counterTag = v.tag.replace(COUNTER_VALUE_PLACEHOLDER_PREFIX, "");
-				const counter = this.$store("counters").counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
+				const counter = this.$store.counters.counterList.find(v=>v.placeholderKey?.toLowerCase() === counterTag.toLowerCase());
 				if(counter) name = counter.name;
 			}
 			if(v.tag.indexOf(VALUE_PLACEHOLDER_PREFIX) > -1) {
 				const valueTag = v.tag.replace(VALUE_PLACEHOLDER_PREFIX, "");
-				const counter = this.$store("values").valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
+				const counter = this.$store.values.valueList.find(v=>v.placeholderKey?.toLowerCase() === valueTag.toLowerCase());
 				if(counter) name = counter.name;
 			}
 			return {

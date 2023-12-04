@@ -8,7 +8,7 @@ import bubbles from '@/assets/img/distortions/bubbles_sh.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap, { Elastic } from 'gsap/all';
 import { Component, Prop } from 'vue-facing-decorator';
-import AbstractDistortion, { type IDistortItem } from './AbstractDistortion.vue';
+import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 
 @Component({
 	components:{},

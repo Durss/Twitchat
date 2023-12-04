@@ -7,7 +7,7 @@
 				<template #COUNT><strong>{{ eventsCount }}</strong></template>
 			</i18n-t>
 			<i18n-t scope="global" tag="p" class="small" keypath="triggers.logs.cmd_info" v-if="!currentTriggerData">
-				<template #CMD><mark v-click2Select>{{ $store("chat").commands.find(v=>v.id=='triggerlogs')?.cmd}}</mark></template>
+				<template #CMD><mark v-click2Select>{{ $store.chat.commands.find(v=>v.id=='triggerlogs')?.cmd}}</mark></template>
 			</i18n-t>
 		</div>
 
@@ -43,7 +43,7 @@
 			
 			<template v-if="showList && !showForm">
 				<Button class="createBt"
-					v-if="$store('auth').isPremium || $store('triggers').triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
+					v-if="$store.auth.isPremium || $store.triggers.triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
 					icon="add" primary
 					v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}"
 					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -101,7 +101,7 @@ import TriggerList from './triggers/TriggerList.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		TriggerList,
 		TriggerActionList,
 		TriggerCreateForm,
@@ -121,7 +121,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public rewards:TwitchDataTypes.Reward[] = [];
 
 	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
-	public get currentTriggerData():TriggerData|null { return this.$store("triggers").currentEditTriggerData; }
+	public get currentTriggerData():TriggerData|null { return this.$store.triggers.currentEditTriggerData; }
 	public get showList():boolean { return this.currentTriggerData == null; }
 
 	public get showOBSResync():boolean {
@@ -139,7 +139,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	}
 
 	public get noTrigger():boolean {
-		return this.$store("triggers").triggerList?.length === 0;
+		return this.$store.triggers.triggerList?.length === 0;
 	}
 
 	public beforeMount():void {
@@ -182,7 +182,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						//Force reschedule after an update
 						SchedulerHelper.instance.scheduleTrigger(this.currentTriggerData);
 					}
-					this.$store("triggers").saveTriggers();
+					this.$store.triggers.saveTriggers();
 				}
 			}, 1000);
 		}, {deep:true});
@@ -216,7 +216,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public reload(): boolean {
 		if(!this.showList || this.showForm) {
 			this.showForm = false;
-			this.$store("triggers").openTriggerList();
+			this.$store.triggers.openTriggerList();
 			this.headerKey = "triggers.header";
 			return true;
 		}
@@ -227,7 +227,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * Opens the premium page
 	 */
 	public openPremium():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -243,7 +243,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * @param triggerData
 	 */
 	public onSelectTrigger(triggerData:TriggerData):void {
-		this.$store("triggers").openTriggerEdition(triggerData);
+		this.$store.triggers.openTriggerEdition(triggerData);
 		this.showForm = false;
 	}
 
@@ -260,7 +260,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			inputs = await OBSWebsocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
-			this.$store("main").alert(this.$t('error.obs_sources_loading'));
+			this.$store.main.alert(this.$t('error.obs_sources_loading'));
 			this.loadingOBSElements = false;
 			return;
 		}
@@ -291,7 +291,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 			scenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
 		}catch(error) {
 			this.obsScenes = [];
-			this.$store("main").alert(this.$t('error.obs_scenes_loading'));
+			this.$store.main.alert(this.$t('error.obs_scenes_loading'));
 			return;
 		}
 
@@ -308,7 +308,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 */
 	public async listRewards():Promise<void> {
 		this.loadingRewards = true;
-		this.rewards = await this.$store("rewards").loadRewards();
+		this.rewards = await this.$store.rewards.loadRewards();
 		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
 		this.loadingRewards = false;
 	}
@@ -327,7 +327,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 			//If it's a notice type
 			if(triggerEvent.testMessageType == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-				this.$store("debug").simulateNotice<TwitchatDataTypes.MessageNoticeData>(triggerEvent.testNoticeType, (data)=> {
+				this.$store.debug.simulateNotice<TwitchatDataTypes.MessageNoticeData>(triggerEvent.testNoticeType, (data)=> {
 					const m = data as TwitchatDataTypes.MessageNoticeData;
 					switch(m.noticeId) {
 						case TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE:{
@@ -342,7 +342,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 				
 			//If it's any other message type
 			}else{
-				this.$store("debug").simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
+				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
 					let m = data
 					//Chat message simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -375,7 +375,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 					//Reward redeem simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 						//Inject actual reward data
-						let twitchReward = this.$store("rewards").rewardList.find(v=> v.id == trigger.rewardId);
+						let twitchReward = this.$store.rewards.rewardList.find(v=> v.id == trigger.rewardId);
 						if(twitchReward) {
 							(m as TwitchatDataTypes.MessageRewardRedeemData).reward = {
 								id:twitchReward.id,
@@ -415,13 +415,13 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						if(typeToState[trigger.type]) {
 							m.state = typeToState[trigger.type]!;
 						}else{
-							this.$store("main").alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
+							this.$store.main.alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
 						}
 					}else 
 
 					//Counter update simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
-						const counter = this.$store("counters").counterList.find(v=>v.id == trigger.counterId);
+						const counter = this.$store.counters.counterList.find(v=>v.id == trigger.counterId);
 						if(counter) {
 							m.counter = counter;
 							switch(trigger.type) {
@@ -437,7 +437,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 					//Value update simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE) {
-						const value = this.$store("values").valueList.find(v=>v.id == trigger.valueId);
+						const value = this.$store.values.valueList.find(v=>v.id == trigger.valueId);
 						if(value) {
 							m.value = value;
 							m.oldValue = value.value;
@@ -456,7 +456,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 						sub.is_gift = true;
 						const recipients = [];
 						do {
-							recipients.push(Utils.pickRand(this.$store("users").users));
+							recipients.push(Utils.pickRand(this.$store.users.users));
 						}while(Math.random()>.25);
 						sub.gift_recipients = recipients;
 						sub.gift_count = recipients.length;
@@ -531,10 +531,10 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	 * @param id 
 	 */
 	public deleteTrigger(id:string):void {
-		this.$store("main").confirm(this.$t("triggers.delete_confirm")).then(()=>{
+		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(()=>{
 			this.showForm = false;
-			this.$store("triggers").deleteTrigger(id);
-			this.$store("triggers").openTriggerList();
+			this.$store.triggers.deleteTrigger(id);
+			this.$store.triggers.openTriggerList();
 		}).catch(error=>{});
 	}
 }

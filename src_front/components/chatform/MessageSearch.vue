@@ -41,14 +41,14 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ChatMessage,
 	},
@@ -66,7 +66,7 @@ export default class MessageSearch extends AbstractSidePanel {
 	}
 
 	public mounted():void {
-		watch(() => this.$store("chat").searchMessages, () => {
+		watch(() => this.$store.chat.searchMessages, () => {
 			this.updateList();
 		});
 		this.updateList();
@@ -74,25 +74,25 @@ export default class MessageSearch extends AbstractSidePanel {
 	}
 
 	public async close():Promise<void> {
-		this.$store("chat").doSearchMessages("");
+		this.$store.chat.doSearchMessages("");
 		super.close();
 	}
 
 	private async updateList():Promise<void> {
-		if(this.$store("chat").searchMessages.length === 0) return;
+		if(this.$store.chat.searchMessages.length === 0) return;
 
-		if(this.search != this.$store("chat").searchMessages) {
+		if(this.search != this.$store.chat.searchMessages) {
 			//If search has changed clear all current results
 			//to make sure items are properly updated.
 			//If an item from the prev search is still there
 			//with the new search, the highlight wouldn't be
 			//updated if we wouldn't remove it first.
-			this.search = this.$store("chat").searchMessages;
+			this.search = this.$store.chat.searchMessages;
 			this.messages = [];
 			await this.$nextTick();
 		}
 
-		const list = this.$store("chat").messages.concat();
+		const list = this.$store.chat.messages.concat();
 		const result:TwitchatDataTypes.ChatMessageTypes[] = [];
 		for (let i = 0; i < list.length; i++) {
 			const m = list[i];

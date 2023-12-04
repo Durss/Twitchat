@@ -27,7 +27,7 @@
 				<span class="index">3.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
 					<template #TAB_LINK>
-						<a @click="$store('params').openParamsPage(contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
+						<a @click="$store.params.openParamsPage(contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
 					</template>
 				</i18n-t>
 			</li>
@@ -49,7 +49,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -57,7 +57,7 @@ import type IParameterContent from './IParameterContent';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		Splitter,
 	},
 	emits:[]

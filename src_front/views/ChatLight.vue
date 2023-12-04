@@ -20,7 +20,7 @@ export default class ChatLight extends Vue {
 	public maxSize = 50;
 
 	public mounted():void {
-		this.$store("chat").realHistorySize = this.maxSize;//Reduces memory footprint
+		this.$store.chat.realHistorySize = this.maxSize;//Reduces memory footprint
 	}
 }
 </script>

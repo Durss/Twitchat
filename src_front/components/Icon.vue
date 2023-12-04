@@ -49,12 +49,12 @@ export default class Icon extends Vue {
 	}
 	
 	private async loadImage():Promise<void> {
-		// this.$store("main").iconCache = {};//Disable cache for debug
-		let cache = this.$store("main").iconCache[this.name];
+		// this.$store.main.iconCache = {};//Disable cache for debug
+		let cache = this.$store.main.iconCache[this.name];
 		//Icon is pending for loading, wait for it
 		if(cache && typeof cache != "string") {
 			await cache;
-			cache = this.$store("main").iconCache[this.name];
+			cache = this.$store.main.iconCache[this.name];
 		}
 
 		//If icon is loaded, load it from cache
@@ -65,7 +65,7 @@ export default class Icon extends Vue {
 		
 		//Icon not yet loaded, load it
 		try {
-			this.$store("main").iconCache[this.name] = fetch(this.$image("icons/"+this.name+".svg"))
+			this.$store.main.iconCache[this.name] = fetch(this.$image("icons/"+this.name+".svg"))
 			.then(async (imgRes) => {
 				if(imgRes.status <200 || imgRes.status > 204) {
 					this.error = true;
@@ -76,7 +76,7 @@ export default class Icon extends Vue {
 					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
 					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
 					.replace(/>\s+</g, '><');//cleanup spaces between tags
-					this.$store("main").iconCache[this.name] = this.svg;
+					this.$store.main.iconCache[this.name] = this.svg;
 				}
 			});
 		}catch(error) {

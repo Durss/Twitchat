@@ -30,12 +30,12 @@ export default class MessageExportIndicator extends Vue {
 	private closeTimeout:number = -1;
 
 	public get state() {
-		return this.$store('main').messageExportState;
+		return this.$store.main.messageExportState;
 	}
 
 	public close() {
 		if(this.state == "progress") return;
-		this.$store('main').messageExportState = null;
+		this.$store.main.messageExportState = null;
 	}
 
 	public mounted():void {
@@ -45,7 +45,7 @@ export default class MessageExportIndicator extends Vue {
 			|| this.state == "complete_copyOnly"
 			|| this.state == "complete_downloadOnly") {
 				this.closeTimeout = setTimeout(() => {
-					this.$store("main").messageExportState = null;
+					this.$store.main.messageExportState = null;
 				}, 7000);
 			}
 		});

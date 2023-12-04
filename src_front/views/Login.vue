@@ -90,7 +90,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import CloseButton from '@/components/CloseButton.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import DataStore from '@/store/DataStore';
@@ -105,7 +105,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		CloseButton,
 		ScopeSelector,
 	},
@@ -157,7 +157,7 @@ export default class Login extends Vue {
 				this.requestedScopes = [this.$router.currentRoute.value.params.scope as TwitchScopesString];
 			}
 		}else{
-			const scopes = this.$store('auth').newScopesToRequest;
+			const scopes = this.$store.auth.newScopesToRequest;
 			this.requestedScopes = scopes;
 		}
 	}
@@ -179,10 +179,10 @@ export default class Login extends Vue {
 			if(code) {
 				const res = await ApiController.call("auth/CSRFToken", "POST", {token:csrfToken});
 				if(!res.json.success) {
-					if(res.json.message) this.$store("main").alert(res.json.message);
+					if(res.json.message) this.$store.main.alert(res.json.message);
 					this.authenticating = false;
 				}else{
-					this.$store("auth").twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
+					this.$store.auth.twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
 						this.authenticating = false;
 						if(success) {
 							redirect = DataStore.get("redirect");
@@ -197,14 +197,14 @@ export default class Login extends Vue {
 								this.closedBeta = true;
 								this.checkIfCanMigrate();
 							}else{
-								this.$store("main").alert(this.$t("error.invalid_credentials"));
+								this.$store.main.alert(this.$t("error.invalid_credentials"));
 							}
 							this.authenticating = false;
 						}
 					});
 				}
 			}else{
-				this.$store("main").alert(this.$t("error.authorization_refused"));
+				this.$store.main.alert(this.$t("error.authorization_refused"));
 				this.authenticating = false;
 			}
 		}
@@ -224,7 +224,7 @@ export default class Login extends Vue {
 	 */
 	public async open():Promise<void> {
 		//Uncomment to debug forced scopes state
-		// this.$store('auth').newScopesToRequest = ['moderator:read:chatters', 'channel:read:redemptions', 'channel:manage:polls'];
+		// this.$store.auth.newScopesToRequest = ['moderator:read:chatters', 'channel:read:redemptions', 'channel:manage:polls'];
 		
 		await this.$nextTick();
 		if(this.$refs.dimmer) {
@@ -250,7 +250,7 @@ export default class Login extends Vue {
 			this.CSRFToken = json.token;
 			this.onScopesUpdate
 		}catch(e) {
-			this.$store("main").alert(this.$t("error.csrf_failed"));
+			this.$store.main.alert(this.$t("error.csrf_failed"));
 		}
 		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 		if(redirect) {
@@ -277,7 +277,7 @@ export default class Login extends Vue {
 		}
 		gsap.killTweensOf(this.$refs.holder as HTMLDivElement);
 		gsap.to(this.$refs.holder as HTMLDivElement, {scaleX:.1, scaleY:.1, ease:"back.in", duration:.35, clearProps:"all", onComplete:()=>{
-			this.$store('auth').newScopesToRequest = [];
+			this.$store.auth.newScopesToRequest = [];
 			this.$emit('close');
 		}});
 	}
@@ -292,7 +292,7 @@ export default class Login extends Vue {
 			if(res.status == 200) {
 				this.transferComplete = true;
 			}else{
-				this.$store("main").alert(this.$t("error.beta_transfer"))
+				this.$store.main.alert(this.$t("error.beta_transfer"))
 			}
 			this.transferingData = false;
 		}).catch(()=>{/*ignore*/})

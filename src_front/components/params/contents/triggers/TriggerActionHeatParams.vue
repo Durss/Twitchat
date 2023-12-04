@@ -7,9 +7,9 @@
 			<div>
 				<Icon name="polygon" />{{ $t("triggers.actions.heat.select_area") }}
 			</div>
-			<div class="screenList" v-if="$store('heat').screenList.length > 0">
+			<div class="screenList" v-if="$store.heat.screenList.length > 0">
 				<HeatScreenPreview class="screen"
-				v-for="screen in $store('heat').screenList" :key="screen.id"
+				v-for="screen in $store.heat.screenList" :key="screen.id"
 				selectAreaMode
 				@select="(id:string) => onSelectArea(id)"
 				:selectedAreas="triggerData.heatAreaIds"
@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
@@ -67,7 +67,7 @@ import { watch } from 'vue';
 @Component({
 	components:{
 		Icon,
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,
@@ -129,7 +129,7 @@ export default class TriggerActionHeatParams extends Vue {
 		
 		//Cleanup any area ID from the trigger that does not exist anymore
 		//in the screens definitions
-		const screenList = this.$store('heat').screenList;
+		const screenList = this.$store.heat.screenList;
 		if(!this.triggerData.heatAreaIds) this.triggerData.heatAreaIds = [];
 		for (let i = 0; i < this.triggerData.heatAreaIds!.length; i++) {
 			const id = this.triggerData.heatAreaIds![i];
@@ -154,16 +154,16 @@ export default class TriggerActionHeatParams extends Vue {
 		}else if(this.triggerData.heatAreaIds.length < 100){
 			this.triggerData.heatAreaIds.push(id);
 		}else{
-			this.$store("main").alert("You reached the maximum of 100 clickable areas");
+			this.$store.main.alert("You reached the maximum of 100 clickable areas");
 		}
 	}
 
 	public openHeatParams():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.HEAT, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
 	}
 
 	public openOBSParams():void {
-		this.$store("params").openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	public cleanupData(prevValue:any, newValue:any):void {

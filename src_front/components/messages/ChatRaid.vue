@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes"
 	@contextmenu="onContextMenu($event, messageData, $el)">
-		<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{time}}</span>
+		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="raid" alt="raid" class="icon"/>
 
@@ -16,7 +16,7 @@
 				</template>
 			</i18n-t>
 
-			<div class="streamInfo" v-if="$store('params').appearance.showRaidStreamInfo.value == true">
+			<div class="streamInfo" v-if="$store.params.appearance.showRaidStreamInfo.value == true">
 				<div class="infos">
 					<div class="title quote">
 						<span>{{messageData.stream.title}}</span>
@@ -52,12 +52,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { Component, Prop } from 'vue-facing-decorator';
-import Button from '../Button.vue';
-import AbstractChatMessage from './AbstractChatMessage.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 	},
 	emits:["onRead"],
 })
@@ -72,27 +72,27 @@ export default class ChatRaid extends AbstractChatMessage {
 
 	public get classes():string[] {
 		const res = ["chatraid","chatMessage","highlight"];
-		if(this.$store('params').appearance.showRaidStreamInfo.value !== true) {
+		if(this.$store.params.appearance.showRaidStreamInfo.value !== true) {
 			res.push("rowMode");
 		}
 		return res;
 	}
 
 	public beforeMount():void {
-		this.showCount = this.$store('params').appearance.showRaidViewersCount.value !== false;
+		this.showCount = this.$store.params.appearance.showRaidViewersCount.value !== false;
 		this.formatedDuration = Utils.formatDuration(this.messageData.stream.duration);
 	}
 
 	public openUserCard():void {
-		this.$store("users").openUserCard(this.messageData.user, this.messageData.channel_id);
+		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
 	}
 
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store("users").shoutout(this.$store("auth").twitch.user.id, this.messageData.user);
+			await this.$store.users.shoutout(this.$store.auth.twitch.user.id, this.messageData.user);
 		}catch(error) {
-			this.$store("main").alert(this.$t("error.shoutout"));
+			this.$store.main.alert(this.$t("error.shoutout"));
 			console.log(error);
 		}
 		this.shoutoutLoading = false;

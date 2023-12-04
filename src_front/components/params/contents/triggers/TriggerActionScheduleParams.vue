@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import Button from '@/components/Button.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { ScheduleTriggerEvents, TriggerEventTypeCategories, type TriggerData, type TriggerScheduleEventType, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -49,7 +49,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ParamItem,
 		ToggleBlock,
 		PermissionsForm,

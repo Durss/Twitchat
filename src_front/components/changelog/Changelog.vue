@@ -48,7 +48,7 @@
 							</div>
 							
 							<template v-if="item.i=='premium'">
-								<Button premium icon="premium" @click="$store('params').openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
+								<Button premium icon="premium" @click="$store.params.openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
 								<Button secondary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
 							</template>
@@ -80,7 +80,7 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import Button from '../Button.vue';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -90,7 +90,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 @Component({
 	components:{
 		Slide,
-		Button,
+		Button: TTButton,
 		Carousel,
 		ToggleBlock,
 		CloseButton,
@@ -176,7 +176,7 @@ export default class Changelog extends Vue {
 			gsap.to(this.$refs.fu as HTMLDivElement, {duration:.5, opacity:0, fontSize:0, ease:"back.in"});
 			await Utils.promisedTimeout(500);
 
-			this.$store("chat").sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
+			this.$store.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.UPDATE_REMINDER);
 		}
 
 		gsap.to(this.$refs.dimmer as HTMLDivElement, {duration:.25, opacity:0});
@@ -184,8 +184,8 @@ export default class Changelog extends Vue {
 			this.$emit('close');
 		}});
 
-		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store("main").latestUpdateIndex as number).toString()) {
-			DataStore.set(DataStore.UPDATE_INDEX, this.$store("main").latestUpdateIndex);
+		if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
+			DataStore.set(DataStore.UPDATE_INDEX, this.$store.main.latestUpdateIndex);
 		}
 	}
 

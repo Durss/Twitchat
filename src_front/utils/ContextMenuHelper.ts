@@ -530,7 +530,7 @@ export default class ContextMenuHelper {
 	 */
 	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
-		ApiController.call("google/translate", "POST", {langSource:langSource.iso1, langTarget, text:text}, false)
+		ApiController.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.json.data.translation) {
 				message.translation = {

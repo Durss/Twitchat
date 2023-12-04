@@ -9,8 +9,8 @@
 	
 		<div class="content">
 			<div class="messageList" ref="messageList">
-				<div v-for="m in $store('chat').whispers[selectedUserId]" :key="m.id" :class="messageClasses(m)">
-					<span class="chatMessageTime" v-if="$store('params').appearance.displayTime.value">{{getTime(m)}}</span>
+				<div v-for="m in $store.chat.whispers[selectedUserId]" :key="m.id" :class="messageClasses(m)">
+					<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{getTime(m)}}</span>
 					<div class="text">
 						<ChatMessageChunksParser :chunks="m.message_chunks" :channel="m.channel_id" :platform="m.platform" />
 					</div>
@@ -45,8 +45,8 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
-import AbstractSidePanel from '../AbstractSidePanel.vue';
-import Button from '../Button.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
+import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { watch } from 'vue';
@@ -54,7 +54,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 
 @Component({
 	components:{
-		Button,
+		Button: TTButton,
 		ToggleBlock,
 		CloseButton,
 		ChatMessageChunksParser,
@@ -73,22 +73,22 @@ export default class WhispersState extends AbstractSidePanel {
 	}
 
 	public get currentUser():TwitchatDataTypes.TwitchatUser {
-		return this.$store('chat').whispers[this.selectedUserId].find(v=> v.user.id == this.selectedUserId)!.user;
+		return this.$store.chat.whispers[this.selectedUserId].find(v=> v.user.id == this.selectedUserId)!.user;
 	}
 
-	public get uids():string[] { return Object.keys(this.$store('chat').whispers); }
+	public get uids():string[] { return Object.keys(this.$store.chat.whispers); }
 
 	public get users():TwitchatDataTypes.TwitchatUser[] {
-		const me = this.$store("auth").twitch.user.id;
+		const me = this.$store.auth.twitch.user.id;
 		return this.uids.map(uid => {
-			const m = this.$store('chat').whispers[uid][0];
+			const m = this.$store.chat.whispers[uid][0];
 			return m.to.id == me? m.user : m.to;
 		});
 	}
  
 	public beforeMount():void {
 		this.selectedUserId = this.uids[0];
-		this.$store("chat").whispersUnreadCount = 0;
+		this.$store.chat.whispersUnreadCount = 0;
 		watch(()=>this.selectedUserId, async ()=>{
 			//Force scroll for a few frames in case there are
 			//emotes to be loaded. If we were not waiting for this
@@ -106,7 +106,7 @@ export default class WhispersState extends AbstractSidePanel {
 
 	public messageClasses(whisper:TwitchatDataTypes.MessageWhisperData):string[] {
 		let classes:string[] = ["message"];
-		if(whisper.user.id == this.$store("auth").twitch.user.id) classes.push("isMe");
+		if(whisper.user.id == this.$store.auth.twitch.user.id) classes.push("isMe");
 		return classes;
 	}
 
@@ -116,7 +116,7 @@ export default class WhispersState extends AbstractSidePanel {
 	}
 
 	public requestTwitchScope():void {
-		this.$store("auth").requestTwitchScopes([TwitchScopes.WHISPER_WRITE]);
+		this.$store.auth.requestTwitchScopes([TwitchScopes.WHISPER_WRITE]);
 	}
 
 	public async sendWhisper():Promise<void> {
@@ -135,7 +135,7 @@ export default class WhispersState extends AbstractSidePanel {
 	}
 
 	public deleteWhispers(user:string):void {
-		this.$store("chat").closeWhispers(user);
+		this.$store.chat.closeWhispers(user);
 	}
 
 	private scrollToBottom():void {
