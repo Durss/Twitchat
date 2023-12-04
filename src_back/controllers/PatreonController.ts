@@ -510,7 +510,7 @@ interface PatreonToken {
 	expires_at: number;
 }
 
-interface PatreonMember {
+export interface PatreonMember {
 	id: string;
 	name: string;
 	total: number;

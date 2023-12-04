@@ -19,7 +19,13 @@ export default class Config {
 	public static get donorsPublicList(): string { return this.DONORS_DATA_FOLDER + "public_cache.json"; }
 	public static get donorsLevels(): number[] { return [0,20,30,50,80,100,200,300,400,500,999999]; }
 	public static get patreonToken(): string { return this.PATREON_DATA_FOLDER + "patreonToken.json"; }
+	/**
+	 * Get active patreon member list
+	 */
 	public static get patreonMembers(): string { return this.PATREON_DATA_FOLDER + "patreonMembers.json"; }
+	/**
+	 * Links a twitch user ID to a Patreon member ID
+	 */
 	public static get patreon2Twitch(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
 
 	public static get credentials():Credentials {

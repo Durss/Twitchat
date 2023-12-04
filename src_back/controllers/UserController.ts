@@ -11,8 +11,6 @@ import AbstractController from "./AbstractController";
 */
 export default class UserController extends AbstractController {
 
-	private earlyDonors:{[key:string]:boolean} = {};
-	
 	constructor(public server:FastifyInstance) {
 		super();
 	}
@@ -33,12 +31,7 @@ export default class UserController extends AbstractController {
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
-		if(fs.existsSync(Config.earlyDonors)) {
-			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
-			for (let i = 0; i < uids.length; i++) {
-				this.earlyDonors[uids[i]] = true;
-			}
-		}
+		super.preloadEarlyDonors();
 		
 		//Old endpoint URL.
 		//It's just here to make sure people running on the old version won't have issues

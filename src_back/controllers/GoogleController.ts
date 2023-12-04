@@ -200,6 +200,9 @@ export default class GoogleController extends AbstractController {
 	 * @param response 
 	 */
 	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		//Check if user is premium
+		if(!await this.premiumGuard(request, response)) return;
+
 		const params:any = request.query;
 
 		try {

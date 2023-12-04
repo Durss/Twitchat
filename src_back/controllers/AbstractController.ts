@@ -1,10 +1,20 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import Config from '../utils/Config';
+import * as fs from "fs";
+import type{PatreonMember} from "./PatreonController";
 
 /**
 * Created : 14/12/2022 
 */
 export default class AbstractController {
+
+	protected earlyDonors:{[key:string]:boolean} = {};
+	
+	/**
+	 * Twitch user ID to cache expiration date.
+	 * An entry exists only if user is part of premium members
+	 */
+	private premiumState_cache:{[key:string]:number} = {};
 	
 	constructor() {
 	}
@@ -24,6 +34,18 @@ export default class AbstractController {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+	/**
+	 * Preloads the early donors on a local cache
+	 */
+	protected preloadEarlyDonors():void {
+		if(fs.existsSync(Config.earlyDonors)) {
+			const uids:string[] = JSON.parse(fs.readFileSync(Config.earlyDonors, "utf-8"));
+			for (let i = 0; i < uids.length; i++) {
+				this.earlyDonors[uids[i]] = true;
+			}
+		}
+	}
+
 	/**
 	 * Returns true if it passes the admin check
 	 * @param request 
@@ -53,6 +75,69 @@ export default class AbstractController {
 			response.send(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
 			return false;
 		}
+		return true;
+	}
+	/**
+	 * Returns true if it passes the admin check
+	 * @param request 
+	 * @param response 
+	 */
+	protected async premiumGuard(request:FastifyRequest, response:FastifyReply):Promise<boolean> {
+		if(!request.headers.authorization) {
+			//Missing auth token
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({success:false}));
+			return false;
+		}
+		
+		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		if(!userInfo) {
+			//Invalid token
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return false;
+		}
+	
+		const cache = this.premiumState_cache[userInfo.user_id];
+		let isPremium = cache != undefined && cache < Date.now();
+
+		//Check if user is part of early donors with offered premium
+		if(!isPremium && this.earlyDonors[userInfo.user_id] === true) {
+			isPremium = true;
+		}
+
+		//Check if user is part of active patreon members
+		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
+			//Get patreon member ID from twitch user ID
+			const jsonMap = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8"));
+			const memberID = jsonMap[userInfo.user_id];
+			//Get if user is part of the active patreon members
+			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
+			isPremium = members.findIndex(v=>v.id === memberID) > -1;
+		}
+
+		//Check if user donated for more than the lifetime premium amount
+		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
+			let donorAmount = -1;
+			if(fs.existsSync( Config.donorsList )) {
+				let json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
+				const isDonor = json.hasOwnProperty(userInfo.user_id);
+				if(isDonor) {
+					donorAmount = json[userInfo.user_id];
+				}
+			}
+			isPremium = donorAmount >= Config.lifetimeDonorStep;
+		}
+
+		if(!isPremium) {
+			response.header('Content-Type', 'application/json');
+			response.status(401);
+			response.send(JSON.stringify({message:"You're not allowed to call this premium-only endpoint", success:false}));
+			return false;
+		}
+		this.premiumState_cache[userInfo.user_id] = Date.now() + 6 * 60 * 1000;
 		return true;
 	}
 	
