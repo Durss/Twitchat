@@ -24,7 +24,6 @@ async function start():Promise<void> {
 		console.log(err);
 		process.exit(1)
 	}
-	
 
 	Logger.success("=========================");
 	Logger.success("Server ready on port "+Config.credentials.server_port);

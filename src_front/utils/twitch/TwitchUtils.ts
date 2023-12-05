@@ -645,6 +645,57 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Create a channel points reward
+	 */
+	public static async createReward(reward:TwitchDataTypes.RewardEdition):Promise<boolean> {
+		if(!this.hasScopes([TwitchScopes.MANAGE_REWARDS])) return false;
+
+		const user = StoreProxy.auth.twitch.user;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		url.searchParams.append("broadcaster_id", user.id);
+		
+		const res = await fetch(url, {
+			method:"POST",
+			headers:this.headers,
+			body:JSON.stringify(reward),
+		});
+		if(res.status == 200) {
+			return true;
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.createReward(reward);
+		}else if(res.status === 400) {
+			//TODO handle error cases
+		}
+		return false;
+	}
+
+	/**
+	 * Delete a channel points reward
+	 */
+	public static async deleteReward(rewardId:string):Promise<boolean> {
+		if(!this.hasScopes([TwitchScopes.MANAGE_REWARDS])) return false;
+
+		const user = StoreProxy.auth.twitch.user;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("id", rewardId);
+		
+		const res = await fetch(url, {
+			method:"DELETE",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json = await res.json();
+			return true;
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.deleteReward(rewardId);
+		}
+		return false;
+	}
+
+	/**
 	 * Get the reward redemptions list
 	 */
 	public static async loadRedemptions():Promise<TwitchDataTypes.RewardRedemption[]> {
@@ -655,7 +706,12 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		let redemptions:TwitchDataTypes.RewardRedemption[] = [];
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
+
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("broadcaster_id", user.id);
+
+		const res = await fetch(url, options);
 		if(res.status == 200) {
 			const json = await res.json();
 			redemptions = json.data;
@@ -663,6 +719,30 @@ export default class TwitchUtils {
 			return [];
 		}
 		return redemptions;
+	}
+
+	/**
+	 * Refund a redemption
+	 */
+	public static async refundRedemptions(redemptionId:string, rewardId:string):Promise<boolean> {
+		if(!this.hasScopes([TwitchScopes.LIST_REWARDS])) return false;
+		
+		const options = {
+			method:"PATCH",
+			headers: this.headers,
+			body:JSON.stringify({status:"CANCELED"}),
+		}
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards/redemptions");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("reward_id", rewardId);
+		url.searchParams.append("id", redemptionId);
+
+		const res = await fetch(url, options);
+		if(res.status == 200) {
+			return true;
+		}
+		return false;
 	}
 
 	/**
@@ -785,32 +865,6 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets the specified user follows the specified channel
-	 * 
-	 * @param uid user ID
-	 * 
-	 * @deprecated will be disabled by twitch the 2023-08-03
-	 */
-	public static async getFollowInfo(uid:string, channelId?:string):Promise<TwitchDataTypes.FollowingOld|null> {
-		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?to_id="+channelId+"&from_id="+uid, {
-			method:"GET",
-			headers:this.headers,
-		});
-		if(res.status == 429){
-			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
-			return await this.getFollowInfo(uid, channelId);
-		}
-		const json:{error:string, data:TwitchDataTypes.FollowingOld[], pagination?:{cursor?:string}} = await res.json();
-		if(json.error) {
-			throw(json.error);
-		}else{
-			return json.data[0] ?? null;
-		}
-	}
-
-	/**
 	 * Gets a list of the channels following us (restricted to the authenticated user or their moderators)
 	 * 
 	 * @param channelId channelId to get followings list
@@ -867,40 +921,6 @@ export default class TwitchUtils {
 			return json.data[0];
 		}
 		return null;
-	}
-
-	/**
-	 * Gets a list of the channel followed by the specified user
-	 * 
-	 * @param channelId channelId to get followings list
-	 * @param maxCount maximum followings to grabe
-	 * @param tempDataCallback optional callback method to get results as they're loading
-	 * 
-	 * @deprecated will be disabled by twitch the 2023-08-03
-	 */
-	public static async getFollowingsOld(channelId?:string|null, maxCount=-1, tempDataCallback?:(list:TwitchDataTypes.FollowingOld[])=>void):Promise<TwitchDataTypes.FollowingOld[]> {
-		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
-		let list:TwitchDataTypes.FollowingOld[] = [];
-		let cursor:string|null = null;
-		do {
-			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"users/follows?first=100&from_id="+channelId+pCursor, {
-				method:"GET",
-				headers:this.headers,
-			});
-			if(res.status == 200) {
-				const json:{data:TwitchDataTypes.FollowingOld[], pagination?:{cursor?:string}} = await res.json();
-				list = list.concat(json.data);
-				cursor = null;
-				if(json.pagination?.cursor) {
-					cursor = json.pagination.cursor;
-				}
-				if(tempDataCallback) {
-					tempDataCallback(list);
-				}
-			}
-		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
-		return list;
 	}
 
 	/**

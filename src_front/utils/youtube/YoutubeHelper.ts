@@ -311,13 +311,12 @@ export default class YoutubeHelper {
 				await Utils.promisedTimeout(1000);
 				return this.getMessages(page);
 			}
-		}else if(res.status == 404) {
-			//Youtube randomly sends 404s when getting messages.
-			//Re executing the same request with the same page token seems to work.
-			setTimeout(()=> {
-				return this.getMessages(page);
-			},1000)
 		}
+		//Youtube API has random downs (404, 503, ...)
+		//Re executing the same request with the same page token seems to work in such case.
+		setTimeout(()=> {
+			return this.getMessages(page);
+		},1000)
 		return null;
 	}
 	

@@ -304,10 +304,6 @@ export default class UserCard extends Vue {
 		return Utils.formatDuration(Math.max(0, duration - this.dateOffset));
 	}
 
-	public getFormatedFollowDate(f:TwitchDataTypes.FollowingOld):string {
-		return Utils.formatDate(new Date(f.followed_at));
-	}
-
 	public mounted():void {
 		watch(() => this.$store.users.userCard, () => {
 			const card = this.$store.users.userCard;

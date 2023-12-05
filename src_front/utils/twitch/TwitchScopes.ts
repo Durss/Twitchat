@@ -8,6 +8,7 @@ export const TwitchScopes = {
 	DELETE_MESSAGES: "moderator:manage:chat_messages",
 	LIST_CHATTERS: "moderator:read:chatters",
 	LIST_REWARDS: "channel:read:redemptions",
+	MANAGE_REWARDS: "channel:manage:redemptions",
 	MANAGE_POLLS: "channel:manage:polls",
 	MANAGE_PREDICTIONS: "channel:manage:predictions",
 	SET_ROOM_SETTINGS: "moderator:manage:chat_settings",
@@ -45,6 +46,7 @@ TwitchScope2Icon[TwitchScopes.SEND_ANNOUNCE]			= "announcement";
 TwitchScope2Icon[TwitchScopes.DELETE_MESSAGES]			= "trash";
 TwitchScope2Icon[TwitchScopes.LIST_CHATTERS]			= "user";
 TwitchScope2Icon[TwitchScopes.LIST_REWARDS]				= "channelPoints";
+TwitchScope2Icon[TwitchScopes.MANAGE_REWARDS]			= "channelPoints";
 TwitchScope2Icon[TwitchScopes.MANAGE_POLLS]				= "poll";
 TwitchScope2Icon[TwitchScopes.MANAGE_PREDICTIONS]		= "prediction";
 TwitchScope2Icon[TwitchScopes.SET_ROOM_SETTINGS]		= "lock";

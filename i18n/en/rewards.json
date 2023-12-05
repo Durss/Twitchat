@@ -4,7 +4,19 @@
 			"title":"Manage rewards",
 			"empty":"No reward can be managed by Twitchat",
 			"not_manageable_title":"Non manageable rewards",
-			"not_manageable_description":"These rewards are not created by Twitchat and thus cannot be managed here"
+			"not_manageable_description":"These rewards are not created by Twitchat and thus cannot be managed here",
+			"transferBt":"Transfer",
+			"transfer_title":"Reward transfer",
+			"transfer_description":"Recreate reward from Twitchat so it can be managed.",
+			"transfer_steps":[
+				"{DASHBOARD}",
+				"Rename or delete \"{REWARD}\" reward",
+				"{RECREATE}",
+				"Set icons back to the new reward"
+			],
+			"transfer_step_dashboardBt":"Open Twitch dashboard",
+			"transfer_step_recreateBt":"Recreate reward",
+			"download_icon_tt":"Download"
 		}		
 	}
 }

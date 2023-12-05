@@ -4,7 +4,19 @@
 			"title":"Gestions des récompenses",
 			"empty":"Aucune récompense ne peut être gérée par Twitchat",
 			"not_manageable_title":"Récompenses non gérables",
-			"not_manageable_description":"Ces récompenses n'ont pas été créées par Twitchat et ne peuvent donc être gérées ici"
+			"not_manageable_description":"Ces récompenses n'ont pas été créées par Twitchat et ne peuvent donc être gérées ici",
+			"transferBt":"Transférer",
+			"transfer_title":"Transférer la récompense",
+			"transfer_description":"Recréer la récompense via Twitchat afin qu'elle puisse être gérée.",
+			"transfer_steps":[
+				"{DASHBOARD}",
+				"Renommez ou supprimez la récompense \"{REWARD}\"",
+				"{RECREATE}",
+				"Ajoutez les icônes sur la nouvelle récompense"
+			],
+			"transfer_step_dashboardBt":"Ouvez le dashboard Twitch",
+			"transfer_step_recreateBt":"Recréez la récompense",
+			"download_icon_tt":"Télécharger"
 		}		
 	}
 }

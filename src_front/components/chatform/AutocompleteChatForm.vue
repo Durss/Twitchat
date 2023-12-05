@@ -15,13 +15,12 @@
 				v-tooltip="i.label"
 				v-if="i.type=='emote'">
 			
-			<img v-else-if="i.type == 'user'" class="image" src="@/assets/icons/user.svg" alt="user">
-
-			<img v-else-if="i.type == 'cmdS'" class="image" src="@/assets/icons/commands.svg" alt="cmd">
-			<img v-else-if="i.type == 'cmdC'" class="image" src="@/assets/icons/chatCommand.svg" alt="cmd">
-			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needAdmin" class="image small" src="@/assets/icons/lock_fit.svg" alt="user" v-tooltip="$t('global.cmd_admin')">
-			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" src="@/assets/icons/twitch.svg" alt="user" v-tooltip="$t('global.cmd_twitch')">
-			<img v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needModerator" class="image small" src="@/assets/icons/mod.svg" alt="user" v-tooltip="$t('global.cmd_mod')">
+			<Icon v-else-if="i.type == 'user'" class="image" name="user" />
+			<Icon v-else-if="i.type == 'cmdS'" class="image" name="commands" alt="cmd" />
+			<Icon v-else-if="i.type == 'cmdC'" class="image" name="chatCommand" alt="cmd" />
+			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needAdmin" class="image small" name="lock_fit" alt="user" v-tooltip="$t('global.cmd_admin')" />
+			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.twitchCmd" class="image small" name="twitch" alt="user" v-tooltip="$t('global.cmd_twitch')" />
+			<Icon v-if="i.type == 'cmdS' && i.rawCmd && i.rawCmd.needModerator" class="image small" name="mod" alt="user" v-tooltip="$t('global.cmd_mod')" />
 
 			<div class="name">{{i.label}}</div>
 			<div class="source" v-if="i.type == 'emote' && i.source">( {{ i.source }} )</div>
@@ -453,9 +452,6 @@ interface CommandItem {
 			width: 1.75em;
 			padding: .2em;
 			object-fit: fill;
-			&:not(.emote) {
-				filter: var(--filter-brightness);
-			}
 			&.small {
 				height: 1em;
 				width: 1em;

@@ -230,18 +230,6 @@ export default class WhispersState extends AbstractSidePanel {
 					vertical-align: middle;
 					object-fit: fill;
 				}
-	
-				:deep( .copyBt ) {
-					height: 1em;
-					vertical-align: middle;
-					object-fit: fill;
-					margin-right: .25em;
-					filter: var(--filter-brightness);
-				}
-
-				:deep(a) {
-					color: var(--color-text);
-				}
 			}
 		}
 

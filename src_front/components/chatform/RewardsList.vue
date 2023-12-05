@@ -1,12 +1,47 @@
 <template>
 	<div class="rewardslist blured-background-window">
-		<div v-if="loading" class="loader">
+		<div v-if="loading" class="loader scrollable">
 			<Icon class="loader" name="loader" />
 			<p>{{ $t("global.loading") }}</p>
 		</div>
 
+		<div v-else-if="rewardToTransfer" class="transfer scrollable">
+			<h1>{{ $t("rewards.manage.transfer_title") }}</h1>
+			<div>{{ $t("rewards.manage.transfer_description") }}</div>
+			<ul class="steps">
+				<li class="card-item" v-for="label, index in $tm('rewards.manage.transfer_steps')">
+					<span class="index">{{ index+1 }}</span>
+					<i18n-t class="details" scope="global" tag="div" :keypath="'rewards.manage.transfer_steps['+index+']'">
+						<template #DASHBOARD>
+							<TTButton type="link"
+							href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards"
+							target="_blank"
+							icon="newtab">{{ $t("rewards.manage.transfer_step_dashboardBt") }}</TTButton>
+						</template>
+						<template #REWARD><mark>{{ rewardToTransfer.title }}</mark></template>
+						<template #RECREATE><TTButton @click="executeTransfer()">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton></template>
+					</i18n-t>
+				</li>
+				<li class="card-item icons">
+					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image?.url_1x">
+						<span>28x28</span>
+					</button>
+					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image?.url_2x">
+						<span>56x56</span>
+					</button>
+					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image?.url_4x">
+						<span>112x112</span>
+					</button>
+				</li>
+			</ul>
+			<CloseButton @click="rewardToTransfer = null" />
+		</div>
+
 		<template v-else>
-			<div class="scrollable" v-if="manageableRewards.length > 0 || allRewards.length > 0">
+			<div class="rewards scrollable" v-if="manageableRewards.length > 0 || nonManageableRewards.length > 0">
 				<div class="list">
 					<h1>{{ $t("rewards.manage.title") }}</h1>
 					<div v-for="r in manageableRewards" :key="r.id"
@@ -21,16 +56,17 @@
 					<div class="empty" v-if="manageableRewards.length == 0">{{ $t("rewards.manage.empty") }}</div>
 				</div>
 				
-				<div class="list">
+				<div class="list" v-if="nonManageableRewards.length > 0">
 					<h1>{{ $t("rewards.manage.not_manageable_title") }}</h1>
 					<p>{{ $t("rewards.manage.not_manageable_description") }}</p>
-					<div v-for="r in allRewards" :key="r.id"
+					<div v-for="r in nonManageableRewards" :key="r.id"
 					class="item disabled">
 						<div class="infos" :style="getRewardStyles(r)">
 							<img :src="getRewardIcon(r)" alt="">
 							<p class="cost">{{r.cost}}</p>
 						</div>
 						<p class="title">{{r.title}}</p>
+						<TTButton icon="twitchat" @click="transferReward(r)" small secondary>{{$t("rewards.manage.transferBt")}}</TTButton>
 					</div>
 				</div>
 			</div>
@@ -41,16 +77,21 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
+import type { StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
-import type { StyleValue } from 'vue';
+import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
 		Icon,
+		TTButton,
+		CloseButton,
 		ToggleButton,
 	}
 })
@@ -65,8 +106,12 @@ import type { StyleValue } from 'vue';
 export default class RewardsList extends Vue {
 
 	public loading:boolean = true;
-	public allRewards:TwitchDataTypes.Reward[] = [];
+	public transfering:boolean = true;
+	public rewardToTransfer:TwitchDataTypes.Reward|null = null;
+	public nonManageableRewards:TwitchDataTypes.Reward[] = [];
 	public manageableRewards:TwitchDataTypes.Reward[] = [];
+
+	private canClose:boolean = true;
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -88,23 +133,9 @@ export default class RewardsList extends Vue {
 		return res;
 	}
 
-	public async mounted():Promise<void> {
+	public mounted():void {
 		this.open();
-
-		this.loading = true;
-		try {
-			this.allRewards = await TwitchUtils.getRewards();
-			this.manageableRewards = await TwitchUtils.getRewards(false, true);
-		}catch(e) {
-			//User is probably not an affiliate
-			this.loading = false;
-			return;
-		}
-		// this.rewards = this.rewards.filter(v => v.is_enabled);
-		this.manageableRewards.sort((a, b) => a.cost - b.cost);
-		this.loading = false;
-
-		this.allRewards = this.allRewards.filter(v=> this.manageableRewards.findIndex(w=>w.id == v.id) == -1);
+		this.loadRewards();
 		
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -118,6 +149,54 @@ export default class RewardsList extends Vue {
 		TwitchUtils.setRewardEnabled(reward.id, reward.is_enabled);
 	}
 
+	public transferReward(reward:TwitchDataTypes.Reward):void {
+		if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
+
+		this.canClose = false;
+		this.rewardToTransfer = reward;
+	}
+
+	public async executeTransfer():Promise<void> {
+		const reward = this.rewardToTransfer!;
+		this.loading = true;
+		const data:TwitchDataTypes.RewardEdition = {
+			title:reward.title,
+			cost:reward.cost,
+			is_enabled:reward.is_enabled,
+			background_color:reward.background_color,
+			global_cooldown_seconds:reward.global_cooldown_setting.global_cooldown_seconds,
+			is_global_cooldown_enabled:reward.global_cooldown_setting.is_enabled,
+			max_per_stream:reward.max_per_stream_setting.max_per_stream,
+			is_max_per_stream_enabled:reward.max_per_stream_setting.is_enabled,
+			max_per_user_per_stream:reward.max_per_user_per_stream_setting.max_per_user_per_stream,
+			is_max_per_user_per_stream_enabled:reward.max_per_user_per_stream_setting.is_enabled,
+			is_user_input_required:reward.is_user_input_required,
+			prompt:reward.prompt,
+			should_redemptions_skip_request_queue:reward.should_redemptions_skip_request_queue,
+		};
+		await TwitchUtils.createReward(data);
+		await this.loadRewards(true);
+		this.loading = false;
+		this.canClose = true;
+	}
+
+	private async loadRewards(forceReload:boolean = false):Promise<void> {
+		try {
+			this.nonManageableRewards = await TwitchUtils.getRewards(forceReload);
+			this.manageableRewards = await TwitchUtils.getRewards(forceReload, true);
+		}catch(e) {
+			//User is probably not an affiliate
+			this.loading = false;
+			return;
+		}
+		// this.rewards = this.rewards.filter(v => v.is_enabled);
+		this.manageableRewards.sort((a, b) => a.cost - b.cost);
+		this.loading = false;
+
+		//Filter out manageable rewards from the list
+		this.nonManageableRewards = this.nonManageableRewards.filter(v=> this.manageableRewards.findIndex(w=>w.id == v.id) == -1);
+	}
+
 	private open():void {
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
@@ -126,6 +205,7 @@ export default class RewardsList extends Vue {
 	}
 
 	private close():void {
+		if(!this.canClose) return;
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
@@ -151,20 +231,6 @@ export default class RewardsList extends Vue {
 .rewardslist{
 	color: var(--color-text);
 
-	.loader {
-		margin: auto;
-		text-align: center;
-		.icon {
-			width: 30px;
-			height: 30px;
-		}
-		p {
-			color: #fff;
-			font-style: italic;
-			font-size: 16px;
-		}
-	}
-
 	.scrollable {
 		height: 400px;
 		width: 450px;
@@ -172,9 +238,103 @@ export default class RewardsList extends Vue {
 		max-height: 80%;
 		overflow-x: hidden;
 		overflow-y: auto;
-		gap: 2em;
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
+		white-space: pre-line;
+
+		&.loader {
+			align-items: center;
+			justify-content: center;
+			margin: 0 auto;
+			.icon {
+				width: 30px;
+				height: 30px;
+			}
+			p {
+				color: #fff;
+				font-style: italic;
+				font-size: 1em;
+			}
+		}
+
+		&.transfer {
+			line-height: 1.25em;
+			.icon {
+				height: 1em;
+				vertical-align: bottom;
+				margin-left: .25em;
+			}
+
+			.steps {
+				max-width: 80%;
+				margin: 0 auto;
+				li {
+					display: flex;
+					gap: 1em;
+					margin-bottom: .5em;
+					.index {
+						font-weight: bold;
+						margin: -.5em;
+						padding: .5em;
+						width: 2em;
+						flex-shrink: 0;
+						background-color: var(--color-text-fader);
+						display: flex;
+						align-items: center;
+						justify-content: center;
+					}
+					.details {
+						flex-grow: 1;
+						text-align: center;
+					}
+					&.icons {
+						align-items: center;
+						justify-content: center;
+						padding-top: 0;
+						padding-bottom: 0;
+						button {
+							gap: .5em;
+							display: flex;
+							flex-direction: column;
+							align-items: center;
+							justify-content: center;
+							padding: .5em;
+							align-self: stretch;
+							img {
+								height: 2.5em;
+							}
+							span {
+								color: var(--color-text);
+								font-size: .8em;
+							}
+							&:hover {
+								background-color: var(--color-light-fader);
+								border-radius: var(--border-radius);
+							}
+							&:first-of-type > img {
+								height: 1.5em;
+							}
+							&:nth-of-type(2) > img {
+								height: 2em;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		&.rewards {
+			gap: 2em;
+		}
+		h1 {
+			text-align: center;
+			width: 100%;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			background-color: var(--grayout);
+		}
 
 		.list {
 			gap: .5em;
@@ -183,12 +343,7 @@ export default class RewardsList extends Vue {
 			flex-wrap: wrap;
 			justify-content: center;
 			h1 {
-				text-align: center;
-				width: 100%;
 				position: sticky;
-				top: 0;
-				z-index: 1;
-				background-color: var(--grayout);
 			}
 	
 			.item {
@@ -205,7 +360,9 @@ export default class RewardsList extends Vue {
 				// cursor: pointer;
 	
 				&.disabled {
-					opacity: .5;
+					.infos {
+						filter: saturate(0%);
+					}
 				}
 	
 				.infos {
