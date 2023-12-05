@@ -36,6 +36,9 @@ export default class AbstractChatMessage extends Vue {
 	 */
 	public canModerateUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):boolean {
 		const authenticatedUser = user.platform == "youtube"? this.$store.auth.youtube.user : this.$store.auth.twitch.user;
+		//Authenticated user may be undefined if disconnecting youtube but youtube messages are
+		//loaded back from DB.
+		if(!authenticatedUser?.channelInfo[channelId]) return false;
 		return (
 					//If broadcaster of the channel... or
 					authenticatedUser.channelInfo[channelId]?.is_broadcaster ||

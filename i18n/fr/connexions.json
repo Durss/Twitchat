@@ -23,7 +23,8 @@
 		
 		"youtube":{
 			"header":"Affichez votre tchat Youtube directement dans Twitchat.",
-			"success":"Youtube est maintenant connecté"
+			"success":"Youtube est maintenant connecté",
+			"current_live_title":"Live en cours"
 		}
 	}
 }

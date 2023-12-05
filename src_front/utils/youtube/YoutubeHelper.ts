@@ -16,6 +16,7 @@ export default class YoutubeHelper {
 	public connected:boolean = false;
 	public liveFound:boolean = false;
 	public channelId:string = "";
+	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 	
 	private static _instance:YoutubeHelper;
 	private _token:YoutubeAuthToken|null = null;
@@ -41,12 +42,16 @@ export default class YoutubeHelper {
 		return YoutubeHelper._instance;
 	}
 
-	public get headers() {
+	private get headers() {
 		return {
 			"Authorization": "Bearer "+YoutubeHelper.instance._token!.access_token,
 			"Accept":"application/json"
 		};
 	}
+
+	public get currentLiveId():string { return this._currentLiveId; }
+
+	public set currentLiveId(value:string) { this._currentLiveId = value; }
 
 	
 	
@@ -172,7 +177,7 @@ export default class YoutubeHelper {
 			let json = await res.json() as YoutubeLiveBroadcast;
 			Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveId});
 			//Sort by life cycle status importance
-			json.items.sort((a,b)=> {
+			const items = json.items.sort((a,b)=> {
 				if(a.status.lifeCycleStatus == "live" && b.status.lifeCycleStatus != "live") return -1;
 				if(a.status.lifeCycleStatus != "live" && b.status.lifeCycleStatus == "live") return 1;
 				if(a.status.lifeCycleStatus == "liveStarting" && b.status.lifeCycleStatus != "liveStarting") return -1;
@@ -185,24 +190,29 @@ export default class YoutubeHelper {
 				if(a.status.lifeCycleStatus != "testing" && b.status.lifeCycleStatus == "testing") return 1;
 				return 0;
 			})
+			//Filter out past broadcast that got closed
+			.filter(v=> v.status.recordingStatus == "recording" || v.status.recordingStatus == "notRecording");
+
 			//Get first item corresponding to a live running or coming.
 			//Prioritise items with higher "live" status meaning
-			let item = json.items.find(v=>v.status.lifeCycleStatus == "live");
-			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "liveStarting");
-			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "ready");
-			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "testing");
-			if(!item) item = json.items.find(v=>v.status.lifeCycleStatus == "testStarting");
+			let item = items.find(v=>v.status.lifeCycleStatus == "live");
+			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "liveStarting");
+			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "ready");
+			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testing");
+			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testStarting");
 			if(item) {
 				this.liveFound = true;
 				this._currentLiveId = item.snippet.liveChatId;
+				this.availableLiveBroadcasts = items;
 				this.channelId = item.snippet.channelId;
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveId});
 				//Start polling messages
 				this.getMessages();
 			}else{
-				Logger.instance.log("youtube", {log:"No live found matching required crietrias", credits: this._creditsUsed, liveID:this._currentLiveId});
+				Logger.instance.log("youtube", {log:"No live found matching required critrias", credits: this._creditsUsed, liveID:this._currentLiveId});
 				this.liveFound = false;
 				this._currentLiveId = "";
+				this.availableLiveBroadcasts = [];
 				//Search again in 1min
 				this._pollTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 60000);
 			}
@@ -306,6 +316,15 @@ export default class YoutubeHelper {
 			
 			return json;
 		}else if(res.status == 403 || res.status == 401) {
+			try {
+				let json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
+				const errorCode = json.error.errors[0].reason;
+				if(errorCode == "liveChatEnded") {
+
+				}
+			}catch(error) {
+				
+			}
 			Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:await res.json(), credits: this._creditsUsed, liveID:this._currentLiveId});
 			if(await this.refreshToken()) {
 				await Utils.promisedTimeout(1000);
@@ -326,6 +345,8 @@ export default class YoutubeHelper {
 	public disconnect():void {
 		Logger.instance.log("youtube", {log:"Disconnect from Youtube", credits: this._creditsUsed, liveID:this._currentLiveId});
 		this.connected = false;
+		this._currentLiveId = "";
+		this.availableLiveBroadcasts = [];
 		clearTimeout(this._pollTimeout);
 		clearTimeout(this._refreshTimeout);
 		DataStore.remove(DataStore.YOUTUBE_AUTH_TOKEN);

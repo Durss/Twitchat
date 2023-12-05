@@ -23,7 +23,8 @@
 		
 		"youtube":{
 			"header":"Show your Youtube's chat in Twitchat.",
-			"success":"Youtube is now connected"
+			"success":"Youtube is now connected",
+			"current_live_title":"Current live info"
 		}
 	}
 }

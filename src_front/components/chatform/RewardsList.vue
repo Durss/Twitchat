@@ -23,21 +23,24 @@
 					</i18n-t>
 				</li>
 				<li class="card-item icons">
-					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
-						<img :src="rewardToTransfer.image?.url_1x">
+					<a v-if="rewardToTransfer.image?.url_1x"
+					:href="rewardToTransfer.image.url_1x" target="_blank" download="28px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image.url_1x">
 						<span>28x28</span>
-					</button>
-					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
-						<img :src="rewardToTransfer.image?.url_2x">
+					</a>
+					<a v-if="rewardToTransfer.image?.url_2x"
+					:href="rewardToTransfer.image.url_2x" target="_blank" download="56px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image.url_2x">
 						<span>56x56</span>
-					</button>
-					<button v-tooltip="$t('rewards.manage.download_icon_tt')">
-						<img :src="rewardToTransfer.image?.url_4x">
+					</a>
+					<a v-if="rewardToTransfer.image?.url_4x"
+					:href="rewardToTransfer.image.url_4x" target="_blank" download="112px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
+						<img :src="rewardToTransfer.image.url_4x">
 						<span>112x112</span>
-					</button>
+					</a>
 				</li>
 			</ul>
-			<CloseButton @click="rewardToTransfer = null" />
+			<CloseButton @click="cancelTransfer()" />
 		</div>
 
 		<template v-else>
@@ -62,7 +65,8 @@
 					<div v-for="r in nonManageableRewards" :key="r.id"
 					class="item disabled">
 						<div class="infos" :style="getRewardStyles(r)">
-							<img :src="getRewardIcon(r)" alt="">
+
+							<img :src="getRewardIcon(r)">
 							<p class="cost">{{r.cost}}</p>
 						</div>
 						<p class="title">{{r.title}}</p>
@@ -106,12 +110,9 @@ import CloseButton from '../CloseButton.vue';
 export default class RewardsList extends Vue {
 
 	public loading:boolean = true;
-	public transfering:boolean = true;
 	public rewardToTransfer:TwitchDataTypes.Reward|null = null;
 	public nonManageableRewards:TwitchDataTypes.Reward[] = [];
 	public manageableRewards:TwitchDataTypes.Reward[] = [];
-
-	private canClose:boolean = true;
 
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -152,7 +153,6 @@ export default class RewardsList extends Vue {
 	public transferReward(reward:TwitchDataTypes.Reward):void {
 		if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
 
-		this.canClose = false;
 		this.rewardToTransfer = reward;
 	}
 
@@ -177,7 +177,11 @@ export default class RewardsList extends Vue {
 		await TwitchUtils.createReward(data);
 		await this.loadRewards(true);
 		this.loading = false;
-		this.canClose = true;
+		this.rewardToTransfer = null;
+	}
+
+	public cancelTransfer():void {
+		this.rewardToTransfer = null;
 	}
 
 	private async loadRewards(forceReload:boolean = false):Promise<void> {
@@ -205,7 +209,7 @@ export default class RewardsList extends Vue {
 	}
 
 	private close():void {
-		if(!this.canClose) return;
+		if(this.rewardToTransfer) return;
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.to(ref, {duration:.3, scaleX:0, ease:"back.in"});
@@ -293,7 +297,7 @@ export default class RewardsList extends Vue {
 						justify-content: center;
 						padding-top: 0;
 						padding-bottom: 0;
-						button {
+						a {
 							gap: .5em;
 							display: flex;
 							flex-direction: column;
@@ -301,6 +305,7 @@ export default class RewardsList extends Vue {
 							justify-content: center;
 							padding: .5em;
 							align-self: stretch;
+							text-decoration: none;
 							img {
 								height: 2.5em;
 							}
@@ -312,10 +317,10 @@ export default class RewardsList extends Vue {
 								background-color: var(--color-light-fader);
 								border-radius: var(--border-radius);
 							}
-							&:first-of-type > img {
+							&:first-of-type img {
 								height: 1.5em;
 							}
-							&:nth-of-type(2) > img {
+							&:nth-of-type(2) img {
 								height: 2em;
 							}
 						}

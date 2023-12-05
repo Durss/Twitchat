@@ -31,13 +31,16 @@ export interface YoutubeLiveBroadcast {
 				standard: ThumbnailInfo;
 				maxres: ThumbnailInfo;
 			};
+			/**
+			 * @deprecated since 2020
+			 */
 			isDefaultBroadcast: boolean;
 			liveChatId: string;
 		};
 		status: {
 			lifeCycleStatus: "complete" | "created" | "live" | "liveStarting" | "ready" | "revoked" | "testStarting" | "testing";
 			privacyStatus: string;
-			recordingStatus: string;
+			recordingStatus: "recording" | "recorded" | "notRecording";
 			madeForKids: boolean;
 			selfDeclaredMadeForKids: boolean;
 		};
