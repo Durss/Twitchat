@@ -22,12 +22,18 @@
 			<CloseButton @click="rewardToEdit = null" />
 		</div>
 
+		<div v-else-if="createReward" class="create scrollable">
+			<h1>{{ $t("rewards.manage.create_title") }}</h1>
+			<RewardListEditForm @complete="onCreateComplete()" />
+			<CloseButton @click="createReward = false" />
+		</div>
+
 		<template v-else>
-			<div class="rewards scrollable" v-if="manageableRewards.length > 0 || nonManageableRewards.length > 0">
+			<div class="rewards scrollable">
 				<div class="list">
 					<h1>{{ $t("rewards.manage.title") }}</h1>
-					<RewardListItem v-for="r in manageableRewards" :key="r.id" :reward="r" manageable @edit="rewardToEdit = $event" />
-					<div class="empty" v-if="manageableRewards.length == 0">{{ $t("rewards.manage.empty") }}</div>
+					<button @click="createReward = true" class="createRewardBt"><Icon name="add" /></button>
+					<RewardListItem v-for="r in manageableRewards" :key="r.id" :reward="r" manageable @edit="rewardToEdit = $event" @delete="onDeleteReward()" />
 				</div>
 				
 				<div class="list" v-if="nonManageableRewards.length > 0">
@@ -36,7 +42,6 @@
 					<RewardListItem v-for="r in nonManageableRewards" :key="r.id" :reward="r" :manageable="false" @transfer="transferReward" />
 				</div>
 			</div>
-			<div class="empty" v-else>{{ $t("rewards.manage.empty") }}</div>
 		</template>
 	</div>
 </template>
@@ -66,19 +71,16 @@ import RewardListTransferForm from './RewardListTransferForm.vue';
 		contenteditable,
 		RewardListEditForm,
 		RewardListTransferForm,
-	}
+	},
+	emits:["close"]
 })
 /**
  * This displays all the user's rewards.
- * 
- * This is, to date, actually NOT USED.
- * There is no API to redeem a reward and the API that
- * allows to enable/disable a reward is super restrictive.
- * An app can only update a reward it has created.
  */
 export default class RewardsList extends Vue {
 
 	public loading:boolean = true;
+	public createReward:boolean = false;
 	public rewardToEdit:TwitchDataTypes.Reward|null = null;
 	public rewardToTransfer:TwitchDataTypes.Reward|null = null;
 	public nonManageableRewards:TwitchDataTypes.Reward[] = [];
@@ -108,7 +110,16 @@ export default class RewardsList extends Vue {
 
 	public onTranferComplete():void {
 		this.rewardToTransfer = null;
-		this.loadRewards();
+		this.loadRewards(true);
+	}
+
+	public onCreateComplete():void {
+		this.createReward = false;
+		this.loadRewards(true);
+	}
+
+	public onDeleteReward():void {
+		this.loadRewards(true);
 	}
 
 	public grantScopes():void {
@@ -155,10 +166,16 @@ export default class RewardsList extends Vue {
 	private onClick(e:MouseEvent):void {
 		let target = e.target as HTMLDivElement;
 		const ref = this.$el as HTMLDivElement;
-		while(target != document.body && target != ref && target && target.dataset.type != "ContextSubMenu") {
+		while(target != document.body
+		&& target != ref
+		&& target
+		&& !target.classList.contains("confirmView")
+		&& target.dataset.type != "ContextSubMenu") {
 			target = target.parentElement as HTMLDivElement;
 		}
-		if(target != ref && target.dataset.type != "ContextSubMenu") {
+		if(target != ref
+		&& !target.classList.contains("confirmView")
+		&& target.dataset.type != "ContextSubMenu") {
 			this.close();
 		}
 	}
@@ -208,7 +225,26 @@ export default class RewardsList extends Vue {
 
 		&.rewards {
 			gap: 2em;
+			.createRewardBt {
+				transition: background-color .25s;
+				background-color: var(--background-color-fader);
+				border-radius: var(--border-radius);
+				padding: 2em;
+				width: calc(25% - 0.5em);
+				.icon {
+					height: 1em;
+					color: var(--color-text);
+					transition: transform .25s;
+				}
+				&:hover {
+					background-color: var(--background-color-fade);
+					.icon {
+						transform: scale(1.5);
+					}
+				}
+			}
 		}
+
 		h1 {
 			text-align: center;
 			width: 100%;

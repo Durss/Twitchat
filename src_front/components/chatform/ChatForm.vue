@@ -5,7 +5,7 @@
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1704102299000, id:'parameters_1'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
 				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
-				<ButtonNotification icon="channelPoints" @click="$emit('update:showRewards', true)" />
+				<ButtonNotification :aria-label="$t('chat.form.rewardsBt_aria')" icon="channelPoints" @click="$emit('update:showRewards', true)" v-if="hasChannelPoints" />
 			</div>
 
 			
@@ -352,6 +352,9 @@ export default class ChatForm extends Vue {
 
 	public get streamInfo():TwitchatDataTypes.StreamInfo | undefined {
 		return this.$store.stream.currentStreamInfo[this.$store.auth.twitch.user.id];
+	}
+	public get hasChannelPoints():boolean {
+		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
 
 	public get announcementTitle():TwitchatDataTypes.ParseMessageChunk[] {

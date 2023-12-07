@@ -1,12 +1,16 @@
 {
 	"rewards": {
 		"manage":{
-			"scope_grant":"Twitchat a beosin d'une autorisation manquante pour lister vos récompenses de points de chaîne",
+			"scope_grant":"Twitchat a besoin d'une autorisation manquante pour lister vos récompenses de points de chaîne",
+			"scope_grantBt":"Accorder l'accès",
 			"title":"Gestions des récompenses",
+			"pause_tt":"Désactivée",
+			"disable_tt":"Masquée",
 			"empty":"Aucune récompense ne peut être gérée par Twitchat",
 			"not_manageable_title":"Récompenses non gérables",
 			"not_manageable_description":"Ces récompenses n'ont pas été créées par Twitchat et ne peuvent donc être gérées ici",
 			"transferBt":"Transférer",
+			"create_title":"Créer une récompense",
 			"transfer_title":"Rendez cette récompense gérable par Twitchat",
 			"transfer_steps":[
 				"{DASHBOARD}",
@@ -28,7 +32,15 @@
 			"param_cooldown":"Délai d'attente et limites",
 			"param_coolDown_duration":"Délai d'attente pour la récupération",
 			"param_coolDown_maxPerStream":"Limiter les récupérations par stream",
-			"param_coolDown_maxPerUser":"Limiter les récupérations par utilisateur par stream"
+			"param_coolDown_maxPerUser":"Limiter les récupérations par utilisateur par stream",
+			"contextmenu_edit":"Éditer",
+			"contextmenu_pause":"Désactiver",
+			"contextmenu_unpause":"Activer",
+			"contextmenu_enable":"Afficher",
+			"contextmenu_disable":"Masquer",
+			"contextmenu_delete":"Supprimer",
+			"contextmenu_delete_confirm_title":"Supprimer cette récompense ?",
+			"contextmenu_delete_confirm_desc":"Cette action est irréversible"
 		}		
 	}
 }

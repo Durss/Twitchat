@@ -1,20 +1,22 @@
 <template>
-	<div class="rewardlisteditform">
-		<img :src="icon" class="rewardIcon">
-		<ParamItem :paramData="param_title" v-model="reward.title"></ParamItem>
-		<ParamItem :paramData="param_description" v-model="reward.prompt"></ParamItem>
-		<ParamItem :paramData="param_cost" v-model="reward.cost"></ParamItem>
-		<ParamItem :paramData="param_prompt" v-model="reward.is_user_input_required"></ParamItem>
-		<ParamItem :paramData="param_paused" v-model="reward.is_paused"></ParamItem>
-		<ParamItem :paramData="param_enabled" v-model="reward.is_enabled"></ParamItem>
-		<ParamItem :paramData="param_color" v-model="reward.background_color"></ParamItem>
-		<ParamItem :paramData="param_skipQueue" v-model="reward.should_redemptions_skip_request_queue"></ParamItem>
+	<form class="rewardlisteditform" @submit.prevent="onSubmit">
+		<img v-if="icon" :src="icon" class="rewardIcon">
+		<ParamItem :paramData="param_title" v-model="localValue.title"></ParamItem>
+		<ParamItem :paramData="param_description" v-model="localValue.prompt"></ParamItem>
+		<ParamItem :paramData="param_cost" v-model="localValue.cost"></ParamItem>
+		<ParamItem :paramData="param_prompt" v-model="localValue.is_user_input_required"></ParamItem>
+		<ParamItem :paramData="param_paused" v-model="localValue.is_paused"></ParamItem>
+		<ParamItem :paramData="param_enabled" v-model="localValue.is_enabled"></ParamItem>
+		<ParamItem :paramData="param_color" v-model="localValue.background_color"></ParamItem>
+		<ParamItem :paramData="param_skipQueue" v-model="localValue.should_redemptions_skip_request_queue"></ParamItem>
 		<ParamItem :paramData="param_cooldown" v-model="limitsEnabled" @change="onChange()">
-			<ParamItem :paramData="param_coolDown_duration" v-model="reward.global_cooldown_setting.global_cooldown_seconds" noBackground class="child"></ParamItem>
-			<ParamItem :paramData="param_coolDown_maxPerStream" v-model="reward.max_per_stream_setting.max_per_stream" noBackground class="child"></ParamItem>
-			<ParamItem :paramData="param_coolDown_maxPerUser" v-model="reward.max_per_user_per_stream_setting.max_per_user_per_stream" noBackground class="child"></ParamItem>
+			<ParamItem :paramData="param_coolDown_duration" v-model="localValue.global_cooldown_seconds" noBackground class="child"></ParamItem>
+			<ParamItem :paramData="param_coolDown_maxPerStream" v-model="localValue.max_per_stream" noBackground class="child"></ParamItem>
+			<ParamItem :paramData="param_coolDown_maxPerUser" v-model="localValue.max_per_user_per_stream" noBackground class="child"></ParamItem>
 		</ParamItem>
-	</div>
+		<TTButton type="submit" primary :loading="saving" v-if="!modelValue && !reward" icon="add">{{ $t("global.create") }}</TTButton>
+		<div class="card-item alert" v-if="error">{{ error }}</div>
+	</form>
 </template>
 
 <script lang="ts">
@@ -24,17 +26,44 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
 import { watch } from 'vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 	},
-	emits:[],
+	emits:["update:modelValue"],
 })
 export default class RewardListEditForm extends Vue {
 
 	@Prop
-	public reward!:TwitchDataTypes.Reward
+	public reward!:TwitchDataTypes.Reward;
+
+	@Prop
+	public modelValue!:TwitchDataTypes.RewardEdition;
+
+	@Prop({default:false, type:Boolean})
+	public triggerMode!:boolean;
+
+	public error:string = "";
+	public saving:boolean = false;
+	public localValue:TwitchDataTypes.RewardEdition = {
+		title:"",
+		prompt:"",
+		cost:100,
+		background_color: "#cc0000",
+		is_enabled:true,
+		is_paused:false,
+		is_user_input_required:false,
+		should_redemptions_skip_request_queue:false,
+		max_per_stream:0,
+		max_per_user_per_stream:0,
+		global_cooldown_seconds:0,
+		is_global_cooldown_enabled:false,
+		is_max_per_stream_enabled:false,
+		is_max_per_user_per_stream_enabled:false,
+	};
 
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:45, labelKey:"rewards.manage.param_title"};
 	public param_description:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:200, labelKey:"rewards.manage.param_description"};
@@ -53,50 +82,75 @@ export default class RewardListEditForm extends Vue {
 	private changeDebounce:number = -1;
 
 	public get icon():string{
+		if(!this.reward) return "";
 		if(this.reward.image?.url_4x) return this.reward.image.url_4x;
 		return this.reward.default_image.url_4x;
 	}
 
 	public beforeMount():void {
-		this.limitsEnabled = this.reward.global_cooldown_setting.is_enabled
-					|| this.reward.max_per_stream_setting.is_enabled
-					|| this.reward.max_per_user_per_stream_setting.is_enabled
+		if(this.modelValue) {
+			this.localValue = this.modelValue;
+		}
+		if(this.reward) this.importRewardData();
+		this.limitsEnabled = (this.localValue.global_cooldown_seconds ?? 0) > 0
+							|| (this.localValue.max_per_stream ?? 0) > 0
+							|| (this.localValue.max_per_user_per_stream ?? 0) > 0;
+
 	}
 
 	public mounted():void {
-		watch(()=>this.reward, ()=> this.onChange(), {deep:true})
+		watch(()=>this.localValue, ()=> this.onChange(), {deep:true});
+		watch(()=>this.modelValue, ()=> { this.localValue = this.modelValue; });
+		watch(()=>this.reward, ()=> { this.importRewardData(); });
 	}
 
 	public onChange():void {
-		clearTimeout(this.changeDebounce);
-		this.changeDebounce = setTimeout(async ()=> {
-			if(this.limitsEnabled) {
-				this.reward.global_cooldown_setting.is_enabled = this.reward.global_cooldown_setting.global_cooldown_seconds > 0;
-				this.reward.max_per_stream_setting.is_enabled = this.reward.max_per_stream_setting.max_per_stream > 0;
-				this.reward.max_per_user_per_stream_setting.is_enabled = this.reward.max_per_user_per_stream_setting.max_per_user_per_stream > 0;
-			}else{
-				this.reward.global_cooldown_setting.is_enabled = false;
-				this.reward.max_per_stream_setting.is_enabled = false;
-				this.reward.max_per_user_per_stream_setting.is_enabled = false;
-			}
-			const data:TwitchDataTypes.RewardEdition = {
-				cost:this.reward.cost,
-				title:this.reward.title,
-				prompt:this.reward.prompt,
-				background_color:this.reward.background_color,
-				is_enabled:this.reward.is_enabled,
-				is_paused:this.reward.is_paused,
-				should_redemptions_skip_request_queue:this.reward.should_redemptions_skip_request_queue,
-				is_user_input_required:this.reward.is_user_input_required,
-				is_global_cooldown_enabled:this.limitsEnabled && this.reward.global_cooldown_setting.global_cooldown_seconds > 0,
-				global_cooldown_seconds: this.reward.global_cooldown_setting.global_cooldown_seconds,
-				is_max_per_stream_enabled:this.limitsEnabled && this.reward.max_per_stream_setting.max_per_stream > 0,
-				max_per_stream:this.reward.max_per_stream_setting.max_per_stream,
-				is_max_per_user_per_stream_enabled:this.limitsEnabled && this.reward.max_per_user_per_stream_setting.max_per_user_per_stream > 0,
-				max_per_user_per_stream:this.reward.max_per_user_per_stream_setting.max_per_user_per_stream,
-			};
-			await TwitchUtils.updateReward(this.reward.id, data);
-		}, 500);
+		this.localValue.is_global_cooldown_enabled =			this.limitsEnabled && (this.localValue.global_cooldown_seconds ?? 0) > 0,
+		this.localValue.is_max_per_stream_enabled =				this.limitsEnabled && (this.localValue.max_per_stream ?? 0) > 0,
+		this.localValue.is_max_per_user_per_stream_enabled =	this.limitsEnabled && (this.localValue.max_per_user_per_stream ?? 0) > 0,
+		this.$emit("update:modelValue", this.localValue);
+
+		if(this.triggerMode === false && this.reward) {
+			clearTimeout(this.changeDebounce);
+			this.changeDebounce = setTimeout(async ()=> {
+				if(this.reward) {
+					await TwitchUtils.updateReward(this.reward.id, this.localValue);
+				}
+			}, 500);
+		}
+	}
+
+	public async onSubmit():Promise<void> {
+		if(this.saving) return;
+		
+		this.saving = true;
+		const res = await TwitchUtils.createReward(this.localValue);
+		
+		if(typeof res == "string") {
+			this.error = res;
+		}else if(res === false) {
+			this.error = this.$t("error.rewards.unknown");
+		}else{
+			this.$emit("complete");
+		}
+		this.saving = false;
+	}
+
+	private importRewardData():void {
+		this.localValue.title									= this.reward.title;
+		this.localValue.prompt									= this.reward.prompt;
+		this.localValue.cost									= this.reward.cost;
+		this.localValue.background_color						= this.reward.background_color;
+		this.localValue.is_enabled								= this.reward.is_enabled;
+		this.localValue.is_paused								= this.reward.is_paused;
+		this.localValue.is_max_per_user_per_stream_enabled		= this.reward.max_per_user_per_stream_setting.is_enabled;
+		this.localValue.max_per_user_per_stream					= this.reward.max_per_user_per_stream_setting.max_per_user_per_stream;
+		this.localValue.is_global_cooldown_enabled				= this.reward.global_cooldown_setting.is_enabled;
+		this.localValue.global_cooldown_seconds					= this.reward.global_cooldown_setting.global_cooldown_seconds;
+		this.localValue.is_max_per_stream_enabled				= this.reward.max_per_stream_setting.is_enabled;
+		this.localValue.max_per_stream							= this.reward.max_per_stream_setting.max_per_stream;
+		this.localValue.is_user_input_required					= this.reward.is_user_input_required;
+		this.localValue.should_redemptions_skip_request_queue	= this.reward.should_redemptions_skip_request_queue;
 	}
 	
 }
@@ -111,6 +165,9 @@ export default class RewardListEditForm extends Vue {
 		height: 4em;
 		margin: auto;
 		display: block;
+	}
+	.button {
+		align-self: center;
 	}
 }
 </style>

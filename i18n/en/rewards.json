@@ -4,10 +4,13 @@
 			"scope_grant":"Twitchat requires a missing authorization to list your channel point rewards",
 			"scope_grantBt":"Grant access",
 			"title":"Manage rewards",
+			"pause_tt":"Paused",
+			"disable_tt":"Disabled",
 			"empty":"No reward can be managed by Twitchat",
 			"not_manageable_title":"Non manageable rewards",
 			"not_manageable_description":"These rewards are not created by Twitchat and thus cannot be managed here",
 			"transferBt":"Transfer",
+			"create_title":"Create a reward",
 			"transfer_title":"Make this reward manageable from Twitchat",
 			"transfer_steps":[
 				"{DASHBOARD}",
@@ -29,7 +32,15 @@
 			"param_cooldown":"Cooldown & Limits",
 			"param_coolDown_duration":"Redemption Cooldown Time",
 			"param_coolDown_maxPerStream":"Limit Redemptions Per Stream",
-			"param_coolDown_maxPerUser":"Limit Redemptions Per User Per Stream"
+			"param_coolDown_maxPerUser":"Limit Redemptions Per User Per Stream",
+			"contextmenu_edit":"Edit",
+			"contextmenu_pause":"Pause",
+			"contextmenu_unpause":"Unpause",
+			"contextmenu_enable":"Enable",
+			"contextmenu_disable":"Disable",
+			"contextmenu_delete":"Delete",
+			"contextmenu_delete_confirm_title":"Delete this reward?",
+			"contextmenu_delete_confirm_desc":"This cannot be undone"
 		}		
 	}
 }

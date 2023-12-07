@@ -1670,40 +1670,47 @@ export default class TriggerActionHandler {
 					}
 				}else
 
-				//Handle mobile device vibration action
+				//Handle GoXLR actions
 				if(step.type == "goxlr") {
-					logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action+"\""});
-					switch(step.action) {
-						case "fx_on":
-						case "fx_off": {
-							if(step.fxPresetIndex !== undefined && step.fxPresetIndex > -1) {
-								logStep.messages.push({date:Date.now(), value:"GoXLR set active preset index \""+step.fxPresetIndex});
-								await GoXLRSocket.instance.setActiveFxPreset(step.fxPresetIndex);
+					if(!isPremium) {
+						let logMessage = "❌ Not premium, cannot control GoXLR ";
+						logStep.messages.push({date:Date.now(), value:logMessage});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"GoXLR action \""+step.action+"\""});
+						switch(step.action) {
+							case "fx_on":
+							case "fx_off": {
+								if(step.fxPresetIndex !== undefined && step.fxPresetIndex > -1) {
+									logStep.messages.push({date:Date.now(), value:"GoXLR set active preset index \""+step.fxPresetIndex});
+									await GoXLRSocket.instance.setActiveFxPreset(step.fxPresetIndex);
+								}
+								GoXLRSocket.instance.setFXEnabled(step.action == "fx_on");
+								break;
 							}
-							GoXLRSocket.instance.setFXEnabled(step.action == "fx_on");
-							break;
-						}
-						case "sample_play": {
-							if(step.sampleIndex) {
-								logStep.messages.push({date:Date.now(), value:"GoXLR play sample at \""+step.sampleIndex[0] + " "+ step.sampleIndex[1]});
-								GoXLRSocket.instance.playSample(step.sampleIndex[0], step.sampleIndex[1]);
+							case "sample_play": {
+								if(step.sampleIndex) {
+									logStep.messages.push({date:Date.now(), value:"GoXLR play sample at \""+step.sampleIndex[0] + " "+ step.sampleIndex[1]});
+									GoXLRSocket.instance.playSample(step.sampleIndex[0], step.sampleIndex[1]);
+								}
+								break;
 							}
-							break;
-						}
-						case "set_fader": {
-							if(step.faderId) {
-								logStep.messages.push({date:Date.now(), value:"GoXLR set fader \""+step.faderId + "\" volume to "+ step.faderValue});
-								const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.faderValue!);
-								GoXLRSocket.instance.setFaderValue(step.faderId, parseInt(value) || 0);
+							case "set_fader": {
+								if(step.faderId) {
+									logStep.messages.push({date:Date.now(), value:"GoXLR set fader \""+step.faderId + "\" volume to "+ step.faderValue});
+									const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.faderValue!);
+									GoXLRSocket.instance.setFaderValue(step.faderId, parseInt(value) || 0);
+								}
+								break;
 							}
-							break;
-						}
-						case "profile": {
-							if(step.profile) {
-								logStep.messages.push({date:Date.now(), value:"GoXLR set profile \""+step.profile + "\""});
-								GoXLRSocket.instance.setProfile(step.profile!);
+							case "profile": {
+								if(step.profile) {
+									logStep.messages.push({date:Date.now(), value:"GoXLR set profile \""+step.profile + "\""});
+									GoXLRSocket.instance.setProfile(step.profile!);
+								}
+								break;
 							}
-							break;
 						}
 					}
 				}else
@@ -2049,6 +2056,71 @@ export default class TriggerActionHandler {
 					};
 					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
 					OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
+				}else
+
+				//Handle channel point reward action
+				if(step.type == "reward") {
+					logStep.messages.push({date:Date.now(), value:"Executing reward action \""+step.rewardAction.action+"\""});
+					switch(step.rewardAction.action) {
+						case "toggle": {
+							if(step.rewardAction.rewardId) {
+								let enabled = (await TwitchUtils.getRewards()).find(v => v.id === step.rewardAction.rewardId)?.is_enabled || false;
+								switch(step.rewardAction.state) {
+									case "enable": enabled = true; break;
+									case "disable": enabled = false; break;
+									case "toggle": enabled = !enabled; break;
+								}
+								const res = await TwitchUtils.updateReward(step.rewardAction.rewardId, {is_enabled:enabled});
+								if(!res) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured when updating the reward's ID ID \""+step.rewardAction.rewardId+"\" state"});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Reward is now "+(enabled? 'enabled' : 'disabled')});
+								}
+							}
+							break;
+						}
+						case "edit": {
+							if(step.rewardAction.rewardId && step.rewardAction.rewardEdit) {
+								const res = await TwitchUtils.updateReward(step.rewardAction.rewardId, step.rewardAction.rewardEdit);
+								if(!res) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured when updating the reward's ID \""+step.rewardAction.rewardId+"\" data "});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Reward data upated succesfully"});
+								}
+							}
+							break;
+						}
+						case "create": {
+							if(step.rewardAction.rewardEdit) {
+								const res = await TwitchUtils.createReward(step.rewardAction.rewardEdit);
+								if(res !== true) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured creating the reward. "+res});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Reward created successfully"});
+								}
+							}
+							break;
+						}
+						case "delete": {
+							if(step.rewardAction.rewardId) {
+								const res = await TwitchUtils.deleteReward(step.rewardAction.rewardId);
+								if(!res) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured when deleting the reward ID \""+step.rewardAction.rewardId+"\""});
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Reward deleted succesfully"});
+								}
+							}
+							break;
+						}
+					}
 				}
 				
 			}catch(error:any) {

@@ -5,6 +5,7 @@ import { TwitchatDataTypes } from "./TwitchatDataTypes";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import DataStore from "@/store/DataStore";
 import Config from "@/utils/Config";
+import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
 
 /**
  * Util to strongly type string object paths.
@@ -47,6 +48,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionValueData
 								| TriggerActionCustomMessageData
 								| TriggerActionHeatClickData
+								| TriggerActionRewardData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -296,21 +298,69 @@ export interface TriggerActionDelayData extends TriggerActionData{
 export type TriggerActionObsDataAction = "show"|"hide"|"mute"|"unmute"|"replay"|"stop"|"switch_to"|"move"|"rotate"|"resize";//|"startstream"|"stopstream"|"startrecord"|"pauserecord"|"stoprecord";
 export interface TriggerActionObsData extends TriggerActionData{
 	type:"obs";
+	/**
+	 * Type of OBS action to perform on th egiven source or filter
+	 */
 	action:TriggerActionObsDataAction;
+	/**
+	 * Source name to control
+	 */
 	sourceName:string;
+	/**
+	 * Filter name to control
+	 */
 	filterName?:string;
+	/**
+	 * New text of Text soource
+	 */
 	text?:string;
+	/**
+	 * New URL of a browser source
+	 */
 	url?:string;
+	/**
+	 * New position X in pixels
+	 */
 	pos_x?:string;
+	/**
+	 * New position Y in pixels
+	 */
 	pos_y?:string;
+	/**
+	 * New width
+	 */
 	width?:string;
+	/**
+	 * New height
+	 */
 	height?:string;
+	/**
+	 * New angle
+	 */
 	angle?:string;
+	/**
+	 * Should displacement be relative?
+	 */
 	relativeTransform?:boolean;
+	/**
+	 * Should the source displacement be animated
+	 */
 	animate?:boolean;
+	/**
+	 * Animation easing type if "animate" is true
+	 */
 	animateEasing?:string;
+	/**
+	 * Animation duration if "animate" is true
+	 */
 	animateDuration?:number;
+	/**
+	 * Media path (remote or local file path, or a placeholder)
+	 */
 	mediaPath?:string;
+	/**
+	 * Should we wait for the media to complete before processing the rest of the trigger?
+	 */
 	waitMediaEnd?:boolean;
 	/**
 	 * @deprecated replaced by "action" prop
@@ -320,21 +370,33 @@ export interface TriggerActionObsData extends TriggerActionData{
 
 export interface TriggerActionChatData extends TriggerActionData{
 	type:"chat";
+	/**
+	 * Text to send on chat
+	 */
 	text:string;
 }
 
 export interface TriggerActionCustomMessageData extends TriggerActionData{
 	type:"customChat";
+	/**
+	 * Twitchat notification params
+	 */
 	customMessage:TwitchatDataTypes.MessageCustomDataAPI;
 }
 
 export interface TriggerActionTTSData extends TriggerActionData{
 	type:"tts";
+	/**
+	 * Text to read out loud
+	 */
 	text:string;
 }
 
 export interface TriggerActionRaffleData extends TriggerActionData{
 	type:"raffle";
+	/**
+	 * Raffle params
+	 */
 	raffleData:TwitchatDataTypes.RaffleData;
 }
 
@@ -344,21 +406,37 @@ export interface TriggerActionRaffleEnterData extends TriggerActionData{
 
 export interface TriggerActionBingoData extends TriggerActionData{
 	type:"bingo";
+	/**
+	 * Bingo params
+	 */
 	bingoData:TwitchatDataTypes.BingoConfig;
 }
 
 export interface TriggerCustomBadgesData extends TriggerActionData{
-	id:string;
 	type:"customBadges";
+	/**
+	 * Placeholder containing the user to update
+	 */
 	customBadgeUserSource:string;
+	/**
+	 * Badge IDs to add to the user
+	 */
 	customBadgeAdd:string[];
+	/**
+	 * Badge IDs to remove from the user
+	 */
 	customBadgeDel:string[];
 }
 
 export interface TriggerCustomUsernameData extends TriggerActionData{
-	id:string;
 	type:"customUsername";
+	/**
+	 * New name to give the the user
+	 */
 	customUsername:string;
+	/**
+	 * Placeholder containing the user to update
+	 */
 	customUsernameUserSource:string;
 }
 
@@ -387,23 +465,59 @@ export interface TriggerActionVoicemodData extends TriggerActionData{
 
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
+	/**
+	 * Action to perform
+	 */
 	musicAction:TriggerMusicTypesValue;
+	/**
+	 * Track to add to the queue.
+	 * Can be:
+	 * - a textual search
+	 * - a track title/artist
+	 * - a track ID
+	 * - a track URL
+	 * - a placeholder containing one of the above
+	 */
 	track:string;
+	/**
+	 * Message to send on chat when adding a track to the queue
+	 */
 	confirmMessage:string;
+	/**
+	 * Should the track be lower than a certain duration ?
+	 */
 	limitDuration?:boolean;
+	/**
+	 * Maximum track duration for a SR
+	 */
 	maxDuration?:number;
+	/**
+	 * Optional error message to send on chat if SR failed
+	 */
 	failMessage?:string;
+	/**
+	 * Playlist to start
+	 */
 	playlist:string;
 }
 
 export interface TriggerActionHighlightData extends TriggerActionData{
 	type:"highlight";
+	/**
+	 * Show (true) or hide (false) the highlight overlay
+	 */
 	show:boolean;
+	/**
+	 * Message to show on highlight overlay
+	 */
 	text:string;
 }
 
 export interface TriggerActionTriggerData extends TriggerActionData{
 	type:"trigger";
+	/**
+	 * Trigger ID to execute
+	 */
 	triggerId:string;
 	/**
 	 * @deprecated do not use! only here for data migration typing
@@ -414,58 +528,165 @@ export interface TriggerActionTriggerData extends TriggerActionData{
 export type TriggerActionTriggerToggleDataAction = "enable"|"disable"|"toggle";
 export interface TriggerActionTriggerToggleData extends TriggerActionData{
 	type:"triggerToggle";
+	/**
+	 * Trigger ID to enable/disable/toggle
+	 */
 	triggerId:string;
+	/**
+	 * Action to perform
+	 */
 	action:TriggerActionTriggerToggleDataAction;
 }
 
 export type TriggerActionHTTPCallDataAction = "GET"|"POST"|"PUT"|"DELETE"|"PATCH"|"TRACE"|"OPTIONS"|"CONNECT"|"HEAD";
 export interface TriggerActionHTTPCallData extends TriggerActionData{
 	type:"http";
+	/**
+	 * Request URL
+	 */
 	url:string;
+	/**
+	 * Request method
+	 */
 	method:TriggerActionHTTPCallDataAction;
+	/**
+	 * Placeholders to add as query parameters (or JSON body of "sendAsBody" is true)
+	 */
 	queryParams:string[];
+	/**
+	 * Should data be sent as a JSON body for POST requests
+	 */
 	sendAsBody?:boolean;
+	/**
+	 * Should custom headers be sent
+	 * @see customHeaders
+	 */
 	customHeaders?:boolean;
+	/**
+	 * Request headers
+	 */
 	headers?:{key:string, value:string}[];
+	/**
+	 * Placeholder containing the request result
+	 */
 	outputPlaceholder?:string;
 }
 
 export interface TriggerActionWSData extends TriggerActionData{
 	type:"ws";
+	/**
+	 * Custom topic param to send to websocket
+	 */
 	topic:string;
+	/**
+	 * Placeholder to send to websocket
+	 */
 	params:string[];
 }
 
 export interface TriggerActionPollData extends TriggerActionData{
 	type:"poll";
+	/**
+	 * Poll params
+	 */
 	pollData:TwitchatDataTypes.PollConfig;
 }
 
 export interface TriggerActionPredictionData extends TriggerActionData{
 	type:"prediction";
+	/**
+	 * Prediction params
+	 */
 	predictionData:TwitchatDataTypes.PredictionConfig;
 }
 
 export interface TriggerActionChatSuggestionsData extends TriggerActionData{
 	type:"chatSugg";
+	/**
+	 * Chat suggestion params
+	 */
 	suggData:TwitchatDataTypes.ChatSuggestionData;
 }
 
 export interface TriggerActionVibrateData extends TriggerActionData{
 	type:"vibrate";
+	/**
+	 * Vibration pattern id
+	 * @see TriggerActionDataTypes.VIBRATION_PATTERNS
+	 */
 	pattern:string;
 }
 
 export interface TriggerActionHeatClickData extends TriggerActionData{
 	type:"heat_click";
+	/**
+	 * Heat data to forward
+	 */
 	heatClickData:{
+		/**
+		 * X position in percent
+		 */
 		x:string;
+		/**
+		 * Y position in percent
+		 */
 		y:string;
+		/**
+		 * Should the heat click event be forwarded?
+		 * Only available for a heat trigger
+		 */
 		forward:boolean;
+		/**
+		 * Ctrl pressed ?
+		 */
 		ctrl:boolean;
+		/**
+		 * Shift pressed ?
+		 */
 		shift:boolean;
+		/**
+		 * Alt pressed ?
+		 */
 		alt:boolean;
+		/**
+		 * Distortion overlay ID to forward the click to
+		 */
 		overlayId:string;
+	}
+}
+
+export const TriggerActionRewardDataActionList = [
+	"toggle",
+	"edit",
+	"create",
+	"delete",
+] as const;
+export type TriggerActionRewardDataAction = typeof TriggerActionRewardDataActionList[number];
+export const TriggerActionRewardDataStateList = [
+	"toggle",
+	"enable",
+	"disable",
+] as const;
+export type TriggerActionRewardDataState = typeof TriggerActionRewardDataStateList[number];
+export interface TriggerActionRewardData extends TriggerActionData{
+	type:"reward";
+	rewardAction: {
+		/**
+		 * Action type to perform
+		 */
+		action:TriggerActionRewardDataAction;
+		/**
+		 * Reward data to create or edit
+		 */
+		rewardEdit?:TwitchDataTypes.RewardEdition;
+		/**
+		 * Reward to delete or toggle
+		 */
+		rewardId?:string;
+		/**
+		 * New is_enabled state for "toggle" action
+		 */
+		state:TriggerActionRewardDataState;
 	}
 }
 
@@ -558,12 +779,33 @@ export interface TriggerActionValueData extends TriggerActionData{
 export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
+	/**
+	 * Type of random to generate
+	 */
 	mode:TriggerActionRandomDataMode;
+	/**
+	 * Min number to generate
+	 */
 	min:number;
+	/**
+	 * Max number to generate
+	 */
 	max:number;
+	/**
+	 * Should generated number be a float
+	 */
 	float:boolean;
+	/**
+	 * Placeholder to save the result to
+	 */
 	placeholder:string;
+	/**
+	 * List of custom textual items
+	 */
 	list:string[];
+	/**
+	 * Trigger list to pick one from
+	 */
 	triggers:string[];
 	/**
 	 * If true, disabled triggers should be skipped when picking
@@ -579,16 +821,26 @@ export interface TriggerActionRandomData extends TriggerActionData{
 
 export interface TriggerActionStreamInfoData extends TriggerActionData{
 	type:"stream_infos";
+	/**
+	 * New stream title
+	 */
 	title:string;
+	/**
+	 * New stream category
+	 */
 	categoryId:string;
+	/**
+	 * New stream tags
+	 */
 	tags:string[];
+	/**
+	 * New branded content state
+	 */
 	branded?:boolean;
+	/**
+	 * New labels states
+	 */
 	labels?:{id:string, enabled:boolean}[];
-}
-
-export interface TriggerActionHeatClickData extends TriggerActionData{
-	type:"heat_click";
-
 }
 
 export interface TriggerScheduleData {

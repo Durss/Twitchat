@@ -118,6 +118,7 @@
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
 				"action_customChat": "Notification Twitchat",
+				"action_reward": "Récompense de points de chaîne",
 				"action_bingo": "Lancer un bingo",
 				"action_chatSugg": "Suggestions de tchat",
 				"action_raffle": "Lancer un tirage au sort",
@@ -429,6 +430,19 @@
 				"param_ctrl":"Touche Ctrl pressée",
 				"param_shift":"Touche Shift pressée",
 				"param_alt":"Touche Alt pressée"
+			},
+			"reward":{
+				"param_action":"Action to perform",
+				"param_action_toggle":"Enable/Disable a reward",
+				"param_action_edit":"Update a reward",
+				"param_action_create":"Create a reward",
+				"param_action_delete":"Delete a reward",
+				"param_reward":"Reward to change",
+				"param_state":"New reward state",
+				"param_state_enable":"Enable",
+				"param_state_disable":"Disable",
+				"param_state_toggle":"Toggle state",
+				"no_manageable_reward":"You have no manageable reward. Please first create a reward from Twitchat or transfer any of your existing rewards to Twitchat.\nClick the {ICON} button at the bottom left."
 			}
 		},
 		"categories": {

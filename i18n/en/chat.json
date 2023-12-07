@@ -21,6 +21,7 @@
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Chat commands",
 			"usersBt_aria": "Users list",
+			"rewardsBt_aria": "Rewards list",
 			"input_placeholder": "message...",
 			"trigger_cmd_disabled": "(disabled trigger)",
 			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it abck to use it.",

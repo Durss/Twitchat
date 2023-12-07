@@ -529,6 +529,35 @@ import Ajv from "ajv";
 										shift: {type:"boolean"},
 										alt: {type:"boolean"},
 									}
+								},
+								rewardAction: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										rewardId: {type:"string", maxLength:50},
+										state: {enum: ["enable","disable","toggle"]},
+										action: {enum: ["toggle", "edit", "create", "delete"]},
+										rewardEdit:{
+											type: "object",
+											additionalProperties: false,
+											properties: {
+												title: {type:"string", maxLength:45},
+												cost: {type:"number", minimum:1, maximum:1000000000},
+												prompt: {type:"string", maxLength:200},
+												is_paused: {type:"boolean"},
+												is_enabled: {type:"boolean"},
+												background_color: {type:"string", maxLength:9},
+												is_user_input_required: {type:"boolean"},
+												is_max_per_stream_enabled: {type:"boolean"},
+												max_per_stream: {type:"number", minimum:0, maximum:1000000000},
+												is_max_per_user_per_stream_enabled: {type:"boolean"},
+												max_per_user_per_stream: {type:"number", minimum:0, maximum:1000000000},
+												is_global_cooldown_enabled: {type:"boolean"},
+												global_cooldown_seconds: {type:"number", minimum:0, maximum:1000000000},
+												should_redemptions_skip_request_queue: {type:"boolean"},
+											}
+										}
+									}
 								}
 							}
 						},

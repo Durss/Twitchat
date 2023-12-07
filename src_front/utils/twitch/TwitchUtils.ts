@@ -771,7 +771,15 @@ export default class TwitchUtils {
 			method:"PATCH",
 			headers:this.headers,
 			body:JSON.stringify(data),
-		})
+		});
+		if(res.status == 200) {
+			const json = await res.json();
+			//Update cached items
+			const rewardIndex = this.rewardsCache.findIndex(v => v.id == rewardId);
+			const manageableIndex = this.rewardsManageableCache.findIndex(v => v.id == rewardId);
+			if(rewardIndex > -1) this.rewardsCache[rewardIndex] = json.data[0];
+			if(manageableIndex > -1) this.rewardsCache[manageableIndex] = json.data[0];
+		}
 		return res.status == 200;
 	}
 

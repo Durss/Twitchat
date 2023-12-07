@@ -15,7 +15,7 @@
 	>
 		<template #left_actions>
 			<div class="actionList">
-				<Button small
+				<TTButton small
 					icon="dragZone"
 					class="action orderBt"
 					v-tooltip="$t('triggers.reorder_tt')"
@@ -25,13 +25,13 @@
 		</template>
 		<template #right_actions>
 			<div class="actionList">
-				<Button small
+				<TTButton small
 					icon="copy"
 					class="action"
 					@click.stop="$emit('duplicate')"
 					v-tooltip="$t('triggers.actions.common.duplicate_tt')"
 					/>
-					<Button small alert
+					<TTButton small alert
 					icon="trash"
 					class="action delete"
 					@click.stop="$emit('delete')"
@@ -43,111 +43,118 @@
 		<div v-if="action.type===null" class="typeSelector">
 			<div class="info">{{ $t('triggers.actions.common.select_action') }}</div>
 			<div class="list">
-				<Button class="button" @click="selectActionType('delay')"
-					icon="timer">{{ $t('triggers.actions.common.action_delay') }}</Button>
+				<TTButton class="button" @click="selectActionType('delay')"
+					icon="timer">{{ $t('triggers.actions.common.action_delay') }}</TTButton>
 	
-				<Button class="button" @click="selectActionType('chat')"
-					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</Button>
+				<TTButton class="button" @click="selectActionType('chat')"
+					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</TTButton>
 	
-				<Button class="button" @click="selectActionType('customChat')"
-					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</Button>
+				<TTButton class="button" @click="selectActionType('customChat')"
+					v-newflag="{date:1704956100000, id:'params_triggerAction_value'}"
+					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</TTButton>
 					
-				<Button class="button" @click.capture="selectActionType('poll')"
-					v-if="hasChannelPoints"
+				<TTButton class="button" @click.capture="selectActionType('reward')"
+					v-if="isAffiliate"
+					icon="channelPoints"
+					v-newflag="{date:1704956100000, id:'params_triggerAction_value'}"
+					:disabled="!canManageRewards">{{ $t('triggers.actions.common.action_reward') }}</TTButton>
+					
+				<TTButton class="button" @click.capture="selectActionType('poll')"
+					v-if="isAffiliate"
 					icon="poll"
-					:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</Button>
+					:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('prediction')"
-					v-if="hasChannelPoints"
+				<TTButton class="button" @click.capture="selectActionType('prediction')"
+					v-if="isAffiliate"
 					icon="prediction"
-					:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</Button>
+					:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</TTButton>
 					
-				<Button class="button" @click="selectActionType('bingo')"
-					icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</Button>
+				<TTButton class="button" @click="selectActionType('bingo')"
+					icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('raffle')"
-					icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</Button>
+				<TTButton class="button" @click="selectActionType('raffle')"
+					icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</TTButton>
 	
-				<Button class="button" @click="selectActionType('raffle_enter')"
+				<TTButton class="button" @click="selectActionType('raffle_enter')"
 					v-if="hasUserInfo"
-					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</Button>
+					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('stream_infos')"
+				<TTButton class="button" @click.capture="selectActionType('stream_infos')"
 					icon="info"
 					:disabled="!canEditStreamInfo"
-					v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</Button>
+					v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</TTButton>
 					
-				<Button class="button" @click="selectActionType('chatSugg')"
-					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</Button>
+				<TTButton class="button" @click="selectActionType('chatSugg')"
+					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('highlight')"
-					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</Button>
+				<TTButton class="button" @click="selectActionType('highlight')"
+					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('value')"
+				<TTButton class="button" @click="selectActionType('value')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_value'}"
-					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</Button>
+					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('count')"
-					icon="count">{{ $t('triggers.actions.common.action_count') }}</Button>
+				<TTButton class="button" @click="selectActionType('count')"
+					icon="count">{{ $t('triggers.actions.common.action_count') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('random')"
-					icon="dice">{{ $t('triggers.actions.common.action_random') }}</Button>
+				<TTButton class="button" @click="selectActionType('random')"
+					icon="dice">{{ $t('triggers.actions.common.action_random') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('obs')"
+				<TTButton class="button" @click.capture="selectActionType('obs')"
 					icon="obs"
 					:disabled="!obsConnected"
-					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</Button>
+					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('tts')"
+				<TTButton class="button" @click.capture="selectActionType('tts')"
 					icon="tts"
 					:disabled="!$store.tts.params.enabled"
-					v-tooltip="$store.tts.params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</Button>
+					v-tooltip="$store.tts.params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('music')"
+				<TTButton class="button" @click.capture="selectActionType('music')"
 					icon="spotify"
 					:disabled="!spotifyConnected"
-					v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</Button>
+					v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('voicemod')"
+				<TTButton class="button" @click.capture="selectActionType('voicemod')"
 					icon="voicemod"
 					:disabled="!voicemodEnabled"
-					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</Button>
+					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('goxlr')"
+				<TTButton class="button" @click.capture="selectActionType('goxlr')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
 					icon="goxlr" premium
 					:disabled="!goxlrEnabled"
-					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</Button>
+					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('customBadges')"
+				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
-					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</Button>
+					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('customUsername')"
+				<TTButton class="button" @click.capture="selectActionType('customUsername')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
-					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</Button>
+					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('trigger')"
-					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</Button>
+				<TTButton class="button" @click="selectActionType('trigger')"
+					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('triggerToggle')"
-					icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</Button>
+				<TTButton class="button" @click="selectActionType('triggerToggle')"
+					icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('vibrate')"
-					icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</Button>
+				<TTButton class="button" @click="selectActionType('vibrate')"
+					icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</TTButton>
 				
-				<Button class="button" @click="selectActionType('http')"
-					icon="url">{{ $t('triggers.actions.common.action_http') }}</Button>
+				<TTButton class="button" @click="selectActionType('http')"
+					icon="url">{{ $t('triggers.actions.common.action_http') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('ws')"
+				<TTButton class="button" @click.capture="selectActionType('ws')"
 					:disabled="!wsConnected"
-					icon="url">{{ $t('triggers.actions.common.action_ws') }}</Button>
+					icon="url">{{ $t('triggers.actions.common.action_ws') }}</TTButton>
 				
-				<Button class="button" @click.capture="selectActionType('heat_click')"
+				<TTButton class="button" @click.capture="selectActionType('heat_click')"
 					:disabled="!heatClickEnabled"
 					v-newflag="{date:1699651768211, id:'params_triggerAction_clickHeat'}"
 					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_heat_click_tt')"
-					icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</Button>
+					icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</TTButton>
 			</div>
 		</div>
 
@@ -171,6 +178,7 @@
 		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
 		<TriggerActionCustomChatEntry v-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
 		<TriggerActionClickHeatEntry v-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
+		<TriggerActionRewardEntry v-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -188,7 +196,7 @@ import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData, TriggerTypes } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -203,8 +211,10 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
+import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.vue';
 import TriggerActionCountEntry from './entries/TriggerActionCountEntry.vue';
 import TriggerActionCustomBadge from './entries/TriggerActionCustomBadge.vue';
+import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
 import TriggerActionCustomUsername from './entries/TriggerActionCustomUsername.vue';
 import TriggerActionDelayEntry from './entries/TriggerActionDelayEntry.vue';
 import TriggerActionGoXLREntry from './entries/TriggerActionGoXLREntry.vue';
@@ -221,12 +231,11 @@ import TriggerActionValueEntry from './entries/TriggerActionValueEntry.vue';
 import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneEntry.vue';
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
-import TriggerActionCustomChatEntry from './entries/TriggerActionCustomChatEntry.vue';
-import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.vue';
+import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		PollForm,
 		ParamItem,
 		BingoForm,
@@ -244,6 +253,7 @@ import TriggerActionClickHeatEntry from './entries/TriggerActionClickHeatEntry.v
 		TriggerActionCountEntry,
 		TriggerActionMusicEntry,
 		TriggerActionGoXLREntry,
+		TriggerActionRewardEntry,
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
@@ -282,11 +292,12 @@ export default class TriggerActionEntry extends Vue {
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
+	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
-	public get hasChannelPoints():boolean {
+	public get isAffiliate():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
 
@@ -387,6 +398,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "customBadges") icons.push( 'badge' );
 		if(this.action.type == "customUsername") icons.push( 'user' );
 		if(this.action.type == "heat_click") icons.push( 'distort' );
+		if(this.action.type == "reward") icons.push( 'channelPoints' );
 		return icons;
 	}
 
@@ -481,6 +493,12 @@ export default class TriggerActionEntry extends Vue {
 					return;
 				}break
 			}
+			case "reward": {
+				if(!this.canManageRewards) {
+					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_REWARDS]);
+					return;
+				}break
+			}
 		}
 		this.action.type = type;
 	}
@@ -515,6 +533,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 	.button {
+		flex-wrap: nowrap;
 		&.beta {
 			overflow: hidden;
 			&::before {

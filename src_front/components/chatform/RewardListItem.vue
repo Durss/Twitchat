@@ -6,13 +6,19 @@
 				:no-nl="true"
 				:no-html="true"
 				v-model="localCost"
+				:contenteditable="manageable !== false"
 				@blur="validateCostValue()"
 				@keydown="onKeyDown($event)" />
+			<div class="indicators" v-if="reward.is_paused || !reward.is_enabled">
+				<Icon name="pause" class="indicator" v-if="reward.is_paused" v-tooltip="$t('rewards.manage.pause_tt')" />
+				<Icon name="disable" class="indicator" v-if="!reward.is_enabled" v-tooltip="$t('rewards.manage.disable_tt')" />
+			</div>
 		</div>
 		<contenteditable class="title" tag="p"
 			:no-nl="true"
 			:no-html="true"
 			v-model="localTitle"
+			:contenteditable="manageable !== false"
 			@blur="updateTitle()" />
 
 		<TTButton v-if="manageable === false" icon="twitchat" @click="$emit('transfer', reward)" small secondary>{{$t("rewards.manage.transferBt")}}</TTButton>
@@ -41,7 +47,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		TTButton,
 		contenteditable,
 	},
-	emits:["transfer", "edit"],
+	emits:["transfer", "edit", "delete"],
 })
 export default class RewardListItem extends Vue {
 
@@ -65,7 +71,9 @@ export default class RewardListItem extends Vue {
 	public get classes():string[] {
 		const res = ["rewardlistitem"];
 		if(this.loading) res.push("loading");
-		if(this.reward.is_paused || !this.reward.is_enabled) res.push("disabled");
+		if(this.reward.is_paused
+		|| !this.reward.is_enabled
+		|| this.manageable === false) res.push("disabled");
 		return res;
 	}
 
@@ -154,7 +162,7 @@ export default class RewardListItem extends Vue {
 		e.preventDefault();
 		const options:CMTypes.MenuItem[]= [];
 		options.push({ 
-					label: (this.reward.is_paused)? "Unpause" : "Pause",
+					label: (this.reward.is_paused)? this.$t("rewards.manage.contextmenu_unpause") : this.$t("rewards.manage.contextmenu_pause"),
 					icon: this.getIcon((this.reward.is_paused)? "icons/play.svg" : "icons/pause.svg"),
 					onClick: async () => {
 						this.loading = true;
@@ -165,7 +173,7 @@ export default class RewardListItem extends Vue {
 					}
 				});
 		options.push({ 
-					label: (this.reward.is_enabled)? "Disable" : "Enable",
+					label: (this.reward.is_enabled)? this.$t("rewards.manage.contextmenu_disable") : this.$t("rewards.manage.contextmenu_enable"),
 					icon: this.getIcon("icons/disable.svg"),
 					onClick: async () => {
 						this.loading = true;
@@ -176,10 +184,22 @@ export default class RewardListItem extends Vue {
 					}
 				});
 		options.push({ 
-					label: "Edit", 
+					label: this.$t("rewards.manage.contextmenu_edit"),
 					icon: this.getIcon("icons/edit.svg"),
 					onClick: () => {
-						this.$emit("edit", this.reward)
+						this.$emit("edit", this.reward);
+					}
+				});
+		options.push({ 
+					label: this.$t("rewards.manage.contextmenu_delete"),
+					icon: this.getIcon("icons/trash.svg"),
+					customClass:"alert",
+					onClick: () => {
+						this.$confirm(this.$t("rewards.manage.contextmenu_delete_confirm_title"), this.$t("rewards.manage.contextmenu_delete_confirm_desc"))
+						.then(async ()=> {
+							await TwitchUtils.deleteReward(this.reward.id);
+							this.$emit("delete");
+						}).catch(() => { /* ignore */});
 					}
 				});
 
@@ -207,7 +227,7 @@ export default class RewardListItem extends Vue {
 
 <style scoped lang="less">
 .rewardlistitem{
-	gap: .5em;
+	// gap: .5em;
 	display: flex;
 	flex-direction: column;
 	width: calc(25% - .5em);
@@ -260,14 +280,15 @@ export default class RewardListItem extends Vue {
 		align-items: center;
 		border-radius: var(--border-radius);
 		transition: all .5s;
+		overflow: hidden;
 		img {
 			height: 28px;
 			margin: 10px;
 		}
 		
 		.cost {
-			font-size: 10px;
-			padding: 5px;
+			font-size: .7em;
+			padding: .5em;
 			border-radius: 5px;
 			background-color: var(--background-color-fade);
 			color: var(--color-text-inverse);
@@ -275,19 +296,38 @@ export default class RewardListItem extends Vue {
 			margin-bottom: 5px;
 			max-width: 100%;
 		}
+		.indicators {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			position: absolute;
+			top: 0;
+			right: 0;
+			padding: .25em;
+			background-color: var(--grayout);
+			border-bottom-left-radius: .25em;
+			.indicator {
+				height: .5em;
+			}
+		}
 	}
 
 	.title {
 		font-size: .8em;
 		text-align: center;
 		flex-grow: 1;
+		border-radius: 5px;
+		padding: .5em;
+	}
+
+	.cost:focus, .title:focus {
+		.bevel();
 	}
 
 	.moreBt {
 		// position: absolute;
 		// bottom: .25em;
 		// right: .25em;
-		margin-top: -.25em;
 		color: var(--color-text);
 		font-weight: bold;
 		width: 100%;

@@ -118,6 +118,7 @@
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_customChat": "Twitchat notification",
+				"action_reward": "Channel points reward",
 				"action_bingo": "Start a bingo",
 				"action_chatSugg": "Chat suggestions",
 				"action_raffle": "Start a raffle",
@@ -429,6 +430,19 @@
 				"param_ctrl":"Ctrl key pressed",
 				"param_shift":"Shift key pressed",
 				"param_alt":"Alt key pressed"
+			},
+			"reward":{
+				"param_action":"Action à effectuer",
+				"param_action_toggle":"Activer/désactiver une récompense",
+				"param_action_edit":"Modifier une récompense",
+				"param_action_create":"Créer une récompense",
+				"param_action_delete":"Supprimer une récompense",
+				"param_reward":"Récompense à traîter",
+				"param_state":"Nouvel état de la récompense",
+				"param_state_enable":"Activer",
+				"param_state_disable":"Désactiver",
+				"param_state_toggle":"Inverser l'état",
+				"no_manageable_reward":"Aucune de vos récompense ne peut être gérée par Twitchat. Veuillez d'abord créer une récompense depuis Twitchat ou transférer l'une de vos récompenses actuelles à Twitchat.\nCliquez le bouton {ICON} en bas à gauche."
 			}
 		},
 		"categories": {

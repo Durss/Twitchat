@@ -102,6 +102,7 @@
 					<div class="listItem">
 						<div class="dash"></div>
 						<TriggerActionEntry data-noselect
+							:ref="'actionEntry_'+index"
 							:class="getActionClasses(element)"
 							:data-actionid="element.id"
 							:action="element"
@@ -380,6 +381,13 @@ export default class TriggerActionList extends Vue {
 			action.condition = this.matchingCondition;
 		}
 		this.triggerData.actions.splice(index, 0, action);
+
+		this.$nextTick().then(()=> {
+			const ref = (this.$refs["actionEntry_"+index] as Vue).$el;
+			if(ref){
+				ref.scrollIntoView();
+			}
+		});
 	}
 
 	private onPointerDown(e:PointerEvent):void {
@@ -409,9 +417,9 @@ export default class TriggerActionList extends Vue {
 		const offsetBounds = (this.$el as HTMLElement).getBoundingClientRect();
 		
 		const margin = 20;
-		const x1 = Math.min(offsetBounds.width + margin, Math.max(0, Math.min(this.selectOffset.x - margin, e.clientX - offsetBounds.left)));
+		const x1 = Math.min(offsetBounds.width + margin, Math.max(-margin, Math.min(this.selectOffset.x, e.clientX - offsetBounds.left)));
 		const y1 = Math.min(offsetBounds.height, Math.max(0, Math.min(this.selectOffset.y, e.clientY - offsetBounds.top)));
-		const x2 = Math.min(offsetBounds.width + margin, Math.max(this.selectOffset.x - margin, e.clientX - offsetBounds.left));
+		const x2 = Math.min(offsetBounds.width + margin, Math.max(this.selectOffset.x, e.clientX - offsetBounds.left));
 		const y2 = Math.min(offsetBounds.height, Math.max(this.selectOffset.y, e.clientY - offsetBounds.top));
 		this.selectStyles.left = x1+"px";
 		this.selectStyles.top = y1+"px";
