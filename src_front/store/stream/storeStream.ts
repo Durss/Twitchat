@@ -106,32 +106,16 @@ export const storeStream = defineStore('stream', {
 			this.currentStreamInfo[channelId] = infos;
 		},
 
-		async updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean> {
+		async updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, channelId:string, title?:string, categoryID?:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean> {
 			if(platform == "twitch") {
 				if(!await TwitchUtils.setStreamInfos(channelId, title, categoryID, tags, branded, labels)) {
 					return false;
 				}
-				const category = await TwitchUtils.getCategoryByID(categoryID);
-				let viewers = 0;
-				let live = false;
-				let start = Date.now();
-				let tagList:string[] = [];
-				if(this.currentStreamInfo[channelId]) {
-					live = this.currentStreamInfo[channelId]!.live;
-					start = this.currentStreamInfo[channelId]!.started_at;
-					tagList = this.currentStreamInfo[channelId]!.tags;
-					viewers = this.currentStreamInfo[channelId]!.viewers;
-				}
-				if(tags) tagList = tags;
-				this.currentStreamInfo[channelId] = {
-					tags:tagList,
-					title,
-					live,
-					viewers,
-					started_at:start,
-					category:category.name,
-					user:StoreProxy.auth.twitch.user,
-					lastSoDoneDate:0,
+				const infos = this.currentStreamInfo[channelId];
+				if(infos) {
+					if(tags) infos.tags = tags;
+					if(title) infos.title = title;
+					if(categoryID) infos.category = (await TwitchUtils.getCategoryByID(categoryID))?.name;
 				}
 				return true;
 			}

@@ -172,7 +172,7 @@ export default class DevmodeMenu extends Vue {
 						m.pinnned = true;
 						// this.$store.chat.addMessage(m);
 						TriggerActionHandler.instance.execute(m);
-					}, 3000)
+					}, 500);
 					break;
 				}
 				case "hypeChat": {

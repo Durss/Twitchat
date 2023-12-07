@@ -129,7 +129,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		if(!this.presetEditing) {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			try {
-				if(await this.$store.stream.updateStreamInfos("twitch", this.title, this.category?.id ?? "", channelId, this.tags, this.branded, this.labels)) {
+				if(await this.$store.stream.updateStreamInfos("twitch", channelId, this.title, this.category?.id ?? "", this.tags, this.branded, this.labels)) {
 					this.updateSuccess = true;
 					setTimeout(()=>{
 						this.updateSuccess = false;
@@ -195,7 +195,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
-		if(await this.$store.stream.updateStreamInfos("twitch", p.title, p.categoryID as string, channelId, p.tags, p.branded, p.labels)) {
+		if(await this.$store.stream.updateStreamInfos("twitch", channelId, p.title, p.categoryID as string, p.tags, p.branded, p.labels)) {
 			this.updateSuccess = true;
 			setTimeout(()=>{
 				this.updateSuccess = false;

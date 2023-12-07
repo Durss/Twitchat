@@ -1201,21 +1201,19 @@ export default class TwitchUtils {
 	 */
 	public static async setStreamInfos(channelId:string, title?:string, categoryID?:string, tags:string[] = [], branded:boolean = false, labels:{id:string, enabled:boolean}[] = []):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
+
+		const body:{[key:string]:any} = {}
+		
+		if(title) body.title = title;
+		if(categoryID) body.game_id = categoryID;
+		if(branded) body.is_branded_content = branded;
+		if(labels && labels.length > 0) body.content_classification_labels = labels;
+		if(tags && tags.length > 0) body.tags = tags.map(v=> v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅]/g, "").substring(0, 25).trim());
 		
 		const options = {
 			method:"PATCH",
 			headers: this.headers,
-			body: JSON.stringify({
-				title,
-				game_id:categoryID,
-				is_branded_content:branded,
-				content_classification_labels:labels.map(v=> { return {id:v.id, is_enabled:v.enabled} }),
-				//Make sure tags size and chars are valid
-				tags:tags.map(v=> v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅]/g, "").substring(0, 25).trim()),
-				// tags:tags.map(v=> Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()),
-				// delay:"0",
-				// broadcaster_language:"en",
-			})
+			body: JSON.stringify(body)
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);

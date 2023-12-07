@@ -1023,7 +1023,7 @@ export interface IStreamActions {
 	 * @param channelId 
 	 * @param tags 
 	 */
-	updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, title:string, categoryID:string, channelId:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean>
+	updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, channelId:string, title?:string, categoryID?:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean>
 	/**
 	 * Set outgoing raid info
 	 * @param infos 

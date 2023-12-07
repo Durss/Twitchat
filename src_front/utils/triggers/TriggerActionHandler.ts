@@ -1651,13 +1651,24 @@ export default class TriggerActionHandler {
 				//Handle stream info update trigger action
 				if(step.type == "stream_infos") {
 					if(step.title) {
-						let title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.title);
-						let tags = [];
-						for (const tag of step.tags) {
-							tags.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, tag));
+						let title:string|undefined = undefined;
+						let tags:string[]|undefined = undefined;
+						let branded:boolean|undefined = undefined;
+						let labels:TriggerActionDataTypes.TriggerActionStreamInfoData["labels"]|undefined = undefined;
+						if(step.labels) labels = step.labels;
+						if(step.branded === true) branded = true;
+						if(step.branded === false) branded = false;
+						if(step.title) {
+							title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.title, subEvent);
+						}
+						if(step.tags) {
+							tags = [];
+							for (const tag of step.tags) {
+								tags.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, tag, subEvent));
+							}
 						}
 						logStep.messages.push({date:Date.now(), value:"Set stream infos. Title:\""+title+"\" Tags:\""+tags+"\" CategoryID:\""+step.categoryId+"\""});
-						await StoreProxy.stream.updateStreamInfos("twitch", title, step.categoryId, StoreProxy.auth.twitch.user.id, tags, step.branded === true, step.labels || []);
+						await StoreProxy.stream.updateStreamInfos("twitch", StoreProxy.auth.twitch.user.id, title, step.categoryId, tags, branded, labels);
 					}
 				}else
 
