@@ -432,17 +432,17 @@
 				"param_alt":"Touche Alt pressée"
 			},
 			"reward":{
-				"param_action":"Action to perform",
-				"param_action_toggle":"Enable/Disable a reward",
-				"param_action_edit":"Update a reward",
-				"param_action_create":"Create a reward",
-				"param_action_delete":"Delete a reward",
-				"param_reward":"Reward to change",
-				"param_state":"New reward state",
-				"param_state_enable":"Enable",
-				"param_state_disable":"Disable",
-				"param_state_toggle":"Toggle state",
-				"no_manageable_reward":"You have no manageable reward. Please first create a reward from Twitchat or transfer any of your existing rewards to Twitchat.\nClick the {ICON} button at the bottom left."
+				"param_action":"Action à effectuer",
+				"param_action_toggle":"Activer/désactiver une récompense",
+				"param_action_edit":"Modifier une récompense",
+				"param_action_create":"Créer une récompense",
+				"param_action_delete":"Supprimer une récompense",
+				"param_reward":"Récompense à traîter",
+				"param_state":"Nouvel état de la récompense",
+				"param_state_enable":"Activer",
+				"param_state_disable":"Désactiver",
+				"param_state_toggle":"Inverser l'état",
+				"no_manageable_reward":"Aucune de vos récompense ne peut être gérée par Twitchat. Veuillez d'abord créer une récompense depuis Twitchat ou transférer l'une de vos récompenses actuelles à Twitchat.\nCliquez le bouton {ICON} en bas à gauche."
 			}
 		},
 		"categories": {
