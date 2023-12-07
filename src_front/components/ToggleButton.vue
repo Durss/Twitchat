@@ -1,7 +1,9 @@
 <template>
 	<div :class="classes" @click.stop="toggle()">
 		<Icon name="checkmark" class="checkmark" />
-		<div class="circle"></div>
+		<div class="circle">
+			<Icon v-if="loading === true" name="loader" class="loading" />
+		</div>
 		<Icon name="cross" class="cross" />
 		<input type="checkbox" v-model="localValue" class="input">
 	</div>
@@ -38,6 +40,12 @@ export default class ToggleButton extends Vue {
 	@Prop({type:Boolean, default: false})
 	public noCheckmark!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public loading!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public inverseState!:boolean;
+
 	public localValue:boolean = false;
 
 	public get classes():string[] {
@@ -48,7 +56,7 @@ export default class ToggleButton extends Vue {
 		if(this.alert !== false) res.push("alert");
 		if(this.premium !== false) res.push("premium");
 		if(this.noCheckmark !== false) res.push("noCheckmark");
-		if(this.localValue) res.push("selected");
+		if((this.inverseState === false && this.localValue) || (this.inverseState !== false && !this.localValue)) res.push("selected");
 		return res;
 	}
 
@@ -93,6 +101,7 @@ export default class ToggleButton extends Vue {
 		width: calc(@size - 4px);
 		height: calc(@size - 4px);
 		border-radius: 50%;
+		color: var(--color-dark);
 	}
 
 	.checkmark {

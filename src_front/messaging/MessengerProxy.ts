@@ -345,6 +345,7 @@ export default class MessengerProxy {
 
 		if(cmd == "/__stopobsstream__") {
 			OBSWebsocket.instance.stopStreaming();
+			return true;
 		}else
 
 		if(cmd == "/raid" && (!params[0] || params[0] == "user")) {

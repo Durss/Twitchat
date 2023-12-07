@@ -71,6 +71,10 @@
 		"no_translation": "No translation found for this message :(",
 		"youtube_connect_expired": "Your Youtube session has expired. Please reconnect.",
 		"youtube_api_is_shit_unban": "Because youtube API is extremely poorly made, you cannot unban this user from Twitchat anymore. Go on your Youtube channel to unban them or ask one of your moderators to unban them.",
-		"youtube_message_delete": "Something went wrong when deleting the Youtube message"
+		"youtube_message_delete": "Something went wrong when deleting the Youtube message",
+		"rewards": {
+			"unknown":"Something went wrong when creating the reward",
+			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"A reward with this name already exists"
+		}
 	}
 }

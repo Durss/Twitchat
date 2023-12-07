@@ -71,6 +71,10 @@
 		"no_translation": "Aucune traduction trouvée pour ce message :(",
 		"youtube_connect_expired": "Votre session Youtube a expiré. Veuillez vous reconnecter.",
 		"youtube_api_is_shit_unban": "L'API de YouTube étant terriblement mal conçue, vous ne pouvez plus débannir cet utilisateur depuis Twitchat. Rendez-vous sur votre chaîne YouTube pour le débannir ou demandez à l'un de vos modérateurs de le faire.",
-		"youtube_message_delete": "Une erreur a eu lieu lors de la suppression du message."
+		"youtube_message_delete": "Une erreur a eu lieu lors de la suppression du message.",
+		"rewards": {
+			"unknown":"Une erreur est survenue lors de la création de la récompense",
+			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"Une récompense du même nom est déjà existante"
+		}
 	}
 }

@@ -98,7 +98,7 @@
 			</span>
 			
 			<span :class="getChildMessageClasses(m)"
-			v-if="messageData.type == 'message' && childrenList"
+			v-if="childrenList"
 			v-for="m in childrenList"
 			:id="'message_' + m.id + '_' + colIndex"
 			@contextmenu.capture="onContextMenu($event, m, $el)">

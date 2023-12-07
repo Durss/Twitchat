@@ -1,13 +1,13 @@
 {
 	"rewards": {
 		"manage":{
+			"scope_grant":"Twitchat a beosin d'une autorisation manquante pour lister vos récompenses de points de chaîne",
 			"title":"Gestions des récompenses",
 			"empty":"Aucune récompense ne peut être gérée par Twitchat",
 			"not_manageable_title":"Récompenses non gérables",
 			"not_manageable_description":"Ces récompenses n'ont pas été créées par Twitchat et ne peuvent donc être gérées ici",
 			"transferBt":"Transférer",
-			"transfer_title":"Transférer la récompense",
-			"transfer_description":"Recréer la récompense via Twitchat afin qu'elle puisse être gérée.",
+			"transfer_title":"Rendez cette récompense gérable par Twitchat",
 			"transfer_steps":[
 				"{DASHBOARD}",
 				"Renommez ou supprimez la récompense \"{REWARD}\"",
@@ -16,7 +16,19 @@
 			],
 			"transfer_step_dashboardBt":"Ouvez le dashboard Twitch",
 			"transfer_step_recreateBt":"Recréez la récompense",
-			"download_icon_tt":"Télécharger"
+			"download_icon_tt":"Télécharger",
+			"param_cost":"Coût",
+			"param_title":"Titre",
+			"param_description":"Description",
+			"param_paused":"Mettre en pause",
+			"param_enabled":"Récompense active",
+			"param_prompt":"Demander au spectateur de saisir du texte",
+			"param_color":"Couleur de fond",
+			"param_skipQueue":"Passer la Liste des demandes de récompense",
+			"param_cooldown":"Délai d'attente et limites",
+			"param_coolDown_duration":"Délai d'attente pour la récupération",
+			"param_coolDown_maxPerStream":"Limiter les récupérations par stream",
+			"param_coolDown_maxPerUser":"Limiter les récupérations par utilisateur par stream"
 		}		
 	}
 }

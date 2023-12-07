@@ -647,7 +647,7 @@ export default class TwitchUtils {
 	/**
 	 * Create a channel points reward
 	 */
-	public static async createReward(reward:TwitchDataTypes.RewardEdition):Promise<boolean> {
+	public static async createReward(reward:TwitchDataTypes.RewardEdition):Promise<boolean|string> {
 		if(!this.hasScopes([TwitchScopes.MANAGE_REWARDS])) return false;
 
 		const user = StoreProxy.auth.twitch.user;
@@ -666,6 +666,15 @@ export default class TwitchUtils {
 			return this.createReward(reward);
 		}else if(res.status === 400) {
 			//TODO handle error cases
+			let message = "";
+			try {
+				const json = await res.json();
+				const code = "error.rewards."+json.message;
+				if(StoreProxy.i18n.te(code)) {
+					message = StoreProxy.i18n.t(code);
+				}
+			}catch(error) {}
+			return message || false;
 		}
 		return false;
 	}
@@ -746,18 +755,22 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Lists all available rewards
+	 * Updates a reward
 	 * 
 	 * @returns
 	 */
-	public static async setRewardEnabled(id:string, enabled:boolean):Promise<boolean> {
+	public static async updateReward(rewardId:string, data:TwitchDataTypes.RewardEdition):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.LIST_REWARDS])) return false;
 		
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards?broadcaster_id="+StoreProxy.auth.twitch.user.id+"&id="+id, {
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("id", rewardId);
+		
+		const res = await fetch(url, {
 			method:"PATCH",
 			headers:this.headers,
-			// body:JSON.stringify({is_enabled:!enabled}),
-			body:JSON.stringify({is_paused:!enabled}),
+			body:JSON.stringify(data),
 		})
 		return res.status == 200;
 	}

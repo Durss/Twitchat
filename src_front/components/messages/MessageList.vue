@@ -1625,13 +1625,14 @@ export default class MessageList extends Vue {
 		const minDuration	= this.$store.params.features.mergeConsecutive_minDuration.value as number;
 
 		//If message size is higher than max allowed, don't merged
-		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+		if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| newMessage.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			//Message longer than the max allowed size, don't merge
 			if(newMessage.message_size > maxSize) return false;
 			//don't merge messages with multiple occurences flag
 			if((newMessage.occurrenceCount || 0) > 0) return false;
 			//don't merge announcements
-			if(newMessage.twitch_announcementColor) return false;
+			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && newMessage.twitch_announcementColor) return false;
 		}
 
 		if(!messageList) messageList = this.pendingMessages.length > 0? this.pendingMessages : this.filteredMessages;
@@ -1652,17 +1653,19 @@ export default class MessageList extends Vue {
 			if(prevCast.user.id !== newCast.user.id) return false;
 			
 			//Merging 2 chat messages from the same user...
-			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| prevMessage.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+				const isMessage = prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
 				//don't merge messages with multiple occurences flag
-				if((prevMessage.occurrenceCount || 0) > 0) return false;
+				if((isMessage && prevMessage.occurrenceCount || 0) > 0) return false;
 				//don't merge /announce
-				if(prevMessage.twitch_announcementColor) return false;
+				if(isMessage && prevMessage.twitch_announcementColor) return false;
 				//Get date of the latest children if any, or the date of the message
 				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 				//Too much time elapsed between the 2 messages
 				if(newMessage.date - prevDate > minDuration * 1000) return false;
+				
 				//If message is too big, don't merge
-
 				//Check forward for when doing a full chat refresh
 				let newSize = newCast.message_size;
 				if(this.messageIdToChildren[newMessage.id]) {

@@ -269,9 +269,10 @@ export namespace TwitchDataTypes {
 	}
 
 	export interface RewardEdition {
-		title: string;
-		cost: number;
+		title?: string;
+		cost?: number;
 		prompt?: string;
+		is_paused?: boolean;
 		is_enabled?: boolean;
 		background_color?: string;
 		is_user_input_required?: boolean;
