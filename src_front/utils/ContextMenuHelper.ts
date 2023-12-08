@@ -690,11 +690,19 @@ export default class ContextMenuHelper {
 				await new Promise<void>((resolve)=> {
 					let fallBackTO = setTimeout(() => resolve(), 1000);
 					imgs.forEach((v:HTMLImageElement)=>{
-						// let url = new URL(v.src);
-						// url.searchParams.append("ck", Date.now().toString());
-						// v.src = url.href;
+						if(/.*cloudfront.net/.test(v.src)) {
+							//CORS bypass for cheermotes
+							v.src = Config.instance.API_PATH+"/download?image="+encodeURIComponent(v.src);
+						}
+						
 						v.removeAttribute("loading");
 						v.addEventListener("load", ()=>{
+							if(++loaded == imgs.length) {
+								resolve();
+								clearTimeout(fallBackTO);
+							}
+						});
+						v.addEventListener("error", ()=>{
 							if(++loaded == imgs.length) {
 								resolve();
 								clearTimeout(fallBackTO);

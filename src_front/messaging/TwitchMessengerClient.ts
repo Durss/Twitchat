@@ -632,7 +632,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			platform:"twitch",
 			channel_id,
 			date:Date.now(),
-
 			user,
 			message,
 			answers:[],

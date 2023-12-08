@@ -653,6 +653,11 @@ export default class TwitchUtils {
 		const user = StoreProxy.auth.twitch.user;
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
 		url.searchParams.append("broadcaster_id", user.id);
+
+		if(reward.cost != undefined && reward.cost) {
+			if(reward.cost < 0) reward.cost = 0;
+			if(reward.cost > 1000000000) reward.cost = 1000000000;
+		}
 		
 		const res = await fetch(url, {
 			method:"POST",
@@ -733,7 +738,7 @@ export default class TwitchUtils {
 	/**
 	 * Refund a redemption
 	 */
-	public static async refundRedemptions(redemptionId:string, rewardId:string):Promise<boolean> {
+	public static async refundRedemptions(redemptionIds:string[], rewardId:string):Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.LIST_REWARDS])) return false;
 		
 		const options = {
@@ -745,7 +750,9 @@ export default class TwitchUtils {
 		const user = StoreProxy.auth.twitch.user;
 		url.searchParams.append("broadcaster_id", user.id);
 		url.searchParams.append("reward_id", rewardId);
-		url.searchParams.append("id", redemptionId);
+		redemptionIds.forEach(v=> {
+			url.searchParams.append("id", v);
+		});
 
 		const res = await fetch(url, options);
 		if(res.status == 200) {
@@ -766,6 +773,10 @@ export default class TwitchUtils {
 		const user = StoreProxy.auth.twitch.user;
 		url.searchParams.append("broadcaster_id", user.id);
 		url.searchParams.append("id", rewardId);
+		if(data.cost != undefined && data.cost) {
+			if(data.cost < 0) data.cost = 0;
+			if(data.cost > 1000000000) data.cost = 1000000000;
+		}
 		
 		const res = await fetch(url, {
 			method:"PATCH",

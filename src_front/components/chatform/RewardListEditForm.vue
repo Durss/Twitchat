@@ -1,6 +1,6 @@
 <template>
 	<form class="rewardlisteditform" @submit.prevent="onSubmit">
-		<img v-if="icon" :src="icon" class="rewardIcon">
+		<img v-if="icon && triggerMode === false" :src="icon" class="rewardIcon" :style="{backgroundColor:localValue.background_color}">
 		<ParamItem :paramData="param_title" v-model="localValue.title"></ParamItem>
 		<ParamItem :paramData="param_description" v-model="localValue.prompt"></ParamItem>
 		<ParamItem :paramData="param_cost" v-model="localValue.cost"></ParamItem>
@@ -27,6 +27,7 @@ import ParamItem from '../params/ParamItem.vue';
 import { watch } from 'vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import TTButton from '../TTButton.vue';
+import type { ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 
 @Component({
 	components:{
@@ -45,6 +46,9 @@ export default class RewardListEditForm extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public triggerMode!:boolean;
+	
+	@Prop
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
 
 	public error:string = "";
 	public saving:boolean = false;
@@ -96,6 +100,14 @@ export default class RewardListEditForm extends Vue {
 							|| (this.localValue.max_per_stream ?? 0) > 0
 							|| (this.localValue.max_per_user_per_stream ?? 0) > 0;
 
+		if(this.placeholderList) {
+			this.param_title.placeholderList = this.placeholderList;
+			this.param_description.placeholderList = this.placeholderList;
+			this.param_cost.placeholderList = this.placeholderList.filter(v=> v.numberParsable);
+		}
+		if(this.triggerMode !== false) {
+			this.param_cost.type = "string";
+		}
 	}
 
 	public mounted():void {
@@ -165,6 +177,7 @@ export default class RewardListEditForm extends Vue {
 		height: 4em;
 		margin: auto;
 		display: block;
+		border-radius: var(--border-radius);
 	}
 	.button {
 		align-self: center;

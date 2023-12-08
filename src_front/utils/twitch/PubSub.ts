@@ -845,6 +845,7 @@ export default class PubSub extends EventDispatcher {
 				},
 			},
 			message_size:0,
+			redeemId:localObj.redemption.id,
 			user:StoreProxy.users.getUserFrom("twitch", channelId, localObj.redemption.user.id, localObj.redemption.user.login, localObj.redemption.user.display_name),
 		};
 		// m.user.channelInfo[channelId].online = true;

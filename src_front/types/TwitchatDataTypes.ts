@@ -2619,6 +2619,11 @@ export namespace TwitchatDataTypes {
 		 * Optional message the reward requires the user to send when redeeming it with emotes replaced by HTML tags
 		*/
 		message_html?:string;
+		/**
+		 * Redeem ID.
+		 * Need to refund it later
+		 */
+		redeemId?:string;
 	}
 
 	/**

@@ -509,15 +509,13 @@ export default class TriggerActionEntry extends Vue {
 <style lang="less">
 .triggeractionentry.closed {
     width: fit-content;
-    &:not(.small) {
-		margin: auto;
-	}
 }
 </style>
 
 <style scoped lang="less">
 .triggeractionentry{
 	// transition: all .15s;
+	margin: auto;
 	&>:deep(.header) {
 		padding: 0;
 		.title {

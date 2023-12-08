@@ -2,8 +2,9 @@
 	<div class="triggeractionrewardentry triggerActionForm">
 		<ParamItem :paramData="param_action" v-model="action.rewardAction.action" />
 		
-		<template v-if="param_action.value != 'create'">
-			<ParamItem :paramData="param_reward" v-if="param_reward.listValues!.length > 0" v-model="action.rewardAction.rewardId" />
+		<template v-if="param_action.value != 'create' && param_action.value != 'refund'">
+			<div class="card-item" v-if="loading"><Icon name="loader" class="loader" /></div>
+			<ParamItem :paramData="param_reward" v-else-if="param_reward.listValues!.length > 0" v-model="action.rewardAction.rewardId" />
 			<i18n-t scope="global" tag="div" class="card-item alert" keypath="triggers.actions.reward.no_manageable_reward" v-else>
 				<template #ICON><Icon name="channelPoints" /></template>
 			</i18n-t>
@@ -11,10 +12,10 @@
 		
 		<ParamItem :paramData="param_state" v-if="param_action.value == 'toggle' && param_reward.listValues!.length > 0" v-model="action.rewardAction.state" />
 		
-		<RewardListEditForm v-if="param_action.value == 'create'" v-model="action.rewardAction.rewardEdit" />
+		<RewardListEditForm v-if="param_action.value == 'create'" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" />
 		
 		<template v-if="param_action.value == 'edit'">
-			<RewardListEditForm v-if="selectedRewardData" :reward="selectedRewardData" v-model="action.rewardAction.rewardEdit" triggerMode />
+			<RewardListEditForm v-if="selectedRewardData" :reward="selectedRewardData" v-model="action.rewardAction.rewardEdit" :placeholderList="placeholderList" triggerMode />
 			<i18n-t scope="global" tag="div" class="card-item alert" keypath="triggers.actions.reward.no_manageable_reward" v-else>
 				<template #ICON><Icon name="channelPoints" /></template>
 			</i18n-t>
@@ -26,11 +27,12 @@
 import Icon from '@/components/Icon.vue';
 import RewardListEditForm from '@/components/chatform/RewardListEditForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import { TriggerActionRewardDataActionList, TriggerActionRewardDataStateList, type TriggerActionRewardData, type TriggerData, type TriggerActionRewardDataAction, type TriggerActionRewardDataState } from '@/types/TriggerActionDataTypes';
+import { TriggerActionRewardDataActionList, TriggerActionRewardDataStateList, type TriggerActionRewardData, type TriggerActionRewardDataAction, type TriggerActionRewardDataState, type TriggerData, type ITriggerPlaceholder, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
@@ -40,7 +42,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class TriggerActionRewardEntry extends Vue {
+export default class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRewardData;
@@ -51,6 +53,9 @@ export default class TriggerActionRewardEntry extends Vue {
 	@Prop
 	declare triggerData:TriggerData;
 
+	public loading:boolean = true;
+	public placeholderList:ITriggerPlaceholder<any>[] = [];
+	public placeholderNumList:ITriggerPlaceholder<any>[] = [];
 	public param_reward:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", labelKey:"triggers.actions.reward.param_reward"};
 	public param_action:TwitchatDataTypes.ParameterData<TriggerActionRewardDataAction, TriggerActionRewardDataAction> = {type:"list", value:"toggle", labelKey:"triggers.actions.reward.param_action"};
 	public param_state:TwitchatDataTypes.ParameterData<TriggerActionRewardDataState, TriggerActionRewardDataState> = {type:"list", value:"toggle", labelKey:"triggers.actions.reward.param_state"};
@@ -60,17 +65,32 @@ export default class TriggerActionRewardEntry extends Vue {
 	}
 
 	public beforeMount():void {
+		this.param_action.listValues = TriggerActionRewardDataActionList.filter(v =>{
+			//Remove "refund" option if not a reward trigger type
+			if(this.triggerData.type != TriggerTypes.REWARD_REDEEM) {
+				return v != "refund";
+			}
+			return true;
+		}).map(v => {
+			return {value:v, labelKey:"triggers.actions.reward.param_action_"+v};
+		}) || [];
+
 		this.param_state.listValues = TriggerActionRewardDataStateList.map(v => {
 			return {value:v, labelKey:"triggers.actions.reward.param_state_"+v};
 		});
-		this.param_action.listValues = TriggerActionRewardDataActionList.map(v => {
-			return {value:v, labelKey:"triggers.actions.reward.param_action_"+v};
-		}) || [];
 		this.param_reward.listValues = [];
 		TwitchUtils.getRewards(false, true).then(res => {
 			this.param_reward.listValues = res.map(v => {
 				return {value:v.id, label:v.title};
 			});
+			//If it's a reward trigger, make sure the reward is refundable
+			//if not, remove the refund option
+			if(this.triggerData.type == TriggerTypes.REWARD_REDEEM) {
+				if(res.findIndex(v=>v.id == this.triggerData.rewardId) == -1) {
+					this.param_action.listValues = this.param_action.listValues?.filter(v=>v.value!='refund')
+				}
+			}
+			this.loading = false;
 		});
 		if(!this.action.rewardAction) {
 			this.action.rewardAction = {
@@ -99,6 +119,11 @@ export default class TriggerActionRewardEntry extends Vue {
 		}
 	}
 
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.placeholderList = list;
+		this.placeholderNumList = list.filter(v=>v.numberParsable !== true);
+	}
+
 }
 </script>
 
@@ -109,6 +134,12 @@ export default class TriggerActionRewardEntry extends Vue {
 		.icon {
 			margin-right: 0;
 		}
+	}
+
+	.loader {
+		height: 2em;
+		margin: auto;
+		display: block;
 	}
 }
 </style>

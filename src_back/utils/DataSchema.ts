@@ -536,13 +536,18 @@ import Ajv from "ajv";
 									properties: {
 										rewardId: {type:"string", maxLength:50},
 										state: {enum: ["enable","disable","toggle"]},
-										action: {enum: ["toggle", "edit", "create", "delete"]},
+										action: {enum: ["toggle", "edit", "create", "delete","refund"]},
 										rewardEdit:{
 											type: "object",
 											additionalProperties: false,
 											properties: {
 												title: {type:"string", maxLength:45},
-												cost: {type:"number", minimum:1, maximum:1000000000},
+												cost: {
+													anyOf:[
+														{type:"string", maxLength:50},
+														{type:"number", minimum:1, maximum:1000000000},
+													]
+												},
 												prompt: {type:"string", maxLength:200},
 												is_paused: {type:"boolean"},
 												is_enabled: {type:"boolean"},

@@ -437,6 +437,7 @@
 				"param_action_edit":"Modifier une récompense",
 				"param_action_create":"Créer une récompense",
 				"param_action_delete":"Supprimer une récompense",
+				"param_action_refund":"Rembourser l'achat",
 				"param_reward":"Récompense à traîter",
 				"param_state":"Nouvel état de la récompense",
 				"param_state_enable":"Activer",

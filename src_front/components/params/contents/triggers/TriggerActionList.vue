@@ -130,7 +130,6 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import TabMenu from '@/components/TabMenu.vue';
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
@@ -148,11 +147,11 @@ import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.v
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
 import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
+import gsap from 'gsap';
 
 @Component({
 	components:{
 		Button: TTButton,
-		TabMenu,
 		draggable,
 		ParamItem,
 		TriggerActionEntry,
@@ -356,6 +355,8 @@ export default class TriggerActionList extends Vue {
 		const clone:TriggerActionTypes = JSON.parse(JSON.stringify(action));
 		clone.id = Utils.getUUID(),
 		this.triggerData.actions.splice(index, 0, clone);
+
+		this.highlightItemIndex(index+1);
 	}
 
 	/**
@@ -382,12 +383,7 @@ export default class TriggerActionList extends Vue {
 		}
 		this.triggerData.actions.splice(index, 0, action);
 
-		this.$nextTick().then(()=> {
-			const ref = (this.$refs["actionEntry_"+index] as Vue).$el;
-			if(ref){
-				ref.scrollIntoView();
-			}
-		});
+		this.highlightItemIndex(index);
 	}
 
 	private onPointerDown(e:PointerEvent):void {
@@ -503,6 +499,16 @@ export default class TriggerActionList extends Vue {
 		if(!scrollableHolder) return;
 		scrollableHolder.scrollTop += this.scrollDir;
 	}
+
+	private async highlightItemIndex(index:number):Promise<void> {
+		await this.$nextTick();
+		const ref = (this.$refs["actionEntry_"+index] as Vue).$el;
+		if(ref){
+			gsap.from(ref, {duration:.5, overflow:"hidden", width:0, height:0, ease:"back.out", clearProps:"all", onUpdate:()=>{
+				ref.scrollIntoView();
+			}});
+		}
+	}
 }
 </script>
 
@@ -540,11 +546,6 @@ export default class TriggerActionList extends Vue {
 			.false {
 				fill-opacity:.25;
 			}
-		}
-		.tabmenu {
-			width: fit-content;
-			border: 2px solid var(--color-primary);
-			margin: auto;
 		}
 		.dash {
 			width: 2px;
@@ -607,11 +608,6 @@ export default class TriggerActionList extends Vue {
 		&>.head {
 			text-align: center;
 			margin-bottom: .5em;
-		}
-
-		.tabmenu {
-			margin: auto;
-			width: fit-content;
 		}
 
 		&.description {

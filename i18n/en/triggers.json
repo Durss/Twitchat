@@ -437,6 +437,7 @@
 				"param_action_edit":"Update a reward",
 				"param_action_create":"Create a reward",
 				"param_action_delete":"Delete a reward",
+				"param_action_refund":"Refund redeem",
 				"param_reward":"Reward to change",
 				"param_state":"New reward state",
 				"param_state_enable":"Enable",

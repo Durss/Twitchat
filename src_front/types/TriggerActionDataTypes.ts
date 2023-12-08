@@ -660,6 +660,7 @@ export const TriggerActionRewardDataActionList = [
 	"edit",
 	"create",
 	"delete",
+	"refund",
 ] as const;
 export type TriggerActionRewardDataAction = typeof TriggerActionRewardDataActionList[number];
 export const TriggerActionRewardDataStateList = [

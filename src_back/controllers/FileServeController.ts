@@ -184,17 +184,38 @@ export default class FileServeController extends AbstractController {
 	}
 
 	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const b64:string = (request.query as any).img.trim();
-		
-		const imgBuffer = Buffer.from(b64.split(",")[1], 'base64');
-		var s = new Readable()
-		s.push(imgBuffer)   
-		s.push(null) 
-		s.pipe(fs.createWriteStream("image.png"));
+		const image = (request.query as any).image;
+		try {
+			let url = new URL(image);
+			if(!/.*cloudfront.net$/.test(url.hostname)) {
+				response.header('Content-Type', 'application/json');
+				response.status(500);
+				response.send(JSON.stringify({success:false, emssage:"Invalid source URL"}));
+				return;
+			}
+			const res = await fetch(url);
+			const buffer = Buffer.from(await res.arrayBuffer());
+	
+			response.header('Content-Type', res.headers.get('Content-Type'));
+			response.header('Content-Length', res.headers.get('Content-Length'));
+			response.send(buffer);
+		}catch(error) {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({success:false, emssage:"an unknown error has occured"}));
+		}
 
-		response.header('Content-Disposition','attachment; filename=test.png');
-		response.header('Content-Type','image/png');
-		response.send(s).type('image/png').code(200);
+		// const b64:string = (request.query as any).img.trim();
+		
+		// const imgBuffer = Buffer.from(b64.split(",")[1], 'base64');
+		// var s = new Readable()
+		// s.push(imgBuffer)   
+		// s.push(null) 
+		// s.pipe(fs.createWriteStream("image.png"));
+
+		// response.header('Content-Disposition','attachment; filename=test.png');
+		// response.header('Content-Type','image/png');
+		// response.send(s).type('image/png').code(200);
 	}
 
 }

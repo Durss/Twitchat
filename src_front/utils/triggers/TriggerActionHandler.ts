@@ -2072,6 +2072,24 @@ export default class TriggerActionHandler {
 				//Handle channel point reward action
 				if(step.type == "reward") {
 					logStep.messages.push({date:Date.now(), value:"Executing reward action \""+step.rewardAction.action+"\""});
+					//Parse placeholders on title, prompt and cost
+					if(step.rewardAction.rewardEdit) {
+						if(step.rewardAction.rewardEdit.title) {
+							step.rewardAction.rewardEdit.title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.title, subEvent);
+						}
+						if(step.rewardAction.rewardEdit.prompt) {
+							step.rewardAction.rewardEdit.prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.prompt, subEvent);
+						}
+						if(step.rewardAction.rewardEdit.cost) {
+							let cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.cost.toString(), subEvent);
+							try {
+								const num = MathJS.evaluate(cost);
+								if(!isNaN(num)) {
+									step.rewardAction.rewardEdit.cost = num;
+								}
+							}catch(error) {}
+						}
+					}
 					switch(step.rewardAction.action) {
 						case "toggle": {
 							if(step.rewardAction.rewardId) {
@@ -2127,6 +2145,23 @@ export default class TriggerActionHandler {
 									logStep.error = true;
 								}else{
 									logStep.messages.push({date:Date.now(), value:"✔ Reward deleted succesfully"});
+								}
+							}
+							break;
+						}
+						case "refund": {
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.REWARD && message.redeemId) {
+								const res = await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id);
+								if(!res) {
+									logStep.messages.push({date:Date.now(), value:"❌ An error occured when refunding the redeem ID \""+message.redeemId+"\""});
+									const manageableList = await TwitchUtils.getRewards(false, true);
+									if(manageableList.findIndex(v=>v.id == message.reward.id) == -1) {
+										logStep.messages.push({date:Date.now(), value:"❌ Reward \""+message.reward.title+"\" has not been created by Twitchat. Redeem cannot be refund."});
+									}
+									log.error = true;
+									logStep.error = true;
+								}else{
+									logStep.messages.push({date:Date.now(), value:"✔ Reward redeem succesfully refund"});
 								}
 							}
 							break;
