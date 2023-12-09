@@ -7,6 +7,7 @@
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 import ripples from '@/assets/img/distortions/ripples_sh.png';
+import ripplesOverlay from '@/assets/img/distortions/ripples_sh_overlay.png';
 import hearts from '@/assets/img/distortions/hearts_sh.png';
 import bubbles from '@/assets/img/distortions/bubbles_sh.png';
 import twirl from '@/assets/img/distortions/twirl_sh.png';
@@ -26,7 +27,7 @@ export default class DistortionLiquid extends AbstractDistortion {
 
 	public mounted():void {
 		// super.initialize({cols:1, rows:1, uvScaleX:256/256, uvScaleY:256/256, frames:1, texture:twirl});
-		super.initialize({cols:16, rows:8, uvScaleX:256/4096, uvScaleY:256/2048, frames:128, texture:ripples});
+		super.initialize({cols:16, rows:8, uvScaleX:256/4096, uvScaleY:256/2048, frames:128, texture:ripples, overlay:ripplesOverlay});
 	}
 
 	// protected buildItem(px?:number, py?:number):IDistortItem {
@@ -41,7 +42,6 @@ export default class DistortionLiquid extends AbstractDistortion {
 	// 	return item;
 	// }
 	protected buildItem(px?:number, py?:number):IDistortItem {
-		console.log(px)
 		const item = super.buildItem(px, py);
 		if(px != undefined) item.x = px;
 		if(py != undefined) item.y = py;
@@ -51,7 +51,9 @@ export default class DistortionLiquid extends AbstractDistortion {
 		item.scaleSpeed = 0;
 		item.angle = Math.random() * Math.PI * 2;
 		let scale = 20 * Math.random() + 3;
-		gsap.to(item, {scale, frame:128, ease:"linear.none", duration:Math.max(1, scale * .25)});
+		gsap.to(item, {scale, frame:128, ease:"linear.none", duration:Math.max(1, scale * .25), onComplete:()=>{
+			this.removeItem(item);
+		}});
 		return item;
 	}
 	// protected computeItem(item:IDistortItem):boolean {
