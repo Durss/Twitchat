@@ -33,6 +33,7 @@ export default class AbstractDistortion extends Vue {
 	private frames = 128;
 	private offscreenMatrix:THREE.Matrix4 = new THREE.Matrix4();
 	private id:number = 0;
+	private hasOverlay:boolean = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
 	
@@ -55,7 +56,9 @@ export default class AbstractDistortion extends Vue {
 		scene.clear();
 		camera.clear();
 		instancedDistortMesh.clear();
-		instancedOverlayMesh.clear();
+		if(this.hasOverlay) {
+			instancedOverlayMesh.clear();
+		}
 		renderer.dispose();
 	}
 
@@ -98,12 +101,13 @@ export default class AbstractDistortion extends Vue {
 		this.addItem(this.buildItem(vec3.x, vec3.y));
 	}
 
-	protected initialize(spritesheet:{cols:number, rows:number, uvScaleX:number, uvScaleY:number, frames:number, texture:string, overlay:string}):void{
+	protected initialize(spritesheet:{cols:number, rows:number, uvScaleX:number, uvScaleY:number, frames:number, texture:string, overlay?:string}):void{
 		this.shCols = spritesheet.cols;
 		this.shRows = spritesheet.rows;
 		this.frames = spritesheet.frames;
 		this.uvScaleX = spritesheet.uvScaleX;
 		this.uvScaleY = spritesheet.uvScaleY;
+		this.hasOverlay = spritesheet.overlay != undefined;
 
 		// Create a scene
 		scene = new THREE.Scene();
@@ -143,8 +147,6 @@ export default class AbstractDistortion extends Vue {
 		// Load the texture
 		const textureLoader = new THREE.TextureLoader();
 		const textureDistort = textureLoader.load( spritesheet.texture );
-		const textureLoader2 = new THREE.TextureLoader();
-		const textureOverlay = textureLoader2.load( spritesheet.overlay );
 		// const texture = textureLoader.load('hearts_sh.png');
 		// const texture = textureLoader.load('test.png');
 
@@ -178,16 +180,22 @@ export default class AbstractDistortion extends Vue {
 				}
 			`
 		});
-		const materialOverlay = materialDistort.clone();
-		materialOverlay.uniforms.texture1.value = textureOverlay;
 
 		// Create an InstancedMesh for distortions
 		instancedDistortMesh = new THREE.InstancedMesh(geometry, materialDistort, this.maxInstances);
 		instancedDistortMesh.count = 0;
 
-		// Create an InstancedMesh for overlays
-		instancedOverlayMesh = new THREE.InstancedMesh(geometry, materialOverlay, this.maxInstances);
-		instancedOverlayMesh.count = 0;
+		if(this.hasOverlay) {
+			const textureLoader2 = new THREE.TextureLoader();
+			const textureOverlay = textureLoader2.load( spritesheet.overlay! );
+
+			const materialOverlay = materialDistort.clone();
+			materialOverlay.uniforms.texture1.value = textureOverlay;
+
+			// Create an InstancedMesh for overlays
+			instancedOverlayMesh = new THREE.InstancedMesh(geometry, materialOverlay, this.maxInstances);
+			instancedOverlayMesh.count = 0;
+		}
 
 		for (let i = 0; i < this.maxInstances; i++) {
 			this.uvOffsets.push(1 - this.uvScaleX, 1-this.uvScaleY);
@@ -197,8 +205,10 @@ export default class AbstractDistortion extends Vue {
 		instancedDistortMesh.geometry.setAttribute('uvOffset', uvOffsetAttribute);
 		scene.add(instancedDistortMesh);
 
-		instancedOverlayMesh.geometry.setAttribute('uvOffset', uvOffsetAttribute);
-		scene.add(instancedOverlayMesh);
+		if(this.hasOverlay) {
+			instancedOverlayMesh.geometry.setAttribute('uvOffset', uvOffsetAttribute);
+			scene.add(instancedOverlayMesh);
+		}
 		
 
 		const pos = this.screenToWorld(window.innerWidth*10, window.innerHeight*10);
@@ -240,24 +250,27 @@ export default class AbstractDistortion extends Vue {
 			matrix.makeTranslation(item.x, item.y, 0);
 			matrix.multiply(rotationMatrix);
 			matrix.scale(new THREE.Vector3(item.scale, item.scale, 1));
-			
-			const matrix2 = new THREE.Matrix4();
-			instancedOverlayMesh.getMatrixAt(i, matrix2 );
-			matrix2.makeTranslation(item.x + screenW, item.y, 0);
-			matrix2.scale(new THREE.Vector3(item.scale, item.scale, 1));
-
 			instancedDistortMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
-			// frame = Math.round(frame/2);
-			instancedOverlayMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
-
+			
 			instancedDistortMesh.setMatrixAt(i, matrix);
-			instancedOverlayMesh.setMatrixAt(i, matrix2);
+			if(this.hasOverlay) {
+				const matrix2 = new THREE.Matrix4();
+				instancedOverlayMesh.getMatrixAt(i, matrix2 );
+				matrix2.makeTranslation(item.x + screenW, item.y, 0);
+				matrix2.scale(new THREE.Vector3(item.scale, item.scale, 1));
+				// frame = Math.round(frame/2);
+				instancedOverlayMesh.geometry.attributes.uvOffset.setXY(i, (frame%this.shCols)*this.uvScaleX, 1-offsetUvY - this.uvScaleY - Math.floor(frame/this.shCols)*this.uvScaleY);
+				instancedOverlayMesh.setMatrixAt(i, matrix2);
+			}
+
 		}
 		
 		instancedDistortMesh.instanceMatrix.needsUpdate = true;
 		instancedDistortMesh.geometry.attributes.uvOffset.needsUpdate = true;
-		instancedOverlayMesh.instanceMatrix.needsUpdate = true;
-		instancedOverlayMesh.geometry.attributes.uvOffset.needsUpdate = true;
+		if(this.hasOverlay) {
+			instancedOverlayMesh.instanceMatrix.needsUpdate = true;
+			instancedOverlayMesh.geometry.attributes.uvOffset.needsUpdate = true;
+		}
 
 		// Render the scene
 		renderer.render(scene, camera);
@@ -290,20 +303,24 @@ export default class AbstractDistortion extends Vue {
 		const index = this.items.findIndex(v=>v.id == data.id);
 		
 		instancedDistortMesh.setMatrixAt(index, this.offscreenMatrix);
-		instancedOverlayMesh.setMatrixAt(index, this.offscreenMatrix);
 		instancedDistortMesh.count --;
-		instancedOverlayMesh.count --;
+		if(this.hasOverlay) {
+			instancedOverlayMesh.setMatrixAt(index, this.offscreenMatrix);
+			instancedOverlayMesh.count --;
+		}
 		this.items.splice(index, 1);
 	}
 
 	protected addItem(data:IDistortItem):number {
 		const index = this.items.length;
 		instancedDistortMesh.count ++;
-		instancedOverlayMesh.count ++;
 		instancedDistortMesh.geometry.attributes.uvOffset.setXY(index, 0, 0);
-		instancedOverlayMesh.geometry.attributes.uvOffset.setXY(index, 0, 0);
 		instancedDistortMesh.setMatrixAt(index, new THREE.Matrix4());
-		instancedOverlayMesh.setMatrixAt(index, new THREE.Matrix4());
+		if(this.hasOverlay) {
+			instancedOverlayMesh.count ++;
+			instancedOverlayMesh.geometry.attributes.uvOffset.setXY(index, 0, 0);
+			instancedOverlayMesh.setMatrixAt(index, new THREE.Matrix4());
+		}
 		this.items.push(data);
 		return index;
 	}
