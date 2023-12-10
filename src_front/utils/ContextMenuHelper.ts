@@ -18,6 +18,7 @@ import ApiController from "./ApiController";
 import Database from "@/store/Database";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import YoutubeHelper from "./youtube/YoutubeHelper";
+import { YoutubeScopes } from "./youtube/YoutubeScopes";
 
 /**
 * Created : 07/04/2023 
@@ -202,16 +203,15 @@ export default class ContextMenuHelper {
 				//Delete message
 				let classes = "alert";
 				if(m.deleted!== true) {
-					if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+					if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
+					if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classes += " disabled";
 					options.push({ 
 								label: t("chat.context_menu.delete"),
 								icon: this.getIcon("icons/trash.svg"),
 								customClass:classes,
 								onClick: () => {
-									if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
-										!TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES]);
-										return;
-									}
+									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.DELETE_MESSAGES])) return;
+									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 									StoreProxy.chat.deleteMessage(m);
 								},
 							});
@@ -221,9 +221,11 @@ export default class ContextMenuHelper {
 			//User moderation actions
 			if(canModerateUser) {
 				let classesBan = "alert";
-				if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
+				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
+				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
 				let classesBlock = "alert";
-				if(!TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBlock += " disabled";
+				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBan += " disabled";
+				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
 	
 				//Timeout
@@ -300,7 +302,8 @@ export default class ContextMenuHelper {
 								icon: this.getIcon("icons/unban.svg"),
 								customClass:classesBan,
 								onClick: () => {
-									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 									this.unbanUser(user, message.channel_id);
 								},
 							});
@@ -321,7 +324,8 @@ export default class ContextMenuHelper {
 								icon: this.getIcon("icons/unban.svg"),
 								customClass:classesBan,
 								onClick: () => {
-									if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 									this.unbanUser(user, me.id);
 								},
 							});
@@ -343,7 +347,8 @@ export default class ContextMenuHelper {
 									icon: this.getIcon("icons/unblock.svg"),
 									customClass:classesBlock,
 									onClick: () => {
-										if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+										if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+										if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 										TwitchUtils.unblockUser(user);
 									},
 								});
@@ -454,7 +459,8 @@ export default class ContextMenuHelper {
 	 * @param duration ban duration. Don't specify to perma ban
 	 */
 	private timeoutUser(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData, duration:number):void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 		if(message.fake === true) {
 			//Avoid banning user for real if doing it from a fake message
 			StoreProxy.users.flagBanned(message.platform, message.channel_id, message.user.id, duration);
@@ -474,7 +480,8 @@ export default class ContextMenuHelper {
 	 * Permanently ban a user after confirmation
 	 */
 	private banUser(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData, channelId:string):void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
+		if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 		const t = StoreProxy.i18n.t;
 		StoreProxy.main.confirm(t("chat.mod_tools.ban_confirm_title", {USER:message.user.displayName}), t("chat.mod_tools.ban_confirm_desc"))
 		.then(() => {
@@ -512,7 +519,8 @@ export default class ContextMenuHelper {
 	 * Block a user after confirmation
 	 */
 	private blockUser(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
-		if(!TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+		if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BLOCKED])) return;
+		if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
 		const t = StoreProxy.i18n.t;
 		StoreProxy.main.confirm(t("chat.mod_tools.block_confirm_title", {USER:message.user.displayName}), t("chat.mod_tools.block_confirm_desc"))
 		.then(() => {

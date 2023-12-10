@@ -7,7 +7,7 @@
 		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
 
 		<div class="info">
-			<p class="title">{{ $tc("chat.scope_request.title", messageData.twitch_scopes) }}</p>
+			<p class="title">{{ $tc("chat.scope_request.title", messageData.twitch_scopes.length) }}</p>
 
 			<ul class="scopes">
 				<li v-for="s in messageData.twitch_scopes" :key="s">

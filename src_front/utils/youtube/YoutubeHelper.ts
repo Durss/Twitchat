@@ -1,12 +1,13 @@
-import StoreProxy, { type RequireField } from "@/store/StoreProxy";
-import ApiController from "../ApiController";
-import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
 import DataStore from "@/store/DataStore";
-import { reactive } from "vue";
-import Utils from "../Utils";
+import StoreProxy, { type RequireField } from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import TwitchUtils from "../twitch/TwitchUtils";
+import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
+import { reactive } from "vue";
+import ApiController from "../ApiController";
 import Logger from "../Logger";
+import Utils from "../Utils";
+import TwitchUtils from "../twitch/TwitchUtils";
+import type { YoutubeScopesString } from "./YoutubeScopes";
 
 /**
 * Created : 28/11/2023 
@@ -80,11 +81,40 @@ export default class YoutubeHelper {
 	}
 
 	/**
+	 * Returns if current session includes the given scopes.
+	 * All given scopes must be granted for this function to return true
+	 * 
+	 * @param scopes
+	 */
+	public hasScopes(scopes:YoutubeScopesString[]):boolean {
+		if(!this._token) return false;
+		for (let i = 0; i < scopes.length; i++) {
+			if(this._token.scope.split(" ").indexOf(scopes[i]) == -1) {
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	/**
+	 * REquest for scopes
+	 * 
+	 * @param scopes
+	 */
+	public requestScopes(scopes:YoutubeScopesString[]):boolean {
+		if(this.hasScopes(scopes)) return true;
+		StoreProxy.youtube.newScopesToRequest = scopes;
+		StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
+		return false;
+	}
+
+	/**
 	 * Starts youtube oAuth flow
 	 */
-	public async startAuthFlow():Promise<void> {
+	public async startAuthFlow(grantModerate:boolean):Promise<void> {
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"youtube/auth"}).href;
-		const oauth = await ApiController.call("youtube/oauthURL", "GET", {redirectURI});
+		const oauth = await ApiController.call("youtube/oauthURL", "GET", {redirectURI, grantModerate});
 		if(oauth.status == 200 && oauth.json.data.url)  {
 			document.location.href = oauth.json.data.url;
 		}else{

@@ -2445,7 +2445,7 @@ export default class TwitchUtils {
 	}	
 
 	/**
-	 * Returns if current session has 1 or multiple scopes granted.
+	 * Returns if current session includes the given scopes.
 	 * All given scopes must be granted for this function to return true
 	 * 
 	 * @param scopes

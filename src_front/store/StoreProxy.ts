@@ -12,6 +12,7 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
+import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 
 /**
 * Created : 23/09/2022 
@@ -1902,6 +1903,10 @@ export interface IYoutubeState {
 	 * Current Youtube auth token
 	 */
 	youtubeAuthToken: YoutubeAuthToken|null;
+	/**
+	 * New scopes to request
+	 */
+	newScopesToRequest: YoutubeScopesString[]|null;
 }
 
 export interface IYoutubeGetters {

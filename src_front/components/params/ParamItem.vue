@@ -25,7 +25,8 @@
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
-					:id="'toggle'+key" />
+					:id="'toggle'+key"
+					:disabled="disabled !== false || paramData.disabled === true" />
 			</div>
 			
 			<div v-if="paramData.type == 'number'" class="holder number">
@@ -43,7 +44,7 @@
 					:min="paramData.min"
 					:max="paramData.max"
 					:step="paramData.step"
-					:disabled="premiumLocked || disabled !== false"
+					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 					@blur="clampValue()"
 					@input="$emit('input')">
 			</div>
@@ -65,7 +66,7 @@
 						:placeholder="placeholder"
 						v-autofocus="autofocusLocal"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						:disabled="premiumLocked || disabled !== false"
+						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 						@input="$emit('input')"></textarea>
 					<input ref="input" v-else-if="!paramData.noInput"
 						:tabindex="tabindex"
@@ -77,7 +78,7 @@
 						:step="paramData.type == 'time'? 1 : undefined"
 						:placeholder="placeholder"
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
-						:disabled="premiumLocked || disabled !== false"
+						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 						autocomplete="new-password"
 						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
@@ -95,7 +96,7 @@
 						:tabindex="tabindex"
 						v-model="textValue"
 						v-autofocus="autofocus"
-						:disabled="premiumLocked || disabled !== false"
+						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 						:name="paramData.fieldName"
 						:id="'text'+key"
 						type="color">
@@ -111,7 +112,7 @@
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
-				:disabled="premiumLocked || disabled !== false"
+				:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 				:alert="alert || errorLocal" />
 			</div>
 			
@@ -241,7 +242,7 @@
 					:name="paramData.fieldName"
 					:id="'browse'+key"
 					:placeholder="placeholder"
-					:disabled="premiumLocked || disabled !== false">
+					:disabled="premiumLocked || disabled !== false || paramData.disabled === true">
 				<Button v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
@@ -787,10 +788,6 @@ export default class ParamItem extends Vue {
 		background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
 	}
 
-	// &:not(.no-bg) {
-	// 	transition: background-color .2s;
-	// }
-
 	&.longText {
 		.content {
 			.text {
@@ -907,7 +904,7 @@ export default class ParamItem extends Vue {
 				align-self: stretch;
 				margin: 0;
 				padding-right: 1em;
-				line-height: 1.1em;
+				line-height: 1.25em;
 				white-space: pre-line;
 				cursor: pointer;
 			}

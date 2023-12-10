@@ -6,16 +6,18 @@
 			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 
-			<Button class="actionBt" small v-if="!showRaidHistory && $store.stream.raidHistory.length > 0" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
-			<Button class="actionBt" small v-if="showRaidHistory" icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
+			<template v-if="!needScope && $store.stream.raidHistory.length > 0">
+				<Button class="actionBt" small v-if="!showRaidHistory" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
+				<Button class="actionBt" small v-else icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
+			</template>
 		</div>
 		
 		<div class="content">
 			<Icon name="loader" alt="loading" class="loader" v-if="loading" />
 
-			<div class="needScope" v-if="needScope">
+			<div class="card-item needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
-				<Button icon="unlock" @click="grantPermission()">{{ $t('liveusers.scope_grantBt') }}</Button>
+				<Button icon="unlock" @click="grantPermission()" primary>{{ $t('liveusers.scope_grantBt') }}</Button>
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 
@@ -128,6 +130,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 	public mounted():void {
 		this.needScope = !TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]);
 		if(!this.needScope) this.updateList();
+		else this.loading = false;
 		super.open();
 	}
 
@@ -191,10 +194,6 @@ export default class LiveFollowings extends AbstractSidePanel {
 		.center();
 		position: absolute;
 		text-align: center;
-		padding: 1em;
-		border-radius: var(--border-radius);
-		background-color: var(--color-light);
-		color: var(--color-primary);
 		display: flex;
 		flex-direction: column;
 		gap: .5em;

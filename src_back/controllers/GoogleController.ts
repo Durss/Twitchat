@@ -80,6 +80,12 @@ export default class GoogleController extends AbstractController {
 		}
 
 		const redirectURI = (request.query as any).redirectURI;
+		const grantModerate = (request.query as any).grantModerate;
+		let scope = Config.credentials.youtube_scopes;
+		
+		if(grantModerate != "true") {
+			scope = scope.filter(v=>v != "https://www.googleapis.com/auth/youtube.force-ssl");
+		}
 
 		if(!credentials.redirect_uris.includes(redirectURI)) {
 			response.header('Content-Type', 'application/json');
@@ -96,8 +102,8 @@ export default class GoogleController extends AbstractController {
 		const authorizationUrl = oauth2Client.generateAuthUrl({
 			// 'online' (default) or 'offline' (gets refresh_token)
 			access_type: 'offline',
-			scope: Config.credentials.youtube_scopes,
-			include_granted_scopes: true,
+			scope,
+			include_granted_scopes: false,
 			state:jwt.sign({date:Date.now()}, Config.credentials.csrf_key),
 			prompt:"consent",
 			redirect_uri:redirectURI,

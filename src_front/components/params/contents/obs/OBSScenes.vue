@@ -58,7 +58,7 @@ export default class OBSScenes extends Vue {
 		}
 		await this.$nextTick();
 		const items = (this.$refs.param as Vue[]).map(v => v.$el);
-		gsap.from(items, {height:0, paddingTop:0, marginTop:0, duration:0.25, stagger:0.01, delay:.25, clearProps:"all"});
+		gsap.from(items, {height:0, paddingTop:0, marginTop:0, paddingBottom:0, marginBottom:0, duration:0.25, stagger:0.05, clearProps:"all"});
 	}
 
 }

@@ -3,10 +3,17 @@
 		<div class="holder">
 			<div class="card-item primary" v-if="connected && showSuccess" @click="showSuccess = false">{{ $t("connexions.youtube.success") }}</div>
 			<div>{{ $t("connexions.youtube.header") }}</div>
-			<TTButton icon="youtube" @click="oauth()" :loading="loading" v-if="!connected">{{ $t("global.connect") }}</TTButton>
+			<template v-if="!connected">
+				<div class="card-item scopes">
+					<div class=" title"><Icon name="lock_fit" />{{ $t("connexions.youtube.scopes_title") }}</div>
+					<ParamItem :paramData="param_scope_read" noBackground />
+					<ParamItem :paramData="param_scope_moderate" noBackground ref="moderateScope" />
+				</div>
+				<TTButton icon="youtube" @click="oauth()" :loading="loading">{{ $t("global.connect") }}</TTButton>
+			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
 
-			<div class="card-item liveHolder" v-if="broadcastList && broadcastList.length > 0">
+			<div class="card-item liveHolder" v-if="connected && broadcastList && broadcastList.length > 0">
 				<div>{{ $t("connexions.youtube.current_live_title") }}</div>
 				<div class="liveList">
 					<div :class="getLiveClasses(live)"
@@ -39,10 +46,16 @@ import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ParamItem from '../../ParamItem.vue';
+import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
+import gsap from 'gsap';
+import { Sine } from 'gsap';
 
 @Component({
 	components:{
 		TTButton,
+		ParamItem,
 		ToggleBlock,
 	},
 	emits:[],
@@ -53,9 +66,13 @@ export default class ConnectYoutube extends Vue {
 	public loading = false;
 	public showSuccess = false;
 	public refreshing = false;
+	public requestNewScopes = false;
 	public error = "";
 
-	public get connected():boolean { return YoutubeHelper.instance.connected; }
+	public param_scope_read:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"whispers", value:true, labelKey:"connexions.youtube.scope_read", disabled:true};
+	public param_scope_moderate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"mod", value:false, labelKey:"connexions.youtube.scope_moderate"};
+
+	public get connected():boolean { return YoutubeHelper.instance.connected && !this.requestNewScopes; }
 	public get selectedLiveId() { return YoutubeHelper.instance.currentLiveId; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
 
@@ -97,16 +114,24 @@ export default class ConnectYoutube extends Vue {
 
 			this.loading = false;
 			this.$store.youtube.setYoutubeAuthResult(null);
+		}else if(this.$store.youtube.newScopesToRequest){
+			const scopes = this.$store.youtube.newScopesToRequest;
+			this.param_scope_moderate.value = scopes.includes(YoutubeScopes.CHAT_MODERATE);
+			this.requestNewScopes = true;
+			this.$store.youtube.newScopesToRequest = null;
 		}
 	}
 
-	public async mounted():Promise<void> {
-		
+	public mounted():void {
+		if(this.requestNewScopes) {
+			const el = (this.$refs["moderateScope"] as Vue).$el as HTMLElement;
+			gsap.fromTo(el, {backgroundColor:"#ffffff00"}, {backgroundColor:"#ffffff50", repeat:6, yoyo:true, ease:Sine.easeInOut, duration:.2, immediateRender:false, delay:2, clearProps:"all"});
+		}
 	}
 
 	public async oauth():Promise<void> {
 		this.loading = true;
-		YoutubeHelper.instance.startAuthFlow();
+		YoutubeHelper.instance.startAuthFlow(this.param_scope_moderate.value);
 	}
 
 	public async disconnect():Promise<void> {
@@ -133,6 +158,21 @@ export default class ConnectYoutube extends Vue {
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
+
+		.scopes {
+			gap:.25em;
+			display: flex;
+			flex-direction: column;
+			.title {
+				text-align: center;
+				font-weight: bold;
+				margin-bottom: .25em;
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+				}
+			}
+		}
 
 		.liveHolder {
 			gap: .5em;

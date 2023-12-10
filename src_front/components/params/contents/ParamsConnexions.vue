@@ -4,11 +4,11 @@
 
 		<p class="head">{{ $t("connexions.header") }}</p>
 
+<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'selected' : ''" @click="allowHighlight = false" />
+
 		<ToggleBlock class="item" title="OBS websocket" :icons="['obs']" :open="subContent == 'obs'" :class="allowHighlight && subContent == 'obs'? 'selected' : ''" @click="allowHighlight = false">
 			<OBSConnectForm />
 		</ToggleBlock>
-
-		<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'selected' : ''" @click="allowHighlight = false" />
 
 		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" />
 

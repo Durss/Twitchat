@@ -54,6 +54,7 @@
 			"pick_winner_no_subs":"Vous ne pouvez lancer un tirage au sort parmi vos subs. Aucune personne n'est abonnée à votre chaîne actuellement.",
 			"pick_winner_no_entry":"Aucune personne n'a rejoint le tirage au sort"
 		},
+		"youtube_denied": "Vous avez refusé l'accès à votre compte Youtube",
 		"patreon_denied": "Vous avez refusé l'accès à votre profil Patreon",
 		"patreon_disconected": "Votre compte Patreon a été deconnecté",
 		"badge_file_loading_failed": "Une erreur a eu lieu lors du chargement de l'image",

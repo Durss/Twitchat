@@ -46,6 +46,9 @@ export default class ToggleButton extends Vue {
 	@Prop({type:Boolean, default: false})
 	public inverseState!:boolean;
 
+	@Prop({type:Boolean, default: false})
+	public disabled!:boolean;
+
 	public localValue:boolean = false;
 
 	public get classes():string[] {
@@ -68,6 +71,8 @@ export default class ToggleButton extends Vue {
 	}
 
 	public toggle():void {
+		if(this.disabled !== false) return;
+
 		this.localValue = !this.localValue;
 		this.$emit('update:modelValue', this.localValue);
 		this.$emit('change');

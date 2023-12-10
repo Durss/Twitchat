@@ -174,7 +174,7 @@ const routes: Array<RouteRecordRaw> = [
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 				sYoutube.setYoutubeAuthResult(params);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );
+				sMain.alert( StoreProxy.i18n.t("error.youtube_denied") );
 			}
 			return {name:"chat", query:{}};
 		},

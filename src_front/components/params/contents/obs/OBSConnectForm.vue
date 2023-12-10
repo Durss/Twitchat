@@ -60,10 +60,10 @@ export default class OBSConnectForm extends Vue {
 	public obsIP_conf:TwitchatDataTypes.ParameterData<string>	= { type:"string", value:"127.0.0.1", maxLength:100, labelKey:"obs.form_ip" };
 
 
-	public mounted():void {
-		const port = DataStore.get("obsPort");
-		const pass = DataStore.get("obsPass");
-		const ip = DataStore.get("obsIP");
+	public beforeMount():void {
+		const port = DataStore.get(DataStore.OBS_PORT);
+		const pass = DataStore.get(DataStore.OBS_PASS);
+		const ip = DataStore.get(DataStore.OBS_IP);
 		if(port) this.obsPort_conf.value = parseInt(port);
 		if(pass) this.obsPass_conf.value = pass;
 		if(ip) this.obsIP_conf.value = ip;
@@ -113,9 +113,9 @@ export default class OBSConnectForm extends Vue {
 	 */
 	public paramUpdate():void {
 		this.connected = false;
-		DataStore.set("obsPort", this.obsPort_conf.value);
-		DataStore.set("obsPass", this.obsPass_conf.value);
-		DataStore.set("obsIP", this.obsIP_conf.value);
+		DataStore.set(DataStore.OBS_PORT, this.obsPort_conf.value);
+		DataStore.set(DataStore.OBS_PASS, this.obsPass_conf.value);
+		DataStore.set(DataStore.OBS_IP, this.obsIP_conf.value);
 	}
 
 }

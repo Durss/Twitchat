@@ -7,6 +7,7 @@ export const storeYoutube = defineStore('youtube', {
 	state: () => ({
 		youtubeAuthParams: null,
 		youtubeAuthToken: null,
+		newScopesToRequest: null,
 	} as IYoutubeState),
 
 
