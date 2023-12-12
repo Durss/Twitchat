@@ -11,6 +11,7 @@
 			"not_manageable_description":"These rewards are not created by Twitchat and thus cannot be managed here",
 			"transferBt":"Transfer",
 			"create_title":"Create a reward",
+			"edit_title":"Edit a reward",
 			"transfer_title":"Make this reward manageable from Twitchat",
 			"transfer_steps":[
 				"{DASHBOARD}",

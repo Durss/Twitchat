@@ -24,7 +24,7 @@
 		"youtube":{
 			"header":"Show your Youtube's chat in Twitchat.",
 			"success":"Youtube is now connected",
-			"current_live_title":"Current live info",
+			"current_live_title":"Select live to connect to",
 			"scopes_title":"Autorizations",
 			"scope_read":"Read chat messages\n(mandatory)",
 			"scope_moderate":"Delete messages / ban users\n@:connexions.youtube.scope_moderate_details",

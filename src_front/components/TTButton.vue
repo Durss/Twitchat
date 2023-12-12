@@ -449,6 +449,7 @@ export default class TTButton extends Vue {
 
 	&.transparent {
 		color: var(--color-text);
+		box-shadow: unset;
 		.label {
 			text-shadow: unset;
 		}

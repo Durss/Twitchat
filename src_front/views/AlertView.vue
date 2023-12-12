@@ -3,8 +3,7 @@
 		<CloseButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
 		<div v-if="$store.main.alertData.showContact" class="contact">
-			<span>{{ $t("global.alert_support") }}</span>
-			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.join_discordBt") }}</Button>
+			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
 		</div>
 	</div>
 </template>
@@ -52,9 +51,8 @@ export default class AlertView extends Vue {
 			
 			if(mess.critical) {
 				this.locked = true;
-			}else{
-				const addTime = mess.showContact? 6000 : 2000;
-				this.timeout = setTimeout(()=> this.close(), this.message.length*80 + addTime);
+			}else if(!this.showContact){
+				this.timeout = setTimeout(()=> this.close(), this.message.length*80 + 2000);
 			}
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
@@ -102,14 +100,6 @@ export default class AlertView extends Vue {
 
 	.contact {
 		align-self: center;
-		padding: .5em;
-		gap: .5em;
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		.bevel();
-		background-color: var(--color-alert-dark);
-		border-radius: var(--border-radius);
 	}
 }
 </style>

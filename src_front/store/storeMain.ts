@@ -151,7 +151,7 @@ export const storeMain = defineStore("main", {
 				const res = await ApiController.call("configs");
 				jsonConfigs = res.json;
 			}catch(error) {
-				this.alert("Unable to contact server :(.", true);
+				this.alert("Unable to contact server :(", true, true);
 				console.log(error);
 				this.initComplete = true;
 				return;

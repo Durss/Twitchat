@@ -46,7 +46,7 @@
 		"contact": "Contact: {MAIL}",
 		"translation": "Translation",
 		"join_discordBt": "Join Discord",
-		"alert_support": "Please join Twitchat's Discord server to seek for help:",
+		"ask_supportBt": "Ask for help",
 		"obs_connect": "This feature needs you to {LINK}",
 		"obs_connect_link": "connect with OBS",
 		"placeholder_selector_title": "Special placeholders dynamically replaced",

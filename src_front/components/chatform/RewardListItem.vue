@@ -11,7 +11,7 @@
 				@keydown="onKeyDown($event)" />
 			<div class="indicators" v-if="reward.is_paused || !reward.is_enabled">
 				<Icon name="pause" class="indicator" v-if="reward.is_paused" v-tooltip="$t('rewards.manage.pause_tt')" />
-				<Icon name="disable" class="indicator" v-if="!reward.is_enabled" v-tooltip="$t('rewards.manage.disable_tt')" />
+				<Icon name="ban" class="indicator" v-if="!reward.is_enabled" v-tooltip="$t('rewards.manage.disable_tt')" />
 			</div>
 		</div>
 		<contenteditable class="title" tag="p"

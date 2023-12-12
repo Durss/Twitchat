@@ -60,8 +60,9 @@ export default class AbstractChatMessage extends Vue {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| this.messageData.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT) {
 			this.canModerateMessage = this.canModerateUser_local
-									&& (!("twitch_announcementColor" in this.messageData) || this.messageData.twitch_announcementColor == undefined)//If it's not announcement (they're not deletable)
-									//If message is not older than 6h after. Passed this we cannot delete a message
+									//If it's not announcement (they're not deletable)
+									&& (!("twitch_announcementColor" in this.messageData) || this.messageData.twitch_announcementColor == undefined)
+									//If message is not older than 6h. Passed this we cannot delete a message on Twitch
 									&& Date.now() - this.messageData.date < 6 * 60 * 60000;
 		}
 

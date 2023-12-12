@@ -12,32 +12,39 @@
 		</div>
 
 		<div v-else-if="rewardToTransfer" class="transfer scrollable">
-			<h1>{{ $t("rewards.manage.transfer_title") }}</h1>
+			<div class="head">
+				<TTButton icon="back" @click="rewardToTransfer = null" class="backBt" transparent />
+				<h1>{{ $t("rewards.manage.transfer_title") }}</h1>
+			</div>
 			<RewardListTransferForm :reward="rewardToTransfer" @complete="onTranferComplete()" />
-			<CloseButton @click="rewardToTransfer = null" />
 		</div>
 
 		<div v-else-if="rewardToEdit" class="edit scrollable">
+			<div class="head">
+				<TTButton icon="back" @click="rewardToEdit = null" class="backBt" transparent />
+				<h1>{{ $t("rewards.manage.edit_title") }}</h1>
+			</div>
 			<RewardListEditForm :reward="rewardToEdit" />
-			<CloseButton @click="rewardToEdit = null" />
 		</div>
 
 		<div v-else-if="createReward" class="create scrollable">
-			<h1>{{ $t("rewards.manage.create_title") }}</h1>
+			<div class="head">
+				<TTButton icon="back" @click="createReward = false" class="backBt" transparent />
+				<h1>{{ $t("rewards.manage.create_title") }}</h1>
+			</div>
 			<RewardListEditForm @complete="onCreateComplete()" />
-			<CloseButton @click="createReward = false" />
 		</div>
 
 		<template v-else>
 			<div class="rewards scrollable">
 				<div class="list">
-					<h1>{{ $t("rewards.manage.title") }}</h1>
+					<div class="head"><h1>{{ $t("rewards.manage.title") }}</h1></div>
 					<button @click="createReward = true" class="createRewardBt"><Icon name="add" /></button>
 					<RewardListItem v-for="r in manageableRewards" :key="r.id" :reward="r" manageable @edit="rewardToEdit = $event" @delete="onDeleteReward()" />
 				</div>
 				
 				<div class="list" v-if="nonManageableRewards.length > 0">
-					<h1>{{ $t("rewards.manage.not_manageable_title") }}</h1>
+					<div class="head"><h1>{{ $t("rewards.manage.not_manageable_title") }}</h1></div>
 					<p>{{ $t("rewards.manage.not_manageable_description") }}</p>
 					<RewardListItem v-for="r in nonManageableRewards" :key="r.id" :reward="r" :manageable="false" @transfer="transferReward" />
 				</div>
@@ -245,17 +252,6 @@ export default class RewardsList extends Vue {
 			}
 		}
 
-		h1 {
-			text-align: center;
-			width: 100%;
-			position: sticky;
-			top: 0;
-			z-index: 1;
-			background-color: var(--grayout);
-			padding: 0 1.5em;
-			line-height: 1.1em;
-		}
-
 		.list {
 			gap: .5em;
 			display: flex;
@@ -264,6 +260,33 @@ export default class RewardsList extends Vue {
 			justify-content: center;
 			h1 {
 				position: sticky;
+			}
+		}
+
+		.head {
+			display: flex;
+			flex-direction: row;
+			padding-right: 2em;
+			justify-content: flex-start;
+			align-items: center;
+			width: 100%;
+			position: sticky;
+			top: 0;
+			z-index: 1;
+			background-color: var(--grayout);
+			padding-right: 1.5em;
+			line-height: 1.1em;
+			padding: .25em .5em;
+
+			h1 {
+				text-align: center;
+				flex-grow: 1;
+			}
+
+			.backBt {
+				z-index: 1;
+				padding: 1em .75em;
+				flex-shrink: 0;
 			}
 		}
 	}

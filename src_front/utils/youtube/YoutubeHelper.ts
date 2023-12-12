@@ -262,6 +262,7 @@ export default class YoutubeHelper {
 	 */
 	public async getMessages(page:string = ""):Promise<YoutubeMessages|null> {
 		this._creditsUsed ++;
+		clearTimeout(this._pollTimeout);
 		if(!this._currentLiveId) return null;
 		let url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
 		url.searchParams.append("part", "id");
@@ -275,10 +276,14 @@ export default class YoutubeHelper {
 		if(res.status == 200) {
 			//Check all message IDs
 			const idsDone:{[key:string]:boolean} = {};
-			StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
+			if(!page) {
+				//Only filter first call that returns full history
+				StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
+			}
 
 			let json = await res.json() as YoutubeMessages;
-			for (let i = 0; i < json.items.length; i++) {
+			let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
+			for (; i < json.items.length; i++) {
 				const m = json.items[i];
 				//Message already registered? Skip it
 				if(idsDone[m.id]) continue;
@@ -341,32 +346,27 @@ export default class YoutubeHelper {
 				StoreProxy.chat.addMessage(data);
 			}
 
-			clearTimeout(this._pollTimeout);
 			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), json.pollingIntervalMillis);
 			
 			return json;
-		}else if(res.status == 403 || res.status == 401) {
+		}else {
+			let json:any = {};
 			try {
-				let json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
+				json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
 				const errorCode = json.error.errors[0].reason;
 				if(errorCode == "liveChatEnded") {
-
+					//
 				}
-			}catch(error) {
-				
-			}
-			Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:await res.json(), credits: this._creditsUsed, liveID:this._currentLiveId});
-			if(await this.refreshToken()) {
-				await Utils.promisedTimeout(1000);
-				return this.getMessages(page);
+			}catch(error) {}
+			Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
+			if(res.status == 403 || res.status == 401) {
+				if(!await this.refreshToken()) return null;
 			}
 		}
 		//Youtube API has random downs (404, 503, ...)
 		//Re executing the same request with the same page token seems to work in such case.
-		setTimeout(()=> {
-			return this.getMessages(page);
-		},1000)
-		return null;
+		await Utils.promisedTimeout(1000);
+		return await this.getMessages(page);
 	}
 	
 	/**
