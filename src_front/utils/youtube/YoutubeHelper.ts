@@ -45,7 +45,7 @@ export default class YoutubeHelper {
 
 	private get headers() {
 		return {
-			"Authorization": "Bearer "+YoutubeHelper.instance._token!.access_token,
+			"Authorization": "Bearer "+this._token!.access_token,
 			"Accept":"application/json"
 		};
 	}

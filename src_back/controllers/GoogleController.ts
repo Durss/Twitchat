@@ -180,6 +180,7 @@ export default class GoogleController extends AbstractController {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send(JSON.stringify({success:false, error:"Given redirect URI is invalid", errorCode:"INVALID_REDIRECT_URI"}));
+			return;
 		}
 
 		const oauth2Client = new google.auth.OAuth2({
@@ -195,7 +196,17 @@ export default class GoogleController extends AbstractController {
 			scope:params.scope,
 		})
 
-		const {credentials: token} = await oauth2Client.refreshAccessToken();
+		let token:any = {};
+		try {
+			const res = await oauth2Client.refreshAccessToken();
+			token = res.credentials;
+		}catch(error) {
+			console.log(error);
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({success:false, error:"invalid credentials", errorCode:"INVALID_CREDENTIALS"}));
+			return;
+		}
 
 		response.header('Content-Type', 'application/json');
 		response.status(200);
