@@ -274,10 +274,11 @@ export default class RewardsList extends Vue {
 			position: sticky;
 			top: 0;
 			z-index: 1;
-			background-color: var(--grayout);
-			padding-right: 1.5em;
 			line-height: 1.1em;
-			padding: .25em .5em;
+			
+			background: linear-gradient(180deg, var(--color-text-inverse) 30%, var(--color-text-inverse-fadest) 100%);
+			padding: .5em 1.5em 2em 1.5em;
+			margin-bottom: -1em;
 
 			h1 {
 				text-align: center;

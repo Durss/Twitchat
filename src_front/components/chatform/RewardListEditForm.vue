@@ -14,9 +14,11 @@
 			<ParamItem :paramData="param_coolDown_maxPerStream" v-model="localValue.max_per_stream" noBackground class="child"></ParamItem>
 			<ParamItem :paramData="param_coolDown_maxPerUser" v-model="localValue.max_per_user_per_stream" noBackground class="child"></ParamItem>
 		</ParamItem>
-		<TTButton type="submit" primary :loading="saving" v-if="!modelValue && !reward" icon="add">{{ $t("global.create") }}</TTButton>
-		<TTButton type="submit" primary :loading="saving" v-else-if="triggerMode === false" icon="save">{{ $t("global.save") }}</TTButton>
-		<div class="card-item alert" v-if="error">{{ error }}</div>
+		<div class="cta">
+			<TTButton type="submit" primary :loading="saving" v-if="!modelValue && !reward" icon="add">{{ $t("global.create") }}</TTButton>
+			<TTButton type="submit" primary :loading="saving" v-else-if="triggerMode === false" icon="save">{{ $t("global.save") }}</TTButton>
+			<div class="card-item alert" v-if="error">{{ error }}</div>
+		</div>
 	</form>
 </template>
 
@@ -193,8 +195,15 @@ export default class RewardListEditForm extends Vue {
 		display: block;
 		border-radius: var(--border-radius);
 	}
-	.button {
-		align-self: center;
+	.cta {
+		align-self: stretch;
+		position: sticky;
+		bottom: 0;
+		background: linear-gradient(0, var(--color-text-inverse) 20%, var(--color-text-inverse-fadest) 100%);
+		padding: .5em 0;
+		padding-top: 2em;
+		margin-top: -1em;
+		text-align: center;
 	}
 }
 </style>
