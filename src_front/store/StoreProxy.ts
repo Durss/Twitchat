@@ -270,7 +270,21 @@ export type IAuthState = {
 }
 
 export interface IAuthGetters {
+	/**
+	 * Get if user is premium.
+	 * Either because a Patreon member, or because they donated the lifetime premium amount,
+	 * or because they're part of the early donors I granted lifetime premium to
+	 */
 	isPremium:boolean;
+	/**
+	 * Get if user is an actual premium member.
+	 * Same as isPremium() but excludung the "early donors".
+	 * This is used for things that cost me money like the translate feature.
+	 */
+	isRealPremium:boolean;
+	/**
+	 * Get if user donated money
+	 */
 	isDonor:boolean;
 }
 

@@ -74,7 +74,8 @@
 		"youtube_api_is_shit_unban": "Because youtube API is extremely poorly made, you cannot unban this user from Twitchat anymore. Go on your Youtube channel to unban them or ask one of your moderators to unban them.",
 		"youtube_message_delete": "Something went wrong when deleting the Youtube message",
 		"rewards": {
-			"unknown":"Something went wrong when creating the reward",
+			"create_unknown":"Something went wrong when creating the reward",
+			"edit_unknown":"Something went wrong when editing the reward",
 			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"A reward with this name already exists"
 		}
 	}

@@ -701,6 +701,10 @@ export default class TwitchUtils {
 		});
 		if(res.status == 200) {
 			const json = await res.json();
+			const rewardIndex = this.rewardsCache.findIndex(v => v.id == rewardId);
+			const manageableIndex = this.rewardsManageableCache.findIndex(v => v.id == rewardId);
+			if(rewardIndex > -1) this.rewardsCache.splice(rewardIndex, 1);
+			if(manageableIndex > -1) this.rewardsManageableCache.splice(manageableIndex, 1);
 			return true;
 		}else if(res.status == 429) {
 			await this.onRateLimit(res.headers);
