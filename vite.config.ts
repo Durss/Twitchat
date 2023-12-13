@@ -1,6 +1,6 @@
 import { fileURLToPath, URL } from 'url';
 import vue from '@vitejs/plugin-vue';
-import { defineConfig } from 'vite';
+import { createLogger, defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
 
 /**
@@ -15,9 +15,9 @@ const loadVersionPlugin = (loadVersion as any).default || loadVersion;
 
 // https://vitejs.dev/config/
 export default defineConfig({
-	publicDir:"static",
-	server:{
-		port:8080,
+	publicDir: "static",
+	server: {
+		port: 8080,
 	},
 
 	plugins: [
@@ -53,5 +53,20 @@ export default defineConfig({
 			}
 		}
 	},
-	
+
+	customLogger: (() => {
+		const logger = createLogger();
+		const warn = logger.warn;
+
+		logger.warn = (message, options) => {
+			// Ignore specific warning
+			if (message.includes('dynamic import will not move module into another chunk')) {
+				return;
+			}
+
+			warn(message, options);
+		};
+
+		return logger;
+	})(),
 });

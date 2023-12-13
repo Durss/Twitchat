@@ -72,7 +72,7 @@
 		"lande": "^1.0.10",
 		"less-loader": "^8.0.0",
 		"lorem-ipsum": "^2.0.8",
-		"mathjs": "^11.5.1",
+		"mathjs": "^12.2.0",
 		"obs-websocket-js": "^5.0.2",
 		"pinia": "^2.0.23",
 		"shx": "^0.3.4",
