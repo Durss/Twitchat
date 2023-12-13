@@ -60,6 +60,11 @@
 				v-if="isAdBreakApproach"
 				:triggerData="triggerData"
 			/>
+
+			<TriggerActionAnyMessageParams
+				v-if="isAnyMessages"
+				:triggerData="triggerData"
+			/>
 			
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
@@ -74,9 +79,9 @@
 		
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
-				<Button icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
+				<TTButton icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
 				<img src="@/assets/icons/condition.svg" class="conditionLink" />
-				<Button icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" />
+				<TTButton icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" />
 			</div>
 			<svg class="conditionJoint" v-if="hasCondition" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				width="104.8px" height="24.4px" viewBox="0 0 104.8 24.4" style="enable-background:new 0 0 104.8 24.4;" xml:space="preserve">
@@ -129,12 +134,14 @@
 </template>
 
 <script lang="ts">
+import PermissionsForm from '@/components/PermissionsForm.vue';
 import TTButton from '@/components/TTButton.vue';
-import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerActionData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionEmptyData, type TriggerActionTypes, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
+import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
@@ -144,22 +151,24 @@ import TriggerActionEntry from './TriggerActionEntry.vue';
 import TriggerActionHeatParams from './TriggerActionHeatParams.vue';
 import TriggerActionScheduleParams from './TriggerActionScheduleParams.vue';
 import TriggerActionSlashCommandParams from './TriggerActionSlashCommandParams.vue';
+import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
 import TriggerConditionList from './TriggerConditionList.vue';
 import TriggerGoXLRParams from './TriggerGoXLRParams.vue';
-import TriggerAdApproachParams from './TriggerAdApproachParams.vue';
-import gsap from 'gsap';
+import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		draggable,
 		ParamItem,
+		PermissionsForm,
 		TriggerActionEntry,
 		TriggerGoXLRParams,
 		TriggerConditionList,
 		TriggerAdApproachParams,
 		TriggerActionHeatParams,
 		TriggerActionScheduleParams,
+		TriggerActionAnyMessageParams,
 		TriggerActionChatCommandParams,
 		TriggerActionSlashCommandParams,
 		TriggerActionCommandArgumentParams,
@@ -236,6 +245,7 @@ export default class TriggerActionList extends Vue {
 	}
 
 	public get isChatCmd():boolean { return this.triggerData.type === TriggerTypes.CHAT_COMMAND; }
+	public get isAnyMessages():boolean { return this.triggerData.type === TriggerTypes.ANY_MESSAGE; }
 	public get isSchedule():boolean { return this.triggerData.type === TriggerTypes.SCHEDULE; }
 	public get isSlashCommand():boolean { return this.triggerData.type === TriggerTypes.SLASH_COMMAND; }
 	public get isAdBreakApproach():boolean { return this.triggerData.type === TriggerTypes.AD_APPROACHING; }

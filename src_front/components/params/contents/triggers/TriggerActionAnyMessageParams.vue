@@ -1,0 +1,55 @@
+<template>
+	<div class="triggeractionanymessageparams">
+		<ToggleBlock class="block permissions" :open="false"
+		:title="$t('triggers.actions.chat.allowed_users')" :icons="['user']" medium primary>
+			<PermissionsForm v-model="triggerData.permissions" />
+		</ToggleBlock>
+	</div>
+</template>
+
+<script lang="ts">
+import PermissionsForm from '@/components/PermissionsForm.vue';
+import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { TriggerData } from '@/types/TriggerActionDataTypes';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
+
+@Component({
+	components:{
+		ToggleBlock,
+		PermissionsForm,
+	},
+	emits:[],
+})
+export default class TriggerActionAnyMessageParams extends Vue {
+
+	@Prop
+	public triggerData!:TriggerData;
+
+	public beforeMount():void {
+		if(!this.triggerData.permissions) {
+			this.triggerData.permissions = {
+				broadcaster:true,
+				follower:true,
+				follower_duration_ms:0,
+				mods:true,
+				vips:true,
+				subs:true,
+				all:true,
+				usersAllowed:[],
+				usersRefused:[],
+			}
+		}
+	}
+
+}
+</script>
+
+<style scoped lang="less">
+.triggeractionanymessageparams{
+	display: flex;
+	flex-direction: column;
+	gap: .5em;
+	align-items: center;
+
+}
+</style>
