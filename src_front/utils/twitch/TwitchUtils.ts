@@ -789,7 +789,7 @@ export default class TwitchUtils {
 			const rewardIndex = this.rewardsCache.findIndex(v => v.id == rewardId);
 			const manageableIndex = this.rewardsManageableCache.findIndex(v => v.id == rewardId);
 			if(rewardIndex > -1) this.rewardsCache[rewardIndex] = json.data[0];
-			if(manageableIndex > -1) this.rewardsCache[manageableIndex] = json.data[0];
+			if(manageableIndex > -1) this.rewardsManageableCache[manageableIndex] = json.data[0];
 		}
 		return res.status == 200;
 	}
@@ -2356,7 +2356,7 @@ export default class TwitchUtils {
 				// }
 				const infos:TwitchatDataTypes.CommercialData = {
 					remainingSnooze:		data.snooze_count,
-					currentAdDuration_ms:	data.length_seconds * 1000,
+					currentAdDuration_ms:	data.duration * 1000,
 					//Thank you twitch for writing a wrong documentation...
 					//Don't know if they'll change the doc or fix service, so i handle both cases
 					nextAdStart_at:			new Date(typeof data.next_ad_at == "number"? data.next_ad_at * 1000 : data.next_ad_at).getTime(),
