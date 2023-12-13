@@ -73,7 +73,7 @@ export default class RewardListEditForm extends Vue {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:45, labelKey:"rewards.manage.param_title"};
 	public param_description:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:200, labelKey:"rewards.manage.param_description"};
 	public param_prompt:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"rewards.manage.param_prompt", icon:"font"};
-	public param_cost:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:1, max:1000000000, labelKey:"rewards.manage.param_cost", icon:"channelPoints"};
+	public param_cost:TwitchatDataTypes.ParameterData<number|string> = {type:"number", value:0, min:1, max:1000000000, labelKey:"rewards.manage.param_cost", icon:"channelPoints"};
 	public param_paused:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"rewards.manage.param_paused", icon:"pause"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"rewards.manage.param_enabled", icon:"disable"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"", labelKey:"rewards.manage.param_color", icon:"pipette"};
@@ -96,10 +96,11 @@ export default class RewardListEditForm extends Vue {
 		if(this.modelValue) {
 			this.localValue = this.modelValue;
 		}
-		if(this.reward) this.importRewardData();
-		this.limitsEnabled = (this.localValue.global_cooldown_seconds ?? 0) > 0
-							|| (this.localValue.max_per_stream ?? 0) > 0
-							|| (this.localValue.max_per_user_per_stream ?? 0) > 0;
+		if(!this.modelValue || !this.modelValue.title) this.importRewardData();
+
+		this.limitsEnabled = this.localValue.is_global_cooldown_enabled === true
+							|| this.localValue.is_max_per_stream_enabled === true
+							|| this.localValue.is_max_per_user_per_stream_enabled === true;
 
 		if(this.placeholderList) {
 			this.param_title.placeholderList = this.placeholderList;
@@ -160,6 +161,8 @@ export default class RewardListEditForm extends Vue {
 	}
 
 	private importRewardData():void {
+		if(!this.reward) return;
+		
 		this.localValue.title									= this.reward.title;
 		this.localValue.prompt									= this.reward.prompt;
 		this.localValue.cost									= this.reward.cost;
