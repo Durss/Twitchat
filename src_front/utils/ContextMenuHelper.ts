@@ -134,6 +134,18 @@ export default class ContextMenuHelper {
 					StoreProxy.chat.highlightChatMessageOverlay(message)
 				}
 			};
+
+			//Pin / Unpin message
+			if(message.platform == "twitch" && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				options.push({ 
+							label: message.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
+							icon: message.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
+							customClass:"disabled",
+							onClick: () => {
+								StoreProxy.main.alert(t("error.no_pin_api"));
+							},
+						});
+			}
 			
 			//Save/unsave
 			if(message.is_saved) {
@@ -189,16 +201,7 @@ export default class ContextMenuHelper {
 			if(canModerateMessage) {
 				//Add splitter after previous item
 				options[options.length-1].divided = true;
-				//Pin/Unpin message
 				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
-				options.push({ 
-							label: m.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
-							icon: m.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
-							customClass:"disabled",
-							onClick: () => {
-								StoreProxy.main.alert(t("error.no_pin_api"));
-							},
-						});
 						
 				//Delete message
 				let classes = "alert";
@@ -223,6 +226,7 @@ export default class ContextMenuHelper {
 				let classesBan = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
+				
 				let classesBlock = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBan += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
@@ -376,6 +380,7 @@ export default class ContextMenuHelper {
 
 		const spokenLanguages = StoreProxy.params.features.autoTranslateFirstSpoken.value as string[] || [];
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[] || [])[0];
+		// if(StoreProxy.auth.isRealPremium
 		if(StoreProxy.auth.isPremium
 		&& langTarget
 		&& TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)
@@ -540,6 +545,9 @@ export default class ContextMenuHelper {
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
 		ApiController.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
+			if(res.status == 401) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("premium.restricted_access"));
+			}else
 			if(res.json.data.translation) {
 				message.translation = {
 					flagISO:langSource.flag,
