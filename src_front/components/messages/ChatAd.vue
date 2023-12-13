@@ -62,7 +62,7 @@
 	
 			<div v-if="isAdWarning" class="card-item primary">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="confirmGngngnClose()" />
+					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="showConfirm? showConfirm = false : confirmGngngnClose()" />
 					<div class="title">{{ $t('chat.adalert.title') }}</div>
 				</div>
 				<div class="content left">

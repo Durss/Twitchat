@@ -1,6 +1,6 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import type {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
+import {TwitchatDataTypes} from '@/types/TwitchatDataTypes';
 import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
@@ -417,12 +417,25 @@ export const storeParams = defineStore('params', {
 
 		searchParamByPath(path:string):void {
 			const chunks = path.split(".");
+			const category = chunks[0];
 			let root = this.$state;
 			while(chunks.length > 0) {
 				//@ts-ignore
 				root = root[chunks.shift()];
 			}
-			this.currentParamSearch = StoreProxy.i18n.t(((root as unknown) as TwitchatDataTypes.ParameterData<unknown>).labelKey!);
+			const param = (root as unknown) as TwitchatDataTypes.ParameterData<unknown>;
+			StoreProxy.main.tempStoreValue = param.id;
+			switch(category) {
+				case "features": {
+					this.openParamsPage(TwitchatDataTypes.ParameterPages.FEATURES);
+					break;
+				}
+				case "appearance": {
+					this.openParamsPage(TwitchatDataTypes.ParameterPages.APPEARANCE);
+					break;
+				}
+			}
+			// this.currentParamSearch = StoreProxy.i18n.t(param.labelKey!);
 		},
 
 		openModal(modal:TwitchatDataTypes.ModalTypes, noToggle:boolean = false):void {

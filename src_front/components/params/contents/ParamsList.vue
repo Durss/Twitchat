@@ -1,6 +1,10 @@
 <template>
 	<div class="paramslist">
-		<div class="row" v-for="(p, key) in params" :key="key" v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
+		<div v-for="(p, key) in params"
+		:class="highlightId == p.id?.toString()? 'row blinkBorder blink' : 'row blinkBorder'" 
+		:key="key"
+		:ref="'entry_'+p.id"
+		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
 			<div :class="getClasses(p, key as string)">
 				<ParamItem :paramData="p" noBackground autoFade>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
@@ -110,6 +114,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public filteredParams!:TwitchatDataTypes.ParameterData<unknown>[];
 
 	public showAdInfo:boolean = false;
+	public highlightId:string = "";
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
@@ -170,6 +175,24 @@ export default class ParamsList extends Vue implements IParameterContent {
 				example:"Just chatting",
 			},
 		];
+		if(this.$store.main.tempStoreValue) {
+			this.$nextTick().then(()=> {
+				const holders = this.$refs["entry_"+this.$store.main.tempStoreValue] as HTMLElement[]
+				if(holders) {
+					this.highlightId = this.$store.main.tempStoreValue as string;
+					const holder = holders[0];
+					if(holder) {
+						const interval = setInterval(()=>{
+							holder.scrollIntoView();
+						},30);
+						setTimeout(() => {
+							clearInterval(interval);
+						}, 1000);
+					}
+				}
+				this.$store.main.tempStoreValue = "";
+			})
+		}
 	}
 
 	public onNavigateBack(): boolean { return false; }

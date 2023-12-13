@@ -47,9 +47,7 @@
 		},
 		"countdown": {
 			"title": "Timer and Countdown",
-			"info_1": "You can start a timer or a coutdown with dedicated commands {CMD1} and {CMD2}",
-			"timer_tryBt": "Try timer",
-			"countdown_tryBt": "Try 2min countdown"
+			"info_1": "You can start a timer or a coutdown with dedicated commands {CMD1} and {CMD2}"
 		},
 		"dock": {
 			"title": "Obs dock",

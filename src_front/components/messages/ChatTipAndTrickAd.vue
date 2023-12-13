@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/obs.svg" alt="elgato" class="icon">
 			<h1>{{ $t("tips.alerts.title") }}</h1>
 			<div>{{ $t("tips.alerts.info_1") }}</div>
-			<Button @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentTriggers)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===1" class="entry">
@@ -12,21 +12,21 @@
 			<h1>{{ $t('tips.streamdeck.title') }}</h1>
 			<div>{{ $t('tips.streamdeck.info_1') }}</div>
 			<div>{{ $t('tips.streamdeck.info_2') }}</div>
-			<Button @click.stop="openParamPage(contentStreamdeck)" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentStreamdeck)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
 			<img src="@/assets/icons/raid.svg" alt="raid" class="icon">
 			<h1>{{ $t('tips.obs_stop.title') }}</h1>
 			<div>{{ $t('tips.obs_stop.info_1') }}</div>
-			<Button @click.stop="openParamItem('features.stopStreamOnRaid')" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamItem('features.stopStreamOnRaid')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===3" class="entry">
 			<img src="@/assets/icons/bingo.svg" alt="bingo" class="icon">
 			<h1>{{ $t('tips.bingo.title') }}</h1>
 			<div>{{ $t('tips.bingo.info_1') }}</div>
-			<Button @click.stop="openModal('bingo')" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openModal('bingo')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===4" class="entry">
@@ -34,7 +34,7 @@
 			<h1>{{ $t('tips.raffle.title') }}</h1>
 			<div>{{ $t('tips.raffle.info_1') }}</div>
 			<div>{{ $t('tips.raffle.info_2') }}</div>
-			<Button @click.stop="openModal('raffle')" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openModal('raffle')" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===5" class="entry">
@@ -42,7 +42,7 @@
 			<h1>{{ $t('tips.obs.title') }}</h1>
 			<div>{{ $t('tips.obs.info_1') }}</div>
 			<div>{{ $t('tips.obs.info_2') }}</div>
-			<Button @click.stop="openParamPage(contentObs)" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentObs)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
@@ -50,10 +50,10 @@
 			<h1>{{ $t('tips.api.title') }}</h1>
 			<div>{{ $t('tips.api.info_1') }}</div>
 			<div>{{ $t('tips.api.info_2') }}</div>
-			<Button icon="github"
+			<TTButton icon="github"
 				href="https://github.com/Durss/Twitchat/blob/main/PUBLIC_API.md"
 				target="_blank"
-				type="link">{{ $t('tips.api.readBt') }}</Button>
+				type="link">{{ $t('tips.api.readBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===7" class="entry">
@@ -61,7 +61,7 @@
 			<h1>{{ $t('tips.music.title') }}</h1>
 			<div v-html="$t('tips.music.info_1')"></div>
 			<div>{{ $t('tips.music.info_2') }}</div>
-			<Button @click.stop="openParamPage(contentConnexions)" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentConnexions)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
@@ -69,7 +69,7 @@
 			<h1>{{ $t('tips.overlays.title') }}</h1>
 			<div v-html="$t('tips.overlays.info_1')"></div>
 			<div v-html="$t('tips.overlays.info_2')"></div>
-			<Button @click.stop="openParamPage(contentOverlays)" >{{ $t('tips.tryBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentOverlays)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===9" class="entry">
@@ -79,8 +79,7 @@
 				<template #CMD1><mark class="cmd">/timerStart</mark></template>
 				<template #CMD2><mark class="cmd">/countdown</mark></template>
 			</i18n-t>
-			<Button icon="timer" @click.stop="startTimer()">{{ $t('tips.countdown.timer_tryBt') }}</Button>
-			<Button icon="countdown" @click.stop="startCountdown()">{{ $t('tips.countdown.countdown_tryBt') }}</Button>
+			<TTButton icon="countdown" @click.stop="openModal('timer')">{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===10" class="entry">
@@ -98,9 +97,9 @@
 			
 			<a class="demo" href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank"><img src="@/assets/img/param_examples/chatHighlightVideo.jpg" class="cover"></a>
 
-			<Button @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay">{{ $t('tips.highlight.config_overlayBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentOverlays, contentChatHighlight)" icon="overlay">{{ $t('tips.highlight.config_overlayBt') }}</TTButton>
 			<div class="or">{{ $t("global.or") }}</div>
-			<Button @click.stop="openParamPage(contentTriggers)" icon="broadcast">{{ $t('tips.highlight.configure_triggerBt') }}</Button>
+			<TTButton @click.stop="openParamPage(contentTriggers)" icon="broadcast">{{ $t('tips.highlight.configure_triggerBt') }}</TTButton>
 		</div>
 	</div>
 </template>
@@ -112,7 +111,7 @@ import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 	},
 	emits:["showModal"]
 })
@@ -130,10 +129,9 @@ export default class ChatTipAndTrickAd extends Vue {
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));
-		
 	}
 
-	public openModal(modal:string):void { this.$emit("showModal", modal); }
+	public openModal(modal:TwitchatDataTypes.ModalTypes):void { this.$emit("showModal", modal); }
 	public startTimer():void { this.$store.timer.timerStart(); }
 	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
 	public openParamItem(paramPath:string):void { this.$store.params.searchParamByPath(paramPath); }

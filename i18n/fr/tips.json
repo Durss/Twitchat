@@ -47,9 +47,7 @@
 		},
 		"countdown": {
 			"title": "Chronomètre et Compte à rebours",
-			"info_1": "Vous pouvez lancer un chronomètre ou un compte à rebours avec les commandes {CMD1} et {CMD2}",
-			"timer_tryBt": "Lancer un chronomètre",
-			"countdown_tryBt": "Lancer un compte à rebours"
+			"info_1": "Vous pouvez lancer un chronomètre ou un compte à rebours avec les commandes {CMD1} et {CMD2}"
 		},
 		"dock": {
 			"title": "Dock OBS",

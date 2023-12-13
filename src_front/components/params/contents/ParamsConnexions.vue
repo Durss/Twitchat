@@ -4,19 +4,19 @@
 
 		<p class="head">{{ $t("connexions.header") }}</p>
 
-<ConnectYoutube v-if="youtubeEnabled" class="item" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'selected' : ''" @click="allowHighlight = false" />
+		<ConnectYoutube class="blinkBorder" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'blink' : ''" @click="allowHighlight = false" v-if="youtubeEnabled" />
 
-		<ToggleBlock class="item" title="OBS websocket" :icons="['obs']" :open="subContent == 'obs'" :class="allowHighlight && subContent == 'obs'? 'selected' : ''" @click="allowHighlight = false">
+		<ToggleBlock class="blinkBorder" :open="subContent == 'obs'" :class="allowHighlight && subContent == 'obs'? 'blink' : ''" @click="allowHighlight = false" title="OBS websocket" :icons="['obs']">
 			<OBSConnectForm />
 		</ToggleBlock>
 
-		<ConnectSpotifyForm class="item" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'selected' : ''" @click="allowHighlight = false" />
+		<ConnectSpotifyForm class="blinkBorder" :open="subContent == 'spotify'" :class="allowHighlight && subContent == 'spotify'? 'blink' : ''" @click="allowHighlight = false" />
 
-		<!-- <ToggleBlock class="item" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'selected' : ''">
+		<!-- <ToggleBlock class="blinkBorder" title="Patreon" :icons="['patreon']" :open="subContent == 'patreon'" :class="subContent == 'patreon'? 'blink' : ''">
 			<ParamsAccountPatreon />
 		</ToggleBlock> -->
 		
-		<ConnectWebsocket class="item" :open="subContent == 'websocket'" :class="allowHighlight && subContent == 'websocket'? 'selected' : ''" @click="allowHighlight = false" />
+		<ConnectWebsocket class="blinkBorder" :open="subContent == 'websocket'" :class="allowHighlight && subContent == 'websocket'? 'blink' : ''" @click="allowHighlight = false" />
 	</div>
 </template>
 
@@ -67,26 +67,6 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 	.item {
 		width: 100%;
 		flex-grow: 1;
-		border: 0 solid transparent;
-		transition: border-width .25s;
-
-		&.selected {
-			border-width: 5px;
-			border-radius: 1em;
-			animation: blink .5s 3 forwards;
-			animation-delay: .5s;
-			@keyframes blink {
-				0% {
-					border-color: var(--color-secondary);
-				}
-				50% {
-					border-color: transparent;
-				}
-				100% {
-					border-color: var(--color-secondary);
-				}
-			}
-		}
 	}
 }
 </style>
