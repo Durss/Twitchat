@@ -31,6 +31,8 @@ export default class GoogleController extends AbstractController {
 		this.server.get('/api/google/translate', async (request, response) => await this.getTranslation(request, response));
 		this.server.post('/api/youtube/authenticate', async (request, response) => await this.postYoutubeAuthenticate(request, response));
 		this.server.post('/api/youtube/refreshtoken', async (request, response) => await this.postYoutubeRefreshToken(request, response));
+
+		this.preloadEarlyDonors();
 		
 		//Authenticate with foofle API for translation API
 		const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
