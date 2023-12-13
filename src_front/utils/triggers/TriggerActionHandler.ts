@@ -24,6 +24,7 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 
 /**
 * Created : 22/04/2022 
@@ -1909,7 +1910,7 @@ export default class TriggerActionHandler {
 							
 							step.customBadgeAdd.forEach(v=> {
 								if(StoreProxy.users.giveCustomBadge(user, v, channel_id)) {
-									logStep.messages.push({date:Date.now(), value:"➕ Given badge \""+v+"\" to "+user.login});
+									logStep.messages.push({date:Date.now(), value:"➕ Badge \""+v+"\" given to "+user.login});
 								}else{
 									logStep.messages.push({date:Date.now(), value:"❌ Failed giving badge \""+v+"\" to "+user.login+". Limit reached."});
 									log.error = true;
@@ -2072,20 +2073,22 @@ export default class TriggerActionHandler {
 				//Handle channel point reward action
 				if(step.type == "reward") {
 					logStep.messages.push({date:Date.now(), value:"Executing reward action \""+step.rewardAction.action+"\""});
+					let rewardData:TwitchDataTypes.RewardEdition | undefined;
 					//Parse placeholders on title, prompt and cost
 					if(step.rewardAction.rewardEdit) {
-						if(step.rewardAction.rewardEdit.title) {
-							step.rewardAction.rewardEdit.title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.title, subEvent);
+						rewardData = JSON.parse(JSON.stringify(step.rewardAction.rewardEdit));
+						if(rewardData!.title) {
+							rewardData!.title = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.title, subEvent);
 						}
-						if(step.rewardAction.rewardEdit.prompt) {
-							step.rewardAction.rewardEdit.prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.prompt, subEvent);
+						if(rewardData!.prompt) {
+							rewardData!.prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.prompt, subEvent);
 						}
-						if(step.rewardAction.rewardEdit.cost) {
-							let cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.rewardAction.rewardEdit.cost.toString(), subEvent);
+						if(rewardData!.cost) {
+							let cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.cost.toString(), subEvent);
 							try {
 								const num = MathJS.evaluate(cost);
 								if(!isNaN(num)) {
-									step.rewardAction.rewardEdit.cost = num;
+									rewardData!.cost = num;
 								}
 							}catch(error) {}
 						}
@@ -2111,8 +2114,8 @@ export default class TriggerActionHandler {
 							break;
 						}
 						case "edit": {
-							if(step.rewardAction.rewardId && step.rewardAction.rewardEdit) {
-								const res = await TwitchUtils.updateReward(step.rewardAction.rewardId, step.rewardAction.rewardEdit);
+							if(step.rewardAction.rewardId && rewardData!) {
+								const res = await TwitchUtils.updateReward(step.rewardAction.rewardId, rewardData!);
 								if(!res) {
 									logStep.messages.push({date:Date.now(), value:"❌ An error occured when updating the reward's ID \""+step.rewardAction.rewardId+"\" data "});
 									log.error = true;
@@ -2124,8 +2127,8 @@ export default class TriggerActionHandler {
 							break;
 						}
 						case "create": {
-							if(step.rewardAction.rewardEdit) {
-								const res = await TwitchUtils.createReward(step.rewardAction.rewardEdit);
+							if(rewardData!) {
+								const res = await TwitchUtils.createReward(rewardData!);
 								if(res !== true) {
 									logStep.messages.push({date:Date.now(), value:"❌ An error occured creating the reward. "+res});
 									log.error = true;
