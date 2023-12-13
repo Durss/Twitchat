@@ -232,7 +232,7 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ]) && Config.instance.AD_API_AVAILABLE) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 				}
 				
 				//Don't need to listen for this event for anyone else but the broadcaster
@@ -848,7 +848,7 @@ export default class EventSub {
 		//Thank you twitch for writing a completely wrong documentation...
 		//don't know if they'll change the doc or the service, so i handle both cases
 		infos.nextAdStart_at = new Date(typeof event.started_at == "number"? event.started_at * 1000 : event.started_at).getTime(),
-		infos.currentAdDuration_ms = event.length_seconds * 1000;
+		infos.currentAdDuration_ms = event.duration_seconds * 1000;
 		let starter:TwitchatDataTypes.TwitchatUser | undefined = undefined;
 		//Don't show notification if ad started by ourself or automatically
 		if(!event.is_automatic && event.broadcaster_user_id != event.requester_user_id) {

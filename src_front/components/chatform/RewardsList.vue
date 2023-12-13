@@ -267,7 +267,6 @@ export default class RewardsList extends Vue {
 		.head {
 			display: flex;
 			flex-direction: row;
-			padding-right: 2em;
 			justify-content: flex-start;
 			align-items: center;
 			width: 100%;
@@ -277,17 +276,18 @@ export default class RewardsList extends Vue {
 			line-height: 1.1em;
 			
 			background: linear-gradient(180deg, var(--color-text-inverse) 30%, var(--color-text-inverse-fadest) 100%);
-			padding: .5em 1.5em 2em 1.5em;
 			margin-bottom: -1em;
 
 			h1 {
 				text-align: center;
 				flex-grow: 1;
+				padding: .5em;
+				padding-bottom: 1em;
 			}
 
 			.backBt {
 				z-index: 1;
-				padding: 1em .75em;
+				padding: .75em;
 				flex-shrink: 0;
 			}
 		}

@@ -521,7 +521,7 @@ export namespace TwitchEventSubDataTypes {
 		requester_user_id:string;
 		requester_user_login:string;
 		requester_user_name:string;
-		length_seconds:number;
+		duration_seconds:number;
 		is_automatic:boolean;
 		started_at:string
 	}
