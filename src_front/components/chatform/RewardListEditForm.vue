@@ -15,6 +15,7 @@
 			<ParamItem :paramData="param_coolDown_maxPerUser" v-model="localValue.max_per_user_per_stream" noBackground class="child"></ParamItem>
 		</ParamItem>
 		<TTButton type="submit" primary :loading="saving" v-if="!modelValue && !reward" icon="add">{{ $t("global.create") }}</TTButton>
+		<TTButton type="submit" primary :loading="saving" v-else-if="triggerMode === false" icon="save">{{ $t("global.save") }}</TTButton>
 		<div class="card-item alert" v-if="error">{{ error }}</div>
 	</form>
 </template>
@@ -122,28 +123,38 @@ export default class RewardListEditForm extends Vue {
 		this.localValue.is_max_per_user_per_stream_enabled =	this.limitsEnabled && (this.localValue.max_per_user_per_stream ?? 0) > 0,
 		this.$emit("update:modelValue", this.localValue);
 
-		if(this.triggerMode === false && this.reward) {
-			clearTimeout(this.changeDebounce);
-			this.changeDebounce = setTimeout(async ()=> {
-				if(this.reward) {
-					await TwitchUtils.updateReward(this.reward.id, this.localValue);
-				}
-			}, 500);
-		}
+		// if(this.triggerMode === false && this.reward) {
+		// 	clearTimeout(this.changeDebounce);
+		// 	this.changeDebounce = setTimeout(async ()=> {
+		// 		if(this.reward) {
+		// 			await TwitchUtils.updateReward(this.reward.id, this.localValue);
+		// 		}
+		// 	}, 500);
+		// }
 	}
 
 	public async onSubmit():Promise<void> {
-		if(this.saving) return;
+		if(this.saving || this.triggerMode) return;
 		
 		this.saving = true;
-		const res = await TwitchUtils.createReward(this.localValue);
-		
-		if(typeof res == "string") {
-			this.error = res;
-		}else if(res === false) {
-			this.error = this.$t("error.rewards.unknown");
+		if(this.reward) {
+			//If editing a reward
+			const res = await TwitchUtils.updateReward(this.reward.id, this.localValue);
+			if(res === false) {
+				this.error = this.$t("error.rewards.create_unknown");
+			}else{
+				this.$emit("complete");
+			}
 		}else{
-			this.$emit("complete");
+			//If creating a new reward
+			const res = await TwitchUtils.createReward(this.localValue);
+			if(typeof res == "string") {
+				this.error = res;
+			}else if(res === false) {
+				this.error = this.$t("error.rewards.edit_unknown");
+			}else{
+				this.$emit("complete");
+			}
 		}
 		this.saving = false;
 	}

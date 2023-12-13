@@ -24,7 +24,7 @@
 				<TTButton icon="back" @click="rewardToEdit = null" class="backBt" transparent />
 				<h1>{{ $t("rewards.manage.edit_title") }}</h1>
 			</div>
-			<RewardListEditForm :reward="rewardToEdit" />
+			<RewardListEditForm :reward="rewardToEdit" @complete="onCreateComplete()" />
 		</div>
 
 		<div v-else-if="createReward" class="create scrollable">
@@ -122,6 +122,7 @@ export default class RewardsList extends Vue {
 
 	public onCreateComplete():void {
 		this.createReward = false;
+		this.rewardToEdit = null;
 		this.loadRewards(true);
 	}
 
