@@ -1003,7 +1003,10 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
 		//None
 		"music":[
 			{tag:"FAIL_REASON", descKey:'triggers.placeholders.track_add_fail_reason', pointer:"__track_fail__", numberParsable:false, isUserID:false},
-		]
+		],
+		// "reward":[
+		// 	{tag:"COST", descKey:'triggers.placeholders.track_add_fail_reason', pointer:"__reward__.cost", numberParsable:false, isUserID:false},
+		// ]
 	}
 
 	actionPlaceholdersCache = map;
@@ -1446,7 +1449,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		
 		//If a music service is available, concat the music service helpers
-		if(SpotifyHelper.instance.connected) {
+		if(SpotifyHelper.instance.connected && entry.findIndex(v=>v.tag == "CURRENT_TRACK_ARTIST") == -1) {
 			entry.push(
 				{category:"music", tag:"CURRENT_TRACK_ARTIST", descKey:'triggers.placeholders.track_artist', pointer:"__current_track__.artist", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko"},
 				{category:"music", tag:"CURRENT_TRACK_TITLE", descKey:'triggers.placeholders.track_title', pointer:"__current_track__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Mitchiri Neko march"},
@@ -1458,7 +1461,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 
 		//If a goxlr is connected concat available placeholder
-		if(GoXLRSocket.instance.connected) {
+		if(GoXLRSocket.instance.connected && entry.findIndex(v=>v.tag == "GOXLR_COUGH") == -1) {
 			entry.push(
 				{category:"goxlr", tag:"GOXLR_COUGH", descKey:'triggers.placeholders.goxlr_cough', pointer:"__goxlr__.cough", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 				{category:"goxlr", tag:"GOXLR_PROFILE", descKey:'triggers.placeholders.goxlr_profile', pointer:"__goxlr__.profile", numberParsable:false, isUserID:false, globalTag:true, example:"true"},
