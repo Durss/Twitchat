@@ -26,7 +26,6 @@
 		"triggers_list": "Your triggers {COUNT}",
 		"triggers_list_raw": "Raw list",
 		"triggers_list_cat": "Categories",
-		"triggers_none": "You have created no trigger yet",
 		"create_counterBt": "Create counters",
 		"trigger_queue":"Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",

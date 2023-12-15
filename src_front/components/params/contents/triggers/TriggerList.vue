@@ -1,26 +1,20 @@
 <template>
 	<div :class="classes">
-		<!-- <div v-if="flatTriggerList.length === 0" class="empty">{{ $t("triggers.triggers_none") }}</div> -->
-
-		<SwitchButton v-if="flatTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
+		<SwitchButton v-if="folderTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
+		
 		
 		<div class="list" v-show="filterState === false" v-if="renderedList">
-			<div class="item" v-for="item in flatTriggerList"
-			:ref="'item_'+item.trigger.id"
-			:key="'item_'+item.trigger.id">
-				<TriggerListItem
-					v-if="buildIndex >= item.index"
-					:noEdit="noEdit" :entryData="item"
-					@changeState="onChangeTrigger(item)"
-					@delete="deleteTrigger($event)"
-					@duplicate="duplicateTrigger($event)"
-					@test="$emit('testTrigger',$event)"
-					@select="$emit('select', $event)"
-					>
-						<span class="triggerId" v-if="debugMode" v-click2Select
-						@click.stop="">{{ item.trigger.id }}</span>
-					</TriggerListItem>
-			</div>
+			<TriggerListFolderItem
+				:items="folderTriggerList"
+				:rewards="rewards"
+				:noEdit="noEdit"
+				:debugMode="debugMode"
+				:triggerId="triggerId"
+				@changeState="onToggleTrigger"
+				@delete="deleteTrigger"
+				@duplicate="duplicateTrigger"
+				@testTrigger="$emit('testTrigger',$event)"
+				@select="$emit('select', $event)" />
 		</div>
 		
 		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
@@ -32,7 +26,7 @@
 				:ref="'item_'+item.trigger.id">
 					<TriggerListItem :noEdit="noEdit" :entryData="item"
 						v-if="buildIndex >= item.index"
-						@changeState="onChangeTrigger(item)"
+						@changeState="onToggleTrigger(item)"
 						@delete="deleteTrigger($event)"
 						@duplicate="duplicateTrigger($event)"
 						@test="$emit('testTrigger',$event)"
@@ -62,6 +56,7 @@ import TriggerListItem from './TriggerListItem.vue';
 import { gsap } from 'gsap/all';
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
+import TriggerListFolderItem from './TriggerListFolderItem.vue';
 
 @Component({
 	components:{
@@ -70,6 +65,7 @@ import { Linear } from 'gsap/all';
 		SwitchButton,
 		ToggleButton,
 		TriggerListItem,
+		TriggerListFolderItem,
 	},
 	emits:["select", "testTrigger"],
 })
@@ -100,14 +96,14 @@ export default class TriggerList extends Vue {
 	
 	private keyupHandler!:(e:KeyboardEvent) => void;
 
-	public get flatTriggerList():TriggerListEntry[] {
-		let list:TriggerListEntry[] = [];
+	public get folderTriggerList():(TriggerListEntry|TriggerListFolderEntry)[] {
+		let list:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 		for (let i = 0; i < this.triggerCategories.length; i++) {
 			const cat = this.triggerCategories[i];
 			list = list.concat(cat.triggerList);
 		}
 		if(this.triggerId != null) {
-			return list.filter(v=>v.trigger.id === this.triggerId);
+			return list.filter(v=> v.type=='trigger' && v.trigger.id === this.triggerId);
 		}
 		return list;
 	}
@@ -150,7 +146,7 @@ export default class TriggerList extends Vue {
 		clearInterval(this.buildInterval);
 		this.buildInterval = setInterval(()=> {
 			this.buildIndex ++;
-			if(this.buildIndex > Math.floor(this.flatTriggerList.length/this.buildBatchSize)) {
+			if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
 				clearInterval(this.buildInterval);
 			}
 		}, 60);
@@ -211,7 +207,7 @@ export default class TriggerList extends Vue {
 			const info = Utils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
-			const entry:TriggerListEntry = { index:buildIndex, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
+			const entry:TriggerListEntry = { type:"trigger", index:buildIndex, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
@@ -233,12 +229,11 @@ export default class TriggerList extends Vue {
 	}
 
 	public duplicateTrigger(entry:TriggerListEntry):void {
-		console.log(entry.trigger.id);
 		this.$store.triggers.duplicateTrigger(entry.trigger.id);
 		this.populateTriggers();
 }
 
-	public onChangeTrigger(item:TriggerListEntry):void {
+	public onToggleTrigger(item:TriggerListEntry):void {
 		if(!this.$store.auth.isPremium
 		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
 			setTimeout(()=>{
@@ -279,6 +274,7 @@ interface TriggerListCategoryEntry {
 }
 
 export interface TriggerListEntry {
+	type:"trigger";
 	index:number;
 	label:string;
 	icon:string;
@@ -286,6 +282,13 @@ export interface TriggerListEntry {
 	trigger:TriggerData;
 	iconURL?:string;
 	iconBgColor?:string;
+}
+
+export interface TriggerListFolderEntry {
+	type:"folder";
+	label:string;
+	icon:string;
+	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
 </script>
 

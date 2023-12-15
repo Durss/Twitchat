@@ -19,7 +19,7 @@
 			:aria-label="entryData.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
 		</div>
 
-		<button class="testBt" @click="$emit('test',entryData.trigger)"
+		<button class="testBt" @click="$emit('testTrigger',entryData.trigger)"
 		v-if="noEdit === false && toggleMode === false"
 		:disabled="!entryData.canTest"
 		v-tooltip="$t('triggers.testBt')">
@@ -50,7 +50,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	components:{
 		ToggleButton,
 	},
-	emits:["changeState", "delete", "test", "select", "duplicate"],
+	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
 })
 export default class TriggerListItem extends Vue {
 
