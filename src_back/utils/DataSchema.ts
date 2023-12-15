@@ -1305,7 +1305,7 @@ import Ajv from "ajv";
 					filterName: {type:"string", maxLength:100},
 					browserSourceName: {type:"string", maxLength:100},
 					permissions: { $ref: "defs.json#/definitions/permissions" },
-					effect: {enum: ["liquid", "expand", "shrink"]},
+					effect: {enum: ["liquid", "expand", "shrink", "heart"]},
 					enabled: {type:"boolean"},
 					triggerOnly: {type:"boolean"},
 					refuseAnon: {type:"boolean"},

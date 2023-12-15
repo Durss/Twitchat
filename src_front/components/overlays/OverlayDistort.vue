@@ -2,6 +2,7 @@
 	<div class="overlaydistort">
 		<DistortionLiquid :params="distortionData" v-if="distortionData && distortionData.effect == 'liquid'" />
 		<DistortionExpand :params="distortionData" v-if="distortionData && distortionData.effect == 'expand'" />
+		<DistortionHeart :params="distortionData" v-if="distortionData && distortionData.effect == 'heart'" />
 		<DistortShrink :params="distortionData" v-if="distortionData && distortionData.effect == 'shrink'" />
 	</div>
 </template>
@@ -16,11 +17,13 @@ import AbstractOverlay from './AbstractOverlay';
 import DistortionLiquid from './distortions/DistortionLiquid.vue';
 import DistortionExpand from './distortions/DistortionExpand.vue';
 import DistortShrink from './distortions/DistortShrink.vue';
+import DistortionHeart from './distortions/DistortionHeart.vue';
 
 @Component({
 	components:{
 		DistortionLiquid,
 		DistortionExpand,
+		DistortionHeart,
 		DistortShrink,
 	},
 	emits:[],

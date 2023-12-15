@@ -2,6 +2,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import * as THREE from 'three';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
+import gsap from 'gsap/all';
 
 /**
  * Following vars are declared here instead as class props
@@ -27,8 +28,8 @@ export default class AbstractDistortion extends Vue {
 	@Prop()
 	public params!:TwitchatDataTypes.HeatDistortionData;
 	
+	protected items:IDistortItem[] = [];
 	private maxInstances = 1000;
-	private items:IDistortItem[] = [];
 	private uvOffsets:number[] = [];
 	private shCols = 8;
 	private shRows = 8;
@@ -36,7 +37,7 @@ export default class AbstractDistortion extends Vue {
 	private uvScaleY = 1;
 	private frames = 128;
 	private offscreenMatrix:THREE.Matrix4 = new THREE.Matrix4();
-	private id:number = 0;
+	private disposed:boolean = false;
 	private hasOverlay:boolean = false;
 
 	private clickHandler!:(e:MouseEvent) => void;
@@ -53,17 +54,30 @@ export default class AbstractDistortion extends Vue {
 	}
 
 	public beforeUnmount():void {
+		console.log("UNMOUNT abstract class");
+		this.disposed = true;
+
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);
 		document.body.removeEventListener("click", this.clickHandler);
 
+		while(this.items.length > 0) {
+			gsap.killTweensOf(this.items[0], undefined, false);
+			this.removeItem(this.items[0]);
+		}
+
+		renderer.domElement.remove();
+
 		scene.clear();
 		camera.clear();
 		instancedDistortMesh.clear();
-		if(this.hasOverlay) {
+		if(instancedShadowMesh) {
 			instancedShadowMesh.clear();
 		}
+		renderer.setRenderTarget(null);
 		renderer.dispose();
+		renderTargetLeft.dispose();
+		renderTargetRight.dispose();
 	}
 
 	private onClick(e:MouseEvent):void {
@@ -138,7 +152,6 @@ export default class AbstractDistortion extends Vue {
 		// Create a renderer
 		renderer = new THREE.WebGLRenderer({canvas});
 		renderer.setClearColor(new THREE.Color(0x808000), 0);
-		// renderer.setClearColor(new THREE.Color(0x808000), 1);
 		renderer.setSize(window.innerWidth, window.innerHeight);
 		document.body.appendChild(renderer.domElement);
 
@@ -169,7 +182,7 @@ export default class AbstractDistortion extends Vue {
 		const geometry = new THREE.PlaneGeometry(.5, .5);
 		const materialDistort = new THREE.ShaderMaterial({
 			transparent: true,
-			// blending: THREE.AdditiveBlending,
+			alphaTest:.5,
 			uniforms: {
 				texture1: { value: texture },
 			},
@@ -194,35 +207,37 @@ export default class AbstractDistortion extends Vue {
 			`
 		});
 
-		// Create an InstancedMesh for distortions
-		instancedDistortMesh = new THREE.InstancedMesh(geometry, materialDistort, this.maxInstances);
-		instancedDistortMesh.count = 0;
-
-		if(this.hasOverlay) {
-			const canvasTexture2 = await this.generateSpritesheet(spritesheet.overlay!);
-			const textureOverlay = new THREE.CanvasTexture(canvasTexture2);
-
-			const materialOverlay = materialDistort.clone();
-			materialOverlay.uniforms.texture1.value = textureOverlay;
-
-			// Create an InstancedMesh for overlays
-			instancedShadowMesh = new THREE.InstancedMesh(geometry, materialOverlay, this.maxInstances);
-			instancedShadowMesh.count = 0;
-		}
-
 		for (let i = 0; i < this.maxInstances; i++) {
 			this.uvOffsets.push(1 - this.uvScaleX, 1-this.uvScaleY);
 		}
 
 		uvOffsetAttribute = new THREE.InstancedBufferAttribute(new Float32Array(this.uvOffsets), 2);
+
+		// Create an InstancedMesh for distortions
+		instancedDistortMesh = new THREE.InstancedMesh(geometry, materialDistort, this.maxInstances);
+		instancedDistortMesh.count = 0;
 		instancedDistortMesh.geometry.setAttribute('uvOffset', uvOffsetAttribute);
-		// renderLeftMesh.add(instancedDistortMesh);
 
 		if(this.hasOverlay) {
+			const canvasTexture2 = await this.generateSpritesheet(spritesheet.overlay!);
+			const textureOverlay = new THREE.CanvasTexture(canvasTexture2);
+
+			const materialOverlay		= materialDistort.clone();
+			materialOverlay.blending	=	THREE.CustomBlending,
+			materialOverlay.blendEquation =	THREE.AddEquation,
+			materialOverlay.blendSrc	=	THREE.OneFactor,
+			materialOverlay.blendDst	=	THREE.OneMinusSrcAlphaFactor,
+			// materialOverlay/blendSrcAlpha	= THREE.OneFactor,
+			// materialOverlay/blendDstAlpha	= THREE.OneMinusSrcAlphaFactor,
+			// materialOverlay/blending	= THREE.AdditiveBlending,
+			materialOverlay.uniforms.texture1.value = textureOverlay;
+
+			// Create an InstancedMesh for overlay
+			instancedShadowMesh = new THREE.InstancedMesh(geometry, materialOverlay, this.maxInstances);
+			instancedShadowMesh.count = 0;
 			instancedShadowMesh.geometry.setAttribute('uvOffset', uvOffsetAttribute);
-			// renderRightMesh.add(instancedOverlayMesh);
 		}
-		
+
 
 		const pos = this.screenToWorld(window.innerWidth*10, window.innerHeight*10);
 		this.offscreenMatrix.setPosition(pos.x, pos.y, 0);
@@ -236,6 +251,7 @@ export default class AbstractDistortion extends Vue {
 	}
 
 	public renderFrame():void {
+		if(this.disposed) return;
 
 		var rotationMatrix = new THREE.Matrix4();
 		requestAnimationFrame(this.renderFrame);
@@ -289,8 +305,10 @@ export default class AbstractDistortion extends Vue {
 		// Render the scene
 		renderer.setRenderTarget(renderTargetLeft);
 		renderer.render(instancedDistortMesh, camera);
-		renderer.setRenderTarget(renderTargetRight);
-		renderer.render(instancedShadowMesh, camera);
+		if(this.hasOverlay) {
+			renderer.setRenderTarget(renderTargetRight);
+			renderer.render(instancedShadowMesh, camera);
+		}
 		renderer.setRenderTarget(null);
 		renderer.render(scene, camera);
 	}
@@ -304,7 +322,6 @@ export default class AbstractDistortion extends Vue {
 
 	protected buildItem(px?:number, py?:number):IDistortItem {
 		const vec3 = this.screenToWorld(window.innerWidth, window.innerHeight);
-		this.id ++;
 		return {
 			x:px || Math.random() * vec3.x - vec3.x/2,
 			y:py || Math.random() * vec3.y - vec3.y/2,
@@ -314,12 +331,14 @@ export default class AbstractDistortion extends Vue {
 			scaleSpeed:Math.random() * 0.05 + .05,
 			// scaleSpeed:Math.random() * 0.05 + .01,
 			angle:Math.random() * Math.PI * 2,
-			id:this.id,
+			id: Utils.getUUID(),
 		};
 	}
 
 	protected removeItem(data:IDistortItem):void {
 		const index = this.items.findIndex(v=>v.id == data.id);
+		if(index == -1) return;
+		console.log("REMOVE", index, data.id);
 		
 		instancedDistortMesh.setMatrixAt(index, this.offscreenMatrix);
 		instancedDistortMesh.count --;
@@ -389,17 +408,18 @@ export default class AbstractDistortion extends Vue {
 				alpha -= 1/(rows*cols);
 			}
 		}
+		// document.body.appendChild(canvas);
 		return canvas;
 	}
 }
 
 export interface IDistortItem {
-	x:number,
-	y:number,
-	scale:number,
-	frame:number,
-	alphaSpeed:number,
-	scaleSpeed:number,
-	angle:number,
-	id:number
+	x:number;
+	y:number;
+	scale:number;
+	frame:number;
+	alphaSpeed:number;
+	scaleSpeed:number;
+	angle:number;
+	id:string;
 }

@@ -6,11 +6,11 @@
 			
 		<OverlayInstaller type="distort"
 		orderToBottom
-		:css="'html, body{ background-color:#808000;}'"
+		:css="'html, body{ background-color:transparent;}'"
 		:id="modelValue.id"
 		:sourceSuffix="sourceSuffix"
 		:disabled="modelValue.obsItemPath.sceneName == ''"
-		:sourceTransform="{positionX:3000, positionY:3000}"
+		:sourceTransform="{positionX:3000, positionY:3000, width:3840}"
 		:sceneName="modelValue.obsItemPath.sceneName"
 		@obsSourceCreated="onObsSourceCreated">
 			<h2><Icon name="info" />{{ $t("overlay.heatDistort.install_instructions_title") }}</h2>

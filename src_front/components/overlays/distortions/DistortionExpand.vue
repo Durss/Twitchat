@@ -4,7 +4,8 @@
 </template>
 
 <script lang="ts">
-import bubbles from '@/assets/img/distortions/bubbles_sh.png';
+import bubble from '@/assets/img/distortions/bubble.png';
+import bubbleShadow from '@/assets/img/distortions/bubble_shadow.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap, { Elastic } from 'gsap/all';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -20,23 +21,26 @@ export default class DistortionExpand extends AbstractDistortion {
 	declare params:TwitchatDataTypes.HeatDistortionData;
 
 	public mounted():void {
-		super.initialize({cols:16, rows:8, uvScaleX:256/4096, uvScaleY:256/2048, frames:128, texture:bubbles});
+		super.initialize({cols:16, rows:8, uvScaleX:256/4096, uvScaleY:256/2048, frames:128, texture:bubble, overlay:bubbleShadow});
 	}
 
 	protected buildItem(px?:number, py?:number):IDistortItem {
 		const item = super.buildItem(px, py);
 		item.alphaSpeed = 0;
-		item.frame = 65;//Math.round(Math.random()*50);
+		item.frame = 20;//Math.round(Math.random()*50);
 		item.scale = .001;
 		item.scaleSpeed = 0;
 		item.angle = Math.PI;
 		let scale = 3 + Math.random()*2;
 		if(Math.random() > .98) {
 			scale = 15 + Math.random()*5;
-			item.frame = 0;
+			// item.frame = 0;
 		}
-		gsap.to(item, {scale, angle:0, ease:Elastic.easeOut, duration:1});
-		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false});
+		gsap.fromTo(item, {scale:0}, {scale, angle:0, ease:Elastic.easeOut, duration:1});
+		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false, onComplete:()=>{
+			console.log("COMPLETE");
+			this.removeItem(item);
+		}});
 		return item;
 	}
 	

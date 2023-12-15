@@ -4,7 +4,7 @@
 </template>
 
 <script lang="ts">
-import bubbles from '@/assets/img/distortions/bubbles_sh.png';
+import bubbles from '@/assets/img/distortions/bubble.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap, { Elastic } from 'gsap/all';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -31,7 +31,9 @@ export default class DistortShrink extends AbstractDistortion {
 		item.scaleSpeed = 0;
 		item.angle = Math.PI;
 		gsap.to(item, {scale:3 + Math.random()*2, angle:0, ease:Elastic.easeOut, duration:1});
-		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false});
+		gsap.to(item, {scale:0, angle:Math.PI, ease:"back.in(5)", duration:.5, delay:5, immediateRender:false, onComplete:()=>{
+			this.removeItem(item);
+		}});
 		return item;
 	}
 	
