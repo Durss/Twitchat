@@ -65,7 +65,11 @@ export default class Icon extends Vue {
 		
 		//Icon not yet loaded, load it
 		try {
-			this.$store.main.iconCache[this.name] = fetch(this.$image("icons/"+this.name+".svg"))
+			const url = this.$image("icons/"+this.name+".svg");
+			if(/undefined$/.test(url)) {
+				throw("icon not found");
+			}
+			this.$store.main.iconCache[this.name] = fetch(url)
 			.then(async (imgRes) => {
 				if(imgRes.status <200 || imgRes.status > 204) {
 					this.error = true;
