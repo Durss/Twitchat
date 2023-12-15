@@ -18,7 +18,7 @@
 			<img src="@/assets/icons/broadcast.svg" class="icon">
 			<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
 			<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" primary />
-			<button class="openTriggerBt" @click="openTrigger()"><Icon name="newTab" /></button>
+			<button class="openTriggerBt" @click="openTrigger()"><Icon name="newtab" /></button>
 		</div>
 
 		<ToggleBlock :title="$t('triggers.actions.trigger.warning_title')" :open="false" small>
