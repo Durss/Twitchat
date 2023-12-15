@@ -101,7 +101,7 @@ export const storeHeat = defineStore('heat', {
 
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
-			let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">;
+			let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
 			if(!anonymous) {
 				//Load user data
 				user = await new Promise((resolve)=> {
@@ -127,7 +127,7 @@ export const storeHeat = defineStore('heat', {
 					is_vip:false,
 					online:true,
 				}
-				user = { id:event.uid || "anon", login:"anon", channelInfo };
+				user = { id:event.uid || "anon", login:"anon", channelInfo, anonymous:true };
 			}
 			
 			//If user is banned, ignore its click
@@ -204,9 +204,61 @@ export const storeHeat = defineStore('heat', {
 					alert:false,
 				}
 			}
+			const clickEventDataTemplate:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
+				requestType:"emit_event",
+				vendorName:"obs-browser",
+				requestData:{
+					event_name:"heat-click",
+					event_data: {
+						anonymous,
+						x:0,
+						y:0,
+						channelId,
+						uid:user.id,
+						login:user.login,
+						rotation:0,
+						scaleX:0,
+						scaleY:0,
+						isBroadcaster:user.channelInfo[channelId].is_broadcaster,
+						isSub:user.channelInfo[channelId].is_subscriber,
+						isBan:user.channelInfo[channelId].is_banned,
+						isMod:user.channelInfo[channelId].is_moderator,
+						isVip:user.channelInfo[channelId].is_vip,
+						isFollower:user.channelInfo[channelId].is_following || false,
+						followDate:user.channelInfo[channelId].following_date_ms,
+						testMode:event.testMode || false,
+						alt:event.alt || false,
+						ctrl:event.ctrl || false,
+						shift:event.shift || false,
+						twitchatOverlayID:"",
+						page:"",
+					}
+				}
+			};
 
+			//Check if a distortion targetting current OBS scene exists
+			for (let j = 0; j < this.distortionList.length; j++) {
+				const d = this.distortionList[j];
+
+				//Ignore disabled and trigger-only distortions
+				if(!d.enabled || d.triggerOnly) continue;
+				//Ignore distortions not linked to a scene
+				if(d.obsItemPath.source.name || d.obsItemPath.groupName) continue;
+				//Ignore distortions not linked to a scene
+				if(d.obsItemPath.sceneName != StoreProxy.main.currentOBSScene) continue;
+
+				OBSWebsocket.instance.log("Reroute click from scene \""+d.obsItemPath.sceneName+"\" to overlay ID \""+d.id+"\"");
+				const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventDataTemplate;
+				clickClone.requestData.event_data.twitchatOverlayID = d.id;
+				clickClone.requestData.event_data.x = event.coordinates.x;
+				clickClone.requestData.event_data.y = event.coordinates.y;
+				clickClone.requestData.event_data.scaleX = 1;
+				clickClone.requestData.event_data.scaleY = 1;
+				OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+			}
 
 			// Parse all available OBS sources
+			const distortionRerouted:{[key:string]:boolean} = {};
 			for (let i = 0; i < rects.sources.length; i++) {
 				const rect = rects.sources[i];
 				const x = rects.canvas.width * px;
@@ -219,7 +271,7 @@ export const storeHeat = defineStore('heat', {
 				const polygon = [tl, tr, br, bl];
 				const isInside = Utils.isPointInsidePolygon({x,y}, polygon);
 
-				OBSWebsocket.instance.log("Is click inside source \""+rect.source.sourceName+"\"?"+isInside);
+				OBSWebsocket.instance.log("Is click inside source \""+rect.source.sourceName+"\"? "+isInside);
 
 				//Click is outside OBS source, ingore it
 				if(!isInside) continue;
@@ -242,50 +294,31 @@ export const storeHeat = defineStore('heat', {
 				const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
 				const percentX = (rotatedClick.x) / dx;
 				const percentY = (rotatedClick.y) / dy;
-				const clickEventData:{requestType:string, vendorName:string, requestData:{event_name:string, event_data:TwitchatDataTypes.HeatClickData}} = {
-					requestType:"emit_event",
-					vendorName:"obs-browser",
-					requestData:{
-						event_name:"heat-click",
-						event_data: {
-							anonymous,
-							x:percentX,
-							y:percentY,
-							channelId,
-							uid:user.id,
-							login:user.login,
-							rotation:rect.transform.globalRotation!,
-							scaleX:rect.transform.globalScaleX!,
-							scaleY:rect.transform.globalScaleY!,
-							isBroadcaster:user.channelInfo[channelId].is_broadcaster,
-							isSub:user.channelInfo[channelId].is_subscriber,
-							isBan:user.channelInfo[channelId].is_banned,
-							isMod:user.channelInfo[channelId].is_moderator,
-							isVip:user.channelInfo[channelId].is_vip,
-							isFollower:user.channelInfo[channelId].is_following || false,
-							followDate:user.channelInfo[channelId].following_date_ms,
-							testMode:event.testMode || false,
-							alt:event.alt || false,
-							ctrl:event.ctrl || false,
-							shift:event.shift || false,
-							twitchatOverlayID:"",
-							page:"",
-						}
-					}
-				};
+				const clickEventData =  JSON.parse(JSON.stringify(clickEventDataTemplate));
+				clickEventData.x = percentX;
+				clickEventData.y = percentY;
+				clickEventData.rotation = rect.transform.globalRotation!;
+				clickEventData.scale = rect.transform.globalScaleX!;
+				clickEventData.scale = rect.transform.globalScaleY!;
 
 				//If a distortion targets the current element, reroute events to its related browser source
 				for (let j = 0; j < this.distortionList.length; j++) {
 					const d = this.distortionList[j];
+					//If distortion has already been triggered, avoid potential other triggers
+					if(distortionRerouted[d.id] === true) continue;
+
 					//Ignore disabled and trigger-only distortions
-					if(d.enabled && d.triggerOnly) break;
-					const name = d.obsItemPath.source.name || d.obsItemPath.groupName || d.obsItemPath.sceneName;
+					if(!d.enabled || d.triggerOnly) continue;
+
+					//Only check for group and source targets. Scene target are parsed before
+					const name = d.obsItemPath.source.name || d.obsItemPath.groupName;
+
 					//Is click on source ?
 					if(rect.sceneName == name || rect.source.sourceName == name) {
-						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
-
-						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
+						distortionRerouted[d.id] = true;
+						const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventData;
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
+						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
 						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
 					}
 				}
@@ -316,7 +349,7 @@ export const storeHeat = defineStore('heat', {
 					OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
 
 					//Spotify overlay
-					if(url.indexOf(spotifyRoute) > -1
+					if(url && url.indexOf(spotifyRoute) > -1
 					&& StoreProxy.chat.botMessages.heatSpotify.enabled
 					&& SpotifyHelper.instance.isPlaying) {
 						//If anon users are not allowed, skip
@@ -331,7 +364,7 @@ export const storeHeat = defineStore('heat', {
 						
 						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
 					}
-					if(url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
+					if(url && url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
 						//If anon users are not allowed, skip
 						if(anonymous && StoreProxy.chat.botMessages.heatUlule.allowAnon !== true) continue;
 
