@@ -1471,10 +1471,19 @@ export default class TriggerActionHandler {
 									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 									for (let i = 0; i < users.length; i++) {
 										const user = users[i];
-										if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
-										let logMessage = "Update \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
-										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-										logStep.messages.push({date:Date.now(), value:logMessage});
+										if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
+											StoreProxy.counters.increment(c.id, step.action, value, user);
+											let logMessage = "Update counter \""+c.name+"\", \""+step.action+"\" "+value+" ("+text+")";
+											if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+											logStep.messages.push({date:Date.now(), value:logMessage});
+										}else{
+											let reason = "";
+											if(!c.perUser && user) reason = "counter is not a per user counter";
+											if(c.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "counter is a per-user counter but given user is not loaded or anonymous";
+											log.error = true;
+											logStep.error = true;
+											logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested counter because "+reason});
+										}
 									}
 
 								//Check if requested to edit all users of a counter
@@ -1508,14 +1517,24 @@ export default class TriggerActionHandler {
 								//Standard counter edition (either current user or a non-per-user counter)
 								}else{
 									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
-									if(!c.perUser || (user && !user.temporary && !user.errored)) StoreProxy.counters.increment(c.id, step.action, value, user);
-									let logMessage = "";
-									if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
-									if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
-									if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
-									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-									logMessage += ". New value is "+c.value;
-									logStep.messages.push({date:Date.now(), value:logMessage});
+									console.log(user);
+									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
+										StoreProxy.counters.increment(c.id, step.action, value, user);
+										let logMessage = "";
+										if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
+										if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
+										if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
+										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+										logMessage += ". New value is "+c.value;
+										logStep.messages.push({date:Date.now(), value:logMessage});
+									}else{
+										let reason = "";
+										if(!c.perUser && user) reason = "counter is not a per user counter";
+										if(c.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "counter is a per-user counter but given user is not loaded or anonymous";
+										log.error = true;
+										logStep.error = true;
+										logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested counter because "+reason});
+									}
 								}
 							}
 						}
@@ -1551,10 +1570,19 @@ export default class TriggerActionHandler {
 								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
-									if(!v.perUser || (user && !user.temporary && !user.errored)) StoreProxy.values.updateValue(v.id, text, user);
-									let logMessage = "Update \""+v.name+"\", "+text;
-									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-									logStep.messages.push({date:Date.now(), value:logMessage});
+									if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
+										StoreProxy.values.updateValue(v.id, text, user);
+										let logMessage = "Update value \""+v.name+"\", "+text;
+										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+										logStep.messages.push({date:Date.now(), value:logMessage});
+									}else{
+										let reason = "";
+										if(!v.perUser && user) reason = "value is not a per user value";
+										if(v.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "value is a per-user value but given user is not loaded or anonymous";
+										log.error = true;
+										logStep.error = true;
+										logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested value because "+reason});
+									}
 								}
 
 							//Check if requested to edit all users of a value
@@ -1588,10 +1616,19 @@ export default class TriggerActionHandler {
 							//Standard value edition (either current user or a non-per-user value)
 							}else {
 								let user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
-								if(!v.perUser || (user && !user.temporary && !user.errored)) StoreProxy.values.updateValue(v.id, text, user);
-								let logMessage = "Update \""+v.name+"\" to \""+text+"\"";
-								if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-								logStep.messages.push({date:Date.now(), value:logMessage});
+								if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
+									StoreProxy.values.updateValue(v.id, text, user);
+									let logMessage = "Update \""+v.name+"\" to \""+text+"\"";
+									if(user) logMessage += " (for @"+user.displayNameOriginal+")";
+									logStep.messages.push({date:Date.now(), value:logMessage});
+								}else{
+									let reason = "";
+									if(!v.perUser && user) reason = "value is not a per user value";
+									if(v.perUser && (!user || user.temporary || user.errored || user.anonymous)) reason = "value is a per-user value but given user is not loaded or anonymous";
+									log.error = true;
+									logStep.error = true;
+									logStep.messages.push({date:Date.now(), value:"❌ Cannot update requested value because "+reason});
+								}
 							}
 						}
 					}

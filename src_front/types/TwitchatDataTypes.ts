@@ -1271,6 +1271,11 @@ export namespace TwitchatDataTypes {
 		 */
 		errored?:boolean;
 		/**
+		 * true if data respresents an anonymous user.
+		 * For exemple an anonymous Heat user
+		 */
+		anonymous?:boolean;
+		/**
 		 * If set to true, this user's messages won't be automatically set
 		 * as spoiler if the related option is enabled on the spoiler section
 		 */
