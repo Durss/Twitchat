@@ -190,7 +190,7 @@ export default class NonPremiumCleanup extends Vue {
 		const triggers = this.$store.triggers.triggerList;
 		const entries = triggers.map((trigger, index) => {
 			const info = Utils.getTriggerDisplayInfo(trigger);
-			const entry:TriggerListEntry = { index, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest:false };
+			const entry:TriggerListEntry = { type:"trigger", index, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest:false };
 			return entry;
 		})
 		return entries;
