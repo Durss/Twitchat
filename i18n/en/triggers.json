@@ -937,15 +937,15 @@
 				"description": "Actions to execute when a value is substracted from the {SUB_ITEM_NAME} counter"
 			},
 			"COUNTER_MAXED": {
-				"label": "Max value reached",
+				"label": "Max counter value reached",
 				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its maximum value"
 			},
 			"COUNTER_MINED": {
-				"label": "Min value reached",
+				"label": "Min counter value reached",
 				"description": "Actions to execute when {SUB_ITEM_NAME} counter reaches its minimum value"
 			},
 			"COUNTER_LOOPED": {
-				"label": "Value looped",
+				"label": "Counter value looped",
 				"description": "Actions to execute when the {SUB_ITEM_NAME} counter value is looped {INFO}",
 				"description_info":"(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
 			},

@@ -1,8 +1,7 @@
-import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
-import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
-import type { GoXLRTypes } from "./GoXLRTypes";
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
+import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
+import type { GoXLRTypes } from "./GoXLRTypes";
 
 export namespace TwitchatDataTypes {
 

@@ -416,12 +416,30 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE:{
-				let type:TriggerTypesValue = message.added > 0? TriggerTypes.COUNTER_ADD : TriggerTypes.COUNTER_DEL;
-				if(message.maxed) type = TriggerTypes.COUNTER_MAXED;
-				if(message.mined) type = TriggerTypes.COUNTER_MINED;
-				if(message.looped) type = TriggerTypes.COUNTER_LOOPED;
-				await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, message.counter.id, undefined, forcedTriggerId);
-				if(await this.executeTriggersByType(type, message, testMode, message.counter.id, undefined, forcedTriggerId)) {
+				let executed = false;
+				if(message.added > 0) {
+					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_ADD, message, testMode, message.counter.id, undefined, forcedTriggerId);
+					executed ||= result;
+				}
+				if(message.added < 0) {
+					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_DEL, message, testMode, message.counter.id, undefined, forcedTriggerId);
+					executed ||= result;
+				}
+				if(message.maxed) {
+					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MAXED, message, testMode, message.counter.id, undefined, forcedTriggerId);
+					executed ||= result;
+				}
+				if(message.mined) {
+					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_MINED, message, testMode, message.counter.id, undefined, forcedTriggerId);
+					executed ||= result;
+				}
+				if(message.looped) {
+					const result = await this.executeTriggersByType(TriggerTypes.COUNTER_LOOPED, message, testMode, message.counter.id, undefined, forcedTriggerId)
+					executed ||= result;
+				}
+				const result = await this.executeTriggersByType(TriggerTypes.COUNTER_EDIT, message, testMode, message.counter.id, undefined, forcedTriggerId);
+				executed ||= result;
+				if(executed) {
 					return;
 				}break;
 			}
@@ -667,7 +685,6 @@ export default class TriggerActionHandler {
 
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
-
 		
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
@@ -1517,7 +1534,6 @@ export default class TriggerActionHandler {
 								//Standard counter edition (either current user or a non-per-user counter)
 								}else{
 									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
-									console.log(user);
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 										StoreProxy.counters.increment(c.id, step.action, value, user);
 										let logMessage = "";

@@ -939,15 +939,15 @@
 				"description": "Actions à exécuter lorsqu'une valeur est soustraite au compteur {SUB_ITEM_NAME}"
 			},
 			"COUNTER_MAXED": {
-				"label": "Valeur max atteinte",
+				"label": "Valeur de compteur max atteinte",
 				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur maximale"
 			},
 			"COUNTER_MINED": {
-				"label": "Valeur min atteinte",
+				"label": "Valeur de compteur min atteinte",
 				"description": "Actions à exécuter lorsque le compteur {SUB_ITEM_NAME} atteint sa valeur minimale"
 			},
 			"COUNTER_LOOPED": {
-				"label": "Valeur bouclée",
+				"label": "Valeur de compteur bouclée",
 				"description": "Actions à exécuter lorsque la valeur du compteur {SUB_ITEM_NAME} est bouclée {INFO}",
 				"description_info": "(Si l'option \"boucler\" est activée et que la valeur max est atteinte, la valeur sera remplacée par la valeur min, et inversement)"
 			},

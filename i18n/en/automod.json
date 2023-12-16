@@ -17,7 +17,7 @@
 					"Before applying a rule it will replace all alternative chars, including accented ones, by their latin equivalent.",
 					"For example, <mark>𝕥🅦ⓘ𝒕𝓬🄷🇦🇹</mark> will be replaced by <mark>twitchat</mark> before applying automod rules on it.",
 					"",
-					"<strong>Warning</strong> though, this process has its cost on performances and may slowdown twitchat a little if you have many rules and receive lots of messages."
+					"<strong>Warning</strong> though, this process has its cost on performance and may slow down twitchat a little if you have many rules and receive lots of messages."
 				]
 			},
 			"delete":{
@@ -43,7 +43,7 @@
 			"name":"Rule name",
 			"keywords":"Rule (accepts <a href=\"https://en.wikipedia.org/wiki/Regular_expression\" target=\"_blank\">Regexp</a> - <a href=\"https://regexr.com\" target=\"_blank\">Test your regexp</a>)",
 			"sync":"Save to server",
-			"sync_tt":"If the rule contains personnal information you can choose not to save it on server. You'll loose it if you clean your cookies.",
+			"sync_tt":"If the rule contains personal information you can choose not to save it on the server. You'll loose it if you clean your cookies.",
 			"emergency":"Start emergency mode",
 			"emergency_tt":"If a message matches this rule, the emergency mode will be enabled",
 			"firstTime":"Apply to first time chatters only",

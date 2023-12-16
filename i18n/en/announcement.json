@@ -1,7 +1,7 @@
 {
 	"announcement":{
 		"title":"Twitchat announcement",
-		"subtitle":"Send an announce to Twitchat users",
+		"subtitle":"Send an announcement to Twitchat users",
 		"param_title":"Title",
 		"param_dateStart":"Start date",
 		"param_dateEnd":"End date (optionnel)",
