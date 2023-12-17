@@ -41,7 +41,7 @@
 							<div class="data card-item" v-tooltip="$t('summary.data_raffle')" v-if="raffleCount > 0"><Icon name="ticket" />{{ raffleCount }}</div>
 						</div>
 						<div class="ctas">
-							<Button icon="newTab" @click="exportCSV(true)">{{ $t("summary.csv_exportBt") }}</Button>
+							<Button icon="newtab" @click="exportCSV(true)">{{ $t("summary.csv_exportBt") }}</Button>
 						</div>
 					</div>
 
@@ -70,7 +70,7 @@
 							</div>
 						</div>
 						<div class="ctas">
-							<Button icon="newTab" @click="exportCSV()">{{ $t("summary.csv_exportBt") }}</Button>
+							<Button icon="newtab" @click="exportCSV()">{{ $t("summary.csv_exportBt") }}</Button>
 						</div>
 					</div>
 				</template>

@@ -71,9 +71,9 @@ export default class PublicApiTest extends Vue {
 	public connectError = false;
 	public connectSuccess = false;
 	public openConnectForm = false;
-	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, label:"OBS websocket server port", min:0, max:65535, step:1, fieldName:"obsport" };
-	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", label:"OBS websocket password", fieldName:"obspass" };
-	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", label:"OBS local IP", fieldName:"obsip" };
+	public obsPort_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:4455, min:0, max:65535, step:1, fieldName:"obsport", labelKey:"obs.form_port" };
+	public obsPass_conf:TwitchatDataTypes.ParameterData<string> = { type:"password", value:"", fieldName:"obspass", labelKey:"obs.form_pass" };
+	public obsIP_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"127.0.0.1", fieldName:"obsip", labelKey:"obs.form_ip" };
 
 	private idsDone:{[key:string]:boolean} = {};
 

@@ -9,10 +9,26 @@
 				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
 			
-			<div class="title" v-if="title || subtitle">
+							
+			<div class="editableTitle" v-if="editableTitle !== false">
+				<div class="title">
+					<span class="default" v-if="!localTitle && titleDefault">{{ titleDefault }}</span>
+					<contenteditable class="label" tag="h2"
+					:contenteditable="true"
+					v-model="localTitle"
+					:no-nl="true"
+					:no-html="true"
+					@click.stop
+					@input="limitLabelSize()" />
+				</div>
+				<Icon name="edit" />
+			</div>
+
+			<div class="title" v-else-if="title || subtitle">
 				<h2 v-if="title">{{ title }}</h2>
 				<h3 v-if="subtitle">{{ subtitle }}</h3>
 			</div>
+
 			<slot name="title"></slot>
 
 			<div class="rightSlot">
@@ -21,7 +37,7 @@
 				<button class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
 			</div>
 		</div>
-		<div class="content" v-if="opened" ref="content">
+		<div class="content" v-if="localOpen" ref="content">
 			<slot></slot>
 			<slot name="content"></slot>
 		</div>
@@ -32,7 +48,7 @@
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import TTButton from './TTButton.vue';
+import contenteditable from 'vue-contenteditable';
 
 /**
  * To add actions on the right or left of the header
@@ -46,17 +62,20 @@ import TTButton from './TTButton.vue';
 @Component({
 	name:"ToggleBlock",
 	components:{
-		Button: TTButton,
+		contenteditable,
 	},
-	emits:["startDrag"],
+	emits:["startDrag", "update:title"],
 })
 export default class ToggleBlock extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public icons!:string[];
 	
-	@Prop
+	@Prop()
 	public title!:string;
+	
+	@Prop()
+	public titleDefault!:string;
 
 	@Prop({type:String, default:""})
 	public subtitle!:string;
@@ -94,12 +113,16 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public noArrow!:boolean;
 
-	public opened = false;
+	@Prop({type:Boolean, default: false})
+	public editableTitle!:boolean;
+
 	public closing = false;
+	public localOpen = false;
+	public localTitle = "";
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
-		if(!this.opened || this.closing)res.push("closed");
+		if(!this.localOpen || this.closing)res.push("closed");
 		if(this.error !== false)		res.push("error");
 		if(this.primary !== false)		res.push("primary");
 		if(this.secondary !== false)	res.push("secondary");
@@ -118,7 +141,12 @@ export default class ToggleBlock extends Vue {
 	}
 
 	public beforeMount():void {
-		this.opened = this.open;
+		this.localOpen = this.open;
+		this.localTitle = this.title;
+
+		watch(()=>this.localTitle, ()=>{
+			this.$emit("update:title", this.localTitle);
+		})
 	}
 
 	public mounted():void {
@@ -128,23 +156,45 @@ export default class ToggleBlock extends Vue {
 	}
 
 	public async toggle(forcedState?:boolean):Promise<void> {
-		if(this.disabled !== false && (forcedState == true || !this.opened)) return;
+		if(this.disabled !== false && (forcedState == true || !this.localOpen)) return;
 
 		const params:gsap.TweenVars = {paddingTop:0, paddingBottom:0, height:0, duration:.25, ease:"sine.inOut", clearProps:"all"};
-		let open = !this.opened;
+		let open = !this.localOpen;
 		this.closing = !open;
 		if(forcedState !== undefined) {
 			open = forcedState;
-			if(open == this.opened) return;//Already in the proper state, ignore
+			if(open == this.localOpen) return;//Already in the proper state, ignore
 		}
 		gsap.killTweensOf(this.$refs.content as HTMLDivElement);
 		if(!open) {
-			params.onComplete = ()=>{ this.opened = this.closing = false; };
+			params.onComplete = ()=>{ this.localOpen = this.closing = false; };
 			gsap.to(this.$refs.content as HTMLDivElement, params);
 		}else {
-			this.opened = true;
+			this.localOpen = true;
 			await this.$nextTick();
 			gsap.from(this.$refs.content as HTMLDivElement, params);
+		}
+	}
+
+	/**
+	 * Limit the size of the label.
+	 * Can't use maxLength because it's a content-editable tag.
+	 * @param item 
+	 */
+	public async limitLabelSize():Promise<void> {
+		const sel = window.getSelection();
+		if(sel && sel.rangeCount > 0) {
+			//Save caret index
+			var range = sel.getRangeAt(0);
+			let caretIndex = range.startOffset;
+			await this.$nextTick();
+			//Limit label's size
+			// this.modelValue.name = this.modelValue.name.substring(0, 100);
+			// await this.$nextTick();
+			// //Reset caret to previous position
+			// if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.modelValue.name.length, caretIndex-1));
+		}else{
+			// this.modelValue.name = this.modelValue.name.substring(0, 100);
 		}
 	}
 
@@ -164,6 +214,7 @@ export default class ToggleBlock extends Vue {
 			object-fit: fill;
 			display: block;
 			margin:auto;
+			flex-shrink: 0;
 		}
 	}
 
@@ -199,6 +250,63 @@ export default class ToggleBlock extends Vue {
 		}
 		&:hover {
 			background-color: var(--toggle-block-header-background-hover);
+		}
+
+		.editableTitle {
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+			justify-content: center;
+			flex-grow: 1;
+			.icon {
+				height: 1em;
+				vertical-align: middle;
+			}
+			.title {
+				position: relative;
+				justify-self: center;
+				flex-grow: unset;
+				.label, .default {
+					cursor: text;
+					min-width: 2em;
+					width: fit-content;
+					font-weight: bold;
+					// flex-grow: 1;
+					padding: .25em .5em;
+					border-radius: var(--border-radius);
+
+					&.label {
+						&:hover, &:active, &:focus {
+							.bevel();
+							background-color: var(--color-text-inverse-fader);
+							// border: 1px double var(--color-light);
+							// border-style: groove;
+						}
+					}
+				}
+				.label {
+					position: relative;
+					z-index: 1;
+					min-width: 100px;
+					padding-right: 2em;
+					word-break: break-word;
+					line-height: 1.2em;
+				}
+				.default {
+					position: absolute;
+					text-wrap: nowrap;
+					opacity: .8;
+					font-style: italic;
+					top:0;
+					left:50%;
+					transform: translateX(-50%);
+					padding-right: 2em;
+				}
+			}
+			&>.icon {
+				margin-left: -1.5em;
+				flex-shrink: 0;
+			}
 		}
 
 		.rightSlot {
@@ -344,6 +452,5 @@ export default class ToggleBlock extends Vue {
 	&.noBackground {
 		background-color: transparent;
 	}
-
 }
 </style>

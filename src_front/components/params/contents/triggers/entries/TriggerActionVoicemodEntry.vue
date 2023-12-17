@@ -42,9 +42,9 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	@Prop
 	declare triggerData:TriggerData;
 	
-	public param_action:TwitchatDataTypes.ParameterData<TriggerActionVoicemodDataAction, TriggerActionVoicemodDataAction> = {type:"list", label:"", listValues:[], value:"voice", icon:"", labelKey:"triggers.actions.voicemod.param_action"}
-	public param_voiceList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", label:"", listValues:[], value:"", icon:"voice", labelKey:"triggers.actions.voicemod.param_voice"}
-	public param_soundsList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", label:"", listValues:[], value:"", icon:"unmute", labelKey:"triggers.actions.voicemod.param_sound"}
+	public param_action:TwitchatDataTypes.ParameterData<TriggerActionVoicemodDataAction, TriggerActionVoicemodDataAction> = {type:"list", listValues:[], value:"voice", icon:"", labelKey:"triggers.actions.voicemod.param_action"}
+	public param_voiceList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", listValues:[], value:"", icon:"voice", labelKey:"triggers.actions.voicemod.param_voice"}
+	public param_soundsList:TwitchatDataTypes.ParameterData<string, string> = {type:"list", listValues:[], value:"", icon:"unmute", labelKey:"triggers.actions.voicemod.param_sound"}
 
 	public voiceItemID:string = "";
 	public soundItemID:string = "";

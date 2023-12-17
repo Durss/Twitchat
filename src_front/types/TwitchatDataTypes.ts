@@ -1983,7 +1983,7 @@ export namespace TwitchatDataTypes {
 		TwitchatMessageType.WHISPER,
 		TwitchatMessageType.SHOUTOUT,
 		TwitchatMessageType.FOLLOWING,
-		TwitchatMessageType.HYPE_CHAT,
+		// TwitchatMessageType.HYPE_CHAT,
 		TwitchatMessageType.COUNTDOWN,
 		TwitchatMessageType.PREDICTION,
 		TwitchatMessageType.TWITCHAT_AD,

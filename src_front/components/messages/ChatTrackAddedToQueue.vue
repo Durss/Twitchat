@@ -27,7 +27,7 @@
 						<span>{{ messageData.trackAdded.artist }}</span>
 					</div>
 				</div>
-				<Button class="cta" icon="newTab" type="link" :href="messageData.trackAdded.url" target="_blank" v-tooltip="$t('chat.added_to_queue.open_track')" />
+				<Button class="cta" icon="newtab" type="link" :href="messageData.trackAdded.url" target="_blank" v-tooltip="$t('chat.added_to_queue.open_track')" />
 				<Button class="cta" icon="music" v-if="canBanFromSR && !isBanned" @click.stop="banFromSR()" primary v-tooltip="$t('chat.added_to_queue.ban_user')" />
 				<Button class="cta" icon="noMusic" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
 			</div>

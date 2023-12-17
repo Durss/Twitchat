@@ -44,6 +44,12 @@ export const storeValues = defineStore('values', {
 					if(data.value) d.value = data.value;
 					if(data.name) d.name = data.name;
 					if(data.placeholderKey) d.placeholderKey = data.placeholderKey;
+					if(data.perUser != undefined) d.perUser = data.perUser;
+					
+					//If placeholder has been updated, update it on all triggers
+					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (d.placeholderKey ?? "").toLowerCase()) {
+						StoreProxy.triggers.renameValuePlaceholder(d.placeholderKey, data.placeholderKey);
+					}
 
 					if(d.value != prevValue) {
 						const message:TwitchatDataTypes.MessageValueUpdateData = {

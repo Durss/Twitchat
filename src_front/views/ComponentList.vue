@@ -347,7 +347,7 @@ export default class ComponentList extends Vue {
 	public iconList:string[] = [];
 	public messageChunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 
-	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, label:"Enabled"};
+	public param_bool:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enabled"};
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ff0000", label:"Color"};
 	public param_slider:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:0, label:"Slider", min:0, max:10};
 	public param_text:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Text", placeholder:"value..."};

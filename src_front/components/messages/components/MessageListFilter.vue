@@ -248,7 +248,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]							= "chat.filters.message_types.shoutout";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "chat.filters.message_types.following";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "chat.filters.message_types.countdown";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "chat.filters.message_types.hype_chat";
+		// this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "chat.filters.message_types.hype_chat";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
@@ -280,7 +280,7 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]								= "shoutout";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "follow";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "hypeChat";
+		// this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "hypeChat";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
@@ -309,7 +309,7 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
 			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
 			TwitchatDataTypes.TwitchatMessageType.CHEER,
-			TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+			// TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
 			TwitchatDataTypes.TwitchatMessageType.RAID,
 			TwitchatDataTypes.TwitchatMessageType.PINNED,
 			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
@@ -830,7 +830,7 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.REWARD );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PINNED );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
@@ -857,7 +857,7 @@ export default class MessageListFilter extends Vue {
 			}
 			case "revenues": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
-				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
+				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );

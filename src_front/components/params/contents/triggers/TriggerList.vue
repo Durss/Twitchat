@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes">
-		<SwitchButton v-if="folderTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
-		
+		<SwitchButton v-if="folderTriggerList && folderTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
 		<div class="list" v-show="filterState === false" v-if="renderedList">
 			<TriggerListFolderItem
@@ -10,6 +9,7 @@
 				:noEdit="noEdit"
 				:debugMode="debugMode"
 				:triggerId="triggerId"
+				@sort="onToggleTrigger"
 				@changeState="onToggleTrigger"
 				@delete="deleteTrigger"
 				@duplicate="duplicateTrigger"
@@ -21,10 +21,12 @@
 			<ToggleBlock class="category" medium
 			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
 			:title="$t(cat.labelKey)" :icons="cat.icons">
-				<div class="item" v-for="item in cat.triggerList"
-				:key="'item_'+item.trigger.id"
-				:ref="'item_'+item.trigger.id">
-					<TriggerListItem :noEdit="noEdit" :entryData="item"
+				<template  v-for="item in cat.triggerList">
+					<TriggerListItem
+						:noEdit="noEdit"
+						:entryData="item"
+						:key="'item_'+item.trigger.id"
+						:ref="'item_'+item.trigger.id"
 						v-if="buildIndex >= item.index"
 						@changeState="onToggleTrigger(item)"
 						@delete="deleteTrigger($event)"
@@ -32,10 +34,9 @@
 						@test="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)"
 					>
-						<span class="triggerId" v-if="debugMode" v-click2Select
-						@click.stop="">{{ item.trigger.id }}sss</span>
+						<span class="triggerId" v-if="debugMode" v-click2Select @click.stop="">{{ item.trigger.id }}</span>
 					</TriggerListItem>
-				</div>
+				</template>
 			</ToggleBlock>
 		</div>
 	</div>
@@ -93,11 +94,38 @@ export default class TriggerList extends Vue {
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
 	public buildBatchSize = 25;
+
+	private fakeFolders:foldergngn[] = [
+			{type:"folder", name:"blublu", children:[
+				{type:"trigger", triggerId:"768ea4b8-40d0-4ee1-9512-4e2959a1a330"},
+				{type:"trigger", triggerId:"7777ac1c-ffd3-4ae3-a983-d5f2364ef68a"},
+			]},
+			{type:"folder", name:"couille", children:[
+				{type:"trigger", triggerId:"97eb2565-6bc9-4087-88be-bab09863031d"},
+				{type:"trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2"},
+				{type:"trigger", triggerId:"c3533872-be70-4641-a2ef-37d7df7f1e33"},
+				{type:"trigger", triggerId:"6a9a7e1e-cf8a-4b2e-8e5b-a2c4820aa181"},
+			]},
+			{type:"folder", name:"clito", children:[
+				{type:"trigger", triggerId:"a9da4629-368e-4d1c-ad97-970b08480ce5"},
+				{type:"trigger", triggerId:"38ab5a2a-1188-4583-be80-d1a24032b30e"},
+				{type:"trigger", triggerId:"9439261e-24e4-4dde-b223-34d23f1bf7ca"},
+			]},
+			{type:"folder", name:"urêtre", children:[
+				{type:"trigger", triggerId:"dff04f5b-c516-41a2-a752-43a2944e57ca"},
+				{type:"trigger", triggerId:"bfae0999-b9b2-4b35-a1d2-4875636e8c0e"},
+			]},
+			{type:"folder", name:"anu", children:[
+				{type:"trigger", triggerId:"0088ec43-9a54-4922-9b8d-6c5d58e0a021"},
+			]},
+			{type:"trigger", triggerId:"2ee5e246-10ed-4a1c-a82a-76c16955a76a"},
+			{type:"trigger", triggerId:"cb9051b9-f6d0-4306-8975-01289228fc92"},
+		]
 	
 	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public get folderTriggerList():(TriggerListEntry|TriggerListFolderEntry)[] {
-		let list:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+		let list:TriggerListEntry[] = [];
 		for (let i = 0; i < this.triggerCategories.length; i++) {
 			const cat = this.triggerCategories[i];
 			list = list.concat(cat.triggerList);
@@ -105,6 +133,21 @@ export default class TriggerList extends Vue {
 		if(this.triggerId != null) {
 			return list.filter(v=> v.type=='trigger' && v.trigger.id === this.triggerId);
 		}
+		function buildItem(items:foldergngn[]):(TriggerListEntry|TriggerListFolderEntry)[] {
+			const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.type == "folder") {
+					const children = buildItem(item.children || []).filter(v=> v != undefined) as TriggerListFolderEntry["items"];//(item.children || []).map(v=> buildItem(v.children || [])).filter(v=> v != undefined) as TriggerListFolderEntry["items"];
+					res.push({type:"folder", label:item.name!, items:children});
+				}else{
+					const entry = list.find(v=> v.trigger.id == item.triggerId);
+					if(entry) res.push(entry);
+				}
+			}
+			return res;
+		}
+		// return buildItem(this.fakeFolders);
 		return list;
 	}
 
@@ -142,14 +185,15 @@ export default class TriggerList extends Vue {
 	}
 
 	private startSequentialBuild():void {
-		this.buildIndex = -1;
-		clearInterval(this.buildInterval);
-		this.buildInterval = setInterval(()=> {
-			this.buildIndex ++;
-			if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
-				clearInterval(this.buildInterval);
-			}
-		}, 60);
+		this.buildIndex = 100000000;
+		// this.buildIndex = -1;
+		// clearInterval(this.buildInterval);
+		// this.buildInterval = setInterval(()=> {
+		// 	this.buildIndex ++;
+		// 	if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
+		// 		clearInterval(this.buildInterval);
+		// 	}
+		// }, 60);
 	}
 
 	/**
@@ -231,7 +275,7 @@ export default class TriggerList extends Vue {
 	public duplicateTrigger(entry:TriggerListEntry):void {
 		this.$store.triggers.duplicateTrigger(entry.trigger.id);
 		this.populateTriggers();
-}
+	}
 
 	public onToggleTrigger(item:TriggerListEntry):void {
 		if(!this.$store.auth.isPremium
@@ -251,19 +295,20 @@ export default class TriggerList extends Vue {
 		}
 	}
 
-/**
- * Show a debug field on CTRL+ALT+D
- * @param e 
- */
-public onKeyUp(e:KeyboardEvent):void {
-	if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
-		this.debugMode = !this.debugMode;
-		e.preventDefault();
+	/**
+	 * Show a debug field on CTRL+ALT+D
+	 * @param e 
+	 */
+	public onKeyUp(e:KeyboardEvent):void {
+		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+			this.debugMode = !this.debugMode;
+			e.preventDefault();
+		}
 	}
-}
 
 }
 
+type foldergngn = {type:"folder"|"trigger", name?:string, triggerId?:string, children?:foldergngn[]};
 type SortTypes = "list" | "category";
 
 interface TriggerListCategoryEntry {
@@ -287,7 +332,6 @@ export interface TriggerListEntry {
 export interface TriggerListFolderEntry {
 	type:"folder";
 	label:string;
-	icon:string;
 	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
 </script>
@@ -322,11 +366,14 @@ export interface TriggerListFolderEntry {
 				gap: 2px;
 			}
 		}
+
 		.triggerId {
+			.bevel();
 			cursor: help !important;
 			font-size: .8em;
 			font-family: 'Courier New', Courier, monospace;
 			opacity: .75;
+			padding: 2px 5px;
 			&::before {
 				content: "ID: ";
 				font-family: Inter;
@@ -334,11 +381,5 @@ export interface TriggerListFolderEntry {
 			}
 		}
 	}
-
-	.empty {
-		text-align: center;
-		font-style: italic;
-	}
-
 }
 </style>

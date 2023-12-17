@@ -7,7 +7,7 @@
 			<i18n-t scope="global" tag="span" keypath="raid.raiding">
 				<template #USER>
 					<a :href="'https://twitch.tv/'+raidInfo.user.login" target="_blank" class="userLink">
-						<img src="@/assets/icons/newTab.svg" alt="open in new tab">
+						<img src="@/assets/icons/newtab.svg" alt="open in new tab">
 						{{raidInfo.user.displayName}}
 					</a>
 				</template>

@@ -197,9 +197,6 @@ export default class NonPremiumCleanup extends Vue {
 	}
 
 	public mounted():void {
-		// TwitchUtils.loadUserInfo(["102915378","642638701","123092401","226588311","231462936","37004815","599501960","608524090"]).then(res=>{
-		// 	console.log(res);
-		// })
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
 		gsap.to(this.$refs.dimmer as HTMLElement, {duration:.25, opacity:1});
 		gsap.from(this.$refs.holder as HTMLElement, {duration:.25, marginTop:-100, opacity:0, ease:"back.out"});

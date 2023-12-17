@@ -21,7 +21,10 @@
 		@click="deleteEntry(false)">{{ $t("global.cancel") }}</Button>
 	</div>
 
-	<ToggleBlock medium :alert="!modelValue.enabled" v-else>
+	<ToggleBlock medium :alert="!modelValue.enabled" v-else
+	editableTitle
+	v-model:title="modelValue.name"
+	:titleDefault="sourcePathLabel">
 		<template #left_actions>
 			<ToggleButton v-model="modelValue.enabled" big :alert="!modelValue.enabled" />
 		</template>
@@ -30,22 +33,6 @@
 			<Button class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
 							
-		<template #title>
-			<div class="titleHolder">
-				<div class="title">
-					<span class="default" v-if="!modelValue.name">{{ sourcePathLabel }} <Icon name="edit" /></span>
-					<contenteditable class="label" tag="div"
-					:contenteditable="true"
-					v-model="modelValue.name"
-					:no-nl="true"
-					:no-html="true"
-					@click.stop
-					@input="limitLabelSize()" />
-				</div>
-				<Icon name="edit" v-if="modelValue.name" />
-			</div>
-		</template>
-
 		<div class="heatdistorparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
 			<ParamItem :paramData="param_triggerOnly" v-model="modelValue.triggerOnly" noBackground inverseChildrenCondition>
@@ -193,29 +180,6 @@ export default class HeatDistortParams extends Vue {
 			this.overlayInstalled = filter != undefined;
 		}, 100);
 	}
-
-	/**
-	 * Limit the size of the label.
-	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item 
-	 */
-	public async limitLabelSize():Promise<void> {
-		const sel = window.getSelection();
-		if(sel && sel.rangeCount > 0) {
-			//Save caret index
-			var range = sel.getRangeAt(0);
-			let caretIndex = range.startOffset;
-			await this.$nextTick();
-			//Limit label's size
-			this.modelValue.name = this.modelValue.name.substring(0, 100);
-			await this.$nextTick();
-			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.modelValue.name.length, caretIndex-1));
-		}else{
-			this.modelValue.name = this.modelValue.name.substring(0, 100);
-		}
-	}
-
 }
 </script>
 
@@ -272,57 +236,5 @@ export default class HeatDistortParams extends Vue {
 .deleteBt {
 	margin: -.5em 0;
 	border-radius: 0;
-}
-.titleHolder {
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	flex-grow: 1;
-	.icon {
-		height: 1em;
-		vertical-align: middle;
-	}
-	.title {
-		position: relative;
-		.label, .default {
-			cursor: text;
-			min-width: 2em;
-			font-weight: bold;
-			// flex-grow: 1;
-			padding: .25em .5em;
-			border-radius: var(--border-radius);
-
-			&.label {
-				&:hover, &:active, &:focus {
-					.bevel();
-					background-color: var(--color-text-inverse-fader);
-					// border: 1px double var(--color-light);
-					// border-style: groove;
-				}
-			}
-		}
-		.label {
-			position: relative;
-			z-index: 1;
-			min-width: 100px;
-			padding-right: 2em;
-			word-break: break-word;
-			line-height: 1.2em;
-		}
-		.default {
-			position: absolute;
-			text-wrap: nowrap;
-			opacity: .8;
-			font-style: italic;
-			top:0;
-			left:50%;
-			transform: translateX(-50%);
-			padding-right: 2em;
-		}
-	}
-	&>.icon {
-		margin-left: -1.5em;
-	}
 }
 </style>

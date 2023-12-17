@@ -96,7 +96,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 	public connectSuccess = false;
 	public showPermissions = false;
 	public openConnectForm = false;
-	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"Enabled", value:false};
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"global.enabled", value:false};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods: false,

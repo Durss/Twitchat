@@ -34,7 +34,14 @@
 				handle=".slotHolder>.header"
 				v-model="data.slots">
 					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
-						<ToggleBlock class="slotHolder" :key="'item_'+element.id" :open="false" medium :premium="getDefinitionFromSlot(element.slotType).premium">
+						<ToggleBlock class="slotHolder"
+						medium
+						editableTitle
+						v-model:title="element.label"
+						:titleDefault="$t(getDefinitionFromSlot(element.slotType).label)"
+						:key="'item_'+element.id"
+						:open="false"
+						:premium="getDefinitionFromSlot(element.slotType).premium">
 							<template #left_actions>
 								<div class="icons">
 									<Icon name="dragZone" />
@@ -43,22 +50,6 @@
 								</div>
 							</template>
 							
-							<template #title>
-								<div class="titleHolder">
-									<div class="title">
-										<span class="default" v-if="!element.label">{{ $t(getDefinitionFromSlot(element.slotType).label) }}</span>
-										<contenteditable class="label" tag="div" :ref="'label_'+element.id"
-										:contenteditable="true"
-										v-model="element.label"
-										:no-nl="true"
-										:no-html="true"
-										@click.stop
-										@input="limitLabelSize(element)" />
-									</div>
-									<Icon name="edit" />
-								</div>
-							</template>
-
 							<template #right_actions>
 								<div class="rightActions">
 									<!-- <Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
@@ -383,40 +374,6 @@ export default class OverlayParamsCredits extends Vue {
 			delete this.param_showAmounts[slot.id];
 			delete this.param_text[slot.id];
 		}).catch(()=>{})
-	}
-
-	/**
-	 * Reset to default label if label is empty
-	 * @param item 
-	 */
-	public checkDefaultLabel(item:TwitchatDataTypes.EndingCreditsSlotParams):void {
-		if(!item.label) {
-			item.label = this.$t(this.getDefinitionFromSlot(item.slotType).defaultLabel);
-		}else{
-			this.limitLabelSize(item);
-		}
-	}
-
-	/**
-	 * Limit the size of the label.
-	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item 
-	 */
-	public async limitLabelSize(item:TwitchatDataTypes.EndingCreditsSlotParams):Promise<void> {
-		const sel = window.getSelection();
-		if(sel && sel.rangeCount > 0) {
-			//Save caret index
-			var range = sel.getRangeAt(0);
-			let caretIndex = range.startOffset;
-			await this.$nextTick();
-			//Limit label's size
-			item.label = item.label.substring(0, 100);
-			await this.$nextTick();
-			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(item.label.length, caretIndex-1));
-		}else{
-			item.label = item.label.substring(0, 100);
-		}
 	}
 
 	/**

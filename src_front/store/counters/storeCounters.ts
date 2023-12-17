@@ -44,7 +44,7 @@ export const storeCounters = defineStore('counters', {
 						delete data.users;
 					}
 					//If placeholder has been updated, update it on all triggers
-					if((data.placeholderKey ?? "").toLowerCase() != (this.counterList[i].placeholderKey ?? "").toLowerCase()) {
+					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (this.counterList[i].placeholderKey ?? "").toLowerCase()) {
 						StoreProxy.triggers.renameCounterPlaceholder(this.counterList[i].placeholderKey, data.placeholderKey);
 					}
 					//Delete old, add new
