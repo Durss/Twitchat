@@ -21,6 +21,7 @@
 		"start": "Start",
 		"search": "Search",
 		"close": "Close",
+		"empty": "empty",
 		"login_placeholder": "login...",
 		"search_placeholder": "search...",
 		"select_placeholder": "select...",

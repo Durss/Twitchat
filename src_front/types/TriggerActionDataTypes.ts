@@ -851,6 +851,18 @@ export interface TriggerScheduleData {
 	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
+/**
+ * Represents a tree structure item.
+ * Either a trigger folder or a trigger item entry
+ */
+export interface TriggerTreeItemData{
+	type:"folder"|"trigger";
+	id:string;
+	name?:string;
+	triggerId?:string;
+	children?:TriggerTreeItemData[];
+}
+
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
 
 export const VIBRATION_PATTERNS = [

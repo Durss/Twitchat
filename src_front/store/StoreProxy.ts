@@ -1,7 +1,7 @@
 import type HeatEvent from "@/events/HeatEvent";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
-import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData } from "@/types/TriggerActionDataTypes";
+import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
@@ -1226,6 +1226,10 @@ export interface ITriggersState {
 	 * Contains data about the currently edited trigger;
 	 */
 	currentEditTriggerData:TriggerData|null;
+	/**
+	 * contains all the triggers defintions
+	 */
+	triggerTree: TriggerTreeItemData[];
 }
 
 export interface ITriggersGetters {
@@ -1304,6 +1308,11 @@ export interface ITriggersActions {
 	 * @param newName 
 	 */
 	renameValuePlaceholder(oldName:string, newName:string):void;
+	/**
+	 * Sets a new trigger tree
+	 * @param data 
+	 */
+	updateTriggerTree(data:TriggerTreeItemData[]):void;
 }
 
 

@@ -1,35 +1,52 @@
 <template>
 	<draggable class="triggerlistfolderitem"
 	:animation="250"
-	group="description"
-	ghostClass="ghost"
+	group="trigger"
 	item-key="id"
+	tag="div"
 	v-model="localItems"
+	:preventOnFilter="true"
+	:invertSwap="true"
+	:swapThreshold="10"
+	:emptyInsertThreshold="0"
 	@change="onChange">
 		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
-			<ToggleBlock class="folder" :icons="['folder']"
+			<ToggleBlock class="folder" v-if="element.type == 'folder'"
 			editableTitle medium
 			v-model:title="element.label"
+			:ref="'folder_'+element.id"
 			:open="false"
-			:titleDefault="'coucou'"
-			v-if="element.type == 'folder'">
+			:icons="['folder']"
+			:titleDefault="'folder'"
+			@update:title="$emit('change', $event)"
+			@dragover="onRollover('folder_'+element.id)"
+			@dragleave="onRollout('folder_'+element.id)">
 				<template #right_actions>
-					<ToggleButton class="triggerToggle" />
+					<div class="blockActions">
+						<!-- <ToggleButton class="triggerToggle" /> -->
+						<TTButton class="deleteBt" icon="trash" @click.stop="deleteFolder(element)" alert></TTButton>
+					</div>
 				</template>
 
-				<div v-if="!element.items || element.items.length == 0">no child</div>
-				<TriggerListFolderItem v-else
-					:items="element.items"
-					:level="level + 1"
-					:rewards="rewards"
-					:noEdit="noEdit"
-					:debugMode="debugMode"
-					:triggerId="triggerId"
-					@changeState="$emit('changeState', element)"
-					@delete="$emit('delete', $event)"
-					@duplicate="$emit('duplicate', $event)"
-					@testTrigger="$emit('testTrigger',$event)"
-					@select="$emit('select', $event)" />
+				<div class="childList">
+					<TriggerListFolderItem
+						:class="!element.items || element.items.length == 0? 'emptyChildren' : ''"
+						v-model:items="element.items"
+						:level="level + 1"
+						:rewards="rewards"
+						:noEdit="noEdit"
+						:debugMode="debugMode"
+						:triggerId="triggerId"
+						@change="$emit('change', $event)"
+						@changeState="$emit('changeState', element)"
+						@delete="$emit('delete', $event)"
+						@duplicate="$emit('duplicate', $event)"
+						@testTrigger="$emit('testTrigger',$event)"
+						@select="$emit('select', $event)" />
+	
+					<div v-if="!element.items || element.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
+				</div>
+				
 			</ToggleBlock>
 
 			<TriggerListItem v-else
@@ -39,8 +56,7 @@
 				@delete="$emit('delete', $event)"
 				@duplicate="$emit('duplicate', $event)"
 				@testTrigger="$emit('testTrigger',$event)"
-				@select="$emit('select', $event)"
-				>
+				@select="$emit('select', $event)">
 					<span class="triggerId" v-if="debugMode" v-click2Select
 					@click.stop="">{{ element.trigger.id }}</span>
 			</TriggerListItem>
@@ -56,16 +72,19 @@ import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import draggable from 'vuedraggable';
+import { watch } from 'vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	name:"TriggerListFolderItem",
 	components:{
+		TTButton,
 		draggable,
 		ToggleBlock,
 		ToggleButton,
 		TriggerListItem,
 	},
-	emits:["sort", "changeState","delete","duplicate","testTrigger","select"],
+	emits:["update:items","change","changeState","delete","duplicate","testTrigger","select"],
 })
 export default class TriggerListFolderItem extends Vue {
 
@@ -88,13 +107,59 @@ export default class TriggerListFolderItem extends Vue {
 	public level!:number;
 
 	public localItems:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+	public lastHovered:string = "";
+
+	private refToOpenTimeout:{[key:string]:number} = {};
 
 	public beforeMount():void {
 		this.localItems = this.items;
+		watch(()=>this.items, ()=> this.localItems = this.items);
 	}
 
-	public onChange():void {
-		this.$emit("sort", this.localItems);
+	public onChange(e?:{moved:{element:TriggerListEntry|TriggerListFolderEntry}, newIndex:number, oldIndex:number}):void {
+		this.$emit('change', e);
+		this.$emit("update:items", this.localItems);
+	}
+
+	/**
+	 * Called when dragging over
+	 * @param ref 
+	 */
+	public onRollover(ref:string):void {
+		if(this.lastHovered != ref) {
+			this.lastHovered = ref;
+			clearTimeout(this.refToOpenTimeout[ref]);
+			this.refToOpenTimeout[ref] = setTimeout(()=> {
+				const block = this.$refs[ref] as ToggleBlock;
+				block.localOpen = true;
+			}, 500);
+		}
+	}
+
+	public onRollout(ref:string):void {
+		this.lastHovered = "";
+		clearTimeout(this.refToOpenTimeout[ref]);
+	}
+
+	/**
+	 * Called when clicking delete button on a folder
+	 * @param id 
+	 */
+	public async deleteFolder(folder:TriggerListFolderEntry):Promise<void> {
+		if(folder.items.length > 0) {
+			try {
+				await this.$confirm(this.$t("triggers.delete_folder_confirm.title"), this.$t("triggers.delete_folder_confirm.desc"));
+			}catch(error) {
+				return;
+			}
+		}
+		let index = this.localItems.findIndex(v=>v.id == folder.id);
+		this.localItems.splice(index, 1);
+		folder.items.forEach(v=> {
+			this.localItems.splice(index, 0, v);
+			index ++;
+		});
+		this.onChange();
 	}
 
 }
@@ -108,6 +173,7 @@ export default class TriggerListFolderItem extends Vue {
 
 	.folder {
 		margin: .25em 0;
+		z-index: 998999;
 	}
 
 	.triggerId {
@@ -126,6 +192,34 @@ export default class TriggerListFolderItem extends Vue {
 
 	.triggerToggle {
 		align-self: center;
+	}
+
+	.childList {
+		position: relative;
+		.emptyFolder {
+			text-align: center;
+			font-style: italic;
+			position: absolute;
+			top:50%;
+			transform: translateY(-50%);
+			width: 100%;
+			pointer-events: none;
+			z-index: -1;
+		}
+		.emptyChildren {
+			// padding: .5em;
+			min-height: 1em;
+		}
+		:deep(.sortable-ghost) {
+			background-color: var(--toggle-block-header-background-hover);
+		}
+	}
+	.blockActions {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		align-self: stretch;
+		margin: calc(-.5em - 1px) 0;
 	}
 }
 </style>

@@ -1,5 +1,5 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerTreeItemData, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -13,6 +13,7 @@ export const storeTriggers = defineStore('triggers', {
 	state: () => ({
 		triggerList: [],
 		clipboard: [],
+		triggerTree: [],
 		currentEditTriggerData: null,
 	} as ITriggersState),
 
@@ -217,6 +218,11 @@ export const storeTriggers = defineStore('triggers', {
 			}
 			this.saveTriggers();
 		},
+
+		updateTriggerTree(data:TriggerTreeItemData[]):void {
+			this.triggerTree = data;
+			DataStore.set(DataStore.TRIGGERS_TREE, this.triggerTree);
+		}
 
 	} as ITriggersActions
 	& ThisType<ITriggersActions

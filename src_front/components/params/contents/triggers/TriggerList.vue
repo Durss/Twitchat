@@ -3,13 +3,14 @@
 		<SwitchButton v-if="folderTriggerList && folderTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
 		
 		<div class="list" v-show="filterState === false" v-if="renderedList">
+			<TTButton class="addFolderBt" icon="folder" v-if="!triggerId" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
 			<TriggerListFolderItem
-				:items="folderTriggerList"
+				v-model:items="folderTriggerList"
 				:rewards="rewards"
 				:noEdit="noEdit"
 				:debugMode="debugMode"
 				:triggerId="triggerId"
-				@sort="onToggleTrigger"
+				@change="onUpdateList"
 				@changeState="onToggleTrigger"
 				@delete="deleteTrigger"
 				@duplicate="duplicateTrigger"
@@ -43,12 +44,11 @@
 </template>
 
 <script lang="ts">
-import Splitter from '@/components/Splitter.vue';
 import SwitchButton from '@/components/SwitchButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import DataStore from '@/store/DataStore';
-import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -58,10 +58,11 @@ import { gsap } from 'gsap/all';
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 import TriggerListFolderItem from './TriggerListFolderItem.vue';
+import TTButton from '@/components/TTButton.vue';
 
 @Component({
 	components:{
-		Splitter,
+		TTButton,
 		ToggleBlock,
 		SwitchButton,
 		ToggleButton,
@@ -89,67 +90,41 @@ export default class TriggerList extends Vue {
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
 	public buildInterval = -1;
+	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 	/**
 	 * Number of items to instanciate per frame
 	 * Avoids a huge lag at open if there are hundred of triggers
 	 */
 	public buildBatchSize = 25;
 
-	private fakeFolders:foldergngn[] = [
-			{type:"folder", name:"blublu", children:[
-				{type:"trigger", triggerId:"768ea4b8-40d0-4ee1-9512-4e2959a1a330"},
-				{type:"trigger", triggerId:"7777ac1c-ffd3-4ae3-a983-d5f2364ef68a"},
-			]},
-			{type:"folder", name:"couille", children:[
-				{type:"trigger", triggerId:"97eb2565-6bc9-4087-88be-bab09863031d"},
-				{type:"trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2"},
-				{type:"trigger", triggerId:"c3533872-be70-4641-a2ef-37d7df7f1e33"},
-				{type:"trigger", triggerId:"6a9a7e1e-cf8a-4b2e-8e5b-a2c4820aa181"},
-			]},
-			{type:"folder", name:"clito", children:[
-				{type:"trigger", triggerId:"a9da4629-368e-4d1c-ad97-970b08480ce5"},
-				{type:"trigger", triggerId:"38ab5a2a-1188-4583-be80-d1a24032b30e"},
-				{type:"trigger", triggerId:"9439261e-24e4-4dde-b223-34d23f1bf7ca"},
-			]},
-			{type:"folder", name:"urêtre", children:[
-				{type:"trigger", triggerId:"dff04f5b-c516-41a2-a752-43a2944e57ca"},
-				{type:"trigger", triggerId:"bfae0999-b9b2-4b35-a1d2-4875636e8c0e"},
-			]},
-			{type:"folder", name:"anu", children:[
-				{type:"trigger", triggerId:"0088ec43-9a54-4922-9b8d-6c5d58e0a021"},
-			]},
-			{type:"trigger", triggerId:"2ee5e246-10ed-4a1c-a82a-76c16955a76a"},
-			{type:"trigger", triggerId:"cb9051b9-f6d0-4306-8975-01289228fc92"},
-		]
+	// private fakeFolders:TriggerTreeItemData[] = [
+			// {type:"folder", name:"blublu", id:Utils.getUUID(), children:[
+			// 	{type:"trigger", triggerId:"768ea4b8-40d0-4ee1-9512-4e2959a1a330", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"7777ac1c-ffd3-4ae3-a983-d5f2364ef68a", id:Utils.getUUID()},
+			// ]},
+			// {type:"folder", name:"couille", id:Utils.getUUID(), children:[
+			// 	{type:"trigger", triggerId:"97eb2565-6bc9-4087-88be-bab09863031d", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"c3533872-be70-4641-a2ef-37d7df7f1e33", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"6a9a7e1e-cf8a-4b2e-8e5b-a2c4820aa181", id:Utils.getUUID()},
+			// ]},
+			// {type:"folder", name:"clito", id:Utils.getUUID(), children:[
+			// 	{type:"trigger", triggerId:"a9da4629-368e-4d1c-ad97-970b08480ce5", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"38ab5a2a-1188-4583-be80-d1a24032b30e", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"9439261e-24e4-4dde-b223-34d23f1bf7ca", id:Utils.getUUID()},
+			// ]},
+			// {type:"folder", name:"urêtre", id:Utils.getUUID(), children:[
+			// 	{type:"trigger", triggerId:"dff04f5b-c516-41a2-a752-43a2944e57ca", id:Utils.getUUID()},
+			// 	{type:"trigger", triggerId:"bfae0999-b9b2-4b35-a1d2-4875636e8c0e", id:Utils.getUUID()},
+			// ]},
+			// {type:"folder", name:"anu", id:Utils.getUUID(), children:[
+			// 	{type:"trigger", triggerId:"0088ec43-9a54-4922-9b8d-6c5d58e0a021", id:Utils.getUUID()},
+			// ]},
+			// {type:"trigger", triggerId:"2ee5e246-10ed-4a1c-a82a-76c16955a76a", id:Utils.getUUID()},
+			// {type:"trigger", triggerId:"cb9051b9-f6d0-4306-8975-01289228fc92", id:Utils.getUUID()},
+		// ]
 	
 	private keyupHandler!:(e:KeyboardEvent) => void;
-
-	public get folderTriggerList():(TriggerListEntry|TriggerListFolderEntry)[] {
-		let list:TriggerListEntry[] = [];
-		for (let i = 0; i < this.triggerCategories.length; i++) {
-			const cat = this.triggerCategories[i];
-			list = list.concat(cat.triggerList);
-		}
-		if(this.triggerId != null) {
-			return list.filter(v=> v.type=='trigger' && v.trigger.id === this.triggerId);
-		}
-		function buildItem(items:foldergngn[]):(TriggerListEntry|TriggerListFolderEntry)[] {
-			const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
-			for (let i = 0; i < items.length; i++) {
-				const item = items[i];
-				if(item.type == "folder") {
-					const children = buildItem(item.children || []).filter(v=> v != undefined) as TriggerListFolderEntry["items"];//(item.children || []).map(v=> buildItem(v.children || [])).filter(v=> v != undefined) as TriggerListFolderEntry["items"];
-					res.push({type:"folder", label:item.name!, items:children});
-				}else{
-					const entry = list.find(v=> v.trigger.id == item.triggerId);
-					if(entry) res.push(entry);
-				}
-			}
-			return res;
-		}
-		// return buildItem(this.fakeFolders);
-		return list;
-	}
 
 	public get classes():string[] {
 		const res = ["triggerslist"];
@@ -224,7 +199,8 @@ export default class TriggerList extends Vue {
 
 		const categories:TriggerListCategoryEntry[] = [];
 		let triggerBuildIndex = 0;
-		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {}
+		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {};
+		let flatList:TriggerListEntry[] = [];
 		
 		for (let i = 0; i < triggerList.length; i++) {
 			const trigger = triggerList[i];
@@ -251,7 +227,8 @@ export default class TriggerList extends Vue {
 			const info = Utils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
-			const entry:TriggerListEntry = { type:"trigger", index:buildIndex, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
+			const entry:TriggerListEntry = { type:"trigger", index:buildIndex, label:info.label, id:trigger.id, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
+			flatList.push(entry);
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
 			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
@@ -260,11 +237,47 @@ export default class TriggerList extends Vue {
 			if(a.index > b.index) return 1;
 			if(a.index < b.index) return -1;
 			return 0
-		})
+		});
+		
+
+		if(this.triggerId != null) {
+			this.folderTriggerList = flatList.filter(v=> v.type=='trigger' && v.trigger.id === this.triggerId);
+		}else{
+			//Build folder structure
+			const idToHasFolder:{[key:string]:boolean} = {};
+			function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
+				const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
+				for (let i = 0; i < items.length; i++) {
+					const item = items[i];
+					if(item.type == "folder") {
+						const children = buildItem(item.children || []).filter(v=> v != undefined) as TriggerListFolderEntry["items"];//(item.children || []).map(v=> buildItem(v.children || [])).filter(v=> v != undefined) as TriggerListFolderEntry["items"];
+						res.push({type:"folder", id:item.id, label:item.name!, items:children});
+					}else{
+						const entry = flatList.find(v=> v.trigger.id == item.triggerId);
+						if(entry) {
+							idToHasFolder[entry.id] = true;
+							res.push(entry);
+						}
+					}
+				}
+				return res;
+			}
+			this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
+
+			flatList.forEach(v=>{
+				if(!idToHasFolder[v.id]) {
+					this.folderTriggerList.push(v);
+				}
+			})
+		}
 
 		this.startSequentialBuild();
 	}
 
+	/**
+	 * Delete a trigger
+	 * @param entry 
+	 */
 	public deleteTrigger(entry:TriggerListEntry):void {
 		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(()=>{
 			this.$store.triggers.deleteTrigger(entry.trigger.id);
@@ -272,11 +285,19 @@ export default class TriggerList extends Vue {
 		}).catch(error=>{});
 	}
 
+	/**
+	 * Duplicate a trigger
+	 * @param entry 
+	 */
 	public duplicateTrigger(entry:TriggerListEntry):void {
 		this.$store.triggers.duplicateTrigger(entry.trigger.id);
 		this.populateTriggers();
 	}
 
+	/**
+	 * Called when enabling/disabling a trigger
+	 * @param item 
+	 */
 	public onToggleTrigger(item:TriggerListEntry):void {
 		if(!this.$store.auth.isPremium
 		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
@@ -296,6 +317,26 @@ export default class TriggerList extends Vue {
 	}
 
 	/**
+	 * Called when sorting triggers
+	 * @param tree 
+	 */
+	public onUpdateList():void {
+		const tree:TriggerTreeItemData[] = [];
+		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
+			switch(root.type) {
+				case "folder":{
+					return {type:"folder", id:root.id, name: root.label, children:root.items.map(v=> buildItem(v))};
+				}
+				default:
+				case "trigger":{
+					return {type:"trigger", id:root.id, triggerId:root.id};
+				}
+			}
+		}
+		this.$store.triggers.updateTriggerTree(this.folderTriggerList.map(v => buildItem(v)));
+	}
+
+	/**
 	 * Show a debug field on CTRL+ALT+D
 	 * @param e 
 	 */
@@ -306,9 +347,20 @@ export default class TriggerList extends Vue {
 		}
 	}
 
+	/**
+	 * Create a new empty trigger folder
+	 */
+	public addFolder():void {
+		this.folderTriggerList.unshift({
+			type:"folder",
+			id:Utils.getUUID(),
+			items:[],
+			label:"",
+		})
+	}
+
 }
 
-type foldergngn = {type:"folder"|"trigger", name?:string, triggerId?:string, children?:foldergngn[]};
 type SortTypes = "list" | "category";
 
 interface TriggerListCategoryEntry {
@@ -320,6 +372,7 @@ interface TriggerListCategoryEntry {
 
 export interface TriggerListEntry {
 	type:"trigger";
+	id:string;
 	index:number;
 	label:string;
 	icon:string;
@@ -331,6 +384,7 @@ export interface TriggerListEntry {
 
 export interface TriggerListFolderEntry {
 	type:"folder";
+	id:string;
 	label:string;
 	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
@@ -365,6 +419,11 @@ export interface TriggerListFolderEntry {
 				flex-direction: column;
 				gap: 2px;
 			}
+		}
+
+		.addFolderBt {
+			margin: auto;
+			margin-bottom: .5em
 		}
 
 		.triggerId {

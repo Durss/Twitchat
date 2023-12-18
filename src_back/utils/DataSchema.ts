@@ -80,6 +80,22 @@ import Ajv from "ajv";
 				cooldown: {type:"integer", minimum:0, maximum:3600},
 			}
 		},
+		triggerTreeEntry: {
+			type:"array",
+			minItems:0,
+			maxItems:1000,
+			items: {
+				type: "object",
+				additionalProperties: false,
+				properties: {
+					type: {enum: ["folder","trigger"]},
+					id: {type:"string", maxLength:40},
+					triggerId: {type:"string", maxLength:40},
+					name: {type:"string", maxLength:100},
+					children: { $ref: "#/definitions/triggerTreeEntry" },
+				}
+			}
+		},
 	},
 
 	type:"object",
@@ -570,6 +586,7 @@ import Ajv from "ajv";
 				}
 			}
 		},
+		triggersTree: { $ref: "#/definitions/triggerTreeEntry" },
 		botMessages: {
 			type:"object",
 			additionalProperties: false,

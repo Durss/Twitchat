@@ -859,6 +859,12 @@ export const storeMain = defineStore("main", {
 				// sTriggers.triggerList = JSON.parse(triggers);
 				TriggerActionHandler.instance.populate(sTriggers.triggerList);
 			}
+
+			//Init triggers tree structure
+			const triggerTree = DataStore.get(DataStore.TRIGGERS_TREE);
+			if(triggerTree) {
+				Utils.mergeRemoteObject(JSON.parse(triggerTree), (sTriggers.triggerTree as unknown) as JsonObject);
+			}
 				
 			//Init stream info presets
 			const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);

@@ -21,6 +21,7 @@
 		"start": "Démarrer",
 		"search": "Chercher",
 		"close": "Fermer",
+		"empty": "vide",
 		"login_placeholder": "pseudo...",
 		"search_placeholder": "recherche...",
 		"select_placeholder": "sélectionner...",

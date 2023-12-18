@@ -87,6 +87,7 @@ export default class DataStore {
 	public static AD_BREAK_OVERLAY_PARAMS:string = "adBreakOverlayParams";
 	public static OVERLAY_DISTORTIONS:string = "overlayDistortions";
 	public static YOUTUBE_AUTH_TOKEN:string = "youtubeAuthToken";
+	public static TRIGGERS_TREE:string = "triggersTree";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -273,7 +274,7 @@ export default class DataStore {
 			v = 40;
 		}
 		if(v==40) {
-			this.enableHypeChatFilters(data);
+			//EDIT: hype chat removed, that migration about it is now useless
 			v = 41;
 		}
 		if(v==41) {
@@ -1292,18 +1293,6 @@ export default class DataStore {
 
 		if(!cols) return;
 		cols.forEach(v=>v.filters.user_watch_streak = true);
-		data[DataStore.CHAT_COLUMNS_CONF] = cols;
-
-	}
-
-	/**
-	 * Enable the "hype chat" notifications on all columns
-	 */
-	public static enableHypeChatFilters(data:any):void {
-		const cols:TwitchatDataTypes.ChatColumnsConfig[] = data[DataStore.CHAT_COLUMNS_CONF];
-
-		if(!cols) return;
-		cols.forEach(v=>v.filters.hype_chat = true);
 		data[DataStore.CHAT_COLUMNS_CONF] = cols;
 
 	}

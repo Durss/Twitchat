@@ -14,12 +14,12 @@
 				<div class="title">
 					<span class="default" v-if="!localTitle && titleDefault">{{ titleDefault }}</span>
 					<contenteditable class="label" tag="h2"
-					:contenteditable="true"
-					v-model="localTitle"
-					:no-nl="true"
-					:no-html="true"
-					@click.stop
-					@input="limitLabelSize()" />
+						:contenteditable="true"
+						v-model="localTitle"
+						:no-nl="true"
+						:no-html="true"
+						@click.stop
+						@input="limitLabelSize()" />
 				</div>
 				<Icon name="edit" />
 			</div>
@@ -189,12 +189,12 @@ export default class ToggleBlock extends Vue {
 			let caretIndex = range.startOffset;
 			await this.$nextTick();
 			//Limit label's size
-			// this.modelValue.name = this.modelValue.name.substring(0, 100);
-			// await this.$nextTick();
-			// //Reset caret to previous position
-			// if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.modelValue.name.length, caretIndex-1));
+			this.localTitle = this.localTitle.substring(0, 100);
+			await this.$nextTick();
+			//Reset caret to previous position
+			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.localTitle.length, caretIndex-1));
 		}else{
-			// this.modelValue.name = this.modelValue.name.substring(0, 100);
+			this.localTitle = this.localTitle.substring(0, 100);
 		}
 	}
 
@@ -220,7 +220,7 @@ export default class ToggleBlock extends Vue {
 
 	.header {
 		text-align: center;
-		padding: .5em;
+		padding: .25em .5em;
 		overflow: hidden;
 		cursor: pointer;
 		background-color: var(--toggle-block-header-background);

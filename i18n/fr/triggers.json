@@ -26,6 +26,7 @@
 		"triggers_list": "Vos triggers {COUNT}",
 		"triggers_list_raw": "Liste",
 		"triggers_list_cat": "Catégories",
+		"create_folder": "Créer un dossier",
 		"create_counterBt": "Créez des compteurs",
 		"trigger_queue": "File d'exécution",
 		"trigger_queue_info": "Pour vous assurer que des triggers s'exécutent les uns après les autres, associez-les à une même file d'exécution.",
@@ -36,6 +37,10 @@
 		"missing_reward_scope": "CHARGEMENT DE LA RECOMPENSE IMPOSSIBLE",
 		"random_placeholder": "Placeholder de valeur aléatoire {NAME}",
 		"premium_limit": "Vous avez créé le maximum de {MAX} triggers actifs. Devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} triggers. Ou désactivez / supprimez des triggers pour en créer de nouveaux.",
+		"delete_folder_confirm":{
+			"title":"Supprimer le dossier ?",
+			"desc":"Les triggers de ce dossier seront déplacé dans son parent."
+		},
 		"logs":{
 			"cmd_info":"Astuce: Consultez les logs d'exécution des triggers avec la commande {CMD}",
 			"title":"Logs de triggers",

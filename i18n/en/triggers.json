@@ -26,6 +26,7 @@
 		"triggers_list": "Your triggers {COUNT}",
 		"triggers_list_raw": "Raw list",
 		"triggers_list_cat": "Categories",
+		"create_folder": "Create folder",
 		"create_counterBt": "Create counters",
 		"trigger_queue":"Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
@@ -36,6 +37,10 @@
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
 		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
+		"delete_folder_confirm":{
+			"title":"Delete folder?",
+			"desc":"Triggers inside the folder will be moved to its parent."
+		},
 		"logs":{
 			"cmd_info":"Tip: Use {CMD} command to get execution logs",
 			"title":"Trigger logs",
