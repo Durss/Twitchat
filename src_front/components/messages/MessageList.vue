@@ -614,10 +614,6 @@ export default class MessageList extends Vue {
 				return this.config.filters.unban === true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
-				return this.config.filters.hype_chat === true;
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.PINNED:
 			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
 				return this.config.filters.pinned === true;
