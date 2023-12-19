@@ -2712,7 +2712,7 @@ export default class TwitchUtils {
 						result.push( {type:"text", value:code} );
 					}
 				}else if(platform == "twitch") {
-					result.push( {type:"emote", value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/4.0"} );
+					result.push( {type:"emote", value:code, emote:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/1.0", emoteHD:"https://static-cdn.jtvnw.net/emoticons/v2/"+e.id+"/default/light/3.0"} );
 				}else if(platform == "youtube") {
 					result.push( {type:"emote", value:code, emote:e.sd, emoteHD:e.hd} );
 				}

@@ -499,7 +499,9 @@ export default class EmoteSelector extends Vue {
 				}
 			}
 		}
-
+	}
+	input {
+		color:var(--color-text);
 	}
 }
 </style>

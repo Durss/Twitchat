@@ -858,8 +858,21 @@ export interface TriggerScheduleData {
 export interface TriggerTreeItemData{
 	type:"folder"|"trigger";
 	id:string;
+	/**
+	 * Folder's name
+	 */
 	name?:string;
+	/**
+	 * Trigger ID for a "trigger" type
+	 */
 	triggerId?:string;
+	/**
+	 * Set to false to disable triggers within this folder
+	 */
+	enabled?:boolean;
+	/**
+	 * Folder's children
+	 */
 	children?:TriggerTreeItemData[];
 }
 

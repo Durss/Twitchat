@@ -5,10 +5,10 @@
 	item-key="id"
 	tag="div"
 	v-model="localItems"
-	:preventOnFilter="true"
 	:invertSwap="true"
 	:swapThreshold="10"
 	:emptyInsertThreshold="0"
+	@sort="onChange"
 	@change="onChange">
 		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
 			<ToggleBlock class="folder" v-if="element.type == 'folder'"
@@ -23,12 +23,12 @@
 			@dragleave="onRollout('folder_'+element.id)">
 				<template #right_actions>
 					<div class="blockActions">
-						<!-- <ToggleButton class="triggerToggle" /> -->
+						<ToggleButton class="triggerToggle" v-model="element.enabled" />
 						<TTButton class="deleteBt" icon="trash" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>
 
-				<div class="childList">
+				<div :class="element.enabled === false? 'childList disabled' : 'childList'">
 					<TriggerListFolderItem
 						:class="!element.items || element.items.length == 0? 'emptyChildren' : ''"
 						v-model:items="element.items"
@@ -37,7 +37,7 @@
 						:noEdit="noEdit"
 						:debugMode="debugMode"
 						:triggerId="triggerId"
-						@change="$emit('change', $event)"
+						@change="onChange"
 						@changeState="$emit('changeState', element)"
 						@delete="$emit('delete', $event)"
 						@duplicate="$emit('duplicate', $event)"
@@ -131,7 +131,9 @@ export default class TriggerListFolderItem extends Vue {
 			clearTimeout(this.refToOpenTimeout[ref]);
 			this.refToOpenTimeout[ref] = setTimeout(()=> {
 				const block = this.$refs[ref] as ToggleBlock;
-				block.localOpen = true;
+				if(block) block.localOpen = true;
+				else console.warn("REF not found", ref);
+				
 			}, 500);
 		}
 	}
@@ -212,6 +214,14 @@ export default class TriggerListFolderItem extends Vue {
 		}
 		:deep(.sortable-ghost) {
 			background-color: var(--toggle-block-header-background-hover);
+		}
+		.triggerlistitem {
+			transition: opacity .5s;
+		}
+		&.disabled {
+			.triggerlistitem {
+				opacity: .5;
+			}
 		}
 	}
 	.blockActions {

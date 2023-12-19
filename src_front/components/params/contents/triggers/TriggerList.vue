@@ -1,9 +1,7 @@
 <template>
 	<div :class="classes">
-		<SwitchButton v-if="folderTriggerList && folderTriggerList.length > 0 && noEdit === false" class="filterSwitch" :label1="$t('triggers.triggers_list_raw')" :label2="$t('triggers.triggers_list_cat')" v-model="filterState" />
-		
-		<div class="list" v-show="filterState === false" v-if="renderedList">
-			<TTButton class="addFolderBt" icon="folder" v-if="!triggerId" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
+		<div class="list">
+			<TTButton class="addFolderBt" icon="folder" v-if="!triggerId && folderTriggerList.length > 0" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
 			<TriggerListFolderItem
 				v-model:items="folderTriggerList"
 				:rewards="rewards"
@@ -17,37 +15,13 @@
 				@testTrigger="$emit('testTrigger',$event)"
 				@select="$emit('select', $event)" />
 		</div>
-		
-		<div class="list category" v-show="filterState === true" v-if="noEdit === false && renderedCat">
-			<ToggleBlock class="category" medium
-			v-for="cat in triggerCategories" :key="'cat_'+cat.index"
-			:title="$t(cat.labelKey)" :icons="cat.icons">
-				<template  v-for="item in cat.triggerList">
-					<TriggerListItem
-						:noEdit="noEdit"
-						:entryData="item"
-						:key="'item_'+item.trigger.id"
-						:ref="'item_'+item.trigger.id"
-						v-if="buildIndex >= item.index"
-						@changeState="onToggleTrigger(item)"
-						@delete="deleteTrigger($event)"
-						@duplicate="duplicateTrigger($event)"
-						@test="$emit('testTrigger',$event)"
-						@select="$emit('select', $event)"
-					>
-						<span class="triggerId" v-if="debugMode" v-click2Select @click.stop="">{{ item.trigger.id }}</span>
-					</TriggerListItem>
-				</template>
-			</ToggleBlock>
-		</div>
+		<pre class="debug">{{ debug }}</pre>
 	</div>
 </template>
 
 <script lang="ts">
-import SwitchButton from '@/components/SwitchButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import DataStore from '@/store/DataStore';
 import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
@@ -64,7 +38,6 @@ import TTButton from '@/components/TTButton.vue';
 	components:{
 		TTButton,
 		ToggleBlock,
-		SwitchButton,
 		ToggleButton,
 		TriggerListItem,
 		TriggerListFolderItem,
@@ -83,10 +56,6 @@ export default class TriggerList extends Vue {
 	public triggerId!:string|null;
 
 	public debugMode:boolean = false;
-	public filterState:boolean = true;
-	public renderedList:boolean = true;
-	public renderedCat:boolean = true;
-	public triggerCategories:TriggerListCategoryEntry[] = [];
 	public triggerTypeToInfo:Partial<{[key in TriggerTypesValue]:TriggerTypeDefinition}> = {};
 	public buildIndex = 0;
 	public buildInterval = -1;
@@ -97,33 +66,6 @@ export default class TriggerList extends Vue {
 	 */
 	public buildBatchSize = 25;
 
-	// private fakeFolders:TriggerTreeItemData[] = [
-			// {type:"folder", name:"blublu", id:Utils.getUUID(), children:[
-			// 	{type:"trigger", triggerId:"768ea4b8-40d0-4ee1-9512-4e2959a1a330", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"7777ac1c-ffd3-4ae3-a983-d5f2364ef68a", id:Utils.getUUID()},
-			// ]},
-			// {type:"folder", name:"couille", id:Utils.getUUID(), children:[
-			// 	{type:"trigger", triggerId:"97eb2565-6bc9-4087-88be-bab09863031d", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"d91f5d69-8945-4e74-bc65-d2b65cb91fd2", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"c3533872-be70-4641-a2ef-37d7df7f1e33", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"6a9a7e1e-cf8a-4b2e-8e5b-a2c4820aa181", id:Utils.getUUID()},
-			// ]},
-			// {type:"folder", name:"clito", id:Utils.getUUID(), children:[
-			// 	{type:"trigger", triggerId:"a9da4629-368e-4d1c-ad97-970b08480ce5", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"38ab5a2a-1188-4583-be80-d1a24032b30e", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"9439261e-24e4-4dde-b223-34d23f1bf7ca", id:Utils.getUUID()},
-			// ]},
-			// {type:"folder", name:"urêtre", id:Utils.getUUID(), children:[
-			// 	{type:"trigger", triggerId:"dff04f5b-c516-41a2-a752-43a2944e57ca", id:Utils.getUUID()},
-			// 	{type:"trigger", triggerId:"bfae0999-b9b2-4b35-a1d2-4875636e8c0e", id:Utils.getUUID()},
-			// ]},
-			// {type:"folder", name:"anu", id:Utils.getUUID(), children:[
-			// 	{type:"trigger", triggerId:"0088ec43-9a54-4922-9b8d-6c5d58e0a021", id:Utils.getUUID()},
-			// ]},
-			// {type:"trigger", triggerId:"2ee5e246-10ed-4a1c-a82a-76c16955a76a", id:Utils.getUUID()},
-			// {type:"trigger", triggerId:"cb9051b9-f6d0-4306-8975-01289228fc92", id:Utils.getUUID()},
-		// ]
-	
 	private keyupHandler!:(e:KeyboardEvent) => void;
 
 	public get classes():string[] {
@@ -131,8 +73,25 @@ export default class TriggerList extends Vue {
 		return res;
 	}
 
+	public get debug():string {
+		function buildItem(items:(TriggerListEntry|TriggerListFolderEntry)[]):any[] {
+			const res:any[] = []
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.type == "folder") {
+					const children = buildItem(item.items || []);
+					res.push({label:item.label, items:children});
+				}else{
+					res.push(item.label);
+				}
+			}
+			return res;
+		}
+		const list = buildItem(this.folderTriggerList);
+		return JSON.stringify(list, null, 4);
+	}
+
 	public beforeMount():void {
-		this.filterState = this.noEdit === false && DataStore.get(DataStore.TRIGGER_SORT_TYPE) === "category";
 		this.populateTriggers();
 		let isFirstRewardUpdate = true;
 		watch(()=>this.rewards, ()=>{
@@ -143,11 +102,6 @@ export default class TriggerList extends Vue {
 			this.populateTriggers();
 		})
 
-		watch(()=>this.filterState, ()=> {
-			const sortType:SortTypes = this.filterState === true? "category" : "list";
-			DataStore.set(DataStore.TRIGGER_SORT_TYPE, sortType);
-		});
-		
 		this.startSequentialBuild();
 
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
@@ -160,31 +114,22 @@ export default class TriggerList extends Vue {
 	}
 
 	private startSequentialBuild():void {
-		this.buildIndex = 100000000;
-		// this.buildIndex = -1;
-		// clearInterval(this.buildInterval);
-		// this.buildInterval = setInterval(()=> {
-		// 	this.buildIndex ++;
-		// 	if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
-		// 		clearInterval(this.buildInterval);
-		// 	}
-		// }, 60);
+		this.buildIndex = -1;
+		clearInterval(this.buildInterval);
+		this.buildInterval = setInterval(()=> {
+			this.buildIndex ++;
+			if(this.buildIndex > Math.floor(this.folderTriggerList.length/this.buildBatchSize)) {
+				clearInterval(this.buildInterval);
+			}
+		}, 60);
 	}
 
 	/**
 	 * Populates the triggers list
 	 */
 	private populateTriggers():void {
-		if(!this.renderedList) {
-			this.renderedList = this.filterState === false;
-		}
-		if(!this.renderedCat) {
-			this.renderedCat = !this.renderedList;
-		}
-
 		//List all available trigger types
 		this.triggerTypeToInfo = {};
-		this.triggerCategories = [];
 		TriggerTypesDefinitionList().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
 		let triggerList = this.$store.triggers.triggerList;
@@ -195,34 +140,13 @@ export default class TriggerList extends Vue {
 			if(parseInt(a.type) < parseInt(b.type)) return -1;
 			return 0
 		});
-		// list = list.slice(0, 10);
 
-		const categories:TriggerListCategoryEntry[] = [];
 		let triggerBuildIndex = 0;
-		let idToCategory:{[key:string]:TriggerListCategoryEntry} = {};
 		let flatList:TriggerListEntry[] = [];
 		
 		for (let i = 0; i < triggerList.length; i++) {
 			const trigger = triggerList[i];
-			
-			//Create new category
-			const index = TriggerTypesDefinitionList().findIndex(v=> v.value == trigger.type);
-			
-			if(index == -1) continue
 
-			const triggerType = TriggerTypesDefinitionList()[index];
-			if(!idToCategory[triggerType.category.id]) {
-				let currentCategory = {
-					index:index,
-					icons: triggerType.category.icons,
-					labelKey: triggerType.category.labelKey,
-					triggerList: [],
-				};
-				categories.push(currentCategory);
-				this.triggerCategories.push(currentCategory);
-				idToCategory[triggerType.category.id] = currentCategory;
-			}
-			
 			//Parse trigger
 			const info = Utils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
@@ -230,31 +154,27 @@ export default class TriggerList extends Vue {
 			const entry:TriggerListEntry = { type:"trigger", index:buildIndex, label:info.label, id:trigger.id, trigger, icon:info.icon, iconURL:info.iconURL, canTest };
 			flatList.push(entry);
 			if(info.iconBgColor) entry.iconBgColor = info.iconBgColor;
-			idToCategory[triggerType.category.id].triggerList.push(entry);
 		}
-
-		this.triggerCategories.sort((a,b)=>{
-			if(a.index > b.index) return 1;
-			if(a.index < b.index) return -1;
-			return 0
-		});
-		
 
 		if(this.triggerId != null) {
 			this.folderTriggerList = flatList.filter(v=> v.type=='trigger' && v.trigger.id === this.triggerId);
 		}else{
 			//Build folder structure
 			const idToHasFolder:{[key:string]:boolean} = {};
+			const done:any = {};
 			function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
 				const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
 				for (let i = 0; i < items.length; i++) {
 					const item = items[i];
 					if(item.type == "folder") {
-						const children = buildItem(item.children || []).filter(v=> v != undefined) as TriggerListFolderEntry["items"];//(item.children || []).map(v=> buildItem(v.children || [])).filter(v=> v != undefined) as TriggerListFolderEntry["items"];
-						res.push({type:"folder", id:item.id, label:item.name!, items:children});
+						const children = buildItem(item.children || []);
+						res.push({type:"folder", id:item.id, label:item.name!, items:children, enabled:item.enabled !== false});
 					}else{
 						const entry = flatList.find(v=> v.trigger.id == item.triggerId);
-						if(entry) {
+						if(entry && !done[entry.id]) {
+							//Uncomment following line to filter out duplicate triggers.
+							//Used for debugging an issue where triggers get duplicated when taking them out of a folder
+							done[entry.id] = true;//TODO comment this later, just keeping it to fix potential duplicates on a beta user or 2
 							idToHasFolder[entry.id] = true;
 							res.push(entry);
 						}
@@ -264,11 +184,15 @@ export default class TriggerList extends Vue {
 			}
 			this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
 
+			//Push items not linked to any folder.
+			//After this execution, triggers will be registered on the tree structure.
+			//This is mostly here as a sort of migration step from old flat list structure
+			//to the new tree structure
 			flatList.forEach(v=>{
 				if(!idToHasFolder[v.id]) {
 					this.folderTriggerList.push(v);
 				}
-			})
+			});
 		}
 
 		this.startSequentialBuild();
@@ -321,7 +245,6 @@ export default class TriggerList extends Vue {
 	 * @param tree 
 	 */
 	public onUpdateList():void {
-		const tree:TriggerTreeItemData[] = [];
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
 			switch(root.type) {
 				case "folder":{
@@ -333,7 +256,8 @@ export default class TriggerList extends Vue {
 				}
 			}
 		}
-		this.$store.triggers.updateTriggerTree(this.folderTriggerList.map(v => buildItem(v)));
+		const tree = this.folderTriggerList.map(v => buildItem(v));
+		this.$store.triggers.updateTriggerTree(tree);
 	}
 
 	/**
@@ -356,18 +280,10 @@ export default class TriggerList extends Vue {
 			id:Utils.getUUID(),
 			items:[],
 			label:"",
+			enabled:true,
 		})
 	}
 
-}
-
-type SortTypes = "list" | "category";
-
-interface TriggerListCategoryEntry {
-	index:number;
-	labelKey:string;
-	icons:string[];
-	triggerList:TriggerListEntry[];
 }
 
 export interface TriggerListEntry {
@@ -386,6 +302,7 @@ export interface TriggerListFolderEntry {
 	type:"folder";
 	id:string;
 	label:string;
+	enabled:boolean;
 	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
 </script>
