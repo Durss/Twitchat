@@ -18,7 +18,7 @@
 			</template>
 		</i18n-t>
 
-		<ParamItem v-else class="searchForm" :paramData="param_search" @change="onSearch()" />
+		<ParamItem v-else-if="subtriggerList.length == 0" class="searchForm" :paramData="param_search" @change="onSearch()" />
 
 		<div class="card-item noResult" v-if="param_search.value && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 				
