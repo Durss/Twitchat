@@ -166,7 +166,6 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
-import contenteditable from 'vue-contenteditable';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../../../TTButton.vue';
@@ -184,7 +183,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		CloseButton,
 		ToggleBlock,
 		ToggleButton,
-		contenteditable,
 		PremiumLockLayer,
 		OverlayInstaller,
 	}

@@ -60,7 +60,6 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import contenteditable from 'vue-contenteditable';
 import { Component, Vue } from 'vue-facing-decorator';
 import CloseButton from '../CloseButton.vue';
 import Icon from '../Icon.vue';
@@ -77,7 +76,6 @@ import RewardListTransferForm from './RewardListTransferForm.vue';
 		CloseButton,
 		ToggleButton,
 		RewardListItem,
-		contenteditable,
 		RewardListEditForm,
 		RewardListTransferForm,
 	},

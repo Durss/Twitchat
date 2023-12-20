@@ -66,7 +66,6 @@ import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
 import OverlayInstaller from '../OverlayInstaller.vue';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import Icon from '@/components/Icon.vue';
-import contenteditable from 'vue-contenteditable';
 
 @Component({
 	components:{
@@ -75,7 +74,6 @@ import contenteditable from 'vue-contenteditable';
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
-		contenteditable,
 		PermissionsForm,
 		OverlayInstaller,
 		OBSSceneItemSelector,

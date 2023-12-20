@@ -520,6 +520,7 @@ export default class YoutubeHelper {
 			return true;
 		}else {
 			this._token = null;
+			DataStore.remove(DataStore.YOUTUBE_AUTH_TOKEN);
 			Logger.instance.log("youtube", {log:"An error occured when refreshing auth token", credits: this._creditsUsed, liveID:this._currentLiveId});
 			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
 		}

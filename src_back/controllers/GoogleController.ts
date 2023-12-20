@@ -201,7 +201,6 @@ export default class GoogleController extends AbstractController {
 			const res = await oauth2Client.refreshAccessToken();
 			token = res.credentials;
 		}catch(error) {
-			console.log(error);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send(JSON.stringify({success:false, error:"invalid credentials", errorCode:"INVALID_CREDENTIALS"}));
