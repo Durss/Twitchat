@@ -58,6 +58,11 @@ export const storeRaffle = defineStore('raffle', {
 					this.pickWinner(payload);
 					break;
 				}
+
+				case "values": {
+					this.pickWinner(payload);
+					break;
+				}
 			}
 		},
 
@@ -209,6 +214,7 @@ export const storeRaffle = defineStore('raffle', {
 			}
 			
 			const sUsers = StoreProxy.users;
+			//Compute entries scores for ponderation
 			const userList:{channel_id:string, user:TwitchatDataTypes.TwitchatUser, entry:TwitchatDataTypes.RaffleEntry}[] = [];
 			data.entries.forEach(v=> {
 				//Skip if it's not a user or if the score has already been computed
@@ -341,6 +347,43 @@ export const storeRaffle = defineStore('raffle', {
 						}
 					});
 					data.entries = items;
+				
+				//Pick from Value
+				}else if(data.mode == "values") {
+					const val = StoreProxy.values.valueList.find(v=>v.id == data.value_id);
+					if(!val) return;
+					if(val.perUser) {
+						const entries:TwitchatDataTypes.RaffleEntry[] = [];
+						const users = val.users || {};
+						const channel_id = StoreProxy.auth.twitch.user.id;
+						for (const key in users) {
+							entries.push({
+								id:Utils.getUUID(),
+								joinCount:1,
+								label:users[key],
+								score:1,
+								//FIXME Following won't work if joining from youtube chat.
+								//Sadly, for now I'm not storing the platform source of a per-user value (same for counters)
+								//so I can't track back the proper platofrm, hence, this hardcoded value 😬
+								user:{
+									id:key,
+									platform:"twitch",
+									channel_id,
+								}
+							})
+						}
+						data.entries = entries;
+					}else{
+						data.entries = val.value.split(new RegExp((val.value.split(/\r|\n/).length > 1? "\r|\n" : ","), ""))
+										.filter((v)=>v.length > 0).map(v=> {
+											return {
+												id:Utils.getUUID(),
+												joinCount:1,
+												label:v,
+												score:1,
+											}
+										});
+					}
 				}
 				
 				const list = [];

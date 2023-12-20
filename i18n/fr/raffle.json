@@ -23,6 +23,13 @@
 			"startBt_aria": "Lancer le tirage au sort",
 			"startBt": "Lancer {COUNT}"
 		},
+		"values": {
+			"title": "Valeurs",
+			"description": "Créer un tirage au sort depuis une {VALUE}.\nLa Valeur doit soit être une Valeur par utilisateur, soit contenir des entrées séparées par une virgule.",
+			"description_value": "Valeur",
+			"startBt_aria": "Lancer le tirage au sort",
+			"startBt": "Lancer {COUNT}"
+		},
 		"legal": {
 			"title": "Informations juridiques",
 			"contents": [
@@ -63,6 +70,7 @@
 			"ponderate_include_gifter": "Inclure les sub gifters (a offert des abonnements sans forcément être abonné·e)",
 			"ponderate_exclude_gifted": "Exclure les gens ayant reçu un sub",
 			"list_placeholder": "entrée 1, entrée 2, entrée 3, ...",
+			"value_placeholder": "Valeur source",
 			"username_placeholder": "Pseudo"
 		},
 		"state_title": "Tirage au sort",

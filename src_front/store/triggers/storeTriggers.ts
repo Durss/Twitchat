@@ -15,6 +15,7 @@ export const storeTriggers = defineStore('triggers', {
 		clipboard: [],
 		triggerTree: [],
 		currentEditTriggerData: null,
+		triggerIdToFolderEnabled: {},
 	} as ITriggersState),
 
 
@@ -221,7 +222,30 @@ export const storeTriggers = defineStore('triggers', {
 
 		updateTriggerTree(data:TriggerTreeItemData[]):void {
 			this.triggerTree = data;
+			this.computeTriggerTreeEnabledStates();
 			DataStore.set(DataStore.TRIGGERS_TREE, this.triggerTree);
+		},
+
+		computeTriggerTreeEnabledStates():void {
+			this.triggerIdToFolderEnabled = {};
+
+			/**
+			 * Defines if a a trigger is enabled depending on its parent folder/s
+			 * @param root 
+			 * @param enabled 
+			 */
+			const parseItem = (root:TriggerTreeItemData[], enabled:boolean = true) => {
+				root.forEach(v=> {
+					if(v.type == "trigger") {
+						this.triggerIdToFolderEnabled[v.triggerId!] = enabled;
+					}else
+					if(v.type == "folder") {
+						parseItem(v.children || [], enabled && v.enabled !== false);
+					}
+				})
+			}
+
+			parseItem(this.triggerTree);
 		}
 
 	} as ITriggersActions

@@ -636,9 +636,10 @@ export namespace TwitchatDataTypes {
 	 * Config for a raffle game
 	 */
 	export interface RaffleData {
-		mode:"chat"|"sub"|"manual";
+		mode:"chat"|"sub"|"manual"|"values";
 		command?:string;
 		reward_id?:string;
+		value_id?:string;
 		duration_s:number;
 		maxEntries:number;
 		multipleJoin:boolean;

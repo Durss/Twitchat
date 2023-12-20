@@ -747,11 +747,12 @@ export const storeChat = defineStore('chat', {
 			
 			//* Disabled as it may cost me a lot even if limited to premium members
 			//Live translation if first message of the day
-			if(isTodaysFirst && sAuth.isPremium
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			&& message.twitch_isFirstMessage
+			&& sAuth.isPremium
 			&& sParams.features.autoTranslateFirst.value === true
 			&& sParams.features.autoTranslateFirstLang.value
-			&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0
-			&& TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
+			&& (sParams.features.autoTranslateFirstLang.value as string[]).length > 0) {
 				const spokenLanguages = sParams.features.autoTranslateFirstSpoken.value as string[] || [];
 				const translatable = message as TwitchatDataTypes.TranslatableMessage;
 				const text = translatable.message_chunks?.filter(v=>v.type == 'text').map(v=>v.value).join("").trim() || "";

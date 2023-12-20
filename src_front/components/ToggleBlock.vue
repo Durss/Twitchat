@@ -1,6 +1,7 @@
 <template>
-	<div :class="classes">
+	<div :class="classes" :style="contentStyles">
 		<div class="header" @click.stop="toggle()">
+			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<slot name="left_actions"></slot>
 			
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
@@ -49,6 +50,8 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
+import type { StyleValue } from 'vue';
+import Utils from '@/utils/Utils';
 
 /**
  * To add actions on the right or left of the header
@@ -64,7 +67,7 @@ import contenteditable from 'vue-contenteditable';
 	components:{
 		contenteditable,
 	},
-	emits:["startDrag", "update:title"],
+	emits:["startDrag", "update:title", "update:open"],
 })
 export default class ToggleBlock extends Vue {
 
@@ -116,6 +119,9 @@ export default class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public editableTitle!:boolean;
 
+	@Prop({type:String, default: ""})
+	public customColor!:string;
+
 	public closing = false;
 	public localOpen = false;
 	public localTitle = "";
@@ -134,6 +140,29 @@ export default class ToggleBlock extends Vue {
 		return res;
 	}
 
+	public get bgStyles():StyleValue {
+		const res:StyleValue = {};
+		if(this.customColor) {
+			res.backgroundColor = this.customColor;
+		}
+		return res;
+	}
+
+	public get contentStyles():StyleValue {
+		const res:StyleValue = {};
+		if(this.customColor) {
+			// const hsl = Utils.rgb2hsl(parseInt(this.customColor.replace("#", ""), 16));
+			// const maxL = .4;
+			// if(hsl.l > maxL) {
+			// 	res.color = "#000000";
+			// }else{
+			// 	res.color = "#ffffff";
+			// }
+			res.backgroundColor = this.customColor+"20";
+		}
+		return res;
+	}
+
 	public get localIcons():string[] {
 		const icons = this.icons.concat();
 		if(this.error) icons.push("automod");
@@ -146,6 +175,10 @@ export default class ToggleBlock extends Vue {
 
 		watch(()=>this.localTitle, ()=>{
 			this.$emit("update:title", this.localTitle);
+		})
+
+		watch(()=>this.localOpen, ()=>{
+			this.$emit("update:open", this.localOpen);
 		})
 	}
 
@@ -233,6 +266,7 @@ export default class ToggleBlock extends Vue {
 		align-items: center;
 		transition: background-color .25s;
 		color: var(--color-text);
+		position: relative;
 		.title {
 			font-size: 1.2em;
 			flex-grow: 1;
@@ -250,6 +284,19 @@ export default class ToggleBlock extends Vue {
 		}
 		&:hover {
 			background-color: var(--toggle-block-header-background-hover);
+		}
+
+		.customBg {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			opacity: .3;
+			z-index: 0;
+		}
+		*:not(.customBg) {
+			z-index: 1;
 		}
 
 		.editableTitle {

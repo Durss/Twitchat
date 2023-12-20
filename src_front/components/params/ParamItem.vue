@@ -306,6 +306,7 @@ import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import Utils from '@/utils/Utils';
 import CountryFlag from 'vue-country-flag-next';
+import { isReactive, reactive } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly

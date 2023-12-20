@@ -15,7 +15,8 @@
 				@testTrigger="$emit('testTrigger',$event)"
 				@select="$emit('select', $event)" />
 		</div>
-		<pre class="debug">{{ debug }}</pre>
+		<!-- <pre class="debug">{{ debug }}</pre> -->
+		<pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre>
 	</div>
 </template>
 
@@ -33,6 +34,7 @@ import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 import TriggerListFolderItem from './TriggerListFolderItem.vue';
 import TTButton from '@/components/TTButton.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -168,13 +170,19 @@ export default class TriggerList extends Vue {
 					const item = items[i];
 					if(item.type == "folder") {
 						const children = buildItem(item.children || []);
-						res.push({type:"folder", id:item.id, label:item.name!, items:children, enabled:item.enabled !== false});
+						res.push({type:"folder",
+								id:item.id,
+								label:item.name!,
+								items:children,
+								color:{type:"color", value:item.color || "#60606c"},
+								expand:item.expand == true,
+								enabled:item.enabled !== false});
 					}else{
 						const entry = flatList.find(v=> v.trigger.id == item.triggerId);
 						if(entry && !done[entry.id]) {
 							//Uncomment following line to filter out duplicate triggers.
 							//Used for debugging an issue where triggers get duplicated when taking them out of a folder
-							done[entry.id] = true;//TODO comment this later, just keeping it to fix potential duplicates on a beta user or 2
+							// done[entry.id] = true;//TODO comment this later, just keeping it to fix potential duplicates on a beta user or 2
 							idToHasFolder[entry.id] = true;
 							res.push(entry);
 						}
@@ -241,14 +249,22 @@ export default class TriggerList extends Vue {
 	}
 
 	/**
-	 * Called when sorting triggers
+	 * Called when sorting triggers, creating a folder, renaming a folder, changing its color,...
+	 * Saves data to store
 	 * @param tree 
 	 */
 	public onUpdateList():void {
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
 			switch(root.type) {
 				case "folder":{
-					return {type:"folder", id:root.id, name: root.label, children:root.items.map(v=> buildItem(v))};
+					return {type:"folder",
+							id:root.id,
+							name:root.label,
+							expand:root.expand === true,
+							color:root.color.value,
+							enabled:root.enabled !== false,
+							children:root.items.map(v=> buildItem(v))
+						};
 				}
 				default:
 				case "trigger":{
@@ -281,6 +297,8 @@ export default class TriggerList extends Vue {
 			items:[],
 			label:"",
 			enabled:true,
+			expand:true,
+			color:{type:"color", value:"#60606c"},
 		})
 	}
 
@@ -303,6 +321,8 @@ export interface TriggerListFolderEntry {
 	id:string;
 	label:string;
 	enabled:boolean;
+	expand:boolean;
+	color:TwitchatDataTypes.ParameterData<string>;
 	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
 </script>

@@ -715,6 +715,15 @@ export default class TriggerActionHandler {
 			entries:[],
 		};
 
+		const sTriggers = StoreProxy.triggers;
+		//Check if trigger is within a disabled folder, stop there if so
+		if(sTriggers.triggerIdToFolderEnabled[trigger.id] === false) {
+			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is within a disabled folder. Ignore it."});
+			log.error = true;
+			Logger.instance.log("triggers", log);
+			return;
+		}
+
 		const isPremium = StoreProxy.auth.isPremium;
 
 		//Avoid polluting trigger execution history for Twitchat internal triggers
@@ -1340,7 +1349,7 @@ export default class TriggerActionHandler {
 				//Handle sub trigger action
 				if(step.type == "trigger") {
 					if(step.triggerId) {
-						const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == step.triggerId);
+						const trigger = sTriggers.triggerList.find(v=>v.id == step.triggerId);
 						if(trigger) {
 							if(trigger.enabled) {
 								// console.log("Exect sub trigger", step.triggerKey);
@@ -1364,11 +1373,11 @@ export default class TriggerActionHandler {
 				//Handle sub trigger toggle action
 				if(step.type == "triggerToggle") {
 					if(step.triggerId) {
-						const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == step.triggerId);
+						const trigger = sTriggers.triggerList.find(v=>v.id == step.triggerId);
 						if(trigger) {
 							if((step.action == "enable" || (step.action == "toggle" && !trigger.enabled))
 							&& !isPremium
-							&& StoreProxy.triggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
+							&& sTriggers.triggerList.filter(v=>v.enabled !== false).length >= Config.instance.MAX_TRIGGERS) {
 								logStep.messages.push({date:Date.now(), value:step.action + "❌ Cannot enable trigger \""+step.triggerId+"\". Premium limit reached."});
 								log.error = true;
 								logStep.error = true;
@@ -1671,7 +1680,7 @@ export default class TriggerActionHandler {
 					
 					}else if(step.mode == "trigger") {
 						//Pick an item from a custom list
-						const triggerList = StoreProxy.triggers.triggerList;
+						const triggerList = sTriggers.triggerList;
 						const hashmap:{[key:string]:TriggerData} = {};
 						triggerList.forEach(t => hashmap[t.id] = t);
 
@@ -1686,7 +1695,7 @@ export default class TriggerActionHandler {
 							//Pick a random trigger
 							const triggerId = Utils.pickRand(triggers);
 							if(triggerId) {
-								const trigger = StoreProxy.triggers.triggerList.find(v=>v.id == triggerId);
+								const trigger = sTriggers.triggerList.find(v=>v.id == triggerId);
 								if(trigger) {
 									// console.log("Exec sub trigger", step.triggerKey);
 									logStep.messages.push({date:Date.now(), value:"Call random trigger \""+triggerId+"\""});

@@ -12,18 +12,26 @@
 	@change="onChange">
 		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
 			<ToggleBlock class="folder" v-if="element.type == 'folder'"
-			editableTitle medium
+			medium
+			editableTitle
 			v-model:title="element.label"
+			v-model:open="element.expand"
+			:customColor="element.color.value"
 			:ref="'folder_'+element.id"
-			:open="false"
 			:icons="['folder']"
 			:titleDefault="'folder'"
+			@update:open="$emit('change', $event)"
 			@update:title="$emit('change', $event)"
 			@dragover="onRollover('folder_'+element.id)"
 			@dragleave="onRollout('folder_'+element.id)">
+				<template #left_actions>
+					<div class="blockActions">
+						<ParamItem class="colorSelector" @click.stop :paramData="element.color" v-model="element.color.value" @change="$emit('change', $event)" />
+					</div>
+				</template>
 				<template #right_actions>
 					<div class="blockActions">
-						<ToggleButton class="triggerToggle" v-model="element.enabled" />
+						<ToggleButton class="triggerToggle" v-model="element.enabled" @change="$emit('change', $event)" />
 						<TTButton class="deleteBt" icon="trash" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>
@@ -65,21 +73,23 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import TriggerListItem from './TriggerListItem.vue';
-import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import { watch, type StyleValue } from 'vue';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
-import { watch } from 'vue';
-import TTButton from '@/components/TTButton.vue';
+import ParamItem from '../../ParamItem.vue';
+import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
+import TriggerListItem from './TriggerListItem.vue';
 
 @Component({
 	name:"TriggerListFolderItem",
 	components:{
 		TTButton,
 		draggable,
+		ParamItem,
 		ToggleBlock,
 		ToggleButton,
 		TriggerListItem,
@@ -194,6 +204,20 @@ export default class TriggerListFolderItem extends Vue {
 
 	.triggerToggle {
 		align-self: center;
+	}
+
+	.colorSelector {
+		padding: 0;
+		height: 100%;
+		width: 1em;
+		margin-left: -.5em;
+		:deep(.content) {
+			height: 100%;
+			.holder, .inputHolder {
+				align-self: stretch;
+				height: 100%;
+			}
+		}
 	}
 
 	.childList {

@@ -864,6 +864,7 @@ export const storeMain = defineStore("main", {
 			const triggerTree = DataStore.get(DataStore.TRIGGERS_TREE);
 			if(triggerTree) {
 				Utils.mergeRemoteObject(JSON.parse(triggerTree), (sTriggers.triggerTree as unknown) as JsonObject);
+				sTriggers.computeTriggerTreeEnabledStates();
 			}
 				
 			//Init stream info presets

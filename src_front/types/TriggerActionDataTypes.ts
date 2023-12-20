@@ -871,6 +871,14 @@ export interface TriggerTreeItemData{
 	 */
 	enabled?:boolean;
 	/**
+	 * Is the folder expanded?
+	 */
+	expand?:boolean;
+	/**
+	 * Custom folder color
+	 */
+	color?:string;
+	/**
 	 * Folder's children
 	 */
 	children?:TriggerTreeItemData[];

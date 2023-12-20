@@ -92,7 +92,10 @@ import Ajv from "ajv";
 					id: {type:"string", maxLength:40},
 					triggerId: {type:"string", maxLength:40},
 					name: {type:"string", maxLength:100},
+					color: {type:"string", maxLength:10},
 					children: { $ref: "#/definitions/triggerTreeEntry" },
+					expand: {type:"boolean"},
+					enabled: {type:"boolean"},
 				}
 			}
 		},
@@ -401,6 +404,7 @@ import Ajv from "ajv";
 										mode: {type:"string", maxLength:20},
 										command: {type:"string", maxLength:100},
 										reward_id: {type:"string", maxLength:200},
+										value_id: {type:"string", maxLength:200},
 										multipleJoin: {type:"boolean"},
 										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
 										maxEntries: {type:"integer", minimum:0, maximum:1000000},

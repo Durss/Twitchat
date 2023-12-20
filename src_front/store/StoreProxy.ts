@@ -1230,6 +1230,14 @@ export interface ITriggersState {
 	 * contains all the triggers defintions
 	 */
 	triggerTree: TriggerTreeItemData[];
+	/**
+	 * Indicates weither a trigger ID is enabled or not.
+	 * This is different from the "trigger.enabled" prop.
+	 * This value depends on the parent folder's state.
+	 * If any folder parent of the trigger is disabled,
+	 * this value will be set to false
+	 */
+	triggerIdToFolderEnabled:{[key:string]:boolean}
 }
 
 export interface ITriggersGetters {
@@ -1313,6 +1321,13 @@ export interface ITriggersActions {
 	 * @param data 
 	 */
 	updateTriggerTree(data:TriggerTreeItemData[]):void;
+	/**
+	 * Computes the enabled tates for every triggers based on
+	 * the folder structure.
+	 * If the trigger is within a folder that is disabled, the
+	 * trigger will be flagged as disabled
+	 */
+	computeTriggerTreeEnabledStates():void;
 }
 
 
