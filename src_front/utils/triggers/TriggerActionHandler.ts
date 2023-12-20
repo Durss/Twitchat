@@ -721,7 +721,7 @@ export default class TriggerActionHandler {
 			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is within a disabled folder. Ignore it."});
 			log.error = true;
 			Logger.instance.log("triggers", log);
-			return;
+			return false;
 		}
 
 		const isPremium = StoreProxy.auth.isPremium;
