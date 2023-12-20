@@ -16,7 +16,7 @@
 				@select="$emit('select', $event)" />
 		</div>
 		<!-- <pre class="debug">{{ debug }}</pre> -->
-		<pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre>
+		<!-- <pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre> -->
 	</div>
 </template>
 

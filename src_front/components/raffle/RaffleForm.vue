@@ -120,7 +120,7 @@
 				<Button type="submit"
 				v-if="triggerMode === false"
 				:aria-label="$t('raffle.list.startBt_aria')"
-				:disabled="customEntriesCount == 0"
+				:disabled="valueCount == 0"
 				icon="list">
 					<i18n-t scope="global" keypath="raffle.values.startBt">
 						<template #COUNT>
@@ -369,6 +369,7 @@ export default class RaffleForm extends AbstractSidePanel {
 				this.param_subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
 				this.param_showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
 				this.param_customEntries.value = this.action.raffleData.customEntries;
+				this.param_values.value = this.action.raffleData.value_id || "";
 			}
 
 			this.param_customEntries.placeholderList = TriggerEventPlaceholders(this.triggerData.type);

@@ -14,9 +14,9 @@
 			<ParamItem :paramData="param_coolDown_maxPerStream" v-model="localValue.max_per_stream" noBackground class="child"></ParamItem>
 			<ParamItem :paramData="param_coolDown_maxPerUser" v-model="localValue.max_per_user_per_stream" noBackground class="child"></ParamItem>
 		</ParamItem>
-		<div class="cta">
+		<div class="cta" v-if="triggerMode === false">
 			<TTButton type="submit" primary :loading="saving" v-if="!modelValue && !reward" icon="add">{{ $t("global.create") }}</TTButton>
-			<TTButton type="submit" primary :loading="saving" v-else-if="triggerMode === false" icon="save">{{ $t("global.save") }}</TTButton>
+			<TTButton type="submit" primary :loading="saving" v-else icon="save">{{ $t("global.save") }}</TTButton>
 			<div class="card-item alert" v-if="error">{{ error }}</div>
 		</div>
 	</form>
