@@ -37,6 +37,8 @@
 
 		<template v-else>
 			<div class="rewards scrollable">
+				<TTButton class="refreshBt" icon="refresh" transparent @click="loadRewards(true)" v-tooltip="$t('global.refresh')" />
+
 				<div class="list">
 					<div class="head"><h1>{{ $t("rewards.manage.title") }}</h1></div>
 					<button @click="createReward = true" class="createRewardBt"><Icon name="add" /></button>
@@ -134,7 +136,7 @@ export default class RewardsList extends Vue {
 		TwitchUtils.requestScopes([TwitchScopes.LIST_REWARDS,TwitchScopes.MANAGE_REWARDS]);
 	}
 
-	private async loadRewards(forceReload:boolean = false):Promise<void> {
+	public async loadRewards(forceReload:boolean = false):Promise<void> {
 		this.loading = true;
 		try {
 			this.nonManageableRewards = await TwitchUtils.getRewards(forceReload);
@@ -193,6 +195,7 @@ export default class RewardsList extends Vue {
 <style scoped lang="less">
 .rewardslist{
 	color: var(--color-text);
+	padding: 0;
 
 	.scrollable {
 		height: 400px;
@@ -250,6 +253,14 @@ export default class RewardsList extends Vue {
 						transform: scale(1.5);
 					}
 				}
+			}
+			.refreshBt {
+				position: absolute;
+				top: 0;
+				right: 0;
+				z-index: 2;
+				padding: .75em;
+				padding-right: 1em;
 			}
 		}
 

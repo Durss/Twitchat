@@ -155,6 +155,7 @@ export default class TriggerActionHandler {
 			
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				const id = message.reward.id;
+				await this.executeTriggersByType(TriggerTypes.REWARD_REDEEM, message, testMode, "*", undefined, forcedTriggerId)
 				if(await this.executeTriggersByType(TriggerTypes.REWARD_REDEEM, message, testMode, id, undefined, forcedTriggerId)) {
 					return;
 				}break;

@@ -18,7 +18,7 @@
 			</template>
 		</i18n-t>
 
-		<ParamItem class="searchForm" :paramData="param_search" @change="onSearch()" />
+		<ParamItem v-else class="searchForm" :paramData="param_search" @change="onSearch()" />
 
 		<div class="card-item noResult" v-if="param_search.value && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 				
@@ -355,7 +355,7 @@ export default class TriggerCreateForm extends Vue {
 						value:v.id,
 						background:v.background_color,
 						labelSmall:v.cost > 0? v.cost+"pts" : "",
-						icon:v.image?.url_2x ?? ""
+						icon:v.image?.url_2x ?? this.$image("icons/channelPoints.svg"),
 					};
 				});
 				this.subtriggerList = list;
@@ -801,7 +801,8 @@ interface TriggerCategory{
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
 			color: var(--color-light);
-			background-color: var(--color-primary);
+			// background-color: var(--color-primary);
+			background-color: var(--color-button);
 			border-radius: var(--border-radius);
 			padding: 0 .5em;
 			display: flex;
@@ -845,7 +846,8 @@ interface TriggerCategory{
 				}
 			}
 			&:not(div):hover {
-				background-color: var(--color-primary-light);
+				// background-color: var(--color-primary-light);
+				background-color: var(--color-button-light);
 			}
 		}
 

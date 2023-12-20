@@ -1,23 +1,25 @@
 <template>
 	<div class="rewardlisttransferform">
 		<ul class="steps">
-			<li class="card-item" v-for="label, index in $tm('rewards.manage.transfer_steps')">
-				<span class="index">{{ index+1 }}</span>
-				<i18n-t class="details" scope="global" tag="div" :keypath="'rewards.manage.transfer_steps['+index+']'">
-					<template #DASHBOARD>
-						<TTButton type="link"
-						href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards"
-						target="_blank"
-						icon="newtab">{{ $t("rewards.manage.transfer_step_dashboardBt") }}</TTButton>
-					</template>
-					<template #REWARD><mark>{{ reward.title }}</mark></template>
-					<template #RECREATE>
-						<TTButton :loading="tranfering" @click="executeTransfer()">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
-						<div class="card-item alert error" @click="error = ''" v-if="error">{{ error }}</div>
-					</template>
-				</i18n-t>
-			</li>
-			<li class="card-item icons">
+			<template v-for="label, index in $tm('rewards.manage.transfer_steps')">
+				<li class="card-item" v-if="index < 3 || reward.image">
+					<span class="index">{{ index+1 }}</span>
+					<i18n-t class="details" scope="global" tag="div" :keypath="'rewards.manage.transfer_steps['+index+']'">
+						<template #DASHBOARD>
+							<TTButton type="link"
+							href="https://dashboard.twitch.tv/viewer-rewards/channel-points/rewards"
+							target="_blank"
+							icon="newtab">{{ $t("rewards.manage.transfer_step_dashboardBt") }}</TTButton>
+						</template>
+						<template #REWARD><mark>{{ reward.title }}</mark></template>
+						<template #RECREATE>
+							<TTButton :loading="tranfering" @click="executeTransfer()" icon="channelPoints">{{ $t("rewards.manage.transfer_step_recreateBt") }}</TTButton>
+							<div class="card-item alert error" @click="error = ''" v-if="error">{{ error }}</div>
+						</template>
+					</i18n-t>
+				</li>
+			</template>
+			<li class="card-item icons" v-if="reward.image">
 				<a v-if="reward.image?.url_1x"
 				:href="reward.image.url_1x" target="_blank" download="28px.png" v-tooltip="$t('rewards.manage.download_icon_tt')">
 					<img :src="reward.image.url_1x">
@@ -82,7 +84,7 @@ export default class RewardListTransferForm extends Vue {
 		if(typeof res == "string") {
 			this.error = res;
 		}else if(res === false) {
-			this.error = this.$t("error.rewards.unknown");
+			this.error = this.$t("error.rewards.create_unknown");
 		}else{
 			this.$emit("complete");
 		}
@@ -99,6 +101,10 @@ export default class RewardListTransferForm extends Vue {
 		height: 1em;
 		vertical-align: bottom;
 		margin-left: .25em;
+	}
+
+	.button {
+		flex-wrap: nowrap;
 	}
 
 	.steps {

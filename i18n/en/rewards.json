@@ -20,7 +20,7 @@
 				"Set icons back to the new reward"
 			],
 			"transfer_step_dashboardBt":"Open Twitch dashboard",
-			"transfer_step_recreateBt":"Recreate reward",
+			"transfer_step_recreateBt":"Click to recreate reward",
 			"download_icon_tt":"Download",
 			"param_cost":"Cost",
 			"param_title":"Title",

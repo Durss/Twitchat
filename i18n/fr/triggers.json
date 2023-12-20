@@ -62,7 +62,8 @@
 		},
 		"rewards": {
 			"require": "Ces événéments nécessitent de {URL}",
-			"require_url": "lister vos récompenses de point de chaîne"
+			"require_url": "lister vos récompenses de point de chaîne",
+			"all_rewards": "Toutes les récompenses"
 		},
 		"schedule": {
 			"conflict": "Une action programmée du même nom existe déjà",

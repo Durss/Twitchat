@@ -1,7 +1,9 @@
 import rewardImg from '@/assets/icons/reward_highlight.svg';
+import channelPointsImg from '@/assets/icons/channelPoints.svg';
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { reactive } from "vue";
+import StoreProxy from '@/store/StoreProxy';
 
 /**
  * Created by Durss
@@ -257,6 +259,50 @@ export default class Config {
 			title: "Highlight my message",
 			prompt: "",
 			is_user_input_required: true,
+			max_per_stream_setting: {
+				is_enabled: false,
+				max_per_stream: 0,
+			},
+			max_per_user_per_stream_setting: {
+				is_enabled: false,
+				max_per_user_per_stream: 0,
+			},
+			global_cooldown_setting: {
+				is_enabled: false,
+				global_cooldown_seconds: 0,
+			},
+			is_paused: false,
+			is_in_stock: true,
+			default_image: {
+				url_1x:channelPointsImg,
+				url_2x:channelPointsImg,
+				url_4x:channelPointsImg,
+			},
+			should_redemptions_skip_request_queue: false,
+		}
+	}
+	
+	/**
+	 * Fake Twitch "highlight my message" reward
+	 */
+	public get allRewards():TwitchDataTypes.Reward {
+		const img = channelPointsImg;
+		return {
+			broadcaster_name: "Durss",
+			broadcaster_login: "durss",
+			broadcaster_id: "29961813",
+			id: "*",
+			image:{
+				url_1x:img,
+				url_2x:img,
+				url_4x:img,
+			},
+			background_color: "#9147ff",
+			is_enabled: true,
+			cost: -1,
+			title: StoreProxy.i18n.t("triggers.rewards.all_rewards"),
+			prompt: "",
+			is_user_input_required: false,
 			max_per_stream_setting: {
 				is_enabled: false,
 				max_per_stream: 0,

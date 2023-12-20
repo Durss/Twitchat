@@ -37,7 +37,10 @@ export const storeRewards = defineStore('rewards', {
 			}
 
 			//Push "Highlight my message" reward as it's not given by the API...
-			this.rewardList.push(Config.instance.highlightMyMessageReward)
+			this.rewardList.push(Config.instance.highlightMyMessageReward);
+			
+			//Push "All rewards" item for triggers. This needs to be filtered out where unnecessary
+			this.rewardList.push(Config.instance.allRewards);
 
 			//Sort by cost and name
 			this.rewardList = this.rewardList.sort((a,b)=> {
