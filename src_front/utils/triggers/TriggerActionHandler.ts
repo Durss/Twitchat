@@ -1545,13 +1545,13 @@ export default class TriggerActionHandler {
 								}else{
 									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
-										StoreProxy.counters.increment(c.id, step.action, value, user);
+										const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
 										let logMessage = "";
 										if(step.action == "ADD") logMessage = "Add "+value+" ("+text+") to \""+c.name+"\"";
 										if(step.action == "DEL") logMessage = "Substract "+value+" ("+text+") from \""+c.name+"\"";
 										if(step.action == "SET") logMessage = "Set \""+c.name+"\" value to "+value+" ("+text+")";
 										if(user) logMessage += " (for @"+user.displayNameOriginal+")";
-										logMessage += ". New value is "+c.value;
+										logMessage += ". New value is "+newValue;
 										logStep.messages.push({date:Date.now(), value:logMessage});
 									}else{
 										let reason = "";

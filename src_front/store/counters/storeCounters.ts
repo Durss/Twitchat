@@ -144,14 +144,14 @@ export const storeCounters = defineStore('counters', {
 			rebuildPlaceholdersCache();
 		},
 
-		increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
+		increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):number {
 			const c = this.counterList.find(v=>v.id == id);
-			if(!c) return;
+			if(!c) return 0;
 			let counterValue = c.value;
 			if(c.perUser) {
 				if(!c.users) c.users = {};
 				if(user) {
-					if(user.temporary || user.errored) return;
+					if(user.temporary || user.errored) return 0;
 					counterValue = c.users[user.id] || 0;
 				}else if(userId) {
 					counterValue = c.users[userId] || 0;
@@ -233,6 +233,7 @@ export const storeCounters = defineStore('counters', {
 			if(canReloop) {
 				this.increment(id, action, 0, user, userId);
 			}
+			return counterValue;
 		},
 
 		saveCounters():void {

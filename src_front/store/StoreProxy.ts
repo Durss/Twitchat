@@ -1790,8 +1790,10 @@ export interface ICountersActions {
 	 * @param value 
 	 * @param user 
 	 * @param userId 
+	 * 
+	 * @returns new value
 	 */
-	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
+	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):number;
 	/**
 	 * Saves counters to server
 	 */
