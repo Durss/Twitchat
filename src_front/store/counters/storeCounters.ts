@@ -159,7 +159,7 @@ export const storeCounters = defineStore('counters', {
 			}
 
 			switch(action) {
-				case "DEL": counterValue -= value; break;
+				case "DEL": counterValue -= value; value = -value; break;
 				case "SET": counterValue = value; break;
 				case "ADD":
 				default: counterValue += value; break;
@@ -219,7 +219,7 @@ export const storeCounters = defineStore('counters', {
 					mined,
 					user,
 				};
-	
+				
 				StoreProxy.chat.addMessage(message);
 			}
 			
