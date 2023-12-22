@@ -1,5 +1,5 @@
 <template>
-	<div class="greetThem" v-show="localMessages.length > 0" :style="styles">
+	<div class="greetThem" v-show="messages.length > 0" :style="styles">
 		<div class="header">
 			<div class="title" @click="toggleList()">
 				<ButtonNotification class="scrollBt clearButton"
@@ -8,7 +8,7 @@
 					v-tooltip="$t(scrollDownAuto? 'greet.auto_scroll_down' : 'greet.auto_scroll_up')"
 					@click.stop="toggleScroll()" />
 	
-				<h1>{{ $t("greet.title") }} <span class="count">({{localMessages.length}})</span></h1>
+				<h1>{{ $t("greet.title") }} <span class="count">({{messages.length}})</span></h1>
 	
 				<ButtonNotification class="clearBt clearButton"
 					icon="checkmark"
@@ -32,8 +32,8 @@
 			</div>
 		</div>
 		
-		<div class="messageList" v-if="showList" ref="messageList">
-			<template v-for="(m,index) in localMessages" :key="m.id">
+		<div class="messageList" v-if="showList" ref="messagesFiltered">
+			<template v-for="(m,index) in messagesFiltered" :key="m.id">
 				<MessageItem class="message"
 					ref="message"
 					:messageData="m"
@@ -46,6 +46,7 @@
 					@click.right.prevent="deleteMessage(m, index, true)"
 				/>
 			</template>
+			<div class="more" v-if="messages.length > messagesFiltered.length">+{{ messages.length - messagesFiltered.length }}</div>
 		</div>
 		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
 	</div>
@@ -56,14 +57,13 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Config from '@/utils/Config';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
 import { Component, Vue } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
 import MessageItem from '../messages/MessageItem.vue';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -79,8 +79,9 @@ export default class NewUsers extends Vue {
 	public indexOffset = 0;
 	public deleteInterval = -1;
 	public windowHeight = .3;
-	public localMessages:(TwitchatDataTypes.GreetableMessage)[] = [];
-
+	public messages:TwitchatDataTypes.GreetableMessage[] = [];
+	
+	private maxItems = 50;
 	private disposed = false;
 	private resizing = false;
 	private streakMode = true;
@@ -92,6 +93,10 @@ export default class NewUsers extends Vue {
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
 	private deleteMessageHandler!:(e:GlobalEvent)=> void;
 	private addMessageHandler!:(e:GlobalEvent)=> void;
+
+	public get messagesFiltered():TwitchatDataTypes.GreetableMessage[] {
+		return this.messages.concat().splice(0,this.maxItems);
+	}
 
 	public get styles():{[key:string]:string} {
 		if(!this.showList) return {"min-height":"unset"};
@@ -138,10 +143,10 @@ export default class NewUsers extends Vue {
 			if(delay == -1) return;
 
 			const clearTimeoffset = Date.now() - delay * 1000;
-			for (let i = 0; i < this.localMessages.length; i++) {
-				const m = this.localMessages[i];
+			for (let i = 0; i < this.messages.length; i++) {
+				const m = this.messages[i];
 				if(m.date < clearTimeoffset) {
-					this.localMessages.splice(i, 1);
+					this.messages.splice(i, 1);
 					i--;
 				}
 			}
@@ -151,8 +156,8 @@ export default class NewUsers extends Vue {
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
 		// if(!Config.instance.IS_PROD) {
-			// const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-			// this.localMessages = this.localMessages.concat(history).splice(0,50);
+		// 	const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+		// 	this.messages = this.messages.concat(history).splice(0,50);
 		// }
 
 		// watch(()=>this.localMessages, (v)=>{
@@ -204,11 +209,7 @@ export default class NewUsers extends Vue {
 		const m = (event.data as TwitchatDataTypes.GreetableMessage);
 		if(!m.todayFirst) return;
 		
-		const maxLength = 100;
-		this.localMessages.push(m);
-		if(this.localMessages.length >= maxLength) {
-			this.localMessages = this.localMessages.slice(-maxLength);
-		}
+		this.messages.push(m);
 		await this.$nextTick();
 		this.scrollTo();
 	}
@@ -220,10 +221,10 @@ export default class NewUsers extends Vue {
 		const data = e.data as {message:TwitchatDataTypes.GreetableMessage, force:boolean};
 		
 		//remove from displayed messages
-		for (let i = this.localMessages.length-1; i >= 0; i--) {
-			const m = this.localMessages[i];
+		for (let i = this.messages.length-1; i >= 0; i--) {
+			const m = this.messages[i];
 			if(m.id == data.message.id) {
-				this.localMessages.splice(i, 1);
+				this.messages.splice(i, 1);
 				break;
 			}
 		}
@@ -245,14 +246,14 @@ export default class NewUsers extends Vue {
 				break;
 			}
 			case TwitchatEvent.GREET_FEED_READ_ALL: {
-				readCount = this.localMessages.length
+				readCount = this.messages.length
 				break;
 			}
 		}
 		
 		for (let i = 0; i < readCount; i++) {
-			if(this.localMessages.length === 0) break;
-			this.localMessages.splice(0, 1);
+			if(this.messages.length === 0) break;
+			this.messages.splice(0, 1);
 		}
 	}
 
@@ -264,11 +265,11 @@ export default class NewUsers extends Vue {
 		if(!this.streakMode || singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index];
 			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);
-			this.localMessages.splice(index, 1);
+			this.messages.splice(index, 1);
 		}else{
 			this.indexOffset = 0;
 			this.overIndex = -1;
-			let messages = this.localMessages;
+			let messages = this.messages;
 			let index = messages.findIndex(v => v.id == m.id);
 			for (let i = 0; i < index+1; i++) {
 				messages.splice(0, 1);
@@ -280,7 +281,7 @@ export default class NewUsers extends Vue {
 	 * Removes all messages
 	 */
 	public clearAll():void {
-		this.localMessages = [];
+		this.messages = [];
 	}
 
 	/**
@@ -302,7 +303,7 @@ export default class NewUsers extends Vue {
 		let items = this.$refs.message as Vue[];
 		if(this.streakMode) {
 			for (let i = 0; i <= index; i++) {
-				const item = this.localMessages[i];
+				const item = this.messages[i];
 				if(!item) continue;
 				if(!this.highlightState[item.id]) {
 					this.highlightState[item.id] = true;
@@ -318,7 +319,7 @@ export default class NewUsers extends Vue {
 				
 			}
 		}else{
-			this.highlightState[this.localMessages[index].id as string] = true;
+			this.highlightState[this.messages[index].id as string] = true;
 			(items[index].$el as HTMLDivElement).style.opacity = ".3";
 		}
 	}
@@ -340,8 +341,8 @@ export default class NewUsers extends Vue {
 	public onMouseOut():void {
 		this.overIndex = -1;
 		let items = this.$refs.message as Vue[];
-		for (let i = 0; i < this.localMessages.length; i++) {
-			const id = this.localMessages[i].id;
+		for (let i = 0; i < this.messages.length; i++) {
+			const id = this.messages[i].id;
 			if(this.highlightState[id] === true) {
 				this.highlightState[id] = false;
 				// (items[i].$el as HTMLDivElement).removeAttribute("style");
@@ -485,7 +486,14 @@ export default class NewUsers extends Vue {
 				//avoid being able to click on nicknames, links, ...
 				pointer-events: none;
 			}
-	
+		}
+
+		.more {
+			text-align: center;
+			font-style: italic;
+			font-size: .8em;
+			padding: .25em;
+			color: var(--color-text);
 		}
 	}
 

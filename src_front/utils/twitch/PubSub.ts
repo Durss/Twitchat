@@ -1302,7 +1302,7 @@ export default class PubSub extends EventDispatcher {
 			if(data.message.type == "CHEER") {
 				//Cheer pins
 				const cheer = message as TwitchatDataTypes.MessageCheerData;
-				cheer.pinnned = true;
+				cheer.pinned = true;
 				cheer.pinDuration_ms = (data.message.ends_at - data.message.starts_at) * 1000,
 				cheer.pinLevel = {"ONE":0, "TWO":1, "THREE":2, "FOUR":3, "FIVE":4, "SIX":5, "SEVEN":6, "EIGHT":7, "NINE":8, "TEN":9}[data.message.metadata.level] || 0;
 				//Update DB message with new data

@@ -1689,7 +1689,7 @@ export default class MessageList extends Vue {
 			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER
 			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
 				//Dont merge rewards with prompts unless they're the same reward type
-				if(newMessage.pinnned || prevMessage.pinnned) return false;
+				if(newMessage.pinned || prevMessage.pinned) return false;
 			}
 			
 			//Merge with previous message

@@ -450,7 +450,13 @@ export const storeStream = defineStore('stream', {
 				}
 				for (let i = 0; i < 20; i++) {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
-					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.CHEER, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageCheerData>(TwitchatDataTypes.TwitchatMessageType.CHEER, (message)=>{
+						if(Math.random() > .5) {
+							message.pinned = true;
+							message.pinDuration_ms = 360000;
+							message.pinLevel = Utils.pickRand([0,1,2,3,4,5,6,7,8,9]);
+						}
+					}, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageFollowingData>(TwitchatDataTypes.TwitchatMessageType.FOLLOWING, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (message)=>{
 						message.is_resub = false;
@@ -519,7 +525,7 @@ export const storeStream = defineStore('stream', {
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits};
+						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits, pinned:m.pinned && m.pinDuration_ms > 0};
 						result.bits.push(cheer);
 						break;
 					}

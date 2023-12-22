@@ -129,6 +129,8 @@
 			"param_filterRewards":"Only show some rewards",
 			"param_showRewardUsers":"Show user list for each reward",
 			"premium_category":"This category will NOT show up when your stream is live",
+			"param_normalCheers":"Show normal cheers",
+			"param_pinnedCheers":"Show pinned cheers",
 			"delete_confirm_title":"Delete category?",
 			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Start fake credits",

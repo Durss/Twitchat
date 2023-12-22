@@ -56,6 +56,7 @@
 									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" /> -->
+									<ToggleButton v-model="element.enabled" />
 									<Button class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
 								</div>
 							</template>
@@ -82,6 +83,11 @@
 										</div>
 									</div>
 								</div>
+
+								<template v-if="element.slotType == 'cheers'">
+									<ParamItem :paramData="param_normalCheers[element.id]" v-model="element.showNormalCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_pinnedCheers[element.id]" v-model="element.showPinnedCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
 
 								<template v-if="element.slotType == 'rewards'">
 									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -225,6 +231,8 @@ export default class OverlayParamsCredits extends Vue {
 	public param_filterRewards:{[key:string]:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>} = {};
 	public param_showRewardUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_uniqueUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_normalCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_pinnedCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -309,6 +317,7 @@ export default class OverlayParamsCredits extends Vue {
 					}
 					//Max entries field is premium only, if not premium force it to 100
 					if(!this.isPremium) slot.maxEntries = 100;
+					if(slot.enabled === undefined) slot.enabled = true;
 				}
 			}
 		
@@ -384,6 +393,7 @@ export default class OverlayParamsCredits extends Vue {
 		const entry:TwitchatDataTypes.EndingCreditsSlotParams = data || {
 			id,
 			slotType,
+			enabled:true,
 			label:this.$t(slotDef.defaultLabel),
 			layout:"col",
 			maxEntries:100,
@@ -428,6 +438,11 @@ export default class OverlayParamsCredits extends Vue {
 				}});
 			}
 			this.param_filterRewards[id].children = children;
+		}else
+
+		if(slotDef.id == "cheers") {
+			this.param_normalCheers[id]	= {type:'boolean', value:true, icon:"bits", labelKey:'overlay.credits.param_normalCheers'};
+			this.param_pinnedCheers[id]	= {type:"boolean", value:true, icon:"pin", labelKey:"overlay.credits.param_pinnedCheers"};
 		}else
 
 		if(slotDef.id == "chatters") {

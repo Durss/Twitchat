@@ -159,7 +159,7 @@ export const storeCounters = defineStore('counters', {
 			}
 
 			switch(action) {
-				case "DEL": counterValue -= value; value = -value; break;
+				case "DEL": counterValue -= value; value = -value; break;//Invert value so proper triggers are executed
 				case "SET": counterValue = value; break;
 				case "ADD":
 				default: counterValue += value; break;

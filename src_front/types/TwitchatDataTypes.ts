@@ -1536,7 +1536,7 @@ export namespace TwitchatDataTypes {
 		subs:{uid:string, login:string, tier:1|2|3|"prime"}[];
 		resubs:{uid:string, login:string, tier:1|2|3|"prime"}[];
 		subgifts:{uid:string, login:string, tier:1|2|3|"prime", total:number}[];
-		bits:{uid:string, login:string, bits:number}[];
+		bits:{uid:string, login:string, bits:number, pinned:boolean}[];
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
 		shoutouts:{uid:string, login:string, received:boolean, viewers:number}[];
@@ -1606,7 +1606,7 @@ export namespace TwitchatDataTypes {
 		{id:"follows",		premium:false,	hasAmount:false,	canMerge:false,		icon:"follow",			label:"overlay.credits.categories.follows",			defaultLabel:"overlay.credits.labels.follows"},
 		{id:"raids",		premium:false,	hasAmount:true,		canMerge:true,		icon:"raid",			label:"overlay.credits.categories.raids",			defaultLabel:"overlay.credits.labels.raids",		amountLabel:"overlay.credits.amounts.raids"},
 		{id:"chatters",		premium:false,	hasAmount:true,		canMerge:false,		icon:"user",			label:"overlay.credits.categories.chatters",		defaultLabel:"overlay.credits.labels.chatters", 	amountLabel:"overlay.credits.amounts.chatters"},
-		{id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
+		// {id:"hypechats",	premium:true,	hasAmount:true,		canMerge:true,		icon:"hypeChat",		label:"overlay.credits.categories.hypechats",		defaultLabel:"overlay.credits.labels.hypechats",	amountLabel:"overlay.credits.amounts.hypechats"},
 		{id:"hypetrains",	premium:true,	hasAmount:false,	canMerge:false,		icon:"train",			label:"overlay.credits.categories.hypetrains",		defaultLabel:"overlay.credits.labels.hypetrains"},
 		{id:"rewards",		premium:true,	hasAmount:true,		canMerge:false,		icon:"channelPoints",	label:"overlay.credits.categories.rewards",			defaultLabel:"overlay.credits.labels.rewards",		amountLabel:"overlay.credits.amounts.rewards"},
 		{id:"bans",			premium:true,	hasAmount:true,		canMerge:false,		icon:"ban",				label:"overlay.credits.categories.bans",			defaultLabel:"overlay.credits.labels.bans",			amountLabel:"overlay.credits.amounts.bans"},
@@ -1634,6 +1634,7 @@ export namespace TwitchatDataTypes {
 		slotType:EndingCreditsSlotStringTypes;
 		label:string;
 		maxEntries:number;
+		enabled:boolean,
 		layout:"colLeft"|"col"|"colRight"|"left"|"center"|"right"|"2cols"|"3cols";
 		customHTML?:boolean;
 		htmlTemplate?:string;
@@ -1653,6 +1654,8 @@ export namespace TwitchatDataTypes {
 		text?:string,
 		filterRewards?:boolean,
 		showRewardUsers?:boolean,
+		showNormalCheers?:boolean,
+		showPinnedCheers?:boolean,
 		rewardIds?:string[],
 	}
 
@@ -2576,7 +2579,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is message pinned ?
 		 */
-		pinnned:boolean;
+		pinned:boolean;
 		/**
 		 * Pin level
 		 */

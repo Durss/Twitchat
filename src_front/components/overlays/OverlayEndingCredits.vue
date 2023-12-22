@@ -18,7 +18,7 @@
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.value.total }}</span>
 					</div>
 					
-					<div v-if="item.params.slotType == 'cheers'" v-for="entry in makeUnique(item.params, data.bits || []).concat().sort((a,b)=>b.bits-a.bits).splice(0, item.params.maxEntries)" class="item">
+					<div v-if="item.params.slotType == 'cheers'" v-for="entry in getCheers(item.params).concat().splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
@@ -212,9 +212,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			//Reward not parsed yet, create an entry
 			if(done[v.reward.id] === undefined) {
 				let entry:typeof res[0] = {
-					 reward:v.reward,
-					 total:0,
-					 users:[]
+					reward:v.reward,
+					total:0,
+					users:[]
 				}
 				done[v.reward.id] = res.push(entry) -1 ;
 			}
@@ -234,6 +234,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 
 			user.total ++;
 		});
+		return res;
+	}
+
+	public getCheers(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		let res:TwitchatDataTypes.StreamSummaryData["bits"][0][] = [];
+		const cheers = this.data?.bits || [];
+		if(item.showPinnedCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === true))
+		if(item.showNormalCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === false))
 		return res;
 	}
 
@@ -319,7 +327,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		switch(item.slotType) {
 			case "hypechats": count =  this.makeUnique(item, (this.data?.hypeChats || [])).length; break;
 			case "subs": count = this.getSortedSubs(item).length; break;
-			case "cheers": count =  this.makeUnique(item, (this.data?.bits || [])).length; break;
+			case "cheers": count = this.getCheers(item).length; break;
 			case "raids": count =  this.makeUnique(item, (this.data?.raids || [])).length; break;
 			case "follows": count = (this.data?.follows || []).length; break;
 			case "hypetrains": count = (this.data?.hypeTrains || []).length; break;
@@ -473,9 +481,11 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
+			console.log(Date.now());
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
 			this.buildSlots();
 			this.reset();
+			console.log(Date.now());
 		}
 	}
 
@@ -521,7 +531,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(this.noEntry) return;
 		
 		this.$nextTick().then(async () => {
-			if(this.data?.params?.startDelay) {
+			if(resetScroll && this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
 					this.startDelayTimeout = setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
 				})
@@ -588,6 +598,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		let totalEntries = 0;
 		slots.forEach(slotParams => {
 			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
+			//Slot disabled, ignore it
+			if(slotParams.enabled === false) return;
 			const entryCount = this.getEntryCountForSlot(slotParams);
 			totalEntries += entryCount;
 			//Pre compute styles and classes to avoid useless rerenders

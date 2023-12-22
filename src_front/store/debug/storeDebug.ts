@@ -180,7 +180,7 @@ export const storeDebug = defineStore('debug', {
 						message_size:TwitchUtils.computeMessageSize(chunks),
 						user:fakeUser,
 						bits,
-						pinnned:false,
+						pinned:false,
 						pinDuration_ms:0,
 						pinLevel:0,
 					};

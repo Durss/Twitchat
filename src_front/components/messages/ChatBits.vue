@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" @contextmenu="onContextMenu($event, messageData, $el)">
-		<div class="fader" ref="fader" v-if="messageData.pinnned"></div>
-		<div class="fill" ref="fill" v-if="messageData.pinnned"></div>
+		<div class="fader" ref="fader" v-if="messageData.pinned"></div>
+		<div class="fill" ref="fill" v-if="messageData.pinned"></div>
 		
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
@@ -73,7 +73,7 @@ export default class ChatBits extends AbstractChatMessage {
 		const reason = this.$tc("chat.bits", {COUNT:this.totalBits, USER:this.messageData.user.displayName});
 		this.$store.accessibility.setAriaPolite(reason+" "+this.messageData.message);
 		this.computeState();
-		watch(()=>this.messageData.pinnned, ()=> this.computeState() );
+		watch(()=>this.messageData.pinned, ()=> this.computeState() );
 	}
 
 	public openUserCard():void {
@@ -83,7 +83,7 @@ export default class ChatBits extends AbstractChatMessage {
 	private computeClasses():void {
 		let res = ["chatbits", "chatMessage", "highlight"];
 		if(this.messageData.deleted === true) res.push("deleted");
-		if(this.messageData.pinnned === true) {
+		if(this.messageData.pinned === true) {
 			res.push("pinned");
 			res.push("level"+this.messageData.pinLevel);
 		}
@@ -93,7 +93,7 @@ export default class ChatBits extends AbstractChatMessage {
 	private async computeState():Promise<void> {
 		this.computeClasses();
 
-		if(!this.messageData.pinnned) return;
+		if(!this.messageData.pinned) return;
 		
 		await this.$nextTick();
 

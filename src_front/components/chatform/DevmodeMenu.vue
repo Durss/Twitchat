@@ -169,7 +169,7 @@ export default class DevmodeMenu extends Vue {
 						index = ranges.findIndex(v=> v === m.bits);
 						m.pinDuration_ms = durations[index] * 1000;
 						m.pinLevel = index;
-						m.pinnned = true;
+						m.pinned = true;
 						// this.$store.chat.addMessage(m);
 						TriggerActionHandler.instance.execute(m);
 					}, 500);
