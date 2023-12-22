@@ -101,7 +101,7 @@
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
-			handle=".header"
+			handle=".header, .orderBt"
 			:animation="250">
 				<template #item="{element, index}:{element:TriggerActionTypes, index:number}">
 					<div class="listItem">

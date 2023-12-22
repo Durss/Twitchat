@@ -6,7 +6,8 @@ build
 /userData
 /server
 /userData_fake_production
-credentials
+/credentials
+credentials.json
 announcements.json
 patreon
 donors
