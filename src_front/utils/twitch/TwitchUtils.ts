@@ -2195,11 +2195,11 @@ export default class TwitchUtils {
 	}
 
 	/**
-	 * Gets a user's followers count
+	 * Gets a user's followers count and latest followers
 	 * 
 	 * @param channelId channelId to get followers list
 	 */
-	public static async getFollowerCount(channelId?:string|null):Promise<number> {
+	public static async getLastFollowers(channelId?:string|null):Promise<{total:number, followers:TwitchDataTypes.Follower[]}> {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 		
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
@@ -2211,12 +2211,12 @@ export default class TwitchUtils {
 		});
 		if(res.status == 200) {
 			const json:{data:[], total:number} = await res.json();
-			return json.total
+			return {total:json.total, followers:json.data};
 		}else if(res.status == 429) {
 			await this.onRateLimit(res.headers);
-			return this.getFollowerCount(channelId);
+			return this.getLastFollowers(channelId);
 		}
-		return 0;
+		return {total:0, followers:[]};
 	}
 
 	/**

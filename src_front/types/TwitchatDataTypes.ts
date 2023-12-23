@@ -784,7 +784,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr";
+		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch";
 	}
 
 	/**

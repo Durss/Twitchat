@@ -2270,6 +2270,8 @@ export default class TriggerActionHandler {
 
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
+		const channelId = StoreProxy.auth.twitch.user.id;
+		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
 		try {
 			// console.log("===== PARSE TEXT =====");
@@ -2285,7 +2287,7 @@ export default class TriggerActionHandler {
 			if(placeholders.length == 0) return res;
 
 			const srcU = src.toUpperCase();
-			const streamInfos = StoreProxy.stream.currentStreamInfo[StoreProxy.auth.twitch.user.id];
+			const streamInfos = StoreProxy.stream.currentStreamInfo[channelId];
 			for (const placeholder of placeholders) {
 				let value:string = "";
 				let cleanSubevent = true;
@@ -2529,6 +2531,26 @@ export default class TriggerActionHandler {
 						switch(pointerLocal) {
 							case "now": value = Date.now().toString(); break;
 						}
+	
+					/**
+					 * If the placeholder requests for a twitch global data
+					 */
+					}else if(pointer.indexOf("__twitch__") == 0) {
+						const pointerLocal = pointer.replace('__twitch__.', '');
+						switch(pointerLocal) {
+							case "lastsub_login": value = StoreProxy.stream.lastSubscriber[channelId].login; break;
+							case "lastsub_id": value = StoreProxy.stream.lastSubscriber[channelId].id; break;
+							case "lastsubgifter_login": value = StoreProxy.stream.lastSubgifter[channelId].user.login; break;
+							case "lastsubgifter_id": value = StoreProxy.stream.lastSubgifter[channelId].user.id; break;
+							case "totalsubs": value = (StoreProxy.stream.totalSubscribers[channelId] || 0).toString(); break;
+							case "lastfollow_login": value = StoreProxy.stream.lastFollower[channelId].login; break;
+							case "lastfollow_id": value = StoreProxy.stream.lastFollower[channelId].id; break;
+							case "totalfollowers": value = (StoreProxy.stream.totalFollowers[channelId] || 0).toString(); break;
+							case "lastcheer_login": value = StoreProxy.stream.lastCheer[channelId].user.login; break;
+							case "lastcheer_id": value = StoreProxy.stream.lastCheer[channelId].user.id; break;
+							case "lastcheer_amount": value = (StoreProxy.stream.lastCheer[channelId].bits || 0).toString(); break;
+						}
+						console.log(value);
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");

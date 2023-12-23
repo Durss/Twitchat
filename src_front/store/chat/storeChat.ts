@@ -616,10 +616,34 @@ export const storeChat = defineStore('chat', {
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
 				}
 				messageList.unshift(splitter);
+
+				let lastCheer!:TwitchatDataTypes.MessageCheerData;
+				let lastSub!:TwitchatDataTypes.MessageSubscriptionData;
+				let lastSubgift!:TwitchatDataTypes.MessageSubscriptionData;
+				const uid = StoreProxy.auth.twitch.user.id;
 				
 				//Force reactivity so merging feature works on old messages
+				console.log("MESSAGESSSS",res.length);
 				for (let i = res.length-1; i >= 0; i--) {
-					messageList.unshift(reactive(res[i]));
+					const m = res[i];
+					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
+						lastCheer = m;
+						StoreProxy.stream.lastCheer[uid] = {user:m.user, bits:m.bits};
+					}
+					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
+						console.log("SUB", m.is_gift, m.channel_id);
+						if(!lastSub && !m.is_gift) {
+							lastSub = m;
+							console.log("SAVE SUB", m);
+							StoreProxy.stream.lastSubscriber[uid] = m.user;
+						}
+						if(!lastSubgift && m.is_gift) {
+							lastSubgift = m;
+							console.log("SAVE SUBGIFT", m);
+							StoreProxy.stream.lastSubgifter[uid] = {user:m.user, giftCount:m.gift_count || 1};
+						}
+					}
+					messageList.unshift(reactive(m));
 				}
 				
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
@@ -1094,10 +1118,18 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 
+				//New cheer
+				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+					StoreProxy.stream.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
+					break;
+				}
+
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					StoreProxy.stream.totalSubscribers[message.channel_id] ++;
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
+						StoreProxy.stream.lastSubgifter[message.channel_id] = {user:message.user, giftCount:1};
 						// console.log("Merge attempt");
 						const len = Math.max(0, messageList.length-30);//Only check within the last 30 messages
 						for (let i = messageList.length-1; i > len; i--) {
@@ -1131,10 +1163,13 @@ export const storeChat = defineStore('chat', {
 									m.gift_recipients.push(message.gift_recipients[j]);
 								}
 								m.gift_count = m.gift_recipients.length;
+								StoreProxy.stream.lastSubgifter[message.channel_id].giftCount = m.gift_count;
 								return;
 							}
 							console.log("[SUBSCRIPTION MERGE] Don't merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
 						}
+					}else{
+						StoreProxy.stream.lastSubscriber[message.channel_id] = message.user;
 					}
 					break;
 				}
@@ -1166,7 +1201,8 @@ export const storeChat = defineStore('chat', {
 
 				//New follower
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
-					
+					StoreProxy.stream.lastFollower[message.channel_id] = message.user;
+					StoreProxy.stream.totalFollowers[message.channel_id] ++;
 					sUsers.flagAsFollower(message.user, message.channel_id);
 
 					//Merge all followbot events into one

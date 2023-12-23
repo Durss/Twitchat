@@ -9,7 +9,7 @@ import Utils from "@/utils/Utils";
 import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
 import PubSub from "@/utils/twitch/PubSub";
-import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
+import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
@@ -199,6 +199,30 @@ export const storeAuth = defineStore('auth', {
 					// setInterval(()=>TwitchUtils.getAdSchedule(), 1 * 60000);
 				}
 
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
+					//Refresh followers count and latest follower regularly
+					const loadFollowers = async ()=>{
+						const res = await TwitchUtils.getLastFollowers(uid);
+						StoreProxy.stream.totalFollowers[uid] = res.total;
+						if(res.followers.length > 0) {
+							const last = res.followers[0];
+							StoreProxy.stream.lastFollower[uid] = StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name);
+						}
+					};
+					loadFollowers();
+					setInterval(()=>loadFollowers(), 5 * 60000);
+				}
+
+				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
+					//Refresh latest subscriber regularly
+					const loadSubscribers = async ()=>{
+						const res = await TwitchUtils.getSubsList();
+						StoreProxy.stream.totalSubscribers[uid] = res.length;
+					};
+					loadSubscribers();
+					setInterval(()=>loadSubscribers(), 5 * 60000);
+				}
+
 				//Preload moderators of the channel and flag them accordingly
 				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {
 					res.forEach(u=> {
@@ -260,8 +284,8 @@ export const storeAuth = defineStore('auth', {
 
 			//Async loading of followers count to define if user is exempt
 			//from ads or not
-			TwitchUtils.getFollowerCount(this.twitch.user.id).then(res => {
-				this.twitch.user.donor.noAd = res < Config.instance.AD_MIN_FOLLOWERS_COUNT;
+			TwitchUtils.getLastFollowers(this.twitch.user.id).then(res => {
+				this.twitch.user.donor.noAd = res.total < Config.instance.AD_MIN_FOLLOWERS_COUNT;
 			})
 		}
 	} as IAuthActions

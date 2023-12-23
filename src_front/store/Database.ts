@@ -134,13 +134,15 @@ export default class Database {
 			//This "fixes" issues when receiving a user event but this user's
 			//profile have not been loaded/filled yet. The message is directly
 			//saved on the DB but as the user info are not yet loaded we end up
-			//with "...loading..." as usernames stored on DB. which show up after
+			//with "...loading..." as usernames stored on DB.
 			//These temporary usernames then show up on the history after
 			//reloading twitchat.
+			//For example this happens when receiving a whisper from someone who's profile
+			//has not been loaded before.
 			if(json.indexOf(StoreProxy.users.tmpDisplayName) > -1) {
 				setTimeout(() => {
 					this.updateMessage(message);
-				}, 10000);
+				}, 5000);
 			}
 	
 			const query = this._db.transaction(Database.MESSAGES_TABLE, "readwrite")

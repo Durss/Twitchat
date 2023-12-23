@@ -619,7 +619,18 @@
 			"ad_break_user":"Pseudo de la personne ayant lancé la pub (vide en cas de lancement automatique)",
 			"announcement_color":"Couleur de l'annonce",
 			"track_add_fail_reason":"Raison de l'échec d'ajout du morceau",
-			"now":"Date en millisecondes"
+			"now":"Date en millisecondes",
+			"last_sub":"Nom du dernier sub",
+			"last_sub_id":"ID du dernier sub",
+			"last_subgifter":"Nom du dernier subgifter",
+			"last_subgifter_id":"ID du dernier subgifter",
+			"total_sub":"Nombre total d'abonné·es actifs·ves",
+			"last_follow":"Nom du dernier follower",
+			"last_follow_id":"ID du dernier follower",
+			"total_follow":"Nombre total de followers",
+			"last_cheer":"Nom du dernier cheer",
+			"last_cheer_id":"ID du dernier cheer",
+			"last_cheer_amount":"Valeur du dernier cheer"
 		},
 		"events": {
 			"CHAT_COMMAND": {

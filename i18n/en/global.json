@@ -55,6 +55,7 @@
 		"placeholder_selector_insert": "Insert",
 		"placeholder_selector_global": "Global placeholders",
 		"placeholder_selector_categories": {
+			"twitch":"Twitch",
 			"stream":"Stream info",
 			"counter":"Counters",
 			"value":"Values",

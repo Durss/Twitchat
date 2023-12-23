@@ -6,6 +6,8 @@ import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import DataStore from "@/store/DataStore";
 import Config from "@/utils/Config";
 import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
+import TwitchUtils from "@/utils/twitch/TwitchUtils";
+import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 
 /**
  * Util to strongly type string object paths.
@@ -1479,6 +1481,24 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({category:"timer", tag:"COUNTDOWN_VALUE_F", descKey:"triggers.placeholders.countdown_value_formated", pointer:"__countdown__.value_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
 			entry.push({category:"timer", tag:"COUNTDOWN_DURATION", descKey:"triggers.placeholders.countdown_duration", pointer:"__countdown__.duration", numberParsable:true, isUserID:false, globalTag:true, example:"123"});
 			entry.push({category:"timer", tag:"COUNTDOWN_DURATION_F", descKey:"triggers.placeholders.countdown_duration_formated", pointer:"__countdown__.duration_formated", numberParsable:false, isUserID:false, globalTag:true, example:"1:23"});
+		}
+		
+		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_SUB") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB", descKey:"triggers.placeholders.last_sub", pointer:"__twitch__.lastSub_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB_ID", descKey:"triggers.placeholders.last_sub_id", pointer:"__twitch__.lastSub_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER", descKey:"triggers.placeholders.last_subgifter", pointer:"__twitch__.lastSubgifter_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_ID", descKey:"triggers.placeholders.last_subgifter_id", pointer:"__twitch__.lastSubgifter_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_TOTAL_SUBS_ACTIVE", descKey:"triggers.placeholders.total_sub", pointer:"__twitch__.totalSubs", numberParsable:false, isUserID:false, globalTag:true, example:"1312"});
+		}
+		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_FOLLOW") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
+			entry.push({category:"twitch", tag:"TWITCH_LAST_FOLLOW", descKey:"triggers.placeholders.last_follow", pointer:"__twitch__.lastFollow_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_FOLLOW_ID", descKey:"triggers.placeholders.last_follow_id", pointer:"__twitch__.lastFollow_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_TOTAL_FOLLOWERS", descKey:"triggers.placeholders.total_follow", pointer:"__twitch__.totalFollowers", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
+		}
+		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_CHEER") == -1) {
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER", descKey:"triggers.placeholders.last_cheer", pointer:"__twitch__.lastCheer_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_ID", descKey:"triggers.placeholders.last_cheer_id", pointer:"__twitch__.lastCheer_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_AMOUNT", descKey:"triggers.placeholders.last_cheer_amount", pointer:"__twitch__.lastCheer_amount", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 		}
 		
 		//If a music service is available, concat the music service helpers

@@ -619,7 +619,18 @@
 			"ad_break_user":"Name of the moderator that started the ad break (empty if automatically started)",
 			"announcement_color":"Couleur de l'annonce",
 			"track_add_fail_reason":"Track add fail reason",
-			"now":"Date in milliseconds"
+			"now":"Date in milliseconds",
+			"last_sub":"Last subscriber",
+			"last_sub_id":"Last subscriber ID",
+			"last_subgifter":"Last subgifter",
+			"last_subgifter_id":"Last subgifter ID",
+			"total_sub":"Active subscriber count",
+			"last_follow":"Last follower",
+			"last_follow_id":"Last follower ID",
+			"total_follow":"Total followers",
+			"last_cheer":"Last cheer",
+			"last_cheer_id":"Last cheer ID",
+			"last_cheer_amount":"Last cheer amount"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -1019,6 +1019,30 @@ export interface IStreamState {
 	 * Room settings for each platforms
 	 */
 	roomSettings:{[key in string]:TwitchatDataTypes.IRoomSettings|undefined};
+	/**
+	 * Last cheer for each platforms
+	 */
+	lastCheer:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, bits:number}};
+	/**
+	 * Last follower for each platforms
+	 */
+	lastFollower:{[key in string]:TwitchatDataTypes.TwitchatUser};
+	/**
+	 * Last subscriber for each platforms
+	 */
+	lastSubscriber:{[key in string]:TwitchatDataTypes.TwitchatUser};
+	/**
+	 * Last subsgifter for each platforms
+	 */
+	lastSubgifter:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, giftCount:number}};
+	/**
+	 * Total subscriber for each platforms
+	 */
+	totalSubscribers:{[key in string]:number};
+	/**
+	 * Total followers for each platforms
+	 */
+	totalFollowers:{[key in string]:number};
 }
 
 export interface IStreamGetters {
