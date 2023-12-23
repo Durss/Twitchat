@@ -396,8 +396,8 @@ export default class UserCard extends Vue {
 				TwitchUtils.getFollowerState(u.id).then(v=> {
 					if(v) this.followDate = Utils.formatDate(new Date(v.followed_at));
 				});
-				TwitchUtils.getFollowerCount(u.id).then(v=> {
-					this.followersCount = v;
+				TwitchUtils.getLastFollowers(u.id).then(v=> {
+					this.followersCount = v.total;
 				});
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 					TwitchUtils.getSubscriptionState([u.id]).then(v=> {
