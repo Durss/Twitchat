@@ -1259,6 +1259,7 @@ import Ajv from "ajv";
 						properties: {
 							id: {type:"string", maxLength:40},
 							slotType: {type:"string", maxLength:15},
+							enabled: {type:"boolean"},
 							showAmounts: {type:"boolean"},
 							showBadges: {type:"boolean"},
 							showMods: {type:"boolean"},
