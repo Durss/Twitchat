@@ -172,7 +172,7 @@
 		},
 		"autoban_join": {
 			"unbanBt": "Débannir",
-			"banBt": "Bannir",
+			"blockBt": "Bloquer",
 			"message": "{USER} a été banni par l'automod après avoir rejoint le tchat parce que son pseudo correspond à la règle : {RULE}"
 		},
 		"community_challenge": "{USER} a contribué avec {COUNT}pts au défi {TITLE} pour un total de {TOTAL}pts.",

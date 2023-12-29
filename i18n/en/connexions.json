@@ -25,6 +25,7 @@
 			"header":"Show your Youtube's chat in Twitchat.",
 			"success":"Youtube is now connected",
 			"current_live_title":"Select live to connect to",
+			"no_live":"No live broadcast found.\nPlease create a live broadcast session on Youtube and hit refresh button.",
 			"scopes_title":"Autorizations",
 			"scope_read":"Read chat messages\n(mandatory)",
 			"scope_moderate":"Delete messages / ban users\n@:connexions.youtube.scope_moderate_details",

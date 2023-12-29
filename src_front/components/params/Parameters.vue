@@ -1,51 +1,76 @@
 <template>
 	<div :class="classes" v-show="!closed">
 		<div class="menu">
-				<div class="head" v-if="content == contentMain && !search || content == contentAd">
-					<h1 class="title">{{$t('params.categories.'+content)}}</h1>
-					<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+			<div class="head" v-if="content == contentMain && !search || content == contentAd">
+				<h1 class="title">{{$t('params.categories.'+content)}}</h1>
+				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+			</div>
+
+			<div class="static">
+				<div class="automaticMessageHolder" v-if="!isDonor && !closed">
+					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
 				</div>
-			
-				<div class="scrollable">
-					<div class="automaticMessageHolder" v-if="!isDonor && !closed">
-						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+
+				<div class="search">
+					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
+				</div>
+				
+				<div class="editBtHolder">
+					<TTButton class="editModeBt" primary
+						@click="editPins = !editPins;"
+						v-tooltip="$t('params.customize_sections_tt')"
+						:icon="editPins? 'unpin' : 'pin'" />
+
+					<div class="cta" v-if="showCTA" @click="hideCTA()">
+						<img src="@/assets/icons/left.svg">
+						<span class="label">{{ $t("chat.filters.cta") }}</span>
 					</div>
-	
-					<div class="buttonList">
-						<div class="search">
-							<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
-						</div>
-						<Button icon="params"		@click="openPage(contentFeatures)"		:selected="content==contentFeatures" v-newflag="{date:1704102299000, id:'params_chatfeatures_1'}">{{$t('params.categories.features')}}</Button>
-						<Button icon="show"			@click="openPage(contentAppearance)"	:selected="content==contentAppearance" v-newflag="{date:1693519200000, id:'params_chatappearance'}">{{$t('params.categories.appearance')}}</Button>
-						<Button icon="emergency"	@click="openPage(contentEmergency)"		:selected="content==contentEmergency">{{$t('params.categories.emergency')}}</Button>
-						<Button icon="mod"			@click="openPage(contentAutomod)"		:selected="content==contentAutomod">{{$t('params.categories.automod')}}</Button>
-						<Button icon="broadcast"	@click="openPage(contentTriggers)"		:selected="content==contentTriggers" v-newflag="{date:1704102299000, id:'paramsparams_triggers_1'}">{{$t('params.categories.triggers')}}</Button>
-						<Button icon="placeholder"	@click="openPage(contentValues)"		:selected="content==contentValues" v-newflag="{date:1693519200000, id:'paramsparams_values'}">{{$t('params.categories.values')}}</Button>
-						<Button icon="count"		@click="openPage(contentCounters)"		:selected="content==contentCounters">{{$t('params.categories.counters')}}</Button>
-						<Button icon="overlay"		@click="openPage(contentOverlays)"		:selected="content==contentOverlays" v-newflag="{date:1704102299000, id:'params_overlays_1'}">{{$t('params.categories.overlays')}}</Button>
-						<Button icon="tts"			@click="openPage(contentTts)"			:selected="content==contentTts">{{$t('params.categories.tts')}}</Button>
-						<Button icon="voice"		@click="openPage(contentVoice)"			:selected="content==contentVoice">{{$t('params.categories.voice')}}</Button>
-						<Button icon="obs"			@click="openPage(contentObs)"			:selected="content==contentObs">{{$t('params.categories.obs')}}</Button>
-						<Button icon="heat"			@click="openPage(contentHeat)"			:selected="content==contentHeat" v-newflag="{date:1693519200000, id:'params_heat'}">{{$t('params.categories.heat')}}</Button>
-						<Button icon="voicemod"		@click="openPage(contentVoicemod)"		:selected="content==contentVoicemod">{{$t('params.categories.voicemod')}}</Button>
-						<Button icon="elgato"		@click="openPage(contentStreamdeck)"	:selected="content==contentStreamdeck">{{$t('params.categories.streamdeck')}}</Button>
-						<Button icon="goxlr"		@click="openPage(contentGoXLR)"			:selected="content==contentGoXLR" v-newflag="{date:1693519200000, id:'params_goxlr'}" class="premiumIndicator">{{$t('params.categories.goxlr')}}</Button>
-						<Button icon="offline"		@click="openPage(contentConnexions)"	:selected="content==contentConnexions">{{$t('params.categories.connexions')}}</Button>
-						<Button icon="user"			@click="openPage(contentAccount)"		:selected="content==contentAccount">{{$t('params.categories.account')}}</Button>
-						<Button icon="info"			@click="openPage(contentAbout)"			:selected="content==contentAbout" v-newflag="{date:1693519200000, id:'params_about'}">{{$t('params.categories.about')}}</Button>
-						<Button icon="coin"			@click="openPage(contentDonate)"		:selected="content==contentDonate" v-newflag="{date:1693519200000, id:'params_donate'}" secondary>{{$t('params.categories.donate')}}</Button>
-						<Button icon="premium"		@click="openPage(contentPremium)"		:selected="content==contentPremium" v-newflag="{date:1693519200000, id:'params_premium'}" premium>{{$t('params.categories.premium')}}</Button>
-					</div>
-	
-					<div class="automaticMessageHolder" v-if="isDonor && !closed">
-						<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
-					</div>
-	
-					<ThemeSelector class="themeSelector" />
-	
-					<mark class="version">v {{appVersion}}</mark>
 				</div>
 			</div>
+		
+			<div class="scrollable">
+
+				<draggable :class="editPins? 'buttonList edit' : 'buttonList'"
+				v-model="menuEntries" 
+				direction="vertical"
+				group="menu_sections"
+				item-key="page"
+				:disabled="!editPins"
+				:animation="250"
+				@sort="onEditMenu()">
+					<!-- <template #header>
+						<TTButton class="editModeBt" primary
+							@click="editPins = !editPins;"
+							v-tooltip="$t('params.customize_sections_tt')"
+							:icon="editPins? 'unpin' : 'pin'" />
+					</template> -->
+					<template #item="{element, index}:{element:MenuEntry, index:number}">
+						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
+							<TTButton @click="openPage(element.page, true)"
+								v-newflag="element.newflag"
+								:class="element.premium? 'premiumIndicator' : ''"
+								:icon="editPins? 'dragZone' : element.icon"
+								:selected="content==element.page"
+								:disabled="!element.pinned"
+								:secondary="element.theme == 'secondary'"
+								:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
+							<TTButton class="pinBt" icon="pin"
+							v-if="editPins && element.fixed !== true"
+							@click="element.pinned = !element.pinned;  onEditMenu();" 
+							:primary="element.pinned" />
+						</div>
+					</template>
+				</draggable>
+
+				<div class="automaticMessageHolder" v-if="isDonor && !closed">
+					<ParamsTwitchatAd :expand="content == contentAd" @collapse="openPage('main')" />
+				</div>
+
+				<ThemeSelector class="themeSelector" />
+
+				<mark class="version">v {{appVersion}}</mark>
+			</div>
+		</div>
 			
 		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
@@ -131,10 +156,13 @@ import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
+import draggable from 'vuedraggable';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
-		Button: TTButton,
+		draggable,
+		TTButton,
 		ParamsOBS,
 		ParamsTTS,
 		DonorState,
@@ -165,16 +193,38 @@ import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 
 export default class Parameters extends Vue {
 
-	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
 	public closed:boolean = true;
+	public showCTA:boolean = true;
+	public editPins:boolean = false;
+	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
+	public menuEntries:MenuEntry[] = [
+		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:1704102299000, id:'params_chatfeatures_1'}},
+		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:1693519200000, id:'params_chatappearance'}},
+		{pinned:false, icon:"emergency", page:TwitchatDataTypes.ParameterPages.EMERGENCY, labelKey:'params.categories.emergency'},
+		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
+		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:1704102299000, id:'paramsparams_triggers_1'}},
+		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:1693519200000, id:'paramsparams_values'}},
+		{pinned:false, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
+		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:1704102299000, id:'params_overlays_1'}},
+		{pinned:false, icon:"tts", page:TwitchatDataTypes.ParameterPages.TTS, labelKey:'params.categories.tts'},
+		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
+		{pinned:false, icon:"obs", page:TwitchatDataTypes.ParameterPages.OBS, labelKey:'params.categories.obs'},
+		{pinned:false, icon:"heat", page:TwitchatDataTypes.ParameterPages.HEAT, labelKey:'params.categories.heat', newflag:{date:1693519200000, id:'params_heat'}},
+		{pinned:true, icon:"voicemod", page:TwitchatDataTypes.ParameterPages.VOICEMOD, labelKey:'params.categories.voicemod'},
+		{pinned:true, icon:"elgato", page:TwitchatDataTypes.ParameterPages.STREAMDECK, labelKey:'params.categories.streamdeck'},
+		{pinned:true, icon:"goxlr", page:TwitchatDataTypes.ParameterPages.GOXLR, labelKey:'params.categories.goxlr', premium:true, newflag:{date:1693519200000, id:'params_goxlr'}},
+		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions'},
+		{pinned:false, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
+		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
+		{pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary", fixed:true},
+		{pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium", fixed:true},
+	];
 	
 	private closing:boolean = false;
 	private keydownCaptureTarget:Element|null = null;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
 
-	public get donorLevel():number { return this.$store.auth.twitch.user.donor.level; }
 	public get isDonor():boolean { return this.$store.auth.twitch.user.donor.state || this.$store.auth.isPremium; }
-	public get contentClose():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CLOSE; }
 	public get contentMain():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; }
 	public get contentAd():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AD; }
 	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; }
@@ -226,6 +276,30 @@ export default class Parameters extends Vue {
 	}
 
 	public async beforeMount():Promise<void> {
+		this.showCTA = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
+
+		const sections = JSON.parse((DataStore.get(DataStore.PARAMS_SECTIONS) || "[]"));
+		if(sections && Array.isArray(sections)) {
+			const sortedEntries:MenuEntry[] = [];
+			//Sort entries and set pinned states
+			for (let i = 0; i < sections.length; i++) {
+				const item = sections[i];
+				const entry = this.menuEntries.find(v => v.page == item.id);
+				if(!entry) continue;
+				entry.pinned = item.pinned;
+				sortedEntries.push(entry);
+			}
+
+			//Check if any entry from the "menuEntries" is missing from the final
+			//list. Add them to the beginning if so.
+			for (let i = 0; i < this.menuEntries.length; i++) {
+				const item = this.menuEntries[i];
+				if(sortedEntries.findIndex(v=>v.page == item.page) > -1) continue;
+				//Missing item, add it to the top
+				sortedEntries.unshift(item);
+			}
+			this.menuEntries = sortedEntries;
+		}
 	}
 
 	public async mounted():Promise<void> {
@@ -306,6 +380,10 @@ export default class Parameters extends Vue {
 		this.openPage(this.history.pop() || TwitchatDataTypes.ParameterPages.MAIN_MENU);
 	}
 
+	/**
+	 * Called when searching for a parameter
+	 * @param search 
+	 */
 	public async filterParams(search:string):Promise<void> {
 		this.filteredParams = [];
 		const safeSearch = search.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
@@ -339,12 +417,35 @@ export default class Parameters extends Vue {
 		}
 	}
 
-	public openPage(page:TwitchatDataTypes.ParameterPagesStringType):void {
+	/**
+	 * Opens up a parameter section
+	 */
+	public openPage(page:TwitchatDataTypes.ParameterPagesStringType, blockIfEditing:boolean = false):void {
+		if(blockIfEditing && this.editPins) return;
+
 		const content = this.$refs.currentContent as IParameterContent;
 		//Check if current content wants to override the navigation
 		if(content && content.reload) content.reload();
 
 		this.$store.params.openParamsPage(page);
+	}
+	
+	/**
+	 * Called when menu items are sorted
+	 */
+	public onEditMenu():void {
+		const sections:RawMenuEntry[] = this.menuEntries.map(v=> {
+			return {id:v.page, pinned:v.pinned};
+		});
+		DataStore.set(DataStore.PARAMS_SECTIONS, sections);
+	}
+
+	/**
+	 * Called when CTA is clicked
+	 */
+	public hideCTA():void {
+		DataStore.set(DataStore.PARAMS_SECTIONS_CTA, true);
+		this.showCTA = false;
 	}
 
 	/**
@@ -358,10 +459,10 @@ export default class Parameters extends Vue {
 	 * without the capture flag, the browser would first remove the focus
 	 * from the field, then call this function and the "activeElement"
 	 * wouldn't be the field anymore.
-	 * To avoid that, we listene to the keyDown event with capture flag
+	 * To avoid that, we listen to the keyDown event with capture flag
 	 * so it's called before the field loses focus.
 	 * BUT, if we were only doing this, a child component wouldn't be
-	 * able to stop the escpae key propagation (ex: the heat screen editor)
+	 * able to stop the escape key propagation (ex: the heat screen editor)
 	 * so the window wouldn't close if other things than just input
 	 * elements had focus.
 	 * The heat editor allows to drag areas and unselect them with the
@@ -386,6 +487,22 @@ export default class Parameters extends Vue {
 			this.close();
 		}
 	}
+}
+
+interface MenuEntry {
+	pinned:boolean;
+	icon:string;
+	labelKey:string;
+	page:TwitchatDataTypes.ParameterPagesStringType;
+	theme?:"secondary"|"premium";
+	premium?:true;
+	newflag?:{date:number, id:string};
+	fixed?:true;
+}
+
+interface RawMenuEntry {
+	id:TwitchatDataTypes.ParameterPagesStringType;
+	pinned:boolean;
 }
 </script>
 
@@ -439,9 +556,70 @@ export default class Parameters extends Vue {
 		}
 	}
 	
-	.automaticMessageHolder {
-		&:empty {
-			display: none;
+	
+	.static {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		padding-right: 1em;
+		.automaticMessageHolder {
+			&:empty {
+				display: none;
+			}
+		}
+		.search{
+			margin:auto;
+			z-index: 1;
+			align-self: center;
+			input {
+				text-align: center;
+				width: 100%;
+				max-width: 250px;
+				margin: auto;
+				display: block;
+			}
+		}
+		.editBtHolder {
+			align-self: center;
+			position: relative;
+			.editModeBt {
+				width: 2em;
+			}
+			.cta {
+				position: absolute;
+				right: -.5em;
+				top: 50%;
+				cursor: pointer;
+				transform: translate(100%, -50%);
+				background-color: var(--color-secondary);
+				padding: .25em .5em;
+				border-radius: .5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				animation: bounce 0.5s;
+				animation-direction: alternate;
+				animation-timing-function: cubic-bezier(.5, 0.05, 1, .5);
+				animation-iteration-count: infinite;
+				pointer-events: all;
+				color: var(--color-text-light);
+				.label {
+					font-size: .8em;
+					white-space: nowrap;
+				}
+				img {
+					height: .8em;
+					margin-right: .5em;
+				}
+				@keyframes bounce {
+					from {
+						right: -1em;
+					}
+					to {
+						right: 0em;
+					}
+				}
+			}
 		}
 	}
 
@@ -463,38 +641,64 @@ export default class Parameters extends Vue {
 			overflow-x: visible;
 			overflow-y: auto;
 			padding-right: 1em;
-			.automaticMessageHolder {
-				display: none;
-			}
 			.buttonList {
 				width: 100%;
 				display: flex;
 				flex-direction: column;
 				justify-content: center;
 				gap: 10px;
-				&>.button {
-					flex-wrap: nowrap;
-					&.beta {
-						overflow: hidden;
-						&::before {
-							content: "beta";
-							z-index: 1;
-							position: absolute;
-							top: 2px;
-							right: -25px;
-							background-color: var(--color-alert);
-							color: var(--color-light);
-							padding: 5px 30px;
-							text-transform: uppercase;
-							font-size: .7em;
-							font-weight: bold;
-							transform: rotate(45deg);
+				&>.entry {
+					display: flex;
+					.button {
+						flex-wrap: nowrap;
+						transform-origin: center right;
+						&.beta {
+							overflow: hidden;
+							&::before {
+								content: "beta";
+								z-index: 1;
+								position: absolute;
+								top: 2px;
+								right: -25px;
+								background-color: var(--color-alert);
+								color: var(--color-light);
+								padding: 5px 30px;
+								text-transform: uppercase;
+								font-size: .7em;
+								font-weight: bold;
+								transform: rotate(45deg);
+							}
+						}
+
+						&:not(.pinBt) {
+							flex: 1;
+						}
+
+						&.pinBt {
+							transform-origin: center left;
+						}
+		
+						&.premiumIndicator {
+							:deep(.background) {
+								border-left: 3px solid var(--color-premium);
+							}
 						}
 					}
-	
-					&.premiumIndicator {
-						:deep(.background) {
-							border-left: 3px solid var(--color-premium);
+				}
+
+				&.edit {
+					&>.entry:not(.fixed) {
+						display: flex;
+						.button {
+							&:first-child {
+								border-top-right-radius: 0;
+								border-bottom-right-radius: 0;
+							cursor: move;
+							}
+							&:nth-child(2) {
+								border-top-left-radius: 0;
+								border-bottom-left-radius: 0;
+							}
 						}
 					}
 				}
@@ -539,28 +743,6 @@ export default class Parameters extends Vue {
 				max-width: 600px;
 				margin: 0 auto;
 			}
-
-			.search {
-				display: none;
-				width: 100%;
-				margin-bottom: 1em;
-				input {
-					// min-width: 250px;
-					width: 100%;
-					max-width: 250px;
-					margin: auto;
-					display: block;
-				}
-			}
-		}
-	}
-
-	.search{
-		margin:auto;
-		z-index: 1;
-		input {
-			text-align: center;
-			width: 100%;
 		}
 	}
 
@@ -605,18 +787,6 @@ export default class Parameters extends Vue {
 					display: block !important;
 					margin: 0 auto;
 				}
-				.search {
-					// display: none;
-					width: 100%;
-					margin-bottom: 1em;
-					input {
-						// min-width: 250px;
-						width: 100%;
-						max-width: 250px;
-						margin: auto;
-						display: block;
-					}
-				}
 				.buttonList {
 					display: flex;
 					flex-direction: row;
@@ -625,28 +795,46 @@ export default class Parameters extends Vue {
 					gap: 4px;
 					width: 100%;
 					margin: auto;
-					&>.button {
-						width: 180px;
-						flex-direction: column;
+					&>.entry {
+						position: relative;
 						border-radius: var(--border-radius);
-						:deep(.icon) {
-							height: 2em;
-							width: 2em;
-							max-height: unset;
-							max-width: unset;
-							object-fit: fill;
-							object-position: center center;
-							margin: 0 0 .5em 0;
+						overflow: hidden;
+						.button:not(.pinBt) {
+							width: 180px;
+							flex-direction: column;
+							border-radius: var(--border-radius);
+							:deep(.icon) {
+								height: 2em;
+								width: 2em;
+								max-height: unset;
+								max-width: unset;
+								object-fit: fill;
+								object-position: center center;
+								margin: 0 0 .5em 0;
+							}
+							:deep(.label) {
+								white-space: normal;
+							}
+							&.beta {
+								&::before {
+									top: 10px;
+									right: -50px;
+									padding: 5px 50px;
+									font-size: 18px;
+								}
+							}
 						}
-						:deep(.label) {
-							white-space: normal;
-						}
-						&.beta {
-							&::before {
-								top: 10px;
-								right: -50px;
-								padding: 5px 50px;
-								font-size: 18px;
+					}
+
+					&.edit {
+						&>.entry:not(.fixed) {
+							display: flex;
+							.button.pinBt {
+								position: absolute;
+								top:0;
+								right:0;
+								border-radius: 0;
+								border-bottom-left-radius: var(--border-radius);
 							}
 						}
 					}
@@ -686,20 +874,44 @@ export default class Parameters extends Vue {
 					flex-direction: column;
 					flex-wrap: nowrap;
 					max-width: 250px;
-					&>.button {
-						width: unset;
-						flex-direction: unset;
-						:deep(.icon) {
-							height: 1em;
-							width: 1em;
-							margin: 0;
+					&>.entry {
+						.button {
+							width: unset;
+							flex-direction: unset;
+							&:not(.pinBt) {
+								flex-wrap: nowrap;
+								flex-direction: row;
+								:deep(.icon) {
+									height: 1em;
+									width: 1em;
+									margin: 0;
+								}
+							}
+							&.beta {
+								&::before {
+									top: 2px;
+									right: -25px;
+									padding: 5px 30px;
+									font-size: .7em;
+								}
+							}
 						}
-						&.beta {
-							&::before {
-								top: 2px;
-								right: -25px;
-								padding: 5px 30px;
-								font-size: .7em;
+					}
+
+					&.edit {
+						&>.entry:not(.fixed) {
+							.button {
+								&:first-child {
+									border-top-right-radius: 0;
+									border-bottom-right-radius: 0;
+								}
+								&:nth-child(2) {
+									border-top-left-radius: 0;
+									border-bottom-left-radius: 0;
+								}
+								&.pinBt {
+									position: relative;
+								}
 							}
 						}
 					}

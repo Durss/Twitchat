@@ -1,6 +1,7 @@
 {
 	"params": {
 		"sync_server": "Enregistrer les paramètres sur le serveur Twitchat",
+		"customize_sections_tt":"Personnalisez les entrées de menu",
 		"spoilersEnabled": "Activer le tag spoiler",
 		"alertMode": "Activer la fenêtre d'alerte",
 		"firstMessage": "Afficher le premier message de chaque viewer pour ne pas manquer de les saluer",

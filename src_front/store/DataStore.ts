@@ -88,6 +88,8 @@ export default class DataStore {
 	public static OVERLAY_DISTORTIONS:string = "overlayDistortions";
 	public static YOUTUBE_AUTH_TOKEN:string = "youtubeAuthToken";
 	public static TRIGGERS_TREE:string = "triggersTree";
+	public static PARAMS_SECTIONS:string = "paramsSections";
+	public static PARAMS_SECTIONS_CTA:string = "paramsSectionsCTA";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -106,6 +108,7 @@ export default class DataStore {
 		this.GREET_HISTORY,
 		this.SYNC_DATA_TO_SERVER,
 		this.CHAT_COL_CTA,
+		this.PARAMS_SECTIONS_CTA,
 		this.REDIRECT,
 		this.TOOLTIP_AUTO_OPEN,
 		this.POLL_DEFAULT_DURATION,

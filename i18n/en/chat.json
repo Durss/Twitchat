@@ -172,7 +172,7 @@
 		},
 		"autoban_join": {
 			"unbanBt": "Unban user",
-			"banBt": "Ban user",
+			"blockBt": "Block user",
 			"message": "{USER} has been banned by automod after joining the chat as their nickname matches the following rule: {RULE}"
 		},
 		"community_challenge":"{USER} contributed {COUNT}pts to the challenge {TITLE}. They contributed {TOTAL}pts total.",

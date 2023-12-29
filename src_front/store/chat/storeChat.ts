@@ -623,7 +623,6 @@ export const storeChat = defineStore('chat', {
 				const uid = StoreProxy.auth.twitch.user.id;
 				
 				//Force reactivity so merging feature works on old messages
-				console.log("MESSAGESSSS",res.length);
 				for (let i = res.length-1; i >= 0; i--) {
 					const m = res[i];
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
@@ -631,15 +630,12 @@ export const storeChat = defineStore('chat', {
 						StoreProxy.stream.lastCheer[uid] = {user:m.user, bits:m.bits};
 					}
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
-						console.log("SUB", m.is_gift, m.channel_id);
 						if(!lastSub && !m.is_gift) {
 							lastSub = m;
-							console.log("SAVE SUB", m);
 							StoreProxy.stream.lastSubscriber[uid] = m.user;
 						}
 						if(!lastSubgift && m.is_gift) {
 							lastSubgift = m;
-							console.log("SAVE SUBGIFT", m);
 							StoreProxy.stream.lastSubgifter[uid] = {user:m.user, giftCount:m.gift_count || 1};
 						}
 					}

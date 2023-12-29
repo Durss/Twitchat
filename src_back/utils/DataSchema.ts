@@ -1349,6 +1349,19 @@ import Ajv from "ajv";
 					}
 				},
 			}
+		},
+		paramsSections: {
+			type:"array",
+			minItems:0,
+			maxItems:50,
+			items:{
+				type:"object",
+				additionalProperties: false,
+				properties: {
+					id: {type:"string", maxLength:40},
+					pinned: {type:"boolean"},
+				},
+			}
 		}
 	}
 }
