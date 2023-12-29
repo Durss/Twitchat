@@ -84,7 +84,7 @@ import ParamItem from '../params/ParamItem.vue';
 		CloseButton,
 		ChatMessageChunksParser,
 	},
-	emits:[],
+	emits:["close"],
 })
 export default class TwitchatAnnouncement extends AbstractSidePanel {
 

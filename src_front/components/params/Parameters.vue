@@ -564,22 +564,23 @@ interface RawMenuEntry {
 			display: none;
 		}
 	}
+	.search{
+		margin:auto;
+		z-index: 1;
+		align-self: center;
+		input {
+			text-align: center;
+			width: 100%;
+			max-width: 250px;
+			margin: auto;
+			display: block;
+		}
+	}
+
 	.static {
 		display: flex;
 		flex-direction: column;
 		padding-right: 1em;
-		.search{
-			margin:auto;
-			z-index: 1;
-			align-self: center;
-			input {
-				text-align: center;
-				width: 100%;
-				max-width: 250px;
-				margin: auto;
-				display: block;
-			}
-		}
 		.editBtHolder {
 			align-self: center;
 			position: relative;
@@ -726,6 +727,10 @@ interface RawMenuEntry {
 		display: flex;
 		flex-direction: column;
 		flex-grow: 1;
+
+		.search {
+			display: none;
+		}
 		.content {
 			margin: 0 auto;
 			margin-top: -1em;
@@ -783,6 +788,7 @@ interface RawMenuEntry {
 			width: 100%;
 			.head {
 				display:flex;
+				margin-bottom: 1em;
 				.title {
 					display: block;
 				}
@@ -855,6 +861,7 @@ interface RawMenuEntry {
 
 				.search {
 					display: block;
+					margin-bottom: .5em;
 				}
 			}
 		}
