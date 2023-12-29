@@ -565,7 +565,6 @@ interface RawMenuEntry {
 		}
 	}
 	.static {
-		gap: .5em;
 		display: flex;
 		flex-direction: column;
 		padding-right: 1em;
@@ -584,6 +583,7 @@ interface RawMenuEntry {
 		.editBtHolder {
 			align-self: center;
 			position: relative;
+			margin-top: .5em;
 			.editModeBt {
 				width: 2em;
 			}
@@ -629,7 +629,6 @@ interface RawMenuEntry {
 		height: 100%;
 		display: flex;
 		flex-direction: column;
-		gap: 1em;
 		width: fit-content;
 		border-right: 1px solid var(--splitter-color);
 		.head {
@@ -639,6 +638,7 @@ interface RawMenuEntry {
 		.scrollable {
 			display: flex;
 			flex-direction: column;
+			padding-top: .5em;
 			gap: 1em;
 			overflow-x: visible;
 			overflow-y: auto;
