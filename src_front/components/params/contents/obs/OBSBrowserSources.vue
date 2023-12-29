@@ -47,7 +47,7 @@ export default class OBSBrowserSources extends Vue {
 						});
 
 		this.sources.forEach(v=> {
-			OBSWebsocket.instance.getSourceSettings(v.source.inputName).then(res => {
+			OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(v.source.inputName).then(res => {
 				v.localFile = res.inputSettings.is_local_file === true;
 				if(v.localFile) {
 					v.url = res.inputSettings.local_file as string || "";
@@ -110,6 +110,7 @@ export default class OBSBrowserSources extends Vue {
 				font-weight: bold;
 			}
 			.url {
+				word-break: break-all;
 				font-size: .75em;
 			}
 		}

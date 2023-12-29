@@ -327,7 +327,7 @@ export const storeHeat = defineStore('heat', {
 				//all necessary info about the click
 				//If it's a spotify or ulule overlay execute any requested action
 				if(rect.source.inputKind == "browser_source") {
-					let settings = await OBSWebsocket.instance.getSourceSettings(rect.source.sourceName);
+					let settings = await OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(rect.source.sourceName);
 					let url:string = settings.inputSettings.url as string;
 					const isLocalFile = settings.inputSettings.is_local_file === true;
 					if(isLocalFile) {

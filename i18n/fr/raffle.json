@@ -40,7 +40,7 @@
 		"configs": {
 			"timer_overlay_add": "{LINK} de compte à rebours à vos scènes OBS pour afficher le temps restant sur votre stream",
 			"timer_overlay_add_link": "Ajoutez l'overlay",
-			"postOnChat_start": "Annoncer l'ouverture dans le tchat'",
+			"postOnChat_start": "Annoncer l'ouverture dans le tchat",
 			"postOnChat_join": "Confirmer l'entrée dans le tirage",
 			"postOnChat_winner": "Annoncer gagnant·e dans le tchat",
 			"countdown": "Afficher le compte à rebours",
@@ -77,6 +77,8 @@
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
 		"state_users_cumulated": "0 ticket | 1 ticket | {COUNT} tickets",
 		"state_pickBt": "Tirer au sort",
-		"state_stopBt": "Clore le tirage"
+		"state_stopBt": "Clore le tirage",
+		"state_overlay_not_visible": "L'overlay de tirage au sort est masqué",
+		"state_overlay_not_found": "L'overlay de tirage au sort n'existe pas sur la scène OBS actuelle"
 	}
 }

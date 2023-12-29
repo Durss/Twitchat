@@ -249,6 +249,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 			//Parse all scene sources
 			for (const source of items) {
+				source.sceneName = scene.sceneName;
 				if(sourceDone[source.sourceName] == true) continue;
 
 				sourceDone[source.sourceName] = true;
@@ -258,7 +259,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					const res = await this.obs.call("GetGroupSceneItemList", {sceneName:source.sourceName});
 					const groupItems = (res.sceneItems as unknown) as OBSSourceItem[];
 					items = items.concat( groupItems );
-				}
+				}else
 
 				//Check recursively on child scene if we requested the sources only from the current scene
 				if(source.sourceType == "OBS_SOURCE_TYPE_SCENE" && currentSceneOnly) {
@@ -750,8 +751,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * 
 	 * @param sourceName 
 	 */
-	public async getSourceSettings(sourceName:string):Promise<{
-		inputSettings: JsonObject;
+	public async getSourceSettings<T>(sourceName:string):Promise<{
+		inputSettings: T | JsonObject;
 		inputKind: string;
 	}> {
 		if(!this.connected) return {
@@ -1218,6 +1219,7 @@ export interface OBSSourceItem {
 	sourceName:string;
 	sourceType:OBSSourceType;
 	sceneItemTransform:SourceTransform;
+	sceneName?:string;
 }
 
 export interface OBSSceneItem {

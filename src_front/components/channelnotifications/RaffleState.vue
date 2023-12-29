@@ -34,27 +34,37 @@
 		<div class="item card-item winners" v-if="raffleData.winners && raffleData.winners.length > 0">
 			<div class="entries">
 				<template v-for="w in raffleData.winners" :key="w.label">
-					<Button v-if="w.user" small light
+					<TTButton v-if="w.user" small light
 					icon="sub"
 					type="link"
 					target="_blank"
 					:href="'https://twitch.tv/'+getUserFromEntry(w)?.login"
-					@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</Button>
+					@click.prevent="openUserCard(getUserFromEntry(w))">{{ w.label }}</TTButton>
 					<div class="entry" v-else>{{ w.label }}</div>
 				</template>
 			</div>
 		</div>
 
 		<div class="ctas">
-			<Button icon="cross"
+			<TTButton icon="cross"
 				highlight
 				alert
-				@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</Button>
-			<Button icon="ticket"
+				@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</TTButton>
+			<TTButton icon="ticket"
 				@click="pickWinner()"
 				secondary
 				:loading="picking"
-				v-if="canPick">{{ $t('raffle.state_pickBt') }}</Button>
+				:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
+		</div>
+ 
+		<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
+			<div>{{ $t("raffle.state_overlay_not_found") }}</div>
+			<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" />
+		</div>
+ 
+		<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
+			<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
+			<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
 		</div>
 	</div>
 </template>
@@ -62,25 +72,36 @@
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import OBSWebsocket, {type OBSSourceItem} from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import { Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
+import TTButton from '../TTButton.vue';
+import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ProgressBar,
+		OverlayInstaller,
 	},
 	emits:["close"]
 })
 export default class RaffleState extends Vue {
 
-	public picking = false;
-	public disposed = false;
+	public picking:boolean = false;
+	public disposed:boolean = false;
+	public overlayFound:boolean = false;
+	public sourceVisible:boolean = false;
+	public checkingOverlay:boolean = false;
 	public timerPercent:number = 0;
 	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
+	
+	private overlaySource:OBSSourceItem|null = null;
+
+	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	
 	public get canPick():boolean {
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
@@ -111,6 +132,7 @@ export default class RaffleState extends Vue {
 	
 	public mounted():void {
 		this.renderFrame();
+		this.checkOverlay();
 	}
 	
 	public beforeUnmount():void {
@@ -140,6 +162,54 @@ export default class RaffleState extends Vue {
 		this.picking = false;
 	}
 
+	public async showOverlay():Promise<void> {
+		if(this.overlaySource) {
+			this.checkingOverlay = true;
+			await OBSWebsocket.instance.socket.call("SetSceneItemEnabled", {sceneItemEnabled:true, sceneItemId:this.overlaySource.sceneItemId, sceneName:this.overlaySource.sceneName!});
+			this.checkOverlay();
+		}
+	}
+
+	public async checkOverlay():Promise<void> {
+		if(!this.obsConnected) return;
+
+		const res = await OBSWebsocket.instance.getSources(true);
+		const urlRef = new URL(this.$overlayURL("wheel"));
+		this.overlayFound = false;
+		this.checkingOverlay = res.length > 0;
+		let remainingCount = res.length;
+		res.forEach(source=> {
+			if(source.inputKind != "browser_source") {
+				this.checkingOverlay = (--remainingCount) > 0;
+				return;
+			}
+
+			OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(source.sourceName).then(async (res) => {
+				const localFile = res.inputSettings.is_local_file === true;
+				let url = "";
+				if(localFile) {
+					url = res.inputSettings.local_file as string || "";
+				}else{
+					url = res.inputSettings.url as string || "";
+				}
+				url = url.toLowerCase();
+				if(url.indexOf(document.location.host.toLowerCase()) > -1
+				&& url.indexOf(urlRef.pathname.toLowerCase()) > -1) {
+					this.overlayFound = true;
+					if(source.sceneName) {
+						const visibleRes = await OBSWebsocket.instance.socket.call("GetSceneItemEnabled", {
+							sceneName:source.sceneName,
+							sceneItemId:source.sceneItemId,
+						});
+						this.overlaySource = source;
+						this.sourceVisible ||= visibleRes.sceneItemEnabled;
+					}
+				}
+				this.checkingOverlay = (--remainingCount) > 0;
+			});
+		})
+	}
+
 	private renderFrame():void {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
@@ -147,7 +217,6 @@ export default class RaffleState extends Vue {
 		const duration	= this.raffleData.duration_s * 1000;
 		this.timerPercent = 1 - (duration-elapsed)/duration;
 	}
-
 }
 </script>
 
@@ -181,6 +250,17 @@ export default class RaffleState extends Vue {
 		display: flex;
 		flex-wrap: wrap;
 		justify-content: center;
+	}
+
+	.overlayStatus {
+		.bevel();
+		background-color: var(--grayout-fadest);
+		font-size: .85em;
+		gap: .5em;
+		padding: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
 	}
 }
 </style>

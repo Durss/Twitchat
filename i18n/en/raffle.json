@@ -77,6 +77,8 @@
 		"state_users": "{COUNT} entered",
 		"state_users_cumulated": "{COUNT} tickets",
 		"state_pickBt": "Pick a winner",
-		"state_stopBt": "Stop Raffle"
+		"state_stopBt": "Stop Raffle",
+		"state_overlay_not_visible": "Raffle overlay is not visible",
+		"state_overlay_not_found": "Raffle overlay does not exist on current OBS scene"
 	}
 }
