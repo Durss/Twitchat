@@ -33,12 +33,12 @@
 			</p>
 		</ToggleBlock>
 
-		<ToggleBlock class="block" :title="$t('about.dad.title')" :icons="['follow']" :open="false" v-newflag="{date:1693519200000, id:'about_dad'}">
+		<!-- <ToggleBlock class="block" :title="$t('about.dad.title')" :icons="['follow']" :open="false">
 			<div class="dad">
 				<p v-for="i in $tm('about.dad.content')">{{ i }}</p>
 			</div>
 			<img src="@/assets/img/papa.png" alt="my dad">
-		</ToggleBlock>
+		</ToggleBlock> -->
 
 		<div class="footer">
 			<a :href="$router.resolve({name:'privacypolicy'}).href" target="_blank">{{ $t("global.privacy") }}</a>
