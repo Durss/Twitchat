@@ -13,22 +13,27 @@
 			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
 
-			<div class="card-item liveHolder" v-if="connected && broadcastList && broadcastList.length > 0">
-				<div>{{ $t("connexions.youtube.current_live_title") }}</div>
-				<div class="liveList">
-					<div :class="getLiveClasses(live)"
-					v-for="live in broadcastList" :key="live.snippet.liveChatId"
-					@click="selectLiveId(live.snippet.liveChatId)">
-						<div class="header">
-							<Icon :name="live.status.recordingStatus == 'recording'? 'online' : 'offline'"
-							:theme="live.status.recordingStatus == 'recording'? 'primary' : 'alert'"
-							v-tooltip="live.status.recordingStatus == 'recording'? 'stream online' : 'stream offline'" />
-							<span>{{live.snippet.title}}</span>
+			<div class="card-item liveHolder" v-if="connected && broadcastList && !refreshing">
+				<template v-if="broadcastList.length > 0">
+					<div>{{ $t("connexions.youtube.current_live_title") }}</div>
+					<div class="liveList">
+						<div :class="getLiveClasses(live)"
+						v-for="live in broadcastList" :key="live.snippet.liveChatId"
+						@click="selectLiveId(live.snippet.liveChatId)">
+							<div class="header">
+								<Icon :name="live.status.recordingStatus == 'recording'? 'online' : 'offline'"
+								:theme="live.status.recordingStatus == 'recording'? 'primary' : 'alert'"
+								v-tooltip="live.status.recordingStatus == 'recording'? 'stream online' : 'stream offline'" />
+								<span>{{live.snippet.title}}</span>
+							</div>
+							<div class="description">{{ live.snippet.description }}</div>
+							<div class="date">{{ getFormatedDate(live.snippet.publishedAt) }}</div>
 						</div>
-						<div class="description">{{ live.snippet.description }}</div>
-						<div class="date">{{ getFormatedDate(live.snippet.publishedAt) }}</div>
 					</div>
-				</div>
+				</template>
+				<template v-else-if="!refreshing">
+					<div class="card-item secondary noLive">{{ $t("connexions.youtube.no_live") }}</div>
+				</template>
 				
 				<TTButton icon="refresh" :loading="refreshing" @click="refreshLiveInfo()">{{ $t("global.refresh") }}</TTButton>
 			</div>
@@ -179,6 +184,11 @@ export default class ConnectYoutube extends Vue {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+		}
+
+		.noLive {
+			text-align: center;
+			white-space: pre-line;
 		}
 
 		.liveList {
