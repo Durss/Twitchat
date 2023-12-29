@@ -83,6 +83,7 @@ export default class TriggerListItem extends Vue {
 	min-height: 1.5em;
 	position: relative;
 	transition: background-color .1s;
+	overflow: hidden;
 
 	&:hover {
 		background-color: var(--background-color-fader);

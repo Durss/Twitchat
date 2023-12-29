@@ -171,7 +171,7 @@ export default class TTButton extends Vue {
 	flex-direction: row;
 	position: relative;
 	flex-wrap: wrap;
-	padding: .3em 1em;
+	padding: .3em .7em;
 	row-gap: 0;
 	column-gap: .5em;
 	align-items: center;

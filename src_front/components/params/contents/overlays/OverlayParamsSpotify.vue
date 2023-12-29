@@ -3,6 +3,7 @@
 		<template #right_actions>
 			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
 			target="_blank"
+			class="youtubeBt"
 			type="link"
 			icon="youtube"
 			alert

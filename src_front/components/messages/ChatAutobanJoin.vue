@@ -24,8 +24,8 @@
 				<Button alert v-if="canBlock"
 					small
 					:loading="moderating"
-					icon="ban"
-					@click.stop="blockUser()">{{ $t('chat.autoban_join.banBt') }}</Button>
+					icon="block"
+					@click.stop="blockUser()">{{ $t('chat.autoban_join.blockBt') }}</Button>
 			</div>
 		</div>
 	</div>
