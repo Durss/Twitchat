@@ -278,8 +278,10 @@ export default class Parameters extends Vue {
 	public async beforeMount():Promise<void> {
 		this.showCTA = DataStore.get(DataStore.PARAMS_SECTIONS_CTA) !== "true";
 
-		const sections = JSON.parse((DataStore.get(DataStore.PARAMS_SECTIONS) || "[]"));
-		if(sections && Array.isArray(sections)) {
+		const sectionsJSON = DataStore.get(DataStore.PARAMS_SECTIONS);
+		if(sectionsJSON) {
+			const sections = JSON.parse(sectionsJSON);
+			if(!Array.isArray(sections)) return;
 			const sortedEntries:MenuEntry[] = [];
 			//Sort entries and set pinned states
 			for (let i = 0; i < sections.length; i++) {
@@ -555,18 +557,18 @@ interface RawMenuEntry {
 			}
 		}
 	}
-	
-	
+	.automaticMessageHolder {
+		display: none !important;
+		margin: 0 auto;
+		&:empty {
+			display: none;
+		}
+	}
 	.static {
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
 		padding-right: 1em;
-		.automaticMessageHolder {
-			&:empty {
-				display: none;
-			}
-		}
 		.search{
 			margin:auto;
 			z-index: 1;
@@ -738,6 +740,9 @@ interface RawMenuEntry {
 				.donorState {
 					margin-top: 1em;
 				}
+				.automaticMessageHolder {
+					display: block !important;
+				}
 			}
 			&>* {
 				max-width: 600px;
@@ -782,11 +787,11 @@ interface RawMenuEntry {
 					display: block;
 				}
 			}
+			.automaticMessageHolder {
+				display: block !important;
+				margin: 0 auto;
+			}
 			.scrollable {
-				.automaticMessageHolder {
-					display: block !important;
-					margin: 0 auto;
-				}
 				.buttonList {
 					display: flex;
 					flex-direction: row;
