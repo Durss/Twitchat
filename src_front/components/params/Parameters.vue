@@ -423,7 +423,7 @@ export default class Parameters extends Vue {
 	 * Opens up a parameter section
 	 */
 	public openPage(page:TwitchatDataTypes.ParameterPagesStringType, blockIfEditing:boolean = false):void {
-		if(blockIfEditing && this.editPins) return;
+		// if(blockIfEditing && this.editPins) return;
 
 		const content = this.$refs.currentContent as IParameterContent;
 		//Check if current content wants to override the navigation

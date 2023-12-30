@@ -130,7 +130,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		}
 		const res = Utils.shuffle(decomposeNumber(bits, [1,100,1000,5000,10000]));
 		for (let i = 0; i < res.length; i++) {
-			const bits = res[i]
+			const bits = res[i] as keyof typeof scales;
 			await Utils.promisedTimeout(100);
 			if(this.disposed) return;
 			// (data.pinLevel || 0)/7 * 2
