@@ -247,12 +247,16 @@ export default class YoutubeHelper {
 				this._pollTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 60000);
 			}
 			return json;
-		}else if(res.status == 403 || res.status == 401) {
+		}else if(res.status == 401) {
 			Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
 			if(await this.refreshToken()) {
 				await Utils.promisedTimeout(1000);
 				return this.getCurrentLiveBroadcast();
 			}
+		}else if(res.status == 403) {
+			Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+			StoreProxy.main.alert("Youtube quota exceeded. Youtube chat cannot work until tomorrow :(");
+			return null;
 		}
 		return null;
 	}
@@ -346,7 +350,7 @@ export default class YoutubeHelper {
 				StoreProxy.chat.addMessage(data);
 			}
 
-			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), json.pollingIntervalMillis);
+			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), json.pollingIntervalMillis * 2);
 			
 			return json;
 		}else {
@@ -359,8 +363,11 @@ export default class YoutubeHelper {
 				}
 			}catch(error) {}
 			Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
-			if(res.status == 403 || res.status == 401) {
+			if(res.status == 401) {
 				if(!await this.refreshToken()) return null;
+			}else if(res.status == 403) {
+				StoreProxy.main.alert("Youtube quota exceeded. Youtube chat cannot work until tomorrow :(");
+				return null;
 			}
 		}
 		//Youtube API has random downs (404, 503, ...)
