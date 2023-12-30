@@ -10,26 +10,37 @@
 		<OverlayHeatDebug v-if="overlay=='heatdebug'" />
 		<OverlayAdBreak v-if="overlay=='adbreak'" />
 		<OverlayDistort v-if="overlay=='distort'" />
+		<OverlayBitsWall v-if="overlay=='bitswall'" />
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Vue } from 'vue-facing-decorator';
-import OverlayEndingCredits from '../components/overlays/OverlayEndingCredits.vue';
-import OverlayMusicPlayer from '../components/overlays/OverlayMusicPlayer.vue';
-import OverlaysRaffleWheel from '../components/overlays/OverlaysRaffleWheel.vue';
-import OverlayTimer from '../components/overlays/OverlayTimer.vue';
-import OverlayChatHighlight from '../components/overlays/OverlayChatHighlight.vue';
-import OverlayCounter from '../components/overlays/OverlayCounter.vue';
-import OverlayUlule from '@/components/overlays/OverlayUlule.vue';
 import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import OverlayHeatDebug from '@/components/overlays/OverlayHeatDebug.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import OverlayAdBreak from '@/components/overlays/OverlayAdBreak.vue';
-import OverlayDistort from '@/components/overlays/OverlayDistort.vue';
 import TTButton from '@/components/TTButton.vue';
+import { defineAsyncComponent } from 'vue';
+// import OverlayBitsWall from '@/components/overlays/OverlayBitsWall.vue';
+// const OverlayBitsWall = () => import('@/components/overlays/OverlayBitsWall.vue');
+const OverlayBitsWall = defineAsyncComponent({
+  loader: () => import('@/components/overlays/OverlayBitsWall.vue'),
+//   loadingComponent: LoadingComponent /* shows while loading */,
+//   errorComponent: ErrorComponent /* shows if there's an error */,
+//   delay: 1000 /* delay in ms before showing loading component */,
+//   timeout: 3000 /* timeout after this many ms */,
+})
+const OverlayHeatDebug = defineAsyncComponent({loader: () => import('../components/overlays/OverlayHeatDebug.vue')});
+const OverlayEndingCredits = defineAsyncComponent({loader: () => import('../components/overlays/OverlayEndingCredits.vue')});
+const OverlayMusicPlayer = defineAsyncComponent({loader: () => import('../components/overlays/OverlayMusicPlayer.vue')});
+const OverlaysRaffleWheel = defineAsyncComponent({loader: () => import('../components/overlays/OverlaysRaffleWheel.vue')});
+const OverlayTimer = defineAsyncComponent({loader: () => import('../components/overlays/OverlayTimer.vue')});
+const OverlayChatHighlight = defineAsyncComponent({loader: () => import('../components/overlays/OverlayChatHighlight.vue')});
+const OverlayCounter = defineAsyncComponent({loader: () => import('../components/overlays/OverlayCounter.vue')});
+const OverlayUlule = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayUlule.vue')});
+const OverlayAdBreak = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAdBreak.vue')});
+const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDistort.vue')});
 
 @Component({
 	components:{
@@ -39,6 +50,7 @@ import TTButton from '@/components/TTButton.vue';
 		OverlayAdBreak,
 		OverlayCounter,
 		OverlayDistort,
+		OverlayBitsWall,
 		OverlayHeatDebug,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
