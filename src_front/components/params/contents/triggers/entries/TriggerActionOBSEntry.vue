@@ -145,6 +145,15 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 		return (inputKind === 'ffmpeg_source' || inputKind === "image_source" || inputKind === "vlc_source");
 	}
 
+	/**
+	 * Get if source is a slideshow
+	 */
+	public get isSlideshowSource():boolean {
+		let sourceName = this.source_conf.selectedListValue? (this.source_conf.selectedListValue as SourceItem).name : "";
+		const inputKind = this.obsSources.find(v=> v.sourceName == sourceName)?.inputKind;
+		return inputKind == "slideshow";
+	}
+
 	public async beforeMount():Promise<void> {
 		if(this.action.action == undefined) this.action.action = "show";
 	}
@@ -329,6 +338,9 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			if(this.isMediaSource) {
 				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
 				values.push({labelKey:"triggers.actions.obs.param_action_stop", value:"stop"});
+			}
+
+			if(this.isMediaSource || this.isSlideshowSource) {
 				values.push({labelKey:"triggers.actions.obs.param_action_prev", value:"prev"});
 				values.push({labelKey:"triggers.actions.obs.param_action_next", value:"next"});
 			}
