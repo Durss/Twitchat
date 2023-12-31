@@ -828,6 +828,26 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 
 	/**
+	 * Play next media
+	 * 
+	 * @param sourceName 
+	 */
+	public async nextMedia(sourceName:string):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT'});
+	}
+
+	/**
+	 * Play prev media
+	 * 
+	 * @param sourceName 
+	 */
+	public async prevMedia(sourceName:string):Promise<void> {
+		if(!this.connected) return;
+		await this.obs.call('TriggerMediaInputAction',{'inputName':sourceName,'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_PREVIOUS'});
+	}
+
+	/**
 	 * Get a screenshot of a source.
 	 * Takes a screenshot of the current scene if no sourceName is defined
 	 * 

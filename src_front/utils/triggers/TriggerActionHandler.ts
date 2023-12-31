@@ -1002,6 +1002,8 @@ export default class TriggerActionHandler {
 									case "replay": await OBSWebsocket.instance.replayMedia(step.sourceName); break;
 									case "stop": await OBSWebsocket.instance.stopMedia(step.sourceName); break;
 									case "mute": await OBSWebsocket.instance.setMuteState(step.sourceName, true); break;
+									case "next": await OBSWebsocket.instance.nextMedia(step.sourceName); break;
+									case "prev": await OBSWebsocket.instance.prevMedia(step.sourceName); break;
 									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
 									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
 									case "move": 

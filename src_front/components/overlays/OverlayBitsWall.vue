@@ -24,6 +24,7 @@ import * as Matter from "matter-js";
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import gsap from "gsap";
+import OBSWebsocket from "@/utils/OBSWebsocket";
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
@@ -65,6 +66,13 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				pinLevel:Math.floor(Math.random()*8),
 			}));
 		this.preloadTextures();
+
+		// OBSWebsocket.instance.socket.call("GetInputSettings", {inputName: "VLC"}).then(res => {
+		// 	console.log(res);
+		// });
+		// OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:"VLC", propertyName:"obs_source_media_next"});
+		// OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.inputName, propertyName:"refreshnocache"});
+		OBSWebsocket.instance.socket.call('TriggerMediaInputAction',{'inputName':"VLC",'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT'});
 	}
 
 	public beforeUnmount():void {
