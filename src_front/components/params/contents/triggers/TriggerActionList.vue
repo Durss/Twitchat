@@ -471,10 +471,16 @@ export default class TriggerActionList extends Vue {
 		const nodeName = (e.target as HTMLElement).nodeName;
 		if(["TEXTAREA", "INPUT"].indexOf(nodeName) > -1) return;
 
+		//Delete selected actions
 		if(e.key == "Delete" && this.selectedActions.length > 0) {
+			const list = this.selectedActions;
 			this.$confirm(this.$t("triggers.delete_actions_confirm")).then(async ()=> {
-				while(this.triggerData.actions.length > 0) {
-					this.triggerData.actions.shift();
+				for (let i = 0; i < this.triggerData.actions.length; i++) {
+					const t = this.triggerData.actions[i];
+					if(list.find(v=> v == t.id)) {
+						this.triggerData.actions.splice(i, 1);
+						i--;
+					}
 				}
 			}).catch(()=> {});
 		}else
