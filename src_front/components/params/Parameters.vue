@@ -48,10 +48,9 @@
 						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
 							<TTButton @click="openPage(element.page, true)"
 								v-newflag="element.newflag"
-								:class="element.premium? 'premiumIndicator' : ''"
+								:class="[(element.premium ? 'premiumIndicator' : ''), (element.pinned ? '' : 'disabled')].filter(v=>v!='').join(' ')"
 								:icon="editPins? 'dragZone' : element.icon"
 								:selected="content==element.page"
-								:disabled="!element.pinned"
 								:secondary="element.theme == 'secondary'"
 								:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
 							<TTButton class="pinBt" icon="pin"
@@ -696,7 +695,10 @@ interface RawMenuEntry {
 							&:first-child {
 								border-top-right-radius: 0;
 								border-bottom-right-radius: 0;
-							cursor: move;
+								cursor: pointer;
+								:deep(.icon) {
+									cursor: move;
+								}
 							}
 							&:nth-child(2) {
 								border-top-left-radius: 0;

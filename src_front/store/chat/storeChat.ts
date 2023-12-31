@@ -1116,26 +1116,8 @@ export const storeChat = defineStore('chat', {
 
 				//New cheer
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
-					//Wait 2 seconds to give it time to pubsub to tell us if the
-					//cheer is pinned.
-					setTimeout(()=> {
-						message = message as TwitchatDataTypes.MessageCheerData;
-						const wsMessage = {
-							channel:message.channel_id,
-							message:message.message,
-							message_chunks:(message.message_chunks as unknown) as JsonArray,
-							user: {
-								id:message.user.id,
-								login:message.user.login,
-								displayName:message.user.displayNameOriginal,
-							},
-							bits:message.bits,
-							pinned:message.pinned,
-							pinLevel:message.pinLevel,
-						} as JsonObject;
-						StoreProxy.stream.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
-						PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
-					}, 2000);
+					message = message as TwitchatDataTypes.MessageCheerData;
+					StoreProxy.stream.lastCheer[message.channel_id] = {user:message.user, bits:message.bits};
 					break;
 				}
 
@@ -1411,6 +1393,26 @@ export const storeChat = defineStore('chat', {
 					recipientCount = message.gift_recipients!.length;
 					await Utils.promisedTimeout(1000);
 				}
+			}
+			
+			if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
+				//If it's a cheer, wait a little before proceeding as PubSub may send a "pinned" event after
+				//if user sent a "pinned cheer".
+				await Utils.promisedTimeout(1000);
+				const wsMessage = {
+					channel:message.channel_id,
+					message:message.message,
+					message_chunks:(message.message_chunks as unknown) as JsonArray,
+					user: {
+						id:message.user.id,
+						login:message.user.login,
+						displayName:message.user.displayNameOriginal,
+					},
+					bits:message.bits,
+					pinned:message.pinned,
+					pinLevel:message.pinLevel,
+				} as JsonObject;
+				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 			}
 			
 			TriggerActionHandler.instance.execute(message);

@@ -1,11 +1,11 @@
 <template>
 	<div class="paramslist">
-		<div v-for="(p, key) in params"
+		<div v-for="(p, key, index) in params"
 		:class="highlightId == p.id?.toString()? 'row blinkBorder blink' : 'row blinkBorder'" 
 		:key="key"
 		:ref="'entry_'+p.id"
 		v-newflag="(p.storage && (p.storage as any).vnew)? (p.storage as any).vnew : null">
-			<div :class="getClasses(p, key as string)">
+			<div :class="getClasses(p, key as string)" v-if="buildIndex > index">
 				<ParamItem :paramData="p" noBackground autoFade>
 					<div v-if="p.id == 212 && p.value === true && !isOBSConnected && !isMissingScope(p)" class="config">
 						<div class="card-item alert">
@@ -113,14 +113,18 @@ export default class ParamsList extends Vue implements IParameterContent {
 	@Prop
 	public filteredParams!:TwitchatDataTypes.ParameterData<unknown>[];
 
+	public buildIndex:number = 0;
 	public showAdInfo:boolean = false;
 	public highlightId:string = "";
 	public fakeMessageData:TwitchatDataTypes.MessageChatData|null = null;
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
+	
+	private buildInterval:number = -1;
 
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
+		this.buildIndex = 15;
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
 		if(this.filteredParams?.length > 0) {
 			for (let i = 0; i < this.filteredParams.length; i++) {
@@ -144,6 +148,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
 
 	public async beforeMount(): Promise<void> {
+		this.buildIndex = 0;
 		await new Promise((resolve)=> {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 			(data)=> {
@@ -175,6 +180,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				example:"Just chatting",
 			},
 		];
+		//If searching for params
 		if(this.$store.main.tempStoreValue) {
 			this.$nextTick().then(()=> {
 				const holders = this.$refs["entry_"+this.$store.main.tempStoreValue] as HTMLElement[]
@@ -193,6 +199,13 @@ export default class ParamsList extends Vue implements IParameterContent {
 				this.$store.main.tempStoreValue = "";
 			})
 		}
+		this.buildInterval = setInterval(()=> {
+			this.buildIndex ++;
+		}, 30);
+	}
+
+	public beforeUnmount():void {
+		clearInterval(this.buildInterval);
 	}
 
 	public onNavigateBack(): boolean { return false; }

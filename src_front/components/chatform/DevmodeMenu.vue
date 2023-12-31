@@ -165,14 +165,14 @@ export default class DevmodeMenu extends Vue {
 						//Find the which bits range the number of bits corresponds to
 						let index = (ranges.findIndex(v=> v > m.bits) ?? 1) - 1;
 						if(index < 0) index = ranges.length - 1;
-						m.bits = Utils.pickRand(ranges);
-						index = ranges.findIndex(v=> v === m.bits);
+						// m.bits = Utils.pickRand(ranges);
+						// index = ranges.findIndex(v=> v === m.bits);
 						m.pinDuration_ms = durations[index] * 1000;
 						m.pinLevel = index;
 						m.pinned = true;
 						// this.$store.chat.addMessage(m);
 						TriggerActionHandler.instance.execute(m);
-					}, 500);
+					}, 100);
 					break;
 				}
 				case "hypeChat": {
