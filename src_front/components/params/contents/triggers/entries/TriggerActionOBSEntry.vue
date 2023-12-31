@@ -329,6 +329,8 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 			if(this.isMediaSource) {
 				values.push({labelKey:"triggers.actions.obs.param_action_replay", value:"replay"});
 				values.push({labelKey:"triggers.actions.obs.param_action_stop", value:"stop"});
+				values.push({labelKey:"triggers.actions.obs.param_action_prev", value:"prev"});
+				values.push({labelKey:"triggers.actions.obs.param_action_next", value:"next"});
 			}
 
 			if(selectedItem && selectedItem.type == "scene"){

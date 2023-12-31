@@ -371,6 +371,8 @@ export default class TriggerActionEntry extends Vue {
 			move:"move",
 			resize:"scale",
 			rotate:"rotate",
+			next:"next",
+			prev:"prev",
 			stop:"stop"
 		};
 		
