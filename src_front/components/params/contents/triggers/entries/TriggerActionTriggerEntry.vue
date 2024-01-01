@@ -65,11 +65,11 @@ import TriggerList from '../TriggerList.vue';
 })
 export default class TriggerActionTriggerEntry extends Vue {
 
-	@Prop
+	@Prop()
 	public action!:TriggerActionTriggerData;
-	@Prop
+	@Prop()
 	public triggerData!:TriggerData;
-	@Prop
+	@Prop()
 	public rewards!:TwitchDataTypes.Reward[];
 
 	public dependencyLoopInfos:{label: string, icon: string, iconURL?: string | undefined, iconBgColor?: string | undefined}[] = [];
