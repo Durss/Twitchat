@@ -14,10 +14,10 @@
 		<div class="counter" id="holder" v-else-if="counter.min === false && counter.max === false">
 			<span class="name" id="name">{{ counter.name }}</span>
 			<span class="spacer" id="spacer"></span>
-			<span class="value decimal0" id="value decimal0">{{ getFormatedValue(0) }}</span>
-			<span class="value decimal1" id="value decimal1">{{ getFormatedValue(1) }}</span>
-			<span class="value decimal2" id="value decimal2">{{ getFormatedValue(2) }}</span>
-			<span class="value decimal3" id="value decimal3">{{ getFormatedValue(3) }}</span>
+			<span class="value decimal0" id="value">{{ getFormatedValue(0) || 0 }}</span>
+			<span class="value decimal1" id="value">{{ getFormatedValue(1) || 0 }}</span>
+			<span class="value decimal2" id="value">{{ getFormatedValue(2) || 0 }}</span>
+			<span class="value decimal3" id="value">{{ getFormatedValue(3) || 0 }}</span>
 		</div>
 
 		<div class="progressBar" id="holder" v-else>
@@ -25,10 +25,10 @@
 			<span class="name" id="name">{{ counter.name }}</span>
 			<div class="goal" id="goal">
 				<span class="min" id="min">{{ counter.min || 0 }}</span>
-				<span class="value decimal0" id="value decimal0">{{ getFormatedValue(0) || 0 }}</span>
-				<span class="value decimal1" id="value decimal1">{{ getFormatedValue(1) || 0 }}</span>
-				<span class="value decimal2" id="value decimal2">{{ getFormatedValue(2) || 0 }}</span>
-				<span class="value decimal3" id="value decimal3">{{ getFormatedValue(3) || 0 }}</span>
+				<span class="value decimal0" id="value">{{ getFormatedValue(0) || 0 }}</span>
+				<span class="value decimal1" id="value">{{ getFormatedValue(1) || 0 }}</span>
+				<span class="value decimal2" id="value">{{ getFormatedValue(2) || 0 }}</span>
+				<span class="value decimal3" id="value">{{ getFormatedValue(3) || 0 }}</span>
 				<span class="max" id="max">{{ counter.max || 0 }}</span>
 			</div>
 		</div>

@@ -41,6 +41,10 @@
 							<li>#name { ... }</li>
 							<li>#spacer { ... }</li>
 							<li>#value { ... }</li>
+							<li>#value.decimal0 { ... }</li>
+							<li>#value.decimal1 { ... }</li>
+							<li>#value.decimal2 { ... }</li>
+							<li>#value.decimal3 { ... }</li>
 						</ul>
 					</li>
 				</ul>
@@ -57,6 +61,10 @@
 								<ul>
 									<li>#min { ... }</li>
 									<li>#value { ... }</li>
+									<li>#value.decimal0 { ... }</li>
+									<li>#value.decimal1 { ... }</li>
+									<li>#value.decimal2 { ... }</li>
+									<li>#value.decimal3 { ... }</li>
 									<li>#max { ... }</li>
 								</ul>
 							</li>
