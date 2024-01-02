@@ -1246,9 +1246,11 @@ import Ajv from "ajv";
 				padding: {type:"integer", minimum:0, maximum:1000},
 				paddingTitle: {type:"integer", minimum:0, maximum:1000},
 				speed: {type:"integer", minimum:0, maximum:300},
+				fadeSize: {type:"integer", minimum:0, maximum:400},
 				startDelay: {type:"integer", minimum:0, maximum:30},
 				loop: {type:"boolean"},
 				showIcons: {type:"boolean"},
+				stickyTitle: {type:"boolean"},
 				slots: {
 					type:"array",
 					minItems:0,

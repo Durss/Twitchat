@@ -1,5 +1,5 @@
 <template>
-	<div class="paramsoverlays parameterContent">
+	<div :class="classes">
 		<Icon name="overlay" class="icon" />
 		<div class="head" v-if="subContent == null">{{ $t("overlay.header") }}</div>
 
@@ -113,11 +113,22 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 	public get adStuffAvailable():boolean { return Config.instance.AD_API_AVAILABLE; }
 
+	public get classes():string[] {
+		const res = ["paramsoverlays", "parameterContent"];
+		if(this.subContent !== null) res.push("contentOpened")
+		return res;
+	}
+
 	public mounted():void {
 		if(this.$store.params.currentPageSubContent) {
 			this.subContent = this.$store.params.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 		}
 	}
+
+	public reload():void {
+		this.subContent = null;
+	}
+	
 	public onNavigateBack():boolean {
 		if(this.subContent != null) {
 			this.subContent = null;
@@ -131,11 +142,16 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramsoverlays{
+	&:not(.contentOpened) {
+		max-width: 100% !important;
+	}
+	
 	.connectObs {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
 		align-items: center;
+		margin: auto;
 		.dockTuto {
 			text-align: center;
 			img {
@@ -156,17 +172,14 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		}
 	}
 
-	.form {
-
-	}
 
 	.list{
 		gap: .5em;
-		display: flex;
-		flex-wrap: wrap;
+		@itemWidth: 250px;
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 		.item {
 			overflow: hidden;
-			width: calc(50% - .5em);
 			border-radius: var(--border-radius);
 			padding: 0;
 			margin: 0;

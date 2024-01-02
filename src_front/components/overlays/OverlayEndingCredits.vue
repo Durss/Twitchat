@@ -1,9 +1,9 @@
 <template>
 	<div class="overlayendingcredits" v-if="data && slotList && !noEntry" :style="styles" ref="holder">
 		<template v-for="item in slotList">
-			<div :class="item.holderClasses" :style="item.categoryStyles">
-				<h1 :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
-				<div class="list" :style="item.entryStyles">
+			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem">
+				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
+				<div data-list class="list" :style="item.entryStyles">
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
@@ -257,6 +257,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(item.slotType == "text" && !item.text) res.push("noText");
 		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
 		if(!item.label) res.push("noLabel");
+		if(this.data.params.stickyTitle === true) res.push("sticky");
 		return res;
 	}
 
@@ -275,13 +276,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			color: this.data?.params?.colorEntry,
 			fontFamily: this.data?.params?.fontEntry+", Inter",
 			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
 	}
 
 	public getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
 		const res:StyleValue = {
-			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
+			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
 	}
@@ -481,11 +483,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
 		if(e.data) {
-			console.log(Date.now());
 			this.data = (e.data as unknown) as TwitchatDataTypes.StreamSummaryData;
 			this.buildSlots();
 			this.reset();
-			console.log(Date.now());
 		}
 	}
 
@@ -556,6 +556,34 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 */
 	private renderFrame(ts:number):void {
 		this.animFrame = requestAnimationFrame((ts)=>this.renderFrame(ts));
+		
+		const fadeSize = this.data?.params?.fadeSize || 0;
+		const lists = this.$refs.listItem as HTMLDivElement[];
+		lists.forEach(item => {
+			const title = item.querySelector("[data-title]") as HTMLDivElement | null;
+			const list = item.querySelector("[data-list]") as HTMLDivElement;
+			let titleTop = 0;
+			let titleHeight = 0;
+			if(title) {
+				const titleBounds = title.getBoundingClientRect()
+				titleTop = titleBounds.top;
+				titleHeight = titleBounds.height + 20;
+			}
+			const listBounds = list.getBoundingClientRect();
+			const screenHeight = document.body.clientHeight;
+			// const prop = "background"
+			const prop = "maskImage";
+			if(this.data?.params?.stickyTitle !== true) {
+				list.style[prop] = "unset";
+				item.style[prop] = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
+			}else{
+				if(title) title.style.top = fadeSize+"px";
+				list.style[prop] = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
+				item.style[prop] = "unset";
+			}
+			
+			document.body.style[prop] = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
+		})
 		
 		if(this.paused) return;
 		if(this.noEntry) return;
@@ -642,13 +670,11 @@ interface SlotItem {
 
 	.category {
 		font-family: "Inter";
-		margin-bottom: 7em;
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		h1 {
-			margin-bottom: 1em;
 			font-size: 2.5em;
 			text-align: center;
 			z-index: 1;
@@ -656,7 +682,6 @@ interface SlotItem {
 				height: 1em;
 				width: 1em;
 				margin-right: .25em;
-				margin-left: -1.5em;
 			}
 			&:empty {
 				display: none;
@@ -713,6 +738,13 @@ interface SlotItem {
 					font-size: .8em;
 					font-weight: 300;
 				}
+			}
+		}
+
+		&.sticky {
+			h1 {
+				position: sticky;
+				top: 0;
 			}
 		}
 

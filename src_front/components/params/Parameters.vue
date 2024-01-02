@@ -38,12 +38,6 @@
 				:disabled="!editPins"
 				:animation="250"
 				@sort="onEditMenu()">
-					<!-- <template #header>
-						<TTButton class="editModeBt" primary
-							@click="editPins = !editPins;"
-							v-tooltip="$t('params.customize_sections_tt')"
-							:icon="editPins? 'unpin' : 'pin'" />
-					</template> -->
 					<template #item="{element, index}:{element:MenuEntry, index:number}">
 						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
 							<TTButton @click="openPage(element.page, true)"

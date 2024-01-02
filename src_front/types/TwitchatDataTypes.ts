@@ -1656,6 +1656,7 @@ export namespace TwitchatDataTypes {
 		scale:number;
 		padding:number;
 		paddingTitle:number;
+		stickyTitle:boolean;
 		colorTitle:string;
 		colorEntry:string;
 		fontTitle:string;
@@ -1667,6 +1668,7 @@ export namespace TwitchatDataTypes {
 		loop:boolean;
 		showIcons:boolean;
 		speed:number;
+		fadeSize:number;
 		slots:EndingCreditsSlotParams[];
 	}
 

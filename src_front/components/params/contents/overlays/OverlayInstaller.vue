@@ -17,8 +17,9 @@
 		</template>
 
 		<div v-else class="field">
-			<button class="backBt" @click="showInput = false" v-if="obsConnected"><Icon name="back" /></button>
+			<button class="backBt" @click="showInput = false"><Icon name="back" /></button>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
+			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
 		</div>
 
 		<div class="card-item instructions" v-if="showInput && $slots.default">
@@ -33,6 +34,8 @@ import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
+import gsap from 'gsap';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -74,6 +77,7 @@ export default class OverlayInstaller extends Vue {
 
 	public showInput:boolean = false;
 	public showSuccess:boolean = false;
+	public confirmCopy:boolean = false;
 	public isExistingSource:boolean = false;
 
 	private successTO:number = -1;
@@ -108,6 +112,16 @@ export default class OverlayInstaller extends Vue {
 		this.$emit("obsSourceCreated", {sourceName:name});
 	}
 
+	public copyUrl():void {
+		this.confirmCopy = true;
+		setTimeout(()=> {
+			this.confirmCopy = false;
+		}, 1500)
+		const holder = this.$refs.copyButton as HTMLDivElement;
+		gsap.fromTo(holder, {scale:2}, {duration: 1, ease:"elastic.out", scale:1});
+		Utils.copyToClipboard(this.localURL);
+	}
+
 }
 </script>
 
@@ -140,14 +154,25 @@ export default class OverlayInstaller extends Vue {
 		align-items: center;
 		justify-content: center;
 		width: 100%;
+		.copyBt {
+			margin-left: -2em;
+			.icon {
+				padding-left: .75em;
+			}
+		}
+		.backBt {
+			.icon {
+				padding-right: .75em;
+			}
+		}
 		.icon {
 			display: block;
 			height: 1em;
 			color: var(--color-text);
-			padding-right: .75em;
 		}
 		input {
 			flex-grow: 1;
+			padding-right: 1.5em;
 		}
 	}
 

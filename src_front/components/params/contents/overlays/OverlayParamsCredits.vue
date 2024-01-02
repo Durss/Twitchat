@@ -9,152 +9,158 @@
 			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
 		</section>
 		
-		
 		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="credits" /> {{ $t("overlay.credits.slot_list") }}</div>
+			</div>
+
+			<div class="slots">
+				<draggable
+				:animation="250"
+				group="description"
+				ghostClass="ghost"
+				item-key="id"
+				handle=".slotHolder>.header"
+				v-model="data.slots">
+					<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
+						<ToggleBlock class="slotHolder"
+						medium
+						editableTitle
+						v-model:title="element.label"
+						:open="false"
+						:key="'item_'+element.id"
+						:titleDefault="$t(getDefinitionFromSlot(element.slotType).label)"
+						:premium="getDefinitionFromSlot(element.slotType).premium">
+							<template #left_actions>
+								<div class="icons">
+									<Icon name="dragZone" />
+									<Icon :name="getDefinitionFromSlot(element.slotType).icon" />
+									<Icon name="premium" v-tooltip="$t('premium.premium_only_tt')" v-if="getDefinitionFromSlot(element.slotType).premium" />
+								</div>
+							</template>
+							
+							<template #right_actions>
+								<div class="rightActions">
+									<!-- <Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
+									icon="premium" premium
+									v-tooltip="$t('premium.become_premiumBt')"
+									@click.prevent="openPremium()" /> -->
+									<ToggleButton v-model="element.enabled" />
+									<Button class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
+								</div>
+							</template>
+
+							<div class="content">
+								<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium && !isPremium">
+									<p><Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}</p>
+									<Button icon="premium" @click="openPremium()" light premium small>{{$t('premium.become_premiumBt')}}</Button>
+								</div>
+								<div class="card-item layout">
+									<!-- <PremiumLockLayer v-if="slotTypes.find(v => v.id == element.slotType)?.premium" /> -->
+									<div class="form">
+										<Icon name="layout" />
+										<label>{{ $t("overlay.credits.param_layout") }}</label>
+										<div class="layoutBtns">
+											<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
+											<Button icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
+											<Button icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
+											<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+										</div>
+									</div>
+								</div>
+
+								<template v-if="element.slotType == 'cheers'">
+									<ParamItem :paramData="param_normalCheers[element.id]" v-model="element.showNormalCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_pinnedCheers[element.id]" v-model="element.showPinnedCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+
+								<template v-if="element.slotType == 'rewards'">
+									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+
+								<template v-if="element.slotType == 'subs'">
+									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
+									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
+									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
+									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+									
+								<template v-if="element.slotType == 'chatters'">
+									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+								<ParamItem :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
+								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								
+								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
+									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
+								</ParamItem> -->
+							</div>
+						</ToggleBlock>
+					</template>
+				</draggable>
+			</div>
+
+			<Button class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+			
+			<div class="slotSelector" v-else>
+				<CloseButton @click="showSlotOptions = false" />
+				<Button class="slotBt"
+				v-for="slot in slotTypes"
+				:icon="slot.icon"
+				:premium="slot.premium"
+				@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
+			</div>
+
+			<div class="center" v-if="overlayExists">
+				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
+			</div>
+
+			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+		</section>
+
+		<!-- <ToggleBlock :title="$t('overlay.credits.parameters')" secondary :open="false" :icons="['params']"> -->
+		
+		
+		<section class="card-item parameters">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
-
-		<ToggleBlock :title="$t('overlay.credits.parameters')" secondary :open="false" :icons="['params']">
-			<div class="globalParams">
-				<ParamItem :paramData="param_scale" v-model="data.scale" />
-				<ParamItem :paramData="param_padding" v-model="data.padding" />
-				<ParamItem :paramData="param_paddingTitle" v-model="data.paddingTitle" />
-				<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
-				<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
-				<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
-				<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
-				<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
-				<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
-				<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
-				<ParamItem :paramData="param_loop" v-model="data.loop" premium />
-				<ParamItem :paramData="param_timing" v-model="data.timing" premium>
-					<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
-					<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
-				</ParamItem>
-			</div>
-		</ToggleBlock>
-
-		<div class="slots">
-			<draggable
-			:animation="250"
-			group="description"
-			ghostClass="ghost"
-			item-key="id"
-			handle=".slotHolder>.header"
-			v-model="data.slots">
-				<template #item="{element, index}:{element:TwitchatDataTypes.EndingCreditsSlotParams, index:number}">
-					<ToggleBlock class="slotHolder"
-					medium
-					editableTitle
-					v-model:title="element.label"
-					:titleDefault="$t(getDefinitionFromSlot(element.slotType).label)"
-					:key="'item_'+element.id"
-					:open="false"
-					:premium="getDefinitionFromSlot(element.slotType).premium">
-						<template #left_actions>
-							<div class="icons">
-								<Icon name="dragZone" />
-								<Icon :name="getDefinitionFromSlot(element.slotType).icon" />
-								<Icon name="premium" v-tooltip="$t('premium.premium_only_tt')" v-if="getDefinitionFromSlot(element.slotType).premium" />
-							</div>
-						</template>
-						
-						<template #right_actions>
-							<div class="rightActions">
-								<!-- <Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
-								icon="premium" premium
-								v-tooltip="$t('premium.become_premiumBt')"
-								@click.prevent="openPremium()" /> -->
-								<ToggleButton v-model="element.enabled" />
-								<Button class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
-							</div>
-						</template>
-
-						<div class="content">
-							<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium && !isPremium">
-								<p><Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}</p>
-								<Button icon="premium" @click="openPremium()" light premium small>{{$t('premium.become_premiumBt')}}</Button>
-							</div>
-							<div class="card-item layout">
-								<!-- <PremiumLockLayer v-if="slotTypes.find(v => v.id == element.slotType)?.premium" /> -->
-								<div class="form">
-									<Icon name="layout" />
-									<label>{{ $t("overlay.credits.param_layout") }}</label>
-									<div class="layoutBtns">
-										<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-										<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-										<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-										<Button icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
-										<Button icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
-										<Button icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-										<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-										<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-									</div>
-								</div>
-							</div>
-
-							<template v-if="element.slotType == 'cheers'">
-								<ParamItem :paramData="param_normalCheers[element.id]" v-model="element.showNormalCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_pinnedCheers[element.id]" v-model="element.showPinnedCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							</template>
-
-							<template v-if="element.slotType == 'rewards'">
-								<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							</template>
-
-							<template v-if="element.slotType == 'subs'">
-								<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
-								<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
-								<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
-								<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							</template>
-								
-							<template v-if="element.slotType == 'chatters'">
-								<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							</template>
-							<ParamItem :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
-							<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-							
-							<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
-								<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
-							</ParamItem> -->
-						</div>
-					</ToggleBlock>
-				</template>
-			</draggable>
-		</div>
-
-		<Button class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
-		
-		<div class="slotSelector" v-else>
-			<CloseButton @click="showSlotOptions = false" />
-			<Button class="slotBt"
-			v-for="slot in slotTypes"
-			:icon="slot.icon"
-			:premium="slot.premium"
-			@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
-		</div>
-
-		<div class="center" v-if="overlayExists">
-			<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
-		</div>
-
-		<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
-		<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.credits.no_overlay") }}</div>
+			<ParamItem :paramData="param_scale" v-model="data.scale" />
+			<ParamItem :paramData="param_padding" v-model="data.padding" />
+			<ParamItem :paramData="param_paddingTitle" v-model="data.paddingTitle" />
+			<ParamItem :paramData="param_fadeSize" v-model="data.fadeSize" />
+			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
+			<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
+			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
+			<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
+			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
+			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
+			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
+			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
+			<ParamItem :paramData="param_loop" v-model="data.loop" premium />
+			<ParamItem :paramData="param_timing" v-model="data.timing" premium>
+				<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
+				<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
+			</ParamItem>
 		</section>
+		<!-- </ToggleBlock> -->
 
 		<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 			<div>{{ $t("overlay.credits.css") }}</div>
@@ -205,8 +211,10 @@ import OverlayInstaller from './OverlayInstaller.vue';
 })
 export default class OverlayParamsCredits extends Vue {
 
-	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"min"};
-	public param_paddingTitle:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_paddingTitle", icon:"min"};
+	public param_fadeSize:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:50, min:0, max:400, labelKey:"overlay.credits.param_fadeSize", icon:"fade"};
+	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"margin"};
+	public param_paddingTitle:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_paddingTitle", icon:"margin"};
+	public param_stickyTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.credits.param_stickyTitle", icon:"pin"};
 	public param_fontTitle:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontTitle", icon:"font"};
 	public param_fontEntry:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", labelKey:"overlay.credits.param_fontEntry", icon:"font"};
 	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
@@ -259,8 +267,10 @@ export default class OverlayParamsCredits extends Vue {
 		startDelay:0,
 		duration:60,
 		speed:200,
+		fadeSize:50,
 		loop:true,
 		showIcons:true,
+		stickyTitle:false,
 		slots:[],
 	};
 
@@ -558,10 +568,8 @@ export default class OverlayParamsCredits extends Vue {
 <style scoped lang="less">
 .overlayparamscredits{
 	
-	.globalParams {
-		gap: .25em;
-		display: flex;
-		flex-direction: column;
+	.parameters {
+		min-width: 100%;
 	}
 
 	.slots {

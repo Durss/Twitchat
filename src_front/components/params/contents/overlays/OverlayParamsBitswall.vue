@@ -6,19 +6,6 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-			<ParamItem :paramData="param_cristalEffect" noBackground />
-			<div class="demo">
-				<img src="@/assets/img/bitswall/cheermotes_render.gif" :class="param_cristalEffect.value? 'shader' : ''">
-			</div>
-
-			<div class="card-item alert error" v-if="shaderstasticError" @click="shaderstasticError = false" ref="error">
-				<Icon name="alert" /> 
-				<i18n-t scope="global" keypath="overlay.heatDistort.shadertastic_missing">
-					<template #URL>
-						<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.shadertastic_missing_url") }}</a>
-					</template>
-				</i18n-t>
-			</div>
 
 			<OverlayInstaller type="bitswall"
 				:orderToBottom="param_cristalEffect.value"
@@ -27,6 +14,23 @@
 				:css="'html, body{ background-color:transparent;}'"
 				:sourceTransform="{positionX:param_cristalEffect.value? 3000 : 0, positionY:param_cristalEffect.value? 3000 : 0, width:param_cristalEffect.value? 3840 : 1920}"
 				@obsSourceCreated="onObsSourceCreated" />
+				
+			<div class="card-item" @mouseenter="showShaderEffect=true" @mouseleave="showShaderEffect=false">
+				<ParamItem :paramData="param_cristalEffect" noBackground />
+	
+				<div :class="showShaderEffect? 'demo open' : 'demo'">
+					<img src="@/assets/img/bitswall/cheermotes_render.gif" :class="param_cristalEffect.value? 'shader' : ''">
+				</div>
+	
+				<div class="card-item alert error" v-if="shaderstasticError" @click="shaderstasticError = false" ref="error">
+					<Icon name="alert" /> 
+					<i18n-t scope="global" keypath="overlay.heatDistort.shadertastic_missing">
+						<template #URL>
+							<a href="https://www.shadertastic.com" target="_blank">{{ $t("overlay.heatDistort.shadertastic_missing_url") }}</a>
+						</template>
+					</i18n-t>
+				</div>
+			</div>
 		</section>
 		
 
@@ -86,6 +90,7 @@ export default class OverlayParamsBitswall extends Vue {
 	public overlayExists = false;
 	public checkingOverlayAtStart:boolean = true;
 	public shaderstasticError:boolean = false;
+	public showShaderEffect:boolean = false;
 
 	public param_size:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:10, max: 200, labelKey:"overlay.bitswall.param_size", icon:"scale"};
 	public param_break:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break", icon:"click"};
@@ -210,11 +215,15 @@ export default class OverlayParamsBitswall extends Vue {
 		@scale: .8;
 		position: relative;
 		width: (855px / 2) * @scale;
-		height: 100px * @scale;
+		height: 0;
 		margin: auto;
-		margin-top: .5em;
 		border-radius: var(--border-radius);
 		overflow: hidden;
+		transition: height .25s;
+		&.open {
+			margin-top: .5em;
+			height: 100px * @scale;
+		}
 		img {
 			height: 100px * @scale;
 			&:not(.shader) {
