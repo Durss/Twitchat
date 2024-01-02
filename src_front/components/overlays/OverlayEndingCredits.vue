@@ -276,14 +276,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			color: this.data?.params?.colorEntry,
 			fontFamily: this.data?.params?.fontEntry+", Inter",
 			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
-			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
+			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
 	}
 
 	public getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
 		const res:StyleValue = {
-			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
+			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
 		return res;
 	}
@@ -571,18 +571,32 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			}
 			const listBounds = list.getBoundingClientRect();
 			const screenHeight = document.body.clientHeight;
-			// const prop = "background"
-			const prop = "maskImage";
 			if(this.data?.params?.stickyTitle !== true) {
-				list.style[prop] = "unset";
-				item.style[prop] = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
+				list.style.maskImage = "unset";
+				item.style.maskImage = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
+				//@ts-ignore
+				list.style["-webkit-mask-image"] = "unset";
+				//@ts-ignore
+				item.style["-webkit-mask-image"] = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
 			}else{
 				if(title) title.style.top = fadeSize+"px";
-				list.style[prop] = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
-				item.style[prop] = "unset";
+				list.style.maskImage = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
+				item.style.maskImage = "unset";
+				//@ts-ignore
+				list.style["-webkit-mask-image"] = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
+				//@ts-ignore
+				item.style["-webkit-mask-image"] = "unset";
 			}
 			
-			document.body.style[prop] = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
+			if(fadeSize>1) {
+				document.body.style.maskImage = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
+				//@ts-ignore
+				document.body.style["-webkit-mask-image"] = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
+			}else{
+				document.body.style.maskImage = "unset";
+				//@ts-ignore
+				document.body.style["-webkit-mask-image"] = "unset";
+			}
 		})
 		
 		if(this.paused) return;
