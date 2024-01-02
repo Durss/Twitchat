@@ -1,23 +1,40 @@
 <template>
-	<ToggleBlock class="overlayparamsadbreak overlayParamsSection" :title="$t('overlay.adBreak.title')" :icons="['ad']" v-newflag="{date:1698940079057, id:'params_overlays_ads'}">
-		<div class="holder">
+	<div class="overlayparamsadbreak overlayParamsSection">
+		<div class="card-item alert center" v-if="!scopeGranted">
+			<p>{{ $t("overlay.heatDistort.needs_scope") }}</p>
+			<Button class="button"
+				icon="obs"
+				light alert
+				@click="grantScopes()">{{ $t('overlay.heatDistort.grant_scopeBt') }}</Button>
+		</div>
 
-			<div class="card-item alert center" v-if="!scopeGranted">
-				<p>{{ $t("overlay.heatDistort.needs_scope") }}</p>
-				<Button class="button"
-					icon="obs"
-					light alert
-					@click="grantScopes()">{{ $t('overlay.heatDistort.grant_scopeBt') }}</Button>
+		<i18n-t tag="div" class="header" scope="global" keypath="overlay.adBreak.description">
+			<template #DASHBOARD_LINK>
+				<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
+			</template>
+		</i18n-t>
+		
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
 
-			<i18n-t tag="div" class="header" scope="global" keypath="overlay.adBreak.description">
-				<template #DASHBOARD_LINK>
-					<a href="https://dashboard.twitch.tv/monetization/ads/ads-manager" target="_blank">{{ $t("overlay.adBreak.description_link") }}</a>
-				</template>
-			</i18n-t>
-			
 			<OverlayInstaller type="adbreak" />
 
+			<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="head">{{ $t("overlay.adBreak.css") }}</div>
+				<ul class="cssStructure">
+					<li>#todo { ... }</li>
+				</ul>
+			</ToggleBlock> -->
+		</section>
+
+
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
+			</div>
+			
 			<ParamItem :paramData="param_showApproaching" v-model="localData.showApproaching">
 				<div class="children">
 					<ParamItem class="child" :paramData="param_approachingStyle" noBackground v-model="localData.approachingStyle" />
@@ -54,22 +71,15 @@
 						</div>
 					</div>
 					<ParamItem class="child" :paramData="param_runningLabel" noBackground v-model="localData.runningLabel" />
-	
+
 					<div class="center" v-if="overlayExists">
 						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
 					</div>
 					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
 				</div>
 			</ParamItem>
-
-			<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
-				<div class="head">{{ $t("overlay.adBreak.css") }}</div>
-				<ul class="cssStructure">
-					<li>#todo { ... }</li>
-				</ul>
-			</ToggleBlock> -->
-		</div>
-	</ToggleBlock>
+		</section>
+	</div>
 </template>
 
 <script lang="ts">
@@ -234,65 +244,55 @@ export default class OverlayParamsAdBreak extends Vue {
 
 <style scoped lang="less">
 .overlayparamsadbreak{
-	
-	.holder {
-		.children {
-			gap: .25em;
-			display: flex;
-			flex-direction: column;
+	.children {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+	}
+	.placement {
+		position: relative;
+		&::before {
+			position: absolute;
+			left: -1em;
+			top: .1em;
+			font-size: 1em;
+			content: "⤷";
+			display: block;
 		}
-		.placement {
-			position: relative;
+		.holder {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			.icon {
+				height: 1em;
+				margin-right: .5em;
+			}
+			&:hover::before {
+				opacity: 1;
+			}
+
 			&::before {
+				content: "";
+				opacity: 0;
+				top: 0;
+				left: 0;
+				width: 100%;
+				height: 100%;
 				position: absolute;
-				left: -1em;
-				top: .1em;
-				font-size: 1em;
-				content: "⤷";
-				display: block;
+				filter: blur(5px);
+				pointer-events: none;
+				background-color: var(--background-color-fadest);
+				background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
 			}
-			.holder {
-				display: flex;
-				flex-direction: row;
-				justify-content: space-between;
-				.icon {
-					height: 1em;
-					margin-right: .5em;
-				}
-				&:hover::before {
-					opacity: 1;
-				}
-
-				&::before {
-					content: "";
-					opacity: 0;
-					top: 0;
-					left: 0;
-					width: 100%;
-					height: 100%;
-					position: absolute;
-					filter: blur(5px);
-					pointer-events: none;
-					background-color: var(--background-color-fadest);
-					background: linear-gradient(170deg, var(--background-color-fadest) 0%, transparent 100%);
-				}
-			}
-		}
-
-		:deep(.paramitem) {
-			.holder:not(.text) {
-				.inputHolder, select, input {
-					flex-basis: 200px;
-				}
-			}
-		}
-		&>.alert {
-			gap: .5em;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
 		}
 	}
 
+	:deep(.paramitem) {
+		.holder:not(.text) {
+			.inputHolder, select, input {
+				flex-basis: 200px;
+			}
+		}
+	}
 }
 </style>

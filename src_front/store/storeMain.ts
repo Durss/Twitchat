@@ -391,6 +391,14 @@ export const storeMain = defineStore("main", {
 			});
 		
 			/**
+			 * Called when requesting bits wall overlay parameters
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
+				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, JSON.parse(data));
+			});
+		
+			/**
 			 * Called when asking to toggle message merging
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {

@@ -1,76 +1,76 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsraffle overlayParamsSection" :title="$t('overlay.raffle.title')" :icons="['ticket']">
-		<template #right_actions>
-			<Button href="https://www.youtube.com/watch?v=VB4FDqB5kMo"
-			target="_blank"
-			class="youtubeBt"
-			type="link"
-			icon="youtube"
-			alert
-			v-tooltip="$t('overlay.youtube_demo_tt')"
-			@click.stop/>
-		</template>
+	<div class="overlayparamsraffle overlayParamsSection">
+		<div class="header">{{ $t("overlay.raffle.head") }}</div>
 
-		<div class="holder">
-			<div class="info">{{ $t("overlay.raffle.head") }}</div>
-
-			<OverlayInstaller type="wheel" />
-
-			<template v-if="overlayExists || true">
-				<Button class="center" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</Button>
-				
-				<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
-					<div class="cssHead">{{ $t("overlay.raffle.css") }}</div>
-					<ul class="cssStructure">
-						<li>.wheel-item { ... }</li>
-						<li>.wheel-item.selected { ... }</li>
-					</ul>
-				</ToggleBlock>
-			</template>
-
-			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
-
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
-			
-			<div class="card-item footer">
-				<Icon name="info" />
-				<i18n-t scope="global" tag="span" keypath="overlay.raffle.start">
-					<template #MENU><Icon name="commands" class="icon" /></template>
-					<template #CMD><strong>/raffle</strong></template>
-				</i18n-t>
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
+			<OverlayInstaller type="wheel" @obsSourceCreated="getOverlayPresence(true)" />
+			
+			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
+				<div class="cssHead">{{ $t("overlay.raffle.css") }}</div>
+				<ul class="cssStructure">
+					<li>.wheel-item { ... }</li>
+					<li>.wheel-item.selected { ... }</li>
+				</ul>
+			</ToggleBlock>
+		</section>
+
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
+			</div>
+		
+			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
+			
+			<TTButton class="center" v-else-if="overlayExists" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</TTButton>
+	
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+		</section>
+		
+		<div class="card-item footer">
+			<Icon name="info" />
+			<i18n-t scope="global" tag="span" keypath="overlay.raffle.start">
+				<template #MENU><Icon name="commands" class="icon" /></template>
+				<template #CMD><strong>/raffle</strong></template>
+			</i18n-t>
 		</div>
-	</ToggleBlock>
+		
+		<a href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+		</a>
+	</div>
 </template>
 
 <script lang="ts">
+import Icon from '@/components/Icon.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonArray } from "type-fest";
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 	}
 })
 export default class OverlayParamsRaffle extends Vue {
-	
-	@Prop({default:false})
-	public open!:boolean;
 
 	public loading = false;
 	public overlayExists = false;
-	public checkingOverlayAtStart:boolean = true;
+	public checkingOverlayPresence:boolean = true;
 
 	private checkInterval!:number;
 	private subcheckTimeout!:number;
@@ -79,21 +79,13 @@ export default class OverlayParamsRaffle extends Vue {
 	public mounted():void {
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
-			this.checkingOverlayAtStart = false;
+			this.checkingOverlayPresence = false;
 			clearTimeout(this.subcheckTimeout);
 		};
 		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
-		this.checkInterval = window.setInterval(()=>{
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
-			clearTimeout(this.subcheckTimeout);
-			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = setTimeout(()=>{
-				this.overlayExists = false;
-				this.checkingOverlayAtStart = false;
-			}, 1500);
-		}, 2000);
+		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
 	}
 
 	public beforeUnmount():void {
@@ -102,8 +94,22 @@ export default class OverlayParamsRaffle extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
+	/**
+	 * Checks if overlay exists
+	 */
+	public getOverlayPresence(showLoader:boolean = false):void {
+		if(showLoader) this.checkingOverlayPresence = true;
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
+		clearTimeout(this.subcheckTimeout);
+		//If after 1,5s the overlay didn't answer, assume it doesn't exist
+		this.subcheckTimeout = setTimeout(()=>{
+			this.overlayExists = false;
+			this.checkingOverlayPresence = false;
+		}, 1500);
+	}
+
 	public async testWheel():Promise<void> {
-		this.loading = true;
+		this.checkingOverlayPresence = true;
 		let items:TwitchatDataTypes.EntryItem[] = [];
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			const followers = await TwitchUtils.getFollowers(null, 500);

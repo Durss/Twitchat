@@ -8,6 +8,7 @@ import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEv
 import TwitchatEvent from '../events/TwitchatEvent';
 import Logger from './Logger';
 import Utils from './Utils';
+import DataStore from '@/store/DataStore';
 
 /**
 * Created : 29/03/2022 
@@ -891,12 +892,25 @@ export default class OBSWebsocket extends EventDispatcher {
 			const inputConf = await this.obs.call("GetInputSettings", {inputName:input.inputName as string});
 			//Ignore local file sources
 			if(inputConf.inputSettings.is_local_file === true) continue;
-			const url = new URL(inputConf.inputSettings.url as string || "");
+			const urlParsed = new URL(inputConf.inputSettings.url as string || "");
 			//If source URL contains both expected path and hostname, consider it's what's we're searching for
-			if(url.pathname == pathToFind && url.hostname == hostToFind) {
+			if(urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
 				//If a twitchat overlay ID is expected check if it exists
-				if(idToFind && url.searchParams.get("twitchat_overlay_id") != idToFind) continue;
+				if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) continue;
 				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
+				//Update OBS websocket params on URL if necessary
+				const port = DataStore.get(DataStore.OBS_PORT);
+				const pass = DataStore.get(DataStore.OBS_PASS);
+				const ip = DataStore.get(DataStore.OBS_IP);
+				if(urlParsed.searchParams.get("obs_port") != port 
+				|| urlParsed.searchParams.get("obs_ip") != ip
+				|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {
+					urlParsed.searchParams.set("obs_port", port);
+					urlParsed.searchParams.set("obs_ip", ip);
+					if(pass) urlParsed.searchParams.set("obs_pass", pass);
+					const inputSettings = { url: urlParsed.href };
+					const res = await this.obs.call('SetInputSettings', {inputName:sourceName, inputSettings});
+				}
 				break;
 			}
 		}
@@ -931,8 +945,8 @@ export default class OBSWebsocket extends EventDispatcher {
 			shutdown: true,
 		};
 		const res = await this.obs.call('CreateInput',{sceneName, inputName:sourceName, inputKind:"browser_source", sceneItemEnabled:true, inputSettings});
-		if(res && orderToBottom) {
-			this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
+		if(res) {
+			if(orderToBottom) this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
 			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
 				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
 			}

@@ -18,7 +18,7 @@
 					v-if="label"
 					v-html="label"
 					v-tooltip="{content:tooltip, followCursor:'horizontal'}"
-					@click="if(!paramData.noInput) paramData.value = !paramData.value;"></label>
+					@click="if(!paramData.noInput && ($event.target as HTMLElement).nodeName != 'A') paramData.value = !paramData.value;"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
 					v-model="paramData.value"

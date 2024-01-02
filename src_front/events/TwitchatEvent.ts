@@ -33,6 +33,7 @@ export default class TwitchatEvent extends Event {
 	public static CURRENT_TRACK:TwitchatEventType = "CURRENT_TRACK";
 	public static TRACK_ADDED_TO_QUEUE:TwitchatEventType = "TRACK_ADDED_TO_QUEUE";
 	public static WHEEL_OVERLAY_PRESENCE:TwitchatEventType = "WHEEL_OVERLAY_PRESENCE";
+	public static BITSWALL_OVERLAY_PRESENCE:TwitchatEventType = "BITSWALL_OVERLAY_PRESENCE";
 	public static CREDITS_OVERLAY_PRESENCE:TwitchatEventType = "CREDITS_OVERLAY_PRESENCE";
 	public static COUNTDOWN_START:TwitchatEventType = "COUNTDOWN_START";
 	public static COUNTDOWN_COMPLETE:TwitchatEventType = "COUNTDOWN_COMPLETE";
@@ -69,6 +70,7 @@ export default class TwitchatEvent extends Event {
 	public static AD_BREAK_OVERLAY_PARAMETERS:TwitchatEventType = "AD_BREAK_OVERLAY_PARAMETERS";
 	public static AD_BREAK_DATA:TwitchatEventType = "AD_BREAK_DATA";
 	public static DISTORT_OVERLAY_PARAMETERS:TwitchatEventType = "DISTORT_OVERLAY_PARAMETERS";
+	public static BITSWALL_OVERLAY_PARAMETERS:TwitchatEventType = "BITSWALL_OVERLAY_PARAMETERS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -101,6 +103,7 @@ export default class TwitchatEvent extends Event {
 	public static GET_CURRENT_TRACK:TwitchatActionType = "GET_CURRENT_TRACK";
 	public static WHEEL_OVERLAY_START:TwitchatActionType = "WHEEL_OVERLAY_START";
 	public static GET_WHEEL_OVERLAY_PRESENCE:TwitchatActionType = "GET_WHEEL_OVERLAY_PRESENCE";
+	public static GET_BITSWALL_OVERLAY_PRESENCE:TwitchatActionType = "GET_BITSWALL_OVERLAY_PRESENCE";
 	public static GET_CREDITS_OVERLAY_PRESENCE:TwitchatActionType = "GET_CREDITS_OVERLAY_PRESENCE";
 	public static GET_TIMER_OVERLAY_PRESENCE:TwitchatActionType = "GET_TIMER_OVERLAY_PRESENCE";
 	public static GET_CURRENT_TIMERS:TwitchatActionType = "GET_CURRENT_TIMERS";
@@ -134,10 +137,10 @@ export default class TwitchatEvent extends Event {
 	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
 	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
 	public static GET_SUMMARY_DATA:TwitchatActionType = "GET_SUMMARY_DATA";	
-	public static GET_ENDING_CREDITS_CONFIGS:TwitchatActionType = "GET_ENDING_CREDITS_CONFIGS";
 	public static GET_AD_BREAK_OVERLAY_PRESENCE:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PRESENCE";
 	public static GET_AD_BREAK_OVERLAY_PARAMETERS:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PARAMETERS";
 	public static GET_DISTORT_OVERLAY_PARAMETERS:TwitchatActionType = "GET_DISTORT_OVERLAY_PARAMETERS";
+	public static GET_BITS_WALL_OVERLAY_PARAMETERS:TwitchatActionType = "GET_BITS_WALL_OVERLAY_PARAMETERS";
 	public static CUSTOM_CHAT_MESSAGE:TwitchatActionType = "CUSTOM_CHAT_MESSAGE";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
@@ -168,6 +171,7 @@ export const TwitchatEventTypeList = [
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",
 	"WHEEL_OVERLAY_PRESENCE",
+	"BITSWALL_OVERLAY_PRESENCE",
 	"CREDITS_OVERLAY_PRESENCE",
 	"COUNTDOWN_START",
 	"COUNTDOWN_COMPLETE",
@@ -207,6 +211,7 @@ export const TwitchatEventTypeList = [
 	"AD_BREAK_OVERLAY_PARAMETERS",
 	"AD_BREAK_DATA",
 	"DISTORT_OVERLAY_PARAMETERS",
+	"BITSWALL_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -240,6 +245,7 @@ export const TwitchatActionTypeList = [
 	"CENSOR_DELETED_MESSAGES_TOGGLE",
 	"GET_CURRENT_TRACK",
 	"GET_WHEEL_OVERLAY_PRESENCE",
+	"GET_BITSWALL_OVERLAY_PRESENCE",
 	"GET_CREDITS_OVERLAY_PRESENCE",
 	"WHEEL_OVERLAY_START",
 	"GET_CURRENT_TIMERS",
@@ -274,10 +280,10 @@ export const TwitchatActionTypeList = [
 	"CREATE_RAFFLE",
 	"STOP_RAFFLE",
 	"GET_SUMMARY_DATA",
-	"GET_ENDING_CREDITS_CONFIGS",
 	"GET_AD_BREAK_OVERLAY_PRESENCE",
 	"GET_AD_BREAK_OVERLAY_PARAMETERS",
 	"GET_DISTORT_OVERLAY_PARAMETERS",
+	"GET_BITS_WALL_OVERLAY_PARAMETERS",
 	"CUSTOM_CHAT_MESSAGE",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

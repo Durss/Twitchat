@@ -222,6 +222,13 @@ export default class OverlayAdBreak extends AbstractOverlay {
 			isAdComing		= true;
 			startDate		= this.adData.nextAdStart_at;
 		}
+		this.progressPercent = 1 - (startDate - Date.now()) / duration;
+
+		if(this.progressPercent >= 1) {
+			this.adType = "none";
+			this.doHide();
+			return;
+		}
 
 		if(!isAdRunning && !isAdComing) {
 			this.adType = "none";
@@ -241,7 +248,6 @@ export default class OverlayAdBreak extends AbstractOverlay {
 		
 		this.adType		= isAdRunning? "running" : "approaching";
 		this.component	= this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
-		this.progressPercent = 1 - (startDate - Date.now()) / duration;
 		
 		if(this.progressPercent <= 0) {
 			this.doHide();

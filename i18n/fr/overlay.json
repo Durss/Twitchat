@@ -8,7 +8,9 @@
 		"manual_installBt": "Installation manuelle",
 		"install_success":"Source OBS créée",
 		"install_success_exists":"Une source navigateur pour cet overlay existait déjà dans vos scènes.\nElle a été copiée dans votre scène courante.",
-		"youtube_demo_tt":"Voir une démo sur Youtube",
+		"youtube_demo_tt":"Voir un tutoriel",
+		"title_install":"Installer",
+		"title_settings":"Configurations",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
@@ -20,7 +22,7 @@
 			"title": "Roue animée",
 			"head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS",
-			"no_overlay": "overlay non configuré ou masqué",
+			"no_overlay": "Overlay non configuré ou masqué",
 			"start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
 			"testBt": "Lancer une animation de test"
 		},
@@ -49,7 +51,7 @@
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
 			"message_pos": "Position du message",
 			"testBt": "Tester",
-			"no_overlay": "overlay non configuré ou masqué",
+			"no_overlay": "Overlay non configuré ou masqué",
 			"alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 		"music_common": {
@@ -243,6 +245,15 @@
 			"ad_approaching":"Pub dans {'{'}TIMER{'}'}s",
 			"ad_running":"Pub: {'{'}TIMER{'}'}s",
 			"testBt": "Tester"
+		},
+		"bitswall":{
+			"head":"Les bits reçus tomberont sur votre stream.\nLes viewers peuvent \"casser\" les bits en plus petits en les cliquant via l'extension Heat.",
+			"no_overlay":"Overlay non configuré ou masqué",
+			"testBt":"Envoyer des bits",
+			"param_size":"Taille minimale des cheermotes ({VALUE}%)",
+			"param_break":"Permettre aux viewers de casser les cheermotes (nécessite le plugin Heat)",
+			"param_break_senderOnly":"Autoriser les viewers à casser uniquement leurs propres cheermotes",
+			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)"
 		}
 	}
 }

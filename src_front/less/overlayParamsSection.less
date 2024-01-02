@@ -1,51 +1,100 @@
 .overlayParamsSection {
-	.youtubeBt {
-		margin: -.25em 0;
-		border-radius: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 1em;
+
+	&>.header {
+		line-height: 1.2em;
+		white-space: pre-line;
+		text-align: center;
+		margin-bottom: .5em
 	}
-	.holder {
+
+	&>.alert {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
+
+	.footer {
+		.bevel();
+		font-size: .9em;
+		font-style: italic;
+		line-height: 1.2em;
+		text-align: center;
+		background-color: var(--color-alert-fadest);
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+	}
+
+	.center {
+		margin: auto;
+	}
+
+	.shrink {
+		margin: auto;
+	}
+	.cssStructure {
+		margin-top: .5em;
+	}
+	.cssHead {
+		line-height: 1.2em;
+	}
+	.cssCategory {
+		margin-top: .5em;
+		font-weight: bold;
+	}
+
+	&>section {
 		display: flex;
 		flex-direction: column;
 		gap: .5em;
-
-		.header {
-			line-height: 1.2em;
-			white-space: pre-line;
+		margin: auto;
+		&>.header {
+			margin-bottom: 0;
 		}
-
-		.footer {
-			.bevel();
-			font-size: .9em;
-			font-style: italic;
-			line-height: 1.2em;
-			text-align: center;
-			background-color: var(--color-alert-fadest);
-			.icon {
-				height: 1em;
-				margin-right: .25em;
-			}
-		}
-
-		.center {
-			margin: auto;
+			
+		&>.icon {
+			height: 1em;
+			margin-right: .5em;
 		}
 
 		.loader {
 			height: 2.5em;
+			margin: auto;
 		}
+	}
 
-		.shrink {
-			margin-right: auto;
+	.youtubeBt {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+		border-radius: var(--border-radius);
+		transition: background-color .25s;
+		background-color: #cc0000;
+		text-decoration: none;
+		padding: 1em;
+		margin: auto;
+		&>.icon {
+			height: 4em;
+			transition: height .25s;
 		}
-		.cssStructure {
-			margin-top: .5em;
+		span {
+			color: #fff;
+			.icon {
+				height: 1em;
+				vertical-align: bottom;
+				margin-left: .25em;
+			}
 		}
-		.cssHead {
-			line-height: 1.2em;
-		}
-		.cssCategory {
-			margin-top: .5em;
-			font-weight: bold;
+		&:hover {
+			background-color: #ee0000;
+			&>.icon {
+				height: 4.5em;
+			}
 		}
 	}
 }

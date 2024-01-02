@@ -1,33 +1,20 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamscounter overlayParamsSection" :title="$t('overlay.counters.title')" :icons="['count']">
-		<template #right_actions>
-			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD"
-			target="_blank"
-			class="youtubeBt"
-			type="link"
-			icon="youtube"
-			alert
-			v-tooltip="$t('overlay.youtube_demo_tt')"
-			@click.stop/>
-		</template>
+	<div class="overlayparamscounter overlayParamsSection">
 		
-		
-		<div class="holder" v-if="counters.length == 0">
+		<template v-if="counters.length == 0">
 			<div class="header">{{ $t("overlay.counters.head_empty") }}</div>
 			<Button class="center" icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
 			<OverlayCounter class="counterExample" embed :staticCounterData="counterExample" />
 			<OverlayCounter class="padding counterExample" embed :staticCounterData="progressExample" />
-		</div>
+		</template>
 
-		<div class="holder" v-else>
+		<template v-else>
 			<div class="header">{{ $t("overlay.counters.head") }}</div>
 
 			<div class="counterList">
 				<div class="card-item counter" v-for="c in counters" :key="c.id">
 					<div class="title">{{ c.name }}</div>
-					<!-- <input class="primary" type="text" :id="'input_'+c.id" :value="getOverlayUrl(c)" v-click2Select> -->
-					<!-- <OverlayCounter class="counterExample" embed :staticCounterData="c" v-if="!c.perUser" /> -->
-					<OverlayInstaller class="installer" type="counter" :id="c.id" :sourceSuffix="c.name" :queryParams="{cid:c.id}" :sourceTransform="getOverlayTransform(c)" />
+					<OverlayInstaller type="counter" :id="c.id" :sourceSuffix="c.name" :queryParams="{cid:c.id}" :sourceTransform="getOverlayTransform(c)" />
 				</div>
 			</div>
 
@@ -89,9 +76,14 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-		</div>
 
-	</ToggleBlock>
+			<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank" class="youtubeBt">
+				<Icon name="youtube" theme="light" />
+				<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+			</a>
+		</template>
+
+	</div>
 </template>
 
 <script lang="ts">
@@ -114,9 +106,6 @@ import type { SourceTransform } from '@/utils/OBSWebsocket';
 	emits:[]
 })
 export default class OverlayParamsCounter extends Vue {
-	
-	@Prop({default:false})
-	public open!:boolean;
 	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
@@ -175,15 +164,11 @@ export default class OverlayParamsCounter extends Vue {
 			justify-content: space-between;
 			align-items: center;
 			flex-wrap: wrap;
-
 			.title {
 				font-weight: bold;
 				flex-basis: 200px;
 			}
 
-			.installer {
-				width: auto;
-			}
 		}
 	}
 	.counterExample {

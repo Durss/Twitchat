@@ -1,7 +1,7 @@
 <template>
-	<ToggleBlock class="overlayparamsheatdistort overlayParamsSection" :title="$t('overlay.heatDistort.title')" :icons="['distort']">
+	<div class="overlayparamsheatdistort overlayParamsSection" :title="$t('overlay.heatDistort.title')" :icons="['distort']">
 
-		<div class="holder card-item alert" v-if="!obsConnected">
+		<div class="card-item alert center" v-if="!obsConnected">
 			<p>{{ $t("heat.need_OBS") }}</p>
 			<Button class="button"
 				icon="obs"
@@ -9,7 +9,7 @@
 				@click="$store.params.openParamsPage(contentObs)">{{ $t('heat.need_OBS_connectBt') }}</Button>
 		</div>
 		
-		<div class="holder" v-else>
+		<template v-else>
 			<div class="header">{{ $t("overlay.heatDistort.description") }}</div>
 
 			<template v-for="(item, index) in distortionList" :key="item.id">
@@ -51,8 +51,8 @@
 					</template>
 				</i18n-t>
 			</div>
-		</div>
-	</ToggleBlock>
+		</template>
+	</div>
 </template>
 
 <script lang="ts">

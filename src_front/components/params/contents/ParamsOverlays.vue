@@ -1,25 +1,25 @@
 <template>
 	<div class="paramsoverlays parameterContent">
 		<Icon name="overlay" class="icon" />
-		<div class="head">{{ $t("overlay.header") }}</div>
+		<div class="head" v-if="subContent == null">{{ $t("overlay.header") }}</div>
 
 		<div class="card-item alert connectObs" v-if="!exchangeChannelAvailable">
 			<i18n-t scope="global" keypath="overlay.connection.title">
 				<template #OBS>
-					<Button class="button"
+					<TTButton class="button"
 						icon="obs"
 						light alert
-						@click="$store.params.openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</Button>
+						@click="$store.params.openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</TTButton>
 				</template>
 				<template #DOCK>
-					<Button class="button"
+					<TTButton class="button"
 						icon="twitchat"
 						light alert
-						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</Button>
-					<Button class="button"
+						@click="showDockTutorial = true" v-if="!showDockTutorial">{{ $t('overlay.connection.dockBt') }}</TTButton>
+					<TTButton class="button"
 						icon="cross"
 						light alert
-						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</Button>
+						@click="showDockTutorial = false" v-if="showDockTutorial">{{ $t('overlay.connection.closeBt') }}</TTButton>
 				</template>
 			</i18n-t>
 			<div v-if="showDockTutorial" class="dockTuto">
@@ -28,21 +28,37 @@
 			</div>
 		</div>
 
-		<div class="card-item primary unified">
+		<!-- <div class="card-item primary unified">
 			<label for="unified_overlays">{{ $t("overlay.unified") }}</label>
 			<input type="text" id="unified_overlays" v-model="overlayUrl">
+		</div> -->
+
+		<div class="list" v-if="subContent == null">
+			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
+			<button class="item" @click="subContent = 'bitswall'"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
+			<button class="item" @click="subContent = 'credits'"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
+			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg"></button>
+			<button class="item" @click="subContent = 'distort'"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
+			<button class="item" @click="subContent = 'adbreak'"><img src="@/assets/img/overlays/ad_break.jpg"></button>
+			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
+			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
+			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
+			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
 		</div>
 		
-		<OverlayParamsCredits class="block blinkBorder"		:open="subContent == 'credits'"		:class="allowHighlight && subContent == 'credits'? 'blink' : ''"		@click="allowHighlight = false" ref="credits" />
-		<OverlayParamsHeatDistort class="block blinkBorder"	:open="subContent == 'heatDistort'"	:class="allowHighlight && subContent == 'heatDistort'? 'blink' : ''"	@click="allowHighlight = false" ref="heatDistort" v-if="$store.main.devmode" />
-		<OverlayParamsRaffle class="block blinkBorder"		:open="subContent == 'wheel'"		:class="allowHighlight && subContent == 'wheel'? 'blink' : ''"			@click="allowHighlight = false" ref="wheel" />
-		<OverlayParamsHighlight class="block blinkBorder"	:open="subContent == 'highlight'"	:class="allowHighlight && subContent == 'highlight'? 'blink' : ''"		@click="allowHighlight = false" ref="highlight" />
-		<OverlayParamsSpotify class="block blinkBorder"		:open="subContent == 'spotify'"		:class="allowHighlight && subContent == 'spotify'? 'blink' : ''"		@click="allowHighlight = false" ref="spotify" />
-		<OverlayParamsTimer class="block blinkBorder"		:open="subContent == 'timer'"		:class="allowHighlight && subContent == 'timer'? 'blink' : ''"			@click="allowHighlight = false" ref="timer" />
-		<OverlayParamsCounter class="block blinkBorder"		:open="subContent == 'counter'"		:class="allowHighlight && subContent == 'counter'? 'blink' : ''"		@click="allowHighlight = false" ref="counter" />
-		<!-- <OverlayParamsTTS class="block blinkBorder"	:open="subContent == 'tts'"			:class="allowHighlight && subContent == 'tts'? 'blink' : ''" /> -->
-		<OverlayParamsAdBreak class="block blinkBorder"		:open="subContent == 'adBreak'"		:class="allowHighlight && subContent == 'adBreak'? 'blink' : ''"		@click="allowHighlight = false" ref="adBreak" v-if="adStuffAvailable" />
-		<OverlayParamsUlule class="block blinkBorder"		:open="subContent == 'ulule'"		:class="allowHighlight && subContent == 'ulule'? 'blink' : ''"			@click="allowHighlight = false" ref="ulule" />
+		<div class="form">
+			<OverlayParamsCredits class="block blinkBorder"		:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
+			<OverlayParamsBitswall class="block blinkBorder"	:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
+			<OverlayParamsHeatDistort class="block blinkBorder"	:open="subContent == 'distort'"			v-if="subContent == 'distort'" />
+			<OverlayParamsRaffle class="block blinkBorder"		:open="subContent == 'wheel'"			v-if="subContent == 'wheel'" />
+			<OverlayParamsHighlight class="block blinkBorder"	:open="subContent == 'chathighlight'"	v-if="subContent == 'chathighlight'" />
+			<OverlayParamsSpotify class="block blinkBorder"		:open="subContent == 'music'"			v-if="subContent == 'music'" />
+			<OverlayParamsTimer class="block blinkBorder"		:open="subContent == 'timer'"			v-if="subContent == 'timer'" />
+			<OverlayParamsCounter class="block blinkBorder"		:open="subContent == 'counter'"			v-if="subContent == 'counter'" />
+			<!-- <OverlayParamsTTS class="block blinkBorder"	:open="subContent == 'tts'"				v-if="subContent == 'tts'" 			/> -->
+			<OverlayParamsAdBreak class="block blinkBorder"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
+			<OverlayParamsUlule class="block blinkBorder"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
+		</div>
 	</div>
 </template>
 
@@ -64,10 +80,11 @@ import OverlayParamsCredits from './overlays/OverlayParamsCredits.vue';
 import OverlayParamsHeatDistort from './overlays/OverlayParamsHeatDistort.vue';
 import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
 import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
+import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		OverlayParamsTTS,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
@@ -76,6 +93,7 @@ import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 		OverlayParamsSpotify,
 		OverlayParamsCounter,
 		OverlayParamsCredits,
+		OverlayParamsBitswall,
 		OverlayParamsHighlight,
 		OverlayParamsHeatDistort,
 	},
@@ -85,7 +103,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
-	public allowHighlight:boolean = true;
+	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
@@ -95,15 +113,17 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 	public get adStuffAvailable():boolean { return Config.instance.AD_API_AVAILABLE; }
 
-	public onNavigateBack(): boolean { return false; }
-
-	public get subContent() { return this.$store.params.currentPageSubContent; }
-
 	public mounted():void {
-		if(this.subContent) {
-			const holder = (this.$refs[this.subContent] as Vue)?.$el;
-			if(holder) holder.scrollIntoView();
+		if(this.$store.params.currentPageSubContent) {
+			this.subContent = this.$store.params.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 		}
+	}
+	public onNavigateBack():boolean {
+		if(this.subContent != null) {
+			this.subContent = null;
+			return true;
+		}
+		return false;
 	}
 }
 
@@ -133,6 +153,33 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		input {
 			margin: .5em 0;
 			width: 100%;
+		}
+	}
+
+	.form {
+
+	}
+
+	.list{
+		gap: .5em;
+		display: flex;
+		flex-wrap: wrap;
+		.item {
+			overflow: hidden;
+			width: calc(50% - .5em);
+			border-radius: var(--border-radius);
+			padding: 0;
+			margin: 0;
+			aspect-ratio: 16/9;
+			transition: filter .25s;
+			img {
+				width: 100%;
+				padding: 0;
+				margin: 0;
+			}
+			&:hover {
+				filter: brightness(1.5);
+			}
 		}
 	}
 }

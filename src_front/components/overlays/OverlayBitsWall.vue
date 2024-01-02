@@ -1,7 +1,7 @@
 <template>
-	<div class="overlaybitswall" @click="onClick">
-		<canvas ref="displacement"></canvas>
-		<canvas ref="textures" style="opacity:1"></canvas>
+	<div :class="classes" @click="onClick">
+		<canvas ref="displacement" :width="sceneWidth" v-show="shaderMode == true"></canvas>
+		<canvas ref="textures" :width="sceneWidth" style="opacity:1"></canvas>
 	</div>
 </template>
 
@@ -20,11 +20,10 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
+import gsap from "gsap";
 import * as Matter from "matter-js";
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
-import gsap from "gsap";
-import OBSWebsocket from "@/utils/OBSWebsocket";
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
@@ -35,7 +34,10 @@ let engine!:Matter.Engine;
 })
 export default class OverlayBitsWall extends AbstractOverlay {
 
+	public shaderMode:boolean = false;
 	public engineReady:boolean = false;
+	public sceneWidth:number = 300;
+	public parameters:TwitchatDataTypes.BitsWallOverlayData|null = null;
 
 	private interval:number = -1;
 	private disposed:boolean = false;
@@ -43,13 +45,24 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	private displacements:HTMLImageElement[] = [];
 	private textureCtx!:CanvasRenderingContext2D;
 	private bitsHandler!:(e:TwitchatEvent)=>void;
+	private paramsDataHandler!:(e:TwitchatEvent)=>void;
+	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
+
+	public get classes():string[] {
+		const res:string[] = ["overlaybitswall"];
+		if(this.shaderMode == true) res.push("shaderMode");
+		return res;
+	}
 
 	public beforeMount():void {
 		this.bitsHandler = (e:TwitchatEvent) => this.onBits(e);
+		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
+		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, this.paramsDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BITS, this.bitsHandler);
 	}
 
 	public mounted():void {
+		this.shaderMode = new URL(document.location.href).searchParams.get("mode") === "shader";
 		this.createEngine();
 		this.onBits(new TwitchatEvent("BITS",{
 				channel:"",
@@ -60,19 +73,20 @@ export default class OverlayBitsWall extends AbstractOverlay {
 					login:"durss",
 					displayName:"Durss",
 				},
-				bits:10001,
+				bits:18712,
 				// bits:100000,
 				pinned:true,
 				pinLevel:Math.floor(Math.random()*8),
 			}));
+
+		this.sceneWidth = document.body.clientWidth;
+
 		this.preloadTextures();
 
-		// OBSWebsocket.instance.socket.call("GetInputSettings", {inputName: "VLC"}).then(res => {
-		// 	console.log(res);
-		// });
-		// OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:"VLC", propertyName:"obs_source_media_next"});
-		// OBSWebsocket.instance.socket.call("PressInputPropertiesButton", {inputName:entry.source.inputName, propertyName:"refreshnocache"});
-		OBSWebsocket.instance.socket.call('TriggerMediaInputAction',{'inputName':"VLC",'mediaAction':'OBS_WEBSOCKET_MEDIA_INPUT_ACTION_NEXT'});
+		PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE);
+		
+		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE); }
+		PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
 	public beforeUnmount():void {
@@ -84,10 +98,26 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		this.engineReady = false;
 		clearInterval(this.interval);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BITS, this.bitsHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 	
 	public requestInfo():void {
-		
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS);
+	}
+
+	/**
+	 * Called when API sends fresh overlay parameters
+	 */
+	private async onParamsData(e:TwitchatEvent):Promise<void> {
+		if(e.data) {
+			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
+			if(this.shaderMode) {
+				this.sceneWidth = document.body.clientWidth/2;
+			}else{
+				this.sceneWidth = document.body.clientWidth;
+			}
+			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
+		}
 	}
 
 	/**
@@ -128,7 +158,9 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			if(this.disposed) return;
 			const scaleOffset = (data.pinLevel || 0) / 7 * 2 + 1;
 			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
-			const scale = scaleOffset * scales[index];
+			const minScale = (this.parameters?.size || 25)/128;
+			const scale = Math.max(minScale, scaleOffset * scales[index]);
+			
 			this.createCheermote({index, scale, scale_prev:scale, uid:data.user.id});
 		}
 	}
@@ -240,7 +272,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		const velocity = [5, 30, 20, 35, 50][index];
 		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][index || 0];
 		const margin = document.body.clientWidth / 10;
-		const px = Math.random() * (document.body.clientWidth/2 - margin * 2) + margin;
+		const px = Math.random() * (this.sceneWidth - margin * 2) + margin;
 		const body = Matter.Bodies.fromVertices(px, -200 - Math.random() * 200, path, {
 													label:"cheermote",
 													plugin:data,
@@ -282,20 +314,20 @@ export default class OverlayBitsWall extends AbstractOverlay {
 
 		engine = Matter.Engine.create({enableSleeping: false});
 		const canvas = this.$refs.displacement as HTMLCanvasElement;
-		canvas.width = textureCnv.width = document.body.clientWidth/2;
+		// canvas.width = textureCnv.width = document.body.clientWidth/2;
 		canvas.height = textureCnv.height = document.body.clientHeight;
 		
 		let renderer = Matter.Render.create({
 			canvas,
 			bounds:{
-				max:{x:document.body.clientWidth/2, y:document.body.clientHeight},
+				max:{x:this.sceneWidth, y:document.body.clientHeight},
 				min:{x:0, y:0},
 			},
 			engine: engine,
 			options: {
 				background:"transparent",
 				wireframeBackground:"transparent",
-				width:document.body.clientWidth/2,
+				width:this.sceneWidth,
 				height:document.body.clientHeight,
 				wireframes:true,
 			},
@@ -308,11 +340,23 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		this.engineReady = true;
 
 		//create floor
-		let floor = Matter.Bodies.rectangle(document.body.clientWidth/4,
+		let floor = Matter.Bodies.rectangle(document.body.clientWidth/2,
 											document.body.clientHeight+25+1,
-											document.body.clientWidth/2, 50,
+											document.body.clientWidth,
+											50,
+											{ isStatic: true, label:"fix", render:{visible:false} });
+		let wallR = Matter.Bodies.rectangle(this.sceneWidth,
+											document.body.clientHeight/2,
+											10,
+											document.body.clientHeight,
+											{ isStatic: true, label:"fix", render:{visible:false} });
+		let wallL = Matter.Bodies.rectangle(0,
+											document.body.clientHeight/2,
+											10,
+											document.body.clientHeight,
 											{ isStatic: true, label:"fix", render:{visible:false} });
 		Matter.Composite.add(engine.world, [floor]);
+		// Matter.Composite.add(engine.world, [wallL, wallR]);
 
 		// this.renderFrame();
 		Matter.Runner.run(engine)
@@ -363,7 +407,10 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			const body = engine.world.bodies[i];
 			if(body.label  == "cheermote") {
 				const data = body.plugin as CheermoteData;
-				if(body.position.y > vph + 50) {
+				if(body.position.y > vph + 50
+				|| body.position.x < -50
+				|| body.position.x > this.sceneWidth + 50) {
+					console.log("delete");
 					Matter.Composite.remove(engine.world, body);
 					i--;
 					continue;
@@ -404,13 +451,10 @@ interface CheermoteData {
 
 <style scoped lang="less">
 .overlaybitswall {
-	background: linear-gradient(90deg, #808000ff 50%, #80800000 50%);
 	width: 100vw;
 	height: 100vh;
-	// canvas {
-	// 	top: 0;
-	// 	left: 0;
-	// 	position: absolute;
-	// }
+	&.shaderMode {
+		background: linear-gradient(90deg, #808000ff 50%, #80800000 50%);
+	}
 }
 </style>

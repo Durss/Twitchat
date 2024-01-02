@@ -1,14 +1,14 @@
 <template>
 	<div class="overlayinstaller">
 		<template v-if="obsConnected && !showInput && !showSuccess">
-			<Button class="createBt" icon="obs" primary
+			<TTButton class="createBt" icon="obs" primary
 			@click="createBrowserSource()"
 			v-tooltip="$t('overlay.1click_install_tt')"
-			:disabled="disabled">{{ $t("overlay.1click_install") }}</Button>
+			:disabled="disabled">{{ $t("overlay.1click_install") }}</TTButton>
 
 			<span>{{$t("global.or")}}</span>
 			
-			<Button class="createBt" icon="edit" @click="showInput = true" small :disabled="disabled">{{ $t("overlay.manual_installBt") }}</Button>
+			<TTButton class="createBt" icon="edit" @click="showInput = true" small :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
 		</template>
 		
 		<template v-else-if="showSuccess">
@@ -36,7 +36,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 	},
 	emits:["obsSourceCreated"],
 })

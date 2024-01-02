@@ -1362,6 +1362,15 @@ import Ajv from "ajv";
 					pinned: {type:"boolean"},
 				},
 			}
+		},
+		bitsWallParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				size: {type:"number", minimum:1, maximum:200},
+				break: {type:"boolean"},
+				break_senderOnly: {type:"boolean"},
+			},
 		}
 	}
 }

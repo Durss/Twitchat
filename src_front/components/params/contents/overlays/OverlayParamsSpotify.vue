@@ -1,18 +1,6 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamsspotify overlayParamsSection" title="Spotify" :icons="['spotify']">
-		<template #right_actions>
-			<Button href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629"
-			target="_blank"
-			class="youtubeBt"
-			type="link"
-			icon="youtube"
-			alert
-			v-tooltip="$t('overlay.youtube_demo_tt')"
-			@click.stop/>
-		</template>
-
-		<div class="holder" v-if="spotifyConnected">
-	
+	<div class="overlayparamsspotify overlayParamsSection">
+		<template v-if="spotifyConnected">
 			<div class="card-item playerHolder center">
 				<div class="label">{{ $t("global.example") }}</div>
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
@@ -26,13 +14,17 @@
 				</template>
 			</i18n-t>
 
-		</div>
-		<div class="holder" v-else>
+		</template>
+		<template v-else>
 			<div class="header">{{ $t("overlay.music_common.music") }}</div>
-			<Button class="center" @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</Button>
-		</div>
-
-	</ToggleBlock>
+			<TTButton class="center" @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</TTButton>
+		</template>
+		
+		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+		</a>
+	</div>
 </template>
 
 <script lang="ts">
@@ -47,9 +39,8 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
-		ToggleBlock,
 		OverlayParamsMusic,
 		OverlayMusicPlayer,
 	},
@@ -57,8 +48,6 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 })
 export default class OverlayParamsSpotify extends Vue {
 	
-	@Prop({default:false})
-	public open!:boolean;
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
@@ -74,19 +63,17 @@ export default class OverlayParamsSpotify extends Vue {
 
 <style scoped lang="less">
 .overlayparamsspotify{
-	.holder {
-		.playerHolder {
-			width: 100%;
-			max-width: 300px;
-			.label {
-				text-align: center;
-				margin: 0;
-				margin-bottom: .5em;
-			}
-			.player {
-				margin: auto;
-				max-width: 60vw;
-			}
+	.playerHolder {
+		width: 100%;
+		max-width: 300px;
+		.label {
+			text-align: center;
+			margin: 0;
+			margin-bottom: .5em;
+		}
+		.player {
+			margin: auto;
+			max-width: 60vw;
 		}
 	}
 }

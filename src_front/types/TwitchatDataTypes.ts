@@ -18,22 +18,15 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
-		WHEEL: "wheel",
-		TIMER: "timer",
-		ULULE: "ulule",
-		CREDITS: "credits",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		PREMIUM: "premium",
-		COUNTER: "counter",
 		YOUTUBE: "youtube",
-		AD_BREAK: "adBreak",
 		HIGHLIGHT: "highlight",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
-		HEAT_DISTORT: "heatDistort",
 	} as const;
-	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections];
+	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
 	
 	/**
 	 * Parameters menue categories
@@ -1696,6 +1689,15 @@ export namespace TwitchatDataTypes {
 		runningPlacement:ScreenPosition;
 		approachingLabel:string;
 		runningLabel:string;
+	}
+
+	/**
+	 * Contains params about the bits wall overlay
+	 */
+	export interface BitsWallOverlayData {
+		size:number;
+		break:boolean;
+		break_senderOnly:boolean;
 	}
 
 

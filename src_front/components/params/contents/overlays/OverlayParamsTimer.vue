@@ -1,28 +1,16 @@
 <template>
-	<ToggleBlock :open="open" class="overlaytimer overlayParamsSection" :title="$t('overlay.timer.title')" :icons="['countdown']">
-		<template #right_actions>
-			<Button href="https://www.youtube.com/watch?v=x_OnsPRA8Bs"
-			target="_blank"
-			class="youtubeBt"
-			type="link"
-			icon="youtube"
-			alert
-			v-tooltip="$t('overlay.youtube_demo_tt')"
-			@click.stop/>
-		</template>
-
-		<div class="holder">
-			<i18n-t scope="global" class="header" tag="div" keypath="overlay.timer.head">
-				<template #CMD1><mark>/countdown</mark></template>
-				<template #CMD2><mark>/timerStart</mark></template>
-			</i18n-t>
-			
-			<OverlayInstaller type="timer" />
-			
-			<div class="center actions">
-				<Button icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
-				<Button icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
+	<div class="overlaytimer overlayParamsSection">
+		<i18n-t scope="global" class="header" tag="div" keypath="overlay.timer.head">
+			<template #CMD1><mark>/countdown</mark></template>
+			<template #CMD2><mark>/timerStart</mark></template>
+		</i18n-t>
+		
+		
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
+			<OverlayInstaller type="timer" />
 
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.timer.css") }}</div>
@@ -45,8 +33,21 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-		</div>
-	</ToggleBlock>
+		</section>
+		
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
+			</div>
+			<Button class="center" icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
+			<Button class="center" icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
+		</section>
+		
+		<a href="https://www.youtube.com/watch?v=x_OnsPRA8Bs" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+		</a>
+	</div>
 </template>
 
 <script lang="ts">
@@ -63,9 +64,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	}
 })
 export default class OverlayParamsTimer extends Vue {
-	
-	@Prop({default:false})
-	public open!:boolean;
 	
 	public startTimer():void { this.$store.timer.timerStart(); }
 	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }

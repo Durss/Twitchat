@@ -90,6 +90,7 @@ export default class DataStore {
 	public static TRIGGERS_TREE:string = "triggersTree";
 	public static PARAMS_SECTIONS:string = "paramsSections";
 	public static PARAMS_SECTIONS_CTA:string = "paramsSectionsCTA";
+	public static BITS_WALL_PARAMS:string = "bitsWallParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

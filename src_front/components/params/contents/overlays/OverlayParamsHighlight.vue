@@ -1,32 +1,13 @@
 <template>
-	<ToggleBlock :open="open" class="overlayparamshighlight overlayParamsSection" :title="$t('overlay.highlight.title')" :icons="['highlight']">
-		<template #right_actions>
-			<Button href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q"
-			target="_blank"
-			class="youtubeBt"
-			type="link"
-			icon="youtube"
-			alert
-			v-tooltip="$t('overlay.youtube_demo_tt')"
-			@click.stop/>
-		</template>
+	<div class="overlayparamshighlight overlayParamsSection">
+		<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
 		
-		<div class="holder">
-			<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
-			
-			<OverlayInstaller class="installer" type="chathighlight" />
-
-			<div class="card-item center placement">
-				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
-				<PlacementSelector v-model="placement" />
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-
-			<div class="center" v-if="overlayExists">
-				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
-			</div>
-			
-			<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
-
+			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
+	
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
@@ -80,33 +61,55 @@
 					</ul>
 				</ToggleBlock>
 			</ToggleBlock>
-			
-			<div class="card-item footer">
-				<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
-					<template #URL>
-						<a href="https://featured.chat" target="_blank">featured.chat</a>
-					</template>
-				</i18n-t>
-			</div>
-		</div>
+		</section>
 
-	</ToggleBlock>
+		<section class="card-item">
+			<div class="header">
+				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
+			</div>
+			<div class="placement">
+				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
+				<PlacementSelector v-model="placement" />
+			</div>
+
+			<div class="center" v-if="overlayExists">
+				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
+			</div>
+
+			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
+			
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
+		</section>
+		
+		<div class="card-item footer">
+			<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
+				<template #URL>
+					<a href="https://featured.chat" target="_blank">featured.chat</a>
+				</template>
+			</i18n-t>
+		</div>
+		
+		<a href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+		</a>
+	</div>
 </template>
 
 <script lang="ts">
+import PlacementSelector from '@/components/PlacementSelector.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import OverlayInstaller from './OverlayInstaller.vue';
-import PlacementSelector from '@/components/PlacementSelector.vue';
 
 @Component({
 	components:{
@@ -118,10 +121,8 @@ import PlacementSelector from '@/components/PlacementSelector.vue';
 })
 export default class OverlayParamsHighlight extends Vue {
 	
-	@Prop({default:false})
-	public open!:boolean;
-	
 	public overlayExists = false;
+	public checkingOverlayPresence = false;
 	public placement:TwitchatDataTypes.ScreenPosition = "bl";
 
 	private checkInterval!:number;
@@ -138,14 +139,8 @@ export default class OverlayParamsHighlight extends Vue {
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
 		//Regularly check if the overlay exists
-		this.checkInterval = window.setInterval(()=>{
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
-			clearTimeout(this.subcheckTimeout);
-			//If after 1,5s the overlay didn't answer, assume it doesn't exist
-			this.subcheckTimeout = setTimeout(()=>{
-				this.overlayExists = false;
-			}, 1500);
-		}, 2000);
+		this.getOverlayPresence(true);
+		this.checkInterval = window.setInterval(()=>this.getOverlayPresence(), 2000);
 
 		watch(()=>this.placement, ()=> {
 			const data:TwitchatDataTypes.ChatHighlightParams = {
@@ -155,19 +150,18 @@ export default class OverlayParamsHighlight extends Vue {
 		})
 	}
 
-	public mounted():void {
-		if(this.open) {
-			setTimeout(()=> {
-				const target = this.$el;
-				//@ts-ignore
-				if(target.scrollIntoViewIfNeeded) {
-					//@ts-ignore
-					target.scrollIntoViewIfNeeded();//Works everywhere but firefox
-				}else{
-					target.scrollIntoView(false);
-				}
-			}, 500);
-		}
+	/**
+	 * Checks if overlay exists
+	 */
+	public getOverlayPresence(showLoader:boolean = false):void {
+		if(showLoader) this.checkingOverlayPresence = true;
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_CHAT_HIGHLIGHT_OVERLAY_PRESENCE);
+		clearTimeout(this.subcheckTimeout);
+		//If after 1,5s the overlay didn't answer, assume it doesn't exist
+		this.subcheckTimeout = setTimeout(()=>{
+			this.overlayExists = false;
+			this.checkingOverlayPresence = false;
+		}, 1500);
 	}
 
 	public beforeUnmount():void {

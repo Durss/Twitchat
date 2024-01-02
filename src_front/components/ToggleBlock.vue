@@ -48,10 +48,9 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
-import contenteditable from 'vue-contenteditable';
 import type { StyleValue } from 'vue';
-import Utils from '@/utils/Utils';
+import contenteditable from 'vue-contenteditable';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 /**
  * To add actions on the right or left of the header

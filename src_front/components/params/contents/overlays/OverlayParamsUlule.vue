@@ -1,22 +1,22 @@
 <template>
-	<ToggleBlock class="overlayparamsulule overlayParamsSection" :title="$t('overlay.ulule.title')" :icons="['ulule']">
-		<div class="holder">
-			<i18n-t class="header" scope="global" tag="div" keypath="overlay.ulule.description">
-				<template #LINK>
-					<a href="https://ulule.com" target="_blank">{{ $t("overlay.ulule.description_link") }}</a>
-				</template>
-			</i18n-t>
+	<div class="overlayparamsulule overlayParamsSection">
+		<i18n-t class="header" scope="global" tag="div" keypath="overlay.ulule.description">
+			<template #LINK>
+				<a href="https://ulule.com" target="_blank">{{ $t("overlay.ulule.description_link") }}</a>
+			</template>
+		</i18n-t>
 
+		<section class="card-item">
 			<ParamItem :paramData="param_project" @change="saveConfigs" />
-
+	
 			<ParamItem :paramData="param_title" @change="saveConfigs" />
-
+	
 			<ParamItem :paramData="param_goals" @change="saveConfigs" />
-
+	
 			<ParamItem class="shrinkField" :paramData="param_currency" @change="saveConfigs" />
-
+	
 			<OverlayInstaller type="ulule" :url="overlayUrl" :disabled="!param_project.value" />
-
+	
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.ulule.css") }}</div>
 				<ul class="cssStructure">
@@ -42,8 +42,8 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-		</div>
-	</ToggleBlock>
+		</section>
+	</div>
 </template>
 
 <script lang="ts">
