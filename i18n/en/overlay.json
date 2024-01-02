@@ -250,7 +250,7 @@
 			"head":"Cheers sent by viewers will fall on your screen.\nViewers can \"break\" cheers by clicking them with Heat extension.",
 			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Send bits",
-			"param_size":"Minimum cheermote sizes ({VALUE}%)",
+			"param_size":"Minimum cheermote sizes {VALUE}%\n(a pinned cheer drops bigger cheermotes depending on the pin level)",
 			"param_break":"Allow viewers to break cheermotes (needs Heat plugin)",
 			"param_break_senderOnly":"Only allow viewers to break their own cheers",
 			"param_cristalEffect":"Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)"

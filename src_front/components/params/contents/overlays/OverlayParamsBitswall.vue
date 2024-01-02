@@ -59,17 +59,17 @@ import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import DataStore from '@/store/DataStore';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { JsonObject } from 'type-fest';
-import { Component, Vue } from 'vue-facing-decorator';
-import OverlayInstaller from './OverlayInstaller.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ParamItem from '../../ParamItem.vue';
-import DataStore from '@/store/DataStore';
-import { watch } from 'vue';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 import gsap from 'gsap';
+import type { JsonObject } from 'type-fest';
+import { watch } from 'vue';
+import { Component, Vue } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
+import OverlayInstaller from './OverlayInstaller.vue';
 
 @Component({
 	components:{
@@ -87,14 +87,14 @@ export default class OverlayParamsBitswall extends Vue {
 	public checkingOverlayAtStart:boolean = true;
 	public shaderstasticError:boolean = false;
 
-	public param_size:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:10, max: 200, labelKey:"overlay.bitswall.param_size"};
-	public param_break:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break"};
-	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly"};
+	public param_size:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:10, max: 200, labelKey:"overlay.bitswall.param_size", icon:"scale"};
+	public param_break:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break", icon:"click"};
+	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly", icon:"bits"};
 	public param_cristalEffect:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_cristalEffect"};
 	public parameters:TwitchatDataTypes.BitsWallOverlayData = {
 		size:25,
 		break:false,
-		break_senderOnly:false,
+		break_senderOnly:true,
 	}
 
 	private checkInterval!:number;
@@ -132,7 +132,6 @@ export default class OverlayParamsBitswall extends Vue {
 			DataStore.set(DataStore.BITS_WALL_PARAMS, this.parameters);
 			PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (this.parameters as unknown) as JsonObject);
 		}, {deep:true});
-		OBSWebsocket.instance.getSourceFilters("Scene 2").then(res=>console.log(res))
 	}
 
 	public beforeUnmount():void {

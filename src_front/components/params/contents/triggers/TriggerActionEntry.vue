@@ -437,7 +437,7 @@ export default class TriggerActionEntry extends Vue {
 		switch(type) {
 			case "heat_click": {
 				if(!this.heatClickEnabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HEAT_DISTORT);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "distort");
 					return;
 				}break
 			}
