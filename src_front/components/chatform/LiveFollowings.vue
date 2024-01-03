@@ -7,8 +7,8 @@
 			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 
 			<template v-if="!needScope && $store.stream.raidHistory.length > 0">
-				<Button class="actionBt" small v-if="!showRaidHistory" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</Button>
-				<Button class="actionBt" small v-else icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</Button>
+				<TTButton class="actionBt" small v-if="!showRaidHistory" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</TTButton>
+				<TTButton class="actionBt" small v-else icon="live" @click="showRaidHistory = false">{{ $t("raid.raid_liveBt") }}</TTButton>
 			</template>
 		</div>
 		
@@ -17,7 +17,7 @@
 
 			<div class="card-item needScope" v-if="needScope">
 				<span>{{ $t("liveusers.scope_grant") }}</span>
-				<Button icon="unlock" @click="grantPermission()" primary>{{ $t('liveusers.scope_grantBt') }}</Button>
+				<TTButton icon="unlock" @click="grantPermission()" primary>{{ $t('liveusers.scope_grantBt') }}</TTButton>
 			</div>
 			<div class="noResult" v-else-if="!loading && streams?.length == 0">{{ $t('liveusers.none') }}</div>
 
@@ -58,7 +58,7 @@
 						</div>
 
 						<div class="raidBt">
-							<img src="@/assets/icons/raid.svg" alt="raid">
+							<Icon name="raid" />
 							Raid
 						</div>
 					</div>
@@ -82,7 +82,7 @@ import CloseButton from '../CloseButton.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		CloseButton,
 	},
 	emits:["close"]
@@ -328,7 +328,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 						display:flex;
 						flex-direction: row;
 						align-items: center;
-						img {
+						.icon {
 							width: 40px;
 							vertical-align: middle;
 							margin-right: .5em;

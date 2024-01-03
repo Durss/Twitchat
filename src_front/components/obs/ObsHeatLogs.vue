@@ -1,7 +1,7 @@
 <template>
 	<div class="obsheatlogs sidePanel">
 		<div class="head">
-			<h1 class="title">OBS logs</h1>
+			<h1 class="title"><Icon name="obs" />OBS logs</h1>
 			<div class="subtitle">Get logs about what happens with OBS-websocket</div>
 			<CloseButton @click="close" />
 		</div>
@@ -17,8 +17,8 @@
 			<div v-if="logs.length == 0" class="noResult">- no result -</div>
 			<template v-else>
 				<div class="ctas">
-					<Button class="downloadBt" icon="download" @click="downloadLogs()">Download logs</Button>
-					<Button class="resetBt" icon="download" alert @click="clearLogs()">Clear logs</Button>
+					<TTButton class="downloadBt" icon="download" @click="downloadLogs()">Download logs</TTButton>
+					<TTButton class="resetBt" icon="download" alert @click="clearLogs()">Clear logs</TTButton>
 				</div>
 				
 				<div v-for="(log, index) in logs" class="card-item entry">
@@ -48,7 +48,7 @@ import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		CloseButton,
 	},

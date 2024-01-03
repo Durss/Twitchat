@@ -796,7 +796,7 @@ interface TriggerCategory{
 	.sublist {
 		display: flex;
 		flex-direction: column;
-		gap: 2px;
+		gap: 4px;
 
 		.subEventBt {
 			box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
@@ -829,20 +829,24 @@ interface TriggerCategory{
 			.label {
 				flex-grow: 1;
 				text-align: left;
+				color: var(--color-text);
 			}
 			.small {
 				font-size: .7em;
 				font-style: italic;
+				color: var(--color-text);
 			}
 
 			&:is(div) {
 				//Used for OBS filter section names
 				//Filters are listed by source item, this represents a source item
 				//that has all its filters listed bellow it
-				color: var(--color-light);
 				background-color: var(--color-light-fade);
 				&:not(:first-of-type) {
 					margin-top: 1em;
+				}
+				.label {
+					font-weight: bold;
 				}
 			}
 			&:not(div):hover {

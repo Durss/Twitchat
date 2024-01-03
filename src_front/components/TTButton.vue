@@ -562,6 +562,9 @@ body.light {
 		.loadingBorder {
 			background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,1) 40%, rgba(255,255,255,1) 60%, rgba(255,255,255,0) 65%) !important;
 		}
+		&.selected {
+			color: var(--color-text);
+		}
 	}
 }
 </style>

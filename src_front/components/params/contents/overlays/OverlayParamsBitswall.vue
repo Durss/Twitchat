@@ -94,7 +94,7 @@ export default class OverlayParamsBitswall extends Vue {
 
 	public param_size:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:10, max: 200, labelKey:"overlay.bitswall.param_size", icon:"scale"};
 	public param_break:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break", icon:"click"};
-	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly", icon:"bits"};
+	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly", icon:"bits", tooltipKey:"heat.anonymous"};
 	public param_cristalEffect:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_cristalEffect"};
 	public parameters:TwitchatDataTypes.BitsWallOverlayData = {
 		size:25,
@@ -176,13 +176,13 @@ export default class OverlayParamsBitswall extends Vue {
 		let filterTarget = await OBSWebsocket.instance.getCurrentScene();
 
 		const filterSettings = {
-			"effect": "displacement_map_source_dudu",
-			"displacement_map_source_dudu.displacement_map": data.sourceName,
-			"displacement_map_source_dudu.color_space":0,
-			"displacement_map_source_dudu.displacement_strength_x":.05,
-			"displacement_map_source_dudu.displacement_strength_y":.05,
+			"effect": "displacement_map_source",
+			"displacement_map_source.displacement_map": data.sourceName,
+			"displacement_map_source.color_space":0,
+			"displacement_map_source.displacement_strength_x":.05,
+			"displacement_map_source.displacement_strength_y":.05,
 		};
-		const filterName = ("Bits wall sahder_"+filterTarget).substring(0, 100);
+		const filterName = ("Bits wall shader ("+filterTarget+")").substring(0, 100);
 
 		const params = {
 						sourceName: filterTarget,

@@ -2,7 +2,7 @@
 	<div class="streamsummary sidePanel">
 		<div class="head">
 			<CloseButton @click="close" />
-			<h1 class="title"><img src="@/assets/icons/broadcast.svg" class="icon" />{{ $t("summary.title") }}</h1>
+			<h1 class="title"><Icon name="broadcast" />{{ $t("summary.title") }}</h1>
 			<div class="description" v-if="streamDuration">{{ $t("summary.stream_duration") }} {{ streamDuration }}</div>
 		</div>
 
@@ -41,7 +41,7 @@
 							<div class="data card-item" v-tooltip="$t('summary.data_raffle')" v-if="raffleCount > 0"><Icon name="ticket" />{{ raffleCount }}</div>
 						</div>
 						<div class="ctas">
-							<Button icon="newtab" @click="exportCSV(true)">{{ $t("summary.csv_exportBt") }}</Button>
+							<TTButton icon="newtab" @click="exportCSV(true)">{{ $t("summary.csv_exportBt") }}</TTButton>
 						</div>
 					</div>
 
@@ -70,7 +70,7 @@
 							</div>
 						</div>
 						<div class="ctas">
-							<Button icon="newtab" @click="exportCSV()">{{ $t("summary.csv_exportBt") }}</Button>
+							<TTButton icon="newtab" @click="exportCSV()">{{ $t("summary.csv_exportBt") }}</TTButton>
 						</div>
 					</div>
 				</template>
@@ -84,14 +84,15 @@ import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import CloseButton from '../CloseButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Icon from '../Icon.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import TTButton from '../TTButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		CloseButton,
 	},
 	emits:["close"],

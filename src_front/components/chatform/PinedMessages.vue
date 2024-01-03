@@ -14,7 +14,7 @@
 			<div class="list">
 				<div v-for="m in $store.chat.pinedMessages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
-					<Button :aria-label="$t('pin.highlightBt_aria')"
+					<TTButton :aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
 						class="button"
 						small
@@ -23,7 +23,7 @@
 						:loading="highlightLoading"
 						:disabled="!overlayAvailable"
 						/>
-					<Button :aria-label="$t('pin.unpinBt_aria')"
+					<TTButton :aria-label="$t('pin.unpinBt_aria')"
 						@click="unpin(m)"
 						class="button"
 						small
@@ -52,7 +52,7 @@ import Icon from '../Icon.vue';
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		CloseButton,
 		ChatMessage,
 	},

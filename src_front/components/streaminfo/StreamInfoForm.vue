@@ -13,16 +13,16 @@
 			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
 				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
-						<Button class="button delete" @click="deletePreset(p)"
+						<TTButton class="button delete" @click="deletePreset(p)"
 							icon="trash" alert
 							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 							
-						<Button class="button" @click="editPreset(p)"
+						<TTButton class="button" @click="editPreset(p)"
 							icon="edit" secondary
 							v-tooltip="$t('stream.preset_editBt_tt')" />
 	
-						<Button class="button" @click="applyPreset(p)"
-							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</Button>
+						<TTButton class="button" @click="applyPreset(p)"
+							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</TTButton>
 					</div>
 				</div>
 			</ToggleBlock>
@@ -36,8 +36,8 @@
 				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
 				
 				<div class="actions">
-					<Button class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</Button>
-					<Button class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</Button>
+					<TTButton class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</TTButton>
+					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</TTButton>
 				</div>
 
 				<div class="card-item alert error" v-if="error" @click="error = ''"><Icon name="alert" />{{error}}</div>
@@ -63,7 +63,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		CloseButton,
 		ToggleBlock,

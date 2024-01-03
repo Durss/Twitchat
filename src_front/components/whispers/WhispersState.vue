@@ -25,14 +25,14 @@
 
 			<form @submit.prevent="sendWhisper()" v-if="canAnswer">
 				<input type="text" :placeholder="$t('whispers.input_placeholder')" class="dark" v-model="whisper" maxlength="500">
-				<Button class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
+				<TTButton class="submit" type="submit" icon="checkmark" :disabled="!whisper" />
 			</form>
-			<Button v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</Button>
+			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</TTButton>
 			
 			<div class="userlist" v-if="uids.length > 0">
 				<div v-for="uid, index in uids" :key="uid" class="user">
-					<Button small class="login" @click="selectedUserId = uid; selectedUserIndex = index" :selected="selectedUserId == uid">{{ users[index].displayName }}</Button>
-					<Button small class="delete" icon="trash" @click="deleteWhispers(uid)" alert></Button>
+					<TTButton small class="login" @click="selectedUserId = uid; selectedUserIndex = index" :selected="selectedUserId == uid">{{ users[index].displayName }}</TTButton>
+					<TTButton small class="delete" icon="trash" @click="deleteWhispers(uid)" alert></TTButton>
 				</div>
 			</div>
 		</div>
@@ -54,7 +54,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ToggleBlock,
 		CloseButton,
 		ChatMessageChunksParser,

@@ -2,7 +2,7 @@
 	<div class="ttuserlist sidePanel">
 		<div class="head">
 			<CloseButton @click="close" />
-			<h1 class="title"><img src="@/assets/icons/user.svg" class="icon" />Twitchat users : {{userCount}}</h1>
+			<h1 class="title"><Icon name="user" />Twitchat users : {{userCount}}</h1>
 		</div>
 
 		<div class="content" ref="content">
@@ -15,11 +15,11 @@
 					<p>Active users last 30 days :</p><p>{{activeLast30days}}</p>
 				</div>
 				<div class="ctas">
-					<Button small :loading="loading" icon="refresh" @click="updateList()">Reload</Button>
+					<TTButton small :loading="loading" icon="refresh" @click="updateList()">Reload</TTButton>
 					<div class="partners"><label @click="onlyPartners = !onlyPartners">Partners:</label><ToggleButton v-model="onlyPartners" clear /></div>
-					<!-- <Button small :disabled="loading" title="Load 24h" icon="user" @click="loadTimeframe(1)" />
-					<Button small :disabled="loading" title="Load 7d" icon="user" @click="loadTimeframe(7)" />
-					<Button small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
+					<!-- <TTButton small :disabled="loading" title="Load 24h" icon="user" @click="loadTimeframe(1)" />
+					<TTButton small :disabled="loading" title="Load 7d" icon="user" @click="loadTimeframe(7)" />
+					<TTButton small :disabled="loading" title="Load 30d" icon="user" @click="loadTimeframe(30)" /> -->
 				</div>
 			</div>
 	
@@ -48,7 +48,7 @@
 				</a>
 			</div>
 			
-			<Button class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
+			<TTButton class="loadBt" v-if="!loading && showLoadMoreBt && users.length > 0"
 			small title="Load more"
 			icon="add"
 			@click="loadNextUsers()" />
@@ -68,10 +68,12 @@ import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ToggleButton from '../ToggleButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		CloseButton,
 		ToggleButton,
 	},

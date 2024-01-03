@@ -18,9 +18,9 @@
 				</i18n-t>
 				<img class="demo" src="@/assets/img/param_examples/stop_timer.gif">
 				
-				<Button type="submit" 
+				<TTButton type="submit" 
 				:aria-label="$t('raffle.chat.startBt_aria')"
-				icon="ticket">{{ $t('global.start') }}</Button>
+				icon="ticket">{{ $t('global.start') }}</TTButton>
 			</form>
 
 			<form @submit.prevent="createCountdown()" class="form" v-if="mode=='countdown'">
@@ -30,13 +30,11 @@
 				
 				<img class="demo" src="@/assets/img/param_examples/stop_countdown.gif">
 				
-				<div class="card-item">
-					<ParamItem class="item" :paramData="param_duration" :autofocus="true" />
-				</div>
+				<ParamItem class="item" :paramData="param_duration" :autofocus="true" />
 
-				<Button type="submit" 
+				<TTButton type="submit" 
 				:aria-label="$t('raffle.chat.startBt_aria')"
-				icon="ticket">{{ $t('global.start') }}</Button>
+				icon="ticket">{{ $t('global.start') }}</TTButton>
 			</form>
 		</div>
 	</div>
@@ -53,7 +51,7 @@ import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		TabMenu,
 		ParamItem,
 		CloseButton,

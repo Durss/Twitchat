@@ -2,7 +2,7 @@
 	<div class="chatsuggstate sidePanel">
 		<div class="head">
 			<CloseButton @click="close()" />
-			<h1 class="title"><img src="@/assets/icons/chatPoll.svg" class="icon">{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
+			<h1 class="title"><Icon name="chatPoll" />{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
 		</div>
 		
 		<ProgressBar class="progress"
@@ -14,12 +14,12 @@
 			<div class="card-item actions">
 				<div>{{ $tc('suggestion.state_header', entries.length, [entries.length]) }}</div>
 				
-				<Button icon="chatPoll"
+				<TTButton icon="chatPoll"
 					@click="pickEntry()"
-					:disabled="poll.choices.length === 0">{{ $t('suggestion.state_pickBt') }}</Button>
+					:disabled="poll.choices.length === 0">{{ $t('suggestion.state_pickBt') }}</TTButton>
 
-				<Button icon="cross" alert
-					@click="closePoll()">{{ $t('suggestion.state_closeBt') }}</Button>
+				<TTButton icon="cross" alert
+					@click="closePoll()">{{ $t('suggestion.state_closeBt') }}</TTButton>
 			</div>
 			
 			<div class="splitter" v-if="entries.length > 0"></div>
@@ -27,9 +27,9 @@
 			<TransitionGroup name="list" tag="div" ref="list" class="itemList" v-if="entries.length > 0">
 			<div :class="c.selected? 'card-item secondary win' : 'card-item'" v-for="(c,index) in entries" :key="c.data.id">
 				<div class="header">
-					<img v-if="c.selected" :src="$image('icons/sub.svg')" alt="star" class="star">
+					<Icon v-if="c.selected" name="sub" />
 					
-					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><img src="@/assets/icons/trash.svg"></button>
+					<button class="deleteBt" v-else @click="deleteEntery(c.data)"><Icon name="trash" /></button>
 					
 					<a class="title" target="_blank"
 					:href="'https://twitch.tv/'+c.data.user.login"
@@ -53,10 +53,12 @@ import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ToggleBlock,
 		ProgressBar,
 		CloseButton,
@@ -171,7 +173,7 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 	}
 
 	.itemList {
-		color: var(--color-light);
+		color: var(--color-text);
 		overflow-y: auto;
 		overflow-x: hidden;
 		display: flex;
@@ -191,8 +193,9 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 				height: 1em;
 				align-self: center;
 				transition: transform .1s;
-				img {
+				.icon {
 					height: 100%;
+					color: var(--color-text);
 				}
 				&:hover {
 					transform: scale(1.1);

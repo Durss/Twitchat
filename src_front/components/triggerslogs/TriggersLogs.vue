@@ -1,14 +1,14 @@
 <template>
 	<div class="triggerslogs sidePanel">
 		<div class="head">
-			<h1 class="title">{{ $t("triggers.logs.title") }}</h1>
+			<h1 class="title"><Icon name="broadcast" />{{ $t("triggers.logs.title") }}</h1>
 			<div class="subtitle">{{ $t("triggers.logs.subtitle") }}</div>
 			<CloseButton @click="close" />
 		</div>
 		
 		<div class="ctas">
-			<Button @click="refreshList()" icon="refresh" :loading="reloading">{{ $t("global.refresh") }}</Button>
-			<Button @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</Button>
+			<TTButton @click="refreshList()" icon="refresh" :loading="reloading">{{ $t("global.refresh") }}</TTButton>
+			<TTButton @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</TTButton>
 		</div>
 		
 		<div class="content empty" v-if="logs.length == 0 && !reloading">{{ $t("triggers.logs.empty") }}</div>
@@ -59,21 +59,6 @@
 						</li>
 					</ul>
 				</div>
-				<!-- <div class="steps" v-if="idToExpandState[item.id] == true">
-					<div v-for="step in item.steps" :class="getStepClasses(step)">
-						<div :class="getHeadClasses(step)" @click="idToExpandState[step.id] = !idToExpandState[step.id]">
-							<span class="date">{{ getFormatedDime(step.date) }}</span>
-							<span>{{ step.data.type }}</span>
-							<Icon name="arrowRight" />
-						</div>
-						<ul class="messages" v-if="idToExpandState[step.id]">
-							<li v-for="mess in step.messages">
-								<span class="date">{{ getFormatedDime(mess.date) }}</span>
-								<span>{{ mess.value }}</span>
-							</li>
-						</ul>
-					</div>
-				</div> -->
 			</div>
 		</div>
 	</div>
@@ -92,7 +77,7 @@ import Icon from '../Icon.vue';
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		CloseButton,
 	},
 	emits:["close"]

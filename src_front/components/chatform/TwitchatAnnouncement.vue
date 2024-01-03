@@ -25,7 +25,7 @@
 				<ParamItem :paramData="param_premiumOnly" />
 				<ParamItem :paramData="param_patreonOnly" />
 				<ParamItem :paramData="param_heatOnly" />
-				<Button type="submit" :loading="submitting">{{ $t("announcement.postBt") }}</Button>
+				<TTButton type="submit" :loading="submitting">{{ $t("announcement.postBt") }}</TTButton>
 			</form>
 
 			<Splitter>{{ $t("announcement.list") }}</Splitter>
@@ -34,7 +34,7 @@
 				<Icon class="loader" name="loader" v-if="loading" />
 				<div class="card-item announcement" v-for="a in announcements" :key="a.id">
 					<div class="ctas">
-						<Button class="deleteBt" icon="trash" alert @click="deleteAnnounce(a.id)"></Button>
+						<TTButton class="deleteBt" icon="trash" alert @click="deleteAnnounce(a.id)"></TTButton>
 					</div>
 					<div class="infos">
 						<div class="title">
@@ -78,7 +78,7 @@ import ParamItem from '../params/ParamItem.vue';
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		Splitter,
 		ParamItem,
 		CloseButton,
