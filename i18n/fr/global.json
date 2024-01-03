@@ -157,6 +157,7 @@
 			"user:read:subscriptions": "Vérifier si une personne est abonnée à votre chaîne",
 			"user:manage:whispers": "Envoyer des chuchotements",
 			"user:manage:blocked_users": "Bloquer/débloquer des personnnes",
+			"user:edit:broadcast": "Activer/Désactiver des extensions",
 			"channel:read:redemptions": "Lister vos récompenses de points de chaîne",
 			"channel:moderate": "Effectuer des actions de modération",
 			"channel:manage:polls": "Gérer les sondages",

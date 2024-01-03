@@ -454,4 +454,35 @@ export namespace TwitchDataTypes {
 	}
 
 	export type AdSnooze = Pick<AdSchedule, "snooze_count" | "snooze_refresh_at" | "next_ad_at">;
+
+	export interface Extension {
+		id:string;
+		version:string;
+		name:string;
+		can_activate:boolean;
+		type:("component"|"mobile"|"overlay"|"panel")[];
+	}
+
+	export interface ActiveExtension {
+		panel:{[key:string]:{
+			id:string;
+			version:string;
+			name:string;
+			active:boolean;
+		}},
+		overlay:{[key:string]:{
+			id:string;
+			version:string;
+			name:string;
+			active:boolean;
+		}},
+		component:{[key:string]:{
+			id:string;
+			version:string;
+			name:string;
+			active:boolean;
+			x:number;
+			y:number;
+		}},
+	}
 }

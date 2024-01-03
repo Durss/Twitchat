@@ -32,7 +32,8 @@ export const TwitchScopes = {
 	SHIELD_MODE: "moderator:manage:shield_mode",
 	CLIPS: "clips:edit",
 	ADS_READ: "channel:read:ads",
-	ADS_SNOOZE: "channel:manage:ads"
+	ADS_SNOOZE: "channel:manage:ads",
+	EXTENSIONS: "user:edit:broadcast",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 

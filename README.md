@@ -125,10 +125,13 @@ First create a `credentials` folder on the root directory, create a `credentials
 		"moderator:read:followers",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
+		"user:edit:broadcast",
 		"moderator:manage:banned_users",
 		"moderator:manage:automod",
 		"moderator:manage:shield_mode",
-		"clips:edit"
+		"clips:edit",
+		"channel:read:ads",
+		"channel:manage:ads"
 	],
 	
 	"spotify_client_id": "",

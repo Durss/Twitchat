@@ -2428,6 +2428,59 @@ export default class TwitchUtils {
 		return null;
 	}
 
+	/**
+	 * List user's extensions
+	 */
+	public static async listExtensions<T extends boolean>(onlyActive:T):Promise<ExtensionReturnType<T>|null> {
+		if(!this.hasScopes([TwitchScopes.EXTENSIONS])) return null;
+
+		const user = StoreProxy.auth.twitch.user;
+		const url = new URL(Config.instance.TWITCH_API_PATH+ (onlyActive? "users/extensions" : "users/extensions/list"));
+		url.searchParams.append("user_id", user.id);
+		
+		const res = await fetch(url, {
+			method:"GET",
+			headers:this.headers,
+		});
+		if(res.status == 200) {
+			const json = await res.json();
+			return json.data as ExtensionReturnType<T>;
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.listExtensions(onlyActive);
+		}
+		return null;
+	}
+
+	/**
+	 * Updates an extension
+	 */
+	public static async updateExtension(extensionId:string, extensionVersion:string, enabled:boolean, slotIndex:string, slotType:TwitchDataTypes.Extension["type"][number]):Promise<boolean> {
+		if(!this.hasScopes([TwitchScopes.EXTENSIONS])) return false;
+
+		const url = new URL(Config.instance.TWITCH_API_PATH+"users/extensions");
+		const body:any = {};
+		body[slotType] = {}
+		body[slotType][slotIndex] = {
+			id:extensionId,
+			version:extensionVersion,
+			active:enabled,
+		}
+
+		const res = await fetch(url, {
+			method:"PUT",
+			headers:this.headers,
+			body:JSON.stringify({data:body}),
+		});
+		if(res.status == 200) {
+			return true;
+		}else if(res.status == 429) {
+			await this.onRateLimit(res.headers);
+			return this.updateExtension(extensionId, extensionVersion, enabled, slotIndex, slotType);
+		}
+		return false;
+	}
+
 
 	
 	
@@ -2953,3 +3006,4 @@ export default class TwitchUtils {
 	}
 
 }
+type ExtensionReturnType<T extends boolean> = T extends true ? TwitchDataTypes.ActiveExtension : TwitchDataTypes.Extension[];

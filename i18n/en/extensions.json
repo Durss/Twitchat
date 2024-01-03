@@ -1,0 +1,12 @@
+{
+	"extensions": {
+		"title":"Manage Twitch extensions",
+		"param_install":"Install",
+		"no_extension":"You have no extension installed on your channel",
+		"no_extension_browse":"Browse for extensions",
+		"type_panel":"Panneau",
+		"type_overlay":"Overlay",
+		"type_mobile":"Mobile",
+		"type_component":"Componsant"
+	}
+}

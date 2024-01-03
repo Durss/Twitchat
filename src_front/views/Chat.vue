@@ -48,6 +48,7 @@
 			<MessageSearch			class="popin" v-if="$store.params.currentModal == 'search'" @close="$store.params.closeModal()" />
 			<TwitchatAnnouncement	class="popin" v-if="$store.params.currentModal == 'twitchatAnnouncement'" @close="$store.params.closeModal()" />
 			<StreamSummary			class="popin" v-if="$store.params.currentModal == 'streamSummary'" @close="$store.params.closeModal()" />
+			<Extensions				class="popin" v-if="$store.params.currentModal == 'extensions'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -138,7 +139,6 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
 import BingoForm from '@/components/bingo/BingoForm.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
@@ -154,6 +154,7 @@ import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 import StreamSummary from '@/components/chatform/StreamSummary.vue';
+import Extensions from '@/components/chatform/Extensions.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
@@ -195,7 +196,6 @@ import Login from './Login.vue';
 @Component({
 	components:{
 		Login,
-		Button: TTButton,
 		Gngngn,
 		ChatForm,
 		UserList,
@@ -205,6 +205,7 @@ import Login from './Login.vue';
 		TimerForm,
 		GreetThem,
 		BingoForm,
+		Extensions,
 		DonorBadge,
 		Parameters,
 		RaffleForm,
@@ -1069,22 +1070,6 @@ export default class Chat extends Vue {
 						}
 					}
 				}
-			}
-		}
-
-		.addCol {
-			flex-grow: 1;
-			position: relative;
-			min-width: 1em;
-			z-index: 2;
-			.button {
-				position: absolute;
-				right: 0;
-				top: 50%;
-				padding-right: .12em;
-				transform: translateY(-50%);
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
 			}
 		}
 	}

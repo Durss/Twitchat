@@ -8,6 +8,7 @@
 		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
 		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>
 		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
+		<Button @click.capture="openModal('extensions');"	icon="extension"	:disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</Button>
 		<Button @click.capture="openModal('twitchatAnnouncement');"	icon="announcement"	v-if="isAdmin" secondary>{{$t('cmdmenu.announcement')}}</Button>
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
@@ -199,6 +200,13 @@ export default class CommandHelper extends Vue {
 			case "streamInfo": {
 				if(!TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS])) {
 					this.$store.auth.requestTwitchScopes([TwitchScopes.SET_STREAM_INFOS]);
+					return;
+				}
+				break;
+			}
+			case "extensions": {
+				if(!TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
+					this.$store.auth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
 					return;
 				}
 				break;
