@@ -24,14 +24,16 @@
 				
 		<!-- Main menu -->
 		<div :class="param_search.value? 'list search' : 'list'" v-if="!selectedTriggerType">
-			<component :is="param_search.value? 'div' : 'ToggleBlock'" class="category"
+			<div class="category"
 			v-for="c in eventCategories"
 			:key="c.category.labelKey"
-			:title="$t(c.category.labelKey)"
-			:open="false"
-			:icons="c.category.icons"
 			v-newflag="c.newDate? {date:c.newDate, id:'triggerCategory_'+c.category.id+'_'+c.newDate} : undefined">
-				<i18n-t scope="global" tag="div" class="require"
+				<div class="head">
+					<Icon :name="icon" v-for="icon in c.category.icons" />
+					<span class="label">{{ $t(c.category.labelKey) }}</span>
+				</div>
+				
+				<i18n-t scope="global" tag="div" class="card-item alert require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !param_search.value"
 				keypath="triggers.music.require">
 					<template #URL>
@@ -39,7 +41,7 @@
 					</template>
 				</i18n-t>
 
-				<i18n-t scope="global" tag="div" class="require"
+				<i18n-t scope="global" tag="div" class="card-item alert require"
 				v-if="!obsConnected && isOBSCategory(c.category) && !param_search.value"
 				keypath="triggers.obs.require">
 					<template #URL>
@@ -47,8 +49,8 @@
 					</template>
 				</i18n-t>
 
-				<i18n-t scope="global" tag="div" class="require"
-				v-if="isCountersAndValueCategory(c.category) && !param_search.value"
+				<i18n-t scope="global" tag="div" class="card-item alert require"
+				v-if="!hasCounterOrValue && isCountersAndValueCategory(c.category) && !param_search.value"
 				keypath="triggers.count.require">
 					<template #URL_COUNTERS>
 						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
@@ -69,7 +71,7 @@
 						{{ $t(e.labelKey!) }}
 					</TTButton>
 				</div>
-			</component>
+			</div>
 		</div>
 
 		<!-- Sub menu (rewards, counters, obs sources and scenes,... ) -->
@@ -147,6 +149,8 @@ export default class TriggerCreateForm extends Vue {
 	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
+
+	public get hasCounterOrValue():boolean { return this.$store.counters.counterList.length > 0 || this.$store.values.valueList.length > 0; }
 
 	public get isGoxlrMini():boolean { return GoXLRSocket.instance.isGoXLRMini; }
 
@@ -684,9 +688,6 @@ interface TriggerCategory{
 		margin: auto;
 		display: block;
 	}
-	& > .require {
-		text-align: center;
-	}
 
 	.searchForm {
 		margin-bottom: 1em;
@@ -704,12 +705,7 @@ interface TriggerCategory{
 	.list {
 		display: flex;
 		flex-direction: column;
-		gap: .5em;
-		
-		&.search {
-			gap: 0;
-		}
-
+		gap: 1.5em;
 		.category{
 			position: relative;
 			width: 100%;
@@ -717,6 +713,18 @@ interface TriggerCategory{
 				font-size: .8em;
 				text-align: center;
 				margin-bottom: 1em;
+			}
+
+			.head {
+				font-size: 1.2em;
+				margin-bottom: .5em;
+				.icon {
+					height: 1em;
+					margin-right: .5em;
+				}
+				.label {
+					font-weight: bold;
+				}
 			}
 		}
 

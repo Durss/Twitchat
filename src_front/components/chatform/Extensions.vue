@@ -2,11 +2,11 @@
 	<div class="extensions sidePanel">
 		<div class="head">
 			<CloseButton @click="close" />
-			<h1 class="title"><Icon name="extension" />{{ $t("extensions.title") }}</h1>
+			<h1 class="title"><Icon :name="reloading? 'loader' : 'extension'" />{{ $t("extensions.title") }}</h1>
 		</div>
 
 		<div class="content" ref="content">
-			<Icon class="spinner" name="loader" v-if="reloading" />
+			<Icon class="spinner" name="loader" v-if="loading" />
 
 			<TransitionGroup name="list" tag="div" ref="list" class="list"  v-if="!loading && extensionList.length > 0">
 				<div class="card-item extension" v-for="extension in extensionList" :key="extension.data.id">
@@ -41,11 +41,12 @@
 				</div>
 			</TransitionGroup>
 
-			<div class="noExtension" v-else>
+			<div class="noExtension" v-else-if="!loading">
 				<p>{{ $t("extensions.no_extension") }}</p>
 				<TTButton icon="newtab" href="https://dashboard.twitch.tv/extensions" target="_blank" type="link" primary>{{ $t("extensions.no_extension_browse") }}</TTButton>
 				<TTButton icon="refresh">{{ $t("global.refresh") }}</TTButton>
 			</div>
+
 		</div>
 	</div>
 </template>
@@ -69,13 +70,17 @@ import ParamItem from '../params/ParamItem.vue';
 		CloseButton,
 		ToggleButton,
 	},
-	emits:[],
+	emits:["close"],
 })
 export default class Extensions extends AbstractSidePanel {
 
 	public loading:boolean = true;
 	public reloading:boolean = false;
 	public extensionList:ExtensionItem[] = [];
+
+	public mounted():void {
+		super.open();
+	}
 
 	public beforeMount():void {
 		this.loadList()
@@ -180,6 +185,9 @@ interface ExtensionItem {
 
 <style scoped lang="less">
 .extensions{
+	.spinner {
+		height: 2em;
+	}
 
 	.head {
 		max-width: 100%;
@@ -187,9 +195,6 @@ interface ExtensionItem {
 
 	.content {
 		max-width: 100%;
-	}
-	.spinner {
-		height: 2em;
 	}
 
 	.list {

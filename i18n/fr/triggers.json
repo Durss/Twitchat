@@ -671,7 +671,7 @@
 				"label": "Viewer de retour",
 				"description": "Actions à exécuter lorsqu'une personne écrit dans votre tchat après avoir parlé 2 fois au cours des 30 derniers jours.{INFO}",
 				"description_info": "(ceci n'existe peut-être plus dans Twitch)",
-				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus l'utiliser :("
+				"disabled_reason": "Twitch a restreint la possibilité de recevoir cette information. Twitchat ne peut plus\nl'utiliser :("
 			},
 			"PRESENTATION": {
 				"label": "Présentation",
