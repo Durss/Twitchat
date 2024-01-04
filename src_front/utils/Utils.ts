@@ -54,21 +54,6 @@ export default class Utils {
 	}
 
 	/**
-	 * Computes the position of an element on screen
-	 */
-	public static computeScreenPosition(element:HTMLDivElement):{x:number, y:number} {
-		let x = 0;
-		let y = 0;
-		
-		while (element) {
-			x += element.offsetLeft - element.scrollLeft;
-			y += element.offsetTop - element.scrollTop;
-			element = element.offsetParent as HTMLDivElement;
-		}
-		return {x, y};
-	}
-		
-	/**
 	 * Picks random entry
 	 *
 	 * @param a
@@ -88,7 +73,6 @@ export default class Utils {
 		}
 		return a;
 	}
-
 
 	/**
 	 * Copies a text to clipboard

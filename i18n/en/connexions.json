@@ -29,7 +29,9 @@
 			"scopes_title":"Autorizations",
 			"scope_read":"Read chat messages\n(mandatory)",
 			"scope_moderate":"Delete messages / ban users\n@:connexions.youtube.scope_moderate_details",
-			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but that's how Youtube works."
+			"scope_moderate_details":"This autorization also allows to delete videos from your channel, which Twitchat will obviously never do, but that's how Youtube works.",
+			"terms":"Youtube Terms of Services",
+			"policy":"Youtube Privacy Policy"
 		}
 	}
 }

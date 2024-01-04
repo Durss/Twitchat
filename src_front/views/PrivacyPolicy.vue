@@ -50,6 +50,7 @@
 				<li><a href="#infosafe">HOW DO WE KEEP YOUR INFORMATION SAFE?</a></li>
 				<li><a href="#infominors">DO WE COLLECT INFORMATION FROM MINORS?</a></li>
 				<li><a href="#privacyrights">WHAT ARE YOUR PRIVACY RIGHTS?</a></li>
+				<li><a href="#youtube">YOUTUBE SERVICES</a></li>
 				<li><a href="#DNT">CONTROLS FOR DO-NOT-TRACK FEATURES</a></li>
 				<li><a href="#caresidents">DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a></li>
 				<li><a href="#virginia">DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a></li>
@@ -67,7 +68,7 @@
 	
 			<p><strong>In Short:</strong> We collect personal information that you provide to us.</p>
 	
-			<p>We collect personal information that you voluntarily provide to us when you register on the Services,  express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.</p>
+			<p>We collect personal information that you voluntarily provide to us when you register on the Services, express an interest in obtaining information about us or our products and Services, when you participate in activities on the Services, or otherwise when you contact us.</p>
 	
 			<p><strong>Personal Information Provided by You.</strong> The personal information that we collect depends on the context of your interactions with us and the Services, the choices you make, and the products and features you use. The personal information we collect may include the following:</p>
 			<ul>
@@ -77,7 +78,7 @@
 	
 			<p><strong>Sensitive Information.</strong> We do not process sensitive information.</p>
 	
-			<p><strong>Social Media Login Data.</strong> We may provide you with the option to register with us using your existing social media account details, like your Facebook, Twitter, or other social media account. If you choose to register in this way, we will collect the information described in the section called "<a href="#sociallogins">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</a>" below.</p>
+			<p><strong>Social Media Login Data.</strong> We may provide you with the option to register with us using your existing social media account details, like Twitch, Youtube, or other social media account. If you choose to register in this way, we will collect the information described in the section called "<a href="#sociallogins">HOW DO WE HANDLE YOUR SOCIAL LOGINS?</a>" below.</p>
 	
 			<p>All personal information that you provide to us must be true, complete, and accurate, and you must notify us of any changes to such personal information.</p>
 
@@ -150,7 +151,7 @@
 			<h2 id="sociallogins">5. HOW DO WE HANDLE YOUR SOCIAL LOGINS?</h2>
 			<p><strong>In Short:</strong> If you choose to register or log in to our Services using a social media account, we may have access to certain information about you</p>
 
-			<p>Our Services offer you the ability to register and log in using your third-party social media account details (like your Facebook or Twitter logins). Where you choose to do this, we will receive certain profile information about you from your social media provider. The profile information we receive may vary depending on the social media provider concerned, but will often include your name, email address, friends list, and profile picture, as well as other information you choose to make public on such a social media platform.</p>
+			<p>Our Services offer you the ability to register and log in using your third-party social media account details (like your Twitch logins). Where you choose to do this, we will receive certain profile information about you from your social media provider. The profile information we receive may vary depending on the social media provider concerned, but will often include your name, email address, friends list, and profile picture, as well as other information you choose to make public on such a social media platform.</p>
 
 			<p>We will use the information we receive only for the purposes that are described in this privacy notice or that are otherwise made clear to you on the relevant Services. Please note that we do not control, and are not responsible for, other uses of your personal information by your third-party social media provider. We recommend that you review their privacy notice to understand how they collect, use, and share your personal information, and how you can set your privacy preferences on their sites and apps.</p>
 
@@ -214,15 +215,27 @@
 
 
 
+			<h2 id="youtube">10. YOUTUBE SERVICES</h2>
+			<p>Twitchat utilizes YouTube API Services to enhance and provide specific functionalities within our platform. By using Twitchat, you acknowledge and agree to the collection and processing of data through YouTube API Services as outlined in <a href="https://policies.google.com/privacy" target="_blank">Youtube Privacy Policy</a>.</p>
+			<p>If Twitchat accesses or uses Authorized Data, users have the ability to revoke the API Client's access to their data through the <a href="https://security.google.com/settings/security/permissions" target="_blank">Google security settings page</a>. In addition to Twitchat's normal procedure for deleting stored data, users can take the following steps to manage access:</p>
+			<ul>
+				<li>Visit the Google security settings page: <a href="https://security.google.com/settings/security/permissions" target="_blank">Google security settings page</a>.</li>
+				<li>Locate <strong>Twitchat</strong> in the list of authorized applications.</li>
+				<li>Revoke access by selecting Twitchat and following the provided instructions.</li>
+			</ul>
 
-			<h2 id="DNT">10. CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
+
+
+
+
+			<h2 id="DNT">11. CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
 			<p>Most web browsers and some mobile operating systems and mobile applications include a Do-Not-Track ( "DNT" ) feature or setting you can activate to signal your privacy preference not to have data about your online browsing activities monitored and collected. At this stage no uniform technology standard for recognizing and implementing DNT signals has been finalized . As such, we do not currently respond to DNT browser signals or any other mechanism that automatically communicates your choice not to be tracked online. If a standard for online tracking is adopted that we must follow in the future, we will inform you about that practice in a revised version of this privacy notice.</p>
 
 
 
 
 
-			<h2 id="caresidents">11. DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
+			<h2 id="caresidents">12. DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
 			<p><strong>In Short:</strong> Yes, if you are a resident of California, you are granted specific rights regarding access to your personal information.</p>
 
 			<p>California Civil Code Section 1798.83, also known as the "Shine The Light" law, permits our users who are California residents to request and obtain from us, once a year and free of charge, information about categories of personal information (if any) we disclosed to third parties for direct marketing purposes and the names and addresses of all third parties with which we shared personal information in the immediately preceding calendar year. If you are a California resident and would like to make such a request, please submit your request in writing to us using the contact information provided below.</p>
@@ -384,7 +397,7 @@
 
 
 
-			<h2 id="virginia">12. DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
+			<h2 id="virginia">13. DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
 			<p><strong>In Short:</strong> Yes, if you are a resident of Virginia, you may be granted specific rights regarding access to and use of your personal information.</p>
 
 			<strong>Virginia CDPA Privacy Notice</strong>
@@ -426,7 +439,7 @@
 
 
 
-			<h2 id="policyupdates">13. DO WE MAKE UPDATES TO THIS NOTICE?</h2>
+			<h2 id="policyupdates">14. DO WE MAKE UPDATES TO THIS NOTICE?</h2>
 			<p><strong>In Short:</strong> Yes, we will update this notice as necessary to stay compliant with relevant laws.</p>
 			<p>We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. If we make material changes to this privacy notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.</p>
 
@@ -434,14 +447,14 @@
 
 
 
-			<h2 id="contact">14. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
+			<h2 id="contact">15. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
 			<p>If you have questions or comments about this notice, you may email us at {{ $config.CONTACT_MAIL }}.</p>
 
 
 
 
 
-			<h2 id="request">15. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?</h2>
+			<h2 id="request">16. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?</h2>
 			<p>Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, change that information, or delete it. To request to review, update, or delete your personal information, please <a @click="openDataMnagerForm()" target="_blank">open data management form</a>.</p>
 			<p>This privacy policy was created using Termly's <a href="https://termly.io/products/privacy-policy-generator/" target="_blank">Privacy Policy Generator</a>.</p>
 		</div>

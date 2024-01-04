@@ -9,7 +9,7 @@
 					<ParamItem :paramData="param_scope_read" noBackground />
 					<ParamItem :paramData="param_scope_moderate" noBackground ref="moderateScope" />
 				</div>
-				<TTButton icon="youtube" @click="oauth()" :loading="loading">{{ $t("global.connect") }}</TTButton>
+				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading">{{ $t("global.connect") }}</TTButton>
 			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
 
@@ -39,6 +39,11 @@
 			</div>
 			
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
+
+			<div class="legal">
+				<a href="https://www.youtube.com/t/terms" target="_blank">{{ $t("connexions.youtube.terms") }}</a>
+				<a href="http://www.google.com/policies/privacy" target="_blank">{{ $t("connexions.youtube.policy") }}</a>
+			</div>
 		</div>
 	</ToggleBlock>
 </template>
@@ -179,6 +184,14 @@ export default class ConnectYoutube extends Vue {
 			}
 		}
 
+		.connectBt {
+			:deep(.icon) {
+				width: 1.5em;
+				height: 1.5em;
+				max-width: 2em;
+			}
+		}
+
 		.liveHolder {
 			gap: .5em;
 			display: flex;
@@ -223,6 +236,13 @@ export default class ConnectYoutube extends Vue {
 					}
 				}
 			}
+		}
+	}
+
+	.legal {
+		text-align: center;
+		a {
+			display: block;
 		}
 	}
 }
