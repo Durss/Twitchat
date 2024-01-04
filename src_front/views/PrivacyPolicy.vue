@@ -82,8 +82,10 @@
 	
 			<p>All personal information that you provide to us must be true, complete, and accurate, and you must notify us of any changes to such personal information.</p>
 
+			<p>By using Twitchat, you acknowledge and agree that our service may store, access, or collect information directly or indirectly on or from users' devices. This includes, but is not limited to, access tokens, cookies or similar technologies on users' devices or browsers.</p>
 
-
+			<p><strong>Third-Party Involvement:</strong></p>
+			<p>In some instances, third parties may also be involved in the storage, access, or collection of information through Twitchat. These third parties are subject to their own privacy policies and terms of service.</p>
 
 
 			<h2 id="infouse">2. HOW DO WE PROCESS YOUR INFORMATION?</h2>
@@ -95,7 +97,7 @@
 				<li><strong>To facilitate account creation and authentication and otherwise manage user accounts.</strong> We may process your information so you can create and log in to your account, as well as keep your account in working order.</li>
 				<li><strong>To save or protect an individual's vital interest.</strong> We may process your information when necessary to save or protect an individual’s vital interest, such as to prevent harm.</li>
 			</ul>
-
+			By using [Your API Client Name], you acknowledge and agree that our service may store, access, or collect information directly or indirectly on or from users' devices. This includes, but is not limited to, the placement, access, or recognition of cookies or similar technologies on users' devices or browsers.
 
 
 
@@ -151,7 +153,7 @@
 			<h2 id="sociallogins">5. HOW DO WE HANDLE YOUR SOCIAL LOGINS?</h2>
 			<p><strong>In Short:</strong> If you choose to register or log in to our Services using a social media account, we may have access to certain information about you</p>
 
-			<p>Our Services offer you the ability to register and log in using your third-party social media account details (like your Twitch logins). Where you choose to do this, we will receive certain profile information about you from your social media provider. The profile information we receive may vary depending on the social media provider concerned, but will often include your name, email address, friends list, and profile picture, as well as other information you choose to make public on such a social media platform.</p>
+			<p>Our Services offer you the ability to register and log in using your third-party social media account details (like your Twitch logins). Where you choose to do this, we will receive certain profile information about you from your social media provider. The profile information we receive may vary depending on the social media provider concerned, but will often include your nickname, real name (with Youtube), your followers, and profile picture, as well as other information you choose to make public on such a social media platform.</p>
 
 			<p>We will use the information we receive only for the purposes that are described in this privacy notice or that are otherwise made clear to you on the relevant Services. Please note that we do not control, and are not responsible for, other uses of your personal information by your third-party social media provider. We recommend that you review their privacy notice to understand how they collect, use, and share your personal information, and how you can set your privacy preferences on their sites and apps.</p>
 
