@@ -309,6 +309,16 @@ import { Component, Vue } from 'vue-facing-decorator';
 })
 export default class TermsOfUse extends Vue {
 
+	public mounted():void {
+		//Force scroll to hash if any
+		//Doesn't work by default because of the loading delay
+		let hash = window.location.hash;
+		if (hash) {
+			let elem = document.getElementById(hash.substring(1));
+			if (elem) elem.scrollIntoView();
+		}
+	}
+
 }
 </script>
 

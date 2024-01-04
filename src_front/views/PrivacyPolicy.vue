@@ -531,6 +531,16 @@ export default class PrivacyPolicy extends Vue {
 	public deletingData:boolean = false;
 	public deleteDone:boolean = false;
 
+	public mounted():void {
+		//Force scroll to hash if any
+		//Doesn't work by default because of the loading delay
+		let hash = window.location.hash;
+		if (hash) {
+			let elem = document.getElementById(hash.substring(1));
+			if (elem) elem.scrollIntoView();
+		}
+	}
+
 	public openDataMnagerForm():void {
 		this.showDataManager = true;
 		this.auhtenticating = true;
