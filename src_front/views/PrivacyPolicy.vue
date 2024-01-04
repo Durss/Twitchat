@@ -25,7 +25,7 @@
 	
 			<p><strong>Do we process any sensitive personal information?</strong> We do not process sensitive personal information.</p>
 	
-			<p><strong>Do we receive any information from third parties?</strong> We do not receive any information from third parties.</p>
+			<p><strong>Do we receive any information from third parties?</strong> We receive information you specifically grant us to access. This can include Twitch data like your login, your followers, your followings or your subscribers. If you connect with Yoube services, this also includes your Youtube profile name and your Youtube live broadcast sessions.</p>
 	
 			<p><strong>How do we process your information?</strong> We process your information to provide, improve, and administer our Services, communicate with you, for security and fraud prevention, and to comply with law. We may also process your information for other purposes with your consent. We process your information only when we have a valid legal reason to do so. Learn more about <a href="#infouse">how we process your information</a>.</p>
 	
