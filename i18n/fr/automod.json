@@ -57,11 +57,11 @@
 			"input_placeholder":"message...",
 			"result_tt":"Message nettoyé avec caractères spéciaux remplacés par leur équivalent latin",
 			"blocked_title":"Message bloqué par la règle : | Message bloqué par les règles : ",
-			"no_block":"Ce message passe le filtrage"
+			"no_block":"Ce message passe l'automod"
 		},
 		"options": {
 			"title":"Options",
-			"exclude_users":"Exclure ces personnes du filtrage: "
+			"exclude_users":"Exclure ces personnes de l'automod: "
 		}
 	}
 }

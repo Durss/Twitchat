@@ -8,10 +8,10 @@
 			</div>
 		</div>
 		
-		<Button v-if="!forceFullList && param_items_requested.length > 0"
+		<TTButton v-if="!forceFullList && param_items_requested.length > 0"
 			icon="lock_fit"
 			small secondary
-			@click="expandList()">{{ $t('login.specific_scope_moreBt') }}</Button>
+			@click="expandList()">{{ $t('login.specific_scope_moreBt') }}</TTButton>
 
 		<div ref="permsList" class="permsHolder" v-if="forceFullList || param_items_requested.length == 0">
 			<div class="optionList">
@@ -38,7 +38,7 @@ import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleButton,
 	},

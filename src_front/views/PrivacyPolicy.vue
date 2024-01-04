@@ -218,7 +218,7 @@
 
 
 			<h2 id="youtube">10. YOUTUBE SERVICES</h2>
-			<p>Twitchat utilizes YouTube API Services to enhance and provide specific functionalities within our platform. By using Twitchat, you acknowledge and agree to the collection and processing of data through YouTube API Services as outlined in <a href="https://policies.google.com/privacy" target="_blank">Youtube Privacy Policy</a>.</p>
+			<p>Twitchat utilizes YouTube API Services to enhance and provide specific functionalities within our platform. By using Twitchat, you acknowledge and agree to the collection and processing of data through YouTube API Services as outlined in <a href="https://policies.google.com/privacy" target="_blank">Google Privacy Policy</a>.</p>
 			<p>If Twitchat accesses or uses Authorized Data, users have the ability to revoke the API Client's access to their data through the <a href="https://security.google.com/settings/security/permissions" target="_blank">Google security settings page</a>. In addition to Twitchat's normal procedure for deleting stored data, users can take the following steps to manage access:</p>
 			<ul>
 				<li>Visit the Google security settings page: <a href="https://security.google.com/settings/security/permissions" target="_blank">Google security settings page</a>.</li>

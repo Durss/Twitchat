@@ -163,6 +163,12 @@ export default class ConnectYoutube extends Vue {
 
 <style scoped lang="less">
 .connectyoutube{
+	:deep(.header) {
+		&>.icon {
+			//Google wants the logo to be at least 20px high
+			width: 30px;
+		}
+	}
 	.holder {
 		display: flex;
 		flex-direction: column;
@@ -186,7 +192,7 @@ export default class ConnectYoutube extends Vue {
 
 		.connectBt {
 			:deep(.icon) {
-				width: 1.5em;
+				width: 2em;
 				height: 1.5em;
 				max-width: 2em;
 			}

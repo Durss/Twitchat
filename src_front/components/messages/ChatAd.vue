@@ -10,13 +10,13 @@
 				<div class="ctas">
 					<img @click.stop="openParamPage(contentDonate)" src="@/assets/img/eating.gif" alt="nomnom" class="sponsorGif">
 					
-					<Button :aria-label="$t('chat.sponsor.tipBt_aria')"
-					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</Button>
+					<TTButton primary light :aria-label="$t('chat.sponsor.tipBt_aria')"
+					@click.stop="openParamPage(contentDonate)">{{ $t('chat.sponsor.tipBt') }}</TTButton>
 					
 					<template v-if="!isDonateReminder">
-						<Button v-if="!$store.params.donationReminderEnabled" secondary
-							@click.stop="$store.params.donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</Button>
-						<div v-else class="card-item secondary center">{{ $t("chat.sponsor.reminder_scheduled") }}</div>
+						<TTButton v-if="!$store.params.donationReminderEnabled" light primary
+							@click.stop="$store.params.donationReminderEnabled = true" icon="timer">{{ $t('chat.sponsor.remind_meBt') }}</TTButton>
+						<div v-else class="card-item secondary infos">{{ $t("chat.sponsor.reminder_scheduled") }}</div>
 					</template>
 				</div>
 			</div>
@@ -53,10 +53,10 @@
 					<div v-html="$t('chat.discord.content')"></div>
 				</div>
 				<div class="ctas">
-					<Button icon="discord"
+					<TTButton primary light icon="discord"
 						:href="discordURL"
 						target="_blank"
-						type="link">{{ $t('chat.discord.joinBt') }}</Button>
+						type="link">{{ $t('chat.discord.joinBt') }}</TTButton>
 				</div>
 			</div>
 	
@@ -70,13 +70,13 @@
 					<div v-for="e in $tm('chat.adalert.contents')" v-html="e"></div>
 				</div>
 				<div class="ctas">
-					<Button @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</Button>
-					<Button icon="edit"
-						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</Button>
-					<Button icon="premium" premium
-						@click="openParamPage(contentPremium)">{{ $t('premium.become_premiumBt') }}</Button>
-					<Button icon="follow" secondary
-						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</Button>
+					<TTButton primary light icon="edit"
+						@click="openParamPage(contentMainMenu, 'ad')">{{ $t('chat.adalert.customizeBt') }}</TTButton>
+					<TTButton icon="premium" premium
+						@click="openParamPage(contentPremium)">{{ $t('premium.become_premiumBt') }}</TTButton>
+					<TTButton icon="follow" secondary
+						@click="openParamPage(contentDonate)">{{ $t('chat.adalert.donateBt') }}</TTButton>
+					<TTButton primary @click="openModal('gngngn')">{{ $t('chat.adalert.unacceptableBt') }}</TTButton>
 				</div>
 			</div>
 	
@@ -100,10 +100,11 @@
 					</div>
 				</div>
 				<div class="ctas">
-					<Button icon="follow"
+					<TTButton icon="follow"
+						primary light
 						:loading="loading"
 						@click="makeDonationPublic()"
-						v-if="!madeDonationPublic">{{ $t('chat.donor.publicBt') }}</Button>
+						v-if="!madeDonationPublic">{{ $t('chat.donor.publicBt') }}</TTButton>
 				</div>
 			</div>
 	
@@ -117,7 +118,7 @@
 					</i18n-t>
 				</div>
 				<div class="ctas">
-					<Button @click="openModal('updates')">{{ $t('chat.updateReminder.updatesBt') }}</Button>
+					<TTButton @click="openModal('updates')" icon="firstTime" primary light>{{ $t('chat.updateReminder.updatesBt') }}</TTButton>
 				</div>
 			</div>
 	
@@ -130,7 +131,7 @@
 					<span>{{ $t("chat.adBreakScope.content") }}</span>
 				</div>
 				<div class="ctas">
-					<Button icon="lock_fit" light @click="grantAdScopes()">{{ $t('chat.adBreakScope.grantBt') }}</Button>
+					<TTButton icon="lock_fit" light @click="grantAdScopes()">{{ $t('chat.adBreakScope.grantBt') }}</TTButton>
 				</div>
 				
 				<div class="card-item secondary infos">
@@ -147,8 +148,8 @@
 				<p class="label">{{ $t('chat.donor.close_confirm.info_1') }}</p>
 				<p class="label">{{ $t('chat.donor.close_confirm.info_2') }}</p>
 				<div class="ctaConfirm">
-					<Button :loading="confirmDelay" @click="showConfirm=false" alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</Button>
-					<Button :loading="confirmDelay" @click="deleteMessage()">{{ $t('chat.donor.close_confirm.confirmBt') }}</Button>
+					<TTButton :loading="confirmDelay" @click="showConfirm=false" alert>{{ $t('chat.donor.close_confirm.cancelBt') }}</TTButton>
+					<TTButton :loading="confirmDelay" @click="deleteMessage()">{{ $t('chat.donor.close_confirm.confirmBt') }}</TTButton>
 				</div>
 			</div>
 		</div>
@@ -172,7 +173,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		Splitter,
 		CloseButton,
 		ToggleBlock,

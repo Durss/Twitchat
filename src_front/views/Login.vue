@@ -16,7 +16,7 @@
 					<img src="@/assets/icons/lock.svg">
 					<p>{{ $t("login.closed_beta") }}</p>
 				</div>
-				<Button type="link" href="https://twitchat.fr" class="link" target="_self" icon="twitchat">{{ $t("login.prodBt") }}</Button>
+				<TTButton type="link" href="https://twitchat.fr" class="link" target="_self" icon="twitchat">{{ $t("login.prodBt") }}</TTButton>
 
 				<div class="migrate" v-if="migrateInfo.betaDate && !transferComplete">
 					<div>{{ $t("login.transfer_details") }}</div>
@@ -40,10 +40,10 @@
 						</div>
 					</div>
 					
-					<Button class="tranferBt" icon="download"
+					<TTButton class="tranferBt" icon="download"
 					@click="transferData"
 					:loading="transferingData"
-					alert>{{ $t("login.transfer_datatBt") }}</Button>
+					alert>{{ $t("login.transfer_datatBt") }}</TTButton>
 				</div>
 
 				<div class="migrate" v-if="transferComplete">
@@ -57,21 +57,21 @@
 	
 				<ScopeSelector v-if="!authenticating" @update="onScopesUpdate" :requestedScopes="requestedScopes" />
 	
-				<Button @click.capture.prevent="generateCSRF(true)"
+				<TTButton @click.capture.prevent="generateCSRF(true)"
 					type="link"
 					:href="oAuthURL"
 					v-if="!authenticating && oAuthURL"
-					bounce
+					bounce primary
 					:loading="generatingCSRF"
 					v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 					icon="twitch"
-				>{{ $t('login.authorizeBt') }}</Button>
+				>{{ $t('login.authorizeBt') }}</TTButton>
 	
-				<Button v-if="!authenticating && !oAuthURL"
+				<TTButton v-if="!authenticating && !oAuthURL"
 					@click="generateCSRF()"
 					:loading="generatingCSRF"
 					alert
-					icon="refresh">{{ $t('login.retryBt') }}</Button>
+					icon="refresh">{{ $t('login.retryBt') }}</TTButton>
 				
 				<div class="loader" v-if="authenticating">
 					<p>{{ $t("login.authenticating") }}</p>
@@ -105,7 +105,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		CloseButton,
 		ScopeSelector,
 	},

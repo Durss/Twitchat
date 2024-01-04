@@ -1023,6 +1023,11 @@ export default class ParamItem extends Vue {
 			margin-top: .4em;
 		}
 
+		img.paramIcon {
+			height: 4em;
+			vertical-align: middle;
+		}
+
 		.list {
 
 			label {

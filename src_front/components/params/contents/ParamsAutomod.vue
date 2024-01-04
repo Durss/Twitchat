@@ -29,7 +29,7 @@
 						<template #right_actions>
 							<div class="actions">
 								<ToggleButton class="toggleButton" v-model="f.enabled" @click.stop="" clear v-tooltip="$t('automod.rule.toggle_tt')" />
-								<Button icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
+								<TTButton icon="trash" alert class="deleteBt" @click.stop="deleteRule(f)" />
 							</div>
 						</template>
 						<div class="ruleContent">
@@ -44,7 +44,7 @@
 						</div>
 					</ToggleBlock>
 				</div>
-				<Button icon="add" class="addBt" @click="addRule()">{{ $t('automod.rule.add') }}</Button>
+				<TTButton icon="add" class="addBt" @click="addRule()">{{ $t('automod.rule.add') }}</TTButton>
 			</section>
 			
 			<Splitter class="splitter">{{ $t("automod.test.title") }}</Splitter>
@@ -65,7 +65,7 @@
 
 			<section class="card-item options">
 				<ParamItem class="" :paramData="param_banUserNames" v-model="automodData.banUserNames" @change="save()" noBackground />
-				<div class="permsTitle">{{ $t("automod.options.exclude_users") }}</div>
+				<div class="permsTitle"><Icon name="user" />{{ $t("automod.options.exclude_users") }}</div>
 				<PermissionsForm class="perms" v-model="automodData.exludedUsers" />
 			</section>
 		</div>
@@ -86,10 +86,12 @@ import ToggleButton from '../../ToggleButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
@@ -101,7 +103,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
-	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"automod.ban_usernames"};
+	public param_banUserNames:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"automod.ban_usernames", icon:"user"};
 	public param_ruleLabel:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_ruleRegex:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_ruleSync:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -250,6 +252,11 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 		.perms {
 			width: 100%;
 		}
+		.icon {
+			width: 1em;
+			height: 1em;
+			margin-right: .5em;
+		}
 	}
 
 	.fadeHolder {
@@ -260,7 +267,8 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 			&.testForm {
 				display: flex;
 				flex-direction: column;
-				max-width: 300px;
+				width: fit-content;
+				width: 300px;
 
 				input {
 					z-index: 1;

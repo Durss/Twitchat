@@ -10,9 +10,9 @@
 		</section>
 
 		<section class="card-item actions">
-			<Button class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</Button>
-			<Button class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</Button>
-			<Button class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</Button>
+			<TTButton class="button" @click="logout()" icon="logout" alert>{{ $t('global.log_out') }}</TTButton>
+			<TTButton class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</TTButton>
+			<TTButton class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</TTButton>
 		</section>
 		
 		<section class="card-item actions">
@@ -24,13 +24,13 @@
 			
 			<ScopeSelector @update="onScopesUpdate" />
 
-			<Button class="authorizeBt"
-				type="link"
+			<TTButton class="authorizeBt"
+				type="link" primary
 				:href="oAuthURL"
 				v-if="showAuthorizeBt"
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
-				icon="twitch">{{ $t('login.authorizeBt') }}</Button>
+				icon="twitch">{{ $t('login.authorizeBt') }}</TTButton>
 		</section>
 
 		<section class="card-item">
@@ -44,7 +44,7 @@
 		
 		<section class="card-item dataSync">
 			<ParamItem class="param" :paramData="$store.account.syncDataWithServer" v-model="syncEnabled" noBackground />
-			<Button class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</Button>
+			<TTButton class="button" v-if="!syncEnabled" @click="eraseData()" alert icon="delete">{{ $t('account.erase_dataBt') }}</TTButton>
 		</section>
 	</div>
 </template>
@@ -73,7 +73,7 @@ import ApiController from '@/utils/ApiController';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		DonorState,
 		ToggleBlock,

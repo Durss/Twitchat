@@ -33,7 +33,7 @@
 								</select>
 							</div>
 							
-							<TTButton icon="offline" alert v-if="extension.enabled" small>{{ $t("global.disable") }}</TTButton>
+							<TTButton icon="offline" alert v-if="extension.enabled" @click="onDisable(extension)" small>{{ $t("global.disable") }}</TTButton>
 						</template>
 
 						<div class="version">v{{ extension.data.version }}</div>
@@ -156,16 +156,25 @@ export default class Extensions extends AbstractSidePanel {
 	}
 
 	/**
+	 * Disable an extension
+	 * @param ext 
+	 */
+	public async onDisable(ext:ExtensionItem):Promise<void> {
+		await this.onInstall(ext, false);
+	}
+
+	/**
 	 * Called when installing an extension on a slot
 	 * @param ext 
 	 */
-	public async onInstall(ext:ExtensionItem):Promise<void> {
+	public async onInstall(ext:ExtensionItem, enable:boolean = true):Promise<void> {
 		ext.loading = true;
 		const chunks = ext.selectedValue.split("_");//Dirty way of extracting index and type :(
 		const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
 		const slotIndex = chunks[1];
-		await TwitchUtils.updateExtension(ext.data.id, ext.data.version, true, slotIndex, slotType);
+		await TwitchUtils.updateExtension(ext.data.id, ext.data.version, enable, slotIndex, slotType);
 		ext.loading = false;
+		ext.enabled = enable;
 		this.reloading = true;
 		await this.loadList();
 		this.reloading = false;
