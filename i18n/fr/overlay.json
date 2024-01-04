@@ -100,7 +100,7 @@
 			"param_timing_duration": "Durée",
 			"param_duration": "Durée du défilement ({VALUE}s)",
 			"param_speed": "Vitesse de défilement ({VALUE}pixels / s)",
-			"param_fadeSize": "Dégradé d'apparaition / disparition ({VALUE}px)",
+			"param_fadeSize": "Dégradé d'apparition / disparition ({VALUE}px)",
 			"param_scale": "Taille des textes",
 			"param_padding": "Espace entre les catégories",
 			"param_paddingTitle": "Espace entre le titre et les entrées",
