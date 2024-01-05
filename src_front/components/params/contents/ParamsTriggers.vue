@@ -25,9 +25,17 @@
 
 				<Button class="cta resyncBt" small
 					icon="channelPoints"
+					v-if="canManageRewards && isAffiliate"
 					@click="listRewards()"
 					v-tooltip="$t('triggers.resyncRewardsBt_tt')"
 					:loading="loadingRewards">{{ $t('triggers.resyncRewardsBt') }}</Button>
+
+				<Button class="cta resyncBt" small
+					icon="extension"
+					v-if="canManageExtensions"
+					@click="listExtensions()"
+					v-tooltip="$t('triggers.resyncExtensionBt_tt')"
+					:loading="loadingExtension">{{ $t('triggers.resyncExtensionBt') }}</Button>
 
 				<Button class="cta" small
 					v-if="canTestTrigger"
@@ -69,7 +77,8 @@
 				:obsScenes="obsScenes"
 				:obsSources="obsSources"
 				:obsInputs="obsInputs"
-				:rewards="rewards" />
+				:rewards="rewards"
+				:extensions="extensions" />
 				
 			<TriggerList v-if="showList && !showForm"
 				@select="onSelectTrigger($event)"
@@ -113,16 +122,21 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
 	public loadingRewards:boolean = false;
+	public loadingExtension:boolean = false;
 	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public obsInputs:OBSInputItem[] = [];
 	public rewards:TwitchDataTypes.Reward[] = [];
+	public extensions:TwitchDataTypes.Extension[] = [];
 
 	private renameOBSElementHandler!:(e:TwitchatEvent) => void;
 	public get currentTriggerData():TriggerData|null { return this.$store.triggers.currentEditTriggerData; }
 	public get showList():boolean { return this.currentTriggerData == null; }
+	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
+	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }
+	public get canManageExtensions():boolean { return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]); }
 
 	public get showOBSResync():boolean {
 		if(!this.currentTriggerData) return false;
@@ -152,6 +166,9 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		}
 		if(TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 			this.listRewards();
+		}
+		if(TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS])) {
+			this.listExtensions();
 		}
 		//No trigger yet, just show form
 		if(this.noTrigger) {
@@ -311,6 +328,17 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		this.rewards = await this.$store.rewards.loadRewards();
 		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
 		this.loadingRewards = false;
+	}
+
+	/**
+	 * Lists twitch extensions
+	 */
+	public async listExtensions():Promise<void> {
+		this.loadingExtension = true;
+		const list = await TwitchUtils.listExtensions(false);
+		this.extensions = list || [];
+		await Utils.promisedTimeout(200);//Just make sure the loading is visible in case query runs crazy fast
+		this.loadingExtension = false;
 	}
 
 	/**

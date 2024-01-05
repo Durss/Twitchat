@@ -18,6 +18,8 @@
 		"resyncOBSBt_tt": "If you changed your sources or scenes on OBS, click this to get those modifications",
 		"resyncRewardsBt": "Resync rewards",
 		"resyncRewardsBt_tt": "If you modified your channel point rewards, click to get those updates",
+		"resyncExtensionBt": "Resync Twitch extensions",
+		"resyncExtensionBt_tt": "If you added or modified the status of an extension, click to get those changes",
 		"delete_confirm": "Delete trigger?",
 		"delete_action_confirm": "Delete action?",
 		"delete_actions_confirm": "Delete all actions?",
@@ -124,6 +126,7 @@
 				"action_chat": "Send chat message",
 				"action_customChat": "Twitchat notification",
 				"action_reward": "Channel points reward",
+				"action_extension": "Twitch Extension",
 				"action_bingo": "Start a bingo",
 				"action_chatSugg": "Chat suggestions",
 				"action_raffle": "Start a raffle",
@@ -451,6 +454,11 @@
 				"param_state_disable":"Disable",
 				"param_state_toggle":"Toggle state",
 				"no_manageable_reward":"You have no manageable reward. Please first create a reward from Twitchat or transfer any of your existing rewards to Twitchat.\nClick the {ICON} button at the bottom left."
+			},
+			"extension":{
+				"param_id":"Extension to update",
+				"param_enable":"New extension state",
+				"param_slot":"New extension location"
 			}
 		},
 		"categories": {

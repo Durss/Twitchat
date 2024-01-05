@@ -3006,4 +3006,4 @@ export default class TwitchUtils {
 	}
 
 }
-type ExtensionReturnType<T extends boolean> = T extends true ? TwitchDataTypes.ActiveExtension : TwitchDataTypes.Extension[];
+type ExtensionReturnType<T extends boolean> = T extends true ? TwitchDataTypes.ActiveExtensions : TwitchDataTypes.Extension[];

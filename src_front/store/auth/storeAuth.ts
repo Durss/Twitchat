@@ -159,6 +159,7 @@ export const storeAuth = defineStore('auth', {
 				const sMain = StoreProxy.main;
 				const sRewards = StoreProxy.rewards;
 				const sStream = StoreProxy.stream;
+				const sExtension = StoreProxy.extension;
 				
 				try {
 					window.setInitMessage("migrating local parameter data");
@@ -190,6 +191,7 @@ export const storeAuth = defineStore('auth', {
 				EventSub.instance.connect();
 				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				sRewards.loadRewards();
+				sExtension.init();
 				sStream.loadStreamInfo("twitch", this.twitch.user.id);
 
 				if(Config.instance.AD_API_AVAILABLE) {

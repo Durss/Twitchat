@@ -51,6 +51,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionCustomMessageData
 								| TriggerActionHeatClickData
 								| TriggerActionRewardData
+								| TriggerActionExtensionData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -690,6 +691,28 @@ export interface TriggerActionRewardData extends TriggerActionData{
 		 * New is_enabled state for "toggle" action
 		 */
 		state:TriggerActionRewardDataState;
+	}
+}
+
+export interface TriggerActionExtensionData extends TriggerActionData{
+	type:"extension";
+	extension: {
+		/**
+		 * Extnesion ID
+		 */
+		id:string;
+		/**
+		 * Enable state
+		 */
+		enable:boolean;
+		/**
+		 * Extension slot index target
+		 */
+		slotIndex?:"1"|"2"|"3";
+		/**
+		 * Extension slot index target
+		 */
+		slotType?:Exclude<TwitchDataTypes.Extension["type"][number], "mobile">;
 	}
 }
 

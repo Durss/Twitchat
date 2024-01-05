@@ -50,14 +50,19 @@
 					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</TTButton>
 	
 				<TTButton class="button" @click="selectActionType('customChat')"
-					v-newflag="{date:1704956100000, id:'params_triggerAction_value'}"
+					v-newflag="{date:1704956100000, id:'params_triggerAction_ttnotif'}"
 					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</TTButton>
 					
 				<TTButton class="button" @click.capture="selectActionType('reward')"
 					v-if="isAffiliate"
 					icon="channelPoints"
-					v-newflag="{date:1704956100000, id:'params_triggerAction_value'}"
+					v-newflag="{date:1704956100000, id:'params_triggerAction_rewards'}"
 					:disabled="!canManageRewards">{{ $t('triggers.actions.common.action_reward') }}</TTButton>
+					
+				<TTButton class="button" @click.capture="selectActionType('extension')"
+					icon="extension"
+					v-newflag="{date:1704956100000, id:'params_triggerAction_extension'}"
+					:disabled="!canManageExtensions">{{ $t('triggers.actions.common.action_extension') }}</TTButton>
 					
 				<TTButton class="button" @click.capture="selectActionType('poll')"
 					v-if="isAffiliate"
@@ -179,6 +184,7 @@
 		<TriggerActionCustomChatEntry v-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
 		<TriggerActionClickHeatEntry v-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
 		<TriggerActionRewardEntry v-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionExtensionEntry v-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -232,6 +238,7 @@ import TriggerActionVibratePhoneEntry from './entries/TriggerActionVibratePhoneE
 import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue';
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
+import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
 
 @Component({
 	components:{
@@ -259,6 +266,7 @@ import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 		TriggerActionTriggerEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionClickHeatEntry,
+		TriggerActionExtensionEntry,
 		TriggerActionHighlightEntry,
 		TriggerActionCustomUsername,
 		TriggerActionCustomChatEntry,
@@ -283,6 +291,8 @@ export default class TriggerActionEntry extends Vue {
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
 	@Prop
+	public extensions!:TwitchDataTypes.Extension[];
+	@Prop
 	public index!:number;
 
 	public opened = false;
@@ -293,6 +303,7 @@ export default class TriggerActionEntry extends Vue {
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }
+	public get canManageExtensions():boolean { return TwitchUtils.hasScopes([TwitchScopes.EXTENSIONS]); }
 	public get canCreatePoll():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]); }
 	public get canCreatePrediction():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]); }
 	public get canEditStreamInfo():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
@@ -401,6 +412,7 @@ export default class TriggerActionEntry extends Vue {
 		if(this.action.type == "customUsername") icons.push( 'user' );
 		if(this.action.type == "heat_click") icons.push( 'distort' );
 		if(this.action.type == "reward") icons.push( 'channelPoints' );
+		if(this.action.type == "extension") icons.push( 'extension' );
 		return icons;
 	}
 
@@ -498,6 +510,12 @@ export default class TriggerActionEntry extends Vue {
 			case "reward": {
 				if(!this.canManageRewards) {
 					this.$store.auth.requestTwitchScopes([TwitchScopes.MANAGE_REWARDS]);
+					return;
+				}break
+			}
+			case "extension": {
+				if(!this.canManageExtensions) {
+					this.$store.auth.requestTwitchScopes([TwitchScopes.EXTENSIONS]);
 					return;
 				}break
 			}

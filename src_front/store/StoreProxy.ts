@@ -13,6 +13,7 @@ import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
+import { boolean } from "mathjs";
 
 /**
 * Created : 23/09/2022 
@@ -49,6 +50,7 @@ export default class StoreProxy {
 	public static patreon:IPatreonState & IPatreonGetters & IPatreonActions & {$state:IPatreonState, $reset:()=>void};
 	public static youtube:IYoutubeState & IYoutubeGetters & IYoutubeActions & {$state:IYoutubeState, $reset:()=>void};
 	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
+	public static extension:IExtensionState & IExtensionGetters & IExtensionActions & {$state:IExtensionState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -1979,4 +1981,22 @@ export interface IYoutubeGetters {
 export interface IYoutubeActions {
 	setYoutubeAuthResult(value:{code:string,csrf:string}|null):void;
 	authenticate():Promise<boolean>;
+}
+
+
+
+
+export interface IExtensionState {
+	/**
+	 * List of available extension slot types
+	 * Associates a key per slot types to the number of available slots for this slot type
+	 */
+	availableSlots: {[key in keyof TwitchDataTypes.ActiveExtensions]:number};
+}
+
+export interface IExtensionGetters {
+}
+
+export interface IExtensionActions {
+	init():void;
 }

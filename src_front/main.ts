@@ -51,6 +51,7 @@ import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
 import { storeAccount } from './store/account/storeAccount';
+import { storeExtension } from './store/extension/storeExtension';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -231,6 +232,7 @@ function buildApp() {
 	StoreProxy.youtube = storeYoutube();
 	StoreProxy.values = storeValues();
 	StoreProxy.account = storeAccount();
+	StoreProxy.extension = storeExtension();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -263,6 +265,7 @@ function buildApp() {
 		patreon:			StoreProxy.patreon,
 		youtube:			StoreProxy.youtube,
 		values:				StoreProxy.values,
+		extension:			StoreProxy.extension,
 	}
 	
 	app.use(router)

@@ -116,6 +116,7 @@
 							:obsSources="obsSources"
 							:obsInputs="obsInputs"
 							:rewards="rewards"
+							:extensions="extensions"
 							:triggerData="triggerData"
 							@delete="deleteAction(element.id)"
 							@duplicate="duplicateAction(element, index)"
@@ -187,6 +188,8 @@ export default class TriggerActionList extends Vue {
 	public obsInputs!:OBSInputItem[];
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
+	@Prop({default:[]})
+	public extensions!:TwitchDataTypes.Extension[];
 	
 	public selecting:boolean = false;
 	public selectStyles:{[key:string]:string} = {};

@@ -583,7 +583,17 @@ import Ajv from "ajv";
 											}
 										}
 									}
-								}
+								},
+								extension: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:50},
+										enable: {type:"boolean"},
+										slotIndex: {enum: ["1","2","3"]},
+										action: {enum: ["component", "overlay", "panel"]},
+									}
+								},
 							}
 						},
 					}

@@ -463,7 +463,7 @@ export namespace TwitchDataTypes {
 		type:("component"|"mobile"|"overlay"|"panel")[];
 	}
 
-	export interface ActiveExtension {
+	export interface ActiveExtensions {
 		panel:{[key:string]:{
 			id:string;
 			version:string;

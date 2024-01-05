@@ -18,6 +18,8 @@
 		"resyncOBSBt_tt": "Si vous avez modifié vos sources ou scènes dans OBS, cliquez pour charger ces changements",
 		"resyncRewardsBt": "Rafraîchir les récompenses",
 		"resyncRewardsBt_tt": "Si vous avez modifié vos récompenses de points de chaîne, cliquez pour récupérer les changements",
+		"resyncExtensionBt": "Rafraîchir les extensions",
+		"resyncExtensionBt_tt": "Si vous avez ajouté ou modifié le status d'une extension, cliquez pour récupérer les changements",
 		"delete_confirm": "Supprimer ce trigger ?",
 		"delete_action_confirm": "Supprimer l'action ?",
 		"delete_actions_confirm": "Supprimer toutes les action ?",
@@ -124,6 +126,7 @@
 				"action_chat": "Envoyer un message",
 				"action_customChat": "Notification Twitchat",
 				"action_reward": "Récompense de points de chaîne",
+				"action_extension": "Extension Twitch",
 				"action_bingo": "Lancer un bingo",
 				"action_chatSugg": "Suggestions de tchat",
 				"action_raffle": "Lancer un tirage au sort",
@@ -451,6 +454,11 @@
 				"param_state_disable":"Désactiver",
 				"param_state_toggle":"Inverser l'état",
 				"no_manageable_reward":"Aucune de vos récompense ne peut être gérée par Twitchat. Veuillez d'abord créer une récompense depuis Twitchat ou transférer l'une de vos récompenses actuelles à Twitchat.\nCliquez le bouton {ICON} en bas à gauche."
+			},
+			"extension":{
+				"param_id":"Extension à modifier",
+				"param_enable":"Nouvel état",
+				"param_slot":"Nouvel emplacement"
 			}
 		},
 		"categories": {

@@ -89,6 +89,7 @@ export default class Extensions extends AbstractSidePanel {
 	public async loadList():Promise<void> {
 		const list = await TwitchUtils.listExtensions(false) || [];
 		const listEnabled = await TwitchUtils.listExtensions(true);
+		const availableSlotTypes = this.$store.extension.availableSlots;
 		const idToActive:{[key:string]:boolean} = {};
 		const idToSlotType:{[key:string]:{type:TwitchDataTypes.Extension["type"][number], index:string}} = {};
 		//Check which extensions are active and in which slot type/index
@@ -112,30 +113,16 @@ export default class Extensions extends AbstractSidePanel {
 			const slotOptions:ExtensionItem["slotOptions"] = [];
 			let count = 0;
 			for (let i = 0; i < v.type.length; i++) {
-				if(v.type[i] == "mobile") continue;//Ignore mobile slots as they're automatic
+				const slotType = v.type[i];
+				if(slotType == "mobile") continue;//Ignore mobile slots as they're automatic
 
 				if(count > 0) {
 					//This shows a disabled splitter on the list
 					slotOptions.push({index:"1", type:"split"});
 				}
 				count ++;
-				switch(v.type[i]) {
-					case "overlay":{
-						slotOptions.push({index:"1", type:"overlay"});
-						break;
-					}
-					case "panel":{
-						slotOptions.push({index:"1", type:"panel"});
-						slotOptions.push({index:"2", type:"panel"});
-						slotOptions.push({index:"3", type:"panel"});
-						break;
-					}
-					case "component":{
-						
-						slotOptions.push({index:"1", type:"component"});
-						slotOptions.push({index:"2", type:"component"});
-						break;
-					}
+				for (let j = 0; j < availableSlotTypes[slotType]; j++) {
+					slotOptions.push({index:(j+1).toString(), type:slotType});
 				}
 			}
 			const res:ExtensionItem = {
