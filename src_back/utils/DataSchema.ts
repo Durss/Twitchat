@@ -591,7 +591,7 @@ import Ajv from "ajv";
 										id: {type:"string", maxLength:50},
 										enable: {type:"boolean"},
 										slotIndex: {enum: ["1","2","3"]},
-										action: {enum: ["component", "overlay", "panel"]},
+										slotType: {enum: ["component", "overlay", "panel"]},
 									}
 								},
 							}
