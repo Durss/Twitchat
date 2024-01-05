@@ -31,7 +31,7 @@
 			"scope_moderate":"Supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",
 			"scope_moderate_details":"Cette autorisation permet aussi de supprimer des vidéos de votre chaîne, chose que Twitchat ne fera jamais, mais Youtube ne laisse pas le choix.",
 			"terms":"Conditions d'utilisation de YouTube",
-			"policy":"Politique de confidentialité de Youtube"
+			"policy":"Politique de confidentialité de Google"
 		}
 	}
 }

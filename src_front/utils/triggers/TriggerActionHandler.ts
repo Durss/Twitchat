@@ -2235,6 +2235,26 @@ export default class TriggerActionHandler {
 							break;
 						}
 					}
+				}else
+
+				//Handle twitch extension action
+				if(step.type == "extension") {
+					logStep.messages.push({date:Date.now(), value:"Change state for extension ID \""+step.extension.id+"\" to: "+(step.extension.enable? 'Enabled' : "Disabled")});
+					const extension = StoreProxy.extension.availableExtensions.find(v=>v.id == step.extension.id);
+					if(!extension) {
+						logStep.messages.push({date:Date.now(), value:"❌ Requested extension not found"});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"Extension found: \""+extension.name+"\""});
+						if(!await TwitchUtils.updateExtension(extension.id, extension.version, step.extension.enable, step.extension.slotIndex, step.extension.slotType)) {
+							logStep.messages.push({date:Date.now(), value:"❌ Something went wrong when updating extension state"});
+							log.error = true;
+							logStep.error = true;
+						}else{
+							logStep.messages.push({date:Date.now(), value:"✔ Extension updated successfuly"});
+						}
+					}
 				}
 				
 			}catch(error:any) {
@@ -2243,7 +2263,7 @@ export default class TriggerActionHandler {
 				log.criticalError = true;
 				logStep.error = true;
 			}
-			logStep.messages.push({date:Date.now(), value:"Step execution complete"});
+			logStep.messages.push({date:Date.now(), value:"✔ Step execution complete"});
 		}
 		
 		if(queue) {

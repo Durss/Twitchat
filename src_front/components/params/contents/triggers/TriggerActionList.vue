@@ -204,6 +204,7 @@ export default class TriggerActionList extends Vue {
 	private pointerDownHandler!:(e:PointerEvent) => void;
 	private pointerMoveHandler!:(e:PointerEvent) => void;
 	private pointerUpHandler!:(e:PointerEvent) => void;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyUpHandler!:(e:KeyboardEvent) => void;
 
 	/**
@@ -334,10 +335,12 @@ export default class TriggerActionList extends Vue {
 		this.pointerMoveHandler	= (e:PointerEvent) => this.onPointerMove(e);
 		this.pointerUpHandler	= (e:PointerEvent) => this.onPointerUp(e);
 		this.keyUpHandler		= (e:KeyboardEvent) => this.onKeyUp(e);
+		this.keyDownHandler		= (e:KeyboardEvent) => this.onKeyDown(e);
 		holder.addEventListener("pointerdown", this.pointerDownHandler);
 		document.addEventListener("pointermove", this.pointerMoveHandler);
 		document.addEventListener("pointerup", this.pointerUpHandler);
-		document.addEventListener("keyup", this.keyUpHandler);
+		document.addEventListener("keyup", this.keyUpHandler, true);
+		document.addEventListener("keydown", this.keyDownHandler, true);
 
 		this.renderFrame();
 	}
@@ -348,7 +351,8 @@ export default class TriggerActionList extends Vue {
 		holder.removeEventListener("pointerdown", this.pointerDownHandler);
 		document.removeEventListener("pointermove", this.pointerMoveHandler);
 		document.removeEventListener("pointerup", this.pointerUpHandler);
-		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("keyup", this.keyUpHandler, true);
+		document.removeEventListener("keydown", this.keyDownHandler, true);
 	}
 
 	/**
@@ -469,6 +473,13 @@ export default class TriggerActionList extends Vue {
 		this.selecting = false;
 	}
 	
+	private onKeyDown(e:KeyboardEvent):void {
+		//Avoid closing parameters page if actions are selected
+		if(e.key == "Escape" && this.selectedActions.length > 0) {
+			e.stopPropagation();
+		}
+	}
+	
 	private onKeyUp(e:KeyboardEvent):void {
 		//Do not copy/past actions if focus is on a form input
 		const nodeName = (e.target as HTMLElement).nodeName;
@@ -486,7 +497,7 @@ export default class TriggerActionList extends Vue {
 					}
 				}
 			}).catch(()=> {});
-		}else
+		}
 
 		if(e.key == "c" && e.ctrlKey && this.selectedActions.length > 0) {
 			const clipboar:TriggerActionTypes[] = [];

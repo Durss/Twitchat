@@ -9,7 +9,7 @@
 		<template v-else>
 			<ParamItem :paramData="param_id" v-model="action.extension.id" @change="buildSlotList()" />
 			<ParamItem :paramData="param_enable" v-model="action.extension.enable">
-				<ParamItem class="child" :paramData="param_slot" noBackground />
+				<ParamItem class="child" :paramData="param_slot" noBackground @change="onChangeSlot()" />
 			</ParamItem>
 		</template>
 	</div>
@@ -49,13 +49,15 @@ export default class TriggerActionExtensionEntry extends AbstractTriggerActionEn
 
 	public param_id:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.extension.param_id", icon:"extension"};
 	public param_enable:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.extension.param_enable", icon:"disable"};
-	public param_slot:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"", labelKey:"triggers.actions.extension.param_slot"};
+	public param_slot:ISlotItem<string> = {type:"list", value:"", labelKey:"triggers.actions.extension.param_slot", slotIndex:"1", slotType:"component"};
 	
 	public beforeMount():void {
 		if(!this.action.extension) {
 			this.action.extension = {
 				id:"",
 				enable:false,
+				slotIndex:"",
+				slotType:"component",
 			}
 		}
 
@@ -64,10 +66,12 @@ export default class TriggerActionExtensionEntry extends AbstractTriggerActionEn
 		});
 
 		this.param_enable.listValues = [
-			{value:true, labelKey:"global.enabled"},
-			{value:false, labelKey:"global.disabled"},
+			{value:true, labelKey:"global.enable"},
+			{value:false, labelKey:"global.disable"},
 		];
-
+	}
+	
+	public mounted():void {
 		this.buildSlotList();
 	}
 
@@ -75,11 +79,36 @@ export default class TriggerActionExtensionEntry extends AbstractTriggerActionEn
 		const extension = this.extensions.find(v=>v.id == this.param_id.value);
 		if(extension) {
 			this.param_slot.value = "";
-			this.param_slot.listValues = extension.type.map(v=> {
-				return {value:v, labelKey:"extensions.type_"+v };
-			})
+			const list:ISlotItem<any>[] = [];
+			const slotList = this.$store.extension.availableSlots;
+			for (const key in slotList) {
+				const slotType = key as keyof typeof slotList;
+				if(!extension.type.includes(slotType)) continue;
+				const count = slotList[slotType];
+				for (let i = 0; i < count; i++) {
+					const suffix = (count > 1)? " "+(i+1) : "";
+					list.push(<ISlotItem<any>>{value:slotType+"_"+(i+1), label:this.$t("extensions.type_"+slotType)+suffix, slotIndex:(i+1).toString(), slotType });
+				}
+			}
+			this.param_slot.listValues = list;
+			this.param_slot.value = list[0].value;
+			this.onChangeSlot();
+		}else{
+			this.param_slot.listValues = [];
 		}
 	}
+
+	public onChangeSlot():void {
+		const v = this.param_slot.selectedListValue as ISlotItem<string>;
+		if(!v) return;
+		this.action.extension.slotIndex = v.slotIndex;
+		this.action.extension.slotType = v.slotType;
+	}
+}
+
+interface ISlotItem<T> extends TwitchatDataTypes.ParameterData<T> {
+	slotIndex:TriggerActionExtensionData["extension"]["slotIndex"];
+	slotType:TriggerActionExtensionData["extension"]["slotType"];
 }
 </script>
 

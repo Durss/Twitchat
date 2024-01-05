@@ -5,7 +5,8 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils'
 
 export const storeExtension = defineStore('Extension', {
 	state: () => ({
-		availableSlots:{}
+		availableSlots:{},
+		availableExtensions:{},
 	} as IExtensionState),
 
 
@@ -19,12 +20,16 @@ export const storeExtension = defineStore('Extension', {
 
 	actions: {
 		init():void {
+			TwitchUtils.listExtensions(false).then(res => {
+				if(!res) return;
+				this.availableExtensions = res;
+			});
 			TwitchUtils.listExtensions(true).then(res => {
 				if(!res) return;
 				this.availableSlots.panel = Object.keys(res.panel).length;
 				this.availableSlots.overlay = Object.keys(res.overlay).length;
 				this.availableSlots.component = Object.keys(res.component).length;
-			})
+			});
 		},
 	} as IExtensionActions
 	& ThisType<IExtensionActions

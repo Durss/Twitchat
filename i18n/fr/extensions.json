@@ -7,6 +7,7 @@
 		"type_panel":"Panel",
 		"type_overlay":"Overlay",
 		"type_mobile":"Mobile",
-		"type_component":"Component"
+		"type_component":"Component",
+		"update_error":"Something went wrong when updating the extension"
 	}
 }

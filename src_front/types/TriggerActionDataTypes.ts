@@ -708,11 +708,11 @@ export interface TriggerActionExtensionData extends TriggerActionData{
 		/**
 		 * Extension slot index target
 		 */
-		slotIndex?:"1"|"2"|"3";
+		slotIndex:string;
 		/**
 		 * Extension slot index target
 		 */
-		slotType?:Exclude<TwitchDataTypes.Extension["type"][number], "mobile">;
+		slotType:Exclude<TwitchDataTypes.Extension["type"][number], "mobile">;
 	}
 }
 

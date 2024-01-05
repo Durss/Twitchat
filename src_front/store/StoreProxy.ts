@@ -1992,6 +1992,10 @@ export interface IExtensionState {
 	 * Associates a key per slot types to the number of available slots for this slot type
 	 */
 	availableSlots: {[key in keyof TwitchDataTypes.ActiveExtensions]:number};
+	/**
+	 * Lists all extensions installed on user's channel
+	 */
+	availableExtensions: TwitchDataTypes.Extension[];
 }
 
 export interface IExtensionGetters {

@@ -47,6 +47,8 @@
 				<TTButton icon="refresh">{{ $t("global.refresh") }}</TTButton>
 			</div>
 
+			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("extensions.update_error") }}</div>
+
 		</div>
 	</div>
 </template>
@@ -74,6 +76,7 @@ import ParamItem from '../params/ParamItem.vue';
 })
 export default class Extensions extends AbstractSidePanel {
 
+	public error:boolean = false;
 	public loading:boolean = true;
 	public reloading:boolean = false;
 	public extensionList:ExtensionItem[] = [];
@@ -159,9 +162,12 @@ export default class Extensions extends AbstractSidePanel {
 		const chunks = ext.selectedValue.split("_");//Dirty way of extracting index and type :(
 		const slotType = chunks[0] as TwitchDataTypes.Extension["type"][number];
 		const slotIndex = chunks[1];
-		await TwitchUtils.updateExtension(ext.data.id, ext.data.version, enable, slotIndex, slotType);
+		if(await TwitchUtils.updateExtension(ext.data.id, ext.data.version, enable, slotIndex, slotType)) {
+			ext.enabled = enable;
+		}else{
+			this.error = true;
+		}
 		ext.loading = false;
-		ext.enabled = enable;
 		this.reloading = true;
 		await this.loadList();
 		this.reloading = false;
@@ -247,6 +253,10 @@ interface ExtensionItem {
 		justify-content: center;
 	}
 	
+	.error {
+		cursor: pointer;
+		margin: 0 auto;
+	}
 
 	.list-move,
 	.list-enter-active,
