@@ -294,12 +294,12 @@ export const storeHeat = defineStore('heat', {
 				const dy = Math.sqrt(Math.pow(bounds.globalBL!.x - bounds.globalTL!.x, 2) + Math.pow(bounds.globalBL!.y - bounds.globalTL!.y, 2));
 				const percentX = (rotatedClick.x) / dx;
 				const percentY = (rotatedClick.y) / dy;
-				const clickEventData =  JSON.parse(JSON.stringify(clickEventDataTemplate));
-				clickEventData.x = percentX;
-				clickEventData.y = percentY;
-				clickEventData.rotation = rect.transform.globalRotation!;
-				clickEventData.scale = rect.transform.globalScaleX!;
-				clickEventData.scale = rect.transform.globalScaleY!;
+				const clickEventData =  JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventDataTemplate;
+				clickEventData.requestData.event_data.x = percentX;
+				clickEventData.requestData.event_data.y = percentY;
+				clickEventData.requestData.event_data.rotation = rect.transform.globalRotation!;
+				clickEventData.requestData.event_data.scale = rect.transform.globalScaleX!;
+				clickEventData.requestData.event_data.scale = rect.transform.globalScaleY!;
 
 				//If a distortion targets the current element, reroute events to its related browser source
 				for (let j = 0; j < this.distortionList.length; j++) {

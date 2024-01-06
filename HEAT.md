@@ -73,8 +73,9 @@ event.detail.x//X coordinates in percent relative to top left of the source (rot
 event.detail.y//Y coordinates in percent relative to top left of the source (rotation, scaling, nesting of the OBS source pre-computed)
 event.detail.scaleX//X scale of the browser source
 event.detail.scaleY//Y scale of the browser source
-event.detail.scalerotation//Rotation angle of the browser source in degrees
+event.detail.rotation//Rotation angle of the browser source in degrees
 
+event.detail.channelId//id of the channel that triggered the click
 event.detail.anonymous//is click anonymous?
 event.detail.uid//User ID (anonymized one if user is anonymous)
 event.detail.login//User login (if not anonymous)
@@ -82,7 +83,9 @@ event.detail.isSub//Is user a subscriber of the channel
 event.detail.isBan//Is user banned on the channel
 event.detail.isMod//Is user a moderator of the channel
 event.detail.isVip//Is user a VIP on the channel
+event.detail.isBroadcaster//Is user the broadcaster
 event.detail.isFollower//Is user a follower of the channel
+event.detail.followDate//following date of the user if their a follower (timestamp in milliseconds)
 
 event.detail.shift//Shift key pressed ?
 event.detail.alt//Alt key pressed ?
@@ -90,6 +93,7 @@ event.detail.ctrl//Ctrl key pressed ?
 
 event.detail.page//Sha256 of the clicked browser source URL
 event.detail.testMode//Is click simulated from Twitchat ?
+event.detail.twitchatOverlayID//Optional overlay ID sent for some specific overlays
 ```
 
 ### Side note:
