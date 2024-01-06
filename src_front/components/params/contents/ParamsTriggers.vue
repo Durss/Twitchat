@@ -11,80 +11,78 @@
 			</i18n-t>
 		</div>
 
-		<div class="holder">
 
-			<div class="card-item" v-if="noTrigger">{{ $t("triggers.usage") }}</div>
+		<div class="card-item" v-if="noTrigger">{{ $t("triggers.usage") }}</div>
 
-			<div class="ctas" v-if="showForm || currentTriggerData">
-				<Button class="cta resyncBt" small
-					v-if="showOBSResync || showForm"
-					icon="obs"
-					@click="listOBSSources(); listOBSScenes();"
-					v-tooltip="$t('triggers.resyncOBSBt_tt')"
-					:loading="loadingOBSElements">{{ $t('triggers.resyncOBSBt') }}</Button>
+		<div class="ctas" v-if="showForm || currentTriggerData">
+			<Button class="cta resyncBt" small
+				v-if="showOBSResync || showForm"
+				icon="obs"
+				@click="listOBSSources(); listOBSScenes();"
+				v-tooltip="$t('triggers.resyncOBSBt_tt')"
+				:loading="loadingOBSElements">{{ $t('triggers.resyncOBSBt') }}</Button>
 
-				<Button class="cta resyncBt" small
-					icon="channelPoints"
-					v-if="canManageRewards && isAffiliate"
-					@click="listRewards()"
-					v-tooltip="$t('triggers.resyncRewardsBt_tt')"
-					:loading="loadingRewards">{{ $t('triggers.resyncRewardsBt') }}</Button>
+			<Button class="cta resyncBt" small
+				icon="channelPoints"
+				v-if="canManageRewards && isAffiliate"
+				@click="listRewards()"
+				v-tooltip="$t('triggers.resyncRewardsBt_tt')"
+				:loading="loadingRewards">{{ $t('triggers.resyncRewardsBt') }}</Button>
 
-				<Button class="cta resyncBt" small
-					icon="extension"
-					v-if="canManageExtensions"
-					@click="listExtensions()"
-					v-tooltip="$t('triggers.resyncExtensionBt_tt')"
-					:loading="loadingExtension">{{ $t('triggers.resyncExtensionBt') }}</Button>
+			<Button class="cta resyncBt" small
+				icon="extension"
+				v-if="canManageExtensions"
+				@click="listExtensions()"
+				v-tooltip="$t('triggers.resyncExtensionBt_tt')"
+				:loading="loadingExtension">{{ $t('triggers.resyncExtensionBt') }}</Button>
 
-				<Button class="cta" small
-					v-if="canTestTrigger"
-					icon="test"
-					@click="testTrigger(currentTriggerData!)">{{ $t('triggers.testBt') }}</Button>
-			
-				<Button class="cta"
-					v-if="currentTriggerData"
-					alert small
-					icon="delete"
-					@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
-			</div>
-			
-			<template v-if="showList && !showForm">
-				<Button class="createBt"
-					v-if="$store.auth.isPremium || $store.triggers.triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
-					icon="add" primary
-					v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}"
-					@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
-
-				<div class="card-item alert premiumLimit" v-else>
-					<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
-					<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
-				</div>
-			</template>
-			
-			<TriggerCreateForm
-				v-if="showForm"
-				@selectTrigger="onSelectTrigger($event)"
-				@updateHeader="headerKey = $event"
-				:obsScenes="obsScenes"
-				:obsSources="obsSources"
-				:obsInputs="obsInputs"
-				:rewards="rewards" />
-				
-			<TriggerActionList
+			<Button class="cta" small
+				v-if="canTestTrigger"
+				icon="test"
+				@click="testTrigger(currentTriggerData!)">{{ $t('triggers.testBt') }}</Button>
+		
+			<Button class="cta"
 				v-if="currentTriggerData"
-				:triggerData="currentTriggerData"
-				:obsScenes="obsScenes"
-				:obsSources="obsSources"
-				:obsInputs="obsInputs"
-				:rewards="rewards"
-				:extensions="extensions" />
-				
-			<TriggerList v-if="showList && !showForm"
-				@select="onSelectTrigger($event)"
-				@testTrigger="testTrigger($event)"
-				:rewards="rewards" />
+				alert small
+				icon="delete"
+				@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 		</div>
+		
+		<template v-if="showList && !showForm">
+			<Button class="createBt"
+				v-if="$store.auth.isPremium || $store.triggers.triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
+				icon="add" primary
+				v-newflag="{date:1697721208726, id:'paramsparams_triggers_1'}"
+				@click="openForm();">{{ $t('triggers.add_triggerBt') }}</Button>
+
+			<div class="card-item alert premiumLimit" v-else>
+				<span>{{$t("triggers.premium_limit", {MAX:$config.MAX_TRIGGERS, MAX_PREMIUM:$config.MAX_TRIGGERS_PREMIUM})}}</span>
+				<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+			</div>
+		</template>
+		
+		<TriggerCreateForm
+			v-if="showForm"
+			@selectTrigger="onSelectTrigger($event)"
+			@updateHeader="headerKey = $event"
+			:obsScenes="obsScenes"
+			:obsSources="obsSources"
+			:obsInputs="obsInputs"
+			:rewards="rewards" />
+			
+		<TriggerActionList
+			v-if="currentTriggerData"
+			:triggerData="currentTriggerData"
+			:obsScenes="obsScenes"
+			:obsSources="obsSources"
+			:obsInputs="obsInputs"
+			:rewards="rewards"
+			:extensions="extensions" />
+			
+		<TriggerList v-if="showList && !showForm"
+			@select="onSelectTrigger($event)"
+			@testTrigger="testTrigger($event)"
+			:rewards="rewards" />
 	</div>
 </template>
 
@@ -570,33 +568,28 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 
 <style scoped lang="less">
 .paramstriggers{
-	.holder {
-		display: flex;
-		flex-direction: column;
-		gap: 1em;
 
-		.createBt {
-			margin: auto;
-		}
+	.createBt {
+		margin: auto;
+	}
 
-		.premiumLimit {
-			.button {
-				display: flex;
-				margin: auto;
-				margin-top: .5em;
-			}
-		}
-	
-		.ctas {
-			column-gap: 1em;
-			row-gap: .25em;
+	.premiumLimit {
+		.button {
 			display: flex;
-			flex-direction: row;
-			align-items: center;
-			justify-content: center;
+			margin: auto;
 			margin-top: .5em;
-			flex-wrap: wrap;
 		}
+	}
+
+	.ctas {
+		column-gap: 1em;
+		row-gap: .25em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		margin-top: .5em;
+		flex-wrap: wrap;
 	}
 }
 </style>

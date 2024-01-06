@@ -14,6 +14,7 @@
 		"add_triggerBt": "Create a trigger",
 		"testBt": "Test trigger",
 		"deleteBt": "Delete trigger",
+		"folder_color": "Color",
 		"resyncOBSBt": "Resync OBS sources",
 		"resyncOBSBt_tt": "If you changed your sources or scenes on OBS, click this to get those modifications",
 		"resyncRewardsBt": "Resync rewards",

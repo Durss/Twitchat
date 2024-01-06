@@ -18,7 +18,6 @@
 			v-model:open="element.expand"
 			:customColor="element.color.value"
 			:ref="'folder_'+element.id"
-			:icons="['folder']"
 			:titleDefault="'folder'"
 			@update:open="$emit('change', $event)"
 			@update:title="$emit('change', $event)"
@@ -26,7 +25,14 @@
 			@dragleave="onRollout('folder_'+element.id)">
 				<template #left_actions>
 					<div class="blockActions">
-						<ParamItem class="colorSelector" @click.stop :paramData="element.color" v-model="element.color.value" @change="$emit('change', $event)" />
+						<ParamItem class="colorSelector"
+							@click.stop
+							v-tooltip="$t('triggers.folder_color')"
+							:paramData="element.color"
+							v-model="element.color.value"
+							@change="$emit('change', $event)" />
+						<Icon name="broadcast" />
+						<div class="count">x{{ element.items.length }}</div>
 					</div>
 				</template>
 				<template #right_actions>
@@ -206,20 +212,6 @@ export default class TriggerListFolderItem extends Vue {
 		align-self: center;
 	}
 
-	.colorSelector {
-		padding: 0;
-		height: 100%;
-		width: 1em;
-		margin-left: -.5em;
-		:deep(.content) {
-			height: 100%;
-			.holder, .inputHolder {
-				align-self: stretch;
-				height: 100%;
-			}
-		}
-	}
-
 	.childList {
 		position: relative;
 		.emptyFolder {
@@ -254,6 +246,28 @@ export default class TriggerListFolderItem extends Vue {
 		flex-direction: row;
 		align-self: stretch;
 		margin: calc(-.5em - 1px) 0;
+		align-items: center;
+		z-index: 1;
+		&>.icon {
+			height: 1em;
+		}
+		.count {
+			font-style: italic;
+		}
+		.colorSelector {
+			padding: 0;
+			height: 100%;
+			width: 1em;
+			margin-left: -.5em;
+			box-shadow: 2px 0 2px rgba(0, 0, 0, .2);
+			:deep(.content) {
+				height: 100%;
+				.holder, .inputHolder {
+					align-self: stretch;
+					height: 100%;
+				}
+			}
+		}
 	}
 }
 </style>

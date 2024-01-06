@@ -47,6 +47,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	private bitsHandler!:(e:TwitchatEvent)=>void;
 	private paramsDataHandler!:(e:TwitchatEvent)=>void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
+	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
 
 	public get classes():string[] {
 		const res:string[] = ["overlaybitswall"];
@@ -57,6 +58,9 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	public beforeMount():void {
 		this.bitsHandler = (e:TwitchatEvent) => this.onBits(e);
 		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
+		this.heatEventHandler = (e) => this.onHeatClick(e);
+		//@ts-ignore
+		window.addEventListener("heat-click", this.heatEventHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, this.paramsDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BITS, this.bitsHandler);
 	}
@@ -64,6 +68,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	public mounted():void {
 		this.shaderMode = new URL(document.location.href).searchParams.get("mode") === "shader";
 		this.createEngine();
+		/*
 		this.onBits(new TwitchatEvent("BITS",{
 				channel:"",
 				message:"",
@@ -78,6 +83,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				pinned:true,
 				pinLevel:Math.floor(Math.random()*8),
 			}));
+		*/
 
 		this.sceneWidth = document.body.clientWidth;
 
@@ -87,6 +93,19 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		
 		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE); }
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+
+
+		//@ts-ignore
+		window.addEventListener("heat-click", async (event:{detail:{x:number, y:number, scaleX:number, scaleY:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string}}):Promise<void> => {
+			const hash = await Utils.sha256(document.location.href)
+			
+			if(event.detail.page != hash) return;
+			
+			const pointer = this.$refs.pointer as HTMLDivElement;
+			pointer.style.left = (event.detail.x * document.body.clientWidth) + "px";
+			pointer.style.top = (event.detail.y * document.body.clientHeight) + "px";
+			pointer.style.transform = "translate(-50%, -50%) scale("+(1/event.detail.scaleX)+", "+(1/event.detail.scaleY)+")";
+		});
 	}
 
 	public beforeUnmount():void {
@@ -97,27 +116,14 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		this.disposed = true;
 		this.engineReady = false;
 		clearInterval(this.interval);
+		//@ts-ignore
+		window.removeEventListener("heat-click", this.heatEventHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BITS, this.bitsHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 	
 	public requestInfo():void {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS);
-	}
-
-	/**
-	 * Called when API sends fresh overlay parameters
-	 */
-	private async onParamsData(e:TwitchatEvent):Promise<void> {
-		if(e.data) {
-			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
-			if(this.shaderMode) {
-				this.sceneWidth = document.body.clientWidth/2;
-			}else{
-				this.sceneWidth = document.body.clientWidth;
-			}
-			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
-		}
 	}
 
 	/**
@@ -165,11 +171,53 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		}
 	}
 
+	/**
+	 * Called when clicking on overlay
+	 * @param e 
+	 */
 	public onClick(e:MouseEvent):void {
 		this.hitPoint(e.clientX, e.clientY);
 	}
+	
+	/**
+	 * Called when clicking via heat
+	 * @param event 
+	 */
+	private async onHeatClick(event:{detail:TwitchatDataTypes.HeatClickData}):Promise<void> {
+		const overlayID = Utils.getQueryParameterByName("twitchat_overlay_id") || "";
 
-	private hitPoint(x:number, y:number):void {
+		//Check if the heat event is for the current page, first check via overlay ID, then via URL hash
+		const hash = await Utils.sha256(document.location.href);
+		if(event.detail.twitchatOverlayID != overlayID && event.detail.page != hash) return;
+
+		const x = event.detail.x * document.body.clientWidth;
+		const y = event.detail.y * document.body.clientHeight;
+		this.hitPoint(x, y, event.detail.uid);
+	}
+
+	/**
+	 * Called when API sends fresh overlay parameters
+	 */
+	private async onParamsData(e:TwitchatEvent):Promise<void> {
+		if(e.data) {
+			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
+			if(this.shaderMode) {
+				this.sceneWidth = document.body.clientWidth/2;
+			}else{
+				this.sceneWidth = document.body.clientWidth;
+			}
+			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
+		}
+	}
+
+	/**
+	 * Call this with click coordinate to break any
+	 * cheermote under that point
+	 * @param x 
+	 * @param y 
+	 */
+	private hitPoint(x:number, y:number, uid:string = ""):void {
+		if(!this.parameters?.break) return;
 		const p1 = {x:x, y:y};
 		const p2 = {x:x+1, y:y+1};
 		var bodies = Matter.Composite.allBodies(engine.world);
@@ -178,6 +226,12 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			const body = v.bodyA;
 			const data = body.plugin as CheermoteData;
 			const cheerIndex = data.index;
+
+			//If only senders can break their own cheermotes, don't break
+			//it unless it belongs the user that clicked
+			if(this.parameters?.break_senderOnly
+			&& uid != data.uid) return;
+			
 			Matter.Composite.remove(engine.world, body.parent, true);
 			if(cheerIndex > 0) {
 				let count = 0;
@@ -410,7 +464,6 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				if(body.position.y > vph + 50
 				|| body.position.x < -50
 				|| body.position.x > this.sceneWidth + 50) {
-					console.log("delete");
 					Matter.Composite.remove(engine.world, body);
 					i--;
 					continue;

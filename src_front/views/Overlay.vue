@@ -75,13 +75,6 @@ export default class Overlay extends Vue {
 	}
 
 	public mounted():void {
-		// //Add a GUID to the parameters.
-		// //This is used to match an OBS source with a spacific overlay
-		// if(!this.$router.currentRoute.value.query.guid) {
-		// 	const query = JSON.parse(JSON.stringify(this.$route.query));
-		// 	query.guid = Utils.getUUID();
-		// 	this.$router.replace({path: this.$route.path, query})
-		// }
 		if(this.overlay === "unified") {
 			this.heatEventHandler = (e) => this.onHeatClick(e);
 			//@ts-ignore
@@ -101,6 +94,7 @@ export default class Overlay extends Vue {
 
 		const px = event.detail.x * document.body.clientWidth;
 		const py = event.detail.y * document.body.clientHeight;
+		//Check if it matches the player's bounds
 		const player = (this.$refs.music as Vue).$el;
 		const bounds = player.getBoundingClientRect();
 

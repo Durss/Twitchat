@@ -1,20 +1,18 @@
 <template>
 	<div :class="classes">
-		<div class="list">
-			<TTButton class="addFolderBt" icon="folder" v-if="!triggerId && folderTriggerList.length > 0" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
-			<TriggerListFolderItem
-				v-model:items="folderTriggerList"
-				:rewards="rewards"
-				:noEdit="noEdit"
-				:debugMode="debugMode"
-				:triggerId="triggerId"
-				@change="onUpdateList"
-				@changeState="onToggleTrigger"
-				@delete="deleteTrigger"
-				@duplicate="duplicateTrigger"
-				@testTrigger="$emit('testTrigger',$event)"
-				@select="$emit('select', $event)" />
-		</div>
+		<TTButton class="addFolderBt" icon="folder" v-if="!triggerId && folderTriggerList.length > 0" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
+		<TriggerListFolderItem
+			v-model:items="folderTriggerList"
+			:rewards="rewards"
+			:noEdit="noEdit"
+			:debugMode="debugMode"
+			:triggerId="triggerId"
+			@change="onUpdateList"
+			@changeState="onToggleTrigger"
+			@delete="deleteTrigger"
+			@duplicate="duplicateTrigger"
+			@testTrigger="$emit('testTrigger',$event)"
+			@select="$emit('select', $event)" />
 		<!-- <pre class="debug">{{ debug }}</pre> -->
 		<!-- <pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre> -->
 	</div>
@@ -333,49 +331,9 @@ export interface TriggerListFolderEntry {
 	flex-direction: column;
 	gap: 1em;
 
-	.filterSwitch {
-		margin: auto;
+	.addFolderBt {
+		align-self: center;
 	}
 
-	.list {
-		display: flex;
-		flex-direction: column;
-		gap: 2px;
-		&.category{
-			gap: 1em;
-		}
-		.category {
-			width: 100%;
-			:deep(.header) {
-				position: sticky;
-				top: 0;
-				z-index: 101;
-			}
-			:deep(.content) {
-				display: flex;
-				flex-direction: column;
-				gap: 2px;
-			}
-		}
-
-		.addFolderBt {
-			margin: auto;
-			margin-bottom: .5em
-		}
-
-		.triggerId {
-			.bevel();
-			cursor: help !important;
-			font-size: .8em;
-			font-family: 'Courier New', Courier, monospace;
-			opacity: .75;
-			padding: 2px 5px;
-			&::before {
-				content: "ID: ";
-				font-family: Inter;
-				font-weight: bold;
-			}
-		}
-	}
 }
 </style>

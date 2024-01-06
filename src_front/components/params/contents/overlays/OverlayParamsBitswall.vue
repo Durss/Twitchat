@@ -8,6 +8,7 @@
 			</div>
 
 			<OverlayInstaller type="bitswall"
+				id="twitchat_bitswall_overlay"
 				:orderToBottom="param_cristalEffect.value"
 				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
 				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"

@@ -1559,7 +1559,7 @@ export namespace TwitchatDataTypes {
 	 * Represents a click event sent to the browser sources when
 	 * a click occurs on heat
 	 */
-		export interface HeatClickData extends JsonObject{
+	export interface HeatClickData extends JsonObject{
 		channelId:string;
 		anonymous:boolean;
 		x:number;
