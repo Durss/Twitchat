@@ -1183,6 +1183,16 @@ export default class TwitchUtils {
 		if(json.error) {
 			throw(json);
 		}else{
+			//Search if there's an exact match, if so, bring it to the top.
+			//api doesn't seem to send most relevant category everytime.
+			//Ex: "Valheim" bring "Valley" first, then "Valheim"
+			const list = json.data as TwitchDataTypes.StreamCategory[];
+			for (let i = 0; i < list.length; i++) {
+				if(list[i].name.toLowerCase() === search.toLowerCase()) {
+					const match = list.splice(i, 1);
+					list.unshift(match[0]);
+				}
+			}
 			return json.data;
 		}
 	}
