@@ -319,7 +319,7 @@ export const storeHeat = defineStore('heat', {
 					//Is click on source ?
 					if(rect.sceneName == name || rect.source.sourceName == name) {
 						distortionRerouted[d.id] = true;
-						const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventData;
+						const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
 						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
 						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
