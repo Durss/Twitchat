@@ -196,4 +196,13 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		}
 	}
 }
+
+@media only screen and (max-width: 450px) {
+	.paramsoverlays {
+		.list {
+			@itemWidth: 150px;
+			grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
+		}
+	}
+}
 </style>

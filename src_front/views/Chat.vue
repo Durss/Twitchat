@@ -1092,11 +1092,6 @@ export default class Chat extends Vue {
 		&.emotes {
 			max-width: 100%;
 		}
-
-		&.users {
-			max-height: 500px;
-			width: 100%;
-		}
 	}
 
 	.blinkLayer {

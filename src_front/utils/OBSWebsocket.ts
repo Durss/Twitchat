@@ -498,6 +498,16 @@ export default class OBSWebsocket extends EventDispatcher {
 	 */
 	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
 		if(!this.connected) return;
+		//Rmove props not supported by obs-websocket. like width/height.
+		let filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
+			let typedKey = (key as unknown) as keyof SourceTransform;
+			const allowedKeys:(keyof SourceTransform)[] = ["alignment","boundsAlignment","cropBottom","cropLeft","cropRight","cropTop","positionX","positionY","rotation","scaleX","scaleY"];
+			if (allowedKeys.includes(typedKey)) {
+				filteredObject[typedKey] = transform[typedKey];
+			}
+			return filteredObject;
+		}, {});
+		if(Object.keys(filtered).length == 0) return;
 		await this.obs.call("SetSceneItemTransform", {sceneName, sceneItemId, sceneItemTransform:transform});
 	}
 	
@@ -920,14 +930,14 @@ export default class OBSWebsocket extends EventDispatcher {
 			//Create a new instance of the existing overlay
 			const res = await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});
 			if(res && orderToBottom) {
-				this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName})
+				await this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName})
 			}
 			//Name changed, update it
 			if(existingSource.inputName != sourceName) {
 				await this.obs.call("SetInputName", {inputName:existingSource.inputName, newInputName:sourceName});
 			}
 			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
-				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+				await this.setSourceTransform(sceneName, res.sceneItemId, sourceTransform);
 			}
 			return true;
 		}
@@ -948,7 +958,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(res) {
 			if(orderToBottom) this.obs.call("SetSceneItemIndex", {sceneItemId:res.sceneItemId, sceneItemIndex:0, sceneName});
 			if(sourceTransform && Object.keys(sourceTransform).length > 0) {
-				await OBSWebsocket.instance.socket.call("SetSceneItemTransform", {sceneItemId:res.sceneItemId, sceneName, sceneItemTransform:sourceTransform});
+				await this.setSourceTransform(sceneName, res.sceneItemId, sourceTransform);
 			}
 		}
 		return false;

@@ -196,10 +196,10 @@ export default class RewardsList extends Vue {
 	padding: 0;
 
 	.scrollable {
-		height: 400px;
+		height: 500px;
 		width: 450px;
-		max-width: 100%;
 		max-height: 80%;
+		max-width: 100%;
 		overflow-x: hidden;
 		overflow-y: auto;
 		gap: 1em;
@@ -304,6 +304,16 @@ export default class RewardsList extends Vue {
 	
 	.empty {
 		text-align: center;
+	}
+}
+
+@media only screen and (max-width: 450px) {
+	.rewardslist {
+		.scrollable {
+			height: 100%;
+			width: 100%;
+			max-height: 100%;
+		}
 	}
 }
 </style>

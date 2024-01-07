@@ -29,7 +29,7 @@
 			</template>
 		</div>
 
-		<ToggleBlock class="infos" :open="false" medium v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
+		<ToggleBlock class="infos" :open="false" small v-if="currentChanId == myChannelId" :title="$t('userlist.infoBt')">
 			<p class="info" v-for="e in $tm('userlist.infos')" v-html="e"></p>
 		</ToggleBlock>
 
@@ -184,13 +184,17 @@ export default class UserList extends Vue {
 									mods:[],
 									vips:[],
 									viewers:[],
+									bots:[],
+									subs:[],
 								}
 							}
 						}
 						const chanData = channels[chan];
 						if(user.channelInfo[chan].is_broadcaster) chanData.users.broadcaster = [user];
+						else if(user.is_bot) chanData.users.bots.push(user);
 						else if(user.channelInfo[chan].is_moderator) chanData.users.mods.push(user);
 						else if(user.channelInfo[chan].is_vip) chanData.users.vips.push(user);
+						else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
 						else chanData.users.viewers.push(user);
 					}
 				}
@@ -223,10 +227,12 @@ interface ChannelUserList {
 	channelId:string;
 	platform:TwitchatDataTypes.ChatPlatform;
 	users:{
-		broadcaster:TwitchatDataTypes.TwitchatUser[],
-		mods:TwitchatDataTypes.TwitchatUser[],
-		vips:TwitchatDataTypes.TwitchatUser[],
-		viewers:TwitchatDataTypes.TwitchatUser[]
+		broadcaster:TwitchatDataTypes.TwitchatUser[];
+		mods:TwitchatDataTypes.TwitchatUser[];
+		vips:TwitchatDataTypes.TwitchatUser[];
+		subs:TwitchatDataTypes.TwitchatUser[];
+		viewers:TwitchatDataTypes.TwitchatUser[];
+		bots:TwitchatDataTypes.TwitchatUser[];
 	}
 }
 </script>
@@ -234,6 +240,8 @@ interface ChannelUserList {
 <style scoped lang="less">
 .userlist{
 	max-width: 600px;
+	max-height: 500px;
+	width: 100%;
 
 	.users {
 		position: sticky;
@@ -255,7 +263,6 @@ interface ChannelUserList {
 	.infos {
 		font-size: .8em;
 		max-width: 600px;
-		margin: auto;
 		margin-top: 1em;
 		.info {
 			line-height: 1.5em;
@@ -320,6 +327,12 @@ interface ChannelUserList {
 				}
 			}
 		}
+	}
+}
+
+@media only screen and (max-width: 450px) {
+	.userlist {
+		max-height: unset;
 	}
 }
 </style>

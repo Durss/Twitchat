@@ -572,20 +572,20 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			const listBounds = list.getBoundingClientRect();
 			const screenHeight = document.body.clientHeight;
 			if(this.data?.params?.stickyTitle !== true) {
-				list.style.maskImage = "unset";
-				item.style.maskImage = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
+				list.style.maskImage = "none";
+				item.style.maskImage = "none";
 				//@ts-ignore
-				list.style["-webkit-mask-image"] = "unset";
+				list.style["-webkit-mask-image"] = "none";
 				//@ts-ignore
-				item.style["-webkit-mask-image"] = "linear-gradient(transparent "+(-titleTop)+"px, black "+(titleHeight + fadeSize - titleTop)+"px)";
+				item.style["-webkit-mask-image"] = "none";
 			}else{
 				if(title) title.style.top = fadeSize+"px";
 				list.style.maskImage = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
-				item.style.maskImage = "unset";
+				item.style.maskImage = "none";
 				//@ts-ignore
 				list.style["-webkit-mask-image"] = "linear-gradient(transparent "+(titleHeight - listBounds.top + fadeSize)+"px, black "+(titleHeight*2 - listBounds.top + fadeSize)+"px)";
 				//@ts-ignore
-				item.style["-webkit-mask-image"] = "unset";
+				item.style["-webkit-mask-image"] = "none";
 			}
 			
 			if(fadeSize>1) {
@@ -593,9 +593,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				//@ts-ignore
 				document.body.style["-webkit-mask-image"] = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
 			}else{
-				document.body.style.maskImage = "unset";
+				document.body.style.maskImage = "none";
 				//@ts-ignore
-				document.body.style["-webkit-mask-image"] = "unset";
+				document.body.style["-webkit-mask-image"] = "none";
 			}
 		})
 		
@@ -677,7 +677,6 @@ interface SlotItem {
 	flex-direction: column;
 	align-items: center;
 	width: 100%;
-	// background-color: red;
 	color: #fff;
 	will-change: transform;
 	will-change: margin-top;

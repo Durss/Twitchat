@@ -60,7 +60,8 @@ export default class App extends Vue {
 			this.renderFrame();
 			this.mouseMoveHandler = (e) => this.onMouseMove(e);
 			this.mouseDownHandler = (e) => this.onMouseDown(e);
-			window.addEventListener("mousemove", this.mouseMoveHandler);
+			window.addEventListener("mousemove", this.mouseMoveHandler, true);
+			window.addEventListener("dragover", this.mouseMoveHandler);
 			window.addEventListener("dragstart", this.mouseDownHandler);
 		}
 	}
@@ -68,7 +69,8 @@ export default class App extends Vue {
 	public beforeUnmount():void {
 		this.dispose = true;
 		window.removeEventListener("resize", this.resizeHandler);
-		window.removeEventListener("mousemove", this.mouseMoveHandler);
+		window.removeEventListener("mousemove", this.mouseMoveHandler, true);
+		window.removeEventListener("dragover", this.mouseMoveHandler);
 		window.removeEventListener("dragstart", this.mouseDownHandler);
 	}
 
@@ -83,7 +85,7 @@ export default class App extends Vue {
 		return false;
 	}
 
-	private onMouseMove(e:MouseEvent):boolean {
+	private onMouseMove(e:DragEvent):boolean {
 		this.mousePos.x = e.clientX;
 		this.mousePos.y = e.clientY;
 		let target:HTMLElement|null = e.target as HTMLElement;
@@ -92,12 +94,15 @@ export default class App extends Vue {
 		// console.log(target);
 		while(target) {
 			// console.log(target.style);
-			if(target.tagName == "BUTTON" || target.tagName == "A"
+			// console.log(target.computedStyleMap().get("cursor"));
+			if(target.tagName == "BUTTON"
+			|| target.tagName == "A"
 			|| target.classList.contains("buttonnotification")
 			|| target.classList.contains("switchbutton")
 			|| target.classList.contains("ToggleButton.vue")
 			|| target.classList.contains("button")
 			|| target.classList.contains("toggle")
+			|| (target.classList.contains("header") && (target.parentElement as HTMLElement).classList.contains("toggleblock"))
 			|| target.classList.contains("timercountdowninfo")
 			|| target.classList.contains("mx-context-menu-item-wrapper")
 			|| (typeof target.className === "string" && target.className.indexOf("Bt") > -1)

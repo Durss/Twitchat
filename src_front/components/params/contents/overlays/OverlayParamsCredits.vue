@@ -194,6 +194,7 @@ import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import OBSWebsocket from '@/utils/OBSWebsocket';
 
 @Component({
 	components:{
@@ -296,7 +297,7 @@ export default class OverlayParamsCredits extends Vue {
 		if(json) {
 			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
 		}
-		
+
 		Utils.listAvailableFonts().then(fonts => {
 			this.param_fontTitle.options = fonts.concat();
 			this.param_fontEntry.options = fonts.concat();
@@ -650,6 +651,7 @@ export default class OverlayParamsCredits extends Vue {
 				display: flex;
 				flex-direction: row;
 				align-items: center;
+					flex-shrink: 0;
 				.maxItems {
 					width: 4.5em;
 					:deep(input) {
@@ -660,6 +662,7 @@ export default class OverlayParamsCredits extends Vue {
 					margin: -.5em 0;
 					align-self: stretch;
 					border-radius: 0;
+					flex-shrink: 0;
 				}
 			}
 			.content {
@@ -724,7 +727,8 @@ export default class OverlayParamsCredits extends Vue {
 				}
 
 				.paramitem {
-					:deep(input), :deep(textarea) {
+					:deep(input):not("[type=checkbox]"), :deep(textarea) {
+						outline: 1px solid red;
 						opacity: 1;//Do not fade when disabled as its holder will already be faded
 					}
 				}
