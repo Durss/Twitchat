@@ -8,16 +8,20 @@
 			</div>
 			<div class="content">
 				<span class="subtitle">{{ $t('premium.cleanup.description') }}</span>
-				<Button icon="premium" class="premiumBt" big premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+				<TTButton icon="premium" class="premiumBt" big premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 
 				<ToggleBlock :icons="['broadcast']" :title="$t('params.categories.triggers')" :alert="!triggersOK" :open="!triggersOK"
 				v-if="$store.triggers.triggerList.length > 0">
 					<template #right_actions>
 						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.triggers.triggerList.filter(v=>v.enabled === true).length}}/{{ $config.MAX_TRIGGERS }}</strong>
+						<strong>{{$store.triggers.triggerList.filter(v=>v.enabled === true && $store.triggers.triggerIdToFolderEnabled[v.id] === true).length}}/{{ $config.MAX_TRIGGERS }}</strong>
 					</template>
 					<div class="itemList">
-						<TriggerListItem :entryData="item" v-for="item in triggerList" @click="toggleTrigger(item.trigger)" @changeState="toggleTrigger()" toggleMode />
+						<TriggerListFolderItem
+							v-model:items="folderTriggerList"
+							:noEdit="true"
+							:forceDisableOption="true"
+							@change="onToggleTrigger()" />
 					</div>
 				</ToggleBlock>
 
@@ -122,14 +126,31 @@
 					</div>
 				</ToggleBlock>
 
-				<Button class="completeBt" icon="checkmark" @click="close()">{{ $t("premium.cleanup.completeBt") }}</Button>
+				<ToggleBlock :icons="['distort']" :title="$t('premium.cleanup.distortion')" :alert="!distortionsOK" :open="!distortionsOK"
+				v-if="$store.heat.distortionList.length > 0">
+					<template #right_actions>
+						<Icon :name="(distortionsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.heat.distortionList.filter(v=>v.enabled).length}}/{{ $config.MAX_DISTORTION_OVERLAYS }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.heat.distortionList">
+							<span class="label">{{ item.name || [item.obsItemPath.sceneName, item.obsItemPath.groupName, item.obsItemPath.source?.name].filter(v=>v!='').join(" => ") }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleDistortion()" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
+				<div class="card-item warning" v-if="!allOK">{{ $t("premium.cleanup.disable_more_items") }}</div>
+				<TTButton class="completeBt" icon="checkmark" v-else @click="close()">{{ $t("premium.cleanup.completeBt") }}</TTButton>
 			</div>
 		</div>
 	</div>
 </template>
 
 <script lang="ts">
-import type { TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TriggerData, TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/all';
@@ -140,33 +161,44 @@ import Icon from '../Icon.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
 import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.vue';
-import type { TriggerListEntry } from '../params/contents/triggers/TriggerList.vue';
-import TriggerListItem from '../params/contents/triggers/TriggerListItem.vue';
+import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
-
-//TODO add distort overlays
+import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		CloseButton,
 		ToggleBlock,
 		ToggleButton,
-		TriggerListItem,
 		HeatScreenPreview,
+		TriggerListFolderItem,
 	},
 	emits:["close"],
 })
 export default class NonPremiumCleanup extends Vue {
 
-	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled === true).length <= this.$config.MAX_TRIGGERS; }
+	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled === true && this.$store.triggers.triggerIdToFolderEnabled[v.id] === true).length <= this.$config.MAX_TRIGGERS; }
 	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
 	public get valuesOK():boolean { return this.$store.values.valueList.filter(v=>v.enabled !== false).length <= this.$config.MAX_VALUES; }
 	public get heatOK():boolean { return this.$store.heat.screenList.filter(v=>v.enabled === true).length <= this.$config.MAX_CUSTOM_HEAT_SCREENS; }
 	public get badgesOK():boolean { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_BADGES; }
 	public get badgesUserOK():boolean { return Object.keys(this.$store.users.customUserBadges).length <= this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION; }
 	public get usernamesOK():boolean { return Object.keys(this.$store.users.customUsernames).length <= this.$config.MAX_CUSTOM_USERNAMES; }
+	public get distortionsOK():boolean { return this.$store.heat.distortionList.filter(v=>v.enabled).length <= this.$config.MAX_DISTORTION_OVERLAYS; }
+	public get allOK():boolean {
+		return this.triggersOK
+			&& this.countersOK
+			&& this.valuesOK
+			&& this.heatOK
+			&& this.badgesOK
+			&& this.badgesUserOK
+			&& this.usernamesOK
+			&& this.distortionsOK;
+	}
+
+	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 
 	public get userBadges():TwitchatDataTypes.TwitchatUser[] {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
@@ -204,6 +236,43 @@ export default class NonPremiumCleanup extends Vue {
 		this.$store.counters.counterList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
 		this.$store.values.valueList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
 		this.$store.users.customBadgeList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
+
+		
+
+		//Build folder structure
+		const triggerList = this.$store.triggers.triggerList;
+		const idToHasFolder:{[key:string]:boolean} = {};
+		const done:any = {};
+
+		const flatList = triggerList.map<TriggerListEntry>(v=> {
+			const info = Utils.getTriggerDisplayInfo(v);
+			return { type:"trigger", index:0, label:info.label, id:v.id, trigger:v, icon:info.icon, iconURL:info.iconURL, canTest:false }
+		})
+		
+		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
+			const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
+			for (let i = 0; i < items.length; i++) {
+				const item = items[i];
+				if(item.type == "folder") {
+					const children = buildItem(item.children || []);
+					res.push({type:"folder",
+							id:item.id,
+							label:item.name!,
+							items:children,
+							color:{type:"color", value:item.color || "#60606c"},
+							expand:item.expand == true,
+							enabled:item.enabled !== false});
+				}else{
+					const entry = flatList.find(v=> v.trigger.id == item.triggerId);
+					if(entry && !done[entry.id]) {
+						idToHasFolder[entry.id] = true;
+						res.push(entry);
+					}
+				}
+			}
+			return res;
+		}
+		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
 	}
 
 	public async close():Promise<void> {
@@ -239,6 +308,12 @@ export default class NonPremiumCleanup extends Vue {
 			this.$store.users.saveCustomUsername();
 		})
 	}
+	
+	public deleteDistortion(data:TwitchatDataTypes.HeatDistortionData):void {
+		this.$confirm( this.$t("premium.cleanup.delete_distortion_title"), this.$t("premium.cleanup.delete_distortion_description")).then(()=>{
+			this.$store.heat.deleteDistorsion(data);
+		})
+	}
 
 	public toggleCounter(item?:TwitchatDataTypes.CounterData):void {
 		if(item) item.enabled = !item.enabled;
@@ -258,6 +333,34 @@ export default class NonPremiumCleanup extends Vue {
 	public toggleBadge(item?:TwitchatDataTypes.TwitchatCustomUserBadge):void {
 		if(item) item.enabled = !item.enabled;
 		this.$store.users.saveCustomBadges();
+	}
+	
+	public toggleDistortion(item?:TwitchatDataTypes.HeatDistortionData):void {
+		if(item) item.enabled = !item.enabled;
+		this.$store.heat.saveDistorsions();
+	}
+	
+	public onToggleTrigger():void {
+		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
+			switch(root.type) {
+				case "folder":{
+					return {type:"folder",
+							id:root.id,
+							name:root.label,
+							expand:root.expand === true,
+							color:root.color.value,
+							enabled:root.enabled !== false,
+							children:root.items.map(v=> buildItem(v))
+						};
+				}
+				default:
+				case "trigger":{
+					return {type:"trigger", id:root.id, triggerId:root.id};
+				}
+			}
+		}
+		const tree = this.folderTriggerList.map(v => buildItem(v));
+		this.$store.triggers.updateTriggerTree(tree);
 	}
 
 }
@@ -285,6 +388,13 @@ export default class NonPremiumCleanup extends Vue {
 	.holder {
 		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
 		max-height: calc(var(--vh) - var(--chat-form-height));
+	}
+
+	.warning {
+		padding: .5em;
+		margin: 0 auto;
+		font-style: italic;
+		background-color: var(--color-secondary-fader);
 	}
 
 	.itemList {

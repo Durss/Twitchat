@@ -12,7 +12,7 @@
 		</button>
 
 		<div class="toggle"
-		v-if="noEdit === false"
+		v-if="noEdit === false || forceDisableOption !== false"
 		@click="entryData.trigger.enabled = !entryData.trigger.enabled; $emit('changeState')">
 			<ToggleButton v-model="entryData.trigger.enabled"
 			@change="$emit('changeState')"
@@ -59,6 +59,9 @@ export default class TriggerListItem extends Vue {
 
 	@Prop({default:false})
 	public noEdit!:boolean;
+
+	@Prop({default:false})
+	public forceDisableOption!:boolean;
 
 	@Prop({default:false})
 	public toggleMode!:boolean;

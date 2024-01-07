@@ -73,8 +73,13 @@
 			"custom_badges_attribution_remove":"Retirer les badges<br>personnalisés",
 			"delete_badges_title": "Confirmer",
 			"delete_badges_description": "Souhaitez-vous retirer tous les badges de cette personne ?",
+			"distortion": "Distortions OBS",
+			"distortion_remove":"Supprimer la distortion",
+			"delete_distortion_title": "Confirmer",
+			"delete_distortion_description": "Souhaitez-vous supprimer cette distortion ?",
 			"delete_name_title": "Confirmer",
 			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?",
+			"disable_more_items": "Désactivez ou supprimez des entrées dans les sections requises",
 			"completeBt": "Terminer"
 		}
 	}

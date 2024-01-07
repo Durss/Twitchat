@@ -1889,6 +1889,15 @@ export interface IHeatActions {
 	 * @param event 
 	 */
 	handleClickEvent(event:HeatEvent):Promise<void>;
+	/**
+	 * Deletes a distorsion data
+	 * @param data 
+	 */
+	deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):Promise<void>;
+	/**
+	 * Saves distorion data and broadcast change for overlays
+	 */
+	saveDistorsions():void;
 }
 
 

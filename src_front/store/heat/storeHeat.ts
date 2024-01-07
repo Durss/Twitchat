@@ -11,6 +11,9 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IHeatActions, IHeatGetters, IHeatState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import TwitchatEvent from '@/events/TwitchatEvent';
+import PublicAPI from '@/utils/PublicAPI';
+import type { JsonObject } from "type-fest";
 
 export const storeHeat = defineStore('heat', {
 	state: () => ({
@@ -409,6 +412,69 @@ export const storeHeat = defineStore('heat', {
 					event_data:{rects:JSON.stringify(rectPoints)},
 				}
 			});
+		},
+
+		async deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):Promise<void> {
+			for (let i = 0; i < this.distortionList.length; i++) {
+				const d = this.distortionList[i];
+				if(d.id == data.id) {
+					this.distortionList.splice(i,1);
+				}
+			}
+
+			let sourceName = "";
+			if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
+			else if(data.obsItemPath.groupName) sourceName = data.obsItemPath.groupName;
+			else if(data.obsItemPath.sceneName) sourceName = data.obsItemPath.sceneName;
+			
+			//Attempt to cleanup OBS from related filter and sources.
+			//Won't work if user changed the filter's name or browser source's name
+			//Won't work if user created filter and brower source manually instead of
+			//the 1-click install button
+			if(data.browserSourceName) {
+				//The browser source is registered on the value object, remove it
+				try {
+					const res = await OBSWebsocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
+					if(res.sceneItemId) {
+						await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+					}
+				}catch(error) {
+					console.log("No source found on given scene for given ID", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName});
+				}
+			}else{
+				//The browser is unknown because user created the overlay manualy
+				//Get the filter's params to extract the browser source name
+				//TODO
+				// const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
+				// if(filters.length == 0) return;
+				// const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
+				// console.log(filter);
+				// await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
+				// if(filter) {
+				// 	const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
+				// 	OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+				// 		console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+				// 	});
+				// }
+			}
+
+			if(data.filterName) {
+				OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
+					console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+				});
+			}
+			this.saveDistorsions();
+		},
+
+		async saveDistorsions():Promise<void> {
+			DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
+		
+			for (let i = 0; i < this.distortionList.length; i++) {
+				const data = {
+					params:(this.distortionList[i] as unknown) as JsonObject,
+				};
+				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, data);
+			}
 		}
 
 	} as IHeatActions

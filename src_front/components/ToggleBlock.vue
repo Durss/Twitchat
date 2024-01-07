@@ -25,8 +25,9 @@
 				<Icon name="edit" />
 			</div>
 
-			<div class="title" v-else-if="title || subtitle">
+			<div class="title" v-else-if="title || titleDefault || subtitle">
 				<h2 v-if="title">{{ title }}</h2>
+				<h2 v-else-if="titleDefault">{{ titleDefault }}</h2>
 				<h3 v-if="subtitle">{{ subtitle }}</h3>
 			</div>
 
@@ -241,10 +242,8 @@ export default class ToggleBlock extends Vue {
 	//Set emote sizes only for top-level icons
 	&:deep(.header) {
 		&>.icon, &>.rightSlot>.icon {
-			height: 1.5em;
+			height: 1em;
 			width: 1.5em;
-			min-height: 20px;//Youtube force their logo to be at least 20px high...
-			min-width: 20px;
 			object-fit: fill;
 			display: block;
 			margin:auto;

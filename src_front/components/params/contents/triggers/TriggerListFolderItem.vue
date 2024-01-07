@@ -8,12 +8,13 @@
 	:invertSwap="true"
 	:swapThreshold="10"
 	:emptyInsertThreshold="0"
+	:disabled="noEdit"
 	@sort="onChange"
 	@change="onChange">
 		<template #item="{element, index}:{element:TriggerListEntry|TriggerListFolderEntry, index:number}">
 			<ToggleBlock class="folder" v-if="element.type == 'folder'"
 			medium
-			editableTitle
+			:editableTitle="!noEdit"
 			v-model:title="element.label"
 			v-model:open="element.expand"
 			:customColor="element.color.value"
@@ -26,6 +27,7 @@
 				<template #left_actions>
 					<div class="blockActions">
 						<ParamItem class="colorSelector"
+							v-if="noEdit === false"
 							@click.stop
 							v-tooltip="$t('triggers.folder_color')"
 							:paramData="element.color"
@@ -38,7 +40,7 @@
 				<template #right_actions>
 					<div class="blockActions">
 						<ToggleButton class="triggerToggle" v-model="element.enabled" @change="$emit('change', $event)" />
-						<TTButton class="deleteBt" icon="trash" @click.stop="deleteFolder(element)" alert></TTButton>
+						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>
 
@@ -49,6 +51,7 @@
 						:level="level + 1"
 						:rewards="rewards"
 						:noEdit="noEdit"
+						:forceDisableOption="forceDisableOption"
 						:debugMode="debugMode"
 						:triggerId="triggerId"
 						@change="onChange"
@@ -65,6 +68,7 @@
 
 			<TriggerListItem v-else
 				:noEdit="noEdit"
+				:forceDisableOption="forceDisableOption"
 				:entryData="element"
 				@changeState="$emit('changeState', element)"
 				@delete="$emit('delete', $event)"
@@ -83,7 +87,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { watch, type StyleValue } from 'vue';
+import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
@@ -109,6 +113,9 @@ export default class TriggerListFolderItem extends Vue {
 
 	@Prop({default:false})
 	public noEdit!:boolean;
+
+	@Prop({default:false})
+	public forceDisableOption!:boolean;
 
 	@Prop({default:false})
 	public debugMode!:boolean;

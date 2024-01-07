@@ -1,5 +1,5 @@
 <template>
-	<div class="heatdistorparams card-item selectMode" v-if="!overlayInstalled">
+	<div class="heatdistortparams card-item selectMode" v-if="!overlayInstalled">
 		<p>{{ $t("overlay.heatDistort.select_target") }}</p>
 
 		<OBSSceneItemSelector class="sceneSelector" v-model="modelValue.obsItemPath" @change="refreshState()" />
@@ -21,19 +21,21 @@
 		@click="deleteEntry(false)">{{ $t("global.cancel") }}</Button>
 	</div>
 
-	<ToggleBlock medium :alert="!modelValue.enabled" v-else
+	<ToggleBlock medium v-else
 	editableTitle
 	v-model:title="modelValue.name"
-	:titleDefault="sourcePathLabel">
+	:titleDefault="sourcePathLabel"
+	class="distortionEntry"
+	:style="{opacity:modelValue.enabled? 1 : .5}">
 		<template #left_actions>
-			<ToggleButton v-model="modelValue.enabled" big :alert="!modelValue.enabled" />
+			<ToggleButton v-model="modelValue.enabled" big />
 		</template>
 
 		<template #right_actions>
 			<Button class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
 							
-		<div class="heatdistorparams">
+		<div class="heatdistortparams">
 			<ParamItem :paramData="param_shape" v-model="modelValue.effect" noBackground />
 			<ParamItem :paramData="param_triggerOnly" v-model="modelValue.triggerOnly" noBackground inverseChildrenCondition>
 				<ParamItem class="offset" :paramData="param_anon" v-model="modelValue.refuseAnon" noBackground>
@@ -119,7 +121,7 @@ export default class HeatDistortParams extends Vue {
 		const values:TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.HeatDistortionData["effect"]>[] = [
 			{value:"liquid", labelKey:"overlay.heatDistort.distorsions.ripples"},
 			{value:"expand", labelKey:"overlay.heatDistort.distorsions.expand"},
-			{value:"shrink", labelKey:"overlay.heatDistort.distorsions.shrink"},
+			// {value:"shrink", labelKey:"overlay.heatDistort.distorsions.shrink"},
 			{value:"heart", labelKey:"overlay.heatDistort.distorsions.heart"},
 		];
 		this.param_shape.listValues = values;
@@ -182,7 +184,7 @@ export default class HeatDistortParams extends Vue {
 </script>
 
 <style scoped lang="less">
-.heatdistorparams{
+.heatdistortparams{
 	gap: .5em;
 	display: flex;
 	overflow: hidden;
@@ -234,5 +236,8 @@ export default class HeatDistortParams extends Vue {
 .deleteBt {
 	margin: -.5em 0;
 	border-radius: 0;
+}
+.distortionEntry {
+	transition: opacity .25s;
 }
 </style>

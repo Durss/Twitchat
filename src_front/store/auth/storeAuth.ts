@@ -282,6 +282,11 @@ export const storeAuth = defineStore('auth', {
 			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
 			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
 			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
+			//Uncomment to force non-premium for debugging
+			// if(!Config.instance.IS_PROD) {
+			// 	this.twitch.user.donor.earlyDonor = 
+			// 	this.twitch.user.donor.isPremiumDonor = false
+			// }
 			if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;
 
 			//Async loading of followers count to define if user is exempt

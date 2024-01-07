@@ -32,7 +32,8 @@
 			v-else-if="!expandPremiumInfo">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
 			<div class="card-item maximumReached" v-else>
-				<p class="label"><Icon name="alert" />
+				<p class="label">
+					<Icon name="alert" />
 					<i18n-t scope="global" keypath="overlay.heatDistort.max_reached">
 						<template #COUNT>{{ premiumCount }}</template>
 					</i18n-t>
@@ -56,21 +57,17 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import type { JsonObject } from "type-fest";
+import gsap from 'gsap/all';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
-import gsap from 'gsap/all';
 
 @Component({
 	components:{
@@ -94,7 +91,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 	public get distortionList():TwitchatDataTypes.HeatDistortionData[] { return this.$store.heat.distortionList; }
 
 	public beforeMount():void {
-		watch(()=>this.distortionList, () => this.saveData(), {deep:true});
+		watch(()=>this.distortionList, () => this.$store.heat.saveDistorsions(), {deep:true});
 	}
 
 	public openHeat():void {
@@ -191,66 +188,9 @@ export default class OverlayParamsHeatDistort extends Vue {
 		const holder = this.$refs["distortion_"+data.id] as Vue[];
 		gsap.to(holder[0].$el, {height:0, paddingTop:0, paddingBottom:0, duration:.35, ease:"back.in", onComplete:()=>{
 			(async()=> {
-				for (let i = 0; i < this.distortionList.length; i++) {
-					const d = this.distortionList[i];
-					if(d.id == data.id) {
-						this.distortionList.splice(i,1);
-					}
-				}
-	
-				let sourceName = "";
-				if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
-				else if(data.obsItemPath.groupName) sourceName = data.obsItemPath.groupName;
-				else if(data.obsItemPath.sceneName) sourceName = data.obsItemPath.sceneName;
-				
-				//Attempt to cleanup OBS from related filter and sources.
-				//Won't work if user changed the filter's name or browser source's name
-				//Won't work if user created filter and brower source manually instead of
-				//the 1-click install button
-				if(data.browserSourceName) {
-					//The browser source is registered on the value object, remove it
-					try {
-						const res = await OBSWebsocket.instance.socket.call("GetSceneItemId", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName})
-						if(res.sceneItemId) {
-							await OBSWebsocket.instance.socket.call("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
-						}
-					}catch(error) {
-						console.log("No source found on given scene for given ID", {sceneName:data.obsItemPath.sceneName, sourceName:data.browserSourceName});
-					}
-				}else{
-					//The browser is unknown because user created the overlay manualy
-					//Get the filter's params to extract the browser source name
-					//TODO
-					// const filters = await OBSWebsocket.instance.getSourceFilters(sourceName);
-					// if(filters.length == 0) return;
-					// const filter = filters.find(v=>v.filterKind == "shadertastic_filter");
-					// console.log(filter);
-					// await OBSWebsocket.instance.sea("RemoveSceneItem", {sceneName:data.obsItemPath.sceneName, sceneItemId:res.sceneItemId});
-					// if(filter) {
-					// 	const data = (filter.filterSettings as any).displacement_map_source.displacement_map;
-					// 	OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
-					// 		console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
-					// 	});
-					// }
-				}
-	
-				if(data.filterName) {
-					OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
-						console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
-					});
-				}
+				this.$store.heat.deleteDistorsion(data);
 			})();
 		}});
-	}
-
-	public saveData():void {
-		DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
-		for (let i = 0; i < this.distortionList.length; i++) {
-			const data = {
-				params:(this.distortionList[i] as unknown) as JsonObject
-			};
-			PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, data);
-		}
 	}
 
 }
@@ -258,36 +198,34 @@ export default class OverlayParamsHeatDistort extends Vue {
 
 <style scoped lang="less">
 .overlayparamsheatdistort{
-	.holder{
-		.maximumReached {
-			gap: .5em;
-			display: flex;
-			flex-direction: column;
-			align-items: center;
-			background-color: var(--color-premium-fader);
-			.icon {
-				height: 1em;
-				margin-right: .5em;
-			}
-			.label {
-				text-align: center;
-				white-space: pre-line;
-				line-height: 1.25em;
-			}
+	.maximumReached {
+		gap: .5em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		background-color: var(--color-premium-fader);
+		.icon {
+			height: 1em;
+			margin-right: .5em;
 		}
-		
-		&.alert {
-			align-items: center;
-		}
-		.error {
+		.label {
 			text-align: center;
 			white-space: pre-line;
 			line-height: 1.25em;
-			cursor: pointer;
-			.icon {
-				height: 1em;
-				margin-right: .5em;
-			}
+		}
+	}
+	
+	&.alert {
+		align-items: center;
+	}
+	.error {
+		text-align: center;
+		white-space: pre-line;
+		line-height: 1.25em;
+		cursor: pointer;
+		.icon {
+			height: 1em;
+			margin-right: .5em;
 		}
 	}
 }

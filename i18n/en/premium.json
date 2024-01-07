@@ -73,8 +73,13 @@
 			"custom_badges_attribution_remove":"Remove custom<br>badges",
 			"delete_badges_title": "Confirm",
 			"delete_badges_description": "Do you want to remove this user's custom badges?",
+			"distortion": "OBS distortions",
+			"delete_distortion_title": "Confirm",
+			"delete_distortion_description": "Do you want to remove this distortion?",
+			"distortion_remove":"Delete la distortion",
 			"delete_name_title": "Confirm",
 			"delete_name_description": "Do you want to remove this user's custom name?",
+			"disable_more_items": "Disable or delete items in required sections",
 			"completeBt": "Complete"
 		}
 	}

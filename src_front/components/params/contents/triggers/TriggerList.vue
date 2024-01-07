@@ -132,7 +132,7 @@ export default class TriggerList extends Vue {
 		this.triggerTypeToInfo = {};
 		TriggerTypesDefinitionList().forEach(v=> this.triggerTypeToInfo[v.value] = v);
 
-		let triggerList = this.$store.triggers.triggerList;
+		const triggerList = this.$store.triggers.triggerList;
 
 		//Sort by type so they're properly splitted into categories later
 		triggerList.sort((a,b) => {
@@ -178,9 +178,6 @@ export default class TriggerList extends Vue {
 					}else{
 						const entry = flatList.find(v=> v.trigger.id == item.triggerId);
 						if(entry && !done[entry.id]) {
-							//Uncomment following line to filter out duplicate triggers.
-							//Used for debugging an issue where triggers get duplicated when taking them out of a folder
-							// done[entry.id] = true;//TODO comment this later, just keeping it to fix potential duplicates on a beta user or 2
 							idToHasFolder[entry.id] = true;
 							res.push(entry);
 						}
