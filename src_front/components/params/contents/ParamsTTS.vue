@@ -41,6 +41,8 @@
 				<ParamItem class="card-item" :paramData="param_readNotices" />
 				<ParamItem class="card-item" :paramData="param_read1stMessageToday" />
 				<ParamItem class="card-item" :paramData="param_read1stTimeChatters" />
+				<ParamItem class="card-item" :paramData="param_readMonitored" />
+				<ParamItem class="card-item" :paramData="param_readRestricted" />
 				<ParamItem class="card-item" :paramData="param_readAutomod" />
 			</section>
 			
@@ -158,6 +160,10 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 	public param_read1stTimeChattersPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholder1stTimeChatters, maxLength:300};
 	public param_readAutomod:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"automod" };
 	public param_readAutomodPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
+	public param_readMonitored:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"shield" };
+	public param_readMonitoredPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
+	public param_readRestricted:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"shield" };
+	public param_readRestrictedPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -223,8 +229,12 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 			read1stMessageTodayPattern:this.param_read1stMessageTodayPattern.value,
 			read1stTimeChatters:this.param_read1stTimeChatters.value,
 			read1stTimeChattersPattern:this.param_read1stTimeChattersPattern.value,
+			readMonitored:this.param_readMonitored.value,
+			readMonitoredPattern:this.param_readMonitoredPattern.value,
 			readAutomod:this.param_readAutomod.value,
 			readAutomodPattern:this.param_readAutomodPattern.value,
+			readRestricted:this.param_readRestricted.value,
+			readRestrictedPattern:this.param_readRestrictedPattern.value,
 			readTimeouts:this.param_readTimeouts.value,
 			readTimeoutsPattern:this.param_readTimeoutsPattern.value,
 			readBans:this.param_readBans.value,
@@ -272,6 +282,8 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		this.param_read1stMessageToday.labelKey		= "tts.messages.param_read1stMessageToday";
 		this.param_read1stTimeChatters.labelKey		= "tts.messages.param_read1stTimeChatters";
 		this.param_readAutomod.labelKey				= "tts.messages.param_readAutomod";
+		this.param_readMonitored.labelKey			= "tts.messages.param_readMonitored";
+		this.param_readRestricted.labelKey			= "tts.messages.param_readRestricted";
 		this.param_readTimeouts.labelKey			= "tts.messages.param_readTimeouts";
 		this.param_readBans.labelKey				= "tts.messages.param_readBans";
 		this.param_readUnbans.labelKey				= "tts.messages.param_readUnbans";
@@ -301,6 +313,8 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readBingosPattern.labelKey		= 
 		this.param_readRafflePattern.labelKey		= 
 		this.param_readAutomodPattern.labelKey		= 
+		this.param_readMonitoredPattern.labelKey	= 
+		this.param_readRestrictedPattern.labelKey	= 
 		this.param_readTimeoutsPattern.labelKey		= 
 		this.param_readBansPattern.labelKey			= 
 		this.param_readUnbansPattern.labelKey		= 
@@ -358,6 +372,10 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		this.param_read1stMessageTodayPattern.value	= label(params.read1stMessageTodayPattern, this.$t("tts.patterns.read1stMessageTodayPattern"));
 		this.param_read1stTimeChatters.value		= params.read1stTimeChatters === true;
 		this.param_read1stTimeChattersPattern.value	= label(params.read1stTimeChattersPattern, this.$t("tts.patterns.read1stTimeChattersPattern"));
+		this.param_readMonitored.value				= params.readMonitored === true;
+		this.param_readMonitoredPattern.value		= label(params.readMonitoredPattern, this.$t("tts.patterns.readMonitoredPattern"));
+		this.param_readRestricted.value				= params.readRestricted === true;
+		this.param_readRestrictedPattern.value		= label(params.readRestrictedPattern, this.$t("tts.patterns.readRestrictedPattern"));
 		this.param_readAutomod.value				= params.readAutomod === true;
 		this.param_readAutomodPattern.value			= label(params.readAutomodPattern, this.$t("tts.patterns.readAutomodPattern"));
 		this.param_readTimeouts.value				= params.readTimeouts === true;
@@ -382,6 +400,8 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		this.param_readPredictions.children			= [this.param_readPredictionsPattern];
 		this.param_read1stMessageToday.children		= [this.param_read1stMessageTodayPattern];
 		this.param_read1stTimeChatters.children		= [this.param_read1stTimeChattersPattern];
+		this.param_readMonitored.children			= [this.param_readMonitoredPattern];
+		this.param_readRestricted.children			= [this.param_readRestrictedPattern];
 		this.param_readAutomod.children				= [this.param_readAutomodPattern];
 		this.param_readTimeouts.children			= [this.param_readTimeoutsPattern];
 		this.param_readBans.children				= [this.param_readBansPattern];

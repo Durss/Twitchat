@@ -975,6 +975,10 @@ export namespace TwitchatDataTypes {
 		read1stMessageTodayPattern:string;
 		read1stTimeChatters: boolean;
 		read1stTimeChattersPattern:string;
+		readMonitored: boolean;
+		readMonitoredPattern:string;
+		readRestricted: boolean;
+		readRestrictedPattern:string;
 		readAutomod: boolean;
 		readAutomodPattern:string;
 		readTimeouts: boolean;

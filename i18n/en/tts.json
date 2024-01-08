@@ -33,7 +33,9 @@
 			"param_readUnbans": "User unbanned",
 			"param_read1stMessageToday": "1st message today",
 			"param_read1stTimeChatters": "First-time chatters",
-			"param_readAutomod": "Automoded messages"
+			"param_readAutomod": "Automoded messages",
+			"param_readMonitored": "Monitored users",
+			"param_readRestricted": "Restricted users"
 		},
 		"params": {
 			"title": "Voice parameters",
@@ -92,6 +94,8 @@
 			"readRafflePattern": "Raffle won by: {'{'}WINNER{'}'}",
 			"read1stMessageTodayPattern": "1st message of {'{'}USER{'}'} today: {'{'}MESSAGE{'}'}",
 			"read1stTimeChattersPattern": "1st message of {'{'}USER{'}'}: {'{'}MESSAGE{'}'}",
+			"readMonitoredPattern": "Monitored user {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
+			"readRestrictedPattern": "Restricted user {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
 			"readAutomodPattern": "{'{'}USER{'}'} message held by automod: {'{'}MESSAGE{'}'}",
 			"readTimeoutsPattern": "{'{'}USER{'}'} banned for {'{'}DURATION{'}'} secondes",
 			"readBansPattern": "{'{'}USER{'}'} has been banned",

@@ -31,6 +31,8 @@ export default class TTSUtils {
 	public static placeholderBingo:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholder1stMessageToday:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholder1stTimeChatters:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderMonitored:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderRestricted:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderAutomod:TwitchatDataTypes.PlaceholderEntry[];
 
 	private static _instance:TTSUtils;
@@ -288,6 +290,14 @@ export default class TTSUtils {
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 			{ tag:"DURATION", descKey:"tts.placeholders.timeout" },
 		];
+
+		TTSUtils.placeholderMonitored = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+		];
+
+		TTSUtils.placeholderRestricted = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+		];
 	}
 
 	/**
@@ -307,20 +317,21 @@ export default class TTSUtils {
 				const is_automod = paramsTTS.readAutomod == true && (message.twitch_automod != undefined || message.automod != undefined);
 				const is_firstToday = paramsTTS.read1stMessageToday === true && message.todayFirst === true;
 				const is_1stTimeChatter = paramsTTS.read1stTimeChatters === true && message.twitch_isFirstMessage === true;
-				const canRead = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined && message.spoiler !== true)
+				const is_monitored = paramsTTS.readMonitored === true && message.twitch_isSuspicious === true;
+				const is_restricted = paramsTTS.readRestricted === true && message.twitch_isRestricted === true;
+				const is_simpleMessage = (paramsTTS.readMessages && message.automod == undefined && message.twitch_automod == undefined && message.spoiler !== true);
+				const canRead = is_simpleMessage
 							|| is_firstToday
 							|| is_1stTimeChatter
-							|| is_automod;
-					
-				if(is_firstToday || is_1stTimeChatter || is_automod) {
-					force = true;
-				}
+							|| is_automod
+							|| is_monitored
+							|| is_restricted;
 				
 				//Stop if didn't ask to read this kind of message
-				if(!canRead && force !== true) return "";
-
+				if(!canRead) return "";
+					
 				//Stop there if the user isn't part of the permissions and message isn't forced
-				if(force !== true && !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
+				if(force !== true && is_simpleMessage && !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
@@ -336,6 +347,8 @@ export default class TTSUtils {
 				
 				let pattern	= paramsTTS.readMessagePatern;
 				if(is_automod)				pattern = paramsTTS.readAutomodPattern;
+				else if(is_monitored)		pattern = paramsTTS.readMonitoredPattern;
+				else if(is_restricted)		pattern = paramsTTS.readRestrictedPattern;
 				else if(is_1stTimeChatter)	pattern = paramsTTS.read1stTimeChattersPattern;
 				else if(is_firstToday)		pattern = paramsTTS.read1stMessageTodayPattern;
 

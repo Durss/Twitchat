@@ -33,7 +33,9 @@
 			"param_readUnbans": "Unban",
 			"param_read1stMessageToday": "1er message du jour",
 			"param_read1stTimeChatters": "1er message sur la chaîne",
-			"param_readAutomod": "Messages retenus par l'automod"
+			"param_readAutomod": "Messages retenus par l'automod",
+			"param_readMonitored": "Utilisateur·ices suspect·es",
+			"param_readRestricted": "Utilisateur·ices restreint·es"
 		},
 		"params": {
 			"title": "Paramètres de la voix",
@@ -92,6 +94,8 @@
 			"readRafflePattern": "Tirage au sort remporté par : {'{'}WINNER{'}'}",
 			"read1stMessageTodayPattern": "1er message de {'{'}USER{'}'} aujourd'hui : {'{'}MESSAGE{'}'}",
 			"read1stTimeChattersPattern": "1er message de {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
+			"readMonitoredPattern": "Personne surveillée {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
+			"readRestrictedPattern": "Personne resteinte {'{'}USER{'}'} : {'{'}MESSAGE{'}'}",
 			"readAutomodPattern": "Message de {'{'}USER{'}'} retenu par l'automod : {'{'}MESSAGE{'}'}",
 			"readTimeoutsPattern": "{'{'}USER{'}'} banni pour {'{'}DURATION{'}'} secondes",
 			"readBansPattern": "{'{'}USER{'}'} a été banni",

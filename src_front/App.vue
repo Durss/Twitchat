@@ -85,7 +85,7 @@ export default class App extends Vue {
 		return false;
 	}
 
-	private onMouseMove(e:DragEvent):boolean {
+	private onMouseMove(e:DragEvent|MouseEvent):boolean {
 		this.mousePos.x = e.clientX;
 		this.mousePos.y = e.clientY;
 		let target:HTMLElement|null = e.target as HTMLElement;
