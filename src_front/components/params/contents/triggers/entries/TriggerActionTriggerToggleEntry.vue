@@ -8,14 +8,14 @@
 		</div>
 
 		<template v-else>
-			<ParamItem :paramData="param_action" v-model="action.action" />
-
 			<div class="card-item field">
 				<Icon name="broadcast"/>
-				<div class="item title">{{$t('triggers.actions.trigger.selected')}}</div>
+				<div class="item title">{{$t('triggers.actions.triggerToggle.selected')}}</div>
 				<SimpleTriggerList :filteredItemId="action.triggerId" @click="action.triggerId = ''" primary />
 				<button class="openTriggerBt" @click="openTrigger()"><Icon name="newtab" /></button>
 			</div>
+			
+			<ParamItem :paramData="param_action" v-model="action.action" />
 		</template>
 	</div>
 </template>

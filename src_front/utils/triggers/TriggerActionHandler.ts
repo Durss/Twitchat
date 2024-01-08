@@ -1390,6 +1390,7 @@ export default class TriggerActionHandler {
 									case "disable": trigger.enabled = false; break;
 									case "toggle": trigger.enabled = !trigger.enabled; break;
 								}
+								sTriggers.saveTriggers();
 								// console.log("Exect sub trigger", step.triggerKey);
 								logStep.messages.push({date:Date.now(), value:step.action + " trigger \""+step.triggerId+"\". New State is: "+trigger.enabled});
 							}

@@ -275,7 +275,7 @@
 			},
 			"triggerToggle": {
 				"select": "Select the trigger you want to control",
-				"selected": "Trigger",
+				"selected": "Trigger to update",
 				"action": "Action",
 				"action_enable": "Enable trigger",
 				"action_disable": "Disable trigger",

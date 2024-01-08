@@ -275,7 +275,7 @@
 			},
 			"triggerToggle": {
 				"select": "Sélectionnez le trigger duquel changer l'état",
-				"selected": "Trigger",
+				"selected": "Trigger à modifier",
 				"action": "Action à exécuter",
 				"action_enable": "Activer le trigger",
 				"action_disable": "Désactiver le trigger",
