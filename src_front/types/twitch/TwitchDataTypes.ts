@@ -5,6 +5,12 @@ export namespace TwitchDataTypes {
 		user_name: string;
 	}
 
+	export interface ModeratedUser {
+		broadcaster_id: string;
+		broadcaster_login: string;
+		broadcaster_name: string;
+	}
+
 	export interface BannedUser{
         user_id: string;
         user_login: string;

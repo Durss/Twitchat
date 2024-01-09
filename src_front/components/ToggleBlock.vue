@@ -13,12 +13,13 @@
 							
 			<div class="editableTitle" v-if="editableTitle !== false">
 				<div class="title">
-					<span class="default" v-if="!localTitle && titleDefault">{{ titleDefault }}</span>
+					<span class="default" v-if="!localTitle || localTitle == titleDefault">{{ titleDefault }}</span>
 					<contenteditable class="label" tag="h2"
 						:contenteditable="true"
 						v-model="localTitle"
 						:no-nl="true"
 						:no-html="true"
+						:style="{color:(!localTitle || localTitle == titleDefault)? 'transparent' : 'inherit'}"
 						@click.stop
 						@input="limitLabelSize()" />
 				</div>
@@ -171,10 +172,16 @@ export default class ToggleBlock extends Vue {
 
 	public beforeMount():void {
 		this.localOpen = this.open;
-		this.localTitle = this.title;
+		// this.localTitle = this.title || this.titleDefault;
 
 		watch(()=>this.localTitle, ()=>{
-			this.$emit("update:title", this.localTitle);
+			// if(!this.localTitle || this.title == this.titleDefault) {
+			// 	this.localTitle = this.titleDefault;
+			// 	console.log("okokok", this.localTitle);
+			// 	this.$emit("update:title", '');
+			// }else{
+				this.$emit("update:title", this.localTitle);
+			// }
 		})
 
 		watch(()=>this.localOpen, ()=>{

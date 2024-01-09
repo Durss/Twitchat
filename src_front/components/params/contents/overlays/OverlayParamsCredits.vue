@@ -9,7 +9,7 @@
 			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
 		</section>
 		
-		<section class="card-item">
+		<section class="card-item expand">
 			<div class="header">
 				<div class="title"><Icon name="credits" /> {{ $t("overlay.credits.slot_list") }}</div>
 			</div>
@@ -138,7 +138,7 @@
 		<!-- <ToggleBlock :title="$t('overlay.credits.parameters')" secondary :open="false" :icons="['params']"> -->
 		
 		
-		<section class="card-item parameters">
+		<section class="card-item expand parameters">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
@@ -571,6 +571,10 @@ export default class OverlayParamsCredits extends Vue {
 	
 	.parameters {
 		min-width: 100%;
+	}
+
+	section.expand {
+		width: 100%;
 	}
 
 	.slots {

@@ -17,7 +17,7 @@
 		</template>
 
 		<div v-else class="field">
-			<button class="backBt" @click="showInput = false"><Icon name="back" /></button>
+			<button class="backBt" v-if="obsConnected" @click="showInput = false"><Icon name="back" /></button>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
 		</div>

@@ -109,7 +109,7 @@ export const storeUsers = defineStore('users', {
 		 * Preloads twitch moderators
 		 */
 		async preloadTwitchModerators(channelId:string):Promise<void> {
-			const users = await TwitchUtils.getModerators(channelId);
+			const users = await TwitchUtils.getModerators();
 			moderatorsCache[channelId] = {};
 			users.forEach(v => {
 				moderatorsCache[channelId][v.user_id] = true;
@@ -143,7 +143,7 @@ export const storeUsers = defineStore('users', {
 		 * @param displayName 
 		 * @returns 
 		 */
-		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false):TwitchatDataTypes.TwitchatUser {
+		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false, forcedSubscriberState:boolean = false):TwitchatDataTypes.TwitchatUser {
 			const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user via hashmaps for fast accesses
@@ -258,7 +258,7 @@ export const storeUsers = defineStore('users', {
 						is_vip:false,
 						is_moderator:moderatorsCache[channelId] && moderatorsCache[channelId][user.id] === true || channelId == user.id,
 						is_broadcaster:channelId == user.id,
-						is_subscriber:false,
+						is_subscriber:forcedSubscriberState,
 						is_gifter:false,
 						badges:[],
 					};

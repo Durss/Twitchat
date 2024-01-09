@@ -275,6 +275,10 @@ export default class TriggerListFolderItem extends Vue {
 				}
 			}
 		}
+		.deleteBt{
+			height: 100%;
+			border-radius: 0;
+		}
 	}
 }
 </style>

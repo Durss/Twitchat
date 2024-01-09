@@ -258,6 +258,11 @@ export type IAuthState = {
 	 * form is opened with the missing scope highlighted
 	 */
 	newScopesToRequest: TwitchScopesString[];
+	/**
+	 * List of channels the authenticated twitch user is a moderator on
+	 * Empty if user did not grant scope
+	 */
+	twitchModeratedChannels: TwitchDataTypes.ModeratedUser[];
 } & {
 	/**
 	 * Platforms sessions
@@ -1491,7 +1496,7 @@ export interface IUsersActions {
 	 * @param forcedFollowState 
 	 * @param getPronouns 
 	 */
-	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean):TwitchatDataTypes.TwitchatUser;
+	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean):TwitchatDataTypes.TwitchatUser;
 	/**
 	 * Load a list of the blocked users
 	 */

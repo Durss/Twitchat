@@ -9,6 +9,8 @@
 		"edit_loginBt_tt":"Personnaliser le pseudo",
 		"profileBt":"Profil",
 		"viewercardBt":"Infos viewer",
+		"moderator_viewercardBt":"Plus d'infos viewer...",
+		"moderator_viewercardBt_tt":"Vous êtes modo chez {CHANNEL}.\nOuvrir les infos viewer pour cette chaîne.",
 		"trackBt":"Activer le suivi",
 		"untrackBt":"Désactiver le suivi",
 		"messages":"Historique",

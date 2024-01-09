@@ -25,6 +25,7 @@ export const TwitchScopes = {
 	READ_CHEER: "bits:read",
 	LIST_FOLLOWINGS: "user:read:follows",
 	LIST_FOLLOWERS: "moderator:read:followers",
+	LIST_MODERATED_CHANS: "user:read:moderated_channels",
 	LIST_BLOCKED: "user:read:blocked_users",
 	EDIT_BLOCKED: "user:manage:blocked_users",
 	EDIT_BANNED: "moderator:manage:banned_users",
@@ -52,6 +53,7 @@ TwitchScope2Icon[TwitchScopes.MANAGE_POLLS]				= "poll";
 TwitchScope2Icon[TwitchScopes.MANAGE_PREDICTIONS]		= "prediction";
 TwitchScope2Icon[TwitchScopes.SET_ROOM_SETTINGS]		= "lock";
 TwitchScope2Icon[TwitchScopes.MODERATION_EVENTS]		= "mod";
+TwitchScope2Icon[TwitchScopes.LIST_MODERATED_CHANS]		= "mod";
 TwitchScope2Icon[TwitchScopes.EDIT_MODS]				= "mod";
 TwitchScope2Icon[TwitchScopes.EDIT_VIPS]				= "vip";
 TwitchScope2Icon[TwitchScopes.START_RAID]				= "raid";

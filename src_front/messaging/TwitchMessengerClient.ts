@@ -523,13 +523,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
 		const login			= tags.login ?? tags.username ?? tags["display-name"];
-		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true);
 		const isMod			= tags.badges?.moderator != undefined || tags.mod === true;
 		const isVip			= tags.badges?.vip != undefined;
 		const isSub			= tags.badges?.subscriber != undefined || tags.subscriber === true;
 		const isSubGifter	= tags.badges && tags.badges["sub-gifter"] != undefined;
 		const isBroadcaster	= tags.badges?.broadcaster != undefined;
 		const isPartner		= tags.badges?.partner != undefined;
+		const user			= StoreProxy.users.getUserFrom("twitch", channelId, tags["user-id"], login, tags["display-name"], undefined, false, true, isSub);
 
 		// user.channelInfo[channelId].online	= true;
 		delete user.temporary;//Avoids useless server call

@@ -109,6 +109,7 @@ First create a `credentials` folder on the root directory, create a `credentials
 		"user:manage:whispers",
 		"moderator:read:chatters",
 		"channel:read:redemptions",
+		"channel:manage:redemptions",
 		"channel:manage:polls",
 		"channel:manage:predictions",
 		"moderator:manage:chat_settings",
@@ -122,6 +123,7 @@ First create a `credentials` folder on the root directory, create a `credentials
 		"channel:edit:commercial",
 		"channel:read:subscriptions",
 		"user:read:follows",
+		"user:read:moderated_channels",
 		"moderator:read:followers",
 		"user:read:blocked_users",
 		"user:manage:blocked_users",
@@ -151,6 +153,9 @@ First create a `credentials` folder on the root directory, create a `credentials
 	"patreon_webhook_secret": "9p",
 
 	"tenor_secret": "",
+	"youtube_key": "path/to/key.json",
+	"youtube_scopes": ["https://www.googleapis.com/auth/youtube.readonly", "https://www.googleapis.com/auth/youtube.force-ssl"],
+	"google_key": "path/to/key.json",
 
 	"paypal_client_id":"",
 	"paypal_client_secret":"",

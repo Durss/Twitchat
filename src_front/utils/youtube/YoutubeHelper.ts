@@ -350,7 +350,7 @@ export default class YoutubeHelper {
 				StoreProxy.chat.addMessage(data);
 			}
 
-			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), json.pollingIntervalMillis * 2);
+			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), Math.min(5000, json.pollingIntervalMillis * 2));
 			
 			return json;
 		}else {

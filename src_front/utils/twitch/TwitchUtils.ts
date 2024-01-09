@@ -800,16 +800,21 @@ export default class TwitchUtils {
 
 	/**
 	 * Get the moderators list of a channel
-	 * Not much useful as it's restricted to the channel m
+	 * Limited to our own channel
 	 */
-	public static async getModerators(channelId:string):Promise<TwitchDataTypes.ModeratorUser[]> {
+	public static async getModerators():Promise<TwitchDataTypes.ModeratorUser[]> {
 		if(!this.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return [];
 		
 		let list:TwitchDataTypes.ModeratorUser[] = [];
 		let cursor:string|null = null;
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("first", "100");
+
 		do {
-			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/moderators?first=100&broadcaster_id="+channelId+pCursor, {
+			if(cursor) url.searchParams.set("after", cursor);
+			const res = await fetch(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -820,10 +825,39 @@ export default class TwitchUtils {
 				if(json.pagination?.cursor) {
 					cursor = json.pagination.cursor;
 				}
-			}else{
-				return [];
 			}
 		}while(cursor != null)
+		return list;
+	}
+
+	/**
+	 * Get a list of channels the user is a moderator on.
+	 */
+	public static async getModeratedChannels():Promise<TwitchDataTypes.ModeratedUser[]> {
+		if(!this.hasScopes([TwitchScopes.LIST_MODERATED_CHANS])) return [];
+
+		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/channels");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("user_id", user.id);
+		url.searchParams.append("first", "100");
+		
+		let list:TwitchDataTypes.ModeratedUser[] = [];
+		let cursor:string|null = null;
+		do {
+			if(cursor) url.searchParams.set("after", cursor);
+			const res = await fetch(url, {
+				method:"GET",
+				headers:this.headers,
+			});
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.ModeratedUser[], pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			}
+		}while(cursor != null);
 		return list;
 	}
 

@@ -153,6 +153,7 @@
 			"whispers:read": "Recevoir des chuchotements",
 			"user:read:blocked_users": "Lister les personnes bloquées",
 			"user:read:follows": "Lister les chaînes que vous suivez",
+			"user:read:moderated_channels": "Lister les chaînes que vous modérez",
 			"moderator:read:followers": "Lister vos followers",
 			"user:read:subscriptions": "Vérifier si une personne est abonnée à votre chaîne",
 			"user:manage:whispers": "Envoyer des chuchotements",

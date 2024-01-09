@@ -9,6 +9,8 @@
 		"edit_loginBt_tt":"Customize login",
 		"profileBt":"Profile",
 		"viewercardBt":"Viewer card",
+		"moderator_viewercardBt":"More viewer cards...",
+		"moderator_viewercardBt_tt":"Your are a moderator on {CHANNEL} channel.\nOpen the viewer card for this channel.",
 		"trackBt":"Track user",
 		"untrackBt":"Untrack user",
 		"messages":"Message history",

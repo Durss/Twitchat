@@ -153,6 +153,7 @@
 			"whispers:read": "Receive whispers",
 			"user:read:blocked_users": "List blocked users",
 			"user:read:follows": "List channels you follow",
+			"user:read:moderated_channels": "List channels you moderate",
 			"moderator:read:followers": "List your followers",
 			"user:read:subscriptions": "List your subscribers",
 			"user:manage:whispers": "Receive and send whispers",

@@ -183,9 +183,9 @@ export default class UserList extends Vue {
 									broadcaster:[],
 									mods:[],
 									vips:[],
+									subs:[],
 									viewers:[],
 									bots:[],
-									subs:[],
 								}
 							}
 						}
@@ -194,7 +194,9 @@ export default class UserList extends Vue {
 						else if(user.is_bot) chanData.users.bots.push(user);
 						else if(user.channelInfo[chan].is_moderator) chanData.users.mods.push(user);
 						else if(user.channelInfo[chan].is_vip) chanData.users.vips.push(user);
-						else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
+						//Removed because not accurate as I don't load subscriber state everytime.
+						//To date, the subscriber state is only given when user talks on chat
+						// else if(user.channelInfo[chan].is_subscriber) chanData.users.subs.push(user);
 						else chanData.users.viewers.push(user);
 					}
 				}

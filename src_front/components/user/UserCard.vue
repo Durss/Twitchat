@@ -98,12 +98,31 @@
 						</div> -->
 					</div>
 					
+					<div class="ctas" v-if="isTwitchProfile">
+						<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
+						<Button v-if="is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
+						<Button v-if="$store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+					</div>
+					
 					<div class="ctas">
 						<Button type="link" small icon="newtab" :href="profilePage" target="_blank">{{$t('usercard.profileBt')}}</Button>
-						<Button v-if="isTwitchProfile" type="link" small icon="newtab" @click.stop="openUserCard()" :href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login" target="_blank">{{$t('usercard.viewercardBt')}}</Button>
-						<Button v-if="isTwitchProfile && !is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
-						<Button v-if="isTwitchProfile && is_tracked" small icon="magnet" @click="untrackUser()">{{$t('usercard.untrackBt')}}</Button>
-						<Button v-if="isTwitchProfile && $store.tts.params.enabled === true" small icon="tts" @click="toggleReadUser()">{{ ttsReadBtLabel }}</Button>
+						<template v-if="isTwitchProfile">
+							<Button small
+								type="link"
+								icon="newtab"
+								@click.stop="openUserCard($event)"
+								:href="'https://www.twitch.tv/popout/'+$store.auth.twitch.user.login+'/viewercard/'+user!.login"
+								target="_blank">{{$t('usercard.viewercardBt')}}</Button>
+							<Button v-if="!canListModeratedChans" small secondary icon="mod" @click="grantModeratedScope()">{{$t('usercard.moderator_viewercardBt')}}</Button>
+							<Button v-for="modedChan in moderatedChannelList"
+								small
+								type="link"
+								icon="newtab"
+								v-tooltip="$t('usercard.moderator_viewercardBt_tt', {CHANNEL:modedChan.broadcaster_name})"
+								@click.stop="openUserCard($event, modedChan.broadcaster_login)"
+								:href="'https://www.twitch.tv/popout/'+modedChan.broadcaster_login+'/viewercard/'+user!.login"
+								target="_blank" >{{ $t('usercard.viewercardBt') }} : {{ modedChan.broadcaster_name }}</Button>
+						</template>
 					</div>
 					
 					<div class="card-item secondary liveInfo" v-if="currentStream">
@@ -202,6 +221,7 @@ export default class UserCard extends Vue {
 	public dateOffset:number = 0;
 	public dateOffsetTimeout:number = -1;
 
+	private popup:Window|null = null;
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
 	private messageBuildInterval:number = -1;
 
@@ -220,22 +240,32 @@ export default class UserCard extends Vue {
 	/**
 	 * Gets if current profil is our own
 	 */
-	public get is_self():boolean{ return StoreProxy.auth.twitch.user.id === this.user?.id; }
+	public get is_self():boolean { return StoreProxy.auth.twitch.user.id === this.user?.id; }
 
 	/**
 	 * Get if user is being tracked or not
 	 */
-	public get is_tracked():boolean{ return this.user!.is_tracked; }
+	public get is_tracked():boolean { return this.user!.is_tracked; }
 
 	/**
 	 * Get if our followings can be listed
 	 */
-	public get canListFollowings():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
+	public get canListFollowings():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS]); }
 
 	/**
 	 * Get if our followers can be listed
 	 */
-	public get canListFollowers():boolean{ return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
+	public get canListFollowers():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
+
+	/**
+	 * Get if channels we moderate can be listed
+	 */
+	public get canListModeratedChans():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_MODERATED_CHANS]); }
+
+	/**
+	 * Get a list of the channels we're a moderator on
+	 */
+	public get moderatedChannelList():TwitchDataTypes.ModeratedUser[] { return this.$store.auth.twitchModeratedChannels; }
 
 	/**
 	 * Get user's profile page
@@ -432,11 +462,27 @@ export default class UserCard extends Vue {
 		this.loading = false;
 	}
 
-	public openUserCard():void {
+	public openUserCard(event?:MouseEvent, channelName?:string):void {
+		if(!channelName) {
+			channelName = StoreProxy.auth.twitch.user.login;
+		}
 		let params = `scrollbars=yes,resizable=yes,status=no,location=no,toolbar=no,menubar=no,
-		width=350,height=500,left=100,top=100`;
-		const url ="https://www.twitch.tv/popout/"+StoreProxy.auth.twitch.user.login+"/viewercard/"+this.user!.login;
-		window.open(url, 'profilePage', params);
+		width=350,height=${screen.availHeight},left=0,top=0`;
+		const url ="https://www.twitch.tv/popout/"+channelName+"/viewercard/"+this.user!.login;
+		// console.log("OKKOKOKK");
+		// if(this.popup) {
+		// 	this.popup.location.href = url;
+		// }else{
+			try {
+				this.popup = window.open(url, 'profilePage', params);
+			}catch(error) {
+				//Ignore it
+			}
+		// }
+		if(event) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
 	}
 
 	public trackUser():void {
@@ -476,7 +522,7 @@ export default class UserCard extends Vue {
 	 * Removes a custom badge from the user
 	 * @param id 
 	 */
-	removeCustomBadge(id:string):void {
+	public removeCustomBadge(id:string):void {
 		this.$store.users.removeCustomBadge(this.user!, id, this.channelId);
 	}
 
@@ -495,6 +541,10 @@ export default class UserCard extends Vue {
 	public copyID():void {
 		Utils.copyToClipboard(this.user!.id);
 		gsap.from(this.$refs.userID as HTMLDivElement, {scale:1.5, ease:"back.out"});
+	}
+
+	public grantModeratedScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.LIST_MODERATED_CHANS]);
 	}
 
 	/**

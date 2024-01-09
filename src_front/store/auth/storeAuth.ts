@@ -27,6 +27,7 @@ export const storeAuth = defineStore('auth', {
 		youtube:{},
 		tiktok:{},
 		facebook:{},
+		twitchModeratedChannels:[] as TwitchDataTypes.ModeratedUser[],
 	} as IAuthState),
 	
 	
@@ -226,11 +227,16 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				//Preload moderators of the channel and flag them accordingly
-				TwitchUtils.getModerators(this.twitch.user.id).then(async res=> {
+				TwitchUtils.getModerators().then(async res=> {
 					res.forEach(u=> {
 						const user = StoreProxy.users.getUserFrom("twitch", this.twitch.user.id, u.user_id, u.user_login, u.user_name);
 						user.channelInfo[this.twitch.user.id].is_moderator = true;
 					})
+				});
+
+				//Preload channels we can moderate
+				TwitchUtils.getModeratedChannels().then(async res=> {
+					this.twitchModeratedChannels = res;
 				});
 				
 				sMain.onAuthenticated();
