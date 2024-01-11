@@ -1,0 +1,9 @@
+{
+	"qna": {
+		"title":"Q&A session",
+		"subtitle":"Create a Q&A session with your viewers",
+		"example_command": "{CMD} {QUESTION}",
+		"example_question": "user's question",
+		"param_command": "Command"
+	}
+}

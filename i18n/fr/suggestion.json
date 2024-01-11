@@ -6,7 +6,7 @@
 		"example": "{CMD} {SUGG}",
 		"example_sugg": "suggestion",
 		"command": "Commande",
-		"duration": "Durée pour participer (minutes)",
+		"duration": "Durée pour participer ({VALUE} minutes)",
 		"multiAnswers": "Une personne peut soumettre plusieurs suggestions",
 		"state_title": "Suggestion -",
 		"state_header": "{0} suggestion | {0} suggestions",

@@ -8,6 +8,18 @@
 			<div class="description">{{ $t("bingo.form.description") }}</div>
 		</div>
 	
+		<ToggleBlock :title="$t('global.bot_message_config')" class="configs" :open="false" small v-if="triggerMode === false">
+			<PostOnChatParam botMessageKey="bingoStart"
+				:placeholderEnabled="false"
+				titleKey="bingo.form.announce_start"
+				:placeholders="startPlaceholders"
+			/>
+			<PostOnChatParam botMessageKey="bingo"
+				titleKey="bingo.form.announce_winner"
+				:placeholders="winnerPlaceholders"
+			/>
+		</ToggleBlock>
+	
 		<TabMenu class="menu" v-model="mode"
 			:values="['num','emote','custom']"
 			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
@@ -27,18 +39,6 @@
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 
 				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</Button>
-	
-				<ToggleBlock :title="$t('global.configs')" class="configs" :open="false" small v-if="triggerMode === false">
-					<PostOnChatParam botMessageKey="bingoStart"
-						:placeholderEnabled="false"
-						titleKey="bingo.form.announce_start"
-						:placeholders="startPlaceholders"
-					/>
-					<PostOnChatParam botMessageKey="bingo"
-						titleKey="bingo.form.announce_winner"
-						:placeholders="winnerPlaceholders"
-					/>
-				</ToggleBlock>
 			</form>
 		</div>
 	</div>
@@ -82,9 +82,9 @@ export default class BingoForm extends AbstractSidePanel {
 
 	public globalEmotes:TwitchatDataTypes.Emote[] = [];
 	public mode:"num"|"emote"|"custom" = "num";
-	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999};
-	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999};
-	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.form.custom_placeholder"};
+	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999, labelKey:"bingo.form.min_value"};
+	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999, labelKey:"bingo.form.max_value"};
+	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.form.custom_placeholder", labelKey:"bingo.form.custom_value"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
@@ -108,17 +108,16 @@ export default class BingoForm extends AbstractSidePanel {
 		return [
 			{
 				tag:"GOAL", descKey:'bingo.form.goal_placeholder',
-				example:this.mode == "emote"? this.$t('bingo.form.goal_emote')
-											: this.$t('bingo.form.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value})
+				example:(<Record<typeof this.mode, any>>{
+					num:this.$t('bingo.goal_number', {MIN:this.minValue.value, MAX:this.maxValue.value}),
+					emote:this.$t('bingo.goal_emote'),
+					custom:""
+				})[this.mode],
 			}
 		];
 	}
 
 	public async beforeMount():Promise<void> {
-		this.minValue.labelKey		= "bingo.form.min_value";
-		this.maxValue.labelKey		= "bingo.form.max_value";
-		this.customValue.labelKey	= "bingo.form.custom_value";
-
 		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.form.winner_placeholder", example:this.$store.auth.twitch.user.displayName}];
 		if(this.triggerMode && this.action.bingoData) {
 			if(this.action.bingoData.guessNumber) this.mode = "num";

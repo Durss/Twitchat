@@ -28,11 +28,14 @@
 						:placeholders="placeholderList"
 					/>
 				</div>
-				<ParamItem :paramData="param_extraVotes" @change="onValueChange()" />
-				<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" />
+				<ParamItem :paramData="param_extraVotes" @change="onValueChange()">
+					<ParamItem :paramData="param_points" @change="onValueChange()" v-if="param_extraVotes.value === true" noBackground class="child" />
+				</ParamItem>
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				
-				<Button type="submit" v-if="triggerMode === false" :loading="loading" :disabled="title.length < 1 || answers.length < 2">{{ $t('global.submit') }}</Button>
+				<Button type="submit" v-if="triggerMode === false"
+				:loading="loading"
+				:disabled="title.length < 1 || answers.filter(v=> v.trim().length > 0).length < 2">{{ $t('global.submit') }}</Button>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -86,7 +89,7 @@ export default class PollForm extends AbstractSidePanel {
 	public answers:string[] = ["","","","",""];
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
-	public param_points:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:99999, step:1};
+	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints"};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 

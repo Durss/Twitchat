@@ -108,7 +108,6 @@ export default class TabMenu extends Vue {
 	row-gap: 5px;
 	overflow-x: auto;
 	overflow-y: hidden;
-	padding: 4px;
 
 	.tabItem {
 		flex-grow: 1;

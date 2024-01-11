@@ -1,9 +1,10 @@
 {
 	"cmdmenu":{
 		"poll":"Create poll",
-		"prediction":"Create prediction",
-		"raffle":"Create raffle",
-		"bingo":"Create bingo",
+		"prediction":"Prediction",
+		"raffle":"Raffle",
+		"bingo":"Bingo",
+		"qna":"Q&A session",
 		"suggestions":"Chat suggestions",
 		"timer":"Timer",
 		"chat":"Clear chat",

@@ -16,7 +16,7 @@
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="suggestion.example">
 							<template #CMD>{{example}}</template>
-							<template #SUGG>[{{$t("suggestion.example_sugg")}}]</template>
+							<template #SUGG>{{$t("suggestion.example_sugg")}}</template>
 						</i18n-t>
 					</div>
 				</div>
@@ -34,13 +34,15 @@
 				<Button v-if="triggerMode === false" type="submit">{{ $t('global.submit') }}</Button>
 			</form>
 
-			<i18n-t v-if="triggerMode === false" scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
+			<!-- Removed because down -->
+			<!--
+				<i18n-t v-if="triggerMode === false" scope="global" tag="div" keypath="suggestion.alternative_tool" class="card-item alternativeTool">
 				<template #LINK>
 					<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 				</template>
-			</i18n-t>
+			</i18n-t> -->
 
-			<ToggleBlock v-if="triggerMode === false" :title="$t('global.configs')" class="configs" :open="false" small>
+			<ToggleBlock v-if="triggerMode === false" :title="$t('global.bot_message_config')" class="configs" :open="false" small>
 				<PostOnChatParam botMessageKey="chatSuggStart"
 					:placeholderEnabled="false"
 					titleKey="suggestion.announce_start"
@@ -86,10 +88,10 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30};
-	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24};
-	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean"};
-	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500};
+	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30, labelKey:"suggestion.command"};
+	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration"};
+	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"suggestion.multiAnswers"};
+	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -116,10 +118,10 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
 		return [
 			{
-				tag:"CMD", descKey:'suggestion.placeholder_cmd',
+				tag:"CMD", descKey:'suggestion.placeholder_cmd', example:this.command.value,
 			},
 			{
-				tag:"LENGTH", descKey:'suggestion.placeholder_length',
+				tag:"LENGTH", descKey:'suggestion.placeholder_length', example:this.maxLength.value.toString(),
 			}
 		];
 	}
@@ -137,11 +139,6 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	}
 
 	public beforeMount(): void {
-		this.command.labelKey		= "suggestion.command";
-		this.maxLength.labelKey		= "suggestion.maxLength";
-		this.duration.labelKey		= "suggestion.duration";
-		this.multiAnswers.labelKey	= "suggestion.multiAnswers";
-
 		if(this.triggerMode) {
 			if(this.action.suggData) {
 				this.command.value = this.action.suggData.command;

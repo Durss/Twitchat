@@ -49,6 +49,7 @@
 			<TwitchatAnnouncement	class="popin" v-if="$store.params.currentModal == 'twitchatAnnouncement'" @close="$store.params.closeModal()" />
 			<StreamSummary			class="popin" v-if="$store.params.currentModal == 'streamSummary'" @close="$store.params.closeModal()" />
 			<Extensions				class="popin" v-if="$store.params.currentModal == 'extensions'" @close="$store.params.closeModal()" />
+			<QuestionAndAnswer		class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -192,6 +193,7 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
+import QuestionAndAnswer from '@/components/chatform/QuestionAndAnswer.vue';
 
 @Component({
 	components:{
@@ -230,6 +232,7 @@ import Login from './Login.vue';
 		VoiceTranscript,
 		ChatAlertMessage,
 		NonPremiumCleanup,
+		QuestionAndAnswer,
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		TwitchatAnnouncement,

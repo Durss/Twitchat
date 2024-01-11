@@ -11,18 +11,16 @@
 				/>
 			
 							
-			<div class="editableTitle" v-if="editableTitle !== false">
-				<div class="title">
-					<span class="default" v-if="!localTitle || localTitle == titleDefault">{{ titleDefault }}</span>
-					<contenteditable class="label" tag="h2"
-						:contenteditable="true"
-						v-model="localTitle"
-						:no-nl="true"
-						:no-html="true"
-						:style="{color:(!localTitle || localTitle == titleDefault)? 'transparent' : 'inherit'}"
-						@click.stop
-						@input="limitLabelSize()" />
-				</div>
+			<div class="title editableTitle" v-if="editableTitle !== false">
+				<contenteditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
+					:contenteditable="true"
+					v-model="localTitle"
+					:no-nl="true"
+					:no-html="true"
+					@click.stop
+					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle"
+					@blur="localTitle = (localTitle === '')? titleDefault : localTitle"
+					@input="limitLabelSize()" />
 				<Icon name="edit" />
 			</div>
 
@@ -172,7 +170,7 @@ export default class ToggleBlock extends Vue {
 
 	public beforeMount():void {
 		this.localOpen = this.open;
-		// this.localTitle = this.title || this.titleDefault;
+		this.localTitle = this.title || this.titleDefault;
 
 		watch(()=>this.localTitle, ()=>{
 			// if(!this.localTitle || this.title == this.titleDefault) {
@@ -316,45 +314,30 @@ export default class ToggleBlock extends Vue {
 				height: 1em;
 				vertical-align: middle;
 			}
-			.title {
-				position: relative;
-				justify-self: center;
-				flex-grow: unset;
-				.label, .default {
-					cursor: text;
-					min-width: 2em;
-					width: fit-content;
-					font-weight: bold;
-					// flex-grow: 1;
-					padding: .25em .5em;
-					border-radius: var(--border-radius);
+			.label {
+				cursor: text;
+				min-width: 100px;
+				width: fit-content;
+				font-weight: bold;
+				// flex-grow: 1;
+				padding: .25em .5em;
+				border-radius: var(--border-radius);
 
-					&.label {
-						&:hover, &:active, &:focus {
-							.bevel();
-							background-color: var(--color-text-inverse-fader);
-							// border: 1px double var(--color-light);
-							// border-style: groove;
-						}
+				&.label {
+					padding-right: 2em;
+					// word-break: break-word;
+					line-height: 1.2em;
+					&:hover, &:active, &:focus {
+						.bevel();
+						background-color: var(--color-text-inverse-fader);
+						// border: 1px double var(--color-light);
+						// border-style: groove;
 					}
 				}
-				.label {
-					position: relative;
-					z-index: 1;
-					min-width: 100px;
-					padding-right: 2em;
-					word-break: break-word;
-					line-height: 1.2em;
-				}
-				.default {
-					position: absolute;
-					text-wrap: nowrap;
+				&.default {
 					opacity: .8;
 					font-style: italic;
-					top:0;
-					left:50%;
-					transform: translateX(-50%);
-					padding-right: 2em;
+					font-weight: normal;
 				}
 			}
 			&>.icon {

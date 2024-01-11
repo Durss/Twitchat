@@ -8,6 +8,36 @@
 			<div class="description">{{ $t("raffle.description") }}</div>
 		</div>
 
+		<ToggleBlock class="configs" v-if="mode=='chat' && triggerMode === false" :title="$t('global.bot_message_config')" :open="false" small>
+			<ParamItem class="card-item"
+			:paramData="param_showCountdownOverlay"
+			v-if="mode=='chat'" @change="onValueChange()">
+				<i18n-t scope="global" tag="div" class="details"
+				v-if="param_showCountdownOverlay.value === true && mode=='chat'"
+				keypath="raffle.configs.timer_overlay_add">
+					<template #LINK>
+						<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
+					</template>
+				</i18n-t>
+			</ParamItem>
+
+			<PostOnChatParam botMessageKey="raffleStart"
+				v-if="mode=='chat' && triggerMode === false"
+				:placeholders="startPlaceholders"
+				titleKey="raffle.configs.postOnChat_start"
+			/>
+			<PostOnChatParam botMessageKey="raffle"
+				v-if="triggerMode === false"
+				:placeholders="winnerPlaceholders"
+				titleKey="raffle.configs.postOnChat_winner"
+			/>
+			<PostOnChatParam botMessageKey="raffleJoin"
+				v-if="mode=='chat' && triggerMode === false"
+				:placeholders="joinPlaceholders"
+				titleKey="raffle.configs.postOnChat_join"
+			/>
+		</ToggleBlock>
+
 		<TabMenu class="menu" v-model="mode"
 			:values="['chat','sub','manual','values']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
@@ -129,36 +159,6 @@
 					</i18n-t>	
 				</Button>
 			</form>
-
-			<ToggleBlock class="configs" v-if="mode=='chat' && triggerMode === false" :title="$t('global.configs')" :open="false" small>
-				<ParamItem class="card-item"
-				:paramData="param_showCountdownOverlay"
-				v-if="mode=='chat'" @change="onValueChange()">
-					<i18n-t scope="global" tag="div" class="details"
-					v-if="param_showCountdownOverlay.value === true && mode=='chat'"
-					keypath="raffle.configs.timer_overlay_add">
-						<template #LINK>
-							<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
-						</template>
-					</i18n-t>
-				</ParamItem>
-
-				<PostOnChatParam botMessageKey="raffleStart"
-					v-if="mode=='chat' && triggerMode === false"
-					:placeholders="startPlaceholders"
-					titleKey="raffle.configs.postOnChat_start"
-				/>
-				<PostOnChatParam botMessageKey="raffle"
-					v-if="triggerMode === false"
-					:placeholders="winnerPlaceholders"
-					titleKey="raffle.configs.postOnChat_winner"
-				/>
-				<PostOnChatParam botMessageKey="raffleJoin"
-					v-if="mode=='chat' && triggerMode === false"
-					:placeholders="joinPlaceholders"
-					titleKey="raffle.configs.postOnChat_join"
-				/>
-			</ToggleBlock>
 		</div>
 	</div>
 </template>

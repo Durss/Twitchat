@@ -1,9 +1,10 @@
 {
 	"cmdmenu":{
-		"poll":"Créer un sondage",
-		"prediction":"Créer une prédiction",
-		"raffle":"Créer un tirage au sort",
-		"bingo":"Créer un bingo",
+		"poll":"Sondage",
+		"prediction":"Prédiction",
+		"raffle":"Tirage au sort",
+		"bingo":"Bingo",
+		"qna":"FAQ",
 		"suggestions":"Demander des suggestions",
 		"timer":"Chronomètre & Décompte",
 		"chat":"Effacer le tchat",
