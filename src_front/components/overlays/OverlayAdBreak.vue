@@ -291,19 +291,19 @@ export default class OverlayAdBreak extends AbstractOverlay {
 		const bounds = holder.getBoundingClientRect();
 
 		if(placement.indexOf("r") > -1){
-			gsap.from(holder, {x:"100%", duration:.35, ease:"sine.out"});
+			gsap.from(holder, {x:"100%", duration:.35, ease:"sine.out", clearProps:"x"});
 		}else
 		if(placement.indexOf("l") > -1){
-			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:.35, ease:"sine.out"});
+			gsap.from(holder, {x:-(bounds.x+bounds.width), duration:.35, ease:"sine.out", clearProps:"x"});
 		}else
 		if(placement == "t"){
-			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:.35, ease:"sine.out"});
+			gsap.from(holder, {y:-(bounds.y+bounds.height), duration:.35, ease:"sine.out", clearProps:"y"});
 		}else
 		if(placement == "b"){
-			gsap.from(holder, {y:"100%", duration:.35, ease:"sine.out"});
+			gsap.from(holder, {y:"100%", duration:.35, ease:"sine.out", clearProps:"y"});
 		}else
 		if(placement == "m"){
-			gsap.from(holder, {scale:0, duration:.35, clearProps:"transform", ease:"back.out"});
+			gsap.from(holder, {scale:0, duration:.35, ease:"back.out", clearProps:"transform"});
 		}
 	}
 
@@ -317,19 +317,19 @@ export default class OverlayAdBreak extends AbstractOverlay {
 		if(!holder || !placement) return;
 
 		if(placement.indexOf("r") > -1){
-			gsap.to(holder, {x:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }});
+			gsap.to(holder, {x:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
 		}else
 		if(placement.indexOf("l") > -1){
-			gsap.to(holder, {x:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }});
+			gsap.to(holder, {x:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"x"});
 		}else
 		if(placement == "t"){
-			gsap.to(holder, {y:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }});
+			gsap.to(holder, {y:"-100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
 		}else
 		if(placement == "b"){
-			gsap.to(holder, {y:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }});
+			gsap.to(holder, {y:"100%", duration:.35, ease:"sine.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"y"});
 		}else
 		if(placement == "m"){
-			gsap.to(holder, {scale:0, duration:.35, ease:"back.in", onComplete:()=>{ this.adType = "none"; }});
+			gsap.to(holder, {scale:0, duration:.35, ease:"back.in", onComplete:()=>{ this.adType = "none"; }, clearProps:"transform"});
 		}
 		await Utils.promisedTimeout(350);
 		this.show = false;

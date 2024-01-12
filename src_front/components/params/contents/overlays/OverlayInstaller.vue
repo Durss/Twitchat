@@ -86,10 +86,10 @@ export default class OverlayInstaller extends Vue {
 
 	public get localURL():string {
 		const url = new URL(this.url != "" ? this.url : this.$overlayURL(this.type));
-		if(this.id != "") url.searchParams.append("twitchat_overlay_id", this.id);
+		if(this.id != "") url.searchParams.set("twitchat_overlay_id", this.id);
 		if(this.queryParams) {
 			for (const key in this.queryParams) {
-				url.searchParams.append(key, this.queryParams[key]);
+				url.searchParams.set(key, this.queryParams[key]);
 			}
 		}
 		return url.href;

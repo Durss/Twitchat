@@ -30,12 +30,12 @@
 		</section>
 
 
-		<section class="card-item">
+		<section class="card-item options">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
 			
-			<ParamItem :paramData="param_showApproaching" v-model="localData.showApproaching">
+			<ParamItem class="param" :paramData="param_showApproaching" v-model="localData.showApproaching">
 				<div class="children">
 					<ParamItem class="child" :paramData="param_approachingStyle" noBackground v-model="localData.approachingStyle" />
 					<ParamItem class="child" :paramData="param_approachingDelay" noBackground v-model="localData.approachingDelay" />
@@ -58,7 +58,7 @@
 
 			</ParamItem>
 
-			<ParamItem :paramData="param_showRunning" v-model="localData.showRunning">
+			<ParamItem class="param" :paramData="param_showRunning" v-model="localData.showRunning">
 				<div class="children">
 					<ParamItem class="child" :paramData="param_runningStyle" noBackground v-model="localData.runningStyle" />
 					<ParamItem class="child" :paramData="param_runningSize" noBackground v-model="localData.runningSize" />
@@ -244,6 +244,10 @@ export default class OverlayParamsAdBreak extends Vue {
 
 <style scoped lang="less">
 .overlayparamsadbreak{
+	.options {
+		width: 100%;
+		max-width: 500px;
+	}
 	.children {
 		gap: .25em;
 		display: flex;

@@ -59,9 +59,10 @@ export const storeAuth = defineStore('auth', {
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 				//Store auth data in cookies for later use
 				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
-				if(reconnectIRC) {
-					TwitchMessengerClient.instance.refreshToken(twitchAuthResult.access_token);
-				}
+				//This is not necessary
+				// if(reconnectIRC) {
+				// 	TwitchMessengerClient.instance.refreshToken(twitchAuthResult.access_token);
+				// }
 
 				const expire	= this.twitch.expires_in;
 				let delay		= Math.max(0, expire * 1000 - 60000 * 5);//Refresh 5min before it actually expires

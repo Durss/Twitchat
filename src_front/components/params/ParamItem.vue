@@ -771,6 +771,10 @@ export default class ParamItem extends Vue {
 	transition: padding .25s;
 	position: relative;
 	transition: opacity .2s;
+
+	label {
+		white-space: pre-line;
+	}
 	
 	&:not(.disabled)>.content:hover::before {
 		opacity: 1;
@@ -906,7 +910,6 @@ export default class ParamItem extends Vue {
 				margin: 0;
 				padding-right: 1em;
 				line-height: 1.25em;
-				white-space: pre-line;
 				cursor: pointer;
 			}
 			&.number, &.text {
@@ -1024,7 +1027,8 @@ export default class ParamItem extends Vue {
 		}
 
 		img.paramIcon {
-			height: 4em;
+			height: 1em;
+			margin-right: .5em;
 			vertical-align: middle;
 		}
 

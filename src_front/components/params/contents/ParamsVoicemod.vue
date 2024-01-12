@@ -41,7 +41,7 @@
 							<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("voicemod.voices_triggers_link") }}</a>
 						</template>
 					</i18n-t>
-					<ParamItem class="item param shrinkInput" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
+					<ParamItem class="item param voiceEffect" v-for="p in voiceParams" :paramData="p" @change="saveData()" />
 				</section>
 			</template>
 		</div>
@@ -282,12 +282,15 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 				margin-right: auto;
 				text-align: center;
 			}
-			&.shrinkInput {
+			&.voiceEffect {
 				:deep(.inputHolder) {
 					max-width: 150px;
 				}
 				:deep(input) {
 					max-width: 150px;
+				}
+				:deep(.paramIcon) {
+					height: 4em;
 				}
 			}
 			&.param {

@@ -76,6 +76,7 @@
 		"matter-js": "^0.19.0",
 		"obs-websocket-js": "^5.0.2",
 		"pinia": "^2.0.23",
+		"pixi.js": "^7.3.3",
 		"shx": "^0.3.4",
 		"three": "^0.158.0",
 		"tmi.js": "github:Durss/tmi.js",
