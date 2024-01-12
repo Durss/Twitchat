@@ -8,7 +8,7 @@
 			</div>
 
 			<OverlayInstaller type="bitswall"
-				id="twitchat_bitswall_overlay"
+				:id="param_cristalEffect.value? 'twitchat_bitswall_overlay_shader' : 'twitchat_bitswall_overlay'"
 				:orderToBottom="param_cristalEffect.value"
 				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
 				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"
@@ -50,6 +50,17 @@
 
 			<template v-if="overlayExists">
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.bitswall.testBt') }}</TTButton>
+				<p class="pinnedCheersTitle">{{$t("overlay.bitswall.simulate_pinned")}}</p>
+				<div class="pinnedCheers">
+					<TTButton class="center" :loading="loading" @click="testOverlay(1)" icon="test">{{$t("overlay.bitswall.simulate_pinned_level")}} 1</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(2)">2</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(3)">3</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(4)">4</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(5)">5</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(6)">6</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(7)">7</TTButton>
+					<TTButton class="center" :loading="loading" @click="testOverlay(8)">8</TTButton>
+				</div>
 			</template>
 
 			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayAtStart" />
@@ -110,8 +121,8 @@ export default class OverlayParamsBitswall extends Vue {
 	public beforeMount():void {
 		const paramsJSON = DataStore.get(DataStore.BITS_WALL_PARAMS);
 		if(paramsJSON) {
-			const parsed = JSON.parse(paramsJSON);
-			if(parsed.scale != undefined) this.parameters.size = parsed.scale;
+			const parsed = JSON.parse(paramsJSON) as TwitchatDataTypes.BitsWallOverlayData;
+			if(parsed.size != undefined) this.parameters.size = parsed.size;
 			if(parsed.break != undefined) this.parameters.break = parsed.break;
 			if(parsed.break_senderOnly != undefined) this.parameters.break_senderOnly = parsed.break_senderOnly;
 		}
@@ -146,9 +157,8 @@ export default class OverlayParamsBitswall extends Vue {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
 
-	public testOverlay():void {
+	public testOverlay(pinLevel:number = -1):void {
 		const user = this.$store.auth.twitch.user;
-		const pinned = Math.random() > .5;
 		const wsMessage = {
 			channel:user.id,
 			message:"",
@@ -158,9 +168,9 @@ export default class OverlayParamsBitswall extends Vue {
 				login:user.login,
 				displayName:user.displayNameOriginal,
 			},
-			bits:Utils.pickRand([123, 456, 789, 1515, 5237, 18423]),
-			pinned,
-			pinLevel:pinned? Math.round(Math.random()*8) : 0,
+			bits:Utils.pickRand([115, 410, 715, 1510, 5210, 18410]),
+			pinned:pinLevel > -1,
+			pinLevel:pinLevel - 1,
 		} as JsonObject;
 		PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 	}
@@ -238,6 +248,27 @@ export default class OverlayParamsBitswall extends Vue {
 		margin: auto;
 		margin-top: .5em;
 		display: block;
+	}
+	.pinnedCheersTitle {
+		text-align: center;
+	}
+	.pinnedCheers {
+		gap: 0;
+		display: flex;
+		flex-direction: row;
+		justify-content: center;
+		.button {
+			margin: 0;
+			border-radius: 0;
+			&:first-child {
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			&:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
+			}
+		}
 	}
 	.error {
 		text-align: center;

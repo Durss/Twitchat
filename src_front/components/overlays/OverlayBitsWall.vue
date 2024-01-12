@@ -1,7 +1,6 @@
 <template>
 	<div :class="classes" @click="onClick">
-		<canvas ref="displacement" :width="sceneWidth" v-show="shaderMode == true"></canvas>
-		<canvas ref="textures" :width="sceneWidth" style="opacity:1"></canvas>
+		<canvas class="debug" ref="debug" :style="{width:sceneWidth*2+'px', height:sceneHeight+'px'}" :width="sceneWidth*2" :height="sceneHeight"></canvas>
 	</div>
 </template>
 
@@ -22,12 +21,21 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import gsap from "gsap";
 import * as Matter from "matter-js";
+import * as PIXI from 'pixi.js';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
 let engine!:Matter.Engine;
+let app!:PIXI.Application;
+let textureHolder!:PIXI.Container;
+let displacementHolder!:PIXI.Container;
+let textureMask!:PIXI.Graphics;
+let displacementMask!:PIXI.Graphics;
+let displacementBackground!:PIXI.Graphics;
+let floor!:Matter.Body;
+let bodyId2Data:{[key:string]:CheermoteData} = {}
 @Component({
 	components:{},
 	emits:[],
@@ -37,17 +45,16 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	public shaderMode:boolean = false;
 	public engineReady:boolean = false;
 	public sceneWidth:number = 300;
+	public sceneHeight:number = 300;
 	public parameters:TwitchatDataTypes.BitsWallOverlayData|null = null;
 
 	private interval:number = -1;
 	private disposed:boolean = false;
-	private textures:HTMLImageElement[] = [];
-	private displacements:HTMLImageElement[] = [];
-	private textureCtx!:CanvasRenderingContext2D;
 	private bitsHandler!:(e:TwitchatEvent)=>void;
 	private paramsDataHandler!:(e:TwitchatEvent)=>void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 	private heatEventHandler!:(event:{detail:TwitchatDataTypes.HeatClickData}) => void;
+	private resizeHandler!:(e:Event) => void;
 
 	public get classes():string[] {
 		const res:string[] = ["overlaybitswall"];
@@ -59,15 +66,23 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		this.bitsHandler = (e:TwitchatEvent) => this.onBits(e);
 		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
 		this.heatEventHandler = (e) => this.onHeatClick(e);
+		this.resizeHandler = (e) => this.onResize(e);
 		//@ts-ignore
 		window.addEventListener("heat-click", this.heatEventHandler);
+		window.addEventListener("resize", this.resizeHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, this.paramsDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BITS, this.bitsHandler);
 	}
 
-	public mounted():void {
+	public async mounted():Promise<void> {
 		this.shaderMode = new URL(document.location.href).searchParams.get("mode") === "shader";
 		this.createEngine();
+
+		this.sceneWidth = document.body.clientWidth;
+		this.sceneHeight = document.body.clientHeight;
+
+		await this.preloadTextures();
+
 		/*
 		this.onBits(new TwitchatEvent("BITS",{
 				channel:"",
@@ -78,16 +93,13 @@ export default class OverlayBitsWall extends AbstractOverlay {
 					login:"durss",
 					displayName:"Durss",
 				},
-				bits:18712,
-				// bits:100000,
-				pinned:true,
-				pinLevel:Math.floor(Math.random()*8),
+				// bits:1000,
+				// bits:18712,
+				bits:10000,
+				pinned:false,
+				pinLevel:8,
 			}));
-		*/
-
-		this.sceneWidth = document.body.clientWidth;
-
-		this.preloadTextures();
+		//*/
 
 		PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE);
 		
@@ -108,7 +120,21 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		});
 	}
 
-	public beforeUnmount():void {
+	public async beforeUnmount():Promise<void> {
+		try {
+			await PIXI.Assets.unloadBundle("textures");
+			(this.$el as HTMLDivElement).removeChild(app.view as HTMLCanvasElement);
+			app.stop();
+			app.stage.destroy(true);
+			app.renderer.destroy(true);
+			app.destroy(true);
+			//@ts-ignore
+			app = null;
+			// app.destroy(true, true);
+		}catch(error) {
+			console.error(error);
+		}
+
 		while(engine.world.bodies.length > 0) {
 			const b = engine.world.bodies[0];
 			Matter.Composite.remove(engine.world, b);
@@ -118,6 +144,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		clearInterval(this.interval);
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);
+		window.removeEventListener("resize", this.resizeHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BITS, this.bitsHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
@@ -156,18 +183,18 @@ export default class OverlayBitsWall extends AbstractOverlay {
 
 			return decomposedValues;
 		}
-		const scales = [.2, .25, .35, .45, .6]
+		const scales = [.5, 1.25, 1.7, 2.2, 3]
 		const res = Utils.shuffle(decomposeNumber(bits, [1,100,1000,5000,10000]));
 		for (let i = 0; i < res.length; i++) {
 			const bits = res[i] as keyof typeof scales;
 			await Utils.promisedTimeout(100);
 			if(this.disposed) return;
-			const scaleOffset = (data.pinLevel || 0) / 7 * 2 + 1;
+			const scaleOffset = data.pinned? ((data.pinLevel || -1) + 1) / 8 + 1 : 1;
 			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
-			const minScale = (this.parameters?.size || 25)/128;
-			const scale = Math.max(minScale, scaleOffset * scales[index]);
+			const globalScale = (this.parameters?.size || 25)/200;
+			const scale = scales[index] * scaleOffset * globalScale;
 			
-			this.createCheermote({index, scale, scale_prev:scale, uid:data.user.id});
+			this.createCheermote({guid: Utils.getUUID(),index, scale, scale_prev:scale, uid:data.user.id, destroyed:false});
 		}
 	}
 
@@ -196,6 +223,38 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	}
 
 	/**
+	 * Called on window's resize
+	 */
+	public onResize(e?:Event):void {
+		const vw = document.body.clientWidth;
+		const vh = document.body.clientHeight;
+		this.sceneWidth = this.shaderMode? vw/2 : vw;
+		this.sceneHeight = vh;
+		if(this.shaderMode) {
+			displacementMask.clear();
+			displacementMask.beginFill(0xffffff);
+			displacementMask.drawRect(0,0,vw/2, vh);
+			displacementMask.endFill();
+			
+			textureMask.clear();
+			textureMask.beginFill(0xffffff);
+			textureMask.drawRect(vw/2,0,vw/2, vh);
+			textureMask.endFill();
+
+			displacementBackground.clear();
+			displacementBackground.beginFill(0x808000);
+			displacementBackground.drawRect(0, 0, vw/2, vh);
+			textureHolder.position.set(vw/2, 0);
+		}else{
+			textureHolder.position.set(0, 0);
+		}
+
+		const w = floor.bounds.max.x - floor.bounds.min.x;
+		Matter.Body.scale(floor, this.sceneWidth / w, 1);
+		Matter.Body.setPosition(floor, {x:this.sceneWidth/2, y:this.sceneHeight + (floor.bounds.max.y - floor.bounds.min.y)/2})
+	}
+
+	/**
 	 * Called when API sends fresh overlay parameters
 	 */
 	private async onParamsData(e:TwitchatEvent):Promise<void> {
@@ -207,6 +266,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				this.sceneWidth = document.body.clientWidth;
 			}
 			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
+			this.onResize();
 		}
 	}
 
@@ -224,7 +284,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		const res = Matter.Query.ray(bodies, p1, p2);
 		res.forEach(v=> {
 			const body = v.bodyA;
-			const data = body.plugin as CheermoteData;
+			const data = bodyId2Data[body.parent.id] as CheermoteData;
 			const cheerIndex = data.index;
 
 			//If only senders can break their own cheermotes, don't break
@@ -232,7 +292,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			if(this.parameters?.break_senderOnly
 			&& uid != data.uid) return;
 			
-			Matter.Composite.remove(engine.world, body.parent, true);
+			this.destroyCheermote(body.parent);
 			if(cheerIndex > 0) {
 				let count = 0;
 				let bits = 0;
@@ -264,7 +324,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				}
 				for (let i = 0; i < count; i++) {
 					setTimeout(()=> {
-						this.createCheermote({index:bits, scale:data.scale, uid:data.uid, scale_prev:data.scale}, body.position);
+						this.createCheermote({guid: Utils.getUUID(),index:bits, scale:data.scale, uid:data.uid, scale_prev:data.scale, destroyed:false}, body.position);
 					}, 30 * i);
 				}
 			}
@@ -274,33 +334,21 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	/**
 	 * Preload image textures
 	 */
-	private preloadTextures():void {
-		const textures = [
-			cheer1_tex,
-			cheer100_tex,
-			cheer1000_tex,
-			cheer5000_tex,
-			cheer10000_tex,
-		];
-		const displacements = [
-			cheer1,
-			cheer100,
-			cheer1000,
-			cheer5000,
-			cheer10000,
-		];
-
-		textures.forEach(v => {
-			const img = new Image();
-			this.textures.push(img);
-			img.src = v;
+	private async preloadTextures():Promise<void> {
+		PIXI.Assets.addBundle("textures", {
+			t0:cheer1_tex,
+			t1:cheer100_tex,
+			t2:cheer1000_tex,
+			t3:cheer5000_tex,
+			t4:cheer10000_tex,
+			d0:cheer1,
+			d1:cheer100,
+			d2:cheer1000,
+			d3:cheer5000,
+			d4:cheer10000,
 		})
 
-		displacements.forEach(v => {
-			const img = new Image();
-			this.displacements.push(img);
-			img.src = v;
-		})
+		await PIXI.Assets.loadBundle("textures");
 	}
 
 	/**
@@ -310,6 +358,18 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	 * @param scale 
 	 */
 	private createCheermote(data:CheermoteData, pos?:{x:number, y:number}):void {
+		const index = data.index;
+		const s1 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-t"+index));
+		s1.anchor.set(.5,.5);
+		data.spriteTexture = s1;
+		textureHolder.addChild(s1);
+
+		if(this.shaderMode) {
+			const s2 = new PIXI.Sprite(PIXI.Assets.cache.get("textures-d"+index));
+			s2.anchor.set(.5,.5);
+			data.spriteDisplace = s2;
+			displacementHolder.addChild(s2);
+		}
 
 		const vertices_1 = [[{x:0, y:128}, {x:157, y:128}, {x:79, y:0}]];
 		const vertices_100 = [[{x:0, y:89}, {x:50, y:128}, {x:101, y:90}, {x:50, y:0}]];
@@ -320,17 +380,16 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			[{x:36.25, y:0}, {x:36.25, y:128}, {x:145, y:64}],
 		];
 		
-		const index = data.index;
 		const density = [.001, .002, .003, .004, .005][index];
 		const frictionAir = [.05, .01, .01, .001, .0][index];
-		const velocity = [5, 30, 20, 35, 50][index];
+		const velocity = [10, 20, 30, 40, 50][index];
+		const restitution = [.25, .15, .1, .05, .01][index];
 		const path = [vertices_1, vertices_100, vertices_1000, vertices_5000, vertices_10000][index || 0];
 		const margin = document.body.clientWidth / 10;
 		const px = Math.random() * (this.sceneWidth - margin * 2) + margin;
 		const body = Matter.Bodies.fromVertices(px, -200 - Math.random() * 200, path, {
 													label:"cheermote",
-													plugin:data,
-													restitution:.35,
+													restitution,
 													render:{
 														visible:false,
 													},
@@ -339,23 +398,26 @@ export default class OverlayBitsWall extends AbstractOverlay {
 													// inverseMass:1/(density*10000),
 													// frictionAir,
 													frictionAir:0,
+													friction:.5
 												});
+		bodyId2Data[body.id] = data;
 		Matter.Body.scale(body, data.scale, data.scale);
-		Matter.Body.setVelocity(body, {x:0, y:velocity - Math.random()*5});
+		Matter.Body.setVelocity(body, {x:0, y:(velocity - Math.random()*5) * 2});
 		Matter.Body.setAngle(body, Math.random() * Math.PI * 2);
+		Matter.Body.setAngularVelocity(body, (Math.random() - Math.random()) * Math.PI * .05);
 		Matter.Composite.add(engine.world, body);
 		if(pos) {
 			Matter.Body.setPosition(body, pos);
 		}
 		gsap.to(data, {delay:10 * (index + 1), scale:0, duration:.5, ease:"back.in(10)", onUpdate:(a)=>{
-			if(data.scale <= 0) {
-				Matter.Composite.remove(engine.world, body);
-			}else{
-				const factor = data.scale / data.scale_prev;
-				data.scale_prev = data.scale;
-				body.plugin = data;
-				Matter.Body.scale(body, factor, factor);
-			}
+			if(data.destroyed) return;
+			const factor = data.scale / data.scale_prev;
+			data.scale_prev = data.scale;
+			Matter.Body.scale(body, factor, factor);
+		}, onComplete:()=>{
+			console.log("ON COMPLETE", data.destroyed);
+			if(data.destroyed) return;
+			this.destroyCheermote(body);
 		}})
 	}
 
@@ -363,26 +425,20 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	 * Crates the game engine
 	 */
 	private async createEngine():Promise<void> {
-		const textureCnv = this.$refs.textures as HTMLCanvasElement;
-		this.textureCtx = textureCnv.getContext("2d")!;
+		const vh = document.body.clientHeight;
 
 		engine = Matter.Engine.create({enableSleeping: false});
-		const canvas = this.$refs.displacement as HTMLCanvasElement;
-		// canvas.width = textureCnv.width = document.body.clientWidth/2;
-		canvas.height = textureCnv.height = document.body.clientHeight;
-		
 		let renderer = Matter.Render.create({
-			canvas,
 			bounds:{
-				max:{x:this.sceneWidth, y:document.body.clientHeight},
 				min:{x:0, y:0},
+				max:{x:this.sceneWidth, y:vh},
 			},
 			engine: engine,
 			options: {
 				background:"transparent",
 				wireframeBackground:"transparent",
 				width:this.sceneWidth,
-				height:document.body.clientHeight,
+				height:vh,
 				wireframes:true,
 			},
 		});
@@ -394,20 +450,20 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		this.engineReady = true;
 
 		//create floor
-		let floor = Matter.Bodies.rectangle(document.body.clientWidth/2,
-											document.body.clientHeight+25+1,
-											document.body.clientWidth,
-											50,
+		floor = Matter.Bodies.rectangle(this.sceneWidth/2,
+											vh+25+1,
+											this.sceneWidth,
+											150,
 											{ isStatic: true, label:"fix", render:{visible:false} });
 		let wallR = Matter.Bodies.rectangle(this.sceneWidth,
-											document.body.clientHeight/2,
+											vh/2,
 											10,
-											document.body.clientHeight,
+											vh,
 											{ isStatic: true, label:"fix", render:{visible:false} });
 		let wallL = Matter.Bodies.rectangle(0,
-											document.body.clientHeight/2,
+											vh/2,
 											10,
-											document.body.clientHeight,
+											vh,
 											{ isStatic: true, label:"fix", render:{visible:false} });
 		Matter.Composite.add(engine.world, [floor]);
 		// Matter.Composite.add(engine.world, [wallL, wallR]);
@@ -416,6 +472,37 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		Matter.Runner.run(engine)
 		Matter.Render.run(renderer);
 		Matter.Events.on(engine.render, 'afterRender', () => this.renderFrame());
+
+		app = new PIXI.Application({background:"#000000", backgroundAlpha:0, resizeTo:document.body});
+
+		if(this.shaderMode) {
+			displacementMask = new PIXI.Graphics();
+			displacementMask.beginFill(0xffffff);
+			displacementMask.drawRect(0,0,this.sceneWidth,vh);
+			displacementMask.endFill();
+	
+			textureMask = new PIXI.Graphics();
+			textureMask.beginFill(0xffffff);
+			textureMask.drawRect(this.sceneWidth,0,this.sceneWidth, vh);
+			textureMask.endFill();
+	
+			displacementHolder = new PIXI.Container();
+			displacementHolder.mask = displacementMask;
+	
+			displacementBackground = new PIXI.Graphics();
+			displacementBackground.beginFill(0x808000);
+			displacementBackground.drawRect(0, 0, this.sceneWidth, vh);
+	
+			app.stage.addChild(displacementBackground);
+			app.stage.addChild(displacementHolder);
+		}
+
+		textureHolder = new PIXI.Container();
+		if(textureMask) textureHolder.mask = textureMask;
+		textureHolder.position.set(this.sceneWidth, 0);
+		app.stage.addChild(textureHolder);
+
+		(this.$el as HTMLDivElement).appendChild(app.view as HTMLCanvasElement);
 	}
 
 	/**
@@ -426,10 +513,12 @@ export default class OverlayBitsWall extends AbstractOverlay {
 
 		const vph = document.body.clientHeight;
 		const vpw = document.body.clientWidth;
-		const ctx = engine.render.context;
 
 		/* Draw bounding boxes
 		var bodies = Matter.Composite.allBodies(engine.world);
+		const cnv = this.$refs.debug as HTMLCanvasElement;
+		const ctx = cnv.getContext("2d")!;
+		ctx.clearRect(0,0,cnv.width, cnv.height);
 		ctx.beginPath();
 
 		for (var i = 0; i < bodies.length; i += 1) {
@@ -448,48 +537,61 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		ctx.strokeStyle = '#ff0000';
 		ctx.stroke();
 		//*/
-		// return;
 
 		//I haven't figured out exactly why, but I need to offset images positions
 		//so they match the body position. This defines by how much they need to
 		//be offset for a scale of 1.
 		const offsets = [22, 9, 9, 0, 0];
 
-		this.textureCtx.clearRect(0,0,vpw, vph);
-
 		for (let i = 1; i < engine.world.bodies.length; i++) {
 			const body = engine.world.bodies[i];
+
 			if(body.label  == "cheermote") {
-				const data = body.plugin as CheermoteData;
-				if(body.position.y > vph + 50
-				|| body.position.x < -50
-				|| body.position.x > this.sceneWidth + 50) {
-					Matter.Composite.remove(engine.world, body);
+				const data = bodyId2Data[body.id];
+				const w = body.bounds.max.x - body.bounds.min.x;
+				if(body.position.y > vph + 800
+				|| body.position.x < -w/2
+				|| body.position.x > this.sceneWidth + w/2) {
+					this.destroyCheermote(body);
 					i--;
 					continue;
 				}
-				
-				// Draw displacement map
-				const scale = data.scale;
-				const index = data.index;
 
-				let image = this.displacements[index];
-				const w = image.width * scale;
-				const h = image.height * scale;
-				const angle = body.angle - Math.PI/2;
-				const offset = offsets[index] * scale;
-				ctx.translate(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
-				ctx.rotate(body.angle);
-				ctx.drawImage(image, -w / 2, -h / 2, w, h);
-				ctx.resetTransform();
-				
-				// Draw texture
-				image = this.textures[index];
-				this.textureCtx.translate(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
-				this.textureCtx.rotate(body.angle);
-				this.textureCtx.drawImage(image, -w / 2, -h / 2, w, h);
-				this.textureCtx.resetTransform();
+				if(data.spriteTexture) {
+					const scale = data.scale;
+					const index = data.index;
+					const angle = body.angle - Math.PI/2;
+					const offset = offsets[index] * scale;
+					data.spriteTexture.scale.set(scale, scale);
+					data.spriteTexture.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
+					data.spriteTexture.rotation = body.angle;
+				}
+				if(data.spriteDisplace) {
+					const scale = data.scale;
+					const index = data.index;
+					const angle = body.angle - Math.PI/2;
+					const offset = offsets[index] * scale;
+					data.spriteDisplace.scale.set(scale, scale);
+					data.spriteDisplace.position.set(body.position.x + Math.cos(angle)*offset, body.position.y + Math.sin(angle)*offset);
+					data.spriteDisplace.rotation = body.angle;
+				}
 			}
+		}
+	}
+
+	private destroyCheermote(body:Matter.Body):void {
+		const data = bodyId2Data[body.id] as CheermoteData;
+		gsap.killTweensOf(data);
+		data.destroyed = true;
+		delete bodyId2Data[body.id];
+		Matter.Composite.remove(engine.world, body, true);
+		if(data.spriteTexture) {
+			textureHolder.removeChild(data.spriteTexture);
+			data.spriteTexture.destroy();
+		}
+		if(data.spriteDisplace) {
+			displacementHolder.removeChild(data.spriteDisplace);
+			data.spriteDisplace.destroy();
 		}
 	}
 }
@@ -498,7 +600,11 @@ interface CheermoteData {
 	index:number;
 	uid:string;
 	scale:number;
+	spriteTexture?:PIXI.Sprite;
+	spriteDisplace?:PIXI.Sprite;
 	scale_prev:number;
+	destroyed:boolean;
+	guid:string;
 }
 </script>
 
@@ -506,8 +612,12 @@ interface CheermoteData {
 .overlaybitswall {
 	width: 100vw;
 	height: 100vh;
-	&.shaderMode {
-		background: linear-gradient(90deg, #808000ff 50%, #80800000 50%);
+
+	.debug {
+		position: absolute;
+		top: 0;
+		left: 0;
+		z-index: 1;
 	}
 }
 </style>
