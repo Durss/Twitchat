@@ -504,6 +504,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				|| this.prevParams.timing != this.data.params.timing
 				|| this.prevParams.loop != this.data.params.loop
 			)) resetScroll = true;
+			if(this.data.params.lang) this.$i18n.locale = this.data.params.lang;
 
 			this.prevParams = this.data.params;
 
@@ -538,6 +539,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			}
 			
 			if(!this.data?.params) return;//No params?!
+			if(this.data.params.lang) this.$i18n.locale = this.data.params.lang;
 			this.display = true;
 			
 			if(resetScroll) {
@@ -861,6 +863,7 @@ interface SlotItem {
 			}
 			.textContent {
 				white-space: pre-line;
+				line-height: 1.5em;
 			}
 		}
 

@@ -1657,6 +1657,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface EndingCreditsParams {
+		lang?:string;
 		scale:number;
 		padding:number;
 		paddingTitle:number;
