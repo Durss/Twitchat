@@ -228,6 +228,10 @@ export const storeStream = defineStore('stream', {
 			if(emoteOnly && channelId === uid){
 				TwitchUtils.setRoomSettings(uid, {emotesOnly:false});
 			}
+			//Give it a minute to twitch after starting stream to schedule ads
+			setTimeout(()=> {
+				TwitchUtils.getAdSchedule();
+			}, 60000);
 		},
 		
 		setStreamStop(channelId:string):void{
@@ -451,7 +455,7 @@ export const storeStream = defineStore('stream', {
 
 			if(simulate) {
 				//Generate fake data
-				for (let i = 0; i < 100; i++) {
+				for (let i = 0; i < 500; i++) {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, undefined, false));
 				}
 				for (let i = 0; i < 20; i++) {
@@ -632,6 +636,7 @@ export const storeStream = defineStore('stream', {
 				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 				if(json) {
 					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+					result.params.lang = StoreProxy.i18n.locale;
 					
 					let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 					if(simulate || !startDateBackup) {
