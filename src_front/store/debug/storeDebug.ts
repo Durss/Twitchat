@@ -1213,7 +1213,6 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING: {
-					console.log("APPROACHING");
 					const m:TwitchatDataTypes.MessageAdBreakApproachingData = {
 						platform:"twitch",
 						type,
@@ -1221,6 +1220,28 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						delay_ms:30000,
 						start_at:Date.now() + 30000,
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM: {
+					const m:TwitchatDataTypes.MessageOBSStartStreamData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+					};
+					data = m;
+					break;
+				}
+
+				case TwitchatDataTypes.TwitchatMessageType.OBS_STOP_STREAM: {
+					const m:TwitchatDataTypes.MessageOBSStopStreamData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
 					};
 					data = m;
 					break;
