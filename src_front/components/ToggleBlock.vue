@@ -22,6 +22,7 @@
 					@blur="localTitle = (localTitle === '')? titleDefault : localTitle"
 					@input="limitLabelSize()" />
 				<Icon name="edit" />
+				<h3 v-if="subtitle">{{ subtitle }}</h3>
 			</div>
 
 			<div class="title" v-else-if="title || titleDefault || subtitle">
@@ -310,13 +311,14 @@ export default class ToggleBlock extends Vue {
 			align-items: center;
 			justify-content: center;
 			flex-grow: 1;
+			flex-wrap: wrap;
 			.icon {
 				height: 1em;
 				vertical-align: middle;
 			}
 			.label {
 				cursor: text;
-				min-width: 100px;
+				min-width: 50px;
 				width: fit-content;
 				font-weight: bold;
 				// flex-grow: 1;
@@ -343,6 +345,9 @@ export default class ToggleBlock extends Vue {
 			&>.icon {
 				margin-left: -1.5em;
 				flex-shrink: 0;
+			}
+			h3 {
+				flex: 1 1 100%;
 			}
 		}
 

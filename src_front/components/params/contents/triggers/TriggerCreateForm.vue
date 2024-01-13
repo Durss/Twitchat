@@ -115,13 +115,11 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
 import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
 	components:{
 		TTButton:TTButton,//Special rename avoids conflict with <component is="button"> that would instanciate it instead of the native HTML element
-		ParamItem,
 		ToggleBlock,
 		TriggerActionList,
 	},

@@ -233,6 +233,7 @@ export default class ParamsGoXLR extends Vue {
 	.youtubeLinks {
 		gap: 1em;
 		display: flex;
+		flex-wrap: wrap;
 		flex-direction: row;
 		justify-content: center;
 		.youtubeBt {

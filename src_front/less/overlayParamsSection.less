@@ -69,32 +69,24 @@
 	}
 
 	.youtubeBt {
-		gap: 1em;
+		padding: .5em;
+		gap: .5em;
 		display: flex;
-		flex-direction: column;
-		border-radius: var(--border-radius);
-		transition: background-color .25s;
-		background-color: #cc0000;
+		flex-direction: row;
+		color: var(--color-light);
 		text-decoration: none;
-		padding: 1em;
-		margin: auto;
-		&>.icon {
-			height: 4em;
-			transition: height .25s;
-		}
-		span {
-			color: #fff;
-			.icon {
-				height: 1em;
-				vertical-align: bottom;
-				margin-left: .25em;
-			}
+		background-color: #cc0000;
+		border-radius: var(--border-radius);
+		margin: 0 auto;
+		align-items: center;
+		transition: background-color .25s;
+		.icon {
+			height: 1em;
+			min-height: 20px;
+			width: auto;
 		}
 		&:hover {
 			background-color: #ee0000;
-			&>.icon {
-				height: 4.5em;
-			}
 		}
 	}
 }

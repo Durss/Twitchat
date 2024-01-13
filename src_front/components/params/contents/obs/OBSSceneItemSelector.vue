@@ -150,8 +150,10 @@ export default class OBSSceneItemSelector extends Vue {
 			font-weight: bold;
 			margin-bottom: .5em;
 			padding: .5em 0;
-			border-bottom: 1px solid var(--color-light-fade);
-			background-color: var(--color-dark-fadest);
+			border-bottom: 2px solid var(--grayout);
+			background-color: var(--background-color-secondary);
+			position: sticky;
+			top: 0;
 		}
 
 		button {

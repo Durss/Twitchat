@@ -22,7 +22,7 @@ export namespace TwitchatDataTypes {
 		PATREON: "patreon",
 		PREMIUM: "premium",
 		YOUTUBE: "youtube",
-		HIGHLIGHT: "highlight",
+		HIGHLIGHT: "chathighlight",
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
 	} as const;

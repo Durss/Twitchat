@@ -22,6 +22,8 @@
 			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
 		</div>
 
+		<div v-if="error" class="card-item alert error" @click="error=''">{{ $t("overlay.install_error", {ERROR:error}) }}</div>
+
 		<div class="card-item instructions" v-if="showInput && $slots.default">
 			<slot></slot>
 		</div>
@@ -75,6 +77,7 @@ export default class OverlayInstaller extends Vue {
 	@Prop({default:false, type:Boolean})
 	public orderToBottom!:boolean;
 
+	public error:string = "";
 	public showInput:boolean = false;
 	public showSuccess:boolean = false;
 	public confirmCopy:boolean = false;
@@ -99,11 +102,19 @@ export default class OverlayInstaller extends Vue {
 	 * Creates an OBS browser source
 	 */
 	public async createBrowserSource():Promise<void> {
+		this.showSuccess = false;
+		this.error = "";
 		clearTimeout(this.successTO);
 		let name = "Twitchat_"+this.type;
 		if(this.sourceSuffix) name += this.sourceSuffix;
-		this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
-		this.showSuccess = true;
+		try {
+			console.log(name);
+			this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
+			this.showSuccess = true;
+		}catch(error:any) {
+			this.error = error.message;
+			return;
+		}
 		if(!this.isExistingSource) {
 			this.successTO = setTimeout(()=> {
 				this.showSuccess = false;
@@ -189,6 +200,13 @@ export default class OverlayInstaller extends Vue {
 			height: 1em;
 			vertical-align: middle;
 		}
+	}
+
+	.error {
+		flex: 1 1 100%;
+		text-align: center;
+		white-space: pre-line;
+		line-height: 1.25em;
 	}
 	
 }

@@ -1,6 +1,12 @@
 <template>
 	<div class="overlayparamscounter overlayParamsSection">
 		
+		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<Icon name="newtab" theme="light" />
+		</a>
+		
 		<template v-if="counters.length == 0">
 			<div class="header">{{ $t("overlay.counters.head_empty") }}</div>
 			<Button class="center" icon="add" @click="createCounter()">{{ $t('overlay.counters.createBt') }}</Button>
@@ -76,11 +82,6 @@
 					</li>
 				</ul>
 			</ToggleBlock>
-
-			<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiHJJ6Qdxe70WczZGXwOVCuD" target="_blank" class="youtubeBt">
-				<Icon name="youtube" theme="light" />
-				<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
-			</a>
 		</template>
 
 	</div>

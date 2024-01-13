@@ -160,6 +160,11 @@
 				<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
 			</ParamItem>
 		</section>
+		
+		<a href="https://www.youtube.com/watch?v=T0Sin9mHqsY" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
+		</a>
 		<!-- </ToggleBlock> -->
 
 		<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">

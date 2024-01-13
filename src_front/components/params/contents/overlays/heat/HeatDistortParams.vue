@@ -10,21 +10,22 @@
 		:id="modelValue.id"
 		:sourceSuffix="sourceSuffix"
 		:disabled="modelValue.obsItemPath.sceneName == ''"
-		:sourceTransform="{positionX:3000, positionY:3000, width:3840}"
+		:sourceTransform="{positionX:-3840, width:3840}"
 		:sceneName="modelValue.obsItemPath.sceneName"
 		@obsSourceCreated="onObsSourceCreated">
 			<h2><Icon name="info" />{{ $t("overlay.heatDistort.install_instructions_title") }}</h2>
 			<p>{{ $t("overlay.heatDistort.install_instructions") }}</p>
 		</OverlayInstaller>
 
-		<Button class="cancelBt" icon="cross" secondary
-		@click="deleteEntry(false)">{{ $t("global.cancel") }}</Button>
+		<TTButton class="center" icon="cross" secondary
+		@click="deleteEntry(false)">{{ $t("global.cancel") }}</TTButton>
 	</div>
 
 	<ToggleBlock medium v-else
 	editableTitle
 	v-model:title="modelValue.name"
 	:titleDefault="sourcePathLabel"
+	:subtitle="sourcePathLabel"
 	class="distortionEntry"
 	:style="{opacity:modelValue.enabled? 1 : .5}">
 		<template #left_actions>
@@ -32,7 +33,7 @@
 		</template>
 
 		<template #right_actions>
-			<Button class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
+			<TTButton class="deleteBt" icon="trash" alert @click.stop="deleteEntry()" />
 		</template>
 							
 		<div class="heatdistortparams">
@@ -42,6 +43,8 @@
 					<PermissionsForm class="permissions" v-model="modelValue.permissions" />
 				</ParamItem>
 			</ParamItem>
+
+			<TTButton class="center" v-if="modelValue.enabled" @click="simulateClicks()" icon="test">{{ $t("overlay.heatDistort.testBt") }}</TTButton>
 			
 			<div v-if="!heatEnabled" class="card-item alert">
 				<Icon name="alert" />
@@ -72,7 +75,7 @@ import Icon from '@/components/Icon.vue';
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ToggleBlock,
 		ToggleButton,
@@ -99,7 +102,6 @@ export default class HeatDistortParams extends Vue {
 	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
 
 	public get sourcePathLabel():string {
-		if(this.modelValue.name) return this.modelValue.name;
 		const chunks:string[] = [];
 		if(this.modelValue.obsItemPath.sceneName) chunks.push(this.modelValue.obsItemPath.sceneName);
 		if(this.modelValue.obsItemPath.groupName) chunks.push(this.modelValue.obsItemPath.groupName);
@@ -180,6 +182,19 @@ export default class HeatDistortParams extends Vue {
 			this.overlayInstalled = filter != undefined;
 		}, 100);
 	}
+
+	public simulateClicks():void {
+		if(HeatSocket.instance.connected) {
+			const uid = this.$store.auth.twitch.user.id
+			for (let i = 0; i < 5; i++) {
+				const px = Math.random();
+				const py = Math.random();
+				setTimeout(()=>{
+					HeatSocket.instance.fireEvent(uid, px, py, false, false, false);
+				}, 250 * i);
+			}
+		}
+	}
 }
 </script>
 
@@ -219,9 +234,6 @@ export default class HeatDistortParams extends Vue {
 		height: 250px;
 	}
 
-	.cancelBt {
-		align-self: center;
-	}
 	&.selectMode {
 		.emboss()
 	}

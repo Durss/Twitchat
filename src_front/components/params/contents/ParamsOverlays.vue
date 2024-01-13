@@ -35,10 +35,10 @@
 
 		<div class="list" v-if="subContent == null">
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
-			<!-- <button class="item" @click="subContent = 'bitswall'"><img src="@/assets/img/overlays/bits_wall.jpg"></button> -->
+			<button class="item" @click="subContent = 'bitswall'"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
 			<button class="item" @click="subContent = 'credits'"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
 			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg"></button>
-			<!-- <button class="item" @click="subContent = 'distort'"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button> -->
+			<button class="item" @click="subContent = 'distort'"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
 			<button class="item" @click="subContent = 'adbreak'"><img src="@/assets/img/overlays/ad_break.jpg"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>

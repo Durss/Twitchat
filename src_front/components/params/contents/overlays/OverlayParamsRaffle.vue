@@ -1,5 +1,11 @@
 <template>
 	<div class="overlayparamsraffle overlayParamsSection">
+		<a href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<Icon name="newtab" theme="light" />
+		</a>
+
 		<div class="header">{{ $t("overlay.raffle.head") }}</div>
 
 		<section class="card-item">
@@ -36,11 +42,6 @@
 				<template #CMD><strong>/raffle</strong></template>
 			</i18n-t>
 		</div>
-		
-		<a href="https://www.youtube.com/watch?v=VB4FDqB5kMo" target="_blank" class="youtubeBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
-		</a>
 	</div>
 </template>
 

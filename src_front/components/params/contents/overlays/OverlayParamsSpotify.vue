@@ -13,17 +13,12 @@
 					<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
 				</template>
 			</i18n-t>
-
 		</template>
+
 		<template v-else>
 			<div class="header">{{ $t("overlay.music_common.music") }}</div>
 			<TTButton class="center" @click="$store.params.openParamsPage(contentConnexions, 'spotify')">{{ $t("overlay.spotify.connectBt") }}</TTButton>
 		</template>
-		
-		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
-		</a>
 	</div>
 </template>
 

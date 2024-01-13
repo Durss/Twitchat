@@ -8,7 +8,8 @@
 		"manual_installBt": "Manual install",
 		"install_success":"OBS source created",
 		"install_success_exists":"There already was a browser source for this overlay on your scenes.\nIt has been copied to your current scene.",
-		"youtube_demo_tt":"View a tutorial",
+		"install_error":"Something went wrong when installing the overlay:\n{ERROR}",
+		"youtube_demo_tt":"Watch a tutorial",
 		"title_install":"Install",
 		"title_settings":"Settings",
 		"connection": {
@@ -190,12 +191,12 @@
 		},
 		"heatDistort": {
 			"title":"OBS source distortion",
-			"description":"This overlay make it possible for your viewers to distort your stream rendering by clicking on it.",
+			"description":"This overlay makes it possible for your viewers to distort your stream rendering by clicking on it.",
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
 			"install_instructions_title":"Instructions",
-			"install_instructions":"Add a new browser source, specify the above URL, force it to 60fps, specify dimensions so that it fills the entire visible area, and then check the option \"disable when source is not visible\".\nThen, add a Shadertastic filter to the element you want to distort, choose the \"Displacement Map (Source)\" effect, set \"Color Space\" to \"RGB\", and in \"Displacement Map\", select the previously created browser source. Finally, adjust the \"Strength X/Y\" values based on the level of distortion you desire.",
+			"install_instructions":"Add a new browser source, specify the above URL, force it to 60fps, set its height to full size (ex: 1080), set its width to twice the visible area (ex: 3840 if your stream is 1920 wide), and check the option \"disable when source is not visible\".\n\nThen, add a Shadertastic filter to the element you want to distort, choose the \"Displacement Map (Source)\" effect, set \"Color Space\" to \"RGB\", and in \"Displacement Map\", select the previously created browser source. Finally, adjust the \"Strength X/Y\" values based on the level of distortion you desire (recommended: 0,050).",
 			"select_target":"Select the OBS item you want the effect to be applied to",
 			"select_scene":"<- Select a scene",
 			"max_reached": "You've reached the maximum distorsion overlay you can create.\nBecome premium to create up to {COUNT} distortions.",
@@ -214,6 +215,7 @@
 			"shadertastic_missing_url": "Shadertastic OBS plugin",
 			"heat_disabled": "You need to enable {LINK}.",
 			"heat_disabled_link": "heat connection",
+			"testBt": "Simulate clicks",
 			"distorsions": {
 				"ripples":"Liquid ripples",
 				"expand":"Magnifiying lenses",

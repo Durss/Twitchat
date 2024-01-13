@@ -1,5 +1,11 @@
 <template>
 	<div class="overlayparamsbitswall overlayParamsSection">
+		<a href="https://www.youtube.com/watch?v=ZY72FfwuYcM" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<Icon name="newtab" theme="light" />
+		</a>
+
 		<div class="header">{{ $t("overlay.bitswall.head") }}</div>
 
 		<section class="card-item">
@@ -9,11 +15,11 @@
 
 			<OverlayInstaller type="bitswall"
 				:id="param_cristalEffect.value? 'twitchat_bitswall_overlay_shader' : 'twitchat_bitswall_overlay'"
-				:orderToBottom="param_cristalEffect.value"
+				:orderToBottom="false && param_cristalEffect.value"
 				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
 				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"
 				:css="'html, body{ background-color:transparent;}'"
-				:sourceTransform="{positionX:param_cristalEffect.value? 3000 : 0, positionY:param_cristalEffect.value? 3000 : 0, width:param_cristalEffect.value? 3840 : 1920}"
+				:sourceTransform="{cropLeft:param_cristalEffect.value? 1920 : 0, width:param_cristalEffect.value? 3840 : 1920}"
 				@obsSourceCreated="onObsSourceCreated" />
 				
 			<div class="card-item" @mouseenter="showShaderEffect=true" @mouseleave="showShaderEffect=false">
@@ -194,7 +200,7 @@ export default class OverlayParamsBitswall extends Vue {
 			"displacement_map_source.displacement_strength_y":.05,
 		};
 		
-		const filterName = ("Bits wall shader ("+filterTarget+")").substring(0, 100);
+		const filterName = ("BitsWall_shader ("+filterTarget+")").substring(0, 100);
 		const params = {
 						sourceName: filterTarget,
 						filterKind:"shadertastic_filter",

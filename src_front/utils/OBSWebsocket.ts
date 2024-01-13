@@ -893,6 +893,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const pathToFind = urlObj.pathname;
 		const hostToFind = urlObj.hostname;
 		const idToFind = urlObj.searchParams.get("twitchat_overlay_id");
+		if(!sceneName) sceneName = await this.getCurrentScene();
 		sourceName = sourceName.substring(0, 100);
 		
 		let existingSource:{inputKind:string, inputName:string, unversionedInputKind:string} | null = null
@@ -925,7 +926,6 @@ export default class OBSWebsocket extends EventDispatcher {
 			}
 		}
 
-		if(!sceneName) sceneName = await this.getCurrentScene();
 		if(existingSource) {
 			//Create a new instance of the existing overlay
 			const res = await this.obs.call("CreateSceneItem", {sceneName, sourceName:existingSource.inputName});

@@ -1,5 +1,11 @@
 <template>
 	<div class="overlayparamsmusic overlayParamsSection">
+		
+		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<Icon name="newtab" theme="light" />
+		</a>
 
 		<section class="card-item">
 			<div class="header">
