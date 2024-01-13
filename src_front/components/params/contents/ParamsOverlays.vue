@@ -47,17 +47,17 @@
 		</div>
 		
 		<div class="form">
-			<OverlayParamsCredits class="block blinkBorder"		:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
-			<OverlayParamsBitswall class="block blinkBorder"	:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
-			<OverlayParamsHeatDistort class="block blinkBorder"	:open="subContent == 'distort'"			v-if="subContent == 'distort'" />
-			<OverlayParamsRaffle class="block blinkBorder"		:open="subContent == 'wheel'"			v-if="subContent == 'wheel'" />
-			<OverlayParamsHighlight class="block blinkBorder"	:open="subContent == 'chathighlight'"	v-if="subContent == 'chathighlight'" />
-			<OverlayParamsSpotify class="block blinkBorder"		:open="subContent == 'music'"			v-if="subContent == 'music'" />
-			<OverlayParamsTimer class="block blinkBorder"		:open="subContent == 'timer'"			v-if="subContent == 'timer'" />
-			<OverlayParamsCounter class="block blinkBorder"		:open="subContent == 'counter'"			v-if="subContent == 'counter'" />
-			<!-- <OverlayParamsTTS class="block blinkBorder"	:open="subContent == 'tts'"				v-if="subContent == 'tts'" 			/> -->
-			<OverlayParamsAdBreak class="block blinkBorder"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
-			<OverlayParamsUlule class="block blinkBorder"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
+			<OverlayParamsCredits class="block"		:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
+			<OverlayParamsBitswall class="block"	:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
+			<OverlayParamsHeatDistort class="block"	:open="subContent == 'distort'"			v-if="subContent == 'distort'" />
+			<OverlayParamsRaffle class="block"		:open="subContent == 'wheel'"			v-if="subContent == 'wheel'" />
+			<OverlayParamsHighlight class="block"	:open="subContent == 'chathighlight'"	v-if="subContent == 'chathighlight'" />
+			<OverlayParamsSpotify class="block"		:open="subContent == 'music'"			v-if="subContent == 'music'" />
+			<OverlayParamsTimer class="block"		:open="subContent == 'timer'"			v-if="subContent == 'timer'" />
+			<OverlayParamsCounter class="block"		:open="subContent == 'counter'"			v-if="subContent == 'counter'" />
+			<!-- <OverlayParamsTTS class="block"			:open="subContent == 'tts'"				v-if="subContent == 'tts'" /> -->
+			<OverlayParamsAdBreak class="block"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
+			<OverlayParamsUlule class="block"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
 		</div>
 	</div>
 </template>

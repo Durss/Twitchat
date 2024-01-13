@@ -1,12 +1,11 @@
 import StoreProxy from "@/store/StoreProxy";
+import type { TenorGif } from "@/types/TenorDataTypes";
 import type { UluleTypes } from "@/types/UluleTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
-import type { PatreonData } from "./patreon/PatreonDataTypes";
-import type { TenorGif } from "@/types/TenorDataTypes";
 import Utils from "./Utils";
-import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 
 /**
 * Created : 13/07/2023 

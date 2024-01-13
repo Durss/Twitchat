@@ -52,7 +52,8 @@ export default class AlertView extends Vue {
 			if(mess.critical) {
 				this.locked = true;
 			}else if(!this.showContact){
-				this.timeout = setTimeout(()=> this.close(), this.message.length*80 + 2000);
+				const autoHideDuration = (this.message.length*80 + 2000) * 4;
+				this.timeout = setTimeout(()=> this.close(), autoHideDuration);
 			}
 		}else if(this.message) {
 			gsap.to(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.in", onComplete:()=> {
@@ -96,6 +97,7 @@ export default class AlertView extends Vue {
 		margin: 0 auto;
 		text-align: center;
 		line-height: 1.3em;
+		white-space: pre-line;
 	}
 
 	.contact {

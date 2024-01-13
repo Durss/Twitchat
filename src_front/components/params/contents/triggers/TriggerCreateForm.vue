@@ -18,12 +18,14 @@
 			</template>
 		</i18n-t>
 
-		<ParamItem v-else-if="subtriggerList.length == 0" class="searchForm" :paramData="param_search" @change="onSearch()" />
+		<div class="card-item searchForm" v-else-if="subtriggerList.length == 0">
+			<input v-model="search" @input="onSearch()" :placeholder="$t('global.search_placeholder')" v-autofocus>
+		</div>
 
-		<div class="card-item noResult" v-if="param_search.value && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
+		<div class="card-item noResult" v-if="search && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
 				
 		<!-- Main menu -->
-		<div :class="param_search.value? 'list search' : 'list'" v-if="!selectedTriggerType">
+		<div :class="search? 'list search' : 'list'" v-if="!selectedTriggerType">
 			<div class="category"
 			v-for="c in eventCategories"
 			:key="c.category.labelKey"
@@ -34,7 +36,7 @@
 				</div>
 				
 				<i18n-t scope="global" tag="div" class="card-item alert require"
-				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !param_search.value"
+				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !search"
 				keypath="triggers.music.require">
 					<template #URL>
 						<a @click="openConnexions()">{{ $t("triggers.music.require_url") }}</a>
@@ -42,7 +44,7 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="card-item alert require"
-				v-if="!obsConnected && isOBSCategory(c.category) && !param_search.value"
+				v-if="!obsConnected && isOBSCategory(c.category) && !search"
 				keypath="triggers.obs.require">
 					<template #URL>
 						<a @click="openOBS()">{{ $t("triggers.obs.require_url") }}</a>
@@ -50,7 +52,7 @@
 				</i18n-t>
 
 				<i18n-t scope="global" tag="div" class="card-item alert require"
-				v-if="!hasCounterOrValue && isCountersAndValueCategory(c.category) && !param_search.value"
+				v-if="!hasCounterOrValue && isCountersAndValueCategory(c.category) && !search"
 				keypath="triggers.count.require">
 					<template #URL_COUNTERS>
 						<a @click="openCounters()">{{ $t("triggers.count.require_counters") }}</a>
@@ -136,13 +138,13 @@ export default class TriggerCreateForm extends Vue {
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
 	
+	public search = "";
 	public showLoading = false;
 	public needRewards = false;
 	public needObsConnect = false;
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
 	public subtriggerList:TriggerEntry[] = [];
 	public eventCategories:TriggerCategory[] = [];
-	public param_search:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:40, placeholderKey:"global.search_placeholder"};
 	
 	private temporaryTrigger:TriggerData|null = null;
 
@@ -218,9 +220,9 @@ export default class TriggerCreateForm extends Vue {
 				newDate:v.newDate,
 			}
 		})
-		if(this.param_search.value) {
-			const premiumSearch = this.param_search.value.toLowerCase() == "premium"
-			const reg = new RegExp(this.param_search.value, "i");
+		if(this.search) {
+			const premiumSearch = this.search.toLowerCase() == "premium"
+			const reg = new RegExp(this.search, "i");
 			triggerTypeList = triggerTypeList.filter(v=> reg.test(v.label) || (premiumSearch && v.trigger?.premium === true));
 		}
 		if(triggerTypeList.length === 0) return;
@@ -691,8 +693,9 @@ interface TriggerCategory{
 
 	.searchForm {
 		margin-bottom: 1em;
-		:deep(input){
+		input {
 			text-align: center;
+			width: 100%;
 		}
 	}
 

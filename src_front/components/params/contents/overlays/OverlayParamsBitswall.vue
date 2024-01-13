@@ -193,8 +193,8 @@ export default class OverlayParamsBitswall extends Vue {
 			"displacement_map_source.displacement_strength_x":.05,
 			"displacement_map_source.displacement_strength_y":.05,
 		};
+		
 		const filterName = ("Bits wall shader ("+filterTarget+")").substring(0, 100);
-
 		const params = {
 						sourceName: filterTarget,
 						filterKind:"shadertastic_filter",
