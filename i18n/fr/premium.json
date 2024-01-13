@@ -12,7 +12,7 @@
 		"no_ad_info":"(ne concerne que les streamers avec +{FOLLOWERS} followers)",
 		"supportTable":{
 			"headers":[
-				"Fonctionnalités",
+				"Fonctionnalité",
 				"FREE",
 				" Don ",
 				"Premium"
@@ -20,6 +20,8 @@
 			"features": [
 				["Désactiver le message automatique", "-", 1, 1],
 				["Support GoXLR", "-", "-", 1],
+				["Connexion Youtube", "-", "-", 1],
+				["Automatic translations", "-", "-", 1],
 				["Pseudos personnalisés", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
 				["Créer des badges personnalisés", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
 				["Attribuer des badges personnalisés", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
@@ -35,6 +37,7 @@
 				["Support OBS", 1, 1, 1],
 				["Support Heat", 1, 1, 1],
 				["OVERLAY: Spotify", 1, 1, 1],
+				["OVERLAY: Bits wall", 1, 1, 1],
 				["OVERLAY: Mise en avant", 1, 1, 1],
 				["OVERLAY: Tirage au sort", 1, 1, 1],
 				["OVERLAY: Indicateur de pub", 1, 1, 1],

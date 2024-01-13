@@ -9,7 +9,7 @@
 					<Icon name="twitchat" v-if="index==1" />
 					<Icon name="coin" v-if="index==2" />
 					<Icon name="premium" v-if="index==3" />
-					{{ h }}
+					{{ (h as string).replace(/\{COUNT\}/gi, entries.length.toString()) }}
 				</th>
 			</tr>
 			<tr v-for="(line, index) in entries" :ref="'row_'+index">
@@ -38,8 +38,10 @@
 				</td>
 			</tr>
 		</table>
-		<button class="moreFeaturesBt" @click="expand(totalEntries-1);" v-if="!expanded">▼</button>
-		<button class="moreFeaturesBt" @click="expand(10);" v-else>▲</button>
+		<template v-if="expand === false">
+			<button class="moreFeaturesBt" @click="expandRows(totalEntries-1);" v-if="!expanded">▼</button>
+			<button class="moreFeaturesBt" @click="expandRows(10);" v-else>▲</button>
+		</template>
 	</div>
 </template>
 
@@ -47,13 +49,16 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { gsap } from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["scrollBy"]
 })
 export default class SponsorTable extends Vue {
+
+	@Prop({default:false, type:Boolean})
+	public expand!:boolean;
 
 	public currentRowIndex:number = 0;
 
@@ -80,11 +85,11 @@ export default class SponsorTable extends Vue {
 
 	public mounted():void {
 		this.$nextTick().then(()=> {
-			this.expand(10, false);
+			this.expandRows(this.expand !== false? this.entries.length : 10, false);
 		});
 	}
 
-	public expand(rowIndex:number, animate:boolean = true):void {
+	public expandRows(rowIndex:number, animate:boolean = true):void {
 		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-1, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
 		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
@@ -95,7 +100,7 @@ export default class SponsorTable extends Vue {
 		//depending on the context the holder's height my not be ready.
 		//try again until it is
 		if(boundsList.height == 0) {
-			setTimeout(()=>this.expand(rowIndex, animate), 30);
+			setTimeout(()=>this.expandRows(rowIndex, animate), 30);
 			return;
 		}
 		const duration = animate?Math.min(1, Math.abs(added)/400):0;
@@ -114,9 +119,11 @@ export default class SponsorTable extends Vue {
 	}
 
 	public scrollList(event:WheelEvent):void {
+		if(this.expand !== false) return;
+
 		const add = event.deltaY > 0? 3 : -3;
 		const newRow = this.currentRowIndex + add;
-		this.expand(newRow, true);
+		this.expandRows(newRow, true);
 
 		if(newRow == this.currentRowIndex) {
 			event.preventDefault();

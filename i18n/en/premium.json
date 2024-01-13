@@ -12,14 +12,16 @@
 		"no_ad_info":"(only applies to streamers with +{FOLLOWERS} followers)",
 		"supportTable":{
 			"headers":[
-				"Features",
+				"Feature",
 				"  FREE  ",
 				"Donate",
 				"Premium"
 			],
 			"features": [
 				["Disable automatic chat message", "-", 1, 1],
-				["GoXLR support ", "-", "-", 1],
+				["GoXLR support", "-", "-", 1],
+				["Youtube connection", "-", "-", 1],
+				["Traductions automatique", "-", "-", 1],
 				["Custom user names", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES", "MAX_CUSTOM_USERNAMES_PREMIUM"],
 				["Create custom badges", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES", "MAX_CUSTOM_BADGES_PREMIUM"],
 				["Give custom badges to users", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION", "MAX_CUSTOM_BADGES_ATTRIBUTION_PREMIUM"],
@@ -35,6 +37,7 @@
 				["OBS support", 1, 1, 1],
 				["Heat support", 1, 1, 1],
 				["OVERLAY: Spotify", 1, 1, 1],
+				["OVERLAY: Bits wall", 1, 1, 1],
 				["OVERLAY: Chat highlight", 1, 1, 1],
 				["OVERLAY: Raffle", 1, 1, 1],
 				["OVERLAY: Ad break indicator", 1, 1, 1],

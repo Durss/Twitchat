@@ -18,7 +18,7 @@
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
-					<Button big @click="showReadAlert=false">{{ $t("changelog.forceRead.sorryBt") }}</Button>
+					<Button big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</Button>
 					<Button small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</Button>
 				</div>
 
@@ -31,10 +31,13 @@
 					</template>
 					
 					<Slide v-for="(item, index) in items" :key="index" class="item">
-						<div class="inner" v-if="item.i != 'donate'">
-							<Icon v-if="item.i" :name="item.i" class="icon" :theme="item.i === 'premium'? 'light' : undefined" />
-							<span class="title" v-html="item.l"></span>
-							<span class="description" v-html="item.d"></span>
+						<div class="inner">
+							<div class="emoji" v-if="item.i == 'donate'">🥺</div>
+							<Icon v-else-if="item.i" :name="item.i" class="icon" />
+
+							<p class="title" v-html="item.l"></p>
+							<div class="description" v-html="parseCommonPLaceholders(item.d|| '')"></div>
+
 							<img v-if="item.g" class="demo" :src="item.g" lazy>
 							<video v-if="item.v" class="demo" lazy :src="item.v" autoplay loop controls></video>
 							
@@ -47,10 +50,11 @@
 								</i18n-t>
 							</div>
 							
-							<template v-if="item.i=='premium'">
+							<template v-if="item.p === true || item.i == 'donate'">
+								<Button secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</Button>
 								<Button premium icon="premium" @click="$store.params.openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
-								<Button secondary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
-								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" />
+								<Button primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
+								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
 							</template>
 							
 							<template v-if="item.i=='heat'">
@@ -59,11 +63,6 @@
 									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img src="@/assets/img/param_examples/heat2Video.jpg" class="demo" alt="demo"></a>
 								</div>
 							</template>
-						</div>
-						<div v-else class="inner donate">
-							<div class="emoji">🥺</div>
-							<div class="description" v-html="item.d"></div>
-							<Button icon="coin" href="https://twitchat.fr/sponsor" target="_blank" type="link">{{ $t("about.sponsor") }}</Button>
 						</div>
 					</Slide>
 				</Carousel>
@@ -119,7 +118,7 @@ export default class Changelog extends Vue {
 	
 	public get classes():string[] {
 		const res:string[] = ["changelog", "modal"];
-		if(this.currentItem.i === "premium") res.push("premium");
+		if(this.currentItem.p === true) res.push("premium");
 		return res;
 	}
 
@@ -135,6 +134,7 @@ export default class Changelog extends Vue {
 		return this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[];
 	}
 
+	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
 
 	public mounted(): void {
@@ -150,10 +150,16 @@ export default class Changelog extends Vue {
 
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyUpHandler);
+		this.skinPagination();
 	}
 
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
+	}
+
+	public async cancelClose():Promise<void> {
+		this.showReadAlert = false;
+		this.skinPagination();
 	}
 
 	public async close(forceClose:boolean = false):Promise<void> {
@@ -201,6 +207,16 @@ export default class Changelog extends Vue {
 	}
 
 	/**
+	 * Parses common placeholders like {HEAT} or {SHADERTASTIC}
+	 * @param str 
+	 */
+	public parseCommonPLaceholders(str:string):string {
+		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
+		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
+		return str;
+	}
+
+	/**
 	 * Scroll carousel with keyboard
 	 * @param e 
 	 */
@@ -213,6 +229,26 @@ export default class Changelog extends Vue {
 		}
 		if(this.currentSlide == this.items.length) this.currentSlide = 0;
 		if(this.currentSlide < 0) this.currentSlide = this.items.length -1;
+	}
+
+	/**
+	 * Apply css to pagination items
+	 */
+	private skinPagination():void {
+		//Define premium style to necessary page items.
+		//Dirty way of doing it but <Pagination> component doesn't seem
+		//to expose anything to do that in a cleaner way
+		this.$nextTick().then(()=> {
+			const list = document.getElementsByClassName("carousel__pagination-item");
+			for (let i = 0; i < list.length; i++) {
+				if(this.items[i].p === true) {
+					list[i].classList.add("premium");
+				}
+				if(this.items[i].i === "donate") {
+					list[i].classList.add("rainbow");
+				}
+			}
+		})
 	}
 
 }
@@ -293,6 +329,7 @@ export default class Changelog extends Vue {
 					text-align: justify;
 					font-size: 1em;
 					line-height: 1.5em;
+					white-space: pre-line;
 				}
 
 				.demo {
@@ -305,10 +342,8 @@ export default class Changelog extends Vue {
 					}
 				}
 
-				&.donate {
-					.emoji {
-						font-size: 7em;
-					}
+				.emoji {
+					font-size: 7em;
 				}
 
 				.moreInfo {
@@ -334,6 +369,14 @@ export default class Changelog extends Vue {
 						display: inline;
 						margin: auto;
 						overflow: visible;
+					}
+				}
+				:deep(ul) {
+					margin-left: 1em;
+					margin-bottom: 1em;
+					list-style: disc;
+					li {
+						text-align: left;
 					}
 				}
 			}
@@ -366,8 +409,13 @@ export default class Changelog extends Vue {
 				}
 			}
 		}
+		:deep(.carousel__pagination) {
+			position: sticky;
+			bottom: 0;
+		}
 		:deep(.carousel__pagination-button) {
 			&:after {
+				border-radius: var(--border-radius);
 				background-color: var(--color-text);
 			}
 		}
@@ -377,9 +425,18 @@ export default class Changelog extends Vue {
 				transform: scaleY(2);
 			}
 		}
-		:deep(.carousel__pagination-item:nth-last-child(2)) {
+		:deep(.carousel__pagination-item.premium) {
 			button:after {
 				background-color: var(--color-premium);
+			}
+		}
+		:deep(.carousel__pagination-item.rainbow) {
+			button:after {
+    			background: linear-gradient(90deg in hsl longer hue, red 0 50%) 0/800%;
+				animation: rainbowAnimation 20s linear infinite;
+				@keyframes rainbowAnimation {
+					to {background-position: 400%}
+				}
 			}
 		}
 	}

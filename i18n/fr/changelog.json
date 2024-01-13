@@ -11,71 +11,80 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"i": "merge",
-				"l": "Fuuuuuusioooon",
-				"g": "update_images/merge_messages.gif",
-				"d": "Ne laissez plus les spammers compulsifs noyer votre tchat grâce à la nouvelle option permettant de fusionner les messages CONSÉCUTIFS d'une même personne.<br>Agit sur les messages ainsi que les récompenses de points de chaîne."
+				"p":true,
+				"i": "youtube",
+				"l": "Intégration Youtube",
+				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum."
 			},
 			{
-				"i": "heat",
-				"l": "Extension Heat",
-				"d": "Permettez à vos viewers de <strong>cliquer sur vos sources OBS</strong> ou des zones de <strong>formes personnalisées</strong>.<br><br>En bonus, l'overlay <strong>Spotify</strong> Twitchat intègre nativement la possibilité d'être cliqué via Heat pour envoyer le morceau en cours de lecture dans le tchat pour que les lurkers puissent continuer à lurker."
+				"i": "credits",
+				"l": "Générique de fin",
+				"d": "Affichez un générique en fin de stream.\n\nLivré avec des kilotonnes d'options exclusives que vous ne trouverez nulle part ailleurs !"
 			},
 			{
-				"i": "goxlr",
-				"l": "GoXLR",
-				"g": "update_images/goxlr.png",
-				"d": "Activez des <strong>FX</strong> ou lancez la lecture de <strong>Samples</strong> depuis des récompenses de points de chaîne, follows, subs, bits, ...<br><br>Utilisez les encoders pour scroller votre tchat.<br><br>Effectuez des actions personnalisées lorsque vous utilisez n'importe quel bouton de votre GoXLR."
+				"i": "bits",
+				"l": "Bits wall",
+				"d": "Faîtes pleuvoir les bits reçus sur votre stream  !\n\nPossèdes 2 fonctionnalités jamais vues :\n<ul><li>Permettez aux viewers de \"casser\" les bits en cliquant dessus grâce à l'extension {HEAT}</li><li>Activez un rendu avancé déformant l'image du stream derrière les cristaux grâce au plugin OBS {SHADERTASTIC}</li></ul>"
 			},
 			{
-				"i": "badge",
-				"l": "Pseudo et badges personnalisés",
-				"g": "update_images/custom_badges_name.gif",
-				"d": "Modifiez le pseudo de vos viewers ou attribuez-leur des badges personnalisés.<br>Automatisez ces actions depuis les triggers."
+				"i": "ad",
+				"l": "Pause pub !",
+				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\nReportez la pub avec le bouton snooze.\nAutomatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.\nIndiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié."
+			},
+			{
+				"i": "distort",
+				"l": "Distorsions intéractives",
+				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\nOu simulez des clicks depuis les Triggers."
+			},
+			{
+				"i": "notification",
+				"l": "Notifications Twitchat",
+				"d": "Affichez des messages que vous seul·e pouvez voir.\n\nSoit depuis les Triggers soit via la nouvelle API Twitchat dédiée.\nIdéal pour vous notifier de toute sorte d'évènement personnalisés si vous êtes développeureuse."
+			},
+			{
+				"p":true,
+				"i": "translate",
+				"l": "Traduction automatique",
+				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium."
+			},
+			{
+				"i": "channelPoints",
+				"l": "Gérez vos récompenses",
+				"d": "Gérez vos récompenses de points de chaîne directement depuis Twitchat !\nChangez leur prix, activez/désactivez-les, masquez-les ou renommez-les en un click.\n\nAutomatisez leur création ou modification depuis les triggers pour encore plus de possibilités !"
+			},
+			{
+				"i": "extension",
+				"l": "Gérez vos extensions Twitch",
+				"d": "Gérez vos extensions Twitch directement depuis Twitchat !\n\nActivez ou désactivez-les manuellement depuis le nouveau menu dédié, ou automatiquement depuis les triggers pour par exemple modifier leur état selon votre scène OBS courante, votre catégorie de stream, des récompenses de points de chaîne, des subs, ou tout ce que vous pouvez imaginer !"
+			},
+			{
+				"i": "mod",
+				"l": "Modération",
+				"d": "Consultez l'historique d'un viewer sur toutes les chaînes que vous modérez en quelques clicks.\n\nLa fenêtre de profil utilisateur peut désormais vous proposer un bouton pour chacune des chaînes sur lesquelles vous êtes modo afin de facilement consulter son historique sur ces chaînes."
+			},
+			{
+				"i": "spotify",
+				"l": "Song request",
+				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps."
+			},
+			{
+				"i": "ticket",
+				"l": "Tirages au sort dynamiques",
+				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment."
+			},
+			{
+				"i": "params",
+				"l": "Menu personnalisé",
+				"d": "Ne soyez plus submergé·e par toutes les options Twitchat en personnalisant le menu de paramètres pour n'afficher que les section de votre choix, dans l'ordre de votre choix."
 			},
 			{
 				"i": "broadcast",
-				"l": "Résumé de stream",
-				"g": "update_images/stream_summary.png",
-				"d": "Pour vous aider à combler les 1:30 avant le départ d'un raid, consultez un résumé de votre stream débordant de données sur ce qu'il s'est passé durant celui-ci ainsi qu'un classement des viewers selon leurs participations au stream.<br>Les résumés peuvent être exportés au format CSV."
+				"l": "Triggers",
+				"d": "<ul><li>Organisez vos triggers dans des dossiers et sous-dossiers</li><li>6 nouveaux évènements de trigger :<ul><li>Approche d'une pub</li><li>Début d'une pub</li><li>Fin d'une pub</li><li>Echec d'ajout d'un morceau à spotify</li><li>Achat de n'importe quelle récompense de points de chaînes</li><li>Click heat n'importe où dans l'écran</li></ul></li><li>4 nouvelles actions de trigger :<ul><li>Créer/désactiver/activer/supprimer/modifier une récompense de points de chaîne</li><li>Activer/désactiver une extension Twitch</li><li>Afficher une notification personnalisée</li><li>Simuler un click sur un overlay de distorsion</li></ul></li><li>3 nouvelles actions OBS :<ul><li>Arrêter un media</li><li>Media suivant</li><li>Media précédent</li></ul></li><li>1 nouvelle action de Compteur & Valeur :<ul><li>Editez la valeur pour toutes les personnes présentes dans le tchat</li></ul></li><li>21 nouveaux placeholders :<ul><li>{NOW} date courante</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} pour l'action Spotify</li><li>{SEARCH_QUERY} pour l'action Spotify</li></ul></li></ul>"
 			},
 			{
-				"i": "raid",
-				"l": "Raid à l'ancienne",
-				"g": "update_images/raid_actions.png",
-				"d": "Une fois un raid démarré un bouton vous permettra de spammer le lien vers la chaîne en cours de raid.<br><br>Aidez ainsi la chaîne à obtenir le Partenariat en évitant le \"referrer=raid\" dans l'URL pour les viewers qui accepteront d'utiliser le lien."
-			},
-			{
-				"i": "alert",
-				"l": "Comptes récents",
-				"g": "update_images/recent_account.png",
-				"d": "Nouvelle option pour indiquer lorsqu'un compte a été créé il y a moins d'une semaine."
-			},
-			{
-				"i": "show",
-				"l": "Anti backseat troll",
-				"g": "update_images/spoiler_1st.gif",
-				"d": "Vous prévoyez de jouer à un jeu pouvant être ruiné par un spoil bien placé d'un troll passant dans le coin ?<br><br>Masquez automatiquement le contenu des messages d'une personne écrivant pour la 1ère fois dans votre tchat.<br><br>Désactivez l'anti spoil sur cette personne à tout moment"
-			},
-			{
-				"i": "voicemod",
-				"l": "Voicemod",
-				"g": "update_images/voicemod.png",
-				"d": "Nouvelles actions de Trigger pour Voicemod pour activer le \"<strong>beep</strong>\" ou lancer la <strong>lecture d'un son</strong> de soundboard.<br><br>Activez ces actions depuis des commandes de tchat, des récompenses de points de chaîne, un follow, un sub, des bits, des hype chats,... Votre seule limite est votre imagination!"
-			},
-			{
-				"i": "placeholder",
-				"l": "Variables globales",
-				"d": "Créez des variables globales utilisables depuis les triggers.<br>Un évènement de trigger vous permet d'exécuter des actions lorsque l'une de ces valeurs est modifiée."
-			},
-			{
-				"i": "premium",
-				"l": "Fonctionnalités premium",
-				"d": "Ce qui devait arriver arriva!<br>D'une certaine façon Twitchat a coûté ~70.000€, ce que j'aurais gagné si j'avais pris un emploi au lieu de coder Twitchat à temps plein sans revenus pendant 1,5 ans. Les dons m'ont rapporté ~5.000€ et je remercie infiniment les personnes ayant contribué 🙏💖.<br>Mais j'ai espoir que ce travail porte plus ses fruits.<br>Pour avoir accès à 100% de Twitchat, soutenez-moi mensuellement sur Patreon!<br><br><i>Pssst! Vous aviez donné 10€ ou plus avant cette MàJ ?<br>Rendez-vous dans la section Premium pour une surprise</i> 😊"
-			},
-			{
-				"l": "Et plus encore...",
-				"d": "• Retrouvez tous les messages après avoir relancé twitchat<br>• Retrouvez votre historique de raids dans la section \"Qui stream\"<br>• Masquez les infos de stream des raids entrant<br>• Mettez en pause le chronomètre et le compte à rebours<br>• Rendez les @mentions cliquables et colorées<br>• Sélection de message depuis le Stream Deck+ améliorée<br>• Déplacez, redimensionnez ou tournez des sources OBS depuis les triggers<br>• Les commandes de tchat peuvent maintenant contenir des espaces<br>• De nouveaux placeholders globaux pour les triggers<br>• Réinitialisez l'historique des bonjours manuellement<br>• Des pastilles oranges vous indiquent les nouveautés<br>• Les dons rendus plus simple grâce à une intégration PayPal<br>• Exportez un screen annoté d'un message de tchat via un clic droit (impossible dans un dock OBS)<br>• Copiez/collez des actions d'un trigger à un autre<br>• ...et plein de petites améliorations et quelques correctifs"
+				"i": "donate",
+				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don unique ou un soutient mensuel sur Patreon m'aiderait énormément ❤️"
 			}
 		],
 		"forceRead": {

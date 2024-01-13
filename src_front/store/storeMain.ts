@@ -32,7 +32,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
-		latestUpdateIndex: 14,
+		latestUpdateIndex: 15,
 		theme:"dark",
 		initComplete: false,
 		devmode: false,

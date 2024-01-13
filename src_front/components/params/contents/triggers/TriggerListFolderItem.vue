@@ -34,7 +34,7 @@
 							v-model="element.color.value"
 							@change="$emit('change', $event)" />
 						<Icon name="broadcast" />
-						<div class="count">x{{ element.items.length }}</div>
+						<div class="count">x{{ element.items.filter(v=>v.type == 'trigger').length }}</div>
 					</div>
 				</template>
 				<template #right_actions>

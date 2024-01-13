@@ -1481,6 +1481,7 @@ export namespace TwitchatDataTypes {
 		g?:string;//image path for highlights
 		v?:string;//video path for highlights
 		d?:string;//Description for highlights
+		p?:boolean;//Premium?
 		a?:{
 			l:string;//label of the button
 			a?:string;//aria-label value of the button

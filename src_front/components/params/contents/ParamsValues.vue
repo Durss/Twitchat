@@ -80,16 +80,20 @@
 						</div>
 						<InfiniteList class="scrollableList"
 						:dataset="idToUsers[entry.value.id]!.filter(v=>v.hide !== true)"
-						:itemSize="50"
+						:itemSize="100"
 						:itemMargin="3"
 						lockScroll
 						v-slot="{ item } : {item:UserEntry}">
 							<div class="card-item userItem">
-								<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
-								<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
-								<ParamItem class="value" noBackground
-									:paramData="item.param"
-									@input="onChangeValue(entry, item)" />
+								<div class="infos">
+									<div class="head">
+										<img :src="item.user.avatarPath" class="avatar" v-if="item.user.avatarPath">
+										<a :href="'https://twitch.tv/'+item.user.login" class="login" target="_blank">{{ item.user.displayNameOriginal }}</a>
+									</div>
+									<ParamItem class="value" noBackground
+										:paramData="item.param"
+										@input="onChangeValue(entry, item)" />
+								</div>
 								<button class="deleteBt" @click="deleteUser(entry, item)"><Icon name="trash" theme="light" /></button>
 							</div>
 						</InfiniteList>
@@ -400,7 +404,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 			const channelId = this.$store.auth.twitch.user.id;
 			const ttUsers:UserEntry[] = users.map((u) => {
 				let value = (entry.value.users && entry.value.users[u.id])? entry.value.users![u.id] : "";
-				const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', value});
+				const param:TwitchatDataTypes.ParameterData<string> = reactive({type:'string', longText:true, value});
 				const user = this.$store.users.getUserFrom("twitch", channelId, u.id, u.login, u.display_name);
 				user.avatarPath = u.profile_image_url;
 				const res:UserEntry = { param, user, hide:false };
@@ -606,19 +610,38 @@ interface UserEntry {
 					flex-direction: row;
 					align-items: center;
 					gap: .5em;
-					height: 50px;
-					.login {
-						font-weight: bold;
+					height: 100px;
+					.infos {
+						display: flex;
+						flex-direction: column;
+						gap: .5em;
+						width: 100%;
 						flex-grow: 1;
-						text-overflow: ellipsis;
-						cursor: pointer;
-					}
-					.avatar {
-						height: 100%;
-						border-radius: 50%;
-					}
-					.value {
-						flex-basis: 100px;
+						.head {
+							display: flex;
+							flex-direction: row;
+							align-items: center;
+							gap: .5em;
+							.login {
+								font-weight: bold;
+								flex-grow: 1;
+								text-overflow: ellipsis;
+								cursor: pointer;
+							}
+							.avatar {
+								height: 100%;
+								border-radius: 50%;
+								width: 2em;
+							}
+						}
+						.value {
+							// flex-basis: 100px;
+							height: 50px;
+							:deep(textarea) {
+								height: 50px;
+								resize: none;
+							}
+						}
 					}
 					.deleteBt {
 						width: 1.5em;
@@ -627,6 +650,7 @@ interface UserEntry {
 						flex-basis: 1.5em;
 						margin-right: -.5em;
 						background-color: var(--color-alert);
+						height: 100px;
 						img {
 							height: 100%;
 						}
