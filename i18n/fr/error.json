@@ -73,6 +73,8 @@
 		"youtube_connect_expired": "Votre session Youtube a expiré. Veuillez vous reconnecter.",
 		"youtube_api_is_shit_unban": "L'API de YouTube étant terriblement mal conçue, vous ne pouvez plus débannir cet utilisateur depuis Twitchat. Rendez-vous sur votre chaîne YouTube pour le débannir ou demandez à l'un de vos modérateurs de le faire.",
 		"youtube_message_delete": "Une erreur a eu lieu lors de la suppression du message.",
+		"youtube_no_broadcast": "Le compte sélectionné n'est pas éligible au streaming live sur Youtube.\nAssurez-vous de vous êtres connecté·e avec le bon compte !",
+		"youtube_no_credits": "Tous les crédits d'API alloués par Youtube ont été dépensés :(.\nLe chat Youtube fonctionnera à nouveau demain.",
 		"rewards": {
 			"create_unknown":"Une erreur est survenue lors de la création de la récompense",
 			"edit_unknown":"Une erreur est survenue lors de l'édition de la récompense",

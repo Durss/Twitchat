@@ -73,6 +73,34 @@ export interface YoutubeLiveBroadcast {
 	}[];
 }
 
+export interface YoutubeFollowerResult {
+	etag: string;
+	pollingIntervalMillis: number;
+	pageInfo: PageInfo;
+	nextPageToken: string;
+	items: {
+		kind: string;
+		etag: string;
+		id: string;
+		subscriberSnippet: {
+			title: string,
+			description: string,
+			channelId: string,
+			thumbnails: {
+				default: {
+					url: string,
+				},
+				medium: {
+					url: string,
+				},
+				high: {
+					url: string,
+				}
+			}
+		}
+	}[]
+}
+
 export interface YoutubeMessages {
 	kind: string;
 	etag: string;

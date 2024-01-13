@@ -1,7 +1,7 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy, { type RequireField } from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
+import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeFollowerResult as YoutubeFollowerResult, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
 import { reactive } from "vue";
 import ApiController from "../ApiController";
 import Logger from "../Logger";
@@ -22,11 +22,14 @@ export default class YoutubeHelper {
 	private static _instance:YoutubeHelper;
 	private _token:YoutubeAuthToken|null = null;
 	private _currentLiveId:string = "";
-	private _pollTimeout:number = -1;
+	private _pollMessageTimeout:number = -1;
+	private _pollFollowersTimeout:number = -1;
+	private _pollSubscribersTimeout:number = -1;
 	private _refreshTimeout:number = -1;
 	private _creditsUsed:number = 0;
 	private _emotes:{[key:string]:string} = {};
 	private _uidToBanID:{[key:string]:string} = {};
+	private _lastFollowerList:{[key:string]:boolean} = {};
 	
 	constructor() {
 	
@@ -76,6 +79,8 @@ export default class YoutubeHelper {
 					//This will start automatic polling session
 					this.getCurrentLiveBroadcast();
 				}, 5000)
+				this.getLastestFollowers();
+				// this.getLastestSubscribers();
 			})
 		}
 	}
@@ -145,6 +150,7 @@ export default class YoutubeHelper {
 			//This will start automatic polling session
 			await this.loadUserInfoAndEmotes();
 			await this.getCurrentLiveBroadcast();
+			await this.getLastestFollowers();
 			return token;
 		}else {
 			this._token = null;
@@ -155,7 +161,7 @@ export default class YoutubeHelper {
 	}
 
 	/**
-	 * Get the current live broadcast
+	 * Get the current user info
 	 */
 	public async getUserInfo():Promise<void> {
 		this._creditsUsed ++;
@@ -191,7 +197,8 @@ export default class YoutubeHelper {
 	 * Get the current live broadcast
 	 */
 	public async getCurrentLiveBroadcast():Promise<YoutubeLiveBroadcast|null> {
-		clearTimeout(this._pollTimeout);
+		clearTimeout(this._pollMessageTimeout);
+		clearTimeout(this._pollMessageTimeout);
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveId});
 		let url = new URL("https://www.googleapis.com/youtube/v3/liveBroadcasts");
@@ -244,7 +251,7 @@ export default class YoutubeHelper {
 				this._currentLiveId = "";
 				this.availableLiveBroadcasts = [];
 				//Search again in 1min
-				this._pollTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 60000);
+				this._pollMessageTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 60000);
 			}
 			return json;
 		}else if(res.status == 401) {
@@ -254,8 +261,16 @@ export default class YoutubeHelper {
 				return this.getCurrentLiveBroadcast();
 			}
 		}else if(res.status == 403) {
-			Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
-			StoreProxy.main.alert("Youtube quota exceeded. Youtube chat cannot work until tomorrow :(");
+			try {
+				const json = await res.json();
+				if(json.error.errors[0].reason === "liveStreamingNotEnabled") {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
+					return null;
+				}
+			}catch(error){
+				Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+			}
+			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 			return null;
 		}
 		return null;
@@ -266,7 +281,7 @@ export default class YoutubeHelper {
 	 */
 	public async getMessages(page:string = ""):Promise<YoutubeMessages|null> {
 		this._creditsUsed ++;
-		clearTimeout(this._pollTimeout);
+		clearTimeout(this._pollMessageTimeout);
 		if(!this._currentLiveId) return null;
 		let url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
 		url.searchParams.append("part", "id");
@@ -350,7 +365,7 @@ export default class YoutubeHelper {
 				StoreProxy.chat.addMessage(data);
 			}
 
-			this._pollTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), Math.min(5000, json.pollingIntervalMillis * 2));
+			this._pollMessageTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), Math.min(5000, json.pollingIntervalMillis * 2));
 			
 			return json;
 		}else {
@@ -366,7 +381,7 @@ export default class YoutubeHelper {
 			if(res.status == 401) {
 				if(!await this.refreshToken()) return null;
 			}else if(res.status == 403) {
-				StoreProxy.main.alert("Youtube quota exceeded. Youtube chat cannot work until tomorrow :(");
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 				return null;
 			}
 		}
@@ -374,6 +389,115 @@ export default class YoutubeHelper {
 		//Re executing the same request with the same page token seems to work in such case.
 		await Utils.promisedTimeout(1000);
 		return await this.getMessages(page);
+	}
+
+	/**
+	 * Get latest followers of the channel
+	 */
+	public async getLastestFollowers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
+		this._creditsUsed ++;
+		clearTimeout(this._pollFollowersTimeout);
+		const url = new URL("https://www.googleapis.com/youtube/v3/subscriptions");
+		url.searchParams.append("part", "id");
+		url.searchParams.append("part", "subscriberSnippet");
+		url.searchParams.append("maxResults", "50");
+		url.searchParams.append("myRecentSubscribers", "true");
+		const res = await fetch(url, {method:"GET", headers:this.headers});
+		if(res.status == 200) {
+			const json:YoutubeFollowerResult = await res.json() as YoutubeFollowerResult;
+			const newFollowers:YoutubeFollowerResult["items"] = [];
+			const channelId = StoreProxy.auth.youtube.user.id;
+			//Parse all users.
+			//Send a chat message for every new followers.
+			json.items.forEach(v=> {
+				if(!isInit && this._lastFollowerList[v.id] !== true) {
+					newFollowers.push(v);
+					const user = StoreProxy.users.getUserFrom("youtube", channelId, v.subscriberSnippet.channelId, v.subscriberSnippet.title, v.subscriberSnippet.title);
+					user.avatarPath = v.subscriberSnippet.thumbnails.medium.url;
+					const message:TwitchatDataTypes.MessageFollowingData = {
+						channel_id:channelId,
+						platform:"youtube",
+						id:Utils.getUUID(),
+						date:Date.now(),
+						followed_at:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+						user,
+					};
+					StoreProxy.chat.addMessage(message);
+				}
+				this._lastFollowerList[v.id] = true;
+			});
+			//Check for new followers in a minute
+			this._pollFollowersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000);
+			return newFollowers;
+		}else {
+			//Something failed :(
+			Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+			if(res.status == 401) {
+				if(!await this.refreshToken()) return [];
+			}else if(res.status == 403) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+				return [];
+			}
+		}
+		//Youtube API has random downs (404, 503, ...)
+		//Re executing the same request with the same page token seems to work in such case.
+		await Utils.promisedTimeout(10000);
+		return await this.getLastestFollowers(isInit);
+	}
+
+	/**
+	 * Get latest subscribers of the channel
+	 */
+	public async getLastestSubscribers(isInit:boolean = true):Promise<YoutubeFollowerResult["items"]> {
+		this._creditsUsed ++;
+		clearTimeout(this._pollSubscribersTimeout);
+		const url = new URL("https://www.googleapis.com/youtube/v3/members");
+		url.searchParams.append("part", "snippet");
+		url.searchParams.append("maxResults", "50");
+		url.searchParams.append("mode", "updates");
+		const res = await fetch(url, {method:"GET", headers:this.headers});
+		if(res.status == 200) {
+			// const json:YoutubeFollowerResult = await res.json() as YoutubeFollowerResult;
+			// const newFollowers:YoutubeFollowerResult["items"] = [];
+			// const channelId = StoreProxy.auth.youtube.user.id;
+			// //Parse all users.
+			// //Send a chat message for every new followers.
+			// json.items.forEach(v=> {
+			// 	if(!isInit && this._lastFollowerList[v.id] !== true) {
+			// 		newFollowers.push(v);
+			// 		const user = StoreProxy.users.getUserFrom("youtube", channelId, v.subscriberSnippet.channelId, v.subscriberSnippet.title, v.subscriberSnippet.title);
+			// 		user.avatarPath = v.subscriberSnippet.thumbnails.medium.url;
+			// 		const message:TwitchatDataTypes.MessageFollowingData = {
+			// 			channel_id:channelId,
+			// 			platform:"youtube",
+			// 			id:Utils.getUUID(),
+			// 			date:Date.now(),
+			// 			followed_at:Date.now(),
+			// 			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+			// 			user,
+			// 		};
+			// 		StoreProxy.chat.addMessage(message);
+			// 	}
+			// 	this._lastFollowerList[v.id] = true;
+			// });
+			//Check for new followers in a minute
+			this._pollSubscribersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000 * 5);
+			return [];
+		}else {
+			//Something failed :(
+			Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+			if(res.status == 401) {
+				if(!await this.refreshToken()) return [];
+			}else if(res.status == 403) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+				return [];
+			}
+		}
+		//Youtube API has random downs (404, 503, ...)
+		//Re executing the same request with the same page token seems to work in such case.
+		await Utils.promisedTimeout(10000);
+		return await this.getLastestFollowers(isInit);
 	}
 	
 	/**
@@ -384,7 +508,9 @@ export default class YoutubeHelper {
 		this.connected = false;
 		this._currentLiveId = "";
 		this.availableLiveBroadcasts = [];
-		clearTimeout(this._pollTimeout);
+		clearTimeout(this._pollMessageTimeout);
+		clearTimeout(this._pollFollowersTimeout);
+		clearTimeout(this._pollSubscribersTimeout);
 		clearTimeout(this._refreshTimeout);
 		DataStore.remove(DataStore.YOUTUBE_AUTH_TOKEN);
 	}

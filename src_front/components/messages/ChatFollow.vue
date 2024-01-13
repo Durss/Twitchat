@@ -4,6 +4,8 @@
 		
 		<Icon name="follow" alt="follow" class="icon" />
 
+		<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.platform_youtube')" />
+
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>
 				<a class="userlink" @click.stop="openUserCard()">{{messageData.user.displayName}}</a>
