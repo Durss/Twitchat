@@ -2536,7 +2536,7 @@ export default class TriggerActionHandler {
 					 * If the placeholder requests for currently playing music track
 					 */
 					}else if(pointer.indexOf("__current_track__") == 0 && SpotifyHelper.instance.currentTrack) {
-						const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys | "spotify_is_playing";
+						const pointerLocal = pointer.replace('__current_track__.', '') as TwitchatDataTypes.MusicTrackDataKeys | "spotify_is_playing" | "playlist.url" | "playlist.title" | "playlist.cover";
 						switch(pointerLocal) {
 							case "title": value = SpotifyHelper.instance.currentTrack.title; break;
 							case "artist": value = SpotifyHelper.instance.currentTrack.artist; break;
@@ -2544,6 +2544,9 @@ export default class TriggerActionHandler {
 							case "cover": value = SpotifyHelper.instance.currentTrack.cover; break;
 							case "url": value = SpotifyHelper.instance.currentTrack.url; break;
 							case "spotify_is_playing": value = SpotifyHelper.instance.isPlaying? "true" : "false"; break;
+							case "playlist.title": value = SpotifyHelper.instance.currentPlaylist?.name || ""; break;
+							case "playlist.url": value = SpotifyHelper.instance.currentPlaylist?.external_urls.spotify || ""; break;
+							case "playlist.cover": value = SpotifyHelper.instance.currentPlaylist?.images[0].url || ""; break;
 						}
 	
 					/**

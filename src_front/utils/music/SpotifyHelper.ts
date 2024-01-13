@@ -9,7 +9,7 @@ import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
 import ApiController from "../ApiController";
-import type { SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
+import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
 
 /**
 * Created : 23/05/2022 
@@ -18,6 +18,7 @@ export default class SpotifyHelper {
 	
 	public connected:boolean = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
+	public currentPlaylist:PlaylistCachedIdItem|null = null;
 	
 	private static _instance:SpotifyHelper;
 	private _isPlaying = false;
@@ -29,6 +30,7 @@ export default class SpotifyHelper {
 	private _clientID = "";
 	private _clientSecret = "";
 	private _playlistsCache:SearchPlaylistItem[] = [];
+	private _playlistsIdCache:{[key:string]:PlaylistCachedIdItem} = {};
 
 	constructor() {
 		this.initialize();
@@ -405,6 +407,13 @@ export default class SpotifyHelper {
 			if(episode) json = episode;
 		}
 
+		if(json.context && json.context?.type == "playlist") {
+			const playlist = await this.getPlaylistById(json.context.uri.split(":").pop() || "");
+			this.currentPlaylist = playlist;
+		}else{
+			this.currentPlaylist = null;
+		}
+
 		if(json.item) {
 			this.currentTrack = {
 				title:json.item.name,
@@ -475,6 +484,30 @@ export default class SpotifyHelper {
 		}else{
 			this._getTrackTimeout = setTimeout(()=> { this.getCurrentTrack(); }, 5000);
 		}
+	}
+
+	/**
+	 * Gets a playlist by its name
+	 * 
+	 * @returns track info
+	 */
+	public async getPlaylistById(id:string):Promise<PlaylistCachedIdItem|null> {
+		if(this._playlistsIdCache[id]) return this._playlistsIdCache[id];
+		const options = {
+
+			headers:this._headers
+		}
+		let json:PlaylistCachedIdItem;
+		const url = new URL("https://api.spotify.com/v1/playlists/"+id);
+		url.searchParams.set("fields", "name,external_urls,uri,images");
+		const res = await fetch(url, options);
+		try {
+			json = await res.json();
+		}catch(error) {
+			return null;
+		}
+		this._playlistsIdCache[id] = json;
+		return json;
 	}
 
 	/**

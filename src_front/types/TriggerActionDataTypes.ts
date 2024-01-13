@@ -1532,6 +1532,9 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 				{category:"music", tag:"CURRENT_TRACK_ALBUM", descKey:'triggers.placeholders.track_album', pointer:"__current_track__.album", numberParsable:false, isUserID:false, globalTag:true, example:"Fake Album"},
 				{category:"music", tag:"CURRENT_TRACK_COVER", descKey:'triggers.placeholders.track_cover', pointer:"__current_track__.cover", numberParsable:false, isUserID:false, globalTag:true, example:StoreProxy.image("img/musicExampleCover.jpg")},
 				{category:"music", tag:"CURRENT_TRACK_URL", descKey:'triggers.placeholders.track_url', pointer:"__current_track__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"},
+				{category:"music", tag:"CURRENT_PLAYLIST_TITLE", descKey:'triggers.placeholders.playlist_title', pointer:"__current_track__.playlist.title", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"},
+				{category:"music", tag:"CURRENT_PLAYLIST_URL", descKey:'triggers.placeholders.playlist_url', pointer:"__current_track__.playlist.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"},
+				{category:"music", tag:"CURRENT_PLAYLIST_COVER", descKey:'triggers.placeholders.playlist_cover', pointer:"__current_track__.playlist.cover", numberParsable:false, isUserID:false, globalTag:true, example:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=deddb27b6b6148a6"},
 				{category:"music", tag:"SPOTIFY_IS_PLAYING", descKey:'triggers.placeholders.spotify_is_playing', pointer:"__current_track__.spotify_is_playing", numberParsable:false, isUserID:false, globalTag:true, example:"true", values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]},
 			);
 		}

@@ -16,6 +16,9 @@ export interface SpotifyTrack {
 	timestamp: number;
 	context?: {
 		external_urls:ExternalUrls[];
+		type:"artist"|"playlist";
+		uri:string
+		href:string
 	};
 	progress_ms: number;
 	item: Item;
@@ -164,6 +167,19 @@ export interface SearchTrackItem {
 	preview_url: string;
 	track_number: number;
 	type: string;
+	uri: string;
+}
+
+export interface PlaylistCachedIdItem {
+	external_urls: {
+		spotify:string;
+	};
+	images:  {
+		url: string;
+		height: number;
+		width: number;
+	}[];
+	name: string;
 	uri: string;
 }
 
