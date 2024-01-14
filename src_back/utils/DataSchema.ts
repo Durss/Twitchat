@@ -590,8 +590,8 @@ import Ajv from "ajv";
 									properties: {
 										id: {type:"string", maxLength:50},
 										enable: {type:"boolean"},
-										slotIndex: {enum: ["1","2","3"]},
-										slotType: {enum: ["component", "overlay", "panel"]},
+										slotIndex: {enum: ["","1","2","3"]},
+										slotType: {enum: ["","component", "overlay", "panel"]},
 									}
 								},
 							}

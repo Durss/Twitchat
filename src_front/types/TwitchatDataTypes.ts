@@ -1538,7 +1538,7 @@ export namespace TwitchatDataTypes {
 		hypeChats:{uid:string, login:string, amount:number, currency:string}[];
 		rewards:{uid:string, login:string, reward:{name:string, id:string, icon:string}}[];
 		shoutouts:{uid:string, login:string, received:boolean, viewers:number}[];
-		hypeTrains:{level:number, percent:number}[];
+		hypeTrains:{level:number, percent:number, conductorBits?:{uid:string, login:string, bits:number}, conductorSubs?:{uid:string, login:string, subs:number}}[];
 		polls:{title:string, votes:number, choices:{title:string, votes:number, win:boolean}[]}[];
 		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
 		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
@@ -1648,6 +1648,7 @@ export namespace TwitchatDataTypes {
 		sortByAmounts?:boolean;
 		sortBySubTypes?:boolean;
 		showChatters?:boolean;
+		showTrainConductors?:boolean;
 		uniqueUsers?:boolean;
 		text?:string,
 		filterRewards?:boolean,

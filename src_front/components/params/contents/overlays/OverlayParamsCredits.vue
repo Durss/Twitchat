@@ -102,6 +102,11 @@
 									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
+
+								<template v-if="element.slotType == 'hypetrains'">
+									<ParamItem :paramData="param_showConductors[element.id]" v-model="element.showTrainConductors"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								</template>
+
 								<ParamItem :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
@@ -253,6 +258,7 @@ export default class OverlayParamsCredits extends Vue {
 	public param_uniqueUsers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_normalCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_pinnedCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showConductors:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -504,6 +510,10 @@ export default class OverlayParamsCredits extends Vue {
 		if(slotDef.id == "text") {
 			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
 			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
+		}else
+
+		if(slotDef.id == "hypetrains") {
+			this.param_showConductors[id]	= {type:'boolean', value:true, icon:"user", labelKey:'overlay.credits.param_showConductors'};
 		}else
 
 		if(slotDef.id == "subs") {

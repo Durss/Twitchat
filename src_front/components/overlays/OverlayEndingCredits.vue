@@ -51,6 +51,16 @@
 								<strong>{{ entry.percent }}</strong>
 							</template>
 						</i18n-t>
+						<template v-if="item.params.showTrainConductors && (entry.conductorBits || entry.conductorSubs)">
+							<div v-if="entry.conductorSubs" class="conductor">
+								<span>{{entry.conductorSubs.login}}</span>
+								<span>x{{entry.conductorSubs.subs}} <Icon class="badge" name="sub" /></span>
+							</div>
+							<div v-if="entry.conductorBits" class="conductor">
+								<span>{{entry.conductorBits.login}}</span>
+								<span>x{{entry.conductorBits.bits}} <Icon class="badge" name="bits" /></span>
+							</div>
+						</template>
 					</div>
 					
 					<div v-if="item.params.slotType == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.params.maxEntries)" class="item">
@@ -782,6 +792,24 @@ interface SlotItem {
 				.item {
 					flex-wrap: wrap;
 					width: fit-content;
+				}
+			}
+		}
+
+		&.hypetrains {
+			.list {
+				.item {
+					gap: .25em;
+					display: flex;
+					align-items: center;
+					flex-direction: column;
+					.conductor {
+						gap: 1em;
+						display: flex;
+						align-items: center;
+						flex-direction: row;
+						font-size: .8em;
+					}
 				}
 			}
 		}

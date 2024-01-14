@@ -136,6 +136,7 @@
 			"premium_category":"Cette catégorie ne s'affichera PAS lorsque vous serez en live",
 			"param_normalCheers":"Afficher les cheers normaux",
 			"param_pinnedCheers":"Afficher les cheers épinglés",
+			"param_showConductors":"Afficher les conducteur·ices du train",
 			"delete_confirm_title":"Supprimer cette categorie ?",
 			"no_overlay":"Overlay non configuré ou masqué",
 			"testBt":"Lancer un faux générique",

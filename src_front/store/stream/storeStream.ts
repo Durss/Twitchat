@@ -527,6 +527,7 @@ export const storeStream = defineStore('stream', {
 				
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+						if(m.user.channelInfo[channelId].is_banned) continue;
 						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1};
 						if(m.is_resub) result.resubs.push(sub);
 						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
@@ -535,30 +536,35 @@ export const storeStream = defineStore('stream', {
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
+						if(m.user.channelInfo[channelId].is_banned) continue;
 						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits, pinned:m.pinned && m.pinDuration_ms > 0};
 						result.bits.push(cheer);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
+						if(m.message.user.channelInfo[channelId].is_banned) continue;
 						const hypeChat:TwitchatDataTypes.StreamSummaryData['hypeChats'][0] = {uid:m.message.user.id, login:m.message.user.displayNameOriginal, amount:m.message.twitch_hypeChat!.amount, currency:m.message.twitch_hypeChat!.currency};
 						result.hypeChats.push(hypeChat);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
+						if(m.user.channelInfo[channelId].is_banned) continue;
 						const follow:TwitchatDataTypes.StreamSummaryData['follows'][0] = {uid:m.user.id, login:m.user.displayNameOriginal};
 						result.follows.push(follow);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
+						if(m.user.channelInfo[channelId].is_banned) continue;
 						const raid:TwitchatDataTypes.StreamSummaryData['raids'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
 						result.raids.push(raid);
 						break;
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
+						if(m.user.channelInfo[channelId].is_banned) continue;
 						const reward:TwitchatDataTypes.StreamSummaryData['rewards'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
 						result.rewards.push(reward);
 						break;
@@ -571,7 +577,28 @@ export const storeStream = defineStore('stream', {
 					}
 					
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
+						let bits = 0;
+						let subs = 0;
+						if(m.train.conductor_bits) {
+							m.train.conductor_bits.contributions.forEach(v=> bits += v.bits || 0);
+						}
+						if(m.train.conductor_subs) {
+							m.train.conductor_subs.contributions.forEach(v=> {
+								subs += v.sub_t1 || 0;
+								subs += v.sub_t2 || 0;
+								subs += v.sub_t3 || 0;
+								subs += v.subgift_t1 || 0;
+								subs += v.subgift_t2 || 0;
+								subs += v.subgift_t3 || 0;
+							});
+						}
 						const train:TwitchatDataTypes.StreamSummaryData['hypeTrains'][0] = {level:m.train.level, percent:m.train.currentValue};
+						if(m.train.conductor_bits) {
+							train.conductorBits = {uid:m.train.conductor_bits.user.id, login:m.train.conductor_bits.user.displayNameOriginal, bits};
+						}
+						if(m.train.conductor_subs) {
+							train.conductorSubs = {uid:m.train.conductor_subs.user.id, login:m.train.conductor_subs.user.displayNameOriginal, subs};
+						}
 						result.hypeTrains.push(train);
 						break;
 					}
@@ -616,6 +643,7 @@ export const storeStream = defineStore('stream', {
 						}
 						
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+							if(chanInfo.is_banned) continue;
 							chatters[m.user.id].count ++;
 						}else
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.BAN) {

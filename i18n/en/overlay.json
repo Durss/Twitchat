@@ -136,6 +136,7 @@
 			"premium_category":"This category will NOT show up when your stream is live",
 			"param_normalCheers":"Show normal cheers",
 			"param_pinnedCheers":"Show pinned cheers",
+			"param_showConductors":"Show train conductors",
 			"delete_confirm_title":"Delete category?",
 			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Start fake credits",
