@@ -1,6 +1,8 @@
 {
 	"global": {
 		"lang": "en-US",
+		"lang_label": "English",
+		"lang_flag": "us",
 		"beta": "beta",
 		"back": "back",
 		"yes": "yes",

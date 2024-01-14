@@ -1,15 +1,9 @@
 <template>
 	<form class="applangselector">
-		<div class="row">
-			<input type="radio" name="language" id="lang_fr" value="fr" v-model="$i18n.locale">
-			<label for="lang_fr">
-				<CountryFlag country="fr" class="flag" /><span class="text">Français</span>
-			</label>
-		</div>
-		<div class="row">
-			<input type="radio" name="language" id="lang_en" value="en" v-model="$i18n.locale">
-			<label for="lang_en">
-				<CountryFlag country="us" class="flag" /><span class="text">English</span>
+		<div class="row" v-for="lang in $i18n.availableLocales">
+			<input type="radio" name="language" :id="'lang_'+lang" :value="lang" v-model="$i18n.locale">
+			<label :for="'lang_'+lang">
+				<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" /><span class="text">{{ $t('global.lang_label', lang)}}</span>
 			</label>
 		</div>
 	</form>

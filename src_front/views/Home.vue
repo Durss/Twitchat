@@ -5,8 +5,7 @@
 		<div class="aboveTheFold">
 			<div class="lang">
 				<select v-model="$i18n.locale">
-					<option value="fr">Français</option>
-					<option value="en">English</option>
+					<option :value="lang" v-for="lang in $i18n.availableLocales">{{ $t('global.lang_label', lang)}}</option>
 				</select>
 			</div>
 

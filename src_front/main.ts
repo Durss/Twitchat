@@ -7,18 +7,19 @@ import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
 import { createApp, type DirectiveBinding, type IStore, type VNode } from 'vue';
+import CountryFlag from 'vue-country-flag-next';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
-import CountryFlag from 'vue-country-flag-next';
 // import 'vue-country-flag-next/dist/CountryFlag.css';
 import App from './App.vue';
 import Icon from './components/Icon.vue';
 import './less/index.less';
 import router from './router';
 import { storeAccessibility } from './store/accessibility/storeAccessibility';
+import { storeAccount } from './store/account/storeAccount';
 import { storeAdmin } from './store/admin/storeAdmin';
 import { storeAuth } from './store/auth/storeAuth';
 import { storeAutomod } from './store/automod/storeAutomod';
@@ -29,6 +30,7 @@ import { storeCounters } from './store/counters/storeCounters';
 import DataStore from './store/DataStore';
 import { storeDebug } from './store/debug/storeDebug';
 import { storeEmergency } from './store/emergency/storeEmergency';
+import { storeExtension } from './store/extension/storeExtension';
 import { storeHeat } from './store/heat/storeHeat';
 import { storeMusic } from './store/music/storeMusic';
 import { storeOBS } from './store/obs/storeOBS';
@@ -50,8 +52,6 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
-import { storeAccount } from './store/account/storeAccount';
-import { storeExtension } from './store/extension/storeExtension';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -353,19 +353,23 @@ function buildApp() {
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 	
-	app.mount('#app')
+	app.mount('#app');
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
+		//Reload labels on CTRL+Shift+L
 		if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
 			StoreProxy.main.reloadLabels();
 		}
 		
+		//Toggle light/dark mode on CTRL+Shift+K
 		if(e.code == "KeyK" && e.ctrlKey && e.shiftKey) {
 			StoreProxy.main.toggleTheme();
 		}
-		
+
+		//Walk through available locales on CTRL+Shift+M
 		if(e.code == "Semicolon" && e.ctrlKey && e.shiftKey) {
-			i18n.global.locale = i18n.global.locale == "fr"? "en" : "fr";
+			const locales = i18n.global.availableLocales;
+			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
 			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
 		}
 	})
