@@ -196,12 +196,10 @@ export const storeAuth = defineStore('auth', {
 				sExtension.init();
 				sStream.loadStreamInfo("twitch", this.twitch.user.id);
 
-				if(Config.instance.AD_API_AVAILABLE) {
-					//Loads state of current or incoming ads
-					TwitchUtils.getAdSchedule();
-					//Refresh status every 10minutes
-					// setInterval(()=>TwitchUtils.getAdSchedule(), 1 * 60000);
-				}
+				//Loads state of current or incoming ads
+				TwitchUtils.getAdSchedule();
+				//Refresh status every 10minutes
+				// setInterval(()=>TwitchUtils.getAdSchedule(), 1 * 60000);
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					//Refresh followers count and latest follower regularly

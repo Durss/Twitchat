@@ -6,11 +6,9 @@
 		</div>
 
 		<div class="hoverActions" v-if="!expand">
-			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }">
+			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
+			v-newflag="{id:'messagefilters', date:Math.max(...Object.values(typeToNew))}">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
-			</button>
-			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="{content:$t('global.tooltips.column_delete'), placement:'left' }">
-				<img src="@/assets/icons/cross.svg" alt="delete column" class="icon">
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
 			v-if="$store.params.chatColumnsConfig.length < $config.MAX_CHAT_COLUMNS">
@@ -23,6 +21,9 @@
 			<button class="addBt" @click="moveColumn(1)" v-tooltip="{content:$t('global.tooltips.column_move'), placement:'left' }"
 			v-if="config.order < $store.params.chatColumnsConfig.length-1">
 				<img src="@/assets/icons/right.svg" alt="add column" class="icon">
+			</button>
+			<button class="deleteBt" @click="deleteColumn()" v-if="canDelete" v-tooltip="{content:$t('global.tooltips.column_delete'), placement:'left' }">
+				<img src="@/assets/icons/trash.svg" alt="delete column" class="icon">
 			</button>
 		</div>
 
@@ -50,7 +51,8 @@
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
-					:key="'filter_'+f.storage">
+					:key="'filter_'+f.storage"
+					v-newflag="typeToNew[f.storage!]? {date:typeToNew[f.storage!], id:'messagefilters_'+f.storage} : undefined">
 						<ParamItem :paramData="f" autoFade
 						@change="saveData()"
 						@mouseleave="mouseLeaveItem"
@@ -170,10 +172,11 @@ export default class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public showCTA:boolean = false;
-	public typeToLabel!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
-	public typeToIcon!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string};
-	public typeToScopes!:{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString[]};
-	public filters:TwitchatDataTypes.ParameterData<boolean>[] = [];
+	public typeToNew!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:number}>;
+	public typeToLabel!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string}>;
+	public typeToIcon!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string}>;
+	public typeToScopes!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString[]}>;
+	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public mouseOverToggle:boolean = false;
@@ -228,7 +231,11 @@ export default class MessageListFilter extends Vue {
 			}
 		}
 
-		//@ts-ignore
+		this.typeToNew = {};
+		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]						= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
+		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
+		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]					= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
+
 		this.typeToLabel = {};
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "chat.filters.message_types.twitchat_ad";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN]									= "chat.filters.message_types.ban";
@@ -260,7 +267,6 @@ export default class MessageListFilter extends Vue {
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
 		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]	= "chat.filters.message_types.community_challenge_contribution";
 		
-		//@ts-ignore
 		this.typeToIcon = {};
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "twitchat";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN]									= "ban";
@@ -292,7 +298,6 @@ export default class MessageListFilter extends Vue {
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost";
 		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints";
 		
-		//@ts-ignore
 		this.typeToScopes = {};
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN]								= [TwitchScopes.MODERATION_EVENTS];
 		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= [TwitchScopes.MODERATION_EVENTS];
@@ -337,15 +342,11 @@ export default class MessageListFilter extends Vue {
 			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
 		];
 
-		if(!Config.instance.AD_API_AVAILABLE) {
-			sortedFilters = sortedFilters.filter(v=> v != TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT);
-		}
-
 		this.filters = [];
 		for (let i = 0; i < sortedFilters.length; i++) {
 			const f = sortedFilters[i];
 			const children:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
-			const paramData:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",
+			const paramData:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]> = {type:"boolean",
 								value:this.config.filters[f],
 								labelKey:this.typeToLabel[f] ?? f,
 								icon:this.typeToIcon[f],
@@ -515,7 +516,7 @@ export default class MessageListFilter extends Vue {
 	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
-		this.missingScope = this.typeToScopes[type] && !TwitchUtils.hasScopes(this.typeToScopes[type]);
+		this.missingScope = this.typeToScopes[type] != undefined && !TwitchUtils.hasScopes(this.typeToScopes[type]!);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.messagesCache[type];
@@ -836,11 +837,10 @@ export default class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
-				if(Config.instance.AD_API_AVAILABLE) {
-					ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT );
-				}
 				ids.push( TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION );
@@ -1113,6 +1113,7 @@ export default class MessageListFilter extends Vue {
 		border-bottom-left-radius: .25em;
 		height: fit-content;
 		pointer-events: painted;
+		overflow: hidden;
 		button {
 			display: flex;
 			align-items: center;
@@ -1129,6 +1130,13 @@ export default class MessageListFilter extends Vue {
 			}
 			&:hover {
 				background-color: var(--color-primary-light);
+			}
+			&.deleteBt {
+				background-color: var(--color-alert);
+				border-radius: 0;
+				&:hover {
+					background-color: var(--color-alert-light);
+				}
 			}
 		}
 	}

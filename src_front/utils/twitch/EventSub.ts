@@ -231,7 +231,7 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN, "1");
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT, "1");
 				}
-				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ]) && Config.instance.AD_API_AVAILABLE) {
+				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 				}
 				

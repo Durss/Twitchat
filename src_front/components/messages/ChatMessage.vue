@@ -602,7 +602,7 @@ export default class ChatMessage extends AbstractChatMessage {
 			this.highlightOverlayAvailable = res;
 		});
 		if(!this.highlightOverlayAvailable) {
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "highlight");
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, "chathighlight");
 			return;
 		}
 		this.clipHighlightLoading = true;
