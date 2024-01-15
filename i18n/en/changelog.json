@@ -1,11 +1,86 @@
 {
 	"changelog": {
-		"title": "🎉 Latest updates 🎉",
-		"closeBt": "Close",
-		"closeBt_aria": "Remove message",
+		"version": "Version {VERSION}",
+		"title": "Nouveautés",
 		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
 		"heat_details_link": "Heat",
 		"highlights": [
+			{
+				"p": true,
+				"i": "youtube",
+				"l": "Youtube Integration",
+				"d": "Bring together your Twitch and Youtube chats in one place!\n\nDue to the catastrophic and absurdly limited nature of the Youtube API, this feature is currently reserved for premium members to ensure minimal service."
+			},
+			{
+				"i": "credits",
+				"l": "End Credits",
+				"d": "Display end credits at the end of your stream.\n\nComes with tons of exclusive options you won't find anywhere else!"
+			},
+			{
+				"i": "bits",
+				"l": "Bits Wall",
+				"d": "Make received bits rain on your stream!\n\nFeatures 2 never-before-seen functionalities:\n<ul><li>Allow viewers to 'break' bits by clicking on them with the {HEAT} extension</li><li>Enable advanced rendering distorting the stream image behind crystals using the OBS plugin {SHADERTASTIC}</li></ul>"
+			},
+			{
+				"i": "ad",
+				"l": "Ad Break!",
+				"d": "Get alerted when an ad is approaching or currently playing.\n\nSkip the ad with the snooze button.\nAutomate actions when an ad approaches, starts, or ends using Triggers.\nShow the approaching ad or remaining duration of a playing ad with the new dedicated overlay."
+			},
+			{
+				"i": "distort",
+				"l": "Interactive Distortions",
+				"d": "Allow your viewers to temporarily distort your stream by clicking on it through the {HEAT} extension using the new interactive distortions overlay.\nOr simulate clicks from Triggers."
+			},
+			{
+				"i": "notification",
+				"l": "Twitchat Notifications",
+				"d": "Display messages that only you can see.\n\nEither through Triggers or via the new dedicated Twitchat API.\nIdeal for notifying yourself of various personalized events if you are a developer."
+			},
+			{
+				"p": true,
+				"i": "translate",
+				"l": "Automatic Translation",
+				"d": "Automatically translate the 1st message from a person on your channel if it is not written in your language.\n\nA new option in the right-click menu of a message also allows you to translate it.\n\nThis option, costing me money, is limited to premium members."
+			},
+			{
+				"i": "channelPoints",
+				"l": "Manage Your Rewards",
+				"d": "Manage your channel points rewards directly from Twitchat!\nChange their price, enable/disable them, hide them, or rename them with just one click.\n\nAutomate their creation or modification from triggers for even more possibilities!"
+			},
+			{
+				"i": "extension",
+				"l": "Manage Your Twitch Extensions",
+				"d": "Manage your Twitch extensions directly from Twitchat!\n\nManually enable or disable them from the new dedicated menu, or automatically from triggers, for example, based on your current OBS scene, stream category, channel points rewards, subs, or anything else you can imagine!"
+			},
+			{
+				"i": "mod",
+				"l": "Moderation",
+				"d": "Check the history of a viewer on all the channels you moderate in a few clicks.\n\nThe user profile window can now offer you a button for each of the channels you moderate to easily check their history on those channels."
+			},
+			{
+				"i": "spotify",
+				"l": "Song Request",
+				"d": "Two new chat notifications will tell you when a song is added to your Spotify playlist or if an addition fails with the reason for the failure.\n\nA new option also allows you to accept only songs that are less than a certain duration."
+			},
+			{
+				"i": "ticket",
+				"l": "Dynamic Raffles",
+				"d": "Launch raffles from the entries of a Value.\n\nThis can allow you to create multiple raffle lists in parallel using the Triggers system, then draw a raffle from their entries at any time."
+			},
+			{
+				"i": "params",
+				"l": "Custom Menu",
+				"d": "Don't be overwhelmed by all the Twitchat options by customizing the settings menu to display only the sections of your choice, in the order of your choice."
+			},
+			{
+				"i": "broadcast",
+				"l": "Triggers",
+				"d": "<ul><li>Organize your triggers into folders and subfolders</li><li>6 new trigger events:<ul><li>Approaching an ad</li><li>Start of an ad</li><li>End of an ad</li><li>Failure to add a song to Spotify</li><li>Purchase of any channel points reward</li><li>Click heat anywhere on the screen</li></ul></li><li>4 new trigger actions:<ul><li>Create/disable/enable/delete a channel points reward</li><li>Enable/disable a Twitch extension</li><li>Show a custom notification</li><li>Simulate a click on a distortion overlay</li></ul></li><li>3 new OBS actions:<ul><li>Stop a media</li><li>Next media</li><li>Previous media</li></ul></li><li>1 new Counter & Value action:<ul><li>Edit the value for everyone present in the chat</li></ul></li><li>21 new placeholders:<ul><li>{NOW} current date</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} for Spotify action</li><li>{SEARCH_QUERY} for Spotify action</li></ul></li></ul>"
+			},
+			{
+				"i": "donate",
+				"d": "Twitchat has been my main activity for over a year and a half now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation or monthly support on Patreon would help me a lot ❤️"
+			}
 		],
 		"forceRead": {
 			"title": "I WANT YOU\r\nTO READ THIS",

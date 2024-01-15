@@ -121,10 +121,11 @@ export default class LabelsEditor extends Vue {
 			for (const key in obj) {
 				const currentPath:string[] = [...parentPath, key];
 
-				if (Array.isArray(obj[key])) {
-					console.log("ignore");
-					continue;
-				} else if (typeof obj[key] === 'object' && obj[key] !== null) {
+				// if (Array.isArray(obj[key])) {
+				// 	console.log("ignore");
+				// 	continue;
+				// } else
+				if (typeof obj[key] === 'object' && obj[key] !== null) {
 					paths = paths.concat(buildPaths(obj[key], currentPath));
 				} else {
 					paths.push(currentPath);

@@ -1,12 +1,7 @@
 {
 	"changelog": {
-		"title": "🎉 Dernières mises à jour 🎉",
-		"closeBt": "Masquer",
-		"closeBt_aria": "Fermer le message",
 		"version": "Version {VERSION}",
-		"major_title": "Nouveautés",
-		"minor_title": "Autres nouveautés",
-		"fixes_title": "Correctifs",
+		"title": "Nouveautés",
 		"heat_details": "{LINK} est une extensions Twitch permettant à vos viewers de cliquer sur votre stream.Twitchat vous simplifie désormais grandement son usage.",
 		"heat_details_link": "Heat",
 		"highlights": [
@@ -95,16 +90,6 @@
 			"fuBt":"menfou 🤪"
 		},
 		"major": [
-			{
-				"i": "icon",
-				"a": {
-					"a": "alt text",
-					"l": "button label",
-					"page": "pageID",
-					"param": "param.id"
-				},
-				"l": "description"
-			}
 		],
 		"minor": [
 		],

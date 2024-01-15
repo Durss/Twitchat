@@ -907,14 +907,13 @@ export namespace TwitchatDataTypes {
 	export const TwitchatAdTypes = {
 		NONE:-1,
 		DONATE:1,
-		UPDATES:2,
-		TIP_AND_TRICK:3,
-		DISCORD:4,
-		TWITCHAT_AD_WARNING:5,
-		TWITCHAT_SPONSOR_PUBLIC_PROMPT:6,
-		DONATE_REMINDER:7,
-		UPDATE_REMINDER:8,
-		AD_BREAK_SCOPE_REQUEST:9,
+		TIP_AND_TRICK:2,
+		DISCORD:3,
+		TWITCHAT_AD_WARNING:4,
+		TWITCHAT_SPONSOR_PUBLIC_PROMPT:5,
+		DONATE_REMINDER:6,
+		UPDATE_REMINDER:7,
+		AD_BREAK_SCOPE_REQUEST:8,
 	} as const;
 	export type TwitchatAdStringTypes = typeof TwitchatAdTypes[keyof typeof TwitchatAdTypes]|null;
 

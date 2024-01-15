@@ -21,18 +21,6 @@
 				</div>
 			</div>
 	
-			<div v-else-if="isUpdate" class="card-item primary updates">
-				<div class="header">
-					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
-					<div class="title">{{ $t('changelog.title') }}</div>
-				</div>
-
-				<ChatChangelog class="content"
-					@showModal="(v:string)=> $emit('showModal', v)"
-					@close="(v:any)=> deleteMessage()"
-				/>
-			</div>
-	
 			<div v-if="isTip" class="card-item primary tip">
 				<div class="header">
 					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
@@ -167,7 +155,6 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import CloseButton from '../CloseButton.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import ChatChangelog from './ChatChangelog.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
@@ -177,7 +164,6 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 		Splitter,
 		CloseButton,
 		ToggleBlock,
-		ChatChangelog,
 		ChatTipAndTrickAd,
 	},
 	emits:["showModal", "onRead"]
@@ -200,7 +186,6 @@ export default class ChatAd extends Vue {
 
 	public get isDonate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE; }
 	public get isDonateReminder():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER; }
-	public get isUpdate():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.UPDATES; }
 	public get isTip():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK; }
 	public get isDiscord():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.DISCORD; }
 	public get isAdWarning():boolean { return this.messageData.adType == TwitchatDataTypes.TwitchatAdTypes.TWITCHAT_AD_WARNING; }
@@ -247,11 +232,6 @@ export default class ChatAd extends Vue {
 	public openParamPage(page:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void { this.$store.params.openParamsPage(page, subContent); }
 
 	public deleteMessage():void {
-		if(this.isUpdate) {
-			if(DataStore.get(DataStore.UPDATE_INDEX) != (this.$store.main.latestUpdateIndex as number).toString()) {
-				DataStore.set(DataStore.UPDATE_INDEX, this.$store.main.latestUpdateIndex);
-			}
-		}
 		if(this.isAdWarning) {
 			DataStore.set(DataStore.TWITCHAT_AD_WARNED, true);
 		}

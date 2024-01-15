@@ -6,7 +6,7 @@
 			
 			<div class="head">
 				<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
-				<span class="title">{{$t("changelog.major_title")}}</span>
+				<span class="title">{{$t("changelog.title")}}</span>
 				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
 			</div>
 
