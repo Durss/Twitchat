@@ -109,8 +109,9 @@ export default class LabelsEditorEntry extends Vue {
 	}
 
 	public initLabel():void {
-		let ref = this.getUnparsedLabel(this.$i18n.locale);
-		if(!ref || (ref == "" && this.getUnparsedLabel(this.langRef) != "")) {
+		let label = this.getUnparsedLabel(this.$i18n.locale);
+		if(this.path[this.path.length-1] == "2") console.log((label == "" && this.getUnparsedLabel(this.langRef) != ""));
+		if(label == undefined || (label == "" && this.getUnparsedLabel(this.langRef) != "")) {
 			this.labelValue = this.defaultLabel;
 		}else{
 			this.labelValue = this.getUnparsedLabel(this.$i18n.locale).toString();
