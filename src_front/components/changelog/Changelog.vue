@@ -11,7 +11,7 @@
 			</div>
 
 
-			<div class="content">
+			<div class="content" ref="scrollable">
 
 				<div v-if="showReadAlert" class="forceRead">
 					<img src="@/assets/img/barracuda.png" class="barracuda">
@@ -24,7 +24,7 @@
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
 
-				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-end="onSlideEnd">
+				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-start="onSlideStart">
 					<template #addons>
 						<Navigation />
 						<Pagination />
@@ -201,9 +201,10 @@ export default class Changelog extends Vue {
 	 * @param prevSlideIndex 
 	 * @param slidesCount 
 	 */
-	public onSlideEnd(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number}):void {
-		this.slideCountRead.set(data.currentSlideIndex, true);
+	public onSlideStart(data:{currentSlideIndex:number, prevSlideIndex:number, slidesCount:number, slidingToIndex:number}):void {
+		this.slideCountRead.set(data.slidingToIndex, true);
 		this.showPremiumFeatures = false;
+		(this.$refs.scrollable as HTMLDivElement).scrollTo(0,0);
 	}
 
 	/**
@@ -415,14 +416,17 @@ export default class Changelog extends Vue {
 		}
 		:deep(.carousel__pagination-button) {
 			&:after {
-				border-radius: var(--border-radius);
+				border-radius: 4px;
 				background-color: var(--color-text);
+				transition: height .25s, margin-top .25s;
 			}
 		}
 		:deep(.carousel__pagination-button--active) {
 			&:after {
-				background-color: var(--color-secondary);
-				transform: scaleY(2);
+				border-radius: 2px;
+				height: .75em;
+				margin-top: -.5em;
+				transform-origin: bottom center;
 			}
 		}
 		:deep(.carousel__pagination-item.premium) {

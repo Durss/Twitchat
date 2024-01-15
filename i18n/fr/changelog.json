@@ -23,8 +23,8 @@
 			},
 			{
 				"i": "ad",
-				"l": "Pause pub !",
-				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\nReportez la pub avec le bouton snooze.\nAutomatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.\nIndiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié."
+				"l": "Pause pub",
+				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\n<ul><li>Reportez la pub avec le bouton snooze.</li><li>Automatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.</li><li>Indiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié.</li></ul>"
 			},
 			{
 				"i": "distort",
@@ -50,7 +50,7 @@
 			{
 				"i": "extension",
 				"l": "Gérez vos extensions Twitch",
-				"d": "Gérez vos extensions Twitch directement depuis Twitchat !\n\nActivez ou désactivez-les manuellement depuis le nouveau menu dédié, ou automatiquement depuis les triggers pour par exemple modifier leur état selon votre scène OBS courante, votre catégorie de stream, des récompenses de points de chaîne, des subs, ou tout ce que vous pouvez imaginer !"
+				"d": "Gérez vos extensions Twitch directement depuis Twitchat !\n\nActivez-les ou désactivez-les manuellement depuis le nouveau menu dédié, ou automatiquement depuis les triggers.\n\nActivez par exemple une extension selon votre scène OBS courante, votre catégorie de stream, suite à une récompense de points de chaîne, des subs, ou tout ce que vous pouvez imaginer !"
 			},
 			{
 				"i": "mod",
@@ -60,7 +60,7 @@
 			{
 				"i": "spotify",
 				"l": "Song request",
-				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps."
+				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne personne troll votre song request? Empêchez-la d'ajouter d'autres morceaux en 1 click.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps."
 			},
 			{
 				"i": "ticket",
