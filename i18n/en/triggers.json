@@ -173,7 +173,8 @@
 				"param_globalCD": "Global cooldown ({VALUE}s)",
 				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
-				"commands_list":"Chat commands"
+				"commands_list":"Chat commands",
+				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command"
 			},
 			"highlight": {
 				"header": "You need to configure the {LINK} to use this action.",
@@ -829,18 +830,21 @@
 			},
 			"TIMER_START": {
 				"label": "Timer start",
-				"description": "Actions to execute when a timer is started with the command {CMD}",
-				"description_cmd": "/timerStart"
+				"description": "Actions to execute when a timer is started {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/timerStart"
 			},
 			"TIMER_STOP": {
 				"label": "Timer stop",
-				"description": "Actions to execute when a timer is stoped with the command {CMD}",
-				"description_cmd": "/timerStop"
+				"description": "Actions to execute when a timer is stoped {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/timerStop"
 			},
 			"COUNTDOWN_START": {
 				"label": "Countdown start",
-				"description": "Actions to execute when a countdown is started with the command {CMD}",
-				"description_cmd": "/countdown"
+				"description": "Actions to execute when a countdown is started {INFO}",
+				"description_info": "({CMD})",
+				"description_info_cmd": "/countdown"
 			},
 			"COUNTDOWN_STOP": {
 				"label": "Countdown stop",
@@ -848,8 +852,7 @@
 			},
 			"SHOUTOUT": {
 				"label": "Shoutout (Twitchat)",
-				"description": "Actions to execute when doing a shoutout via {CMD} command or shoutout button",
-				"description_cmd": "/so"
+				"description": "Actions to execute when doing a shoutout from Twitchat"
 			},
 			"EMERGENCY_MODE_START": {
 				"label": "Emergency start",
