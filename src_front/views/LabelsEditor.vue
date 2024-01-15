@@ -19,7 +19,7 @@
 
 		<template v-if="selectedSection">
 			<div class="card-item progress"
-			:class="getProgressClasses(selectedSectionKey)">{{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
+			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
 	
 			<div class="labels card-item" v-if="selectedSection">
 				<div class="header">
@@ -76,7 +76,7 @@ export default class LabelsEditor extends Vue {
 	public getProgressClasses(section:string):string[] {
 		const res = [];
 		const progress = this.progresses[section];
-		if(progress.done/progress.total < .5) res.push("alert");
+		if(progress.done/progress.total < .9) res.push("alert");
 		else if(progress.done/progress.total < 1) res.push("secondary");
 		else res.push("primary");
 		return res;
@@ -103,7 +103,9 @@ export default class LabelsEditor extends Vue {
 		const zipFileWriter = new BlobWriter();
 		const zipWriter = new ZipWriter(zipFileWriter);
 		for (const key in messages) {
-			const file = new TextReader(JSON.stringify(messages[key as keyof typeof messages]));
+			let json:any = {};
+			json[key] = messages[key as keyof typeof messages];
+			const file = new TextReader(JSON.stringify(json));
 			await zipWriter.add(key+".json", file);
 		}
 		await zipWriter.close();
@@ -178,6 +180,10 @@ export default class LabelsEditor extends Vue {
 .labelseditor{
 	padding: 1em;
 	color: var(--color-text);
+	gap: 1em;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
 
 	.langSelector {
 		width: 100%;
@@ -188,7 +194,9 @@ export default class LabelsEditor extends Vue {
 
 	.progress {
 		text-align: center;
-		margin-bottom: 1em;
+		margin: 0 auto;
+		justify-self: center;
+		align-self: center;
 	}
 
 	.head {
@@ -196,7 +204,6 @@ export default class LabelsEditor extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		margin-bottom: 1em;
 		
 		.sectionList {
 			gap: .5em;
@@ -211,6 +218,7 @@ export default class LabelsEditor extends Vue {
 		gap: .25em;
 		display: flex;
 		flex-direction: column;
+		align-self: stretch;
 	}
 	
 	.floatingActions {
