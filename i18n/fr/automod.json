@@ -49,7 +49,7 @@
 			"emergency":"Démarrer le mode urgence",
 			"emergency_tt":"Si un message correspond à cette règle, le mode urgence sera activé",
 			"firstTime":"Appliquer seulement aux personnes parlant pour la 1ère fois dans votre tchat",
-			"firstTime_tt":"",
+			"firstTime_tt":"Appliquer cette règle uniquement aux 1er messages sur votre chaîne",
 			"invalid_rule":"Règle invalide"
 		},
 		"test": {

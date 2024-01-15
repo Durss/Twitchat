@@ -13,7 +13,7 @@
 		"form_stream_category":"Catégorie",
 		"form_stream_tags":"Tags",
 		"form_save_preset":"Enregistrer dans les presets",
-		"form_save_preset_name":"",
+		"form_save_preset_name":"Nom",
 		"form_save_preset_name_placeholder":"nom...",
 		"stream_info_preset_edit": "Mise à jour du preset échouée",
 		"notification":"Info de stream modifiées pour \"{TITLE}\" dans la categorie \"{CATEGORY}\"",

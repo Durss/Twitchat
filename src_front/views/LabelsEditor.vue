@@ -121,7 +121,10 @@ export default class LabelsEditor extends Vue {
 			for (const key in obj) {
 				const currentPath:string[] = [...parentPath, key];
 
-				if (typeof obj[key] === 'object' && obj[key] !== null) {
+				if (Array.isArray(obj[key])) {
+					console.log("ignore");
+					continue;
+				} else if (typeof obj[key] === 'object' && obj[key] !== null) {
 					paths = paths.concat(buildPaths(obj[key], currentPath));
 				} else {
 					paths.push(currentPath);
@@ -140,25 +143,24 @@ export default class LabelsEditor extends Vue {
 			const section = sections[h];
 			const keys = buildPaths(ref[section as keyof typeof ref], [section]);
 			const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
+			if(labels == undefined) continue;
 			for (let i = 0; i < keys.length; i++) {
-				let chunks = keys[i];
 				total ++;
-				if(labels == undefined) continue;
-				let root = labels;
+				let chunks = keys[i];
+				let root:typeof labels | null = labels;
 				let rootRef = ref;
-				if(root == undefined) continue;
 				for (let j = 0; j < chunks.length; j++) {
 					const key = chunks[j];
 					root = root[key as keyof typeof root];
 					rootRef = rootRef[key as keyof typeof rootRef];
 					if(root == undefined || (root == "" && rootRef != "")) {
 						console.log("Missing", key);
+						root = null;
 						break;
 					}
 				}
-				if(root != undefined) done ++;
+				if(root != undefined && root != null) done ++;
 			}
-	
 			this.progresses[section] = {done, total};
 		}
 	}
