@@ -303,7 +303,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	public beforeMount(): void {
-		PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE)
+		PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
 		
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyup(e);
 		this.summaryDataHandler = (e:TwitchatEvent) => this.onSummaryData(e);
@@ -319,6 +319,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			// (this.$refs.holder as HTMLDivElement).style.transform = "translateY("+this.posY+"px)";
 			(this.$refs.holder as HTMLDivElement).style.marginTop = this.posY+"px";
 		});
+
+		setInterval(()=> {
+			PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
+		}, 20000);
 	}
 
 	public beforeUnmount(): void {

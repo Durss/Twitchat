@@ -162,7 +162,6 @@
 			"user:manage:whispers": "Receive and send whispers",
 			"user:manage:blocked_users": "Block or unblock users",
 			"user:edit:broadcast": "Enable / Disable extensions",
-			"channel_editor": "Start a raid",
 			"channel:read:redemptions": "Read redemptions",
 			"channel:moderate": "Perform moderation actions",
 			"channel:manage:polls": "Manage polls",

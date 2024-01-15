@@ -174,6 +174,15 @@
 					<Icon class="icon" name="user"/>
 				</div>
 	
+				<!-- <transition name="blink">
+					<ButtonNotification class="credits"
+						icon="credits"
+						v-if="creditsOverlayRunning"
+						:aria-label="$t('chat.form.creditsBt_aria')"
+						v-tooltip="$t('chat.form.creditsBt_aria')"
+						@click="openModal('credits')" />
+				</transition> -->
+	
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone'"
@@ -286,6 +295,8 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 @Component({
 	components:{
@@ -328,6 +339,7 @@ export default class ChatForm extends Vue {
 	public autoCompleteEmotes = false;
 	public autoCompleteUsers = false;
 	public autoCompleteCommands = false;
+	public creditsOverlayRunning = false;
 	public trackedUserCount = 0;
 	public sendHistoryIndex = 0;
 	public sendHistory:string[] = [];
@@ -336,7 +348,9 @@ export default class ChatForm extends Vue {
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
 	private announcementInterval:number = -1;
+	private overlayPresenceHandlerTimoute:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
+	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
 	
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
@@ -423,8 +437,10 @@ export default class ChatForm extends Vue {
 			this.sendHistoryIndex = this.sendHistory.length;
 		}
 		this.updateTrackedUserListHandler = (e:GlobalEvent) => this.onUpdateTrackedUserList();
+		this.creditsOverlayPresenceHandler = (e:TwitchatEvent) => this.onCreditsOverlayPresence();
 		EventBus.instance.addEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.addEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
 		this.channelId = StoreProxy.auth.twitch.user.id;
 		this.onUpdateTrackedUserList();
 		//Leave some time to open transition to complete before showing announcements
@@ -489,6 +505,7 @@ export default class ChatForm extends Vue {
 		clearTimeout(this.announcementInterval);
 		EventBus.instance.removeEventListener(GlobalEvent.TRACK_USER, this.updateTrackedUserListHandler);
 		EventBus.instance.removeEventListener(GlobalEvent.UNTRACK_USER, this.updateTrackedUserListHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.CREDITS_OVERLAY_PRESENCE, this.creditsOverlayPresenceHandler);
 	}
 
 	public debug():void {
@@ -922,6 +939,20 @@ export default class ChatForm extends Vue {
 		this.$store.users.openUserCard(user, channel_id);
 	}
 
+	/**
+	 * Called when updating the tracking state of a user
+	 */
+	private onCreditsOverlayPresence():void {
+		this.creditsOverlayRunning = true;
+		clearTimeout(this.overlayPresenceHandlerTimoute);
+		this.overlayPresenceHandlerTimoute = setTimeout(()=>{
+			this.creditsOverlayRunning = false;
+		}, 25000);
+	}
+
+	/**
+	 * Called when updating the tracking state of a user
+	 */
 	private onUpdateTrackedUserList():void {
 		const res = [];
 		for (let i = 0; i < this.$store.users.users.length; i++) {

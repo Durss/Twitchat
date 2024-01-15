@@ -228,11 +228,10 @@
 				"param_relative_transform_move": "Relative move (add to current position)",
 				"param_relative_transform_resize": "Relative resize (add to current sizes)",
 				"param_relative_transform_rotate": "Relative rotation (add to current rotation)",
-				"param_relative_transform": "Relative values (values above will be added to the current values, otherwise current values will be replaced by the specified ones)",
 				"param_transform_animate": "Animate change",
 				"param_transform_animate_easing": "Animation type",
 				"param_transform_animate_easing_list": {
-					"linear.None": "Linear",
+					"linear.none": "Linear",
 					"sine.out": "Slowdown",
 					"sine.in": "Accelerate",
 					"sine.inOut": "Accelerate & Slowdown",

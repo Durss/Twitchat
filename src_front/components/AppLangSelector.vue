@@ -76,6 +76,9 @@ export default class AppLangSelector extends Vue {
 				content: "●";
 			}
 		}
+		.flag {
+			margin-left: 0 !important;
+		}
 	}
 }
 </style>

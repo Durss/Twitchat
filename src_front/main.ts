@@ -13,7 +13,6 @@ import type { NavigationGuardNext, RouteLocation } from 'vue-router';
 import VueSelect from "vue-select";
 import 'vue-select/dist/vue-select.css';
 import VueTippy, { setDefaultProps } from "vue-tippy";
-// import 'vue-country-flag-next/dist/CountryFlag.css';
 import App from './App.vue';
 import Icon from './components/Icon.vue';
 import './less/index.less';

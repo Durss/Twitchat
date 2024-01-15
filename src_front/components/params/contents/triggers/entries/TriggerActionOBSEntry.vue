@@ -90,7 +90,7 @@ export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 	public height_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_height" };
 	public transformRelative_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"number" };
 	public transformAnimate_conf:TwitchatDataTypes.ParameterData<boolean, unknown, any> = { type:"boolean", value:false, icon:"animate", labelKey:"triggers.actions.obs.param_transform_animate" };
-	public transformEasing_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"linear.easeNone", icon:"easing", labelKey:"triggers.actions.obs.param_transform_animate_easing" };
+	public transformEasing_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"linear.none", icon:"easing", labelKey:"triggers.actions.obs.param_transform_animate_easing" };
 	public transformDuration_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:500, min:0, max:3600000, icon:"timer", labelKey:"triggers.actions.obs.param_transform_animate_duration" };
 	
 	public selectedSourceName:string = "";

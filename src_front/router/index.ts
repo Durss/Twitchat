@@ -12,6 +12,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 const Overlay = () => import('@/views/Overlay.vue');
 const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
+const LabelsEditor = () => import('@/views/LabelsEditor.vue');
 const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
 const ComponentList = () => import('@/views/ComponentList.vue');
@@ -108,6 +109,15 @@ const routes: Array<RouteRecordRaw> = [
 		path: '/heatDebug',
 		name: 'heatDebug',
 		component: HeatDebugPopout,
+		meta: {
+			overflow:true,
+			needAuth:false,
+		}
+	},
+	{
+		path: '/labels',
+		name: 'labels',
+		component: LabelsEditor,
 		meta: {
 			overflow:true,
 			needAuth:false,

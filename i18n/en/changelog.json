@@ -3,80 +3,9 @@
 		"title": "🎉 Latest updates 🎉",
 		"closeBt": "Close",
 		"closeBt_aria": "Remove message",
-		"version": "Version {VERSION}",
-		"major_title": "New features",
-		"minor_title": "Other updates",
-		"fixes_title": "Fixes",
 		"heat_details": "{LINK} is a Twitch extensions allowing viewers to click on your stream. Twitchat makes it dead easy to use it.",
 		"heat_details_link": "Heat",
 		"highlights": [
-			{
-				"i": "merge",
-				"l": "Fuuuuuusioooon",
-				"g": "update_images/merge_messages.gif",
-				"d": "Don't let viewers drown your chat by spamming multiple short messages thanks to a new feature to merge CONSECUTIVE messages of a user into one.<br>Works both on chat messages and channel point rewards."
-			},
-			{
-				"i": "heat",
-				"l": "Heat Extension",
-				"d": "Allow your viewers to <strong>click on your OBS sources</strong> or on <strong>custom shapes</strong>.<br><br>The <strong>Spotify</strong> overlay natively handles clicking on it to send the currently playing track on your chat so lurkers can keep lurking."
-			},
-			{
-				"i": "goxlr",
-				"l": "GoXLR",
-				"g": "update_images/goxlr.png",
-				"d": "Enable any <strong>FX</strong> or play any <strong>Sample</strong> from chat commands, channel point rewards, follows, subs, bits, hype chats, ...<br><br>Scroll your chat from the encoders.<br><br>Execute any action when pressing any GoXLR button."
-			},
-			{
-				"i": "badge",
-				"l": "Custom names and badges",
-				"g": "update_images/custom_badges_name.gif",
-				"d": "Change your viewers usernames or give them custom badges.<br>Automate these actions from the Triggers."
-			},
-			{
-				"i": "broadcast",
-				"l": "Stream summary",
-				"g": "update_images/stream_summary.png",
-				"d": "To help you fill the 1:30 before a raid completes, open the new stream summary filled with data about your stream as well as a ranking of the most involved viewers.<br>Summaries can be exported as CSV files."
-			},
-			{
-				"i": "raid",
-				"l": "Raiding the old way",
-				"g": "update_images/raid_actions.png",
-				"d": "Once you started a raid, a button will allow you to spam the channel's link to your chat.<br><br>With this you can help your friends getting Partnered by avoiding the parameter \"referrer=raid\" in the URL for the viewers accepting to use the link."
-			},
-			{
-				"i": "alert",
-				"l": "Recent accounts",
-				"g": "update_images/recent_account.png",
-				"d": "New option to let you know if a chatter's account is less than a week old."
-			},
-			{
-				"i": "show",
-				"l": "Anti backseat troll",
-				"g": "update_images/spoiler_1st.gif",
-				"d": "Planning to play a spoiler-sensitive game?<br><br>Automatically spoil all the messages of a user speaking on your chat for the first time.<br><br>Stop spoiling their messages at anytime."
-			},
-			{
-				"i": "voicemod",
-				"l": "Voicemod",
-				"g": "update_images/voicemod.png",
-				"d": "New trigger actions to enable the \"<strong>beep</strong>\" or <strong>play any sound</strong> of the soundboards.<br><br>Execute these actions from chat commands, channel point rewards, follows, subs, bits, hype chats,... Imagination is your limit!"
-			},
-			{
-				"i": "placeholder",
-				"l": "Global vars",
-				"d": "Create global variables to be used on the Triggers.<br>A trigger event allows you to execute actions anytime a value is modified."
-			},
-			{
-				"i": "premium",
-				"l": "Premium features",
-				"d": "It had to happen!<br>But nothing changed on what was there before!<br><strong>Only some new features are impacted.</strong><br><br>In a way, Twitchat cost me ~$70.000, what I would've eared if I took a job instead of working full-time on Twitchat for 1,5 years now. I earned ~$5.000 from donations and I can't thank contributors enough for that 🙏💖.<br>But I have little hope to earn more.<br>To use 100% of Twitchat, support me monthly on Patreon!<br><br><i>Pssst! You donated $10 or more before this update?<br>Head over the Premium section for a little suprise</i> 😊"
-			},
-			{
-				"l": "And more...",
-				"d": "• Get all messages back after reloading Twitcaht<br>• Get an history of channels you raided on \"Who's live\" section<br>• Hide stream info of an incoming raid<br>• Pause timer and countdown<br>• Make @mentions clickable and colored<br>• Enhance messages selection from Stream Deck+<br>• Move, roate or risze OBS sources from triggers<br>• Chat commands can now contain spaces<br>• New placeholders for the triggers<br>• Reset \"Greet them\" history manually<br>• Little orange dots show you where there are new things<br>• Twitchat donations made easier with a Paypal integration<br>• Easily export an anotated screenshot of a message from a right click (impossible within OBS dock)<br>• Copy/Paste actions from a trigger to another<br>• ...and lots of enhancements and fixes in many places"
-			}
 		],
 		"forceRead": {
 			"title": "I WANT YOU\r\nTO READ THIS",
@@ -84,22 +13,6 @@
 			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
 			"sorryBt":"ok i read sorry 🥺",
 			"fuBt":"don't care 🤪"
-		},
-		"major": [
-			{
-				"i": "icon",
-				"a": {
-					"a": "alt text",
-					"l": "button label",
-					"page": "pageID",
-					"param": "param.id"
-				},
-				"l": "description"
-			}
-		],
-		"minor": [
-		],
-		"fixes": [
-		]
+		}
 	}
 }

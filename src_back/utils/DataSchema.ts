@@ -1293,6 +1293,7 @@ import Ajv from "ajv";
 							showRewardUsers: {type:"boolean"},
 							showPinnedCheers: {type:"boolean"},
 							showNormalCheers: {type:"boolean"},
+							showTrainConductors: {type:"boolean"},
 							label: {type:"string", maxLength:50},
 							maxEntries: {type:"integer", minimum:1, maximum:1000},
 							layout: {enum: ["col","center","2cols","3cols","left","right","colLeft","colRight"]},

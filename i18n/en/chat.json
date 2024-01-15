@@ -48,7 +48,8 @@
 			"shoutoutBt_aria": "Pending shoutouts",
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:",
-			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :("
+			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :(",
+			"creditsBt_aria": "Ending credits"
 		},
 		"filters": {
 			"cta": "Important options here",

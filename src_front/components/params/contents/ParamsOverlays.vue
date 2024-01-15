@@ -35,10 +35,10 @@
 
 		<div class="list" v-if="subContent == null">
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
-			<!-- <button class="item" @click="subContent = 'bitswall'"><img src="@/assets/img/overlays/bits_wall.jpg"></button> -->
+			<button class="item" @click="subContent = 'bitswall'" v-if="debugMode"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
 			<button class="item" @click="subContent = 'credits'"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
 			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg"></button>
-			<!-- <button class="item" @click="subContent = 'distort'"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button> -->
+			<button class="item" @click="subContent = 'distort'" v-if="debugMode"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
 			<button class="item" @click="subContent = 'adbreak'"><img src="@/assets/img/overlays/ad_break.jpg"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
@@ -105,6 +105,8 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	public showDockTutorial:boolean = false;
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 	
+	private keyupHandler!:(e:KeyboardEvent) => void;
+	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
@@ -122,6 +124,13 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		if(this.$store.params.currentPageSubContent) {
 			this.subContent = this.$store.params.currentPageSubContent as TwitchatDataTypes.OverlayTypes;
 		}
+
+		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		document.addEventListener("keyup", this.keyupHandler);
+	}
+	
+	public beforeUnmount():void {
+		document.removeEventListener("keyup", this.keyupHandler);
 	}
 
 	public reload():void {
@@ -134,6 +143,17 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 			return true;
 		}
 		return false;
+	}
+
+	/**
+	 * Show a debug field on CTRL+ALT+D
+	 * @param e 
+	 */
+	public onKeyUp(e:KeyboardEvent):void {
+		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
+			this.debugMode = !this.debugMode;
+			e.preventDefault();
+		}
 	}
 }
 

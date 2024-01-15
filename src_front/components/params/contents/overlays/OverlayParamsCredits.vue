@@ -161,8 +161,8 @@
 			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
 			<ParamItem :paramData="param_loop" v-model="data.loop" premium />
 			<ParamItem :paramData="param_timing" v-model="data.timing" premium>
-				<ParamItem noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
-				<ParamItem noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
+				<ParamItem class="child" noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
+				<ParamItem class="child" noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
 			</ParamItem>
 		</section>
 		
