@@ -1,6 +1,6 @@
 <template>
 	<div class="overlayparamsheatdistort overlayParamsSection" :title="$t('overlay.heatDistort.title')" :icons="['distort']">
-		<a href="https://www.youtube.com/watch?v=yD3BmZXWph4" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD" target="_blank" class="youtubeBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />

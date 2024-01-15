@@ -237,7 +237,7 @@ export interface ConditionListValues<T> extends TwitchatDataTypes.ParameterDataL
 		}
 	}
 	.operator {
-		flex-basis: 150px;
+		flex-basis: 80px;
 		flex-shrink: 0;
 	}
 

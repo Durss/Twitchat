@@ -4,7 +4,9 @@
 		<Confirm />
 		<Alert />
 
-		<img v-if="demoMode" :src="cursorImage" :style="cursorProps" class="cursor">
+		<img v-if="demoMode && cursorImage == 'arrow'" src="@/assets/img/cursorDemo_default.svg" :style="cursorProps" class="cursor">
+		<img v-if="demoMode && cursorImage == 'pointer'" src="@/assets/img/cursorDemo_pointer.svg" :style="cursorProps" class="cursor">
+		<div v-if="demoMode" class="clickIndicator" ref="clickIndicator" :style="clickIndicatorProps"></div>
 	</div>
 </template>
 
@@ -14,6 +16,8 @@ import { Component, Vue } from 'vue-facing-decorator';
 import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
+import gsap from 'gsap';
+import { TwitchatDataTypes } from './types/TwitchatDataTypes';
 
 
 @Component({
@@ -25,15 +29,17 @@ import Confirm from "./views/Confirm.vue";
 export default class App extends Vue {
 
 	public node!:VNode;
-	public cursorImage:string = "";
+	public cursorImage:"pointer"|"arrow" = "arrow";
 	public mousePos = {x:0, y:0};
 	public cursorOffset = {x:0, y:0};
 	public cursorProps = {left:'0px', top:'0px'};
+	public clickIndicatorProps = {left:'0px', top:'0px'};
 
 	public get demoMode() { return Config.instance.DEMO_MODE && this.$route.name !="overlay"; }
 
 	private dispose = false;
 	private resizeHandler!:() => void;
+	private dragStartHandler!:(e:MouseEvent) => boolean;
 	private mouseDownHandler!:(e:MouseEvent) => boolean;
 	private mouseMoveHandler!:(e:MouseEvent) => boolean;
 
@@ -54,24 +60,40 @@ export default class App extends Vue {
 		this.onWindowResize();
 		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
+
 		
 		if(this.demoMode) {
+			// document.addEventListener("keydown", (e)=>{
+			// 	if(e.ctrlKey) {
+			// 		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageSubscriptionData>(TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION, (m)=>{
+			// 			m.user = this.$store.auth.twitch.user;
+			// 			m.is_gift = false;
+			// 			m.is_resub = false;
+			// 			m.is_giftUpgrade = false;
+			// 		})
+			// 	}
+			// })
 			document.body.classList.add("demoMode");
 			this.renderFrame();
 			this.mouseMoveHandler = (e) => this.onMouseMove(e);
+			this.dragStartHandler = (e) => this.onDragStart(e);
 			this.mouseDownHandler = (e) => this.onMouseDown(e);
+			window.addEventListener("mousedown", this.mouseDownHandler);
 			window.addEventListener("mousemove", this.mouseMoveHandler, true);
 			window.addEventListener("dragover", this.mouseMoveHandler);
-			window.addEventListener("dragstart", this.mouseDownHandler);
+			window.addEventListener("dragstart", this.dragStartHandler);
 		}
 	}
 	
 	public beforeUnmount():void {
 		this.dispose = true;
 		window.removeEventListener("resize", this.resizeHandler);
-		window.removeEventListener("mousemove", this.mouseMoveHandler, true);
-		window.removeEventListener("dragover", this.mouseMoveHandler);
-		window.removeEventListener("dragstart", this.mouseDownHandler);
+		if(this.demoMode) {
+			window.removeEventListener("mousedown", this.mouseDownHandler);
+			window.removeEventListener("mousemove", this.mouseMoveHandler, true);
+			window.removeEventListener("dragover", this.mouseMoveHandler);
+			window.removeEventListener("dragstart", this.dragStartHandler);
+		}
 	}
 
 	private onWindowResize():void {
@@ -81,7 +103,13 @@ export default class App extends Vue {
 	}
 
 	private onMouseDown(e:MouseEvent):boolean {
-		//Avoid showing cursor on interaction when using demo mode
+		const indicator = this.$refs.clickIndicator as HTMLElement;
+		gsap.fromTo(indicator, {scale:0, opacity:1}, {scale:1, opacity:0});
+		return true;
+	}
+
+	private onDragStart(e:MouseEvent):boolean {
+		//Avoid showing cursor on drag when using demo mode
 		return false;
 	}
 
@@ -117,10 +145,10 @@ export default class App extends Vue {
 
 		if(isButton) {
 			this.cursorOffset.x = -20;
-			this.cursorImage = this.$image("img/cursorDemo_pointer.svg");
+			this.cursorImage = "pointer";
 		}else{
 			this.cursorOffset.x = 0;
-			this.cursorImage = this.$image("img/cursorDemo_default.svg");
+			this.cursorImage = "arrow";
 		}
 		return false;
 	}
@@ -137,6 +165,8 @@ export default class App extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 		this.cursorProps.left = (this.mousePos.x+this.cursorOffset.x)+'px';
 		this.cursorProps.top = (this.mousePos.y-2)+'px';
+		this.clickIndicatorProps.left = this.mousePos.x+'px';
+		this.clickIndicatorProps.top = (this.mousePos.y-2)+'px';
 	}
 }
 </script>
@@ -158,6 +188,18 @@ export default class App extends Vue {
 		position: fixed;
 		width: 50px;
 		z-index: 99999;
+	}
+	.clickIndicator {
+		z-index: 99998;
+		pointer-events: none;
+		top: 0;
+		left: 0;
+		position: fixed;
+		background-color: var(--color-text);
+		border-radius: 50%;
+		width: 100px;
+		height: 100px;
+		transform: translate(-50%, -50%) scale(0);
 	}
 
 	&.dyslexicFont {

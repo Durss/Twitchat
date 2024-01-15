@@ -101,7 +101,7 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 })
 export default class ParamsOverlays extends Vue implements IParameterContent {
 
-	public debugMode:boolean = false;
+	public debugMode:boolean = true;
 	public showDockTutorial:boolean = false;
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
 	

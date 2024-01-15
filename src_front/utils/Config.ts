@@ -53,7 +53,7 @@ export default class Config {
 	/**
 	 * If set to true, replaces mouse cursor with a huge fake one
 	 */
-	public DEMO_MODE = false;
+	public DEMO_MODE = true;
 	/**
 	 * Maximum entries per prediction
 	 */
@@ -166,7 +166,9 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			// {platform:"twitch", login:"gunselsenol"},
+			// {platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"xurei"},
+			// {platform:"twitch", login:"shakawah"},
 		];
 	}
 

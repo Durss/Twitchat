@@ -2065,8 +2065,9 @@ export default class TriggerActionHandler {
 					let alt = false;
 					let shift = false;
 					if(step.heatClickData.forward === true && message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
-						x = (message.coords.x * 100).toString();
-						y = (message.coords.y * 100).toString();
+						console.log(message);
+						x = message.coords.x.toString();
+						y = message.coords.y.toString();
 						ctrl = message.ctrl;
 						alt = message.alt;
 						shift = message.shift;
@@ -2524,9 +2525,19 @@ export default class TriggerActionHandler {
 					}else if(pointer.indexOf("__value__") == 0) {
 						const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
 						const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
+						console.log("Value => ", valuePH, valueEntry);
 						if(valueEntry) {
 							if(!isPremium && valueEntry.enabled == false) {
 								value = "NOT_PREMIUM"
+							}else
+							if(valueEntry.perUser === true) {
+								//If it's a per-user counter, get the user's value
+								let user = this.extractUserFromTrigger(trigger, message);
+								if(user && valueEntry.users && valueEntry.users[user.id]) {
+									value = valueEntry.users[user.id].toString();
+								}else{
+									value = "";
+								}
 							}else{
 								value = valueEntry.value.toString();
 							}
@@ -2800,6 +2811,7 @@ export default class TriggerActionHandler {
 				//This is a fail-safe
 				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
 
+				console.log("Parse placeholders", message, "{"+c.placeholder+"}", subEvent);
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				let valueNum = null;

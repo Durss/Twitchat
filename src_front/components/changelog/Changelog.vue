@@ -436,10 +436,21 @@ export default class Changelog extends Vue {
 		}
 		:deep(.carousel__pagination-item.rainbow) {
 			button:after {
-    			background: linear-gradient(90deg in hsl longer hue, red 0 50%) 0/800%;
-				animation: rainbowAnimation 20s linear infinite;
-				@keyframes rainbowAnimation {
-					to {background-position: 400%}
+    			// background: linear-gradient(90deg in hsl longer hue, red 0 50%) 0/800%;
+				// animation: rainbowAnimation 20s linear infinite;
+				// @keyframes rainbowAnimation {
+				// 	to {background-position: 400%}
+				// }
+				animation: grow 2s infinite alternate;
+				@keyframes grow {
+					0%,20% {
+						height: .5em;
+						margin-top: -.25em;
+					}
+					10%,30%,100% {
+						height: var(--vc-pgn-height);
+						margin-top: 0;
+					}
 				}
 			}
 		}
