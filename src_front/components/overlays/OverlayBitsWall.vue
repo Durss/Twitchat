@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" @click="onClick">
-		<div class="instructions">
+		<div class="instructions" v-if="shaderMode">
 			<img src="@/assets/img/shader_warning.png"/>
 		</div>
 		<canvas class="debug" ref="debug" :style="{width:sceneWidth*2+'px', height:sceneHeight+'px'}" :width="sceneWidth*2" :height="sceneHeight"></canvas>
