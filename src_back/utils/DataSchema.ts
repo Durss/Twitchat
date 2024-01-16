@@ -1260,6 +1260,13 @@ import Ajv from "ajv";
 				padding: {type:"integer", minimum:0, maximum:1000},
 				paddingTitle: {type:"integer", minimum:0, maximum:1000},
 				speed: {type:"integer", minimum:0, maximum:1000},
+				ignoreBots: {type:"boolean"},
+				ignoreCustomBots: {
+					type:"array",
+					minItems:0,
+					maxItems:50,
+					items:{type:"string", maxLength:40},
+				},
 				fadeSize: {type:"integer", minimum:0, maximum:400},
 				startDelay: {type:"integer", minimum:0, maximum:30},
 				loop: {type:"boolean"},

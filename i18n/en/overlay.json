@@ -135,6 +135,8 @@
 			"param_uniqueUsers":"Unique users\n(mutltiple events of the same user are merged into 1)",
 			"param_filterRewards":"Only show some rewards",
 			"param_showRewardUsers":"Show user list for each reward",
+			"param_ignoreBots":"Hide bot accounts",
+			"param_ignoreCustomBots":"Hide custom accounts",
 			"premium_category":"This category will NOT show up when your stream is live",
 			"param_normalCheers":"Show normal cheers",
 			"param_pinnedCheers":"Show pinned cheers",

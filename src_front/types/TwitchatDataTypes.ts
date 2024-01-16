@@ -1668,6 +1668,8 @@ export namespace TwitchatDataTypes {
 		colorEntry:string;
 		fontTitle:string;
 		fontEntry:string;
+		ignoreBots:boolean;
+		ignoreCustomBots:string[];
 		textShadow:number;
 		timing:"speed" | "duration";
 		duration:number;

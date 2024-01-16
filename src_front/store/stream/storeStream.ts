@@ -12,6 +12,7 @@ import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
 import Logger from '@/utils/Logger';
+import ParamsAbout from '@/components/params/contents/ParamsAbout.vue';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 
@@ -450,6 +451,19 @@ export const storeStream = defineStore('stream', {
 			//No custom offset defined, use the actual start of stream
 			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
 
+			const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
+			const parameters = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+			let ignoredAccounts:{[key:string]:boolean} = {};
+			if(json) {
+				if(parameters.ignoreBots) {
+					ignoredAccounts = JSON.parse(JSON.stringify(StoreProxy.users.knownBots.twitch))
+					if((parameters.ignoreCustomBots || []).length > 0) {
+						parameters.ignoreCustomBots.forEach(v=> {
+							ignoredAccounts[v.toLowerCase()] = true;
+						});
+					}
+				}
+			}
 			const messages:TwitchatDataTypes.ChatMessageTypes[] = [];
 			const chatters:{[key:string]:TwitchatDataTypes.StreamSummaryData['chatters'][0]} = {};
 
@@ -528,6 +542,7 @@ export const storeStream = defineStore('stream', {
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 						if(m.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const sub = {uid:m.user.id, login:m.user.displayNameOriginal, tier:m.tier, total:m.gift_count || 1};
 						if(m.is_resub) result.resubs.push(sub);
 						else if(m.is_gift || m.is_giftUpgrade) result.subgifts.push(sub);
@@ -537,6 +552,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 						if(m.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const cheer:TwitchatDataTypes.StreamSummaryData['bits'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, bits:m.bits, pinned:m.pinned && m.pinDuration_ms > 0};
 						result.bits.push(cheer);
 						break;
@@ -544,6 +560,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
 						if(m.message.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.message.user.login.toLowerCase()] === true) continue;
 						const hypeChat:TwitchatDataTypes.StreamSummaryData['hypeChats'][0] = {uid:m.message.user.id, login:m.message.user.displayNameOriginal, amount:m.message.twitch_hypeChat!.amount, currency:m.message.twitch_hypeChat!.currency};
 						result.hypeChats.push(hypeChat);
 						break;
@@ -551,6 +568,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						if(m.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const follow:TwitchatDataTypes.StreamSummaryData['follows'][0] = {uid:m.user.id, login:m.user.displayNameOriginal};
 						result.follows.push(follow);
 						break;
@@ -558,6 +576,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
 						if(m.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const raid:TwitchatDataTypes.StreamSummaryData['raids'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, raiders:m.viewers};
 						result.raids.push(raid);
 						break;
@@ -565,6 +584,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 						if(m.user.channelInfo[channelId].is_banned) continue;
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const reward:TwitchatDataTypes.StreamSummaryData['rewards'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, reward:{name:m.reward.title, id:m.reward.id, icon:m.reward.icon.hd ?? m.reward.icon.sd}};
 						result.rewards.push(reward);
 						break;
@@ -625,6 +645,7 @@ export const storeStream = defineStore('stream', {
 					
 					case TwitchatDataTypes.TwitchatMessageType.BAN:
 					case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
+						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
 						const chanInfo = m.user.channelInfo[channelId]
 						if(!chanInfo) continue;
 						if(!chatters[m.user.id]) {
@@ -659,35 +680,31 @@ export const storeStream = defineStore('stream', {
 				}
 			}
 
-			if(includeParams) {
-				//Load ending credits parameters
-				const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
-				if(json) {
-					result.params = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
-					result.params.lang = StoreProxy.i18n.locale;
-					
-					let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
-					if(simulate || !startDateBackup) {
-						StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
-					}
-
-					//Parse "text" slots placeholders and remove premium-only slots
-					for (let i = 0; i < result.params.slots.length; i++) {
-						const slot = result.params.slots[i];
-						//Remove premium-only slots if not premium
-						if(!isPremium && !simulate
-						&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
-							result.params.slots.splice(i, 1);
-							i--;
-						}
-						//Parse placeholders on text slots
-						if(slot.slotType !== "text") continue;
-						if(!slot.text) continue;
-						slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
-					}
-
-					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;
+			if(includeParams && parameters) {
+				result.params = parameters;
+				result.params.lang = StoreProxy.i18n.locale;
+				
+				let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
+				if(simulate || !startDateBackup) {
+					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
 				}
+
+				//Parse "text" slots placeholders and remove premium-only slots
+				for (let i = 0; i < result.params.slots.length; i++) {
+					const slot = result.params.slots[i];
+					//Remove premium-only slots if not premium
+					if(!isPremium && !simulate
+					&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
+						result.params.slots.splice(i, 1);
+						i--;
+					}
+					//Parse placeholders on text slots
+					if(slot.slotType !== "text") continue;
+					if(!slot.text) continue;
+					slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
+				}
+
+				StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;
 			}
 
 			return result;

@@ -578,11 +578,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		lists.forEach(item => {
 			const title = item.querySelector("[data-title]") as HTMLDivElement | null;
 			const list = item.querySelector("[data-list]") as HTMLDivElement;
-			let titleTop = 0;
 			let titleHeight = 0;
 			if(title) {
 				const titleBounds = title.getBoundingClientRect()
-				titleTop = titleBounds.top;
 				titleHeight = titleBounds.height + 20;
 			}
 			const listBounds = list.getBoundingClientRect();

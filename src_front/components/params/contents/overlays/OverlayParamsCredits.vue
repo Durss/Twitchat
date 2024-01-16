@@ -163,6 +163,9 @@
 			<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
 			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
 			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
+			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
+				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
+			</ParamItem>
 			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
 			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
 			<ParamItem :paramData="param_loop" v-model="data.loop" premium />
@@ -236,6 +239,8 @@ export default class OverlayParamsCredits extends Vue {
 	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
 	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
 	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown"};
+	public param_ignoreBots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_ignoreBots", icon:"bot"};
+	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showAmounts:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -281,6 +286,8 @@ export default class OverlayParamsCredits extends Vue {
 		loop:true,
 		showIcons:true,
 		stickyTitle:false,
+		ignoreBots:true,
+		ignoreCustomBots:[],
 		slots:[],
 	};
 
