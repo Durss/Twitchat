@@ -356,17 +356,17 @@ function buildApp() {
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
 		//Reload labels on CTRL+Shift+L
-		if(e.code == "KeyL" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.shiftKey) {
 			StoreProxy.main.reloadLabels();
 		}
 		
 		//Toggle light/dark mode on CTRL+Shift+K
-		if(e.code == "KeyK" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.shiftKey) {
 			StoreProxy.main.toggleTheme();
 		}
 
 		//Walk through available locales on CTRL+Shift+M
-		if(e.code == "Semicolon" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "m" && e.ctrlKey && e.shiftKey) {
 			const locales = i18n.global.availableLocales;
 			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
 			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
