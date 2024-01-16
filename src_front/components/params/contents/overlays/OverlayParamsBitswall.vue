@@ -155,6 +155,11 @@ export default class OverlayParamsBitswall extends Vue {
 			DataStore.set(DataStore.BITS_WALL_PARAMS, this.parameters);
 			PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (this.parameters as unknown) as JsonObject);
 		}, {deep:true});
+		
+
+		OBSWebsocket.instance.getSourceFilters("Demo").then(res=>{
+			console.log(res);
+		})
 	}
 
 	public beforeUnmount():void {
@@ -178,6 +183,7 @@ export default class OverlayParamsBitswall extends Vue {
 			pinned:pinLevel > -1,
 			pinLevel:pinLevel - 1,
 		} as JsonObject;
+
 		PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 	}
 
@@ -196,6 +202,7 @@ export default class OverlayParamsBitswall extends Vue {
 			"effect": "displacement_map_source",
 			"displacement_map_source.displacement_map": data.sourceName,
 			"displacement_map_source.color_space":0,
+			"displacement_map_source.displace_mode":1,
 			"displacement_map_source.displacement_strength_x":.05,
 			"displacement_map_source.displacement_strength_y":.05,
 		};

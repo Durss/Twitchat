@@ -6,14 +6,15 @@ build
 /userData
 /server
 /userData_fake_production
-/credentials
-credentials.json
 announcements.json
 patreon
 donors
 patreon
 beta
 env.conf
+
+credentials/*
+!credentials.default.json
 
 
 # local env files

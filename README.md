@@ -89,7 +89,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 <br>
 
 # Project setup
-First create a `credentials` folder on the root directory, create a `credentials.json` file inside it and fill in these values :
+Rename the `credentials.default.json` file within the `credentials` folder to `credentials.json` and fill in these values :
 ```json
 {
 	"server_port": 3018,
@@ -165,13 +165,14 @@ First create a `credentials` folder on the root directory, create a `credentials
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
-Write anything in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
-Configure the redirect URI of the twitch application with your localhost and/or production URI.\
-Set it as the `redirect_uri` value of the credentials.\
-The `redirect uri` must end with `/oauth`, example :
+Write anything you want in the `csrf_key` field, it will be used to secure twitch authentication from CSRF attacks.\
+Configure the redirect URI of the twitch application to:\
 ```
 http://localhost:8080/oauth
 ```
+*(adapt with the proper port and domain if deploying online)*\
+Set the same value to the `redirect_uri` property of the `credentials.json` file.\
+
 You can also create a [spotify application](https://developer.spotify.com/dashboard) and fill in the spotify `spotify_client_id` and `spotify_client_secret`
 <br>
 By default the server listens on port 3018, you can change it on `credentials.json` and `src_front/utils/Config.ts`.

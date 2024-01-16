@@ -460,7 +460,7 @@ export const storeHeat = defineStore('heat', {
 
 			if(data.filterName) {
 				OBSWebsocket.instance.socket.call("RemoveSourceFilter", {filterName:data.filterName, sourceName}).catch(()=>{
-					console.log("No filter found with given name on givent source", {filterName:data.filterName, sourceName});
+					console.log("No filter found with given name on given source", {filterName:data.filterName, sourceName});
 				});
 			}
 			this.saveDistorsions();

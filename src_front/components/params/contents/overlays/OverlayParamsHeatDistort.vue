@@ -161,6 +161,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 			"displacement_map_source.displacement_map": sourceName,
 			"effect": "displacement_map_source",
 			"displacement_map_source.color_space":0,
+			"displacement_map_source.displace_mode":1,
 			"displacement_map_source.displacement_strength_x":.05,
 			"displacement_map_source.displacement_strength_y":.05,
 		};

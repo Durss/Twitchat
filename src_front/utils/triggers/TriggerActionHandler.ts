@@ -2065,7 +2065,6 @@ export default class TriggerActionHandler {
 					let alt = false;
 					let shift = false;
 					if(step.heatClickData.forward === true && message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
-						console.log(message);
 						x = message.coords.x.toString();
 						y = message.coords.y.toString();
 						ctrl = message.ctrl;
@@ -2587,7 +2586,6 @@ export default class TriggerActionHandler {
 							case "lastcheer_id": value = StoreProxy.stream.lastCheer[channelId].user.id; break;
 							case "lastcheer_amount": value = (StoreProxy.stream.lastCheer[channelId].bits || 0).toString(); break;
 						}
-						console.log(value);
 					}
 				}else{
 					const chunks:string[] = placeholder.pointer.split(".");
