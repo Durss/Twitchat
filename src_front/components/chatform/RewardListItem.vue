@@ -40,6 +40,9 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import { TriggerTypes } from '@/types/TriggerActionDataTypes';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -156,7 +159,7 @@ export default class RewardListItem extends Vue {
 		}
 	}
 
-	public openMenu(e:MouseEvent):void {
+	public async openMenu(e:MouseEvent):Promise<void> {
 		if(!TwitchUtils.requestScopes([TwitchScopes.MANAGE_REWARDS])) return;
 		
 		e.preventDefault();
@@ -202,6 +205,33 @@ export default class RewardListItem extends Vue {
 						}).catch(() => { /* ignore */});
 					}
 				});
+
+		const relatedTriggers = this.$store.triggers.triggerList.filter(v=>v.type == TriggerTypes.REWARD_REDEEM && v.rewardId == this.reward.id);
+		if(relatedTriggers.length > 0) {
+			options.push({ 
+				label: this.$t("rewards.manage.contextmenu_trigger"),
+				icon: this.getIcon("icons/broadcast.svg"),
+				customClass:"alert",
+				onClick: () => {
+					relatedTriggers.forEach(t=> {
+						this.$store.debug.simulateMessage<TwitchatDataTypes.MessageRewardRedeemData>(TwitchatDataTypes.TwitchatMessageType.REWARD, (message)=>{
+							message.reward = {
+								color:this.reward.background_color,
+								cost:this.reward.cost,
+								description:this.reward.prompt,
+								icon:{
+									sd:this.reward.image? this.reward.image.url_1x : this.reward.default_image.url_1x,
+									hd:this.reward.image? this.reward.image.url_4x : this.reward.default_image.url_4x,
+								},
+								id:this.reward.id,
+								title:this.reward.title,
+							};
+							TriggerActionHandler.instance.executeTrigger(t, message, false);
+						}, false);
+					})
+				}
+			});
+		}
 
 		ContextMenu.showContextMenu({
 			theme: 'mac '+StoreProxy.main.theme,

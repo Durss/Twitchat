@@ -9,7 +9,7 @@
 		</ParamItem>
 
 		<ParamItem :paramData="param_user" v-if="action.customMessage.user" v-model="action.customMessage.user.name">
-			<ParamItem :paramData="param_userColor" v-model="action.customMessage.user!.color" noBackground />
+			<ParamItem :paramData="param_userColor" v-model="action.customMessage.user!.color" noBackground class="child" />
 		</ParamItem>
 
 		<ParamItem :paramData="param_message" v-if="action.customMessage.user" v-model="action.customMessage.message" />
@@ -270,11 +270,13 @@ type Key2ParamMap = {
 
 <style scoped lang="less">
 .triggeractioncustomchatentry{
+	
 	.message {
 		.bevel();
 		padding: .5em;
 		border-radius: var(--border-radius);
 		* > {
+			min-height: 2.2em;
 			flex-grow: 1;
 			position: relative;
 		}

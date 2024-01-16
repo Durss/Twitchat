@@ -34,6 +34,7 @@
 			"param_coolDown_duration":"Redemption Cooldown Time",
 			"param_coolDown_maxPerStream":"Limit Redemptions Per Stream",
 			"param_coolDown_maxPerUser":"Limit Redemptions Per User Per Stream",
+			"contextmenu_trigger":"Execute triggers",
 			"contextmenu_edit":"Edit",
 			"contextmenu_pause":"Pause",
 			"contextmenu_unpause":"Unpause",

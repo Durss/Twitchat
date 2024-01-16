@@ -2107,6 +2107,7 @@ export default class TriggerActionHandler {
 						requestData:{
 							event_name:"heat-click",
 							event_data: {
+								id:Utils.getUUID(),
 								anonymous:true,
 								x:parseFloat(x)/100,
 								y:parseFloat(y)/100,

@@ -34,6 +34,7 @@
 			"param_coolDown_duration":"Délai d'attente pour la récupération",
 			"param_coolDown_maxPerStream":"Limiter les récupérations par stream",
 			"param_coolDown_maxPerUser":"Limiter les récupérations par utilisateur par stream",
+			"contextmenu_trigger":"Executer les triggers",
 			"contextmenu_edit":"Éditer",
 			"contextmenu_pause":"Désactiver",
 			"contextmenu_unpause":"Activer",
