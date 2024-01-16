@@ -263,6 +263,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	 * Called when API sends fresh overlay parameters
 	 */
 	private async onParamsData(e:TwitchatEvent):Promise<void> {
+		console.log(e);
 		if(e.data) {
 			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
 			if(this.shaderMode) {
@@ -272,7 +273,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			}
 			this.globalScale = (this.parameters?.size || 25)/200 + .5;
 			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
-			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity || 1) / 100;
+			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity || 75) / 100;
 			this.onResize();
 		}
 	}
