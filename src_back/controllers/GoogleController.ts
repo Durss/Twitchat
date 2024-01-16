@@ -34,15 +34,17 @@ export default class GoogleController extends AbstractController {
 
 		this.preloadEarlyDonors();
 		
-		//Authenticate with foofle API for translation API
-		const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
-			keyFilename: Config.CREDENTIALS_ROOT + Config.credentials.google_key,
-			scopes:["https://www.googleapis.com/auth/cloud-platform"],
-		});
-		const json = JSON.parse(readFileSync(Config.CREDENTIALS_ROOT + Config.credentials.google_key, "utf-8"));
-		auth.jsonContent = json;
-		//Create translation instance
-		this._translater = new translate_v2.Translate({auth});
+		if(Config.credentials.google_key) {
+			//Authenticate with foofle API for translation API
+			const auth: Auth.GoogleAuth = new Auth.GoogleAuth({
+				keyFilename: Config.CREDENTIALS_ROOT + Config.credentials.google_key,
+				scopes:["https://www.googleapis.com/auth/cloud-platform"],
+			});
+			const json = JSON.parse(readFileSync(Config.CREDENTIALS_ROOT + Config.credentials.google_key, "utf-8"));
+			auth.jsonContent = json;
+			//Create translation instance
+			this._translater = new translate_v2.Translate({auth});
+		}
 
 		// this._translater.translations.translate({
 		// 	requestBody:{
@@ -219,7 +221,11 @@ export default class GoogleController extends AbstractController {
 	 */
 	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		//Check if user is premium
-		if(!await this.premiumGuard(request, response)) return;
+		if(!await this.premiumGuard(request, response) || !this.premiumGuard(request, response)) {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"GOOGLE_KEY_NOT_CONFIGURED"}));
+		}
 
 		const params:any = request.query;
 
