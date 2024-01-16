@@ -71,6 +71,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 	public get styles():StyleValue {
 		const res:StyleValue = {};
 		if(this.messageData.highlightColor
+		&& this.messageData.style == "highlight"
 		&& this.messageData.highlightColor != "default"
 		&& this.messageData.highlightColor != "#000000"
 		&& this.messageData.highlightColor?.length > 0) {
@@ -134,9 +135,11 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 		flex: 1;
 		.content {
 			flex-grow: 1;
+			
 			.icon {
 				height: 1em;
 				margin-right: .25em;
+				vertical-align: middle;
 			}
 			.username {
 				color: var(--color-secondary);
@@ -151,6 +154,16 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 
 			.message {
 				word-break: break-word;
+			}
+		}
+	}
+
+	&.alert {
+		.messageHolder {
+			.content {
+				.username {
+					color: var(--color-light) !important;
+				}
 			}
 		}
 	}
