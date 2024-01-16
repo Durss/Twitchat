@@ -199,6 +199,7 @@ export default class Config {
 	 * Gets youtube client ID if any
 	 */
 	public static get YOUTUBE_CREDENTIALS():{client_id: string;project_id: string;auth_uri: string;token_uri: string;auth_provider_x509_cert_url: string;client_secret: string;redirect_uris: string[];javascript_origins: string[]}|null {
+		if(!this.credentials.youtube_key) return null;
 		const filePath = this.CREDENTIALS_ROOT + this.credentials.youtube_key;
 		if(!fs.existsSync(filePath)) return null;
 		const file = JSON.parse(fs.readFileSync(filePath, "utf-8") || "{web:{}}");
