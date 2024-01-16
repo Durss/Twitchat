@@ -27,6 +27,9 @@ export default class DonorController extends AbstractController {
 		this.server.post('/api/user/donor/anon', async (request, response) => await this.setAnonState(request, response));
 
 		//Update donors data when donor list source is updated
+		if(!fs.existsSync(Config.donorsList)) {
+			fs.writeFileSync(Config.donorsList, "{}");
+		}
 		fs.watchFile(Config.donorsList, (curr, prev)=> {
 			this.updatePublicDonorsList();
 		});
