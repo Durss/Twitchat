@@ -678,6 +678,9 @@ interface CheermoteData {
 		text-align: center;
 		z-index: -1;
 		font-smooth: never;
+		img {
+			max-width: 40vw;
+		}
 	}
 }
 </style>

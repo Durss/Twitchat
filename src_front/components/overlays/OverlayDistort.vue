@@ -1,5 +1,8 @@
 <template>
 	<div class="overlaydistort">
+		<div class="instructions">
+			<img src="@/assets/img/shader_warning.png"/>
+		</div>
 		<DistortionLiquid :params="distortionData" v-if="distortionData && distortionData.effect == 'liquid'" />
 		<DistortionExpand :params="distortionData" v-if="distortionData && distortionData.effect == 'expand'" />
 		<DistortionHeart :params="distortionData" v-if="distortionData && distortionData.effect == 'heart'" />
@@ -63,5 +66,29 @@ export default class OverlayDistort extends AbstractOverlay {
 
 <style scoped lang="less">
 .overlaydistort{
+
+	.instructions {
+		position: fixed;
+		top: 50%;
+		left: 25%;
+		transform: translate(-50%, -50%);
+		font-size: 10em;
+		font-weight: bold;
+		text-transform: uppercase;
+		color: #808000;
+		font-family: Impact, Inter;
+		width: 50vw;
+		height: 100vh;
+		border: 50px solid #808000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		z-index: -1;
+		font-smooth: never;
+		img {
+			max-width: 40vw;
+		}
+	}
 }
 </style>

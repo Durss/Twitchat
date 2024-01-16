@@ -136,7 +136,7 @@ export default class OverlayInstaller extends Vue {
 				this.showSuccess = false;
 			}, 5000);
 		}
-		this.$emit("obsSourceCreated", {sourceName:name});
+		this.$emit("obsSourceCreated", {sourceName:this.obsSourceName});
 	}
 
 	/**
