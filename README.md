@@ -150,7 +150,7 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 	"patreon_client_id_server": "",
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",
-	"patreon_webhook_secret": "9p",
+	"patreon_webhook_secret": "",
 
 	"tenor_secret": "",
 	"youtube_key": "path/to/key.json",
