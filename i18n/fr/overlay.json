@@ -6,12 +6,14 @@
 		"1click_install": "Installation en 1 clic",
 		"1click_install_tt": "Ajoute et configure l'overlay automatiquement sur la scène OBS actuelle",
 		"manual_installBt": "Installation manuelle",
+		"drag_installBt": "Déplace moi dans OBS",
 		"install_success":"Source OBS créée",
 		"install_success_exists":"Une source navigateur pour cet overlay existait déjà dans vos scènes.\nElle a été copiée dans votre scène courante.",
 		"install_error":"Une erreur a eu lieu lors de l'installation de l'overlay :\n{ERROR}",
 		"youtube_demo_tt":"Voir un tutoriel",
 		"title_install":"Installer",
 		"title_settings":"Configurations",
+		"install_instructions_title":"Instructions",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
@@ -196,8 +198,7 @@
 			"install":"Nécessite de {HEAT} sur votre chaîne Twitch et d'{SHADER} dans OBS.",
 			"install_heat_link":"configurer l'extension Heat",
 			"install_shader_link":"installer le plugin Shadertastic",
-			"install_instructions_title":"Instructions",
-			"install_instructions":"Ajoutez une source navigateur, spécifiez l'URL ci-dessus, forcez-la en 60fps, spécifiez la hauteur à celle de votre stream (ex: 1080), spécifiez la largeur à 2 fois celle de votre stream (ex: 3840 pour un stream en 1920), puis cochez l'option \"désactiver lorsque la source n'est pas visible\".\n\nAjoutez ensuite un filtre Shadertastic sur l'élément à déformer, choisissez l'effet \"Displacement Map (Source)\", Color Space => RGB, puis dans \"Displacement Map\" sélectionnez la source navigateur précédemment créée. Réglez enfin les valeurs \"Strength X/Y\" en fonction de l'intensité de déformation que vous souhaitez (recommandé: 0.,050).",
+			"install_instructions":"<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à votre scène<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"select_target":"Selectionnez l'élément OBS sur lequel appliquer les distorsions",
 			"select_scene":"<- Selectionnez une scène",
 			"max_reached": "Vous avez atteint le maximum de distorsions que vous pouvez créer.\nDevenez Premium pour créer jusqu'à {COUNT} distorsions.",
@@ -258,9 +259,11 @@
 			"testBt":"Envoyer des bits",
 			"simulate_pinned":"Simuler des cheers épinglés",
 			"simulate_pinned_level":"Niveau",
+			"install_instructions":"<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à votre scène<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"param_size":"Taille Maximum des cheermotes {VALUE}%\n(un cheer épinglé lâche des cheermotes plus grosses selon le niveau de pin)",
-			"param_break":"Permettre aux viewers de casser les cheermotes (nécessite le plugin Heat)",
+			"param_break":"Permettre aux viewers de casser les cheermotes\n(Nécessite d'installer <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>l'extension Heat</a> sur votre chaîne)",
 			"param_break_senderOnly":"Autoriser les viewers à casser uniquement leurs propres cheermotes",
+			"param_textureAlpha":"Opacité des cheermotes ({VALUE}%)",
 			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)"
 		}
 	}

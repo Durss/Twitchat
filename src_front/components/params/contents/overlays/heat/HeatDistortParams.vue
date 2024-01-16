@@ -13,8 +13,8 @@
 		:sourceTransform="{positionX:-3840, width:3840}"
 		:sceneName="modelValue.obsItemPath.sceneName"
 		@obsSourceCreated="onObsSourceCreated">
-			<h2><Icon name="info" />{{ $t("overlay.heatDistort.install_instructions_title") }}</h2>
-			<p>{{ $t("overlay.heatDistort.install_instructions") }}</p>
+			<h2><Icon name="info" />{{ $t("overlay.install_instructions_title") }}</h2>
+			<p v-html="$t('overlay.heatDistort.install_instructions')"></p>
 		</OverlayInstaller>
 
 		<TTButton class="center" icon="cross" secondary
@@ -209,6 +209,7 @@ export default class HeatDistortParams extends Vue {
 		text-align: center;
 		font-size: 2em;
 		line-height: 1.25em;
+		margin-bottom: .25em;
 		.icon {
 			height: 1em;
 			vertical-align: middle;
@@ -243,6 +244,11 @@ export default class HeatDistortParams extends Vue {
 	}
 	.alert {
 		text-align: center;
+	}
+	:deep(ul) {
+		list-style: decimal;
+		list-style-position: inside;
+		margin-left: 1em;
 	}
 }
 .deleteBt {

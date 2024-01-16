@@ -119,6 +119,15 @@
 		.light>#loader-init>.message {
 			color: #000;
 		}
+
+		#logoForDraggableItems{
+			position: fixed;
+			display: block;
+			top: -100px;
+			left: -100px;
+			width: 100px !important;
+			height: 100px !important;
+		}
 	</style>
 </head>
 
@@ -186,6 +195,8 @@
 	<noscript>
 		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
 	</noscript>
+
+	<img src="/logo.png" id="logoForDraggableItems">
 	
 	<div id="loader-init" style="display: none;">
 		<div class="logo">

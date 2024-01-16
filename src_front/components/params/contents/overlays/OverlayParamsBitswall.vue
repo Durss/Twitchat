@@ -12,15 +12,6 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-
-			<OverlayInstaller type="bitswall"
-				:id="param_cristalEffect.value? 'twitchat_bitswall_overlay_shader' : 'twitchat_bitswall_overlay'"
-				:orderToBottom="false && param_cristalEffect.value"
-				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
-				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"
-				:css="'html, body{ background-color:transparent;}'"
-				:sourceTransform="{cropLeft:param_cristalEffect.value? 1920 : 0, width:param_cristalEffect.value? 3840 : 1920}"
-				@obsSourceCreated="onObsSourceCreated" />
 				
 			<div class="card-item" @mouseenter="showShaderEffect=true" @mouseleave="showShaderEffect=false">
 				<ParamItem :paramData="param_cristalEffect" noBackground />
@@ -38,6 +29,20 @@
 					</i18n-t>
 				</div>
 			</div>
+
+			<OverlayInstaller type="bitswall"
+				:id="param_cristalEffect.value? 'twitchat_bitswall_overlay_shader' : 'twitchat_bitswall_overlay'"
+				:orderToBottom="false && param_cristalEffect.value"
+				:sourceSuffix="param_cristalEffect.value? '_shader' : ''"
+				:queryParams="{mode:param_cristalEffect.value? 'shader' : 'normal'}"
+				:css="'html, body{ background-color:transparent;}'"
+				:sourceTransform="{cropLeft:param_cristalEffect.value? 1920 : 0, width:param_cristalEffect.value? 3840 : 1920}"
+				@obsSourceCreated="onObsSourceCreated">
+					<template v-if="param_cristalEffect.value">
+						<h2><Icon name="info" />{{ $t("overlay.install_instructions_title") }}</h2>
+						<p v-html="$t('overlay.bitswall.install_instructions')"></p>
+					</template>
+			</OverlayInstaller>
 		</section>
 		
 
@@ -45,6 +50,8 @@
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
+			
+			<ParamItem :paramData="param_textureAlpha" v-model="parameters.opacity" />
 
 			<ParamItem :paramData="param_size" v-model="parameters.size">
 				<img class="cheerScale" src="@/assets/img/bitswall/10000_tex.png" :style="{height:(128 * (param_size.value/100))+'px'}">
@@ -82,7 +89,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
@@ -114,8 +121,10 @@ export default class OverlayParamsBitswall extends Vue {
 	public param_break:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break", icon:"click"};
 	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly", icon:"bits", tooltipKey:"heat.anonymous"};
 	public param_cristalEffect:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_cristalEffect"};
+	public param_textureAlpha:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:75, min:0, max:100, labelKey:"overlay.bitswall.param_textureAlpha"};
 	public parameters:TwitchatDataTypes.BitsWallOverlayData = {
 		size:25,
+		opacity:25,
 		break:false,
 		break_senderOnly:true,
 	}
@@ -130,6 +139,7 @@ export default class OverlayParamsBitswall extends Vue {
 			const parsed = JSON.parse(paramsJSON) as TwitchatDataTypes.BitsWallOverlayData;
 			if(parsed.size != undefined) this.parameters.size = parsed.size;
 			if(parsed.break != undefined) this.parameters.break = parsed.break;
+			if(parsed.opacity != undefined) this.parameters.opacity = parsed.opacity;
 			if(parsed.break_senderOnly != undefined) this.parameters.break_senderOnly = parsed.break_senderOnly;
 		}
 		
@@ -155,17 +165,16 @@ export default class OverlayParamsBitswall extends Vue {
 			DataStore.set(DataStore.BITS_WALL_PARAMS, this.parameters);
 			PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (this.parameters as unknown) as JsonObject);
 		}, {deep:true});
-		
-
-		OBSWebsocket.instance.getSourceFilters("Demo").then(res=>{
-			console.log(res);
-		})
 	}
 
 	public beforeUnmount():void {
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BITSWALL_OVERLAY_PRESENCE, this.overlayPresenceHandler);
+	}
+
+	public openHeat():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
 	}
 
 	public testOverlay(pinLevel:number = -1):void {
@@ -203,8 +212,8 @@ export default class OverlayParamsBitswall extends Vue {
 			"displacement_map_source.displacement_map": data.sourceName,
 			"displacement_map_source.color_space":0,
 			"displacement_map_source.displace_mode":1,
-			"displacement_map_source.displacement_strength_x":.05,
-			"displacement_map_source.displacement_strength_y":.05,
+			"displacement_map_source.displacement_strength_x":.1,
+			"displacement_map_source.displacement_strength_y":.1,
 		};
 		
 		const filterName = ("BitsWall_shader ("+filterTarget+")").substring(0, 100);
@@ -291,6 +300,24 @@ export default class OverlayParamsBitswall extends Vue {
 		.icon {
 			height: 1em;
 			margin-right: .5em;
+		}
+	}
+
+	:deep(ul) {
+		list-style: decimal;
+		list-style-position: inside;
+		margin-left: 1em;
+	}
+
+	h2 {
+		text-align: center;
+		font-size: 2em;
+		line-height: 1.25em;
+		margin-bottom: .25em;
+		.icon {
+			height: 1em;
+			vertical-align: middle;
+			margin-right: .25em;
 		}
 	}
 }

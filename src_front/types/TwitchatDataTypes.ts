@@ -1564,6 +1564,7 @@ export namespace TwitchatDataTypes {
 	 * a click occurs on heat
 	 */
 	export interface HeatClickData extends JsonObject{
+		id:string;
 		channelId:string;
 		anonymous:boolean;
 		x:number;
@@ -1705,6 +1706,7 @@ export namespace TwitchatDataTypes {
 	export interface BitsWallOverlayData {
 		size:number;
 		break:boolean;
+		opacity:number;
 		break_senderOnly:boolean;
 	}
 

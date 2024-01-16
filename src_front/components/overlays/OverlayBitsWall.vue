@@ -1,5 +1,8 @@
 <template>
 	<div :class="classes" @click="onClick">
+		<div class="instructions">
+			<img src="@/assets/img/shader_warning.png"/>
+		</div>
 		<canvas class="debug" ref="debug" :style="{width:sceneWidth*2+'px', height:sceneHeight+'px'}" :width="sceneWidth*2" :height="sceneHeight"></canvas>
 	</div>
 </template>
@@ -48,6 +51,8 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	public sceneHeight:number = 300;
 	public parameters:TwitchatDataTypes.BitsWallOverlayData|null = null;
 
+	private globalScale:number = 1;
+	private globalScale_prev:number = 1;
 	private interval:number = -1;
 	private disposed:boolean = false;
 	private bitsHandler!:(e:TwitchatEvent)=>void;
@@ -94,8 +99,8 @@ export default class OverlayBitsWall extends AbstractOverlay {
 					displayName:"Durss",
 				},
 				// bits:1000,
-				// bits:18712,
-				bits:10000,
+				bits:18712,
+				// bits:10000,
 				pinned:false,
 				pinLevel:8,
 			}));
@@ -113,10 +118,11 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			
 			if(event.detail.page != hash) return;
 			
-			const pointer = this.$refs.pointer as HTMLDivElement;
-			pointer.style.left = (event.detail.x * document.body.clientWidth) + "px";
-			pointer.style.top = (event.detail.y * document.body.clientHeight) + "px";
-			pointer.style.transform = "translate(-50%, -50%) scale("+(1/event.detail.scaleX)+", "+(1/event.detail.scaleY)+")";
+			const vw = document.body.clientWidth;
+			const vh = document.body.clientHeight;
+			const offsetX = this.shaderMode? -vw / 2 : 0;
+			console.log(event.detail.x * vw, event.detail.y * vh, event.detail.uid);
+			this.hitPoint(event.detail.x * vw + offsetX, event.detail.y * vh, event.detail.uid);
 		});
 	}
 
@@ -191,8 +197,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			if(this.disposed) return;
 			const scaleOffset = data.pinned? ((data.pinLevel || -1) + 1) / 8 + 1 : 1;
 			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
-			const globalScale = (this.parameters?.size || 25)/200;
-			const scale = scales[index] * scaleOffset * globalScale;
+			const scale = scales[index] * scaleOffset;
 			
 			this.createCheermote({guid: Utils.getUUID(),index, scale, scale_prev:scale, uid:data.user.id, destroyed:false});
 		}
@@ -265,7 +270,9 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			}else{
 				this.sceneWidth = document.body.clientWidth;
 			}
+			this.globalScale = (this.parameters?.size || 25)/200 + .5;
 			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
+			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity || 1) / 100;
 			this.onResize();
 		}
 	}
@@ -411,11 +418,10 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		}
 		gsap.to(data, {delay:10 * (index + 1), scale:0, duration:.5, ease:"back.in(10)", onUpdate:(a)=>{
 			if(data.destroyed) return;
-			const factor = data.scale / data.scale_prev;
-			data.scale_prev = data.scale;
+			const factor = (data.scale * this.globalScale) / data.scale_prev;
+			data.scale_prev = (data.scale * this.globalScale);
 			Matter.Body.scale(body, factor, factor);
 		}, onComplete:()=>{
-			console.log("ON COMPLETE", data.destroyed);
 			if(data.destroyed) return;
 			this.destroyCheermote(body);
 		}})
@@ -442,6 +448,21 @@ export default class OverlayBitsWall extends AbstractOverlay {
 				wireframes:true,
 			},
 		});
+		
+		// add mouse control
+		const mouse = Matter.Mouse.create(this.$el);
+		const mouseConstraint = Matter.MouseConstraint.create(engine, {
+			mouse: mouse,
+			constraint: {
+                stiffness: 0.2,
+				render: {
+					visible: false
+				}
+			}
+		});
+
+		Matter.Composite.add(engine.world, mouseConstraint);
+    	renderer.mouse = mouse;
 
 		// engine.gravity.y = 2;
 		// engine.positionIterations = 12;
@@ -493,13 +514,22 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			displacementBackground.beginFill(0x808000);
 			displacementBackground.drawRect(0, 0, this.sceneWidth, vh);
 	
-			app.stage.addChild(displacementBackground);
+			//only add after 10s.
+			//An instructions message is displayed on the left part of the viewport to
+			//tell the user they want ot hide it out of screen.
+			//It shouldn't be an issue to keep it this way, but in case some OBS chromium
+			//apply dirty anti alias that would have an effect on the shader, we add a
+			//#808000 background over it after 10s
+			setTimeout(() => {
+				app.stage.addChildAt(displacementBackground, 0);
+			}, 10000)
 			app.stage.addChild(displacementHolder);
 		}
 
 		textureHolder = new PIXI.Container();
 		if(textureMask) textureHolder.mask = textureMask;
 		textureHolder.position.set(this.sceneWidth, 0);
+		textureHolder.filters = [new PIXI.AlphaFilter(1)];
 		app.stage.addChild(textureHolder);
 
 		(this.$el as HTMLDivElement).appendChild(app.view as HTMLCanvasElement);
@@ -543,6 +573,8 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		//be offset for a scale of 1.
 		const offsets = [22, 9, 9, 0, 0];
 
+		const rescale = this.globalScale != this.globalScale_prev;
+
 		for (let i = 1; i < engine.world.bodies.length; i++) {
 			const body = engine.world.bodies[i];
 
@@ -557,8 +589,14 @@ export default class OverlayBitsWall extends AbstractOverlay {
 					continue;
 				}
 
+				if(rescale) {
+					const factor = (data.scale * this.globalScale) / data.scale_prev;
+					data.scale_prev = (data.scale * this.globalScale);
+					Matter.Body.scale(body, factor, factor);
+				}
+
 				if(data.spriteTexture) {
-					const scale = data.scale;
+					const scale = data.scale * this.globalScale;
 					const index = data.index;
 					const angle = body.angle - Math.PI/2;
 					const offset = offsets[index] * scale;
@@ -567,7 +605,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 					data.spriteTexture.rotation = body.angle;
 				}
 				if(data.spriteDisplace) {
-					const scale = data.scale;
+					const scale = data.scale * this.globalScale;
 					const index = data.index;
 					const angle = body.angle - Math.PI/2;
 					const offset = offsets[index] * scale;
@@ -618,6 +656,27 @@ interface CheermoteData {
 		top: 0;
 		left: 0;
 		z-index: 1;
+	}
+
+	.instructions {
+		position: fixed;
+		top: 50%;
+		left: 25%;
+		transform: translate(-50%, -50%);
+		font-size: 10em;
+		font-weight: bold;
+		text-transform: uppercase;
+		color: #808000;
+		font-family: Impact, Inter;
+		width: 50vw;
+		height: 100vh;
+		border: 50px solid #808000;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+		z-index: -1;
+		font-smooth: never;
 	}
 }
 </style>

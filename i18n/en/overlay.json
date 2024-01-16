@@ -6,12 +6,14 @@
 		"1click_install": "1 click install",
 		"1click_install_tt": "This will automatically create and configure the overlay on your current OBS scene",
 		"manual_installBt": "Manual install",
+		"drag_installBt": "Drag me to OBS",
 		"install_success":"OBS source created",
 		"install_success_exists":"There already was a browser source for this overlay on your scenes.\nIt has been copied to your current scene.",
 		"install_error":"Something went wrong when installing the overlay:\n{ERROR}",
 		"youtube_demo_tt":"Watch a tutorial",
 		"title_install":"Install",
 		"title_settings":"Settings",
+		"install_instructions_title":"Instructions",
 		"connection": {
 			"title": "The overlays need you to {OBS} or {DOCK}",
 			"obsBt": "connect with OBS",
@@ -196,8 +198,7 @@
 			"install":"This needs you to {HEAT} on your Twitch channel and {SHADER} plugin on OBS.",
 			"install_heat_link":"configure Heat extension",
 			"install_shader_link":"install Shadertastic",
-			"install_instructions_title":"Instructions",
-			"install_instructions":"Add a new browser source, specify the above URL, force it to 60fps, set its height to full size (ex: 1080), set its width to twice the visible area (ex: 3840 if your stream is 1920 wide), and check the option \"disable when source is not visible\".\n\nThen, add a Shadertastic filter to the element you want to distort, choose the \"Displacement Map (Source)\" effect, set \"Color Space\" to \"RGB\", and in \"Displacement Map\", select the previously created browser source. Finally, adjust the \"Strength X/Y\" values based on the level of distortion you desire (recommended: 0,050).",
+			"install_instructions":"<ul><li>Set width to twice the viewport size (ex: 3840px for 1920px stream).</li><li>Set height to viewport's height (ex: 1080px).</li><li>Hide the source out of screen</li><li>Set framerate to 60fps</li><li>Add Shadertastic filter to the scene<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"select_target":"Select the OBS item you want the effect to be applied to",
 			"select_scene":"<- Select a scene",
 			"max_reached": "You've reached the maximum distorsion overlay you can create.\nBecome premium to create up to {COUNT} distortions.",
@@ -258,9 +259,11 @@
 			"testBt":"Send bits",
 			"simulate_pinned":"Simulate pinned cheers",
 			"simulate_pinned_level":"Level",
+			"install_instructions":"<ul><li>Set width to twice the viewport size (ex: 3840px for 1920px stream).</li><li>Set height to viewport's height (ex: 1080px).</li><li>Hide the source out of screen</li><li>Set framerate to 60fps</li><li>Add Shadertastic filter to the scene<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"param_size":"Maximum cheermote sizes {VALUE}%\n(a pinned cheer drops bigger cheermotes depending on the pin level)",
-			"param_break":"Allow viewers to break cheermotes (needs Heat plugin)",
+			"param_break":"Allow viewers to break cheermotes\n(Needs <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>Heat extension</a> install on your channel)",
 			"param_break_senderOnly":"Only allow viewers to break their own cheers",
+			"param_textureAlpha":"Cheermotes opacity ({VALUE}%)",
 			"param_cristalEffect":"Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)"
 		}
 	}

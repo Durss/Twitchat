@@ -18,6 +18,8 @@
 
 		<div v-else class="field">
 			<button class="backBt" v-if="obsConnected" @click="showInput = false"><Icon name="back" /></button>
+			<TTButton class="draggable" type="link" :href="localURLOBS" style="user-select:none !important;" @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
+			<span>{{$t("global.or")}}</span>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
 		</div>
@@ -86,6 +88,23 @@ export default class OverlayInstaller extends Vue {
 	private successTO:number = -1;
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; };
+	public get obsSourceName():string {
+		let name = "Twitchat_"+this.type;
+		if(this.sourceSuffix) name += this.sourceSuffix;
+		return name;
+	};
+
+	public get localURLOBS():string {
+		let url = new URL(this.localURL);
+		url.searchParams.set("layer-name", this.obsSourceName);
+		if(this.sourceTransform?.width) {
+			url.searchParams.set("layer-width", this.sourceTransform.width.toString());
+		}
+		if(this.sourceTransform?.height) {
+			url.searchParams.set("layer-width", this.sourceTransform.height.toString());
+		}
+		return url.href;
+	}
 
 	public get localURL():string {
 		const url = new URL(this.url != "" ? this.url : this.$overlayURL(this.type));
@@ -105,11 +124,8 @@ export default class OverlayInstaller extends Vue {
 		this.showSuccess = false;
 		this.error = "";
 		clearTimeout(this.successTO);
-		let name = "Twitchat_"+this.type;
-		if(this.sourceSuffix) name += this.sourceSuffix;
 		try {
-			console.log(name);
-			this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, name, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
+			this.isExistingSource = await OBSWebsocket.instance.createBrowserSource(this.localURL, this.obsSourceName, this.sourceTransform, this.sceneName, this.orderToBottom !== false, this.css);
 			this.showSuccess = true;
 		}catch(error:any) {
 			this.error = error.message;
@@ -123,6 +139,9 @@ export default class OverlayInstaller extends Vue {
 		this.$emit("obsSourceCreated", {sourceName:name});
 	}
 
+	/**
+	 * Called when copy button is clicked
+	 */
 	public copyUrl():void {
 		this.confirmCopy = true;
 		setTimeout(()=> {
@@ -131,6 +150,12 @@ export default class OverlayInstaller extends Vue {
 		const holder = this.$refs.copyButton as HTMLDivElement;
 		gsap.fromTo(holder, {scale:2}, {duration: 1, ease:"elastic.out", scale:1});
 		Utils.copyToClipboard(this.localURL);
+	}
+
+	public onDragButtonStart(event:DragEvent):void {
+		if(!event.dataTransfer) return;
+		event.dataTransfer.setDragImage(document.querySelector('#logoForDraggableItems') as HTMLImageElement, 50, 50);
+		event.dataTransfer.setData("text/uri-list", (event.target as HTMLAnchorElement).href);
 	}
 
 }
@@ -157,23 +182,22 @@ export default class OverlayInstaller extends Vue {
 		white-space: pre-line;
 		line-height: 1.25em;
 		font-size: .85em;
+		&:empty {
+			display: none;
+		}
 	}
 
 	.field{
+		gap: .5em;
 		display: flex;
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
 		width: 100%;
 		.copyBt {
-			margin-left: -2em;
+			margin-left: -2.5em;
 			.icon {
 				padding-left: .75em;
-			}
-		}
-		.backBt {
-			.icon {
-				padding-right: .75em;
 			}
 		}
 		.icon {
@@ -207,6 +231,11 @@ export default class OverlayInstaller extends Vue {
 		text-align: center;
 		white-space: pre-line;
 		line-height: 1.25em;
+	}
+
+	.draggable {
+		user-select: none;
+		cursor: move;
 	}
 	
 }

@@ -69,6 +69,7 @@ window.addEventListener("heat-click", async (event) => {
 
 List of all available event properties:
 ```javascript
+event.detail.id//ID of the click
 event.detail.x//X coordinates in percent relative to top left of the source (rotation, scaling, nesting of the OBS source pre-computed)
 event.detail.y//Y coordinates in percent relative to top left of the source (rotation, scaling, nesting of the OBS source pre-computed)
 event.detail.scaleX//X scale of the browser source

@@ -1387,6 +1387,7 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				size: {type:"number", minimum:1, maximum:200},
+				opacity: {type:"number", minimum:0, maximum:100},
 				break: {type:"boolean"},
 				break_senderOnly: {type:"boolean"},
 			},

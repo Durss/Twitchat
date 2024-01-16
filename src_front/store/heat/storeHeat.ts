@@ -213,6 +213,7 @@ export const storeHeat = defineStore('heat', {
 				requestData:{
 					event_name:"heat-click",
 					event_data: {
+						id:Utils.getUUID(),
 						anonymous,
 						x:0,
 						y:0,
@@ -346,7 +347,7 @@ export const storeHeat = defineStore('heat', {
 					}
 
 					const clickClone = JSON.parse(JSON.stringify(clickEventData)) as typeof clickEventData;
-					clickClone.requestData.event_data.page = url;
+					clickClone.requestData.event_data.page = await Utils.sha256(url);
 					clickClone.requestData.event_data.twitchatOverlayID = overlayID;
 					//Send click info to browser source
 					OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);

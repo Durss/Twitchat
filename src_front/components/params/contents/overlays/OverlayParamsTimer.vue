@@ -1,10 +1,15 @@
 <template>
 	<div class="overlaytimer overlayParamsSection">
+		<a href="https://www.youtube.com/watch?v=x_OnsPRA8Bs" target="_blank" class="youtubeBt">
+			<Icon name="youtube" theme="light" />
+			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+			<Icon name="newtab" theme="light" />
+		</a>
+
 		<i18n-t scope="global" class="header" tag="div" keypath="overlay.timer.head">
 			<template #CMD1><mark>/countdown</mark></template>
 			<template #CMD2><mark>/timerStart</mark></template>
 		</i18n-t>
-		
 		
 		<section class="card-item">
 			<div class="header">
@@ -42,11 +47,6 @@
 			<Button class="center" icon="timer" @click.stop="startTimer()">{{ $t('overlay.timer.try_timerBt') }}</Button>
 			<Button class="center" icon="countdown" @click.stop="startCountdown()">{{ $t('overlay.timer.try_countdownBt') }}</Button>
 		</section>
-		
-		<a href="https://www.youtube.com/watch?v=x_OnsPRA8Bs" target="_blank" class="youtubeBt">
-			<Icon name="youtube" theme="light" />
-			<span>{{ $t('overlay.youtube_demo_tt') }}<Icon name="newtab" theme="light" /></span>
-		</a>
 	</div>
 </template>
 

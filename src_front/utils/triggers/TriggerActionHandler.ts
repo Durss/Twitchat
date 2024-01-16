@@ -2524,7 +2524,6 @@ export default class TriggerActionHandler {
 					}else if(pointer.indexOf("__value__") == 0) {
 						const valuePH = placeholder.tag.toLowerCase().replace(TriggerActionDataTypes.VALUE_PLACEHOLDER_PREFIX.toLowerCase(), "");
 						const valueEntry = StoreProxy.values.valueList.find(v=>v.placeholderKey && v.placeholderKey.toLowerCase() === valuePH.toLowerCase());
-						console.log("Value => ", valuePH, valueEntry);
 						if(valueEntry) {
 							if(!isPremium && valueEntry.enabled == false) {
 								value = "NOT_PREMIUM"
@@ -2809,7 +2808,6 @@ export default class TriggerActionHandler {
 				//This is a fail-safe
 				if(c.operator == undefined || c.value == undefined || c.placeholder == undefined) continue;
 
-				console.log("Parse placeholders", message, "{"+c.placeholder+"}", subEvent);
 				const value = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, "{"+c.placeholder+"}", subEvent);
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				let valueNum = null;
