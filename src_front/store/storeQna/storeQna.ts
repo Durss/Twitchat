@@ -1,8 +1,9 @@
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
+import Config from '@/utils/Config';
 
 export const storeQna = defineStore('qna', {
 	state: () => ({
@@ -49,7 +50,11 @@ export const storeQna = defineStore('qna', {
 		handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void{
 			cmd = cmd.toLowerCase();
 			const session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
-			if(session && session.open) {
+			//Ignore channel point rewards that are "highlight my message" as they are also
+			//sent as standard image with the "highlight" flag
+			const isHighlightReward = message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+				&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
+			if(session && session.open && !isHighlightReward) {
 				session.messages.push(message);
 			}
 		},

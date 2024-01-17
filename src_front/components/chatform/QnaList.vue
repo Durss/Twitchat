@@ -16,7 +16,7 @@
 		<div class="content">
 			<div class="messageList" ref="messageList">
 				<div v-for="(m, index) in messages" :key="m.id" class="messageItem">
-					<ChatMessage class="message" :messageData="m" :lightMode="true" />
+					<MessageItem class="message" :messageData="m" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
 						class="button"
@@ -60,14 +60,14 @@ import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import CloseButton from '../CloseButton.vue';
 import TTButton from '../TTButton.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
+import MessageItem from '../messages/MessageItem.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
 		TTButton,
 		CloseButton,
-		ChatMessage,
+		MessageItem,
 		ChatMessageChunksParser,
 	},
 	emits:["close"],
