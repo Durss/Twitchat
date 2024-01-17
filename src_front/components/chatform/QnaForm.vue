@@ -16,7 +16,9 @@
 		<div class="content">
 			<form  @submit.prevent="submitForm()">
 				<div class="card-item">
-					<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
+					<ParamItem noBackground :paramData="command" autofocus
+					@change="conflict = false"
+					:error="conflict" :errorMessage="$t('qna.form.conflict')" />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
 						<i18n-t scope="global" tag="mark" keypath="qna.form.example_command">
@@ -49,7 +51,8 @@ import TTButton from '../TTButton.vue';
 })
 export default class QnaForm extends AbstractSidePanel {
 	
-	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.param_command"};
+	public conflict:boolean = false;
+	public command:TwitchatDataTypes.ParameterData<string>	= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command"};
 
 	public get classes():string[] {
 		const res = ["qnaform", "sidePanel"];
@@ -67,8 +70,11 @@ export default class QnaForm extends AbstractSidePanel {
 	}
 	
 	public submitForm():void {
-		this.$store.qna.createSession(this.command.value);
-		this.close();
+		if(!this.$store.qna.createSession(this.command.value)) {
+			this.conflict = true;
+		}else{
+			this.close();
+		}
 	}
 
 	public changeValue():void {

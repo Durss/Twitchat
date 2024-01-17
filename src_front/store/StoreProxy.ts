@@ -2036,6 +2036,7 @@ export interface IQnaGetters {
 export interface IQnaActions {
 	/**
 	 * Starts a new Q&A sessions
+	 * @returns session created or false if a conflicting session exists
 	 */
 	createSession(command:string):TwitchatDataTypes.QnaSession;
 	/**

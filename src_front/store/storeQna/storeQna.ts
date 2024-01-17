@@ -20,10 +20,13 @@ export const storeQna = defineStore('qna', {
 
 
 	actions: {
-		createSession(command:string):TwitchatDataTypes.QnaSession{
+		createSession(command:string):TwitchatDataTypes.QnaSession | false{
+			if(this.activeSessions.find(v=>v.command.toLowerCase() == command.toLowerCase())) {
+				return false;
+			}
 			const session:TwitchatDataTypes.QnaSession = {
 				id:Utils.getUUID(),
-				command,
+				command:command.toLowerCase(),
 				messages:[],
 				open:true,
 			}
