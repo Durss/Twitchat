@@ -60,6 +60,7 @@ export const storeValues = defineStore('values', {
 							value:d,
 							newValue: d.value,
 							oldValue: prevValue,
+							channel_id:StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.chat.addMessage(message);
 					}
@@ -103,6 +104,7 @@ export const storeValues = defineStore('values', {
 							value:d,
 							newValue: d.value,
 							oldValue: prevValue,
+							channel_id:StoreProxy.auth.twitch.user.id,
 						};
 						StoreProxy.chat.addMessage(message);
 					}

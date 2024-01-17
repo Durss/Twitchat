@@ -436,7 +436,8 @@ export default class SpotifyHelper {
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_START,
 						platform:"twitchat",
-						track:this.currentTrack
+						track:this.currentTrack,
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 				}
@@ -473,7 +474,8 @@ export default class SpotifyHelper {
 						date:Date.now(),
 						type:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP,
 						platform:"twitchat",
-						track:this.currentTrack
+						track:this.currentTrack,
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 

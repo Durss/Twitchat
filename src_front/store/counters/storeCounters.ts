@@ -218,6 +218,7 @@ export const storeCounters = defineStore('counters', {
 					maxed,
 					mined,
 					user,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				};
 				
 				StoreProxy.chat.addMessage(message);

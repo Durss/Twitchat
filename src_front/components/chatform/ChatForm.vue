@@ -173,6 +173,15 @@
 					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
 					<Icon class="icon" name="user"/>
 				</div>
+				
+				<transition name="blink">
+					<ButtonNotification class="qna"
+						icon="qna"
+						v-if="qnaSessionActive"
+						:aria-label="$t('chat.form.qnaBt_aria')"
+						v-tooltip="$t('chat.form.qnaBt_aria')"
+						@click="openModal('qna')" />
+				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification class="credits"
@@ -381,6 +390,8 @@ export default class ChatForm extends Vue {
 		const text = this.announcement!.text[this.$i18n.locale] || this.announcement!.text["en"];
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
+
+	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
 	public get voiceBotConfigured():boolean {
@@ -757,6 +768,7 @@ export default class ChatForm extends Vue {
 				platform:"twitchat",
 				noticeId:noticeId,
 				message:noticeMessage,
+				channel_id:this.channelId,
 			}
 			sChat.addMessage(notice);
 		}

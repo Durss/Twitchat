@@ -418,6 +418,7 @@ export default class DevmodeMenu extends Vue {
 			message:text,
 			message_chunks:chunks,
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
+			channel_id:this.$store.auth.twitch.user.id,
 		};
 
 		this.$store.chat.addMessage(message);

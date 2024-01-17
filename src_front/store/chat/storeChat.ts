@@ -614,6 +614,7 @@ export const storeChat = defineStore('chat', {
 					date:messageList.length > 0? messageList[0].date-.1 : Date.now(),
 					platform:"twitchat",
 					type:TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				messageList.unshift(splitter);
 
@@ -703,6 +704,7 @@ export const storeChat = defineStore('chat', {
 				date:Date.now(),
 				type:TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
 				adType,
+				channel_id:StoreProxy.auth.twitch.user.id,
 			} );
 		},
 
@@ -731,6 +733,7 @@ export const storeChat = defineStore('chat', {
 			const sAutomod = StoreProxy.automod;
 			const sRaffle = StoreProxy.raffle;
 			const sBingo = StoreProxy.bingo;
+			const sQna = StoreProxy.qna;
 			const sChatSuggestion = StoreProxy.chatSuggestion;
 			const sOBS = StoreProxy.obs;
 			const sEmergency = StoreProxy.emergency;
@@ -837,6 +840,7 @@ export const storeChat = defineStore('chat', {
 								message,
 								platform:message.platform,
 								type:TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
+								channel_id:message.channel_id,
 							}
 							this.addMessage(hypeChatMessage);
 						}
@@ -947,32 +951,6 @@ export const storeChat = defineStore('chat', {
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 						}
 						
-						const cmd = message.message.trim().split(" ")[0].toLowerCase();
-	
-						//If a raffle is in progress, check if the user can enter
-						const raffle = sRaffle.data;
-						if(raffle
-						&& raffle.mode == "chat"
-						&& raffle.command
-						&& cmd == raffle.command.trim().toLowerCase()) {
-							sRaffle.checkRaffleJoin(message);
-						}
-			
-						//If there's a suggestion poll and the timer isn't over
-						const suggestionPoll = sChatSuggestion.data;
-						if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
-							sChatSuggestion.addChatSuggestion(message);
-						}
-	
-						//Check if it's the winning choice of a bingo
-						await sBingo.checkBingoWinner(message);
-	
-						//Handle OBS commands
-						await sOBS.handleChatCommand(message, cmd);
-						
-						//Handle Emergency commands
-						await sEmergency.handleChatCommand(message, cmd);
-						
 						//Handle spoiler command
 						if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
 							const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
@@ -998,16 +976,10 @@ export const storeChat = defineStore('chat', {
 									platform:message.platform,
 									type:TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT,
 									message:message,
+									channel_id:message.channel_id,
 								}
 								TriggerActionHandler.instance.execute(trigger);
 							}
-						}
-						
-						//Check if it's a voicemod command
-						if(sVoice.voicemodParams.enabled
-						&& sVoice.voicemodParams.commandToVoiceID[cmd]
-						&& await Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
-							VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
 						}
 							
 						//If there's a mention, search for last messages within
@@ -1240,6 +1212,7 @@ export const storeChat = defineStore('chat', {
 								platform:message.platform,
 								type:TwitchatDataTypes.TwitchatMessageType.FOLLOWBOT_LIST,
 								users:[],
+								channel_id:message.channel_id,
 							});
 						}
 						if(prevFollowbots.length > 0) {
@@ -1279,6 +1252,46 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.BAN: {
 					this.delUserMessages((message as TwitchatDataTypes.MessageBanData).user.id, (message as TwitchatDataTypes.MessageBanData).channel_id);
 					break;
+				}
+			}
+			
+
+			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
+				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
+				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
+	
+				//If a raffle is in progress, check if the user can enter
+				const raffle = sRaffle.data;
+				if(raffle
+				&& raffle.mode == "chat"
+				&& raffle.command
+				&& cmd == raffle.command.trim().toLowerCase()) {
+					sRaffle.checkRaffleJoin(typedMessage);
+				}
+	
+				//If there's a suggestion poll and the timer isn't over
+				const suggestionPoll = sChatSuggestion.data;
+				if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
+					sChatSuggestion.addChatSuggestion(typedMessage);
+				}
+	
+				//Check if it's the winning choice of a bingo
+				await sBingo.checkBingoWinner(typedMessage);
+	
+				//Handle OBS commands
+				await sOBS.handleChatCommand(typedMessage, cmd);
+				
+				//Handle Emergency commands
+				await sEmergency.handleChatCommand(typedMessage, cmd);
+				
+				//Handle Emergency commands
+				await sQna.handleChatCommand(typedMessage, cmd);
+				
+				//Check if it's a voicemod command
+				if(sVoice.voicemodParams.enabled
+				&& sVoice.voicemodParams.commandToVoiceID[cmd]
+				&& await Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, typedMessage.user, message.channel_id)) {
+					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
 				}
 			}
 
@@ -1580,7 +1593,7 @@ export const storeChat = defineStore('chat', {
 			})
 		},
 		
-		async highlightChatMessageOverlay(message?:TwitchatDataTypes.ChatMessageTypes) {
+		async highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage) {
 			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
 				if(message.platform == "twitch"
 				&& (!message.user.displayName || !message.user.avatarPath || !message.user.login)) {
@@ -1605,6 +1618,7 @@ export const storeChat = defineStore('chat', {
 					platform:message.user.platform,
 					type:TwitchatDataTypes.TwitchatMessageType.CHAT_HIGHLIGHT,
 					info,
+					channel_id:message.channel_id,
 				};
 				this.addMessage(m);
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject);

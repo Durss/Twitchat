@@ -137,6 +137,7 @@ export const storeStream = defineStore('stream', {
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED,
 					user:infos!.user,
+					channel_id:infos.channel_id
 				}
 				StoreProxy.chat.addMessage(m);
 			}
@@ -323,6 +324,7 @@ export const storeStream = defineStore('stream', {
 						delay_ms:ms,
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING,
 						start_at:data.nextAdStart_at,
+						channel_id:channelId,
 					};
 					Logger.instance.log("ads", {
 						log:"Trigger ad approaching in "+(ms/1000)+"s"
@@ -358,6 +360,7 @@ export const storeStream = defineStore('stream', {
 					platform:"twitch",
 					duration_s:Math.round(data.currentAdDuration_ms / 1000),
 					startedBy:adStarter,
+					channel_id:channelId,
 				}
 				Logger.instance.log("ads", {
 					log:"Trigger ad start",
@@ -375,6 +378,7 @@ export const storeStream = defineStore('stream', {
 						platform:"twitch",
 						duration_s:Math.round(data.currentAdDuration_ms / 1000),
 						startedBy:adStarter,
+						channel_id:channelId,
 					}
 					Logger.instance.log("ads", {
 						log:"Trigger ad complete"
@@ -421,6 +425,7 @@ export const storeStream = defineStore('stream', {
 					platform:"twitchat",
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.ERROR,
 					message:StoreProxy.i18n.t("error.commercial_start", {DETAILS:e.message || "no detail :("}),
+					channel_id:channelId,
 				}
 				StoreProxy.chat.addMessage(notice);
 			}

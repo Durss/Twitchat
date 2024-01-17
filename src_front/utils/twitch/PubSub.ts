@@ -1322,6 +1322,7 @@ export default class PubSub extends EventDispatcher {
 					unpinAt_ms:data.message.ends_at * 1000,
 					chatMessage: message,
 					moderator:StoreProxy.users.getUserFrom("twitch", channel_id, data.pinned_by.id, data.pinned_by.display_name.toLowerCase(), data.pinned_by.display_name),
+					channel_id,
 				};
 				message.is_pinned = true;
 				let timeoutRef = -1;
@@ -1382,6 +1383,7 @@ export default class PubSub extends EventDispatcher {
 				type:TwitchatDataTypes.TwitchatMessageType.UNPINNED,
 				chatMessage:pinMessage.chatMessage,
 				moderator,
+				channel_id,
 			};
 			clearTimeout(pinMessage.timeoutRef);
 			StoreProxy.chat.addMessage(m);

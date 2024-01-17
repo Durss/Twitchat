@@ -62,6 +62,7 @@ export const storeTimer = defineStore('timer', {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				timer:JSON.parse(JSON.stringify(this.timer)),
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 
@@ -112,7 +113,8 @@ export const storeTimer = defineStore('timer', {
 				started:false,
 				id:Utils.getUUID(),
 				date:Date.now(),
-				timer:JSON.parse(JSON.stringify(this.timer))
+				timer:JSON.parse(JSON.stringify(this.timer)),
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 
@@ -144,6 +146,7 @@ export const storeTimer = defineStore('timer', {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				countdown:JSON.parse(JSON.stringify(this.countdown)),
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 			
@@ -198,6 +201,7 @@ export const storeTimer = defineStore('timer', {
 				id:Utils.getUUID(),
 				date:Date.now(),
 				countdown:this.countdown,
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 

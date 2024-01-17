@@ -43,11 +43,10 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
 import CloseButton from '../CloseButton.vue';
-import ChatMessage from '../messages/ChatMessage.vue';
-import StoreProxy from '@/store/StoreProxy';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
+import ChatMessage from '../messages/ChatMessage.vue';
 
 @Component({
 	components:{
@@ -90,7 +89,7 @@ export default class PinedMessages extends AbstractSidePanel {
 	public async chatHighlight(m:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):Promise<void> {
 		if(!this.overlayAvailable) {
 			//Open parameters if overlay is not found
-			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS, TwitchatDataTypes.ParamDeepSections.HIGHLIGHT);
 		}else{
 			this.highlightLoading = true;
 			this.$store.chat.highlightChatMessageOverlay(m);

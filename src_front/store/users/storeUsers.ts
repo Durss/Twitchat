@@ -482,6 +482,7 @@ export const storeUsers = defineStore('users', {
 				noticeId: TwitchatDataTypes.TwitchatNoticeType.BLOCKED,
 				platform,
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				channel_id:"",
 			}
 			StoreProxy.chat.addMessage(m);
 		},
@@ -507,6 +508,7 @@ export const storeUsers = defineStore('users', {
 				noticeId: TwitchatDataTypes.TwitchatNoticeType.UNBLOCKED,
 				platform,
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				channel_id:"",
 			}
 			StoreProxy.chat.addMessage(m);
 		},

@@ -51,6 +51,7 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
+import { storeQna } from './store/storeQna/storeQna';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -232,6 +233,7 @@ function buildApp() {
 	StoreProxy.values = storeValues();
 	StoreProxy.account = storeAccount();
 	StoreProxy.extension = storeExtension();
+	StoreProxy.qna = storeQna();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -265,6 +267,7 @@ function buildApp() {
 		youtube:			StoreProxy.youtube,
 		values:				StoreProxy.values,
 		extension:			StoreProxy.extension,
+		qna:				StoreProxy.qna,
 	}
 	
 	app.use(router)
@@ -356,20 +359,23 @@ function buildApp() {
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
 		//Reload labels on CTRL+Shift+L
-		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.altKey) {
 			StoreProxy.main.reloadLabels();
+			e.preventDefault();
 		}
 		
 		//Toggle light/dark mode on CTRL+Shift+K
-		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.altKey) {
 			StoreProxy.main.toggleTheme();
+			e.preventDefault();
 		}
 
 		//Walk through available locales on CTRL+Shift+M
-		if(e.key.toLowerCase() == "m" && e.ctrlKey && e.shiftKey) {
+		if(e.key.toLowerCase() == "m" && e.ctrlKey && e.altKey) {
 			const locales = i18n.global.availableLocales;
 			i18n.global.locale = locales[(locales.indexOf(i18n.global.locale) + 1)%locales.length];
 			DataStore.set(DataStore.LANGUAGE, i18n.global.locale);
+			e.preventDefault();
 		}
-	})
+	}, true);
 }

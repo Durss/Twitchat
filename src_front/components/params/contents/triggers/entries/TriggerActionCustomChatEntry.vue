@@ -149,6 +149,7 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 			message: this.action.customMessage.message,
 			message_chunks: chunks,
 			message_html: TwitchUtils.messageChunksToHTML(chunks),
+			channel_id:this.$store.auth.twitch.user.id,
 		}
 	}
 

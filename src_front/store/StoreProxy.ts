@@ -51,6 +51,7 @@ export default class StoreProxy {
 	public static youtube:IYoutubeState & IYoutubeGetters & IYoutubeActions & {$state:IYoutubeState, $reset:()=>void};
 	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static extension:IExtensionState & IExtensionGetters & IExtensionActions & {$state:IExtensionState, $reset:()=>void};
+	public static qna:IQnaState & IQnaGetters & IQnaActions & {$state:IQnaState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -371,7 +372,7 @@ export interface IBingoActions {
 	 * Check if the given user message matches the bingo answer
 	 * @param message 
 	 */
-	checkBingoWinner(message:TwitchatDataTypes.MessageChatData):void;
+	checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void;
 }
 
 
@@ -534,7 +535,7 @@ export interface IChatActions {
 	 * Show a message on the chat highlight overlay
 	 * @param message 
 	 */
-	highlightChatMessageOverlay(message?:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage):Promise<void>;
 	/**
 	 * Flag a message as suspicious.
 	 * Called by pubsub (or eventsub if i could migrate there since then) to
@@ -583,7 +584,7 @@ export interface IChatSuggestionActions {
 	 * Add a message to the suggestions if it matches the params
 	 * @param message 
 	 */
-	addChatSuggestion(message:TwitchatDataTypes.MessageChatData):void;
+	addChatSuggestion(message:TwitchatDataTypes.TranslatableMessage):void;
 }
 
 
@@ -674,7 +675,7 @@ export interface IEmergencyActions {
 	 * @param message 
 	 * @param cmd 
 	 */
-	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd:string):Promise<void>;
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 }
 
 
@@ -757,7 +758,7 @@ export interface IOBSActions {
 	 * @param message 
 	 * @param cmd 
 	 */
-	handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):Promise<void>;
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd?:string):Promise<void>;
 }
 
 
@@ -973,7 +974,7 @@ export interface IRaffleActions {
 	 * any currently opened raffle
 	 * @param message 
 	 */
-	checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):boolean;
+	checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean;
 	/**
 	 * Pick a random winner amongst the users that joined the raffmle
 	 * @param forcedData 
@@ -2017,4 +2018,39 @@ export interface IExtensionGetters {
 
 export interface IExtensionActions {
 	init():void;
+}
+
+
+
+
+export interface IQnaState {
+	/**
+	 * List of active Q&A sessions
+	 */
+	activeSessions:TwitchatDataTypes.QnaSession[];
+}
+
+export interface IQnaGetters {
+}
+
+export interface IQnaActions {
+	/**
+	 * Starts a new Q&A sessions
+	 */
+	createSession(command:string):TwitchatDataTypes.QnaSession;
+	/**
+	 * Stops an existing Q&A sessions
+	 */
+	stopSession(id:string):void;
+	/**
+	 * Destroys an existing Q&A sessions
+	 */
+	deleteSession(id:string):void;
+	/**
+	 * Handles a chat command to check if the message should be added
+	 * to an existing session
+	 * @param message 
+	 * @param cmd 
+	 */
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void;
 }

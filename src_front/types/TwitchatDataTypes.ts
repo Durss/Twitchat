@@ -7,7 +7,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qna" | "credits";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits";
 	
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout";
 	
@@ -1588,6 +1588,25 @@ export namespace TwitchatDataTypes {
 		page:string;
 		twitchatOverlayID:string;
 	}
+
+	export interface QnaSession {
+		/**
+		 * Session ID
+		 */
+		id:string;
+		/**
+		 * Are submissions opened?
+		 */
+		open:boolean;
+		/**
+		 * Command to use to submit a question
+		 */
+		command:string;
+		/**
+		 * Submitted questions
+		 */
+		messages:TranslatableMessage[];
+	}
 	
 	/**
 	 * Contains only the Array props from the StreamSummaryData
@@ -2023,6 +2042,7 @@ export namespace TwitchatDataTypes {
 		type:TwitchatMessageStringType;
 		id:string;
 		date:number;
+		channel_id:string;
 		platform:ChatPlatform;
 		/**
 		 * If this is set to true the message won't be displayed on main chat columns.
@@ -2113,7 +2133,14 @@ export namespace TwitchatDataTypes {
 		subscription:true,
 		user_watch_streak:true,
 	}
-	export interface TranslatableMessage {
+	export interface TranslatableMessage extends AbstractTwitchatMessage {
+		/**
+		 * User that sent the message
+		 */
+		user:TwitchatUser;
+		/**
+		 * Translation details
+		 */
 		translation?:{
 			/**
 			 * ISO 639-1 code for the flag icon
@@ -2910,7 +2937,6 @@ export namespace TwitchatDataTypes {
 	 * Represents a notice message (which has multiple sub types)
 	 */
 	export interface MessageNoticeData extends AbstractTwitchatMessage {
-		channel_id?: string;
 		type:"notice";
 		/**
 		 * Notice type

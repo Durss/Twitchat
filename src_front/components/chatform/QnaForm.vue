@@ -3,11 +3,11 @@
 		<div class="head">
 			<div class="title">
 				<Icon name="qna" />
-				<i18n-t scope="global" tag="h1" keypath="qna.title">
+				<i18n-t scope="global" tag="h1" keypath="qna.form.title">
 				</i18n-t>
 			</div>
 			
-			<i18n-t scope="global" class="description" tag="span" keypath="qna.subtitle">
+			<i18n-t scope="global" class="description" tag="span" keypath="qna.form.subtitle">
 			</i18n-t>
 
 			<CloseButton @click="close()" />
@@ -19,12 +19,13 @@
 					<ParamItem noBackground :paramData="command" autofocus @change="changeValue()" />
 					<div class="example">
 						<span>{{ $t("global.example") }}</span>: 
-						<i18n-t scope="global" tag="mark" keypath="qna.example_command">
+						<i18n-t scope="global" tag="mark" keypath="qna.form.example_command">
 							<template #CMD>{{example}}</template>
-							<template #QUESTION>{{$t("qna.example_question")}}</template>
+							<template #QUESTION>{{$t("qna.form.example_question")}}</template>
 						</i18n-t>
 					</div>
 				</div>
+				<TTButton type="submit">{{ $t("global.start") }}</TTButton>
 			</form>
 		</div>
 	</div>
@@ -36,20 +37,22 @@ import AbstractSidePanel from '../AbstractSidePanel';
 import CloseButton from '../CloseButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../params/ParamItem.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
+		TTButton,
 		ParamItem,
 		CloseButton,
 	},
 	emits:["close"],
 })
-export default class QuestionAndAnswer extends AbstractSidePanel {
+export default class QnaForm extends AbstractSidePanel {
 	
 	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.param_command"};
 
 	public get classes():string[] {
-		const res = ["questionandanswer", "sidePanel"];
+		const res = ["qnaform", "sidePanel"];
 		// if(this.triggerMode !== false) res.push("embedMode");
 		return res;
 	}
@@ -64,7 +67,8 @@ export default class QuestionAndAnswer extends AbstractSidePanel {
 	}
 	
 	public submitForm():void {
-		
+		this.$store.qna.createSession(this.command.value);
+		this.close();
 	}
 
 	public changeValue():void {
@@ -80,7 +84,7 @@ export default class QuestionAndAnswer extends AbstractSidePanel {
 </script>
 
 <style scoped lang="less">
-.questionandanswer{
+.qnaform{
 	.example {
 		margin-left: auto;
 		margin-top: 10px;

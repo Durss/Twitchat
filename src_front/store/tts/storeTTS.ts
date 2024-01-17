@@ -123,6 +123,7 @@ export const storeTTS = defineStore('tts', {
 				platform:user.platform,
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.TTS,
 				message,
+				channel_id:StoreProxy.auth.twitch.user.id,
 			});
 		},
 

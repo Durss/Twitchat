@@ -49,7 +49,8 @@
 			<TwitchatAnnouncement	class="popin" v-if="$store.params.currentModal == 'twitchatAnnouncement'" @close="$store.params.closeModal()" />
 			<StreamSummary			class="popin" v-if="$store.params.currentModal == 'streamSummary'" @close="$store.params.closeModal()" />
 			<Extensions				class="popin" v-if="$store.params.currentModal == 'extensions'" @close="$store.params.closeModal()" />
-			<QuestionAndAnswer		class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
+			<QnaForm				class="popin" v-if="$store.params.currentModal == 'qnaForm'" @close="$store.params.closeModal()" />
+			<QnaList				class="popin" v-if="$store.params.currentModal == 'qna'" @close="$store.params.closeModal()" />
 			<UserCard				class="popin"  />
 		</Teleport>
 
@@ -198,13 +199,16 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import QuestionAndAnswer from '@/components/chatform/QuestionAndAnswer.vue';
+import QnaForm from '@/components/chatform/QnaForm.vue';
+import QnaList from '@/components/chatform/QnaList.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 
 @Component({
 	components:{
 		Login,
 		Gngngn,
+		QnaForm,
+		QnaList,
 		ChatForm,
 		UserList,
 		UserCard,
@@ -238,7 +242,6 @@ import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.v
 		VoiceTranscript,
 		ChatAlertMessage,
 		NonPremiumCleanup,
-		QuestionAndAnswer,
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		TwitchatAnnouncement,
@@ -251,6 +254,7 @@ export default class Chat extends Vue {
 
 	public buildIndex = 0;
 	public showDonorBadge = true;
+	public showQna = false;
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;

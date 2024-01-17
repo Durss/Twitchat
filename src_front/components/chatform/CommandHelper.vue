@@ -4,7 +4,7 @@
 		<Button @click.capture="openModal('pred');"			icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
 		<Button @click.capture="openModal('raffle');"		icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
 		<Button @click.capture="openModal('bingo');"		icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
-		<!-- <Button @click.capture="openModal('qna');"			icon="qna"			>{{$t('cmdmenu.qna')}}</Button> -->
+		<Button @click.capture="openModal('qnaForm');"		icon="qna"			>{{$t('cmdmenu.qna')}}</Button>
 		<Button @click.capture="openModal('chatsuggForm');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
 		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
 		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>

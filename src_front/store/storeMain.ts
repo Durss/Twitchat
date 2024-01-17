@@ -329,6 +329,7 @@ export const storeMain = defineStore("main", {
 					type:TwitchatDataTypes.TwitchatMessageType.VOICEMOD,
 					platform:"twitchat",
 					voiceID:e.voiceID,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(trigger);
 
@@ -456,7 +457,7 @@ export const storeMain = defineStore("main", {
 					}
 				}
 								
-				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat", channel_id:"" };
 				trigger.id = Utils.getUUID();
 				action.text = StoreProxy.chat.botMessages.heatSpotify.message;
 				trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
@@ -482,6 +483,7 @@ export const storeMain = defineStore("main", {
 					style: data.style,
 					icon: data.icon,
 					user: data.user,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				};
 				StoreProxy.chat.addMessage(message);
 			});
@@ -502,6 +504,7 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
 					sceneName: e.sceneName,
 					previousSceneName: this.currentOBSScene,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				};
 				this.currentOBSScene = e.sceneName;
 				TriggerActionHandler.instance.execute(m);
@@ -521,6 +524,7 @@ export const storeMain = defineStore("main", {
 					sourceName:data.item.sourceName,
 					sourceItemId:data.event.sceneItemId,
 					visible:data.event.sceneItemEnabled,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(m);
 			});
@@ -537,6 +541,7 @@ export const storeMain = defineStore("main", {
 					type:TwitchatDataTypes.TwitchatMessageType.OBS_INPUT_MUTE_TOGGLE,
 					inputName:data.inputName,
 					muted:data.inputMuted,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(m);
 			});
@@ -554,6 +559,7 @@ export const storeMain = defineStore("main", {
 					sourceName:data.sourceName,
 					filterName:data.filterName,
 					enabled:data.filterEnabled,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(m);
 			});
@@ -568,6 +574,7 @@ export const storeMain = defineStore("main", {
 					date:Date.now(),
 					platform:"twitchat",
 					type: TwitchatDataTypes.TwitchatMessageType.OBS_START_STREAM,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				};
 				if(!data.outputActive){
 					m = {...m,
@@ -597,6 +604,7 @@ export const storeMain = defineStore("main", {
 					type:TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE,
 					inputName:data.inputName,
 					state:typeToState[event.type as TwitchatEventType]!,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(m);
 			}
@@ -653,6 +661,7 @@ export const storeMain = defineStore("main", {
 					pressed:event.type == GoXLRSocketEvent.BUTTON_PRESSED,
 					button:event.buttonId!,
 					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(message);
 			}
@@ -670,6 +679,7 @@ export const storeMain = defineStore("main", {
 					fxIndex:event.fxIndex!,
 					enabled:event.type == GoXLRSocketEvent.FX_ENABLED,
 					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(message);
 			}
@@ -687,6 +697,7 @@ export const storeMain = defineStore("main", {
 					mute:event.type == GoXLRSocketEvent.FADER_MUTE,
 					faderIndex: event.faderIndex!,
 					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SOUND_INPUT,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(message);
 			}
@@ -704,6 +715,7 @@ export const storeMain = defineStore("main", {
 					type:TwitchatDataTypes.TwitchatMessageType.GOXLR_SAMPLE_COMPLETE,
 					bank:e.bankId!,
 					buttonId:e.samplerButtonId!,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				TriggerActionHandler.instance.execute(message);
 			});
@@ -1143,6 +1155,7 @@ export const storeMain = defineStore("main", {
 					type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 					noticeId:TwitchatDataTypes.TwitchatNoticeType.DEVMODE,
 					message:str,
+					channel_id:StoreProxy.auth.twitch.user.id,
 				}
 				StoreProxy.chat.addMessage(message);
 			}

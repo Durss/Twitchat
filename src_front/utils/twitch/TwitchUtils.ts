@@ -1452,6 +1452,7 @@ export default class TwitchUtils {
 	public static async createClip():Promise<boolean> {
 		if(!this.hasScopes([TwitchScopes.CLIPS])) return false;
 
+		const channel_id = StoreProxy.auth.twitch.user.id;
 		let message:TwitchatDataTypes.MessageClipCreate = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -1461,6 +1462,7 @@ export default class TwitchUtils {
 			clipID: "",
 			error:false,
 			loading:true,
+			channel_id,
 		};
 		StoreProxy.chat.addMessage(message);
 
@@ -1469,7 +1471,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
-		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
+		url.searchParams.append("broadcaster_id", channel_id);
 		const res = await fetch(url.href, options);
 		if(res.status > 200 && res.status < 204) {
 			const json = await res.json();
@@ -1501,6 +1503,7 @@ export default class TwitchUtils {
 						error:false,
 						loading:false,
 						clipData,
+						channel_id,
 					};
 					StoreProxy.chat.addMessage(message);
 				}

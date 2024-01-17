@@ -1029,7 +1029,8 @@ export default class MessageListFilter extends Vue {
 					if(dedupeDict[v] === true) return false;
 					dedupeDict[v] = true;
 					return true;
-				})
+				}),
+				channel_id:this.$store.auth.twitch.user.id,
 			});
 		}
 	}

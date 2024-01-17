@@ -49,7 +49,8 @@
 			"viewer_count": "Viewer count",
 			"reply_to": "Replying to {USER}:",
 			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :(",
-			"creditsBt_aria": "Ending credits"
+			"creditsBt_aria": "Ending credits",
+			"qnaBt_aria": "Question & Answer"
 		},
 		"filters": {
 			"cta": "Important options here",

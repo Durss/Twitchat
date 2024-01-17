@@ -49,7 +49,8 @@
 			"viewer_count": "Nombre de viewers",
 			"reply_to": "Réponse à {USER} :",
 			"spotify_down": "L'API Spotify est cassée.\nL'overlay et les triggers Spotify ne pourront fonctionner tant qu'ils ne l'auront pas réparée.",
-			"creditsBt_aria": "Générique de fin"
+			"creditsBt_aria": "Générique de fin",
+			"qnaBt_aria": "FAQ"
 		},
 		"filters": {
 			"cta": "Options importantes ici",

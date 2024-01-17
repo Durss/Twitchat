@@ -1,9 +1,14 @@
 {
 	"qna": {
-		"title":"Q&A session",
-		"subtitle":"Create a Q&A session with your viewers",
-		"example_command": "{CMD} {QUESTION}",
-		"example_question": "user's question",
-		"param_command": "Command"
+		"form":{
+			"title":"Create Q&A session",
+			"subtitle":"You can create multiple Q&A sessions simultaneously",
+			"example_command": "{CMD} {QUESTION}",
+			"example_question": "user's question",
+			"param_command": "Command"
+		},
+		"list":{
+			"title":"Q&A sessions"
+		}
 	}
 }

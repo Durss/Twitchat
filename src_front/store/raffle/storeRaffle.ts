@@ -121,6 +121,7 @@ export const storeRaffle = defineStore('raffle', {
 				date:Date.now(),
 				raffleData:data,
 				winner,
+				channel_id:StoreProxy.auth.twitch.user.id,
 			}
 			StoreProxy.chat.addMessage(message);
 
@@ -141,11 +142,8 @@ export const storeRaffle = defineStore('raffle', {
 			currentRaffleData = null;
 		},
 
-		checkRaffleJoin(message:TwitchatDataTypes.ChatMessageTypes):boolean {
+		checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean {
 			if(!this.data || this.data.mode != "chat") return false;
-
-			if(!("user" in message)) return false;
-			if(!("channel_id" in message)) return false;
 
 			const messageCast = message as TwitchatDataTypes.GreetableMessage;
 

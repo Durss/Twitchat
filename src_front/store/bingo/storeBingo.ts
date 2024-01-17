@@ -57,7 +57,7 @@ export const storeBingo = defineStore('bingo', {
 
 		stopBingo() { this.data = null; },
 		
-		checkBingoWinner(message:TwitchatDataTypes.MessageChatData):void {
+		checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void {
 			if(!this.data) return;
 			if(this.data.winners && this.data.winners.length > 0) return;
 
@@ -66,8 +66,8 @@ export const storeBingo = defineStore('bingo', {
 			const num = bingo.numberValue;
 			const emote = bingo.emoteValue && bingo.emoteValue[message.user.platform];
 			const custom = bingo.customValue;
-			const cleanMess = message.message.trim().toLowerCase();
-			let win = parseInt(message.message) == num;
+			const cleanMess = (message.message || "").trim().toLowerCase();
+			let win = parseInt((message.message || "")) == num;
 			win ||= cleanMess == custom?.trim().toLowerCase()
 			win ||= emote != undefined && cleanMess.indexOf(emote.code.toLowerCase()) === 0;
 			if(win) {
@@ -88,6 +88,7 @@ export const storeBingo = defineStore('bingo', {
 					type:TwitchatDataTypes.TwitchatMessageType.BINGO,
 					user:message.user,
 					bingoData:bingo,
+					channel_id:message.channel_id,
 				}
 				sChat.addMessage(m);
 			}

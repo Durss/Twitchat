@@ -36,6 +36,7 @@ export const storeAdmin = defineStore('Admin', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						message:"User "+login+" added to beta-testers successfully",
 						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -48,6 +49,7 @@ export const storeAdmin = defineStore('Admin', {
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				message:"An error occured when adding "+login+" to beta-testers",
 				platform:"twitchat",
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 		},
@@ -68,6 +70,7 @@ export const storeAdmin = defineStore('Admin', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						message:"User "+login+" removed successfully from beta-testers",
 						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -80,6 +83,7 @@ export const storeAdmin = defineStore('Admin', {
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				message:"An error occured when removing "+login+" from beta-testers",
 				platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 		},
@@ -95,6 +99,7 @@ export const storeAdmin = defineStore('Admin', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						message:"All beta-testers successfully removed",
 						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -107,6 +112,7 @@ export const storeAdmin = defineStore('Admin', {
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				message:"An error occured when removing all beta-testers",
 				platform:"twitchat",
+					channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 		},
@@ -127,6 +133,7 @@ export const storeAdmin = defineStore('Admin', {
 						type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 						message:login+" data migrated successfully from beta to production",
 						platform:"twitchat",
+						channel_id:StoreProxy.auth.twitch.user.id,
 					};
 					StoreProxy.chat.addMessage(message);
 					return;
@@ -139,6 +146,7 @@ export const storeAdmin = defineStore('Admin', {
 				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 				message:"An error occured when migrating "+login+" data from beta to production",
 				platform:"twitchat",
+					channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 		},

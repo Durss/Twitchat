@@ -81,6 +81,7 @@ export const storeEmergency = defineStore('emergency', {
 				message:str,
 				noticeId:TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE,
 				enabled: enable,
+				channel_id:StoreProxy.auth.twitch.user.id,
 			};
 			StoreProxy.chat.addMessage(message);
 
@@ -187,9 +188,9 @@ export const storeEmergency = defineStore('emergency', {
 			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
 		},
 
-		async handleChatCommand(message:TwitchatDataTypes.MessageChatData, cmd?:string):Promise<void> {
+		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd?:string):Promise<void> {
 			if(!this.params.enabled) return;
-			if(!cmd) cmd = message.message.trim().split(" ")[0].toLowerCase();
+			if(!cmd) cmd = (message.message || "").trim().split(" ")[0].toLowerCase();
 			if(cmd?.length < 2) return;
 
 			//check if its a command to start the emergency mode

@@ -367,6 +367,7 @@ export const storeDebug = defineStore('debug', {
 						clipUrl:"",
 						loading:true,
 						error:false,
+						channel_id:uid,
 					};
 
 					function fillClipInfo(m:TwitchatDataTypes.MessageClipCreate):void {
@@ -502,7 +503,8 @@ export const storeDebug = defineStore('debug', {
 							cover: "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",
 							duration: 1812,
 							url: "https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -523,7 +525,8 @@ export const storeDebug = defineStore('debug', {
 							cover: "https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",
 							duration: 1812,
 							url: "https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -637,7 +640,8 @@ export const storeDebug = defineStore('debug', {
 							max:1000,
 							numberValue:Math.round(Math.random()*999),
 							winners: [user],
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -688,6 +692,7 @@ export const storeDebug = defineStore('debug', {
 							customEntries:entries.map(v=>v.label).join(","),
 							winners:[Utils.pickRand(entries)],
 						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -700,6 +705,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						adType:TwitchatDataTypes.TwitchatAdTypes.TIP_AND_TRICK,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -762,7 +768,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						sourceItemId:0,
 						sourceName:"loram ipsum",
-						visible:Math.random() > .5
+						visible:Math.random() > .5,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -775,7 +782,8 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						date:Date.now(),
 						sceneName:"Lorem ipsum",
-						previousSceneName:"Dolor sit amet"
+						previousSceneName:"Dolor sit amet",
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -798,7 +806,8 @@ export const storeDebug = defineStore('debug', {
 							offset_ms:0,
 							endAt:Utils.formatDate(new Date()),
 							endAt_ms:Date.now(),
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -824,7 +833,8 @@ export const storeDebug = defineStore('debug', {
 							aborted:false,
 							finalDuration:Utils.formatDuration(duration, true),
 							finalDuration_ms:duration,
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -856,6 +866,7 @@ export const storeDebug = defineStore('debug', {
 						maxed:false,
 						mined:false,
 						value:counter.value,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -884,6 +895,7 @@ export const storeDebug = defineStore('debug', {
 						value:value,
 						newValue:lorem.generateSentences(1),
 						oldValue:value.value,
+						channel_id:uid,
 					};
 					console.log("FAKE ", m);
 					data = m;
@@ -918,6 +930,7 @@ export const storeDebug = defineStore('debug', {
 						pinnedAt_ms:Date.now(),
 						updatedAt_ms:Date.now(),
 						unpinAt_ms:Date.now() + 2 * 60 * 1000,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -932,6 +945,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						moderator:user,
 						chatMessage:pin as TwitchatDataTypes.MessageChatData,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -947,7 +961,8 @@ export const storeDebug = defineStore('debug', {
 						info:{
 							message:message.message,
 							user:message.user,
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -960,7 +975,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						type,
-						message
+						message,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -981,7 +997,8 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1002,7 +1019,8 @@ export const storeDebug = defineStore('debug', {
 							live:false,
 							viewers:0,
 							lastSoDoneDate:0,
-						}
+						},
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1014,7 +1032,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						platform:"twitch",
 						type,
-						voiceID:Utils.pickRand(["nofx", "robot", "baby"])
+						voiceID:Utils.pickRand(["nofx", "robot", "baby"]),
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1073,6 +1092,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						user:fakeUser,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1123,6 +1143,7 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						message:userMessage,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1154,6 +1175,7 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						button:Utils.pickRand((GoXLRTypes.ButtonTypes as unknown) as GoXLRTypes.ButtonTypesData[]),
 						pressed:Math.random() > .5,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1167,6 +1189,7 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						enabled:Math.random() > .5,
 						fxIndex:Utils.pickRand([0,1,2,3,4,5]),
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1180,6 +1203,7 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						buttonId:Utils.pickRand(["SamplerTopLeft", "SamplerBottomLeft", "SamplerBottomRight", "SamplerTopRight"]),
 						bank:Utils.pickRand(["SamplerSelectA", "SamplerSelectB", "SamplerSelectC"]),
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1193,7 +1217,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
-						startedBy:user
+						startedBy:user,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1206,7 +1231,8 @@ export const storeDebug = defineStore('debug', {
 						date:Date.now(),
 						id:Utils.getUUID(),
 						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
-						startedBy:user
+						startedBy:user,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1220,6 +1246,7 @@ export const storeDebug = defineStore('debug', {
 						id:Utils.getUUID(),
 						delay_ms:30000,
 						start_at:Date.now() + 30000,
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1231,6 +1258,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
+						channel_id:uid,
 					};
 					data = m;
 					break;
@@ -1242,6 +1270,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
+						channel_id:uid,
 					};
 					data = m;
 					break;

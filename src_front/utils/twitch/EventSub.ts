@@ -740,6 +740,7 @@ export default class EventSub {
 			platform:"twitch",
 			type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 			info: streamInfo,
+			channel_id:event.broadcaster_user_id,
 		}
 
 		//Stream offline

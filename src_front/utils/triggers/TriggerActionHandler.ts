@@ -540,7 +540,7 @@ export default class TriggerActionHandler {
 		//This fake message is just here to comply with parseSteps() signature.
 		//It's actually not used. I could only set the second param as optional
 		//but I prefer keeping it mandatory as the only exception to that is this call.
-		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat" };
+		const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat", channel_id:"" };
 		return await this.executeTrigger(trigger, fakeMessage, testMode, undefined, "schedule");
 	}
 
@@ -789,7 +789,8 @@ export default class TriggerActionHandler {
 			//If message contains a user and a channel_id properties, check for permissions and cooldowns
 			//Channel ID is necessary for follower check and chat message feedback is user is cooling down
 			if("user" in message && message.user
-			&& "channel_id" in message && message.channel_id) {
+			&& "channel_id" in message && message.channel_id
+			&& message.type !== TwitchatDataTypes.TwitchatMessageType.CUSTOM) {
 				if(message.type == TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK) {
 					//Heat click messages have a limited type definition.
 					//Get the full user from those limited data
@@ -1276,7 +1277,7 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle enter action
 				if(step.type == "raffle_enter") {
-					if(StoreProxy.raffle.checkRaffleJoin(message)) {
+					if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type) && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
 						log.error = true;
 						logStep.error = true;
@@ -1881,6 +1882,7 @@ export default class TriggerActionHandler {
 								failReason:StoreProxy.i18n.t("triggers.actions.music.fail_reasons."+failCode, {DURATION:Utils.formatDuration(maxDuration)+"s", SEARCH:m}),
 								search:m,
 								maxDuration:step.maxDuration,
+								channel_id:message.channel_id,
 							};
 							StoreProxy.chat.addMessage(trackAddedMesssageData);
 
@@ -2050,6 +2052,7 @@ export default class TriggerActionHandler {
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						col:step.customMessage.col,
 						style:step.customMessage.style,
+						channel_id:message.channel_id,
 					};
 
 					logStep.messages.push({date:Date.now(), value:"Send message type \""+customMessage.style+"\": \""+text+"\""});
@@ -2725,10 +2728,11 @@ export default class TriggerActionHandler {
 
 		const channels = await TwitchUtils.getActiveFollowedStreams();
 		const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
+		const channel_id:string = StoreProxy.auth.twitch.user.id;
 		for (let i = 0; i < channels.length; i++) {
 			const c = channels[i];
 			liveChannels[c.user_id] = {
-				user:StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, c.user_id, c.user_login, c.user_name),
+				user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name),
 				category:c.game_name,
 				title:c.title,
 				tags: c.tags,
@@ -2758,6 +2762,7 @@ export default class TriggerActionHandler {
 						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
 						info: this.liveChannelCache[uid],
+						channel_id,
 					}
 					this.liveChannelCache[uid].viewers = 0;
 					this.liveChannelCache[uid].live = false;
@@ -2776,6 +2781,7 @@ export default class TriggerActionHandler {
 						platform:"twitch",
 						type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
 						info: liveChannels[uid],
+						channel_id,
 					}
 					StoreProxy.chat.addMessage(message);
 					dateOffset ++;

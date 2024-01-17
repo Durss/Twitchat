@@ -1,9 +1,14 @@
 {
 	"qna": {
-		"title":"Session de FAQ",
-		"subtitle":"Créez une session de questions/réponses avec vos viewers",
-		"example_command": "{CMD} {QUESTION}",
-		"example_question": "question posée",
-		"param_command": "Commande"
+		"form": {
+			"title":"Créer une session de FAQ",
+			"subtitle":"Créez une session de questions/réponses avec vos viewers.\nVous pouvez créer plusieurs sessions simultanées.",
+			"example_command": "{CMD} {QUESTION}",
+			"example_question": "question posée",
+			"param_command": "Commande"
+		},
+		"list": {
+			"title":"Sessions de FAQ"
+		}
 	}
 }

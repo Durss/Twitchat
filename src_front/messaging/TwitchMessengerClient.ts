@@ -1050,13 +1050,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private notice(id:TwitchatDataTypes.TwitchatNoticeStringType, channel:string, message:string):void {
 		const eventData:TwitchatDataTypes.MessageNoticeData = {
-			channel_id: this.getChannelID(channel),
 			id:Utils.getUUID(),
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			date:Date.now(),
 			platform:"twitch",
 			message:message,
 			noticeId:id,
+			channel_id: this.getChannelID(channel),
 		};
 		this.dispatchEvent(new MessengerClientEvent("NOTICE", eventData));
 	}
