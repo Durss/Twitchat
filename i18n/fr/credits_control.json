@@ -1,0 +1,10 @@
+{
+	"credits_control": {
+		"force_startBt": "Lancer",
+		"pauseBt":"Pause",
+		"stopBt":"Stop",
+		"nextBt":"Suivant",
+		"prevBt":"Précédent",
+		"speed":"Vitesse"
+	}
+}

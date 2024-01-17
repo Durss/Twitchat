@@ -130,6 +130,7 @@ import { watch, type StyleValue } from 'vue';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
+import gsap from 'gsap';
 
 @Component({
 	components:{},
@@ -144,7 +145,10 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	
 	private posY:number = 0;
 	private animFrame:number = -1;
+	private speedScale:number = 0;
+	private speedScaleInc:number = 0;
 	private paused:boolean = false;
+	private interpolating:boolean = false;
 	private prevParams:TwitchatDataTypes.EndingCreditsParams|null = null;
 	private startDelayTimeout:number = -1;
 	private entryCountCache:{[key:string]:number} = {}
@@ -152,6 +156,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private scrollStarted_at:number = 0;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
+	private controlHandler!:(e:TwitchatEvent) => void;
 	private summaryDataHandler!:(e:TwitchatEvent) => void;
 	private paramsDataHandler!:(e:TwitchatEvent) => void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
@@ -306,12 +311,14 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
 		
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyup(e);
+		this.controlHandler = (e:TwitchatEvent) => this.onControl(e);
 		this.summaryDataHandler = (e:TwitchatEvent) => this.onSummaryData(e);
 		this.paramsDataHandler = (e:TwitchatEvent) => this.onParamsData(e);
 		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE); }
 
 		document.addEventListener("keyup", this.keyupHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_CONTROL, this.controlHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 
@@ -329,6 +336,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		cancelAnimationFrame(this.animFrame);
 		document.removeEventListener("keyup", this.keyupHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.SUMMARY_DATA, this.summaryDataHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.ENDING_CREDITS_CONTROL, this.controlHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.ENDING_CREDITS_CONFIGS, this.paramsDataHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_CREDITS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
 	}
@@ -493,6 +501,54 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	}
 
 	/**
+	 * Called when controlling remotely
+	 * Used to control speed
+	 */
+	private async onControl(e:TwitchatEvent):Promise<void> {
+		const data = (e.data as unknown) as {speed?:number, next?:boolean, prev?:boolean}
+		if(data.speed != undefined) {
+			this.speedScaleInc = data.speed;
+		}
+		if(data.next === true || data.prev === true) {
+			this.interpolating = true;
+			
+			const lists = this.$refs.listItem as HTMLDivElement[];
+			let closestPos = Number.MAX_VALUE;
+			let closestItemIndex:number = -1;
+			//Search item closest to top of screen
+			lists.forEach((item, index) => {
+				const bounds = item.getBoundingClientRect();
+				if(Math.abs(bounds.top) < closestPos) {
+					closestItemIndex = index;
+					closestPos = Math.abs(bounds.top);
+				}
+			});
+
+			if(closestItemIndex > -1) {
+				//If asking for next item, incrementt the index to get the next one.
+				//except if that item is more that 25% bellow the top of the screen.
+				//This way, if clickinig "next" when scrolling only starts it will bring
+				//the first item to top instead of the second one
+				if(data.next && closestPos < window.innerHeight * .25) closestItemIndex ++;
+				if(data.prev) closestItemIndex --;
+				//Loop index both ways
+				closestItemIndex = closestItemIndex % lists.length;
+				if(closestItemIndex < 0) closestItemIndex = lists.length + closestItemIndex;
+				//Animate holder's position
+				const bounds = lists[closestItemIndex].getBoundingClientRect();
+				const tween = {y:0};
+				const offset = this.posY;
+				gsap.to(tween, {y:bounds.y, duration: 1, ease:"sine.inOut", onUpdate:()=>{
+					this.posY = offset - tween.y;
+				}, onComplete:()=>{
+					this.interpolating = false;
+				}});
+			}
+
+		}
+	}
+
+	/**
 	 * Called when API sends summary data counter data
 	 */
 	private async onSummaryData(e:TwitchatEvent):Promise<void> {
@@ -615,6 +671,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		
 		if(this.paused) return;
 		if(this.noEntry) return;
+		if(this.interpolating) return;
 
 		if(!this.prevTs) {
 			this.prevTs = ts;
@@ -635,11 +692,42 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			return;
 		}
 
-		if(this.data?.params?.timing == 'duration') {
+		if(this.data?.params?.timing == 'duration' && this.speedScaleInc == 0) {
 			const percent = Math.max(0, (Date.now() - this.scrollStarted_at) / (this.data?.params?.duration * 1000));
+			let prevY = this.posY;
 			this.posY = window.innerHeight - (bounds.height + window.innerHeight) * percent;
+			//Save current speed so controling speed is based on it.
+			//This makes sure speed control is fluid
+			if(this.data.params) {
+				this.data.params.speed = prevY - this.posY;
+				this.speedScale = 0;
+			}
 		}else{
-			this.posY -= (this.data?.params?.speed || 2) / 1000 * fps;
+			const speed = ((this.data?.params?.speed || 2) + this.speedScale) / 1000 * fps;
+			this.posY -= speed;
+			//Bring back top top if scrolling backward with speed control
+			if(this.posY > window.innerHeight && speed < 0 && this.data?.params?.loop === true) {
+				this.scrollStarted_at = Date.now();
+				this.posY = -bounds.height;
+			}
+			//Rewrite the start scroll time depending on the scrolling percent
+			//If credits are configured to scroll completely during a specific
+			//duration, this allows to keep the credits at the same place after
+			//stoppiung speed control by simulating a start date based on the
+			//current scrolling position
+			if(this.data?.params) {
+				let s = window.innerHeight;
+				let e = -bounds.height;
+				let percent = (this.posY - s) / (e - s);
+				this.scrollStarted_at = Date.now() - (this.data.params.duration * 1000 * percent);
+			}
+		}
+		if(this.speedScaleInc == 0) {
+			//Reset custom speed to 0
+			this.speedScale *= .98;
+		}else{
+			//Keep incrementing speed until speedScaleInc is set to 0
+			this.speedScale += this.speedScaleInc;
 		}
 	}
 

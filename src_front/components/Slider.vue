@@ -12,7 +12,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
-	emits:["update:modelValue"],
+	emits:["update:modelValue", "stop", "start", "change"],
 })
 export default class Slider extends Vue {
 
@@ -26,7 +26,13 @@ export default class Slider extends Vue {
 	public premium!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public light!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public disabled!:boolean;
+
+	@Prop({type:Boolean, default: false})
+	public dotMode!:boolean;
 
 	@Prop({type:Number, default: 0})
 	public modelValue!:number;
@@ -52,19 +58,27 @@ export default class Slider extends Vue {
 		if(this.secondary !== false) res.push("secondary");
 		if(this.alert !== false) res.push("alert");
 		if(this.premium !== false) res.push("premium");
+		if(this.light) res.push("light");
 		if(this.disabled) res.push("disabled");
+		if(this.dotMode) res.push("dotMode");
 		return res;
 	}
 
 	public get fillStyles():StyleValue {
-		return {
-			width: (this.fillPercent * 100)+"%"
-		};
+		if(this.dotMode !== false) {
+			return {
+				left: (this.fillPercent * 100)+"%"
+			};
+		}else{
+			return {
+				width: (this.fillPercent * 100)+"%"
+			};
+		}
 	}
 
 	public get gratuationsStyles():StyleValue {
 		const ratio = Math.abs(this.max - this.min) / this.step;
-		if(ratio > 50) return {};
+		if(ratio > 50) return {backgroundSize:"110%, 50%"};
 		return {
 			backgroundSize: (100/ratio)+"% 50%",
 		};
@@ -80,6 +94,10 @@ export default class Slider extends Vue {
 
 		watch(()=>this.min, ()=> this.updateLimit());
 		watch(()=>this.max, ()=> this.updateLimit());
+		watch(()=>this.modelValue, ()=> {
+			this.localValue = this.modelValue;
+			this.renderBar();
+		});
 	}
 	
 	public beforeUnmount():void {
@@ -90,6 +108,7 @@ export default class Slider extends Vue {
 	public renderBar():void {
 		this.fillPercent = (this.localValue - this.min)/(this.max - this.min);
 		this.$emit("update:modelValue", this.localValue);
+		this.$emit("change", this.localValue);
 	}
 
 	public onMouseWheel(e?:WheelEvent):void {
@@ -97,7 +116,6 @@ export default class Slider extends Vue {
 		if(document.activeElement != this.$refs.input) return;
 
 		const add = e? (e.deltaY > 0)? -1 : 1 : 0;
-		const prevValue = this.localValue;
 		let v = this.localValue + add * this.step;
 		//Rounding to compensate for bad JS maths.
 		//For JS: 0.2 + 0.1 = 0.30000000000000004
@@ -106,26 +124,25 @@ export default class Slider extends Vue {
 		v = Math.max(this.min, Math.min(this.max, v));
 		if(v === nonClampedValue && e) e.preventDefault();
 		this.localValue = v;
-		this.fillPercent = (v - this.min)/(this.max - this.min);
-		if(this.localValue != prevValue) {
-			this.$emit("update:modelValue", this.localValue);
-		}
+		this.renderBar();
+		this.$emit("stop");
 	}
 
 	public onMouseUp(e:PointerEvent):void {
 		this.pressed = false;
+		this.$emit("stop");
 	}
-
+	
 	public onMouseDown(e:PointerEvent):void {
 		this.pressed = true;
 		(e.target as HTMLDivElement).setPointerCapture(e.pointerId);
 		this.onMouseMove(e);
+		this.$emit("start");
 	}
 	
 	public onMouseMove(e:PointerEvent):void {
 		if(!this.pressed) return;
 
-		const prevValue = this.localValue;
 		const bounds = (this.$el as HTMLElement).getBoundingClientRect();
 		//Compute percent of the width clicked
 		let percent = Math.max(0, Math.min(1, (e.clientX - bounds.left) / bounds.width));
@@ -137,14 +154,9 @@ export default class Slider extends Vue {
 		//Set local values
 		this.localValue = value;
 		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
-		//Broadcast change
-		if(this.localValue != prevValue) {
-			this.$emit("update:modelValue", value);
-		}
 	}
 	
 	private updateLimit():void {
-		const bounds = (this.$el as HTMLElement).getBoundingClientRect();
 		//Compute percent of the width clicked
 		//Compute value and round it to the nearest step
 		let value = this.fillPercent * (this.max-this.min) + this.min;
@@ -154,8 +166,6 @@ export default class Slider extends Vue {
 		//Set local values
 		this.localValue = value;
 		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
-		//Broadcast change
-		this.$emit("update:modelValue", this.localValue);
 	}
 }
 </script>
@@ -171,6 +181,7 @@ export default class Slider extends Vue {
 	touch-action: none;
 	cursor: pointer;
 	overflow: hidden;
+	user-select: none;
 
 	.gratuations {
 		position: absolute;
@@ -198,6 +209,18 @@ export default class Slider extends Vue {
 		min-width: 1px;
 		z-index: 1;
 		// transition: width .1s;
+	}
+	&.dotMode {
+		padding: 0 8px;
+		.fill {
+			width: calc(1em - 2px);
+			height: calc(100% - 2px);
+			transform: translateX(-50%);
+		}
+		.gratuations {
+			width: calc(100% - 10px);
+			margin-left: 5px;
+		}
 	}
 
 	input {
@@ -236,6 +259,17 @@ export default class Slider extends Vue {
 		}
 		.gratuations {
 			@c2: var(--color-alert-light);
+			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
+		}
+	}
+	
+	&.light {
+		background-color: var(--color-light-fadest);
+		.fill {
+			background-color: var(--color-light);
+		}
+		.gratuations {
+			@c2: var(--color-light-light);
 			background-image: linear-gradient(90deg, transparent 0%, transparent calc(100% - 1px), @c2 100%);
 		}
 	}

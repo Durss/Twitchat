@@ -82,6 +82,7 @@
 				v-model:showChatUsers="showChatUsers" @update:showChatUsers="(v:boolean) => showChatUsers = v"
 				v-model:showShoutout="showShoutout" @update:showShoutout="(v:boolean) => showShoutout = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
+				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
 			/>
 		</div>
 
@@ -118,6 +119,10 @@
 		<ShoutoutList class="contentWindows shoutout"
 			v-if="showShoutout"
 			@close="showShoutout = false" />
+
+		<EndingCreditsControls class="contentWindows credits"
+			v-if="showCredits"
+			@close="showCredits = false" />
 		
 		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
 		
@@ -194,6 +199,7 @@ import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
 import QuestionAndAnswer from '@/components/chatform/QuestionAndAnswer.vue';
+import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 
 @Component({
 	components:{
@@ -237,6 +243,7 @@ import QuestionAndAnswer from '@/components/chatform/QuestionAndAnswer.vue';
 		ChatSuggestionState,
 		TwitchatAnnouncement,
 		ChannelNotifications,
+		EndingCreditsControls,
 		EmergencyFollowsListModal,
 	},
 })
@@ -247,8 +254,9 @@ export default class Chat extends Vue {
 	public showEmotes = false;
 	public showRewards = false;
 	public showDevMenu = false;
-	public showCommands = false;
+	public showCredits = false;
 	public voiceControl = true;
+	public showCommands = false;
 	public showShoutout = false;
 	public showChatUsers = false;
 	public showBlinkLayer = false;

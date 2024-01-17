@@ -174,14 +174,14 @@
 					<Icon class="icon" name="user"/>
 				</div>
 	
-				<!-- <transition name="blink">
+				<transition name="blink">
 					<ButtonNotification class="credits"
 						icon="credits"
 						v-if="creditsOverlayRunning"
 						:aria-label="$t('chat.form.creditsBt_aria')"
 						v-tooltip="$t('chat.form.creditsBt_aria')"
-						@click="openModal('credits')" />
-				</transition> -->
+						@click="$emit('update:showCredits', true)" />
+				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification class="voice"
@@ -317,7 +317,8 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 		"update:showRewards",
 		"update:showDevMenu",
 		"update:showShoutout",
-		"setCurrentNotification"
+		"setCurrentNotification",
+		"update:showCredits",
 	],
 })
 export default class ChatForm extends Vue {

@@ -1,0 +1,10 @@
+{
+	"credits_control": {
+		"force_startBt": "Start",
+		"pauseBt":"Pause",
+		"stopBt":"Stop",
+		"nextBt":"Next",
+		"prevBt":"Prev",
+		"speed":"Speed"
+	}
+}
