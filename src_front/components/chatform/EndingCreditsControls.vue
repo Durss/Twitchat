@@ -34,6 +34,8 @@ export default class EndingCreditsControls extends Vue {
 
 	public speed:number = 0;
 	public ignoreSpeedchange:boolean = false;
+	
+	private clickHandler!:(e:MouseEvent) => void;
 
 	public async stop():Promise<void> {
 		const summary:TwitchatDataTypes.StreamSummaryData = {
@@ -53,6 +55,16 @@ export default class EndingCreditsControls extends Vue {
 			chatters:[],
 		}
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+	}
+
+	public mounted():void {
+		this.open();
+		this.clickHandler = (e:MouseEvent) => this.onClick(e);
+		document.addEventListener("mousedown", this.clickHandler);
+	}
+
+	public beforeUnmount():void {
+		document.removeEventListener("mousedown", this.clickHandler);
 	}
 	
 	public async start():Promise<void> {
@@ -85,6 +97,34 @@ export default class EndingCreditsControls extends Vue {
 		}, onComplete:()=>{
 			this.ignoreSpeedchange = false;
 		}});
+	}
+
+	private open():void {
+		const element = this.$el as HTMLDivElement;
+		gsap.killTweensOf(element);
+		gsap.from(element, {duration:.2, scaleX:0, delay:.1, clearProps:"scaleX", ease:"back.out"});
+		gsap.from(element, {duration:.3, scaleY:0, clearProps:"scaleY", ease:"back.out"});
+	}
+
+	private close():void {
+		const element = this.$el as HTMLDivElement;
+		gsap.killTweensOf(element);
+		gsap.to(element, {duration:.3, scaleX:0, ease:"back.in"});
+		gsap.to(element, {duration:.2, scaleY:0, delay:.1, clearProps:"scaleY, scaleX", ease:"back.in", onComplete:() => {
+			this.$emit("close");
+		}});
+	}
+
+	private onClick(e:MouseEvent):void {
+		let target = e.target as HTMLDivElement;
+		const ref = this.$el as HTMLDivElement;
+		while(target != document.body && target != ref && target) {
+			target = target.parentElement as HTMLDivElement;
+		}
+		if(target != ref) {
+			//Close if clicking out of the holder
+			this.close();
+		}
 	}
 
 }
