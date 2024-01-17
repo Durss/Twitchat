@@ -7,11 +7,15 @@
 			</div>
 			<div class="description">{{ currentSession.command }}</div>
 			<CloseButton @click="close()" />
+			<!-- <div class="ctas">
+				<TTButton secondary icon="cross">Close session</TTButton>
+				<TTButton alert icon="trash">Delete session</TTButton>
+			</div> -->
 		</div>
 
 		<div class="content">
 			<div class="messageList" ref="messageList">
-				<div v-for="(m, index) in currentSession.messages" :key="m.id" class="messageItem">
+				<div v-for="(m, index) in messages" :key="m.id" class="messageItem">
 					<ChatMessage class="message" :messageData="m" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
@@ -31,11 +35,16 @@
 						icon="delete" />
 				</div>
 			</div>
-			
-			<div class="userlist" v-if="$store.qna.activeSessions.length > 1">
+
+			<div class="pagination" v-if="pageCount > 1">
+				<TTButton v-for="i in pageCount" :selected="pageIndex == i-1" @click="pageIndex = i-1">{{ i }}</TTButton>
+			</div>
+			 
+			<div class="userlist">
 				<div v-for="s in $store.qna.activeSessions" :key="s.id" class="user">
-					<TTButton small class="login" @click="currentSession = s" :selected="currentSession.id == s.id">{{ s.command }}</TTButton>
-					<TTButton small class="delete" icon="trash" @click="deleteSession(s.id)" alert></TTButton>
+					<TTButton class="login" @click="currentSession = s" :selected="currentSession.id == s.id">{{ s.command }}</TTButton>
+					<TTButton class="close" icon="pause" @click="closeSession(s.id)" secondary></TTButton>
+					<TTButton class="delete" icon="trash" @click="deleteSession(s.id)" alert></TTButton>
 				</div>
 			</div>
 		</div>
@@ -43,16 +52,16 @@
 </template>
 
 <script lang="ts">
+import TwitchatEvent from '@/events/TwitchatEvent';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import CloseButton from '../CloseButton.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTButton from '../TTButton.vue';
-import Utils from '@/utils/Utils';
-import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -61,15 +70,25 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 		ChatMessage,
 		ChatMessageChunksParser,
 	},
-	emits:[],
+	emits:["close"],
 })
 export default class QnaList extends AbstractSidePanel {
 	
 	public overlayAvailable = false;
 	public highlightLoading = true;
-
+	public itemsPerPage = 20;
+	public pageIndex = 0;
 
 	public currentSession!:TwitchatDataTypes.QnaSession;
+
+	public get pageCount():number {
+		return Math.ceil(this.currentSession.messages.length / this.itemsPerPage);
+	}
+
+	public get messages():TwitchatDataTypes.TranslatableMessage[] {
+		const start = this.pageIndex * this.itemsPerPage;
+		return this.currentSession.messages.slice(start, this.itemsPerPage + start);
+	}
 
 	public getTime(message:TwitchatDataTypes.TranslatableMessage):string {
 		const d = new Date(message.date);
@@ -91,11 +110,17 @@ export default class QnaList extends AbstractSidePanel {
 	}
 
 	public closeSession(id:string):void {
-		this.$store.qna.stopSession(id);
+		this.$confirm(this.$t("qna.list.close_confirm.title"), this.$t("qna.list.close_confirm.description"))
+		.then(()=>{
+			this.$store.qna.stopSession(id);
+		});
 	}
 
 	public deleteSession(id:string):void {
-		this.$store.qna.deleteSession(id);
+		this.$confirm(this.$t("qna.list.delete_confirm.title"), this.$t("qna.list.delete_confirm.description"))
+		.then(()=>{
+			this.$store.qna.deleteSession(id);
+		});
 	}
 
 	/**
@@ -103,7 +128,10 @@ export default class QnaList extends AbstractSidePanel {
 	 * @param m 
 	 */
 	public async unpin(m:TwitchatDataTypes.TranslatableMessage, index:number):Promise<void> {
-		this.currentSession.messages.splice(index, 1);
+		this.currentSession.messages.splice(index + this.pageIndex * this.itemsPerPage, 1);
+		if(this.pageIndex >= this.pageCount) {
+			this.pageIndex = this.pageCount - 1;
+		}
 	}
 	
 	/**
@@ -145,6 +173,18 @@ export default class QnaList extends AbstractSidePanel {
 <style scoped lang="less">
 .qnalist{
 
+	.head {
+		.ctas {
+			gap: 1em;
+			row-gap: .25em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			justify-content: center;
+			align-items: center;
+		}
+	}
+
 	.messageList {
 		overflow-y: auto;
 		display: flex;
@@ -168,10 +208,28 @@ export default class QnaList extends AbstractSidePanel {
 			.button {
 				width: fit-content;
 				min-width: fit-content;
+				align-self: flex-start;
 			}
 
 		}
 	}
+
+	.pagination {
+		gap: .5em;
+		row-gap: .25em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		button {
+			padding: .25em .5em;
+			min-width: 1em;
+			border-radius: var(--border-radius);
+			color: var(--color-light);
+			background-color: var(--color-button);
+		}
+	}
+
 	.userlist {
 		display: flex;
 		flex-direction: row;
@@ -182,13 +240,16 @@ export default class QnaList extends AbstractSidePanel {
 		.user {
 			display: flex;
 			flex-direction: row;
-			.login {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
+			* {
+				border-radius: 0;
 			}
-			.delete {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
+			*:first-child{
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			*:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 				padding: 0 .5em;
 			}
 		}

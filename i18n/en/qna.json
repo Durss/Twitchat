@@ -9,7 +9,17 @@
 			"conflict":"A Q&A session already exists for that command"
 		},
 		"list":{
-			"title":"Q&A sessions"
+			"title":"Q&A sessions",
+			"close_tt":"Clore la session",
+			"delete_tt":"Supprimer la session",
+			"close_confirm":{
+				"title":"Clore la session ?",
+				"description":"Les viewers ne pourront plus soumettre de question. Les question courantes seront conservées."
+			},
+			"delete_confirm":{
+				"title":"Supprimer la session ?",
+				"description":"Toutes les entrées actuelles seront perdues."
+			}
 		}
 	}
 }

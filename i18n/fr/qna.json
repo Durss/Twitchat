@@ -9,7 +9,17 @@
 			"conflict":"Une session de FAQ existe déjà pour cette commande"
 		},
 		"list": {
-			"title":"Sessions de FAQ"
+			"title":"Sessions de FAQ",
+			"close_tt":"Close entries",
+			"delete_tt":"Delete session",
+			"close_confirm":{
+				"title":"Close session?",
+				"description":"Viewers won't be able to submit new entries. Current entries will remain."
+			},
+			"delete_confirm":{
+				"title":"Delete session?",
+				"description":"All entries will be lost."
+			}
 		}
 	}
 }

@@ -49,7 +49,7 @@ export const storeQna = defineStore('qna', {
 		handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void{
 			cmd = cmd.toLowerCase();
 			const session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
-			if(session) {
+			if(session && session.open) {
 				session.messages.push(message);
 			}
 		},
