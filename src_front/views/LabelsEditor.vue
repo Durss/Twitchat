@@ -11,17 +11,23 @@
 				:value="value"
 				:parentKey="key"
 				:class="getProgressClasses(key)"
-				@click="onSelectSection(value, key)">{{ key }}</TTButton>
+				@click="onSelectSection(key)">{{ key }}</TTButton>
 			</div>
 	
 			<TTButton @click="exportZIP()" secondary icon="download">Export ZIP</TTButton>
+			<TTButton @click="downloadSection()" secondary icon="download" v-if="selectedSection">Download current section</TTButton>
+			<form class="searchForm" @submit.prevent="doSearch()">
+				<input v-model="search" type="text" placeholder="search text..." @keydown.esc="search = ''; searchKeys = []">
+				<TTButton icon="checkmark" type="submit"></TTButton>
+			</form>
+			<div class="card-item alert" v-if="noResult">No result</div>
 		</div>
 
 		<template v-if="selectedSection">
 			<div class="card-item progress"
 			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
 	
-			<div class="labels card-item" v-if="selectedSection">
+			<div class="labels card-item">
 				<div class="header">
 					<h2 class="title">{{ selectedSectionKey }}</h2>
 				</div>
@@ -29,6 +35,7 @@
 					<LabelsEditorEntry
 						:value="value"
 						:langRef="langRef"
+						:pathToSelect="pathToSelect"
 						:path="[selectedSectionKey,key]"
 						@change="computeProgresses()"
 						/>
@@ -36,6 +43,22 @@
 			</div>
 			<div class="floatingActions" v-if="progresses[selectedSectionKey].done < progresses[selectedSectionKey].total">
 				<TTButton icon="down" alert @click="nextError()"></TTButton>
+			</div>
+		</template>
+
+		<template v-else-if="searchKeys.length > 0">
+			<div class="labels card-item search" v-for="(value, key) in searchKeys" :key="value.join('.')">
+				<div class="header">
+					<h2 class="title">{{ value.slice(0, value.length-1).join(".") }}</h2>
+				</div>
+				<div class="content">
+					<LabelsEditorEntry
+						value="couille"
+						:langRef="langRef"
+						:path="value"
+						/>
+					<TTButton icon="newtab" @click="onSelectSection(value[0], value)"></TTButton>
+				</div>
 			</div>
 		</template>
 	</div>
@@ -70,6 +93,10 @@ export default class LabelsEditor extends Vue {
 	public labels:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public progresses:{[key:string]:{total:number, done:number}} = {};
 	public langRef = "en";
+	public search = "";
+	public searchKeys:string[][] = [];
+	public pathToSelect:string[] = [];
+	public noResult:boolean = false;
 
 	private currentErrorIndex = -1;
 
@@ -90,12 +117,19 @@ export default class LabelsEditor extends Vue {
 		this.computeProgresses();
 	}
 
-	public onSelectSection(value:any, key:string):void {
+	public onSelectSection(key:string, pathToSelect:string[] = []):void {
 		if(this.selectedSectionKey === key) return;
-		this.selectedSection = value;
+		this.selectedSection = this.labels[key as keyof typeof this.labels];
 		this.selectedSectionKey = key;
 		this.currentErrorIndex = -1;
+		this.pathToSelect = pathToSelect;
 		this.computeProgresses();
+	}
+
+	public async downloadSection():Promise<void> {
+		const json:any = {};
+		json[this.selectedSectionKey] = this.selectedSection;
+		Utils.downloadFile(this.selectedSectionKey+".json", JSON.stringify(json))
 	}
 
 	public async exportZIP():Promise<void> {
@@ -173,7 +207,37 @@ export default class LabelsEditor extends Vue {
 		const bounds = item.getBoundingClientRect();
 		const holder = document.body.getElementsByClassName("app")[0];//Yup. Absolutely dirty.
 		gsap.to(holder, {duration:.5, scrollTo:{y:bounds.top + holder.scrollTop - document.body.clientHeight/2.5}});
-		gsap.fromTo(item, {scaleY:1.5, filter:"brightness(2)"}, {duration:.25, scaleY:1, filter:"brightness(1)", clearProps:"filter,scaleY", delay:.5});
+		gsap.fromTo(item, {scaleY:1.5, filter:"brightness(2)"}, {duration:.25, scaleY:1, filter:"brightness(1)", clearProps:"filter,scaleY", delay:.5, immediateRender:false});
+	}
+
+	public doSearch():void {
+		if(this.search.length < 2) return;
+		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
+		const searchValueWithPaths = (json:any, searchWord:string, currentPath:string[] = []):string[][] => {
+			let matchingPaths:string[][] = [];
+
+			for (const key in json) {
+				const newPath:string[] = currentPath.concat(key);
+
+				if (typeof json[key] === 'object') {
+					// Recursively search in nested objects
+					const nestedMatches = searchValueWithPaths(json[key], searchWord, newPath);
+					matchingPaths = matchingPaths.concat(nestedMatches);
+				} else if (typeof json[key] === 'string' && json[key].includes(searchWord)) {
+					// Check if the string value contains the search word
+					matchingPaths.push(newPath);
+				}
+			}
+
+			return matchingPaths;
+		}
+		this.selectedSection = null;
+		this.selectedSectionKey = "";
+		this.searchKeys = searchValueWithPaths(labels, this.search);
+		this.noResult = this.searchKeys.length == 0;
+		setTimeout(()=> {
+			this.noResult = false;
+		}, 1000);
 	}
 
 }
@@ -222,12 +286,47 @@ export default class LabelsEditor extends Vue {
 		display: flex;
 		flex-direction: column;
 		align-self: stretch;
+
+		&.search {
+			.content {
+				gap: .25em;
+				display: flex;
+				flex-direction: row;
+				align-self: stretch;
+				.label {
+					flex: 1;
+				}
+				.button {
+					flex-basis: 2em;
+					padding: 0;
+				}
+			}
+		}
 	}
 	
 	.floatingActions {
 		position: fixed;
 		bottom: 1em;
 		right: 1em;
+	}
+
+	.searchForm {
+		margin: auto;
+		display: flex;
+		flex-direction: row;
+		align-self: stretch;
+		
+		&>* {
+			border-radius: 0;
+		}
+		&>*:first-child{
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+		&>*:last-child {
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+		}
 	}
 }
 </style>

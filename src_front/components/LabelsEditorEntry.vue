@@ -8,10 +8,11 @@
 			:value="val"
 			:langRef="langRef"
 			:path="[...path,key]"
+			:pathToSelect="pathToSelect"
 			:key="path.join()" />
 	</div>
 	
-	<div class="label" :class="classes" v-else @mouseenter="open()" @mouseleave="close()">
+	<div class="label" :class="classes" v-else @click="open($event)">
 		<strong class="key">{{path[path.length-1]}}</strong>
 		<div class="form">
 			<contenteditable class="text" tag="div"
@@ -34,15 +35,15 @@
 </template>
 
 <script lang="ts">
+import StoreProxy from '@/store/StoreProxy';
+import type { RemoveIndexSignature } from '@intlify/core-base';
+import gsap from 'gsap';
+import { watch } from 'vue';
+import contenteditable from 'vue-contenteditable';
+import CountryFlag from 'vue-country-flag-next';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
-import type { RemoveIndexSignature } from '@intlify/core-base';
-import contenteditable from 'vue-contenteditable';
-import { watch } from 'vue';
-import StoreProxy from '@/store/StoreProxy';
-import CountryFlag from 'vue-country-flag-next';
 import TTButton from './TTButton.vue';
-import gsap from 'gsap';
 
 @Component({
 	name:"LabelsEditorEntry",
@@ -62,15 +63,20 @@ export default class LabelsEditorEntry extends Vue {
 	public path!:string[];
 
 	@Prop
+	public pathToSelect!:string[];
+
+	@Prop
 	public langRef!:string;
 
 	public labelValue:string = "";
 	public showSources:boolean = false;
 	public defaultLabel ="### MISSING LABEL ###";
 	
+	private opened = false;
 	private wasErrored = false;
 	private defaultHeight = 0;
 	private originalType:"string"|"boolean"|"number" = "string";
+	private clickHandler!:(e:MouseEvent) => void;
 
 	public get isLabel():boolean {
 		return typeof this.value == "string" ||  typeof this.value == "number" || typeof this.value == "boolean";
@@ -103,14 +109,33 @@ export default class LabelsEditorEntry extends Vue {
 		this.originalType = typeof this.value as typeof this.originalType;
 		this.initLabel();
 
+		this.clickHandler = (e:MouseEvent) => {
+			let t = e.target as HTMLElement;
+			while(t != this.$el && t != document.body && t) {
+				t = t.parentElement as HTMLElement;
+			}
+			if(t == document.body) this.close();
+		};
+		document.addEventListener("click", this.clickHandler);
+
 		watch(()=>this.$i18n.locale, ()=> {
 			this.initLabel();
 		});
 	}
 
+	public mounted():void {
+		if(this.path.join(".") == (this.pathToSelect || []).join(".")) {
+			(this.$el as HTMLElement).scrollIntoView();
+			gsap.fromTo(this.$el, {scaleY:1.5, filter:"brightness(4)"}, {duration:.5, scaleY:1, ease:"sine.in", filter:"brightness(1)", clearProps:"filter,scaleY", delay:.25, immediateRender:false});
+		}
+	}
+
+	public beforeUnmount():void {
+		document.removeEventListener("click", this.clickHandler);
+	}
+
 	public initLabel():void {
 		let label = this.getUnparsedLabel(this.$i18n.locale);
-		if(this.path[this.path.length-1] == "firstTime_tt") console.log((label == "" && this.getUnparsedLabel(this.langRef) != ""));
 		if(label == undefined || (label == "" && this.getUnparsedLabel(this.langRef) != "")) {
 			this.labelValue = this.defaultLabel;
 		}else{
@@ -125,7 +150,9 @@ export default class LabelsEditorEntry extends Vue {
 		this.onEditLabel();
 	}
 
-	public open():void {
+	public open(e:MouseEvent):void {
+		if(this.opened) return;
+		this.opened = true;
 		this.showSources = true;
 		const bounds = (this.$el as HTMLElement).getBoundingClientRect();
 		this.defaultHeight = bounds.height;
@@ -135,6 +162,8 @@ export default class LabelsEditorEntry extends Vue {
 	}
 
 	public close():void {
+		if(!this.opened) return;
+		this.opened = false;
 		gsap.to(this.$el, {height:this.defaultHeight, duration:.25, clearProps:"height", onComplete:()=>{
 			this.showSources = false;
 		}});
@@ -177,7 +206,6 @@ export default class LabelsEditorEntry extends Vue {
 		const errored = this.labelValue == this.defaultLabel;
 		if(!reinit) this.wasErrored = errored;
 		else if(this.wasErrored != errored) {
-			console.log("CHANGE");
 			this.$emit("change");
 		}
 	}
