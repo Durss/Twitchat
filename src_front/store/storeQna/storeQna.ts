@@ -55,7 +55,27 @@ export const storeQna = defineStore('qna', {
 			const isHighlightReward = message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 				&& (message as TwitchatDataTypes.MessageRewardRedeemData).reward.id == Config.instance.highlightMyMessageReward.id;
 			if(session && session.open && !isHighlightReward) {
-				session.messages.push(message);
+				//Clone object
+				const clone:any = {};
+				for (const key in message) {
+					clone[key] = message[key as keyof typeof message];
+				}
+				const typedClone = clone as TwitchatDataTypes.TranslatableMessage;
+				typedClone.message_chunks = JSON.parse(JSON.stringify(typedClone.message_chunks)) || [];
+				//Remove command from messages
+				for (let i = 0; i < typedClone.message_chunks!.length; i++) {
+					const c = typedClone.message_chunks![i];
+					if(c.type == "text") {
+						c.value = c.value.replace(new RegExp(cmd, "i"), "").trim();
+						if(c.value.length == 0) {
+							typedClone.message_chunks?.splice(i, 1);
+						}
+						break;
+					}
+				}
+				typedClone.message = (typedClone.message || "").replace(new RegExp(cmd, "i"), "").trim();
+				typedClone.message_html = (typedClone.message_html || "").replace(new RegExp(cmd, "i"), "").trim();
+				session.messages.push(typedClone);
 			}
 		},
 

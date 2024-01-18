@@ -42,8 +42,8 @@
 			 
 			<div class="userlist">
 				<div v-for="s in $store.qna.activeSessions" :key="s.id" class="user">
-					<TTButton class="login" @click="currentSession = s" :selected="currentSession.id == s.id">{{ s.command }}</TTButton>
-					<TTButton class="close" icon="pause" @click="closeSession(s.id)" secondary></TTButton>
+					<TTButton class="login" @click="currentSession = s" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
+					<TTButton class="close" icon="pause" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
 					<TTButton class="delete" icon="trash" @click="deleteSession(s.id)" alert></TTButton>
 				</div>
 			</div>
@@ -240,19 +240,24 @@ export default class QnaList extends AbstractSidePanel {
 		.user {
 			display: flex;
 			flex-direction: row;
-			* {
+			button {
 				border-radius: 0;
 			}
-			*:first-child{
+			button:first-child{
 				border-top-left-radius: var(--border-radius);
 				border-bottom-left-radius: var(--border-radius);
 			}
-			*:last-child {
+			button:last-child {
 				border-top-right-radius: var(--border-radius);
 				border-bottom-right-radius: var(--border-radius);
 				padding: 0 .5em;
 			}
 		}
+	}
+	i {
+		font-weight: normal;
+		font-size: .9em;
+		padding: 0;
 	}
 }
 </style>
