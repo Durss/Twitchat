@@ -27,7 +27,7 @@
 		"obs": {
 			"title": "Contrôlez OBS depuis le tchat",
 			"info_1": "Vous avez tendance à oublier de changer de scène ou de vous unmute ?",
-			"info_2": "Permettez à vos modos de le faire pour vous depuis des commandes de tchat ?"
+			"info_2": "Permettez à vos modos de le faire pour vous depuis des commandes de tchat !"
 		},
 		"api": {
 			"title": "API Twitchat",
@@ -38,7 +38,7 @@
 		"music": {
 			"title": "Contrôlez Spotify",
 			"info_1": "Liez Twitchat à Spotify pour afficher le morceau en cours de lecture sur vos overlays ou permettre à vos viewers de contrôler la lecture via le tchat ou des points de chaîne.",
-			"info_2": "Vous pouvez également créer votre propre système de song request ?"
+			"info_2": "Vous pouvez également créer votre propre système de song request !"
 		},
 		"overlays": {
 			"title": "Overlays Twitchat",
