@@ -1,6 +1,6 @@
 {
 	"credits_control": {
-		"force_startBt": "Start",
+		"force_startBt": "Restart",
 		"pauseBt":"Pause",
 		"stopBt":"Stop",
 		"nextBt":"Next",

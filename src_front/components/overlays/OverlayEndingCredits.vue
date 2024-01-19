@@ -510,7 +510,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			this.speedScaleInc = data.speed;
 		}
 		if(data.next === true || data.prev === true) {
-			this.interpolating = true;
+			let targetYPos = window.innerHeight * .5;
 			
 			const lists = this.$refs.listItem as HTMLDivElement[];
 			let closestPos = Number.MAX_VALUE;
@@ -518,32 +518,33 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			//Search item closest to top of screen
 			lists.forEach((item, index) => {
 				const bounds = item.getBoundingClientRect();
-				if(Math.abs(bounds.top) < closestPos) {
+				let py = bounds.top - targetYPos;
+				if(data.prev) py += bounds.height;
+				if(py < closestPos && py > 0 || (closestItemIndex == -1 && index == lists.length-1)) {
+				// if(data.next && py < closestPos && py > 0) {
 					closestItemIndex = index;
-					closestPos = Math.abs(bounds.top);
+					closestPos = py;
 				}
 			});
 
-			if(closestItemIndex > -1) {
-				//If asking for next item, incrementt the index to get the next one.
-				//except if that item is more that 25% bellow the top of the screen.
-				//This way, if clickinig "next" when scrolling only starts it will bring
-				//the first item to top instead of the second one
-				if(data.next && closestPos < window.innerHeight * .25) closestItemIndex ++;
-				if(data.prev) closestItemIndex --;
-				//Loop index both ways
-				closestItemIndex = closestItemIndex % lists.length;
-				if(closestItemIndex < 0) closestItemIndex = lists.length + closestItemIndex;
-				//Animate holder's position
-				const bounds = lists[closestItemIndex].getBoundingClientRect();
-				const tween = {y:0};
-				const offset = this.posY;
-				gsap.to(tween, {y:bounds.y, duration: 1, ease:"sine.inOut", onUpdate:()=>{
-					this.posY = offset - tween.y;
-				}, onComplete:()=>{
-					this.interpolating = false;
-				}});
-			}
+			this.interpolating = true;
+			//If asking for next item, increment the index to get the next one.
+			//Only next if it's already above the limit
+			if(data.next && closestPos < 0) closestItemIndex ++;
+			//If asking for prev item, decrement the index to get the prev one.
+			if(data.prev) closestItemIndex --;
+			//Loop index both ways
+			closestItemIndex = closestItemIndex % lists.length;
+			if(closestItemIndex < 0) closestItemIndex = lists.length + closestItemIndex;
+			//Animate holder's position
+			const bounds = lists[closestItemIndex].getBoundingClientRect();
+			const tween = {y:0};
+			const offset = this.posY;
+			gsap.to(tween, {y:bounds.y - targetYPos, duration: 1, ease:"sine.inOut", onUpdate:()=>{
+				this.posY = offset - tween.y;
+			}, onComplete:()=>{
+				this.interpolating = false;
+			}});
 
 		}
 	}

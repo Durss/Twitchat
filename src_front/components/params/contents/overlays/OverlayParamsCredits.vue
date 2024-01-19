@@ -12,7 +12,7 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
+			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" :sourceTransform="{width:1376}" />
 		</section>
 		
 		<section class="card-item expand">

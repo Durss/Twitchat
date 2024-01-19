@@ -7,7 +7,7 @@
 		<TTButton @click="prev()" icon="prev">{{ $t("credits_control.prevBt") }}</TTButton>
 		<TTButton @click="next()" icon="next">{{ $t("credits_control.nextBt") }}</TTButton>
 		<TTButton @click="stop()" icon="stop">{{ $t("credits_control.stopBt") }}</TTButton>
-		<TTButton @click="start()" icon="play">{{ $t("credits_control.force_startBt") }}</TTButton>
+		<TTButton @click="start()" icon="refresh">{{ $t("credits_control.force_startBt") }}</TTButton>
 	</div>
 </template>
 
@@ -28,7 +28,7 @@ import gsap from 'gsap';
 		Slider,
 		TTButton,
 	},
-	emits:[],
+	emits:["close"],
 })
 export default class EndingCreditsControls extends Vue {
 

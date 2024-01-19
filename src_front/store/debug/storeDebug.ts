@@ -1216,7 +1216,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
-						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
+						duration_s:Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120]),
 						startedBy:user,
 						channel_id:uid,
 					};
@@ -1230,7 +1230,7 @@ export const storeDebug = defineStore('debug', {
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
-						duration_s:Utils.pickRand([10000, 15000, 20000, 23000, 25000, 27000, 30000, 35000, 60000, 90000, 120000]),
+						duration_s:Utils.pickRand([10, 15, 20, 23, 25, 27, 30, 35, 60, 90, 120]),
 						startedBy:user,
 						channel_id:uid,
 					};
