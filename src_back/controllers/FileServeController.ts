@@ -263,7 +263,6 @@ export default class FileServeController extends AbstractController {
 		Logger.info("Updating labels section \""+section+"\"");
 
 		try {
-			await new Promise<void>((resolve)=> setTimeout(() => resolve(), 5000));
 			await new Promise<void>(resolve => {
 				fs.writeFileSync(path.join(Config.LABELS_ROOT, lang+"/"+section+".json"), JSON.stringify(json, null, "\t"), "utf-8");
 				const script = path.join(Config.LABELS_ROOT, "../src_labels/index.js");
