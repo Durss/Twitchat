@@ -1483,11 +1483,6 @@ export interface IUsersActions {
 	 */
 	preloadTwitchModerators(channelId:string):Promise<void>;
 	/**
-	 * Load currently banned accounts
-	 * @param channelId 
-	 */
-	preloadUserBanStates(channelId:string):Promise<void>;
-	/**
 	 * Get a user from their id nor login.
 	 * Asynchronously load any missing data if necessary.
 	 * Async loading are batched if the function is called sequentially for many users
@@ -1553,7 +1548,7 @@ export interface IUsersActions {
 	 * @param uid 
 	 * @param duration_s 
 	 */
-	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void;
+	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void>;
 	/**
 	 * Flag a user as not banned
 	 * @param platform 

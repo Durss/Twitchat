@@ -11,7 +11,7 @@
 		</div>
 
 		<section v-if="!showForm">
-			<Button icon="add" @click="showForm = true" v-if="canCreateValues">{{ $t('values.addBt') }}</Button>
+			<Button icon="add" @click="showForm = true" v-if="canCreateValues" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_create'}">{{ $t('values.addBt') }}</Button>
 			<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("values.max_values_reached", {COUNT:maxValues}) }}</div>
 			<template v-else>
 				<div class="card-item secondary">{{ $t("error.max_values", {COUNT:maxValues}) }}</div>
@@ -23,7 +23,10 @@
 			<form @submit.prevent="createValue()">
 				<ParamItem :paramData="param_title" :errorMessage="$t('values.form.name_conflict')" />
 				<ParamItem :paramData="param_value" />
-				<ParamItem :paramData="param_more" />
+				<ParamItem :paramData="param_more" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more'}">
+					<ParamItem class="child" noBackground :paramData="param_userSpecific" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'values_form_more_peruser'}" />
+					<ParamItem class="child" noBackground :paramData="param_placeholder" />
+				</ParamItem>
 				<div class="ctas">
 					<Button type="button" icon="cross" alert @click="cancelForm()">{{ $t('global.cancel') }}</Button>
 					<Button type="submit" v-if="!editedValue" icon="add" :disabled="param_title.value.length == 0 || param_title.error || param_placeholder.error">{{ $t('global.create') }}</Button>
@@ -171,8 +174,6 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	}
 
 	public mounted(): void {
-		this.param_more.children = [this.param_userSpecific, this.param_placeholder];
-
 		for (let i = 0; i < this.valueEntries.length; i++) {
 			const element = this.valueEntries[i];
 			this.search[element.value.id] = "";

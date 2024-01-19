@@ -117,21 +117,6 @@ export const storeUsers = defineStore('users', {
 		},
 
 		/**
-		 * Preloads latest ban states
-		 */
-		async preloadUserBanStates(channelId:string):Promise<void> {
-			const users = await TwitchUtils.getBannedUsers(channelId, userList.filter(v=>v.platform == "twitch").map(v=>v.id));
-			for (let i = 0; i < users.length; i++) {
-				const u = users[i];
-				const user = this.getUserFrom("twitch", channelId, u.user_id, u.user_login, u.user_name);
-				user.channelInfo[channelId].is_banned = true;
-				if(u.expires_at) {
-					user.channelInfo[channelId].banEndDate = new Date(u.expires_at).getTime();
-				}
-			}
-		},
-
-		/**
 		 * Gets a user by their source from their ID nor login.
 		 * It registers the user on the local DB to get them back later.
 		 * If only the login is given, the user's data are loaded asynchronously from
@@ -513,14 +498,15 @@ export const storeUsers = defineStore('users', {
 			StoreProxy.chat.addMessage(m);
 		},
 
-		flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):void {
+		async flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void> {
+			let bannedUser:TwitchatDataTypes.TwitchatUser|null = null;
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
 					u.channelInfo[channelId].is_banned = true;
 					if(u.channelInfo[channelId].is_moderator === true
 					&& StoreProxy.params.features.autoRemod.value == true) {
-						//When banned or timed out twitch removes the mod role
+						//When banned or timed out, twitch removes the moderator role
 						//This flag reminds us to flag them back as mod when timeout completes
 						u.channelInfo[channelId].autoRemod = true;
 					}
@@ -530,7 +516,14 @@ export const storeUsers = defineStore('users', {
 					}else{
 						delete u.channelInfo[channelId].banEndDate;
 					}
+					bannedUser = u;
 					break;
+				}
+			}
+			if(bannedUser && platform == "twitch") {
+				const res = await TwitchUtils.getBannedUsers(channelId, [bannedUser.id]);
+				if(res.length > 0) {
+					bannedUser.channelInfo[channelId].banReason = res[0].reason;
 				}
 			}
 			if(unbanFlagTimeouts[uid]) {

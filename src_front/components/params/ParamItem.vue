@@ -822,7 +822,7 @@ export default class ParamItem extends Vue {
 	}
 
 	&.disabled:not(.error) {
-		filter: grayscale();
+		filter: saturate(50%);
 		cursor: unset;
 		.toggleButton, input, textarea, label {
 			pointer-events: none;

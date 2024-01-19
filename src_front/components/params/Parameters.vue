@@ -42,7 +42,7 @@
 						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
 							<TTButton @click="openPage(element.page, true)"
 								v-newflag="element.newflag"
-								:class="[(element.premium ? 'premiumIndicator' : ''), (element.pinned ? '' : 'disabled')].filter(v=>v!='').join(' ')"
+								:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon), (element.pinned ? '' : 'disabled')].filter(v=>v!='').join(' ')"
 								:icon="editPins? 'dragZone' : element.icon"
 								:selected="content==element.page"
 								:secondary="element.theme == 'secondary'"
@@ -96,6 +96,7 @@
 				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
 				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
 				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
+				<ParamsYoutube v-if="content == contentYoutube" ref="currentContent" />
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
@@ -151,6 +152,8 @@ import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
 import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import draggable from 'vuedraggable';
 import DataStore from '@/store/DataStore';
+import Config from '@/utils/Config';
+import ParamsYoutube from './contents/ParamsYoutube.vue';
 
 @Component({
 	components:{
@@ -172,6 +175,7 @@ import DataStore from '@/store/DataStore';
 		ParamsSpoiler,
 		ParamsAccount,
 		ThemeSelector,
+		ParamsYoutube,
 		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,
@@ -191,20 +195,21 @@ export default class Parameters extends Vue {
 	public editPins:boolean = false;
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
 	public menuEntries:MenuEntry[] = [
-		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:1704102299000, id:'params_chatfeatures_1'}},
-		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:1693519200000, id:'params_chatappearance'}},
+		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
+		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatappearance'}},
 		{pinned:false, icon:"emergency", page:TwitchatDataTypes.ParameterPages.EMERGENCY, labelKey:'params.categories.emergency'},
 		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
-		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:1704102299000, id:'paramsparams_triggers_1'}},
-		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:1693519200000, id:'paramsparams_values'}},
+		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}},
+		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_values'}},
 		{pinned:false, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
-		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:1704102299000, id:'params_overlays_1'}},
+		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_overlays_1'}},
 		{pinned:false, icon:"tts", page:TwitchatDataTypes.ParameterPages.TTS, labelKey:'params.categories.tts'},
-		{pinned:false, icon:"obs", page:TwitchatDataTypes.ParameterPages.OBS, labelKey:'params.categories.obs'},
+		{pinned:false, icon:"obs", page:TwitchatDataTypes.ParameterPages.OBS, labelKey:'params.categories.obs', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_obs'}},
 		{pinned:false, icon:"heat", page:TwitchatDataTypes.ParameterPages.HEAT, labelKey:'params.categories.heat', newflag:{date:1693519200000, id:'params_heat'}},
 		{pinned:true, icon:"voicemod", page:TwitchatDataTypes.ParameterPages.VOICEMOD, labelKey:'params.categories.voicemod'},
 		{pinned:true, icon:"elgato", page:TwitchatDataTypes.ParameterPages.STREAMDECK, labelKey:'params.categories.streamdeck'},
 		{pinned:true, icon:"goxlr", page:TwitchatDataTypes.ParameterPages.GOXLR, labelKey:'params.categories.goxlr', premium:true, newflag:{date:1693519200000, id:'params_goxlr'}},
+		{pinned:true, icon:"youtube", page:TwitchatDataTypes.ParameterPages.YOUTUBE, labelKey:'params.categories.youtube', premium:true, newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_youtube'}},
 		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions'},
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
 		{pinned:false, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
@@ -242,6 +247,7 @@ export default class Parameters extends Vue {
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
+	public get contentYoutube():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.YOUTUBE; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
@@ -663,6 +669,14 @@ interface RawMenuEntry {
 								font-size: .7em;
 								font-weight: bold;
 								transform: rotate(45deg);
+							}
+						}
+						&.youtube {
+							// Youtube requires their logo to be at least 20px high.. let's fuck up UI for them \o/
+							:deep(.icon) {
+								min-height: 20px;
+								max-width: unset;
+								width: unset;
 							}
 						}
 

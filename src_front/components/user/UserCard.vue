@@ -97,6 +97,8 @@
 							<span class="timeoutDuration" v-if="chan.duration">{{ getFormatedTimeoutDuration(chan.duration) }}</span>
 						</div> -->
 					</div>
+
+					<div class="banReason quote" v-if="banReason"><Icon name="ban" /> {{ banReason }}</div>
 					
 					<div class="ctas" v-if="isTwitchProfile">
 						<Button v-if="!is_tracked" small icon="magnet" @click="trackUser()">{{$t('usercard.trackBt')}}</Button>
@@ -205,6 +207,7 @@ export default class UserCard extends Vue {
 	public edittingLogin:boolean = true;
 	public manageBadges:boolean = false;
 	public manageUserNames:boolean = false;
+	public banReason?:string = "";
 	public customLogin:string = "";
 	public createDate:string = "";
 	public followDate:string = "";
@@ -423,6 +426,15 @@ export default class UserCard extends Vue {
 				TwitchUtils.loadCurrentStreamInfo([u.id]).then(v=> {
 					this.currentStream = v[0];
 				});
+				if(user.channelInfo[this.channelId]?.is_banned) {
+					this.banReason = user.channelInfo[this.channelId]?.banReason;
+				}else{
+					TwitchUtils.getBannedUsers(this.channelId, [u.id]).then(res=> {
+						if(res.length > 0) {
+							this.banReason = res[0].reason;
+						}
+					});
+				}
 				TwitchUtils.getFollowerState(u.id).then(v=> {
 					if(v) this.followDate = Utils.formatDate(new Date(v.followed_at));
 				});
@@ -794,6 +806,10 @@ export default class UserCard extends Vue {
 			margin: -.5em 0;
 			align-self: center;
 			flex-shrink: 0;//necessery for shit old safari -_-
+		}
+
+		.banReason {
+			background-color: var(--color-alert-fadest);
 		}
 	
 		.ctas {

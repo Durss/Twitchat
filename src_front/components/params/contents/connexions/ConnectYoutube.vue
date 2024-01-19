@@ -1,5 +1,5 @@
 <template>
-	<ToggleBlock :open="open" class="connectyoutube" title="Youtube" :icons="['youtube']">
+	<component :is="listMode !== false? 'ToggleBlock' : 'div'" :open="open" class="connectyoutube" title="Youtube" :icons="['youtube']">
 		<div class="holder">
 			<div class="card-item primary" v-if="connected && showSuccess" @click="showSuccess = false">{{ $t("connexions.youtube.success") }}</div>
 			<div>{{ $t("connexions.youtube.header") }}</div>
@@ -42,7 +42,7 @@
 				<a href="http://www.google.com/policies/privacy" target="_blank">{{ $t("connexions.youtube.policy") }}</a>
 			</div>
 		</div>
-	</ToggleBlock>
+	</component>
 </template>
 
 <script lang="ts">
@@ -52,7 +52,7 @@ import ApiController from '@/utils/ApiController';
 import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
 import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
@@ -68,6 +68,24 @@ import { Sine } from 'gsap';
 	emits:[],
 })
 export default class ConnectYoutube extends Vue {
+
+	/**
+	 * Used as a temporary solution.
+	 * I originally set this section in the "connections" section.
+	 * I then moved it to the main params menu.
+	 * But in the meantime I requested Google to validate my app
+	 * which requires them to follow a step by step guide I made
+	 * that asks them to check the "connections" section. So I
+	 * can't remove it from that "connections" section until they
+	 * check for it.
+	 * Because of this, this component lives both in the connections
+	 * section and the main Youtube section but one needs to be a
+	 * simple <div> when the other needs a simple div.
+	 * This flag is here to switch between the two modes depending
+	 * on its context
+	 */
+	@Prop({default:false})
+	public listMode!:boolean;
 
 	public open = false;
 	public loading = false;

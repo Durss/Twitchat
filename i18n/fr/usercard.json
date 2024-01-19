@@ -38,6 +38,7 @@
 		"badge_diusabled_notPremium":"Vous ne pouvez avoir que {MAX} badges actifs. Supprimez d'autres badges pour pouvoir le réactiver ou devenez membre Premium pour créer jusqu'à {MAX_PREMIUM} badges personnalisés.",
 		"badge_users":"Personnes associées à ce badge",
 		"badge_users_none":"aucune",
-		"badge_users_reactivate":"Réactiver le badge"
+		"badge_users_reactivate":"Réactiver le badge",
+		"ban_reason":"Raison du ban"
 	}
 }

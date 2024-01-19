@@ -654,7 +654,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):void {
+	public async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageBanData = {
@@ -671,7 +671,9 @@ export default class EventSub {
 			m.duration_s = Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000);
 		}
 		
-		StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
+		//Flag as banned. This also populates the ban reason of the user
+		await StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
+		m.reason = bannedUser.channelInfo[event.broadcaster_user_id].banReason;
 		StoreProxy.chat.addMessage(m);
 	}
 	

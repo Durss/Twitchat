@@ -4,7 +4,7 @@
 
 		<p class="head">{{ $t("connexions.header") }}</p>
 
-		<ConnectYoutube class="blinkBorder" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'blink' : ''" @click="allowHighlight = false" v-if="youtubeEnabled" />
+		<ConnectYoutube listMode is="ToggleBlock" class="blinkBorder" :open="subContent == 'youtube'" :class="allowHighlight && subContent == 'youtube'? 'blink' : ''" @click="allowHighlight = false" v-if="youtubeEnabled" />
 
 		<ToggleBlock class="blinkBorder" :open="subContent == 'obs'" :class="allowHighlight && subContent == 'obs'? 'blink' : ''" @click="allowHighlight = false" title="OBS websocket" :icons="['obs']">
 			<OBSConnectForm />

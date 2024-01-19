@@ -50,18 +50,18 @@
 					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</TTButton>
 	
 				<TTButton class="button" @click="selectActionType('customChat')"
-					v-newflag="{date:1704956100000, id:'params_triggerAction_ttnotif'}"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_ttnotif'}"
 					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</TTButton>
 					
 				<TTButton class="button" @click.capture="selectActionType('reward')"
 					v-if="isAffiliate"
 					icon="channelPoints"
-					v-newflag="{date:1704956100000, id:'params_triggerAction_rewards'}"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_rewards'}"
 					:disabled="!canManageRewards">{{ $t('triggers.actions.common.action_reward') }}</TTButton>
 					
 				<TTButton class="button" @click.capture="selectActionType('extension')"
 					icon="extension"
-					v-newflag="{date:1704956100000, id:'params_triggerAction_extension'}"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_extension'}"
 					:disabled="!canManageExtensions">{{ $t('triggers.actions.common.action_extension') }}</TTButton>
 					
 				<TTButton class="button" @click.capture="selectActionType('poll')"
@@ -157,7 +157,7 @@
 				
 				<TTButton class="button" @click.capture="selectActionType('heat_click')"
 					:disabled="!heatClickEnabled"
-					v-newflag="{date:1699651768211, id:'params_triggerAction_clickHeat'}"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_clickHeat'}"
 					v-tooltip="heatClickEnabled? '' : $t('triggers.actions.common.action_heat_click_tt')"
 					icon="distort">{{ $t('triggers.actions.common.action_heat_click') }}</TTButton>
 			</div>

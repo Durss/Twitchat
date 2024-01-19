@@ -169,9 +169,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 							this.onJoin(v.login, login, login == meObj.login, true);
 						}
 					});
-					if(v.id == meObj.id) {
-						StoreProxy.users.preloadUserBanStates(meObj.id);
-					}
 				});
 				BTTVUtils.instance.addChannel(v.id);
 				FFZUtils.instance.addChannel(v.id);
@@ -928,7 +925,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//can then ignore the event. Otherwise, we send the notificaiton.
 		//We don't wait 1s or more, otherwise if TO for 1s the user would be unbanned
 		//before the setTimeout completes
-		setTimeout(()=> {
+		setTimeout(async ()=> {
 			const channel_id = this.getChannelID(channel);
 			const user = this.getUserStateFromLogin(username, channel_id).user;
 			const isTO = !isNaN(duration as number);
@@ -949,8 +946,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				
 				if(isTO) m.duration_s = duration as number;
 				
+				//Flag as banned. This also populates the ban reason of the user
+				await StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
+				m.reason = user.channelInfo[channel_id].banReason;
 				StoreProxy.chat.addMessage(m);
-				StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 			}
 		},990)
 	}

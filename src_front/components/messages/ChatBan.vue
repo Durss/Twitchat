@@ -6,25 +6,28 @@
 		<Icon name="ban" class="icon" v-else theme="light" />
 		
 		<div class="content">
-			<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
-				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
-				</template>
-				<template #MODERATOR>
-					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
-				</template>
-				<template #DURATION>
-					<strong>{{ formatedBanDuration }}</strong>
-				</template>
-			</i18n-t>
-			<i18n-t scope="global" class="label" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
-				<template #USER>
-					<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
-				</template>
-				<template #MODERATOR>
-					<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
-				</template>
-			</i18n-t>
+			<div class="textContent">
+				<i18n-t scope="global" class="label" v-if="messageData.duration_s" tag="span" :keypath="messageData.moderator? 'global.moderation_action.timeout_by': 'global.moderation_action.timeout'">
+					<template #USER>
+						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					</template>
+					<template #MODERATOR>
+						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
+					</template>
+					<template #DURATION>
+						<strong>{{ formatedBanDuration }}</strong>
+					</template>
+				</i18n-t>
+				<i18n-t scope="global" class="label" v-else tag="span" :keypath="messageData.moderator? 'global.moderation_action.banned_by': 'global.moderation_action.banned'">
+					<template #USER>
+						<a class="userlink" @click.stop="openUserCard(messageData.user)">{{messageData.user.displayName}}</a>
+					</template>
+					<template #MODERATOR>
+						<a class="userlink" v-if="messageData.moderator" @click.stop="openUserCard(messageData.moderator!, messageData.channel_id)">{{messageData.moderator.displayName}}</a>
+					</template>
+				</i18n-t>
+				<div class="quote reason" v-if="messageData.reason">{{ messageData.reason }}</div>
+			</div>
 			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
 		</div>
 	</div>
@@ -96,7 +99,8 @@ export default class ChatBan extends AbstractChatMessage {
 		flex-direction: row;
 		flex-wrap: wrap;
 		flex-grow: 1;
-		.label {
+		align-items: center;
+		.textContent {
 			align-self: flex-start;
 			flex-grow: 1;
 		}

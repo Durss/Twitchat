@@ -143,8 +143,10 @@ export default class OverlayChatHighlight extends Vue {
 	private async onShowClip(e:TwitchatEvent):Promise<void> {
 		await this.hideCurrent();
 		this.loadingClip = true;
+
 		
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
+		console.log(data);
 		this.clipData = data.clip!;
 		this.params = data.params!;
 		this.message = "";
@@ -362,9 +364,6 @@ export default class OverlayChatHighlight extends Vue {
 	}
 
 	.clipHolder {
-		flex-direction: column;
-		justify-content: flex-start;
-		align-items: flex-start;
 		width: 100%;
 		max-width: 50%;
 		aspect-ratio: 16/9;
@@ -372,7 +371,6 @@ export default class OverlayChatHighlight extends Vue {
 		video, iframe {
 			width: 100%;
 			height: 100%;
-			// aspect-ratio: 16/9;
 		}
 		video {
 			object-fit: cover;
@@ -380,8 +378,13 @@ export default class OverlayChatHighlight extends Vue {
 
 		.clipProgress {
 			height: 10px;
+			min-height: 10px;
+			flex-shrink: 0;
 			background-color: var(--color-primary);
 			transition: width .5s linear;
+			position: absolute;
+			left: 0;
+			bottom: 0;
 		}
 	}
 }

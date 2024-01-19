@@ -38,6 +38,7 @@
 		"badge_diusabled_notPremium":"You can only have {MAX} active custom badges. Delete other badges to reactivate it or become a Premium member to create up to {MAX_PREMIUM} custom badges.",
 		"badge_users":"Users associated to this badge",
 		"badge_users_none":"none",
-		"badge_users_reactivate":"Reactivate badge"
+		"badge_users_reactivate":"Reactivate badge",
+		"ban_reason":"Ban reason"
 	}
 }

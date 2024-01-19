@@ -221,10 +221,10 @@ export default class GoogleController extends AbstractController {
 	 */
 	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		//Check if user is premium
-		if(!await this.premiumGuard(request, response) || !this.premiumGuard(request, response)) {
+		if(!await this.premiumGuard(request, response)) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
-			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"GOOGLE_KEY_NOT_CONFIGURED"}));
+			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"NOT_PREMIUM"}));
 		}
 
 		const params:any = request.query;

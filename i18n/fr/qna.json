@@ -1,24 +1,24 @@
 {
 	"qna": {
 		"form": {
-			"title":"Créer une session de FAQ",
-			"subtitle":"Créez une session de questions/réponses avec vos viewers.\nVous pouvez créer plusieurs sessions simultanées.",
+			"title": "Créer une session de questions/réponses",
+			"subtitle": "Vous pouvez créer plusieurs sessions simultanées.",
 			"example_command": "{CMD} {QUESTION}",
 			"example_question": "question posée",
 			"param_command": "Commande",
-			"conflict":"Une session de FAQ existe déjà pour cette commande"
+			"conflict": "Une session de FAQ existe déjà pour cette commande"
 		},
 		"list": {
-			"title":"Sessions de FAQ",
-			"close_tt":"Close entries",
-			"delete_tt":"Delete session",
-			"close_confirm":{
-				"title":"Close session?",
-				"description":"Viewers won't be able to submit new entries. Current entries will remain."
+			"title": "Sessions de questions/réponses",
+			"close_tt": "Clore la session",
+			"delete_tt": "Supprimer la session",
+			"close_confirm": {
+				"title": "Clore la session ?",
+				"description": "Les viewers ne pourront plus soumettre de question. Les question courantes seront conservées."
 			},
-			"delete_confirm":{
-				"title":"Delete session?",
-				"description":"All entries will be lost."
+			"delete_confirm": {
+				"title": "Supprimer la session ?",
+				"description": "Toutes les entrées actuelles seront perdues."
 			}
 		}
 	}

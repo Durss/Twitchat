@@ -14,6 +14,7 @@ import StoreProxy from '../StoreProxy';
 import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { TranslatableLanguagesMap } from '@/TranslatableLanguages';
+import Config from '@/utils/Config';
 
 export const storeParams = defineStore('params', {
 	state: () => ({
@@ -28,7 +29,7 @@ export const storeParams = defineStore('params', {
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
 			firstMessage: 				{save:true, type:"boolean", value:true, labelKey:"params.firstMessage", id:201, icon:"hand", example:"greetThem.png"},
 			saveHistory: 				{save:true, type:"boolean", value:true, labelKey:"params.saveHistory", id:224, icon:"history", storage:{vnew:{date:1693519200000, id:'params_chathistory'}}},
-			autoTranslateFirst: 		{save:true, type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:1704102299000, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
+			autoTranslateFirst: 		{save:true, type:"boolean", value:false, labelKey:"params.autoTranslateFirst", id:229, icon:"translate", storage:{vnew:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_translate'}}, premiumOnly:true, example:"translate_messages.png"},
 			autoTranslateFirstLang:		{save:true, type:"list", value:["en"] as string[], multiple:true, maxLength:1, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_lang", id:231, parent:229, icon:"voice"},
 			autoTranslateFirstSpoken:	{save:true, type:"list", value:["en"] as string[], multiple:true, listValues:Object.values(TranslatableLanguagesMap).map(v=> {return {value:v.iso1, flag:v.flag, label:v.name}}), labelKey:"params.autoTranslateFirst_spoken", id:230, parent:229, icon:"voice"},
 			mergeConsecutive:	 		{save:true, type:"boolean", value:true, labelKey:"params.mergeConsecutive", id:225, icon:"merge", example:"merge_messages.gif", storage:{vnew:{date:1693519200000, id:'params_chatmerge'}}},

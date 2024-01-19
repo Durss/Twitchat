@@ -58,6 +58,7 @@ export namespace TwitchatDataTypes {
 		AD: "ad",
 		CONNEXIONS: "connexions",
 		PREMIUM: "premium",
+		YOUTUBE: "youtube",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
@@ -1340,6 +1341,10 @@ export namespace TwitchatDataTypes {
 		 * Date at which the ban expires on this channel
 		 */
 		banEndDate?:number;
+		/**
+		 * Contains the ban reason
+		 */
+		banReason?:string;
 		/**
 		 * Last date the user interracted on this channel
 		 */
@@ -3060,6 +3065,10 @@ export namespace TwitchatDataTypes {
 		 * Ban duration in seconds (if it's a timeout)
 		 */
 		duration_s?:number;
+		/**
+		 * Ban reason
+		 */
+		reason?:string;
 	}
 
 	/**

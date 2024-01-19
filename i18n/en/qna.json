@@ -1,24 +1,24 @@
 {
 	"qna": {
-		"form":{
-			"title":"Create Q&A session",
-			"subtitle":"You can create multiple Q&A sessions simultaneously",
+		"form": {
+			"title": "Create Q&A session",
+			"subtitle": "You can create multiple Q&A sessions simultaneously",
 			"example_command": "{CMD} {QUESTION}",
 			"example_question": "user's question",
 			"param_command": "Command",
-			"conflict":"A Q&A session already exists for that command"
+			"conflict": "A Q&A session already exists for that command"
 		},
-		"list":{
-			"title":"Q&A sessions",
-			"close_tt":"Clore la session",
-			"delete_tt":"Supprimer la session",
-			"close_confirm":{
-				"title":"Clore la session ?",
-				"description":"Les viewers ne pourront plus soumettre de question. Les question courantes seront conservées."
+		"list": {
+			"title": "Q&A sessions",
+			"close_tt": "Close entries",
+			"delete_tt": "Delete session",
+			"close_confirm": {
+				"title": "Close session?",
+				"description": "Viewers won't be able to submit new entries. Current entries will remain."
 			},
-			"delete_confirm":{
-				"title":"Supprimer la session ?",
-				"description":"Toutes les entrées actuelles seront perdues."
+			"delete_confirm": {
+				"title": "Delete session?",
+				"description": "All entries will be lost."
 			}
 		}
 	}

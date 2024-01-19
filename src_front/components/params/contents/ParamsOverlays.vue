@@ -35,11 +35,11 @@
 
 		<div class="list" v-if="subContent == null">
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
-			<button class="item" @click="subContent = 'bitswall'"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
-			<button class="item" @click="subContent = 'credits'"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
+			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
+			<button class="item" @click="subContent = 'credits'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_credits'}"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
 			<button class="item" @click="subContent = 'music'"><img src="@/assets/img/overlays/spotify.jpg"></button>
-			<button class="item" @click="subContent = 'distort'"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
-			<button class="item" @click="subContent = 'adbreak'"><img src="@/assets/img/overlays/ad_break.jpg"></button>
+			<button class="item" @click="subContent = 'distort'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_distort'}"><img src="@/assets/img/overlays/interractive_distortions.jpg"></button>
+			<button class="item" @click="subContent = 'adbreak'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_adbreak'}"><img src="@/assets/img/overlays/ad_break.jpg"></button>
 			<button class="item" @click="subContent = 'chathighlight'"><img src="@/assets/img/overlays/highlights.jpg"></button>
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
@@ -198,13 +198,13 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(@itemWidth, 1fr));
 		.item {
-			overflow: hidden;
-			border-radius: var(--border-radius);
 			padding: 0;
 			margin: 0;
 			aspect-ratio: 16/9;
 			transition: filter .25s;
 			img {
+				overflow: hidden;
+				border-radius: var(--border-radius);
 				width: 100%;
 				padding: 0;
 				margin: 0;

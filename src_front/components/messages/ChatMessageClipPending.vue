@@ -12,7 +12,7 @@
 		<div v-else-if="!error">
 			<div class="message">{{ $t("global.moderation_action.clip_created") }}</div>
 			<div class="ctas">
-				<Button small @click="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
+				<Button small @click.stop="highlight()" icon="highlight">{{ $t('chat.context_menu.highlight') }}</Button>
 				<Button small type="link" :href="messageData.clipUrl" target="_blank" icon="edit">{{ $t('global.moderation_action.clip_created_publishBt') }}</Button>
 			</div>
 		</div>
@@ -30,6 +30,7 @@ import type { JsonObject } from 'type-fest';
 import { Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 @Component({
 	components:{
@@ -82,9 +83,18 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 		clearInterval(this.interval);
 	}
 
-	public highlight(): void {
+	public async highlight():Promise<void> {
+		let clip:TwitchatDataTypes.ClipInfo|undefined = undefined;
+		let infos = await TwitchUtils.getClipById(this.messageData.clipID);
+		if(infos) {
+			clip = {
+				duration:infos.duration,
+				url:infos.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
+				mp4:infos.thumbnail_url.replace(/-preview.*\.jpg/gi, ".mp4"),
+			}
+		}
 		const data:TwitchatDataTypes.ChatHighlightInfo = {
-			clip:this.messageData.clipData,
+			clip,
 			params:this.$store.chat.chatHighlightOverlayParams,
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);

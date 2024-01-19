@@ -39,6 +39,10 @@ export default class Config {
 	 */
 	public LIFETIME_DONOR_VALUE = 89;
 	/**
+	 * Port for the twitchat's server services
+	 */
+	public NEW_FLAGS_DATE_V11 = new Date("02-01-2024 10:44:59").getTime();
+	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
 	public OBS_DOCK_CONTEXT:boolean = window.obsstudio != undefined;
@@ -166,7 +170,7 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"tainalo2"},
+			// {platform:"twitch", login:"tainalo2"},
 			// {platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},

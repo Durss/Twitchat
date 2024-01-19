@@ -2,10 +2,10 @@
 	<div :class="classes">
 		<div class="holder" @click="debug">
 			<div class="leftForm">
-				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:1704102299000, id:'parameters_1'}" />
+				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_params'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
 				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
-				<ButtonNotification :aria-label="$t('chat.form.rewardsBt_aria')" icon="channelPoints" @click="$emit('update:showRewards', true)" v-if="hasChannelPoints" />
+				<ButtonNotification :aria-label="$t('chat.form.rewardsBt_aria')" icon="channelPoints" @click="$emit('update:showRewards', true)" v-if="hasChannelPoints" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_channelPoints'}" />
 			</div>
 
 			
@@ -178,6 +178,7 @@
 					<ButtonNotification class="qna"
 						icon="qna"
 						v-if="qnaSessionActive"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_qna'}"
 						:aria-label="$t('chat.form.qnaBt_aria')"
 						v-tooltip="$t('chat.form.qnaBt_aria')"
 						@click="openModal('qna')" />
@@ -187,6 +188,7 @@
 					<ButtonNotification class="credits"
 						icon="credits"
 						v-if="creditsOverlayRunning"
+						v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_credits'}"
 						:aria-label="$t('chat.form.creditsBt_aria')"
 						v-tooltip="$t('chat.form.creditsBt_aria')"
 						@click="$emit('update:showCredits', true)" />
