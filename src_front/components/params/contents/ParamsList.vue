@@ -181,11 +181,12 @@ export default class ParamsList extends Vue implements IParameterContent {
 			},
 		];
 		//If searching for params
-		if(this.$store.main.tempStoreValue) {
+		const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
+		if(param) {
 			this.$nextTick().then(()=> {
-				const holders = this.$refs["entry_"+this.$store.main.tempStoreValue] as HTMLElement[]
+				const holders = this.$refs["entry_"+param] as HTMLElement[]
 				if(holders) {
-					this.highlightId = this.$store.main.tempStoreValue as string;
+					this.highlightId = param as string;
 					const holder = holders[0];
 					if(holder) {
 						const interval = setInterval(()=>{
@@ -197,6 +198,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 					}
 				}
 				this.$store.main.tempStoreValue = "";
+				this.$store.params.currentPageSubContent = "";
 			})
 		}
 		this.buildInterval = setInterval(()=> {

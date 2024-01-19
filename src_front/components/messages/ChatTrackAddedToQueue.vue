@@ -25,11 +25,12 @@
 					<div class="trackInfo">
 						<strong>{{ messageData.trackAdded.title }}</strong>
 						<span>{{ messageData.trackAdded.artist }}</span>
+						<span class="duration"><Icon name="timer" />{{ formatDuration(messageData.trackAdded.duration) }}</span>
 					</div>
 				</div>
 				<Button class="cta" icon="newtab" type="link" :href="messageData.trackAdded.url" target="_blank" v-tooltip="$t('chat.added_to_queue.open_track')" />
-				<Button class="cta" icon="music" v-if="canBanFromSR && !isBanned" @click.stop="banFromSR()" primary v-tooltip="$t('chat.added_to_queue.ban_user')" />
-				<Button class="cta" icon="noMusic" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
+				<Button class="cta" icon="ban" v-if="canBanFromSR && !isBanned" @click.stop="banFromSR()" secondary v-tooltip="$t('chat.added_to_queue.ban_user')" />
+				<Button class="cta" icon="unban" v-if="canBanFromSR && isBanned" @click.stop="unBanFromSR()" alert v-tooltip="$t('chat.added_to_queue.unban_user')" />
 			</div>
 
 			<div class="trackHolder" v-else>{{ $t("triggers.actions.music.fail_reasons."+messageData.failCode, {DURATION:maxDuration, SEARCH:messageData.search}) }}</div>
@@ -85,6 +86,10 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 		if(this.messageData.failCode) {
 			this.classes.push("error");
 		}
+	}
+
+	public formatDuration(duration:number):string {
+		return Utils.formatDuration(duration, true);
 	}
 
 	public banFromSR():void {
@@ -164,6 +169,14 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 			}
 			.cover {
 				height: 3em;
+			}
+			.duration {
+				font-size: .8em;
+				font-style: italic;
+				.icon {
+					height: 1em;
+					margin-right: .25em;
+				}
 			}
 		}
 

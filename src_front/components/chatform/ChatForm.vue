@@ -3,7 +3,7 @@
 		<div class="holder" @click="debug">
 			<div class="leftForm">
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_params'}" />
-				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" />
+				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_cmds'}" />
 				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
 				<ButtonNotification :aria-label="$t('chat.form.rewardsBt_aria')" icon="channelPoints" @click="$emit('update:showRewards', true)" v-if="hasChannelPoints" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_channelPoints'}" />
 			</div>

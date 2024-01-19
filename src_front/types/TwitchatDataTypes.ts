@@ -1480,17 +1480,46 @@ export namespace TwitchatDataTypes {
 	 * Represents a change log encry
 	 */
 	export interface ChangelogEntry {
-		l:string;//label
-		i?:string;//icon name
-		g?:string;//image path for highlights
-		v?:string;//video path for highlights
-		d?:string;//Description for highlights
-		p?:boolean;//Premium?
+		/**
+		 * Title
+		 */
+		l:string;
+		/**
+		 * Icon name
+		 */
+		i?:string;
+		/**
+		 * Image
+		 */
+		g?:string;
+		/**
+		 * Video
+		 */
+		v?:string;
+		/**
+		 * Description
+		 */
+		d?:string;
+		/**
+		 * Is premium feautre?
+		 */
+		p?:boolean;
+		/**
+		 * Call to action
+		 */
 		a?:{
-			l:string;//label of the button
-			a?:string;//aria-label value of the button
-			page?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
+			/**
+			 * Button label
+			 */
+			l:string;
+			/**
+			 * Parameter page to go to
+			 */
 			param?:TwitchatDataTypes.ParameterPagesStringType;//Parameter page to go to
+			/**
+			 * Parameter sub section to go to
+			 */
+			subparam?:TwitchatDataTypes.ParamDeepSectionsStringType;
 		}
 	}
 

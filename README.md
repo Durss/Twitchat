@@ -242,17 +242,32 @@ Here is the expected file structure:\
 <br>
 
 # Localization
-App labels can be found under `i18n` folder.\
+# Adding new language
+Just create a new folder under the `i18n` folder with the ISO 639-1 code of the language.\
+Read the next section to know how to translate labels
+
+# Translating labels
+To make localization as easy as possible, a dedicated interface has been made that lists all available categories and labels with the possibility to edit them.\
+Any update on this interface triggers a rebuild of the compiled file as well as an update on any twitchat page opened on the same browser.\
+\
+The interface is only accessible to adminitrators and can be found here:\
+[localhost:8080/labels](https://localhost:8080/labels)\
+To get admin rights you must set your twitch user ID under the `admin_ids` array in the `credentials.json` file.\
+
+# Adding new labels
+If you need to add new labels, you'll have to edit JSON sources.\
+All label files can be found under `i18n` folder.\
 They are splitted by language then by sections.\
 Any new file or folder structure can be added to this.\
 These are all merged into `static/labels.json` during the build process.\
-Files can have any name but should have full JSON structure so the plugin i18n-ally can check for label keys on the code.
-Example:\
+\
+Files can have any name but all labels within it must be under a single property that will be the base path to use the label. The property name is usually the same as the file's name.\
+Example:
 ```
 ─ en\
   ├─ global.json\
-  ├─ subFolder/\
-  ├─── hello.json/\
+  ├─ home.json/\
+  ├─ triggers.json/\
 ```
 `global.json` example:
 ```json
@@ -262,38 +277,27 @@ Example:\
 	}
 }
 ```
-`hello.json` example:
+`home.json` example:
 ```json
 {
-	"subFolder":{
-		"hello":{
-			"lorem":"ipsum dolor sit amet"
-		}
+	"home":{
+		"lorem":"ipsum dolor sit amet"
 	}
 }
 ```
-Will output this JSON file:
+This will output this JSON file:
 ```json
 {
 	"en":{
 		"global":{
 			"hello":"World"
 		},
-		"subFolder":{
-			"hello":{
-				"lorem":"ipsum dolor sit amet"
-			}
+		"hello":{
+			"lorem":"ipsum dolor sit amet"
 		}
 	}
 }
 ```
-\
-To make localization easier you can start the following PM2 process that will watch for any file change under `i18n` folder and rebuild the `labels.json` file.
-```
-pm2 start labels-pm2.json
-```
-Labels won't automatically be updated on the frontend though _(if anyone knows how to make Vite detect that...)_. To force labels refresh you can use this keyboard shortcut on Twitchat `CTRL+Alt+L`.\
-You can also quickly switch between available languages with the shortcut `CTRL+Alt+M`
 <br>
 <br>
 <br>

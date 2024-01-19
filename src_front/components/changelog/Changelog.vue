@@ -3,39 +3,49 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
-			
-			<div class="head">
-				<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
-				<span class="title">{{$t("changelog.title")}}</span>
-				<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
-			</div>
-
 
 			<div class="content" ref="scrollable">
-
 				<div v-if="showReadAlert" class="forceRead">
 					<img src="@/assets/img/barracuda.png" class="barracuda">
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
-					<Button big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</Button>
-					<Button small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</Button>
+					<TTButton big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
+					<TTButton small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
-
+				
 				<Carousel v-else class="carousel" :items-to-show="1" v-model="currentSlide" :wrap-around="true" @slide-start="onSlideStart">
 					<template #addons>
 						<Navigation />
 						<Pagination />
 					</template>
 					
-					<Slide v-for="(item, index) in items" :key="index" class="item">
-						<div class="inner">
+					<Slide v-for="(item, index) in items" :key="index" :class="currentSlide == index? 'item current' : 'item'">
+						<div v-if="item.i == 'toc'" class="inner">
+							<div class="head">
+								<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
+								<span class="title">{{$t("changelog.title")}}</span>
+								<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
+							</div>
+							<ul class="toc">
+								<li v-for="(item, index) in items.filter(v=>v.l)">
+									<TTButton :icon="item.i" :premium="item.p" @click="currentSlide = index + 1">{{ item.l }}</TTButton>
+								</li>
+								<li>
+									<TTButton secondary @click="currentSlide = items.length - 1">🫶🥺🫶</TTButton>
+								</li>
+							</ul>
+						</div>
+						<div v-else class="inner">
+							<TTButton class="backBt" transparent icon="back" @click="currentSlide = 0" />
+
 							<div class="emoji" v-if="item.i == 'donate'">🥺</div>
 							<Icon v-else-if="item.i" :name="item.i" class="icon" />
 
 							<p class="title" v-html="item.l"></p>
+							
 							<div class="description" v-html="parseCommonPLaceholders(item.d|| '')"></div>
 
 							<img v-if="item.g" class="demo" :src="item.g" lazy>
@@ -49,11 +59,15 @@
 									</template>
 								</i18n-t>
 							</div>
+
+							<TTButton v-if="item.a" icon="test"
+							:premium="item.p === true"
+							@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">{{ item.a.l }}</TTButton>
 							
 							<template v-if="item.p === true || item.i == 'donate'">
-								<Button secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</Button>
-								<Button premium icon="premium" @click="$store.params.openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</Button>
-								<Button primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</Button>
+								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
+								<TTButton premium icon="premium" @click="$store.params.openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</TTButton>
+								<TTButton primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</TTButton>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
 							</template>
 							
@@ -89,7 +103,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 @Component({
 	components:{
 		Slide,
-		Button: TTButton,
+		TTButton,
 		Carousel,
 		ToggleBlock,
 		CloseButton,
@@ -118,7 +132,7 @@ export default class Changelog extends Vue {
 	
 	public get classes():string[] {
 		const res:string[] = ["changelog", "modal"];
-		if(this.currentItem.p === true) res.push("premium");
+		if(this.currentItem.p === true && !this.showReadAlert && !this.showFu) res.push("premium");
 		return res;
 	}
 
@@ -131,7 +145,12 @@ export default class Changelog extends Vue {
 	 * Get carousel items
 	 */
 	public get items():TwitchatDataTypes.ChangelogEntry[] {
-		return this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[];
+		let list = (this.$tm("changelog.highlights") as TwitchatDataTypes.ChangelogEntry[]).concat();
+		list.unshift({
+			l:"",
+			i:"toc"
+		})
+		return list;
 	}
 
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
@@ -302,11 +321,20 @@ export default class Changelog extends Vue {
 		}
 	}
 
-
 	.content {
+		height: 100%;
 		.item {
 			align-self: flex-start;
 			overflow-y: auto;
+
+			// &:not(.current) {
+			// 	overflow: hidden;
+			// 	max-height: 70vh;
+			// 	.inner {
+			// 		height: 100%;
+			// 		max-height: 100%;
+			// 	}
+			// }
 			.inner {
 				display: flex;
 				flex-direction: column;
@@ -315,6 +343,14 @@ export default class Changelog extends Vue {
 				padding: 1em 3em;
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
+				min-height: 100%;
+
+				.backBt {
+					left: 2.5em;
+					width: 2em;
+					height: 2em;
+					position: absolute;
+				}
 
 				.icon {
 					height: 2em;
@@ -337,6 +373,7 @@ export default class Changelog extends Vue {
 					max-width: calc(100% - 2em);
 					max-height: 400px;
 					transition: all .5s;
+					border-radius: var(--border-radius);
 					&:hover {
 						max-height: 550px;
 						max-width: 100%;
@@ -378,6 +415,19 @@ export default class Changelog extends Vue {
 					list-style: disc;
 					li {
 						text-align: left;
+					}
+				}
+
+				.toc {
+					list-style: none;
+					display: flex;
+					flex-direction: column;
+					margin-top: 1em;
+					li {
+						margin-bottom: .5em;
+						button {
+							width:100%;
+						}
 					}
 				}
 			}

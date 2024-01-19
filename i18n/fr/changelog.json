@@ -9,38 +9,71 @@
 				"p":true,
 				"i": "youtube",
 				"l": "Intégration Youtube",
-				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum."
+				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum.",
+				"a": {
+					"l":"Essayer",
+					"param":"youtube"
+				}
 			},
 			{
 				"i": "credits",
 				"l": "Générique de fin",
-				"d": "Affichez un générique en fin de stream.\n\nLivré avec des kilotonnes d'options exclusives que vous ne trouverez nulle part ailleurs !"
+				"d": "Affichez un générique en fin de stream.\n\nLivré avec des kilotonnes d'options exclusives que vous ne trouverez nulle part ailleurs !",
+				"v": "update_images/credits.mp4",
+				"a": {
+					"l":"Essayer",
+					"param":"overlays",
+					"subparam":"credits"
+				}
 			},
 			{
 				"i": "bits",
 				"l": "Bits wall",
-				"d": "Faîtes pleuvoir les bits reçus sur votre stream  !\n\nPossèdes 2 fonctionnalités jamais vues :\n<ul><li>Permettez aux viewers de \"casser\" les bits en cliquant dessus grâce à l'extension {HEAT}</li><li>Activez un rendu avancé déformant l'image du stream derrière les cristaux grâce au plugin OBS {SHADERTASTIC}</li></ul>"
+				"d": "Faîtes pleuvoir les bits reçus sur votre stream  !\n\nPossèdes 2 fonctionnalités jamais vues :\n<ul><li>Permettez aux viewers de \"casser\" les bits en cliquant dessus grâce à l'extension {HEAT}</li><li>Activez un rendu avancé déformant l'image du stream derrière les cristaux grâce au plugin OBS {SHADERTASTIC}</li></ul>",
+				"v": "update_images/bitswall.mp4",
+				"a": {
+					"l":"Essayer",
+					"param":"overlays",
+					"subparam":"bitswall"
+				}
 			},
 			{
 				"i": "ad",
 				"l": "Pause pub",
-				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\n<ul><li>Reportez la pub avec le bouton snooze.</li><li>Automatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.</li><li>Indiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié.</li></ul>"
+				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\n<ul><li>Reportez la pub avec le bouton snooze.</li><li>Automatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.</li><li>Indiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié.</li></ul>",
+				"v": "update_images/adbreak.mp4",
+				"a": {
+					"l":"Essayer",
+					"param":"overlays",
+					"subparam":"adbreak"
+				}
 			},
 			{
 				"i": "distort",
 				"l": "Distorsions intéractives",
-				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\nOu simulez des clicks depuis les Triggers."
+				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\nOu simulez des clicks depuis les Triggers.",
+				"v": "update_images/distortion.mp4",
+				"a": {
+					"l":"Essayer",
+					"param":"overlays",
+					"subparam":"distort"
+				}
 			},
 			{
 				"i": "notification",
 				"l": "Notifications Twitchat",
-				"d": "Affichez des messages que vous seul·e pouvez voir.\n\nSoit depuis les Triggers soit via la nouvelle API Twitchat dédiée.\nIdéal pour vous notifier de toute sorte d'évènement personnalisés si vous êtes développeureuse."
+				"d": "Affichez des messages que vous seul·e pouvez voir.\nIdéal pour vous envoyer des rappels ou vous notifier de toutes sortes d'évènements personnalisés si vous êtes développeureuse.\n\nEnvoyez-en depuis les Triggers ou via l'API Twitchat dédiée."
 			},
 			{
 				"p":true,
 				"i": "translate",
 				"l": "Traduction automatique",
-				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium."
+				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium.",
+				"a": {
+					"l":"Essayer",
+					"param":"features",
+					"subparam":"229"
+				}
 			},
 			{
 				"i": "channelPoints",
@@ -55,12 +88,14 @@
 			{
 				"i": "mod",
 				"l": "Modération",
-				"d": "Consultez l'historique d'un viewer sur toutes les chaînes que vous modérez en quelques clicks.\n\nLa fenêtre de profil utilisateur peut désormais vous proposer un bouton pour chacune des chaînes sur lesquelles vous êtes modo afin de facilement consulter son historique sur ces chaînes."
+				"d": "Consultez l'historique d'un viewer sur toutes les chaînes que vous modérez en quelques clicks.\n\nLa fenêtre de profil utilisateur peut désormais vous proposer un bouton pour chacune des chaînes sur lesquelles vous êtes modo afin de facilement consulter son historique sur ces chaînes.",
+				"g": "update_images/moderate.jpg"
 			},
 			{
 				"i": "spotify",
 				"l": "Song request",
-				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne personne troll votre song request? Empêchez-la d'ajouter d'autres morceaux en 1 click.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps."
+				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne personne troll votre song request? Empêchez-la d'ajouter d'autres morceaux en 1 click.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps.",
+				"g": "update_images/sr.png"
 			},
 			{
 				"i": "ticket",
