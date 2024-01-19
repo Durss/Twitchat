@@ -17,7 +17,6 @@ import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import gsap from 'gsap';
-import { TwitchatDataTypes } from './types/TwitchatDataTypes';
 
 
 @Component({
@@ -105,6 +104,8 @@ export default class App extends Vue {
 	private onMouseDown(e:MouseEvent):boolean {
 		const indicator = this.$refs.clickIndicator as HTMLElement;
 		gsap.fromTo(indicator, {scale:0, opacity:1}, {scale:1, opacity:0});
+		this.clickIndicatorProps.left = this.mousePos.x+'px';
+		this.clickIndicatorProps.top = (this.mousePos.y-2)+'px';
 		return true;
 	}
 
@@ -165,8 +166,6 @@ export default class App extends Vue {
 		requestAnimationFrame(()=>this.renderFrame());
 		this.cursorProps.left = (this.mousePos.x+this.cursorOffset.x)+'px';
 		this.cursorProps.top = (this.mousePos.y-2)+'px';
-		this.clickIndicatorProps.left = this.mousePos.x+'px';
-		this.clickIndicatorProps.top = (this.mousePos.y-2)+'px';
 	}
 }
 </script>

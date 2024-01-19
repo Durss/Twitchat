@@ -154,6 +154,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private entryCountCache:{[key:string]:number} = {}
 	private prevTs:number = 0;
 	private scrollStarted_at:number = 0;
+	private fixedScrollIndex:number = -1;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -505,9 +506,27 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 * Used to control speed
 	 */
 	private async onControl(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as {speed?:number, next?:boolean, prev?:boolean}
+		const data = (e.data as unknown) as {speed?:number, next?:boolean, prev?:boolean, scrollTo?:number}
 		if(data.speed != undefined) {
 			this.speedScaleInc = data.speed;
+		}
+		if(data.scrollTo != undefined) {
+			this.interpolating = this.fixedScrollIndex != data.scrollTo;
+			if(this.interpolating) {
+				this.fixedScrollIndex = data.scrollTo;
+				const lists = this.$refs.listItem as HTMLDivElement[];
+				const bounds = lists[data.scrollTo].getBoundingClientRect();
+				const tween = {y:0};
+				const offset = this.posY;
+				let targetYPos = window.innerHeight * .2;
+				gsap.to(tween, {y:bounds.y - targetYPos, duration: 1, ease:"sine.inOut", onUpdate:()=>{
+					this.posY = offset - tween.y;
+				}, onComplete:()=>{
+					// this.interpolating = false;
+				}});
+			}else{
+				this.fixedScrollIndex = -1;
+			}
 		}
 		if(data.next === true || data.prev === true) {
 			let targetYPos = window.innerHeight * .5;
@@ -590,6 +609,8 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private reset(resetScroll:boolean = true):void {
 		this.display = false;
 		if(resetScroll) {
+			this.interpolating = false;
+			this.fixedScrollIndex = -1;
 			clearTimeout(this.startDelayTimeout)
 			cancelAnimationFrame(this.animFrame);
 		}
@@ -783,7 +804,7 @@ interface SlotItem {
 	color: #fff;
 	will-change: transform;
 	will-change: margin-top;
-
+	
 	.category {
 		font-family: "Inter";
 		display: flex;

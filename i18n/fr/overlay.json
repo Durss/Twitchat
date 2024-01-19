@@ -140,6 +140,7 @@
 			"param_pinnedCheers":"Afficher les cheers épinglés",
 			"param_showConductors":"Afficher les conducteur·ices du train",
 			"delete_confirm_title":"Supprimer cette categorie ?",
+			"scroll_tt":"Défiler jusqu'à cette section",
 			"param_ignoreBots":"Masquer les bots",
 			"param_ignoreCustomBots":"Masquer des comptes personnalisés",
 			"no_overlay":"Overlay non configuré ou masqué",

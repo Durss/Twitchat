@@ -311,7 +311,6 @@ export default class ToggleBlock extends Vue {
 			align-items: center;
 			justify-content: center;
 			flex-grow: 1;
-			flex-wrap: wrap;
 			.icon {
 				height: 1em;
 				vertical-align: middle;
@@ -355,6 +354,7 @@ export default class ToggleBlock extends Vue {
 			display: flex;
 			flex-direction: row;
 			align-self: stretch;
+			flex-shrink: 0;
 			.arrowBt {
 				color: inherit;
 				transition: transform .25s;

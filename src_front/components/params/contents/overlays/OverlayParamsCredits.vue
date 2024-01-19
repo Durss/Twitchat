@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="header">{{ $t("overlay.credits.head") }}</div>
 		
-		<a href="https://www.youtube.com/watch?v=T0Sin9mHqsY" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/watch?v=0S9SgAi8IOI" target="_blank" class="youtubeBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
@@ -12,7 +12,7 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" :sourceTransform="{width:1376}" />
+			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
 		</section>
 		
 		<section class="card-item expand">
@@ -41,25 +41,26 @@
 								<div class="icons">
 									<Icon name="dragZone" />
 									<Icon :name="getDefinitionFromSlot(element.slotType).icon" />
+									<ToggleButton v-model="element.enabled" />
 									<Icon name="premium" v-tooltip="$t('premium.premium_only_tt')" v-if="getDefinitionFromSlot(element.slotType).premium" />
 								</div>
 							</template>
 							
 							<template #right_actions>
 								<div class="rightActions">
-									<!-- <Button v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
+									<!-- <TTButton v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
 									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" /> -->
-									<ToggleButton v-model="element.enabled" />
-									<Button class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
+									<TTButton class="scrollBt" icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(index)" v-tooltip="$t('overlay.credits.scroll_tt')" />
+									<TTButton class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
 								</div>
 							</template>
 
 							<div class="content">
 								<div class="card-item premium limitations" v-if="slotTypes.find(v => v.id == element.slotType)?.premium && !isPremium">
 									<p><Icon name="alert"/> {{ $t("overlay.credits.premium_category") }}</p>
-									<Button icon="premium" @click="openPremium()" light premium small>{{$t('premium.become_premiumBt')}}</Button>
+									<TTButton icon="premium" @click="openPremium()" light premium small>{{$t('premium.become_premiumBt')}}</TTButton>
 								</div>
 								<div class="card-item layout">
 									<!-- <PremiumLockLayer v-if="slotTypes.find(v => v.id == element.slotType)?.premium" /> -->
@@ -67,14 +68,14 @@
 										<Icon name="layout" />
 										<label>{{ $t("overlay.credits.param_layout") }}</label>
 										<div class="layoutBtns">
-											<Button icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<Button icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<Button icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<Button icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
-											<Button icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
-											<Button icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-											<Button icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<Button icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
+											<TTButton icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
+											<TTButton icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
+											<TTButton icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
 										</div>
 									</div>
 								</div>
@@ -127,19 +128,19 @@
 				</draggable>
 			</div>
 
-			<Button class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</Button>
+			<TTButton class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</TTButton>
 			
 			<div class="slotSelector" v-else>
 				<CloseButton @click="showSlotOptions = false" />
-				<Button class="slotBt"
+				<TTButton class="slotBt"
 				v-for="slot in slotTypes"
 				:icon="slot.icon"
 				:premium="slot.premium"
-				@click="addSlot(slot)">{{ $t(slot.label) }}</Button>
+				@click="addSlot(slot)">{{ $t(slot.label) }}</TTButton>
 			</div>
 
 			<div class="center" v-if="overlayExists">
-				<Button :loading="sendingSummaryData" @click="testCredits()" icon="test">{{ $t('overlay.credits.testBt') }}</Button>
+				<TTButton :loading="sendingSummaryData" @click="testCredits()" icon="test" secondary>{{ $t('overlay.credits.testBt') }}</TTButton>
 			</div>
 
 			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
@@ -210,7 +211,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		Splitter,
 		draggable,
 		ParamItem,
@@ -460,8 +461,8 @@ export default class OverlayParamsCredits extends Vue {
 				entry.filterRewards = false;
 				entry.rewardIds = [];
 			}
-			this.param_showRewardUsers[id]	= {type:'boolean', value:false, icon:"user", labelKey:'overlay.credits.param_showRewardUsers'};
-			this.param_filterRewards[id]	= {type:'boolean', value:false, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', twitch_scopes:[TwitchScopes.LIST_REWARDS]};
+			this.param_showRewardUsers[id]	= {type:'boolean', value:entry.showRewardUsers!, icon:"user", labelKey:'overlay.credits.param_showRewardUsers'};
+			this.param_filterRewards[id]	= {type:'boolean', value:entry.filterRewards, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', twitch_scopes:[TwitchScopes.LIST_REWARDS]};
 			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
 			}
@@ -482,8 +483,10 @@ export default class OverlayParamsCredits extends Vue {
 		}else
 
 		if(slotDef.id == "cheers") {
-			this.param_normalCheers[id]	= {type:'boolean', value:true, icon:"bits", labelKey:'overlay.credits.param_normalCheers'};
-			this.param_pinnedCheers[id]	= {type:"boolean", value:true, icon:"pin", labelKey:"overlay.credits.param_pinnedCheers"};
+			entry.showNormalCheers = true;
+			entry.showPinnedCheers = true;
+			this.param_normalCheers[id]	= {type:'boolean', value:entry.showNormalCheers, icon:"bits", labelKey:'overlay.credits.param_normalCheers'};
+			this.param_pinnedCheers[id]	= {type:"boolean", value:entry.showPinnedCheers, icon:"pin", labelKey:"overlay.credits.param_pinnedCheers"};
 		}else
 
 		if(slotDef.id == "chatters") {
@@ -499,18 +502,18 @@ export default class OverlayParamsCredits extends Vue {
 				entry.showSubs		= false;
 				entry.showChatters	= false;
 				entry.showBadges	= false;
+				entry.sortByNames	= true;
 				entry.sortByRoles	= false;
 				entry.sortByAmounts	= false;
-				entry.showAmounts	= false;
 			}
-			this.param_showBadges[id]	= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
-			this.param_showMods[id]		= {type:"boolean", value:true, icon:"mod", labelKey:"overlay.credits.param_showMods"};
-			this.param_showVIPs[id]		= {type:"boolean", value:true, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};
-			this.param_showSubs[id]		= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
-			this.param_showChatters[id]	= {type:"boolean", value:true, icon:"whispers", labelKey:"overlay.credits.param_showChatters"};
-			this.param_sortByName[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
-			this.param_sortByRoles[id]	= {type:"boolean", value:true, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
-			this.param_sortByAmounts[id]= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
+			this.param_showMods[id]		= {type:"boolean", value:entry.showMods, icon:"mod", labelKey:"overlay.credits.param_showMods"};
+			this.param_showVIPs[id]		= {type:"boolean", value:entry.showVIPs!, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};
+			this.param_showSubs[id]		= {type:"boolean", value:entry.showSubs!, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
+			this.param_showChatters[id]	= {type:"boolean", value:entry.showChatters!, icon:"whispers", labelKey:"overlay.credits.param_showChatters"};
+			this.param_showBadges[id]	= {type:'boolean', value:entry.showBadges!, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
+			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames!, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
+			this.param_sortByRoles[id]	= {type:"boolean", value:entry.sortByRoles!, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
 		}else
 
 		if(slotDef.id == "text") {
@@ -519,7 +522,8 @@ export default class OverlayParamsCredits extends Vue {
 		}else
 
 		if(slotDef.id == "hypetrains") {
-			this.param_showConductors[id]	= {type:'boolean', value:true, icon:"user", labelKey:'overlay.credits.param_showConductors'};
+			entry.showTrainConductors = true;
+			this.param_showConductors[id]	= {type:'boolean', value:entry.showTrainConductors, icon:"user", labelKey:'overlay.credits.param_showConductors'};
 		}else
 
 		if(slotDef.id == "subs") {
@@ -529,12 +533,12 @@ export default class OverlayParamsCredits extends Vue {
 			if(entry.showBadges == undefined || !this.isPremium) entry.showBadges = false;
 			if(entry.sortByNames == undefined || !this.isPremium) entry.sortByNames = false;
 			if(entry.sortBySubTypes == undefined || !this.isPremium) entry.sortBySubTypes = false;
-			this.param_showSubs[id]			= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
-			this.param_showResubs[id]		= {type:"boolean", value:true, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
-			this.param_showSubgifts[id]		= {type:"boolean", value:true, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
-			this.param_showBadges[id]		= {type:'boolean', value:false, icon:"badge", labelKey:'overlay.credits.param_showSubBadges'};
-			this.param_sortByName[id]		= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
-			this.param_sortBySubTypes[id]	= {type:"boolean", value:false, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes"};
+			this.param_showSubs[id]			= {type:"boolean", value:entry.showSubs, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
+			this.param_showResubs[id]		= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
+			this.param_showSubgifts[id]		= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
+			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges'};
+			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
+			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes"};
 		}
 		
 		if(slotDef.canMerge) {
@@ -553,6 +557,13 @@ export default class OverlayParamsCredits extends Vue {
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
+	}
+
+	/**
+	 * Scrolls to 
+	 */
+	public async scrollTo(index:number):Promise<void> {
+		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:index});
 	}
 
 	/**
@@ -682,7 +693,7 @@ export default class OverlayParamsCredits extends Vue {
 						text-align: center;
 					}
 				}
-				.deleteBt {
+				.deleteBt, .scrollBt {
 					margin: -.5em 0;
 					align-self: stretch;
 					border-radius: 0;

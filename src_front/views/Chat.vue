@@ -1137,7 +1137,7 @@ export default class Chat extends Vue {
 			}
 		}
 
-		.contentWindows {
+		.contentWindows:not(.credits) {
 			left: 0;
 			top: 0;
 			width: 100%;
