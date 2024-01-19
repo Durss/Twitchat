@@ -141,6 +141,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import Splitter from '../components/Splitter.vue';
 import Login from './Login.vue';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -186,32 +187,11 @@ export default class Home extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		const divs = this.$el.getElementsByClassName("transition");
-		let options = {
-			root: document.body,
-			rootMargin: '0px',
-			threshold: .35
-		};
-
 		if(this.$route.name == "login" || this.$route.name == "oauth") {
 			this.showLogin = true;
 		}
-
-		let observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
-
-		//Opening transition of left anchors
-		let anchors:TwitchatDataTypes.AnchorData[] = [];
-		for(let i = 0; i < divs.length; i++) {
-			const div = divs[i] as HTMLDivElement
-			observer.observe(div);
-			const icon = div.querySelector(".content>.icon") as HTMLImageElement;
-			if(icon) {
-				gsap.set(icon, {scale:0});
-			}
-			anchors.push({div, label: this.sections[i].title, icon:this.sections[i].icon, selected:false});
-		}
-		this.anchors = anchors;
-		//TODO update anchors labels when changing language
+		
+		this.updateAnchors(true);
 
 		//Opening transition ATF elements
 		const refs = ["loginBt", "logo", "description", "discordBt", "streamDeckBt", "youtubeBt", "featuresTitle"];
@@ -226,10 +206,37 @@ export default class Home extends Vue {
 
 		this.prevTs = Date.now() - 60/1000;
 		this.moveLetters(Date.now());
+		watch(()=>this.$i18n.locale, ()=>this.updateAnchors());
 	}
 
 	public beforeUnmount():void {
 		this.disposed = true;
+	}
+
+	private updateAnchors(isInit:boolean = false):void {
+		const divs = this.$el.getElementsByClassName("transition");
+		let anchors:TwitchatDataTypes.AnchorData[] = [];
+		let observer!:IntersectionObserver;
+		if(isInit) {
+			let options = {
+				root: document.body,
+				rootMargin: '0px',
+				threshold: .35
+			};
+			observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
+		}
+		for(let i = 0; i < divs.length; i++) {
+			const div = divs[i] as HTMLDivElement;
+			if(isInit) {
+				observer.observe(div);
+				const icon = div.querySelector(".content>.icon") as HTMLImageElement;
+				if(icon) {
+					gsap.set(icon, {scale:0});
+				}
+			}
+			anchors.push({div, label: this.sections[i].title, icon:this.sections[i].icon, selected:false});
+		}
+		this.anchors = anchors;
 	}
 
 	public toggleVideo(event:PointerEvent):void {

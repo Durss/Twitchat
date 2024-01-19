@@ -16,7 +16,6 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -41,7 +40,6 @@ export default class AnchorsMenu extends Vue {
 	}
 
 	public async mounted():Promise<void> {
-		watch(()=>this.items, () => this.resetRender());
 		await this.$nextTick();
 		this.resetRender();
 	}
