@@ -75,6 +75,7 @@ export default class LabelsEditorEntry extends Vue {
 	private opened = false;
 	private wasErrored = false;
 	private defaultHeight = 0;
+	private prevValue:string = "";
 	private originalType:"string"|"boolean"|"number" = "string";
 	private clickHandler!:(e:MouseEvent) => void;
 
@@ -97,7 +98,7 @@ export default class LabelsEditorEntry extends Vue {
 	public get classes():string[] {
 		const res = ["labelseditorentry", "card-item"];
 		if(this.isArray) res.push("isArray");
-		if(this.labelValue == this.defaultLabel) res.push("missingLabel");
+		if(this.isLabel && this.labelValue == this.defaultLabel) res.push("missingLabel");
 		return res;
 	}
 
@@ -136,7 +137,7 @@ export default class LabelsEditorEntry extends Vue {
 
 	public initLabel():void {
 		let label = this.getUnparsedLabel(this.$i18n.locale);
-		if(label == undefined || (label == "" && this.getUnparsedLabel(this.langRef) != "")) {
+		if(this.isLabel && label == undefined || (label == "" && this.getUnparsedLabel(this.langRef) != "")) {
 			this.labelValue = this.defaultLabel;
 		}else{
 			this.labelValue = this.getUnparsedLabel(this.$i18n.locale).toString();
@@ -204,8 +205,12 @@ export default class LabelsEditorEntry extends Vue {
 
 		//Broadcast change if state changed
 		const errored = this.labelValue == this.defaultLabel;
-		if(!reinit) this.wasErrored = errored;
-		else if(this.wasErrored != errored) {
+		if(!reinit) {
+			this.wasErrored = errored;
+			this.prevValue = this.labelValue;
+		}
+		else if(this.wasErrored != errored || this.prevValue != this.labelValue) {
+			console.log("CHANGE", this.path);
 			this.$emit("change");
 		}
 	}

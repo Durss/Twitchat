@@ -53,12 +53,12 @@ for(let i=0; i < files.length; i++) {
 	
 }
 const dest = path.join(__dirname, "../static/labels.json");
-fs.writeFileSync(dest, JSON.stringify(output));
+fs.writeFileSync(dest, JSON.stringify(output), {encoding:"utf-8"});
 
 console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
 
 if(process.argv.includes("--pm2")) {
-	//avoid infinite reoot in pm2 execution context
+	//avoid infinite reboot in pm2 execution context
 	//PM2 will watch for label files change and restart the script automatically
 	process.stdin.resume();
 }

@@ -14,8 +14,8 @@
 				@click="onSelectSection(key)">{{ key }}</TTButton>
 			</div>
 	
-			<TTButton @click="exportZIP()" secondary icon="download">Export ZIP</TTButton>
-			<TTButton @click="downloadSection()" secondary icon="download" v-if="selectedSection">Download current section</TTButton>
+			<!-- <TTButton @click="exportZIP()" secondary icon="download">Export ZIP</TTButton>
+			<TTButton @click="downloadSection()" secondary icon="download" v-if="selectedSection">Download current section</TTButton> -->
 			<form class="searchForm" @submit.prevent="doSearch()">
 				<input v-model="search" type="text" placeholder="search text..." @keydown.esc="search = ''; searchKeys = []">
 				<TTButton icon="checkmark" type="submit"></TTButton>
@@ -37,7 +37,7 @@
 						:langRef="langRef"
 						:pathToSelect="pathToSelect"
 						:path="[selectedSectionKey,key]"
-						@change="computeProgresses()"
+						@change="computeProgresses(); saveSection()"
 						/>
 				</template>
 			</div>
@@ -53,9 +53,10 @@
 				</div>
 				<div class="content">
 					<LabelsEditorEntry
-						value="couille"
+						value=""
 						:langRef="langRef"
 						:path="value"
+						@change="saveSection(value[0])"
 						/>
 					<TTButton icon="newtab" @click="onSelectSection(value[0], value)"></TTButton>
 				</div>
@@ -77,6 +78,9 @@ import AppLangSelector from '@/components/AppLangSelector.vue';
 import { BlobWriter, TextReader, ZipWriter } from "https://deno.land/x/zipjs@v2.7.32/index.js";
 import { watch } from 'vue';
 import gsap from 'gsap';
+import ApiController from '@/utils/ApiController';
+import PublicAPI from '@/utils/PublicAPI';
+import TwitchatEvent from '@/events/TwitchatEvent';
 
 @Component({
 	components:{
@@ -238,6 +242,20 @@ export default class LabelsEditor extends Vue {
 		setTimeout(()=> {
 			this.noResult = false;
 		}, 1000);
+	}
+
+	public async saveSection(section?:string):Promise<void> {
+		if(!section) section = this.selectedSectionKey;
+		if(!section) return;
+		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
+
+		let body = {
+			section,
+			lang:this.$i18n.locale,
+			labels:labels[section as keyof typeof labels]
+		};
+		let res = await ApiController.call("admin/labels", "POST", body, false);
+		PublicAPI.instance.broadcast(TwitchatEvent.LABELS_UPDATE);
 	}
 
 }

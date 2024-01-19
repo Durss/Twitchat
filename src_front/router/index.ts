@@ -119,9 +119,10 @@ const routes: Array<RouteRecordRaw> = [
 		name: 'labels',
 		component: LabelsEditor,
 		meta: {
+			needAdmin:true,
 			overflow:true,
-			needAuth:false,
-		}
+			needAuth:true,
+		},
 	},
 	{
 		path: '/spotify/auth',

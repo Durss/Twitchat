@@ -25,7 +25,7 @@ export default class ApiController {
 	* PUBLIC METHODS *
 	******************/
 	/**
-	 * Calle a twitchat api endpoint
+	 * Call a twitchat api endpoint
 	 * @param endpoint 
 	 * @param data 
 	 * @param method 
@@ -328,6 +328,13 @@ type ApiEndpoints =  {
 			error?:string;
 			errorCode?:string;
 			data:{token?:YoutubeAuthToken},
+		}
+	},
+	"admin/labels": {
+		POST: {
+			success:boolean,
+			error?:string;
+			errorCode?:string;
 		}
 	},
 }

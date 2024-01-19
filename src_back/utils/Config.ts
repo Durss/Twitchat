@@ -89,6 +89,14 @@ export default class Config {
 		});
 	}
 
+	public static get LABELS_ROOT(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../i18n/"),
+			beta: path.join(__dirname, "../i18n/"),
+			prod: path.join(__dirname, "../i18n/"),
+		});
+	}
+
 	public static get CREDENTIALS_ROOT(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../credentials/"),

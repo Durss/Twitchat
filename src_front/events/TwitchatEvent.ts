@@ -15,6 +15,7 @@ export default class TwitchatEvent extends Event {
 	public static REMOTE_TEMP_TEXT_EVENT:TwitchatEventType = "REMOTE_TEMP_TEXT_EVENT";
 	public static REMOTE_FINAL_TEXT_EVENT:TwitchatEventType = "REMOTE_FINAL_TEXT_EVENT";
 	public static MUSIC_PLAYER_HEAT_CLICK:TwitchatEventType = "MUSIC_PLAYER_HEAT_CLICK";
+	public static LABELS_UPDATE:TwitchatEventType = "LABELS_UPDATE";
 
 	//Events
 	public static MESSAGE_READ:TwitchatEventType = "MESSAGE_READ";
@@ -205,6 +206,7 @@ export const TwitchatEventTypeList = [
 	"OBS_SCENE_NAME_CHANGED",
 	"OBS_FILTER_NAME_CHANGED",
 	"MUSIC_PLAYER_HEAT_CLICK",
+	"LABELS_UPDATE",
 	"MERGE_TOGGLE",
 	"SUMMARY_DATA",
 	"ENDING_CREDITS_CONFIGS",

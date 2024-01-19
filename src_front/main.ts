@@ -109,6 +109,7 @@ function buildApp() {
 		const sMain = StoreProxy.main;
 		const sAuth = StoreProxy.auth;
 		const needAuth = to.meta.needAuth !== false;
+		const needAdmin = to.meta.needAdmin === true;
 		const transparent = to.meta.noBG;
 		if(transparent) {
 			document.body.style.backgroundColor = "transparent";
@@ -131,10 +132,16 @@ function buildApp() {
 	
 		if (!sAuth.authenticated) {
 			//Not authenticated, reroute to login
-			if(needAuth !== false && to.name != "login" && to.name != "logout" && to.name != "oauth") {
+			if(needAuth && to.name != "login" && to.name != "logout" && to.name != "oauth") {
 				next({name: 'login', params: {redirect: to.name?.toString()}});
 				return;
 			}
+		}
+	
+		//Not admin, reroute to login
+		if(needAdmin && !StoreProxy.auth.isAdmin) {
+			next({name: 'home'});
+			return;
 		}
 	
 		next();

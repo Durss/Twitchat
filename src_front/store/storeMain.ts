@@ -129,8 +129,10 @@ export const storeMain = defineStore("main", {
 		 * this makes a little easier testing labels updates to
 		 * avoid refreshing the full app
 		 */
-		async reloadLabels():Promise<void> {
-			const labelsRes = await fetch("/labels.json");
+		async reloadLabels(bypassCache:boolean = false):Promise<void> {
+			let url = "/labels.json";
+			if(bypassCache) url += "?ck="+Utils.getUUID();
+			const labelsRes = await fetch(url);
 			const labelsJSON = await labelsRes.json();
 			for (const lang in labelsJSON) {
 				StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
@@ -236,6 +238,13 @@ export const storeMain = defineStore("main", {
 			
 			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
 				sVoice.voiceText.finalText = (e.data as {text:string}).text;
+			});
+
+			/**
+			 * Called when labels editor updated labels
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.LABELS_UPDATE, (e:TwitchatEvent)=> {
+				this.reloadLabels(true);
 			});
 			
 			PublicAPI.instance.initialize(authenticate);

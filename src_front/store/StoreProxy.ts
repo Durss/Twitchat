@@ -151,9 +151,9 @@ export interface IMainActions {
 	 */
 	toggleTheme(forced?:"light"|"dark"):Promise<void>;
 	/**
-	 * Reload all labels (use CTRL+Shift+M)
+	 * Reload all labels (use CTRL+Alt+M)
 	 */
-	reloadLabels():Promise<void>;
+	reloadLabels(bypassCache?:boolean):Promise<void>;
 	/**
 	 * Starts  the app
 	 * @param authenticate whether we want to authenticate (ex:chat) or not (ex:home)
@@ -294,6 +294,10 @@ export interface IAuthGetters {
 	 * Get if user donated money
 	 */
 	isDonor:boolean;
+	/**
+	 * Get if user is admin
+	 */
+	isAdmin:boolean;
 }
 
 export interface IAuthActions {

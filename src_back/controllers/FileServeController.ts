@@ -5,7 +5,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Logger from "../utils/Logger";
 import Utils from "../utils/Utils";
-import {Readable} from "stream";
+import {spawn} from "child_process";
 
 /**
 * Created : 22/02/2023
@@ -14,6 +14,8 @@ export default class FileServeController extends AbstractController {
 
 	private announcements_cache:string = "[]";
 	private config_cache:string = "";
+	private savingLabels:boolean = false;
+	private savingPromise:Promise<void>|null = null;
 	
 	constructor(public server:FastifyInstance) {
 		super();
@@ -47,6 +49,9 @@ export default class FileServeController extends AbstractController {
 
 		//Add an annoucement
 		this.server.post('/api/admin/announcements', async (request:FastifyRequest, response:FastifyReply) => this.postAnnouncement(request, response) );
+
+		//Updates labels
+		this.server.post('/api/admin/labels', async (request:FastifyRequest, response:FastifyReply) => this.postLabels(request, response) );
 
 		//Add an annoucement
 		this.server.delete('/api/admin/announcements', async (request:FastifyRequest, response:FastifyReply) => this.deleteAnnouncement(request, response) );
@@ -183,6 +188,15 @@ export default class FileServeController extends AbstractController {
 		response.send(JSON.stringify({success:true, data:list}));
 	}
 
+	/**
+	 * Only used to bypass cloudfront CORS issues.
+	 * Cheermotes cannot be drawn to canvas because they refused it from CORS.
+	 * This is necessary for the right=>click=>export message feature
+	 * 
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
 	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const image = (request.query as any).image;
 		try {
@@ -190,7 +204,7 @@ export default class FileServeController extends AbstractController {
 			if(!/.*cloudfront.net$/.test(url.hostname)) {
 				response.header('Content-Type', 'application/json');
 				response.status(500);
-				response.send(JSON.stringify({success:false, emssage:"Invalid source URL"}));
+				response.send(JSON.stringify({success:false, message:"Invalid source URL"}));
 				return;
 			}
 			const res = await fetch(url);
@@ -202,7 +216,7 @@ export default class FileServeController extends AbstractController {
 		}catch(error) {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
-			response.send(JSON.stringify({success:false, emssage:"an unknown error has occured"}));
+			response.send(JSON.stringify({success:false, message:"an unknown error has occured"}));
 		}
 
 		// const b64:string = (request.query as any).img.trim();
@@ -216,6 +230,86 @@ export default class FileServeController extends AbstractController {
 		// response.header('Content-Disposition','attachment; filename=test.png');
 		// response.header('Content-Type','image/png');
 		// response.send(s).type('image/png').code(200);
+	}
+
+	/**
+	 * Updates a labels section
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
+	public async postLabels(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		if(!this.adminGuard(request, response)) return;
+		
+		const body:any = request.body;
+		const lang:string = body.lang;
+		const json:any = {};
+		const section:string = body.section;
+		json[section] = body.labels;
+
+		if(this.savingLabels) {
+			Logger.warn("A label update is already in progress, wait for it complete before updateing section",section);
+			await this.savingPromise;
+			return await this.postLabels(request, response);
+		}
+
+		this.savingLabels = true;
+
+		let globalResolver!:()=>void;
+		this.savingPromise = new Promise((resolve) => {
+			globalResolver = resolve;
+		});
+		
+		Logger.info("Updating labels section \""+section+"\"");
+
+		try {
+			await new Promise<void>((resolve)=> setTimeout(() => resolve(), 5000));
+			await new Promise<void>(resolve => {
+				fs.writeFileSync(path.join(Config.LABELS_ROOT, lang+"/"+section+".json"), JSON.stringify(json, null, "\t"), "utf-8");
+				const script = path.join(Config.LABELS_ROOT, "../src_labels/index.js");
+				// exec(`start /B node ${script}`, (error, stdout, stderr) => {
+				let errored = false;
+				const child = spawn('node', [script], {shell: false, windowsHide:true});
+				
+				child.stdout.on('data', data => {
+					console.log(data.toString());
+				});
+				
+				child.stderr.on('data', data => {
+					console.error(data.toString());
+					errored = true;
+				});
+	
+				child.on('error', (error) => {
+				  console.error(error.message);
+				  errored = true;
+				});
+				
+				child.on('close', (code) => {
+					if (errored) {
+						Logger.error("Failed compiling labels");
+						response.header('Content-Type', 'application/json');
+						response.status(500);
+						response.send(JSON.stringify({success:false, message:"failed executing script to compile labels", errorCode:"EXEC_SCRIPT_ERROR"}));
+						resolve();
+						return;
+					}
+					Logger.success("Labels compiled successfuly");
+					response.header('Content-Type', 'application/json');
+					response.status(200);
+					response.send(JSON.stringify({success:true}));
+					this.savingLabels = false;
+					resolve();
+				});
+			});
+
+		}catch(error) {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({success:false, message:"an unknown error has occured", errorCode:"UNKNOWN_ERROR"}));
+		}
+		this.savingLabels = false;
+		globalResolver();
 	}
 
 }
