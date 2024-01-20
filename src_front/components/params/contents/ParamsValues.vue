@@ -381,7 +381,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 					let v = (value.users && value.users[u.id])? value.users![u.id] : "";
 					this.idToUsers[value.id] = [{
 							hide:false,
-							param:reactive({type:"string", value:v}),
+							param:reactive({type:"string", value:v, maxLength:100000}),
 							user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, u.id, u.login, u.display_name),
 						}];
 				}

@@ -25,7 +25,7 @@
 		},
 		"values": {
 			"title": "Values",
-			"description": "Create a raffle from a {VALUE}.\nThe Value's content must me either a coma seperated string or a per-user value.",
+			"description": "Create a raffle from a {VALUE}.\nThe Value's content must be either a per-user value or contain entries separated by a custom character.",
 			"description_value": "Value",
 			"startBt_aria": "Pick an item",
 			"startBt": "Pick an item {COUNT}"
@@ -71,7 +71,8 @@
 			"ponderate_exclude_gifted": "Excluded sub gifted users (user that only got subgifted)",
 			"list_placeholder": "entry 1, entry 2, entry 3, ...",
 			"value_placeholder": "Select source Value",
-			"username_placeholder": "User name"
+			"username_placeholder": "User name",
+			"value_splitter": "Entries separator"
 		},
 		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",

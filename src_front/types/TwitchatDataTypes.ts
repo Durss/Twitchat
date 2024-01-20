@@ -634,6 +634,7 @@ export namespace TwitchatDataTypes {
 		command?:string;
 		reward_id?:string;
 		value_id?:string;
+		value_splitter?:string;
 		duration_s:number;
 		maxEntries:number;
 		multipleJoin:boolean;

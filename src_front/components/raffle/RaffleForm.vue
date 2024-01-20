@@ -9,7 +9,7 @@
 		</div>
 
 		<ToggleBlock class="configs" v-if="mode=='chat' && triggerMode === false" :title="$t('global.bot_message_config')" :open="false" small>
-			<ParamItem class="card-item"
+			<ParamItem
 			:paramData="param_showCountdownOverlay"
 			v-if="mode=='chat'" @change="onValueChange()">
 				<i18n-t scope="global" tag="div" class="details"
@@ -53,8 +53,8 @@
 			<form class="form" v-if="mode=='chat'" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.chat.description") }}</div>
 
-				<ParamItem class="duration" :paramData="param_commandValue" :autofocus="true" v-if="triggerMode !== false" />
-				<ParamItem class="duration" :paramData="param_command" :autofocus="true" @change="onValueChange()" v-else />
+				<ParamItem :paramData="param_commandValue" :autofocus="true" v-if="triggerMode !== false" />
+				<ParamItem :paramData="param_command" :autofocus="true" @change="onValueChange()" v-else />
 
 				<div class="card-item" v-if="triggerMode === false">
 					<ParamItem noBackground :paramData="param_reward" :autofocus="true" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1" />
@@ -71,10 +71,10 @@
 						</i18n-t>
 					</div>
 				</div>
-				<ParamItem class="card-item" :paramData="param_enterDuration" @change="onValueChange()" />
-				<ParamItem class="card-item" :paramData="param_multipleJoin" @change="onValueChange()" />
-				<ParamItem class="card-item" :paramData="param_maxUsersToggle" @change="onValueChange()" />
-				<ParamItem class="card-item" :paramData="param_ponderateVotes" @change="onValueChange()" />
+				<ParamItem :paramData="param_enterDuration" @change="onValueChange()" />
+				<ParamItem :paramData="param_multipleJoin" @change="onValueChange()" />
+				<ParamItem :paramData="param_maxUsersToggle" @change="onValueChange()" />
+				<ParamItem :paramData="param_ponderateVotes" @change="onValueChange()" />
 
 				<Button type="submit" 
 					v-if="triggerMode === false"
@@ -84,8 +84,8 @@
 				
 			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.subs.description") }}</div>
-				<ParamItem class="item" :paramData="param_subs_includeGifters" @change="onValueChange()" />
-				<ParamItem class="item" :paramData="param_subs_excludeGifted" @change="onValueChange()" />
+				<ParamItem :paramData="param_subs_includeGifters" @change="onValueChange()" />
+				<ParamItem :paramData="param_subs_excludeGifted" @change="onValueChange()" />
 				<div class="card-item winner" v-if="winner" ref="winnerHolder">
 					<div class="head">Winner</div>
 					<div class="user">🎉 {{winner}} 🎉</div>
@@ -119,8 +119,8 @@
 				<div class="info">{{ $t("raffle.list.description") }}</div>
 
 				<div class="card-item">
+					<ParamItem noBackground :paramData="param_customEntries" @change="onValueChange()" />
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
-					<ParamItem noBackground class="item" :paramData="param_customEntries" @change="onValueChange()" />
 				</div>
 
 				<Button type="submit"
@@ -143,9 +143,9 @@
 					</template>
 				</i18n-t>
 
-				<div class="card-item">
-					<ParamItem noBackground class="item" :paramData="param_values" @change="onValueChange()" />
-				</div>
+				<ParamItem :paramData="param_values" @change="onValueChange()" />
+
+				<ParamItem class="splitterField" :paramData="param_values_splitter" @change="onValueChange()" v-if="param_values.selectedListValue?.value.perUser !== true" />
 
 				<Button type="submit"
 				v-if="triggerMode === false"
@@ -236,7 +236,8 @@ export default class RaffleForm extends AbstractSidePanel {
 	public param_subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>	= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
 	public param_showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
 	public param_customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
-	public param_values:TwitchatDataTypes.ParameterData<string>					= {value:"", type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
+	public param_values:TwitchatDataTypes.ParameterData<string, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:"", type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
+	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"split"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -274,10 +275,11 @@ export default class RaffleForm extends AbstractSidePanel {
 
 	public get valueCount():number {
 		if(this.param_values.value) {
-			const val = this.$store.values.valueList.find(v=>v.id == this.param_values.value);
+			const val = this.param_values.selectedListValue?.value;
 			if(!val) return 0;
 			if(val.perUser) return Object.keys(val.users || {}).length;
-			return val.value.split(new RegExp((val.value.split(/\r|\n/).length > 1? "\r|\n" : ","), ""))
+			const splitter = this.finalData.value_splitter || new RegExp(val.value.split(/\r|\n/).length > 1? "\r|\n" : ",");
+			return val.value.split(splitter)
 					.filter((v)=>v.length > 0).length;
 		}else{
 			return 0;
@@ -310,6 +312,7 @@ export default class RaffleForm extends AbstractSidePanel {
 			showCountdownOverlay: this.param_showCountdownOverlay.value,
 			customEntries: this.param_customEntries.value,
 			value_id: this.param_values.value,
+			value_splitter: this.param_values_splitter.value,
 		}
 	}
 
@@ -340,7 +343,7 @@ export default class RaffleForm extends AbstractSidePanel {
 		}
 
 		this.param_values.listValues = this.$store.values.valueList.map(v=> {
-			return {value:v.id, label:v.name};
+			return <TwitchatDataTypes.ParameterDataListValue<TwitchatDataTypes.ValueData>>{value:v, label:v.name};
 		})
 
 		if(this.triggerMode !== false) {
@@ -548,6 +551,17 @@ export default class RaffleForm extends AbstractSidePanel {
 				font-size: .9em;
 				font-style: italic;
 				text-align: center;
+			}
+
+			.splitterField {
+				:deep(.inputHolder) {
+					align-self: flex-end;
+					flex-grow: 0;
+					flex-basis: 100px;
+					input {
+						padding-right: 1.5em;
+					}
+				}
 			}
 		}
 	}

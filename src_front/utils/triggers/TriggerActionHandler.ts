@@ -1638,7 +1638,8 @@ export default class TriggerActionHandler {
 									const user = list[i];
 									if(user.channelInfo[channel_id]
 									//If user is online or their last acitivity on chat was less than 10min ago 
-									&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
+									&& (user.channelInfo[channel_id].online
+									|| Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
 										StoreProxy.values.updateValue(v.id, text, undefined, user.id);
 									}
 								}

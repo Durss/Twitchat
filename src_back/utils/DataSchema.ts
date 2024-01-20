@@ -405,6 +405,7 @@ import Ajv from "ajv";
 										command: {type:"string", maxLength:100},
 										reward_id: {type:"string", maxLength:200},
 										value_id: {type:"string", maxLength:200},
+										value_splitter: {type:"string", maxLength:5},
 										multipleJoin: {type:"boolean"},
 										duration_s: {type:"integer", minimum:0, maximum:120 * 60000},
 										maxEntries: {type:"integer", minimum:0, maximum:1000000},

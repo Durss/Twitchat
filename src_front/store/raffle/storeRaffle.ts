@@ -354,17 +354,20 @@ export const storeRaffle = defineStore('raffle', {
 						const entries:TwitchatDataTypes.RaffleEntry[] = [];
 						const users = val.users || {};
 						const channel_id = StoreProxy.auth.twitch.user.id;
+						const userList = await TwitchUtils.loadUserInfo(Object.keys(users));
 						for (const key in users) {
+							const userData = userList.find(v=>v.id == key);
+							if(!userData) continue;
 							entries.push({
 								id:Utils.getUUID(),
 								joinCount:1,
-								label:users[key],
-								score:1,
+								label:userData.display_name,
+								score:parseInt(users[key]) || 1,
 								//FIXME Following won't work if joining from youtube chat.
 								//Sadly, for now I'm not storing the platform source of a per-user value (same for counters)
-								//so I can't track back the proper platofrm, hence, this hardcoded value 😬
+								//so I can't track back the proper platform, hence, this hardcoded value 😬
 								user:{
-									id:key,
+									id:userData.id,
 									platform:"twitch",
 									channel_id,
 								}
@@ -372,7 +375,8 @@ export const storeRaffle = defineStore('raffle', {
 						}
 						data.entries = entries;
 					}else{
-						data.entries = val.value.split(new RegExp((val.value.split(/\r|\n/).length > 1? "\r|\n" : ","), ""))
+						const splitter = data.value_splitter || new RegExp(val.value.split(/\r|\n/).length > 1? "\r|\n" : ",");//Fallback to line break or coma if new value_splitter option is empty
+						data.entries = val.value.split(splitter)
 										.filter((v)=>v.length > 0).map(v=> {
 											return {
 												id:Utils.getUUID(),
