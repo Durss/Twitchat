@@ -323,7 +323,7 @@
 				"action_set": "Remplacer la valeur",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour ce compteur : | Sélectionnez l'utilisateur à mettre à jour pour ces compteurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
-				"user_source_everyone": "Toutes les personne ayant déjà un compteur",
+				"user_source_everyone": "Toutes les personnes de ce compteur",
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -333,7 +333,7 @@
 				"select_placeholder": "Sélectionnez une valeur...",
 				"user_source_title": "Sélectionnez l'utilisateur à mettre à jour pour cette valeur : | Sélectionnez l'utilisateur à mettre à jour pour ces valeurs :",
 				"user_source_sender": "Personne déclenchant le trigger",
-				"user_source_everyone": "Toutes les personne ayant déjà un compteur",
+				"user_source_everyone": "Toutes les Valeurs existantes",
 				"user_source_chatters": "Toutes les personnes connectées au tchat",
 				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -431,6 +431,11 @@
 				"param_action_label": "Texte du bouton",
 				"param_action_icon": "Icône du bouton",
 				"param_action_theme": "Style du bouton",
+				"param_action_theme_default":"Défaut",
+				"param_action_theme_primary":"Vert",
+				"param_action_theme_secondary":"Orange",
+				"param_action_theme_alert":"Rouge",
+				"param_action_theme_light":"Blanc",
 				"add_actionBt": "Ajouter une action"
 			},
 			"heat_click": {

@@ -5,7 +5,7 @@
 		<ParamItem :paramData="param_col" v-model="action.customMessage.col" class="colField" />
 
 		<ParamItem :paramData="param_style" v-model="action.customMessage.style">
-			<ParamItem :paramData="param_highlight" v-model="action.customMessage.highlightColor" v-if="action.customMessage.style == 'highlight'" noBackground />
+			<ParamItem :paramData="param_highlight" v-model="action.customMessage.highlightColor" v-if="action.customMessage.style == 'highlight'" noBackground class="child" />
 		</ParamItem>
 
 		<ParamItem :paramData="param_user" v-if="action.customMessage.user" v-model="action.customMessage.user.name">
@@ -51,8 +51,8 @@
 						<ParamItem :paramData="actionParams[index].icon" v-model="element.icon" noBackground />
 						<ParamItem :paramData="actionParams[index].theme" v-model="element.theme" noBackground />
 						<ParamItem :paramData="actionParams[index].actionType" v-model="element.actionType" noBackground>
-							<ParamItem :paramData="actionParams[index].url" v-model="element.url" v-if="element.actionType == 'url'" noBackground />
-							<ParamItem :paramData="actionParams[index].message" v-model="element.message" v-else-if="element.actionType == 'message'" noBackground />
+							<ParamItem :paramData="actionParams[index].url" v-model="element.url" v-if="element.actionType == 'url'" noBackground class="child" />
+							<ParamItem :paramData="actionParams[index].message" v-model="element.message" v-else-if="element.actionType == 'message'" noBackground class="child" />
 							<SimpleTriggerList class="child list" v-else-if="!element.triggerId" @select="(id:string) => element.triggerId = id" />
 							<SimpleTriggerList class="child" v-else :filteredItemId="element.triggerId" @click="element.triggerId = ''" />
 						</ParamItem>
@@ -197,6 +197,7 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 			{value:"primary", label:"primary"},
 			{value:"secondary", label:"secondary"},
 			{value:"alert", label:"alert"},
+			{value:"light", label:"light"},
 		];
 
 		this.actionTypes = [

@@ -3847,7 +3847,7 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Button's style
 			 */
-			theme?:"primary"|"secondary"|"alert"|""|"default",
+			theme?:"primary"|"secondary"|"alert"|""|"default"|"light",
 		}[];
 	}
 

@@ -323,7 +323,7 @@
 				"action_set":"Set value",
 				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
 				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All existing counters",
+				"user_source_everyone":"All entries",
 				"user_source_chatters":"All users on chat",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -333,7 +333,7 @@
 				"select_placeholder":"Select a value...",
 				"user_source_title":"Select the user to update for this value: | Select the user to update for those values:",
 				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All existing counters",
+				"user_source_everyone":"All entries",
 				"user_source_chatters":"All users on chat",
 				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
@@ -431,6 +431,11 @@
 				"param_action_label": "Button label",
 				"param_action_icon": "Button icon",
 				"param_action_theme": "Button style",
+				"param_action_theme_default":"Default",
+				"param_action_theme_primary":"Green",
+				"param_action_theme_secondary":"Orange",
+				"param_action_theme_alert":"Red",
+				"param_action_theme_light":"White",
 				"add_actionBt": "Add an action"
 			},
 			"heat_click": {

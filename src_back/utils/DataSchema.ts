@@ -531,7 +531,7 @@ import Ajv from "ajv";
 													message: {type:"string", maxLength:500},
 													triggerId: {type:"string", maxLength:50},
 													actionType: {enum: ["url","trigger","message"]},
-													theme: {enum: ["primary","secondary","alert","","default"]},
+													theme: {enum: ["primary","secondary","alert","","default","light"]},
 												}
 											}
 										}

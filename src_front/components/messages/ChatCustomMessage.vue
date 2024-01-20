@@ -17,7 +17,8 @@
 				target="_blank"
 				small
 				:icon="action.icon"
-				:alert="action.theme == 'alert'"
+				:alert="action.theme == 'alert' || (action.theme == 'light' && messageData.style == 'error')"
+				:light="action.theme == 'light'"
 				:primary="action.theme == 'primary'"
 				:secondary="action.theme == 'secondary'"
 				@click.stop="onClickButton(action)"
@@ -124,6 +125,9 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 		display: flex;
 		flex-wrap: wrap;
 		max-width: 100%;
+		button {
+			font-size: .8em;
+		}
 	}
 	.messageHolder {
 		overflow: hidden;
