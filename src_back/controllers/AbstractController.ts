@@ -115,7 +115,7 @@ export default class AbstractController {
 			const memberID = jsonMap[userInfo.user_id];
 			//Get if user is part of the active patreon members
 			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
-			isPremium = members.findIndex(v=>v.id === memberID) > -1;
+			isPremium = members.findIndex(v=>v.id === memberID) > -1 || memberID == Config.credentials.patreon_my_uid;
 		}
 
 		//Check if user donated for more than the lifetime premium amount
@@ -134,7 +134,7 @@ export default class AbstractController {
 		if(!isPremium) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
-			response.send(JSON.stringify({message:"You're not allowed to call this premium-only endpoint", success:false}));
+			response.send(JSON.stringify({message:"You're not allowed to call this premium-only endpoint", errorCode:"NOT_PREMIUM", success:false}));
 			return false;
 		}
 		this.premiumState_cache[userInfo.user_id] = Date.now() + 6 * 60 * 1000;

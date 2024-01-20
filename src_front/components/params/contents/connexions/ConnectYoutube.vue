@@ -26,12 +26,13 @@
 			</div>
 
 			<template v-if="!connected">
-				<div class="card-item scopes">
+				<div class="card-item scopes" :class="$store.auth.isPremium? '' : 'disabled'">
 					<div class=" title"><Icon name="lock_fit" />{{ $t("connexions.youtube.scopes_title") }}</div>
 					<ParamItem :paramData="param_scope_read" noBackground />
 					<ParamItem :paramData="param_scope_moderate" noBackground ref="moderateScope" />
 				</div>
-				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading">{{ $t("global.connect") }}</TTButton>
+				<TTButton class="connectBt" icon="premium" @click="$store.params.openParamsPage('premium')" v-if="!$store.auth.isPremium" premium>{{ $t("premium.become_premiumBt") }}</TTButton>
+				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading" v-else>{{ $t("global.connect") }}</TTButton>
 			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
 			
@@ -203,6 +204,13 @@ export default class ConnectYoutube extends Vue {
 					height: 1em;
 					margin-right: .5em;
 				}
+			}
+
+			&.disabled {
+				opacity: .5;
+				pointer-events: none;
+				cursor: not-allowed;
+
 			}
 		}
 

@@ -17,11 +17,13 @@ export default class YoutubeHelper {
 	public connected:boolean = false;
 	public liveFound:boolean = false;
 	public channelId:string = "";
+	public tokenSavingEnabled:boolean = false;
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 	
 	private static _instance:YoutubeHelper;
 	private _token:YoutubeAuthToken|null = null;
 	private _currentLiveId:string = "";
+	private _lastMessagePage:string = "";
 	private _pollMessageTimeout:number = -1;
 	private _pollFollowersTimeout:number = -1;
 	private _pollSubscribersTimeout:number = -1;
@@ -30,6 +32,8 @@ export default class YoutubeHelper {
 	private _emotes:{[key:string]:string} = {};
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
+	private _lastChatActivityTimeout:number = -1;
+	private _chatInactivityDisconnect:number = 20 * 60 * 1000;
 	
 	constructor() {
 	
@@ -239,9 +243,10 @@ export default class YoutubeHelper {
 			if(!item) item = items.find(v=>v.status.lifeCycleStatus == "testStarting");
 			if(item) {
 				this.liveFound = true;
+				this.channelId = item.snippet.channelId;
 				this._currentLiveId = item.snippet.liveChatId;
 				this.availableLiveBroadcasts = items;
-				this.channelId = item.snippet.channelId;
+				this.tokenSavingEnabled = false;
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveId});
 				//Start polling messages
 				this.getMessages();
@@ -263,23 +268,36 @@ export default class YoutubeHelper {
 		}else if(res.status == 403) {
 			try {
 				const json = await res.json();
-				if(json.error.errors[0].reason === "liveStreamingNotEnabled") {
+				const reason = json.error.errors[0].reason;
+				if(reason === "liveStreamingNotEnabled") {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
 					return null;
 				}
+				if(reason == "quotaExceeded") {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					return null;
+				}
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
 			}catch(error){
 				Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
 			}
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 			return null;
 		}
 		return null;
 	}
 
 	/**
+	 * Restart automatic message polling
+	 */
+	public restartMessagePoll():void {
+		this.tokenSavingEnabled = false;
+		this.getMessages()
+	}
+
+	/**
 	 * Get latest messages of current live stream
 	 */
-	public async getMessages(page:string = ""):Promise<YoutubeMessages|null> {
+	public async getMessages():Promise<YoutubeMessages|null> {
 		this._creditsUsed ++;
 		clearTimeout(this._pollMessageTimeout);
 		if(!this._currentLiveId) return null;
@@ -288,14 +306,14 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "authorDetails");
 		url.searchParams.append("liveChatId", this._currentLiveId);
-		if(page) {
-			url.searchParams.append("pageToken", page);
+		if(this._lastMessagePage) {
+			url.searchParams.append("pageToken", this._lastMessagePage);
 		}
 		let res = await fetch(url, {method:"GET", headers:this.headers});
 		if(res.status == 200) {
 			//Check all message IDs
 			const idsDone:{[key:string]:boolean} = {};
-			if(!page) {
+			if(!this._lastMessagePage) {
 				//Only filter first call that returns full history
 				StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
 			}
@@ -363,32 +381,55 @@ export default class YoutubeHelper {
 				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 
 				StoreProxy.chat.addMessage(data);
+
+				clearTimeout(this._lastChatActivityTimeout);
 			}
 
-			this._pollMessageTimeout = setTimeout(()=>this.getMessages(json.nextPageToken), Math.min(5000, json.pollingIntervalMillis * 2));
+			//Stop Youtube connection after 20min with no message
+			this._lastChatActivityTimeout = setTimeout(()=>{
+				this.tokenSavingEnabled = true;
+			}, this._chatInactivityDisconnect);
+
+			if(!this.tokenSavingEnabled)  {
+				this._lastMessagePage = json.nextPageToken;
+				this._pollMessageTimeout = setTimeout(()=>this.getMessages(), Math.min(5000, json.pollingIntervalMillis * 2));
+			}
 			
 			return json;
 		}else {
 			let json:any = {};
+			let errorCode:string = "";
 			try {
 				json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
-				const errorCode = json.error.errors[0].reason;
+				errorCode = json.error.errors[0].reason;
 				if(errorCode == "liveChatEnded") {
 					//
+					return null;
 				}
-			}catch(error) {}
-			Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
+				if(errorCode == "liveChatDisabled") {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
+					return null;
+				}
+			}catch(error) {
+			}
+			if(res.status != 200) {
+				Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
+			}
 			if(res.status == 401) {
 				if(!await this.refreshToken()) return null;
 			}else if(res.status == 403) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+				if(errorCode == "quotaExceeded") {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					return null
+				}
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
 				return null;
 			}
 		}
 		//Youtube API has random downs (404, 503, ...)
 		//Re executing the same request with the same page token seems to work in such case.
 		await Utils.promisedTimeout(1000);
-		return await this.getMessages(page);
+		return await this.getMessages();
 	}
 
 	/**

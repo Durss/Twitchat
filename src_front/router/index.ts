@@ -182,8 +182,8 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 				sYoutube.setYoutubeAuthResult(params);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.YOUTUBE);
 			}else{
 				sMain.alert( StoreProxy.i18n.t("error.youtube_denied") );
 			}

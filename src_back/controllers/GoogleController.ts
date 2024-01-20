@@ -74,6 +74,8 @@ export default class GoogleController extends AbstractController {
 	 * @param response 
 	 */
 	private async getYoutubeOauthURL(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if(!this.premiumGuard(request, response)) return;
+
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 
 		if(!credentials) {
@@ -126,6 +128,8 @@ export default class GoogleController extends AbstractController {
 	 * @param response 
 	 */
 	private async postYoutubeAuthenticate(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if(!this.premiumGuard(request, response)) return;
+
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 		const params:any = request.body;
 
@@ -167,6 +171,8 @@ export default class GoogleController extends AbstractController {
 	 * @param response 
 	 */
 	private async postYoutubeRefreshToken(request: FastifyRequest, response: FastifyReply): Promise<void> {
+		if(!this.premiumGuard(request, response)) return;
+		
 		const credentials = Config.YOUTUBE_CREDENTIALS;
 		const params:any = request.body;
 
@@ -221,11 +227,7 @@ export default class GoogleController extends AbstractController {
 	 */
 	private async getTranslation(request: FastifyRequest, response: FastifyReply): Promise<void> {
 		//Check if user is premium
-		if(!await this.premiumGuard(request, response)) {
-			response.header('Content-Type', 'application/json');
-			response.status(500);
-			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"NOT_PREMIUM"}));
-		}
+		if(!await this.premiumGuard(request, response)) return;
 
 		const params:any = request.query;
 

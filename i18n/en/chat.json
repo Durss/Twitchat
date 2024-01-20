@@ -50,7 +50,8 @@
 			"reply_to": "Replying to {USER}:",
 			"spotify_down": "Spotify API is down.\nOverlay and triggers won't work until they fix it :(",
 			"creditsBt_aria": "Ending credits",
-			"qnaBt_aria": "Question & Answer"
+			"qnaBt_aria": "Question & Answer",
+			"youtube_saving_token_aria": "Youtube chat disconnected to reduce API usage after a long period of inactivity.\nClick to reconnect."
 		},
 		"filters": {
 			"cta": "Important options here",

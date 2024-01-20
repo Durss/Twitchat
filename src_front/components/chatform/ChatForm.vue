@@ -196,7 +196,7 @@
 	
 				<transition name="blink">
 					<ButtonNotification class="voice"
-						:icon="voiceBotStarted? 'microphone_recording' : 'microphone'"
+						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
 						v-if="voiceBotConfigured"
 						:aria-label="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
 						v-tooltip="voiceBotStarted? $t('chat.form.voicebot_stopBt_aria') : $t('chat.form.voicebot_startBt_aria')"
@@ -204,8 +204,17 @@
 				</transition>
 
 				<transition name="blink">
-					<Icon class="spotify" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
+					<Icon class="error" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
 					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
+				</transition>
+
+				<transition name="blink">
+					<ButtonNotification class="error"
+						:aria-label="$t('chat.form.youtube_saving_token_aria')"
+						v-tooltip="{content:$t('chat.form.youtube_saving_token_aria'), showOnCreate:true, hideOnClick: 'toggle'}"
+						icon="youtube"
+						@click="reconnectYoutubeChat()"
+						v-if="youtubeTokenSavingEnabled" />
 				</transition>
 	
 				<transition name="blink">
@@ -308,6 +317,7 @@ import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 @Component({
 	components:{
@@ -393,6 +403,8 @@ export default class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
+	public get youtubeTokenSavingEnabled():boolean { return YoutubeHelper.instance.tokenSavingEnabled; }
+	
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
@@ -618,6 +630,13 @@ export default class ChatForm extends Vue {
 		}
 		if(values[key] < 2) values[key] ++;
 		DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
+	}
+
+	/**
+	 * Reconnect youtube tchat
+	 */
+	public reconnectYoutubeChat():void {
+		YoutubeHelper.instance.restartMessagePoll();
 	}
 	
 	/**
@@ -1191,7 +1210,7 @@ export default class ChatForm extends Vue {
 				}
 			}
 
-			.spotify {
+			.error {
 				background: var(--color-alert);
 				height: 2em;
 				width: 2em;
@@ -1199,6 +1218,10 @@ export default class ChatForm extends Vue {
 				display: block;
 				padding: .25em;
 				border-radius: .5em;
+				:deep(.icon) {
+					vertical-align: middle;
+					width: unset;
+				}
 			}
 		}
 	}

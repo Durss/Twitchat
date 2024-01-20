@@ -75,6 +75,8 @@
 		"youtube_message_delete": "Something went wrong when deleting the Youtube message",
 		"youtube_no_broadcast": "Selected account is not allowed to live stream on Youtube.\nMake sure you connected with the right account!",
 		"youtube_no_credits": "All API credits allocated by Youtube have been used :(.\nYoutube will work again tomorrow.",
+		"youtube_chat_off": "That chat is not enabled on the selected youtube live broadacst",
+		"youtube_unknown": "An unexpected error occured when requesting data from Youtube :(",
 		"rewards": {
 			"create_unknown":"Something went wrong when creating the reward",
 			"edit_unknown":"Something went wrong when editing the reward",
