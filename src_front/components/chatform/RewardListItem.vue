@@ -131,6 +131,7 @@ export default class RewardListItem extends Vue {
 	 * @param reward 
 	 */
 	public async updateTitle():Promise<void> {
+		this.localTitle = this.localTitle.substring(0,45);
 		if(this.localTitle == this.reward.title) return;
 		this.loading = true;
 		if(await TwitchUtils.updateReward(this.reward.id, {title: this.reward.title})) {
@@ -156,6 +157,11 @@ export default class RewardListItem extends Vue {
 			this.reward.cost += add;
 			this.localCost = this.reward.cost.toString();
 			this.validateCostValue();
+		}else{
+			let parsed = parseInt(this.localCost);
+			if(isNaN(parsed)) parsed = 0;
+			parsed = Math.max(1, Math.min(1000000000, parsed));
+			this.localCost = parsed.toString();
 		}
 	}
 
