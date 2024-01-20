@@ -47,7 +47,7 @@
 				
 				<div class="list" v-if="nonManageableRewards.length > 0">
 					<div class="head"><h1>{{ $t("rewards.manage.not_manageable_title") }}</h1></div>
-					<p>{{ $t("rewards.manage.not_manageable_description") }}</p>
+					<p class="subtitle">{{ $t("rewards.manage.not_manageable_description") }}</p>
 					<RewardListItem v-for="r in nonManageableRewards" :key="r.id" :reward="r" :manageable="false" @transfer="transferReward" />
 				</div>
 			</div>
@@ -283,7 +283,6 @@ export default class RewardsList extends Vue {
 			top: 0;
 			z-index: 1;
 			line-height: 1.1em;
-			
 			background: linear-gradient(180deg, var(--color-text-inverse) 30%, var(--color-text-inverse-fadest) 100%);
 			margin-bottom: -1em;
 
@@ -299,6 +298,9 @@ export default class RewardsList extends Vue {
 				padding: .75em;
 				flex-shrink: 0;
 			}
+		}
+		.subtitle {
+			padding: 0 .5em;
 		}
 	}
 	

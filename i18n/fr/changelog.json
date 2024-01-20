@@ -51,7 +51,7 @@
 			{
 				"i": "distort",
 				"l": "Distorsions intéractives",
-				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\nOu simulez des clicks depuis les Triggers.",
+				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\n\nNécéssite le plusgin OBS {SHADERTASTIC}\n\nCet overlay peut être contrôlé depuis les triggers pour plus de possibilités.",
 				"v": "update_images/distortion.mp4",
 				"a": {
 					"l":"Essayer",
@@ -62,13 +62,15 @@
 			{
 				"i": "notification",
 				"l": "Notifications Twitchat",
-				"d": "Affichez des messages que vous seul·e pouvez voir.\nIdéal pour vous envoyer des rappels ou vous notifier de toutes sortes d'évènements personnalisés si vous êtes développeureuse.\n\nEnvoyez-en depuis les Triggers ou via l'API Twitchat dédiée."
+				"d": "Affichez des messages que vous seul·e pouvez voir.\n\nIdéal pour vous envoyer des rappels ou vous notifier de toutes sortes d'évènements personnalisés sans poluer le tchat.\n\nEnvoyez-en depuis les Triggers ou via l'API Twitchat dédiée.",
+				"g": "update_images/notification.png"
 			},
 			{
 				"p":true,
 				"i": "translate",
 				"l": "Traduction automatique",
 				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium.",
+				"g": "update_images/translate.png",
 				"a": {
 					"l":"Essayer",
 					"param":"features",
@@ -78,7 +80,8 @@
 			{
 				"i": "channelPoints",
 				"l": "Gérez vos récompenses",
-				"d": "Gérez vos récompenses de points de chaîne directement depuis Twitchat !\nChangez leur prix, activez/désactivez-les, masquez-les ou renommez-les en un click.\n\nAutomatisez leur création ou modification depuis les triggers pour encore plus de possibilités !"
+				"d": "Gérez vos récompenses de points de chaîne directement depuis Twitchat !\nChangez leur prix, activez/désactivez-les, masquez-les ou renommez-les en un click.\n\nAutomatisez leur création ou modification depuis les triggers pour encore plus de possibilités !",
+				"v": "update_images/manage_rewards.mp4"
 			},
 			{
 				"i": "extension",
@@ -114,7 +117,7 @@
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nSi vous pouvez vous le permettre, un don unique ou un soutient mensuel sur Patreon m'aiderait énormément ❤️"
+				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️"
 			}
 		],
 		"forceRead": {

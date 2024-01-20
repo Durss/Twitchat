@@ -48,8 +48,11 @@
 							
 							<div class="description" v-html="parseCommonPLaceholders(item.d|| '')"></div>
 
-							<img v-if="item.g" class="demo" :src="item.g" lazy>
-							<video v-if="item.v" class="demo" lazy :src="item.v" autoplay loop controls></video>
+							<div class="demo" v-if="item.v || item.g">
+								<img v-if="item.g" :src="item.g" lazy>
+								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
+								<video v-if="item.v" lazy :src="item.v" autoplay loop controls></video>
+							</div>
 							
 							<div v-if="item.i=='heat'" class="card-item moreInfo">
 								<Icon name="info" />
@@ -373,10 +376,27 @@ export default class Changelog extends Vue {
 					max-width: calc(100% - 2em);
 					max-height: 400px;
 					transition: all .5s;
+					overflow: hidden;
 					border-radius: var(--border-radius);
+					position:relative;
 					&:hover {
 						max-height: 550px;
 						max-width: 100%;
+					}
+
+					video, img {
+						z-index: 1;
+						width: 100%;
+						position: relative;
+					}
+
+					.placeholder {
+						top: 50%;
+						left: 50%;
+						color: white;
+						position: absolute;
+						z-index: 0;
+						transform: translate(-50%, -50%);
 					}
 				}
 

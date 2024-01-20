@@ -193,11 +193,11 @@ export default class TriggerActionCustomChatEntry extends AbstractTriggerActionE
 		]
 
 		this.buttonThemes = [
-			{value:"default", label:"default"},
-			{value:"primary", label:"primary"},
-			{value:"secondary", label:"secondary"},
-			{value:"alert", label:"alert"},
-			{value:"light", label:"light"},
+			{value:"default", labelKey:"triggers.actions.customChat.param_action_theme_default"},
+			{value:"primary", labelKey:"triggers.actions.customChat.param_action_theme_primary"},
+			{value:"secondary", labelKey:"triggers.actions.customChat.param_action_theme_secondary"},
+			{value:"alert", labelKey:"triggers.actions.customChat.param_action_theme_alert"},
+			{value:"light", labelKey:"triggers.actions.customChat.param_action_theme_light"},
 		];
 
 		this.actionTypes = [

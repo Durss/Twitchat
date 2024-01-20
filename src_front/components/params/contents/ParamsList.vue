@@ -120,11 +120,12 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public soPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 	
 	private buildInterval:number = -1;
+	private buildBatch:number = 15;
 
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
-		this.buildIndex = 15;
+		this.buildIndex = this.buildBatch;
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
 		if(this.filteredParams?.length > 0) {
 			for (let i = 0; i < this.filteredParams.length; i++) {
@@ -180,29 +181,34 @@ export default class ParamsList extends Vue implements IParameterContent {
 				example:"Just chatting",
 			},
 		];
-		//If searching for params
-		const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
-		if(param) {
-			this.$nextTick().then(()=> {
-				const holders = this.$refs["entry_"+param] as HTMLElement[]
-				if(holders) {
-					this.highlightId = param as string;
-					const holder = holders[0];
-					if(holder) {
-						const interval = setInterval(()=>{
-							holder.scrollIntoView();
-						},30);
-						setTimeout(() => {
-							clearInterval(interval);
-						}, 1000);
-					}
-				}
-				this.$store.main.tempStoreValue = "";
-				this.$store.params.currentPageSubContent = "";
-			})
-		}
+
 		this.buildInterval = setInterval(()=> {
 			this.buildIndex ++;
+			if(this.buildIndex >= this.filteredParams.length) {
+				clearInterval(this.buildIndex);
+						
+				//If redirecting to a specific params, highlight it
+				const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
+				if(param) {
+					this.$nextTick().then(()=> {
+						const holders = this.$refs["entry_"+param] as HTMLElement[]
+						if(holders) {
+							this.highlightId = param as string;
+							const holder = holders[0];
+							if(holder) {
+								const interval = setInterval(()=>{
+									holder.scrollIntoView();
+								},30);
+								setTimeout(() => {
+									clearInterval(interval);
+								}, 1000);
+							}
+						}
+						this.$store.main.tempStoreValue = "";
+						this.$store.params.currentPageSubContent = "";
+					})
+				}
+			}
 		}, 30);
 	}
 

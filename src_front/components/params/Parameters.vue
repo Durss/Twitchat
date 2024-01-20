@@ -12,7 +12,7 @@
 				</div>
 
 				<div class="search">
-					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
+					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
 				
 				<div class="editBtHolder">
@@ -76,7 +76,7 @@
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search" id="paramContentScrollableHolder">
 				<div class="search" v-if="search || content == contentAppearance || content == contentFeatures">
-					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus>
+					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
 				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
@@ -344,7 +344,11 @@ export default class Parameters extends Vue {
 		
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
-		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out"});
+		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out", onComplete:()=>{
+			//Give focus to search field only after transition complete otherwise the browser
+			//will bring it into view before which causes glitches on opening animation
+			(this.$refs.searchField as HTMLInputElement)?.focus();
+		}});
 		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
 
 		this.closed = false;

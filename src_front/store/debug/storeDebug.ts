@@ -534,7 +534,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
-					const count = Math.ceil(Math.random()*10);
+					const count = Math.ceil(Math.random()*5);
 					let winner!:TwitchatDataTypes.MessagePollDataChoice;
 					let winnerCount = 0;
 					for(let i=0; i < count; i++) {
@@ -574,7 +574,7 @@ export const storeDebug = defineStore('debug', {
 					let totalUsers = 0;
 					for(let i=0; i < count; i++) {
 						const voters = Math.round(Math.random()*50);
-						const votes = Math.round(Math.random()*1000000);
+						const votes = Math.round(Math.random()*10000);
 						totalPoints += votes;
 						totalUsers += voters;
 						outcomes.push({id:Utils.getUUID(), label:"Option "+(i+1), votes, voters});
