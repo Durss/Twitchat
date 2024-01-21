@@ -56,7 +56,7 @@
 			"command_placeholder": "!raffle",
 			"reward_join": "Join with a channel points reward",
 			"reward": "Reward",
-			"duration": "Raffle duration ({VALUES} minutes)",
+			"duration": "Raffle duration ({VALUE} minutes)",
 			"limit_users": "Limit users count",
 			"max_users": "Max user count",
 			"multiple_join": "Users can join multiple times",
