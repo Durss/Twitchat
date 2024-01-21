@@ -237,7 +237,7 @@ export default class RaffleForm extends AbstractSidePanel {
 	public param_showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
 	public param_customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
 	public param_values:TwitchatDataTypes.ParameterData<string, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:"", type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
-	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"split"};
+	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];

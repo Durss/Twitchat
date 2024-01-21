@@ -5,7 +5,7 @@
 				<Icon name="qna" />
 				<i18n-t scope="global" tag="h1" keypath="qna.list.title"></i18n-t>
 			</div>
-			<div class="description">{{ currentSession.command }}</div>
+			<!-- <div class="description">{{ currentSession.command }}</div> -->
 			<CloseButton @click="close()" />
 			<!-- <div class="ctas">
 				<TTButton secondary icon="cross">Close session</TTButton>
@@ -15,6 +15,7 @@
 
 		<div class="content">
 			<div class="messageList" ref="messageList">
+				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
 				<div v-for="(m, index) in messages" :key="m.id" class="messageItem">
 					<MessageItem class="message" :messageData="m" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
@@ -191,6 +192,11 @@ export default class QnaList extends AbstractSidePanel {
 		flex-direction: column;
 		flex-grow: 1;
 		gap: .5em;
+
+		.noResult {
+			text-align: center;
+			font-style: italic;
+		}
 
 		.messageItem {
 			display: flex;

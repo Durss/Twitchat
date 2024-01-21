@@ -72,7 +72,7 @@
 			"list_placeholder": "entry 1, entry 2, entry 3, ...",
 			"value_placeholder": "Select source Value",
 			"username_placeholder": "User name",
-			"value_splitter": "Entries separator"
+			"value_splitter": "Entries separator\n(char that seperates entries)"
 		},
 		"state_title": "Raffle",
 		"state_users": "{COUNT} entered",

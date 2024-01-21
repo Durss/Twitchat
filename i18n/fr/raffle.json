@@ -72,7 +72,7 @@
 			"list_placeholder": "entrée 1, entrée 2, entrée 3, ...",
 			"value_placeholder": "Valeur source",
 			"username_placeholder": "Pseudo",
-			"value_splitter": "Entries separator"
+			"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)"
 		},
 		"state_title": "Tirage au sort",
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",
