@@ -5,6 +5,9 @@ import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 
+let deleteTimeout = -1;
+let deleteSpool:string[] = [];
+
 export const storeQna = defineStore('qna', {
 	state: () => ({
 		activeSessions:[],
@@ -77,6 +80,28 @@ export const storeQna = defineStore('qna', {
 				typedClone.message_html = (typedClone.message_html || "").replace(new RegExp(cmd, "i"), "").trim();
 				session.messages.push(typedClone);
 			}
+		},
+
+		deleteMessage(messageID:string):void {
+			//Debounce updates to avoid lots of potential process
+			//When banning a user this method is called for all their messages
+			clearTimeout(deleteTimeout);
+			deleteSpool.push(messageID);
+			deleteTimeout = setTimeout(() => {
+				for (let i = 0; i < this.activeSessions.length; i++) {
+					const sess = this.activeSessions[i];
+					for (let j = 0; j < sess.messages.length; j++) {
+						const m = sess.messages[j];
+						const poolIndex = deleteSpool.indexOf(m.id);
+						if(poolIndex > -1) {
+							sess.messages.splice(j, 1);
+							deleteSpool.splice(poolIndex, 1);
+							j --;
+						}
+					}
+				}
+				deleteSpool = [];
+			}, 500);
 		},
 
 	} as IQnaActions

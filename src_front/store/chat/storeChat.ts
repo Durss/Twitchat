@@ -768,8 +768,7 @@ export const storeChat = defineStore('chat', {
 				isTodaysFirst = greetable.todayFirst === true;
 			}
 			
-			//* Disabled as it may cost me a lot even if limited to premium members
-			//Live translation if first message of the day
+			//Live translation if first message ever on the channel
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			&& message.twitch_isFirstMessage
 			&& sAuth.isPremium
@@ -784,7 +783,7 @@ export const storeChat = defineStore('chat', {
 					const iso3 = res[0][0] as keyof typeof TranslatableLanguagesMap;
 					//Force to english if confidence is too low as it tends to detect weird languages for basic english messages
 					//Also force english if first returned lang is Affrikaan and second is english.
-					//It detects most inglish messages as Afrikaan.
+					//It detects most english messages as Afrikaan.
 					const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 					if(lang && !spokenLanguages.includes(lang.iso1)) {
 						const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
@@ -806,7 +805,6 @@ export const storeChat = defineStore('chat', {
 					}
 				}
 			}
-			//*/
 
 			switch(message.type) {
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE:
@@ -1454,6 +1452,7 @@ export const storeChat = defineStore('chat', {
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				let shouldUpdateDB = false;
 				const wsMessage = {
 					channel:message.channel_id,
 					message:message.message,
@@ -1465,7 +1464,7 @@ export const storeChat = defineStore('chat', {
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_DELETED, wsMessage);
 
-				//Don't keep automod form message
+				//Don't keep automod accept/reject message
 				if(message.twitch_automod) {
 					messageList.splice(i, 1);
 					Database.instance.deleteMessage(message);
@@ -1473,7 +1472,7 @@ export const storeChat = defineStore('chat', {
 
 				if(deleter) {
 					message.deletedData = { deleter };
-					Database.instance.updateMessage(message);
+					shouldUpdateDB = true;
 				}
 				
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
@@ -1487,6 +1486,10 @@ export const storeChat = defineStore('chat', {
 							break;
 						}
 					}
+					shouldUpdateDB = true;
+				}
+				if(shouldUpdateDB) {
+					StoreProxy.qna.deleteMessage(message.id);
 					Database.instance.updateMessage(message);
 				}
 			}else{
@@ -1498,8 +1501,12 @@ export const storeChat = defineStore('chat', {
 		},
 
 		delUserMessages(uid:string, channelId:string) {
-			for (let i = 0; i < messageList.length; i++) {
+			for (let i = messageList.length-1; i >= 0; i--) {
 				const m = messageList[i];
+				//If we reached messages older than 2h, stop there, there's no much point in
+				//spending process for that old messages
+				if(Date.now() - m.date > 2 * 60000) break;
+				
 				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
@@ -1520,6 +1527,7 @@ export const storeChat = defineStore('chat', {
 					}, Math.floor(i/5)*50)
 
 					mTyped.cleared = true;
+					StoreProxy.qna.deleteMessage(m.id);
 					Database.instance.updateMessage(m);
 					// mTyped.deleted = true;
 					// EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:m, force:false}));

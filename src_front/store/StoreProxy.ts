@@ -2053,4 +2053,9 @@ export interface IQnaActions {
 	 * @param cmd 
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void;
+	/**
+	 * Deletes the given message from the sessions
+	 * @param messageID id of the message
+	 */
+	deleteMessage(messageID:string):void;
 }
