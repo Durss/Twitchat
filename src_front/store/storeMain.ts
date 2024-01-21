@@ -406,7 +406,11 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
 				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
-				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, JSON.parse(data));
+				const json = JSON.parse(data) as TwitchatDataTypes.BitsWallOverlayData;
+				if(!sAuth.isPremium) {
+					json.break_durations = {1:10, 100:20, 1000:30, 5000:40, 10000:50};
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (json as unknown) as JsonObject);
 			});
 		
 			/**

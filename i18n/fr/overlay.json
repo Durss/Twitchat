@@ -267,7 +267,8 @@
 			"param_break":"Permettre aux viewers de casser les cheermotes\n(Nécessite d'installer <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>l'extension Heat</a> sur votre chaîne)",
 			"param_break_senderOnly":"Autoriser les viewers à casser uniquement leurs propres cheermotes",
 			"param_textureAlpha":"Opacité des cheermotes ({VALUE}%)",
-			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)"
+			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)",
+			"param_durations":"Durées avant destruction des cheermotes"
 		}
 	}
 }

@@ -102,6 +102,7 @@ export default class App extends Vue {
 	}
 
 	private onMouseDown(e:MouseEvent):boolean {
+		if(!this.demoMode) return false;
 		const indicator = this.$refs.clickIndicator as HTMLElement;
 		gsap.fromTo(indicator, {scale:0, opacity:1}, {scale:1, opacity:0});
 		this.clickIndicatorProps.left = this.mousePos.x+'px';
@@ -115,6 +116,7 @@ export default class App extends Vue {
 	}
 
 	private onMouseMove(e:DragEvent|MouseEvent):boolean {
+		if(!this.demoMode) return false;
 		this.mousePos.x = e.clientX;
 		this.mousePos.y = e.clientY;
 		let target:HTMLElement|null = e.target as HTMLElement;

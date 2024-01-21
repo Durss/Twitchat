@@ -1398,6 +1398,17 @@ import Ajv from "ajv";
 				opacity: {type:"number", minimum:0, maximum:100},
 				break: {type:"boolean"},
 				break_senderOnly: {type:"boolean"},
+				break_durations: {
+					type:"object",
+					additionalProperties: false,
+					properties: {
+						"1":{type:"number", minimum:1, maximum:24*60*1000},
+						"100":{type:"number", minimum:1, maximum:24*60*1000},
+						"1000":{type:"number", minimum:1, maximum:24*60*1000},
+						"5000":{type:"number", minimum:1, maximum:24*60*1000},
+						"10000":{type:"number", minimum:1, maximum:24*60*1000},
+					}
+				}
 			},
 		}
 	}

@@ -11,12 +11,12 @@
 import cheer1 from "@/assets/img/bitswall/1.png";
 import cheer100 from "@/assets/img/bitswall/100.png";
 import cheer1000 from "@/assets/img/bitswall/1000.png";
+import cheer5000 from "@/assets/img/bitswall/5000.png";
 import cheer10000 from "@/assets/img/bitswall/10000.png";
 import cheer10000_tex from "@/assets/img/bitswall/10000_tex.png";
 import cheer1000_tex from "@/assets/img/bitswall/1000_tex.png";
 import cheer100_tex from "@/assets/img/bitswall/100_tex.png";
 import cheer1_tex from "@/assets/img/bitswall/1_tex.png";
-import cheer5000 from "@/assets/img/bitswall/5000.png";
 import cheer5000_tex from "@/assets/img/bitswall/5000_tex.png";
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -27,6 +27,7 @@ import * as Matter from "matter-js";
 import * as PIXI from 'pixi.js';
 import { Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
+import { Linear } from "gsap";
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
@@ -121,7 +122,6 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			const vw = document.body.clientWidth;
 			const vh = document.body.clientHeight;
 			const offsetX = this.shaderMode? -vw / 2 : 0;
-			console.log(event.detail.x * vw, event.detail.y * vh, event.detail.uid);
 			this.hitPoint(event.detail.x * vw + offsetX, event.detail.y * vh, event.detail.uid);
 		});
 	}
@@ -199,7 +199,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			const index = {"1":0, "100":1, "1000":2, "5000":3, "10000":4}[bits.toString()] || 0;
 			const scale = scales[index] * scaleOffset;
 			
-			this.createCheermote({guid: Utils.getUUID(),index, scale, scale_prev:scale, uid:data.user.id, destroyed:false});
+			this.createCheermote({guid: Utils.getUUID(),index, scale, scaleOriginal:scale, scale_prev:scale, uid:data.user.id, destroyed:false});
 		}
 	}
 
@@ -263,7 +263,6 @@ export default class OverlayBitsWall extends AbstractOverlay {
 	 * Called when API sends fresh overlay parameters
 	 */
 	private async onParamsData(e:TwitchatEvent):Promise<void> {
-		console.log(e);
 		if(e.data) {
 			this.parameters = (e.data as unknown) as TwitchatDataTypes.BitsWallOverlayData;
 			if(this.shaderMode) {
@@ -273,7 +272,7 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			}
 			this.globalScale = (this.parameters?.size || 25)/200 + .5;
 			engine.render.bounds.max = {x:this.sceneWidth, y:document.body.clientHeight};
-			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity || 75) / 100;
+			(textureHolder.filters![0] as PIXI.AlphaFilter).alpha = (this.parameters.opacity ?? 75) / 100;
 			this.onResize();
 		}
 	}
@@ -294,45 +293,47 @@ export default class OverlayBitsWall extends AbstractOverlay {
 			const body = v.bodyA;
 			const data = bodyId2Data[body.parent.id] as CheermoteData;
 			const cheerIndex = data.index;
-
+			
 			//If only senders can break their own cheermotes, don't break
 			//it unless it belongs the user that clicked
 			if(this.parameters?.break_senderOnly
 			&& uid != data.uid) return;
 			
-			this.destroyCheermote(body.parent);
+			this.breakCheermote(body.parent, true);
+			const pos = {x:body.position.x, y:body.position.y};
 			if(cheerIndex > 0) {
 				let count = 0;
 				let bits = 0;
+				let scale = data.scaleOriginal;
 				switch(cheerIndex) {
 					case 4: {
 						count = 10;
 						bits = 3;
-						data.scale *= .85;
+						scale *= .85;
 						break;
 					}
 					case 3: {
 						count = 5;
 						bits = 2;
-						data.scale *= .75;
+						scale *= .75;
 						break;
 					}
 					case 2: {
 						count = 10;
 						bits = 1;
-						data.scale *= .7;
+						scale *= .7;
 						break;
 					}
 					case 1: {
 						count = 100;
 						bits = 0;
-						data.scale *= .65;
+						scale *= .65;
 						break;
 					}
 				}
 				for (let i = 0; i < count; i++) {
 					setTimeout(()=> {
-						this.createCheermote({guid: Utils.getUUID(),index:bits, scale:data.scale, uid:data.uid, scale_prev:data.scale, destroyed:false}, body.position);
+						this.createCheermote({guid: Utils.getUUID(),index:bits, scaleOriginal:scale, scale, uid:data.uid, scale_prev:scale, destroyed:false}, pos);
 					}, 30 * i);
 				}
 			}
@@ -417,15 +418,13 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		if(pos) {
 			Matter.Body.setPosition(body, pos);
 		}
-		gsap.to(data, {delay:10 * (index + 1), scale:0, duration:.5, ease:"back.in(10)", onUpdate:(a)=>{
-			if(data.destroyed) return;
-			const factor = (data.scale * this.globalScale) / data.scale_prev;
-			data.scale_prev = (data.scale * this.globalScale);
-			Matter.Body.scale(body, factor, factor);
-		}, onComplete:()=>{
-			if(data.destroyed) return;
-			this.destroyCheermote(body);
-		}})
+
+		let duration = 10000 * (index + 1);
+		const key = ["1", "100", "1000", "5000", "10000"][index || 0] as keyof TwitchatDataTypes.BitsWallOverlayData["break_durations"];
+		if(this.parameters?.break_durations) {
+			duration = (this.parameters!.break_durations![key] || 10) * 1000;
+		}
+		setTimeout(()=>this.breakCheermote(body), duration);
 	}
 
 	/**
@@ -581,12 +580,13 @@ export default class OverlayBitsWall extends AbstractOverlay {
 
 			if(body.label  == "cheermote") {
 				const data = bodyId2Data[body.id];
+				
 				const w = body.bounds.max.x - body.bounds.min.x;
 				if(body.position.y > vph + 800
 				|| body.position.x < -w/2
 				|| body.position.x > this.sceneWidth + w/2) {
-					this.destroyCheermote(body);
-					i--;
+					data.destroyed = true;
+					this.unmountCheermote(body);
 					continue;
 				}
 
@@ -618,7 +618,22 @@ export default class OverlayBitsWall extends AbstractOverlay {
 		}
 	}
 
-	private destroyCheermote(body:Matter.Body):void {
+	private breakCheermote(body:Matter.Body, userOrigin:boolean = false):void {
+		const data = bodyId2Data[body.id] as CheermoteData;
+		if(!data || data.destroyed) return;
+		gsap.killTweensOf(data);
+		data.destroyed = true;
+
+		gsap.to(data, {scale:0, duration:userOrigin? .15 : .5, ease:userOrigin? Linear.easeNone : "back.in(10)", onUpdate:(a)=>{
+			const factor = (data.scale * this.globalScale) / data.scale_prev;
+			data.scale_prev = (data.scale * this.globalScale);
+			Matter.Body.scale(body, factor, factor);
+		}, onComplete:()=>{
+			this.unmountCheermote(body);
+		}})
+	}
+
+	private unmountCheermote(body:Matter.Body):void {
 		const data = bodyId2Data[body.id] as CheermoteData;
 		gsap.killTweensOf(data);
 		data.destroyed = true;
@@ -639,6 +654,7 @@ interface CheermoteData {
 	index:number;
 	uid:string;
 	scale:number;
+	scaleOriginal:number;
 	spriteTexture?:PIXI.Sprite;
 	spriteDisplace?:PIXI.Sprite;
 	scale_prev:number;

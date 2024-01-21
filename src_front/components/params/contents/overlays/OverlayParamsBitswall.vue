@@ -61,6 +61,16 @@
 				<ParamItem :paramData="param_break_senderOnly" v-model="parameters.break_senderOnly" class="child" noBackground />
 			</ParamItem>
 
+			<ParamItem :paramData="param_durations">
+				<div class="cheermotesDuration">
+					<ParamItem :paramData="param_duration_1" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['1']" />
+					<ParamItem :paramData="param_duration_100" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['100']" />
+					<ParamItem :paramData="param_duration_1000" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['1000']" />
+					<ParamItem :paramData="param_duration_5000" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['5000']" />
+					<ParamItem :paramData="param_duration_10000" class="cheermote" noBackground noPremiumLock v-model="parameters.break_durations!['10000']" />
+				</div>
+			</ParamItem>
+
 			<template v-if="overlayExists">
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.bitswall.testBt') }}</TTButton>
 				<p class="pinnedCheersTitle">{{$t("overlay.bitswall.simulate_pinned")}}</p>
@@ -89,6 +99,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
+import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
@@ -122,11 +133,24 @@ export default class OverlayParamsBitswall extends Vue {
 	public param_break_senderOnly:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_break_senderOnly", icon:"bits", tooltipKey:"heat.anonymous"};
 	public param_cristalEffect:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.bitswall.param_cristalEffect"};
 	public param_textureAlpha:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:75, min:0, max:100, labelKey:"overlay.bitswall.param_textureAlpha"};
+	public param_durations:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, noInput:true, labelKey:"overlay.bitswall.param_durations", icon:"timer", premiumOnly:true};
+	public param_duration_1:TwitchatDataTypes.ParameterData<number> = {type:"time", value:10, min:1, max:3600*24, iconURL:StoreProxy.image("img/bitswall/1_tex.png"), premiumOnly:true};
+	public param_duration_100:TwitchatDataTypes.ParameterData<number> = {type:"time", value:20, min:1, max:3600*24, iconURL:StoreProxy.image("img/bitswall/100_tex.png"), premiumOnly:true};
+	public param_duration_1000:TwitchatDataTypes.ParameterData<number> = {type:"time", value:30, min:1, max:3600*24, iconURL:StoreProxy.image("img/bitswall/1000_tex.png"), premiumOnly:true};
+	public param_duration_5000:TwitchatDataTypes.ParameterData<number> = {type:"time", value:40, min:1, max:3600*24, iconURL:StoreProxy.image("img/bitswall/5000_tex.png"), premiumOnly:true};
+	public param_duration_10000:TwitchatDataTypes.ParameterData<number> = {type:"time", value:50, min:1, max:3600*24, iconURL:StoreProxy.image("img/bitswall/10000_tex.png"), premiumOnly:true};
 	public parameters:TwitchatDataTypes.BitsWallOverlayData = {
 		size:25,
 		opacity:25,
 		break:false,
 		break_senderOnly:true,
+		break_durations:{
+			"1":10,
+			"100":20,
+			"1000":30,
+			"5000":40,
+			"10000":50,
+		}
 	}
 
 	private checkInterval!:number;
@@ -141,6 +165,13 @@ export default class OverlayParamsBitswall extends Vue {
 			if(parsed.break != undefined) this.parameters.break = parsed.break;
 			if(parsed.opacity != undefined) this.parameters.opacity = parsed.opacity;
 			if(parsed.break_senderOnly != undefined) this.parameters.break_senderOnly = parsed.break_senderOnly;
+			if(parsed.break_durations != undefined) {
+				this.parameters.break_durations!["1"] = parsed.break_durations["1"] ?? 10;
+				this.parameters.break_durations!["100"] = parsed.break_durations["100"] ?? 20;
+				this.parameters.break_durations!["1000"] = parsed.break_durations["1000"] ?? 30;
+				this.parameters.break_durations!["5000"] = parsed.break_durations["5000"] ?? 40;
+				this.parameters.break_durations!["10000"] = parsed.break_durations["10000"] ?? 50;
+			}
 		}
 		
 		this.overlayPresenceHandler = ()=> {
@@ -318,6 +349,26 @@ export default class OverlayParamsBitswall extends Vue {
 			height: 1em;
 			vertical-align: middle;
 			margin-right: .25em;
+		}
+	}
+
+	.cheermotesDuration {
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		padding-top: .5em;
+		.cheermote {
+			:deep(.content) {
+				align-items: center;
+				.paramIcon {
+					height: 2em !important;
+					width: 2em;
+					object-fit: contain;
+					vertical-align: middle;
+				}
+			}
 		}
 	}
 }

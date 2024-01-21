@@ -267,7 +267,8 @@
 			"param_break":"Allow viewers to break cheermotes\n(Needs <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>Heat extension</a> install on your channel)",
 			"param_break_senderOnly":"Only allow viewers to break their own cheers",
 			"param_textureAlpha":"Cheermotes opacity ({VALUE}%)",
-			"param_cristalEffect":"Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)"
+			"param_cristalEffect":"Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)",
+			"param_durations":"Durations before destroying cheermotes"
 		}
 	}
 }

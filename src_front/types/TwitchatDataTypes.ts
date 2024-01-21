@@ -1764,6 +1764,7 @@ export namespace TwitchatDataTypes {
 		break:boolean;
 		opacity:number;
 		break_senderOnly:boolean;
+		break_durations?:{1:number, 100:number, 1000:number, 5000:number, 10000:number};
 	}
 
 
