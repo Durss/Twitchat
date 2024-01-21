@@ -15,8 +15,8 @@
 
 		<div class="content">
 			<div class="messageList" ref="messageList">
-				<div class="noResult" v-if="messages.length === 0">{{ $t("global.no_result") }}</div>
-				<div v-for="(m, index) in messages" :key="m.id" class="messageItem">
+				<div class="noResult" v-if="!currentSession || currentSession.messages.length === 0">{{ $t("global.no_result") }}</div>
+				<div v-else v-for="(m, index) in currentSession.messages" :key="m.id" class="messageItem">
 					<MessageItem class="message" :messageData="m" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
 						@click.capture="chatHighlight(m)"
@@ -28,7 +28,7 @@
 						:disabled="!overlayAvailable"
 						/>
 					<TTButton :aria-label="$t('pin.unpinBt_aria')"
-						@click="unpin(m, index)"
+						@click="unpin(index)"
 						class="button"
 						small
 						secondary
@@ -41,11 +41,11 @@
 				<TTButton v-for="i in pageCount" :selected="pageIndex == i-1" @click="pageIndex = i-1">{{ i }}</TTButton>
 			</div>
 			 
-			<div class="userlist">
-				<div v-for="s in $store.qna.activeSessions" :key="s.id" class="user">
-					<TTButton class="login" @click="currentSession = s" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
-					<TTButton class="close" icon="pause" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
-					<TTButton class="delete" icon="trash" @click="deleteSession(s.id)" alert></TTButton>
+			<div class="sessionlist" v-if="currentSession">
+				<div v-for="(s, index) in $store.qna.activeSessions" :key="s.id" class="user">
+					<TTButton @click="currentSessionIndex = index" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
+					<TTButton icon="pause" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
+					<TTButton icon="trash" @click="deleteSession(s.id)" alert></TTButton>
 				</div>
 			</div>
 		</div>
@@ -79,16 +79,20 @@ export default class QnaList extends AbstractSidePanel {
 	public highlightLoading = true;
 	public itemsPerPage = 20;
 	public pageIndex = 0;
+	public currentSessionIndex:number = 0;
 
-	public currentSession!:TwitchatDataTypes.QnaSession;
+	public get currentSession():TwitchatDataTypes.QnaSession|null {
+		if(this.$store.qna.activeSessions.length == 0) return null;
+		return this.$store.qna.activeSessions[this.currentSessionIndex];
+	}
 
 	public get pageCount():number {
-		return Math.ceil(this.currentSession.messages.length / this.itemsPerPage);
+		return Math.ceil(this.currentSession!.messages.length / this.itemsPerPage);
 	}
 
 	public get messages():TwitchatDataTypes.TranslatableMessage[] {
 		const start = this.pageIndex * this.itemsPerPage;
-		return this.currentSession.messages.slice(start, this.itemsPerPage + start);
+		return this.currentSession!.messages.slice(start, this.itemsPerPage + start);
 	}
 
 	public getTime(message:TwitchatDataTypes.TranslatableMessage):string {
@@ -97,7 +101,7 @@ export default class QnaList extends AbstractSidePanel {
 	}
 
 	public beforeMount():void {
-		this.currentSession = this.$store.qna.activeSessions[0];
+		this.currentSessionIndex = 0;
 	}
 
 	public mounted():void {
@@ -121,6 +125,7 @@ export default class QnaList extends AbstractSidePanel {
 		this.$confirm(this.$t("qna.list.delete_confirm.title"), this.$t("qna.list.delete_confirm.description"))
 		.then(()=>{
 			this.$store.qna.deleteSession(id);
+			if(this.$store.qna.activeSessions.length == 0) this.close();
 		});
 	}
 
@@ -128,8 +133,8 @@ export default class QnaList extends AbstractSidePanel {
 	 * Removes a message from pins
 	 * @param m 
 	 */
-	public async unpin(m:TwitchatDataTypes.TranslatableMessage, index:number):Promise<void> {
-		this.currentSession.messages.splice(index + this.pageIndex * this.itemsPerPage, 1);
+	public async unpin(index:number):Promise<void> {
+		this.currentSession!.messages.splice(index + this.pageIndex * this.itemsPerPage, 1);
 		if(this.pageIndex >= this.pageCount) {
 			this.pageIndex = this.pageCount - 1;
 		}
@@ -236,7 +241,7 @@ export default class QnaList extends AbstractSidePanel {
 		}
 	}
 
-	.userlist {
+	.sessionlist {
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;

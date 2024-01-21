@@ -25,12 +25,13 @@ export const storeQna = defineStore('qna', {
 
 	actions: {
 		createSession(command:string):TwitchatDataTypes.QnaSession | false{
-			if(this.activeSessions.find(v=>v.command.toLowerCase() == command.toLowerCase())) {
+			command = command.toLowerCase().trim();
+			if(this.activeSessions.find(v=>v.command.toLowerCase() == command)) {
 				return false;
 			}
 			const session:TwitchatDataTypes.QnaSession = {
 				id:Utils.getUUID(),
-				command:command.toLowerCase(),
+				command:command,
 				messages:[],
 				open:true,
 			}
@@ -101,7 +102,7 @@ export const storeQna = defineStore('qna', {
 					}
 				}
 				deleteSpool = [];
-			}, 500);
+			}, 100);
 		},
 
 	} as IQnaActions
