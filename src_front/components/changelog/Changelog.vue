@@ -312,6 +312,7 @@ export default class Changelog extends Vue {
 			display: flex;
 			flex-direction: column;
 			align-items: center;
+			justify-content: center;
 			.icon {
 				height: 3em;
 				max-height: 3em;
@@ -451,6 +452,7 @@ export default class Changelog extends Vue {
 					display: flex;
 					flex-direction: column;
 					margin-top: 1em;
+					margin-left: 0;
 					li {
 						margin-bottom: .5em;
 						button {
