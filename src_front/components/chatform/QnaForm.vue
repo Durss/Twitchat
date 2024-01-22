@@ -30,6 +30,7 @@
 				<TTButton type="submit">{{ $t("global.start") }}</TTButton>
 			</form>
 			<PostOnChatParam botMessageKey="qnaStart"
+				icon="announcement"
 				:placeholderEnabled="false"
 				titleKey="qna.form.announce_start"
 				:placeholders="startPlaceholders"

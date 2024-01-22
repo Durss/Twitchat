@@ -126,6 +126,7 @@ export default class QnaList extends AbstractSidePanel {
 		.then(()=>{
 			this.$store.qna.deleteSession(id);
 			if(this.$store.qna.activeSessions.length == 0) this.close();
+			else this.currentSessionIndex = 0;
 		});
 	}
 

@@ -17,6 +17,8 @@ import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
 import gsap from 'gsap';
+import MessengerProxy from './messaging/MessengerProxy';
+import Utils from './utils/Utils';
 
 
 @Component({
@@ -41,6 +43,7 @@ export default class App extends Vue {
 	private dragStartHandler!:(e:MouseEvent) => boolean;
 	private mouseDownHandler!:(e:MouseEvent) => boolean;
 	private mouseMoveHandler!:(e:MouseEvent) => boolean;
+	private keyDownHandler!:(e:KeyboardEvent) => void;
 
 	public get dyslexicFont():boolean { return this.$store.params.appearance.dyslexicFont.value as boolean; }
 
@@ -77,10 +80,12 @@ export default class App extends Vue {
 			this.mouseMoveHandler = (e) => this.onMouseMove(e);
 			this.dragStartHandler = (e) => this.onDragStart(e);
 			this.mouseDownHandler = (e) => this.onMouseDown(e);
+			this.keyDownHandler = (e) => this.onKeyDown(e);
 			window.addEventListener("mousedown", this.mouseDownHandler);
 			window.addEventListener("mousemove", this.mouseMoveHandler, true);
 			window.addEventListener("dragover", this.mouseMoveHandler);
 			window.addEventListener("dragstart", this.dragStartHandler);
+			window.addEventListener("keydown", this.keyDownHandler);
 		}
 	}
 	
@@ -92,6 +97,7 @@ export default class App extends Vue {
 			window.removeEventListener("mousemove", this.mouseMoveHandler, true);
 			window.removeEventListener("dragover", this.mouseMoveHandler);
 			window.removeEventListener("dragstart", this.dragStartHandler);
+			window.removeEventListener("keydown", this.keyDownHandler);
 		}
 	}
 
@@ -99,6 +105,26 @@ export default class App extends Vue {
 		//vh metric is fucked up on mobile. It doesn't take header/footer UIs into account.
 		//Here we calculate the actual page height and set it as a CSS var.
 		(document.querySelector(':root') as HTMLHtmlElement).style.setProperty('--vh', window.innerHeight + 'px');
+	}
+
+	private onKeyDown(e:KeyboardEvent):void {
+		//Debuging stuff
+		/*
+		if(e.key == "a" && e.ctrlKey && e.altKey) {
+			for (let i = 0; i < 30; i++) {
+				Utils.promisedTimeout(i*100).then(()=>{
+					if(Math.random() >= .5) {
+						MessengerProxy.instance.sendMessage("/fake !q {LOREM}")
+					}else{
+						MessengerProxy.instance.sendMessage("/fake !howto {LOREM}")
+					}
+				})
+			}
+		}
+		if(e.key == "q" && e.ctrlKey && e.altKey) {
+			MessengerProxy.instance.stopSpam();
+		}
+		//*/
 	}
 
 	private onMouseDown(e:MouseEvent):boolean {
