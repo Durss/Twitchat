@@ -616,6 +616,7 @@ import Ajv from "ajv";
 				chatSuggStart: { $ref: "#/definitions/botMessage" },
 				heatSpotify: { $ref: "#/definitions/botMessage" },
 				heatUlule: { $ref: "#/definitions/botMessage" },
+				qnaStart: { $ref: "#/definitions/botMessage" },
 			}
 		},
 		voiceActions: {

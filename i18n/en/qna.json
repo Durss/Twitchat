@@ -6,6 +6,8 @@
 			"example_command": "{CMD} {QUESTION}",
 			"example_question": "user's question",
 			"param_command": "Command",
+			"announce_start": "Announce Q&A session start on chat",
+			"cmd_placeholder": "Command to use to submit a question",
 			"conflict": "A Q&A session already exists for that command"
 		},
 		"list": {

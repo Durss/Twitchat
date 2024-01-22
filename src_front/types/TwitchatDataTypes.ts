@@ -226,6 +226,7 @@ export namespace TwitchatDataTypes {
 		chatSuggStart:BotMessageEntry;
 		heatSpotify:BotMessageEntry;
 		heatUlule:BotMessageEntry;
+		qnaStart:BotMessageEntry;
 	}
 	export interface BotMessageEntry {
 		enabled:boolean;

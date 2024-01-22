@@ -29,6 +29,11 @@
 				</div>
 				<TTButton type="submit">{{ $t("global.start") }}</TTButton>
 			</form>
+			<PostOnChatParam botMessageKey="qnaStart"
+				:placeholderEnabled="false"
+				titleKey="qna.form.announce_start"
+				:placeholders="startPlaceholders"
+			/>
 		</div>
 	</div>
 </template>
@@ -40,12 +45,14 @@ import CloseButton from '../CloseButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../params/ParamItem.vue';
 import TTButton from '../TTButton.vue';
+import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
 		CloseButton,
+		PostOnChatParam,
 	},
 	emits:["close"],
 })
@@ -63,6 +70,15 @@ export default class QnaForm extends AbstractSidePanel {
 	public get example():string {
 		if(this.command.value) return this.command.value;
 		return "!sugg";
+	}
+
+	public get startPlaceholders():TwitchatDataTypes.PlaceholderEntry[] {
+		return [
+			{
+				tag:"CMD", descKey:'qna.form.cmd_placeholder',
+				example:this.command.value,
+			}
+		];
 	}
 	
 	public mounted():void {

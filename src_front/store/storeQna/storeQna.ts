@@ -5,6 +5,7 @@ import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 import StoreProxy from '../StoreProxy';
+import MessengerProxy from '@/messaging/MessengerProxy';
 
 let deleteTimeout = -1;
 let deleteSpool:string[] = [];
@@ -37,6 +38,8 @@ export const storeQna = defineStore('qna', {
 				open:true,
 			}
 			this.activeSessions.push(session);
+
+			//Execute related triggers
 			const m:TwitchatDataTypes.MessageQnaStartData = {
 				channel_id:StoreProxy.auth.twitch.user.id,
 				date:Date.now(),
@@ -46,6 +49,13 @@ export const storeQna = defineStore('qna', {
 				type:TwitchatDataTypes.TwitchatMessageType.QNA_START,
 			};
 			StoreProxy.chat.addMessage(m);
+
+			//Send start chat message if requested
+			if(StoreProxy.chat.botMessages.qnaStart.enabled) {
+				let message = StoreProxy.chat.botMessages.qnaStart.message;
+				message = message.replace(/\{CMD\}/gi, command);
+				MessengerProxy.instance.sendMessage(message);
+			}
 			return session;
 		},
 		
@@ -53,6 +63,8 @@ export const storeQna = defineStore('qna', {
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
 			this.activeSessions[index].open = false;
+
+			//Execute related triggers
 			const m:TwitchatDataTypes.MessageQnaStopData = {
 				channel_id:StoreProxy.auth.twitch.user.id,
 				date:Date.now(),
@@ -68,6 +80,8 @@ export const storeQna = defineStore('qna', {
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
 			const session = this.activeSessions.splice(index, 1);
+
+			//Execute related triggers
 			const m:TwitchatDataTypes.MessageQnaDeleteData = {
 				channel_id:StoreProxy.auth.twitch.user.id,
 				date:Date.now(),

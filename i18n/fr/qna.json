@@ -6,6 +6,8 @@
 			"example_command": "{CMD} {QUESTION}",
 			"example_question": "question posée",
 			"param_command": "Commande",
+			"announce_start": "Annoncer le début de la session en tchat",
+			"cmd_placeholder": "Commande utiliser pour soumettre une question",
 			"conflict": "Une session de FAQ existe déjà pour cette commande"
 		},
 		"list": {

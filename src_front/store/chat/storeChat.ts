@@ -84,6 +84,10 @@ export const storeChat = defineStore('chat', {
 				cooldown:10,
 				allowAnon:false,
 			},
+			qnaStart: {
+				enabled:true,
+				message:StoreProxy.i18n.tm("params.botMessages.qnaStart"),
+			},
 		},
 		commands: [
 			{

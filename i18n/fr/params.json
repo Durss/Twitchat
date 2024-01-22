@@ -121,7 +121,8 @@
 			"twitchatAd": "/announcepurple Tu stream sur Twitch ? J'utilise GivePLZ twitchat.fr TakeNRG, une alternative de chat complète pour streamer. Jettes-y un œil KomodoHype",
 			"chatSuggStart": "/announce Faites votre suggestion envoyant \"{CMD} votre suggestion\". Votre suggestion doit faire moins de {LENGTH} caractères.",
 			"heatSpotify": "SingsNote \"{CURRENT_TRACK_TITLE}\" par \"{CURRENT_TRACK_ARTIST}\" - {CURRENT_TRACK_URL}",
-			"heatUlule": "Soutenez la campagne \"{ULULE_CAMPAIGN_NAME}\" - {ULULE_CAMPAIGN_URL}"
+			"heatUlule": "Soutenez la campagne \"{ULULE_CAMPAIGN_NAME}\" - {ULULE_CAMPAIGN_URL}",
+			"qnaStart": "/announce Session de questions/réponses lancée ! Utilisez la commande {CMD} pour soumettre une question."
 		},
 		"commands": {
 			"updates": "Dernières mises à jour",
