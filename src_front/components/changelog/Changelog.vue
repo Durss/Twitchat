@@ -3,7 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<ClearButton @click="close()" />
-			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0" />
+			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert" />
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
