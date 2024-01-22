@@ -328,7 +328,7 @@ export default class TTSUtils {
 							|| is_restricted;
 				
 				//Stop if didn't ask to read this kind of message
-				if(!canRead) return "";
+				if(!canRead && !force) return "";
 					
 				//Stop there if the user isn't part of the permissions and message isn't forced
 				if(force !== true && is_simpleMessage && !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
@@ -564,10 +564,9 @@ export default class TTSUtils {
 	 */
 	private async readNextMessage():Promise<void> {
 		if(this.pendingMessages.length === 0 || !this._enabled) return;
-
+		
 		const message = this.pendingMessages[0];
 		let skipMessage = false;
-
 
 		//Message deleted?
 		if(message.message) {
