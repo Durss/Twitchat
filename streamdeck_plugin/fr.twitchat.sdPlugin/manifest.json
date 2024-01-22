@@ -482,7 +482,7 @@
 	"Name": "Twitchat",
 	"Icon": "icons/pluginIcon",
 	"URL": "https://twitchat.fr",
-	"Version": "2.6",
+	"Version": "2.7",
 	"OS": [
 		{
 			"Platform": "mac",

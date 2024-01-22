@@ -140,6 +140,16 @@
 
 		<div class="sdpi-item hidden" id="select_single"
 		data-counter-add>
+			<div class="sdpi-item-label">Counter to update</div>
+			<select class="sdpi-item-value select"
+				id="counterId"
+				oninput="onChangeValue(event.target.value)"
+				data-counter-add>
+			</select>
+		</div>
+
+		<div class="sdpi-item hidden" id="select_single"
+		data-counter-add>
 			<div class="sdpi-item-label">Operation</div>
 			<select class="sdpi-item-value select"
 			id="counterAction"
@@ -199,16 +209,6 @@
 		</div>
 
 		<div class="sdpi-item hidden" id="select_single"
-		data-counter-add>
-			<div class="sdpi-item-label">Counter to update</div>
-			<select class="sdpi-item-value select"
-				id="counterId"
-				oninput="onChangeValue(event.target.value)"
-				data-counter-add>
-			</select>
-		</div>
-
-		<div class="sdpi-item hidden" id="select_single"
 		data-toggle-trigger>
 			<div class="sdpi-item-label">Action</div>
 			<select class="sdpi-item-value select"
@@ -227,7 +227,8 @@
 			<select class="sdpi-item-value select"
 				id="triggerId"
 				oninput="onChangeValue(event.target.value)"
-				data-execute-trigger>
+				data-execute-trigger
+				data-sync>
 			</select>
 		</div>
 
@@ -237,7 +238,8 @@
 			<select class="sdpi-item-value select"
 				id="triggerId"
 				oninput="onChangeValue(event.target.value)"
-				data-toggle-trigger>
+				data-toggle-trigger
+				data-sync>
 			</select>
 		</div>
 
@@ -260,6 +262,7 @@
 		let globalSettings = {};
 		let isFirstUpdate = true;
 		let wasConnected = true;
+		let prevLocalSettings = null;
 		if ($PI) {
 
 			$PI.onConnected(({ actionInfo, appInfo, connection, messageType, port, uuid }) => {
@@ -290,7 +293,6 @@
 		};
 
 		function populateGlobalSettings(settings) {
-
 			//Make visible any component related to this action
 			if(settings.OBSWS_CONNECTED) {
 				const holders = document.querySelectorAll("[data-"+actionName+"]");
@@ -363,19 +365,25 @@
 			document.getElementById("infos").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 			document.getElementById("obsParams").style.display = settings.OBSWS_CONNECTED? "none" : "block";
 			document.getElementById("infos").style.display = settings.OBSWS_CONNECTED? "none" : "block";
-			
+
+			populateLocalSettings();
 		}
 
 		function populateLocalSettings(settings) {
+			if(settings) prevLocalSettings = settings;
+			else settings = prevLocalSettings;
+			if(!settings) return;
+
 			if(document.getElementById("value")) document.getElementById("value").innerHTML = "0";
-			console.log(settings);
 			for (const key in settings) {
 				const input = document.getElementById(key);
-				console.log(key, settings[key]);
 				if(input && settings[key]) {
 					input.value = settings[key];
 					if(input.dataset.hasOwnProperty("sync")) {
-						if(document.getElementById("value")) document.getElementById("value").innerHTML = settings[key] ?? 1;
+						input.value = settings[key];
+						if(document.getElementById("value")) {
+							document.getElementById("value").innerHTML = settings[key] ?? 1;
+						}
 					}
 				}
 			}
