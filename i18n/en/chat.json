@@ -24,7 +24,7 @@
 			"rewardsBt_aria": "Rewards list",
 			"input_placeholder": "message...",
 			"trigger_cmd_disabled": "(disabled trigger)",
-			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it abck to use it.",
+			"trigger_cmd_disabled_tt": "The trigger related to this command is disabled. Enable it back to use it.",
 			"stop_spamBt": "Stop spam",
 			"emoteBt_aria": "Emotes list",
 			"pollBt_aria": "Current poll",

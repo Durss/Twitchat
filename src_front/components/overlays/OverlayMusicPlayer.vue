@@ -219,6 +219,8 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 
 <style scoped lang="less">
 .overlaymusicplayer{
+
+	
 	&.embed {
 		width: 100%;
 		aspect-ratio: 300 / 54;
@@ -273,6 +275,8 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 		background-color: var(--color-dark);
 		max-height: @maxHeight;
 		max-width: 100%;
+		border-radius: var(--border-radius);
+		overflow: hidden;
 
 		.cover {
 			width: @maxHeight;
