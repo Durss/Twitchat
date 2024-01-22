@@ -1017,6 +1017,9 @@ export const TriggerTypes = {
 	AD_APPROACHING:"94",
 	AD_COMPLETE:"95",
 	TRACK_ADD_TO_QUEUE_FAILED:"96",
+	QNA_START:"97",
+	QNA_STOP:"99",
+	QNA_DELETE:"98",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1426,6 +1429,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AD_DURATION", descKey:'triggers.placeholders.ad_break_duration', pointer:"duration_s", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData>,
 		{tag:"USER", descKey:'triggers.placeholders.ad_break_user', pointer:"startedBy.displayNameOriginal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageAdBreakStartData | TwitchatDataTypes.MessageAdBreakCompleteData>,
 	];
+	
+	map[TriggerTypes.QNA_START] = 
+	map[TriggerTypes.QNA_STOP] =
+	map[TriggerTypes.QNA_DELETE] = [
+		{tag:"COMMAND", descKey:'triggers.placeholders.qna_command', pointer:"qnaSession.command", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQnaStartData | TwitchatDataTypes.MessageQnaStopData | TwitchatDataTypes.MessageQnaDeleteData>,
+	];
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
@@ -1632,10 +1641,13 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"unmod", labelKey:"triggers.events.UNMOD.label", value:TriggerTypes.UNMOD, descriptionKey:"triggers.events.UNMOD.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.UNMOD},
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
 		{category:TriggerEventTypeCategories.MOD, icon:"clip", labelKey:"triggers.events.CLIP_CREATED.label", value:TriggerTypes.CLIP_CREATED, descriptionKey:"triggers.events.CLIP_CREATED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE},
+		{category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
-		{category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_START.label", value:TriggerTypes.QNA_START, descriptionKey:"triggers.events.QNA_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_START},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_STOP.label", value:TriggerTypes.QNA_STOP, descriptionKey:"triggers.events.QNA_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_STOP},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_DELETE.label", value:TriggerTypes.QNA_DELETE, descriptionKey:"triggers.events.QNA_DELETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_DELETE},
 		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_STOP.label", value:TriggerTypes.TIMER_STOP, descriptionKey:"triggers.events.TIMER_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},

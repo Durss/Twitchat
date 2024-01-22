@@ -649,7 +649,8 @@
 			"total_follow":"Total followers",
 			"last_cheer":"Last cheer",
 			"last_cheer_id":"Last cheer ID",
-			"last_cheer_amount":"Last cheer amount"
+			"last_cheer_amount":"Last cheer amount",
+			"qna_command":"Command to submit a Q&A entry"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1061,6 +1062,18 @@
 			"AD_COMPLETE": {
 				"label": "Ad break completed",
 				"description": "Actions to execute when a mid-roll ad completes"
+			},
+			"QNA_START": {
+				"label": "Q&A session started",
+				"description": "Actions to execute when a Q&A session starts"
+			},
+			"QNA_STOP": {
+				"label": "Q&A session stoped",
+				"description": "Actions to execute when stopping a Q&A session entries"
+			},
+			"QNA_DELETE": {
+				"label": "Q&A session deleted",
+				"description": "Actions to execute when a Q&A session is deleted"
 			}
 		},
 		"musicEvents": {

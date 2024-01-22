@@ -649,7 +649,8 @@
 			"total_follow":"Nombre total de followers",
 			"last_cheer":"Nom du dernier cheer",
 			"last_cheer_id":"ID du dernier cheer",
-			"last_cheer_amount":"Valeur du dernier cheer"
+			"last_cheer_amount":"Valeur du dernier cheer",
+			"qna_command":"Commande pour soumettre une question"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1061,6 +1062,18 @@
 			"AD_COMPLETE": {
 				"label": "Fin d'une publicité",
 				"description": "Actions à exécuter lorsqu'une publicité termine"
+			},
+			"QNA_START": {
+				"label": "Session de Questions/réponses lancée",
+				"description": "Actions à exécuter lorsqu'une session de Questions/Réponses débute"
+			},
+			"QNA_STOP": {
+				"label": "Session de Questions/réponses fermée",
+				"description": "Actions à exécuter lorsqu'une session de Questions/Réponses est fermée"
+			},
+			"QNA_DELETE": {
+				"label": "Session de Questions/réponses supprimée",
+				"description": "Actions à exécuter lorsqu'une session de Questions/Réponses est supprimée"
 			}
 		},
 		"musicEvents": {

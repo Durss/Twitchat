@@ -489,6 +489,17 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.QNA_START:
+			case TwitchatDataTypes.TwitchatMessageType.QNA_STOP:
+			case TwitchatDataTypes.TwitchatMessageType.QNA_DELETE:{
+				let type:TriggerActionDataTypes.TriggerTypesValue = TriggerTypes.QNA_START;
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.QNA_STOP) type = TriggerTypes.QNA_STOP;
+				if(message.type == TwitchatDataTypes.TwitchatMessageType.QNA_DELETE) type = TriggerTypes.QNA_DELETE;
+				if(await this.executeTriggersByType(type, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{

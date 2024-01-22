@@ -1793,6 +1793,9 @@ export namespace TwitchatDataTypes {
 		UNPINNED:"unpinned",
 		SHOUTOUT:"shoutout",
 		VOICEMOD:"voicemod",
+		QNA_STOP:"qna_stop",
+		QNA_START:"qna_start",
+		QNA_DELETE:"qna_delete",
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
@@ -1870,6 +1873,9 @@ export namespace TwitchatDataTypes {
 		connect:true,
 		shoutout:true,
 		unpinned:true,
+		qna_stop:false,
+		qna_start:false,
+		qna_delete:false,
 		hype_chat:true,
 		voicemod:false,
 		following:true,
@@ -2026,6 +2032,9 @@ export namespace TwitchatDataTypes {
 									| MessageAdBreakApproachingData
 									| MessageAdBreakCompleteData
 									| MessageCustomData
+									| MessageQnaStartData
+									| MessageQnaStopData
+									| MessageQnaDeleteData
 	;
 	
 	/**
@@ -3854,5 +3863,40 @@ export namespace TwitchatDataTypes {
 	}
 
 	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user">
+
+	/**
+	 * Represents a Q&A session start
+	 */
+	export interface MessageQnaStartData extends AbstractTwitchatMessage {
+		type:"qna_start";
+		/**
+		 * Q&A session data
+		 */
+		qnaSession:QnaSession;
+	}
+	
+	/**
+	 * Represents a Q&A session i stopped.
+	 * Stopping is when we chose to stop accepting entries
+	 */
+	export interface MessageQnaStopData extends AbstractTwitchatMessage {
+		type:"qna_stop";
+		/**
+		 * Q&A session data
+		 */
+		qnaSession:QnaSession;
+	}
+	
+	/**
+	 * Represents a Q&A session deletion.
+	 * When destroying a Q&A session
+	 */
+	export interface MessageQnaDeleteData extends AbstractTwitchatMessage {
+		type:"qna_delete";
+		/**
+		 * Q&A session data
+		 */
+		qnaSession:QnaSession;
+	}
 
 }

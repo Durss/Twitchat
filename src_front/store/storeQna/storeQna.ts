@@ -4,6 +4,7 @@ import type { UnwrapRef } from 'vue';
 import type { IQnaActions, IQnaGetters, IQnaState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
+import StoreProxy from '../StoreProxy';
 
 let deleteTimeout = -1;
 let deleteSpool:string[] = [];
@@ -36,6 +37,15 @@ export const storeQna = defineStore('qna', {
 				open:true,
 			}
 			this.activeSessions.push(session);
+			const m:TwitchatDataTypes.MessageQnaStartData = {
+				channel_id:StoreProxy.auth.twitch.user.id,
+				date:Date.now(),
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				qnaSession:session,
+				type:TwitchatDataTypes.TwitchatMessageType.QNA_START,
+			};
+			StoreProxy.chat.addMessage(m);
 			return session;
 		},
 		
@@ -43,12 +53,30 @@ export const storeQna = defineStore('qna', {
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
 			this.activeSessions[index].open = false;
+			const m:TwitchatDataTypes.MessageQnaStopData = {
+				channel_id:StoreProxy.auth.twitch.user.id,
+				date:Date.now(),
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				qnaSession:this.activeSessions[index],
+				type:TwitchatDataTypes.TwitchatMessageType.QNA_STOP,
+			};
+			StoreProxy.chat.addMessage(m);
 		},
 		
 		deleteSession(id:string):void{
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
-			this.activeSessions.splice(index, 1);
+			const session = this.activeSessions.splice(index, 1);
+			const m:TwitchatDataTypes.MessageQnaDeleteData = {
+				channel_id:StoreProxy.auth.twitch.user.id,
+				date:Date.now(),
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				qnaSession:session[0],
+				type:TwitchatDataTypes.TwitchatMessageType.QNA_DELETE,
+			};
+			StoreProxy.chat.addMessage(m);
 		},
 		
 		handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void{

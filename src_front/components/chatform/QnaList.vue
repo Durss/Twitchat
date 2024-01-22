@@ -13,9 +13,9 @@
 			</div> -->
 		</div>
 
-		<div class="content">
+		<div class="content" v-if="currentSession">
 			<div class="messageList" ref="messageList">
-				<div class="noResult" v-if="!currentSession || currentSession.messages.length === 0">{{ $t("global.no_result") }}</div>
+				<div class="noResult" v-if="currentSession.messages.length === 0">{{ $t("global.no_result") }}</div>
 				<div v-else v-for="(m, index) in currentSession.messages" :key="m.id" class="messageItem">
 					<MessageItem class="message" :messageData="m" :lightMode="true" />
 					<TTButton :aria-label="$t('pin.highlightBt_aria')"
@@ -41,7 +41,7 @@
 				<TTButton v-for="i in pageCount" :selected="pageIndex == i-1" @click="pageIndex = i-1">{{ i }}</TTButton>
 			</div>
 			 
-			<div class="sessionlist" v-if="currentSession">
+			<div class="sessionlist">
 				<div v-for="(s, index) in $store.qna.activeSessions" :key="s.id" class="user">
 					<TTButton @click="currentSessionIndex = index" :selected="currentSession.id == s.id">{{ s.command }} <i>x{{ s.messages.length }}</i></TTButton>
 					<TTButton icon="pause" @click="closeSession(s.id)" secondary v-if="s.open"></TTButton>
