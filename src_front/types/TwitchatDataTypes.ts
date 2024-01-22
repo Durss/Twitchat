@@ -1507,6 +1507,10 @@ export namespace TwitchatDataTypes {
 		 */
 		p?:boolean;
 		/**
+		 * Youtube video URL
+		 */
+		y?:string;
+		/**
 		 * Call to action
 		 */
 		a?:{

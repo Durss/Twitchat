@@ -6,13 +6,13 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
-				"p":true,
+				"p": true,
 				"i": "youtube",
 				"l": "Intégration Youtube",
 				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum.",
 				"a": {
-					"l":"Essayer",
-					"param":"youtube"
+					"l": "Essayer",
+					"param": "youtube"
 				}
 			},
 			{
@@ -20,10 +20,11 @@
 				"l": "Générique de fin",
 				"d": "Affichez un générique en fin de stream.\n\nLivré avec des kilotonnes d'options exclusives que vous ne trouverez nulle part ailleurs !",
 				"v": "update_images/credits.mp4",
+				"y": "https://www.youtube.com/watch?v=0S9SgAi8IOI",
 				"a": {
-					"l":"Essayer",
-					"param":"overlays",
-					"subparam":"credits"
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "credits"
 				}
 			},
 			{
@@ -31,10 +32,11 @@
 				"l": "Bits wall",
 				"d": "Faîtes pleuvoir les bits reçus sur votre stream  !\n\nPossèdes 2 fonctionnalités jamais vues :\n<ul><li>Permettez aux viewers de \"casser\" les bits en cliquant dessus grâce à l'extension {HEAT}</li><li>Activez un rendu avancé déformant l'image du stream derrière les cristaux grâce au plugin OBS {SHADERTASTIC}</li></ul>",
 				"v": "update_images/bitswall.mp4",
+				"y": "https://www.youtube.com/watch?v=7rC4MAqAQR0",
 				"a": {
-					"l":"Essayer",
-					"param":"overlays",
-					"subparam":"bitswall"
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "bitswall"
 				}
 			},
 			{
@@ -42,10 +44,11 @@
 				"l": "Distorsions intéractives",
 				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\n\nNécéssite le plusgin OBS {SHADERTASTIC}\n\nCet overlay peut être contrôlé depuis les triggers pour plus de possibilités.",
 				"v": "update_images/distortion.mp4",
+				"y": "https://www.youtube.com/watch?v=yD3BmZXWph4&list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD",
 				"a": {
-					"l":"Essayer",
-					"param":"overlays",
-					"subparam":"distort"
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "distort"
 				}
 			},
 			{
@@ -53,23 +56,30 @@
 				"l": "Pause pub",
 				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\n<ul><li>Reportez la pub avec le bouton snooze.</li><li>Automatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.</li><li>Indiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié.</li></ul>",
 				"v": "update_images/adbreak.mp4",
+				"y": "https://www.youtube.com/watch?v=p_DYIjclLCM",
 				"a": {
-					"l":"Essayer",
-					"param":"overlays",
-					"subparam":"adbreak"
+					"l": "Essayer",
+					"param": "overlays",
+					"subparam": "adbreak"
 				}
 			},
 			{
-				"p":true,
+				"p": true,
 				"i": "translate",
 				"l": "Traduction automatique",
 				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium.",
 				"g": "update_images/translate.png",
 				"a": {
-					"l":"Essayer",
-					"param":"features",
-					"subparam":"229"
+					"l": "Essayer",
+					"param": "features",
+					"subparam": "229"
 				}
+			},
+			{
+				"i": "qna",
+				"l": "Questions/Réponses",
+				"d": "Créez des sessions de questions / réponses avec vos viewers.\n\nRetrouvez toutes les questions dans des listes dédiées et mettez-les en avant en 1 click!",
+				"y": "https://youtu.be/0V8r0yrcees"
 			},
 			{
 				"i": "channelPoints",
@@ -103,17 +113,19 @@
 			{
 				"i": "ticket",
 				"l": "Tirages au sort dynamiques",
-				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment."
+				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment.",
+				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
 			},
 			{
 				"i": "params",
 				"l": "Menu personnalisé",
-				"d": "Ne soyez plus submergé·e par toutes les options Twitchat en personnalisant le menu de paramètres pour n'afficher que les section de votre choix, dans l'ordre de votre choix."
+				"d": "Ne soyez plus submergé·e par toutes les options Twitchat en personnalisant le menu de paramètres pour n'afficher que les section de votre choix, dans l'ordre de votre choix.",
+				"v": "update_images/custom_menu.mp4"
 			},
 			{
 				"i": "broadcast",
 				"l": "Triggers",
-				"d": "<ul><li>Organisez vos triggers dans des dossiers et sous-dossiers</li><li>6 nouveaux évènements de trigger :<ul><li>Approche d'une pub</li><li>Début d'une pub</li><li>Fin d'une pub</li><li>Echec d'ajout d'un morceau à spotify</li><li>Achat de n'importe quelle récompense de points de chaînes</li><li>Click heat n'importe où dans l'écran</li></ul></li><li>4 nouvelles actions de trigger :<ul><li>Créer/désactiver/activer/supprimer/modifier une récompense de points de chaîne</li><li>Activer/désactiver une extension Twitch</li><li>Afficher une notification personnalisée</li><li>Simuler un click sur un overlay de distorsion</li></ul></li><li>3 nouvelles actions OBS :<ul><li>Arrêter un media</li><li>Media suivant</li><li>Media précédent</li></ul></li><li>1 nouvelle action de Compteur & Valeur :<ul><li>Editez la valeur pour toutes les personnes présentes dans le tchat</li></ul></li><li>21 nouveaux placeholders :<ul><li>{NOW} date courante</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} pour l'action Spotify</li><li>{SEARCH_QUERY} pour l'action Spotify</li></ul></li></ul>"
+				"d": "<ul><li>Organisez vos triggers dans des dossiers et sous-dossiers</li><li>6 nouveaux évènements de trigger :<ul><li>Approche d'une pub</li><li>Début d'une pub</li><li>Fin d'une pub</li><li>Echec d'ajout d'un morceau à spotify</li><li>Achat de n'importe quelle récompense de points de chaînes</li><li>Click heat n'importe où dans l'écran</li><li>Session de Question/réponses ouverte</li><li>Session de Question/réponses fermée</li><li>Session de Question/réponses supprimée</li></ul></li><li>4 nouvelles actions de trigger :<ul><li>Créer/désactiver/activer/supprimer/modifier une récompense de points de chaîne</li><li>Activer/désactiver une extension Twitch</li><li>Afficher une notification personnalisée</li><li>Simuler un click sur un overlay de distorsion</li></ul></li><li>3 nouvelles actions OBS :<ul><li>Arrêter un media</li><li>Media suivant</li><li>Media précédent</li></ul></li><li>1 nouvelle action de Compteur & Valeur :<ul><li>Editez la valeur pour toutes les personnes présentes dans le tchat</li></ul></li><li>21 nouveaux placeholders :<ul><li>{NOW} date courante</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} pour l'action Spotify</li><li>{SEARCH_QUERY} pour l'action Spotify</li></ul></li></ul>"
 			},
 			{
 				"i": "donate",
@@ -124,14 +136,11 @@
 			"title": "EH OH TU LIS!",
 			"description": "J'ai travaillé pendant +2 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans!",
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
-			"sorryBt":"ui pardon je lis 🥺",
-			"fuBt":"menfou 🤪"
+			"sorryBt": "ui pardon je lis 🥺",
+			"fuBt": "menfou 🤪"
 		},
-		"major": [
-		],
-		"minor": [
-		],
-		"fixes": [
-		]
+		"major": [],
+		"minor": [],
+		"fixes": []
 	}
 }

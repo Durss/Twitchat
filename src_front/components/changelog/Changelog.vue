@@ -3,6 +3,7 @@
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
 			<CloseButton @click="close()" />
+			<TTButton class="backBt" transparent icon="back" @click="currentSlide = 0" v-if="currentSlide != 0" />
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
@@ -39,8 +40,6 @@
 							</ul>
 						</div>
 						<div v-else class="inner">
-							<TTButton class="backBt" transparent icon="back" @click="currentSlide = 0" />
-
 							<div class="emoji" v-if="item.i == 'donate'">🥺</div>
 							<Icon v-else-if="item.i" :name="item.i" class="icon" />
 
@@ -51,7 +50,7 @@
 							<div class="demo" v-if="item.v || item.g">
 								<img v-if="item.g" :src="item.g" lazy>
 								<div v-if="item.v" class="placeholder"><Icon name="play" /></div>
-								<video v-if="item.v" lazy :src="item.v" autoplay loop controls></video>
+								<video @click="$event => ($event.target as HTMLVideoElement).play()" v-if="item.v" lazy :src="item.v" autoplay loop></video>
 							</div>
 							
 							<div v-if="item.i=='heat'" class="card-item moreInfo">
@@ -74,11 +73,12 @@
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
 							</template>
 							
-							<template v-if="item.i=='heat'">
-								<div class="videos">
-									<a class="item demoLink" href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank"><img src="@/assets/img/param_examples/heatVideo.jpg" class="demo" alt="demo"></a>
-									<a class="item demoLink" href="https://www.youtube.com/watch?v=ukhBTmS2pWM" target="_blank"><img src="@/assets/img/param_examples/heat2Video.jpg" class="demo" alt="demo"></a>
-								</div>
+							<template v-if="item.y">
+								<a :href="item.y" target="_blank" class="youtubeBt">
+									<Icon name="youtube" theme="light" />
+									<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+									<Icon name="newtab" theme="light" />
+								</a>
 							</template>
 						</div>
 					</Slide>
@@ -300,6 +300,14 @@ export default class Changelog extends Vue {
 		transition: background-color .2s, color .2s;
 		margin-top: calc(0px - var(--chat-form-height) / 2) !important;
 		max-height: calc(var(--vh) - var(--chat-form-height));
+		padding-top: 2.5em;
+
+		.backBt {
+			top: 0em;
+			left: 0em;
+			padding: 1em;
+			position: absolute;
+		}
 
 		.head {
 			display: flex;
@@ -343,19 +351,12 @@ export default class Changelog extends Vue {
 				flex-direction: column;
 				align-items: center;
 				gap: 1em;
-				padding: 1em 3em;
+				padding: 0 3em 1em 3em;
 				border-radius: var(--border-radius);
 				width: calc(100% - 5px);
 				min-height: 100%;
 
-				.backBt {
-					left: 2.5em;
-					width: 2em;
-					height: 2em;
-					position: absolute;
-				}
-
-				.icon {
+				&>.icon {
 					height: 2em;
 				}
 
@@ -389,14 +390,22 @@ export default class Changelog extends Vue {
 						width: 100%;
 						position: relative;
 					}
+					video {
+						cursor: pointer;
+					}
 
 					.placeholder {
-						top: 50%;
-						left: 50%;
-						color: white;
 						position: absolute;
 						z-index: 0;
-						transform: translate(-50%, -50%);
+						width: 100%;
+						height: 100%;
+						display: flex;
+						align-items: center;
+						justify-content: center;
+						background-color: var(--grayout);
+						.icon {
+							height: 4em;
+						}
 					}
 				}
 
@@ -560,6 +569,28 @@ export default class Changelog extends Vue {
 		text-align: center;
 		font-size: 5em;
 		padding: .25em;
+	}
+
+	.youtubeBt {
+		padding: .5em;
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		color: var(--color-light);
+		text-decoration: none;
+		background-color: #cc0000;
+		border-radius: var(--border-radius);
+		margin: 0 auto;
+		align-items: center;
+		transition: background-color .25s;
+		.icon {
+			height: 1em;
+			min-height: 20px;
+			width: auto;
+		}
+		&:hover {
+			background-color: #ee0000;
+		}
 	}
 }
 </style>
