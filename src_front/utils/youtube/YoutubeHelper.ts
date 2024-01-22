@@ -33,7 +33,7 @@ export default class YoutubeHelper {
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
 	private _lastChatActivityTimeout:number = -1;
-	private _chatInactivityDisconnect:number = 20 * 60 * 1000;
+	private _chatInactivityDisconnect:number =  20 * 60 * 1000;
 	
 	constructor() {
 	
@@ -250,6 +250,7 @@ export default class YoutubeHelper {
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveId});
 				//Start polling messages
 				this.getMessages();
+				this.scheduleTokenSaver();
 			}else{
 				Logger.instance.log("youtube", {log:"No live found matching required critrias", credits: this._creditsUsed, liveID:this._currentLiveId});
 				this.liveFound = false;
@@ -291,7 +292,9 @@ export default class YoutubeHelper {
 	 */
 	public restartMessagePoll():void {
 		this.tokenSavingEnabled = false;
-		this.getMessages()
+		clearTimeout(this._lastChatActivityTimeout);
+		this.getMessages();
+		this.scheduleTokenSaver();
 	}
 
 	/**
@@ -381,14 +384,8 @@ export default class YoutubeHelper {
 				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 
 				StoreProxy.chat.addMessage(data);
-
-				clearTimeout(this._lastChatActivityTimeout);
+				this.scheduleTokenSaver();
 			}
-
-			//Stop Youtube connection after 20min with no message
-			this._lastChatActivityTimeout = setTimeout(()=>{
-				this.tokenSavingEnabled = true;
-			}, this._chatInactivityDisconnect);
 
 			if(!this.tokenSavingEnabled)  {
 				this._lastMessagePage = json.nextPageToken;
@@ -738,5 +735,18 @@ export default class YoutubeHelper {
 			let json = await emotesQuery.json();
 			this._emotes = json;
 		}
+	}
+
+	/**
+	 * Schedules the token saving mode
+	 */
+	private scheduleTokenSaver():void {
+		this.tokenSavingEnabled = false;
+
+		clearTimeout(this._lastChatActivityTimeout);
+
+		this._lastChatActivityTimeout = setTimeout(()=>{
+			this.tokenSavingEnabled = true;
+		}, this._chatInactivityDisconnect);
 	}
 }
