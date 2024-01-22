@@ -31,7 +31,7 @@
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
-					<CloseButton @click="closeFilters()" v-if="!forceConfig" />
+					<ClearButton @click="closeFilters()" v-if="!forceConfig" />
 				</div>
 				
 				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
@@ -145,7 +145,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import MessageItem from '../MessageItem.vue';
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import Config from '@/utils/Config';
 
 @Component({
@@ -156,7 +156,7 @@ import Config from '@/utils/Config';
 		ToggleBlock,
 		ToggleButton,
 		PermissionsForm,
-		CloseButton,
+		ClearButton,
 	},
 	emits: ['submit', 'add', 'change'],
 })

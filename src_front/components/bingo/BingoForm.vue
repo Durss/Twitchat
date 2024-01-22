@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<CloseButton :aria-label="$t('global.close')" @click="close()" />
+			<ClearButton :aria-label="$t('global.close')" @click="close()" />
 			
 			<h1 class="title"><Icon name="bingo" class="icon" />{{ $t("bingo.form.title") }}</h1>
 			
@@ -51,7 +51,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -62,7 +62,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 		Button: TTButton,
 		TabMenu,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		PostOnChatParam,
 	},

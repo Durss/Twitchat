@@ -61,7 +61,7 @@ import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -73,7 +73,7 @@ import RewardListTransferForm from './RewardListTransferForm.vue';
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 		ToggleButton,
 		RewardListItem,
 		RewardListEditForm,

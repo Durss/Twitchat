@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<div class="head">
 				<h1 class="title"><Icon name="alert" /> {{ $t('premium.cleanup.title') }}</h1>
-				<CloseButton @click="close()" v-if="!$store.main.nonPremiumLimitExceeded" />
+				<ClearButton @click="close()" v-if="!$store.main.nonPremiumLimitExceeded" />
 			</div>
 			<div class="content">
 				<span class="subtitle">{{ $t('premium.cleanup.description') }}</span>
@@ -156,7 +156,7 @@ import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/all';
 import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -169,7 +169,7 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		ToggleButton,
 		HeatScreenPreview,

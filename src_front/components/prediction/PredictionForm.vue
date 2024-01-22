@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 			<h1><Icon name="prediction" class="icon" />{{ $t("prediction.form.title") }}</h1>
 		</div>
 		<div class="content">
@@ -68,7 +68,7 @@ import { watch } from '@vue/runtime-core';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import FormVoiceControllHelper from '../voice/FormVoiceControllHelper';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
@@ -79,7 +79,7 @@ import DataStore from '@/store/DataStore';
 	components:{
 		Button: TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		PlaceholderSelector,
 		VoiceGlobalCommandsHelper,
 	},

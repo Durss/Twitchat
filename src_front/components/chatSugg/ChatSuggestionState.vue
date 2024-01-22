@@ -1,7 +1,7 @@
 <template>
 	<div class="chatsuggstate sidePanel">
 		<div class="head">
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 			<h1 class="title"><Icon name="chatPoll" />{{ $t('suggestion.state_title') }} <mark>{{poll.command}}</mark></h1>
 		</div>
 		
@@ -50,7 +50,7 @@ import gsap from 'gsap';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import Icon from '../Icon.vue';
@@ -61,7 +61,7 @@ import Icon from '../Icon.vue';
 		TTButton,
 		ToggleBlock,
 		ProgressBar,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"]
 })

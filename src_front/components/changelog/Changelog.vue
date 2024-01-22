@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
-			<CloseButton @click="close()" />
-			<TTButton class="backBt" transparent icon="back" @click="currentSlide = 0" v-if="currentSlide != 0" />
+			<ClearButton @click="close()" />
+			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0" />
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
@@ -97,7 +97,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
@@ -109,7 +109,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 		TTButton,
 		Carousel,
 		ToggleBlock,
-		CloseButton,
+		ClearButton,
 		SponsorTable,
 		ThemeSelector,
 		OverlayCounter,
@@ -303,9 +303,8 @@ export default class Changelog extends Vue {
 		padding-top: 2.5em;
 
 		.backBt {
-			top: 0em;
-			left: 0em;
-			padding: 1em;
+			left: 0;
+			right: auto;
 			position: absolute;
 		}
 

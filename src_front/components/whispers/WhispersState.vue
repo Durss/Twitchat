@@ -1,7 +1,7 @@
 <template>
 	<div class="whispersstate sidePanel">
 		<div class="head">
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 			
 			<h1 class="title"><Icon name="whispers" class="icon"/>{{ $t('whispers.title') }}</h1>
 			<div class="description">{{ users[selectedUserIndex].displayName }}</div>
@@ -47,7 +47,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { watch } from 'vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
@@ -56,7 +56,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 	components:{
 		TTButton,
 		ToggleBlock,
-		CloseButton,
+		ClearButton,
 		ChatMessageChunksParser,
 	},
 	emits:["close"]

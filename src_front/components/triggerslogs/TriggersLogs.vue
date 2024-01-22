@@ -3,7 +3,7 @@
 		<div class="head">
 			<h1 class="title"><Icon name="broadcast" />{{ $t("triggers.logs.title") }}</h1>
 			<div class="subtitle">{{ $t("triggers.logs.subtitle") }}</div>
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 		</div>
 		
 		<div class="ctas">
@@ -71,14 +71,14 @@ import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"]
 })

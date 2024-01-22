@@ -7,7 +7,7 @@
 					<template #COUNT>{{ $store.chat.pinedMessages.length }}</template>
 				</i18n-t>
 			</div>
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 		<div class="content">
 
@@ -43,7 +43,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
@@ -52,7 +52,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 		ChatMessage,
 	},
 	emits:["close"]

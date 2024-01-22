@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head">
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 			<h1 class="title"><Icon name="magnet" class="icon" />{{ $t('tracked.title') }}</h1>
 		</div>
 
@@ -40,7 +40,7 @@ import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import MessageItem from '../messages/MessageItem.vue';
 
@@ -48,7 +48,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	components:{
 		Button: TTButton,
 		MessageItem,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 	},
 	emits:["close"]

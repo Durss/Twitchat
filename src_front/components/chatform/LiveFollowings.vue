@@ -4,7 +4,7 @@
 		<div class="head">
 			<h1 v-if="showRaidHistory" ><Icon name="user" class="icon" />{{$t('raid.raid_historyBt')}}</h1>
 			<h1 v-else><Icon name="user" class="icon" />{{$t('cmdmenu.whoslive_title')}}</h1>
-			<CloseButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
+			<ClearButton :aria-label="$t('liveusers.closeBt_aria')" @click="close()" />
 
 			<template v-if="!needScope && $store.stream.raidHistory.length > 0">
 				<TTButton class="actionBt" small v-if="!showRaidHistory" icon="raid" @click="showRaidHistory = true">{{ $t("raid.raid_historyBt") }}</TTButton>
@@ -78,12 +78,12 @@ import gsap from 'gsap';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 
 @Component({
 	components:{
 		TTButton,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"]
 })

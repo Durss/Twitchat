@@ -1,7 +1,7 @@
 <template>
 	<div class="extensions sidePanel">
 		<div class="head">
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 			<h1 class="title"><Icon :name="reloading? 'loader' : 'extension'" />{{ $t("extensions.title") }}</h1>
 		</div>
 
@@ -58,7 +58,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -69,7 +69,7 @@ import ParamItem from '../params/ParamItem.vue';
 		Icon,
 		TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ToggleButton,
 	},
 	emits:["close"],

@@ -4,7 +4,7 @@
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		
 		<Icon name="music" alt="notice" class="icon"/>
-		<CloseButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 
 		<div class="messageHolder">
 			<i18n-t scope="global" tag="span" :keypath="messageData.trackAdded? 'chat.added_to_queue.title' : 'chat.added_to_queue.title_fail'">
@@ -42,7 +42,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import Utils from '@/utils/Utils';
@@ -51,7 +51,7 @@ import Utils from '@/utils/Utils';
 	components:{
 		Icon,
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["onRead"]
 })

@@ -131,7 +131,7 @@
 			<TTButton class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</TTButton>
 			
 			<div class="slotSelector" v-else>
-				<CloseButton @click="showSlotOptions = false" />
+				<ClearButton @click="showSlotOptions = false" />
 				<TTButton class="slotBt"
 				v-for="slot in slotTypes"
 				:icon="slot.icon"
@@ -185,7 +185,7 @@
 </template>
 
 <script lang="ts">
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import Icon from '@/components/Icon.vue';
 import PremiumLockLayer from '@/components/PremiumLockLayer.vue';
 import Splitter from '@/components/Splitter.vue';
@@ -215,7 +215,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		Splitter,
 		draggable,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		ToggleButton,
 		PremiumLockLayer,

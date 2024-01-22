@@ -91,7 +91,7 @@
 			<div class="head">
 				<h1 v-if="conversationMode">{{ $t("chat.conversation") }}</h1>
 				<h1 v-if="!conversationMode">{{ $t("chat.history", {USER: conversation[0].user.displayName}) }}</h1>
-				<CloseButton @click="onLeaveMessage" />
+				<ClearButton @click="onLeaveMessage" />
 			</div>
 			<div class="messages" ref="conversationMessages">
 				<MessageItem class="message"
@@ -122,7 +122,7 @@ import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import MessageItem from './MessageItem.vue';
 import MessageListFilter from './components/MessageListFilter.vue';
 import { RoughEase } from 'gsap/all';
@@ -132,7 +132,7 @@ import { Linear } from 'gsap/all';
 	components: {
 		Button: TTButton,
 		MessageItem,
-		CloseButton,
+		ClearButton,
 		MessageListFilter,
 	},
 	emits: ["showModal", 'addColumn']

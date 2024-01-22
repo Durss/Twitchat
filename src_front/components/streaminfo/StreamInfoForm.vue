@@ -2,7 +2,7 @@
 	<div class="streaminfo sidePanel">
 		<div class="head">
 			<h1 class="title"><Icon name="info" class="icon" />{{ $t("stream.form_title") }}</h1>
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 		
 		<div class="content">
@@ -55,7 +55,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -65,7 +65,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 	components:{
 		TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		AutoCompleteForm,
 		StreamInfoSubForm,

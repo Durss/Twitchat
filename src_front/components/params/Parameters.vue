@@ -3,7 +3,7 @@
 		<div class="menu">
 			<div class="head" v-if="content == contentMain && !search || content == contentAd">
 				<h1 class="title">{{$t('params.categories.'+content)}}</h1>
-				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+				<ClearButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
 			<div class="static">
@@ -71,7 +71,7 @@
 					<Icon name="back"/>
 				</button>
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
-				<CloseButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
+				<ClearButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
 
 			<div class="content" v-if="(content != contentMain && content != contentAd) || search" id="paramContentScrollableHolder">
@@ -124,7 +124,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import DonorState from '../user/DonorState.vue';
 import type IParameterContent from './contents/IParameterContent';
@@ -164,7 +164,7 @@ import ParamsYoutube from './contents/ParamsYoutube.vue';
 		DonorState,
 		ParamsHeat,
 		ParamsList,
-		CloseButton,
+		ClearButton,
 		ParamsAbout,
 		ParamsAlert,
 		ParamsGoXLR,

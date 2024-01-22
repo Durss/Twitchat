@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 
 			<h1><Icon name="chatPoll" class="icon" />{{ $t('suggestion.title') }}</h1>
 
@@ -58,7 +58,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import PermissionsForm from '../PermissionsForm.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -69,7 +69,7 @@ import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/Trig
 	components:{
 		Button: TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		PermissionsForm,
 		PostOnChatParam,

@@ -1,6 +1,6 @@
 <template>
 	<div class="alertview" v-if="message && message.length > 0" @click="close()">
-		<CloseButton v-if="!locked" />
+		<ClearButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
 		<div v-if="$store.main.alertData.showContact" class="contact">
 			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
@@ -10,7 +10,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
@@ -19,7 +19,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 	},
 })
 export default class AlertView extends Vue {

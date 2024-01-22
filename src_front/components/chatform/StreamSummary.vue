@@ -1,7 +1,7 @@
 <template>
 	<div class="streamsummary sidePanel">
 		<div class="head">
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 			<h1 class="title"><Icon name="broadcast" />{{ $t("summary.title") }}</h1>
 			<div class="description" v-if="streamDuration">{{ $t("summary.stream_duration") }} {{ streamDuration }}</div>
 		</div>
@@ -82,7 +82,7 @@
 <script lang="ts">
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
@@ -93,7 +93,7 @@ import Icon from '../Icon.vue';
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"],
 })

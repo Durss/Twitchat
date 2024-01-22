@@ -2,7 +2,7 @@
 	<div class="usercard sidePanel" v-if="user">
 		<div class="content">
 			<template v-if="loading">
-				<CloseButton aria-label="close" @click="close()" />
+				<ClearButton aria-label="close" @click="close()" />
 				<div class="header">
 					<div class="title">
 						<span class="label">{{user.displayName}}</span>
@@ -12,7 +12,7 @@
 			</template>
 
 			<template v-else-if="error">
-				<CloseButton aria-label="close" @click="close()" />
+				<ClearButton aria-label="close" @click="close()" />
 				<div class="header">
 					<div class="title">
 						<span class="label">{{user.displayName}}</span>
@@ -23,7 +23,7 @@
 			</template>
 
 			<template v-else-if="!loading && !error">
-				<CloseButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
+				<ClearButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
 						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar" referrerpolicy="no-referrer">
@@ -179,7 +179,7 @@ import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
 import CustomUserBadges from './CustomUserBadges.vue';
@@ -190,7 +190,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		MessageItem,
 		ChatModTools,
 		CustomUserBadges,

@@ -6,7 +6,7 @@
 				<i18n-t scope="global" tag="h1" keypath="qna.list.title"></i18n-t>
 			</div>
 			<!-- <div class="description">{{ currentSession.command }}</div> -->
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 			<!-- <div class="ctas">
 				<TTButton secondary icon="cross">Close session</TTButton>
 				<TTButton alert icon="trash">Delete session</TTButton>
@@ -59,7 +59,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
@@ -67,7 +67,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 @Component({
 	components:{
 		TTButton,
-		CloseButton,
+		ClearButton,
 		MessageItem,
 		ChatMessageChunksParser,
 	},

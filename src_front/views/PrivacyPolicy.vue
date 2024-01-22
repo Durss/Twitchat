@@ -466,7 +466,7 @@
 			<div class="holder">
 				<div class="head">
 					<div class="title">Manage your personnal data</div>
-					<CloseButton @click="showDataManager = false" />
+					<ClearButton @click="showDataManager = false" />
 				</div>
 				<div class="content" v-if="auhtenticating">
 					<Icon name="loader" class="loader" />
@@ -501,7 +501,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import Icon from '@/components/Icon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import ApiController from '@/utils/ApiController';
@@ -516,7 +516,7 @@ import Config from '@/utils/Config';
 		Icon,
 		Login,
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		ThemeSelector,
 	},
 	emits:[],

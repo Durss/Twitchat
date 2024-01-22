@@ -9,7 +9,7 @@
 				<div class="beta" v-if="isBeta === true">{{ $t("global.beta") }}</div>
 			</div>
 
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 	
 			<div class="content betaWarn" v-if="closedBeta === true && !scopeOnly">
 				<div class="head">
@@ -91,7 +91,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import DataStore from '@/store/DataStore';
 import ApiController from '@/utils/ApiController';
@@ -106,7 +106,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 @Component({
 	components:{
 		TTButton,
-		CloseButton,
+		ClearButton,
 		ScopeSelector,
 	},
 	emits:["close"]

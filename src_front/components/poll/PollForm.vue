@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<h1 class="title"><Icon name="poll" class="icon" />{{ $t("poll.form.title") }}</h1>
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 
 		<div class="content">
@@ -52,7 +52,7 @@ import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 import PlaceholderSelector from '../params/PlaceholderSelector.vue';
@@ -62,7 +62,7 @@ import DataStore from '@/store/DataStore';
 	components:{
 		Button: TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		PlaceholderSelector,
 		VoiceGlobalCommandsHelper,
 	},

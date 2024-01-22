@@ -4,7 +4,7 @@
 		<div class="holder" ref="holder">
 			<h1 class="head">
 				<span class="title">{{ $t('gngngn.title') }}</span>
-				<CloseButton @click="close()" />
+				<ClearButton @click="close()" />
 			</h1>
 			<div class="content">
 				<p v-for="e in $tm('gngngn.contents')" v-html="e"></p>
@@ -25,12 +25,12 @@ import gsap from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 	},
 	emits:["close"]

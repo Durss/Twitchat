@@ -12,7 +12,7 @@
 				<template #SEARCH><span class="search">{{search}}</span></template>
 			</i18n-t>
 			
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 
 		<div class="content" ref="holder">
@@ -43,13 +43,13 @@ import { watch } from '@vue/runtime-core';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ChatMessage from '../messages/ChatMessage.vue';
 
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		ChatMessage,
 	},
 	emits:["close"]

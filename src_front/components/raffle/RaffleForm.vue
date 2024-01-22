@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
-			<CloseButton :aria-label="$t('global.close')" @click="close()" />
+			<ClearButton :aria-label="$t('global.close')" @click="close()" />
 			
 			<h1 class="title"><Icon name="ticket" class="icon" />{{ $t("raffle.form_title") }}</h1>
 
@@ -176,7 +176,7 @@ import { watch } from 'vue';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -190,7 +190,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 		TabMenu,
 		ParamItem,
 		ToggleBlock,
-		CloseButton,
+		ClearButton,
 		PostOnChatParam,
 		VoiceGlobalCommandsHelper,
 	},

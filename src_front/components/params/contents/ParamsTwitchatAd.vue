@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@click="open()"
 	v-if="$store.auth.twitch.user.donor.state === true || !$store.auth.twitch.user.donor.noAd">
-		<CloseButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
+		<ClearButton v-if="!collapse" :aria-label="$t('params.ad_collapse_aria')" @click.stop="close()" theme="light" />
 
 		<img src="@/assets/icons/twitchat.svg"
 			alt="twitchat"
@@ -39,13 +39,13 @@ import Config from '@/utils/Config';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import PostOnChatParam from '../PostOnChatParam.vue';
-import CloseButton from '@/components/CloseButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import { gsap } from 'gsap';
 
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		PostOnChatParam,
 	},

@@ -1,7 +1,7 @@
 <template>
 	<div class="ttuserlist sidePanel">
 		<div class="head">
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 			<h1 class="title"><Icon name="user" />Twitchat users : {{userCount}}</h1>
 		</div>
 
@@ -66,7 +66,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import Icon from '../Icon.vue';
 
@@ -74,7 +74,7 @@ import Icon from '../Icon.vue';
 	components:{
 		Icon,
 		TTButton,
-		CloseButton,
+		ClearButton,
 		ToggleButton,
 	},
 	emits:["close"]

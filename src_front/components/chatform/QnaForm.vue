@@ -10,7 +10,7 @@
 			<i18n-t scope="global" class="description" tag="span" keypath="qna.form.subtitle">
 			</i18n-t>
 
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 
 		<div class="content">
@@ -42,7 +42,7 @@
 <script lang="ts">
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../params/ParamItem.vue';
 import TTButton from '../TTButton.vue';
@@ -52,7 +52,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	components:{
 		TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		PostOnChatParam,
 	},
 	emits:["close"],

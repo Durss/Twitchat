@@ -3,7 +3,7 @@
 		<div class="innerHolder">
 			<div v-if="isDonate || isDonateReminder" class="card-item primary sponsor">
 				<div class="header">
-					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store.params.donationReminderEnabled" />
+					<ClearButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store.params.donationReminderEnabled" />
 					<div class="title">{{ $t('chat.sponsor.title') }}</div>
 				</div>
 				<div class="content" v-html="isDonateReminder? $t('chat.sponsor.head_reminder') : $t('chat.sponsor.head')"></div>
@@ -23,7 +23,7 @@
 	
 			<div v-if="isTip" class="card-item primary tip">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
 					<div class="title">{{ $t("tips.title") }}</div>
 				</div>
 				<ChatTipAndTrickAd class="content"
@@ -33,7 +33,7 @@
 	
 			<div v-if="isDiscord" class="card-item primary discord">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
 					<div class="title">{{ $t('chat.discord.title') }}</div>
 				</div>
 				<div class="content">
@@ -50,7 +50,7 @@
 	
 			<div v-if="isAdWarning" class="card-item primary">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="showConfirm? showConfirm = false : confirmGngngnClose()" />
+					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="showConfirm? showConfirm = false : confirmGngngnClose()" />
 					<div class="title">{{ $t('chat.adalert.title') }}</div>
 				</div>
 				<div class="content left">
@@ -70,7 +70,7 @@
 	
 			<div v-if="isSponsorPublicPrompt" class="card-item primary sponsorPrompt">
 				<div class="header">
-					<CloseButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
+					<ClearButton :aria-label="$t('chat.closeBt_aria')" @click.stop="deleteMessage()" />
 					<div class="title">{{$t('chat.donor.title')}}</div>
 				</div>
 				<div class="content">
@@ -112,7 +112,7 @@
 	
 			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
 				<div class="header">
-					<CloseButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<ClearButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
 					<div class="title"><img src="@/assets/icons/ad.svg" class="icon small"> {{ $t('chat.adBreakScope.header') }}</div>
 				</div>
 				<div class="content">
@@ -152,7 +152,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
@@ -162,7 +162,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	components:{
 		TTButton,
 		Splitter,
-		CloseButton,
+		ClearButton,
 		ToggleBlock,
 		ChatTipAndTrickAd,
 	},

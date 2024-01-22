@@ -1,6 +1,6 @@
 <template>
 	<div class="chatscoperequester chatMessage highlight alert">
-		<CloseButton @click="deleteMessage()" theme="light" />
+		<ClearButton @click="deleteMessage()" theme="light" />
 
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
@@ -28,12 +28,12 @@ import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/Twitch
 import { Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 
 @Component({
 	components:{
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["onRead", "openFilters"]
 })

@@ -10,7 +10,7 @@
 			<i18n-t scope="global" class="description" tag="span" keypath="announcement.subtitle">
 			</i18n-t>
 
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 		</div>
 
 		<div class="content">
@@ -69,7 +69,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import Splitter from '../Splitter.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
@@ -81,7 +81,7 @@ import ParamItem from '../params/ParamItem.vue';
 		TTButton,
 		Splitter,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 		ChatMessageChunksParser,
 	},
 	emits:["close"],

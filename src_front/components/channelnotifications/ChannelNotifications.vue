@@ -16,7 +16,7 @@
 				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
-			<CloseButton class="closeBt clearButton" v-if="showClose"
+			<ClearButton class="closeBt clearButton" v-if="showClose"
 				aria-label="close"
 				@click="$emit('close')" />
 		</div>
@@ -29,7 +29,7 @@ import { watch } from '@vue/runtime-core';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import BingoState from './BingoState.vue';
 import HypeTrainState from './HypeTrainState.vue';
 import PollState from './PollState.vue';
@@ -43,7 +43,7 @@ import RaidState from './RaidState.vue';
 		PollState,
 		RaidState,
 		BingoState,
-		CloseButton,
+		ClearButton,
 		RaffleState,
 		HypeTrainState,
 		PredictionState,

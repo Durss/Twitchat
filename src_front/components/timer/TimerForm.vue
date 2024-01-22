@@ -1,7 +1,7 @@
 <template>
 	<div class="timerform sidePanel">
 		<div class="head">
-			<CloseButton @click="close()" />
+			<ClearButton @click="close()" />
 			<h1><Icon name="timer" class="icon" />{{ $t("timer.title") }}</h1>
 			<div class="description">{{ $t("timer.description") }}</div>
 		</div>
@@ -45,7 +45,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ParamItem from '../params/ParamItem.vue';
 
@@ -54,7 +54,7 @@ import ParamItem from '../params/ParamItem.vue';
 		TTButton,
 		TabMenu,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"]
 })

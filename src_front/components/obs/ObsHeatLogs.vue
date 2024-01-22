@@ -3,7 +3,7 @@
 		<div class="head">
 			<h1 class="title"><Icon name="obs" />OBS logs</h1>
 			<div class="subtitle">Get logs about what happens with OBS-websocket</div>
-			<CloseButton @click="close" />
+			<ClearButton @click="close" />
 		</div>
 		
 		<div class="content entries">
@@ -43,14 +43,14 @@ import Utils from '@/utils/Utils';
 import { Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 
 @Component({
 	components:{
 		TTButton,
 		ParamItem,
-		CloseButton,
+		ClearButton,
 	},
 	emits:["close"]
 })

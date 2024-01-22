@@ -1,6 +1,6 @@
 <template>
 	<button :class="classes">
-		<Icon class="icon" name="cross" :theme="theme"/>
+		<Icon class="icon" :name="icon" :theme="theme"/>
 	</button>
 </template>
 
@@ -11,7 +11,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	components:{},
 	emits:[],
 })
-export default class CloseButton extends Vue {
+export default class ClearButton extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;
@@ -19,10 +19,13 @@ export default class CloseButton extends Vue {
 	@Prop({type:Boolean, default:false})
 	public small!:boolean;
 
+	@Prop({type:String, default:"cross"})
+	public icon!:string;
+
 	public classes:string[] = [];
 
 	public beforeMount():void {
-		this.classes.push("closebutton");
+		this.classes.push("clearbutton");
 		if(this.small !== false)  {
 			this.classes.push("small");
 		}
@@ -32,7 +35,7 @@ export default class CloseButton extends Vue {
 </script>
 
 <style scoped lang="less">
-.closebutton{
+.clearbutton{
 	position: absolute;
 	top: 0;
 	right: 0;

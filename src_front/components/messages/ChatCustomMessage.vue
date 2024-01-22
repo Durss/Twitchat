@@ -26,7 +26,7 @@
 			</div>
 		</div>
 		
-		<CloseButton class="closeBt" @click.stop="deleteMessage()" small />
+		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 	</div>
 </template>
 
@@ -36,7 +36,7 @@ import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
-import CloseButton from '../CloseButton.vue';
+import ClearButton from '../ClearButton.vue';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
@@ -47,7 +47,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 	components:{
 		Icon,
 		Button: TTButton,
-		CloseButton,
+		ClearButton,
 		ChatMessageChunksParser,
 	},
 	emits:["onRead"]
