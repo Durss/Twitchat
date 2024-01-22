@@ -1,7 +1,7 @@
 <template>
 	<div class="greetThem" v-show="messages.length > 0" :style="styles">
-		<div class="header">
-			<div class="title" @click="toggleList()">
+		<div class="header" @click="toggleList()">
+			<div class="title">
 				<ButtonNotification class="scrollBt clearButton"
 					:aria-label="$t(scrollDownAuto? 'greet.auto_scroll_off_aria' : 'greet.auto_scroll_on_aria')"
 					:icon="'scroll'+(scrollDownAuto? 'Down' : 'Up')"
@@ -48,7 +48,7 @@
 			</template>
 			<div class="more" v-if="messages.length > messagesFiltered.length">+{{ messages.length - messagesFiltered.length }}</div>
 		</div>
-		<div class="grip" @mousedown="startDrag()" @touchstart="startDrag()"></div>
+		<div class="grip" v-if="showList" @mousedown="startDrag()" @touchstart="startDrag()"></div>
 	</div>
 </template>
 
@@ -403,11 +403,11 @@ export default class NewUsers extends Vue {
 	.header {
 		background-color: var(--color-primary);
 		padding: .5em 0;
+		cursor: pointer;
 		.title {
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
-			cursor: pointer;
 			color: var(--color-light);
 			h1 {
 				text-align: center;

@@ -1,6 +1,6 @@
 <template>
 	<div class="overlayparamsbitswall overlayParamsSection">
-		<a href="https://www.youtube.com/watch?v=ZY72FfwuYcM" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/watch?v=7rC4MAqAQR0" target="_blank" class="youtubeBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
@@ -276,13 +276,15 @@ export default class OverlayParamsBitswall extends Vue {
 <style scoped lang="less">
 .overlayparamsbitswall{
 	.demo {
-		@scale: .8;
+		@scale: 1;
 		position: relative;
 		width: (855px / 2) * @scale;
+		max-width: 75vw;
 		height: 0;
 		margin: auto;
 		border-radius: var(--border-radius);
 		overflow: hidden;
+		background-color: var(--color-primary);
 		transition: height .25s;
 		&.open {
 			margin-top: .5em;
@@ -290,9 +292,11 @@ export default class OverlayParamsBitswall extends Vue {
 		}
 		img {
 			height: 100px * @scale;
+			// left: -25%;
+			position: relative;
 			&:not(.shader) {
-				left: -(855px / 2) * @scale - 2px;
-				position: relative;
+				// left: calc(-175% + 2px);
+				left: -(855px / 2) * @scale - 3px;
 			}
 		}
 	}

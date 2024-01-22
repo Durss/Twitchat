@@ -193,6 +193,7 @@ export default class OverlayInstaller extends Vue {
 		flex-direction: row;
 		align-items: center;
 		justify-content: center;
+		flex-wrap: wrap;
 		width: 100%;
 		.copyBt {
 			margin-left: -2.5em;
