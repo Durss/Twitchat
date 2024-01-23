@@ -2417,15 +2417,22 @@ export default class TwitchUtils {
 				};
 				Logger.instance.log("ads", {
 					log:"Ad schedule loaded",
-					api:data,
+					api:json.data,
 					internal:infos,
 				});
 				StoreProxy.stream.setCommercialInfo(user.id, infos);
 				return data;
+			}else{
+				Logger.instance.log("ads", {
+					log:"Ad schedule returned no entry",
+					api:json,
+				});
 			}
+
 		}else if(res.status == 429) {
 			await this.onRateLimit(res.headers);
 			return this.getAdSchedule();
+
 		}else if (res.status == 400) {
 			//Channel not live or no ad scheduled
 			const infos:TwitchatDataTypes.CommercialData = {
@@ -2436,6 +2443,14 @@ export default class TwitchUtils {
 				nextSnooze_at:			0,
 			};
 			StoreProxy.stream.setCommercialInfo(user.id, infos);
+		}
+		try {
+			Logger.instance.log("ads", {
+				log:"Ad schedule return status "+res.status,
+				body:await res.text(),
+			});
+		}catch(error) {
+
 		}
 		return null;
 	}
