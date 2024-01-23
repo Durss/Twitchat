@@ -11,6 +11,7 @@
 		"paypal_error":"Une erreur est survenue lors de l'initialisation du formulaire PayPal",
 		"donors": "Donatrices et donateurs",
 		"lifetime_premium": "Premium à vie",
-		"ttc": "Je reçois {AMOUNT}€ TTC"
+		"ttc": "Je reçois {AMOUNT}€ TTC",
+		"dare": "Chiche 😏"
 	}
 }

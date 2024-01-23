@@ -4,10 +4,10 @@
 		
 		<template v-if="param_action.value == '1'">
 			<ParamItem noBackground :paramData="param_repeatDurationCondition">
-				<ParamItem noBackground :paramData="param_repeatDurationValue" v-model="triggerData.scheduleParams!.repeatDuration" />
+				<ParamItem class="child" noBackground :paramData="param_repeatDurationValue" v-model="triggerData.scheduleParams!.repeatDuration" />
 			</ParamItem>
 			<ParamItem noBackground :paramData="param_repeatMessageCondition">
-				<ParamItem noBackground :paramData="param_repeatMessageValue" v-model="triggerData.scheduleParams!.repeatMinMessages" />
+				<ParamItem class="child" noBackground :paramData="param_repeatMessageValue" v-model="triggerData.scheduleParams!.repeatMinMessages" />
 			</ParamItem>
 		</template>
 		

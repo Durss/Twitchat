@@ -18,7 +18,7 @@
 
 		<div v-else class="field">
 			<button class="backBt" v-if="obsConnected" @click="showInput = false"><Icon name="back" /></button>
-			<TTButton class="draggable" type="link" :href="localURLOBS" style="user-select:none !important;" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
+			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
 			<span>{{$t("global.or")}}</span>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>

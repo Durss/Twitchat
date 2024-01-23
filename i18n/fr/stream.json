@@ -2,12 +2,9 @@
 	"stream":{
 		"form_title":"Infos du stream",
 		"closeBt_aria":"Fermer la fenêtre",
-		"presets_title":"Presets",
 		"preset_deleteBt_tt":"Supprimer les préréglages",
 		"preset_editBt_tt":"Mettre à jour les préréglages",
-		"preset_setBt_tt":"Clique pour mettre à jour les <br>infos du stream",
-		"form_title_update":"Mettre à jour les infos",
-		"form_title_preset":"Preset: {TITLE}",
+		"preset_setBt_tt":"Clique pour appliquer\nce preset",
 		"form_stream_title":"Titre",
 		"form_stream_title_placeholder":"Titre...",
 		"form_stream_category":"Catégorie",
@@ -19,6 +16,10 @@
 		"notification":"Info de stream modifiées pour \"{TITLE}\" dans la categorie \"{CATEGORY}\"",
 		"form_branded":"Contenu promotionnel",
 		"update_done":"Les infos de stream ont bien été mises à jour",
-		"form_labels_title":"Classification de contenu"
+		"form_labels_title":"Classification de contenu",
+		"form_delete_confirm":{
+			"title": "Supprimer preset ?",
+			"description": "Cette action ne pourra pas être annulée."
+		}
 	}
 }

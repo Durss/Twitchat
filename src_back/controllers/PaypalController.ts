@@ -51,7 +51,7 @@ export default class PaypalController extends AbstractController {
 
 		let amount = body.amount || 20;
 		if(amount < 0) amount = 20;
-		if(amount < 1) amount = 1;
+		if(amount < 3) amount = 3;
 		let amountStr = amount.toString();
 		amountStr = amountStr.replace(/\D,\./gi, "");
 		if(amountStr.indexOf(".") == -1) amountStr += ".00";

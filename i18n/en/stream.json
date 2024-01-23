@@ -1,13 +1,9 @@
 {
 	"stream":{
-		"form_title":"Stream info",
 		"closeBt_aria":"Close form",
-		"presets_title":"Presets",
 		"preset_deleteBt_tt":"Delete preset",
 		"preset_editBt_tt":"Edit preset",
-		"preset_setBt_tt":"Click to set<br>stream infos",
-		"form_title_update":"Update infos",
-		"form_title_preset":"Preset: {TITLE}",
+		"preset_setBt_tt":"Click to apply\nthis preset",
 		"form_stream_title":"Title",
 		"form_stream_title_placeholder":"title...",
 		"form_stream_category":"Category",
@@ -19,6 +15,10 @@
 		"notification":"Changed stream info to \"{TITLE}\" on \"{CATEGORY}\"",
 		"form_branded":"Branded Content",
 		"update_done":"Stream info updated successfully",
-		"form_labels_title":"Content Classification"
+		"form_labels_title":"Content Classification",
+		"form_delete_confirm":{
+			"title": "Delete preset?",
+			"description": "This cannot be undone."
+		}
 	}
 }
