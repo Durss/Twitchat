@@ -6,6 +6,7 @@ build
 /userData
 /server
 /userData_fake_production
+/updates_graphics
 announcements.json
 patreon
 donors

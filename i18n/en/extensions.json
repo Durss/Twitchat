@@ -4,10 +4,10 @@
 		"param_install":"Install",
 		"no_extension":"You have no extension installed on your channel",
 		"no_extension_browse":"Browse for extensions",
-		"type_panel":"Panneau",
+		"type_panel":"Panel",
 		"type_overlay":"Overlay",
 		"type_mobile":"Mobile",
-		"type_component":"Componsant",
-		"update_error":"Une erreur est survenue lors de la mise à jour de l'extension"
+		"type_component":"Component",
+		"update_error":"Something went wrong when updating the extension"
 	}
 }

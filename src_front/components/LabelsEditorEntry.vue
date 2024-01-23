@@ -9,7 +9,8 @@
 			:langRef="langRef"
 			:path="[...path,key]"
 			:pathToSelect="pathToSelect"
-			:key="path.join()" />
+			:data-test="[...path,key].join('.')"
+			:key="[...path,key].join()" />
 	</div>
 	
 	<div class="label" :class="classes" v-else @click="open($event)">

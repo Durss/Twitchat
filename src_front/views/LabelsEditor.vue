@@ -31,7 +31,7 @@
 				<div class="header">
 					<h2 class="title">{{ selectedSectionKey }}</h2>
 				</div>
-				<template  v-for="(value, key) in selectedSection" :key="key">
+				<template  v-for="(value, key) in selectedSection" :key="[selectedSectionKey,key].join('.')">
 					<LabelsEditorEntry
 						:value="value"
 						:langRef="langRef"
@@ -47,7 +47,7 @@
 		</template>
 
 		<template v-else-if="searchKeys.length > 0">
-			<div class="labels card-item search" v-for="(value, key) in searchKeys" :key="value.join('.')">
+			<div class="labels card-item search" v-for="(value, key) in searchKeys" :key="value.join('.')" :data-test="value.join('.')">
 				<div class="header">
 					<h2 class="title">{{ value.slice(0, value.length-1).join(".") }}</h2>
 				</div>
