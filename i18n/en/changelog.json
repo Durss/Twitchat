@@ -94,7 +94,7 @@
 			},
 			{
 				"i": "mod",
-				"l": "Moderations",
+				"l": "Moderation",
 				"d": "Check the history of a viewer on all the channels you moderate in a few clicks.\n\nThe user profile window can now offer you a button for each of the channels you moderate to easily check their message history on those channels.",
 				"g": "update_images/moderate.jpg"
 			},
