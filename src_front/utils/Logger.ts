@@ -116,6 +116,7 @@ interface LogAds {
 	api?:TwitchDataTypes.AdSchedule;
 	es?:TwitchEventSubDataTypes.AdBreakEvent;
 	internal?:TwitchatDataTypes.CommercialData;
+	body?:any;
 }
 
 interface LogYoutube {
