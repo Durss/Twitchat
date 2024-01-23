@@ -911,15 +911,17 @@ interface SlotItem {
 		&.hypetrains {
 			.list {
 				.item {
-					gap: .25em;
+					gap: .5em;
 					display: flex;
 					align-items: center;
 					flex-direction: column;
 					.conductor {
 						gap: 1em;
+						row-gap: .25em;
 						display: flex;
 						align-items: center;
 						flex-direction: row;
+						flex-wrap: wrap;
 						font-size: .8em;
 					}
 				}

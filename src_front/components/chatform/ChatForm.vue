@@ -1156,6 +1156,7 @@ export default class ChatForm extends Vue {
 				flex-grow: 1;
 				font-size: 1em;
 				color: #ff0000;
+				display: flex;
 			}
 
 			.spam {
@@ -1215,9 +1216,11 @@ export default class ChatForm extends Vue {
 				height: 2em;
 				width: 2em;
 				align-items: stretch;
-				display: block;
 				padding: .25em;
 				border-radius: .5em;
+				display: flex;
+				align-items: center;
+				justify-content: center;
 				:deep(.icon) {
 					vertical-align: middle;
 					width: unset;

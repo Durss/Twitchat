@@ -1,6 +1,9 @@
 <template>
 	<div :class="classes">
-		<TTButton class="addFolderBt" icon="folder" v-if="!triggerId && folderTriggerList.length > 0" @click="addFolder()">{{ $t('triggers.create_folder') }}</TTButton>
+		<TTButton class="addFolderBt" icon="folder"
+			v-if="!triggerId && folderTriggerList.length > 0"
+			@click="addFolder()"
+			v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'triggers_folder'}">{{ $t('triggers.create_folder') }}</TTButton>
 		<TriggerListFolderItem
 			v-model:items="folderTriggerList"
 			:rewards="rewards"
