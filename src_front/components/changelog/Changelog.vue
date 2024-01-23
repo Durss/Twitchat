@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
-			<ClearButton @click="close()" />
+			<ClearButton @click="close()" v-if="!showReadAlert" />
 			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert" />
 
 			<div class="content" ref="scrollable">
@@ -31,7 +31,7 @@
 							<div class="head">
 								<Icon name="firstTime" class="icon" :theme="currentItem.i === 'premium'? 'light' : undefined" />
 								<span class="title">{{$t("changelog.title")}}</span>
-								<div class="version">{{ $t('changelog.version', {VERSION:appVersion}) }}</div>
+								<div class="version">{{ $t('changelog.version', {VERSION:appVersion.split('.').filter(v=>v != '0').join('.')}) }}</div>
 							</div>
 							<ul class="toc">
 								<li v-for="(item, index) in items.filter(v=>v.l)">
