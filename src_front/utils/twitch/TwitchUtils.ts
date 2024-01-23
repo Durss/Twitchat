@@ -1267,7 +1267,7 @@ export default class TwitchUtils {
 		if(categoryID) body.game_id = categoryID;
 		if(branded) body.is_branded_content = branded;
 		if(labels && labels.length > 0) body.content_classification_labels = labels;
-		if(tags && tags.length > 0) body.tags = tags.map(v=> v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅]/g, "").substring(0, 25).trim());
+		if(tags && tags.length > 0) body.tags = tags.map(v=> v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅\s]/g, "").substring(0, 25).trim());
 		
 		const options = {
 			method:"PATCH",
