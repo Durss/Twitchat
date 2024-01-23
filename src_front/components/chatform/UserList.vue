@@ -15,7 +15,7 @@
 						:href="'https://twitch.tv/'+u.login"
 						@click.prevent="openUserCard(u)"
 						v-for="u in currentChan.users[key]" :key="u.id">
-							<Icon name="unfollow" v-if="$store.params.appearance.highlightNonFollowers.value === true && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
+							<Icon name="unfollow" v-if="canListFollowers && u.channelInfo[currentChanId!]?.is_following === false" theme="secondary" />
 							<div v-if="currentChanId && u.channelInfo[currentChanId].is_banned" class="icon">
 								<img v-if="currentChanId && u.channelInfo[currentChanId].banEndDate"
 									src="@/assets/icons/timeout.svg"
@@ -49,6 +49,8 @@ import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -65,9 +67,8 @@ export default class UserList extends Vue {
 	public channels:{[key:string]:ChannelUserList} = {};
 	public currentChanId:string = "";
 
-	public get currentChan():ChannelUserList {
-		return this.channels[this.currentChanId]
-	}
+	public get currentChan():ChannelUserList { return this.channels[this.currentChanId]; }
+	public get canListFollowers():boolean { return this.$store.params.appearance.highlightNonFollowers.value === true && TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS]); }
 
 	private debounceTo:number = -1;
 
@@ -91,7 +92,7 @@ export default class UserList extends Vue {
 	
 	public userClasses(user:TwitchatDataTypes.TwitchatUser):string[] {
 		let res = ["user"];
-		if(this.$store.params.appearance.highlightNonFollowers.value === true
+		if(this.canListFollowers
 		&& user.channelInfo[this.currentChanId!]?.is_following === false) res.push("noFollow");
 		return res;
 	}
