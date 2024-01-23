@@ -100,14 +100,14 @@
 			},
 			{
 				"i": "spotify",
-				"l": "Song Request",
+				"l": "Song Request notifications",
 				"d": "Two new chat notifications will tell you when a song is added to your Spotify playlist or if a song request fails with the reason for the failure.\n\nA user is trolling your song request? Block them from adding more tracks with a single click.\n\nA new option also allows you to accept only songs that are less than a certain duration.",
 				"g": "update_images/sr.png"
 			},
 			{
 				"i": "notification",
 				"l": "Twitchat Notifications",
-				"d": "Display messages only you can see.\n\nSend them either through Triggers or via the new dedicated Twitchat API.\nIdeal for notifying yourself of various personalized events if you are a developer.",
+				"d": "Display messages only you can see.\n\nIdeal for notifying yourself of various personalized events without poluting your chat.\n\nSend them either through Triggers or via the dedicated Twitchat API.",
 				"g": "update_images/notification.png"
 			},
 			{
@@ -134,7 +134,7 @@
 		],
 		"forceRead": {
 			"title": "I WANT YOU\r\nTO READ THIS",
-			"description": "I worked for +5 months on these updates, please take 2 minutes of yours to read!\r\nThere's something important to read in them!",
+			"description": "I worked for +5 months on these updates, please take 2 minutes of yours to read 🙏",
 			"readAtSpeedOfLight": "Are you trying to make me believe that you read at the speed of light 😏?",
 			"sorryBt": "ok i read sorry 🥺",
 			"fuBt": "don't care 🤪"

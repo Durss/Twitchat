@@ -100,7 +100,7 @@
 			},
 			{
 				"i": "spotify",
-				"l": "Song request",
+				"l": "Notifications Song request",
 				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne personne troll votre song request? Empêchez-la d'ajouter d'autres morceaux en 1 click.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps.",
 				"g": "update_images/sr.png"
 			},
@@ -134,7 +134,7 @@
 		],
 		"forceRead": {
 			"title": "EH OH TU LIS!",
-			"description": "J'ai travaillé pendant +5 mois pour ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé :3\r\nY a quelque chose d'important dedans!",
+			"description": "J'ai travaillé pendant +5 mois sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes de ton temps pour les lire sitoplé 🙏",
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt": "ui pardon je lis 🥺",
 			"fuBt": "menfou 🤪"

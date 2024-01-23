@@ -7,12 +7,15 @@
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
-					<img src="@/assets/img/barracuda.png" class="barracuda">
+					<div class="image">
+						<div class="smirk" ref="smirk">😏</div>
+						<img src="@/assets/img/barracuda.png" class="barracuda">
+					</div>
 					<h2>{{ $t("changelog.forceRead.title") }}</h2>
 					<p v-if="readAtSpeedOfLight" class="description">{{ $t("changelog.forceRead.readAtSpeedOfLight") }}</p>
 					<p class="description">{{ $t("changelog.forceRead.description") }}</p>
 					<TTButton big @click="cancelClose()">{{ $t("changelog.forceRead.sorryBt") }}</TTButton>
-					<TTButton small alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
+					<TTButton ref="noCare" big alert @click="close(true)">{{ $t("changelog.forceRead.fuBt") }}</TTButton>
 				</div>
 
 				<div v-else-if="showFu" class="fu" ref="fu">🤬</div>
@@ -130,6 +133,7 @@ export default class Changelog extends Vue {
 	private closing:boolean = false;
 	private slideCountRead = new Map();
 	private keyUpHandler!:(e:KeyboardEvent)=>void;
+	private mouseMoveHandler!:(e:MouseEvent)=>void;
 	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 	
@@ -171,12 +175,15 @@ export default class Changelog extends Vue {
 		}, 250);
 
 		this.keyUpHandler = (e:KeyboardEvent) => this.onKeyUp(e);
+		this.mouseMoveHandler = (e:MouseEvent) => this.onMouseMove(e);
 		document.addEventListener("keyup", this.keyUpHandler);
+		document.addEventListener("mousemove", this.mouseMoveHandler);
 		this.skinPagination();
 	}
-
+	
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyUpHandler);
+		document.removeEventListener("mousemove", this.mouseMoveHandler);
 	}
 
 	public async cancelClose():Promise<void> {
@@ -237,6 +244,21 @@ export default class Changelog extends Vue {
 		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
 		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
 		return str;
+	}
+
+	/**
+	 * Called when mouse moves
+	 * @param e 
+	 */
+	private onMouseMove(e:MouseEvent):void {
+		const bt = (this.$refs.noCare as TTButton);
+		if(!bt) return;
+		const bounds = bt.$el.getBoundingClientRect();
+		const dist = Math.sqrt(Math.pow(bounds.x + bounds.width * .5 - e.clientX, 2) + Math.pow(bounds.y + bounds.height * .5 - e.clientY, 2));
+		let size = Math.max(.25, Math.min(1, 1 - (100 - dist)/100));
+		bt.$el.style.transform = "scale("+size+")";
+
+		(this.$refs.smirk as HTMLElement).style.opacity = size < .75? "1" : "0";
 	}
 
 	/**
@@ -543,8 +565,19 @@ export default class Changelog extends Vue {
 		justify-content: center;
 		align-items: center;
 		padding: 1em;
-		img {
-			align-self: center;
+		.image {
+			position: relative;
+			img {
+				align-self: center;
+			}
+			.smirk {
+				top: 50px;
+				left: 70px;
+				opacity: 0;
+				font-size: 8em;
+				position: absolute;
+				transition: opacity .5s;
+			}
 		}
 
 		h2 {
@@ -552,7 +585,7 @@ export default class Changelog extends Vue {
 			padding: .5em;
 			color: var(--color-light);
 			background-color: var(--color-dark);
-			margin-top: -1em;
+			margin-top: -.5em;
 			white-space: pre-line;
 			text-align: center;
 		}
