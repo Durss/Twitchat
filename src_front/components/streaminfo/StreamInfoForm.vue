@@ -10,38 +10,37 @@
 				<div class="success card-item primary" v-if="updateSuccess" @click="updateSuccess = false">{{$t("stream.update_done")}}</div>
 			</transition>
 
-			<ToggleBlock :title="$t('stream.presets_title')" v-if="presets.length > 0" class="presets">
+			<div v-if="presets.length > 0" class="presets">
 				<div class="list">
 					<div v-for="p in presets" :key="p.id" class="preset">
-						<TTButton class="button delete" @click="deletePreset(p)"
-							icon="trash" alert
-							v-tooltip="$t('stream.preset_deleteBt_tt')" />
+						<TTButton class="button" @click="applyPreset(p)"
+							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</TTButton>
 							
 						<TTButton class="button" @click="editPreset(p)"
 							icon="edit" secondary
 							v-tooltip="$t('stream.preset_editBt_tt')" />
-	
-						<TTButton class="button" @click="applyPreset(p)"
-							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</TTButton>
+
+						<TTButton class="button delete" @click="deletePreset(p)"
+							icon="trash" alert
+							v-tooltip="$t('stream.preset_deleteBt_tt')" />
 					</div>
 				</div>
-			</ToggleBlock>
+			</div>
 			
 			<Icon class="loader" name="loader" v-if="loading" />
 
-			<ToggleBlock v-else class="form" :title="presetEditing? $t('stream.form_title_preset', {TITLE:presetEditing.name}) : $t('stream.form_title_update')"
-			:open="presets.length == 0 || forceOpenForm" icon="update">
+			<div v-else class="form">
 				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-model:branded="branded" v-model:labels="labels" />
 				
 				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
 				
 				<div class="actions">
 					<TTButton class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</TTButton>
-					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{$t('global.submit')}}</TTButton>
+					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{ presetEditing? $t('global.update') : $t('global.submit') }}</TTButton>
 				</div>
 
 				<div class="card-item alert error" v-if="error" @click="error = ''"><Icon name="alert" />{{error}}</div>
-			</ToggleBlock>
+			</div>
 		</div>
 	</div>
 </template>
@@ -145,6 +144,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 			this.forceOpenForm = false;
 		}
 		this.saving = false;
+		this.param_savePreset.value = false;
 	}
 
 	public cancelPresetEdit():void {
@@ -157,7 +157,10 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	 * @param p 
 	 */
 	public async deletePreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
-		this.$store.stream.deleteStreamInfoPreset(p);
+		this.$confirm(this.$t("stream.form_delete_confirm.title"), this.$t("stream.form_delete_confirm.description"))
+		.then(()=>{
+			this.$store.stream.deleteStreamInfoPreset(p);
+		})
 	}
 
 	/**
@@ -195,14 +198,16 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;
 		const channelId = StoreProxy.auth.twitch.user.id;
-		if(await this.$store.stream.updateStreamInfos("twitch", channelId, p.title, p.categoryID as string, p.tags, p.branded, p.labels)) {
-			this.updateSuccess = true;
-			setTimeout(()=>{
-				this.updateSuccess = false;
-			}, 5000);
-		}else{
-			this.$store.main.alert( this.$t("error.stream_info_updating") );
-		}
+		try {
+			if(await this.$store.stream.updateStreamInfos("twitch", channelId, p.title, p.categoryID as string, p.tags, p.branded, p.labels)) {
+				this.updateSuccess = true;
+				setTimeout(()=>{
+					this.updateSuccess = false;
+				}, 5000);
+			}else{
+				this.$store.main.alert( this.$t("error.stream_info_updating") );
+			}
+		}catch(error) {}
 		this.saving = false;
 		this.populate();
 	}
@@ -253,31 +258,28 @@ export default class StreamInfoForm extends AbstractSidePanel {
 .streaminfo{
 	.presets {
 		width: 100%;
+		text-align: center;
 		.list{
+			gap: .5em;
 			display: flex;
 			flex-direction: row;
 			flex-wrap: wrap;
-			gap: .5em;
+			justify-content: center;
 		}
 		.preset {
+			gap: 1px;
 			display: inline-flex;
 			flex-direction: row;
-			.button:nth-child(1) {
-				border-top-right-radius: 0;
-				border-bottom-right-radius: 0;
-				margin-right: 1px;
-				width: 1.75em;
-				transform-origin: right center;
-			}
-			.button:nth-child(2) {
-				width: 1.75em;
+			.button {
 				border-radius: 0;
-				margin-right: 1px;
 			}
-			.button:nth-child(3) {
-				border-top-left-radius: 0;
-				border-bottom-left-radius: 0;
-				transform-origin: left center;
+			.button:first-child {
+				border-top-left-radius: var(--border-radius);
+				border-bottom-left-radius: var(--border-radius);
+			}
+			.button:last-child {
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
 			}
 			.button {
 				:deep(.label) {

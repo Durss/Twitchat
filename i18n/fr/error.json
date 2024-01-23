@@ -18,7 +18,7 @@
 		"delete_message": "Vous ne pouvez pas supprimer ce message",
 		"user_profile": "Une erreur a eu lieu lors du chargement du profil...",
 		"stream_info_loading": "Le chargement des infos de stream a échoué",
-		"stream_info_updating": "Mise à jour des infos de stream échouée",
+		"stream_info_updating": "Mise à jour des infos de stream échouée.\n{MESSAGE}",
 		"poll_active": "Un sondage est déjà actif",
 		"poll_automod": "Le sondage contient des termes bloqués",
 		"poll_error": "Unable to create poll: {MESSAGE}",

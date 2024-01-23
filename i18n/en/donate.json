@@ -11,6 +11,7 @@
 		"paypal_error":"Something went wrong why initializing PayPal form",
 		"donors": "Donor list",
 		"lifetime_premium": "Lifetime premium",
-		"ttc": "I get {AMOUNT}€ after taxes"
+		"ttc": "I get {AMOUNT}€ after taxes",
+		"dare": "I dare you 😏"
 	}
 }

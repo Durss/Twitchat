@@ -1,5 +1,5 @@
 <template>
-	<div class="paramssubscribe parameterContent">
+	<div class="paramsdonate parameterContent">
 		<Icon name="coin" alt="donate icon" class="icon" />
 
 		<p class="head">{{ $t("donate.header") }}</p>
@@ -14,7 +14,7 @@
 				<div class="amountHolder">
 					<div class="form">
 						<span class="label">{{ $t("donate.amount") }}</span>
-						<input class="value" type="number" min="1" max="999999" v-model="amount" /><span class="currency">€</span>
+						<input class="value" type="number" min="3" max="999999" v-model="amount" /><span class="currency">€</span>
 					</div>
 					<i18n-t scope="global" tag="div" class="taxes" keypath="donate.ttc">
 						<template #AMOUNT>
@@ -111,6 +111,8 @@
 							<span>🍑</span>
 							<span>🍑</span>
 						</div>
+
+						<div class="easterEgg" ref="easterEgg">{{ $t("donate.dare") }}</div>
 					</div>
 				</div>
 			</div>
@@ -390,6 +392,7 @@ export default class ParamsDonate extends Vue {
 		const flares = this.$refs.flares as SVGPathElement;
 		const question = this.$refs.question as SVGPathElement;
 		const dirtyEyes = this.$refs.dirtyEyes as SVGPathElement;
+		const easterEgg = this.$refs.easterEgg as SVGPathElement;
 		
 		const amazePercent = this.amount/50;
 		mouth.style.borderTopLeftRadius = Math.min(1, amazePercent)+"em";
@@ -397,9 +400,11 @@ export default class ParamsDonate extends Vue {
 		mouth.style.height = Math.min(3, amazePercent + .1)+"em";
 		mouthBg.style.height = Math.min(3, amazePercent + .1)+"em";
 		tongue.style.height = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5))+"em";
+		easterEgg.style.top = Math.min(100, Math.max(0, (amazePercent - 1) * 1.5))+"em";
 		if(Math.min(3, amazePercent + .1) < 2) {
 			const maskH = (amazePercent-.6)+"em";
 			tongue.style.clipPath = "polygon(0% 0, 100% 0, 100% "+maskH+", 0% "+maskH+")";
+
 		}else{
 			tongue.style.clipPath = "unset";
 		}
@@ -495,6 +500,11 @@ export default class ParamsDonate extends Vue {
 			flares.classList.remove("evil");
 			cloud.classList.remove("evil");
 		}
+		if(this.amount >= 1000) {
+			easterEgg.style.display = "block";
+		}else{
+			easterEgg.style.display = "none";
+		}
 
 		const premiumLabel = this.$refs.premiumLabel as HTMLDivElement;
 		premiumLabel.style.transform = "translate(0, calc(100% - .5em)) scaleY("+(this.premium? 1 : 0)+")"
@@ -503,7 +513,7 @@ export default class ParamsDonate extends Vue {
 </script>
 
 <style scoped lang="less">
-.paramssubscribe{
+.paramsdonate{
 	.info {
 		margin: auto;
 		line-height: 1.25em;
@@ -851,6 +861,17 @@ export default class ParamsDonate extends Vue {
 						letter-spacing: .2em;
 						transform: scale(0);
 					}
+					.easterEgg {
+						font-size: 1em;
+						right: 55px;
+						white-space: nowrap;
+						position: absolute;
+						padding: .5em 1em;
+						transform: translateY(10px) scale(.5);
+						transform-origin: right bottom;
+						background: var(--color-alert);
+						border-radius: var(--border-radius);
+					}
 				}
 			}
 		}
@@ -911,7 +932,7 @@ export default class ParamsDonate extends Vue {
 }
 
 @media only screen and (max-width: 420px) {
-.paramssubscribe{
+.paramsdonate{
 	.paypalFormHolder {
 
 		.amount {

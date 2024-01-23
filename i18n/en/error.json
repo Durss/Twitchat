@@ -18,7 +18,7 @@
 		"delete_message": "You cannot delete this message",
 		"user_profile": "Something went wrong while loading user's profile...",
 		"stream_info_loading": "Error loading current stream info",
-		"stream_info_updating": "Error updating current stream info",
+		"stream_info_updating": "Error updating current stream info.\n{MESSAGE}",
 		"poll_active": "A poll is already active",
 		"poll_automod": "Poll contains an automoded term",
 		"poll_error": "Unable to create poll: {MESSAGE}",
