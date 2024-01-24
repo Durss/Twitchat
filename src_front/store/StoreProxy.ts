@@ -680,6 +680,14 @@ export interface IEmergencyActions {
 	 * @param cmd 
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
+	/**
+	 * Reloads a followbot list from storage
+	 */
+	reloadFollowbotList(json:any):void;
+	/**
+	 * Saves the current followbot list to storage
+	 */
+	saveFollowbotList():void;
 }
 
 

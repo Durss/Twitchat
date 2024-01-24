@@ -165,27 +165,18 @@ export const storeEmergency = defineStore('emergency', {
 			if(index > -1) {
 				this.follows.splice(index, 1);
 			}
-			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
+			this.saveFollowbotList();
 		},
 
 		addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData) {
 			payload.followbot = true;
 			this.follows.push(payload);
-			const saved:TwitchatDataTypes.EmergencyFollowEntryData[] = this.follows.map(entry => {
-				return {
-					platform:entry.platform,
-					channelId:entry.channel_id,
-					uid:entry.user.id,
-					login:entry.user.login,
-					date:entry.date,
-				}
-			});
-			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, saved);
+			this.saveFollowbotList();
 		},
 
 		clearEmergencyFollows() {
 			this.follows.splice(0);
-			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, this.follows);
+			this.saveFollowbotList();
 		},
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd?:string):Promise<void> {
@@ -200,6 +191,45 @@ export const storeEmergency = defineStore('emergency', {
 				}
 			}
 		},
+
+		reloadFollowbotList(json:any) {
+			//Convert imported data to proper data format used for display on the popin
+			this.follows = json
+			//This is just a security in case user have old data format saved to ignore them from parsing
+			//and avoid exceptions
+			.filter((entry:TwitchatDataTypes.EmergencyFollowEntryData) => {
+				return entry.uid !== undefined && entry.login !== undefined;
+			})
+			.map((entry:TwitchatDataTypes.EmergencyFollowEntryData):TwitchatDataTypes.MessageFollowingData => {
+				const date = entry.date || Date.now();
+				const channel_id = entry.channelId || StoreProxy.auth.twitch.user.id;
+				const platform = entry.platform || "twitch";
+				return {
+					id:Utils.getUUID(),
+					date,
+					channel_id,
+					platform,
+					followed_at:date,
+					type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+					user:StoreProxy.users.getUserFrom(platform, channel_id, entry.uid, entry.login, entry.login, undefined, true),
+					followbot:true,
+					todayFirst:false,
+				}
+			});
+		},
+
+		saveFollowbotList() {
+			const saved:TwitchatDataTypes.EmergencyFollowEntryData[] = this.follows.map(entry => {
+				return {
+					platform:entry.platform,
+					channelId:entry.channel_id,
+					uid:entry.user.id,
+					login:entry.user.login,
+					date:entry.date,
+				}
+			});
+			DataStore.set(DataStore.EMERGENCY_FOLLOWERS, saved);
+		}
 	} as IEmergencyActions
 	& ThisType<IEmergencyActions
 		& UnwrapRef<IEmergencyState>

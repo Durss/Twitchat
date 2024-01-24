@@ -910,29 +910,7 @@ export const storeMain = defineStore("main", {
 			//Init emergency followers
 			const emergencyFollows = DataStore.get(DataStore.EMERGENCY_FOLLOWERS);
 			if(emergencyFollows) {
-				//Convert imported data to proper data format used for display on the popin
-				sEmergency.follows = JSON.parse(emergencyFollows)
-				//This is just a security in case user have old data format saved to ignore them from parsing
-				//and avoid exceptions
-				.filter((entry:TwitchatDataTypes.EmergencyFollowEntryData) => {
-					return entry.uid !== undefined && entry.login !== undefined;
-				})
-				.map((entry:TwitchatDataTypes.EmergencyFollowEntryData):TwitchatDataTypes.MessageFollowingData => {
-					const date = entry.date || Date.now();
-					const channel_id = entry.channelId || sAuth.twitch.user.id;
-					const platform = entry.platform || "twitch";
-					return {
-						id:Utils.getUUID(),
-						date,
-						channel_id,
-						platform,
-						followed_at:date,
-						type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-						user:StoreProxy.users.getUserFrom(platform, channel_id, entry.uid, entry.login, entry.login, undefined, true),
-						followbot:true,
-						todayFirst:false,
-					}
-				});
+				sEmergency.reloadFollowbotList(JSON.parse(emergencyFollows));
 			}
 
 			//Init music player params
