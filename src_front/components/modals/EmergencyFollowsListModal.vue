@@ -17,7 +17,7 @@
 				<div class="list" :style="{height:(27*followers.length)+'px'}">
 					<InfiniteList class="list" ref="list"
 					v-if="followers.length > 0"
-					:dataset="followers"
+					:dataset="followers.filter(v=>!v.user.errored)"
 					:itemSize="itemSize"
 					:itemMargin="itemMargin"
 					v-model:scrollOffset="scrollOffset"
@@ -25,13 +25,13 @@
 					lockScroll
 					nodeType="div"
 					:style="{height:'100%'}"
-					v-slot="{ item }">
+					v-slot="{ item }: {item:TwitchatDataTypes.MessageFollowingData}">
 						<div :class="userClasses(item)">
 							<div class="infos">
 								<span class="date">{{ formatDate(item.date) }}</span>
 								<a class="name" target="_blank"
 								:href="'https://twitch.tv/'+item.user.login">
-									{{ item.user.displayName }}
+									{{ item.user.displayNameOriginal }}
 								</a>
 							</div>
 							<div class="ctas">
@@ -58,9 +58,11 @@
 									icon="unfollow"
 									v-if="item.user.channelInfo[item.channel_id].is_following == true" />
 
-								<Button class="cardBt" small
+								<Button small type="link"
+									target="_blank"
+									:href="'https://twitch.tv/'+item.user.login"
 									@mouseover="initTooltip($event, item.id, 'followbot.details_tt')"
-									@click="openCard(item)" icon="info" />
+									icon="info" />
 
 								<Button small @click="removeEntry(item)"
 									@mouseover="initTooltip($event, item.id, 'followbot.ignore_tt')"
@@ -75,7 +77,7 @@
 				</div>
 				<div class="ctas">
 					<Button @click="exportCSV()" :loading="batchActionInProgress" secondary icon="save">{{$t('followbot.exportBt')}}</Button>
-					<Button secondary class="later" @click="reviewLater()" icon="countdown">{{$t('followbot.laterBt')}}</Button>
+					<Button @click="reviewLater()" class="later" secondary icon="countdown">{{$t('followbot.laterBt')}}</Button>
 				</div>
 				<div class="ctas">
 					<Button @click="clearList()" icon="checkmark">{{$t('followbot.finishBt')}}</Button>
@@ -312,6 +314,7 @@ export default class EmergencyFollowsListModal extends Vue {
 							text-overflow: ellipsis;
 							display: block;
 							flex-grow: 1;
+							max-width: 50vw;
 						}
 	
 						.icon {

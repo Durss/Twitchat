@@ -57,7 +57,7 @@ export default class Config {
 	/**
 	 * If set to true, replaces mouse cursor with a huge fake one
 	 */
-	public DEMO_MODE = false;
+	public DEMO_MODE = true;
 	/**
 	 * Maximum entries per prediction
 	 */

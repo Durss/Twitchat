@@ -67,9 +67,7 @@
 			
 		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
-				<button class="backBt" @click="back()" v-if="content != contentMain || search.length > 0">
-					<Icon name="back"/>
-				</button>
+				<ClearButton class="backBt" icon="back" @click="back()" v-if="content != contentMain || search.length > 0" />
 				<h1 class="title" v-if="content">{{$t('params.categories.'+content)}}</h1>
 				<ClearButton :aria-label="$t('params.closeBt_aria')" @click="close()" />
 			</div>
@@ -529,7 +527,6 @@ interface RawMenuEntry {
 
 	.head {
 		position:relative;
-		margin-top: -1em;
 		display: flex;
 		width: 100%;
 		flex-direction: row;
@@ -547,17 +544,8 @@ interface RawMenuEntry {
 		}
 
 		.backBt {
-			padding: 1em;
-			color: inherit;
-			.icon {
-				height: 1em;
-				transition: transform .15s;
-			}
-			&:hover {
-				.icon {
-					transform: scale(1.2);
-				}
-			}
+			left: 0;
+			right: auto;
 		}
 	}
 	.automaticMessageHolder {
@@ -742,6 +730,10 @@ interface RawMenuEntry {
 		flex-direction: column;
 		flex-grow: 1;
 
+		.head {
+			padding: 1em 0;
+		}
+
 		.search {
 			display: none;
 		}
@@ -778,12 +770,18 @@ interface RawMenuEntry {
 		}
 	}
 
-	&:not(.hasContent) {
+	&.hasContent {
 		.head {
 			justify-content: flex-end;
 			.title {
-				padding-left: 2.5em;
+				padding: 0 2em;
 			}
+		}
+	}
+
+	&:not(.hasContent) {
+		.head {
+			justify-content: flex-end;
 		}
 	}
 }
@@ -792,6 +790,7 @@ interface RawMenuEntry {
 	.parameters {
 		max-height: var(--vh);
 		.head {
+			height: 3em;
 			border-bottom: 1px solid var(--color-dark-extralight);
 			.title {
 				display: block;

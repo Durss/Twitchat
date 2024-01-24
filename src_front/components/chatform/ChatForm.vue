@@ -229,6 +229,7 @@
 						v-if="emergencyButtonEnabled"
 						icon="emergency"
 						alert
+						:light="$store.emergency.emergencyStarted"
 						:aria-label="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 						v-tooltip="$store.emergency.emergencyStarted? $t('chat.form.emergency_stopBt_aria') : $t('chat.form.emergency_startBt_aria')"
 						@click="toggleEmergencyMode()" />

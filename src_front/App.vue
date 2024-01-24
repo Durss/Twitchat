@@ -19,6 +19,7 @@ import Confirm from "./views/Confirm.vue";
 import gsap from 'gsap';
 import MessengerProxy from './messaging/MessengerProxy';
 import Utils from './utils/Utils';
+import EventSub from './utils/twitch/EventSub';
 
 
 @Component({
@@ -111,15 +112,16 @@ export default class App extends Vue {
 		//Debuging stuff
 		/*
 		if(e.key == "a" && e.ctrlKey && e.altKey) {
-			for (let i = 0; i < 30; i++) {
-				Utils.promisedTimeout(i*100).then(()=>{
-					if(Math.random() >= .5) {
-						MessengerProxy.instance.sendMessage("/fake !q {LOREM}")
-					}else{
-						MessengerProxy.instance.sendMessage("/fake !howto {LOREM}")
-					}
-				})
-			}
+			EventSub.instance.simulateFollowbotRaid();
+			// for (let i = 0; i < 30; i++) {
+			// 	Utils.promisedTimeout(i*100).then(()=>{
+			// 		if(Math.random() >= .5) {
+			// 			MessengerProxy.instance.sendMessage("/fake !q {LOREM}")
+			// 		}else{
+			// 			MessengerProxy.instance.sendMessage("/fake !howto {LOREM}")
+			// 		}
+			// 	})
+			// }
 		}
 		if(e.key == "q" && e.ctrlKey && e.altKey) {
 			MessengerProxy.instance.stopSpam();

@@ -243,9 +243,11 @@ export default class GoogleController extends AbstractController {
 			}
 		}
 
+		this._userTotranslations[userInfo.user_id].count ++;
+		
 		if(this._userTotranslations[userInfo.user_id].date == dateTs
 		&& this._userTotranslations[userInfo.user_id].count >= Config.maxTranslationsPerDay) {
-			Logger.warn("Maximum daily translations reached "+userInfo.login+" #"+userInfo.user_id);
+			Logger.warn("Maximum daily translations reached for "+userInfo.login+" #"+userInfo.user_id+" with "+this._userTotranslations[userInfo.user_id].count+" translations");
 			response.header('Content-Type', 'application/json');
 			response.status(429);
 			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"QUOTA_REACHED"}));
@@ -253,7 +255,6 @@ export default class GoogleController extends AbstractController {
 		}
 
 		const params:any = request.query;
-		this._userTotranslations[userInfo.user_id].count ++;
 
 		try {
 
