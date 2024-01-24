@@ -70,6 +70,7 @@
 		"rate_limit": "Suite à un trop grand nombre de requêtes votre accès est retreint. Attendez une minute puis essayez à nouveau.",
 		"rate_limit_ban": "Vous avez été banni·e suite à une activité suspecte. Revenez dans plusieurs jours ou contactez moi à cette adresse {MAIL}.",
 		"no_translation": "Aucune traduction trouvée pour ce message :(",
+		"quota_translation": "Vous avez atteint le nombre maximum de traductions pour aujourd'hui",
 		"youtube_connect_expired": "Votre session Youtube a expiré. Veuillez vous reconnecter.",
 		"youtube_api_is_shit_unban": "L'API de YouTube étant terriblement mal conçue, vous ne pouvez plus débannir cet utilisateur depuis Twitchat. Rendez-vous sur votre chaîne YouTube pour le débannir ou demandez à l'un de vos modérateurs de le faire.",
 		"youtube_message_delete": "Une erreur a eu lieu lors de la suppression du message.",

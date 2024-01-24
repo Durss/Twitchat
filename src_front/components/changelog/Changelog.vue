@@ -2,8 +2,8 @@
 	<div :class="classes">
 		<div class="dimmer" ref="dimmer" @click="close()"></div>
 		<div class="holder" ref="holder">
-			<ClearButton @click="close()" v-if="!showReadAlert" />
-			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert" />
+			<ClearButton @click="close()" v-if="!showReadAlert && !showFu" />
+			<ClearButton icon="back" class="backBt" @click="currentSlide = 0" v-if="currentSlide != 0 && !showReadAlert && !showFu" />
 
 			<div class="content" ref="scrollable">
 				<div v-if="showReadAlert" class="forceRead">
@@ -42,7 +42,7 @@
 								</li>
 							</ul>
 						</div>
-						<div v-else class="inner">
+						<div v-else-if="buildIndex >= index" class="inner">
 							<div class="emoji" v-if="item.i == 'donate'">🥺</div>
 							<Icon v-else-if="item.i" :name="item.i" class="icon" />
 
@@ -128,6 +128,8 @@ export default class Changelog extends Vue {
 	public showPremiumFeatures:boolean = false;
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
+	public buildIndex:number = 0;
+
 	
 	private openedAt = 0;
 	private closing:boolean = false;
@@ -179,6 +181,14 @@ export default class Changelog extends Vue {
 		document.addEventListener("keyup", this.keyUpHandler);
 		document.addEventListener("mousemove", this.mouseMoveHandler);
 		this.skinPagination();
+
+		//Stagger items build ot avoid lag on open
+		let interval = setInterval(()=> {
+			this.buildIndex += 2;
+			if(this.buildIndex >= this.items.length) {
+				clearInterval(interval);
+			}
+		}, 200);
 	}
 	
 	public beforeUnmount():void {

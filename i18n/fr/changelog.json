@@ -8,7 +8,7 @@
 			{
 				"p": true,
 				"i": "youtube",
-				"l": "Intégration Youtube",
+				"l": "Tchat Youtube",
 				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum.",
 				"a": {
 					"l": "Essayer",
@@ -106,21 +106,21 @@
 			},
 			{
 				"i": "notification",
-				"l": "Notifications Twitchat",
+				"l": "Notifications personnalisées",
 				"d": "Affichez des messages que vous seul·e pouvez voir.\n\nIdéal pour vous envoyer des rappels ou vous notifier de toutes sortes d'évènements personnalisés sans poluer le tchat.\n\nEnvoyez-en depuis les Triggers ou via l'API Twitchat dédiée.",
 				"g": "update_images/notification.png"
-			},
-			{
-				"i": "ticket",
-				"l": "Tirages au sort dynamiques",
-				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment.",
-				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
 			},
 			{
 				"i": "params",
 				"l": "Menu personnalisé",
 				"d": "Ne soyez plus submergé·e par toutes les options Twitchat en personnalisant le menu de paramètres pour n'afficher que les section de votre choix, dans l'ordre de votre choix.",
 				"v": "update_images/custom_menu.mp4"
+			},
+			{
+				"i": "ticket",
+				"l": "Tirages au sort dynamiques",
+				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment.",
+				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
 			},
 			{
 				"i": "broadcast",

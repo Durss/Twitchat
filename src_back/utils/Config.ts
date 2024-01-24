@@ -11,7 +11,9 @@ export default class Config {
 	private static envName: EnvName;
 	private static confPath: string = "env.conf";
 	private static credentialsCache:Credentials;
+	private static cache:{[key:string]:TwitchToken} = {};
 	
+	public static get maxTranslationsPerDay():number{ return 70; }
 	public static get lifetimeDonorStep():number{ return 89; }
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
 	public static get earlyDonors(): string { return this.DONORS_DATA_FOLDER + "earlyDonors.json"; }
@@ -38,13 +40,9 @@ export default class Config {
 	/**
 	 * Validates a token and returns the user data
 	 */
-	public static async getUserFromToken(token:string|undefined):Promise<{
-		client_id: string,
-		login: string,
-		scopes: string[],
-		user_id: string,
-		expires_in: number,
-	}|null> {
+	public static async getUserFromToken(token:string):Promise<TwitchToken|null> {
+		if(this.cache[token]) return this.cache[token];
+
 		//Check access token validity
 		const options = {
 			method: "GET",
@@ -59,7 +57,13 @@ export default class Config {
 		}
 		
 		if(result.status == 200) {
-			return await result.json();
+			const json = await result.json() as TwitchToken;
+			this.cache[token] = json;
+			//Keep result in cache for 10min
+			setTimeout(()=> {
+				delete this.cache[token];
+			}, 10 * 60 * 1000);
+			return json;
 		}else{
 			return null;
 		}
@@ -295,4 +299,12 @@ interface Credentials {
 	donors_remote_api_secret:string;
 
 	contact_mail:string;
+}
+
+interface TwitchToken {
+	client_id: string;
+	login: string;
+	scopes: string[];
+	user_id: string;
+	expires_in: number;
 }

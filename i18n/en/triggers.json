@@ -125,7 +125,7 @@
 				"dynamic_placeholder_info":"This action allows you to create a custom placeholder that you can use on subsequent actions.",
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
-				"action_customChat": "Twitchat notification",
+				"action_customChat": "Custom notification",
 				"action_reward": "Channel points reward",
 				"action_extension": "Twitch Extension",
 				"action_bingo": "Start a bingo",

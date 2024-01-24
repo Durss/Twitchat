@@ -22,7 +22,7 @@
 					v-newflag="{date:1693519200000, id:'greetThem_clear'}" />
 			</div>
 	
-			<div class="topForm" v-if="showList">
+			<div class="topForm" v-if="showList" @click.stop>
 				<div class="row">
 					<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
 					<select v-model.number="$store.params.greetThemAutoDelete">

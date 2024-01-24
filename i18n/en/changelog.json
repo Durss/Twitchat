@@ -8,7 +8,7 @@
 			{
 				"p": true,
 				"i": "youtube",
-				"l": "Youtube Integration",
+				"l": "Youtube Chat",
 				"d": "Read your Twitch and Youtube chats in one place!\n\nDue to the catastrophic and absurdly limited nature of the Youtube API, this feature is currently reserved for premium members to ensure minimal service.",
 				"a": {
 					"l": "Try",
@@ -42,7 +42,7 @@
 			{
 				"i": "distort",
 				"l": "Interactive Distortions",
-				"d": "Allow your viewers to temporarily distort your stream by clicking on it through the {HEAT} extension using the new interactive distortions overlay.\nClicks can also be simulated from Triggers.",
+				"d": "Allow your viewers to temporarily distort your stream by clicking on it through the {HEAT} extension using the new interactive distortions overlay.\n\nRequires {SHADERTASTIC} OBS plugin.\n\nClicks can also be simulated from Triggers.",
 				"v": "update_images/distortion.mp4",
 				"y": "https://www.youtube.com/watch?v=yD3BmZXWph4&list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD",
 				"a": {
@@ -106,15 +106,9 @@
 			},
 			{
 				"i": "notification",
-				"l": "Twitchat Notifications",
+				"l": "Custom Notifications",
 				"d": "Display messages only you can see.\n\nIdeal for notifying yourself of various personalized events without poluting your chat.\n\nSend them either through Triggers or via the dedicated Twitchat API.",
 				"g": "update_images/notification.png"
-			},
-			{
-				"i": "ticket",
-				"l": "Dynamic Raffles",
-				"d": "Launch raffles from the entries of a Value.\n\nThis can allow you to create multiple raffle lists in parallel using the Triggers system, then draw a winner from its entries at any time.",
-				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
 			},
 			{
 				"i": "params",
@@ -123,13 +117,19 @@
 				"v": "update_images/custom_menu.mp4"
 			},
 			{
+				"i": "ticket",
+				"l": "Dynamic Raffles",
+				"d": "Launch raffles from the entries of a Value.\n\nThis can allow you to create multiple raffle lists in parallel using the Triggers system, then draw a winner from its entries at any time.",
+				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
+			},
+			{
 				"i": "broadcast",
 				"l": "Triggers",
 				"d": "<ul><li>Organize your triggers into folders and subfolders</li><li>9 new trigger events:<ul><li>Ad aproaching</li><li>Ad started</li><li>Ad complete</li><li>Failure to add a track to Spotify</li><li>Any channel points reward is redeemed</li><li>Heat click anywhere on the screen</li><li>Q&A session started</li><li>Q&A session closed</li><li>Q&A session deleted</li></ul></li><li>4 new trigger actions:<ul><li>Create/disable/enable/delete a channel points reward</li><li>Enable/disable a Twitch extension</li><li>Show a custom notification</li><li>Simulate a click on a distortion overlay</li></ul></li><li>3 new OBS actions:<ul><li>Stop a media</li><li>Next media</li><li>Previous media</li></ul></li><li>1 new Counter & Value action:<ul><li>Edit the value for all your current viewers</li></ul></li><li>21 new placeholders:<ul><li>{NOW} current date</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} for Spotify action</li><li>{SEARCH_QUERY} for Spotify action</li></ul></li></ul>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat has been my main activity for over a year and a half now <b>without any other source of income</b>.\n\nIf you can afford it, a one-time donation or monthly support on Patreon would help me a lot ❤️"
+				"d": "Twitchat has been my main activity for over a year and a half now <b>without any other source of income</b>.\n\nWhat Twitchat brings me is unfortunately still very far from allowing me to possibly make a decent living from it.\n\nIf you can afford it, a one-time donation or monthly support on Patreon would help me a lot ❤️"
 			}
 		],
 		"forceRead": {

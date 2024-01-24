@@ -548,6 +548,9 @@ export default class ContextMenuHelper {
 			if(res.status == 401) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("premium.restricted_access"));
 			}else
+			if(res.status == 429) {
+				StoreProxy.main.alert(StoreProxy.i18n.t("error.quota_translation"));
+			}else
 			if(res.json.data.translation) {
 				message.translation = {
 					flagISO:langSource.flag,

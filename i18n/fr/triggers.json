@@ -125,7 +125,7 @@
 				"delete": "Supprimer",
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
-				"action_customChat": "Notification Twitchat",
+				"action_customChat": "Notification personnalisée",
 				"action_reward": "Récompense de points de chaîne",
 				"action_extension": "Extension Twitch",
 				"action_bingo": "Lancer un bingo",

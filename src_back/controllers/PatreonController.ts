@@ -168,7 +168,7 @@ export default class PatreonController extends AbstractController {
 			}
 			if(isMember) {
 				//Get twitch user
-				const userInfo = await Config.getUserFromToken(request.headers.authorization);
+				const userInfo = await Config.getUserFromToken(request.headers.authorization || "");
 				if(userInfo) {
 					let json = {};
 					if(fs.existsSync(Config.patreon2Twitch)) {

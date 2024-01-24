@@ -64,7 +64,6 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -78,7 +77,6 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 	components:{
 		Icon,
 		Button: TTButton,
-		ToggleBlock,
 		HeatDistortParams,
 	},
 	emits:[],

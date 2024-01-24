@@ -244,6 +244,10 @@ export default class HeatDistortParams extends Vue {
 	}
 	.alert {
 		text-align: center;
+		.icon{
+			height: 1em;
+			margin-right: .5em;
+		}
 	}
 	:deep(ul) {
 		list-style: decimal;

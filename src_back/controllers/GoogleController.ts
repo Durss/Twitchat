@@ -12,6 +12,7 @@ import Logger from "../utils/Logger";
 export default class GoogleController extends AbstractController {
 
 	private _translater!:translate_v2.Translate;
+	private _userTotranslations:{[key:string]:{date:number, count:number}} = {}
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -229,7 +230,30 @@ export default class GoogleController extends AbstractController {
 		//Check if user is premium
 		if(!await this.premiumGuard(request, response)) return;
 
+		const currentDate = new Date();
+		currentDate.setHours(0, 0, 0, 0);
+		const dateTs = currentDate.getTime();
+
+		const userInfo = (await Config.getUserFromToken(request.headers.authorization || ""))!;
+		
+		if(!this._userTotranslations[userInfo.user_id]) {
+			this._userTotranslations[userInfo.user_id] = {
+				count:0,
+				date:dateTs,
+			}
+		}
+
+		if(this._userTotranslations[userInfo.user_id].date == dateTs
+		&& this._userTotranslations[userInfo.user_id].count >= Config.maxTranslationsPerDay) {
+			Logger.warn("Maximum daily translations reached "+userInfo.login+" #"+userInfo.user_id);
+			response.header('Content-Type', 'application/json');
+			response.status(429);
+			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"QUOTA_REACHED"}));
+			return;
+		}
+
 		const params:any = request.query;
+		this._userTotranslations[userInfo.user_id].count ++;
 
 		try {
 

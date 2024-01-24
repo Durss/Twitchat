@@ -54,7 +54,6 @@ export default class AbstractDistortion extends Vue {
 	}
 
 	public beforeUnmount():void {
-		console.log("UNMOUNT abstract class");
 		this.disposed = true;
 
 		//@ts-ignore
@@ -113,7 +112,7 @@ export default class AbstractDistortion extends Vue {
 		}
 		
 		//Stop there if user isn't allowed
-		if(!event.detail.testMode && !await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return;
+		if(!event.detail.testMode && !await Utils.checkPermissions(this.params.permissions, user, data.channelId)) return
 
 		const vec3 = this.screenToWorld(event.detail.x * window.innerWidth/2, event.detail.y * window.innerHeight);
 		this.addItem(this.buildItem(vec3.x, vec3.y));
@@ -325,8 +324,8 @@ export default class AbstractDistortion extends Vue {
 	protected buildItem(px?:number, py?:number):IDistortItem {
 		const vec3 = this.screenToWorld(window.innerWidth, window.innerHeight);
 		return {
-			x:px || Math.random() * vec3.x - vec3.x/2,
-			y:py || Math.random() * vec3.y - vec3.y/2,
+			x:px ?? Math.random() * vec3.x - vec3.x/2,
+			y:py ?? Math.random() * vec3.y - vec3.y/2,
 			scale:0,
 			frame:this.frames,
 			alphaSpeed:-(Math.random()*.5)-1,
@@ -340,7 +339,6 @@ export default class AbstractDistortion extends Vue {
 	protected removeItem(data:IDistortItem):void {
 		const index = this.items.findIndex(v=>v.id == data.id);
 		if(index == -1) return;
-		console.log("REMOVE", index, data.id);
 		
 		instancedDistortMesh.setMatrixAt(index, this.offscreenMatrix);
 		instancedDistortMesh.count --;
