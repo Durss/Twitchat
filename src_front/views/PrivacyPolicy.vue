@@ -226,6 +226,8 @@
 				<li>Revoke access by selecting Twitchat and following the provided instructions.</li>
 			</ul>
 
+			<p>Twitchat use and transfer to any other app of information received from Google APIs will adhere to <a href="https://developers.google.com/terms/api-services-user-data-policy" target="_blank">Google API Services User Data Policy</a>, including the Limited Use requirements.</p>
+
 
 
 

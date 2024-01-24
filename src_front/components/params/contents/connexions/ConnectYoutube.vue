@@ -266,7 +266,7 @@ export default class ConnectYoutube extends Vue {
 
 	.legal {
 		text-align: center;
-		a {
+		&>* {
 			display: block;
 			&:not(:first-child) {
 				margin-top: .25em;

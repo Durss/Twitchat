@@ -275,6 +275,7 @@ type Key2ParamMap = {
 	
 	.message {
 		.bevel();
+		background-color: var(--grayout);
 		padding: .5em;
 		border-radius: var(--border-radius);
 		* > {
