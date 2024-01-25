@@ -4,7 +4,7 @@
 		<div class="content card-item">
 			<div class="head">
 				<h1>PRIVACY POLICY</h1>
-				<p>Last updated July 13, 2023</p>
+				<p>Last updated January 25, 2024</p>
 			</div>
 	
 			<p>This privacy notice for <strong>François Dursus</strong> ("<strong>we</strong>," "<strong>us</strong>," or "<strong>our</strong>"), describes how and why we might collect, store, use, and/or share ("<strong>process</strong>") your information when you use our services ("<strong>Services</strong>"), such as when you:</p>
@@ -51,6 +51,7 @@
 				<li><a href="#infominors">DO WE COLLECT INFORMATION FROM MINORS?</a></li>
 				<li><a href="#privacyrights">WHAT ARE YOUR PRIVACY RIGHTS?</a></li>
 				<li><a href="#youtube">YOUTUBE SERVICES</a></li>
+				<li><a href="#3rdparty">THIRD-PARTY DATA SHARING</a></li>
 				<li><a href="#DNT">CONTROLS FOR DO-NOT-TRACK FEATURES</a></li>
 				<li><a href="#caresidents">DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a></li>
 				<li><a href="#virginia">DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</a></li>
@@ -231,15 +232,21 @@
 
 
 
+			<h2 id="3rdparty">11. THIRD-PARTY DATA SHARING</h2>
+			<p>We want to make it clear that none of the data obtained from third-party APIs will be shared with any other third party. The information retrieved from these services is solely used to provide and improve the functionality of our web app.</p>
 
-			<h2 id="DNT">11. CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
+
+
+
+
+			<h2 id="DNT">12. CONTROLS FOR DO-NOT-TRACK FEATURES</h2>
 			<p>Most web browsers and some mobile operating systems and mobile applications include a Do-Not-Track ( "DNT" ) feature or setting you can activate to signal your privacy preference not to have data about your online browsing activities monitored and collected. At this stage no uniform technology standard for recognizing and implementing DNT signals has been finalized . As such, we do not currently respond to DNT browser signals or any other mechanism that automatically communicates your choice not to be tracked online. If a standard for online tracking is adopted that we must follow in the future, we will inform you about that practice in a revised version of this privacy notice.</p>
 
 
 
 
 
-			<h2 id="caresidents">12. DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
+			<h2 id="caresidents">13. DO CALIFORNIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
 			<p><strong>In Short:</strong> Yes, if you are a resident of California, you are granted specific rights regarding access to your personal information.</p>
 
 			<p>California Civil Code Section 1798.83, also known as the "Shine The Light" law, permits our users who are California residents to request and obtain from us, once a year and free of charge, information about categories of personal information (if any) we disclosed to third parties for direct marketing purposes and the names and addresses of all third parties with which we shared personal information in the immediately preceding calendar year. If you are a California resident and would like to make such a request, please submit your request in writing to us using the contact information provided below.</p>
@@ -401,7 +408,7 @@
 
 
 
-			<h2 id="virginia">13. DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
+			<h2 id="virginia">14. DO VIRGINIA RESIDENTS HAVE SPECIFIC PRIVACY RIGHTS?</h2>
 			<p><strong>In Short:</strong> Yes, if you are a resident of Virginia, you may be granted specific rights regarding access to and use of your personal information.</p>
 
 			<strong>Virginia CDPA Privacy Notice</strong>
@@ -443,7 +450,7 @@
 
 
 
-			<h2 id="policyupdates">14. DO WE MAKE UPDATES TO THIS NOTICE?</h2>
+			<h2 id="policyupdates">15. DO WE MAKE UPDATES TO THIS NOTICE?</h2>
 			<p><strong>In Short:</strong> Yes, we will update this notice as necessary to stay compliant with relevant laws.</p>
 			<p>We may update this privacy notice from time to time. The updated version will be indicated by an updated "Revised" date and the updated version will be effective as soon as it is accessible. If we make material changes to this privacy notice, we may notify you either by prominently posting a notice of such changes or by directly sending you a notification. We encourage you to review this privacy notice frequently to be informed of how we are protecting your information.</p>
 
@@ -451,7 +458,7 @@
 
 
 
-			<h2 id="contact">15. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
+			<h2 id="contact">16. HOW CAN YOU CONTACT US ABOUT THIS NOTICE?</h2>
 			<p>If you have questions or comments about this notice, you may email us at {{ $config.CONTACT_MAIL }}.</p>
 
 
