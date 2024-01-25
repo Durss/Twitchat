@@ -107,7 +107,7 @@ export const storeEmergency = defineStore('emergency', {
 					for (let i = 0; i < usersNames.length; i++) {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, usersNames[i], undefined, (u)=> {
 							userToPrevModState[channelId][u.id] = u.channelInfo[channelId].is_moderator === true;
-							TwitchUtils.banUser(u, channelId, 600, "Timed out because the emergency mode has been triggered on Twitchat");
+							TwitchUtils.banUser(u, channelId, 30 * 60, "Timed out because the emergency mode has been triggered on Twitchat");
 						});
 					}
 				}
