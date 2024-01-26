@@ -291,6 +291,7 @@ export default class RewardsList extends Vue {
 				flex-grow: 1;
 				padding: .5em;
 				padding-bottom: 1em;
+				line-height: 1em;
 			}
 
 			.backBt {

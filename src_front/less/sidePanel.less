@@ -62,6 +62,7 @@
 		width: 100%;
 		margin: 0 auto;
 		flex-shrink: 0;
+		padding-bottom: 3px;
 	}
 
 	.info {
@@ -113,13 +114,16 @@
 	}
 		
 	.configs {
-		margin: 0 auto 1em auto;
+		// margin: 0 auto 1em auto;
 		&>.content {
 			display: flex;
 			flex-direction: column;
 			align-items: stretch;
 			justify-content: stretch;
 			gap: .5em;
+			.details {
+				font-size: .8em;
+			}
 		}
 	}
 }

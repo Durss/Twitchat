@@ -445,7 +445,8 @@ import Ajv from "ajv";
 										guessCustom: {type:"boolean"},
 										min: {type:"integer", minimum:0, maximum:999999999},
 										max: {type:"integer", minimum:0, maximum:999999999},
-										customValue: {type:"string", maxLength:1000000},
+										customValue: {type:"string", maxLength:500},
+										customValueTolerance: {type:"number", minimum:0, maximum:10},
 									}
 								},
 								pollData: {

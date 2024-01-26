@@ -2,43 +2,32 @@
 	<div class="bingostate gameStateWindow">
 		<h1 class="title"><img src="@/assets/icons/bingo.svg">{{ $t("bingo.state.title") }}</h1>
 
-		<div class="item card-item winners primary" v-if="bingoData.winners && bingoData.winners.length > 0">
-			<div class="header">
-				<p>{{ $t("raffle.state_winners") }}</p>
-			</div>
-			<div class="entries">
-				<Button v-for="w in bingoData.winners" :key="w.id"
-				small secondary
-				type="link"
-				target="_blank"
-				:href="'https://twitch.tv/'+w.login"
-				@click.prevent="openUserCard(w)">{{ w.displayName }}</Button>
-			</div>
-		</div>
-
-		<div class="goal" v-if="bingoData.guessNumber">
-			<div class="header">
-				<div class="title">{{ $t("bingo.state.find_number") }}</div>
-			</div>
+		<div class="card-item goal" v-if="bingoData.guessNumber">
 			<strong class="guess">{{bingoData.numberValue}}</strong>
 		</div>
 		
-		<div class="goal" v-else-if="bingoData.guessEmote">
-			<div class="header">
-				<div class="title">{{ $t("bingo.state.find_emote") }}</div>
-			</div>
+		<div class="card-item goal" v-else-if="bingoData.guessEmote">
 			<img class="emote" :src="bingoData.emoteValue?.twitch?.image.hd">
 			<span class="code">{{bingoData.emoteValue?.twitch?.code}}</span>
 		</div>
 		
-		<div class="goal" v-if="bingoData.guessCustom">
-			<div class="header">
-				<div class="title">{{ $t("bingo.state.find_custom") }}</div>
-			</div>
+		<div class="card-item goal" v-if="bingoData.guessCustom">
 			<span class="guess">{{bingoData.customValue}}</span>
 		</div>
 
-		<Button @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</Button>
+		<div class="card-item winners" v-if="bingoData.winners && bingoData.winners.length > 0">
+			<p><Icon name="sub" />{{ $t("bingo.state.winner") }}</p>
+			<div class="entries">
+				<TTButton v-for="w in bingoData.winners" :key="w.id"
+				small light
+				type="link"
+				target="_blank"
+				:href="'https://twitch.tv/'+w.login"
+				@click.prevent="openUserCard(w)">{{ w.displayName }}</TTButton>
+			</div>
+		</div>
+
+		<TTButton @click="closeBingo()" alert>{{ $t('bingo.state.closeBt') }}</TTButton>
 	</div>
 </template>
 
@@ -46,10 +35,12 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 	},
 	emits:["close"]
 })
@@ -81,23 +72,21 @@ export default class BingoState extends Vue {
 
 	.goal {
 		.emboss();
-		padding: .5em;
-		border-radius: var(--border-radius);
-		background-color: var(--color-secondary);
+		// padding: .5em;
+		// border-radius: var(--border-radius);
+		// background-color: var(--color-secondary);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: .5em;
 		.guess {
-			font-size: 1.5em;
+			font-size: 1.25em;
+			text-align: center;
+			display: block;
 		}
 		.emote {
 			height: 4em;
 			object-fit: fill;
-			transition: transform .25s;
-			&:hover {
-				transform: scale(2);
-			}
 		}
 		.code {
 			font-style: italic;
@@ -105,11 +94,17 @@ export default class BingoState extends Vue {
 		}
 	}
 
-	.winner {
+	.winners {
 		background: var(--color-secondary);
-		padding: 1em;
 		border-radius: var(--border-radius);
 		font-weight: bold;
+		.icon {
+			height: 1em;
+			margin-right: .25em;
+		}
+		.entries {
+			margin-top: .5em;
+		}
 	}
 
 }

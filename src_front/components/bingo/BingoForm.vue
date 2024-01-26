@@ -8,18 +8,6 @@
 			<div class="description">{{ $t("bingo.form.description") }}</div>
 		</div>
 	
-		<ToggleBlock :title="$t('global.bot_message_config')" class="configs" :open="false" small v-if="triggerMode === false">
-			<PostOnChatParam botMessageKey="bingoStart"
-				:placeholderEnabled="false"
-				titleKey="bingo.form.announce_start"
-				:placeholders="startPlaceholders"
-			/>
-			<PostOnChatParam botMessageKey="bingo"
-				titleKey="bingo.form.announce_winner"
-				:placeholders="winnerPlaceholders"
-			/>
-		</ToggleBlock>
-	
 		<TabMenu class="menu" v-model="mode"
 			:values="['num','emote','custom']"
 			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
@@ -37,6 +25,21 @@
 				<ParamItem class="card-item" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
 
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
+				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValueTolerance" @change="onValueChange()" />
+			
+				<ToggleBlock :icons="['params']" :title="$t('global.advanced_params')" class="configs" :open="false" v-if="triggerMode === false">
+					<PostOnChatParam botMessageKey="bingoStart"
+						:placeholderEnabled="false"
+						titleKey="bingo.form.announce_start"
+						:placeholders="startPlaceholders"
+						icon="announcement"
+					/>
+					<PostOnChatParam botMessageKey="bingo"
+						titleKey="bingo.form.announce_winner"
+						:placeholders="winnerPlaceholders"
+						icon="announcement"
+					/>
+				</ToggleBlock>
 
 				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</Button>
 			</form>
@@ -84,7 +87,9 @@ export default class BingoForm extends AbstractSidePanel {
 	public mode:"num"|"emote"|"custom" = "num";
 	public minValue:TwitchatDataTypes.ParameterData<number> = {value:0, type:"number", min:0, max:999999999, labelKey:"bingo.form.min_value"};
 	public maxValue:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:0, max:999999999, labelKey:"bingo.form.max_value"};
-	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.form.custom_placeholder", labelKey:"bingo.form.custom_value"};
+	public customValue:TwitchatDataTypes.ParameterData<string|undefined> = {value:"", type:"string", maxLength:500, placeholderKey:"bingo.form.custom_placeholder", labelKey:"bingo.form.custom_value", icon:"whispers"};
+	// public customValueTolerance:TwitchatDataTypes.ParameterData<number|undefined> = {value:0, type:"slider", min:0, max: 100, labelKey:"bingo.form.custom_value_tolerance"};
+	public customValueTolerance:TwitchatDataTypes.ParameterData<number> = {value:0, type:"list", labelKey:"bingo.form.custom_value_tolerance"};
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 
 	public get classes():string[] {
@@ -101,6 +106,7 @@ export default class BingoForm extends AbstractSidePanel {
 			min: this.minValue.value,
 			max: this.maxValue.value,
 			customValue: this.customValue.value,
+			customValueTolerance: this.customValueTolerance.value,
 		}
 	}
 
@@ -126,7 +132,17 @@ export default class BingoForm extends AbstractSidePanel {
 			this.minValue.value = this.action.bingoData.min;
 			this.maxValue.value = this.action.bingoData.max;
 			this.customValue.value = this.action.bingoData.customValue;
+			this.customValueTolerance.value = this.action.bingoData.customValueTolerance ?? 0;
 		}
+
+		this.customValueTolerance.listValues = [
+			{value:0, labelKey:"bingo.form.custom_value_tolerances.none"},
+			{value:1, labelKey:"bingo.form.custom_value_tolerances.very_low"},
+			{value:2, labelKey:"bingo.form.custom_value_tolerances.low"},
+			{value:3, labelKey:"bingo.form.custom_value_tolerances.medium"},
+			{value:4, labelKey:"bingo.form.custom_value_tolerances.high"},
+			{value:5, labelKey:"bingo.form.custom_value_tolerances.very_high"},
+		];
 		
 		let emotes = await TwitchUtils.getEmotes();
 		emotes = emotes.filter(v => v.is_public === true);

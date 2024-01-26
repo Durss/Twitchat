@@ -620,6 +620,7 @@ export namespace TwitchatDataTypes {
 		max:number;
 		numberValue?:number;
 		customValue?:string;
+		customValueTolerance?: number;
 		emoteValue?:{[key in ChatPlatform]:{
 			code:string,
 			image:TwitchatImage,

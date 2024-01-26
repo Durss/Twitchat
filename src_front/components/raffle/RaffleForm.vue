@@ -8,36 +8,6 @@
 			<div class="description">{{ $t("raffle.description") }}</div>
 		</div>
 
-		<ToggleBlock class="configs" v-if="mode=='chat' && triggerMode === false" :title="$t('global.bot_message_config')" :open="false" small>
-			<ParamItem
-			:paramData="param_showCountdownOverlay"
-			v-if="mode=='chat'" @change="onValueChange()">
-				<i18n-t scope="global" tag="div" class="details"
-				v-if="param_showCountdownOverlay.value === true && mode=='chat'"
-				keypath="raffle.configs.timer_overlay_add">
-					<template #LINK>
-						<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
-					</template>
-				</i18n-t>
-			</ParamItem>
-
-			<PostOnChatParam botMessageKey="raffleStart"
-				v-if="mode=='chat' && triggerMode === false"
-				:placeholders="startPlaceholders"
-				titleKey="raffle.configs.postOnChat_start"
-			/>
-			<PostOnChatParam botMessageKey="raffle"
-				v-if="triggerMode === false"
-				:placeholders="winnerPlaceholders"
-				titleKey="raffle.configs.postOnChat_winner"
-			/>
-			<PostOnChatParam botMessageKey="raffleJoin"
-				v-if="mode=='chat' && triggerMode === false"
-				:placeholders="joinPlaceholders"
-				titleKey="raffle.configs.postOnChat_join"
-			/>
-		</ToggleBlock>
-
 		<TabMenu class="menu" v-model="mode"
 			:values="['chat','sub','manual','values']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
@@ -72,9 +42,43 @@
 					</div>
 				</div>
 				<ParamItem :paramData="param_enterDuration" @change="onValueChange()" />
-				<ParamItem :paramData="param_multipleJoin" @change="onValueChange()" />
-				<ParamItem :paramData="param_maxUsersToggle" @change="onValueChange()" />
-				<ParamItem :paramData="param_ponderateVotes" @change="onValueChange()" />
+
+				<ToggleBlock class="configs" :icons="['params']" v-if="mode=='chat' && triggerMode === false" :title="$t('global.advanced_params')" :open="false">
+					<ParamItem :paramData="param_multipleJoin" @change="onValueChange()" />
+					<ParamItem :paramData="param_maxUsersToggle" @change="onValueChange()" />
+					<ParamItem :paramData="param_ponderateVotes" @change="onValueChange()" />
+
+					<ParamItem
+					:paramData="param_showCountdownOverlay"
+					v-if="mode=='chat'" @change="onValueChange()">
+						<i18n-t scope="global" tag="div" class="details"
+						v-if="param_showCountdownOverlay.value === true && mode=='chat'"
+						keypath="raffle.configs.timer_overlay_add">
+							<template #LINK>
+								<a @click="openParam('overlays')">{{ $t("raffle.configs.timer_overlay_add_link") }}</a>
+							</template>
+						</i18n-t>
+					</ParamItem>
+
+					<PostOnChatParam botMessageKey="raffleStart"
+						v-if="mode=='chat' && triggerMode === false"
+						:placeholders="startPlaceholders"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_start"
+					/>
+					<PostOnChatParam botMessageKey="raffle"
+						v-if="triggerMode === false"
+						:placeholders="winnerPlaceholders"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_winner"
+					/>
+					<PostOnChatParam botMessageKey="raffleJoin"
+						v-if="mode=='chat' && triggerMode === false"
+						:placeholders="joinPlaceholders"
+						icon="announcement"
+						titleKey="raffle.configs.postOnChat_join"
+					/>
+				</ToggleBlock>
 
 				<Button type="submit" 
 					v-if="triggerMode === false"
@@ -217,14 +221,14 @@ export default class RaffleForm extends AbstractSidePanel {
 
 	public mode:TwitchatDataTypes.RaffleData["mode"] = "chat";
 		
-	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join"};
+	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join", icon:"commands"};
 	public param_commandValue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
-	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join"};
+	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join", icon:"channelPoints"};
 	public param_rewardvalue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"list", listValues:[], labelKey:"raffle.params.reward", placeholderKey:"raffle.params.command_placeholder"};
-	public param_enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration"};
-	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.limit_users"};
-	public param_maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users"};
-	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join"};
+	public param_enterDuration:TwitchatDataTypes.ParameterData<number>			= {value:10, type:"number", min:1, max:1440, labelKey:"raffle.params.duration", icon:"timer"};
+	public param_maxUsersToggle:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.limit_users", icon:"user"};
+	public param_maxEntries:TwitchatDataTypes.ParameterData<number>				= {value:10, type:"number", min:0, max:1000000, labelKey:"raffle.params.max_users", icon:"user"};
+	public param_multipleJoin:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.multiple_join", icon:"user"};
 	public param_ponderateVotes:TwitchatDataTypes.ParameterData<boolean, any, any>= {value:false, type:"boolean", labelKey:"raffle.params.ponderate"};
 	public param_ponderateVotes_vip:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"vip", labelKey:"raffle.params.ponderate_VIP"};
 	public param_ponderateVotes_sub:TwitchatDataTypes.ParameterData<number>		= {value:0, type:"number", min:0, max:100, icon:"sub", labelKey:"raffle.params.ponderate_sub"};

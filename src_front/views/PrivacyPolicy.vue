@@ -465,7 +465,7 @@
 
 
 
-			<h2 id="request">16. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?</h2>
+			<h2 id="request">17. HOW CAN YOU REVIEW, UPDATE, OR DELETE THE DATA WE COLLECT FROM YOU?</h2>
 			<p>Based on the applicable laws of your country, you may have the right to request access to the personal information we collect from you, change that information, or delete it. To request to review, update, or delete your personal information, please <a @click="openDataMnagerForm()" target="_blank">open data management form</a>.</p>
 			<p>This privacy policy was created using Termly's <a href="https://termly.io/products/privacy-policy-generator/" target="_blank">Privacy Policy Generator</a>.</p>
 		</div>

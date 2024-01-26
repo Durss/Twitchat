@@ -27,14 +27,14 @@
 						</i18n-t>
 					</div>
 				</div>
+				<PostOnChatParam botMessageKey="qnaStart"
+					icon="announcement"
+					:placeholderEnabled="false"
+					titleKey="qna.form.announce_start"
+					:placeholders="startPlaceholders"
+				/>
 				<TTButton type="submit">{{ $t("global.start") }}</TTButton>
 			</form>
-			<PostOnChatParam botMessageKey="qnaStart"
-				icon="announcement"
-				:placeholderEnabled="false"
-				titleKey="qna.form.announce_start"
-				:placeholders="startPlaceholders"
-			/>
 		</div>
 	</div>
 </template>
@@ -60,7 +60,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 export default class QnaForm extends AbstractSidePanel {
 	
 	public conflict:boolean = false;
-	public command:TwitchatDataTypes.ParameterData<string>	= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command"};
+	public command:TwitchatDataTypes.ParameterData<string>	= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command", icon:"commands"};
 
 	public get classes():string[] {
 		const res = ["qnaform", "sidePanel"];

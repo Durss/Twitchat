@@ -14,6 +14,15 @@
 			"min_value":"Min value",
 			"max_value":"Max value",
 			"custom_value":"Message",
+			"custom_value_tolerance":"Orthographic tolereance",
+			"custom_value_tolerances":{
+				"none":"None",
+				"very_low":"Very low",
+				"low":"Low",
+				"medium":"Medium",
+				"high":"High",
+				"very_high":"Very high"
+			},
 			"startBt":"Start bingo",
 			"custom_placeholder":"message...",
 		
@@ -31,10 +40,8 @@
 		},
 		"state":{
 			"title":"Bingo",
-			"closeBt":"Close bingo",
-			"find_custom":"Message to find",
-			"find_number":"Number to find",
-			"find_emote":"Emote to find"
+			"winners":"Winner",
+			"closeBt":"Close bingo"
 		}
 	}
 }

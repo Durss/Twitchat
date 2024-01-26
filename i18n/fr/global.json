@@ -51,6 +51,7 @@
 		"refresh": "Recharger",
 		"contact": "Contact : {MAIL}",
 		"translation": "Traduction",
+		"advanced_params": "Paramètres avancés",
 		"join_discordBt": "Rejoindre Discord",
 		"ask_supportBt": "Demander de l'aide",
 		"obs_connect": "Cette fonctionnalité nécessite de {LINK}",

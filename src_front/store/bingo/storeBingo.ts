@@ -65,11 +65,18 @@ export const storeBingo = defineStore('bingo', {
 			const bingo = this.data;
 			const num = bingo.numberValue;
 			const emote = bingo.emoteValue && bingo.emoteValue[message.user.platform];
-			const custom = bingo.customValue;
+			const custom = (bingo.customValue || "").trim().toLowerCase();
 			const cleanMess = (message.message || "").trim().toLowerCase();
 			let win = parseInt((message.message || "")) == num;
-			win ||= cleanMess == custom?.trim().toLowerCase()
 			win ||= emote != undefined && cleanMess.indexOf(emote.code.toLowerCase()) === 0;
+			const tolerancePercent = (bingo.customValueTolerance ?? 0)/5;//divide by 5 because there are 6 tolerance levels (0 -> 5)
+			//Allow to fail, at most, half of the expected word
+			const tolerance = tolerancePercent * custom.length / 2;
+			if(tolerance > 0) {
+				win ||= Utils.levenshtein(cleanMess, custom) <= tolerance;
+			}else{
+				win ||= cleanMess == custom;
+			}
 			if(win) {
 				//Someone won
 				bingo.winners = [message.user];

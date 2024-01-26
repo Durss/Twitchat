@@ -364,7 +364,8 @@ export default class YoutubeHelper {
 				}
 
 				const data:TwitchatDataTypes.MessageChatData = {
-					date:Date.now(),
+					// date:Date.now(),
+					date:new Date(m.snippet.publishedAt).getTime(),
 					id:m.id,
 					platform:"youtube",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,

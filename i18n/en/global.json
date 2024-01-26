@@ -51,6 +51,7 @@
 		"refresh": "Refresh",
 		"contact": "Contact: {MAIL}",
 		"translation": "Translation",
+		"advanced_params": "Advanced parameters",
 		"join_discordBt": "Join Discord",
 		"ask_supportBt": "Ask for help",
 		"obs_connect": "This feature needs you to {LINK}",

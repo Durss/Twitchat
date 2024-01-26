@@ -27,6 +27,14 @@
 
 				<ParamItem :paramData="multiAnswers" @change="changeValue()" />
 
+				<PostOnChatParam botMessageKey="chatSuggStart"
+					v-if="triggerMode === false"
+					:placeholderEnabled="false"
+					icon="announcement"
+					titleKey="suggestion.announce_start"
+					:placeholders="startPlaceholders"
+				/>
+
 				<!-- <ToggleBlock small title="Permissions" :open="false" class="card-item permissions">
 					<PermissionsForm v-model="permissions" />
 				</ToggleBlock> -->
@@ -41,14 +49,6 @@
 					<a href="https://www.janvier.tv/sondage" target="_blank">{{ $t("suggestion.alternative_tool_link") }}</a>
 				</template>
 			</i18n-t> -->
-
-			<ToggleBlock v-if="triggerMode === false" :title="$t('global.bot_message_config')" class="configs" :open="false" small>
-				<PostOnChatParam botMessageKey="chatSuggStart"
-					:placeholderEnabled="false"
-					titleKey="suggestion.announce_start"
-					:placeholders="startPlaceholders"
-				/>
-			</ToggleBlock>
 		</div>
 	</div>
 </template>
@@ -88,10 +88,10 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 	@Prop
 	public triggerData!:TriggerData;
 	
-	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30, labelKey:"suggestion.command"};
-	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration"};
-	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"suggestion.multiAnswers"};
-	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength"};
+	public command:TwitchatDataTypes.ParameterData<string>			= {type:"string", value:"!sugg", placeholder:"!sugg", maxLength:30, labelKey:"suggestion.command", icon:"commands"};
+	public maxLength:TwitchatDataTypes.ParameterData<number>		= {value:100, type:"number", min:1, max:500, labelKey:"suggestion.maxLength", icon:"font"};
+	public duration:TwitchatDataTypes.ParameterData<number>			= {value:2, type:"number", min:1, max:60 * 24, labelKey:"suggestion.duration", icon:"timer"};
+	public multiAnswers:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", labelKey:"suggestion.multiAnswers", icon:"user"};
 	public permissions:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,

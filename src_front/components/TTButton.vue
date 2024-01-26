@@ -199,7 +199,7 @@ export default class TTButton extends Vue {
 		top: -@offset;
 		left: -@offset;
 		border-radius: inherit;
-		background-color: var(--color-button);//TODO set to var(--color-primary);
+		background-color: var(--color-button);
 		background-image: linear-gradient(20deg, rgba(255,255,255,0) 35%, rgba(255,255,255,.7) 40%, rgba(255,255,255,.7) 60%, rgba(255,255,255,0) 65%);
 		background-repeat: repeat-x;
 		background-size:  200% 100%;
@@ -221,15 +221,12 @@ export default class TTButton extends Vue {
 		width: 100%;
 		height: 100%;
 		transition: all .15s;
-		background-color: var(--color-button);//TODO set to var(--color-primary);
+		background-color: var(--color-button);
 	}
 
 	&.disabled {
 		opacity: .5;
 		cursor: not-allowed;
-		.label, .icon {
-			// opacity: .5;
-		}
 	}
 	&.loading {
 		cursor: wait;
@@ -244,7 +241,7 @@ export default class TTButton extends Vue {
 	&:not(.disabled){
 		&:hover {
 			.background {
-				background-color: var(--color-button-light);//TODO set to var(--color-primary-light);
+				background-color: var(--color-button-light);
 			}
 		}
 	
@@ -254,7 +251,7 @@ export default class TTButton extends Vue {
 				top: -2px;
 			}
 			.background {
-				background-color: var(--color-button-dark);//TODO set to var(--color-primary-dark);
+				background-color: var(--color-button-dark);
 				box-shadow: 0px 0px 0px rgba(255, 255, 255, 0), 0px 0px 0px rgba(0, 0, 0, 0);
 			}
 		}
@@ -323,7 +320,7 @@ export default class TTButton extends Vue {
 		&:not(.disabled){
 			&:hover {
 				.background {
-					background-color: var(--color-primary-light);//TODO set to var(--color-button-light);
+					background-color: var(--color-primary-light);
 				}
 			}
 			&:active {
@@ -489,11 +486,11 @@ export default class TTButton extends Vue {
 			text-shadow: unset;
 		}
 		.background{
-			background-color: var(--color-button-extralight);//TODO set to var(--color-primary-extralight);
+			background-color: var(--color-button-extralight);
 		}
 		&:active {
 			.background{
-				background-color: var(--color-button);//TODO set to var(--color-primary);
+				background-color: var(--color-button);
 			}
 		}
 		&.primary {
