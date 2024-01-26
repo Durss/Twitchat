@@ -8,7 +8,7 @@
 	
 		<div class="lang">
 			<select v-model="$i18n.locale">
-				<option :value="lang" v-for="lang in $i18n.availableLocales">{{ $t('global.lang_label', lang)}}</option>
+				<option :value="lang" v-for="lang in enabledLocales">{{ $t('global.lang_label', lang)}}</option>
 			</select>
 		</div>
 
@@ -21,10 +21,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
-import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
-import TTButton from '../components/TTButton.vue';
+import StoreProxy from '@/store/StoreProxy';
 import { gsap } from 'gsap';
+import { Component, Vue } from 'vue-facing-decorator';
+import TTButton from '../components/TTButton.vue';
+import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 
 @Component({
 	components:{
@@ -33,6 +34,13 @@ import { gsap } from 'gsap';
 	}
 })
 export default class Sponsor extends Vue {
+
+	public get enabledLocales():string[] {
+		return this.$i18n.availableLocales.filter(v=> {
+			let root:any = StoreProxy.i18n.getLocaleMessage(v);
+			return root.global.lang_enabled;
+		})
+	}
 
 	public async mounted():Promise<void> {
 		const refs = ["backBt"];

@@ -1,6 +1,6 @@
 <template>
 	<form class="applangselector">
-		<div class="row" v-for="lang in $i18n.availableLocales">
+		<div class="row" v-for="lang in enabledLocales">
 			<input type="radio" name="language" :id="'lang_'+lang" :value="lang" v-model="$i18n.locale">
 			<label :for="'lang_'+lang">
 				<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" /><span class="text">{{ $t('global.lang_label', lang)}}</span>
@@ -14,6 +14,7 @@ import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -21,6 +22,13 @@ import CountryFlag from 'vue-country-flag-next';
 	}
 })
 export default class AppLangSelector extends Vue {
+
+	public get enabledLocales():string[] {
+		return this.$i18n.availableLocales.filter(v=> {
+			let root:any = StoreProxy.i18n.getLocaleMessage(v);
+			return root.global.lang_enabled;
+		})
+	}
 
 	public mounted():void {
 		watch(()=>this.$i18n.locale, ()=> {

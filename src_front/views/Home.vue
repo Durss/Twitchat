@@ -5,7 +5,7 @@
 		<div class="aboveTheFold">
 			<div class="lang">
 				<select v-model="$i18n.locale">
-					<option :value="lang" v-for="lang in $i18n.availableLocales">{{ $t('global.lang_label', lang)}}</option>
+					<option :value="lang" v-for="lang in enabledLocales">{{ $t('global.lang_label', lang)}}</option>
 				</select>
 			</div>
 
@@ -142,6 +142,7 @@ import AnchorsMenu from '../components/AnchorsMenu.vue';
 import Splitter from '../components/Splitter.vue';
 import Login from './Login.vue';
 import { watch } from 'vue';
+import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -166,6 +167,13 @@ export default class Home extends Vue {
 	public get nextIndex():number { return this.index ++; }
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get youtubeURL():string { return Config.instance.YOUTUBE_URL; }
+
+	public get enabledLocales():string[] {
+		return this.$i18n.availableLocales.filter(v=> {
+			let root:any = StoreProxy.i18n.getLocaleMessage(v);
+			return root.global.lang_enabled;
+		})
+	}
 	public getLetter():string { return Utils.pickRand("twitchat".split("")); }
 
 	public get sections():{

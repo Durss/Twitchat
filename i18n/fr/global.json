@@ -3,6 +3,7 @@
 		"lang": "fr-FR",
 		"lang_label": "Français",
 		"lang_flag": "fr",
+		"lang_enabled": true,
 		"beta": "beta",
 		"back": "retour",
 		"yes": "oui",
