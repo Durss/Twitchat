@@ -306,7 +306,7 @@ export interface IAuthActions {
 	 * @param reconnectIRC 
 	 * @param callback 
 	 */
-	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult>;
+	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult|false>;
 	/**
 	 * Authenticate with twitch
 	 * @param code 

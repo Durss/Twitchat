@@ -45,7 +45,7 @@ export default class TwitchUtils {
 			// headers: {},
 			headers: this.headers,
 		};
-		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
+		const result = await this.callApi(Config.instance.TWITCH_API_PATH+"chat/badges?broadcaster_id="+uid, options);
 		if(result.status == 200) {
 			const json = await result.json();
 			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
@@ -86,7 +86,7 @@ export default class TwitchUtils {
 			// headers: {},
 			headers: this.headers,
 		};
-		const result = await fetch(Config.instance.TWITCH_API_PATH+"chat/badges/global", options);
+		const result = await this.callApi(Config.instance.TWITCH_API_PATH+"chat/badges/global", options);
 		if(result.status == 200) {
 			const json = await result.json();
 			const list:TwitchDataTypes.BadgesSet[] = json.data as TwitchDataTypes.BadgesSet[];
@@ -129,28 +129,16 @@ export default class TwitchUtils {
 		return url;
 	}
 	
-	public static validateToken(token:string):Promise<TwitchDataTypes.Token|TwitchDataTypes.Error> {
-		return new Promise((resolve, reject) => {
-			const headers = {
-				"Authorization":"Bearer "+token
-			};
-			const options = {
-				method: "GET",
-				headers: headers,
-			};
-			fetch("https://id.twitch.tv/oauth2/validate", options)
-			.then((result) => {
-				if(result.status == 200) {
-					result.json().then((json)=> {
-						resolve(json)
-					});
-				}else{
-					reject();
-				}
-			}).catch((error) => {
-				reject();
-			});
-		});
+	public static async validateToken(token:string):Promise<TwitchDataTypes.Token|TwitchDataTypes.Error> {
+		const headers = {
+			"Authorization":"Bearer "+token
+		};
+		const options = {
+			method: "GET",
+			headers: headers,
+		};
+		const result = await fetch("https://id.twitch.tv/oauth2/validate", options)
+		return await result.json();
 	}
 
 	/**
@@ -168,7 +156,7 @@ export default class TwitchUtils {
 			const params = param+"="+uids.splice(0,100).join("&"+param+"=");
 			const url = Config.instance.TWITCH_API_PATH+"channels?"+params;
 			try {
-				const result = await fetch(url, { headers:this.headers });
+				const result = await this.callApi(url, { headers:this.headers });
 				const json = await result.json();
 				if(!json.error) {
 					channels = channels.concat(json.data);
@@ -207,7 +195,7 @@ export default class TwitchUtils {
 				if(param == "id" && !/^[0-9]+$/.test(v)) return;
 				url.searchParams.append(param, v);
 			});
-			const result = await fetch(url, {headers:this.headers});
+			const result = await this.callApi(url, {headers:this.headers});
 			if(result.status === 200) {
 				const json = await result.json();
 				users = users.concat(json.data);
@@ -243,7 +231,7 @@ export default class TwitchUtils {
 				url.searchParams.append(param, v);
 			});
 
-			const result = await fetch(url, { headers:this.headers });
+			const result = await this.callApi(url, { headers:this.headers });
 			const json = await result.json();
 			streams = streams.concat(json.data);
 		}
@@ -263,7 +251,7 @@ export default class TwitchUtils {
 				action:accept? "ALLOW" : "DENY",
 			})
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"moderation/automod/message", options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"moderation/automod/message", options);
 		return res.status <= 400;
 	}
 
@@ -277,7 +265,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+channelId, options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"bits/cheermotes?broadcaster_id="+channelId, options);
 		const json = await res.json();
 		const list:TwitchDataTypes.CheermoteSet[] = json.data;
 		//Sort them longer first.
@@ -312,7 +300,7 @@ export default class TwitchUtils {
 				channel_points_per_vote:pointsPerVote,
 			})
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			setTimeout(()=> {
@@ -334,7 +322,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+channelId, options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"polls?broadcaster_id="+channelId, options);
 		const json:{data:TwitchDataTypes.Poll[]} = await res.json();
 		if(res.status == 200) {
 			if(json.data.length > 0 && json.data[0].status == "ACTIVE") {
@@ -378,7 +366,7 @@ export default class TwitchUtils {
 				broadcaster_id:channelId,
 			})
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"polls", options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"polls", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			// StoreProxy.poll.setCurrentPoll(json.data);
@@ -406,7 +394,7 @@ export default class TwitchUtils {
 				prediction_window:duration,
 			})
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			setTimeout(()=> {
@@ -427,7 +415,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"predictions?broadcaster_id="+StoreProxy.auth.twitch.user.id, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			let totalPoints = 0;
@@ -482,7 +470,7 @@ export default class TwitchUtils {
 				winning_outcome_id:winId,
 			})
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"predictions", options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"predictions", options);
 		const json = await res.json();
 		if(res.status == 200) {
 			this.getPredictions(channelId);
@@ -502,7 +490,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+channelId, options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"hypetrain/events?broadcaster_id="+channelId, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			return json.data;
@@ -534,7 +522,7 @@ export default class TwitchUtils {
 			}
 			do {
 				const params = sets.splice(0,25).join("&emote_set_id=");
-				const res = await fetch(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
+				const res = await this.callApi(Config.instance.TWITCH_API_PATH+"chat/emotes/set?emote_set_id="+params, options);
 				const json = await res.json();
 				if(res.status == 200) {
 					emotesTwitch = emotesTwitch.concat(json.data);
@@ -629,7 +617,7 @@ export default class TwitchUtils {
 		let url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		if(onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
-		const res = await fetch(url, options);
+		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if(res.status == 200) {
 			rewards = json.data;
@@ -659,7 +647,7 @@ export default class TwitchUtils {
 			if(reward.cost > 1000000000) reward.cost = 1000000000;
 		}
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"POST",
 			headers:this.headers,
 			body:JSON.stringify(reward),
@@ -695,7 +683,7 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", user.id);
 		url.searchParams.append("id", rewardId);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"DELETE",
 			headers:this.headers,
 		});
@@ -729,7 +717,7 @@ export default class TwitchUtils {
 		const user = StoreProxy.auth.twitch.user;
 		url.searchParams.append("broadcaster_id", user.id);
 
-		const res = await fetch(url, options);
+		const res = await this.callApi(url, options);
 		if(res.status == 200) {
 			const json = await res.json();
 			redemptions = json.data;
@@ -758,7 +746,7 @@ export default class TwitchUtils {
 			url.searchParams.append("id", v);
 		});
 
-		const res = await fetch(url, options);
+		const res = await this.callApi(url, options);
 		if(res.status == 200) {
 			return true;
 		}
@@ -782,7 +770,7 @@ export default class TwitchUtils {
 			if(data.cost > 1000000000) data.cost = 1000000000;
 		}
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"PATCH",
 			headers:this.headers,
 			body:JSON.stringify(data),
@@ -814,7 +802,7 @@ export default class TwitchUtils {
 
 		do {
 			if(cursor) url.searchParams.set("after", cursor);
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -845,7 +833,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			if(cursor) url.searchParams.set("after", cursor);
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -877,7 +865,7 @@ export default class TwitchUtils {
 				url.searchParams.append("user_id", v);
 			})
 			try {
-				const result = await fetch(url, { headers:this.headers });
+				const result = await this.callApi(url, { headers:this.headers });
 				if(result.status != 200) continue;
 				const json = await result.json();
 				if(!json.error) {
@@ -905,7 +893,7 @@ export default class TwitchUtils {
 		let cursor:string|null = null;
 		do {
 			const pCursor = cursor? "&after="+cursor : "";
-			const res = await fetch(Config.instance.TWITCH_API_PATH+"streams/followed?first=100&user_id="+StoreProxy.auth.twitch.user.id+pCursor, {
+			const res = await this.callApi(Config.instance.TWITCH_API_PATH+"streams/followed?first=100&user_id="+StoreProxy.auth.twitch.user.id+pCursor, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -952,7 +940,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
 			if(channelId) url.searchParams.append("user_id", channelId);
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -982,7 +970,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", userId);
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"GET",
 			headers:this.headers,
 		});
@@ -1010,7 +998,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 			url.searchParams.append("user_id", channelId);
 			if(cursor) url.searchParams.append("after", cursor);
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -1044,7 +1032,7 @@ export default class TwitchUtils {
 			url.searchParams.append("broadcaster_id", channelId);
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -1072,7 +1060,7 @@ export default class TwitchUtils {
 			userIds.splice(0, 100).forEach(v=> {
 				url.searchParams.append("user_id", v);
 			})
-			const res = await fetch(url, {
+			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
@@ -1111,7 +1099,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/commercial");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("length", duration.toString());
-		const res = await fetch(url, options);
+		const res = await this.callApi(url, options);
 		const json = await res.json();
 		this.getAdSchedule();//Refreshes current ad schedule data
 		if(json.error) {
@@ -1126,7 +1114,7 @@ export default class TwitchUtils {
 	 */
 	public static async getPronouns(uid: string, username: string): Promise<TwitchatDataTypes.Pronoun | null> {
 		const getPronounAlejo = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
-			const res = await fetch(`https://pronouns.alejo.io/api/users/${username}`);
+			const res = await this.callApi(`https://pronouns.alejo.io/api/users/${username}`);
 			const data = await res.json();
 
 			if (data.error) {
@@ -1139,7 +1127,7 @@ export default class TwitchUtils {
 		};
 
 		const getPronounPronounDb = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
-			const res = await fetch(`https://pronoundb.org/api/v1/lookup?platform=twitch&id=${uid}`);
+			const res = await this.callApi(`https://pronoundb.org/api/v1/lookup?platform=twitch&id=${uid}`);
 			const data = await res.json();
 
 			if (data.pronouns === "unspecified")
@@ -1183,7 +1171,7 @@ export default class TwitchUtils {
 		url.searchParams.append("query", search);
 		url.searchParams.append("first", "20");
 		url.searchParams.append("live_only", "true");
-		const res = await fetch(url, options);
+		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -1207,7 +1195,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"search/categories?first=50&query="+encodeURIComponent(search), options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -1241,7 +1229,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		const res = await fetch(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
+		const res = await this.callApi(Config.instance.TWITCH_API_PATH+"games?id="+encodeURIComponent(id), options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -1276,7 +1264,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels");
 		url.searchParams.append("broadcaster_id", channelId);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -1301,7 +1289,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"content_classification_labels");
 		url.searchParams.append("locale", StoreProxy.i18n.t("global.lang"));
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		const json = await res.json();
 		if(json.error) {
 			throw(json);
@@ -1333,7 +1321,7 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			await this.onRateLimit(res.headers);
@@ -1366,7 +1354,7 @@ export default class TwitchUtils {
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", user.id);
 
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 204) {
 			StoreProxy.users.flagUnbanned("twitch", channelId, user.id);
 			return true;
@@ -1398,7 +1386,7 @@ export default class TwitchUtils {
 		url.searchParams.append("target_user_id", user.id);
 		if(reason) url.searchParams.append("reason", reason);
 
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 204) {
 			StoreProxy.users.flagBlocked("twitch", user.id);
 			return true;
@@ -1429,7 +1417,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"users/blocks");
 		url.searchParams.append("target_user_id", user.id);
 
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 204) {
 			StoreProxy.users.flagUnblocked("twitch", user.id);
 			return true;
@@ -1473,7 +1461,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
 		url.searchParams.append("broadcaster_id", channel_id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status > 200 && res.status < 204) {
 			const json = await res.json();
 			message.clipUrl = json.data[0].edit_url;
@@ -1545,7 +1533,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"clips");
 		url.searchParams.append("id", clipId);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			const json = await res.json();
 			return json.data[0] ?? null;
@@ -1576,7 +1564,7 @@ export default class TwitchUtils {
 			url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 			url.searchParams.append("first", "100");
 			if(cursor) url.searchParams.append("after", cursor);
-			const res = await fetch(url.href, options);
+			const res = await this.callApi(url.href, options);
 			
 			//As i managed to corrupt my twitch data, i need this to avoid errors everytime
 			if(res.status != 200) return [];
@@ -1606,7 +1594,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/announcements");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1634,7 +1622,7 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		if(messageId) url.searchParams.append("message_id", messageId);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1663,7 +1651,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/shield_mode");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1687,7 +1675,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/color");
 		url.searchParams.append("user_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("color", color);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1712,7 +1700,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200)  {
 			const json:{data:{
 				broadcaster_id: string,
@@ -1787,7 +1775,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"chat/settings");
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1814,7 +1802,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"moderation/moderators");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeMod) {
 				StoreProxy.users.flagUnmod("twitch", channelId, user.id);
@@ -1864,7 +1852,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/vips");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("user_id", user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			if(removeVip) {
 				const m:TwitchatDataTypes.MessageModerationAction = {
@@ -1936,7 +1924,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("from_broadcaster_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("to_broadcaster_id", user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -1965,7 +1953,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"raids");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -2003,7 +1991,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"whispers");
 		url.searchParams.append("from_user_id", StoreProxy.auth.twitch.user.id);
 		url.searchParams.append("to_user_id", toId);
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}else
@@ -2042,7 +2030,7 @@ export default class TwitchUtils {
 		url.searchParams.append("broadcaster_id", channelId);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			const json:{data:{user_id:string, user_login:string, user_name:string}[]} = await res.json();
 			return json.data.map(v => v.user_login);
@@ -2085,7 +2073,7 @@ export default class TwitchUtils {
 		}
 		const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
 		
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			const json:{data:{user_login:string}[]} = await res.json();
 			return json.data.map(v => v.user_login);
@@ -2117,7 +2105,7 @@ export default class TwitchUtils {
 			if(cursor) {
 				url.searchParams.append("after", cursor)
 			}
-			const res = await fetch(url, options);
+			const res = await this.callApi(url, options);
 			if(res.status == 200 || res.status == 204) {
 				const json:{data:TwitchDataTypes.EventsubSubscription[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
@@ -2143,7 +2131,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"eventsub/subscriptions");
 		url.searchParams.append("id", id);
 		
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		if(res.status == 200 || res.status == 204) {
 			return true;
 		}
@@ -2173,7 +2161,7 @@ export default class TwitchUtils {
 			}
 			url.searchParams.append("first", "100");
 
-			const res = await fetch(url, options);
+			const res = await this.callApi(url, options);
 			if(res.status != 200) continue;
 			const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
@@ -2211,7 +2199,7 @@ export default class TwitchUtils {
 		url.searchParams.append("to_broadcaster_id", user.id);
 		url.searchParams.append("moderator_id", StoreProxy.auth.twitch.user.id);
 		
-		const res = await fetch(url.href, options);
+		const res = await this.callApi(url.href, options);
 		
 		if(res.status == 200 || res.status == 204) {
 			return true;
@@ -2253,7 +2241,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/followers");
 		url.searchParams.append("broadcaster_id", channelId);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"GET",
 			headers:this.headers,
 		});
@@ -2348,7 +2336,7 @@ export default class TwitchUtils {
 		url.searchParams.append("user_id", user.id);
 		if(comment) url.searchParams.append("description", comment);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"POST",
 			headers:this.headers,
 		});
@@ -2387,7 +2375,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads");
 		url.searchParams.append("broadcaster_id", user.id);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"GET",
 			headers:this.headers,
 		});
@@ -2465,7 +2453,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads/schedule/snooze");
 		url.searchParams.append("broadcaster_id", user.id);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"POST",
 			headers:this.headers,
 		});
@@ -2501,7 +2489,7 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+ (onlyActive? "users/extensions" : "users/extensions/list"));
 		url.searchParams.append("user_id", user.id);
 		
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"GET",
 			headers:this.headers,
 		});
@@ -2530,7 +2518,7 @@ export default class TwitchUtils {
 			active:enabled,
 		}
 
-		const res = await fetch(url, {
+		const res = await this.callApi(url, {
 			method:"PUT",
 			headers:this.headers,
 			body:JSON.stringify({data:body}),
@@ -3066,6 +3054,28 @@ export default class TwitchUtils {
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
 		await Utils.promisedTimeout(resetDate - Date.now() + Math.random() * 5000);
+	}
+
+	/**
+	 * Calls an endpoint.
+	 * If it returns a 401, attempt to refresh auth token and call the endpoint again
+	 */
+	private static async callApi(input: RequestInfo | URL, init?: RequestInit | undefined):Promise<Response> {
+		let result = await fetch(input, init);
+		
+		//Session still valid, return result
+		if(result.status != 401) return result;
+
+		//Session expired
+		let res:false | TwitchDataTypes.AuthTokenResult = false;
+		try {
+			//Refresh session
+			res = await StoreProxy.auth.twitch_tokenRefresh(true);
+		}catch(error) {}
+		if(res === false) return result;
+
+		//Try to call endpoint again with fresh new token
+		return await fetch(input, init);
 	}
 
 }

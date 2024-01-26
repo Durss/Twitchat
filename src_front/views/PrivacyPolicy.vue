@@ -557,11 +557,9 @@ export default class PrivacyPolicy extends Vue {
 		this.auhtenticating = true;
 		this.$store.auth.twitch_tokenRefresh(false)
 		.then(result => {
-			console.log("AUTH RESULT", result);
 			this.auhtenticated = result != undefined;
 			this.auhtenticating = false;
 			DataStore.set("redirect", this.$route.name, false);
-			console.log(this.$route.name);
 		}).catch(() => {
 			this.auhtenticated = false;
 			this.auhtenticating = false;

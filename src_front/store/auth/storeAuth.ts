@@ -54,7 +54,7 @@ export const storeAuth = defineStore('auth', {
 					twitchAuthResult	= res.json;
 				}catch(error) {
 					if(callback) callback(false);
-					return;
+					return false;
 				}
 				this.twitch.access_token	= twitchAuthResult.access_token;
 				this.twitch.expires_in		= twitchAuthResult.expires_in;
@@ -83,7 +83,8 @@ export const storeAuth = defineStore('auth', {
 				if(callback) callback(true);
 				return twitchAuthResult;
 			}
-			return;
+			if(callback) callback(false);
+			return false;
 		},
 
 		async twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void) {

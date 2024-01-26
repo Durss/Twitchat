@@ -67,6 +67,10 @@ export default class ApiController {
 		if(retryOnFail && res.status != 200 && res.status != 204 && attemptIndex < 5 && res.status != 401) {
 			await Utils.promisedTimeout(1000);
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
+		}else
+		if(res.status == 401) {
+			await StoreProxy.auth.twitch_tokenRefresh(true);
+			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}
 		return {status:res.status, json};
 	}
