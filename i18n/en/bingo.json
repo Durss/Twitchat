@@ -40,7 +40,7 @@
 		},
 		"state":{
 			"title":"Bingo",
-			"winners":"Winner",
+			"winner":"Winner",
 			"closeBt":"Close bingo"
 		}
 	}

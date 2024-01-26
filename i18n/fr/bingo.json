@@ -1,6 +1,5 @@
 {
 	"bingo": {
-			
 		"goal_emote":"Trouver une emote globale de Twitch",
 		"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
 		"goal_custom":"",
