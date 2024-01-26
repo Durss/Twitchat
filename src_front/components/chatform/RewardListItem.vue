@@ -1,7 +1,8 @@
 <template>
 	<div :class="classes">
 		<div class="infos" :style="styles">
-			<img :src="icon" alt="">
+			<img :src="icon" alt="reward icon">
+
 			<contenteditable class="cost" tag="p"
 				:no-nl="true"
 				:no-html="true"
@@ -9,11 +10,13 @@
 				:contenteditable="manageable !== false"
 				@blur="validateCostValue()"
 				@keydown="onKeyDown($event)" />
+
 			<div class="indicators" v-if="reward.is_paused || !reward.is_enabled">
 				<Icon name="pause" class="indicator" v-if="reward.is_paused" v-tooltip="$t('rewards.manage.pause_tt')" />
 				<Icon name="ban" class="indicator" v-if="!reward.is_enabled" v-tooltip="$t('rewards.manage.disable_tt')" />
 			</div>
 		</div>
+
 		<contenteditable class="title" tag="p"
 			:no-nl="true"
 			:no-html="true"
@@ -133,8 +136,9 @@ export default class RewardListItem extends Vue {
 	public async updateTitle():Promise<void> {
 		this.localTitle = this.localTitle.substring(0,45);
 		if(this.localTitle == this.reward.title) return;
+		
 		this.loading = true;
-		if(await TwitchUtils.updateReward(this.reward.id, {title: this.reward.title})) {
+		if(await TwitchUtils.updateReward(this.reward.id, {title: this.localTitle})) {
 			this.reward.title = this.localTitle;
 		}else{
 			this.localTitle = this.reward.title;
