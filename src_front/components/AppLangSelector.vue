@@ -12,7 +12,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
 import StoreProxy from '@/store/StoreProxy';
 
@@ -23,7 +23,12 @@ import StoreProxy from '@/store/StoreProxy';
 })
 export default class AppLangSelector extends Vue {
 
+	@Prop({default:false, type:Boolean})
+	public allLocales!:boolean;
+
 	public get enabledLocales():string[] {
+		if(this.allLocales !== false) return this.$i18n.availableLocales;
+		
 		return this.$i18n.availableLocales.filter(v=> {
 			let root:any = StoreProxy.i18n.getLocaleMessage(v);
 			return root.global.lang_enabled;

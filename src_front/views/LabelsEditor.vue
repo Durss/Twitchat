@@ -4,7 +4,7 @@
 			<!-- <select v-model="locale">
 				<option :value="lang" v-for="lang in $i18n.availableLocales">{{ $t('global.lang_label', lang)}}</option>
 			</select> -->
-			<AppLangSelector class="langSelector" />
+			<AppLangSelector class="langSelector" allLocales />
 			<div class="sectionList">
 				<TTButton v-for="(value, key) in labels"
 				:selected="selectedSectionKey == key"
