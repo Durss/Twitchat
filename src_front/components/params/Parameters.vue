@@ -17,7 +17,7 @@
 				
 				<div class="editBtHolder">
 					<TTButton class="editModeBt" primary
-						@click="editPins = !editPins;"
+						@click="editPins = !editPins; hideCTA();"
 						v-tooltip="$t('params.customize_sections_tt')"
 						:icon="editPins? 'unpin' : 'pin'" />
 
