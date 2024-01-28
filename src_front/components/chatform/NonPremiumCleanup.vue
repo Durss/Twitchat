@@ -14,7 +14,7 @@
 				v-if="$store.triggers.triggerList.length > 0">
 					<template #right_actions>
 						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.triggers.triggerList.filter(v=>v.enabled === true && $store.triggers.triggerIdToFolderEnabled[v.id] === true).length}}/{{ $config.MAX_TRIGGERS }}</strong>
+						<strong>{{$store.triggers.triggerList.filter(v=>v.enabled === true && $store.triggers.triggerIdToFolderEnabled[v.id] !== false).length}}/{{ $config.MAX_TRIGGERS }}</strong>
 					</template>
 					<div class="itemList">
 						<TriggerListFolderItem
@@ -164,6 +164,8 @@ import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.v
 import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
+import StoreProxy from '@/store/StoreProxy';
+import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -179,10 +181,10 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 })
 export default class NonPremiumCleanup extends Vue {
 
-	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled === true && this.$store.triggers.triggerIdToFolderEnabled[v.id] === true).length <= this.$config.MAX_TRIGGERS; }
+	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length <= this.$config.MAX_TRIGGERS; }
 	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
 	public get valuesOK():boolean { return this.$store.values.valueList.filter(v=>v.enabled !== false).length <= this.$config.MAX_VALUES; }
-	public get heatOK():boolean { return this.$store.heat.screenList.filter(v=>v.enabled === true).length <= this.$config.MAX_CUSTOM_HEAT_SCREENS; }
+	public get heatOK():boolean { return this.$store.heat.screenList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_HEAT_SCREENS; }
 	public get badgesOK():boolean { return this.$store.users.customBadgeList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_BADGES; }
 	public get badgesUserOK():boolean { return Object.keys(this.$store.users.customUserBadges).length <= this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION; }
 	public get usernamesOK():boolean { return Object.keys(this.$store.users.customUsernames).length <= this.$config.MAX_CUSTOM_USERNAMES; }
@@ -237,8 +239,15 @@ export default class NonPremiumCleanup extends Vue {
 		this.$store.values.valueList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
 		this.$store.users.customBadgeList.forEach(v=> v.enabled = v.enabled === undefined? true : v.enabled);
 
+		// console.log(StoreProxy.counters.counterList.filter(v=>v.enabled != false).length > Config.instance.MAX_COUNTERS);
+		// console.log(StoreProxy.values.valueList.filter(v=>v.enabled != false).length > Config.instance.MAX_VALUES);
+		// console.log(this.triggerList.length, StoreProxy.triggers.triggerList.filter(v=>v.enabled != false).length > Config.instance.MAX_TRIGGERS);
+		// console.log(StoreProxy.heat.screenList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_HEAT_SCREENS);
+		// console.log(StoreProxy.users.customBadgeList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_BADGES);
+		// console.log(Object.keys(StoreProxy.users.customUserBadges).length > Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION);
+		// console.log(Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES);
+		// console.log(StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS);
 		
-
 		//Build folder structure
 		const triggerList = this.$store.triggers.triggerList;
 		const idToHasFolder:{[key:string]:boolean} = {};
@@ -250,7 +259,7 @@ export default class NonPremiumCleanup extends Vue {
 		})
 		
 		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
-			const res:(TriggerListEntry|TriggerListFolderEntry)[] = []
+			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 			for (let i = 0; i < items.length; i++) {
 				const item = items[i];
 				if(item.type == "folder") {
@@ -273,6 +282,12 @@ export default class NonPremiumCleanup extends Vue {
 			return res;
 		}
 		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
+		for (let i = 0; i < this.triggerList.length; i++) {
+			const t = this.triggerList[i];
+			if(!done[t.id]) {
+				this.folderTriggerList.push(t);
+			}
+		}
 	}
 
 	public async close():Promise<void> {

@@ -18,7 +18,7 @@
 	
 			<div class="card-item secondary noArea" v-else>
 				<span class="label">{{ $t("triggers.actions.heat.no_area") }}</span>
-				<Button @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
+				<Button secondary light @click="openHeatParams()">{{ $t("triggers.actions.heat.create_areaBt") }}</Button>
 			</div>
 		</template>
 
@@ -82,7 +82,7 @@ export default class TriggerActionHeatParams extends Vue {
 	@Prop
 	public obsSources!:OBSSourceItem[];
 	
-	public param_clickSource:TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]> = {type:"list", value:"obs", listValues:[], labelKey:"heat.click_source", icon:"click"};
+	public param_clickSource:TwitchatDataTypes.ParameterData<TriggerData["heatClickSource"]> = {type:"list", value:"all", listValues:[], labelKey:"heat.click_source", icon:"click"};
 	public param_obsSources:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[], labelKey:"heat.obs_source", icon:"obs"};
 	public param_allowAnon:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"heat.param_anon", icon:"anon", tooltipKey:"heat.anonymous"};
 	public param_globalCD:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, icon:"timeout", min:0, max:60*60*12, labelKey:"triggers.actions.chat.param_globalCD" };

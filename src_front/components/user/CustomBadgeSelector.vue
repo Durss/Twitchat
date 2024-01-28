@@ -64,8 +64,8 @@ export default class CustomBadgeSelector extends Vue {
 
 		Utils.fileToBase64Img(files[0]).then(base64Img=> {
 			const badgeId = this.$store.users.createCustomBadge(base64Img);
-			if(badgeId !== false) {
-				this.$store.users.giveCustomBadge(this.user!, badgeId as string, this.channelId);
+			if(badgeId !== false && this.user) {
+				this.$store.users.giveCustomBadge(this.user, badgeId as string, this.channelId);
 			}
 			input.value = "";
 		});
