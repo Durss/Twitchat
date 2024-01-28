@@ -34,7 +34,7 @@
 			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 			
 			<Button class="item center" icon="add" premium @click="expandPremiumInfo = true"
-			v-else-if="!expandPremiumInfo">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			v-else-if="!expandPremiumInfo && !isPremium">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
 
 			<div class="card-item maximumReached" v-else>
 				<p class="label">

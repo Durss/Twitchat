@@ -204,6 +204,7 @@
 			"install_instructions":"<ul><li>Set width to twice the viewport size (ex: 3840px for 1920px stream).</li><li>Set height to viewport's height (ex: 1080px).</li><li>Hide the source out of screen</li><li>Set framerate to 60fps</li><li>Add Shadertastic filter to the scene<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"select_target":"Select the OBS item you want the effect to be applied to",
 			"select_scene":"<- Select a scene",
+			"premium_locked": "Disable another distortion or become premium to enable this one",
 			"max_reached": "You've reached the maximum distorsion overlay you can create.\nBecome premium to create up to {COUNT} distortions.",
 			"add_overlay": "Create new distortion",
 			"param_enabled": "Distortion enabled",

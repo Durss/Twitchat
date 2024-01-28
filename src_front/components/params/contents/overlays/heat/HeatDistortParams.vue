@@ -29,7 +29,8 @@
 	class="distortionEntry"
 	:style="{opacity:modelValue.enabled? 1 : .5}">
 		<template #left_actions>
-			<ToggleButton v-model="modelValue.enabled" big />
+			<ToggleButton v-model="modelValue.enabled" big @change="onToggleState()" v-if="canEnable" />
+			<Icon name="premium" v-else v-tooltip="$t('overlay.heatDistort.premium_locked')" />
 		</template>
 
 		<template #right_actions>
@@ -59,18 +60,19 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
+import HeatSocket from '@/utils/twitch/HeatSocket';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
 import OverlayInstaller from '../OverlayInstaller.vue';
-import HeatSocket from '@/utils/twitch/HeatSocket';
-import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
@@ -100,6 +102,8 @@ export default class HeatDistortParams extends Vue {
 	private obsEventHandler!:()=>void;
 
 	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
+	
+	public get canEnable():boolean { return this.modelValue.enabled || this.$store.heat.distortionList.filter(v=>v.enabled).length < Config.instance.MAX_DISTORTION_OVERLAYS; }
 
 	public get sourcePathLabel():string {
 		const chunks:string[] = [];
@@ -193,6 +197,15 @@ export default class HeatDistortParams extends Vue {
 					HeatSocket.instance.fireEvent(uid, px, py, false, false, false);
 				}, 250 * i);
 			}
+		}
+	}
+
+	public onToggleState():void {
+		if(this.$store.auth.isPremium) return;
+		if(this.$store.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS) {
+			this.$nextTick().then(()=>{
+				this.modelValue.enabled = false;
+			});
 		}
 	}
 }
