@@ -101,7 +101,7 @@
 				"user_watch_streak": "Consecutive watch streak",
 				"stream_online": "Stream online/offline",
 				"hype_chat": "Hype chat",
-				"ad_break_start_chat": "Lancement manuel de publicité"
+				"ad_break_start_chat": "Ad break started manually"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
