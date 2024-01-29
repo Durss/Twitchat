@@ -31,6 +31,7 @@ export default class AppLangSelector extends Vue {
 		
 		return this.$i18n.availableLocales.filter(v=> {
 			let root:any = StoreProxy.i18n.getLocaleMessage(v);
+			if(!root.global) return false;
 			return root.global.lang_enabled;
 		})
 	}
