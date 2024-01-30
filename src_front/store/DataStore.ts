@@ -1134,7 +1134,7 @@ export default class DataStore {
 					delete a.show;
 				}
 				//Convert delays to dedicated actions
-				if(a.delay && a.delay > 0) {
+				if(a.delay && typeof a.delay == "number" && a.delay > 0) {
 					const newAction:TriggerActionDelayData = { delay:a.delay!, id:Utils.getUUID(), type:"delay"};
 					t.actions.splice(i+1, 0, newAction);
 					i++;//Skip newly added action
