@@ -282,7 +282,7 @@ export interface TriggerActionData {
 	/**
 	 * @deprecated moved to a dedicated action
 	 */
-	delay?:number;
+	delay?:number|string;
 }
 
 //Used for temporary trigger data before user selects the trigger type

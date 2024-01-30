@@ -275,6 +275,7 @@
 			:premium="premiumOnlyLocal"
 			:alert="alert || errorLocal"
 			noBackground
+			noPremiumLock
 			:autoFade="autoFade"
 			:childLevel="childLevel+1" />
 
@@ -295,18 +296,17 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
+import CountryFlag from 'vue-country-flag-next';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
 import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
+import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
-import Utils from '@/utils/Utils';
-import CountryFlag from 'vue-country-flag-next';
-import { isReactive, reactive } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -401,7 +401,6 @@ export default class ParamItem extends Vue {
 		const res = ["paramitem"];
 		if(this.noBackground === false) {
 			res.push("card-item");
-			if(this.premiumOnlyLocal !== false) res.push("premium");
 		}else{
 			res.push("no-bg");
 		}
@@ -419,6 +418,7 @@ export default class ParamItem extends Vue {
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
 		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
+		if(this.premiumOnlyLocal !== false) res.push("premium");
 		res.push("level_"+this.childLevel);
 		return res;
 	}
@@ -588,7 +588,7 @@ export default class ParamItem extends Vue {
 		//Force a model value update.
 		//This is necessary for default values to be applied to the
 		//v-model value on first render.
-		if(this.modelValue != this.paramData.value) this.onEdit();
+		if(this.modelValue != null && this.modelValue != this.paramData.value) this.onEdit();
 	}
 
 	/**
@@ -1110,17 +1110,13 @@ export default class ParamItem extends Vue {
 	}
 
 	&.popoutMode {
-		.placeholders {
+		position: relative;
+		.placeholders{
 			position: absolute;
 			right: 0;
 			// top: 2px;
 			top: calc(50%);
 			transform: translateY(-50%);
-			border-top-right-radius: var(--border-radius);
-			border-bottom-right-radius: var(--border-radius);
-			background-color: var(--color-secondary);
-			overflow: hidden;
-			display: flex;
 			height: calc(100% - 4px);
 		}
 		.inputHolder {

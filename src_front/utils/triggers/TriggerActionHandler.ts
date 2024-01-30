@@ -935,8 +935,16 @@ export default class TriggerActionHandler {
 				// console.log("	Parse step", step);
 				//Handle delay action
 				if(step.type == "delay") {
-					logStep.messages.push({date:Date.now(), value:"Wait for "+ step.delay.toString()+"s..."});
-					await Utils.promisedTimeout(step.delay * 1000);
+					let delay = 0;
+					if(typeof step.delay == "string") {
+						logStep.messages.push({date:Date.now(), value:"Delay value is the placeholder "+step.delay+", parse it."});
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.delay, subEvent);
+						delay = parseFloat(text) || 0;
+					}else{
+						delay = step.delay;	
+					}
+					logStep.messages.push({date:Date.now(), value:"Wait for "+ delay+"s..."});
+					await Utils.promisedTimeout(delay * 1000);
 				}else
 				
 				//Handle OBS action

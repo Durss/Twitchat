@@ -235,6 +235,11 @@ export default class PlaceholderSelector extends Vue {
 .placeholderselector{
 
 	&.popoutMode {
+		border-top-right-radius: var(--border-radius);
+		border-bottom-right-radius: var(--border-radius);
+		background-color: var(--color-secondary);
+		overflow: hidden;
+		display: flex;
 		.tooltipOpener{
 			color:var(--color-light);
 			display: block;

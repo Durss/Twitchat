@@ -7,12 +7,12 @@
 		<div class="obsSceneName" v-if="screen.activeOBSScene"><Icon name="obs" />{{ screen.activeOBSScene }}</div>
 
 		<div class="enableBt" v-if="selectAreaMode === false && canEnable">
-			<ToggleButton v-model="screen.enabled" @change="$emit('update')" />
+			<ToggleButton v-model="screen.enabled" @change="$emit('update')" :alert="!screen.enabled" />
 		</div>
 		
 		<div class="ctas" v-if="selectAreaMode === false">
 			<button v-tooltip="$t('global.edit')"><Icon name="edit" theme="primary"/></button>
-			<button @click.stop="$emit('duplicate', screen.id)" v-tooltip="$t('global.duplicate')"><Icon name="copy" theme="primary"/></button>
+			<button @click.stop="$emit('duplicate', screen.id)" v-tooltip="$t('global.duplicate')" v-if="canDuplicate !== false"><Icon name="copy" theme="primary"/></button>
 			<button @click.stop="$emit('delete', screen.id)" v-tooltip="$t('global.delete')"><Icon name="trash" theme="alert"/></button>
 		</div>
 	</div>
@@ -41,6 +41,9 @@ export default class HeatScreenPreview extends Vue {
 
 	@Prop({default:[]})
 	public selectedAreas!:string[];
+
+	@Prop({default:false, type:Boolean})
+	public canDuplicate!:boolean;
 
 	public get classes():string[] {
 		const res = ["heatscreenpreview"];
@@ -125,6 +128,7 @@ export default class HeatScreenPreview extends Vue {
 		padding: 3px;
 		border-top-left-radius: var(--border-radius);
 		border-top-right-radius: var(--border-radius);
+		color: var(--color-text-inverse);
 	}
 
 	&:hover {

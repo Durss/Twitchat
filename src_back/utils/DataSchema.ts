@@ -243,9 +243,14 @@ import Ajv from "ajv";
 										{type:"boolean"},
 									]
 								},
+								delay: {
+									anyOf:[
+										{type:"string", maxLength:50},
+										{type:"number", minimum:0 , maximum:99999}
+									]
+								},
 								action: {type:"string", maxLength:20},
 								triggerId: {type:"string", maxLength:50},
-								delay: {type:"number", minimum:0 , maximum:99999},
 								filterName: {type:"string", maxLength:100},
 								text: {type:"string", maxLength:1000},
 								url: {type:"string", maxLength:1000},
@@ -305,7 +310,7 @@ import Ajv from "ajv";
 										".{8}-.{4}-.{4}-.{4}-.{12}": {type: "string"},
 									},
 								},
-								placeholder:{type:"string", maxLength:20},
+								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:20},
 								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},

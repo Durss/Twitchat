@@ -6,7 +6,7 @@
 
 		<img src="@/assets/icons/timer.svg" class="icon">
 
-		<div>
+		<div v-if="!isNaN(parseFloat(delay_local))">
 			<contenteditable class="input" tag="span" ref="input"
 				:contenteditable="true"
 				v-model="delay_local"
@@ -18,35 +18,52 @@
 			<span>s</span>
 		</div>
 
-		<Button class="deleteBt" alert icon="trash" @click="$emit('delete')" />
+		<TTButton v-else icon="trash" small secondary @click="delay_local = '0'">{{ delay_local }}</TTButton>
+		
+		<PlaceholderSelector class="placeholders" v-if="placeholderList?.length > 0"
+			:placeholders="placeholderList"
+			:secondary="true"
+			:popoutMode="true"
+			@insert="insertTag"
+		/>
+
+		<TTButton class="deleteBt" alert icon="trash" @click="$emit('delete')" />
 	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
-import type { TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
+import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
+import type { ITriggerPlaceholder, TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import contenteditable from 'vue-contenteditable';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop } from 'vue-facing-decorator';
+import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		contenteditable,
+		PlaceholderSelector,
 	},
 	emits:["delete"],
 })
-export default class TriggerActionDelayEntry extends Vue {
+export default class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 
 	@Prop
-	public action!:TriggerActionTypes;
+	declare action:TriggerActionTypes;
+	
 	@Prop
-	public triggerData!:TriggerData;
+	declare triggerData:TriggerData;
 
+	
 	public delay_local:string = "0";
+	public placeholderList:TwitchatDataTypes.PlaceholderEntry[] = [];
 
 	public beforeMount():void {
+		super.beforeMount();
 		if(!this.action.delay) this.action.delay = 0;
 		this.delay_local = this.action.delay!.toString();
 	}
@@ -61,7 +78,7 @@ export default class TriggerActionDelayEntry extends Vue {
 			case "ArrowUp": add = 1; break;
 			case "ArrowDown": add = -1; break;
 		}
-		if(add != 0) {
+		if(add != 0 && typeof this.action.delay === "number") {
 			this.action.delay! += add;
 			this.delay_local = this.action.delay!.toString();
 			this.validateValue();
@@ -73,6 +90,7 @@ export default class TriggerActionDelayEntry extends Vue {
 	 */
 	public setFocus():void {
 		const ce = this.$refs.input as Vue;
+		if(!ce) return;
 		(ce.$el as HTMLInputElement).focus()
 	}
 
@@ -88,6 +106,21 @@ export default class TriggerActionDelayEntry extends Vue {
 		if(isNaN(v)) v = 0;
 		this.action.delay = v;
 		this.delay_local = v.toString();
+	}
+
+	/**
+	 * Called when inserting a placeholder's tag
+	 */
+	public insertTag(tag:string):void {
+		this.delay_local = tag;
+		this.action.delay = tag;
+	}
+
+	/**
+	 * Called when the available placeholder list is updated
+	 */
+	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
+		this.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 	
 }
@@ -108,6 +141,8 @@ export default class TriggerActionDelayEntry extends Vue {
 	gap: .5em;
 	line-height: 1.5em;
 	box-shadow: 0px 1px 1px rgba(0,0,0,0.25);
+	position: relative;
+
 	.icon {
 		height: 1em;
 	}
@@ -127,6 +162,12 @@ export default class TriggerActionDelayEntry extends Vue {
 		&:active {
 			cursor: grabbing;
 		}
+	}
+	.placeholders {
+		align-self: stretch;
+		border-radius: 0;
+		flex-shrink: 0;
+		margin-right: -.5em;
 	}
 }
 </style>

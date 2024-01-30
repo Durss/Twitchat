@@ -20,7 +20,8 @@
 						@update="editScreen(element, true)"
 						@click="editScreen(element)"
 						@delete="deleteScreen"
-						@duplicate="duplicateScreen" />
+						@duplicate="duplicateScreen"
+						:canDuplicate="canCreateScreens" />
 				</template>
 				<template #footer>
 					<Button class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></Button>
@@ -43,7 +44,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
 import draggable from 'vuedraggable';

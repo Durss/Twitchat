@@ -174,6 +174,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 				this.addVoiceTolist(v, img);
 			});
 		}
+		this.saveData();
 	}
 	
 	/**
@@ -204,19 +205,17 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 	 */
 	private prefill():void {
 		const params:TwitchatDataTypes.VoicemodParamsData = this.$store.voice.voicemodParams;
-		this.param_enabled.value = this.$store.voice.voicemodParams.enabled === true;
-		if(params.enabled === true) {
-			this.param_enabled.value = true;
-			this.param_voiceIndicator.value = params.voiceIndicator;
+		this.param_enabled.value = params.enabled === true;
+		
+		this.param_voiceIndicator.value = params.voiceIndicator;
 
-			const storedPermissions = params.chatCmdPerms;
-			this.permissions.mods = storedPermissions?.mods;
-			this.permissions.vips = storedPermissions?.vips;
-			this.permissions.subs = storedPermissions?.subs;
-			this.permissions.all = storedPermissions?.all;
-			this.permissions.usersAllowed = storedPermissions?.usersAllowed;
-			this.permissions.usersRefused = storedPermissions?.usersRefused;
-		}
+		const storedPermissions = params.chatCmdPerms;
+		this.permissions.mods = storedPermissions?.mods;
+		this.permissions.vips = storedPermissions?.vips;
+		this.permissions.subs = storedPermissions?.subs;
+		this.permissions.all = storedPermissions?.all;
+		this.permissions.usersAllowed = storedPermissions?.usersAllowed;
+		this.permissions.usersRefused = storedPermissions?.usersRefused;
 	}
 
 	private addVoiceTolist(v:VoicemodTypes.Voice, img?:string):void {

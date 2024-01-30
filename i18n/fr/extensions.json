@@ -7,7 +7,7 @@
 		"type_panel":"Panneau",
 		"type_overlay":"Overlay",
 		"type_mobile":"Mobile",
-		"type_component":"Componsant",
+		"type_component":"Composant",
 		"update_error":"Une erreur est survenue lors de la mise à jour de l'extension"
 	}
 }
