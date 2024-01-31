@@ -7,6 +7,10 @@
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
+			<div class="presets" v-if="predictionHistory.length > 0">
+				<TTButton @click="selectPreset(item)" v-for="item in predictionHistory" v-tooltip="'•'+item.options.join('\n•')+'\n('+item.duration+'s)'">{{item.title}}</TTButton>
+			</div>
+
 			<form  @submit.prevent="submitForm()">
 				<div class="card-item">
 					<ParamItem :paramData="param_title"
@@ -32,7 +36,7 @@
 								@change="onValueChange()">
 							<div class="len">{{answers[index].length}}/25</div>
 						</div>
-						<Button :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
+						<TTButton :aria-label="$t('prediction.form.outcome_delete_aria')" class="deleteBt"
 							icon="cross"
 							type="button"
 							alert small
@@ -48,10 +52,10 @@
 				</div>
 
 				<div class="card-item">
-					<ParamItem noBackground :paramData="voteDuration" @change="onValueChange()" />
+					<ParamItem noBackground :paramData="param_duration" @change="onValueChange()" />
 				</div>
 				
-				<Button type="submit" v-if="triggerMode === false" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</Button>
+				<TTButton type="submit" v-if="triggerMode === false" :loading="loading" :disabled="!canSubmit">{{ $t('global.submit') }}</TTButton>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -77,7 +81,7 @@ import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ClearButton,
 		PlaceholderSelector,
@@ -105,8 +109,9 @@ export default class PredictionForm extends AbstractSidePanel {
 	public title = "";
 	public answers:string[] = ["", ""];
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
-	public voteDuration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30, labelKey:"prediction.form.vote_duration"};
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
+	public predictionHistory:{title:string, duration:number, options:string[]}[] = [];
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -136,7 +141,6 @@ export default class PredictionForm extends AbstractSidePanel {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.voteDuration.labelKey = 'prediction.form.vote_duration';
 		if(this.$store.main.tempStoreValue) {
 			const titlePrefill = this.$store.main.tempStoreValue as string;
 			if(titlePrefill) this.title = titlePrefill;
@@ -147,16 +151,22 @@ export default class PredictionForm extends AbstractSidePanel {
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
 			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10;
-			this.voteDuration.value = d;
+			this.param_duration.value = d;
 		}
 
 		if(this.triggerMode && this.action.predictionData) {
-			this.voteDuration.value = this.action.predictionData.voteDuration;
+			this.param_duration.value = this.action.predictionData.voteDuration;
 			this.title = this.action.predictionData.title;
 			for (let i = 0; i < this.action.predictionData.answers.length; i++) {
 				this.answers[i] = this.action.predictionData.answers[i];
 			}
 		}
+
+		TwitchUtils.getPredictions(StoreProxy.auth.twitch.user.id).then(pred=>{
+			this.predictionHistory = pred.map(v => {
+				return {title:v.title, duration:v.prediction_window, options:v.outcomes.map(c=>c.title)};
+			})
+		});
 	}
 
 	public async mounted():Promise<void> {
@@ -207,14 +217,14 @@ export default class PredictionForm extends AbstractSidePanel {
 		const answers = this.answers.filter(v => v.length > 0);
 
 		try {
-			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.voteDuration.value * 60);
+			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.param_duration.value * 60);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
 			return;
 		}
 		this.loading = false;
-		DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, this.voteDuration.value);
+		DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, this.param_duration.value);
 		super.close();
 	}
 
@@ -226,8 +236,21 @@ export default class PredictionForm extends AbstractSidePanel {
 			this.action.predictionData = {
 				title:this.title,
 				answers:this.answers.filter(v=> v.length > 0),
-				voteDuration:this.voteDuration.value,
+				voteDuration:this.param_duration.value,
 			};
+		}
+	}
+
+	/**
+	 * Selects a poll's preset
+	 * @param params 
+	 */
+	public selectPreset(params:typeof this.predictionHistory[number]):void {
+		this.param_title.value = params.title;
+		this.param_duration.value = params.duration / 60;
+		this.answers = params.options.concat();
+		while(this.answers.length < 5) {
+			this.answers.push("");
 		}
 	}
 
@@ -237,75 +260,88 @@ export default class PredictionForm extends AbstractSidePanel {
 <style scoped lang="less">
 .predictionform{
 
-	.content > form {
-		.card-item {
-			.questionInput {
-				flex-basis: unset;
-				text-align: left;
-			}
-			&.answers {
-				gap:5px;
-				display: flex;
-				flex-direction: column;
-				label {
-					display: block;
-					margin-bottom: .5em;
+	.content {
+		.presets {
+			row-gap: .5em;
+			column-gap: .2em;
+			display: flex;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+			max-height: 5em;
+			overflow-y: auto;
+		}
+		form{
+			.card-item {
+				.questionInput {
+					flex-basis: unset;
+					text-align: left;
 				}
-				.answer {
-					flex-grow: 1;
+				&.answers {
+					gap:5px;
 					display: flex;
-					flex-direction: row;
-					&.red {
-						.inputHolder {
-							input {
-								@c:#f50e9b;
-								// color: @c;
-								border-color: @c;
-							}
-						}
+					flex-direction: column;
+					label {
+						display: block;
+						margin-bottom: .5em;
 					}
-					&.disabled {
-						.inputHolder {
-							input {
-								@c:#727272;
-								color: @c;
-								border-color: @c;
-							}
-						}
-					}
-					.inputHolder {
-						position: relative;
+					.answer {
 						flex-grow: 1;
-						input {
-							width: 100%;
-							min-width: 0;
-							border-width: 3px;
-							text-align: left;
-							@c:#3798ff;
-							// color: @c;
-							color: var(--color-text);
-							border: 2px solid @c;
-							text-shadow: var(--text-shadow-contrast);
+						display: flex;
+						flex-direction: row;
+						&.red {
+							.inputHolder {
+								input {
+									@c:#f50e9b;
+									// color: @c;
+									border-color: @c;
+								}
+							}
 						}
-						.len {
-							font-size: .7em;
-							position: absolute;
-							right: .5em;
-							top: 50%;
-							transform: translateY(-50%);
+						&.disabled {
+							.inputHolder {
+								input {
+									@c:#727272;
+									color: @c;
+									border-color: @c;
+								}
+							}
+						}
+						.inputHolder {
+							position: relative;
+							flex-grow: 1;
+							input {
+								width: 100%;
+								min-width: 0;
+								border-width: 3px;
+								text-align: left;
+								@c:#3798ff;
+								// color: @c;
+								color: var(--color-text);
+								border: 2px solid @c;
+								text-shadow: var(--text-shadow-contrast);
+							}
+							.len {
+								font-size: .7em;
+								position: absolute;
+								right: .5em;
+								top: 50%;
+								transform: translateY(-50%);
+							}
+						}
+						&:has(.deleteBt) {
+							input {
+								border-top-right-radius: 0;
+								border-bottom-right-radius: 0;
+							}
 						}
 					}
-					&:has(.deleteBt) {
-						input {
-							border-top-right-radius: 0;
-							border-bottom-right-radius: 0;
-						}
+					.deleteBt {
+						border-top-left-radius: 0;
+						border-bottom-left-radius: 0;
+						width: 2em;
 					}
-				}
-				.deleteBt {
-					border-top-left-radius: 0;
-					border-bottom-left-radius: 0;
-					width: 2em;
 				}
 			}
 		}

@@ -8,6 +8,10 @@
 		<div class="content">
 			<VoiceGlobalCommandsHelper v-if="voiceControl !== false" class="voiceHelper" />
 
+			<div class="presets" v-if="pollHistory.length > 0">
+				<TTButton @click="selectPreset(item)" v-for="item in pollHistory" v-tooltip="'•'+item.options.join('\n•')+'\n('+item.duration+'s)'">{{item.title}}</TTButton>
+			</div>
+
 			<form @submit.prevent="submitForm()">
 				<ParamItem :paramData="param_title"
 					v-model="title"
@@ -33,9 +37,9 @@
 				</ParamItem>
 				<ParamItem :paramData="param_duration" @change="onValueChange()" />
 				
-				<Button type="submit" v-if="triggerMode === false"
+				<TTButton type="submit" v-if="triggerMode === false"
 				:loading="loading"
-				:disabled="title.length < 1 || answers.filter(v=> v.trim().length > 0).length < 2">{{ $t('global.submit') }}</Button>
+				:disabled="title.length < 1 || answers.filter(v=> v.trim().length > 0).length < 2">{{ $t('global.submit') }}</TTButton>
 				<div class="errorCard" v-if="error" @click="error = ''">{{error}}</div>
 			</form>
 		</div>
@@ -60,7 +64,7 @@ import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 		ClearButton,
 		PlaceholderSelector,
@@ -88,10 +92,11 @@ export default class PollForm extends AbstractSidePanel {
 	public title = "";
 	public answers:string[] = ["","","","",""];
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
-	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean"};
-	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30};
+	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"poll.form.additional_votes", icon:"add"};
+	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints", labelKey:"poll.form.additional_votes_amount"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30, labelKey:"poll.form.vote_duration", icon:"timer"};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
+	public pollHistory:{title:string, duration:number, options:string[], channelPoints:number}[] = [];
 
 	private voiceController!:FormVoiceControllHelper;
 
@@ -102,9 +107,6 @@ export default class PollForm extends AbstractSidePanel {
 	}
 
 	public async beforeMount():Promise<void> {
-		this.param_extraVotes.labelKey	= "poll.form.additional_votes";
-		this.param_points.labelKey		= 'poll.form.additional_votes_amount';
-		this.param_duration.labelKey	= 'poll.form.vote_duration';
 
 		if(this.$store.main.tempStoreValue) {
 			const titlePrefill = this.$store.main.tempStoreValue as string;
@@ -129,6 +131,12 @@ export default class PollForm extends AbstractSidePanel {
 				this.answers[i] = this.action.pollData.answers[i];
 			}
 		}
+
+		TwitchUtils.getPolls(StoreProxy.auth.twitch.user.id).then(polls=>{
+			this.pollHistory = polls.map(v => {
+				return {title:v.title, duration:v.duration, channelPoints:v.channel_points_voting_enabled? v.channel_points_per_vote : 0, options:v.choices.map(c=>c.title)};
+			})
+		});
 	}
 
 	public async mounted():Promise<void> {
@@ -187,34 +195,62 @@ export default class PollForm extends AbstractSidePanel {
 			};
 		}
 	}
+
+	/**
+	 * Selects a poll's preset
+	 * @param params 
+	 */
+	public selectPreset(params:typeof this.pollHistory[number]):void {
+		this.param_title.value = params.title;
+		this.param_duration.value = params.duration / 60;
+		this.param_extraVotes.value = params.channelPoints > 0;
+		this.param_points.value = params.channelPoints;
+		this.answers = params.options.concat();
+		while(this.answers.length < 5) {
+			this.answers.push("");
+		}
+	}
 }
 </script>
 
 <style scoped lang="less">
 .pollform{
-	.content > form > .card-item {
-		.field {
-			flex-grow: 1;
-			position: relative;
-			input {
-				width: 100%;
-				padding-right: 3em;
-			}
-			.len {
-				font-size: .7em;
-				position: absolute;
-				right: .5em;
-				top: 50%;
-				transform: translateY(-50%);
-			}
-		}
-		&.answers{
-			gap:5px;
+	.content{
+		.presets {
+			row-gap: .5em;
+			column-gap: .2em;
 			display: flex;
-			flex-direction: column;
-			label {
-				display: block;
-				margin-bottom: .5em;
+			flex-direction: row;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: center;
+			max-height: 5em;
+			overflow-y: auto;
+		}
+		form > .card-item {
+			.field {
+				flex-grow: 1;
+				position: relative;
+				input {
+					width: 100%;
+					padding-right: 3em;
+				}
+				.len {
+					font-size: .7em;
+					position: absolute;
+					right: .5em;
+					top: 50%;
+					transform: translateY(-50%);
+				}
+			}
+			&.answers{
+				gap:5px;
+				display: flex;
+				flex-direction: column;
+				label {
+					display: block;
+					margin-bottom: .5em;
+				}
 			}
 		}
 	}
