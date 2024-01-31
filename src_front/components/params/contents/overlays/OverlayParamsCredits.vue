@@ -52,7 +52,7 @@
 									icon="premium" premium
 									v-tooltip="$t('premium.become_premiumBt')"
 									@click.prevent="openPremium()" /> -->
-									<TTButton class="scrollBt" icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(index)" v-tooltip="$t('overlay.credits.scroll_tt')" />
+									<TTButton class="scrollBt" icon="scroll" v-if="element.enabled && overlayExists" secondary @click.stop="scrollTo(element.id)" v-tooltip="$t('overlay.credits.scroll_tt')" />
 									<TTButton class="deleteBt" icon="trash" @click.stop="deleteSlot(element)" alert />
 								</div>
 							</template>
@@ -292,8 +292,8 @@ export default class OverlayParamsCredits extends Vue {
 		slots:[],
 	};
 
-	private checkInterval!:number;
-	private subcheckTimeout!:number;
+	private checkInterval:number = -1;
+	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 	private broadcastDebounce:number = -1;
 
@@ -562,8 +562,8 @@ export default class OverlayParamsCredits extends Vue {
 	/**
 	 * Scrolls to 
 	 */
-	public async scrollTo(index:number):Promise<void> {
-		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:index});
+	public async scrollTo(id:string):Promise<void> {
+		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:id});
 	}
 
 	/**

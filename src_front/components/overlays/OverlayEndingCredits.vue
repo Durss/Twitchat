@@ -1,7 +1,7 @@
 <template>
 	<div class="overlayendingcredits" v-if="data && slotList && !noEntry" :style="styles" ref="holder">
 		<template v-for="item in slotList">
-			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem">
+			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem" :id="'item_'+item.params.id">
 				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
 				<div data-list class="list" :style="item.entryStyles">
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
@@ -154,7 +154,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private entryCountCache:{[key:string]:number} = {}
 	private prevTs:number = 0;
 	private scrollStarted_at:number = 0;
-	private fixedScrollIndex:number = -1;
+	private fixedScrollId:string = "";
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -256,9 +256,9 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	public getCheers(item:TwitchatDataTypes.EndingCreditsSlotParams) {
 		let res:TwitchatDataTypes.StreamSummaryData["bits"][0][] = [];
 		const cheers = this.data?.bits || [];
-		if(item.showPinnedCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === true))
-		if(item.showNormalCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === false))
-		return res;
+		if(item.showPinnedCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === true));
+		if(item.showNormalCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === false));
+		return this.makeUnique(item, res);
 	}
 
 	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
@@ -471,6 +471,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 				let val:keyTypeNumber = "bits";
 				mergeKey = key as keyof T;
 				valueKey = val as keyof T;
+				console.log("Merge", mergeKey, valueKey);
 				break;
 			}
 			case "raids": {
@@ -506,16 +507,20 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	 * Used to control speed
 	 */
 	private async onControl(e:TwitchatEvent):Promise<void> {
-		const data = (e.data as unknown) as {speed?:number, next?:boolean, prev?:boolean, scrollTo?:number}
+		const data = (e.data as unknown) as {speed?:number, next?:boolean, prev?:boolean, scrollTo?:string}
 		if(data.speed != undefined) {
 			this.speedScaleInc = data.speed;
 		}
 		if(data.scrollTo != undefined) {
-			this.interpolating = this.fixedScrollIndex != data.scrollTo;
+			this.interpolating = this.fixedScrollId != data.scrollTo;
 			if(this.interpolating) {
-				this.fixedScrollIndex = data.scrollTo;
-				const lists = this.$refs.listItem as HTMLDivElement[];
-				const bounds = lists[data.scrollTo].getBoundingClientRect();
+				const bounds = document.getElementById("item_"+data.scrollTo)?.getBoundingClientRect();
+				if(!bounds) {
+					//Item not found, cancel interpolation
+					this.interpolating = false;
+					return;
+				}
+				this.fixedScrollId = data.scrollTo;
 				const tween = {y:0};
 				const offset = this.posY;
 				let targetYPos = window.innerHeight * .2;
@@ -525,7 +530,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 					// this.interpolating = false;
 				}});
 			}else{
-				this.fixedScrollIndex = -1;
+				this.fixedScrollId = "";
 			}
 		}
 		if(data.next === true || data.prev === true) {
@@ -610,7 +615,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		this.display = false;
 		if(resetScroll) {
 			this.interpolating = false;
-			this.fixedScrollIndex = -1;
+			this.fixedScrollId = "";
 			clearTimeout(this.startDelayTimeout)
 			cancelAnimationFrame(this.animFrame);
 		}
