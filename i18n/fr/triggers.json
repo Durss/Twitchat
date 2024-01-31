@@ -193,6 +193,21 @@
 				"param_limit_duration":"Limiter la durée maximum autorisée",
 				"param_max_duration":"N'autoriser que les morceaux de moins de {VALUE}s",
 				"param_playlist": "Playlist (nom, URL ou ID)",
+				"param_selection": "Morceau à sélectionner\n(dans le cas d'une recherche textuelle)",
+				"param_selection_options": {
+					"1":"Le plus pertinent",
+					"2":"Le 2ème plus pertinent",
+					"3":"Le 3ème plus pertinent",
+					"top3":"Au hasard parmi les 3 premiers résultats",
+					"top5":"Au hasard parmi les 5 premiers résultats",
+					"top10":"Au hasard parmi les 10 premiers résultats",
+					"top15":"Au hasard parmi les 15 premiers résultats",
+					"top20":"Au hasard parmi les 20 premiers résultats",
+					"top25":"Au hasard parmi les 25 premiers résultats",
+					"top30":"Au hasard parmi les 30 premiers résultats",
+					"top40":"Au hasard parmi les 40 premiers résultats",
+					"top50":"Au hasard parmi les 50 premiers résultats"
+				},
 				"spotify_only": "Fonctionne uniquement avec Spotify",
 				"fail_reasons": {
 					"spotify_not_connected":"Twitchat n'est pas connecté à Spotify",
@@ -993,7 +1008,7 @@
 				"description": "Actions à exécuter lorsque vous lancez un raid vers une autre chaîne"
 			},
 			"SLASH_COMMAND": {
-				"label": "Slash command personnalisée",
+				"label": "Slash /command personnalisée",
 				"description": "Actions à exécuter lorsque la commande {SUB_ITEM_NAME} est utilisée.{INFO}",
 				"description_info": "Ce type ne commande n'est utilisable que par vous et ne sera pas envoyée dans le tchat."
 			},

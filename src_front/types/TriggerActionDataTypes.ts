@@ -466,6 +466,8 @@ export interface TriggerActionVoicemodData extends TriggerActionData{
 	placeholder:string
 }
 
+export const TriggerActionMusicEntryDataSelectionList = ["1","2","3","top3","top5","top10","top15","top20","top25","top30","top40","top50"] as const;
+export type TriggerActionMusicEntryDataSelection = typeof TriggerActionMusicEntryDataSelectionList[number];
 export interface TriggerActionMusicEntryData extends TriggerActionData{
 	type:"music";
 	/**
@@ -482,6 +484,11 @@ export interface TriggerActionMusicEntryData extends TriggerActionData{
 	 * - a placeholder containing one of the above
 	 */
 	track:string;
+	/**
+	 * When searching for a track by its name, API can return multiple entries
+	 * This field defines which track to pick amongst the API results.
+	 */
+	musicSelectionType:TriggerActionMusicEntryDataSelection;
 	/**
 	 * Message to send on chat when adding a track to the queue
 	 */

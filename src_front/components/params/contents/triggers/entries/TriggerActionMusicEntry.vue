@@ -13,8 +13,9 @@
 	<div class="TriggerActionMusicEntry triggerActionForm" v-else>
 		<ParamItem 								:paramData="param_actions"			v-model="action.musicAction" />
 		<ParamItem v-if="showTrackInput"		:paramData="param_limitDuration"	v-model="action.limitDuration">
-			<ParamItem v-if="showTrackInput"	:paramData="param_maxDuration"		v-model="action.maxDuration" />
+			<ParamItem v-if="showTrackInput"	:paramData="param_maxDuration"		v-model="action.maxDuration" class="child" noBackground />
 		</ParamItem>
+		<ParamItem v-if="showTrackInput"		:paramData="param_selection"		v-model="action.musicSelectionType" />
 		<ParamItem v-if="showTrackInput"		:paramData="param_track"			v-model="action.track" />
 		<ParamItem v-if="showTrackInput"		:paramData="param_confirmSongRequest" v-model="action.confirmMessage" />
 		<ParamItem v-if="showTrackInput"		:paramData="param_failSongRequest"	v-model="action.failMessage" />
@@ -23,7 +24,7 @@
 </template>
 
 <script lang="ts">
-import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue, TriggerActionPlaceholders } from '@/types/TriggerActionDataTypes';
+import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue, TriggerActionPlaceholders, TriggerActionMusicEntryDataSelectionList, type TriggerActionMusicEntryDataSelection } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { Component, Prop } from 'vue-facing-decorator';
@@ -51,6 +52,7 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	public param_confirmSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"checkmark", maxLength:500, labelKey:"triggers.actions.music.param_confirmSongRequest" };
 	public param_failSongRequest:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"{FAIL_REASON}", icon:"cross", maxLength:500, labelKey:"triggers.actions.music.param_failSongRequest" };
 	public param_playlist:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"info", maxLength:500, labelKey:"triggers.actions.music.param_playlist" };
+	public param_selection:TwitchatDataTypes.ParameterData<TriggerActionMusicEntryDataSelection> = { type:"list", value:"1", icon:"search", labelKey:"triggers.actions.music.param_selection" };
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get showTrackInput():boolean { return this.param_actions.value == TriggerMusicTypes.ADD_TRACK_TO_QUEUE; }
@@ -58,14 +60,25 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 
-	public mounted():void {
+	public beforeMount():void {
 		//List all available trigger types
 		let events:TriggerMusicEventType[] = []
 		events.push( {labelKey:"triggers.actions.music.param_actions_default", icon:"music", value:"0", category:TriggerEventTypeCategories.MUSIC} ),
-		
 		events = events.concat(MusicTriggerEvents());
+		
 		this.param_actions.value		= this.action.musicAction? this.action.musicAction : events[0].value;
 		this.param_actions.listValues	= events;
+
+		let selections:TwitchatDataTypes.ParameterDataListValue<TriggerActionMusicEntryDataSelection>[] = []
+		for (let i = 0; i < TriggerActionMusicEntryDataSelectionList.length; i++) {
+			const element = TriggerActionMusicEntryDataSelectionList[i];
+			selections.push({
+				value:element,
+				labelKey:"triggers.actions.music.param_selection_options."+element,
+			})
+		}
+		this.param_selection.value		= this.action.musicSelectionType? this.action.musicSelectionType : selections[0].value;
+		this.param_selection.listValues	= selections;
 
 	}
 

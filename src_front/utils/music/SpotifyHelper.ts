@@ -251,11 +251,15 @@ export default class SpotifyHelper {
 	 * 
 	 * @returns if a track has been found or not
 	 */
-	public async searchTrack(name:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
+	public async searchTrack(name:string, isRetry:boolean = false):Promise<SearchTrackItem[]|null> {
 		const options = {
 			headers:this._headers
 		}
-		const res = await fetch("https://api.spotify.com/v1/search?type=track&q="+encodeURIComponent(name), options);
+		const url = new URL("https://api.spotify.com/v1/search");
+		url.searchParams.set("type", "track");
+		url.searchParams.set("limit", "50");
+		url.searchParams.set("q", name);
+		const res = await fetch(url, options);
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
@@ -269,7 +273,7 @@ export default class SpotifyHelper {
 			if(tracks.items.length == 0) {
 				return null;
 			}else{
-				return tracks.items[0];
+				return tracks.items;
 			}
 		}catch(error) {
 			StoreProxy.music.spotifyConsecutiveErrors ++;

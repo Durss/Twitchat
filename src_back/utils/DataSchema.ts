@@ -267,6 +267,7 @@ import Ajv from "ajv";
 								relativeTransform: {type:"boolean"},
 								type: {type:"string", maxLength:50, nullable: true},
 								musicAction: {type:"string", maxLength:3},
+								musicSelectionType: {enum: ["1","2","3","top3","top5","top10","top15","top20","top25","top30","top40","top50"]},
 								track: {type:"string", maxLength:500},
 								limitDuration: {type:"boolean"},
 								maxDuration: {type:"number", minimum:0 , maximum:3600},

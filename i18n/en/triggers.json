@@ -193,6 +193,21 @@
 				"param_limit_duration":"Limit allowed track duration",
 				"param_max_duration":"Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist (name, link or ID)",
+				"param_selection": "Track result to select\n(for textual searches)",
+				"param_selection_options": {
+					"1":"Most relevant",
+					"2":"2nd most relevant",
+					"3":"3rd most relevant",
+					"top3":"Random track among the first 3 results",
+					"top5":"Random track among the first 5 results",
+					"top10":"Random track among the first 10 results",
+					"top15":"Random track among the first 15 results",
+					"top20":"Random track among the first 20 results",
+					"top25":"Random track among the first 25 results",
+					"top30":"Random track among the first 30 results",
+					"top40":"Random track among the first 40 results",
+					"top50":"Random track among the first 50 results"
+				},
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
 					"spotify_not_connected":"Twitchat is not connected with Spotify",
@@ -993,7 +1008,7 @@
 				"description": "Actions to execute when starting a raid to another channel"
 			},
 			"SLASH_COMMAND": {
-				"label": "Custom slash command",
+				"label": "Custom slash /command",
 				"description": "Actions to execute when using command {SUB_ITEM_NAME}.{INFO}",
 				"description_info": "(Only you can use this type of command and it will never be sent on chat)"
 			},
