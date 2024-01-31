@@ -248,6 +248,7 @@ export default class RewardListItem extends Vue {
 			x: e.x,
 			y: e.y,
 			items: options,
+			closeWhenScroll:false,
 		});
 	}
 

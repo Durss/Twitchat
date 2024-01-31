@@ -95,7 +95,7 @@ export default class RewardsList extends Vue {
 
 	private clickHandler!:(e:MouseEvent) => void;
 
-	public get scopeGranted():boolean { return TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])};
+	public get scopeGranted():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS])};
 
 	public mounted():void {
 		this.open();
