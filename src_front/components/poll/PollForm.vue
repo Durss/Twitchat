@@ -156,7 +156,7 @@ export default class PollForm extends AbstractSidePanel {
 									this.title,
 									this.answers.filter(v=> v.trim().length > 0),
 									this.param_duration.value * 60,
-									this.param_points.value);
+									this.param_extraVotes.value? this.param_points.value : 0);
 		}catch(error:unknown) {
 			this.loading = false;
 			let message = (error as {message:string}).message;
