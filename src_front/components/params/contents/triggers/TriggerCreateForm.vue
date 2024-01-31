@@ -207,10 +207,12 @@ export default class TriggerCreateForm extends Vue {
 	public populate():void {
 		this.eventCategories = [];
 		const triggers = TriggerTypesDefinitionList().concat();
+		const locales = this.$i18n.availableLocales;
 		//Create button/display data for all available triggers
 		let triggerTypeList:TriggerEntry[] = triggers.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
+				searchTerms:locales.map(l => this.$t(v.labelKey, l)),
 				value:v.value,
 				trigger:v,
 				icon:this.$image('icons/'+v.icon+'.svg'),
@@ -221,7 +223,14 @@ export default class TriggerCreateForm extends Vue {
 		if(this.search) {
 			const premiumSearch = this.search.toLowerCase() == "premium"
 			const reg = new RegExp(this.search, "i");
-			triggerTypeList = triggerTypeList.filter(v=> reg.test(v.label) || (premiumSearch && v.trigger?.premium === true));
+			triggerTypeList = triggerTypeList.filter(v=> {
+				if(premiumSearch && v.trigger?.premium === true) return true;
+				let matches = false;
+				v.searchTerms.forEach(v=> {
+					matches ||= reg.test(v);
+				})
+				return matches;
+			});
 		}
 		if(triggerTypeList.length === 0) return;
 		
@@ -355,6 +364,7 @@ export default class TriggerCreateForm extends Vue {
 				const list = this.rewards.map((v):TriggerEntry => {
 					return {
 						label:v.title,
+						searchTerms:[v.title],
 						isCategory:false,
 						value:v.id,
 						background:v.background_color,
@@ -377,6 +387,7 @@ export default class TriggerCreateForm extends Vue {
 				const list = this.obsScenes.map((v):TriggerEntry => {
 					return {
 						label:v.sceneName,
+						searchTerms:[v.sceneName],
 						value:v.sceneName,
 						icon:"",
 						isCategory:false,
@@ -398,6 +409,7 @@ export default class TriggerCreateForm extends Vue {
 				const list = this.obsSources.map((v):TriggerEntry => {
 					return {
 						label:v.sourceName,
+						searchTerms:[v.sourceName],
 						value:v.sourceName,
 						icon:"",
 						isCategory:false,
@@ -418,9 +430,9 @@ export default class TriggerCreateForm extends Vue {
 				this.showLoading = true;
 
 				//Get all OBS sources
-				let list:TriggerEntry[] = this.obsSources.map(v=> {return {label:v.sourceName, value:v.sourceName, isCategory:false, icon:""}});
+				let list:TriggerEntry[] = this.obsSources.map(v=> {return {label:v.sourceName, searchTerms:[v.sourceName], value:v.sourceName, isCategory:false, icon:""}});
 				//Get all OBS inputs
-				list = list.concat( this.obsInputs.map(v=> {return {label:v.inputName, value:v.inputName, isCategory:false, icon:""}}) );
+				list = list.concat( this.obsInputs.map(v=> {return {label:v.inputName, searchTerms:[v.inputName], value:v.inputName, isCategory:false, icon:""}}) );
 
 				//Dedupe entries
 				const entriesDone:{[key:string]:boolean} = {};
@@ -443,6 +455,7 @@ export default class TriggerCreateForm extends Vue {
 					item.subValues = filters.map(v=> {
 										return {
 											label:v.filterName,
+											searchTerms:[v.filterName],
 											value:v.filterName,
 											icon:"",
 											isCategory:false,
@@ -484,6 +497,7 @@ export default class TriggerCreateForm extends Vue {
 				const list = filteredList.map((v):TriggerEntry => {
 					return {
 						label:v.inputName,
+						searchTerms:[v.inputName],
 						value:v.inputName,
 						icon:"",
 						isCategory:false,
@@ -623,6 +637,7 @@ export default class TriggerCreateForm extends Vue {
 		}).map((v):TriggerEntry => {
 			return {
 				label:v.name,
+				searchTerms:[v.name],
 				value:v.id,
 				icon:"",
 				isCategory:false,
@@ -642,6 +657,7 @@ export default class TriggerCreateForm extends Vue {
 		}).map((v):TriggerEntry => {
 			return {
 				label:v.name,
+				searchTerms:[v.name],
 				value:v.id,
 				icon:"",
 				isCategory:false,
@@ -657,6 +673,7 @@ export default class TriggerCreateForm extends Vue {
 
 interface TriggerEntry{
 	label:string;
+	searchTerms:string[];
 	labelSmall?:string;
 	value:string;
 	subValues?:TriggerEntry[];
