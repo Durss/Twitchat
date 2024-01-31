@@ -153,8 +153,8 @@ export default class OverlayParamsBitswall extends Vue {
 		}
 	}
 
-	private checkInterval!:number;
-	private subcheckTimeout!:number;
+	private checkInterval:number = -1;
+	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 	
 	public beforeMount():void {

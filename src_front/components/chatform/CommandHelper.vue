@@ -86,7 +86,7 @@ export default class CommandHelper extends Vue {
 	public param_slowMode:TwitchatDataTypes.ParameterData<boolean>				= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 
 	private ignoreUpdates = false;
-	private adCooldownInterval = 0;
+	private adCooldownInterval = -1;
 
 	public get classes():string[] {
 		const res = ["commandhelper", "blured-background-window"];

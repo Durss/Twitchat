@@ -126,8 +126,8 @@ export default class OverlayParamsHighlight extends Vue {
 	public checkingOverlayPresence = false;
 	public placement:TwitchatDataTypes.ScreenPosition = "bl";
 
-	private checkInterval!:number;
-	private subcheckTimeout!:number;
+	private checkInterval:number = -1;
+	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 	
 	public beforeMount(): void {

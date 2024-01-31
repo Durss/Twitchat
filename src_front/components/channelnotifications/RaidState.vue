@@ -98,7 +98,7 @@ export default class RaidState extends Vue {
 
 	private timerDuration = 90000;
 	private timerStart = 0;
-	private timerInterval!:number;
+	private timerInterval:number = -1;
 
 	public get raidInfo() { return this.$store.stream.currentRaid!; }
 	public get canCancel() {

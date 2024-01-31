@@ -2,6 +2,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { AD_APPROACHING_INTERVALS } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Logger from '@/utils/Logger';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
@@ -11,8 +12,6 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IStreamActions, type IStreamGetters, type IStreamState } from '../StoreProxy';
-import Logger from '@/utils/Logger';
-import ParamsAbout from '@/components/params/contents/ParamsAbout.vue';
 
 const commercialTimeouts:{[key:string]:number[]} = {};
 

@@ -17,8 +17,8 @@ export default class PubSub extends EventDispatcher {
 
 	private static _instance:PubSub;
 	private socket!:WebSocket;
-	private pingInterval!:number;
-	private reconnectTimeout!:number;
+	private pingInterval:number = -1;
+	private reconnectTimeout:number = -1;
 	private hypeTrainApproachingTimer!:number;
 	private hypeTrainProgressTimer!:number;
 	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];

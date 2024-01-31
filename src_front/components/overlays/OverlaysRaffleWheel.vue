@@ -10,7 +10,7 @@
 		:style="listStyles"
 		noScrollbar
 		v-slot="{ item }">
-			<div class="wheel-item">
+			<div class="wheel-item" id="wheel-item">
 				<span class="label">{{ item.label }}</span>
 			</div>
 		</InfiniteList>

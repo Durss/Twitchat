@@ -156,8 +156,8 @@ export default class OverlayParamsAdBreak extends Vue {
 		runningLabel:"{TIMER}s",
 	};
 
-	private checkInterval!:number;
-	private subcheckTimeout!:number;
+	private checkInterval:number = -1;
+	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 
 	public get scopeGranted():boolean{ return TwitchUtils.hasScopes([TwitchScopes.ADS_READ, TwitchScopes.ADS_SNOOZE]);; }

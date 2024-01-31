@@ -185,7 +185,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 		this.buildInterval = setInterval(()=> {
 			this.buildIndex ++;
 			if(this.buildIndex >= this.filteredParams.length) {
-				clearInterval(this.buildIndex);
+				clearInterval(this.buildInterval);
 						
 				//If redirecting to a specific params, highlight it
 				const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;

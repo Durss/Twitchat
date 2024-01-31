@@ -131,7 +131,7 @@ export default class StreamSummary extends AbstractSidePanel {
 	public hypeChats:{[key:string]:number} = {};
 	public userList:UserActivities[] = [];
 
-	private durationInterval:number = 0;
+	private durationInterval:number = -1;
 
 	public async beforeMount():Promise<void> {
 

@@ -17,8 +17,8 @@
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.raffle.css") }}</div>
 				<ul class="cssStructure">
-					<li>.wheel-item { ... }</li>
-					<li>.wheel-item.selected { ... }</li>
+					<li>#wheel-item { ... }</li>
+					<li>#wheel-item.selected { ... }</li>
 				</ul>
 			</ToggleBlock>
 		</section>
@@ -73,8 +73,8 @@ export default class OverlayParamsRaffle extends Vue {
 	public overlayExists = false;
 	public checkingOverlayPresence:boolean = true;
 
-	private checkInterval!:number;
-	private subcheckTimeout!:number;
+	private checkInterval:number = -1;
+	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
 	
 	public mounted():void {

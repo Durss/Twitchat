@@ -28,7 +28,7 @@
 				</i18n-t>
 				<div class="quote reason" v-if="messageData.reason">{{ messageData.reason }}</div>
 			</div>
-			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
+			<Button light alert small icon="unban" :loading="unbanning" v-if="showUnbanBt" @click.stop="unbanUser()">{{ $t("global.moderation_action.unbanBt") }}</Button>
 		</div>
 	</div>
 </template>
