@@ -337,11 +337,7 @@ export default class DataStore {
 			v = 51;
 		}
 		if(v==51) {
-			//Migrate durations to seconds instead of minutes
-			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION));
-			if(!isNaN(d)) DataStore.set(DataStore.POLL_DEFAULT_DURATION, d * 60);
-			d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION));
-			if(!isNaN(d)) DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, d * 60);
+			this.migratePollPredDurations(data);
 			v = latestVersion;
 		}
 
@@ -1561,6 +1557,36 @@ export default class DataStore {
 					t.queue = name;
 					console.log("Set queue to", name);
 				}
+			});
+			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+	
+	/**
+	 * Migrate polls and predictions durations to seconds instead of minutes
+	 * @param data 
+	 */
+	public static migratePollPredDurations(data:any):void {
+		//Migrate default poll duration
+		let d = parseInt(data[DataStore.POLL_DEFAULT_DURATION]);
+		if(!isNaN(d)) data[DataStore.POLL_DEFAULT_DURATION] = d * 60;
+
+		//Migrate default prediction duration
+		d = parseInt(data[DataStore.PREDICTION_DEFAULT_DURATION]);
+		if(!isNaN(d)) data[DataStore.PREDICTION_DEFAULT_DURATION] = d * 60;
+		
+		//Migrate durations on triggers
+		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
+		if(triggers && Array.isArray(triggers)) {
+			triggers.forEach(t => {
+				t.actions.forEach(a => {
+					if(a.type == "poll") {
+						a.pollData.voteDuration *= 60;
+					}
+					if(a.type == "prediction") {
+						a.predictionData.voteDuration *= 60;
+					}
+				})
 			});
 			data[DataStore.TRIGGERS] = triggers;
 		}
