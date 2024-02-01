@@ -503,6 +503,8 @@
 			"user": "User name",
 			"user_id": "User ID",
 			"user_avatar": "User avatar URL",
+			"user_list_name": "User names",
+			"user_list_id": "User IDs",
 			"chatter": "Chatter name",
 			"message": "Message content",
 			"message_json": "Message content as JSON",
@@ -1089,6 +1091,14 @@
 			"QNA_DELETE": {
 				"label": "Q&A session deleted",
 				"description": "Actions to execute when a Q&A session is deleted"
+			},
+			"USER_JOIN": {
+				"label": "Users join chat",
+				"description": "Actions to execute when a user joined chat"
+			},
+			"USER_LEAVE": {
+				"label": "Users leave chat",
+				"description": "Actions to execute when a user left chat"
 			}
 		},
 		"musicEvents": {

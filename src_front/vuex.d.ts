@@ -41,7 +41,7 @@ declare module '@vue/runtime-core' {
 		$store: IStore,
 		$config: Config,
 		$image: (path:string) => string,
-		$placeDropdown: (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => void,
+		$placeDropdown: (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => void,
 		$overlayURL: (id:TwitchatDataTypes.OverlayTypes, params?:{k:string, v:string}[]) => string,
 		$confirm: <T>(title: string,
 			description?: string,

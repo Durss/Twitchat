@@ -9,7 +9,7 @@
 		</ParamItem>
 
 		<ParamItem :paramData="param_user" v-if="action.customMessage.user" v-model="action.customMessage.user.name">
-			<ParamItem :paramData="param_userColor" v-model="action.customMessage.user!.color" noBackground class="child" />
+			<ParamItem :paramData="param_userColor" v-model="action.customMessage.user!.color" noBackground class="child" v-if="param_style.value != 'error'" />
 		</ParamItem>
 
 		<ParamItem :paramData="param_message" v-if="action.customMessage.user" v-model="action.customMessage.message" />

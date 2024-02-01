@@ -20,7 +20,6 @@ import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TTButton from '@/components/TTButton.vue';
 import { defineAsyncComponent } from 'vue';
 // import OverlayBitsWall from '@/components/overlays/OverlayBitsWall.vue';
 // const OverlayBitsWall = () => import('@/components/overlays/OverlayBitsWall.vue');
@@ -44,7 +43,6 @@ const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/
 
 @Component({
 	components:{
-		Button: TTButton,
 		OverlayUlule,
 		OverlayTimer,
 		OverlayAdBreak,

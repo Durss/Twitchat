@@ -503,6 +503,8 @@
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
 			"user_avatar": "URL de l'avatar",
+			"user_list_name": "Pseudos",
+			"user_list_id": "IDs utilisateur",
 			"chatter": "Pseudo",
 			"message": "Message",
 			"message_json": "Message au format JSON",
@@ -561,8 +563,8 @@
 			"track_search_query": "Recherche effectuée",
 			"track_added_by": "Pseudo de la personne ayant demandé à ajouter le morceau",
 			"track_added_by_id": "ID de la personne ayant demandé à ajouter le morceau",
-			"playlist_title": "Titre de laplaylist en cours",
-			"playlist_url": "URL de laplaylist en cours",
+			"playlist_title": "Titre de la playlist en cours",
+			"playlist_url": "URL de la playlist en cours",
 			"playlist_cover": "Image de la playlist en cours",
 			"spotify_is_playing": "Spotify est en cours de lecture?",
 			"train_level": "Niveau actuel",
@@ -1089,6 +1091,14 @@
 			"QNA_DELETE": {
 				"label": "Session de Questions/réponses supprimée",
 				"description": "Actions à exécuter lorsqu'une session de Questions/Réponses est supprimée"
+			},
+			"USER_JOIN": {
+				"label": "Arrivée en tchat",
+				"description": "Actions à exécuter lorsque des personnes arrivent dans le tchat"
+			},
+			"USER_LEAVE": {
+				"label": "Départ du tchat",
+				"description": "Actions à exécuter lorsque des personnes quittent le tchat"
 			}
 		},
 		"musicEvents": {

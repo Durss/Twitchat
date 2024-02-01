@@ -192,9 +192,9 @@ function buildApp() {
 	/**
 	 * Global helper to place a dropdown list
 	 */
-	const placeDropdown = (dropdownList:HTMLDivElement, component:Vue, params:{width:string, left:string, top:string}) => {
+	const placeDropdown = (dropdownList:HTMLDivElement, component:{"$refs":{[key:string]:HTMLElement}}, params:{width:string, left:string, top:string}) => {
 		dropdownList.style.width = params.width;
-		const popper = createPopper(component.$refs.toggle as HTMLElement, dropdownList, { placement: "top" })
+		const popper = createPopper(component.$refs.toggle, dropdownList, { placement: "top" })
 		return () => popper.destroy()
 	}
 	

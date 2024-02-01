@@ -489,6 +489,18 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.JOIN:{
+				if(await this.executeTriggersByType(TriggerTypes.USER_JOIN, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.LEAVE:{
+				if(await this.executeTriggersByType(TriggerTypes.USER_LEAVE, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.QNA_START:
 			case TwitchatDataTypes.TwitchatMessageType.QNA_STOP:
 			case TwitchatDataTypes.TwitchatMessageType.QNA_DELETE:{

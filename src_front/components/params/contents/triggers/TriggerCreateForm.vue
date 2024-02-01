@@ -204,12 +204,13 @@ export default class TriggerCreateForm extends Vue {
 	/**
 	 * Populates the form
 	 */
-	public populate():void {
+	public populate(showPrivate:boolean = false):void {
 		this.eventCategories = [];
 		const triggers = TriggerTypesDefinitionList().concat();
 		const locales = this.$i18n.availableLocales;
 		//Create button/display data for all available triggers
-		let triggerTypeList:TriggerEntry[] = triggers.map( v=> {
+		let triggerTypeList:TriggerEntry[] = triggers.filter(v=>(!showPrivate && v.private !== true) || (showPrivate == true && v.private === true))
+		.map( v=> {
 			return {
 				label:this.$t(v.labelKey),
 				searchTerms:locales.map(l => this.$t(v.labelKey, l)),
@@ -220,7 +221,7 @@ export default class TriggerCreateForm extends Vue {
 				newDate:v.newDate,
 			}
 		})
-		if(this.search) {
+		if(this.search && !showPrivate) {
 			const premiumSearch = this.search.toLowerCase() == "premium"
 			const reg = new RegExp(this.search, "i");
 			triggerTypeList = triggerTypeList.filter(v=> {
@@ -666,8 +667,16 @@ export default class TriggerCreateForm extends Vue {
 		this.subtriggerList = list;
 	}
 
+	/**
+	 * Called when searching for triggers
+	 */
 	public onSearch():void {
 		this.populate();
+		Utils.sha256(this.search).then(hash => {
+			if(hash === "09f0654a10e2dc4327e5bb0a2d8c01d703af81422d69b1d1def04bd754b47739") {
+				this.populate(true);
+			}
+		})
 	}
 }
 

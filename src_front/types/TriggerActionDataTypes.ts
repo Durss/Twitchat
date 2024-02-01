@@ -259,6 +259,7 @@ export interface TriggerTypeDefinition extends TwitchatDataTypes.ParameterDataLi
 	testMessageType?:TwitchatDataTypes.TwitchatMessageStringType;
 	testNoticeType?:TwitchatDataTypes.TwitchatNoticeStringType;
 	goxlrMiniCompatible?:boolean;
+	private?:boolean;
 	newDate?:number;
 }
 
@@ -1025,8 +1026,10 @@ export const TriggerTypes = {
 	AD_COMPLETE:"95",
 	TRACK_ADD_TO_QUEUE_FAILED:"96",
 	QNA_START:"97",
-	QNA_STOP:"99",
 	QNA_DELETE:"98",
+	QNA_STOP:"99",
+	USER_JOIN:"100",//private undocument trigger type
+	USER_LEAVE:"101",//private undocument trigger type
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1437,6 +1440,12 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"FX_ENABLED", descKey:'triggers.placeholders.goxlr_fxenabled', pointer:"enabled", numberParsable:false, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRFXEnableChangeData>,
 	];
 
+	map[TriggerTypes.USER_JOIN] =
+	map[TriggerTypes.USER_LEAVE] = [
+		{tag:"USER_IDS", descKey:'triggers.placeholders.user_list_id', pointer:"users.0.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData>,
+		{tag:"USER_NAMES", descKey:'triggers.placeholders.user_list_name', pointer:"users.0.login", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageJoinData|TwitchatDataTypes.MessageLeaveData>,
+	];
+
 	map[TriggerTypes.GOXLR_BUTTON_PRESSED] =
 	map[TriggerTypes.GOXLR_BUTTON_RELEASED] = [
 		{tag:"BUTTON_ID", descKey:'triggers.placeholders.goxlr_button_id', pointer:"button", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageGoXLRButtonData>,
@@ -1634,6 +1643,8 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.USER, icon:"follow", labelKey:"triggers.events.FOLLOW.label", value:TriggerTypes.FOLLOW, descriptionKey:"triggers.events.FOLLOW.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.FOLLOWING},
 		{category:TriggerEventTypeCategories.USER, icon:"raid", labelKey:"triggers.events.RAID.label", value:TriggerTypes.RAID, descriptionKey:"triggers.events.RAID.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID},
 		{category:TriggerEventTypeCategories.USER, icon:"watchStreak", labelKey:"triggers.events.USER_WATCH_STREAK.label", value:TriggerTypes.USER_WATCH_STREAK, descriptionKey:"triggers.events.USER_WATCH_STREAK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK},
+		{category:TriggerEventTypeCategories.USER, icon:"online", labelKey:"triggers.events.USER_JOIN.label", value:TriggerTypes.USER_JOIN, descriptionKey:"triggers.events.USER_JOIN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.JOIN, private:true},
+		{category:TriggerEventTypeCategories.USER, icon:"offline", labelKey:"triggers.events.USER_LEAVE.label", value:TriggerTypes.USER_LEAVE, descriptionKey:"triggers.events.USER_LEAVE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LEAVE, private:true},
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
