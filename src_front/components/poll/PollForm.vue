@@ -94,7 +94,7 @@ export default class PollForm extends AbstractSidePanel {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"poll.form.additional_votes", icon:"add"};
 	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints", labelKey:"poll.form.additional_votes_amount"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2, type:"number", min:1, max:30, labelKey:"poll.form.vote_duration", icon:"timer"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"time", min:15, max:1800, labelKey:"poll.form.vote_duration", icon:"timer"};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public pollHistory:{title:string, duration:number, options:string[], channelPoints:number}[] = [];
 
@@ -118,7 +118,7 @@ export default class PollForm extends AbstractSidePanel {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
-			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2;
+			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
 			this.param_duration.value = d;
 		}
 
@@ -133,9 +133,15 @@ export default class PollForm extends AbstractSidePanel {
 		}
 
 		TwitchUtils.getPolls(StoreProxy.auth.twitch.user.id).then(polls=>{
+			const done:{[key:string]:boolean} = {};
 			this.pollHistory = polls.map(v => {
-				return {title:v.title, duration:v.duration, channelPoints:v.channel_points_voting_enabled? v.channel_points_per_vote : 0, options:v.choices.map(c=>c.title)};
-			})
+				const options = v.choices.map(c=>c.title);
+				const channelPoints = v.channel_points_voting_enabled? v.channel_points_per_vote : 0;
+				let key = v.title+v.duration+channelPoints+options.join(",");
+				if(done[key]) return null;
+				done[key] = true;
+				return {title:v.title, duration:v.duration, channelPoints, options};
+			}).filter(v=> v != null) as typeof this.pollHistory;
 		});
 	}
 
@@ -163,7 +169,7 @@ export default class PollForm extends AbstractSidePanel {
 			await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 									this.title,
 									this.answers.filter(v=> v.trim().length > 0),
-									this.param_duration.value * 60,
+									this.param_duration.value,
 									this.param_extraVotes.value? this.param_points.value : 0);
 		}catch(error:unknown) {
 			this.loading = false;
@@ -202,7 +208,7 @@ export default class PollForm extends AbstractSidePanel {
 	 */
 	public selectPreset(params:typeof this.pollHistory[number]):void {
 		this.param_title.value = params.title;
-		this.param_duration.value = params.duration / 60;
+		this.param_duration.value = params.duration;
 		this.param_extraVotes.value = params.channelPoints > 0;
 		this.param_points.value = params.channelPoints;
 		this.answers = params.options.concat();

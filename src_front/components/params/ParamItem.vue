@@ -80,6 +80,7 @@
 						:maxlength="paramData.maxLength? paramData.maxLength : 524288"
 						:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 						autocomplete="new-password"
+						@blur="clampValue()"
 						@input="$emit('input')">
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
@@ -642,7 +643,7 @@ export default class ParamItem extends Vue {
 			if(list.dropdownOpen) {
 				list.closeSearchOptions();
 			}
-		}
+		}else
 
 		if(this.paramData.type == "imagelist") {
 			if(this.paramData.value === null) this.paramData.value = "";
@@ -664,7 +665,7 @@ export default class ParamItem extends Vue {
 
 		this.$nextTick().then(()=>{
 			this.isLocalUpdate = false;
-		})
+		});
 	}
 
 	/**

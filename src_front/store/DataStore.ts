@@ -156,7 +156,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 51;
+		let latestVersion = 52;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -334,6 +334,14 @@ export default class DataStore {
 		}
 		if(v==50) {
 			this.setDefaultQueuesToTriggers(data);
+			v = 51;
+		}
+		if(v==51) {
+			//Migrate durations to seconds instead of minutes
+			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION));
+			if(!isNaN(d)) DataStore.set(DataStore.POLL_DEFAULT_DURATION, d * 60);
+			d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION));
+			if(!isNaN(d)) DataStore.set(DataStore.PREDICTION_DEFAULT_DURATION, d * 60);
 			v = latestVersion;
 		}
 

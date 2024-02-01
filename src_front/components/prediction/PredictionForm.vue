@@ -109,7 +109,7 @@ export default class PredictionForm extends AbstractSidePanel {
 	public title = "";
 	public answers:string[] = ["", ""];
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:10, type:"number", min:1, max:30, labelKey:"prediction.form.vote_duration"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:10*60, type:"time", min:30, max:1800, labelKey:"prediction.form.vote_duration"};
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:45, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public predictionHistory:{title:string, duration:number, options:string[]}[] = [];
 
@@ -150,7 +150,7 @@ export default class PredictionForm extends AbstractSidePanel {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
-			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10;
+			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
 			this.param_duration.value = d;
 		}
 
@@ -163,9 +163,14 @@ export default class PredictionForm extends AbstractSidePanel {
 		}
 
 		TwitchUtils.getPredictions(StoreProxy.auth.twitch.user.id).then(pred=>{
+			const done:{[key:string]:boolean} = {};
 			this.predictionHistory = pred.map(v => {
-				return {title:v.title, duration:v.prediction_window, options:v.outcomes.map(c=>c.title)};
-			})
+				const options = v.outcomes.map(c=>c.title);
+				let key = v.title+v.prediction_window+options.join(",");
+				if(done[key]) return null;
+				done[key] = true;
+				return {title:v.title, duration:v.prediction_window, options};
+			}).filter(v=> v != null) as typeof this.predictionHistory;
 		});
 	}
 
@@ -217,7 +222,7 @@ export default class PredictionForm extends AbstractSidePanel {
 		const answers = this.answers.filter(v => v.length > 0);
 
 		try {
-			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.param_duration.value * 60);
+			await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id, this.title, answers, this.param_duration.value);
 		}catch(error:unknown) {
 			this.loading = false;
 			this.error = (error as {message:string}).message;
@@ -247,7 +252,7 @@ export default class PredictionForm extends AbstractSidePanel {
 	 */
 	public selectPreset(params:typeof this.predictionHistory[number]):void {
 		this.param_title.value = params.title;
-		this.param_duration.value = params.duration / 60;
+		this.param_duration.value = params.duration;
 		this.answers = params.options.concat();
 		while(this.answers.length < 5) {
 			this.answers.push("");
