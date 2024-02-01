@@ -27,6 +27,8 @@ export default class YoutubeHelper {
 	private _pollMessageTimeout:number = -1;
 	private _pollFollowersTimeout:number = -1;
 	private _pollSubscribersTimeout:number = -1;
+	private _tokenSavingLogDebounce:number =  -1;
+	private _tokenSavingLogDebounceMessageCount:number =  0;
 	private _refreshTimeout:number = -1;
 	private _creditsUsed:number = 0;
 	private _emotes:{[key:string]:string} = {};
@@ -291,6 +293,8 @@ export default class YoutubeHelper {
 	 * Restart automatic message polling
 	 */
 	public restartMessagePoll():void {
+		Logger.instance.log("youtube", {log:"Restart polling chat messages after manual click.", credits: this._creditsUsed, liveID:this._currentLiveId})
+
 		this.tokenSavingEnabled = false;
 		clearTimeout(this._lastChatActivityTimeout);
 		this.getMessages();
@@ -385,6 +389,8 @@ export default class YoutubeHelper {
 				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
 
 				StoreProxy.chat.addMessage(data);
+
+				this._tokenSavingLogDebounceMessageCount ++;
 				this.scheduleTokenSaver();
 			}
 
@@ -744,10 +750,16 @@ export default class YoutubeHelper {
 	private scheduleTokenSaver():void {
 		this.tokenSavingEnabled = false;
 
-		clearTimeout(this._lastChatActivityTimeout);
+		clearTimeout(this._tokenSavingLogDebounce);
+		this._tokenSavingLogDebounce = setTimeout(()=>{
+			Logger.instance.log("youtube", {log:"Received "+this._tokenSavingLogDebounceMessageCount+"messages during the last 10min", credits: this._creditsUsed, liveID:this._currentLiveId})
+			this._tokenSavingLogDebounceMessageCount = 0;
+		}, 10 * 60 * 1000);
 
+		clearTimeout(this._lastChatActivityTimeout);
 		this._lastChatActivityTimeout = setTimeout(()=>{
 			this.tokenSavingEnabled = true;
+			Logger.instance.log("youtube", {log:"Enabling token saving after "+Utils.formatDuration(this._chatInactivityDisconnect)+"s chat inactivity. Received "+this._tokenSavingLogDebounceMessageCount+" messages.", credits: this._creditsUsed, liveID:this._currentLiveId})
 		}, this._chatInactivityDisconnect);
 	}
 }
