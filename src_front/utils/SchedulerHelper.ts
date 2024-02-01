@@ -268,6 +268,8 @@ export default class SchedulerHelper {
 					if(schedule.repeatMinMessages > 0 && e.messageCount < schedule.repeatMinMessages) execute = false;
 					//No min duration and no min message defined, ignore to avoid spam
 					if(schedule.repeatDuration <= 0 && schedule.repeatMinMessages <= 0) execute = false;
+					//schedule next repeat
+					if(execute && schedule.repeatDuration) e.date = Date.now() + schedule.repeatDuration * 1000;
 					break;
 				}
 
@@ -282,7 +284,6 @@ export default class SchedulerHelper {
 			}
 
 			if(execute) {
-				e.date = Date.now() + schedule.repeatDuration * 1000;
 				e.messageCount = 0;
 				if(e.trigger.type == TriggerTypes.TWITCHAT_AD) {
 					DataStore.set(DataStore.TWITCHAT_AD_NEXT_DATE, e.date);
