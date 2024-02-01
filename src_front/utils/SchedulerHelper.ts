@@ -123,7 +123,7 @@ export default class SchedulerHelper {
 							//Schedule for next day if it's a daily event
 							date.setDate(new Date().getDate()+1);
 						}else {
-							//ignore it, low chance a stream lasts 1 moth or 1 year
+							//ignore it, low chance a stream lasts 1 month or 1 year
 							continue;
 						}
 					}
@@ -272,7 +272,7 @@ export default class SchedulerHelper {
 				}
 
 				case TriggerScheduleTypes.SPECIFIC_DATES:{
-					if(schedule.repeatDuration > 0 && Date.now() < e.date) {
+					if(Date.now() < e.date) {
 						execute = false;
 					}else{
 						this._pendingSchedules.splice(i, 1);
