@@ -21,7 +21,7 @@
 				<textarea rows="2" v-model="itemValue" ref="listinput" id="randomEntry_input"
 				:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
 				@keyup.enter.ctrl="addListItem()"></textarea>
-				<Button icon="add" class="addBt" @click="addListItem()" :disabled="!itemValue" />
+				<Button icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
 			</div>
 			
 			<div class="listItem list">
@@ -232,16 +232,22 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	.itemForm {
 		display: flex;
 		margin-top: .5em;
+		&>* {
+			border-radius: 0;
+		}
+		&>*:first-child {
+			border-top-left-radius: var(--border-radius);
+			border-bottom-left-radius: var(--border-radius);
+		}
+		&>*:last-child {
+			border-top-right-radius: var(--border-radius);
+			border-bottom-right-radius: var(--border-radius);
+		}
 		textarea {
 			flex-grow: 1;
 			font-size: 1em;
 			min-height: 3em;
 			resize: vertical;
-		}
-		.addBt {
-			border-radius: var(--border-radius);
-			border-top-left-radius: 0;
-			border-bottom-left-radius: 0;
 		}
 	}
 
