@@ -25,7 +25,7 @@
 			</div>
 			
 			<div class="listItem list">
-				<div v-for="item, index in action.list" class="entry"
+				<div v-for="item, index in action.list" :key="item" class="entry"
 				@click="indexToEditState[index] = true">
 						
 					<button class="action button"
@@ -81,7 +81,7 @@
 			</div>
 		</template>
 	
-		<ParamItem v-if="action.mode != 'trigger'" :paramData="param_placeholder" v-model="action.placeholder" :error="(param_placeholder.value).length === 0" />
+		<ParamItem v-if="action.mode != 'trigger'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
 
 		<i18n-t scope="global" class="card-item primary info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
@@ -186,6 +186,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 	}
 
 	public addListItem():void {
+		this.buildIndex ++;
 		this.action.list.unshift(this.itemValue);
 		this.itemChunks.unshift(TwitchUtils.parseMessageToChunks(this.itemValue, undefined, true));
 		this.itemValue = "";
