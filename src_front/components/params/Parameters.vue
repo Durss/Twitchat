@@ -62,6 +62,8 @@
 				<ThemeSelector class="themeSelector" />
 
 				<mark class="version">v {{appVersion}}</mark>
+
+				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" transparent big icon="discord" />
 			</div>
 		</div>
 			
@@ -721,6 +723,17 @@ interface RawMenuEntry {
 				padding: .5em;
 				font-style: italic;
 				font-size: .8em;
+			}
+
+			.discordBt {
+				height: 2em;
+				max-height: unset;
+				min-height: unset;
+				margin: auto;
+				:deep(.icon) {
+					height: 100%;
+					max-width: unset;
+				}
 			}
 		}
 	}
