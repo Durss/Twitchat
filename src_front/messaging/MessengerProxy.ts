@@ -230,6 +230,7 @@ export default class MessengerProxy {
 		params.forEach((v, i) => { params[i] = v.trim() });
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 		const isAdmin = StoreProxy.auth.twitch.user.is_admin === true;
+		const hasChannelPoints = StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner;
 		
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
@@ -358,7 +359,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/poll") {
-			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS])) {
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_POLLS]) && hasChannelPoints) {
 				//Open poll form
 				const title = params.join(" ");
 				if(title != "title") {
@@ -370,7 +371,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/prediction") {
-			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS])) {
+			if(TwitchUtils.requestScopes([TwitchScopes.MANAGE_PREDICTIONS]) && hasChannelPoints) {
 				//Open prediction form
 				const title = params.join(" ");
 				if(title != "title") {

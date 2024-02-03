@@ -366,6 +366,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					return false;
 				}
 				case "/commercial": {
+					if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return false;
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_COMMERCIAL])) return false;
 					const duration = parseInt(chunks[0]);
 					StoreProxy.stream.startCommercial(channelId, duration, noConfirm);
