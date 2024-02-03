@@ -1,12 +1,14 @@
 import ContextMenu from '@imengyu/vue3-context-menu';
 import '@imengyu/vue3-context-menu/lib/vue3-context-menu.css';
 import { createPopper } from '@popperjs/core';
+import { dedupeIntegration } from "@sentry/integrations";
+import * as Sentry from "@sentry/vue";
 import gsap from 'gsap';
 import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
-import { createApp, type DirectiveBinding, type IStore, type VNode } from 'vue';
+import { createApp, type DirectiveBinding, type IStore, type VNode } from "vue";
 import CountryFlag from 'vue-country-flag-next';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
@@ -41,6 +43,7 @@ import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import { storeQna } from './store/storeQna/storeQna';
 import { storeValues } from './store/storeValues/storeValues';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
@@ -51,7 +54,6 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
-import { storeQna } from './store/storeQna/storeQna';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -363,6 +365,21 @@ function buildApp() {
 	});
 	
 	app.mount('#app');
+
+	if(document.location.hostname != "twitchat.fr") {
+		Sentry.init({
+			app,
+			debug:false,
+			release:"twitchat@"+import.meta.env.PACKAGE_VERSION,
+			dsn: "https://0523bfa89ecd12c501ad6bc66ea6fe71@o4506682942095360.ingest.sentry.io/4506682943668224",
+			integrations: [
+				dedupeIntegration()
+			],
+			//@ts-ignore
+			environment:{"localhost":"local", "beta":"beta.twitchat.fr", "prod":"twitchat.fr"}[document.location.hostname] || document.location.hostname,
+			tracesSampleRate: 1.0,
+		});
+	}
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
 		//Reload labels on CTRL+Shift+L
