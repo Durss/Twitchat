@@ -1580,10 +1580,10 @@ export default class DataStore {
 		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				t.actions.forEach(a => {
-					if(a.type == "poll") {
+					if(a.type == "poll" && a.pollData) {
 						a.pollData.voteDuration *= 60;
 					}
-					if(a.type == "prediction") {
+					if(a.type == "prediction" && a.predictionData) {
 						a.predictionData.voteDuration *= 60;
 					}
 				})
