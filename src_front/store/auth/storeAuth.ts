@@ -221,8 +221,8 @@ export const storeAuth = defineStore('auth', {
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 					//Refresh latest subscriber regularly
 					const loadSubscribers = async ()=>{
-						const res = await TwitchUtils.getSubsList();
-						StoreProxy.stream.totalSubscribers[uid] = res.length;
+						const total = await TwitchUtils.getSubsList(true);
+						StoreProxy.stream.totalSubscribers[uid] = total;
 					};
 					loadSubscribers();
 					setInterval(()=>loadSubscribers(), 5 * 60000);

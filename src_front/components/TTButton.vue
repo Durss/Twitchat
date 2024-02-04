@@ -162,7 +162,6 @@ export default class TTButton extends Vue {
 </script>
 
 <style lang="less" scoped>
-
 .button {
 	.emboss();
 	cursor: pointer;

@@ -21,6 +21,7 @@
 		"log_out": "Déconnexion",
 		"connect": "Connecter",
 		"disconnect": "Déconnecter",
+		"reconnect": "Reconnecter",
 		"start": "Démarrer",
 		"search": "Chercher",
 		"close": "Fermer",

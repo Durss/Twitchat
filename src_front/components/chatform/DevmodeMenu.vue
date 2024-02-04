@@ -64,6 +64,8 @@
 			<Button small @click="restrictUser()" icon="shield">Restrict user</Button>
 			<Button small @click="monitorUser()" icon="shield">Monitor user</Button>
 			<Button small @click="unflagUser()" icon="shield">Unflag user</Button>
+			<Button small @click="simulateEvent($event, 'connect')" icon="online">Chat connected</Button>
+			<Button small @click="simulateEvent($event, 'disconnect')" icon="offline">Chat disconnected</Button>
 			<Button small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</Button>
 			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>

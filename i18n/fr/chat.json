@@ -231,7 +231,7 @@
 		},
 		"connect": {
 			"on": "Bienvenue sur la chaine {PLATFORM} de {ROOM}",
-			"off": "Vous avez été déconnecté·e du tchat {PLATFORM}"
+			"off": "Vous avez été déconnecté·e du tchat {PLATFORM} de {ROOM}"
 		},
 		"clear": {
 			"title": "Salon {ROOM} effacé{USER}",

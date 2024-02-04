@@ -345,7 +345,9 @@ export const storeStream = defineStore('stream', {
 					Logger.instance.log("ads", {
 						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
-					TwitchUtils.startCommercial(data.currentAdDuration_ms/1000, channelId);
+					TwitchUtils.startCommercial(data.currentAdDuration_ms/1000, channelId).catch(errror =>{
+						//ignore
+					});
 				}, remainingTime - 5000);
 				commercialTimeouts[channelId].push(to);
 			}

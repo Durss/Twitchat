@@ -255,6 +255,13 @@ export default class GoogleController extends AbstractController {
 		}
 
 		const params:any = request.query;
+		if(params.langSource == params.langTarget) {
+			Logger.info("Translation impossible because of same language target and source:", params.langSource);
+			response.header('Content-Type', 'application/json');
+			response.status(204);
+			response.send(JSON.stringify({success:true, data:{translation:""}}));
+			return;
+		}
 
 		try {
 
@@ -266,7 +273,7 @@ export default class GoogleController extends AbstractController {
 					q: [params.text],
 				}
 			});
-			//Google typing is wrong. Fix that mistake with this dirty typing
+			//Google typing is wrong. Fixing that mistake with this dirty typing
 			const data = res.data as {data:translate_v2.Schema$TranslationsListResponse};
 			if(data.data.translations) {
 				const translation = data.data.translations[0].translatedText;
@@ -290,6 +297,7 @@ export default class GoogleController extends AbstractController {
 
 		}catch(error) {
 			Logger.error("Translate failed for language "+params.langSource);
+			console.log(error);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"TRANSLATE_FAIL"}));

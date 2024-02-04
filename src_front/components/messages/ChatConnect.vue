@@ -3,14 +3,21 @@
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 		<Icon class="icon" :name="(messageData.type=='connect'? 'checkmark' : 'cross')"/>
 		
-		<i18n-t scope="global" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
-			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
-			<template #ROOM><strong>{{channelName}}</strong></template>
-		</i18n-t>
-
-		<i18n-t scope="global" tag="span" v-else keypath="chat.connect.off">
-			<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
-		</i18n-t>
+		<div class="holder">
+			<i18n-t scope="global" class="label" tag="span" v-if="messageData.type == 'connect'" keypath="chat.connect.on">
+				<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
+				<template #ROOM><strong>{{channelName}}</strong></template>
+			</i18n-t>
+	
+			<template v-else>
+				<i18n-t scope="global" class="label" tag="span" keypath="chat.connect.off">
+					<template #PLATFORM><strong>{{messageData.platform}}</strong></template>
+					<template #ROOM><strong>{{channelName}}</strong></template>
+				</i18n-t>
+		
+				<TTButton v-if="showReconnectBt" icon="online" primary small @click.stop="reconnectChan()">{{ $t("global.reconnect") }}</TTButton>
+			</template>
+		</div>
 	</div>
 </template>
 
@@ -18,9 +25,13 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
+import TTButton from '../TTButton.vue';
+import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 
 @Component({
-	components:{},
+	components:{
+		TTButton,
+	},
 	emits:["onRead"]
 })
 export default class ChatConnect extends AbstractChatMessage {
@@ -30,6 +41,7 @@ export default class ChatConnect extends AbstractChatMessage {
 	
 	public message:string = "";
 	public channelName:string = "";
+	public showReconnectBt:boolean = false;
 
 	public get classes():string[]{
 		const res = ["chatconnect", "chatMessage"];
@@ -49,7 +61,19 @@ export default class ChatConnect extends AbstractChatMessage {
 				this.message = this.$t("chat.connect.off", {PLATFORM:this.messageData.platform})
 			}
 			this.$store.accessibility.setAriaPolite(this.message);
+			if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.DISCONNECT) {
+				setTimeout(()=> {
+					this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(this.messageData.channel_id);
+				}, 2000);
+			}
 		}
+	}
+
+	public async reconnectChan():Promise<void> {
+		this.showReconnectBt = false;
+		const chanId = this.messageData.channel_id;
+		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId)
+		TwitchMessengerClient.instance.connectToChannel(user.login);
 	}
 }
 </script>
@@ -57,5 +81,19 @@ export default class ChatConnect extends AbstractChatMessage {
 <style scoped lang="less">
 .chatconnect{
 	font-style: italic;
+	.holder {
+		gap: 1em;
+		display: inline-flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		row-gap: .25em;
+		align-items: center;
+		flex-grow: 1;
+	
+		.label {
+			flex-basis: 100px;
+			flex-grow: 1;
+		}
+	}
 }
 </style>

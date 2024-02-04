@@ -760,6 +760,19 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.DISCONNECT: {
+					const m:TwitchatDataTypes.MessageDisconnectData = {
+						platform:"twitch",
+						type,
+						id:Utils.getUUID(),
+						date:Date.now(),
+						user:user,
+						channel_id:user.id
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE: {
 					const m:TwitchatDataTypes.MessageOBSSourceToggleData = {
 						platform:"twitch",

@@ -107,7 +107,7 @@
 					<div class="listItem">
 						<div class="dash"></div>
 						<TriggerActionEntry data-noselect
-							:ref="'actionEntry_'+index"
+							:ref="'actionEntry_'+element.id"
 							:class="getActionClasses(element)"
 							:data-actionid="element.id"
 							:action="element"
@@ -371,9 +371,9 @@ export default class TriggerActionList extends Vue {
 	public duplicateAction(action:TriggerActionTypes, index:number):void {
 		const clone:TriggerActionTypes = JSON.parse(JSON.stringify(action));
 		clone.id = Utils.getUUID(),
-		this.triggerData.actions.splice(index, 0, clone);
+		this.triggerData.actions.splice(index+1, 0, clone);
 
-		this.highlightItemIndex(index+1);
+		this.highlightItemById(action.id);
 	}
 
 	/**
@@ -383,11 +383,12 @@ export default class TriggerActionList extends Vue {
 	public addActionAfter(id:string):void {
 		let index = this.triggerData.actions.findIndex(v=>v.id == id);
 		if(index == -1) return;
+		console.log("Add after", id, index);
 		this.addActionAt(index + 1);
 	}
 
 	/**
-	 * Adds an action at the top of the list
+	 * Adds an action at a specific index
 	 * @param id 
 	 */
 	public addActionAt(index:number):void {
@@ -400,7 +401,7 @@ export default class TriggerActionList extends Vue {
 		}
 		this.triggerData.actions.splice(index, 0, action);
 
-		this.highlightItemIndex(index);
+		this.highlightItemById(action.id);
 	}
 
 	private onPointerDown(e:PointerEvent):void {
@@ -530,9 +531,9 @@ export default class TriggerActionList extends Vue {
 		scrollableHolder.scrollTop += this.scrollDir;
 	}
 
-	private async highlightItemIndex(index:number):Promise<void> {
+	private async highlightItemById(id:string):Promise<void> {
 		await this.$nextTick();
-		const ref = (this.$refs["actionEntry_"+index] as Vue).$el;
+		const ref = (this.$refs["actionEntry_"+id] as Vue).$el;
 		if(ref){
 			gsap.from(ref, {duration:.5, overflow:"hidden", width:0, height:0, ease:"back.out", clearProps:"all", onUpdate:()=>{
 				ref.scrollIntoView();

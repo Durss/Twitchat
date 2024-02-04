@@ -17,7 +17,6 @@
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id" :id="'message_' + m.id + '_' + config.order">
 				<div class="fake" v-if="m.fake === true && !$config.DEMO_MODE" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
-				<!-- <span style="font-family:Azaret; opacity: .1; pointer-events:none; background:red; color:#fff; position: absolute; top:0; left:0; z-index: 2; width:100%; height:100%;">{{ m.id }} {{ m.date }}</span> -->
 				<MessageItem :messageData="m"
 					@onRead="toggleMarkRead"
 					@showConversation="openConversation"

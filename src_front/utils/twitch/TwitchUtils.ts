@@ -1021,29 +1021,37 @@ export default class TwitchUtils {
 	 * Gets a list of the current subscribers to the specified channel
 	 * Can only get our own subs
 	 */
-	public static async getSubsList():Promise<TwitchDataTypes.Subscriber[]> {
+	public static async getSubsList(totalOnly: true): Promise<number>;
+	public static async getSubsList(totalOnly: false): Promise<TwitchDataTypes.Subscriber[]>;
+	public static async getSubsList(totalOnly: boolean = false):Promise<TwitchDataTypes.Subscriber[]|number> {
 		if(!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
 		let list:TwitchDataTypes.Subscriber[] = [];
 		let cursor:string|null = null;
+		let total = 0;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"subscriptions");
 			url.searchParams.append("broadcaster_id", channelId);
-			url.searchParams.append("first", "100");
+			if(totalOnly) {
+				url.searchParams.append("first", "1");
+			}else{
+				url.searchParams.append("first", "100");
+			}
 			if(cursor) url.searchParams.append("after", cursor);
 			const res = await this.callApi(url, {
 				method:"GET",
 				headers:this.headers,
 			});
-			const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
+			const json:{data:TwitchDataTypes.Subscriber[], total:number, pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
+			total = json.total;
 			cursor = null;
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
-		}while(cursor != null)
-		return list;
+		}while(cursor != null && !totalOnly)
+		return totalOnly? total : list;
 	}
 
 	/**

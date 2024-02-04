@@ -11,6 +11,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
+import * as Sentry from "@sentry/vue";
 
 /**
 * Created : 25/09/2022 
@@ -21,7 +22,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _client!:tmi.Client;
 	private _connectTimeout:number = -1;
 	private _refreshingToken:boolean = false;
-	private _connected:boolean = false;
+	private _connectedChans:{[key:string]:boolean} = {};
 	private _channelList:string[] = [];
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
@@ -87,9 +88,12 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param anonymous 
 	 */
 	public connectToChannel(channel:string):void {
-		//Already connected to that channel ?
-		if(this._channelList.findIndex(v=>v === channel) > -1) return;
-		
+		//Already connected to IRC, just add the channel
+		if(this._client) {
+			this._client.join(channel);
+			return;
+		}
+
 		this._channelList.push(channel);
 		
 		//Debounce connection calls if calling it for multiple channels at once
@@ -106,6 +110,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			await StoreProxy.users.preloadTwitchModerators(meObj.id);
 			
 			chans.forEach(async v=> {
+				//Skip it if already connected
+				if(this._connectedChans[v.id] === true) return;
+
 				this._channelIdToLogin[v.id] = v.login;
 				this._channelLoginToId[v.login] = v.id;
 
@@ -200,6 +207,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				this.reconnect();
 			}
 		}, 100);
+	}
+
+	/**
+	 * Gets if IRC is connected to the given channel ID
+	 */
+	public getIsConnectedToChannelID(id:string):boolean {
+		return this._connectedChans[id] === true;
 	}
 
 	/**
@@ -724,7 +738,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
-			this._connected = true;
+			this._connectedChans[channel_id] = true;
 		}else{
 
 			if(userState.wasOnline === true) return;//User was already here, don't send join notification
@@ -742,6 +756,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private onLeave(channelName:string, username:string):void {
 		const channel_id = this.getChannelID(channelName);
 		const userState = this.getUserStateFromLogin(username, channel_id);
+		const me = StoreProxy.auth.twitch.user;
 
 		this.dispatchEvent(new MessengerClientEvent("LEAVE", {
 			platform:"twitch",
@@ -751,6 +766,20 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			date:Date.now(),
 			users:[userState.user],
 		}));
+
+		if(this._connectedChans[channel_id] === true && username == me.login) {
+			this._connectedChans[channel_id] = false;
+
+			const eventData:TwitchatDataTypes.MessageDisconnectData = {
+				channel_id,
+				platform:"twitch",
+				id:Utils.getUUID(),
+				type:TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
+				date:Date.now(),
+				user:me,
+			};
+			this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", eventData));
+		}
 	}
 
 	private async onCheer(channel:string, tags:tmi.ChatUserstate, message:string):Promise<void> {
@@ -866,16 +895,19 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 	
 	private disconnected(reason:string):void {
+		const channel_id = StoreProxy.auth.twitch.user.id;
+
 		//Don't show disconnect info if its a reconnect
 		if(this._refreshingToken) return;
 		//Avoid spamming "disconnected from chat" messages
-		if(!this._connected) return;
-		this._connected = false;
+		if(!this._connectedChans[channel_id]) return;
+
+		this._connectedChans[channel_id] = false;
 
 		console.log('Disconnected for reason: ', reason);
 
 		const eventData:TwitchatDataTypes.MessageDisconnectData = {
-			channel_id: StoreProxy.auth.twitch.user.id,
+			channel_id,
 			platform:"twitch",
 			id:Utils.getUUID(),
 			type:TwitchatDataTypes.TwitchatMessageType.DISCONNECT,
@@ -1040,7 +1072,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				}
 				if(message) {
-					this.notice(noticeId, channel, message);
+					if(channel) {
+						this.notice(noticeId, channel, message);
+					}else{
+						Sentry.captureMessage("Received a notice with missing channel ID: "+ parsed.raw, "warning");
+					}
 				}
 				break;
 			}

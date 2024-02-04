@@ -363,8 +363,6 @@ function buildApp() {
 		e.preventDefault();
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
-	
-	app.mount('#app');
 
 	if(document.location.hostname != "twitchat.fr") {
 		Sentry.init({
@@ -378,8 +376,11 @@ function buildApp() {
 			//@ts-ignore
 			environment:{"localhost":"local", "beta":"beta.twitchat.fr", "prod":"twitchat.fr"}[document.location.hostname] || document.location.hostname,
 			tracesSampleRate: 1.0,
+			ignoreErrors: ["reading 'innerText'", "venmo", "OBS is not ready"],
 		});
 	}
+	
+	app.mount('#app');
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
 		//Reload labels on CTRL+Shift+L
