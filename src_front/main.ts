@@ -364,7 +364,13 @@ function buildApp() {
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	if(document.location.hostname != "twitchat.fr") {
+	let sentryEnabled = DataStore.get<"true"|"false"|undefined>(DataStore.AB_SENTRY);
+	if(sentryEnabled === undefined)  {
+		//Target 10% of users
+		sentryEnabled = Math.random() > .9? "true" : "false";
+		DataStore.set(DataStore.AB_SENTRY, sentryEnabled)
+	}
+	if(document.location.hostname != "twitchat.fr" || sentryEnabled === "true") {
 		Sentry.init({
 			app,
 			debug:false,

@@ -91,6 +91,7 @@ export default class DataStore {
 	public static PARAMS_SECTIONS:string = "paramsSections";
 	public static PARAMS_SECTIONS_CTA:string = "paramsSectionsCTA";
 	public static BITS_WALL_PARAMS:string = "bitsWallParams";
+	public static AB_SENTRY:string = "ab_sentry";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -522,9 +523,9 @@ export default class DataStore {
 	 * @param key 
 	 * @returns 
 	 */
-	public static get(key:string):string {
+	public static get<T = string>(key:string):T {
 		if(!this.store) this.init();
-		return this.store.getItem(this.dataPrefix + key) as string;
+		return this.store.getItem(this.dataPrefix + key) as T;
 	}
 
 	/**
