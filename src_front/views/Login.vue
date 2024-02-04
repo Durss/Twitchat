@@ -164,7 +164,10 @@ export default class Login extends Vue {
 
 	public async mounted():Promise<void> {
 		this.isBeta = Config.instance.BETA_MODE;
-		let redirect = this.$router.currentRoute.value.params?.redirect;
+		let redirect:string = "";
+		const routeRedirect = this.$router.currentRoute.value.params?.redirect;
+		if(Array.isArray(routeRedirect)) redirect = routeRedirect[0];
+		else redirect = routeRedirect;
 
 		if(!this.scopeOnly) {
 			if(redirect && redirect != "logout") {
