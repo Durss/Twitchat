@@ -425,7 +425,7 @@ export default class RaffleForm extends AbstractSidePanel {
 		watch(()=>this.param_maxEntries.value, () => this.onValueChange());
 
 		this.pickingEntry = true;
-		this.subs = await TwitchUtils.getSubsList();
+		this.subs = await TwitchUtils.getSubsList(false);
 		this.pickingEntry = false;
 		// this.onValueChange();
 	}
@@ -442,7 +442,7 @@ export default class RaffleForm extends AbstractSidePanel {
 		const payload:TwitchatDataTypes.RaffleData = this.finalData;
 		//Sub mode specifics
 		if(this.mode == "sub") {
-			let subs = Utils.shuffle(await TwitchUtils.getSubsList());
+			let subs = Utils.shuffle(await TwitchUtils.getSubsList(false));
 			let interval = setInterval(()=> {
 				this.winnerTmp = Utils.pickRand(subs).user_name;
 			}, 70)

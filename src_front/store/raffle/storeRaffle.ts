@@ -318,7 +318,7 @@ export const storeRaffle = defineStore('raffle', {
 				//Pick from subs
 				}else if(data.mode == "sub") {
 					const idToExists:{[key:string]:boolean} = {};
-					let subs = await TwitchUtils.getSubsList();
+					let subs = await TwitchUtils.getSubsList(false);
 					subs = subs.filter(v => {
 						//Avoid duplicates
 						if(idToExists[v.user_id] == true) return false;

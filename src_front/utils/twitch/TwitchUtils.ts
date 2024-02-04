@@ -1023,7 +1023,7 @@ export default class TwitchUtils {
 	 */
 	public static async getSubsList(totalOnly: true): Promise<number>;
 	public static async getSubsList(totalOnly: false): Promise<TwitchDataTypes.Subscriber[]>;
-	public static async getSubsList(totalOnly: boolean = false):Promise<TwitchDataTypes.Subscriber[]|number> {
+	public static async getSubsList(totalOnly: boolean):Promise<TwitchDataTypes.Subscriber[]|number> {
 		if(!this.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) return [];
 		
 		const channelId = StoreProxy.auth.twitch.user.id;
