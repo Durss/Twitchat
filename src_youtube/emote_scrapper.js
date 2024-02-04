@@ -4,6 +4,7 @@
  * 
  * To generate the emote_list.json file, go on a youtube live stream, open
  * the emote selector, and run this on the console:
+ * (it may be necessary to reduce the window size width to switch to mobile mode to get proper CSS selector)
 let emojis = document.querySelectorAll(".yt-emoji-picker-category-renderer");
 let map = {};
 for(var i = 0; i < emojis.length; i++) {
@@ -12,13 +13,17 @@ for(var i = 0; i < emojis.length; i++) {
 }
 console.log(map)
  */
-import * as fs from "fs";
-import * as path from "path";
-import {fileURLToPath} from 'url';
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
+const fs = require("fs");
+const path = require("path");
+
+// import * as fs from "fs";
+// import * as path from "path";
+// import {fileURLToPath} from 'url';
+// const __filename = fileURLToPath(import.meta.url);
+// const __dirname = path.dirname(__filename);
 
 const emoteFolder = path.join(__dirname, "../static/youtube/emotes");
+const secretEmotes = path.join(__dirname, "./secret_emotes.json");
 
 if(!fs.existsSync(emoteFolder)) {
 	fs.mkdirSync(emoteFolder, {recursive:true});
@@ -29,8 +34,20 @@ if(!fs.existsSync(emoteFolder+"/hd")) fs.mkdirSync(emoteFolder+"/hd", {recursive
 (async() => {
 	const json = fs.readFileSync(path.join(__dirname, "./emote_list.json"), "utf-8");
 	const emotelist = JSON.parse(json);
+
+	if(fs.existsSync(secretEmotes)) {
+		//Merge undocumented emotes to the global list
+		const emotes = JSON.parse(fs.readFileSync(secretEmotes, "utf-8"));
+		for (const key in emotes) {
+			emotelist[key] = emotes[key];
+		}
+	}
+	
 	const emoteMap = {};
 	for (const key in emotelist) {
+		//Ignore SVGs that are standard emotes probably handled by fonts
+		if(/.*\.svg/.test(emotelist[key])) continue;
+
 		const fileName = key.replace(/\W/gi,"")+".png";
 		const filePathSD = path.join(emoteFolder, "/sd/"+fileName);
 		if(!fs.existsSync(filePathSD)) {
@@ -50,5 +67,6 @@ if(!fs.existsSync(emoteFolder+"/hd")) fs.mkdirSync(emoteFolder+"/hd", {recursive
 
 		emoteMap[key] = fileName;
 	}
+	
 	fs.writeFileSync(path.join(emoteFolder, "../emote_list.json"), JSON.stringify(emoteMap), 'utf-8');
 })();
