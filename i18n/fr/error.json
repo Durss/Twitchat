@@ -77,6 +77,7 @@
 		"youtube_no_broadcast": "Le compte sélectionné n'est pas éligible au streaming live sur Youtube.\nAssurez-vous de vous êtres connecté·e avec le bon compte !",
 		"youtube_no_credits": "Tous les crédits d'API alloués par Youtube ont été dépensés :(.\nLe chat Youtube fonctionnera à nouveau demain.",
 		"youtube_chat_off": "Le tchat n'est pas activé sur la session de live Youtube sélectionnée",
+		"youtube_chat_ended": "La session de live Youtube est terminée. Ouvrez la section paramètres => Youtube pour vous connecter à une nouvelle sessions live.",
 		"youtube_unknown": "Une erreur innatendu est survenue lors de la récupération d'informations chez Youtube :(",
 		"rewards": {
 			"create_unknown":"Une erreur est survenue lors de la création de la récompense",

@@ -1073,7 +1073,9 @@ export default class ParamItem extends Vue {
 			.inputHolder {
 				flex-basis: 100px;
 				flex-grow: unset;
-
+				input::-webkit-datetime-edit-ampm-field {
+					display: none;
+				}
 			}
 			label {
 				margin-top: .4em;
