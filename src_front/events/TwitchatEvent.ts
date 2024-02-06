@@ -68,6 +68,7 @@ export default class TwitchatEvent extends Event {
 	public static SUMMARY_DATA:TwitchatEventType = "SUMMARY_DATA";
 	public static ENDING_CREDITS_CONFIGS:TwitchatEventType = "ENDING_CREDITS_CONFIGS";
 	public static ENDING_CREDITS_CONTROL:TwitchatEventType = "ENDING_CREDITS_CONTROL";
+	public static ENDING_CREDITS_COMPLETE:TwitchatEventType = "ENDING_CREDITS_COMPLETE";
 	public static AD_BREAK_OVERLAY_PRESENCE:TwitchatEventType = "AD_BREAK_OVERLAY_PRESENCE";
 	public static AD_BREAK_OVERLAY_PARAMETERS:TwitchatEventType = "AD_BREAK_OVERLAY_PARAMETERS";
 	public static AD_BREAK_DATA:TwitchatEventType = "AD_BREAK_DATA";
@@ -211,6 +212,7 @@ export const TwitchatEventTypeList = [
 	"SUMMARY_DATA",
 	"ENDING_CREDITS_CONFIGS",
 	"ENDING_CREDITS_CONTROL",
+	"ENDING_CREDITS_COMPLETE",
 	"AD_BREAK_OVERLAY_PRESENCE",
 	"AD_BREAK_OVERLAY_PARAMETERS",
 	"AD_BREAK_DATA",

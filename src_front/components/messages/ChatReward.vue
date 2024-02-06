@@ -7,9 +7,16 @@
 			<div v-for="entry in rewardList" :key="entry.vo.id" class="item">
 				<img :src="getIcon(entry.vo)" alt="reward" class="icon" :style="{backgroundColor:entry.vo.reward.color}">
 
+				<TTButton v-if="entry.vo.message_html == undefined && getCanRefund()"
+				@click.stop="refund()"
+				v-tooltip="entry.count > 1? $t('chat.reward.refundOne_tt') : $t('chat.reward.refund_tt')"
+				class="refundBt"
+				v-newflag="{date:1707175801147, id:'chat.reward.refundBt'}"
+				icon="refundPoints"></TTButton>
+
 				<span class="card-item secondary count" v-if="entry.count > 1">x{{ entry.count }}</span>
 	
-				<i18n-t scope="global" tag="span" keypath="chat.reward">
+				<i18n-t scope="global" tag="span" keypath="chat.reward.message">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard()">{{entry.vo.user.displayName}}</a>
 					</template>
@@ -24,10 +31,22 @@
 				<div class="quote" v-if="$store.params.appearance.showRewardsInfos.value === true && entry.vo.reward.description">{{ entry.vo.reward.description }}</div>
 			</div>
 			
-			<div class="quote" v-if="messageData.message_html">
+			<div class="prompt quote" v-if="messageData.message_html">
+				<TTButton v-if="getCanRefund(messageData)"
+				@click.stop="refund(messageData)"
+				v-tooltip="$t('chat.reward.refund_tt')"
+				class="refundBt"
+				v-newflag="{date:1707175801147, id:'chat.reward.refundBt'}"
+				icon="refundPoints"></TTButton>
 				<ChatMessageChunksParser :chunks="messageData.message_chunks" :channel="messageData.channel_id" :platform="messageData.platform" />
 			</div>
-			<div class="quote" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
+			<div class="prompt quote" v-if="childrenList" v-for="child in childrenList.filter(v=>v.message_html != undefined)" :key="child.id">
+				<TTButton v-if="getCanRefund(child)"
+				@click.stop="refund(child)"
+				v-tooltip="$t('chat.reward.refund_tt')"
+				class="refundBt"
+				v-newflag="{date:1707175801147, id:'chat.reward.refundBt'}"
+				icon="refundPoints"></TTButton>
 				<ChatMessageChunksParser :chunks="child.message_chunks" :channel="child.channel_id" :platform="child.platform" />
 			</div>
 			<MessageTranslation :messageData="messageData" />
@@ -41,9 +60,13 @@ import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import TTButton from '../TTButton.vue';
+import Database from '@/store/Database';
 
 @Component({
 	components:{
+		TTButton,
 		MessageTranslation,
 		ChatMessageChunksParser,
 	},
@@ -56,6 +79,8 @@ export default class ChatReward extends AbstractChatMessage {
 
 	@Prop
 	declare childrenList:TwitchatDataTypes.MessageRewardRedeemData[];
+
+	private refundableIds:{[key:string]:boolean} = {}
 
 	public get rewardList():{count:number, vo:TwitchatDataTypes.MessageRewardRedeemData}[] {
 		const res = [this.messageData];
@@ -85,15 +110,51 @@ export default class ChatReward extends AbstractChatMessage {
 		return res;
 	}
 
-	public getIcon(reward:TwitchatDataTypes.MessageRewardRedeemData):string {
+	public getIcon(message:TwitchatDataTypes.MessageRewardRedeemData):string {
 		let icon = this.$image('icons/channelPoints.svg');
-		const img = reward.reward.icon;
+		const img = message.reward.icon;
 		icon = img.hd || img.sd || icon;
 		return icon;
 	}
 
+	public getCanRefund(message?:TwitchatDataTypes.MessageRewardRedeemData):boolean {
+		if(!message) {
+			const list = [this.messageData];
+			if(this.childrenList) list.push(...this.childrenList);
+			message = list.find(v=>v.refund !== true);
+		}
+		if(!message) return false;
+		return this.refundableIds[message.reward.id] === true && message.redeemId != undefined && message.refund !== true;
+	}
+
+	public mounted():void {
+		TwitchUtils.getRewards(false, true).then(res => {
+			res.forEach(v=> this.refundableIds[v.id] = true)
+		})
+	}
+
 	public openUserCard():void {
 		this.$store.users.openUserCard(this.messageData.user, this.messageData.channel_id);
+	}
+
+	public async refund(message?:TwitchatDataTypes.MessageRewardRedeemData):Promise<void> {
+		if(!message) {
+			const list = [this.messageData];
+			if(this.childrenList) list.push(...this.childrenList);
+			message = list.find(v=>v.refund !== true);
+		}
+		if(!message || !message.redeemId) return;
+		if(!await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id)) {
+			this.$store.main.alert(this.$t("error.rewards.refund_redemption"));
+		}
+		message.refund = true;
+		Database.instance.updateMessage(message);
+	}
+
+	public copyJSON(): void {
+		super.copyJSON();
+		console.log(this.rewardList.length);
+		console.log(this.childrenList);
 	}
 }
 </script>
@@ -115,6 +176,11 @@ export default class ChatReward extends AbstractChatMessage {
 		margin-right: 5px;
 	}
 
+	.refundBt {
+		vertical-align: middle;
+		margin-right: 5px;
+	}
+
 	.count {
 		padding: 3px;
 		margin-right: 5px;
@@ -122,6 +188,10 @@ export default class ChatReward extends AbstractChatMessage {
 
 	.item:not(:last-child) {
 		margin-bottom: 1px;
+	}
+
+	.prompt {
+		margin-top: .25em;
 	}
 }
 </style>

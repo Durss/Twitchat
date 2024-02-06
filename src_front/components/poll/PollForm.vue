@@ -132,7 +132,7 @@ export default class PollForm extends AbstractSidePanel {
 			}
 		}
 
-		TwitchUtils.getPolls(StoreProxy.auth.twitch.user.id).then(polls=>{
+		TwitchUtils.getPolls().then(polls=>{
 			const done:{[key:string]:boolean} = {};
 			this.pollHistory = polls.map(v => {
 				const options = v.choices.map(c=>c.title);

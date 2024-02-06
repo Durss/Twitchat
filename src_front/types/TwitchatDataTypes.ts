@@ -1801,10 +1801,10 @@ export namespace TwitchatDataTypes {
 		VOICEMOD:"voicemod",
 		QNA_STOP:"qna_stop",
 		QNA_START:"qna_start",
-		QNA_DELETE:"qna_delete",
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
+		QNA_DELETE:"qna_delete",
 		CLEAR_CHAT:"clear_chat",
 		CHAT_ALERT:"chat_alert",
 		DISCONNECT:"disconnect",
@@ -1818,6 +1818,7 @@ export namespace TwitchatDataTypes {
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		CREDITS_COMPLETE:"credits_complete",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
@@ -1902,6 +1903,7 @@ export namespace TwitchatDataTypes {
 		room_settings:true,
 		stream_online:true,
 		scope_request:true,
+		credits_complete:false,
 		followbot_list:true,
 		stream_offline:true,
 		ad_break_start:false,
@@ -2041,6 +2043,7 @@ export namespace TwitchatDataTypes {
 									| MessageQnaStartData
 									| MessageQnaStopData
 									| MessageQnaDeleteData
+									| MessageCreditsCompleteData
 	;
 	
 	/**
@@ -2724,6 +2727,10 @@ export namespace TwitchatDataTypes {
 		 * Need to refund it later
 		 */
 		redeemId?:string;
+		/**
+		 * Is redeem refund?
+		 */
+		refund?:boolean
 	}
 
 	/**
@@ -3903,6 +3910,13 @@ export namespace TwitchatDataTypes {
 		 * Q&A session data
 		 */
 		qnaSession:QnaSession;
+	}
+	
+	/**
+	 * Represents a encing credits that completed
+	 */
+	export interface MessageCreditsCompleteData extends AbstractTwitchatMessage {
+		type:"credits_complete";
 	}
 
 }

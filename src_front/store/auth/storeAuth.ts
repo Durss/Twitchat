@@ -28,6 +28,13 @@ export const storeAuth = defineStore('auth', {
 		tiktok:{},
 		facebook:{},
 		twitchModeratedChannels:[] as TwitchDataTypes.ModeratedUser[],
+		lastCheer: {},//channelId => infos
+		lastFollower: {},//channelId => infos
+		lastSubscriber: {},//channelId => infos
+		lastSubgifter: {},//channelId => infos
+		totalFollowers: {},//channelId => infos
+		totalSubscribers: {},//channelId => infos
+		partnerPoints: {},//channelId => infos
 	} as IAuthState),
 	
 	
@@ -208,10 +215,10 @@ export const storeAuth = defineStore('auth', {
 					//Refresh followers count and latest follower regularly
 					const loadFollowers = async ()=>{
 						const res = await TwitchUtils.getLastFollowers(uid);
-						StoreProxy.stream.totalFollowers[uid] = res.total;
+						this.totalFollowers[uid] = res.total;
 						if(res.followers.length > 0) {
 							const last = res.followers[0];
-							StoreProxy.stream.lastFollower[uid] = StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name);
+							this.lastFollower[uid] = StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name);
 						}
 					};
 					loadFollowers();
@@ -221,8 +228,9 @@ export const storeAuth = defineStore('auth', {
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 					//Refresh latest subscriber regularly
 					const loadSubscribers = async ()=>{
-						const total = await TwitchUtils.getSubsList(true);
-						StoreProxy.stream.totalSubscribers[uid] = total;
+						const res = await TwitchUtils.getSubsList(true);
+						this.partnerPoints[uid] = res.points;
+						this.totalSubscribers[uid] = res.subs;
 					};
 					loadSubscribers();
 					setInterval(()=>loadSubscribers(), 5 * 60000);

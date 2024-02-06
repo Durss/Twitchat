@@ -382,7 +382,7 @@ function buildApp() {
 			//@ts-ignore
 			environment:{"localhost":"local", "beta":"beta.twitchat.fr", "prod":"twitchat.fr"}[document.location.hostname] || document.location.hostname,
 			tracesSampleRate: 1.0,
-			ignoreErrors: ["reading 'innerText'", "venmo", "OBS is not ready"],
+			ignoreErrors: ["reading 'innerText'", "venmo", "OBS is not ready", "This is likely a Vue internals bug"],
 		});
 	}
 	

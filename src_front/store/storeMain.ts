@@ -421,6 +421,20 @@ export const storeMain = defineStore("main", {
 			});
 		
 			/**
+			 * Called when asking to toggle message merging
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.ENDING_CREDITS_COMPLETE, (e:TwitchatEvent)=> {
+				const message:TwitchatDataTypes.MessageCreditsCompleteData = {
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date:Date.now(),
+					id:Utils.getUUID(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE,
+				}
+				TriggerActionHandler.instance.execute(message);
+			});
+		
+			/**
 			 * Called when requesting stream summary data
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_SUMMARY_DATA, async (e:TwitchatEvent)=> {

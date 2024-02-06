@@ -158,6 +158,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 
 			.message {
 				word-break: break-word;
+				white-space: pre-line;
 			}
 		}
 	}

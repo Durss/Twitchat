@@ -29,12 +29,6 @@ export const storeStream = defineStore('stream', {
 		roomSettings:{},//channelId => settings
 		currentStreamInfo: {},//channelId => infos
 		raidHistory: [],
-		lastCheer: {},//channelId => infos
-		lastFollower: {},//channelId => infos
-		lastSubscriber: {},//channelId => infos
-		lastSubgifter: {},//channelId => infos
-		totalFollowers: {},//channelId => infos
-		totalSubscribers: {},//channelId => infos
 		// raidHistory: [{
 		// 	uid:"152242149",
 		// 	date:Date.now() - 15*24*3600000

@@ -661,6 +661,7 @@
 			"last_subgifter":"Nom du dernier subgifter",
 			"last_subgifter_id":"ID du dernier subgifter",
 			"total_sub":"Nombre total d'abonné·es actifs·ves",
+			"partner_plus_points":"Nombre de points Partner Plus",
 			"last_follow":"Nom du dernier follower",
 			"last_follow_id":"ID du dernier follower",
 			"total_follow":"Nombre total de followers",
@@ -1099,6 +1100,10 @@
 			"USER_LEAVE": {
 				"label": "Départ du tchat",
 				"description": "Actions à exécuter lorsque des personnes quittent le tchat"
+			},
+			"CREDITS_COMPLETE": {
+				"label": "Credits de fin terminés",
+				"description": "Actions à exécuter lorsque les crédits de fin terminent de défiler"
 			}
 		},
 		"musicEvents": {

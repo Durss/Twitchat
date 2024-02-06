@@ -155,6 +155,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 	private prevTs:number = 0;
 	private scrollStarted_at:number = 0;
 	private fixedScrollId:string = "";
+	private creditsComplete:boolean = false;
 
 	private keyupHandler!:(e:KeyboardEvent)=>void;
 	private controlHandler!:(e:TwitchatEvent) => void;
@@ -705,14 +706,19 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			return;
 		}
 		
-		const fps = Math.min(1000/30, (ts - this.prevTs)); //At least 30fps to cancel random lags i've seen
+		const fps = Math.max(1000/100, Math.min(1000/30, (ts - this.prevTs))); //At least 30fps to cancel random lags i've seen
 		this.prevTs = ts;
 
 		const holder = this.$el as HTMLElement;
 		const bounds = holder.getBoundingClientRect();
 
 		if(this.posY < -bounds.height) {
+			if(!this.creditsComplete) {
+				this.creditsComplete = true;
+				PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_COMPLETE);
+			}
 			if(this.data?.params?.loop === true) {
+				this.creditsComplete = false;
 				this.scrollStarted_at = Date.now();
 				this.posY = window.innerHeight;
 			}
@@ -736,6 +742,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			if(this.posY > window.innerHeight && speed < 0 && this.data?.params?.loop === true) {
 				this.scrollStarted_at = Date.now();
 				this.posY = -bounds.height;
+				console.log("loop top");
 			}
 			//Rewrite the start scroll time depending on the scrolling percent
 			//If credits are configured to scroll completely during a specific

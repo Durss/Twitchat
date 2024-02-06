@@ -661,6 +661,7 @@
 			"last_subgifter":"Last subgifter",
 			"last_subgifter_id":"Last subgifter ID",
 			"total_sub":"Active subscriber count",
+			"partner_plus_points":"Total Partner Plus points",
 			"last_follow":"Last follower",
 			"last_follow_id":"Last follower ID",
 			"total_follow":"Total followers",
@@ -1099,6 +1100,10 @@
 			"USER_LEAVE": {
 				"label": "Users leave chat",
 				"description": "Actions to execute when a user left chat"
+			},
+			"CREDITS_COMPLETE": {
+				"label": "Ending credits complete",
+				"description": "Actions to execute when ending credits overlay completed rolling"
 			}
 		},
 		"musicEvents": {

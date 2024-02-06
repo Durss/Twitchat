@@ -1030,6 +1030,7 @@ export const TriggerTypes = {
 	QNA_STOP:"99",
 	USER_JOIN:"100",//private undocument trigger type
 	USER_LEAVE:"101",//private undocument trigger type
+	CREDITS_COMPLETE:"102",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1548,21 +1549,22 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		
 		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_SUB") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
-			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB", descKey:"triggers.placeholders.last_sub", pointer:"__twitch__.lastSub_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB_ID", descKey:"triggers.placeholders.last_sub_id", pointer:"__twitch__.lastSub_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER", descKey:"triggers.placeholders.last_subgifter", pointer:"__twitch__.lastSubgifter_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_ID", descKey:"triggers.placeholders.last_subgifter_id", pointer:"__twitch__.lastSubgifter_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
-			entry.push({category:"twitch", tag:"TWITCH_TOTAL_SUBS_ACTIVE", descKey:"triggers.placeholders.total_sub", pointer:"__twitch__.totalSubs", numberParsable:false, isUserID:false, globalTag:true, example:"1312"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB", descKey:"triggers.placeholders.last_sub", pointer:"__twitch__.lastsub_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB_ID", descKey:"triggers.placeholders.last_sub_id", pointer:"__twitch__.lastsub_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER", descKey:"triggers.placeholders.last_subgifter", pointer:"__twitch__.lastsubgifter_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_ID", descKey:"triggers.placeholders.last_subgifter_id", pointer:"__twitch__.lastsubgifter_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_TOTAL_SUBS_ACTIVE", descKey:"triggers.placeholders.total_sub", pointer:"__twitch__.totalsubs", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
+			entry.push({category:"twitch", tag:"TWITCH_PARTNER_PLUS_POINTS", descKey:"triggers.placeholders.partner_plus_points", pointer:"__twitch__.partnerpluspoints", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 		}
 		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_FOLLOW") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 			entry.push({category:"twitch", tag:"TWITCH_LAST_FOLLOW", descKey:"triggers.placeholders.last_follow", pointer:"__twitch__.lastFollow_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_FOLLOW_ID", descKey:"triggers.placeholders.last_follow_id", pointer:"__twitch__.lastFollow_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
-			entry.push({category:"twitch", tag:"TWITCH_TOTAL_FOLLOWERS", descKey:"triggers.placeholders.total_follow", pointer:"__twitch__.totalFollowers", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_FOLLOW_ID", descKey:"triggers.placeholders.last_follow_id", pointer:"__twitch__.lastfollow_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_TOTAL_FOLLOWERS", descKey:"triggers.placeholders.total_follow", pointer:"__twitch__.totalfollowers", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 		}
 		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_CHEER") == -1) {
-			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER", descKey:"triggers.placeholders.last_cheer", pointer:"__twitch__.lastCheer_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_ID", descKey:"triggers.placeholders.last_cheer_id", pointer:"__twitch__.lastCheer_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
-			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_AMOUNT", descKey:"triggers.placeholders.last_cheer_amount", pointer:"__twitch__.lastCheer_amount", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER", descKey:"triggers.placeholders.last_cheer", pointer:"__twitch__.lastcheer_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_ID", descKey:"triggers.placeholders.last_cheer_id", pointer:"__twitch__.lastcheer_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_CHEER_AMOUNT", descKey:"triggers.placeholders.last_cheer_amount", pointer:"__twitch__.lastcheer_amount", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 		}
 		
 		//If a music service is available, concat the music service helpers
@@ -1711,6 +1713,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.label", value:TriggerTypes.FOLLOWED_STREAM_ONLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.label", value:TriggerTypes.FOLLOWED_STREAM_OFFLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"minus", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},

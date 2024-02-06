@@ -179,7 +179,11 @@
 			"message": "{USER} a été banni par l'automod après avoir rejoint le tchat parce que son pseudo correspond à la règle : {RULE}"
 		},
 		"community_challenge": "{USER} a contribué avec {COUNT}pts au défi {TITLE} pour un total de {TOTAL}pts.",
-		"reward": "{USER} a acheté la récompense {REWARD} {COST}",
+		"reward": {
+			"message": "{USER} a acheté la récompense {REWARD} {COST}",
+			"refund_tt": "Rembourser",
+			"refundOne_tt": "Rembourser x1"
+		},
 		"subscription": {
 			"sub": "{USER} a pris un abonnement de niveau {TIER}.",
 			"sub_prime": "{USER} a pris un abonnement avec Prime.",

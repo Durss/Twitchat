@@ -1676,7 +1676,7 @@ export default class MessageList extends Vue {
 				if(prevSize + newCast.message_size > maxSizeTotal) return false;
 			}else
 
-			//MMerging 2 rewards from the same user...
+			//Merging rewards from the same user...
 			if(newMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 			&& prevMessage.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
 				//Dont merge rewards with prompts unless they're the same reward type

@@ -82,7 +82,8 @@
 		"rewards": {
 			"create_unknown":"Une erreur est survenue lors de la création de la récompense",
 			"edit_unknown":"Une erreur est survenue lors de l'édition de la récompense",
-			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"Une récompense du même nom est déjà existante"
+			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"Une récompense du même nom est déjà existante",
+			"refund_redemption": "Une erreur est survenue lors du remboursement de la récompense.\nPeut-être a-t-elle déjà été remboursée."
 		}
 	}
 }

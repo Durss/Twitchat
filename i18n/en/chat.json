@@ -179,7 +179,11 @@
 			"message": "{USER} has been banned by automod after joining the chat as their nickname matches the following rule: {RULE}"
 		},
 		"community_challenge":"{USER} contributed {COUNT}pts to the challenge {TITLE}. They contributed {TOTAL}pts total.",
-		"reward": "{USER} redeemed the reward {REWARD} {COST}",
+		"reward": {
+			"message": "{USER} redeemed the reward {REWARD} {COST}",
+			"refund_tt": "Refund",
+			"refundOne_tt": "Refund x1"
+		},
 		"subscription":{
 			"sub": "{USER} subscribed at tier {TIER}.",
 			"sub_prime": "{USER} subscribed with Prime.",

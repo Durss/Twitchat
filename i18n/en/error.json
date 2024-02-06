@@ -82,7 +82,8 @@
 		"rewards": {
 			"create_unknown":"Something went wrong when creating the reward",
 			"edit_unknown":"Something went wrong when editing the reward",
-			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"A reward with this name already exists"
+			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"A reward with this name already exists",
+			"refund_redemption": "Something went wrong when refunding redemption.\nRedemption may have already been refund."
 		}
 	}
 }

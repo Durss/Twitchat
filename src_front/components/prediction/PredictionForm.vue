@@ -162,7 +162,7 @@ export default class PredictionForm extends AbstractSidePanel {
 			}
 		}
 
-		TwitchUtils.getPredictions(StoreProxy.auth.twitch.user.id).then(pred=>{
+		TwitchUtils.getPredictions().then(pred=>{
 			const done:{[key:string]:boolean} = {};
 			this.predictionHistory = pred.map(v => {
 				const options = v.outcomes.map(c=>c.title);

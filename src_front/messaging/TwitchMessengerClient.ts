@@ -74,8 +74,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		try {
 			if(StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner) {
 				const channelId = StoreProxy.auth.twitch.user.id;
-				TwitchUtils.getPolls(channelId);
-				TwitchUtils.getPredictions(channelId);
+				TwitchUtils.getPolls();
+				TwitchUtils.getPredictions();
 			}
 		}catch(e) {
 			//User is probably not an affiliate
