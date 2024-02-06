@@ -364,13 +364,22 @@ function buildApp() {
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	let sentryEnabled = DataStore.get<"true"|"false"|undefined>(DataStore.AB_SENTRY);
-	if(sentryEnabled === undefined)  {
-		//Target 10% of users
-		sentryEnabled = Math.random() > .9? "true" : "false";
-		DataStore.set(DataStore.AB_SENTRY, sentryEnabled)
+	let sentryParam = {v:1, date:Date.now(), enabled:false};
+	let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
+	//Reset old data format
+	if(sentryParamSrc === "true" || sentryParamSrc === "false") sentryParamSrc = null;
+	//Sentry params not yet defined, initialize it
+	if(!sentryParamSrc)  {
+		//Target 20% of users
+		sentryParam.enabled = Math.random() > .8;
+		DataStore.set(DataStore.AB_SENTRY, sentryParam);
+	}else{
+		try {
+			const json = JSON.parse(sentryParamSrc);
+			sentryParam = json;
+		}catch(error) { }
 	}
-	if(document.location.hostname != "twitchat.fr" || sentryEnabled === "true") {
+	if(document.location.hostname != "twitchat.fr" || sentryParam.enabled) {
 		Sentry.init({
 			app,
 			debug:false,

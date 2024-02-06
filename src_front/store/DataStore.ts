@@ -103,6 +103,7 @@ export default class DataStore {
 	 * These values won't be saved to the server
 	 */
 	private static UNSYNCED_DATA:string[] = [
+		this.AB_SENTRY,
 		this.OBS_PASS,
 		this.TWITCH_AUTH_TOKEN,
 		this.SPOTIFY_AUTH_TOKEN,
@@ -523,7 +524,7 @@ export default class DataStore {
 	 * @param key 
 	 * @returns 
 	 */
-	public static get<T = string>(key:string):T {
+	public static get<T = string|null>(key:string):T {
 		if(!this.store) this.init();
 		return this.store.getItem(this.dataPrefix + key) as T;
 	}
