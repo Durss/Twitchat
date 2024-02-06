@@ -610,9 +610,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_gift: false,
 			is_giftUpgrade: false,
 			is_resub: false,
-			months:typeof tags["msg-param-multimonth-duration"] == "string"? parseInt(tags["msg-param-multimonth-duration"]) : -1,
-			streakMonths:typeof tags["msg-param-streak-months"] == "string"? parseInt(tags["msg-param-streak-months"]) : -1,
-			totalSubDuration:typeof tags["msg-param-cumulative-months"] == "string"? parseInt(tags["msg-param-cumulative-months"]) : -1,
+			months:this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1),
+			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], -1),
+			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], -1),
 			raw_data:{tags, methods, message},
 			message_size:0,
 		}
@@ -826,9 +826,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
-		if(typeof tags["msg-param-gift-months"] == "string") {
-			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
-		}
+		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
@@ -842,9 +840,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
 		data.streakMonths = streakMonths;
-		if(typeof tags["msg-param-gift-months"] == "string") {
-			data.months = parseInt(tags["msg-param-gift-months"] ?? "1");
-		}
+		data.months = this.getNumValueFromTag(tags["msg-param-gift-months"], 1);
 		const recipientLogin = tags["msg-param-recipient-user-name"] ?? recipient;
 		const recipientName = tags["msg-param-recipient-display-name"] ?? recipient;
 		const recipientId = tags["msg-param-recipient-id"];
@@ -1038,7 +1034,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
-					const total = typeof tags["msg-param-sender-count"] == "string"? parseInt(tags["msg-param-sender-count"]) : -1;
+					const total = this.getNumValueFromTag(tags["msg-param-sender-count"], -1);
 					// console.log("User", user);
 					// console.log("Channel", channelId);
 					// console.log("Total", total);
@@ -1095,6 +1091,18 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			channel_id: this.getChannelID(channel),
 		};
 		this.dispatchEvent(new MessengerClientEvent("NOTICE", eventData));
+	}
+
+	/**
+	 * Get a number value for an IRC tag
+	 * @param val 
+	 * @param defaultValue 
+	 * @returns 
+	 */
+	private getNumValueFromTag(val:string|number, defaultValue:number):number {
+		if(typeof val == "string") return parseInt(val);
+		if(typeof val == "number") return val;
+		return defaultValue;
 	}
 
 }
