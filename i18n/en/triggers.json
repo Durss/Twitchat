@@ -66,7 +66,7 @@
 		"rewards": {
 			"require": "This trigger needs to {URL}",
 			"require_url": "list your channel point rewards",
-			"all_rewards": "All rewards"
+			"all_rewards": "Any rewards"
 		},
 		"schedule": {
 			"conflict": "A schedule with this name already exists",
