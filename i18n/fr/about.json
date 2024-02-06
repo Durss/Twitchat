@@ -13,6 +13,7 @@
 		"credits_author": "Application créée par {USER}",
 		"credits_sources": "Sources sur {URL}",
 		"credits_sites": "Découvrez mes autres créations et réseaux:",
+		"sentry": "Merci particulier à {LINK} de fournir une licence business gratuite à Twitchat.",
 		"dad": {
 			"title":"À mon père, ce guerrier...",
 			"content":[

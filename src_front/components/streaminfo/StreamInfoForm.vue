@@ -160,7 +160,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 		this.$confirm(this.$t("stream.form_delete_confirm.title"), this.$t("stream.form_delete_confirm.description"))
 		.then(()=>{
 			this.$store.stream.deleteStreamInfoPreset(p);
-		})
+		}).catch(()=>{});
 	}
 
 	/**

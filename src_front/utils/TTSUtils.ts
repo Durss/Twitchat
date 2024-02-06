@@ -331,7 +331,14 @@ export default class TTSUtils {
 				if(!canRead && !force) return "";
 					
 				//Stop there if the user isn't part of the permissions and message isn't forced
-				if(force !== true && is_simpleMessage && !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
+				if(force !== true
+				&& is_simpleMessage
+				&& !is_firstToday
+				&& !is_1stTimeChatter
+				&& !is_automod
+				&& !is_monitored
+				&& !is_restricted
+				&& !await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				let mess: string = message.message;
 				if(paramsTTS.removeEmotes===true) {
@@ -362,7 +369,7 @@ export default class TTSUtils {
 				if(!paramsTTS.readWhispers && force!==true) return "";
 
 				//Stop there if the user isn't part of the permissions
-				if(!await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
+				// if(!await Utils.checkPermissions(paramsTTS.ttsPerms, message.user, message.channel_id)) return "";
 
 				//Don't read our answers
 				if(message.user.id === StoreProxy.auth.twitch.user.id) return "";

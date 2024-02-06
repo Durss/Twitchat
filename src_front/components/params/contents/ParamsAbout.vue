@@ -31,6 +31,11 @@
 				<a class="link" href="https://twitch.tv/durss" target="_blank"><img src="@/assets/img/twitch.png" v-tooltip="'Twitch'" alt="twitch"></a>
 				<a class="link" href="https://bsky.app/profile/durss.fr" target="_blank"><img src="@/assets/img/bluesky.svg" v-tooltip="'Bluesky'" alt="bluesky"></a>
 			</p>
+			<i18n-t tag="p" class="item" keypath="about.sentry">
+				<template #LINK>
+					<a href="https://sentry.io" target="_blank">Sentry.io</a>
+				</template>
+			</i18n-t>
 		</ToggleBlock>
 
 		<!-- <ToggleBlock class="block" :title="$t('about.dad.title')" :icons="['follow']" :open="false">
@@ -90,8 +95,9 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 		flex-direction: column;
 		justify-content: flex-start;
 		margin-top: 1em;
+		line-height: 1.25em;
 
-		.item {
+		.item:not(:last-child) {
 			margin-bottom: .5em;
 		}
 		

@@ -601,9 +601,7 @@ export default class Chat extends Vue {
 				this.$confirm(this.$t("raffle.delete_confirm.title"), this.$t("raffle.delete_confirm.description"), undefined, undefined, undefined, true)
 				.then(async ()=> {
 					this.$store.raffle.stopRaffle();
-				}).catch(()=> {
-					//ignore
-				});
+				}).catch(()=>{});
 				break;
 			}
 

@@ -432,36 +432,38 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			let totalPoints = 0;
 			let totalUsers = 0;
-			const src = json.data[0] as TwitchDataTypes.Prediction;
-			if(src.status == "ACTIVE" || src.status == "LOCKED") {
-				const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
-				src.outcomes.forEach(v=> {
-					totalPoints += v.channel_points;
-					totalUsers += v.users;
-					outcomes.push({
-						id:v.id,
-						label:v.title,
-						votes:v.channel_points,
-						voters:v.users,
-					})
-				});
-				const prediction:TwitchatDataTypes.MessagePredictionData = {
-					id:src.id,
-					channel_id:src.broadcaster_id,
-					date:Date.now(),
-					type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
-					platform:"twitch",
-					duration_s:src.prediction_window,
-					started_at:new Date(src.created_at).getTime(),
-					title:src.title,
-					outcomes,
-					pendingAnswer:src.status == "LOCKED",
-					totalPoints,
-					totalUsers,
+			if(json.data.length > 0) {
+				const src = json.data[0] as TwitchDataTypes.Prediction;
+				if(src.status == "ACTIVE" || src.status == "LOCKED") {
+					const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
+					src.outcomes.forEach(v=> {
+						totalPoints += v.channel_points;
+						totalUsers += v.users;
+						outcomes.push({
+							id:v.id,
+							label:v.title,
+							votes:v.channel_points,
+							voters:v.users,
+						})
+					});
+					const prediction:TwitchatDataTypes.MessagePredictionData = {
+						id:src.id,
+						channel_id:src.broadcaster_id,
+						date:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.PREDICTION,
+						platform:"twitch",
+						duration_s:src.prediction_window,
+						started_at:new Date(src.created_at).getTime(),
+						title:src.title,
+						outcomes,
+						pendingAnswer:src.status == "LOCKED",
+						totalPoints,
+						totalUsers,
+					}
+					StoreProxy.prediction.setPrediction(prediction);
+				}else{
+					StoreProxy.prediction.setPrediction(null);
 				}
-				StoreProxy.prediction.setPrediction(prediction);
-			}else{
-				StoreProxy.prediction.setPrediction(null);
 			}
 			return json.data;
 		}
@@ -2696,7 +2698,8 @@ export default class TwitchUtils {
 	 * Splits the message in chunks of type emote", "text" and "url"
 	 */
 	public static parseMessageToChunks(message:string, emotes?:string|TwitchatDataTypes.EmoteDef[], customParsing = false, platform:TwitchatDataTypes.ChatPlatform = "twitch"):TwitchatDataTypes.ParseMessageChunk[] {
-
+		if(!message) return [];
+		
 		let emotesList:TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string")? [] : emotes;
 
 		function getProtectedRange(emotes:string):boolean[] {
@@ -2874,7 +2877,7 @@ export default class TwitchUtils {
 			const chunk = result[i];
 			if(chunk.type == "text") {
 				result.splice(i, 1);//Remove source chunk
-				let res = chunk.value.split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+				let res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
@@ -2898,7 +2901,7 @@ export default class TwitchUtils {
 			const chunk = result[i];
 			if(chunk.type == "text") {
 				result.splice(i, 1);//Remove source chunk
-				let res = chunk.value.split(/(@[a-z0-9_]{3,25})/gi);
+				let res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks

@@ -71,7 +71,7 @@ export default class ChatModTools extends Vue {
 					}
 				}
 			}
-		})
+		}).catch(()=>{});
 	}
 
 	public blockUser():void {
@@ -85,7 +85,7 @@ export default class ChatModTools extends Vue {
 			}else{
 				TwitchUtils.blockUser(this.messageData.user);
 			}
-		})
+		}).catch(()=>{});
 	}
 
 	public timeoutUser(duration:number):void {

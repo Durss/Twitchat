@@ -4,7 +4,7 @@
 			<ClearButton @click="close" />
 			
 			<h1 class="title"><Icon name="whispers" class="icon"/>{{ $t('whispers.title') }}</h1>
-			<div class="description">{{ users[selectedUserIndex].displayName }}</div>
+			<div class="description">{{ getCorrespondant(selectedUserId).displayName }}</div>
 		</div>
 	
 		<div class="content">
@@ -29,10 +29,10 @@
 			</form>
 			<TTButton v-else small highlight icon="unlock" @click="requestTwitchScope()">{{ $t('whispers.add_scope_bt') }}</TTButton>
 			
-			<div class="userlist" v-if="uids.length > 0">
-				<div v-for="uid, index in uids" :key="uid" class="user">
-					<TTButton small class="login" @click="selectedUserId = uid; selectedUserIndex = index" :selected="selectedUserId == uid">{{ users[index].displayName }}</TTButton>
-					<TTButton small class="delete" icon="trash" @click="deleteWhispers(uid)" alert></TTButton>
+			<div class="userlist" v-if="Object.keys($store.chat.whispers).length > 0">
+				<div v-for="whispers, key in $store.chat.whispers" :key="key" class="user">
+					<TTButton small class="login" @click="selectedUserId = <string>key" :selected="selectedUserId == key">{{ getCorrespondant(<string>key).displayName }}</TTButton>
+					<TTButton small class="delete" icon="trash" @click="deleteWhispers(<string>key)" alert></TTButton>
 				</div>
 			</div>
 		</div>
@@ -66,7 +66,6 @@ export default class WhispersState extends AbstractSidePanel {
 	public error = false;
 	public whisper:string | null = null;
 	public selectedUserId:string = "";
-	public selectedUserIndex:number = 0;
 
 	public get canAnswer():boolean {
 		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_WRITE]);
@@ -76,18 +75,14 @@ export default class WhispersState extends AbstractSidePanel {
 		return this.$store.chat.whispers[this.selectedUserId].find(v=> v.user.id == this.selectedUserId)!.user;
 	}
 
-	public get uids():string[] { return Object.keys(this.$store.chat.whispers); }
-
-	public get users():TwitchatDataTypes.TwitchatUser[] {
+	public getCorrespondant(uid:string):TwitchatDataTypes.TwitchatUser {
+		const whispers = this.$store.chat.whispers[uid];
 		const me = this.$store.auth.twitch.user.id;
-		return this.uids.map(uid => {
-			const m = this.$store.chat.whispers[uid][0];
-			return m.to.id == me? m.user : m.to;
-		});
+		return whispers[0].to.id == me? whispers[0].user : whispers[0].to;
 	}
  
 	public beforeMount():void {
-		this.selectedUserId = this.uids[0];
+		this.selectedUserId = Object.keys(this.$store.chat.whispers)[0];
 		this.$store.chat.whispersUnreadCount = 0;
 		watch(()=>this.selectedUserId, async ()=>{
 			//Force scroll for a few frames in case there are
@@ -134,8 +129,8 @@ export default class WhispersState extends AbstractSidePanel {
 		this.whisper = "";
 	}
 
-	public deleteWhispers(user:string):void {
-		this.$store.chat.closeWhispers(user);
+	public deleteWhispers(uid:string):void {
+		this.$store.chat.closeWhispers(uid);
 	}
 
 	private scrollToBottom():void {

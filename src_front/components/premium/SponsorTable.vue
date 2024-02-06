@@ -61,6 +61,7 @@ export default class SponsorTable extends Vue {
 	public expand!:boolean;
 
 	public currentRowIndex:number = 0;
+	public dispose:boolean = false;
 
 	public get expanded():boolean { return this.currentRowIndex == this.entries.length-1; }
 	public get adMinFollowers():number { return Config.instance.AD_MIN_FOLLOWERS_COUNT; }
@@ -89,7 +90,19 @@ export default class SponsorTable extends Vue {
 		});
 	}
 
+	public beforeUnmount():void {
+		this.dispose = true;
+		let scrollableHolder = document.getElementById("paramContentScrollableHolder") as HTMLDivElement;
+		gsap.killTweensOf(scrollableHolder)
+		const list = this.$refs.list as HTMLTableRowElement;
+		if(list) {
+			gsap.killTweensOf(list)
+		}
+	}
+
 	public expandRows(rowIndex:number, animate:boolean = true):void {
+		if(this.dispose) return;
+
 		this.currentRowIndex = Math.max(11, Math.min(this.entries.length-1, rowIndex));
 		const list = this.$refs.list as HTMLTableRowElement;
 		const item = (this.$refs["row_"+this.currentRowIndex] as HTMLTableRowElement[])[0];
@@ -113,7 +126,6 @@ export default class SponsorTable extends Vue {
 			let scrollableHolder = document.getElementById("paramContentScrollableHolder") as HTMLDivElement;
 			if(!scrollableHolder) scrollableHolder = (this.$el as HTMLElement).parentElement as HTMLDivElement;
 			gsap.killTweensOf(scrollableHolder);
-			gsap.to(scrollableHolder, {duration, scrollTop:scrollableHolder.scrollTop + added});
 			gsap.to(scrollableHolder, {duration, scrollTop:scrollableHolder.scrollTop + added});
 		}
 	}

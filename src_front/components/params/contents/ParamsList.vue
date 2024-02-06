@@ -245,7 +245,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public resetGreetHistory():void {
 		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
 			this.$store.chat.resetGreetingHistory();
-		});
+		}).catch(()=>{});
 	}
 
 }

@@ -13,7 +13,7 @@
 				<div class="permissions" v-if="param_readMessages.value === true || param_readWhispers.value === true">
 					<Splitter class="splitter">{{ $t("tts.chat_perms.title") }}</Splitter>
 					<section class="card-item">
-						<p>{{ $t("tts.chat_perms.head") }}</p>
+						<p><Icon name="user" /> <Icon name="whispers" />{{ $t("tts.chat_perms.head") }}</p>
 						<p class="small">{{ $t("tts.chat_perms.infos") }}</p>
 						<PermissionsForm class="form" v-model="param_ttsPerms" />
 					</section>
@@ -55,7 +55,7 @@
 				<ParamItem noBackground :paramData="param_pitch" />
 				<form @submit.prevent="testVoice()">
 					<input class="center" type="text" v-model="testStr" :placeholder="$t('tts.params.test_placeholder')">
-					<Button class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</Button>
+					<TTButton class="center" icon="tts" type="submit">{{ $t('tts.params.testBt') }}</TTButton>
 				</form>
 			</section>
 
@@ -89,10 +89,12 @@ import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		Splitter,
 		ParamItem,
 		ToggleBlock,

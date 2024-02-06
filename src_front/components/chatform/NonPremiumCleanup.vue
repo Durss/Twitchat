@@ -314,20 +314,20 @@ export default class NonPremiumCleanup extends Vue {
 		this.$confirm( this.$t("premium.cleanup.delete_badges_title"), this.$t("premium.cleanup.delete_badges_description")).then(()=>{
 			delete this.$store.users.customUserBadges[user.id];
 			this.$store.users.saveCustomBadges();
-		})
+		}).catch(()=>{});
 	}
 	
 	public deleteUsername(user:TwitchatDataTypes.TwitchatUser):void {
 		this.$confirm( this.$t("premium.cleanup.delete_name_title"), this.$t("premium.cleanup.delete_name_description")).then(()=>{
 			delete this.$store.users.customUsernames[user.id];
 			this.$store.users.saveCustomUsername();
-		})
+		}).catch(()=>{});
 	}
 	
 	public deleteDistortion(data:TwitchatDataTypes.HeatDistortionData):void {
 		this.$confirm( this.$t("premium.cleanup.delete_distortion_title"), this.$t("premium.cleanup.delete_distortion_description")).then(()=>{
 			this.$store.heat.deleteDistorsion(data);
-		})
+		}).catch(()=>{});
 	}
 
 	public toggleCounter(item?:TwitchatDataTypes.CounterData):void {

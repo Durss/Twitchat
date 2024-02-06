@@ -118,7 +118,7 @@ export default class QnaList extends AbstractSidePanel {
 		this.$confirm(this.$t("qna.list.close_confirm.title"), this.$t("qna.list.close_confirm.description"))
 		.then(()=>{
 			this.$store.qna.stopSession(id);
-		});
+		}).catch(()=>{});
 	}
 
 	public deleteSession(id:string):void {
@@ -127,7 +127,7 @@ export default class QnaList extends AbstractSidePanel {
 			this.$store.qna.deleteSession(id);
 			if(this.$store.qna.activeSessions.length == 0) this.close();
 			else this.currentSessionIndex = 0;
-		});
+		}).catch(()=>{});
 	}
 
 	/**

@@ -129,6 +129,7 @@ import { Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
+import * as Sentry from "@sentry/vue";
 
 @Component({
 	components:{
@@ -160,7 +161,9 @@ export default class ChatSubscription extends AbstractChatMessage {
 	}
 
 	public beforeMount(): void {
-		
+		if(!this.messageData.user) {
+			Sentry.captureMessage("Subscription message missing user info: "+ JSON.stringify(this.messageData), "warning");
+		}
 	}
 }
 </script>

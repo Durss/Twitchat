@@ -288,9 +288,10 @@ export default class NewUsers extends Vue {
 	 * Reset greeting history
 	 */
 	public resetHistory():void {
-		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
+		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null)
+		.then(() => {
 			this.$store.chat.resetGreetingHistory();
-		});
+		}).catch(()=>{});
 	}
 
 	/**

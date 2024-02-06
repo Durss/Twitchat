@@ -217,7 +217,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 					this.loadAnnouncements();
 				}
 			}
-		})
+		}).catch(()=>{});
 	}
 
 	public formatDate(timestamp:number):string {

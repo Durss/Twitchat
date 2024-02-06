@@ -496,7 +496,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 * @param entry 
 	 */
 	public resetUsers(entry:CounterEntry):void {
-		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc")).then(()=>{
+		this.$confirm(this.$t("counters.reset_users_confirm.title"), this.$t("counters.reset_users_confirm.desc"))
+		.then(()=>{
 			//Reset counter data
 			let value:number = entry.counter.min != false? entry.counter.min : 0;
 			for (const key in entry.counter.users!) {
@@ -512,7 +513,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			}
 
 			this.$store.counters.updateCounter(entry.counter);
-		});
+		}).catch(()=>{});
 	}
 
 	/**
@@ -520,7 +521,8 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 	 * @param entry 
 	 */
 	public clearUsers(entry:CounterEntry):void {
-		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc")).then(()=>{
+		this.$confirm(this.$t("counters.delete_users_confirm.title"), this.$t("counters.delete_users_confirm.desc"))
+		.then(()=>{
 			//Reset counter data
 			entry.counter.users = {};
 	
@@ -528,7 +530,7 @@ export default class ParamsCounters extends Vue implements IParameterContent {
 			this.idToUsers[entry.counter.id] = [];
 	
 			this.$store.counters.updateCounter(entry.counter);
-		})
+		}).catch(()=>{});
 	}
 
 	/**

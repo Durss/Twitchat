@@ -422,7 +422,8 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	 * @param entry 
 	 */
 	public resetUsers(entry:ValueEntry):void {
-		this.$confirm(this.$t("values.reset_users_confirm.title"), this.$t("values.reset_users_confirm.desc")).then(()=>{
+		this.$confirm(this.$t("values.reset_users_confirm.title"), this.$t("values.reset_users_confirm.desc"))
+		.then(()=>{
 			//Reset value data
 			for (const key in entry.value.users!) {
 				entry.value.users[key] = "";
@@ -437,7 +438,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 			}
 
 			this.$store.values.updateValue(entry.value.id, entry.value.value);
-		});
+		}).catch(()=>{});
 	}
 
 	/**
@@ -445,7 +446,8 @@ export default class ParamsValues extends Vue implements IParameterContent {
 	 * @param entry 
 	 */
 	public clearUsers(entry:ValueEntry):void {
-		this.$confirm(this.$t("values.delete_users_confirm.title"), this.$t("values.delete_users_confirm.desc")).then(()=>{
+		this.$confirm(this.$t("values.delete_users_confirm.title"), this.$t("values.delete_users_confirm.desc"))
+		.then(()=>{
 			//Reset value data
 			entry.value.users = {};
 	
@@ -453,7 +455,7 @@ export default class ParamsValues extends Vue implements IParameterContent {
 			this.idToUsers[entry.value.id] = [];
 	
 			this.$store.values.updateValue(entry.value.id, entry.value.value);
-		})
+		}).catch(()=>{});
 	}
 }
 
