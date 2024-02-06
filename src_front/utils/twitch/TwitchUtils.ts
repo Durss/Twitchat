@@ -3120,6 +3120,7 @@ export default class TwitchUtils {
 			//Try to call endpoint again with fresh new token
 			return await fetch(input, init);
 		}catch(error) {
+			console.log(error);
 			Sentry.captureException("Twitch API call error for endpoint "+input, {originalException:error as Error});
 			return new Response("{}",{status:500});
 		}

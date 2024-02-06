@@ -25,7 +25,10 @@ export const storeRewards = defineStore('rewards', {
 	actions: {
 
 		async loadRewards():Promise<TwitchDataTypes.Reward[]> {
+			//Permission not granted?
 			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
+			//Not at least affiliate?
+			if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return [];
 			
 			try {
 				this.rewardList = await TwitchUtils.getRewards(true);

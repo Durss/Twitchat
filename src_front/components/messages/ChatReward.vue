@@ -128,9 +128,11 @@ export default class ChatReward extends AbstractChatMessage {
 	}
 
 	public mounted():void {
-		TwitchUtils.getRewards(false, true).then(res => {
-			res.forEach(v=> this.refundableIds[v.id] = true)
-		})
+		if(this.messageData.channel_id == this.$store.auth.twitch.user.id) {
+			TwitchUtils.getRewards(false, true).then(res => {
+				res.forEach(v=> this.refundableIds[v.id] = true)
+			})
+		}
 	}
 
 	public openUserCard():void {
