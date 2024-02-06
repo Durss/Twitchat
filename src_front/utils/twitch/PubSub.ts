@@ -1313,7 +1313,7 @@ export default class PubSub extends EventDispatcher {
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//Simple pinned message
 				const m:TwitchatDataTypes.MessagePinData = {
-					id:data.id,
+					id:"pin_"+data.message.id,
 					date:Date.now(),
 					platform:"twitch",
 					type:"pinned",
@@ -1335,7 +1335,6 @@ export default class PubSub extends EventDispatcher {
 					m.timeoutRef = timeoutRef;
 				}
 				StoreProxy.chat.addMessage(m);
-				StoreProxy.chat.saveMessage(m.chatMessage);
 			}
 		}
 	}
@@ -1344,7 +1343,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a pinned message param is updated
 	 */
 	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage, channel_id:string):void {
-		let message = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		let message = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		if(message) {
 			if(data.ends_at) {
 				message.unpinAt_ms = data.ends_at * 1000;
@@ -1357,7 +1356,7 @@ export default class PubSub extends EventDispatcher {
 				//Schedule automatic unpin
 				message.timeoutRef = setTimeout(()=> {
 					if(message!.chatMessage){
-						this.unpinMessageEvent(message!, channel_id);
+						this.unpinMessageEvent(data, channel_id);
 					}
 				}, message.unpinAt_ms - Date.now());
 			}
@@ -1367,8 +1366,8 @@ export default class PubSub extends EventDispatcher {
 	/**
 	 * Called when a message is unpinned
 	 */
-	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
-		let pinMessage = StoreProxy.chat.messages.find(v=>v.id == data.id) as TwitchatDataTypes.MessagePinData|undefined;
+	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|PubSubDataTypes.PinUpdateMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
+		let pinMessage = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		
 		if(pinMessage) {
 			pinMessage.chatMessage.is_pinned = false;
@@ -1385,9 +1384,10 @@ export default class PubSub extends EventDispatcher {
 				moderator,
 				channel_id,
 			};
+			console.log(data);
+			console.log(pinMessage);
 			clearTimeout(pinMessage.timeoutRef);
 			StoreProxy.chat.addMessage(m);
-			StoreProxy.chat.unsaveMessage(m.chatMessage);
 		}
 	}
 }
