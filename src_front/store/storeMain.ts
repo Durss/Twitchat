@@ -396,6 +396,7 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_AD_BREAK_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
 				const data = DataStore.get(DataStore.AD_BREAK_OVERLAY_PARAMS);
+				if(!data) return;
 				const ad = StoreProxy.stream.getCommercialInfo(StoreProxy.auth.twitch.user.id);
 				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, JSON.parse(data));
 				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (ad as unknown) as JsonObject);
@@ -406,6 +407,7 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BITS_WALL_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
 				const data = DataStore.get(DataStore.BITS_WALL_PARAMS);
+				if(!data) return;
 				const json = JSON.parse(data) as TwitchatDataTypes.BitsWallOverlayData;
 				if(!sAuth.isPremium) {
 					json.break_durations = {1:10, 100:20, 1000:30, 5000:40, 10000:50};
@@ -1086,9 +1088,9 @@ export const storeMain = defineStore("main", {
 			const pass = DataStore.get(DataStore.OBS_PASS);
 			const ip = DataStore.get(DataStore.OBS_IP);
 			//If OBS params are on URL or if connection is enabled, connect
-			if(sOBS.connectionEnabled && (port != undefined || pass != undefined || ip != undefined)) {
+			if(sOBS.connectionEnabled && (port != null || pass != null || ip != null)) {
 				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass, true, ip);
+				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
 			}
 
 			/**

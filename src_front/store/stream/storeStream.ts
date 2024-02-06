@@ -452,9 +452,10 @@ export const storeStream = defineStore('stream', {
 			if(!offset) dateOffset  = StoreProxy.stream.currentStreamInfo[channelId]?.started_at;
 
 			const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
-			const parameters = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
+			let parameters:TwitchatDataTypes.EndingCreditsParams|null = null;
 			let ignoredAccounts:{[key:string]:boolean} = {};
 			if(json) {
+				parameters = JSON.parse(json) as TwitchatDataTypes.EndingCreditsParams;
 				if(parameters.ignoreBots) {
 					ignoredAccounts = JSON.parse(JSON.stringify(StoreProxy.users.knownBots.twitch))
 					if((parameters.ignoreCustomBots || []).length > 0) {
@@ -680,7 +681,7 @@ export const storeStream = defineStore('stream', {
 				}
 			}
 
-			if(includeParams && parameters) {
+			if(includeParams && parameters!=null) {
 				result.params = parameters;
 				result.params.lang = StoreProxy.i18n.locale;
 				

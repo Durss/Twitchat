@@ -72,7 +72,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param autoReconnect 
 	 * @returns 
 	 */
-	public async connect(port:string, pass:string = "", autoReconnect = true, ip = "127.0.0.1", forceConnect:boolean = false):Promise<boolean> {
+	public async connect(port:string = "4455", pass:string = "", autoReconnect = true, ip = "127.0.0.1", forceConnect:boolean = false):Promise<boolean> {
 		if(this.connected) return true;
 		
 		clearTimeout(this.reconnectTimeout);
@@ -916,8 +916,8 @@ export default class OBSWebsocket extends EventDispatcher {
 				if(urlParsed.searchParams.get("obs_port") != port 
 				|| urlParsed.searchParams.get("obs_ip") != ip
 				|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {
-					urlParsed.searchParams.set("obs_port", port);
-					urlParsed.searchParams.set("obs_ip", ip);
+					urlParsed.searchParams.set("obs_port", port || "4455");
+					urlParsed.searchParams.set("obs_ip", ip || "127.0.0.1");
 					if(pass) urlParsed.searchParams.set("obs_pass", pass);
 					const inputSettings = { url: urlParsed.href };
 					const res = await this.obs.call('SetInputSettings', {inputName:sourceName, inputSettings});
