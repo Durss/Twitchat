@@ -35,6 +35,12 @@ export default defineConfig({
 	build: {
 		target: 'es2015',
 		sourcemap: true,
+
+		rollupOptions: {
+			output:{
+				entryFileNames: "assets/[name]-[hash]-"+process.env.npm_package_version+".js",
+			}
+		},
 	},
 
 	resolve: {
