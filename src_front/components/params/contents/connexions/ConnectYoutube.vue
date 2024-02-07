@@ -126,7 +126,7 @@ export default class ConnectYoutube extends Vue {
 			}else{
 				try {
 					if(!await this.$store.youtube.authenticate()) {
-						throw(new Error());
+						throw(new Error("unable to connect"));
 					}
 					this.showSuccess = true;
 				}catch(e:unknown) {

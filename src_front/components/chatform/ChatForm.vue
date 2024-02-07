@@ -566,45 +566,47 @@ export default class ChatForm extends Vue {
 			}
 		}
 		let history:{[key:string]:boolean} = JSON.parse(DataStore.get(DataStore.ANNOUNCEMENTS_READ) || "{}");
-		const res = await fetch(Config.instance.API_PATH+"/announcements", options);
-		if(res.status == 200) {
-			const json:TwitchatDataTypes.TwitchatAnnouncementData[] = await res.json() || [];
-			for (let i = 0; i < json.length; i++) {
-				const a = json[i];
-				//Check if announcement already read
-				if(history[a.id] === true) continue;
-				//Check if version is valid
-				if(a.versionMax) {
-					const currentVersion = import.meta.env.PACKAGE_VERSION;
-					if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
+		try {
+			const res = await fetch(Config.instance.API_PATH+"/announcements", options);
+			if(res.status == 200) {
+				const json:TwitchatDataTypes.TwitchatAnnouncementData[] = await res.json() || [];
+				for (let i = 0; i < json.length; i++) {
+					const a = json[i];
+					//Check if announcement already read
+					if(history[a.id] === true) continue;
+					//Check if version is valid
+					if(a.versionMax) {
+						const currentVersion = import.meta.env.PACKAGE_VERSION;
+						if(Utils.compareSementicVersion(currentVersion, a.versionMax)) continue;
+					}
+					//Check donor only condition
+					if(a.donorsOnly === true && !this.$store.auth.twitch.user.donor.state) continue;
+					//Check premium only condition
+					if(a.premiumOnly === true && !this.$store.auth.isPremium) continue;
+					//Check patreon only condition
+					if(a.patreonOnly === true && !PatreonHelper.instance.isMember) continue;
+					//Check patreon only condition
+					if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
+					//Check if within date frame
+					if(Date.now() < new Date(a.dateStart).getTime()) continue;
+					if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
+					//Allow only important alerts if requested
+					if(onlyImportant && a.important !== true) continue;
+					this.announcement = json[i];
 				}
-				//Check donor only condition
-				if(a.donorsOnly === true && !this.$store.auth.twitch.user.donor.state) continue;
-				//Check premium only condition
-				if(a.premiumOnly === true && !this.$store.auth.isPremium) continue;
-				//Check patreon only condition
-				if(a.patreonOnly === true && !PatreonHelper.instance.isMember) continue;
-				//Check patreon only condition
-				if(a.heatOnly === true && !HeatSocket.instance.connected) continue;
-				//Check if within date frame
-				if(Date.now() < new Date(a.dateStart).getTime()) continue;
-				if(a.dateEnd && Date.now() > new Date(a.dateEnd).getTime()) continue;
-				//Allow only important alerts if requested
-				if(onlyImportant && a.important !== true) continue;
-				this.announcement = json[i];
-			}
-			let historyUpdated = false;
-			//Remove ids from old deleted messages to avoid keeping useless data on localstorage
-			Object.keys(history).forEach(id => {
-				if(json.findIndex(v=>v.id == id) == -1) {
-					delete history[id];
-					historyUpdated = true;
+				let historyUpdated = false;
+				//Remove ids from old deleted messages to avoid keeping useless data on localstorage
+				Object.keys(history).forEach(id => {
+					if(json.findIndex(v=>v.id == id) == -1) {
+						delete history[id];
+						historyUpdated = true;
+					}
+				});
+				if(historyUpdated) {
+					DataStore.set(DataStore.ANNOUNCEMENTS_READ, history);
 				}
-			});
-			if(historyUpdated) {
-				DataStore.set(DataStore.ANNOUNCEMENTS_READ, history);
 			}
-		}
+		}catch(error) {/*ignore*/}
 	}
 
 	/**

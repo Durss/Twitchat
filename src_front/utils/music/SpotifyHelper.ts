@@ -679,7 +679,7 @@ export default class SpotifyHelper {
 				if(json.error.message) {
 					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
 				}else {
-					throw(new Error(""))
+					throw(new Error("Missing error details"))
 				}
 			}catch(error) {
 				StoreProxy.music.spotifyConsecutiveErrors ++;
