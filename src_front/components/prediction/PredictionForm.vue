@@ -150,8 +150,7 @@ export default class PredictionForm extends AbstractSidePanel {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
-			let d = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
-			this.param_duration.value = d;
+			this.param_duration.value = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
 		}
 
 		if(this.triggerMode && this.action.predictionData) {

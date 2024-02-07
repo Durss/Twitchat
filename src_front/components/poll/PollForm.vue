@@ -118,8 +118,7 @@ export default class PollForm extends AbstractSidePanel {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
 		}else{
-			let d = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
-			this.param_duration.value = d;
+			this.param_duration.value = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
 		}
 
 		if(this.triggerMode && this.action.pollData) {

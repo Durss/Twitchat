@@ -96,6 +96,7 @@ import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import type IParameterContent from './IParameterContent';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -125,7 +126,6 @@ export default class ParamsList extends Vue implements IParameterContent {
 	public get isOBSConnected():boolean { return OBSWebsocket.instance.connected; }
 
 	public get params():{[key:string]:TwitchatDataTypes.ParameterData<unknown>} {
-		this.buildIndex = this.buildBatch;
 		let res:{[key:string]:TwitchatDataTypes.ParameterData<unknown>} = {};
 		if(this.filteredParams?.length > 0) {
 			for (let i = 0; i < this.filteredParams.length; i++) {
@@ -157,7 +157,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 				resolve(null);
 			}, false, false);
 		});
-		
+
 		const me = this.$store.auth.twitch.user;
 		this.soPlaceholders = [
 			{
@@ -182,34 +182,10 @@ export default class ParamsList extends Vue implements IParameterContent {
 			},
 		];
 
-		this.buildInterval = setInterval(()=> {
-			this.buildIndex ++;
-			if(this.buildIndex >= this.filteredParams.length) {
-				clearInterval(this.buildInterval);
-						
-				//If redirecting to a specific params, highlight it
-				const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
-				if(param) {
-					this.$nextTick().then(()=> {
-						const holders = this.$refs["entry_"+param] as HTMLElement[]
-						if(holders) {
-							this.highlightId = param as string;
-							const holder = holders[0];
-							if(holder) {
-								const interval = setInterval(()=>{
-									holder.scrollIntoView();
-								},30);
-								setTimeout(() => {
-									clearInterval(interval);
-								}, 1000);
-							}
-						}
-						this.$store.main.tempStoreValue = "";
-						this.$store.params.currentPageSubContent = "";
-					})
-				}
-			}
-		}, 30);
+		watch(()=>this.category, () => this.startSequentialBuild());
+		watch(()=>this.filteredParams, () => this.startSequentialBuild());
+
+		this.startSequentialBuild();
 	}
 
 	public beforeUnmount():void {
@@ -246,6 +222,39 @@ export default class ParamsList extends Vue implements IParameterContent {
 		this.$confirm(this.$t("greet.reset_confirm_title"), this.$t("greet.reset_confirm_description"), null).then(() => {
 			this.$store.chat.resetGreetingHistory();
 		}).catch(()=>{});
+	}
+
+	private startSequentialBuild():void {
+		this.buildIndex = this.buildBatch;
+		clearInterval(this.buildInterval);
+		this.buildInterval = setInterval(()=> {
+			this.buildIndex ++;
+			if(this.buildIndex >= Object.keys(this.params).length) {
+				clearInterval(this.buildInterval);
+						
+				//If redirecting to a specific params, highlight it
+				const param = this.$store.main.tempStoreValue || this.$store.params.currentPageSubContent;
+				if(param) {
+					this.$nextTick().then(()=> {
+						const holders = this.$refs["entry_"+param] as HTMLElement[]
+						if(holders) {
+							this.highlightId = param as string;
+							const holder = holders[0];
+							if(holder) {
+								const interval = setInterval(()=>{
+									holder.scrollIntoView();
+								},30);
+								setTimeout(() => {
+									clearInterval(interval);
+								}, 1000);
+							}
+						}
+						this.$store.main.tempStoreValue = "";
+						this.$store.params.currentPageSubContent = "";
+					})
+				}
+			}
+		}, 30);
 	}
 
 }
