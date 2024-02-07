@@ -93,11 +93,9 @@ export default class SponsorTable extends Vue {
 	public beforeUnmount():void {
 		this.dispose = true;
 		let scrollableHolder = document.getElementById("paramContentScrollableHolder") as HTMLDivElement;
-		gsap.killTweensOf(scrollableHolder)
+		if(scrollableHolder) gsap.killTweensOf(scrollableHolder);
 		const list = this.$refs.list as HTMLTableRowElement;
-		if(list) {
-			gsap.killTweensOf(list)
-		}
+		if(list) gsap.killTweensOf(list);
 	}
 
 	public expandRows(rowIndex:number, animate:boolean = true):void {

@@ -55,7 +55,7 @@ export namespace PubSubDataTypes {
 					text: string;
 				}[];
 			};
-			type: "CHEER"|"???",
+			type: "CHEER"|"MOD",
 			starts_at: number,
 			updated_at: number,
 			ends_at: number,

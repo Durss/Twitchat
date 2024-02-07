@@ -1266,7 +1266,7 @@ export default class TriggerActionHandler {
 							await TwitchUtils.createPoll(StoreProxy.auth.twitch.user.id,
 								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pollData.title),
 								answers,
-								step.pollData.voteDuration * 60,
+								step.pollData.voteDuration,
 								step.pollData.pointsPerVote);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create poll as it's missing either the title or answers"});
@@ -1290,7 +1290,7 @@ export default class TriggerActionHandler {
 							await TwitchUtils.createPrediction(StoreProxy.auth.twitch.user.id,
 								await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.predictionData.title),
 								answers,
-								step.predictionData.voteDuration * 60);
+								step.predictionData.voteDuration);
 						}else{
 							logStep.messages.push({date:Date.now(), value:"❌ Cannot create prediction as it's missing either the title or answers"});
 							log.error = true;
