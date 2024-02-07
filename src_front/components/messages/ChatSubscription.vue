@@ -46,12 +46,12 @@
 			<!-- Gift upgrade -->
 			<div class="holder" v-else-if="messageData.is_giftUpgrade">
 				<i18n-t scope="global" tag="span"
-				keypath="chat.subscription.sub_gift_upgrade">
+				:keypath="messageData.gift_upgradeSender? 'chat.subscription.sub_gift_upgrade' : 'chat.subscription.sub_gift_upgrade_anon'">
 					<template #USER>
 						<a class="userlink" @click.stop="openUserCard(messageData.user, messageData.channel_id)">{{messageData.user.displayName}}</a>
 					</template>
-					<template #GIFTER>
-						<a class="userlink" @click.stop="openUserCard(messageData.gift_upgradeSender!, messageData.channel_id)">{{messageData.gift_upgradeSender!.displayName}}</a>
+					<template #GIFTER v-if="messageData.gift_upgradeSender">
+						<a class="userlink" @click.stop="openUserCard(messageData.gift_upgradeSender, messageData.channel_id)">{{messageData.gift_upgradeSender.displayName}}</a>
 					</template>
 					<template #TIER>
 						<strong>{{ messageData.tier }}</strong>
@@ -161,9 +161,6 @@ export default class ChatSubscription extends AbstractChatMessage {
 	}
 
 	public beforeMount(): void {
-		if(!this.messageData.user) {
-			Sentry.captureMessage("Subscription message missing user info: "+ JSON.stringify(this.messageData), "warning");
-		}
 	}
 }
 </script>
