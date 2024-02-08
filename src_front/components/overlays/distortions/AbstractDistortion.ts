@@ -377,10 +377,12 @@ export default class AbstractDistortion extends Vue {
 	private async generateSpritesheet(imagePath:string):Promise<HTMLCanvasElement> {
 		const image = new Image();
 		image.src = imagePath;
-		await new Promise((resolve, reject)=>{
-			image.onload = resolve;
-			image.onerror = reject;
-		})
+		try {
+			await new Promise((resolve, reject)=>{
+				image.onload = resolve;
+				image.onerror = reject;
+			})
+		}catch(error){}
 
 		const canvas = document.createElement("canvas")
 		const ctx = canvas.getContext('2d');

@@ -345,9 +345,11 @@ export const storeMain = defineStore("main", {
 				for (let i = 0; i < VoicemodWebSocket.instance.voices.length; i++) {
 					const v = VoicemodWebSocket.instance.voices[i];
 					if(v.id == e.voiceID) {
-						const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.id);
-						v.image = img;
-						sVoice.voicemodCurrentVoice = v;
+						try {
+							const img = await VoicemodWebSocket.instance.getBitmapForVoice(v.id);
+							v.image = img;
+							sVoice.voicemodCurrentVoice = v;
+						}catch(error){}
 					}
 				}
 			});
@@ -963,7 +965,7 @@ export const storeMain = defineStore("main", {
 			if(voicemodParams) {
 				sVoice.setVoicemodParams(JSON.parse(voicemodParams));
 				if(sVoice.voicemodParams.enabled) {
-					VoicemodWebSocket.instance.connect();
+					VoicemodWebSocket.instance.connect().then(()=>{}).catch(()=> {});
 				}
 			}
 
@@ -975,9 +977,7 @@ export const storeMain = defineStore("main", {
 				url += params.ip;
 				if(params.port) url += ":"+params.port;
 		
-				WebsocketTrigger.instance.connect(url).then(()=> {
-				}).catch(()=> {
-				});
+				WebsocketTrigger.instance.connect(url).then(()=>{}).catch(()=> {});
 			}
 
 			//Init automod
