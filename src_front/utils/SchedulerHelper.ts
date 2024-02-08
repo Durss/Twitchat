@@ -114,17 +114,23 @@ export default class SchedulerHelper {
 					if(d.daily===true || d.monthly===true || d.yearly===true) date.setDate(new Date().getDate());
 					if(d.monthly===true || d.yearly===true) date.setMonth(new Date().getMonth());
 					if(d.yearly===true) date.setFullYear(new Date().getFullYear());
-					//Check if the date has past, in which case we stop there or
-					//schedule for the next day in case of a daily event. No need
-					//to do this for monthly and yearly, there's low chance a stream
-					//lasts this long
-					if(Date.now() > date.getTime()) {
+					
+					//Date has past and not daily,monthly or yearly, skip it
+					if(Date.now() > date.getTime() && !d.daily && !d.monthly && !d.yearly) continue;
+
+					//Schedule for next closest date time
+					while(Date.now() > date.getTime()) {
 						if(d.daily) {
 							//Schedule for next day if it's a daily event
-							date.setDate(new Date().getDate()+1);
-						}else {
-							//ignore it, low chance a stream lasts 1 month or 1 year
-							continue;
+							date.setDate(date.getDate()+1);
+						}else
+						if(d.monthly) {
+							//Schedule for next month if it's a monthly event
+							date.setMonth(date.getMonth()+1);
+						}else
+						if(d.yearly) {
+							//Schedule for next year if it's a yearly event
+							date.setFullYear(date.getFullYear()+1);
 						}
 					}
 					this._pendingSchedules.push({

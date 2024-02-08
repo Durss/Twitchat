@@ -81,7 +81,7 @@ export default class RewardListEditForm extends Vue {
 	public param_color:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"", labelKey:"rewards.manage.param_color", icon:"pipette"};
 	public param_skipQueue:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"rewards.manage.param_skipQueue", icon:"skip"};
 	public param_cooldown:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"rewards.manage.param_cooldown", icon:"timeout"};
-	public param_coolDown_duration:TwitchatDataTypes.ParameterData<number> = {type:"time", value:0, labelKey:"rewards.manage.param_coolDown_duration", icon:"timer"};
+	public param_coolDown_duration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:0, labelKey:"rewards.manage.param_coolDown_duration", icon:"timer"};
 	public param_coolDown_maxPerStream:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:0, max:1000000000, labelKey:"rewards.manage.param_coolDown_maxPerStream", icon:"user"};
 	public param_coolDown_maxPerUser:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, min:0, max:1000000000, labelKey:"rewards.manage.param_coolDown_maxPerUser", icon:"user"};
 	public limitsEnabled:boolean = false;

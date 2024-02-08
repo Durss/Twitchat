@@ -94,7 +94,7 @@ export default class PollForm extends AbstractSidePanel {
 	public param_title:TwitchatDataTypes.ParameterData<string> = {value:"", type:"string", maxLength:60, labelKey:"prediction.form.question", placeholderKey:"prediction.form.question_placeholder"};
 	public param_extraVotes:TwitchatDataTypes.ParameterData<boolean> = {value:false, type:"boolean", labelKey:"poll.form.additional_votes", icon:"add"};
 	public param_points:TwitchatDataTypes.ParameterData<number> = {value:100, type:"number", min:1, max:99999, step:1, icon:"channelPoints", labelKey:"poll.form.additional_votes_amount"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"time", min:15, max:1800, labelKey:"poll.form.vote_duration", icon:"timer"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {value:2*60, type:"duration", min:15, max:1800, labelKey:"poll.form.vote_duration", icon:"timer"};
 	public placeholderList:ITriggerPlaceholder<any>[] = [];
 	public pollHistory:{title:string, duration:number, options:string[], channelPoints:number}[] = [];
 

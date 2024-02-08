@@ -86,6 +86,24 @@
 				</div>
 			</div>
 			
+			<div v-if="paramData.type == 'duration'" class="holder text duration">
+				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
+					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
+				/>
+
+				<label :for="'text'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
+				<DurationForm ref="input" v-if="!paramData.noInput"
+					:id="'duration'+key"
+					v-model="paramData.value"
+					:autofocus="autofocus"
+					:tabindex="tabindex"
+					:name="paramData.fieldName"
+					:max="paramData.max"
+					:min="paramData.min"
+					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
+					@change="$emit('input')" />
+			</div>
+			
 			<div v-if="paramData.type == 'color'" class="holder color">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -244,7 +262,7 @@
 					:id="'browse'+key"
 					:placeholder="placeholder"
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true">
-				<Button v-model:file="paramData.value"
+				<TTButton v-model:file="paramData.value"
 					class="browseBt"
 					type="file"
 					:secondary="secondary"
@@ -308,13 +326,15 @@ import Slider from '../Slider.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
+import DurationForm from '../DurationForm.vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
 	components:{
-		Button: TTButton,
+		TTButton,
 		Slider,
 		CountryFlag,
+		DurationForm,
 		ToggleButton,
 		PremiumLockLayer,
 		PlaceholderSelector,
@@ -429,20 +449,20 @@ export default class ParamItem extends Vue {
 		let txt = this.paramData.label ?? "";
 		
 		let count = 0;
-		let v = this.paramData.value;
+		let v = this.paramData.value as number | string;
 		if(this.paramData.type == "number" || this.paramData.type == "slider") {
 			count = parseFloat(this.paramData.value as string) ?? 0;
 			if(isNaN(count)) count = 0;
 			v = count.toString();
-		}else if(this.paramData.type == "time") {
-			v = Utils.formatDuration(parseInt(v+"") * 1000);
+		}else
+		if(this.paramData.type == "time" || this.paramData.type == "duration") {
+			v = Utils.formatDuration(parseInt(v.toString()) * 1000);
 		}
 		if(this.paramData.labelKey) {
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}else{
-			txt = txt.replace(/\{VALUE\}/gi, count.toString());
+			txt = txt.replace(/\{VALUE\}/gi, v.toString());
 		}
-		
 		if(!txt) return "";
 		//Puts anything between parenthesis inside <span> elements
 		return txt.replace(/((\(|\{)[^)]+(\)|\}))/gi, "<span class='small'>$1</span>");
@@ -581,7 +601,7 @@ export default class ParamItem extends Vue {
 			}
 		}
 
-		//Set this to true so the we keep focus on the text field when it switches
+		//Set this to true so we keep focus on the text field when it switches
 		//between <input> and <textarea> depending on the text length
 		//This won't affect first rendering, only subsequent ones
 		this.autofocusLocal = true;
@@ -938,6 +958,12 @@ export default class ParamItem extends Vue {
 
 				label {
 					margin-top: .4em;
+				}
+			}
+
+			&.duration {
+				input {
+					flex-basis: 100px;
 				}
 			}
 		}

@@ -11,9 +11,9 @@
 			</ParamItem>
 		</template>
 		
-		<template v-else-if="param_action.value == '2'">
+		<div v-else-if="param_action.value == '2'" class="card-item dateForm">
 			<Button class="addBt"
-				icon="date"
+				icon="add"
 				@click="addDate()">{{ $t('triggers.schedule.add_dateBt') }}</Button>
 
 			<div class="dateList"
@@ -32,14 +32,14 @@
 					</div>
 				</div>
 			</div>
-		</template>
+		</div>
 	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { ScheduleTriggerEvents, TriggerEventTypeCategories, type TriggerData, type TriggerScheduleEventType, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
+import { ScheduleTriggerEvents, type TriggerData, type TriggerScheduleEventType, type TriggerScheduleTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
@@ -62,7 +62,7 @@ export default class TriggerActionScheduleParams extends Vue {
 
 	public param_action:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"date", labelKey:"triggers.schedule.param_action" };
 	public param_repeatDurationCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"timeout", labelKey:"triggers.schedule.param_repeatDurationCondition" };
-	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"time", value:30 * 60, icon:"timeout", min:0, max:48*60, labelKey:"triggers.schedule.param_repeatDurationValue" };
+	public param_repeatDurationValue:TwitchatDataTypes.ParameterData<number> = { type:"duration", value:30 * 60, icon:"timeout", min:0, max:48*60*60, labelKey:"triggers.schedule.param_repeatDurationValue" };
 	public param_repeatMessageCondition:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"whispers", labelKey:"triggers.schedule.param_repeatMessageCondition" };
 	public param_repeatMessageValue:TwitchatDataTypes.ParameterData<number> = { type:"number", value:100, icon:"whispers", min:1, max:9999, labelKey:"triggers.schedule.param_repeatMessageValue" };
 	public params_daily:TwitchatDataTypes.ParameterData<boolean>[] = [];
@@ -71,10 +71,7 @@ export default class TriggerActionScheduleParams extends Vue {
 
 	public beforeMount():void {
 		//List all available trigger types
-		let events:TriggerScheduleEventType[] = [
-			{labelKey:"triggers.schedule.default_action", icon:"date", value:"0", category:TriggerEventTypeCategories.TWITCHAT},
-		];
-		events = events.concat(ScheduleTriggerEvents());
+		let events:TriggerScheduleEventType[] = ScheduleTriggerEvents().concat();
 		if(!this.triggerData.scheduleParams) {
 			this.triggerData.scheduleParams = {
 				type:events[1].value as TriggerScheduleTypesValue,
@@ -83,12 +80,12 @@ export default class TriggerActionScheduleParams extends Vue {
 				dates:[],
 			}
 		}
-		this.param_action.value							= this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
-		this.param_action.listValues					= events;
-		const duration									= this.triggerData.scheduleParams!.repeatDuration;
-		const minMess									= this.triggerData.scheduleParams!.repeatMinMessages;
-		this.param_repeatDurationCondition.value		= duration != undefined && duration > 0;
-		this.param_repeatMessageCondition.value			= minMess != undefined && minMess > 0;
+		this.param_action.value						= this.triggerData.scheduleParams?.type? this.triggerData.scheduleParams?.type : events[0].value;
+		this.param_action.listValues				= events;
+		const duration								= this.triggerData.scheduleParams!.repeatDuration;
+		const minMess								= this.triggerData.scheduleParams!.repeatMinMessages;
+		this.param_repeatDurationCondition.value	= duration != undefined && duration > 0;
+		this.param_repeatMessageCondition.value		= minMess != undefined && minMess > 0;
 
 		watch(()=>this.param_repeatDurationCondition.value, ()=> {
 			if(this.param_repeatDurationCondition.value === false) {
@@ -115,11 +112,12 @@ export default class TriggerActionScheduleParams extends Vue {
 
 	public addDate():void {
 		const d = new Date();
+		d.setHours(d.getHours()+1)
 		const value = Utils.toDigits(d.getFullYear(),4)
 					+"-"+Utils.toDigits(d.getMonth()+1,2)
 					+"-"+Utils.toDigits(d.getDate(),2)
 					+"T"+Utils.toDigits(d.getHours(),2)
-					+":"+Utils.toDigits(d.getMinutes()+5,2)
+					+":"+Utils.toDigits(d.getMinutes(),2)
 		this.triggerData.scheduleParams?.dates?.push({value, daily:false, monthly:false, yearly:false});
 		this.addDateParam();
 	}
@@ -139,9 +137,9 @@ export default class TriggerActionScheduleParams extends Vue {
 
 <style scoped lang="less">
 .triggeractionscheduleparams{
+	gap: .5em;
 	display: flex;
 	flex-direction: column;
-	gap: .5em;
 
 	:deep(input) {
 		&[type="number"] {
@@ -149,20 +147,21 @@ export default class TriggerActionScheduleParams extends Vue {
 		}
 	}
 
-	.dateList {
+	.dateForm {
+		gap: .5em;
 		display: flex;
 		flex-direction: column;
+		align-items: center;
+	}
+
+	.dateList {
 		gap: .5em;
+		display: flex;
+		flex-direction: column;
 		align-items: center;
 		max-height: 300px;
 		overflow-y: auto;
-		border: 1px solid var(--color-primary);
-		margin: -.5em .5em 0 .5em;
-		border-top: 0;
-		padding: .5em;
-		border-bottom-left-radius: .5em;
-		border-bottom-right-radius: .5em;
-		background-color: var(--color-primary-fadest);
+		padding: 0 0 .25em 0;
 		.row {
 			display: flex;
 			flex-direction: row;

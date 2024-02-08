@@ -15,10 +15,6 @@
 			<TTButton class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</TTButton>
 		</section>
 		
-		<section class="card-item actions">
-			<ParamsAccountPatreon />
-		</section>
-		
 		<section class="card-item scopes">
 			<div class="title"><Icon name="lock_fit" class="icon" />{{$t("account.authorization")}}</div>
 			

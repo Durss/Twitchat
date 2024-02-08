@@ -81,7 +81,7 @@
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
 				<TTButton icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
 				<img src="@/assets/icons/condition.svg" class="conditionLink" />
-				<TTButton icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" />
+				<TTButton icon="checkmark" @click="matchingCondition = true" :selected="matchingCondition == true" primary />
 			</div>
 			<svg class="conditionJoint" v-if="hasCondition" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 				width="104.8px" height="24.4px" viewBox="0 0 104.8 24.4" style="enable-background:new 0 0 104.8 24.4;" xml:space="preserve">

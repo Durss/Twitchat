@@ -25,7 +25,7 @@
 			"header":"Affichez votre tchat Youtube directement dans Twitchat.",
 			"success":"Youtube est maintenant connecté",
 			"current_live_title":"Sélectionnez le live auquel se connecter",
-			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface Youtube puis cliquez sur rafraîchir ci-dessous.",
+			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface Youtube puis cliquez sur recharger ci-dessous.",
 			"scopes_title":"Autorisations",
 			"scope_read":"Lire les messages de tchat\n(obligatoire)",
 			"scope_moderate":"Supprimer des messages / bannir des utilisateur·ices\n(@:connexions.youtube.scope_moderate_details )",

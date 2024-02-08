@@ -1,6 +1,5 @@
 <template>
 	<div class="componentlist">
-
 		<Splitter>Message parsing</Splitter>
 		<div class="card-item section message">
 			<ChatMessageChunksParser :chunks="messageChunks" v-if="messageChunks" channel="29961813" platform="twitch" />
@@ -318,6 +317,7 @@ import staticEmotes from '@/utils/twitch/staticEmoteList.json';
 import { Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import ToggleButton from '@/components/ToggleButton.vue';
+import DurationForm from '@/components/DurationForm.vue';
 
 @Component({
 	components:{
@@ -332,6 +332,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 		ProgressBar,
 		SwitchButton,
 		ToggleButton,
+		DurationForm,
 		ChatMessageChunksParser,
 	},
 	emits:[],
@@ -339,6 +340,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 export default class ComponentList extends Vue {
 
 	public type:"button"|"link" = "button";
+	public time:number = 0;
 	public disposed:boolean = false;
 	public loading:boolean = false;
 	public selected:boolean = false;
@@ -355,7 +357,7 @@ export default class ComponentList extends Vue {
 	public param_number:TwitchatDataTypes.ParameterData<number> = {type:"number", value:0, label:"Count"};
 	public param_list:TwitchatDataTypes.ParameterData<string, string> = {type:"list", value:"", listValues:[{value:"item1",label:"Item 1"}, {value:"item2",label:"Item 2"},{value:"item1",label:"Item 3"}], label:"List"};
 	public param_listEdit:TwitchatDataTypes.ParameterData<string[], string> = {type:"editablelist", value:["Item 2"], maxLength:2, options:["Item 1", "Item 2", "Item 3"], label:"Editable List"};
-	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"time", value:60, label:"Duration"};
+	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:10*60, label:"Duration ({VALUE}s)"};
 
 	private tooltipCreated:{[key:string]:boolean} = {};
 	
@@ -420,7 +422,8 @@ export default class ComponentList extends Vue {
 	display: flex;
 	flex-direction: column;
 	margin: 2em 0;
-	
+	color: var(--color-text);
+
 	.section {
 		margin: 0 2em;
 	}

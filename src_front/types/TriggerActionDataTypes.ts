@@ -1773,6 +1773,8 @@ export function ScheduleTriggerEvents():TriggerScheduleEventType[] {
 	if(scheduleCache) return scheduleCache;
 
 	scheduleCache = [
+		
+		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.NO_ACTION", value:TriggerScheduleTypes.NO_ACTION},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.REGULAR_REPEAT", value:TriggerScheduleTypes.REGULAR_REPEAT},
 		{category:TriggerEventTypeCategories.TWITCHAT, icon:"date", labelKey:"triggers.scheduleEvents.SPECIFIC_DATES", value:TriggerScheduleTypes.SPECIFIC_DATES},
 	];

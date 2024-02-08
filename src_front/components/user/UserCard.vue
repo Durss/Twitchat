@@ -563,6 +563,8 @@ export default class UserCard extends Vue {
 	 * Detect ESC key to close window
 	 */
 	private onKeyUp(e:KeyboardEvent):void {
+		if(!this.user) return;
+		
 		if(e.key == "Escape") {
 			if(this.edittingLogin) {
 				this.edittingLogin = false;

@@ -71,7 +71,6 @@
 		"schedule": {
 			"conflict": "Une action programmée du même nom existe déjà",
 			"add_dateBt": "Ajouter une date",
-			"default_action": "Selectionnez une action...",
 			"param_daily": "Journalier",
 			"param_monthly": "Mensuel",
 			"param_yearly": "Annuel",
@@ -1114,6 +1113,7 @@
 			"START_PLAYLIST": "Lancer une playlist"
 		},
 		"scheduleEvents": {
+			"NO_ACTION": "Selectionnez une action...",
 			"REGULAR_REPEAT": "Répéter régulièrement",
 			"SPECIFIC_DATES": "Calendrier"
 		}

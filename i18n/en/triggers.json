@@ -71,7 +71,6 @@
 		"schedule": {
 			"conflict": "A schedule with this name already exists",
 			"add_dateBt": "Add date",
-			"default_action": "Select an action...",
 			"param_daily": "Daily",
 			"param_monthly": "Monthly",
 			"param_yearly": "Yearly",
@@ -1114,6 +1113,7 @@
 			"START_PLAYLIST": "Start playlist"
 		},
 		"scheduleEvents": {
+			"NO_ACTION": "Select an action...",
 			"REGULAR_REPEAT": "Regular repeat",
 			"SPECIFIC_DATES": "Specific dates"
 		}
