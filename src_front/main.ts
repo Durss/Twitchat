@@ -398,6 +398,10 @@ function buildApp() {
 	app.mount('#app');
 	
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
+		//Given a Sentry error, a user apparently succeeded to have an
+		//"undefined" e.key value on an up to date Edge browser
+		if(!e.key) return;
+
 		//Reload labels on CTRL+Shift+L
 		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.altKey) {
 			StoreProxy.main.reloadLabels();
