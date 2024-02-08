@@ -904,7 +904,6 @@ export default class TriggerActionHandler {
 			&& !await this.checkConditions(trigger.conditions!.operator, [trigger.conditions!], trigger, message, log, dynamicPlaceholders, subEvent)) {
 				log.entries.push({date:Date.now(), type:"message", value:"❌ Conditions not fulfilled"});
 				passesCondition = false;
-				log.error = true;
 			}else if(testMode){
 				log.entries.push({date:Date.now(), type:"message", value:"✔ Trigger is being tested, force condition to pass"});
 			}else{
@@ -920,6 +919,7 @@ export default class TriggerActionHandler {
 		if(!trigger || !actions || actions.length == 0) {
 			canExecute = false;
 			log.entries.push({date:Date.now(), type:"message", value:"Trigger has no child actions"});
+			if(!passesCondition) log.error = true;
 		}
 		
 		log.skipped = !canExecute;
@@ -939,6 +939,10 @@ export default class TriggerActionHandler {
 		let channel_id = StoreProxy.auth.twitch.user.id;
 		if(TwitchatDataTypes.GreetableMessageTypesString[message.type as TwitchatDataTypes.GreetableMessageTypes] === true) {
 			channel_id = (message as TwitchatDataTypes.GreetableMessage).channel_id;
+		}
+
+		if(!passesCondition) {
+			log.entries.push({date:Date.now(), type:"message", value:"Executing failed condition actions"});
 		}
 
 		for (const step of actions) {

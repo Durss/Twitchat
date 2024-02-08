@@ -211,7 +211,7 @@ export default class EventSub {
 			doneUids[uid] = true;
 			if(uid == myUID) {
 				//These events are available only by the broadcaster
-				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "1");
+				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.CHANNEL_UPDATE, "2");
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.FOLLOW, "2");
 				}
@@ -407,28 +407,27 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
-		let title:string = "";
-		let category:string = "";
+		let title:string = event.title;
+		let category:string = event.category_name;
 		let tags:string[] = [];
 		let started_at:number = 0;
 		let viewers:number = 0;
 		let live:boolean = false;
+		//Loading data from channel as they're more complete than what EventSub gives us.
+		//tags and viewer count are missing from EventSub data
 		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
 			live = true;
-			title = streamInfos.title;
-			category = streamInfos.game_name;
 			tags = streamInfos.tags;
 			started_at = new Date(streamInfos.started_at).getTime();
 			viewers = streamInfos.viewer_count;
 		}else{
 			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
-			title = chanInfo.title;
-			category = chanInfo.game_name;
 			tags = chanInfo.tags;
 		}
 
 		let infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id];
+		console.log(JSON.parse(JSON.stringify(infos)));
 		if(!infos) {
 			infos = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id] = {
 				title,
@@ -455,8 +454,8 @@ export default class EventSub {
 			type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
 			message:StoreProxy.i18n.t("stream.notification", {TITLE:event.title, CATEGORY:event.category_name}),
 			noticeId:TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE,
-			title:event.title,
-			category:event.category_name
+			title:infos.title,
+			category:infos.category
 		}
 
 		StoreProxy.chat.addMessage(message);

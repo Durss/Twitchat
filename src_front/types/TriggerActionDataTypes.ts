@@ -1497,25 +1497,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		}
 		if(entry.findIndex(v=>v.tag == "MY_STREAM_TITLE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_TITLE", descKey:'triggers.placeholders.my_stream_title', pointer:"__my_stream__.title", numberParsable:false, isUserID:false, globalTag:true, example:"Talking about stuff"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "MY_STREAM_CATEGORY") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_CATEGORY", descKey:'triggers.placeholders.my_stream_category', pointer:"__my_stream__.category", numberParsable:false, isUserID:false, globalTag:true, example:"Just chatting"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "VIEWER_COUNT") == -1) {
 			entry.push({category:"stream", tag:"VIEWER_COUNT", descKey:"triggers.placeholders.viewer_count", pointer:"__my_stream__.viewers", numberParsable:true, isUserID:false, globalTag:true, example:"333"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION", descKey:"triggers.placeholders.my_stream_duration", pointer:"__my_stream__.duration", numberParsable:false, isUserID:false, globalTag:true, example:"01:23:45"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "MY_STREAM_DURATION_MS") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_DURATION_MS", descKey:"triggers.placeholders.my_stream_duration_ms", pointer:"__my_stream__.duration_ms", numberParsable:true, isUserID:false, globalTag:true, example:"16200000"});
-		}
-		
-		if(entry.findIndex(v=>v.tag == "MY_STREAM_LIVE") == -1) {
 			entry.push({category:"stream", tag:"MY_STREAM_LIVE", descKey:"triggers.placeholders.my_stream_live", pointer:"__my_stream__.live", numberParsable:false, isUserID:false, globalTag:true, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}], example:"false"});
 		}
 
