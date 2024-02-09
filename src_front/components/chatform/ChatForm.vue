@@ -481,6 +481,11 @@ export default class ChatForm extends Vue {
 	}
 
 	public async mounted():Promise<void> {
+		watch(()=>this.$store.chat.replyTo, ()=>{
+			if(this.$store.chat.replyTo) {
+				(this.$refs.input as HTMLInputElement).focus();
+			}
+		})
 		watch(():string => this.message, (newVal:string):void => {
 			const input = this.$refs.input as HTMLInputElement;
 
@@ -1089,6 +1094,7 @@ export default class ChatForm extends Vue {
 						height: 1.5em;
 						min-width: 1.5em;
 						min-height: 1.5em;
+						color: var(--color-text);
 						.icon {
 							display: block;
 							width: 100%;

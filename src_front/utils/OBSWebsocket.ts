@@ -748,8 +748,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		
 		// const settings = await this.obs.call("GetInputSettings", {inputName: sourceName});
 		const newSettings:BrowserSourceSettings = {shutdown:true, is_local_file:false, url}
-		if(!/https?:\/\.*/i?.test(url)) {
-			//If using a local file, do not use "local_file" param is it does not
+		if(!/https?:\/\.*/i?.test(url) && !/.*:\/\/.*/gi.test(url)) {
+			//If using a local file, do not use "local_file" param as it does not
 			//supports query parameters. 
 			newSettings.url = "file:///"+url;
 		}
