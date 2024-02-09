@@ -1446,7 +1446,7 @@ export default class TriggerActionHandler {
 					const body:{[key:string]:string} = {};
 					const headers:{[key:string]:string} = {};
 					let uri = step.url;
-					if(!/https?:\/\//gi.test(uri)) uri = "https://"+uri;
+					if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
 					for (const tag of step.queryParams) {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+tag+"}", subEvent);
