@@ -14,7 +14,7 @@
 				<Button v-for="action in messageData.actions"
 				:type="demo == false && action.actionType == 'url'? 'link' : 'button'"
 				:href="action.url"
-				target="_blank"
+				:target="action.urlTarget || '_blank'"
 				small
 				:icon="action.icon"
 				:alert="action.theme == 'alert' || (action.theme == 'light' && messageData.style == 'error')"
