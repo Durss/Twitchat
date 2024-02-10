@@ -759,6 +759,22 @@ export default class ChatForm extends Vue {
 			}
 		}else
 		
+		if(cmd == "/__sentry_on__" || cmd == "/__sentry_off__") {
+			let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
+			let sentryParam = sentryParamSrc? JSON.parse(sentryParamSrc) : {v:1, date:Date.now(), enabled:true};
+			sentryParam.enabled = cmd == "/__sentry_on__";
+			DataStore.set(DataStore.AB_SENTRY, sentryParam);
+			const message:TwitchatDataTypes.MessageNoticeData = {
+				id:Utils.getUUID(),
+				platform:"twitchat",
+				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				channel_id:this.$store.auth.twitch.user.id,
+				date:Date.now(),
+				message:"You must restart twitchat for this change to take effect !",
+				noticeId:"generic",
+			}
+		}else
+		
 		if(isAdmin && cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
