@@ -1124,8 +1124,8 @@ export default class MessageList extends Vue {
 			//If enhancing size, refresh max message count
 			if(this.prevHeight < holderHeight) {
 				this.computeMaxMessageCount();
+				this.prevHeight = holderHeight;
 			}
-			this.prevHeight = holderHeight;
 		}
 
 		if (!this.lockScroll) {
@@ -1160,7 +1160,8 @@ export default class MessageList extends Vue {
 			this.holderOffsetY = 0;
 			messageHolder.style.transform = "translateY(0)";
 		}
-		messageHolder.style.paddingTop = (scrollPageOffset+10)+"px";
+		
+		// messageHolder.style.paddingTop = (scrollPageOffset+10)+"px";
 
 		//Show next pending message if at the bottom and scroll isn't locked
 		if (messageHolder.scrollTop >= maxScroll - scrollPageOffset
@@ -1173,7 +1174,7 @@ export default class MessageList extends Vue {
 			//Make sure we don't reach the top.
 			//If we did the list would keep scrolling up until reaching the first message unless
 			//we bring it back just a little like this
-			messageHolder.scrollTop = this.virtualScrollY = scrollPageOffset + 2;
+			// messageHolder.scrollTop = this.virtualScrollY = scrollPageOffset + 2;
 			gsap.killTweensOf(messageHolder);
 			this.showPrevMessage();
 		}
@@ -1185,8 +1186,9 @@ export default class MessageList extends Vue {
 	private async showNextPendingMessage():Promise<void> {
 		if (this.pendingMessages.length == 0) return;
 
-		//Add 5 messages
-		let addCount = 5;
+		//Add 8 messages
+		let addCount = 8;
+		let messageCountToAdd = addCount;
 		let message!: TwitchatDataTypes.ChatMessageTypes | undefined;
 		do {
 			message = this.pendingMessages.shift();
@@ -1199,16 +1201,16 @@ export default class MessageList extends Vue {
 			else if(message) {
 				if(await this.mergeWithPrevious(message, undefined, this.pendingMessages)) continue;
 				//Add message
-				addCount --;
+				messageCountToAdd --;
 				this.filteredMessages.push(message);
 			}
-		} while (this.pendingMessages.length > 0 && addCount > 0)
+		} while (this.pendingMessages.length > 0 && messageCountToAdd > 0)
 		
 		//Reset index so we can scroll upward again even if chat is still paused
 		this.scrollUpIndexOffset = -1;
 		
 		//No message added, stop there
-		if(addCount == 5) return;
+		if(messageCountToAdd == addCount) return;
 		
 		if (this.filteredMessages.length > this.maxMessages) {
 			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
@@ -1231,7 +1233,9 @@ export default class MessageList extends Vue {
 			this.scrollUpIndexOffset = this.pendingMessages.length + this.filteredMessages.length;
 		}
 
-		let addCount = 5;
+		//Add 8 messages
+		let addCount = 8;
+		let messageCountToAdd = addCount;
 		let addNext = false;
 		let messageAdded = false;
 		let i = list.length - this.scrollUpIndexOffset;
@@ -1247,7 +1251,7 @@ export default class MessageList extends Vue {
 					removed.push(this.filteredMessages.pop()!);
 					this.filteredMessages.unshift(m);
 					messageAdded = true;
-					if(--addCount == 0) break;
+					if(--messageCountToAdd == 0) break;
 				}
 			}
 		}
@@ -1510,7 +1514,7 @@ export default class MessageList extends Vue {
 		const sizesRatio = [.4,.5,.6,.7,.8,.9,1,1.1,1.2,1.3,1.4,1.5,1.6,1.7,1.8,1.9,2,2.1,2.2,2.3];
 		const size = this.$store.params.appearance.defaultSize.value as number;
 		this.virtualMessageHeight = (32 + 9) * sizesRatio[size-1];//32 = min content height ; 9 = top+bottom padding
-		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 10;
+		const newCount = Math.ceil(el.offsetHeight/this.virtualMessageHeight) + 20;
 		if(newCount != this.maxMessages) {
 			this.fullListRefresh();
 		}
@@ -1586,14 +1590,14 @@ export default class MessageList extends Vue {
 				this.virtualScrollY -= thresholdTop - messageBounds.top;
 				// messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
-				gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
+				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
 				
 				//If message is bellow 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
 				// messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
-				gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
+				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
 				this.onScroll(messageBounds.height);
 			}
 		}
