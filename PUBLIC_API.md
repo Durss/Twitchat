@@ -711,7 +711,7 @@ Disable the speech recognition
 Send chat notifications only visible by you on Twitchat.\
 The `icon` props can have one of those values:
 ```
-ad add alert animate announcement anon api automod badge ban bingo bits block boost bot broadcast broadcaster change channelPoints chatCommand chatPoll checkmark clearChat click clip coffee coin color commands conversation copy count countdown credits cross date debug delete dice discord donor download dragZone easing edit elevated elgato emergency emote enter filters firstTime fix follow follow_outline font fontSize fullscreen gift github goxlr goxlr_bleep goxlr_fx hand heat help hide highlight history hypeChat idea info internet kofi leave list live loader lock loop magnet markRead max merge microphone microphone_mute microphone_recording min minus mod move music mute newtab next noMusic notification number obs offline online orderable overlay params partner patreon pause paypal pin pipette placeholder play poll polygon prediction premium presentation press prev prime pros raid read refresh reply returning reward_highlight rightClick rotate save scale scroll scrollDown scrollUp search shadow shield shieldMode shoutout show skip slow spotify stars stop sub test thickness ticket timeout timer train train_boost translate trash tts twitch twitchat twitter ulule unban unblock unfollow unlock unmod unmute unpin unvip update upload url user vibrate vip voice voicemod volume watchStreak whispers youtube
+ad add alert animate announcement anon api automod badge ban bingo bits block boost bot broadcast broadcaster change channelPoints chatCommand chatPoll checkmark clearChat click clip coffee coin color commands conversation copy count countdown credits cross date debug delete dice discord donor download dragZone easing edit elevated elgato emergency emote enter filters firstTime fix follow follow_outline font fontSize fullscreen gift github goxlr goxlr_bleep goxlr_fx hand heat help hide highlight history hypeChat idea info internet kofi leave list live loader lock loop magnet markRead max merge microphone microphone_mute microphone_recording min minus mod move music mute newtab next noMusic notification number obs offline online orderable overlay params partner patreon pause paypal pin pipette placeholder play poll polygon prediction premium presentation press prev prime pros qna raid read refresh reply returning reward_highlight rightClick rotate save scale scroll scrollDown scrollUp search shadow shield shieldMode shoutout show skip slow spotify stars stop sub test thickness ticket tiktok timeout timer train train_boost translate trash tts twitch twitchat twitter ulule unban unblock unfollow unlock unmod unmute unpin unvip update upload url user vibrate vip voice voicemod volume watchStreak whispers youtube
 ```
 ### JSON param *(all props are optional)*
 ```typescript
@@ -732,6 +732,8 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 		actionType?:"url"|"trigger"|"message";
 		//Page to open in a new tab for "url" actionType
 		url?:string;
+		//window target for "url" actionType
+		urlTarget?:string;
 		//Trigger to execute for "trigger" actionType.
 		//Use CTRL+Alt+D on your triggers list to show their IDs
 		triggerId?:string;
