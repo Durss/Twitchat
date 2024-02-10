@@ -40,6 +40,7 @@
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
 import Utils from '@/utils/Utils';
+import { watch } from 'vue';
 
 @Component({
 	components:{
@@ -61,16 +62,24 @@ export default class DurationForm extends Vue {
 	@Prop({default:false, type:Boolean})
 	public autofocus!:boolean;
 
+	@Prop({default:false, type:Boolean})
+	public allowMs!:boolean;
+
 	public hours:string = "0";
 	public minutes:string = "0";
 	public seconds:string = "0";
 
 	public beforeMount():void {
 		this.initValue(this.modelValue)
+		
+		watch(()=>this.modelValue, ()=>{
+			this.initValue(this.modelValue)
+		})
 	}
 
 	public onChange():void {
-		let v = (parseFloat(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600;
+		const f = this.allowMs !== false? parseFloat : parseInt;
+		let v = (f(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600;
 		const prevV = v;
 		if(v > this.max) v = this.max;
 		if(v < this.min) v = this.min;
@@ -83,11 +92,12 @@ export default class DurationForm extends Vue {
 	public onKeyDown(event:KeyboardEvent, field:"h"|"m"|"s"):void {
 		let add = event.key == "ArrowUp"? 1 : event.key == "ArrowDown"? -1 : 0
 		if(event.shiftKey) add *= 10;
+		const f = this.allowMs !== false? parseFloat : parseInt;
 		if(add != 0) {
 			switch(field){
 				case "h": this.hours = (parseInt(this.hours) + add).toString(); break;
 				case "m": this.minutes = (parseInt(this.minutes) + add).toString(); break;
-				case "s": this.seconds = (parseFloat(this.seconds) + add).toString(); break;
+				case "s": this.seconds = (f(this.seconds) + add).toString(); break;
 			}
 			this.clamp(field);
 			this.onChange();
@@ -114,10 +124,11 @@ export default class DurationForm extends Vue {
 	}
 
 	public clamp(field:"h"|"m"|"s"):void {
+		const f = this.allowMs !== false? parseFloat : parseInt;
 		switch(field){
 			case "h": this.hours = Utils.toDigits(this.loop(parseInt(this.hours), 999), 2).toString(); break;
 			case "m": this.minutes = Utils.toDigits(this.loop(parseInt(this.minutes), 59), 2).toString(); break;
-			case "s": this.seconds = Utils.toDigits(this.loop(parseFloat(this.seconds), 59), 2).toString(); break;
+			case "s": this.seconds = Utils.toDigits(this.loop(f(this.seconds), 59), 2).toString(); break;
 		}
 	}
 

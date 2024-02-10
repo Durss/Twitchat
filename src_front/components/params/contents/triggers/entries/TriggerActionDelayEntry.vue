@@ -6,7 +6,7 @@
 
 		<img src="@/assets/icons/timer.svg" class="icon">
 
-		<DurationForm v-if="typeof(action.delay) != 'string'" class="field" v-model="action.delay" />
+		<DurationForm v-if="isNumericValue" class="field" v-model="action.delay" allowMs />
 
 		<TTButton v-else icon="trash" small secondary @click="action.delay = 0">{{ action.delay }}</TTButton>
 		
@@ -47,9 +47,12 @@ export default class TriggerActionDelayEntry extends AbstractTriggerActionEntry 
 	
 	@Prop
 	declare triggerData:TriggerData;
-
 	
 	public placeholderList:TwitchatDataTypes.PlaceholderEntry[] = [];
+
+	public get isNumericValue():boolean {
+		return typeof(this.action.delay) != 'string';
+	}
 
 	public beforeMount():void {
 		super.beforeMount();
