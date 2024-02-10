@@ -70,11 +70,12 @@ export default class DurationForm extends Vue {
 	}
 
 	public onChange():void {
-		let v = (parseInt(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600;
+		let v = (parseFloat(this.seconds) || 0) + (parseInt(this.minutes) || 0) * 60 + (parseInt(this.hours) || 0) * 3600;
 		const prevV = v;
 		if(v > this.max) v = this.max;
 		if(v < this.min) v = this.min;
 		if(v != prevV) v = this.initValue(v);
+		console.log(v);
 		this.$emit("update:modelValue", v);
 		this.$emit("change", v);
 	}
@@ -86,7 +87,7 @@ export default class DurationForm extends Vue {
 			switch(field){
 				case "h": this.hours = (parseInt(this.hours) + add).toString(); break;
 				case "m": this.minutes = (parseInt(this.minutes) + add).toString(); break;
-				case "s": this.seconds = (parseInt(this.seconds) + add).toString(); break;
+				case "s": this.seconds = (parseFloat(this.seconds) + add).toString(); break;
 			}
 			this.clamp(field);
 			this.onChange();
@@ -116,14 +117,14 @@ export default class DurationForm extends Vue {
 		switch(field){
 			case "h": this.hours = Utils.toDigits(this.loop(parseInt(this.hours), 999), 2).toString(); break;
 			case "m": this.minutes = Utils.toDigits(this.loop(parseInt(this.minutes), 59), 2).toString(); break;
-			case "s": this.seconds = Utils.toDigits(this.loop(parseInt(this.seconds), 59), 2).toString(); break;
+			case "s": this.seconds = Utils.toDigits(this.loop(parseFloat(this.seconds), 59), 2).toString(); break;
 		}
 	}
 
 	private initValue(value:number):number {
 		const h = Math.floor(value/3600);
 		const m = Math.floor((value-h*3600)/60);
-		const s = Math.floor(value-m*60-h*3600);
+		const s = value-m*60-h*3600;
 		this.hours = h.toString();
 		this.minutes = m.toString();
 		this.seconds = s.toString();
