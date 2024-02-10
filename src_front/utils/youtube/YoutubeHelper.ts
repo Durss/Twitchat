@@ -341,6 +341,8 @@ export default class YoutubeHelper {
 				const m = json.items[i];
 				//Message already registered? Skip it
 				if(idsDone[m.id]) continue;
+				//Apparently it's possible to get empty messages given a Sentry error :/
+				if(!m.snippet.displayMessage) continue;
 
 				//Create message
 				const message_chunks = this.parseMessage(m.snippet.displayMessage);
