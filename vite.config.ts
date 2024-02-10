@@ -2,6 +2,8 @@ import { fileURLToPath, URL } from 'url';
 import vue from '@vitejs/plugin-vue';
 import { createLogger, defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
+import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
+import { resolve, dirname } from 'node:path';
 
 /**
  * Plugin is not bundled properly.
@@ -22,7 +24,12 @@ export default defineConfig({
 
 	plugins: [
 		vue(),
-		loadVersionPlugin()
+		loadVersionPlugin(),
+		VueI18nPlugin({
+		  /* options */
+		  // locale messages resource pre-compile option
+		  include: resolve(dirname(fileURLToPath(import.meta.url)), './i18n/**'),
+		}),
 	],
 
 	optimizeDeps: {
@@ -44,9 +51,16 @@ export default defineConfig({
 	},
 
 	resolve: {
-		alias: {
-			'@': fileURLToPath(new URL('./src_front', import.meta.url)),
-		}
+		alias: [
+			{
+				find:"@",
+				replacement: fileURLToPath(new URL('./src_front', import.meta.url)),
+			},
+			{
+				find: 'vue-i18n',
+				replacement: 'vue-i18n/dist/vue-i18n.cjs.js',
+			}
+		]
 	},
 
 	css: {
