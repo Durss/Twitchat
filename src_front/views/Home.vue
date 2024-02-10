@@ -250,7 +250,7 @@ export default class Home extends Vue {
 
 	public toggleVideo(event:PointerEvent):void {
 		const video = event.target as HTMLVideoElement;
-		if(video.paused) video.play();
+		if(video.paused) video.play().catch(()=>{});
 		else video.pause();
 	}
 

@@ -188,26 +188,24 @@ export default class SpotifyHelper {
 		}
 
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
-		const res = await fetch("https://accounts.spotify.com/api/token", options);
-		let refreshSuccess = false;
-		if(res.status == 200) {
-			try {
+		try {
+			const res = await fetch("https://accounts.spotify.com/api/token", options);
+			let refreshSuccess = false;
+			if(res.status == 200) {
 				json = await res.json();
 				if(json.access_token) {
 					this.setToken(json);
 					refreshSuccess = true;
 					StoreProxy.music.spotifyConsecutiveErrors = 0;
 				}
-			}catch(error) {
-				console.log("[SPOTIFY] Token refresh failed");
-				console.log(error);
 			}
-		}
-		if(!refreshSuccess){
-			StoreProxy.music.spotifyConsecutiveErrors ++;
-			this.connected = false;
-			rebuildPlaceholdersCache();
-
+			if(!refreshSuccess){
+				StoreProxy.music.spotifyConsecutiveErrors ++;
+				this.connected = false;
+				rebuildPlaceholdersCache();
+				throw("refresh token failed");
+			}
+		}catch(error) {
 			//Refresh failed, try again
 			if(attempt < 5) {
 				this._refreshTimeout = setTimeout(()=>{

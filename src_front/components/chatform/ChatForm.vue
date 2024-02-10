@@ -764,15 +764,26 @@ export default class ChatForm extends Vue {
 			let sentryParam = sentryParamSrc? JSON.parse(sentryParamSrc) : {v:1, date:Date.now(), enabled:true};
 			sentryParam.enabled = cmd == "/__sentry_on__";
 			DataStore.set(DataStore.AB_SENTRY, sentryParam);
-			const message:TwitchatDataTypes.MessageNoticeData = {
+			const message:TwitchatDataTypes.MessageCustomData = {
 				id:Utils.getUUID(),
 				platform:"twitchat",
-				type:TwitchatDataTypes.TwitchatMessageType.NOTICE,
+				type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 				channel_id:this.$store.auth.twitch.user.id,
 				date:Date.now(),
 				message:"You must restart twitchat for this change to take effect !",
-				noticeId:"generic",
+				actions:[
+					{
+						label:"Restart",
+						actionType:"url",
+						urlTarget:"_self",
+						url:document.location.href,
+						icon:"refresh",
+						id:Utils.getUUID(),
+						theme:"primary",
+					}
+				]
 			}
+			sChat.addMessage(message);
 		}else
 		
 		if(isAdmin && cmd == "/raw") {

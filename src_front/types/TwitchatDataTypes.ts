@@ -3857,6 +3857,10 @@ export namespace TwitchatDataTypes {
 			 */
 			actionType?:"url"|"trigger"|"message",
 			/**
+			 * Target to open URL to (_blank, _self, ...)
+			 */
+			urlTarget?:string,
+			/**
 			 * URL to open in a new tab for "url" type.
 			 */
 			url?:string,

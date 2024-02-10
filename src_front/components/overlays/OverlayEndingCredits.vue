@@ -537,7 +537,7 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(data.next === true || data.prev === true) {
 			let targetYPos = window.innerHeight * .5;
 			
-			const lists = this.$refs.listItem as HTMLDivElement[];
+			const lists = (this.$refs.listItem as HTMLDivElement[] | undefined) || [];
 			let closestPos = Number.MAX_VALUE;
 			let closestItemIndex:number = -1;
 			//Search item closest to top of screen

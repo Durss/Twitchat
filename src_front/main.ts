@@ -370,13 +370,19 @@ function buildApp() {
 	if(sentryParamSrc === "true" || sentryParamSrc === "false") sentryParamSrc = null;
 	//Sentry params not yet defined, initialize it
 	if(!sentryParamSrc)  {
-		//Target 20% of users
-		sentryParam.enabled = Math.random() > .8;
+		//Target 50% of users
+		sentryParam.v = 2;
+		sentryParam.enabled = Math.random() > .5;
 		DataStore.set(DataStore.AB_SENTRY, sentryParam);
 	}else{
 		try {
 			const json = JSON.parse(sentryParamSrc);
 			sentryParam = json;
+			if(sentryParam.v == 1) {
+				sentryParam.v = 2;
+				sentryParam.enabled = Math.random() > .5;
+				DataStore.set(DataStore.AB_SENTRY, sentryParam);
+			}
 		}catch(error) { }
 	}
 	if(document.location.hostname != "twitchat.fr" || sentryParam.enabled) {

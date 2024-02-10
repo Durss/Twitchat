@@ -76,13 +76,13 @@ export const storeChat = defineStore('chat', {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.heatSpotify"),
 				cooldown:10,
-				allowAnon:false,
+				allowAnon:true,
 			},
 			heatUlule: {
 				enabled:false,
 				message:StoreProxy.i18n.tm("params.botMessages.heatUlule"),
 				cooldown:10,
-				allowAnon:false,
+				allowAnon:true,
 			},
 			qnaStart: {
 				enabled:true,

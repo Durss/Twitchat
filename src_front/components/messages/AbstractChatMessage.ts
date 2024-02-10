@@ -49,6 +49,10 @@ export default class AbstractChatMessage extends Vue {
 				&& user.id != authenticatedUser.id
 	}
 
+	// public beforeUpdate() {
+	// 	console.log("UPDATE", this.messageData.type);
+	// }
+
 	public beforeMount() {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {

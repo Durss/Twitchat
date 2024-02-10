@@ -330,13 +330,14 @@ export default class TriggerActionList extends Vue {
 
 		//Not super clean way of getting the param content holder but don't
 		//know any cleaner one.
-		const holder = document.getElementById("paramContentHolder")!;
 		this.pointerDownHandler	= (e:PointerEvent) => this.onPointerDown(e);
 		this.pointerMoveHandler	= (e:PointerEvent) => this.onPointerMove(e);
 		this.pointerUpHandler	= (e:PointerEvent) => this.onPointerUp(e);
 		this.keyUpHandler		= (e:KeyboardEvent) => this.onKeyUp(e);
 		this.keyDownHandler		= (e:KeyboardEvent) => this.onKeyDown(e);
-		holder.addEventListener("pointerdown", this.pointerDownHandler);
+		const holder = document.getElementById("paramContentHolder")!;
+		//Make sure holder exists. Apparently someone succeeded to have not existing holder (?!). See Sentry TWITCHAT-1Q
+		if(holder) holder.addEventListener("pointerdown", this.pointerDownHandler);
 		document.addEventListener("pointermove", this.pointerMoveHandler);
 		document.addEventListener("pointerup", this.pointerUpHandler);
 		document.addEventListener("keyup", this.keyUpHandler, true);
@@ -348,7 +349,7 @@ export default class TriggerActionList extends Vue {
 	public beforeUnmount():void {
 		this.disposed = true;
 		const holder = document.getElementById("paramContentHolder")!;
-		holder.removeEventListener("pointerdown", this.pointerDownHandler);
+		if(holder) holder.removeEventListener("pointerdown", this.pointerDownHandler);
 		document.removeEventListener("pointermove", this.pointerMoveHandler);
 		document.removeEventListener("pointerup", this.pointerUpHandler);
 		document.removeEventListener("keyup", this.keyUpHandler, true);
