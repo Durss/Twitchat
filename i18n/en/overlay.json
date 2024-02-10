@@ -141,11 +141,13 @@
 			"param_normalCheers":"Show normal cheers",
 			"param_pinnedCheers":"Show pinned cheers",
 			"param_showConductors":"Show train conductors",
+			"param_hideEmptySlots":"Hide sections with no entry",
 			"delete_confirm_title":"Delete category?",
 			"scroll_tt":"Scroll this section into view",
 			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Start fake credits",
 			"moderators_label":"MODERATORS",
+			"empty_slot":"No entry ☹️",
 			"categories": {
 				"cheers":"Bits",
 				"text":"Free text",

@@ -1270,6 +1270,7 @@ import Ajv from "ajv";
 				paddingTitle: {type:"integer", minimum:0, maximum:1000},
 				speed: {type:"integer", minimum:0, maximum:1000},
 				ignoreBots: {type:"boolean"},
+				hideEmptySlots: {type:"boolean"},
 				ignoreCustomBots: {
 					type:"array",
 					minItems:0,

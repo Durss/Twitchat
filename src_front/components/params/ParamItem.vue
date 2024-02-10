@@ -439,7 +439,7 @@ export default class ParamItem extends Vue {
 		if(this.premiumLocked) res.push("cantUse");
 		if(this.paramData.type == "time") res.push("time");
 		if(this.placeholdersAsPopout !== false) res.push("popoutMode")
-		if(this.premiumOnlyLocal !== false) res.push("premium");
+		if(this.premiumOnlyLocal !== false && this.noBackground === false) res.push("premium");
 		res.push("level_"+this.childLevel);
 		return res;
 	}

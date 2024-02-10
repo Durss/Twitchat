@@ -3,7 +3,8 @@
 		<template v-for="item in slotList">
 			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem" :id="'item_'+item.params.id">
 				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
-				<div data-list class="list" :style="item.entryStyles">
+				<div v-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ $t("overlay.credits.empty_slot") }}</div>
+				<div v-else data-list class="list" :style="item.entryStyles">
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<div class="amount" v-if="item.params.showAmounts === true">
@@ -119,6 +120,7 @@
 			</div>
 		</template>
 	</div>
+	<div v-else>{{noEntry}}</div>
 </template>
 
 <script lang="ts">
@@ -260,49 +262,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(item.showPinnedCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === true));
 		if(item.showNormalCheers !== false) res = res.concat(cheers.filter(v=> v.pinned === false));
 		return this.makeUnique(item, res);
-	}
-
-	public getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlotParams):string[] {
-		const res = ["category", item.slotType];
-		if(this.data?.params?.showIcons === false) res.push("noIcon");
-		const itemCount = this.getEntryCountForSlot(item);
-		//If requesting 3 cols but there are only 2 items, switch to 2 cols mode
-		if(item.layout == "3cols" && itemCount == 2) res.push("layout_2cols");
-		//If requestion 3 or 3 cols but only 1 item is available, switch to 1 col mode
-		else if((item.layout == "3cols" && itemCount == 1) || (item.layout == "2cols" && itemCount == 1)) res.push("layout_col");
-		else res.push("layout_"+item.layout);
-		if(item.slotType == "text" && !item.text) res.push("noText");
-		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
-		if(!item.label) res.push("noLabel");
-		if(this.data.params.stickyTitle === true) res.push("sticky");
-		return res;
-	}
-
-	public getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
-			color: this.data?.params?.colorTitle,
-			fontFamily: this.data?.params?.fontTitle+", Inter",
-			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
-			marginBottom: this.data?.params?.paddingTitle+"px",
-		}
-		return res;
-	}
-
-	public getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
-			color: this.data?.params?.colorEntry,
-			fontFamily: this.data?.params?.fontEntry+", Inter",
-			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
-			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
-		}
-		return res;
-	}
-
-	public getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
-		const res:StyleValue = {
-			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
-		}
-		return res;
 	}
 
 	public requestInfo():void {
@@ -742,7 +701,6 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 			if(this.posY > window.innerHeight && speed < 0 && this.data?.params?.loop === true) {
 				this.scrollStarted_at = Date.now();
 				this.posY = -bounds.height;
-				console.log("loop top");
 			}
 			//Rewrite the start scroll time depending on the scrolling percent
 			//If credits are configured to scroll completely during a specific
@@ -772,26 +730,74 @@ export default class OverlayEndingCredits extends AbstractOverlay {
 		if(!this.data || !this.data.params) return;
 		this.slotList = [];
 		this.entryCountCache = {};
-		const slots = this.data.params.slots.filter(v=>this.getEntryCountForSlot(v) > 0);
+		let slots = this.data.params.slots;
 		let totalEntries = 0;
+		console.log(">>>", this.data!.params!.hideEmptySlots);
 		slots.forEach(slotParams => {
 			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
 			//Slot disabled, ignore it
 			if(slotParams.enabled === false) return;
 			const entryCount = this.getEntryCountForSlot(slotParams);
+			//Ignore empty slots if requested
+			//Do not use "=== true" as the prop has been added later and might be missing
+			if(entryCount === 0 && this.data!.params!.hideEmptySlots !== false) return;
 			totalEntries += entryCount;
 			//Pre compute styles and classes to avoid useless rerenders
 			this.slotList.push({
 				slot,
 				entryCount,
 				params:slotParams,
-				holderClasses:this.getCategoryClasses(slotParams),
+				holderClasses:this.getCategoryClasses(slotParams, entryCount),
 				titleStyles:this.getTitleStyles(slotParams),
 				entryStyles:this.getEntryStyles(slotParams),
 				categoryStyles:this.getCategoryStyles(slotParams),
 			})
 		});
-		this.noEntry = totalEntries == 0;
+		this.noEntry = totalEntries == 0 && this.data!.params!.hideEmptySlots !== false;
+	}
+
+	private getCategoryClasses(item:TwitchatDataTypes.EndingCreditsSlotParams, entryCount:number):string[] {
+		const res = ["category", item.slotType];
+		if(this.data?.params?.showIcons === false) res.push("noIcon");
+		if(entryCount > 0) {
+			//If requesting 3 cols but there are only 2 items, switch to 2 cols mode
+			if(item.layout == "3cols" && entryCount == 2) res.push("layout_2cols");
+			//If requestion 3 or 3 cols but only 1 item is available, switch to 1 col mode
+			else if((item.layout == "3cols" && entryCount == 1) || (item.layout == "2cols" && entryCount == 1)) res.push("layout_col");
+			else res.push("layout_"+item.layout);
+		}
+		if(item.slotType == "text" && !item.text) res.push("noText");
+		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
+		if(!item.label) res.push("noLabel");
+		if(this.data.params.stickyTitle === true) res.push("sticky");
+		return res;
+	}
+
+	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			color: this.data?.params?.colorTitle,
+			fontFamily: this.data?.params?.fontTitle+", Inter",
+			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			marginBottom: this.data?.params?.paddingTitle+"px",
+		}
+		return res;
+	}
+
+	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			color: this.data?.params?.colorEntry,
+			fontFamily: this.data?.params?.fontEntry+", Inter",
+			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
+			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
+		}
+		return res;
+	}
+
+	private getCategoryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
+		const res:StyleValue = {
+			marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
+		}
+		return res;
 	}
 }
 
@@ -887,6 +893,11 @@ interface SlotItem {
 					font-size: .8em;
 					font-weight: 300;
 				}
+			}
+
+			&.empty {
+				text-align: center;
+				justify-content: center;
 			}
 		}
 

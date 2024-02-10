@@ -1739,6 +1739,7 @@ export namespace TwitchatDataTypes {
 		speed:number;
 		fadeSize:number;
 		slots:EndingCreditsSlotParams[];
+		hideEmptySlots?:boolean;//Optional because added later
 	}
 
 	/**

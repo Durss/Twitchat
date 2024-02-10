@@ -68,56 +68,73 @@
 										<Icon name="layout" />
 										<label>{{ $t("overlay.credits.param_layout") }}</label>
 										<div class="layoutBtns">
-											<TTButton icon="layout_left" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_center" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_right" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_colLeft" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
-											<TTButton icon="layout_col" 		 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
-											<TTButton icon="layout_colRight" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
-											<TTButton icon="layout_2cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
-											<TTButton icon="layout_3cols" 	 :premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_left"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'left'"		:selected="element.layout == 'left'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_center"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'center'"		:selected="element.layout == 'center'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_right"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'right'"		:selected="element.layout == 'right'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_colLeft" 	:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colLeft'"		:selected="element.layout == 'colLeft'" />
+											<TTButton icon="layout_col" 		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'col'"			:selected="element.layout == 'col'" />
+											<TTButton icon="layout_colRight" 	:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = 'colRight'"	:selected="element.layout == 'colRight'" />
+											<TTButton icon="layout_2cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '2cols'"		:selected="element.layout == '2cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
+											<TTButton icon="layout_3cols"		:premium="getDefinitionFromSlot(element.slotType).premium" @click="element.layout = '3cols'"		:selected="element.layout == '3cols'" v-if="!['text', 'polls', 'predictions'].includes(element.slotType)" />
 										</div>
 									</div>
 								</div>
 
 								<template v-if="element.slotType == 'cheers'">
-									<ParamItem :paramData="param_normalCheers[element.id]" v-model="element.showNormalCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_pinnedCheers[element.id]" v-model="element.showPinnedCheers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_normalCheers[element.id]" v-model="element.showNormalCheers"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_pinnedCheers[element.id]" v-model="element.showPinnedCheers"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
 								<template v-if="element.slotType == 'rewards'">
-									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showRewardUsers[element.id]" v-model="element.showRewardUsers"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_filterRewards[element.id]"	v-model="element.filterRewards"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
 								<template v-if="element.slotType == 'subs'">
 									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
 									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
 									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
-									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 									
 								<template v-if="element.slotType == 'chatters'">
-									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
 								<template v-if="element.slotType == 'hypetrains'">
 									<ParamItem :paramData="param_showConductors[element.id]" v-model="element.showTrainConductors"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
-								<ParamItem :paramData="param_uniqueUsers[element.id]"		v-model="element.uniqueUsers"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" v-if="param_uniqueUsers[element.id]" />
-								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount" class="amounts" :paramData="param_showAmounts[element.id]" v-model="element.showAmounts" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem class="maxItems" :paramData="param_maxItems[element.id]" v-model="element.maxEntries" v-if="element.slotType != 'text'" premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								<ParamItem class="maxItems" :paramData="param_text[element.id]" v-model="element.text" v-else premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+								<ParamItem v-if="param_uniqueUsers[element.id]"
+									v-model="element.uniqueUsers"
+									:paramData="param_uniqueUsers[element.id]"
+									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									
+								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount"
+									class="amounts" :paramData="param_showAmounts[element.id]"
+									v-model="element.showAmounts"
+									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+
+								<ParamItem v-if="element.slotType != 'text'"
+									class="maxItems"
+									:paramData="param_maxItems[element.id]"
+									v-model="element.maxEntries"
+									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+
+								<ParamItem v-else
+									class="maxItems"
+									:paramData="param_text[element.id]"
+									v-model="element.text"
+									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								
 								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
 									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
@@ -167,12 +184,13 @@
 			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
 				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
 			</ParamItem>
-			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" premium />
-			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" premium />
-			<ParamItem :paramData="param_loop" v-model="data.loop" premium />
-			<ParamItem :paramData="param_timing" v-model="data.timing" premium>
-				<ParamItem class="child" noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" premium noPremiumLock />
-				<ParamItem class="child" noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" premium noPremiumLock />
+			<ParamItem :paramData="param_hideEmptySlots" v-model="data.hideEmptySlots" />
+			<ParamItem :paramData="param_showIcons" v-model="data.showIcons" />
+			<ParamItem :paramData="param_startDelay" v-model="data.startDelay" />
+			<ParamItem :paramData="param_loop" v-model="data.loop" />
+			<ParamItem :paramData="param_timing" v-model="data.timing">
+				<ParamItem class="child" noBackground :paramData="param_duration" v-model="data.duration" v-if="param_timing.value == 'duration'" noPremiumLock />
+				<ParamItem class="child" noBackground :paramData="param_speed" v-model="data.speed" v-if="param_timing.value == 'speed'" noPremiumLock />
 			</ParamItem>
 		</section>
 		<!-- <ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
@@ -233,14 +251,15 @@ export default class OverlayParamsCredits extends Vue {
 	public param_titleColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorTitle", icon:"color"};
 	public param_entryColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"#ffffff", labelKey:"overlay.credits.param_colorEntry", icon:"color"};
 	public param_textShadow:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:1, min:0, max:100, labelKey:"overlay.credits.param_textShadow", icon:"shadow"};
-	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer"};
+	public param_timing:TwitchatDataTypes.ParameterData<string> = {type:"list", value:"speed", labelKey:"overlay.credits.param_timing", icon:"timer", premiumOnly:true};
 	public param_duration:TwitchatDataTypes.ParameterData<number> = {type:"number", min:2, max:3600, value:60, labelKey:"overlay.credits.param_duration", icon:"timer"};
-	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:1000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer"};
+	public param_speed:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:1000, value:200, labelKey:"overlay.credits.param_speed", icon:"timer", premiumOnly:true};
 	public param_scale:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:1, max:100, value:30, labelKey:"overlay.credits.param_scale", icon:"scale"};
-	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show"};
-	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop"};
-	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown"};
+	public param_showIcons:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_showIcons", icon:"show", premiumOnly:true};
+	public param_loop:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_loop", icon:"loop", premiumOnly:true};
+	public param_startDelay:TwitchatDataTypes.ParameterData<number> = {type:"slider", min:0, max:30, value:0, labelKey:"overlay.credits.param_startDelay", icon:"countdown", premiumOnly:true};
 	public param_ignoreBots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_ignoreBots", icon:"bot"};
+	public param_hideEmptySlots:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"overlay.credits.param_hideEmptySlots", icon:"hide"};
 	public param_ignoreCustomBots:TwitchatDataTypes.ParameterData<string[]> = {type:"editablelist", value:[], max:50, labelKey:"overlay.credits.param_ignoreCustomBots", icon:"user"};
 	public param_maxItems:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_customHTML:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -287,6 +306,7 @@ export default class OverlayParamsCredits extends Vue {
 		loop:true,
 		showIcons:true,
 		stickyTitle:false,
+		hideEmptySlots:true,
 		ignoreBots:true,
 		ignoreCustomBots:[],
 		slots:[],
@@ -324,6 +344,7 @@ export default class OverlayParamsCredits extends Vue {
 			if(this.param_fontTitle.options.indexOf(this.data.fontTitle)) {
 				this.param_fontTitle.options.push(this.data.fontTitle)
 			}
+
 			this.fontsReady = true;
 		});
 		
@@ -345,7 +366,7 @@ export default class OverlayParamsCredits extends Vue {
 				}else{
 					if(this.getDefinitionFromSlot(slot.slotType).premium) {
 						//Disable showAmount props if user isn't premium
-						if(slot.showAmounts != undefined) slot.showAmounts = false;
+						if(!this.isPremium && slot.showAmounts != undefined) slot.showAmounts = false;
 					}else{
 						//Force amount value if missing
 						if(slot.showAmounts == undefined && defaultSlot.hasAmount) slot.showAmounts = true;
@@ -444,7 +465,7 @@ export default class OverlayParamsCredits extends Vue {
 		//Create parameters
 		this.param_customHTML[id]	= {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
 		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
-		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems'};
+		this.param_maxItems[id]		= {type:'number', icon:"max", min:1, max:1000, value:100, labelKey:'overlay.credits.param_maxItems', premiumOnly:true};
 		if(slotDef.hasAmount) {
 			if(entry.showAmounts === undefined) {
 				entry.showAmounts = this.isPremium || slotDef.premium;
@@ -452,7 +473,7 @@ export default class OverlayParamsCredits extends Vue {
 			if(!this.isPremium || slotDef.premium) {
 				entry.showAmounts = false;
 			}
-			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel};
+			this.param_showAmounts[id] = {type:"boolean", icon:"number", value:entry.showAmounts || true, labelKey:this.getDefinitionFromSlot(slotType).amountLabel, premiumOnly:true};
 		}
 
 		if(slotDef.id == "rewards") {
@@ -461,8 +482,8 @@ export default class OverlayParamsCredits extends Vue {
 				entry.filterRewards = false;
 				entry.rewardIds = [];
 			}
-			this.param_showRewardUsers[id]	= {type:'boolean', value:entry.showRewardUsers!, icon:"user", labelKey:'overlay.credits.param_showRewardUsers'};
-			this.param_filterRewards[id]	= {type:'boolean', value:entry.filterRewards, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', twitch_scopes:[TwitchScopes.LIST_REWARDS]};
+			this.param_showRewardUsers[id]	= {type:'boolean', value:entry.showRewardUsers!, icon:"user", labelKey:'overlay.credits.param_showRewardUsers', premiumOnly:true};
+			this.param_filterRewards[id]	= {type:'boolean', value:entry.filterRewards, icon:"channelPoints", labelKey:'overlay.credits.param_filterRewards', premiumOnly:true, twitch_scopes:[TwitchScopes.LIST_REWARDS]};
 			if(rewards.length == 0 && TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) {
 				rewards = (await TwitchUtils.getRewards()).sort((a,b)=>a.cost-b.cost);
 			}
@@ -485,8 +506,8 @@ export default class OverlayParamsCredits extends Vue {
 		if(slotDef.id == "cheers") {
 			entry.showNormalCheers = true;
 			entry.showPinnedCheers = true;
-			this.param_normalCheers[id]	= {type:'boolean', value:entry.showNormalCheers, icon:"bits", labelKey:'overlay.credits.param_normalCheers'};
-			this.param_pinnedCheers[id]	= {type:"boolean", value:entry.showPinnedCheers, icon:"pin", labelKey:"overlay.credits.param_pinnedCheers"};
+			this.param_normalCheers[id]	= {type:'boolean', value:entry.showNormalCheers, icon:"bits", labelKey:'overlay.credits.param_normalCheers', premiumOnly:true};
+			this.param_pinnedCheers[id]	= {type:"boolean", value:entry.showPinnedCheers, icon:"pin", labelKey:"overlay.credits.param_pinnedCheers", premiumOnly:true};
 		}else
 
 		if(slotDef.id == "chatters") {
@@ -506,14 +527,14 @@ export default class OverlayParamsCredits extends Vue {
 				entry.sortByRoles	= false;
 				entry.sortByAmounts	= false;
 			}
-			this.param_showMods[id]		= {type:"boolean", value:entry.showMods, icon:"mod", labelKey:"overlay.credits.param_showMods"};
-			this.param_showVIPs[id]		= {type:"boolean", value:entry.showVIPs!, icon:"vip", labelKey:"overlay.credits.param_showVIPs"};
-			this.param_showSubs[id]		= {type:"boolean", value:entry.showSubs!, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
-			this.param_showChatters[id]	= {type:"boolean", value:entry.showChatters!, icon:"whispers", labelKey:"overlay.credits.param_showChatters"};
-			this.param_showBadges[id]	= {type:'boolean', value:entry.showBadges!, icon:"badge", labelKey:'overlay.credits.param_showBadges'};
-			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames!, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
-			this.param_sortByRoles[id]	= {type:"boolean", value:entry.sortByRoles!, icon:"filters", labelKey:"overlay.credits.param_sortByRoles"};
-			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts"};
+			this.param_showMods[id]		= {type:"boolean", value:entry.showMods, icon:"mod", labelKey:"overlay.credits.param_showMods", premiumOnly:true};
+			this.param_showVIPs[id]		= {type:"boolean", value:entry.showVIPs!, icon:"vip", labelKey:"overlay.credits.param_showVIPs", premiumOnly:true};
+			this.param_showSubs[id]		= {type:"boolean", value:entry.showSubs!, icon:"sub", labelKey:"overlay.credits.param_showSubs", premiumOnly:true};
+			this.param_showChatters[id]	= {type:"boolean", value:entry.showChatters!, icon:"whispers", labelKey:"overlay.credits.param_showChatters", premiumOnly:true};
+			this.param_showBadges[id]	= {type:'boolean', value:entry.showBadges!, icon:"badge", labelKey:'overlay.credits.param_showBadges', premiumOnly:true};
+			this.param_sortByName[id]	= {type:"boolean", value:entry.sortByNames!, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortByRoles[id]	= {type:"boolean", value:entry.sortByRoles!, icon:"filters", labelKey:"overlay.credits.param_sortByRoles", premiumOnly:true};
+			this.param_sortByAmounts[id]= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByAmounts", premiumOnly:true};
 		}else
 
 		if(slotDef.id == "text") {
@@ -536,14 +557,14 @@ export default class OverlayParamsCredits extends Vue {
 			this.param_showSubs[id]			= {type:"boolean", value:entry.showSubs, icon:"sub", labelKey:"overlay.credits.param_showSubs"};
 			this.param_showResubs[id]		= {type:"boolean", value:entry.showResubs, icon:"sub", labelKey:"overlay.credits.param_showResubs"};
 			this.param_showSubgifts[id]		= {type:"boolean", value:entry.showSubgifts, icon:"gift", labelKey:"overlay.credits.param_showSubgifts"};
-			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges'};
-			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames"};
-			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes"};
+			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
+			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
 		}
 		
 		if(slotDef.canMerge) {
 			if(entry.uniqueUsers === undefined || !this.isPremium) entry.uniqueUsers = false;
-			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"merge", labelKey:"overlay.credits.param_uniqueUsers"};
+			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"merge", labelKey:"overlay.credits.param_uniqueUsers", premiumOnly:true};
 		}
 		if(!data) this.data.slots.push(entry);
 		this.saveParams();
@@ -762,8 +783,7 @@ export default class OverlayParamsCredits extends Vue {
 				}
 
 				.paramitem {
-					:deep(input):not("[type=checkbox]"), :deep(textarea) {
-						outline: 1px solid red;
+					:deep(input):not([type="checkbox"]), :deep(textarea) {
 						opacity: 1;//Do not fade when disabled as its holder will already be faded
 					}
 				}
