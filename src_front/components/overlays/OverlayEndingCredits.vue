@@ -120,7 +120,6 @@
 			</div>
 		</template>
 	</div>
-	<div v-else>{{noEntry}}</div>
 </template>
 
 <script lang="ts">
