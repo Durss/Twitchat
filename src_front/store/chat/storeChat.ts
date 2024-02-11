@@ -1669,7 +1669,13 @@ export const storeChat = defineStore('chat', {
 
 		flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void {
 			const user = message.user;
+			const has5hPassed = (user.channelInfo[message.channel_id].lastActivityDate || 0) + (5 * 60 * 60 * 1000) < Date.now();
 			user.channelInfo[message.channel_id].lastActivityDate = Date.now();
+
+			//Don't greet again if less than 5h have passed since last activity
+			//this makes it so if a stream lasts for more than 8h, a user that
+			//has been active during the last 5h won't be greeted again
+			if(!has5hPassed) return;
 
 			//Don't flag our own messages as first
 			if(message.channel_id == user.id) return;
