@@ -2,9 +2,11 @@
 	<div :class="classes">
 		<transition name="slide">
 			<div class="content" v-if="isPlaying" id="music_holder">
-				<img :src="cover" class="cover" id="music_cover" v-if="params?.showCover !== false">
+				<div class="cover" id="music_cover" v-if="params?.showCover !== false">
+					<img :src="cover">
+				</div>
 				
-				<div class="infos">
+				<div class="infos" id="music_content">
 					<div id="music_infos" class="trackHolder">
 						<Vue3Marquee :duration="duration"
 						:clone="noScroll === false"
@@ -282,6 +284,11 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			width: @maxHeight;
 			height: @maxHeight;
 			object-fit: cover;
+    		overflow:hidden;
+			img {
+				width: 100%;
+				height: 100%;
+			}
 		}
 		
 		.infos {
