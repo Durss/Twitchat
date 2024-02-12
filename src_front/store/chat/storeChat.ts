@@ -1645,7 +1645,7 @@ export const storeChat = defineStore('chat', {
 			const list = this.messages;
 			for (let i = 0; i < list.length; i++) {
 				const message = list[i];
-				if(message.id == data.message_id && message.type == "message") {
+				if(message.id == data.message_id && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					if(data.low_trust_user.shared_ban_channel_ids?.length > 0) {
 						const users = await TwitchUtils.loadUserInfo(data.low_trust_user.shared_ban_channel_ids);
 						message.twitch_sharedBanChannels = users?.map(v=> { return {id:v.id, login:v.login}}) ?? [];
@@ -1653,6 +1653,7 @@ export const storeChat = defineStore('chat', {
 					message.twitch_isSuspicious = true;
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 					EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
+					TTSUtils.instance.addMessageToQueue(message);
 					return;
 				}
 			}

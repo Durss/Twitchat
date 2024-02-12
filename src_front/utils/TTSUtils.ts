@@ -6,10 +6,11 @@ import Utils from "./Utils";
 
 interface SpokenMessage {
 	message?: TwitchatDataTypes.ChatMessageTypes;
-	text?:string;
+	text:string;
 	date: number;
 	id: string;
 	force?: boolean;
+	reading?: boolean;
 }
 
 export default class TTSUtils {
@@ -115,13 +116,16 @@ export default class TTSUtils {
 	 * Stops any currently playing message and add it next on the queue
 	 * @param message 
 	 */
-	public readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string):void {
+	public async readNow(message:TwitchatDataTypes.ChatMessageTypes, id?:string):Promise<void> {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
 		
-		const m:SpokenMessage = {message, id, force:true, date: Date.now()};
 		
+		const text = await this.parseMessage(message, true);
+		if(text.trim().length === 0) return;
+		
+		const m:SpokenMessage = {message, id, text, force:true, date: Date.now()};
 		this.pendingMessages.splice(1, 0, m);
 		if(StoreProxy.tts.speaking) {
 			this.stop();//This triggers the next message play
@@ -139,6 +143,7 @@ export default class TTSUtils {
 		if (!this._enabled) return;
 		if(id) this.cleanupPrevIDs(id);
 		if(!id) id = Utils.getUUID();
+		if(text.trim().length === 0) return;
 
 		const m:SpokenMessage = {text, id, date: Date.now()};
 		if(this.pendingMessages.length == 0) {
@@ -169,17 +174,24 @@ export default class TTSUtils {
 			this.lastMessageTime = Date.now();
 			return;
 		}
-
-		const m:SpokenMessage = {message, id, date: Date.now()};
+		let force = false;
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 			if(StoreProxy.tts.params.ttsPerms.usersAllowed.includes(message.user.login.toLowerCase())) {
-				m.force = true;
+				force = true;
 			}
 			if(StoreProxy.tts.params.ttsPerms.usersRefused.includes(message.user.login.toLowerCase())) {
 				return;
 			}
 		}
 
+		const text = await this.parseMessage(message, force);
+		if(text.trim().length === 0) return;
+
+		//Check if message is already scheduled
+		const scheduledInstance = this.pendingMessages.find(m => m.message && m.message.id == message.id);
+		if(scheduledInstance) return;
+
+		const m:SpokenMessage = {message, id, text, force, date: Date.now()};
 		if (this.pendingMessages.length == 0) {
 			this.pendingMessages.push(m)
 			this.readNextMessage();
@@ -601,39 +613,31 @@ export default class TTSUtils {
 			return;
 		}
 		
-		const text = message.message? await this.parseMessage(message.message, message.force) : message.text ?? "";
-		if(text.length > 0) {
-			const voice = this.voices.find(x => x.name == paramsTTS.voice);
-			const mess = new SpeechSynthesisUtterance(text);
-			mess.rate = paramsTTS.rate;
-			mess.pitch = paramsTTS.pitch;
-			mess.volume = paramsTTS.volume;
-			if(voice) {
-				mess.voice = voice;
-				mess.lang = voice.lang;
-			}
-			mess.onstart = (ev: SpeechSynthesisEvent) => {
-				this.readComplete = false;
-				StoreProxy.tts.speaking = true;
-			}
-			mess.onend = (ev: SpeechSynthesisEvent) => {
+		message.reading = true;
+		const voice = this.voices.find(x => x.name == paramsTTS.voice);
+		const mess = new SpeechSynthesisUtterance(message.text);
+		mess.rate = paramsTTS.rate;
+		mess.pitch = paramsTTS.pitch;
+		mess.volume = paramsTTS.volume;
+		if(voice) {
+			mess.voice = voice;
+			mess.lang = voice.lang;
+		}
+		mess.onstart = (ev: SpeechSynthesisEvent) => {
+			this.readComplete = false;
+			StoreProxy.tts.speaking = true;
+		}
+		mess.onend = (ev: SpeechSynthesisEvent) => {
+			this.onReadComplete();
+		}
+
+		if(window.speechSynthesis) window.speechSynthesis.speak(mess);
+
+		if(paramsTTS.maxDuration > 0) {
+			this.stopTimeout = setTimeout(()=> {
+				if(window.speechSynthesis) window.speechSynthesis.cancel();
 				this.onReadComplete();
-			}
-	
-			if(window.speechSynthesis) window.speechSynthesis.speak(mess);
-	
-			if(paramsTTS.maxDuration > 0) {
-				this.stopTimeout = setTimeout(()=> {
-					if(window.speechSynthesis) window.speechSynthesis.cancel();
-					this.onReadComplete();
-				}, paramsTTS.maxDuration * 1000);
-			}
-		}else{
-			//SetTimeout is here to avoid potential recursion overflow
-			//if there are too many expired pending messages
-			setTimeout(() => {
-				this.onReadComplete();
-			}, 0);
+			}, paramsTTS.maxDuration * 1000);
 		}
 	}
 
