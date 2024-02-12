@@ -2,7 +2,7 @@
 # Connect Twitchat with Spotify
 Lisez **attentivement** ce qui suit pour comprendre ce que vous allez faire !
 
-# Table of content
+# Table des matières
 * [Disclaimer](#disclaimer)
 * [Quels risques ?](#quels-risques)
 * [Créer une application Spotify](#créer-une-application-spotify)
@@ -45,7 +45,7 @@ Cliquez ce bouton pour révéler la valeur.\
 
 \
 Avant de mettre ces valeurs dans Twitchat, cliquez sur le bouton `"Edit"` en bas de la page.\
-Dans la section `"Redirect URIs"` ajoute l'URL suivante :
+Dans la section `"Redirect URIs"` ajoutez l'URL suivante :
 ```
 https://twitchat.fr/spotify/auth
 ```
