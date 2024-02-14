@@ -325,131 +325,134 @@ export default class YoutubeHelper {
 		if(this._lastMessagePage) {
 			url.searchParams.append("pageToken", this._lastMessagePage);
 		}
-		let res = await fetch(url, {method:"GET", headers:this.headers});
-		this._creditsUsed ++;
-		if(res.status == 200) {
-			//Check all message IDs
-			const idsDone:{[key:string]:boolean} = {};
-			if(!this._lastMessagePage) {
-				//Only filter first call that returns full history
-				StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
-			}
-
-			let json = await res.json() as YoutubeMessages;
-			let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
-			for (; i < json.items.length; i++) {
-				const m = json.items[i];
-				//Message already registered? Skip it
-				if(idsDone[m.id]) continue;
-				//Apparently it's possible to get empty messages given a Sentry error :/
-				if(!m.snippet.displayMessage) continue;
-
-				//Create message
-				const message_chunks = this.parseMessage(m.snippet.displayMessage);
-				const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
-				const chanInfos = user.channelInfo[this.channelId];
-				chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
-				chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
-				user.is_partner = m.authorDetails.isChatSponsor;
-				user.avatarPath = m.authorDetails.profileImageUrl;
-				
-				//Add badge if not already specified
-				if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
-					chanInfos.badges.push({
-						icon:{sd:"broadcaster"},
-						id:"broadcaster",
-						title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
-					})
-				}else
-				//Add badge if not already specified
-				if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
-					chanInfos.badges.push({
-						icon:{sd:"mod"},
-						id:"moderator",
-						title:StoreProxy.i18n.t("chat.message.badges.moderator"),
-					})
+		try {
+			let res = await fetch(url, {method:"GET", headers:this.headers});
+			this._creditsUsed ++;
+			if(res.status == 200) {
+				//Check all message IDs
+				const idsDone:{[key:string]:boolean} = {};
+				if(!this._lastMessagePage) {
+					//Only filter first call that returns full history
+					StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
+				}
+	
+				let json = await res.json() as YoutubeMessages;
+				let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
+				for (; i < json.items.length; i++) {
+					const m = json.items[i];
+					//Message already registered? Skip it
+					if(idsDone[m.id]) continue;
+					//Apparently it's possible to get empty messages given a Sentry error :/
+					if(!m.snippet.displayMessage) continue;
+	
+					//Create message
+					const message_chunks = this.parseMessage(m.snippet.displayMessage);
+					const user = await StoreProxy.users.getUserFrom("youtube", this.channelId, m.authorDetails.channelId, m.authorDetails.displayName, m.authorDetails.displayName);
+					const chanInfos = user.channelInfo[this.channelId];
+					chanInfos.is_broadcaster = m.authorDetails.isChatOwner;
+					chanInfos.is_moderator = m.authorDetails.isChatModerator || m.authorDetails.isChatOwner;
+					user.is_partner = m.authorDetails.isChatSponsor;
+					user.avatarPath = m.authorDetails.profileImageUrl;
+					
+					//Add badge if not already specified
+					if(chanInfos.is_broadcaster && !chanInfos.badges.find(v=>v.id == "broadcaster")) {
+						chanInfos.badges.push({
+							icon:{sd:"broadcaster"},
+							id:"broadcaster",
+							title:StoreProxy.i18n.t("chat.message.badges.broadcaster"),
+						})
+					}else
+					//Add badge if not already specified
+					if(chanInfos.is_moderator && !chanInfos.badges.find(v=>v.id == "moderator")) {
+						chanInfos.badges.push({
+							icon:{sd:"mod"},
+							id:"moderator",
+							title:StoreProxy.i18n.t("chat.message.badges.moderator"),
+						})
+					}
+					
+					//Add badge if not already specified
+					if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
+						chanInfos.badges.push({
+							icon:{sd:"partner"},
+							id:"partner",
+							title:StoreProxy.i18n.t("chat.message.badges.partner"),
+						})
+					}
+	
+					const data:TwitchatDataTypes.MessageChatData = {
+						// date:Date.now(),
+						date:new Date(m.snippet.publishedAt).getTime(),
+						id:m.id,
+						platform:"youtube",
+						type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+						user,
+						answers:[],
+						channel_id:this.channelId,
+						message: m.snippet.displayMessage,
+						message_chunks,
+						message_html:"",
+						message_size:0,
+						is_short:false,
+					};
+					
+					data.message_chunks = message_chunks;
+					data.message_html = TwitchUtils.messageChunksToHTML(message_chunks);
+					data.message_size = TwitchUtils.computeMessageSize(message_chunks);
+					data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
+	
+					StoreProxy.chat.addMessage(data);
+	
+					this._tokenSavingLogDebounceMessageCount ++;
+					this.scheduleTokenSaver();
+				}
+	
+				this._lastMessagePage = json.nextPageToken;
+	
+				if(!this.tokenSavingEnabled)  {
+					this._pollMessageTimeout = setTimeout(()=>this.getMessages(), Math.min(5000, json.pollingIntervalMillis * 2));
 				}
 				
-				//Add badge if not already specified
-				if(user.is_partner && !chanInfos.badges.find(v=>v.id == "partner")) {
-					chanInfos.badges.push({
-						icon:{sd:"partner"},
-						id:"partner",
-						title:StoreProxy.i18n.t("chat.message.badges.partner"),
-					})
-				}
-
-				const data:TwitchatDataTypes.MessageChatData = {
-					// date:Date.now(),
-					date:new Date(m.snippet.publishedAt).getTime(),
-					id:m.id,
-					platform:"youtube",
-					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-					user,
-					answers:[],
-					channel_id:this.channelId,
-					message: m.snippet.displayMessage,
-					message_chunks,
-					message_html:"",
-					message_size:0,
-					is_short:false,
-				};
-				
-				data.message_chunks = message_chunks;
-				data.message_html = TwitchUtils.messageChunksToHTML(message_chunks);
-				data.message_size = TwitchUtils.computeMessageSize(message_chunks);
-				data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
-
-				StoreProxy.chat.addMessage(data);
-
-				this._tokenSavingLogDebounceMessageCount ++;
-				this.scheduleTokenSaver();
-			}
-
-			this._lastMessagePage = json.nextPageToken;
-
-			if(!this.tokenSavingEnabled)  {
-				this._pollMessageTimeout = setTimeout(()=>this.getMessages(), Math.min(5000, json.pollingIntervalMillis * 2));
-			}
-			
-			return json;
-		}else {
-			let json:any = {};
-			let errorCode:string = "";
-			try {
-				json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
-				Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
-				errorCode = json.error.errors[0].reason;
-				if(errorCode == "liveChatEnded") {
-					//Live broadcast ended
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
-					return null;
-				}
-				if(errorCode == "liveChatDisabled") {
-					//Chat not enabled for selected live broadcast
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
-					return null;
-				}
-				if(errorCode == "quotaExceeded") {
-					//No more Youtube API credits :/
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-					return null
-				}
-			}catch(error) {
-				let text = "";
-				try {
-					text = await res.text();
-				}catch(error){}
-				Logger.instance.log("youtube", {log:"Failed decoding JSON returned by youtube API (status: "+res.status+")", error:text, credits: this._creditsUsed, liveID:this._currentLiveId});
-			}
-			if(res.status == 401) {
-				//Refresh auth token, stop there if refreshing failed
-				if(!await this.refreshToken()) return null;
+				return json;
 			}else {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
-				return null;
+				let json:any = {};
+				let errorCode:string = "";
+				try {
+					json = await res.json() as {error:{code:number, errors:{domain:string, message:string, reason:string}[]}};
+					Logger.instance.log("youtube", {log:"Failed polling chat messages (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveId});
+					errorCode = json.error.errors[0].reason;
+					if(errorCode == "liveChatEnded") {
+						//Live broadcast ended
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
+						return null;
+					}
+					if(errorCode == "liveChatDisabled") {
+						//Chat not enabled for selected live broadcast
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
+						return null;
+					}
+					if(errorCode == "quotaExceeded") {
+						//No more Youtube API credits :/
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+						return null
+					}
+				}catch(error) {
+					let text = "";
+					try {
+						text = await res.text();
+					}catch(error){}
+					Logger.instance.log("youtube", {log:"Failed decoding JSON returned by youtube API (status: "+res.status+")", error:text, credits: this._creditsUsed, liveID:this._currentLiveId});
+				}
+				if(res.status == 401) {
+					//Refresh auth token, stop there if refreshing failed
+					if(!await this.refreshToken()) return null;
+				}else {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+					return null;
+				}
 			}
-		}
+		}catch(error){}
+
 		//Youtube API has random downs (404, 503, ...)
 		//Re executing the same request with the same page token seems to work in such case.
 		await Utils.promisedTimeout(1000);
@@ -467,45 +470,48 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "subscriberSnippet");
 		url.searchParams.append("maxResults", "50");
 		url.searchParams.append("myRecentSubscribers", "true");
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200) {
-			const json:YoutubeFollowerResult = await res.json() as YoutubeFollowerResult;
-			const newFollowers:YoutubeFollowerResult["items"] = [];
-			const channelId = StoreProxy.auth.youtube.user.id;
-			//Parse all users.
-			//Send a chat message for every new followers.
-			json.items.forEach(v=> {
-				if(!isInit && this._lastFollowerList[v.id] !== true) {
-					newFollowers.push(v);
-					const user = StoreProxy.users.getUserFrom("youtube", channelId, v.subscriberSnippet.channelId, v.subscriberSnippet.title, v.subscriberSnippet.title);
-					user.avatarPath = v.subscriberSnippet.thumbnails.medium.url;
-					const message:TwitchatDataTypes.MessageFollowingData = {
-						channel_id:channelId,
-						platform:"youtube",
-						id:Utils.getUUID(),
-						date:Date.now(),
-						followed_at:Date.now(),
-						type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-						user,
-					};
-					StoreProxy.chat.addMessage(message);
+		try {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200) {
+				const json:YoutubeFollowerResult = await res.json() as YoutubeFollowerResult;
+				const newFollowers:YoutubeFollowerResult["items"] = [];
+				const channelId = StoreProxy.auth.youtube.user.id;
+				//Parse all users.
+				//Send a chat message for every new followers.
+				json.items.forEach(v=> {
+					if(!isInit && this._lastFollowerList[v.id] !== true) {
+						newFollowers.push(v);
+						const user = StoreProxy.users.getUserFrom("youtube", channelId, v.subscriberSnippet.channelId, v.subscriberSnippet.title, v.subscriberSnippet.title);
+						user.avatarPath = v.subscriberSnippet.thumbnails.medium.url;
+						const message:TwitchatDataTypes.MessageFollowingData = {
+							channel_id:channelId,
+							platform:"youtube",
+							id:Utils.getUUID(),
+							date:Date.now(),
+							followed_at:Date.now(),
+							type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
+							user,
+						};
+						StoreProxy.chat.addMessage(message);
+					}
+					this._lastFollowerList[v.id] = true;
+				});
+				Logger.instance.log("youtube", {log:"Loaded latest followers: "+json.items.length, credits: this._creditsUsed, liveID:this._currentLiveId});
+				//Check for new followers in a minute
+				this._pollFollowersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000);
+				return newFollowers;
+			}else {
+				//Something failed :(
+				Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+				if(res.status == 401) {
+					if(!await this.refreshToken()) return [];
+				}else if(res.status == 403) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					return [];
 				}
-				this._lastFollowerList[v.id] = true;
-			});
-			Logger.instance.log("youtube", {log:"Loaded latest followers: "+json.items.length, credits: this._creditsUsed, liveID:this._currentLiveId});
-			//Check for new followers in a minute
-			this._pollFollowersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000);
-			return newFollowers;
-		}else {
-			//Something failed :(
-			Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
-			if(res.status == 401) {
-				if(!await this.refreshToken()) return [];
-			}else if(res.status == 403) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
-				return [];
 			}
-		}
+		}catch(error){}
+
 		//Youtube API has random downs (404, 503, ...)
 		//Re executing the same request with the same page token seems to work in such case.
 		await Utils.promisedTimeout(10000);
@@ -522,44 +528,24 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("maxResults", "50");
 		url.searchParams.append("mode", "updates");
-		const res = await fetch(url, {method:"GET", headers:this.headers});
-		if(res.status == 200) {
-			// const json:YoutubeFollowerResult = await res.json() as YoutubeFollowerResult;
-			// const newFollowers:YoutubeFollowerResult["items"] = [];
-			// const channelId = StoreProxy.auth.youtube.user.id;
-			// //Parse all users.
-			// //Send a chat message for every new followers.
-			// json.items.forEach(v=> {
-			// 	if(!isInit && this._lastFollowerList[v.id] !== true) {
-			// 		newFollowers.push(v);
-			// 		const user = StoreProxy.users.getUserFrom("youtube", channelId, v.subscriberSnippet.channelId, v.subscriberSnippet.title, v.subscriberSnippet.title);
-			// 		user.avatarPath = v.subscriberSnippet.thumbnails.medium.url;
-			// 		const message:TwitchatDataTypes.MessageFollowingData = {
-			// 			channel_id:channelId,
-			// 			platform:"youtube",
-			// 			id:Utils.getUUID(),
-			// 			date:Date.now(),
-			// 			followed_at:Date.now(),
-			// 			type:TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-			// 			user,
-			// 		};
-			// 		StoreProxy.chat.addMessage(message);
-			// 	}
-			// 	this._lastFollowerList[v.id] = true;
-			// });
-			//Check for new followers in a minute
-			this._pollSubscribersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000 * 5);
-			return [];
-		}else {
-			//Something failed :(
-			Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
-			if(res.status == 401) {
-				if(!await this.refreshToken()) return [];
-			}else if(res.status == 403) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+		try {
+			const res = await fetch(url, {method:"GET", headers:this.headers});
+			if(res.status == 200) {
+				this._pollSubscribersTimeout = setTimeout(()=>this.getLastestFollowers(false), 60000 * 5);
+				//TODO
 				return [];
+			}else {
+				//Something failed :(
+				Logger.instance.log("youtube", {log:"Failed getting latest followers (status: "+res.status+")", error:res.text(), credits: this._creditsUsed, liveID:this._currentLiveId});
+				if(res.status == 401) {
+					if(!await this.refreshToken()) return [];
+				}else if(res.status == 403) {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					return [];
+				}
 			}
-		}
+		}catch(error){}
+
 		//Youtube API has random downs (404, 503, ...)
 		//Re executing the same request with the same page token seems to work in such case.
 		await Utils.promisedTimeout(10000);
