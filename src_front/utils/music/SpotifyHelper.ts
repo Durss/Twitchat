@@ -417,11 +417,14 @@ export default class SpotifyHelper {
 		}
 
 		if(json.item) {
+			let cover = json.item.images? json.item.images[0].url : "";
+			if(json.item.show && json.item.show.images) cover = json.item.show.images[0].url;
+			else if(json.item.album && json.item.album.images) cover = json.item.album.images[0].url;
 			this.currentTrack = {
 				title:json.item.name,
 				artist:json.item.show? json.item.show.name : json.item.artists[0].name,
 				album:json.item.album? json.item.album.name : "",
-				cover:json.item.show? json.item.show.images[0].url : json.item.album.images[0].url,
+				cover,
 				duration:json.item.duration_ms,
 				url:json.item.external_urls.spotify,
 			};
