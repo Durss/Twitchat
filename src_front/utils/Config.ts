@@ -174,7 +174,7 @@ export default class Config {
 			// {platform:"twitch", login:"tainalo2"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},
-			{platform:"twitch", login:"durssbot"},
+			// {platform:"twitch", login:"durssbot"},
 		];
 	}
 

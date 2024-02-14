@@ -1,6 +1,6 @@
 {
 	"counters": {
-		"header": "Create custom counters, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your strteam.",
+		"header": "Create custom counters, control them from {LINK_TRIGGER} and {LINK_OVERLAY} on your stream.",
 		"header_link_trigger": "the triggers",
 		"header_link_overlay": "display them",
 		"addBt": "Create counter",

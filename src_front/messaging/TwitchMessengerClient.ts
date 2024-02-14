@@ -294,7 +294,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 			async function getUserFromLogin(login:string, channelId:string):Promise<TwitchatDataTypes.TwitchatUser|null>{
-				login = login.replace(/^@/gi, "");
+				login = login.replace(/^@/, "");
 				return new Promise((resolve)=>{
 					StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (user)=> {
 						if(user.errored) {
@@ -440,7 +440,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 				case "/raid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
-					return await TwitchUtils.raidChannel(chunks[0].replace("^@", "").toLowerCase());
+					return await TwitchUtils.raidChannel(chunks[0].replace(/^@/, "").toLowerCase());
 				}
 				case "/unraid":  {
 					if(!TwitchUtils.requestScopes([TwitchScopes.START_RAID])) return false;
@@ -453,7 +453,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/whisper":
 				case "/w": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_WRITE])) return false;
-					const login = chunks[0].replace("^@", "").toLowerCase();
+					console.log(chunks);
+					const login = chunks[0].replace(/^@/, "").toLowerCase();
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
 				case "/marker":  {
