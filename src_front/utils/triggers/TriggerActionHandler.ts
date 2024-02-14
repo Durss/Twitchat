@@ -2866,6 +2866,9 @@ export default class TriggerActionHandler {
 	 * @param subEvent 
 	 */
 	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
+		//If there are no conditions consider it passes check
+		if(!conditions || !Array.isArray(conditions)) return true;
+
 		let res = false;
 		let index = 0;
 		for (const c of conditions) {
