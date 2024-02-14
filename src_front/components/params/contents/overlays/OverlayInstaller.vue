@@ -101,7 +101,7 @@ export default class OverlayInstaller extends Vue {
 			url.searchParams.set("layer-width", this.sourceTransform.width.toString());
 		}
 		if(this.sourceTransform?.height) {
-			url.searchParams.set("layer-width", this.sourceTransform.height.toString());
+			url.searchParams.set("layer-height", this.sourceTransform.height.toString());
 		}
 		return url.href;
 	}
