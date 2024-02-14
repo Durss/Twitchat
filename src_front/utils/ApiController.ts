@@ -52,27 +52,30 @@ export default class ApiController {
 				}
 			}
 		}
-		const res = await fetch(url, options);
 		let json:any = {};
+		let res!:Response;
 		try {
+			res = await fetch(url, options);
 			json = await res.json();
-		}catch(error) {}
-		if(res.status == 429) {
+		}catch(error) { }
+
+		let status = res? res.status : 500;
+		if(status == 429) {
 			if(json.errorCode == "RATE_LIMIT_BAN") {
 				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
 			}else{
 				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit") );
 			}
 		}else
-		if(retryOnFail && res.status != 200 && res.status != 204 && attemptIndex < 5 && res.status != 401) {
+		if(retryOnFail && status != 200 && status != 204 && status != 401 && attemptIndex < 5) {
 			await Utils.promisedTimeout(1000);
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}else
-		if(res.status == 401) {
+		if(status == 401) {
 			await StoreProxy.auth.twitch_tokenRefresh(true);
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}
-		return {status:res.status, json};
+		return {status, json};
 	}
 	
 	
