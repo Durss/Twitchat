@@ -461,7 +461,7 @@ export default class ParamItem extends Vue {
 		if(this.paramData.labelKey) {
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});
 		}else{
-			txt = txt.replace(/\{VALUE\}/gi, v.toString());
+			txt = txt.replace(/\{VALUE\}/gi, (v || 0).toString());
 		}
 		if(!txt) return "";
 		//Puts anything between parenthesis inside <span> elements
