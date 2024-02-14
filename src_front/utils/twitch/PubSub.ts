@@ -9,6 +9,7 @@ import Utils from "../Utils";
 import TriggerActionHandler from '../triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
+import * as Sentry from "@sentry/vue";
 
 /**
 * Created : 13/01/2022 
@@ -144,14 +145,18 @@ export default class PubSub extends EventDispatcher {
 			const e = event as {data:string};
 			const message = JSON.parse(e.data) as PubSubDataTypes.SocketMessage;
 			if(message.type != "PONG" && message.data) {
-				const data = JSON.parse(message.data.message);
-				if(StoreProxy.main.devmode) {
-					//Ignore viewers count to avoid massive logs
-					if(!/video-playback-by-id\./i.test(message.data.topic)) {
-						this.history.push({date:new Date().toLocaleDateString() +" "+ new Date().toLocaleTimeString(), message});
+				try {
+					const data = JSON.parse(message.data.message);
+					if(StoreProxy.main.devmode) {
+						//Ignore viewers count to avoid massive logs
+						if(!/video-playback-by-id\./i.test(message.data.topic)) {
+							this.history.push({date:new Date().toLocaleDateString() +" "+ new Date().toLocaleTimeString(), message});
+						}
 					}
+					this.parseEvent(data, message.data.topic);
+				}catch(error) {
+					Sentry.captureException("Pubsub sent an invalid message data format:"+ message.data, {originalException:error as Error});
 				}
-				this.parseEvent(data, message.data.topic);
 			// }else{
 			// 	console.log(event);
 			}
