@@ -154,7 +154,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 		this.streams = res;
 		this.loading = false;
 		await this.$nextTick();
-		const cards = this.$refs.streamCard as HTMLDivElement[];
+		const cards = this.$refs.streamCard as HTMLDivElement[] || [];
 		for (let i = 0; i < cards.length; i++) {
 			gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
 		}
