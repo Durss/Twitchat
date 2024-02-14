@@ -2196,7 +2196,9 @@ export default class TriggerActionHandler {
 						}
 					};
 					logStep.messages.push({date:Date.now(), value:`Send click to ${clickEventData.requestData.event_data.twitchatOverlayID}: x=${clickEventData.requestData.event_data.x} y=${clickEventData.requestData.event_data.y}`});
-					OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
+					if(OBSWebsocket.instance.connected) {
+						OBSWebsocket.instance.socket.call("CallVendorRequest", clickEventData);
+					}
 				}else
 
 				//Handle channel point reward action
