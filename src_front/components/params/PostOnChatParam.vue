@@ -164,6 +164,7 @@ export default class PostOnChatParam extends Vue {
 		if(this.placeholders) {
 			for (let i = 0; i < this.placeholders.length; i++) {
 				const p = this.placeholders[i];
+				if(p.private === true) continue;
 				if(p.example != undefined) {
 					rawMessage = rawMessage.replace(new RegExp("\{"+p.tag+"\}", "gi"), p.example);
 				}

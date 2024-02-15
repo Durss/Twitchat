@@ -23,6 +23,7 @@ export default class TwitchUtils {
 	private static rewardsManageableCache:TwitchDataTypes.Reward[] = [];
 	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
+	private static adblockAlertSent:boolean = false;
 
 	public static get headers():{[key:string]:string} {
 		return {
@@ -2419,10 +2420,12 @@ export default class TwitchUtils {
 		const url = new URL(Config.instance.TWITCH_API_PATH+"channels/ads");
 		url.searchParams.append("broadcaster_id", user.id);
 		
+
 		const res = await this.callApi(url, {
 			method:"GET",
 			headers:this.headers,
 		});
+		let body:string = "";
 		
 		if(res.status == 200) {
 			const json = await res.json();
@@ -2475,11 +2478,27 @@ export default class TwitchUtils {
 				nextSnooze_at:			0,
 			};
 			StoreProxy.stream.setCommercialInfo(user.id, infos);
+		}else if(res.status == 500) {
+			body = await res.text();
+			if(!this.adblockAlertSent && /failed.*fetch/gi.test(body)) {
+				const message:TwitchatDataTypes.MessageCustomData = {
+					id:Utils.getUUID(),
+					channel_id:user.id,
+					date:Date.now(),
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					icon:"alert",
+					style:"error",
+					message:StoreProxy.i18n.t("error.ad_block"),
+				}
+				StoreProxy.chat.addMessage(message);
+				this.adblockAlertSent = true;
+			}
 		}
 		try {
 			Logger.instance.log("ads", {
 				log:"Ad schedule return status "+res.status,
-				body:await res.text(),
+				body:body || await res.text(),
 			});
 		}catch(error) {
 
@@ -3122,10 +3141,10 @@ export default class TwitchUtils {
 	
 			//Try to call endpoint again with fresh new token
 			return await fetch(input, init);
-		}catch(error) {
+		}catch(error:any) {
 			console.log(error);
 			Sentry.captureException("Twitch API call error for endpoint "+input, {originalException:error as Error});
-			return new Response("{}",{status:500});
+			return new Response(error.message,{status:500});
 		}
 	}
 

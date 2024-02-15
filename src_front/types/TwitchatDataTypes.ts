@@ -782,6 +782,12 @@ export namespace TwitchatDataTypes {
 		example?:string;
 		globalTag?:boolean;
 		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch";
+		/**
+		 * Is placeholder private
+		 * Used for a deprecated placeholder that i don't want to simply break
+		 * but i don't want users to keep using
+		 */
+		private?:boolean;
 	}
 
 	/**

@@ -14,7 +14,7 @@
 		<template #default>
 			<button class="tooltipOpener"><Icon name="placeholder" /></button>
 		</template>
-  		<template #content="{ hide }">
+		<template #content="{ hide }">
 			<div :class="contentClasses">
 				<div class="list" v-if="localPlaceholders.length > 0">
 					<template v-for="(h,index) in localPlaceholders" :key="h.tag+index">
@@ -116,17 +116,17 @@ export default class PlaceholderSelector extends Vue {
 	}
 
 	public get localPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
-		return this.placeholders.filter(v=>v.globalTag !== true);
+		return this.placeholders.filter(v=>v.globalTag !== true && v.private !== true);
 	}
 	
 	public get globalPlaceholders():TwitchatDataTypes.PlaceholderEntry[]{
-		const list = this.placeholders.filter(v=>v.globalTag === true && !v.category).sort((a,b) => a.tag.length - b.tag.length);
+		const list = this.placeholders.filter(v=>v.globalTag === true && !v.category && v.private !== true).sort((a,b) => a.tag.length - b.tag.length);
 
 		return list;
 	}
 
 	public get globalPlaceholderCategories():{key:string, entries:TwitchatDataTypes.PlaceholderEntry[]}[]{
-		const list = this.placeholders.filter(v=>v.globalTag === true && v.category).sort((a,b)=> {
+		const list = this.placeholders.filter(v=>v.globalTag === true && v.category && v.private !== true).sort((a,b)=> {
 			if((a.category || "") < (b.category || "")) return -1;
 			if((a.category || "") > (b.category || "")) return 1;
 			return 0;
