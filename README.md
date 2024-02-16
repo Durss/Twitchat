@@ -231,12 +231,12 @@ Install all the production dependencies and [run the server](#run-server).
 Here is the expected file structure:\
 ─ root\
   ├─ node_modules/\
-  ├─ dist/\
-  ├─ controllers/\
+  ├─ public/\
   ├─ utils/\
+  ├─ credentials/\
+  ├─ controllers/\
   ├─ bootstrap.js\
   ├─ env.conf\
-  ├─ credentials\
 <br>
 <br>
 <br>
