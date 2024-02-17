@@ -71,9 +71,21 @@ export default class FileServeController extends AbstractController {
 	private getScript(request:FastifyRequest, response:FastifyReply):void {
 		Logger.info("Serving script for cache bypass")
 		const assets = path.join(Config.PUBLIC_ROOT, "assets");
-		const file = fs.readdirSync(assets).find(v => /index\..*\.js/gi.test(v));
-		if(file) {
-			const txt = fs.readFileSync(path.join(assets, file), {encoding:"utf8"});
+		const files = fs.readdirSync(assets).filter(v => /index-.*\.js$/gi.test(v));
+		
+		let mostRecent = 0;
+		let indexPath = "";
+		files.forEach(v=> {
+			const file = path.join(Config.PUBLIC_ROOT, "assets", path.sep+files[1]);
+			const stats = fs.statSync(file);
+			const d = new Date(stats.ctime).getTime();
+			if(d > mostRecent) {
+				indexPath = file;
+				mostRecent = Math.max(mostRecent, d);
+			}
+		})
+		if(indexPath) {
+			const txt = fs.readFileSync(indexPath, {encoding:"utf8"});
 			response.header('Content-Type', 'application/javascript');
 			response.status(200);
 			response.send(txt);
