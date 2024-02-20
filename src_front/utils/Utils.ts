@@ -946,8 +946,13 @@ export default class Utils {
 			}
 		}
 		
-		const twitchatFonts = new Set([...document.fonts.values()].map(v=>v.family));
-		this.fontsCache = [...fontAvailable.values()].concat([...twitchatFonts]);
+		try {
+			const twitchatFonts = new Set([...document.fonts.values()].map(v=>v.family));
+			this.fontsCache = [...fontAvailable.values()].concat([...twitchatFonts]);
+		}catch(error) {
+			//old firefox browser version have issue with document.fonts not being an iterable
+			this.fontsCache = [...fontAvailable.values()];
+		}
 		return this.fontsCache;
 	}
 
