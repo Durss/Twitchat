@@ -1110,7 +1110,7 @@ export default class MessageList extends Vue {
 		if (messageItems.length === 0) return;//No message yet, just stop here
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
-		let easeValue		= hasResized? 1 : .3;
+		let easeValue		= hasResized? 1 : .2;
 
 		if(this.forceScrollDown) {
 			this.virtualScrollY = maxScroll;
@@ -1124,14 +1124,13 @@ export default class MessageList extends Vue {
 			//If enhancing size, refresh max message count
 			if(this.prevHeight < holderHeight) {
 				this.computeMaxMessageCount();
-				this.prevHeight = holderHeight;
 			}
+			this.prevHeight = holderHeight;
 		}
 
 		if (!this.lockScroll) {
 			//On init the virtualscroll is -1, scroll to the bottom and init the virtualscroll
 			if (this.virtualScrollY == -1) this.virtualScrollY = maxScroll;
-
 			const dist = Math.abs(maxScroll - this.virtualScrollY);
 			if (dist > 50 || this.pendingMessages.length > 0) {
 				//Linear scroll if need to scroll by more than 10px
@@ -1166,10 +1165,10 @@ export default class MessageList extends Vue {
 		//Show next pending message if at the bottom and scroll isn't locked
 		if (messageHolder.scrollTop >= maxScroll - scrollPageOffset
 		&& this.pendingMessages.length > 0) {
-			await this.showNextPendingMessage();
 			gsap.killTweensOf(messageHolder);
+			await this.showNextPendingMessage();
 			
-			//Show older messages if near the top
+		//Show older messages if near the top
 		}else if(messageHolder.scrollTop < scrollPageOffset) {
 			//Make sure we don't reach the top.
 			//If we did the list would keep scrolling up until reaching the first message unless
@@ -1282,7 +1281,9 @@ export default class MessageList extends Vue {
 		if (messRefs.length == 0) return;
 		const lastMessRef = messRefs[messRefs.length - 1] as HTMLDivElement;
 
-		if (this.filteredMessages.length >= this.maxMessages) {
+		if (this.$store.params.appearance.alternateMessageBackground.value !== false
+		&& this.filteredMessages.length >= this.maxMessages) {
+
 			this.counter++;
 			if (this.counter % 2 == 0) {
 				(this.$el as HTMLDivElement).classList.add("alternateOdd");
@@ -1299,7 +1300,6 @@ export default class MessageList extends Vue {
 			} else {
 				const style = window.getComputedStyle(lastMessRef);
 				const margin = parseFloat(style.marginBottom);
-				// this.virtualScrollY = maxScroll - (lastMessRef.offsetHeight + margin);
 				this.virtualScrollY =
 				messagesHolder.scrollTop = maxScroll - (lastMessRef.offsetHeight + margin);
 			}
