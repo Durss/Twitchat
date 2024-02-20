@@ -1074,14 +1074,16 @@ export default class TwitchUtils {
 				method:"GET",
 				headers:this.headers,
 			});
-			const json:{data:TwitchDataTypes.Subscriber[], total:number, points:number, pagination?:{cursor?:string}} = await res.json();
-			list = list.concat(json.data);
-			subs = json.total;
-			points = json.points;
-			cursor = null;
-			if(json.pagination?.cursor) {
-				cursor = json.pagination.cursor;
-			}
+			if(res.status == 200) {
+				const json:{data:TwitchDataTypes.Subscriber[], total:number, points:number, pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data);
+				subs = json.total;
+				points = json.points;
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			}else
 			if(res.status == 500) break;
 		}while(cursor != null && !totalOnly)
 		return totalOnly? {subs, points} : list;
