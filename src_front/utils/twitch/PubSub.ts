@@ -155,7 +155,7 @@ export default class PubSub extends EventDispatcher {
 					}
 					this.parseEvent(data, message.data.topic);
 				}catch(error) {
-					Sentry.captureException("Pubsub sent an invalid message data format:"+ message.data, {originalException:error as Error});
+					Sentry.captureException("Pubsub sent an invalid message data format:"+ JSON.stringify(message.data), {originalException:error as Error});
 				}
 			// }else{
 			// 	console.log(event);

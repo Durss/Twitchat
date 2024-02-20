@@ -762,7 +762,7 @@ export default class TriggerActionHandler {
 	
 		//Special case for friends stream start/stop notifications
 		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
-			await this.checkLiveFollowings().catch(()=>{});
+			this.checkLiveFollowings().catch(()=>{});
 			return true;
 		}
 	
@@ -2788,70 +2788,74 @@ export default class TriggerActionHandler {
 		if(StoreProxy.params.features.liveAlerts.value !== true) return false;
 		if(!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return false;
 
-		const channels = await TwitchUtils.getActiveFollowedStreams();
-		const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
-		const channel_id:string = StoreProxy.auth.twitch.user.id;
-		for (let i = 0; i < channels.length; i++) {
-			const c = channels[i];
-			liveChannels[c.user_id] = {
-				user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name),
-				category:c.game_name,
-				title:c.title,
-				tags: c.tags,
-				live:true,
-				viewers:c.viewer_count,
-				started_at:new Date(c.started_at).getTime(),
-				lastSoDoneDate:0,
-			}
-		}
-
-		if(notify && this.liveChannelCache) {
-			//This makes sure messages have a different date.
-			//Bit dirty workaround an issue with the way i handle the "read mark" that is based
-			//on the message date. When clicking a message it actually marks the "date" rather
-			//than the message itself so we can find it back faster.
-			//If multiple messages have the exact same date, clicking one may mark another one
-			//as read.
-			let dateOffset = 0;
-
-			//Check if any user went offline
-			for (const uid in this.liveChannelCache) {
-				if(!liveChannels[uid]) {
-					//User went offline
-					const message:TwitchatDataTypes.MessageStreamOfflineData = {
-						date:Date.now()+dateOffset,
-						id:Utils.getUUID(),
-						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
-						info: this.liveChannelCache[uid],
-						channel_id,
-					}
-					this.liveChannelCache[uid].viewers = 0;
-					this.liveChannelCache[uid].live = false;
-					StoreProxy.chat.addMessage(message);
-					dateOffset ++;
+		try {
+			const channels = await TwitchUtils.getActiveFollowedStreams();
+			const liveChannels:{[key:string]:TwitchatDataTypes.StreamInfo} = {};
+			const channel_id:string = StoreProxy.auth.twitch.user.id;
+			for (let i = 0; i < channels.length; i++) {
+				const c = channels[i];
+				liveChannels[c.user_id] = {
+					user:StoreProxy.users.getUserFrom("twitch", channel_id, c.user_id, c.user_login, c.user_name),
+					category:c.game_name,
+					title:c.title,
+					tags: c.tags,
+					live:true,
+					viewers:c.viewer_count,
+					started_at:new Date(c.started_at).getTime(),
+					lastSoDoneDate:0,
 				}
 			}
 	
-			//Check if any user went online
-			for (const uid in liveChannels) {
-				if(!this.liveChannelCache[uid]) {
-					//User went online
-					const message:TwitchatDataTypes.MessageStreamOnlineData = {
-						date:Date.now()+dateOffset,
-						id:Utils.getUUID(),
-						platform:"twitch",
-						type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-						info: liveChannels[uid],
-						channel_id,
+			if(notify && this.liveChannelCache) {
+				//This makes sure messages have a different date.
+				//Bit dirty workaround an issue with the way i handle the "read mark" that is based
+				//on the message date. When clicking a message it actually marks the "date" rather
+				//than the message itself. This is necessary to properly handle filter change or message
+				//deletion properly. If the message currently marked as read is removed from the list
+				//the marker will automatically move the the nearest message date.
+				//But if multiple messages have the exact same date, clicking one may mark another one
+				//as read.
+				let dateOffset = 0;
+	
+				//Check if any user went offline
+				for (const uid in this.liveChannelCache) {
+					if(!liveChannels[uid]) {
+						//User went offline
+						const message:TwitchatDataTypes.MessageStreamOfflineData = {
+							date:Date.now()+dateOffset,
+							id:Utils.getUUID(),
+							platform:"twitch",
+							type:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE,
+							info: this.liveChannelCache[uid],
+							channel_id,
+						}
+						this.liveChannelCache[uid].viewers = 0;
+						this.liveChannelCache[uid].live = false;
+						StoreProxy.chat.addMessage(message);
+						dateOffset ++;
 					}
-					StoreProxy.chat.addMessage(message);
-					dateOffset ++;
+				}
+		
+				//Check if any user went online
+				for (const uid in liveChannels) {
+					if(!this.liveChannelCache[uid]) {
+						//User went online
+						const message:TwitchatDataTypes.MessageStreamOnlineData = {
+							date:Date.now()+dateOffset,
+							id:Utils.getUUID(),
+							platform:"twitch",
+							type:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
+							info: liveChannels[uid],
+							channel_id,
+						}
+						StoreProxy.chat.addMessage(message);
+						dateOffset ++;
+					}
 				}
 			}
-		}
-
-		this.liveChannelCache = liveChannels;
+	
+			this.liveChannelCache = liveChannels;
+		}catch(error) {}
 		return true;
 	}
 

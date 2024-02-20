@@ -602,7 +602,9 @@ export const storeUsers = defineStore('users', {
 							user.channelInfo[channelId].is_following = false;
 						}
 						return true;
-					}catch(error){}
+					}catch(error){
+						// user.channelInfo[channelId].is_following = false;
+					}
 				}
 			}
 			return false;
@@ -659,13 +661,15 @@ export const storeUsers = defineStore('users', {
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
-			await TwitchUtils.getFollowers(null, -1, async(list)=> {
-				for (let i = parseOffset; i < list.length; i++) {
-					hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
-				}
-				parseOffset = list.length;
-				this.myFollowers["twitch"] = hashmap;
-			});
+			try {
+				await TwitchUtils.getFollowers(null, 70000, async(list)=> {
+					for (let i = parseOffset; i < list.length; i++) {
+						hashmap[list[i].user_id] = new Date(list[i].followed_at).getTime();
+					}
+					parseOffset = list.length;
+					this.myFollowers["twitch"] = hashmap;
+				})
+			}catch(error) {}
 		},
 
 		trackUser(user:TwitchatDataTypes.TwitchatUser):void {
