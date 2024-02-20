@@ -1313,6 +1313,7 @@ export default class TriggerActionHandler {
 						//Parse placeholders on custom erntries
 						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
 					}
+					logStep.messages.push({date:Date.now(), value:"✔ Starting \""+data.mode+"\" raffle"});
 					StoreProxy.raffle.startRaffle(data);
 				}else
 				
