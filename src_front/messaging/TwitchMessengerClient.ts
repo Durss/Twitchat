@@ -471,11 +471,13 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			}
 
 		}
-		if(replyTo) {
-			//@ts-ignore
-			this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
-		}else{
-			this._client.say(this._channelIdToLogin[channelId], text);
+		if(this._client) {
+			if(replyTo) {
+				//@ts-ignore
+				this._client.reply(this._channelIdToLogin[channelId], text, replyTo.id);
+			}else{
+				this._client.say(this._channelIdToLogin[channelId], text);
+			}
 		}
 		return true
 	}
