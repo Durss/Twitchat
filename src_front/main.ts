@@ -364,28 +364,29 @@ function buildApp() {
 		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
-	let sentryParam = {v:1, date:Date.now(), enabled:false};
+	const currentABVersion = 2;
+	const userRangeTargetRatio = .75;
+	let sentryParam = {v:currentABVersion, date:Date.now(), enabled:false};
 	let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
 	//Reset old data format
 	if(sentryParamSrc === "true" || sentryParamSrc === "false") sentryParamSrc = null;
 	//Sentry params not yet defined, initialize it
 	if(!sentryParamSrc)  {
-		//Target 50% of users
 		sentryParam.v = 2;
-		sentryParam.enabled = Math.random() > .5;
+		sentryParam.enabled = Math.random() < userRangeTargetRatio;
 		DataStore.set(DataStore.AB_SENTRY, sentryParam);
 	}else{
 		try {
 			const json = JSON.parse(sentryParamSrc);
 			sentryParam = json;
-			if(sentryParam.v == 1) {
-				sentryParam.v = 2;
-				sentryParam.enabled = Math.random() > .5;
+			if(sentryParam.v != currentABVersion) {
+				sentryParam.v = currentABVersion;
+				sentryParam.enabled = Math.random() < userRangeTargetRatio;
 				DataStore.set(DataStore.AB_SENTRY, sentryParam);
 			}
 		}catch(error) { }
 	}
-	if(document.location.hostname != "twitchat.fr" || sentryParam.enabled) {
+	if(Config.instance.BETA_MODE || sentryParam.enabled) {
 		Sentry.init({
 			app,
 			debug:false,
