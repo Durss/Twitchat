@@ -199,6 +199,9 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 			this.artist = this.staticTrackData.artist;
 			this.title = this.staticTrackData.title;
 			this.cover = this.staticTrackData.cover;
+			if(!this.cover) {
+				this.cover = this.$image("img/default_music_cover.png");
+			}
 			this.isPlaying = true;
 			let customTrackInfo = this.params.customInfoTemplate;
 			customTrackInfo = customTrackInfo.replace(/\{ARTIST\}/gi, this.artist || "no music");
