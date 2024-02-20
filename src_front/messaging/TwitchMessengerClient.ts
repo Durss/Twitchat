@@ -1048,7 +1048,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			case "USERSTATE": {
 				const [channelName] = (parsed as {params:string[]}).params;
 				const channelId = this.getChannelID(channelName);
-				TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? []).split(","));
+				TwitchUtils.loadEmoteSets(channelId, ((parsed as tmi.UserNoticeState).tags["emote-sets"] ?? "").split(","));
 				break;
 			}
 
