@@ -170,7 +170,6 @@
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -178,13 +177,13 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { Badges } from 'tmi.js';
 import { Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
+import TTButton from '../TTButton.vue';
 import MessageItem from '../messages/MessageItem.vue';
 import ChatModTools from '../messages/components/ChatModTools.vue';
-import CustomUserBadges from './CustomUserBadges.vue';
 import CustomBadgeSelector from './CustomBadgeSelector.vue';
 import CustomBadgesManager from './CustomBadgesManager.vue';
+import CustomUserBadges from './CustomUserBadges.vue';
 import CustomUserNameManager from './CustomUserNameManager.vue';
 
 @Component({
@@ -376,6 +375,7 @@ export default class UserCard extends Vue {
 		this.subState = null;
 		this.subStateLoaded = false;
 		this.customLogin = "";
+		this.banReason = "";
 		this.edittingLogin = false;
 		this.manageBadges = false;
 		this.manageUserNames = false;
