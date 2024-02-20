@@ -132,7 +132,7 @@ export default class OverlayCounter extends AbstractOverlay {
 		
 		// const duration = Math.min(5, Math.max(.25, Math.abs(this.counter.value - this.localValue) * .025));
 		const duration = 1;
-		gsap.to(this, {duration, localValue:this.counter?.value, ease:"sine.inOut"});
+		gsap.to(this, {duration, localValue:this.counter?.value ||0, ease:"sine.inOut"});
 
 		let min = Math.min(this.counter.min || 0);
 		let max = Math.min(this.counter.max || 0);
