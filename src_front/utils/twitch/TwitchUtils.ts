@@ -206,7 +206,7 @@ export default class TwitchUtils {
 				//Rate limit reached, try again after it's reset to fulle
 				await this.onRateLimit(result.headers, 1);
 				return await this.loadUserInfo(ids, logins)
-			}
+			}else if(result.status == 500) break;
 		}
 		return users;
 	}
@@ -834,7 +834,7 @@ export default class TwitchUtils {
 				if(json.pagination?.cursor) {
 					cursor = json.pagination.cursor;
 				}
-			}
+			}else if(res.status == 500) break;
 		}while(cursor != null)
 		return list;
 	}
@@ -865,7 +865,7 @@ export default class TwitchUtils {
 				if(json.pagination?.cursor) {
 					cursor = json.pagination.cursor;
 				}
-			}
+			}else if(res.status == 500) break;
 		}while(cursor != null);
 		return list;
 	}
@@ -885,16 +885,15 @@ export default class TwitchUtils {
 			uids.splice(0,100).forEach(v=> {
 				url.searchParams.append("user_id", v);
 			})
-			try {
-				const result = await this.callApi(url, { headers:this.headers });
-				if(result.status != 200) continue;
-				const json = await result.json();
-				if(!json.error) {
-					channels = channels.concat(json.data);
-				}else{
-					fails = fails.concat(uids);
-				}
-			}catch(error) {
+			const result = await this.callApi(url, { headers:this.headers });
+			if(result.status != 200) {
+				fails = fails.concat(uids);
+				continue;
+			}
+			const json = await result.json();
+			if(!json.error) {
+				channels = channels.concat(json.data);
+			}else{
 				fails = fails.concat(uids);
 			}
 		}
@@ -923,6 +922,7 @@ export default class TwitchUtils {
 				method:"GET",
 				headers:this.headers,
 			});
+			if(res.status == 500) break;
 			if(res.status != 200) continue;
 
 			const json:{data:TwitchDataTypes.StreamInfo[], pagination?:{cursor?:string}} = await res.json();
@@ -980,6 +980,8 @@ export default class TwitchUtils {
 				if(tempDataCallback) {
 					tempDataCallback(list);
 				}
+			}else{
+				break;
 			}
 		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;
@@ -1038,6 +1040,8 @@ export default class TwitchUtils {
 				if(tempDataCallback) {
 					tempDataCallback(list);
 				}
+			}else{
+				break;
 			}
 		}while(cursor != null && (maxCount == -1 || list.length < maxCount));
 		return list;
@@ -1078,6 +1082,7 @@ export default class TwitchUtils {
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
 			}
+			if(res.status == 500) break;
 		}while(cursor != null && !totalOnly)
 		return totalOnly? {subs, points} : list;
 	}
@@ -1103,6 +1108,8 @@ export default class TwitchUtils {
 			if(res.status == 200) {
 				const json:{data:TwitchDataTypes.Subscriber[], pagination?:{cursor?:string}} = await res.json();
 				list = list.concat(json.data);
+			}else if(res.status == 500){
+				break;
 			}else{
 				//ignore :3
 			}
@@ -2207,6 +2214,7 @@ export default class TwitchUtils {
 			url.searchParams.append("first", "100");
 
 			const res = await this.callApi(url, options);
+			if(res.status == 500) break;
 			if(res.status != 200) continue;
 			const json:{data:TwitchDataTypes.StreamTag[], pagination?:{cursor?:string}} = await res.json();
 			list = list.concat(json.data);
