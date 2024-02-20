@@ -240,7 +240,7 @@ export default class RaffleForm extends AbstractSidePanel {
 	public param_subs_excludeGifted:TwitchatDataTypes.ParameterData<boolean>	= {value:true, type:"boolean", icon:"sub", labelKey:"raffle.params.ponderate_exclude_gifted"};
 	public param_showCountdownOverlay:TwitchatDataTypes.ParameterData<boolean>	= {value:false, type:"boolean", icon:"countdown", labelKey:"raffle.configs.countdown"};
 	public param_customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
-	public param_values:TwitchatDataTypes.ParameterData<string, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:"", type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
+	public param_values:TwitchatDataTypes.ParameterData<TwitchatDataTypes.ValueData|null, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:null, type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
 	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -315,7 +315,7 @@ export default class RaffleForm extends AbstractSidePanel {
 			subMode_excludeGifted: this.param_subs_excludeGifted.value,
 			showCountdownOverlay: this.param_showCountdownOverlay.value,
 			customEntries: this.param_customEntries.value,
-			value_id: this.param_values.value,
+			value_id: this.param_values.value?.id,
 			value_splitter: this.param_values_splitter.value,
 		}
 	}
@@ -376,7 +376,7 @@ export default class RaffleForm extends AbstractSidePanel {
 				this.param_subs_excludeGifted.value = this.action.raffleData.subMode_excludeGifted ?? false;
 				this.param_showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
 				this.param_customEntries.value = this.action.raffleData.customEntries;
-				this.param_values.value = this.action.raffleData.value_id || "";
+				this.param_values.value = this.param_values.listValues.find(v => v.value.id === this.action.raffleData.value_id)?.value || this.param_values.listValues[0].value;
 			}
 
 			this.param_customEntries.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
