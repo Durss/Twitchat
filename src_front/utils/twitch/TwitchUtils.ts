@@ -273,7 +273,7 @@ export default class TwitchUtils {
 		url.searchParams.set("broadcaster_id", channelId);
 		const res = await this.callApi(url, options);
 		const json = await res.json();
-		const list:TwitchDataTypes.CheermoteSet[] = json.data;
+		const list:TwitchDataTypes.CheermoteSet[] = json.data || [];
 		//Sort them longer first.
 		//This makes sure that when parsing them, smaller prefixes
 		//don't cut longer ones.
@@ -3124,6 +3124,7 @@ export default class TwitchUtils {
 	 * @param attemptCount 
 	 */
 	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
+		Sentry.captureMessage("User "+StoreProxy.auth.twitch.user.id+" exceeded their Twitch API quota", "warning");
 		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
@@ -3139,7 +3140,9 @@ export default class TwitchUtils {
 			let result = await fetch(input, init);
 			
 			//Session still valid, return result
-			if(result.status != 401) return result;
+			if(result.status != 401) {
+				return result;
+			}
 	
 			//Session expired
 			let res:false | TwitchDataTypes.AuthTokenResult = false;
