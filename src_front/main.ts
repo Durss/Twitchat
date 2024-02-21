@@ -396,9 +396,14 @@ function buildApp() {
 				dedupeIntegration()
 			],
 			//@ts-ignore
-			environment:{"localhost":"local", "beta":"beta.twitchat.fr", "prod":"twitchat.fr"}[document.location.hostname] || document.location.hostname,
+			environment:{"localhost":"local", "beta.twitchat.fr":"beta", "twitchat.fr":"prod"}[document.location.hostname] || document.location.hostname,
 			tracesSampleRate: 1.0,
-			ignoreErrors: ["reading 'innerText'", "venmo", "OBS is not ready", "This is likely a Vue internals bug"],
+			ignoreErrors: ["reading 'innerText'",//When emptying a content-editable field
+							"venmo",//When opening paypal popup
+							"Detected popup close",//When closing paypal popup
+							"OBS is not ready",//If trying to connect to OBS when OBS-ws is booting
+							"This is likely a Vue internals bug"//Dev potential exception
+						],
 		});
 	}
 	
