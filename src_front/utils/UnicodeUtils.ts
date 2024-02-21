@@ -60,7 +60,8 @@ export default class UnicodeUtils {
 	*******************/
 
 	private normalizeText(src:string, charTable:{[key:string]:string}, exceptions:string):string {
-		for (let t = this.gSplitter.splitGraphemes(src), u = [], m = 0; m < t.length; m++) {
+		let u:string[] = [];
+		for (let t = this.gSplitter.splitGraphemes(src), m = 0; m < t.length; m++) {
 			const a = t[m];
 			if (exceptions.indexOf(a) != -1) {
 				u.push(a);
