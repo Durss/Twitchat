@@ -489,7 +489,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	private async reconnect():Promise<void> {
 		Logger.instance.log("irc", {info:"Force IRC reconnect"});
-		await this._client.disconnect();
+		try {
+			await this._client.disconnect();
+		}catch(error) {
+			//Ignore error, that's most probably because client is actually already disconnected
+		}
 		await this._client.connect();
 	}
 
