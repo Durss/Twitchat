@@ -13,7 +13,7 @@
 			<Button small icon="group"
 				@click="addItem()"
 				v-tooltip="$t('triggers.condition.group_tt')"
-				v-if="triggerData.conditions!.conditions.length > 1" />
+				v-if="triggerData.conditions && triggerData.conditions.conditions.length > 1" />
 			<Button alert small icon="cross"
 				@click="deleteItem()" />
 		</div>
