@@ -875,6 +875,8 @@ export default class TwitchUtils {
 	 */
 	public static async getBannedUsers(channelId:string, uids:string[]):Promise<TwitchDataTypes.BannedUser[]> {
 		if(!this.hasScopes([TwitchScopes.READ_MODS_AND_BANNED])) return [];
+		//Can't get banned state for another channel even if we're a mod of that channel
+		if(channelId != StoreProxy.auth.twitch.user.id) return [];
 		
 		let channels:TwitchDataTypes.BannedUser[] = [];
 		let fails:string[] = [];
