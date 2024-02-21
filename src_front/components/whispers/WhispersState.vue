@@ -4,10 +4,10 @@
 			<ClearButton @click="close" />
 			
 			<h1 class="title"><Icon name="whispers" class="icon"/>{{ $t('whispers.title') }}</h1>
-			<div class="description">{{ getCorrespondant(selectedUserId).displayName }}</div>
+			<div class="description" v-if="isConversation">{{ getCorrespondant(selectedUserId).displayName }}</div>
 		</div>
 	
-		<div class="content">
+		<div class="content" v-if="isConversation">
 			<div class="messageList" ref="messageList">
 				<div v-for="m in $store.chat.whispers[selectedUserId]" :key="m.id" :class="messageClasses(m)">
 					<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{getTime(m)}}</span>
@@ -35,6 +35,9 @@
 					<TTButton small class="delete" icon="trash" @click="deleteWhispers(<string>key)" alert></TTButton>
 				</div>
 			</div>
+		</div>
+	
+		<div class="content" v-else>
 		</div>
 	</div>
 </template>
@@ -69,6 +72,10 @@ export default class WhispersState extends AbstractSidePanel {
 
 	public get canAnswer():boolean {
 		return TwitchUtils.hasScopes([TwitchScopes.WHISPER_WRITE]);
+	}
+
+	public get isConversation():boolean {
+		return Object.keys(this.$store.chat.whispers).length > 0;
 	}
 
 	public get currentUser():TwitchatDataTypes.TwitchatUser {
@@ -131,6 +138,7 @@ export default class WhispersState extends AbstractSidePanel {
 
 	public deleteWhispers(uid:string):void {
 		this.$store.chat.closeWhispers(uid);
+		if(!this.isConversation) this.close();
 	}
 
 	private scrollToBottom():void {
