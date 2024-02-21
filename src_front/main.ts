@@ -227,7 +227,7 @@ function buildApp() {
 	StoreProxy.stream = storeStream();
 	StoreProxy.timer = storeTimer();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };;
+	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };
 	StoreProxy.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };

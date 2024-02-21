@@ -194,6 +194,7 @@
 			"streamCategory": "Update the stream's title",
 			"streamTags": "Update the stream's tags",
 			"triggerlogs": "@:triggers.logs.title",
+			"heatlogs": "@:heat.logs.title",
 			"snooze_ad_break": "Snooze incoming ad break for 5min"
 		}
 	}

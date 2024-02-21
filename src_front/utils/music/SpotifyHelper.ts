@@ -69,7 +69,7 @@ export default class SpotifyHelper {
 		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
 		
 		if(appParams) {
-			let credentials		= JSON.parse(appParams);
+			const credentials		= JSON.parse(appParams);
 			this._clientID		= credentials.client;
 			this._clientSecret	= credentials.secret;
 		}
@@ -111,7 +111,7 @@ export default class SpotifyHelper {
 		const {json} = await ApiController.call("auth/CSRFToken");
 
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
-		let url = new URL("https://accounts.spotify.com/authorize");
+		const url = new URL("https://accounts.spotify.com/authorize");
 		url.searchParams.append("client_id", this._clientID);
 		url.searchParams.append("response_type", "code");
 		url.searchParams.append("redirect_uri", redirectURI);

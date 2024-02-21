@@ -10,7 +10,7 @@
 			<ToggleButton v-model="screen.enabled" @change="$emit('update')" :alert="!screen.enabled" />
 		</div>
 		
-		<div class="ctas" v-if="selectAreaMode === false">
+		<div class="ctas" v-if="selectAreaMode === false && renderOnly == false">
 			<button v-tooltip="$t('global.edit')"><Icon name="edit" theme="primary"/></button>
 			<button @click.stop="$emit('duplicate', screen.id)" v-tooltip="$t('global.duplicate')" v-if="canDuplicate !== false"><Icon name="copy" theme="primary"/></button>
 			<button @click.stop="$emit('delete', screen.id)" v-tooltip="$t('global.delete')"><Icon name="trash" theme="alert"/></button>
@@ -45,14 +45,18 @@ export default class HeatScreenPreview extends Vue {
 	@Prop({default:false, type:Boolean})
 	public canDuplicate!:boolean;
 
+	@Prop({default:false, type:Boolean})
+	public renderOnly!:boolean;
+
 	public get classes():string[] {
 		const res = ["heatscreenpreview"];
-		if(this.selectAreaMode === false) res.push("noSelect");
+		if(this.selectAreaMode === false && this.renderOnly === false) res.push("noSelect");
 		if(!this.screen.enabled) res.push("disabled");
 		return res;
 	}
 
 	public get canEnable():boolean {
+		if(this.renderOnly !== false) return false;
 		let max = this.$config.MAX_CUSTOM_HEAT_SCREENS;
 		if(this.$store.auth.isPremium) max = this.$config.MAX_CUSTOM_HEAT_SCREENS_PREMIUM;
 		return this.$store.heat.screenList.filter(v=>v.enabled).length < max || this.screen.enabled != false;
@@ -147,8 +151,7 @@ export default class HeatScreenPreview extends Vue {
 	svg {
 		:deep(polygon) {
 			cursor: pointer;
-			fill: var(--color-text);
-			fill: transparent;
+			fill: var(--color-primary-fader);
 			stroke: var(--color-primary-light);
 			stroke-width: 1rem;
 			stroke-dasharray: 4rem;
@@ -190,9 +193,14 @@ export default class HeatScreenPreview extends Vue {
 		border: 1px dashed var(--color-alert);
 		background-color: var(--color-alert-fadest);
 
-		&.noSelect svg {
+		svg {
 			:deep(polygon) {
-				fill: var(--color-alert-light);
+				fill: var(--color-alert-fade);
+				stroke: var(--color-alert-light);
+				&.selected {
+					opacity: 1;
+					fill: red;
+				}
 			}
 		}
 	}

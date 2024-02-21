@@ -241,7 +241,7 @@ export default class GoXLRSocket extends EventDispatcher {
 				max = 50;
 			}
 		}
-		let value = Math.round(percent * (max - min) + min);
+		const value = Math.round(percent * (max - min) + min);
 		return this.execCommand(cmd, value);
 	}
 

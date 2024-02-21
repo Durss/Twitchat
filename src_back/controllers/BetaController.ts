@@ -172,7 +172,7 @@ export default class BetaController extends AbstractController {
 		if(fs.existsSync(Config.BETA_USER_LIST)) {
 			userList = JSON.parse(fs.readFileSync(Config.BETA_USER_LIST, "utf8"));
 		}
-		let index = userList.indexOf(params.uid);
+		const index = userList.indexOf(params.uid);
 		if(index > -1) {
 			userList.splice(index, 1);
 		}

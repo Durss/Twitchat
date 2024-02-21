@@ -170,8 +170,8 @@ export default class FFZUtils {
 		}
 		for (const key in this.channelEmotesHashmaps) {
 			const list = this.channelEmotesHashmaps[key];
-			if(this.channelEmotesHashmaps[key][code]) {
-				return this.channelEmotesHashmaps[key][code];
+			if(list[code]) {
+				return list[code];
 			}
 		}
 		return null;

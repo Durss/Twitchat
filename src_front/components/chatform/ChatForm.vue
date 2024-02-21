@@ -319,6 +319,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import Logger from '@/utils/Logger';
 
 @Component({
 	components:{
@@ -561,7 +562,7 @@ export default class ChatForm extends Vue {
 	/**
 	 * Loads potential twitchat announcements from server
 	 */
-	public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
+	 public async loadAnnouncements(onlyImportant:boolean = false):Promise<void> {
 		const options = {
 			method:"GET",
 			headers: {
@@ -745,18 +746,29 @@ export default class ChatForm extends Vue {
 			this.message = "";
 		}else
 		
-		if(isAdmin && cmd == "/max1") {
-			this.$store.params.features.mergeConsecutive_maxSize.value = parseInt(params[0]);
+		if(cmd == "/adslogs") {
+			Logger.instance.download("ads");
+			this.message = "";
 		}else
 		
-		if(isAdmin && cmd == "/max2") {
-			this.$store.params.features.mergeConsecutive_maxSizeTotal.value = parseInt(params[0]);
+		if(cmd == "/heatlogs") {
+			StoreProxy.params.openModal("heatLogs");
+			this.message = "";
 		}else
 		
-		if(isAdmin && cmd == "/mtest") {
-			for (let i = 0; i < 10; i++) {
-				MessengerProxy.instance.sendMessage("0123456789");
-			}
+		if(cmd == "/irclogs") {
+			Logger.instance.download("irc");
+			this.message = "";
+		}else
+		
+		if(cmd == "/youtubelogs") {
+			Logger.instance.download("youtube");
+			this.message = "";
+		}else
+
+		if(cmd == "/triggerlogs") {
+			StoreProxy.params.openModal("triggersLogs");
+			this.message = "";
 		}else
 		
 		if(cmd == "/__sentry_on__" || cmd == "/__sentry_off__") {

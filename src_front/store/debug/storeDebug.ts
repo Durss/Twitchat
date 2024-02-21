@@ -56,11 +56,11 @@ export const storeDebug = defineStore('debug', {
 			
 			switch(type) {
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
-					let users = fakeUsers.concat().splice(0,5);
-					let sent = Math.random() > .5;
-					let to = sent ? Utils.pickRand(users) : user;
-					let from = sent ? user : Utils.pickRand(users);
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const users = fakeUsers.concat().splice(0,5);
+					const sent = Math.random() > .5;
+					const to = sent ? Utils.pickRand(users) : user;
+					const from = sent ? user : Utils.pickRand(users);
 					const m:TwitchatDataTypes.MessageWhisperData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -80,7 +80,7 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageChatData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -114,7 +114,7 @@ export const storeDebug = defineStore('debug', {
 				}
 				
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageSubscriptionData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -166,7 +166,7 @@ export const storeDebug = defineStore('debug', {
 					}while(bits === 0)
 
 					message += " "+Utils.shuffle(cheerList).join(" ");
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					await TwitchUtils.parseCheermotes( chunks, uid);
 					const m:TwitchatDataTypes.MessageCheerData = {
 						id:Utils.getUUID(),
@@ -245,7 +245,7 @@ export const storeDebug = defineStore('debug', {
 						},
 					};
 					if(Math.random() > .75) {
-						let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+						const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 						m.message = message;
 						m.message_chunks = chunks;
 						m.message_html = TwitchUtils.messageChunksToHTML(chunks);
@@ -287,8 +287,8 @@ export const storeDebug = defineStore('debug', {
 				}
 
 				case TwitchatDataTypes.TwitchatMessageType.RAID: {
-					let res = await TwitchUtils.searchLiveChannels(Utils.pickRand(["just chatting", "valorant", "minecraft", "art", "makers & crafting"]));
-					let chan = Utils.pickRand(res);
+					const res = await TwitchUtils.searchLiveChannels(Utils.pickRand(["just chatting", "valorant", "minecraft", "art", "makers & crafting"]));
+					const chan = Utils.pickRand(res);
 					const m:TwitchatDataTypes.MessageRaidData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -1117,7 +1117,7 @@ export const storeDebug = defineStore('debug', {
 							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
 						})
 					}
-					let chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageWatchStreakData = {
 						platform:"twitch",
 						type,

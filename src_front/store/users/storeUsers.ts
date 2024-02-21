@@ -129,7 +129,7 @@ export const storeUsers = defineStore('users', {
 		 * @returns 
 		 */
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false, forcedSubscriberState:boolean = false):TwitchatDataTypes.TwitchatUser {
-			const s = Date.now();
+			// const s = Date.now();
 			let user:TwitchatDataTypes.TwitchatUser|undefined;
 			//Search for the requested user via hashmaps for fast accesses
 			let hashmaps = userMaps[platform];
@@ -265,7 +265,7 @@ export const storeUsers = defineStore('users', {
 			//User was already existing, consider stop there
 			if(userExisted){
 				if(loadCallback) loadCallback(user);
-				const e = Date.now();
+				// const e = Date.now();
 				// console.log("Duration 1 :", user.login, user.id, e-s);
 				return user;
 			}
@@ -389,7 +389,7 @@ export const storeUsers = defineStore('users', {
 			if(user.temporary != true) {
 				if(loadCallback) loadCallback(user);
 			}
-			const e = Date.now();
+			// const e = Date.now();
 			// console.log("Duration 2 :", user.login, user.id, e-s);
 			return user;
 		},
@@ -460,7 +460,7 @@ export const storeUsers = defineStore('users', {
 
 			if(!user) return;
 
-			let m:TwitchatDataTypes.MessageNoticeData = {
+			const m:TwitchatDataTypes.MessageNoticeData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
 				message: StoreProxy.i18n.t("global.moderation_action.blocked", {USER:user.displayName}),
@@ -486,7 +486,7 @@ export const storeUsers = defineStore('users', {
 
 			if(!user) return;
 
-			let m:TwitchatDataTypes.MessageNoticeData = {
+			const m:TwitchatDataTypes.MessageNoticeData = {
 				date:Date.now(),
 				id:Utils.getUUID(),
 				message: StoreProxy.i18n.t("global.moderation_action.unblocked", {USER:user.displayName}),
@@ -723,7 +723,7 @@ export const storeUsers = defineStore('users', {
 									  || Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate < Config.instance.TWITCH_SHOUTOUT_COOLDOWN;
 						if(!addToQueue || fromQueue) {
 							//If no pending SO or if SO executed from pending list, try to execute it
-							let res = await TwitchUtils.sendShoutout(channelId, user);
+							const res = await TwitchUtils.sendShoutout(channelId, user);
 							//If API call failed, add the SO to queue.
 							//It fails if an SO has been made before and Twitchat
 							//didn't know about (because not yet started)
@@ -798,7 +798,7 @@ export const storeUsers = defineStore('users', {
 				const list = this.pendingShoutouts[channelId];
 				if(!list || list.length == 0) continue;
 				
-				let elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
+				const elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
 				let cooldown = -elapsed;
 				//Compute cooldowns for every pending shoutouts
 				for (let i = 0; i < list.length; i++) {
@@ -937,7 +937,7 @@ export const storeUsers = defineStore('users', {
 		removeCustomBadge(user:TwitchatDataTypes.TwitchatUser, badgeId:string, channelId:string):void {
 			if(!this.customUserBadges[user.id]) return;
 
-			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId);
+			const index = this.customUserBadges[user.id].findIndex(v => v.id == badgeId && v.channel == channelId);
 			if(index > -1) this.customUserBadges[user.id].splice(index, 1);
 			if(this.customUserBadges[user.id].length === 0) {
 				delete this.customUserBadges[user.id];

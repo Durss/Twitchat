@@ -407,22 +407,22 @@ export default class EventSub {
 	 * @param payload 
 	 */
 	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
-		let title:string = event.title;
-		let category:string = event.category_name;
+		const title:string = event.title;
+		const category:string = event.category_name;
 		let tags:string[] = [];
 		let started_at:number = 0;
 		let viewers:number = 0;
 		let live:boolean = false;
 		//Loading data from channel as they're more complete than what EventSub gives us.
 		//tags and viewer count are missing from EventSub data
-		let [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
+		const [streamInfos] = await TwitchUtils.loadCurrentStreamInfo([event.broadcaster_user_id]);
 		if(streamInfos) {
 			live = true;
 			tags = streamInfos.tags;
 			started_at = new Date(streamInfos.started_at).getTime();
 			viewers = streamInfos.viewer_count;
 		}else{
-			let [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
+			const [chanInfo] = await TwitchUtils.loadChannelInfo([event.broadcaster_user_id])
 			tags = chanInfo.tags;
 		}
 
@@ -614,7 +614,7 @@ export default class EventSub {
 
 			//Check current live info
 			const [currentStream] = await TwitchUtils.loadCurrentStreamInfo([event.from_broadcaster_user_id]);
-			let isLive:boolean = false, title:string = "", category:string = "", duration:number = 0;
+			let isLive:boolean = false, title = "", category = "", duration = 0;
 			if(currentStream) {
 				isLive = true;
 				title = currentStream.title;
@@ -794,9 +794,9 @@ export default class EventSub {
 		
 		let title:string = "";
 		let category:string = "";
-		let [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
+		const [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
 		if(!stream) {
-			let [channel] = await TwitchUtils.loadChannelInfo([user.id]);
+			const [channel] = await TwitchUtils.loadChannelInfo([user.id]);
 			title = channel.title;
 			category = channel.game_name;
 		}else{
@@ -804,7 +804,7 @@ export default class EventSub {
 			category = stream.game_name;
 		}
 		
-		let channel_id = event.broadcaster_user_id;
+		const channel_id = event.broadcaster_user_id;
 		const message:TwitchatDataTypes.MessageShoutoutData = {
 			id:Utils.getUUID(),
 			date:Date.now(),
@@ -829,7 +829,7 @@ export default class EventSub {
 			console.log("ES : Shoutout sent");
 			let list = StoreProxy.users.pendingShoutouts[channel_id];
 			if(!list) list = [];
-			let index = list.findIndex(v=>v.user.id === user.id);
+			const index = list.findIndex(v=>v.user.id === user.id);
 			//Set the last SO date of the user
 			user.channelInfo[channel_id].lastShoutout = Date.now();
 			if(index > -1) {

@@ -231,7 +231,7 @@ export default class UserController extends AbstractController {
 	
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
 		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v.indexOf("_errors") == -1);
-		const users:{id:String, date:number}[] = []
+		const users:{id:string, date:number}[] = []
 		list.forEach(v => {
 			users.push({
 				id: v.replace(".json", ""),

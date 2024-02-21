@@ -57,8 +57,8 @@ export default class ContextMenuHelper {
 		const t		= StoreProxy.i18n.t;
 		const me	= message.platform == "youtube"? StoreProxy.auth.youtube.user : StoreProxy.auth.twitch.user;
 		const options:CMTypes.MenuItem[]= [];
-		let px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
-		let py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
+		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
+		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
 		const menu	= reactive({
 			theme: 'mac '+StoreProxy.main.theme,
 			x: px,
@@ -121,7 +121,7 @@ export default class ContextMenuHelper {
 			}
 	
 			//Chat highlight
-			let highlightIndex = options.length;
+			const highlightIndex = options.length;
 			options.push({ 
 				label: t("chat.context_menu.highlight_loading"),
 				icon: this.getIcon("icons/highlight.svg"),
@@ -228,7 +228,7 @@ export default class ContextMenuHelper {
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
 				
-				let classesBlock = "alert";
+				const classesBlock = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBan += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
@@ -577,7 +577,7 @@ export default class ContextMenuHelper {
 				resolve(false);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
+			const handler = (e:TwitchatEvent)=> {
 				clearTimeout(timeout)
 				resolve(true);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
@@ -626,7 +626,7 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
 
 		StoreProxy.main.messageExportState = "progress";
-		let errorTimeout = setTimeout(()=> {
+		const errorTimeout = setTimeout(()=> {
 			StoreProxy.main.messageExportState = "error";
 		}, 10000)
 		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
@@ -684,7 +684,7 @@ export default class ContextMenuHelper {
 		.toPng(infosDiv, {width:bounds.width, height:bounds.height})
 		.then(async(infoUrl:string) => {
 			infosDiv.remove();
-			let infoImg = new Image();
+			const infoImg = new Image();
 			infoImg.addEventListener("load", async () => {
 				//Generate image from message node
 				const clone = htmlNode.cloneNode(true) as HTMLElement;
@@ -708,7 +708,7 @@ export default class ContextMenuHelper {
 				let loaded = 0;
 				//Wait for all images to be loaded
 				await new Promise<void>((resolve)=> {
-					let fallBackTO = setTimeout(() => resolve(), 1000);
+					const fallBackTO = setTimeout(() => resolve(), 1000);
 					imgs.forEach((v:HTMLImageElement)=>{
 						if(/.*cloudfront.net/.test(v.src)) {
 							//CORS bypass for cheermotes
@@ -739,7 +739,7 @@ export default class ContextMenuHelper {
 				domtoimage
 				.toPng(clone, {width:bounds.width, height:bounds.height})
 				.then((dataUrl:string) => {
-					let messageImg = new Image();
+					const messageImg = new Image();
 					messageImg.addEventListener("load", () => {
 						const cnvWidth	= Math.max(messageImg.width, infoImg.width);
 						const canvas	= document.createElement("canvas");
@@ -754,7 +754,7 @@ export default class ContextMenuHelper {
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
 						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
 						clone.remove();
-						let downloaded = !Config.instance.OBS_DOCK_CONTEXT;
+						const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
 						
 						canvas.toBlob((blob)=> {
 							navigator.clipboard.write([

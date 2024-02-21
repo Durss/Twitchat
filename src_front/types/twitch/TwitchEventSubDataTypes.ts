@@ -209,7 +209,7 @@ export namespace TwitchEventSubDataTypes {
 		broadcaster_user_name: string;
 	}
 
-	export interface ModeratorRemoveEvent extends ModeratorAddEvent { }
+	export type ModeratorRemoveEvent = ModeratorAddEvent
 
 	export interface RewardCreateEvent {
 		id: string;
@@ -251,11 +251,9 @@ export namespace TwitchEventSubDataTypes {
 		};
 	}
 
-	export interface RewardUpdateEvent extends RewardRedeemEvent {
-	}
+	export type RewardUpdateEvent = RewardRedeemEvent
 
-	export interface RewardRemoveEvent extends RewardRedeemEvent {
-	}
+	export type RewardRemoveEvent = RewardRedeemEvent
 
 	export interface RewardRedeemEvent {
 		id: string;

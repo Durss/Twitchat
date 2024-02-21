@@ -15,7 +15,6 @@
 import DataStore from '@/store/DataStore';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import { e } from 'mathjs';
 import { watch, type StyleValue } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
 
@@ -87,7 +86,7 @@ export default class HeatDebugPopout extends Vue {
 		py = py/bounds.height
 		if(HeatSocket.instance.connected) {
 			const uid = this.$store.auth.twitch.user.id
-			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, event.ctrlKey, event.shiftKey);
+			HeatSocket.instance.fireEvent(uid, px, py, event.altKey, event.ctrlKey, event.shiftKey, true);
 		}
 
 		if(window.opener?.simulateHeatClick) {

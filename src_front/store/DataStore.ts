@@ -158,7 +158,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		let latestVersion = 52;
+		const latestVersion = 52;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -1082,7 +1082,7 @@ export default class DataStore {
 			for (let i = 0; i < triggers[key].actions.length; i++) {
 				const a = triggers[key].actions[i];
 				if(a.type == "obs" && a.show) {
-					let action:TriggerActionObsDataAction = a.show == "replay"? "replay" : a.show === true? "show" : "hide";
+					const action:TriggerActionObsDataAction = a.show == "replay"? "replay" : a.show === true? "show" : "hide";
 					a.action = action;
 					delete a.show;
 				}
@@ -1101,7 +1101,7 @@ export default class DataStore {
 		if(Array.isArray(triggers)) return;//Already migrated to new data format
 		if(!triggers) return;
 		const triggerList:TriggerData[] = [];
-		let events:TriggerTypeDefinition[] = TriggerTypesDefinitionList();
+		const events:TriggerTypeDefinition[] = TriggerTypesDefinitionList();
 		const allowedKeys:{[key:string]:boolean} = {};
 		events.forEach(v => allowedKeys[v.value] = true);
 		for (const key in triggers) {
@@ -1405,7 +1405,7 @@ export default class DataStore {
 
 		if(botMessages) {
 			for (const key in botMessages) {
-				let m = botMessages[key];
+				const m = botMessages[key];
 				if(m.message == null) m.message = StoreProxy.i18n.tm("params.botMessages."+key);
 				if(m.enabled != true && m.enabled != false) m.enabled = false;
 			}

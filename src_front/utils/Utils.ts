@@ -192,7 +192,7 @@ export default class Utils {
 	 */
 	public static elapsedDuration(date:number, step?:number) {
 		let elapsed = Date.now() - date;
-		let duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+		const duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
 		
 		//Round value to nearest update step to avoid having durations with random offsets
 		elapsed = Math.floor(elapsed/duration) * duration;
@@ -251,8 +251,8 @@ export default class Utils {
 		const r:number = (color >> 16 & 0xff) / 0xff;
 		const g:number = (color >> 8 & 0xff) / 0xff;
 		const b:number = (color & 0xff) / 0xff;
-		let v=Math.max(r,g,b), c=v-Math.min(r,g,b);
-		let h= c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+		const v=Math.max(r,g,b), c=v-Math.min(r,g,b);
+		const h= c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
 		return {h:60*(h<0?h+6:h), s:v&&c/v, v};
 	}
 
@@ -264,7 +264,7 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static hsv2rgb(h:number,s:number,v:number):number {                              
-		let f= (n:number,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);
+		const f= (n:number,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);
 		return f(5)<<16 | f(3)<<8 | f(1);
 	}  
 
@@ -753,8 +753,8 @@ export default class Utils {
 		text = this.replaceDiacritics(text);
 		return text.toString().toLowerCase().trim()
 			.replace(/\s+/g, '-')        // Replace spaces with hyphens
-			.replace(/[^\w\-]+/g, '')    // Remove all non-word characters
-			.replace(/\-\-+/g, '-')      // Replace consecutive hyphens with a single hyphen
+			.replace(/[^\w-]+/g, '')    // Remove all non-word characters
+			.replace(/--+/g, '-')      // Replace consecutive hyphens with a single hyphen
 			.replace(/^-+/, '')          // Remove hyphens at the beginning of the string
 			.replace(/-+$/, '');         // Remove hyphens at the end of the string
 	}
@@ -771,11 +771,11 @@ export default class Utils {
 		const px = point.x;
 		const py = point.y;
 
-		for (var i = 0; i < n; i++) {
-			var x1 = polygon[i].x;
-			var y1 = polygon[i].y;
-			var x2 = polygon[(i + 1) % n].x;
-			var y2 = polygon[(i + 1) % n].y;
+		for (let i = 0; i < n; i++) {
+			const x1 = polygon[i].x;
+			const y1 = polygon[i].y;
+			const x2 = polygon[(i + 1) % n].x;
+			const y2 = polygon[(i + 1) % n].y;
 
 			if ((y1 <= py && py < y2) || (y2 <= py && py < y1)) {
 				if (px < (x2 - x1) * (py - y1) / (y2 - y1) + x1) {
@@ -794,7 +794,7 @@ export default class Utils {
 	 * @param angle_deg 
 	 */
 	public static rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number):{x:number, y:number} {
-		let angle_rad = angle_deg * Math.PI / 180;
+		const angle_rad = angle_deg * Math.PI / 180;
 		const { x, y } = point;
 		const { x:cx, y:cy } = center;
 		
@@ -827,7 +827,7 @@ export default class Utils {
 	 */
 	public static async fileToBase64Img(input:File):Promise<string> {
 		return new Promise<string>((resolve, reject)=> {
-			var img = new Image();
+			const img = new Image();
 			img.onload = (event)=>{
 				//Scale down image to a 32x32px image
 				const size = 32;
@@ -931,7 +931,7 @@ export default class Utils {
 		if(this.fontsCache.length > 0) return this.fontsCache;
 		const fontCheck = new Set([
 			// Windows 10
-		  'Arial', 'Arial Black', 'Bahnschrift', 'Calibri', 'Cambria', 'Cambria Math', 'Candara', 'Comic Sans MS', 'Consolas', 'Constantia', 'Corbel', 'Courier New', 'Ebrima', 'Franklin Gothic Medium', 'Gabriola', 'Gadugi', 'Georgia', 'HoloLens MDL2 Assets', 'Impact', 'Ink Free', 'Javanese Text', 'Leelawadee UI', 'Lucida Console', 'Lucida Sans Unicode', 'Malgun Gothic', 'Marlett', 'Microsoft Himalaya', 'Microsoft JhengHei', 'Microsoft New Tai Lue', 'Microsoft PhagsPa', 'Microsoft Sans Serif', 'Microsoft Tai Le', 'Microsoft YaHei', 'Microsoft Yi Baiti', 'MingLiU-ExtB', 'Mongolian Baiti', 'MS Gothic', 'MV Boli', 'Myanmar Text', 'Nirmala UI', 'Palatino Linotype', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Segoe UI', 'Segoe UI Historic', 'Segoe UI Emoji', 'Segoe UI Symbol', 'SimSun', 'Sitka', 'Sylfaen', 'Symbol', 'Tahoma', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Webdings', 'Wingdings', 'Yu Gothic',
+			'Arial', 'Arial Black', 'Bahnschrift', 'Calibri', 'Cambria', 'Cambria Math', 'Candara', 'Comic Sans MS', 'Consolas', 'Constantia', 'Corbel', 'Courier New', 'Ebrima', 'Franklin Gothic Medium', 'Gabriola', 'Gadugi', 'Georgia', 'HoloLens MDL2 Assets', 'Impact', 'Ink Free', 'Javanese Text', 'Leelawadee UI', 'Lucida Console', 'Lucida Sans Unicode', 'Malgun Gothic', 'Marlett', 'Microsoft Himalaya', 'Microsoft JhengHei', 'Microsoft New Tai Lue', 'Microsoft PhagsPa', 'Microsoft Sans Serif', 'Microsoft Tai Le', 'Microsoft YaHei', 'Microsoft Yi Baiti', 'MingLiU-ExtB', 'Mongolian Baiti', 'MS Gothic', 'MV Boli', 'Myanmar Text', 'Nirmala UI', 'Palatino Linotype', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Segoe UI', 'Segoe UI Historic', 'Segoe UI Emoji', 'Segoe UI Symbol', 'SimSun', 'Sitka', 'Sylfaen', 'Symbol', 'Tahoma', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Webdings', 'Wingdings', 'Yu Gothic',
 			// macOS
 			'American Typewriter', 'Andale Mono', 'Arial', 'Arial Black', 'Arial Narrow', 'Arial Rounded MT Bold', 'Arial Unicode MS', 'Avenir', 'Avenir Next', 'Avenir Next Condensed', 'Baskerville', 'Big Caslon', 'Bodoni 72', 'Bodoni 72 Oldstyle', 'Bodoni 72 Smallcaps', 'Bradley Hand', 'Brush Script MT', 'Chalkboard', 'Chalkboard SE', 'Chalkduster', 'Charter', 'Cochin', 'Comic Sans MS', 'Copperplate', 'Courier', 'Courier New', 'Didot', 'DIN Alternate', 'DIN Condensed', 'Futura', 'Geneva', 'Georgia', 'Gill Sans', 'Helvetica', 'Helvetica Neue', 'Herculanum', 'Hoefler Text', 'Impact', 'Lucida Grande', 'Luminari', 'Marker Felt', 'Menlo', 'Microsoft Sans Serif', 'Monaco', 'Noteworthy', 'Optima', 'Palatino', 'Papyrus', 'Phosphate', 'Rockwell', 'Savoye LET', 'SignPainter', 'Skia', 'Snell Roundhand', 'Tahoma', 'Times', 'Times New Roman', 'Trattatello', 'Trebuchet MS', 'Verdana', 'Zapfino',
 		  ].sort());
@@ -963,7 +963,7 @@ export default class Utils {
 	 * @returns 
 	 */
 	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true):Promise<string> {
-		let placeholders = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+		const placeholders = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
 		const trigger:TriggerData = {
 			id:"",
 			type:TriggerTypes.GLOBAL_PLACHOLDERS,

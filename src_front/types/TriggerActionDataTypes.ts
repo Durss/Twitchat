@@ -226,7 +226,7 @@ export interface TriggerEventTypeCategory {
 	id:number,
 	labelKey:string;
 	icons:string[];
-};
+}
 //Main trigger categories displayed on the parameter "Triggers" section
 export const TriggerEventTypeCategories = {
 	GLOBAL:			{id:1, labelKey:"triggers.categories.global", icons:["whispers"]} as TriggerEventTypeCategory,
@@ -1091,7 +1091,7 @@ export function TriggerActionPlaceholders(key:TriggerActionStringTypes):ITrigger
  * This is used by the counters, when changing the placeholder of a counter
  * the cache needs to be rebuilt to get those changes.
  */
-export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undefined };
+export function rebuildPlaceholdersCache():void { eventPlaceholdersCache = undefined }
 
 /**
  * Placeholders related to a trigger event type

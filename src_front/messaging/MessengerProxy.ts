@@ -5,6 +5,7 @@ import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiController from "@/utils/ApiController";
 import Config from "@/utils/Config";
+import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
 import TriggerActionHandler from "@/utils/triggers/TriggerActionHandler";
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
@@ -12,8 +13,6 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
-import OBSWebsocket from "@/utils/OBSWebsocket";
-import Logger from "@/utils/Logger";
 /**
 * Created : 26/09/2022 
 */
@@ -236,7 +235,7 @@ export default class MessengerProxy {
 		
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
-		let triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
+		const triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
 		for (let i = 0; i < triggerCommands.length; i++) {
 			const t = triggerCommands[i];
 			if(cmd == t.chatCommand!.toLowerCase()) {
@@ -267,19 +266,19 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/countdown") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.countdownStart(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownadd") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.countdownAdd(duration * 1000);
 			return true;
 		}else
 
 		if(cmd == "/countdownremove") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.countdownRemove(duration * 1000);
 			return true;
 		}else
@@ -305,13 +304,13 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/timeradd") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.timerAdd(duration * 1000);
 			return true;
 		}else
 		
 		if(cmd == "/timerremove") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.timerRemove(duration * 1000);
 			return true;
 		}else
@@ -516,21 +515,6 @@ export default class MessengerProxy {
 			StoreProxy.admin.migrateUserDataToProd(params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim());
 			return true;
 		}else
-		
-		if(cmd == "/adslogs") {
-			Logger.instance.download("ads");
-			return true;
-		}else
-		
-		if(cmd == "/irclogs") {
-			Logger.instance.download("irc");
-			return true;
-		}else
-		
-		if(cmd == "/youtubelogs") {
-			Logger.instance.download("youtube");
-			return true;
-		}else
 
 		if(cmd == "/streamsummary") {
 			StoreProxy.params.openModal("streamSummary");
@@ -538,13 +522,8 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/greetduration") {
-			let duration = this.paramsToDuration(params[0]);
+			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.params.setGreetThemAutoDelete(duration);
-			return true;
-		}else
-
-		if(cmd == "/triggerlogs") {
-			StoreProxy.params.openModal("triggersLogs");
 			return true;
 		}else
 
@@ -642,7 +621,7 @@ export default class MessengerProxy {
 		if(isAdmin && cmd == "/fakesolist") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			for (let i = 0; i < 10; i++) {
-				let user = Utils.pickRand(fakeUsers);
+				const user = Utils.pickRand(fakeUsers);
 				const userInfos = await TwitchUtils.loadUserInfo([user.id]);
 				user.avatarPath = userInfos[0].profile_image_url;
 				if(!StoreProxy.users.pendingShoutouts[channelId]) {
@@ -722,9 +701,9 @@ export default class MessengerProxy {
 						//Force a specific reward via "/spam reward {REWARD_ID}"
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD
 						&& forcedType == TwitchatDataTypes.TwitchatMessageType.REWARD) {
-							let rewardId = params[1];
+							const rewardId = params[1];
 							console.log(rewardId);
-							let reward = StoreProxy.rewards.rewardList.find(v=>v.id == rewardId);
+							const reward = StoreProxy.rewards.rewardList.find(v=>v.id == rewardId);
 							if(reward) {
 								console.log(reward);
 								m.reward = {
@@ -747,7 +726,7 @@ export default class MessengerProxy {
 		}else
 
 		if(isAdmin && cmd == "/fakewhisper" || cmd == "/fakewhispers") {
-			let count = parseInt(params[0]) || 1;
+			const count = parseInt(params[0]) || 1;
 			for (let i = 0; i < count; i++) {
 				StoreProxy.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.WHISPER);
 			}
@@ -806,7 +785,7 @@ export default class MessengerProxy {
 		const chunks = param.split(/[^a-z0-9_]+/gi);
 		let duration = 0;
 		for(let i = 0; i < chunks.length; i++) {
-			let value = parseInt(chunks[i]);
+			const value = parseInt(chunks[i]);
 			let coeff = chunks.length - i;
 			if(coeff > 1) coeff = Math.pow(60, coeff-1);
 			duration += value * coeff;

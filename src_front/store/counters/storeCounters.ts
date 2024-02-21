@@ -11,7 +11,7 @@ import DataStore from '../DataStore';
 import type { ICountersActions, ICountersGetters, ICountersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
-let broadcastTimeoutDebounce:{[key:string]:number} = {};
+const broadcastTimeoutDebounce:{[key:string]:number} = {};
 
 export const storeCounters = defineStore('counters', {
 	state: () => ({
@@ -93,7 +93,7 @@ export const storeCounters = defineStore('counters', {
 								if(!res.errored) {
 									if(!res.avatarPath) {
 										//Avatar is missing, get it from twitch
-										let data = await TwitchUtils.loadUserInfo([res.id]);
+										const data = await TwitchUtils.loadUserInfo([res.id]);
 										if(data?.length > 0) {
 											res.avatarPath = data[0].profile_image_url;
 										}

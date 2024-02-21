@@ -635,7 +635,7 @@ export default class TwitchUtils {
 			headers: this.headers,
 		}
 		let rewards:TwitchDataTypes.Reward[] = [];
-		let url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"channel_points/custom_rewards");
 		url.searchParams.append("broadcaster_id", StoreProxy.auth.twitch.user.id);
 		if(onlyManageable) url.searchParams.append("only_manageable_rewards", "true");
 		const res = await this.callApi(url, options);
@@ -709,7 +709,7 @@ export default class TwitchUtils {
 			headers:this.headers,
 		});
 		if(res.status == 200) {
-			const json = await res.json();
+			// const json = await res.json();
 			const rewardIndex = this.rewardsCache.findIndex(v => v.id == rewardId);
 			const manageableIndex = this.rewardsManageableCache.findIndex(v => v.id == rewardId);
 			if(rewardIndex > -1) this.rewardsCache.splice(rewardIndex, 1);
@@ -1216,7 +1216,7 @@ export default class TwitchUtils {
 			method:"GET",
 			headers: this.headers,
 		}
-		let url = new URL(Config.instance.TWITCH_API_PATH+"search/channels");
+		const url = new URL(Config.instance.TWITCH_API_PATH+"search/channels");
 		url.searchParams.append("query", search);
 		url.searchParams.append("first", "20");
 		url.searchParams.append("live_only", "true");
@@ -1521,7 +1521,7 @@ export default class TwitchUtils {
 			message.clipUrl = json.data[0].edit_url;
 			message.clipID = json.data[0].id;
 			
-			let createdDate = Date.now();
+			const createdDate = Date.now();
 			const interval = setInterval(async ()=> {
 				const clip = await TwitchUtils.getClipById(message.clipID);
 				if(clip) {
@@ -1968,7 +1968,7 @@ export default class TwitchUtils {
 		
 		if(!user || !user.id) return false;
 
-		let storedUser = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, user.id, user.login, user.display_name);
+		const storedUser = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, user.id, user.login, user.display_name);
 		storedUser.avatarPath = user.profile_image_url;
 
 		const options = {
@@ -2360,7 +2360,7 @@ export default class TwitchUtils {
 		}
 
 		//Get users that are missing avatars
-		let missingAvatars:TwitchatDataTypes.TwitchatUser[] = [];
+		const missingAvatars:TwitchatDataTypes.TwitchatUser[] = [];
 		for (let i = 0; i < this.fakeUsersCache.length; i++) {
 			const u = this.fakeUsersCache[i];
 			if(!u.avatarPath) missingAvatars.push(u);
@@ -2368,9 +2368,9 @@ export default class TwitchUtils {
 
 		//Load missing avatars
 		if(missingAvatars.length > 0) {
-			let res = await TwitchUtils.loadUserInfo(missingAvatars.map(v=>v.id));
+			const res = await TwitchUtils.loadUserInfo(missingAvatars.map(v=>v.id));
 			res.forEach(u=> {
-				let user = missingAvatars.find(v=>v.id === u.id);
+				const user = missingAvatars.find(v=>v.id === u.id);
 				if(user) user.avatarPath = u.profile_image_url;
 			})
 		}
@@ -2648,7 +2648,7 @@ export default class TwitchUtils {
 	/**
 	 * Gets a badge title from its raw info
 	 */
-	public static getBadgeTitle(setId:String, versionID:string):string {
+	public static getBadgeTitle(setId:string, versionID:string):string {
 		let title = "";
 		const i18n = StoreProxy.i18n;
 		//If it's the subscriber badge, create the title form its ID.
@@ -2663,7 +2663,7 @@ export default class TwitchUtils {
 				if(months > 0) duration += " "+i18n.t("global.and")+" "+months+" "+i18n.tc("global.date.month", months);
 				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
 			}else{
-				let duration = months+" "+i18n.tc("global.date.month", months);
+				const duration = months+" "+i18n.tc("global.date.month", months);
 				title = i18n.tc("global.badges.subscriber", {"DURATION":duration});
 			}
 		}else
@@ -2729,7 +2729,7 @@ export default class TwitchUtils {
 	public static parseMessageToChunks(message:string, emotes?:string|TwitchatDataTypes.EmoteDef[], customParsing = false, platform:TwitchatDataTypes.ChatPlatform = "twitch"):TwitchatDataTypes.ParseMessageChunk[] {
 		if(!message) return [];
 		
-		let emotesList:TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string")? [] : emotes;
+		const emotesList:TwitchatDataTypes.EmoteDef[] = (!emotes || typeof emotes == "string")? [] : emotes;
 
 		function getProtectedRange(emotes:string):boolean[] {
 			const protectedRanges:boolean[] = [];
@@ -2906,7 +2906,7 @@ export default class TwitchUtils {
 			const chunk = result[i];
 			if(chunk.type == "text") {
 				result.splice(i, 1);//Remove source chunk
-				let res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
+				const res = (chunk.value || "").split(/(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
@@ -2930,7 +2930,7 @@ export default class TwitchUtils {
 			const chunk = result[i];
 			if(chunk.type == "text") {
 				result.splice(i, 1);//Remove source chunk
-				let res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
+				const res = (chunk.value || "").split(/(@[a-z0-9_]{3,25})/gi);
 				let subIndex = 0;
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
@@ -3043,7 +3043,7 @@ export default class TwitchUtils {
 					chunks.splice(j,1);
 					
 					//Split chunk into subchunks by cheermote codes
-					let res = chunk.value.split(reg);
+					const res = chunk.value.split(reg);
 					
 					//Parse all sub chunks
 					res.forEach(v=> {
@@ -3098,7 +3098,7 @@ export default class TwitchUtils {
 				//Split chunk into subchunks by cheermote codes
 				const regSafeWord = word.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				const reg = new RegExp("([a-z]*"+regSafeWord+"[a-z]*)", "gi");
-				let res = chunk.value.split(reg);
+				const res = chunk.value.split(reg);
 				
 				//Parse all sub chunks
 				res.forEach(v=> {
@@ -3137,7 +3137,7 @@ export default class TwitchUtils {
 	 */
 	private static async callApi(input: URL, init?: RequestInit | undefined):Promise<Response> {
 		try {
-			let result = await fetch(input, init);
+			const result = await fetch(input, init);
 			
 			//Session still valid, return result
 			if(result.status != 401) {

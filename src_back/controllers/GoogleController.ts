@@ -301,6 +301,6 @@ export default class GoogleController extends AbstractController {
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send(JSON.stringify({success:false, error:"translation failed", errorCode:"TRANSLATE_FAIL"}));
-		};
+		}
 	}
 }

@@ -11,7 +11,7 @@ import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
 
-let userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
+const userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
 
 //TODO make this platform agnostic
 export const storeEmergency = defineStore('emergency', {

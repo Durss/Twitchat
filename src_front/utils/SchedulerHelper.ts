@@ -197,7 +197,7 @@ export default class SchedulerHelper {
 			}
 		}
 		
-		let liveChannelsSchedule = {
+		const liveChannelsSchedule = {
 			type:TriggerTypes.TWITCHAT_LIVE_FRIENDS,
 			enabled:true,
 			id:Utils.getUUID(),
@@ -210,7 +210,7 @@ export default class SchedulerHelper {
 			}
 		};
 		
-		let shoutoutQueueSchedule = {
+		const shoutoutQueueSchedule = {
 			type:TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,
 			enabled:true,
 			id:Utils.getUUID(),
@@ -246,7 +246,7 @@ export default class SchedulerHelper {
 
 		for (let i = 0; i < this._pendingSchedules.length; i++) {
 			const e = this._pendingSchedules[i];
-			let schedule = e.trigger.scheduleParams;
+			const schedule = e.trigger.scheduleParams;
 
 			if(!schedule) continue;
 

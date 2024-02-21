@@ -215,12 +215,6 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.BINGO: {
-				if(await this.executeTriggersByType(TriggerTypes.BINGO_RESULT, message, testMode, undefined, undefined, forcedTriggerId)) {
-					return;
-				}break;
-			}
-
 			case TwitchatDataTypes.TwitchatMessageType.CHAT_ALERT: {
 				if(await this.executeTriggersByType(TriggerTypes.CHAT_ALERT, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
@@ -343,14 +337,14 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:{
-				let event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
+				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_ONLINE : TriggerTypes.FOLLOWED_STREAM_ONLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE:{
-				let event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_OFFLINE : TriggerTypes.FOLLOWED_STREAM_OFFLINE;
+				const event = message.info.user.id == StoreProxy.auth.twitch.user.id? TriggerTypes.STREAM_OFFLINE : TriggerTypes.FOLLOWED_STREAM_OFFLINE;
 				if(await this.executeTriggersByType(event, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -733,7 +727,8 @@ export default class TriggerActionHandler {
 	public async executeTrigger(trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, dynamicPlaceholders:{[key:string]:string|number} = {}, ignoreDisableState:boolean = false):Promise<boolean> {
 		if(!trigger.enabled && !testMode && !ignoreDisableState) return false;
 
-		let log:Omit<LogTrigger, "date"> = {
+		const log:LogTrigger = {
+			date:Date.now(),
 			id:Utils.getUUID(),
 			trigger,
 			complete:false,
@@ -800,8 +795,8 @@ export default class TriggerActionHandler {
 
 			if(eventBusy) {
 				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete"});
-				let prom = queue[queue.length-2]?.promise ?? Promise.resolve();
-				await prom;
+				const prom = queue[queue.length-2]?.promise;
+				if(prom) await prom;
 				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process"});
 			}
 		}
@@ -977,7 +972,7 @@ export default class TriggerActionHandler {
 					if(sourceBusy) {
 						logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" is busy, wait for its release"});
 					}
-					let prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
+					const prom = this.obsSourceNameToQueue[step.sourceName] ?? Promise.resolve();
 					let resolverOBS!: ()=>void;
 					this.obsSourceNameToQueue[step.sourceName] = new Promise<void>(async (resolve, reject)=> { resolverOBS = resolve });
 					await prom;
@@ -1013,7 +1008,7 @@ export default class TriggerActionHandler {
 						}
 						if(step.mediaPath) {
 							try {
-								let url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
+								const url = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.mediaPath as string, subEvent, true, true);
 								logStep.messages.push({date:Date.now(), value:"Update Media source url to \""+url+"\""});
 								await OBSWebsocket.instance.setMediaSourceURL(step.sourceName, url);
 							}catch(error) {
@@ -1061,7 +1056,7 @@ export default class TriggerActionHandler {
 												const item = items[i];
 												const transform = await OBSWebsocket.instance.getSceneItemTransform(item.scene, item.source.sceneItemId);
 												type ReducedType = Partial<Pick<SourceTransform, "positionX" | "positionY" | "width" | "height" | "rotation" | "scaleX" | "scaleY">>;
-												let result:ReducedType = {};
+												const result:ReducedType = {};
 												if(action == "move") {
 													//Move source
 													if(step.pos_x) {
@@ -1120,7 +1115,7 @@ export default class TriggerActionHandler {
 													for (const key in result) params[key] = result[key as keyof ReducedType]!;
 													params.duration = step.animateDuration! / 1000;
 													params.ease = step.animateEasing!;
-													let lastFrame = Date.now();
+													const lastFrame = Date.now();
 													params.onUpdate = ()=> {
 														//Limit to 30fps to avoid destroying OBS-WS
 														if(Date.now() - lastFrame < 30/1000) return;
@@ -1187,7 +1182,7 @@ export default class TriggerActionHandler {
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
-						let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true);
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true);
 						let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
@@ -1223,7 +1218,7 @@ export default class TriggerActionHandler {
 							clipId = matches? matches[1] : "";
 						}
 						if(clipId) {
-							let clip = await TwitchUtils.getClipById(clipId);
+							const clip = await TwitchUtils.getClipById(clipId);
 						
 							const data:TwitchatDataTypes.ChatHighlightInfo = {
 								clip:{
@@ -1237,7 +1232,7 @@ export default class TriggerActionHandler {
 
 						}else{
 							//Highlight user message as text
-							let info:TwitchatDataTypes.ChatHighlightInfo = {
+							const info:TwitchatDataTypes.ChatHighlightInfo = {
 								message:text,
 								user,
 								params:StoreProxy.chat.chatHighlightOverlayParams,
@@ -1254,7 +1249,7 @@ export default class TriggerActionHandler {
 				
 				//Handle TTS action
 				if(step.type == "tts" && message) {
-					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
+					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
 					log.entries.push({date:Date.now(), type:"message", value:"TTS read message \""+text+"\""});
 					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
 				}else
@@ -1263,7 +1258,7 @@ export default class TriggerActionHandler {
 				if(step.type == "poll") {
 					try {
 						if(step.pollData.title && step.pollData.answers.length >= 2) {
-							let answers:string[] = [];
+							const answers:string[] = [];
 							for (const a of step.pollData.answers) {
 								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
 							}
@@ -1287,7 +1282,7 @@ export default class TriggerActionHandler {
 				if(step.type == "prediction") {
 					try {
 						if(step.predictionData.title && step.predictionData.answers.length >= 2) {
-							let answers:string[] = [];
+							const answers:string[] = [];
 							for (const a of step.predictionData.answers) {
 								answers.push(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, a))
 							}
@@ -1308,7 +1303,7 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle action
 				if(step.type == "raffle") {
-					let data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
+					const data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
 					if(data.customEntries) {
 						//Parse placeholders on custom erntries
 						data.customEntries = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, data.customEntries);
@@ -1319,7 +1314,7 @@ export default class TriggerActionHandler {
 				
 				//Handle raffle enter action
 				if(step.type == "raffle_enter") {
-					if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type) && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage)) {
+					if(Object.prototype.hasOwnProperty.call(TwitchatDataTypes.TranslatableMessageTypesString, message.type) && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage)) {
 						logStep.messages.push({date:Date.now(), value:"❌ Cannot join raffle. Either user already entered or no raffle has been started, or raffle entries are closed"});
 						log.error = true;
 						logStep.error = true;
@@ -1368,7 +1363,7 @@ export default class TriggerActionHandler {
 							}else
 							if(step.placeholder) {
 								//Select a voice by its name
-								let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
+								const voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
 								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] play sound with name \""+voiceName+"\""});
 								VoicemodWebSocket.instance.playSound(voiceName);
 							}
@@ -1384,7 +1379,7 @@ export default class TriggerActionHandler {
 							}else
 							if(step.placeholder) {
 								//Select a voice by its name
-								let voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
+								const voiceName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+step.placeholder+"}", subEvent);
 								logStep.messages.push({date:Date.now(), value:"[VOICEMOD] Enable filter with name \""+voiceName+"\""});
 								VoicemodWebSocket.instance.enableVoiceEffect(voiceName);
 							}
@@ -1512,7 +1507,7 @@ export default class TriggerActionHandler {
 					try {
 						value = MathJS.evaluate(text);
 					}catch(error) {
-						let logMessage = "❌ Invalid arithmetic operation: \""+step.addValue+"\"";
+						const logMessage = "❌ Invalid arithmetic operation: \""+step.addValue+"\"";
 						logStep.messages.push({date:Date.now(), value:logMessage});
 						log.error = true;
 						logStep.error = true;
@@ -1526,7 +1521,7 @@ export default class TriggerActionHandler {
 							if(ids.indexOf(c.id) > -1) {
 								//Check if we can update the counter
 								if(c.enabled == false && !isPremium) {
-									let logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
+									const logMessage = "❌ Not premium and counter \""+c.name+"\" is disabled. Counter not updated.";
 									logStep.messages.push({date:Date.now(), value:logMessage});
 									log.error = true;
 									logStep.error = true;
@@ -1589,7 +1584,7 @@ export default class TriggerActionHandler {
 
 								//Standard counter edition (either current user or a non-per-user counter)
 								}else{
-									let user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+									const user = c.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 									if(!c.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 										const newValue = StoreProxy.counters.increment(c.id, step.action, value, user);
 										let logMessage = "";
@@ -1619,12 +1614,12 @@ export default class TriggerActionHandler {
 				
 				//Handle Value update trigger action
 				if(step.type == "value") {
-					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
+					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
 					const ids = step.values;
 					for (const v of StoreProxy.values.valueList) {
 						if(ids.indexOf(v.id) > -1) {
 							if(v.enabled == false && !isPremium) {
-								let logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
+								const logMessage = "❌ Not premium and value \""+v.name+"\" is disabled. Not updated to: "+text;
 								logStep.messages.push({date:Date.now(), value:logMessage});
 								log.error = true;
 								logStep.error = true;
@@ -1688,7 +1683,7 @@ export default class TriggerActionHandler {
 
 							//Standard value edition (either current user or a non-per-user value)
 							}else {
-								let user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
+								const user = v.perUser? this.extractUserFromTrigger(trigger, message) : undefined;
 								if(!v.perUser || (user && !user.temporary && !user.errored && !user.anonymous)) {
 									StoreProxy.values.updateValue(v.id, text, user);
 									let logMessage = "Update \""+v.name+"\" to \""+text+"\"";
@@ -1786,7 +1781,7 @@ export default class TriggerActionHandler {
 				//Handle mobile device vibration action
 				if(step.type == "vibrate") {
 					if(step.pattern) {
-						let pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
+						const pattern:number[] = TriggerActionDataTypes.VIBRATION_PATTERNS.find(v=>v.id == step.pattern)?.pattern || [];
 						logStep.messages.push({date:Date.now(), value:"Vibrate device with pattern \""+step.pattern+"\" => \"["+pattern+"]\""});
 						window.navigator.vibrate(pattern);
 					}
@@ -1795,7 +1790,7 @@ export default class TriggerActionHandler {
 				//Handle GoXLR actions
 				if(step.type == "goxlr") {
 					if(!isPremium) {
-						let logMessage = "❌ Not premium, cannot control GoXLR ";
+						const logMessage = "❌ Not premium, cannot control GoXLR ";
 						logStep.messages.push({date:Date.now(), value:logMessage});
 						log.error = true;
 						logStep.error = true;
@@ -1897,7 +1892,7 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
 										failCode = "max_duration";
 									}else {
-										let success = await SpotifyHelper.instance.addToQueue(track.uri);
+										const success = await SpotifyHelper.instance.addToQueue(track.uri);
 										if(success === true) {
 											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
 											data = {
@@ -1953,7 +1948,7 @@ export default class TriggerActionHandler {
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
 									const confirmPH = TriggerEventPlaceholders(TriggerTypes.TRACK_ADDED_TO_QUEUE);
-									let chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
+									const chatMessage = await this.parsePlaceholders(dynamicPlaceholders, confirmPH, trigger, trackAddedMesssageData, step.confirmMessage, subEvent, false);
 									MessengerProxy.instance.sendMessage(chatMessage);
 								}
 							}else{
@@ -2153,13 +2148,13 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"❌ Invalid X coordinate. Fallback to 50%"});
 							log.error = true;
 							logStep.error = true;
-						};
+						}
 						if(isNaN(parseFloat(y))) {
 							y = "50"
 							logStep.messages.push({date:Date.now(), value:"❌ Invalid Y coordinate. Fallback to 50%"});
 							log.error = true;
 							logStep.error = true;
-						};
+						}
 						ctrl = step.heatClickData.ctrl;
 						alt = step.heatClickData.alt;
 						shift = step.heatClickData.shift;
@@ -2216,7 +2211,7 @@ export default class TriggerActionHandler {
 							rewardData!.prompt = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.prompt, subEvent);
 						}
 						if(rewardData!.cost) {
-							let cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.cost.toString(), subEvent);
+							const cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.cost.toString(), subEvent);
 							try {
 								const num = MathJS.evaluate(cost);
 								if(!isNaN(num)) {
@@ -2334,7 +2329,7 @@ export default class TriggerActionHandler {
 		}
 		
 		if(queue) {
-			let item = queue.shift();
+			const item = queue.shift();
 			if(item) {
 				log.entries.push({date:Date.now(), type:"message", value:"✔ Resolve queue "+queueKey});
 				item.resolver();//Proceed to next trigger in current queue
@@ -2378,7 +2373,7 @@ export default class TriggerActionHandler {
 			const srcU = src.toUpperCase();
 			const streamInfos = StoreProxy.stream.currentStreamInfo[channelId];
 			for (const placeholder of placeholders) {
-				let value:string = "";
+				let value = "";
 				let cleanSubevent = true;
 				placeholder.tag = placeholder.tag.toUpperCase();
 				if(srcU.indexOf("{"+placeholder.tag+"}") == -1) continue;
@@ -2386,13 +2381,13 @@ export default class TriggerActionHandler {
 				//Special pointers parsing.
 				//Pointers starting with "__" are parsed here
 				if(placeholder.pointer.indexOf("__")==0) {
-					let pointer = placeholder.pointer.toLowerCase();
+					const pointer = placeholder.pointer.toLowerCase();
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
 					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo | "duration" | "duration_ms";
-						let startDate = (streamInfos.started_at || Date.now());
+						const startDate = (streamInfos.started_at || Date.now());
 						if(pointerLocal == "duration") {
 							value = Utils.formatDuration(Date.now() - startDate);
 						}else if(pointerLocal == "duration_ms") {
@@ -2412,7 +2407,7 @@ export default class TriggerActionHandler {
 							case "name": {
 								//This is a dirty duplicate of what's in OverlayParamsUlule.
 								//Think about a cleaner way to do this
-								let project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
+								const project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
 								try {
 									const apiRes = await ApiController.call("ulule/project", "GET", {project});
 									if(apiRes.status == 200) {
@@ -2465,7 +2460,7 @@ export default class TriggerActionHandler {
 						const pointerLocal = pointer.replace('__timer__.', '');
 						const timer = StoreProxy.timer.timer;
 						if(timer) {
-							let start = timer.startAt_ms;
+							const start = timer.startAt_ms;
 							let elapsed = Math.floor((Date.now() - start + timer.offset_ms)/1000)*1000;
 							if(timer.paused) {
 								elapsed -= Date.now() - timer.pausedAt!;
@@ -2572,7 +2567,7 @@ export default class TriggerActionHandler {
 							}else
 							if(counter.perUser === true) {
 								//If it's a per-user counter, get the user's value
-								let user = this.extractUserFromTrigger(trigger, message);
+								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && counter.users && counter.users[user.id]) {
 									value = counter.users[user.id].toString();
 								}else{
@@ -2596,7 +2591,7 @@ export default class TriggerActionHandler {
 							}else
 							if(valueEntry.perUser === true) {
 								//If it's a per-user counter, get the user's value
-								let user = this.extractUserFromTrigger(trigger, message);
+								const user = this.extractUserFromTrigger(trigger, message);
 								if(user && valueEntry.users && valueEntry.users[user.id]) {
 									value = valueEntry.users[user.id].toString();
 								}else{
@@ -2751,9 +2746,9 @@ export default class TriggerActionHandler {
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names
-		let list = displayName.split(",");
+		const list = displayName.split(",");
 		const result:TwitchatDataTypes.TwitchatUser[] = [];
-		for (let displayName of list) {
+		for (const displayName of list) {
 			//Load user details
 			const user = await new Promise<TwitchatDataTypes.TwitchatUser|undefined>((resolve, reject)=> {
 				//FIXME that hardcoded platform "twitch" will break if adding a new platform

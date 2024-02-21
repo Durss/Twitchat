@@ -254,10 +254,10 @@ export default class AbstractDistortion extends Vue {
 	public renderFrame():void {
 		if(this.disposed) return;
 
-		var rotationMatrix = new THREE.Matrix4();
+		const rotationMatrix = new THREE.Matrix4();
 		requestAnimationFrame(this.renderFrame);
 
-		let offsetUvY = 1 - (this.uvScaleY * this.shRows);
+		const offsetUvY = 1 - (this.uvScaleY * this.shRows);
 		// let screenW = this.screenToWorld(window.innerWidth,0).x;
 		
 		for (let i = 0; i < this.items.length; i++) {
@@ -270,7 +270,7 @@ export default class AbstractDistortion extends Vue {
 			// item.angle += Math.PI/200;
 			rotationMatrix.makeRotationZ(item.angle);
 			
-			let frame = Math.max(0, Math.min(this.frames-1, Math.floor(item.frame)));
+			const frame = Math.max(0, Math.min(this.frames-1, Math.floor(item.frame)));
 			if(frame <= 0 && item.alphaSpeed < 0) {
 				item.alphaSpeed = -item.alphaSpeed*.5;
 			}
@@ -398,8 +398,8 @@ export default class AbstractDistortion extends Vue {
 		const cols = Math.floor(canvas.width / image.width);
 
 		let alpha = 1;
-		for (var row = 0; row < rows; row++) {
-			for (var col = 0; col < cols; col++) {
+		for (let row = 0; row < rows; row++) {
+			for (let col = 0; col < cols; col++) {
 				ctx.globalAlpha = alpha
 				ctx.drawImage(
 					image,

@@ -86,7 +86,7 @@ export const storeStream = defineStore('stream', {
 				TwitchUtils.loadCurrentStreamInfo([channelId]).then(async v=> {
 					if(v.length == 0){
 						//Fallback to channel info
-						let [chanInfos] = await TwitchUtils.loadChannelInfo([channelId])
+						const [chanInfos] = await TwitchUtils.loadChannelInfo([channelId])
 						infos.live		= false;
 						infos.title		= chanInfos.title;
 						infos.tags		= chanInfos.tags;
@@ -288,7 +288,7 @@ export const storeStream = defineStore('stream', {
 		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart:boolean = false) {
 			this.commercial[channelId] = data;
 
-			let startDate:number = 0;
+			let startDate = 0;
 			if(data.prevAdStart_at + data.currentAdDuration_ms >= Date.now()){
 				startDate = data.prevAdStart_at;
 			}else {
@@ -309,7 +309,7 @@ export const storeStream = defineStore('stream', {
 					log:"Schedule approaching ad trigger in "+((remainingTime-ms)/1000)+"s"
 				});
 				//Schedule message
-				let to = setTimeout(()=>{
+				const to = setTimeout(()=>{
 					const message: TwitchatDataTypes.MessageAdBreakApproachingData = {
 						platform:"twitch",
 						id:Utils.getUUID(),
@@ -335,7 +335,7 @@ export const storeStream = defineStore('stream', {
 				Logger.instance.log("ads", {
 					log:"Wait for "+(remainingTime/1000)+"s (with 5s margin) before forcing an ad"
 				});
-				let to = setTimeout(() => {
+				const to = setTimeout(() => {
 					Logger.instance.log("ads", {
 						log:"Approaching timer complete in 5s. Start a "+(data.currentAdDuration_ms/1000)+"s ad"
 					});
@@ -365,7 +365,7 @@ export const storeStream = defineStore('stream', {
 
 			//Schedule ad break complete message
 			if(startDate + data.currentAdDuration_ms > Date.now()) {
-				let to = setTimeout(() => {
+				const to = setTimeout(() => {
 					const message:TwitchatDataTypes.MessageAdBreakCompleteData = {
 						type:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE,
 						id:Utils.getUUID(),
@@ -429,8 +429,8 @@ export const storeStream = defineStore('stream', {
 		async getSummary(offset:number = 0, includeParams:boolean = false, simulate:boolean = false):Promise<TwitchatDataTypes.StreamSummaryData> {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
-			let prevDate:number = 0;
-			let result:TwitchatDataTypes.StreamSummaryData = {
+			let prevDate = 0;
+			const result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
 				follows:[],
 				raids:[],
@@ -685,7 +685,7 @@ export const storeStream = defineStore('stream', {
 				result.params = parameters;
 				result.params.lang = StoreProxy.i18n.locale;
 				
-				let startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
+				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {
 					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
 				}

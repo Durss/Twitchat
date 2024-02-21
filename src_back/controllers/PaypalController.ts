@@ -56,7 +56,7 @@ export default class PaypalController extends AbstractController {
 		amountStr = amountStr.replace(/\D,\./gi, "");
 		if(amountStr.indexOf(".") == -1) amountStr += ".00";
 
-		let order_data_json = {
+		const order_data_json = {
 			'intent': (body.intent as string).toUpperCase(),
 			'purchase_units': [{
 				'amount': {
@@ -82,7 +82,7 @@ export default class PaypalController extends AbstractController {
 						});
 			let errorMessage = "";
 			let errorCode = "";
-			let success = json.status == "CREATED";
+			const success = json.status == "CREATED";
 			if(!success) {
 				errorMessage = json.details[0].description || "unknown error";
 				errorCode = json.details[0].issue;
@@ -117,7 +117,7 @@ export default class PaypalController extends AbstractController {
 		try {
 			const order = await this.getOrderDetails(token, body.orderID);
 
-			let order_data_json = {
+			const order_data_json = {
 				'intent': order.intent,
 				'purchase_units': [{
 					'amount': {

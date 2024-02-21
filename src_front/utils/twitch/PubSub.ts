@@ -193,7 +193,7 @@ export default class PubSub extends EventDispatcher {
 				const json = JSON.parse(event.data.message);
 				this.parseEvent( json );
 			})
-		};
+		}
 		
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
 	}
@@ -633,7 +633,7 @@ export default class PubSub extends EventDispatcher {
 					
 					//Load user's avatar if not already available
 					if(!infos.user.avatarPath) {
-						let user = (await TwitchUtils.loadUserInfo([infos.user.id]))[0];
+						const user = (await TwitchUtils.loadUserInfo([infos.user.id]))[0];
 						infos.user.avatarPath = user.profile_image_url;
 					}
 					StoreProxy.stream.setRaiding(infos);
@@ -684,8 +684,8 @@ export default class PubSub extends EventDispatcher {
 			}
 			
 			//Build usable emotes set
-			let chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
-			let words:string[] = [];
+			const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
+			const words:string[] = [];
 			for (let i = 0; i < localObj.message.content.fragments.length; i++) {
 				const el = localObj.message.content.fragments[i];
 				if(el.emoticon) {
@@ -774,7 +774,7 @@ export default class PubSub extends EventDispatcher {
 	private async lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):Promise<void> {
 		if(localObj.low_trust_user.treatment == 'RESTRICTED') {
 			//Build usable emotes set
-			let emotes:TwitchatDataTypes.EmoteDef[] = [];
+			const emotes:TwitchatDataTypes.EmoteDef[] = [];
 			let offset = 0;
 			for (let i = 0; i < localObj.message_content.fragments.length; i++) {
 				const el = localObj.message_content.fragments[i];
@@ -1181,7 +1181,7 @@ export default class PubSub extends EventDispatcher {
 	private async hypeTrainConductorUpdate(data:PubSubDataTypes.HypeTrainConductorUpdate, channelId:string):Promise<void> {
 		const storeTrain = StoreProxy.stream.hypeTrain!;
 		if(storeTrain) {
-			let contributions:TwitchatDataTypes.HypeTrainConductorContributionsData[] = [];
+			const contributions:TwitchatDataTypes.HypeTrainConductorContributionsData[] = [];
 			type keys = keyof typeof data.participations;
 			for (const key in data.participations) {
 				const value = data.participations[key as keys];
@@ -1348,7 +1348,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a pinned message param is updated
 	 */
 	private updatePinnedMessageEvent(data:PubSubDataTypes.PinUpdateMessage, channel_id:string):void {
-		let message = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		const message = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		if(message) {
 			if(data.ends_at) {
 				message.unpinAt_ms = data.ends_at * 1000;
@@ -1372,7 +1372,7 @@ export default class PubSub extends EventDispatcher {
 	 * Called when a message is unpinned
 	 */
 	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|PubSubDataTypes.PinUpdateMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
-		let pinMessage = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
+		const pinMessage = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
 		
 		if(pinMessage) {
 			pinMessage.chatMessage.is_pinned = false;

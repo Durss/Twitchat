@@ -68,7 +68,7 @@ export const storeRaffle = defineStore('raffle', {
 
 		stopRaffle() { this.data = null; },
 
-		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish:boolean = false) {
+		onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish = false) {
 			// this.raffle = null;
 			let data:TwitchatDataTypes.RaffleData|null = currentRaffleData || this.data;
 			if(data) {
@@ -252,7 +252,7 @@ export const storeRaffle = defineStore('raffle', {
 						//This is just a bonus step just in case.
 						if(v.gifter_id) {
 							//Check if gifter is part of the raffle entries
-							let gifter = userList.find(w=>w.user.id == v.gifter_id);
+							const gifter = userList.find(w=>w.user.id == v.gifter_id);
 							if(gifter) {
 								const user = sUsers.getUserFrom(gifter.user.platform, channel_id, v.gifter_id, v.gifter_login, v.gifter_name);
 								if(user) user.channelInfo[channel_id].is_gifter = true;

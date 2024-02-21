@@ -186,7 +186,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}> {
 		if(!this.connected) return {currentProgramSceneName:"", currentPreviewSceneName:"", scenes:[]};
 		
-		let res = await this.obs.call("GetSceneList") as {
+		const res = await this.obs.call("GetSceneList") as {
 			currentProgramSceneName: string;
 			currentPreviewSceneName: string;
 			scenes: {sceneIndex:number, sceneName:string}[];
@@ -205,8 +205,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(!this.connected) return [];
 		
 		//Get scene's items
-		let list = await this.obs.call("GetSceneItemList", {sceneName});
-		let items = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {
+		const list = await this.obs.call("GetSceneItemList", {sceneName});
+		const items = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {
 			return {item:v, children:[] as OBSSourceItem[]};
 		});
 
@@ -215,8 +215,8 @@ export default class OBSWebsocket extends EventDispatcher {
 			const entry = items[i];
 			if(entry.item.isGroup) {
 				//Load group's children
-				let groupList = await this.obs.call("GetGroupSceneItemList", {sceneName:entry.item.sourceName});
-				let groupItems = (groupList.sceneItems as unknown) as OBSSourceItem[]
+				const groupList = await this.obs.call("GetGroupSceneItemList", {sceneName:entry.item.sourceName});
+				const groupItems = (groupList.sceneItems as unknown) as OBSSourceItem[]
 				entry.children = groupItems.sort((a,b)=> b.sceneItemIndex - a.sceneItemIndex);
 			}
 		}
@@ -233,7 +233,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const scenesResult = await this.getScenes();
 		let sceneList:OBSSceneItemParented[] = scenesResult.scenes;
 		if(currentSceneOnly) {
-			let currentScene  = await this.getCurrentScene();
+			const currentScene  = await this.getCurrentScene();
 			sceneList = sceneList.filter(v=>v.sceneName == currentScene);
 		}
 		let sources:OBSSourceItem[] = [];
@@ -245,7 +245,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			if(scenesDone[scene.sceneName] == true) continue;
 			scenesDone[scene.sceneName] = true;
 
-			let list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
+			const list = await this.obs.call("GetSceneItemList", {sceneName:scene.sceneName});
 			let items = (list.sceneItems as unknown) as OBSSourceItem[];
 
 			//Parse all scene sources
@@ -271,7 +271,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 
 		//Dedupe results
-		let itemsDone:{[key:string]:boolean} = {};
+		const itemsDone:{[key:string]:boolean} = {};
 		for (let i = 0; i < sources.length; i++) {
 			if(itemsDone[sources[i].sourceName] === true) {
 				sources.splice(i, 1)!
@@ -325,7 +325,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		const isOverlayInteraction = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
 
 		const videoSettings = await this.obs.call("GetVideoSettings");
-		let sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform, isGroup?:boolean}[] = [{name:currentScene}];
+		const sceneList:{name:string, parentScene?:string, parentItemId?:number, parentTransform?:SourceTransform, isGroup?:boolean}[] = [{name:currentScene}];
 		const transforms:{source:OBSSourceItem, sceneName:string, transform:SourceTransform}[] = [];
 		const sourceDone:{[key:string]:boolean} = {};
 		const scenesDone:{[key:string]:boolean} = {};
@@ -369,7 +369,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				this.log("Parse children for scene: "+ scene.name);
 				list = await this.obs.call("GetSceneItemList", {sceneName:scene.name});
 			}
-			let items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
+			const items:{parent:string, item:OBSSourceItem}[] = ((list.sceneItems as unknown) as OBSSourceItem[]).map(v=> {return {parent:scene.name, item:v}});
 			//Parse all scene sources
 			for (let i=0; i < items.length; i++) {
 				const source = items[i];
@@ -393,7 +393,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				}
 				
 				// let sourceTransform = await this.getSceneItemTransform(source.parent, source.item.sceneItemId);
-				let sourceTransform = source.item.sceneItemTransform;
+				const sourceTransform = source.item.sceneItemTransform;
 				if(!sourceTransform.globalScaleX) {
 					sourceTransform.globalScaleX = sourceTransform.scaleX;
 					sourceTransform.globalScaleY = sourceTransform.scaleY;
@@ -404,7 +404,7 @@ export default class OBSWebsocket extends EventDispatcher {
 				this.log("Transform data compensated for crop", JSON.parse(JSON.stringify(sourceTransform)));
 
 				//Compute the center of the source on the local space
-				let coords = this.getSourceCenterFromTransform(sourceTransform);
+				const coords = this.getSourceCenterFromTransform(sourceTransform);
 				sourceTransform.globalCenterX = coords.cx;
 				sourceTransform.globalCenterY = coords.cy;
 				this.log("Computed source center", coords);
@@ -414,7 +414,7 @@ export default class OBSWebsocket extends EventDispatcher {
 					const pt = scene.parentTransform;
 					const cW = scene.isGroup? pt.width/2 : canvasW/2;
 					const cH = scene.isGroup? pt.height/2 : canvasH/2;
-					let rotated = Utils.rotatePointAround(
+					const rotated = Utils.rotatePointAround(
 													{
 														x:sourceTransform.globalCenterX + pt.globalCenterX! - cW,
 														y:sourceTransform.globalCenterY + pt.globalCenterY! - cH,
@@ -445,8 +445,8 @@ export default class OBSWebsocket extends EventDispatcher {
 				|| source.item.sourceType == "OBS_SOURCE_TYPE_SCENE")
 				|| source.item.isGroup) {
 					itemNameToTransform[source.item.sourceName+"_"+source.item.sceneItemId] = sourceTransform;
-					let px = sourceTransform.globalCenterX!;
-					let py = sourceTransform.globalCenterY!;
+					const px = sourceTransform.globalCenterX!;
+					const py = sourceTransform.globalCenterY!;
 					const hw = (sourceTransform.sourceWidth * sourceTransform.globalScaleX!) / 2;
 					const hh = (sourceTransform.sourceHeight * sourceTransform.globalScaleY!) / 2;
 					const angle_rad = sourceTransform.rotation * Math.PI / 180;
@@ -499,8 +499,8 @@ export default class OBSWebsocket extends EventDispatcher {
 	public async setSourceTransform(sceneName:string, sceneItemId:number, transform:Partial<SourceTransform>):Promise<void> {
 		if(!this.connected) return;
 		//Rmove props not supported by obs-websocket. like width/height.
-		let filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
-			let typedKey = (key as unknown) as keyof SourceTransform;
+		const filtered = Object.keys(transform).reduce<{[key in keyof Partial<SourceTransform>]:any}>((filteredObject, key) => {
+			const typedKey = (key as unknown) as keyof SourceTransform;
 			const allowedKeys:(keyof SourceTransform)[] = ["alignment","boundsAlignment","cropBottom","cropLeft","cropRight","cropTop","positionX","positionY","rotation","scaleX","scaleY"];
 			if (allowedKeys.includes(typedKey)) {
 				filteredObject[typedKey] = transform[typedKey];
@@ -652,11 +652,11 @@ export default class OBSWebsocket extends EventDispatcher {
 			return {scene:sceneName, itemId:result.sceneItemId};
 		}catch(error){
 			//If source isn't found, search for groups recursively to also check within them
-			let sources = await this.getSources();
+			const sources = await this.getSources();
 			for (let i = 0; i < sources.length; i++) {
 				const s = sources[i];
 				if(s.isGroup || s.sourceType == "OBS_SOURCE_TYPE_SCENE") {
-					let res = await this.searchSceneItemId(sourceName, s.sourceName);
+					const res = await this.searchSceneItemId(sourceName, s.sourceName);
 					if(res) return res;
 				}
 			}
@@ -871,7 +871,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		if(Date.now() - this.cachedScreenshots[sourceName]?.ts < 100) return this.cachedScreenshots[sourceName].screen;
 
 		//Request for a fresh new screenshot
-		let res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
+		const res = await this.obs.call('GetSourceScreenshot',{'sourceName':sourceName, imageFormat:"jpeg"});
 		//Cache it
 		this.cachedScreenshots[sourceName] = {
 			ts:Date.now(),
@@ -1099,9 +1099,9 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param transform
 	 */
 	private getSourceCenterFromTransform(transform:SourceTransform) {
-		let a = -transform.rotation * Math.PI / 180;
-		let width = transform.width;// - transform.cropLeft - transform.cropRight;
-		let height = transform.height;// - transform.cropTop - transform.cropBottom;
+		const a = -transform.rotation * Math.PI / 180;
+		const width = transform.width;// - transform.cropLeft - transform.cropRight;
+		const height = transform.height;// - transform.cropTop - transform.cropBottom;
 		let w = width / 2;
 		let h = height / 2;
 
@@ -1150,18 +1150,18 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 
 		//Get top left corner coordinates
-		let cosTheta = Math.cos(a);
-		let sinTheta = Math.sin(a);
+		const cosTheta = Math.cos(a);
+		const sinTheta = Math.sin(a);
 		let displacementX = w * cosTheta + h * sinTheta;
 		let displacementY = h * cosTheta - w * sinTheta;
-		let px = transform.positionX - displacementX;
-		let py = transform.positionY - displacementY;
+		const px = transform.positionX - displacementX;
+		const py = transform.positionY - displacementY;
 
 		//Get center point coordinates
 		displacementX = (width / 2) * cosTheta + (height / 2) * sinTheta;
 		displacementY = (height / 2) * cosTheta - (width / 2) * sinTheta;
-		let cx = px + displacementX;
-		let cy = py + displacementY;
+		const cx = px + displacementX;
+		const cy = py + displacementY;
 
 		return { x: px, y: py, cx, cy };
 	}
@@ -1172,7 +1172,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	 * @param transform
 	 */
 	private compensateCrop(transform:SourceTransform) {
-		let a = transform.rotation * Math.PI / 180;
+		const a = transform.rotation * Math.PI / 180;
 		let w = transform.cropLeft * transform.globalScaleX!;
 		let h = transform.cropTop * transform.globalScaleY!;
 
@@ -1228,8 +1228,8 @@ export default class OBSWebsocket extends EventDispatcher {
 		}
 
 		//Get top left corner coordinates
-		let cosTheta = Math.cos(a);
-		let sinTheta = Math.sin(a);
+		const cosTheta = Math.cos(a);
+		const sinTheta = Math.sin(a);
 		transform.positionX -= w * cosTheta - h * sinTheta;
 		transform.positionY -= h * cosTheta + w * sinTheta;
 	}

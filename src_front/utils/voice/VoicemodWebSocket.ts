@@ -31,7 +31,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	
 	public connected: boolean = false;
 	
-	private _initResolver!: Function;
+	private _initResolver!: (value: void | PromiseLike<void>) => void;
 	private _connecting!: boolean;
 	private _socket!: WebSocket;
 	private _voicesList: VoicemodTypes.Voice[] = [];
@@ -320,23 +320,26 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		
 		switch(json.actionType) {
 
-			case VoicemodWebSocket.ACTION_GET_VOICES:
+			case VoicemodWebSocket.ACTION_GET_VOICES:{
 				this._voicesList = json.actionObject.voices ?? [];
 				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.currentVoice)!;
 				this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, this.currentVoiceEffect!.id || "nofx"))
 				this.checkInitComplete();
-			break;
+				break;
+			}
 			
-			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE:
+			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE:{
 				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.voiceID)!;
 				break;
+			}
 			
-			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:
+			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:{
 				this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
 				this.checkInitComplete();
 				break;
+			}
 
-			case VoicemodWebSocket.ACTION_GET_BITMAP:
+			case VoicemodWebSocket.ACTION_GET_BITMAP:{
 				//Called after requesting the image of a voice effect
 				const data = json.actionObject.result;
 				if(data) {
@@ -348,7 +351,8 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				}
 				break;
 
-			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:
+			}
+			case VoicemodWebSocket.EVENT_VOICE_CHANGED_EVENT:{
 				const voice = this._voicesList.find(v=>v.id == json.actionObject.voiceID as string);
 				if(voice) {
 					this._currentVoiceEffect = voice;
@@ -357,6 +361,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 					this.dispatchEvent(new VoicemodEvent(VoicemodEvent.VOICE_CHANGE, voice.id));
 				}
 				break;
+			}
 
 			case VoicemodWebSocket.EVENT_TOGGLE_VOICE_CHANGER:
 				break;

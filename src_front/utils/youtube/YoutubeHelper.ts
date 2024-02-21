@@ -172,12 +172,12 @@ export default class YoutubeHelper {
 	public async getUserInfo():Promise<void> {
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading user infos...", credits: this._creditsUsed, liveID:this._currentLiveId});
-		let url = new URL("https://www.googleapis.com/youtube/v3/channels");
+		const url = new URL("https://www.googleapis.com/youtube/v3/channels");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "status");
 		url.searchParams.append("mine", "true");
-		let res = await fetch(url, {method:"GET", headers:this.headers});
+		const res = await fetch(url, {method:"GET", headers:this.headers});
 		if(res.status == 200) {
 			const json = await res.json() as YoutubeChannelInfo;
 			const userData = json.items[0];
@@ -209,7 +209,7 @@ export default class YoutubeHelper {
 		
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveId});
-		let url = new URL("https://www.googleapis.com/youtube/v3/liveBroadcasts");
+		const url = new URL("https://www.googleapis.com/youtube/v3/liveBroadcasts");
 		url.searchParams.append("mine", "true");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "status");
@@ -217,9 +217,9 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "contentDetails");
 		url.searchParams.append("part", "monetizationDetails");
 		url.searchParams.append("broadcastType", "all");
-		let res = await fetch(url, {method:"GET", headers:this.headers});
+		const res = await fetch(url, {method:"GET", headers:this.headers});
 		if(res.status == 200) {
-			let json = await res.json() as YoutubeLiveBroadcast;
+			const json = await res.json() as YoutubeLiveBroadcast;
 			Logger.instance.log("youtube", {log:"Current live broadcast loaded successfully", credits: this._creditsUsed, liveID:this._currentLiveId});
 			//Sort by life cycle status importance
 			const items = json.items.sort((a,b)=> {
@@ -317,7 +317,7 @@ export default class YoutubeHelper {
 			return null;
 		}
 
-		let url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
+		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "authorDetails");
@@ -326,7 +326,7 @@ export default class YoutubeHelper {
 			url.searchParams.append("pageToken", this._lastMessagePage);
 		}
 		try {
-			let res = await fetch(url, {method:"GET", headers:this.headers});
+			const res = await fetch(url, {method:"GET", headers:this.headers});
 			this._creditsUsed ++;
 			if(res.status == 200) {
 				//Check all message IDs
@@ -336,7 +336,7 @@ export default class YoutubeHelper {
 					StoreProxy.chat.messages.forEach(v => idsDone[v.id] = true );
 				}
 	
-				let json = await res.json() as YoutubeMessages;
+				const json = await res.json() as YoutubeMessages;
 				let i = Math.max(0, json.items.length - 50);//Only keep 50 last messages
 				for (; i < json.items.length; i++) {
 					const m = json.items[i];
@@ -595,7 +595,7 @@ export default class YoutubeHelper {
 		url.searchParams.append("part", "snippet");
 		const body = JSON.stringify(params);
 
-		let res = await fetch(url, {method:"POST", headers:this.headers, body});
+		const res = await fetch(url, {method:"POST", headers:this.headers, body});
 		if(res.status == 200) {
 			StoreProxy.users.flagBanned("youtube", this.channelId, userId, duration_s);
 			const json = await res.json();
@@ -631,7 +631,7 @@ export default class YoutubeHelper {
 		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/bans");
 		url.searchParams.append("id", this._uidToBanID[userId]);
 
-		let res = await fetch(url, {method:"DELETE", headers:this.headers});
+		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"User unbaned successfully", credits: this._creditsUsed, liveID:this._currentLiveId});
 			StoreProxy.users.flagUnbanned("youtube", this.channelId, userId);
@@ -652,7 +652,7 @@ export default class YoutubeHelper {
 		url.searchParams.append("id", messageId);
 		
 		this._creditsUsed += 50;
-		let res = await fetch(url, {method:"DELETE", headers:this.headers});
+		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"Deleted message #"+messageId, credits: this._creditsUsed, liveID:this._currentLiveId});
 		}else{
@@ -745,7 +745,7 @@ export default class YoutubeHelper {
 		if(Object.keys(this._emotes).length == 0) {
 			await this.getUserInfo();
 			const emotesQuery = await fetch("/youtube/emote_list.json");
-			let json = await emotesQuery.json();
+			const json = await emotesQuery.json();
 			this._emotes = json;
 		}
 	}
@@ -757,7 +757,7 @@ export default class YoutubeHelper {
 		this.tokenSavingEnabled = false;
 
 		clearTimeout(this._tokenSavingLogDebounce);
-		let halfway = this._chatInactivityDisconnect / 2;
+		const halfway = this._chatInactivityDisconnect / 2;
 		this._tokenSavingLogDebounce = setTimeout(()=>{
 			Logger.instance.log("youtube", {log:"No activity for the last "+Utils.formatDuration(halfway)+"s. Received "+this._tokenSavingLogDebounceMessageCount+" messages before that.", credits: this._creditsUsed, liveID:this._currentLiveId})
 			this._tokenSavingLogDebounceMessageCount = 0;

@@ -126,8 +126,8 @@ export default class AbstractChatMessage extends Vue {
 		const d = new Date(this.messageData.date);
 		
 		if(elapsedMode) {
-			let elapsed = Date.now() - d.getTime();
-			let step = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
+			const elapsed = Date.now() - d.getTime();
+			const step = elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
 			
 			this.time = Utils.elapsedDuration(d.getTime(), step);
 			
@@ -212,7 +212,7 @@ export default class AbstractChatMessage extends Vue {
 				resolve(false);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);
 			}, 1000)
-			let handler = (e:TwitchatEvent)=> {
+			const handler = (e:TwitchatEvent)=> {
 				clearTimeout(timeout)
 				resolve(true);
 				PublicAPI.instance.removeEventListener(TwitchatEvent.CHAT_HIGHLIGHT_OVERLAY_PRESENCE, handler);

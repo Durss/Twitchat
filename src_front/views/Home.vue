@@ -5,7 +5,7 @@
 		<div class="aboveTheFold">
 			<div class="lang">
 				<select v-model="$i18n.locale">
-					<option :value="lang" v-for="lang in enabledLocales">{{ $t('global.lang_label', lang)}}</option>
+					<option :value="lang" v-for="lang in enabledLocales" :key="lang">{{ $t('global.lang_label', lang)}}</option>
 				</select>
 			</div>
 
@@ -76,7 +76,7 @@
 		</div>
 
 		<div class="sectionsHolder">
-			<section :class="(s.image || s.video)? 'transition' : 'more transition'" v-for="s in sections">
+			<section :class="(s.image || s.video)? 'transition' : 'more transition'" v-for="s in sections" :key="s.icon">
 
 				<div class="content" v-if="s.image || s.video">
 					<div class="screen">
@@ -100,7 +100,7 @@
 						<h2>{{s.title}}</h2>
 						<div class="description">
 							<ul>
-								<li v-for="item in s.items">{{item}}</li>
+								<li v-for="item in s.items" :key="item">{{item}}</li>
 							</ul>
 						</div>
 					</div>
@@ -120,6 +120,7 @@
 		<div class="floatingLetters">
 			<img v-for="i of 20"
 			ref="letter"
+			:key="i"
 			:src="$image('img/homepage/letters/'+getLetter()+'.svg')">
 		</div>
 		
@@ -232,7 +233,7 @@ export default class Home extends Vue {
 				rootMargin: '0px',
 				threshold: .35
 			};
-			observer = new IntersectionObserver((entries, observer)=>this.showItem(entries, observer), options);
+			observer = new IntersectionObserver((entries, observer)=>this.showItem(entries), options);
 		}
 		for(let i = 0; i < divs.length; i++) {
 			const div = divs[i] as HTMLDivElement;
@@ -278,7 +279,7 @@ export default class Home extends Vue {
 		gsap.to(scrollable, {duration: 1, scrollTo: {y:data.div, offsetY}, ease:"sine.inOut"});
 	}
 
-	private showItem(entries: IntersectionObserverEntry[], observer: IntersectionObserver):void {
+	private showItem(entries: IntersectionObserverEntry[]):void {
 		for (let i = 0; i < entries.length; i++) {
 			const e = entries[i];
 			const target = e.target as HTMLElement;

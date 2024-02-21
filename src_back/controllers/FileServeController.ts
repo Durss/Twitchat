@@ -212,7 +212,7 @@ export default class FileServeController extends AbstractController {
 	public async getDownload(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const image = (request.query as any).image;
 		try {
-			let url = new URL(image);
+			const url = new URL(image);
 			if(!/.*cloudfront.net$/.test(url.hostname)) {
 				response.header('Content-Type', 'application/json');
 				response.status(500);

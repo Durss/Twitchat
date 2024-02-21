@@ -45,7 +45,7 @@ export default class Database {
 		if(this._db) return Promise.resolve();
 
 		return new Promise((resolve, reject)=> {
-			var indexedDB:IDBFactory =
+			const indexedDB:IDBFactory =
 			//@ts-ignore
 			window.indexedDB || window.webkitIndexedDB || window.mozIndexedDB || window.msIndexedDB;
 			this._dbConnection = indexedDB.open("Twitchat", this.DB_VERSION);

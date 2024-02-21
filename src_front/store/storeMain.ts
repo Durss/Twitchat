@@ -103,7 +103,7 @@ export const storeMain = defineStore("main", {
 		 * Also called when user requests a specific theme
 		 */
 		toggleTheme(theme?:"light"|"dark"):void {
-			let list = document.body.classList;
+			const list = document.body.classList;
 			if(theme == "light") {
 				list.remove("dark");
 				list.add("light");
@@ -992,7 +992,7 @@ export const storeMain = defineStore("main", {
 			//Init trigger websocket
 			const triggerSocketParams = DataStore.get(DataStore.WEBSOCKET_TRIGGER);
 			if(triggerSocketParams) {
-				let params = JSON.parse(triggerSocketParams) as SocketParams;
+				const params = JSON.parse(triggerSocketParams) as SocketParams;
 				let url = params.secured === true? "wss://" : "ws://";
 				url += params.ip;
 				if(params.port) url += ":"+params.port;

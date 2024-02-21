@@ -40,7 +40,8 @@ export default class Config {
 	/**
 	 * Validates a token and returns the user data
 	 */
-	public static async getUserFromToken(token:string):Promise<TwitchToken|null> {
+	public static async getUserFromToken(token?:string):Promise<TwitchToken|null> {
+		if(!token) return null;
 		if(this.cache[token]) return this.cache[token];
 
 		//Check access token validity

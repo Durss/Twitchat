@@ -122,7 +122,7 @@ export default class AbstractController {
 		if(!isPremium && fs.existsSync(Config.patreon2Twitch)) {
 			let donorAmount = -1;
 			if(fs.existsSync( Config.donorsList )) {
-				let json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
+				const json:{[key:string]:number} = JSON.parse(fs.readFileSync(Config.donorsList, "utf8"));
 				const isDonor = json.hasOwnProperty(userInfo.user_id);
 				if(isDonor) {
 					donorAmount = json[userInfo.user_id];

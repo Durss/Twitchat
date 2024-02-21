@@ -577,6 +577,11 @@ export const storeChat = defineStore('chat', {
 				cmd:"/triggerlogs",
 				detailsKey:"params.commands.triggerlogs",
 			},
+			{
+				id:"heatlogs",
+				cmd:"/heatlogs",
+				detailsKey:"params.commands.heatlogs",
+			},
 		],
 
 		spoilerParams: {
@@ -672,7 +677,7 @@ export const storeChat = defineStore('chat', {
 				return;
 			}
 			if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) {
-				let possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
+				const possibleAds:TwitchatDataTypes.TwitchatAdStringTypes[] = [];
 				if(!StoreProxy.auth.isDonor) {
 					possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.DONATE);
 				}
@@ -1617,7 +1622,7 @@ export const storeChat = defineStore('chat', {
 					message.user.displayNameOriginal = twitchUser.display_name;
 				}
 
-				let info:TwitchatDataTypes.ChatHighlightInfo = {
+				const info:TwitchatDataTypes.ChatHighlightInfo = {
 					message:message.message_html,
 					user:message.user,
 					params:this.chatHighlightOverlayParams

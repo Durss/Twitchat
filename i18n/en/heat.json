@@ -19,6 +19,11 @@
 		"need_OBS":"This feature needs you to connect with OBS.",
 		"need_OBS_connectBt":"Connect with OBS",
 		"max_screen_reached":"You reached the maximum of {COUNT} screen you can create",
+		"logs":{
+			"title":"Heat logs",
+			"subtitle":"Get details about heat clicks",
+			"empty":"- no history -"
+		},
 		"overlay_spotify": {
 			"title": "Spotify overlay",
 			"description": "Send a message when Spotify overlay is clicked"

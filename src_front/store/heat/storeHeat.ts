@@ -14,6 +14,8 @@ import StoreProxy from '../StoreProxy';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonObject } from "type-fest";
+import type { LogHeat } from '@/utils/Logger';
+import Logger from '@/utils/Logger';
 
 export const storeHeat = defineStore('heat', {
 	state: () => ({
@@ -50,8 +52,9 @@ export const storeHeat = defineStore('heat', {
 			let screen = this.screenList.find(v=>v.id == id);
 			if(!screen) return;
 
-			screen = JSON.parse(JSON.stringify(screen));
-			screen!.id = Utils.getUUID();
+			screen = JSON.parse(JSON.stringify(screen)) as typeof screen;
+			screen.id = Utils.getUUID();
+			screen.areas.forEach(area => area.id=  Utils.getUUID());
 
 			this.screenList.push(screen!);
 
@@ -59,7 +62,7 @@ export const storeHeat = defineStore('heat', {
 		},
 
 		deleteScreen(id:string):void {
-			let index = this.screenList.findIndex(v=>v.id == id);
+			const index = this.screenList.findIndex(v=>v.id == id);
 			if(index == -1) return;
 			this.screenList.splice(index, 1);
 
@@ -67,7 +70,7 @@ export const storeHeat = defineStore('heat', {
 		},
 		
 		updateScreen(data:HeatScreen):void {
-			let index = this.screenList.findIndex(v=>v.id == data.id);
+			const index = this.screenList.findIndex(v=>v.id == data.id);
 			if(index == -1) {
 				this.screenList.push(data);
 			}else{
@@ -95,15 +98,34 @@ export const storeHeat = defineStore('heat', {
 			//Stop there if coordinates are missing, can't do anything without it
 			if(!event.coordinates) return;
 
+			const log:LogHeat = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				info:"",
+				targets:[],
+				anonymous:false,
+				x:event.coordinates.x,
+				y:event.coordinates.y,
+				alt:event.alt === true,
+				ctrl:event.ctrl === true,
+				shift:event.shift === true,
+				testMode:event.testMode === true,
+			}
+
 			const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK) != undefined;
 			const isOverlay = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
 			const isDistortion = this.distortionList.filter(v=>v.enabled).length > 0
 			
 			//If nothing requests for heat click events, ignore it
-			if(!isTrigger && !isOverlay && !isDistortion) return;
+			if(!isTrigger && !isOverlay && !isDistortion) {
+				log.info = "Ignoring click because nothing needs it.";
+				Logger.instance.log("heat", log);
+				return;
+			}
 
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const anonymous = parseInt(event.uid || "anon").toString() !== event.uid;
+			log.anonymous = anonymous;
 			let user!:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
 			if(!anonymous) {
 				//Load user data
@@ -111,7 +133,8 @@ export const storeHeat = defineStore('heat', {
 					StoreProxy.users.getUserFrom("twitch", channelId, event.uid, undefined, undefined, (user)=>{
 						resolve(user);
 					});
-				})
+				});
+				log.user = user;
 			}else{
 				//Create a fake partial user with only ID set so the trigger's cooldowns
 				//can properly be applied later.
@@ -134,7 +157,11 @@ export const storeHeat = defineStore('heat', {
 			}
 			
 			//If user is banned, ignore its click
-			if(user.channelInfo![channelId]?.is_banned) return;
+			if(user.channelInfo![channelId]?.is_banned) {
+				log.info = "User \""+user.login+"\" is banned from your channel. Ingore their click.";
+				Logger.instance.log("heat", log);
+				return;
+			}
 
 			const message:TwitchatDataTypes.MessageHeatClickData = {
 				date:Date.now(),
@@ -169,6 +196,7 @@ export const storeHeat = defineStore('heat', {
 					const isInside = Utils.isPointInsidePolygon({x:event.coordinates.x, y:event.coordinates.y}, a.points);
 					//If click is inside the area, execute the trigger
 					if(isInside){
+						log.targets.push({customAreaID:a.id, x:event.coordinates.x, y:event.coordinates.y});
 						const clone = JSON.parse(JSON.stringify(message)) as TwitchatDataTypes.MessageHeatClickData;
 						clone.areaId = a.id;
 						TriggerActionHandler.instance.execute(clone);
@@ -177,7 +205,10 @@ export const storeHeat = defineStore('heat', {
 			}
 			
 			//If OBS websocket is not connected, stop there
-			if(!OBSWebsocket.instance.connected) return;
+			if(!OBSWebsocket.instance.connected) {
+				Logger.instance.log("heat", log);
+				return;
+			}
 
 			OBSWebsocket.instance.log("Heat click");
 			
@@ -259,6 +290,7 @@ export const storeHeat = defineStore('heat', {
 				clickClone.requestData.event_data.scaleX = 1;
 				clickClone.requestData.event_data.scaleY = 1;
 				OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+				log.targets.push({distortiontID: d.id, x:event.coordinates.x, y:event.coordinates.y});
 			}
 
 			// Parse all available OBS sources
@@ -305,6 +337,8 @@ export const storeHeat = defineStore('heat', {
 				clickEventData.requestData.event_data.scale = rect.transform.globalScaleX!;
 				clickEventData.requestData.event_data.scale = rect.transform.globalScaleY!;
 
+				log.targets.push({obsSource:rect.source.sourceName || rect.sceneName, x:percentX, y:percentY});
+
 				//If a distortion targets the current element, reroute events to its related browser source
 				for (let j = 0; j < this.distortionList.length; j++) {
 					const d = this.distortionList[j];
@@ -324,6 +358,7 @@ export const storeHeat = defineStore('heat', {
 						clickClone.requestData.event_data.twitchatOverlayID = d.id;
 						OBSWebsocket.instance.log("Reroute click from \""+rect.source.sourceName+"\" to overlay ID \""+d.id+"\"");
 						OBSWebsocket.instance.socket.call("CallVendorRequest", clickClone);
+						log.targets.push({distortiontID: d.id, x:percentX, y:percentY});
 					}
 				}
 
@@ -331,7 +366,7 @@ export const storeHeat = defineStore('heat', {
 				//all necessary info about the click
 				//If it's a spotify or ulule overlay execute any requested action
 				if(rect.source.inputKind == "browser_source") {
-					let settings = await OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(rect.source.sourceName);
+					const settings = await OBSWebsocket.instance.getSourceSettings<{is_local_file:boolean, url:string, local_file:string}>(rect.source.sourceName);
 					let url:string = settings.inputSettings.url as string;
 					const isLocalFile = settings.inputSettings.is_local_file === true;
 					if(isLocalFile) {
@@ -367,6 +402,7 @@ export const storeHeat = defineStore('heat', {
 						t.actions.push(a);
 						
 						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
+						log.targets.push({spotify: true, x:percentX, y:percentY});
 					}
 					if(url && url.indexOf(ululeRoute) > -1 && StoreProxy.chat.botMessages.heatUlule.enabled && ululeProject) {
 						//If anon users are not allowed, skip
@@ -380,6 +416,7 @@ export const storeHeat = defineStore('heat', {
 						t.actions.push(a);
 
 						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
+						log.targets.push({ulule: true, x:percentX, y:percentY});
 					}
 				}
 			}
@@ -413,6 +450,7 @@ export const storeHeat = defineStore('heat', {
 					event_data:{rects:JSON.stringify(rectPoints)},
 				}
 			});
+			Logger.instance.log("heat", log);
 		},
 
 		async deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):Promise<void> {

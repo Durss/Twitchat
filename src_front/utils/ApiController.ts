@@ -59,7 +59,7 @@ export default class ApiController {
 			json = await res.json();
 		}catch(error) { }
 
-		let status = res? res.status : 500;
+		const status = res? res.status : 500;
 		if(status == 429) {
 			if(json.errorCode == "RATE_LIMIT_BAN") {
 				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );

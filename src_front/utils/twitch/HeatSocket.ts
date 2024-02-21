@@ -45,9 +45,9 @@ export default class HeatSocket extends EventDispatcher {
 		this.disconnect();
 
 		this.socketIndex ++;
-		let localSocketIndex = this.socketIndex;
+		const localSocketIndex = this.socketIndex;
 
-        let url = `wss://heat-api.j38.net/channel/${channelId}`;
+        const url = `wss://heat-api.j38.net/channel/${channelId}`;
         console.log(`Connecting to ${url}.`);
 		return new Promise((resolve)=> {
 			this.ws = new WebSocket(url);
@@ -64,7 +64,7 @@ export default class HeatSocket extends EventDispatcher {
 			this.ws.addEventListener('message', (message) => {
 				if(localSocketIndex != this.socketIndex) {console.log("IGNORE MESSAGE"); return;}
 				
-				let data = JSON.parse(message.data);
+				const data = JSON.parse(message.data);
 				if(data.type==="click") {
 					this.fireEvent(data.id, data.x as number, data.y as number,
 						data.modifiers?.ctrl === true,
@@ -106,7 +106,7 @@ export default class HeatSocket extends EventDispatcher {
 	 * Fire a click event
 	 */
 	public fireEvent(uid:string, px:number, py:number, alt:boolean, ctrl:boolean, shift:boolean, testMode:boolean = false) {
-		let event = new HeatEvent(HeatEvent.CLICK,
+		const event = new HeatEvent(HeatEvent.CLICK,
 									{ x: px, y:py },
 									uid,
 									ctrl,

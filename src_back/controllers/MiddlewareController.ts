@@ -136,7 +136,7 @@ export default class MiddlewareController extends AbstractController {
 		}
 		const stream = fs.createReadStream(file, 'utf8' );
 	
-		let mimetype = mime.lookup(file);
+		const mimetype = mime.lookup(file);
 		//patch for firefox that refuses to execute script if it doesn't have this mime type -_-...
 		// if(/\.js$/.test(file)) mimetype = "application/javascript";
 	

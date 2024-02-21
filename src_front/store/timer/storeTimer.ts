@@ -30,7 +30,6 @@ export const storeTimer = defineStore('timer', {
 
 		broadcastStates() {
 			if(this.timer) {
-				const offset = (this.timer.offset_ms || 0);
 				PublicAPI.instance.broadcast(TwitchatEvent.TIMER_START, this.timer);
 			}
 			
@@ -53,7 +52,7 @@ export const storeTimer = defineStore('timer', {
 				startAt:Utils.formatDate(new Date()),
 				startAt_ms:Date.now(),
 				offset_ms:0,
-			};;
+			};
 			
 			const message:TwitchatDataTypes.MessageTimerData = {
 				type:TwitchatDataTypes.TwitchatMessageType.TIMER,

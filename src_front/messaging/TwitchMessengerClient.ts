@@ -55,7 +55,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public connectToChannel(channel:string):void {
 		//Already connected to IRC, just add the channel
 		if(this._client) {
-			Logger.instance.log("irc", {date:Date.now(), info:"Connect to channel "+channel});
+			Logger.instance.log("irc", {info:"Connect to channel "+channel});
 			this._client.join(channel);
 			this.reconnect();
 			return;
@@ -66,15 +66,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
-			Logger.instance.log("irc", {date:Date.now(), info:"Initial connect to channel "+channel});
+			Logger.instance.log("irc", {info:"Initial connect to channel "+channel});
 			const chans = await TwitchUtils.loadUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
-				Logger.instance.log("irc", {date:Date.now(), info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
+				Logger.instance.log("irc", {info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
 				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
 			
-			let meObj = StoreProxy.auth.twitch.user;
+			const meObj = StoreProxy.auth.twitch.user;
 			
 			chans.forEach(async v=> {
 				//Skip it if already connected
@@ -89,7 +89,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const amIModThere = result !== false;
 					if(amIModThere) {
 						//Go through getUserFrom() that will init the channelInfo property for later use
-						let me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayNameOriginal)
+						const me = StoreProxy.users.getUserFrom("twitch", v.id, meObj.id, meObj.login, meObj.displayNameOriginal)
 						//Flag self as mod of that channel
 						me.channelInfo[v.id].is_moderator = true;
 					}
@@ -149,7 +149,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				SevenTVUtils.instance.addChannel(v.id);
 			});
 			
-			Logger.instance.log("irc", {date:Date.now(), info:"Create IRC client"});
+			Logger.instance.log("irc", {info:"Create IRC client"});
 			//Not yet connected to IRC, create client and connect to specified
 			//channels with specified credentials
 			const options:tmi.Options = {
@@ -180,7 +180,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param channel 
 	 */
 	public async disconnectFromChannel(channel:string):Promise<void> {
-		Logger.instance.log("irc", {date:Date.now(), info:"Disconnect from channel "+channel});
+		Logger.instance.log("irc", {info:"Disconnect from channel "+channel});
 		const params = this._client.getOptions();
 		const index = this._channelList.findIndex(v=>v===channel);
 		if(index > -1) {
@@ -197,7 +197,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	public async refreshToken(token:string):Promise<void> {
 		if(!this._client) return;
-		Logger.instance.log("irc", {date:Date.now(), info:"Refreshing token"});
+		Logger.instance.log("irc", {info:"Refreshing token"});
 		this._refreshingToken = true;
 		this._connectedChannelCount = 0;
 		const params = this._client.getOptions();
@@ -223,7 +223,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
-	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false):Promise<boolean> {
+	public async sendMessage(channelId:string, text:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm = false):Promise<boolean> {
 		//TMI.js doesn't send the message back to their sender if sending
 		//it just after receiving a message (same frame).
 		//If we didn't wait for a frame, the message would be sent properly
@@ -478,7 +478,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//Fallback in case twitchinsights dies someday
 			["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
 			.forEach(b => hashmap[ b[0].toLowerCase() ] = true);
-			Logger.instance.log("irc", {date:Date.now(), info:"Failed loading bots list, using a static one"});
+			Logger.instance.log("irc", {info:"Failed loading bots list, using a static one"});
 		}
 		StoreProxy.users.setBotsMap("twitch", hashmap);
 	}
@@ -488,7 +488,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * Called after updating the token or the channels list
 	 */
 	private async reconnect():Promise<void> {
-		Logger.instance.log("irc", {date:Date.now(), info:"Force IRC reconnect"});
+		Logger.instance.log("irc", {info:"Force IRC reconnect"});
 		await this._client.disconnect();
 		await this._client.connect();
 	}
@@ -701,7 +701,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				channel_id,
 				user:userState.user,
 			};
-			Logger.instance.log("irc", {date:Date.now(), info:"Connected to channel "+channelName+" #"+channel_id});
+			Logger.instance.log("irc", {info:"Connected to channel "+channelName+" #"+channel_id});
 			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
 			this._connectedChans[channel_id] = true;
@@ -744,7 +744,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				date:Date.now(),
 				user:me,
 			};
-			Logger.instance.log("irc", {date:Date.now(), info:"Disconnected user \""+username+"\" from channel "+channelName+" #"+channel_id});
+			Logger.instance.log("irc", {info:"Disconnected user \""+username+"\" from channel "+channelName+" #"+channel_id});
 			this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", eventData));
 		}
 	}
@@ -868,7 +868,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._connectedChans[channel_id] = false;
 
 		console.log('Disconnected for reason: ', reason);
-		Logger.instance.log("irc", {date:Date.now(), info:"Disconnected with reason \""+reason+"\""});
+		Logger.instance.log("irc", {info:"Disconnected with reason \""+reason+"\""});
 
 		const eventData:TwitchatDataTypes.MessageDisconnectData = {
 			channel_id,
@@ -1037,7 +1037,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				}
 				if(message) {
-					Logger.instance.log("irc", {date:Date.now(), info:message, data:parsed});
+					Logger.instance.log("irc", {info:message, data:parsed});
 					if(channel) {
 						this.notice(noticeId, channel, message);
 					}else{
