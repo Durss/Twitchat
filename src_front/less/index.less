@@ -464,6 +464,9 @@ mark {
 		overflow: unset;//necessery for shit old safari -_-
 		.mx-context-menu {
 			box-shadow: rgba(0, 0, 0, 0.5) 1px 1px 2px 2px;
+			.mx-context-menu-scroll {
+				display: none;
+			}
 			.mx-context-menu-items {
 				cursor: pointer;
 				.mx-context-menu-item.alert {
@@ -474,6 +477,11 @@ mark {
 					background: var(--color-alert);
 				}
 				.mx-context-menu-item-wrapper {
+					&:first-child {
+						position: sticky;
+						top: 0;
+						z-index: 1000;
+					}
 					.mx-context-menu-item {
 						.label {
 							max-width: 180px;

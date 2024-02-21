@@ -64,7 +64,9 @@ export default class ContextMenuHelper {
 			x: px,
 			y: py,
 			items: [],
+			mouseScroll:true,
 			closeWhenScroll:false,
+			updownButtonSpaceholder:false,
 		})
 		
 		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
