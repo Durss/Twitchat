@@ -701,6 +701,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				channel_id,
 				user:userState.user,
 			};
+			Logger.instance.log("irc", {date:Date.now(), info:"Connected to channel "+channelName+" #"+channel_id});
 			StoreProxy.users.flagOnlineUsers([userState.user], channel_id);
 			this.dispatchEvent(new MessengerClientEvent("CONNECTED", d));
 			this._connectedChans[channel_id] = true;
@@ -743,6 +744,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				date:Date.now(),
 				user:me,
 			};
+			Logger.instance.log("irc", {date:Date.now(), info:"Disconnected user \""+username+"\" from channel "+channelName+" #"+channel_id});
 			this.dispatchEvent(new MessengerClientEvent("DISCONNECTED", eventData));
 		}
 	}
