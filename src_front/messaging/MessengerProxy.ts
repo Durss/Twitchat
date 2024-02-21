@@ -83,7 +83,6 @@ export default class MessengerProxy {
 			//It's safe to spam this method as it has inner debounce
 			TwitchMessengerClient.instance.connectToChannel(twitchChannels[i].login);
 		}
-		TwitchMessengerClient.instance.loadMeta();
 	}
 
 	public disconnect():void {
@@ -219,8 +218,11 @@ export default class MessengerProxy {
 	/**
 	 * Called when requesting to refresh auth token
 	 */
-	private onRefreshToken(e:MessengerClientEvent):void {
-		StoreProxy.auth.twitch_tokenRefresh(true);
+	private async onRefreshToken(e:MessengerClientEvent):Promise<void> {
+		const res = await StoreProxy.auth.twitch_tokenRefresh(true);
+		if(res !== false) {
+			TwitchMessengerClient.instance.refreshToken(res.access_token);
+		}
 	}
 
 	private async handleTwitchatCommands(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):Promise<boolean> {
@@ -517,6 +519,11 @@ export default class MessengerProxy {
 		
 		if(cmd == "/adslogs") {
 			Logger.instance.download("ads");
+			return true;
+		}else
+		
+		if(cmd == "/irclogs") {
+			Logger.instance.download("irc");
 			return true;
 		}else
 		

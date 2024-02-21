@@ -330,8 +330,8 @@ export default class Chat extends Vue {
 			try {
 				await navigator.wakeLock.request("screen");
 			} catch (err) {
-				const error = err as {name:string, message:string}
-				console.error(`${error.name}, ${error.message}`);
+				// const error = err as {name:string, message:string}
+				// console.error(`${error.name}, ${error.message}`);
 			}
 		};
 

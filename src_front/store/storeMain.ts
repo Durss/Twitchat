@@ -13,22 +13,25 @@ import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
+import BTTVUtils from '@/utils/emotes/BTTVUtils';
+import FFZUtils from '@/utils/emotes/FFZUtils';
+import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import HeatSocket from '@/utils/twitch/HeatSocket';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodEvent from '@/utils/voice/VoicemodEvent';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -311,6 +314,23 @@ export const storeMain = defineStore("main", {
 				//Force last updates if any not read
 				// possibleAds = [TwitchatDataTypes.TwitchatAdTypes.UPDATES];
 				StoreProxy.params.openModal("updates");
+			}
+
+			const sParams = StoreProxy.params;
+			if(sParams.appearance.bttvEmotes.value === true && sParams.appearance.showEmotes.value === true) {
+				BTTVUtils.instance.enable();
+			}else{
+				BTTVUtils.instance.disable();
+			}
+			if(sParams.appearance.ffzEmotes.value === true && sParams.appearance.showEmotes.value === true) {
+				FFZUtils.instance.enable();
+			}else{
+				FFZUtils.instance.disable();
+			}
+			if(sParams.appearance.sevenTVEmotes.value === true && sParams.appearance.showEmotes.value === true) {
+				SevenTVUtils.instance.enable();
+			}else{
+				SevenTVUtils.instance.disable();
 			}
 
 			/**

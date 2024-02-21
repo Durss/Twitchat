@@ -12,6 +12,7 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import * as tmi from "tmi.js";
 import MessengerClientEvent from "./MessengerClientEvent";
 import * as Sentry from "@sentry/vue";
+import Logger from '@/utils/Logger';
 
 /**
 * Created : 25/09/2022 
@@ -46,42 +47,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	public loadMeta():void {
-		TwitchUtils.loadGlobalBadges();
-		StoreProxy.users.loadMyFollowings();
-		StoreProxy.users.loadMyFollowers();
-		StoreProxy.users.initBlockedUsers();
-
-		const sParams = StoreProxy.params;
-		if(sParams.appearance.bttvEmotes.value === true && sParams.appearance.showEmotes.value === true) {
-			BTTVUtils.instance.enable();
-		}else{
-			BTTVUtils.instance.disable();
-		}
-		if(sParams.appearance.ffzEmotes.value === true && sParams.appearance.showEmotes.value === true) {
-			FFZUtils.instance.enable();
-		}else{
-			FFZUtils.instance.disable();
-		}
-		if(sParams.appearance.sevenTVEmotes.value === true && sParams.appearance.showEmotes.value === true) {
-			SevenTVUtils.instance.enable();
-		}else{
-			SevenTVUtils.instance.disable();
-		}
-
-		//Use an anonymous method to avoid blocking loading while
-		//all twitch tags are loading
-		try {
-			if(StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner) {
-				const channelId = StoreProxy.auth.twitch.user.id;
-				TwitchUtils.getPolls();
-				TwitchUtils.getPredictions();
-			}
-		}catch(e) {
-			//User is probably not an affiliate
-		}
-	}
-
 	/**
 	 * Connect to a channel
 	 * @param channel 
@@ -90,7 +55,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	public connectToChannel(channel:string):void {
 		//Already connected to IRC, just add the channel
 		if(this._client) {
+			Logger.instance.log("irc", {date:Date.now(), info:"Connect to channel "+channel});
 			this._client.join(channel);
+			this.reconnect();
 			return;
 		}
 
@@ -99,15 +66,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
+			Logger.instance.log("irc", {date:Date.now(), info:"Initial connect to channel "+channel});
 			const chans = await TwitchUtils.loadUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
+				Logger.instance.log("irc", {date:Date.now(), info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
 				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
 			
 			let meObj = StoreProxy.auth.twitch.user;
-			
-			await StoreProxy.users.preloadTwitchModerators(meObj.id);
 			
 			chans.forEach(async v=> {
 				//Skip it if already connected
@@ -182,30 +149,22 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				SevenTVUtils.instance.addChannel(v.id);
 			});
 			
-			if(!this._client) {
-				//Not yet connected to IRC, create client and connect to specified
-				//channels with specified credentials
-				const options:tmi.Options = {
-					options: { debug: false, skipUpdatingEmotesets:true, },
-					connection: { reconnect: true, maxReconnectInterval:2000 },
-					channels:this._channelList.concat(),
-				};
-				options.identity = {
-					username: StoreProxy.auth.twitch.user.login,
-					password: "oauth:"+StoreProxy.auth.twitch.access_token,
-				};
-				this._client = new tmi.Client(options);
-				this._client.connect();
-				
-				this.initialize();
-			}else{
-				//Already connected to IRC, add channel to the list
-				//and reconnect IRC client
-				const params = this._client.getOptions();
-				params.channels = this._channelList;
-
-				this.reconnect();
-			}
+			Logger.instance.log("irc", {date:Date.now(), info:"Create IRC client"});
+			//Not yet connected to IRC, create client and connect to specified
+			//channels with specified credentials
+			const options:tmi.Options = {
+				options: { debug: false, skipUpdatingEmotesets:true, },
+				connection: { reconnect: true, maxReconnectInterval:2000 },
+				channels:this._channelList.concat(),
+			};
+			options.identity = {
+				username: StoreProxy.auth.twitch.user.login,
+				password: "oauth:"+StoreProxy.auth.twitch.access_token,
+			};
+			this._client = new tmi.Client(options);
+			this._client.connect();
+			
+			this.initialize();
 		}, 100);
 	}
 
@@ -221,6 +180,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * @param channel 
 	 */
 	public async disconnectFromChannel(channel:string):Promise<void> {
+		Logger.instance.log("irc", {date:Date.now(), info:"Disconnect from channel "+channel});
 		const params = this._client.getOptions();
 		const index = this._channelList.findIndex(v=>v===channel);
 		if(index > -1) {
@@ -237,6 +197,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 */
 	public async refreshToken(token:string):Promise<void> {
 		if(!this._client) return;
+		Logger.instance.log("irc", {date:Date.now(), info:"Refreshing token"});
 		this._refreshingToken = true;
 		this._connectedChannelCount = 0;
 		const params = this._client.getOptions();
@@ -453,7 +414,6 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				case "/whisper":
 				case "/w": {
 					if(!TwitchUtils.requestScopes([TwitchScopes.WHISPER_WRITE])) return false;
-					console.log(chunks);
 					const login = chunks[0].replace(/^@/, "").toLowerCase();
 					return await TwitchUtils.whisper(chunks.splice(1).join(" "), login);
 				}
@@ -518,6 +478,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			//Fallback in case twitchinsights dies someday
 			["streamelements", "nightbot", "wizebot", "commanderroot", "anotherttvviewer", "streamlabs", "communityshowcase"]
 			.forEach(b => hashmap[ b[0].toLowerCase() ] = true);
+			Logger.instance.log("irc", {date:Date.now(), info:"Failed loading bots list, using a static one"});
 		}
 		StoreProxy.users.setBotsMap("twitch", hashmap);
 	}
@@ -527,6 +488,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	 * Called after updating the token or the channels list
 	 */
 	private async reconnect():Promise<void> {
+		Logger.instance.log("irc", {date:Date.now(), info:"Force IRC reconnect"});
 		await this._client.disconnect();
 		await this._client.connect();
 	}
@@ -904,6 +866,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this._connectedChans[channel_id] = false;
 
 		console.log('Disconnected for reason: ', reason);
+		Logger.instance.log("irc", {date:Date.now(), info:"Disconnected with reason \""+reason+"\""});
 
 		const eventData:TwitchatDataTypes.MessageDisconnectData = {
 			channel_id,
@@ -1054,10 +1017,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				break;
 			}
 
-			//Using this instead of the "notice" event from TMI as it's not
+			//Using this instead of the "notice" event from TMI.js as it's not
 			//fired for many notices whereas here we get them all
 			case "NOTICE": {
 				let [msgid, url, cmd, channel, message] = (parsed.raw as string).replace(/@msg-id=(.*) :(.*) (.*) (#.*) :(.*)/gi, "$1::$2::$3::$4::$5").split("::");
+				console.log("NOTICE::", msgid, message);
 				let noticeId:TwitchatDataTypes.TwitchatNoticeStringType = TwitchatDataTypes.TwitchatNoticeType.GENERIC;
 				if(!message) {
 					if(msgid.indexOf("bad_delete_message_error") > -1) {
@@ -1071,9 +1035,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					}
 				}
 				if(message) {
+					Logger.instance.log("irc", {date:Date.now(), info:message, data:parsed});
 					if(channel) {
 						this.notice(noticeId, channel, message);
 					}else{
+						if((parsed.raw as string || "").toLowerCase() == "login authentication failed") {
+							const chanName = channel || StoreProxy.auth.twitch.user.login;
+							this.notice("error", chanName, StoreProxy.i18n.t("error.irc_auth_failure", {CHANNEL:chanName}));
+							this.dispatchEvent(new MessengerClientEvent("REFRESH_TOKEN"));
+						}
 						Sentry.captureMessage("Received a notice with missing channel ID: "+ parsed.raw, "warning");
 					}
 				}

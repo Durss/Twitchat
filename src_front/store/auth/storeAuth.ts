@@ -169,8 +169,9 @@ export const storeAuth = defineStore('auth', {
 				this.authenticated = true;
 	
 				const sMain = StoreProxy.main;
-				const sRewards = StoreProxy.rewards;
+				const sUsers = StoreProxy.users;
 				const sStream = StoreProxy.stream;
+				const sRewards = StoreProxy.rewards;
 				const sExtension = StoreProxy.extension;
 				
 				try {
@@ -205,11 +206,25 @@ export const storeAuth = defineStore('auth', {
 				sRewards.loadRewards();
 				sExtension.init();
 				sStream.loadStreamInfo("twitch", this.twitch.user.id);
+				sUsers.preloadTwitchModerators(this.twitch.user.id);
 
 				//Loads state of current or incoming ads
 				TwitchUtils.getAdSchedule();
-				//Refresh status every 10minutes
-				// setInterval(()=>TwitchUtils.getAdSchedule(), 1 * 60000);
+				TwitchUtils.loadGlobalBadges();
+				StoreProxy.users.loadMyFollowings();
+				StoreProxy.users.loadMyFollowers();
+				StoreProxy.users.initBlockedUsers();
+
+				//Use an anonymous method to avoid blocking loading while
+				//all twitch tags are loading
+				try {
+					if(StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner) {
+						TwitchUtils.getPolls();
+						TwitchUtils.getPredictions();
+					}
+				}catch(e) {
+					//User is probably not an affiliate
+				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWERS])) {
 					//Refresh followers count and latest follower regularly

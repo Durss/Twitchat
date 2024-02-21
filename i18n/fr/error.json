@@ -1,6 +1,7 @@
 {
 	"error": {
 		"irc_reconect": "Connexion échouée. Tentative de renouvellement de session...",
+		"irc_auth_failure": "La connexion au canal {CHANNEL} a échouée.",
 		"authorization_refused": "Vous avez refusé l'accès à l'application Twitch",
 		"invalid_credentials": "Identifiants invalides",
 		"csrf_failed": "Une erreur a eu lieu lors de la génération du token de sécurité (CSRF)",

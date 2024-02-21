@@ -74,6 +74,9 @@ export default class ChatConnect extends AbstractChatMessage {
 		const chanId = this.messageData.channel_id;
 		const user = this.$store.users.getUserFrom(this.messageData.platform, chanId, chanId)
 		TwitchMessengerClient.instance.connectToChannel(user.login);
+		setTimeout(()=> {
+			this.showReconnectBt = !TwitchMessengerClient.instance.getIsConnectedToChannelID(this.messageData.channel_id);
+		}, 5000);
 	}
 }
 </script>
