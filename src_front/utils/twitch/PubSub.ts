@@ -740,7 +740,7 @@ export default class PubSub extends EventDispatcher {
 			for (let i = list.length-1; i > -1; i--) {
 				if(localObj.message.id == list[i].id) {
 					//Delete it even if allowed as it's actually sent back via IRC
-					StoreProxy.chat.deleteMessage(list[i]);
+					StoreProxy.chat.deleteMessage(list[i], undefined, false);
 				}
 			}
 		}
