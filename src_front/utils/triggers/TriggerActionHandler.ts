@@ -1395,7 +1395,7 @@ export default class TriggerActionHandler {
 							if(trigger.enabled) {
 								// console.log("Exect sub trigger", step.triggerKey);
 								logStep.messages.push({date:Date.now(), value:"Call trigger \""+step.triggerId+"\""});
-								await this.executeTrigger(trigger, message, testMode, undefined, undefined, dynamicPlaceholders);
+								await this.executeTrigger(trigger, message, false, undefined, undefined, dynamicPlaceholders);
 							}else{
 								logStep.messages.push({date:Date.now(), value:"❌ Call trigger: trigger is disabled"});
 								log.error = true;
