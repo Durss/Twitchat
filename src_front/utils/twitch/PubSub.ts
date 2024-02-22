@@ -144,7 +144,7 @@ export default class PubSub extends EventDispatcher {
 			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
 			const message = JSON.parse(e.data) as PubSubDataTypes.SocketMessage;
-			if(message.type != "PONG" && message.data) {
+			if(message.type != "PONG" && message.data && message.data.message) {
 				try {
 					const data = JSON.parse(message.data.message);
 					if(StoreProxy.main.devmode) {
