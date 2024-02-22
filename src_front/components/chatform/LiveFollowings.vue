@@ -94,6 +94,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 	public loading = true;
 	public needScope = false;
 	public showRaidHistory = false;
+	public disposed = false;
 
 	public get lastRaidedUserID():string {
 		if(this.$store.stream.raidHistory.length == 0) return "";
@@ -108,7 +109,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 		return this.sortedRaidHistory.map(v=> {
 			return {
 				date:v.date,
-				user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, v.uid)
+				user:this.$store.users.getUserFrom("twitch", this.$store.auth.twitch.user.id, v.uid, undefined, undefined, undefined, false)
 			}
 		});
 	}
@@ -134,6 +135,10 @@ export default class LiveFollowings extends AbstractSidePanel {
 		super.open();
 	}
 
+	public beforeUnmount(): void {
+		this.disposed = true;
+	}
+
 	public computeDuration(start:string):string {
 		const s = new Date(start);
 		const elapsed = Date.now() - s.getTime();
@@ -149,23 +154,33 @@ export default class LiveFollowings extends AbstractSidePanel {
 	}
 
 	private async updateList():Promise<void> {
-		let res = await TwitchUtils.getActiveFollowedStreams();
-		res = res.sort((a,b) => a.viewer_count - b.viewer_count);
-		this.streams = res;
-		this.loading = false;
-		await this.$nextTick();
-		const cards = this.$refs.streamCard as HTMLDivElement[] || [];
-		for (let i = 0; i < cards.length; i++) {
-			gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
-		}
-
-		//Only load room settings for the first 50 rooms.
-		for (let i = 0; i < Math.min(50, res.length); i++) {
-			const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);
-			if(roomSettings) {
-				this.roomSettings[res[i].user_id] = roomSettings;
+		TwitchUtils.getActiveFollowedStreams(async (res)=>{
+			res = res.sort((a,b) => a.viewer_count - b.viewer_count);
+			this.streams = res;
+			this.loading = false;
+			await this.$nextTick();
+			const cards = this.$refs.streamCard as HTMLDivElement[] || [];
+			for (let i = 0; i < cards.length; i++) {
+				gsap.from(cards[i], {duration:.25, opacity:0, y:-20, delay:i*.02})
 			}
-		}
+	
+			for (let i = 0; i < res.length; i++) {
+				if(this.disposed) break;
+				TwitchUtils.getRoomSettings(res[i].user_id).then(roomSettings => {
+					if(roomSettings) {
+						this.roomSettings[res[i].user_id] = roomSettings;
+					}
+				});
+				// const roomSettings = await TwitchUtils.getRoomSettings(res[i].user_id);
+				// if(roomSettings) {
+				// 	this.roomSettings[res[i].user_id] = roomSettings;
+				// }
+				//Delay loading of entries after the 50th to load them by batch of 10 every second
+				if(i > 50 && i%10 == 0) {
+					await Utils.promisedTimeout(1000);
+				}
+			}
+		});
 	}
 
 	public raid(login:string):void {

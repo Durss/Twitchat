@@ -908,11 +908,12 @@ export default class TwitchUtils {
 	/**
 	 * Get all the active streams that the current user is following
 	 */
-	public static async getActiveFollowedStreams():Promise<TwitchDataTypes.StreamInfo[]> {
+	public static async getActiveFollowedStreams(onAddEntries?:(entries:TwitchDataTypes.StreamInfo[])=>void):Promise<TwitchDataTypes.StreamInfo[]> {
 		if(!this.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return [];
 		
 		let list:TwitchDataTypes.StreamInfo[] = [];
 		let cursor:string|null = null;
+		let creditsUsed = 0;
 		do {
 			const url = new URL(Config.instance.TWITCH_API_PATH+"streams/followed");
 			url.searchParams.set("first", "100");
@@ -941,10 +942,17 @@ export default class TwitchUtils {
 					}
 				}
 			});
+			if(onAddEntries) onAddEntries(json.data);
 
 			cursor = null;
 			if(json.pagination?.cursor) {
 				cursor = json.pagination.cursor;
+			}
+			creditsUsed += 2;
+			//Wait a minute to refresh API credits
+			if(creditsUsed >= 400) {
+				await Utils.promisedTimeout(60000);
+				creditsUsed = 0;
 			}
 		}while(cursor != null)
 		return list;
