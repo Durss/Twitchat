@@ -13,6 +13,9 @@ export default class GoogleController extends AbstractController {
 
 	private _translater!:translate_v2.Translate;
 	private _userTotranslations:{[key:string]:{date:number, count:number}} = {}
+	private _allowedLanguages:string[] = ["af", "sq", "am", "ar", "hy", "as", "ay", "az", "bm", "eu", "be", "bn", "bho", "bs", "bg", "ca", "ceb", "zh-CN", "zh", "zh-TW", "co", "hr", "cs", "da", "dv", "doi", "nl", "en", "eo", "et", "ee", "fil", "fi", "fr", "fy", "gl", "ka", "de", "el", "gn", "gu", "ht", "ha", "haw", "he", "iw", "hi", "hmn", "hu", "is", "ig", "ilo", "id", "ga", "it", "ja", "jv", "jw", "kn", "kk", "km", "rw", "gom", "ko", "kri", "ku", "ckb", "ky", "lo", "la", "lv", "ln", "lt", "lg", "lb", "mk", "mai", "mg", "ms", "ml", "mt", "mi", "mr", "mni-Mtei", "lus", "mn", "my", "ne", "no", "ny", "or", "om", "ps", "fa", "pl", "pt", "pa", "qu", "ro", "ru", "sm", "sa", "gd", "nso", "sr", "st", "sn", "sd", "si", "sk", "sl", "so", "es", "su", "sw", "sv", "tl", "tg", "ta", "tt", "te", "th", "ti", "ts", "tr", "tk", "ak", "uk", "ur", "ug", "uz", "vi", "cy", "xh", "yi", "yo", "zu"];
+	private _allowedLanguagesMap:{[key:string]:boolean} = {};
+	
 
 	constructor(public server: FastifyInstance) {
 		super();
@@ -46,6 +49,11 @@ export default class GoogleController extends AbstractController {
 			//Create translation instance
 			this._translater = new translate_v2.Translate({auth});
 		}
+
+		//Build lang hashmap
+		this._allowedLanguages.forEach(lang => {
+			this._allowedLanguagesMap[lang] = true;
+		});
 
 		// this._translater.translations.translate({
 		// 	requestBody:{
@@ -257,6 +265,16 @@ export default class GoogleController extends AbstractController {
 		const params:any = request.query;
 		if(params.langSource == params.langTarget) {
 			Logger.info("Translation impossible because of same language target and source:", params.langSource);
+			response.header('Content-Type', 'application/json');
+			response.status(204);
+			response.send(JSON.stringify({success:true, data:{translation:""}}));
+			return;
+		}
+
+		//Check if given languages are supported
+		if(this._allowedLanguagesMap[params.langSource] !== true
+		|| this._allowedLanguagesMap[params.langTarget] !== true) {
+			Logger.info("Translation impossible because of unsupported language "+params.langSource+" or "+params.langTarget);
 			response.header('Content-Type', 'application/json');
 			response.status(204);
 			response.send(JSON.stringify({success:true, data:{translation:""}}));
