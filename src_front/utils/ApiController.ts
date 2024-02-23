@@ -30,14 +30,14 @@ export default class ApiController {
 	 * @param data 
 	 * @param method 
 	 */
-	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, retryOnFail:boolean = true, attemptIndex:number = 0):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
+	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
-		const headers:{[key:string]:string} = {
-			"Content-Type": "application/json",
-			'App-Version': import.meta.env.PACKAGE_VERSION,
-		};
+		if(!headers["Content-Type"]) {
+			headers["Content-Type"] = "application/json";
+		}
+		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
 		if(StoreProxy.auth.twitch.access_token) {
-			headers.Authorization = "Bearer "+StoreProxy.auth.twitch.access_token;
+			headers["Authorization"] = "Bearer "+StoreProxy.auth.twitch.access_token;
 		}
 		const options:RequestInit = {
 			method: method || "GET",
@@ -342,6 +342,10 @@ type ApiEndpoints =  {
 			success:boolean,
 			error?:string;
 			errorCode?:string;
+		}
+	},
+	"sse/register": {
+		GET: {
 		}
 	},
 }

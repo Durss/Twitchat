@@ -281,6 +281,29 @@ export const storeMain = defineStore("main", {
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 
+			// const headers = {
+			// 	// "Content-Type":"text/event-stream",
+			// 	"Connection":"keep-alive"
+			// };
+			// ApiController.call("sse/register", "POST", {test:"oké"}, true, 10, headers);
+			const evtSource = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+StoreProxy.auth.twitch.access_token);
+			evtSource.onmessage = (event) => {
+				console.log("ON EVENT");
+				console.log(event.data)
+				try {
+					const json = JSON.parse(event.data);
+					if(json.code == "AUTHENTICATION_FAILED") {
+						//Avoid autoreconnect
+						evtSource.close();
+					}
+				}catch(error) {
+					//ignore
+				}
+			};
+			evtSource.onopen = (event) => {
+				console.log("ON OPEN");
+			}
+
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {
 				setTimeout(()=>{

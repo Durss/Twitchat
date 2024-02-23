@@ -1,10 +1,11 @@
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import * as fetch from "node-fetch";
-import * as fs from "fs";
 import * as crypto from "crypto";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import * as fs from "fs";
+import * as fetch from "node-fetch";
 import Config from "../utils/Config";
-import AbstractController from "./AbstractController";
 import Logger from "../utils/Logger";
+import TwitchUtils from "../utils/TwitchUtils";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 13/07/2023 
@@ -168,7 +169,7 @@ export default class PatreonController extends AbstractController {
 			}
 			if(isMember) {
 				//Get twitch user
-				const userInfo = await Config.getUserFromToken(request.headers.authorization || "");
+				const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization || "");
 				if(userInfo) {
 					let json = {};
 					if(fs.existsSync(Config.patreon2Twitch)) {

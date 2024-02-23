@@ -1,7 +1,8 @@
 import { FastifyReply, FastifyRequest } from "fastify";
-import Config from '../utils/Config';
 import * as fs from "fs";
-import type{PatreonMember} from "./PatreonController";
+import Config from '../utils/Config';
+import TwitchUtils from "../utils/TwitchUtils";
+import type { PatreonMember } from "./PatreonController";
 
 /**
 * Created : 14/12/2022 
@@ -60,7 +61,7 @@ export default class AbstractController {
 			return false;
 		}
 		
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -91,7 +92,7 @@ export default class AbstractController {
 			return false;
 		}
 		
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			//Invalid token
 			response.header('Content-Type', 'application/json');

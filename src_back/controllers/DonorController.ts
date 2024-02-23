@@ -1,6 +1,7 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
+import TwitchUtils from "../utils/TwitchUtils";
 import AbstractController from "./AbstractController";
 
 /**
@@ -46,7 +47,7 @@ export default class DonorController extends AbstractController {
 	 */
 	private async getAllDonors(request:FastifyRequest, response:FastifyReply) {
 		// Added this test as someone keeps polling the service anonymously
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -76,7 +77,7 @@ export default class DonorController extends AbstractController {
 	 */
 	private async getAnonState(request:FastifyRequest, response:FastifyReply) {
 		//Get uer info
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -109,7 +110,7 @@ export default class DonorController extends AbstractController {
 	private async setAnonState(request:FastifyRequest, response:FastifyReply) {
 		const body:any = request.body;
 		//Get uer info
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);

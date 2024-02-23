@@ -1,10 +1,11 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import Config from "../utils/Config";
-import {Auth, translate_v2, google} from "googleapis";
-import * as jwt from 'jsonwebtoken';
 import { readFileSync } from "fs";
+import { Auth, google, translate_v2 } from "googleapis";
+import * as jwt from 'jsonwebtoken';
+import Config from "../utils/Config";
 import Logger from "../utils/Logger";
+import TwitchUtils from "../utils/TwitchUtils";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 21/11/2023 
@@ -242,7 +243,7 @@ export default class GoogleController extends AbstractController {
 		currentDate.setHours(0, 0, 0, 0);
 		const dateTs = currentDate.getTime();
 
-		const userInfo = (await Config.getUserFromToken(request.headers.authorization || ""))!;
+		const userInfo = (await TwitchUtils.getUserFromToken(request.headers.authorization || ""))!;
 		
 		if(!this._userTotranslations[userInfo.user_id]) {
 			this._userTotranslations[userInfo.user_id] = {

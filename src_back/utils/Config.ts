@@ -11,7 +11,6 @@ export default class Config {
 	private static envName: EnvName;
 	private static confPath: string = "env.conf";
 	private static credentialsCache:Credentials;
-	private static cache:{[key:string]:TwitchToken} = {};
 	
 	public static get maxTranslationsPerDay():number{ return 70; }
 	public static get lifetimeDonorStep():number{ return 89; }
@@ -35,39 +34,6 @@ export default class Config {
 			this.credentialsCache = JSON.parse(fs.readFileSync(this.CREDENTIALS_ROOT+"credentials.json", "utf8"));
 		}
 		return this.credentialsCache;
-	}
-
-	/**
-	 * Validates a token and returns the user data
-	 */
-	public static async getUserFromToken(token?:string):Promise<TwitchToken|null> {
-		if(!token) return null;
-		if(this.cache[token]) return this.cache[token];
-
-		//Check access token validity
-		const options = {
-			method: "GET",
-			headers: { "Authorization": token },
-		};
-	
-		let result;
-		try {
-			result = await fetch("https://id.twitch.tv/oauth2/validate", options);
-		}catch(error) {
-			return null;
-		}
-		
-		if(result.status == 200) {
-			const json = await result.json() as TwitchToken;
-			this.cache[token] = json;
-			//Keep result in cache for 10min
-			setTimeout(()=> {
-				delete this.cache[token];
-			}, 10 * 60 * 1000);
-			return json;
-		}else{
-			return null;
-		}
 	}
 
 	public static get LOCAL_TESTING(): boolean {
@@ -300,12 +266,8 @@ interface Credentials {
 	donors_remote_api_secret:string;
 
 	contact_mail:string;
-}
 
-interface TwitchToken {
-	client_id: string;
-	login: string;
-	scopes: string[];
-	user_id: string;
-	expires_in: number;
+	discord_app_id:string;
+	discord_public_key:string;
+	discord_bot_token:string;
 }

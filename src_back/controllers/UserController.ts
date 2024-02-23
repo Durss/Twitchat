@@ -4,6 +4,7 @@ import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
 import Logger from '../utils/Logger';
+import TwitchUtils from '../utils/TwitchUtils';
 import AbstractController from "./AbstractController";
 
 /**
@@ -51,7 +52,7 @@ export default class UserController extends AbstractController {
 	 * Get a user's donor/admin state
 	 */
 	private async getUserState(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -104,7 +105,7 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async getUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -133,7 +134,7 @@ export default class UserController extends AbstractController {
 	 */
 	private async postUserData(request:FastifyRequest, response:FastifyReply) {
 		const body:any = request.body;
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
@@ -205,7 +206,7 @@ export default class UserController extends AbstractController {
 	 * Delete a user's data
 	 */
 	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
+		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
