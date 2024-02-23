@@ -296,6 +296,22 @@ export const storeMain = defineStore("main", {
 						//Avoid autoreconnect
 						evtSource.close();
 					}
+					if(json.code == "MESSAGE") {
+						const message:TwitchatDataTypes.MessageCustomData = {
+							id:Utils.getUUID(),
+							channel_id:sAuth.twitch.user.id,
+							date:Date.now(),
+							platform:"twitchat",
+							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+							message:json.data.message,
+							icon:"discord",
+							user:{
+								name:json.data.username,
+							},
+							style:json.data.style,
+						}
+						sChat.addMessage(message)
+					}
 				}catch(error) {
 					//ignore
 				}

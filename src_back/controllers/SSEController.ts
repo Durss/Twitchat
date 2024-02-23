@@ -34,10 +34,10 @@ export default class SSEController extends AbstractController {
 	 * @param data 
 	 * @returns 
 	 */
-	public static sendToUser(uid:string, data:unknown):boolean {
+	public static sendToUser(uid:string, code:keyof typeof SSECode, data:unknown):boolean {
 		const request = this.uidToRequest[uid];
 		if(!request) return false;
-		request.sse({id:Utils.getUUID(), data:JSON.stringify({success:true, data})})
+		request.sse({id:Utils.getUUID(), data:JSON.stringify({success:true, code, data})})
 		return true;
 	}
 	
@@ -54,16 +54,23 @@ export default class SSEController extends AbstractController {
 	 * @returns 
 	 */
 	private async postRegisterSSE(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		response.sse({id:"connecting", data:'{"success":true, code:"CONNECTING"}'});
+		response.sse({id:"connecting", data:JSON.stringify({"success":true, code:SSECode.CONNECTING})});
 		const queryParams = request.query as any;
 		const userInfo = await TwitchUtils.getUserFromToken(queryParams.token);
 		if(!userInfo) {
-			response.sse({id:"error", data:'{"success":true, code:"AUTHENTICATION_FAILED"}'});
+			response.sse({id:"error", data:JSON.stringify({"success":true, code:SSECode.AUTHENTICATION_FAILED})});
 			return;
 		}
 
 		SSEController.uidToRequest[userInfo.user_id] = response;
 
-		response.sse({id:"connect", data:'{"success":true, code:"CONNECTED"}'});
+		response.sse({id:"connect", data:JSON.stringify({"success":true, code:SSECode.CONNECTED})});
 	}
+}
+
+export const SSECode = {
+	MESSAGE:"MESSAGE" as const,
+	AUTHENTICATION_FAILED:"AUTHENTICATION_FAILED" as const,
+	CONNECTED:"CONNECTED" as const,
+	CONNECTING:"CONNECTING" as const,
 }

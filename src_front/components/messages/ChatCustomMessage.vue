@@ -119,6 +119,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 	max-width: 100%;
 	.closeBt {
 		z-index: 0;
+		padding: .35em;
 	}
 	.ctas {
 		gap: .5em;

@@ -28,6 +28,10 @@ export default class Config {
 	 * Links a twitch user ID to a Patreon member ID
 	 */
 	public static get patreon2Twitch(): string { return this.PATREON_DATA_FOLDER + "patreon2Twitch.json"; }
+	/**
+	 * Links a twitch user ID to a discord guildID
+	 */
+	public static get discord2Twitch(): string { return this.DISCORD_DATA_FOLDER + "discord2Twitch.json"; }
 
 	public static get credentials():Credentials {
 		if(!this.credentialsCache) {
@@ -149,6 +153,17 @@ export default class Config {
 			dev: path.join(__dirname, "../../patreon/"),
 			beta: path.join(__dirname, "../patreon/"),
 			prod: path.join(__dirname, "../patreon/"),
+		});
+	}
+	
+	/**
+	 * Folder containing discord data
+	 */
+	public static get DISCORD_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "../../discord/"),
+			beta: path.join(__dirname, "../discord/"),
+			prod: path.join(__dirname, "../discord/"),
 		});
 	}
 	
