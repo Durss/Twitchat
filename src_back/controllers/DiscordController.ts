@@ -82,6 +82,8 @@ export default class DiscordController extends AbstractController {
 	 */
 	public updateParams(uid:string, data:any):void {
 		const guild = DiscordController._twitchId2GuildId[uid];
+		if(!guild) return;
+		
 		guild.chatCols			= data.chatCols;
 		guild.logChanTarget		= data.logChanTarget;
 		guild.reactionsEnabled	= data.reactionsEnabled;
@@ -275,7 +277,7 @@ export default class DiscordController extends AbstractController {
 		const token = this._pendingTokens.find(v => v.code.toUpperCase() === code.toUpperCase());
 		
 		//Check if code and user match the expected ones
-		if(!token || !code || token.channelId != user.user_id) {
+		if(!token || !code || token.userId != user.user_id) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({error:"Invalid token", errorCode:"INVALID_TOKEN", success:false}));
@@ -283,6 +285,8 @@ export default class DiscordController extends AbstractController {
 		}
 		
 		//Associate twitch to given discord guild
+		let status = 200;
+		let errorCode = "";
 		if(request.method == "POST") {
 			DiscordController._guildId2TwitchId[token.guildId] = {
 				locale:token.locale,
@@ -294,8 +298,6 @@ export default class DiscordController extends AbstractController {
 				chatCols:[],
 				reactionsEnabled:false,
 			};
-			fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
-			this.buildTwitchHashmap();
 			const message = I18n.instance.get(token.locale, "server.discord.link_success", {
 								LOGIN:user.login,
 								CMD_SAY:this._commandSay?.name || "say",
@@ -303,15 +305,25 @@ export default class DiscordController extends AbstractController {
 								CMD_ASK:this._commandAsk?.name || "ask",
 								CMD_ASK_ID:this._commandAsk?.id || "",
 							});
-			await this._rest.post(Routes.channelMessages(token.guildChannelID), {body:{content:message}});
+			try {
+				await this._rest.post(Routes.channelMessages(token.guildChannelID), {body:{content:message}});
+				fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
+				this.buildTwitchHashmap();
+			}catch(result) {
+				status = result.status;
+				if(status == 403) {
+					errorCode = "MISSING_ACCESS";
+					token.expires_at += 5 * 60000;
+				}
+			}
 		}else{
 			//Add 1 minute to the expiration date
 			token.expires_at += this._tokenValidityDuration;
 		}
 
 		response.header('Content-Type', 'application/json')
-		.status(200)
-		.send(JSON.stringify({success:true, guildName:token.guildName}));
+		.status(status)
+		.send(JSON.stringify({success:status == 200, guildName:token.guildName, errorCode, channelName:token.channelName}));
 	}
 
 	/**
@@ -598,11 +610,12 @@ export default class DiscordController extends AbstractController {
 
 			let code = Utils.generateCode(4);
 			this._pendingTokens.push({
+										code,
 										locale:command.locale,
 										expires_at:Date.now() + this._tokenValidityDuration,
 										guildName:guildDetails.name,
-										code,
-										channelId:users[0].id,
+										userId:users[0].id,
+										channelName:command.channel.name,
 										guildId:command.guild_id,
 										guildChannelID:command.channel_id,
 									});
@@ -847,7 +860,8 @@ interface PendingToken {
 	locale: string;
 	guildName: string;
 	expires_at: number;
-	channelId: string;
+	userId: string;
+	channelName: string;
 	guildId: string;
 	guildChannelID: string;
 }

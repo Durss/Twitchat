@@ -1,7 +1,7 @@
 import { Locale, LocaleString } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
-import labels from "../../static/labels.json";
+import type labels from "../../static/labels.json";
 import Config from "./Config";
 
 /**

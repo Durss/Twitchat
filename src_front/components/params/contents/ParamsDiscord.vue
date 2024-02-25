@@ -50,10 +50,10 @@
 			<div>{{ $t("discord.install_confirm") }}</div>
 			<mark class="discordName">{{ discordName }}</mark>
 			<div class="ctas">
-				<TTButton icon="cross" alert @click="linkConfirm = false">{{ $t("global.cancel") }}</TTButton>
+				<TTButton icon="cross" alert @click="linkConfirm = false; linkErrorCode=''">{{ $t("global.cancel") }}</TTButton>
 				<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
 			</div>
-			<div @click="linkErrorCode = ''" v-if="linkErrorCode" class="card-item alert error">{{ $t("error.discord."+linkErrorCode) }}</div>
+			<div @click="linkErrorCode = ''" v-if="linkErrorCode" class="card-item alert error">{{ $t("error.discord."+linkErrorCode, {CHANNEL:channelName}) }}</div>
 		</section>
 
 		<section class="card-item codeForm" v-else>
@@ -99,6 +99,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public duration:number = 0;
 	public discordName:string = "";
 	public linkedToGuild:string = "";
+	public channelName:string = "";
 	public validateDebounce:number = -1;
 	public submitting:boolean = false;
 	public stateLoading:boolean = true;
@@ -177,8 +178,9 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public async confirmLink():Promise<void> {
 		this.submitting = true;
 		try {
-			const result = await ApiController.call("discord/code", "POST", {code:this.code});
+			const result = await ApiController.call("discord/code", "POST", {code:this.code}, false);
 			if(result.status !== 200) {
+				this.channelName = result.json.channelName!;
 				this.linkErrorCode = result.json.errorCode || "UNKNOWN";
 			}else{
 				this.linkedToGuild = result.json.guildName!;

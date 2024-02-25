@@ -90,7 +90,8 @@
 		"discord":{
 			"UNKNOWN":"Une erreur inconnue est survenue :(",
 			"INVALID_TOKEN":"Code invalide",
-			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code"
+			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
+			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le chan \"{CHANNEL}\""
 		}
 	}
 }

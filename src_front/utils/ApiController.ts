@@ -367,6 +367,7 @@ type ApiEndpoints =  {
 			error?:string;
 			errorCode?:string;
 			guildName?:string;
+			channelName?:string;
 		}
 	};
 	"discord/image": {
