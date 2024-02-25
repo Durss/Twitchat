@@ -217,7 +217,7 @@ export default class VoiceController {
 				if(key.length > 1) {
 					if(VoiceAction[a.id+"_IS_GLOBAL" as VAKeys] === true) {
 						this.hashmapGlobalActions[key] = a;
-						regChunks.push( a.sentences?.replace(/[^a-z0-9]/gi, "") as string );
+						regChunks.push( a.sentences?.replace(/[^a-z0-9 ]/gi, "") as string );
 					}else{
 						this.hashmap[key] = a;
 					}
@@ -225,8 +225,9 @@ export default class VoiceController {
 			}) 
 		}
 
-		
+		console.log(this.hashmapGlobalActions);
 		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:(?:[^\\s]{0,1}$)|(?:[^\\s]{1}\\s)?|\\s)", "gi");
+		console.log(this.splitRegGlobalActions);
 	}
 
 	private triggerAction(action:string, data?:JsonObject):void {
@@ -275,12 +276,13 @@ export default class VoiceController {
 			}
 			
 			this.splitRegGlobalActions.lastIndex = 0;//reset regexp pointer
-			const chunks = tempText_loc.split(this.splitRegGlobalActions)
+			const chunks = tempText_loc.split(this.splitRegGlobalActions);
+			console.log(chunks);
 			for (let i = 0; i < chunks.length; i++) {
 				const v = chunks[i].trim();
 				let matchAction = false;
 				for (const key in this.hashmapGlobalActions) {
-					if(v == this.hashmapGlobalActions[key].sentences) {
+					if(v?.toLowerCase() == (this.hashmapGlobalActions[key].sentences || "___").toLowerCase()) {
 						actionsList.push({id:this.hashmapGlobalActions[key].id as TwitchatActionType});
 						matchAction = true;
 						break;
