@@ -2,7 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import Config from "./utils/Config";
 import Logger from './utils/Logger';
 import {FastifySSEPlugin} from "fastify-sse-v2";
-import {fastifyMultipart} from "@fastify/multipart";
+import * as fastifyMultipart from "@fastify/multipart";
 import * as fs from "fs";
 import AuthController from './controllers/AuthController';
 import DonorController from './controllers/DonorController';
@@ -45,6 +45,7 @@ I18n.instance.initialize();
 const server:FastifyInstance = Fastify({logger: false});
 server.register(FastifySSEPlugin)
 .register(fastifyMultipart,{
+	attachFieldsToBody: 'keyValues',
 	limits: {
 		fileSize: 2000000,  // For multipart forms, the max file size in bytes
 		files: 2,           // Max number of file fields

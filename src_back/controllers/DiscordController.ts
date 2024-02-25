@@ -1,7 +1,7 @@
 import { Multipart } from "@fastify/multipart";
 import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
 import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, RawFile, Routes, SlashCommandBuilder } from "discord.js";
-import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
 import I18n from "../utils/I18n";
@@ -210,43 +210,39 @@ export default class DiscordController extends AbstractController {
 		}
 
 		try {
-			const parts: AsyncIterableIterator<Multipart> = request.parts();
+			const params = request.body as any;
 			const body:any = {content:""};
-			let upload!:RawFile;
-			for await (const part of parts) {
-				if(part.type == "file") {
-					upload = {
-						data: await part.toBuffer(),
-						name: part.filename,
-						contentType: part.mimetype,
-					}
-				}else 
-				if(part.type == "field") {
-					const json:{
-						userName:string,
-						userId:string,
-						date:string,
-						messageId:string,
-						messageType:string,
-						messagePlatform:string,
-						message:string,
-					} = JSON.parse(part.value as string);
-					body.content = `
+			const json:{
+				userName:string,
+				userId:string,
+				date:string,
+				messageId:string,
+				messageType:string,
+				messagePlatform:string,
+				message:string,
+				fileName:string,
+			} = JSON.parse(params.message as string);
+			const upload = {
+				data: await params.image,
+				name: json.fileName+".png" || "message.png",
+				contentType: "image/png",
+			}
+			
+			body.content = `
 * **__User ID__**: ${json.userId}
 * **__User name__**: ${json.userName}
 * **__Message ID__**: ${json.messageId}
 * **__Message Type__**: ${json.messageType}
 * **__Platform__**: ${json.messagePlatform}`;
-					if(json.message){
-						body.content += "\n**__Message__**:";
-						body.content += "```"+json.message.replace('`', '\`')+"```";
-					}
-				}
+			if(json.message){
+				body.content += "\n**__Message__**:";
+				body.content += "```"+json.message.replace('`', '\`')+"```";
 			}
+			console.log(body);
 			//Send to discord
 			await this._rest.post(Routes.channelMessages(guild.logChanTarget), {body,files:[upload]});
 		}catch(error) {
-			Logger.error(error)
+			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Invalid file", success:false}));
@@ -442,8 +438,8 @@ export default class DiscordController extends AbstractController {
 		const debugGuildID:string = "960695714483167252";
 
 		const perms = PermissionsBitField.Flags.Administrator
-		& PermissionsBitField.Flags.ManageGuild
-		& PermissionsBitField.Flags.ModerateMembers;
+					& PermissionsBitField.Flags.ManageGuild
+					& PermissionsBitField.Flags.ModerateMembers;
 
 		const languages = I18n.instance.discordLanguages;
 

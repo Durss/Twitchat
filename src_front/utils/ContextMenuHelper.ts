@@ -772,6 +772,7 @@ export default class ContextMenuHelper {
 							canvas.toBlob((blob)=> {
 								if(!blob) return;
 								const json:any = {
+									fileName,
 									userName:user?.login,
 									userId:user?.id,
 									date:message.date,
@@ -784,9 +785,9 @@ export default class ContextMenuHelper {
 								}
 								//Send image and message to discord
 								const formData = new FormData();
-								formData.append("image", blob, fileName+".png");
 								formData.append("message", JSON.stringify(json));
-								ApiController.call("discord/image", "POST", formData)
+								formData.append("image", blob, fileName+".png");
+								ApiController.call("discord/image", "POST", formData, false, 0, {"Content-Rype": "multipart/form-data"})
 								.then(result=> {
 									if(result.status == 200) {
 										StoreProxy.main.messageExportState = "discord";
