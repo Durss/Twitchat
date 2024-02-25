@@ -65,7 +65,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type IParameterContent from './IParameterContent';
 import DonorState from '@/components/user/DonorState.vue';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 
 @Component({
 	components:{
@@ -163,7 +163,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 			const headers = {
 				'App-Version': import.meta.env.PACKAGE_VERSION,
 			};
-			const {json} = await ApiController.call("auth/CSRFToken", "GET");
+			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 		}catch(e) {
 			this.$store.main.alert(this.$t("error.csrf_failed"));

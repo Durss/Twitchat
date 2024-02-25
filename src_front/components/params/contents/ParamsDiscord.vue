@@ -78,7 +78,7 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
@@ -110,7 +110,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
 	
 	public async beforeMount():Promise<void> {
-		const result = await ApiController.call("discord/link");
+		const result = await ApiHelper.call("discord/link");
 		if(result.json.linked === true) {
 			this.linkedToGuild = result.json.guildName;
 		}
@@ -160,7 +160,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	 */
 	public async validateCode():Promise<void> {
 		try {
-			const result = await ApiController.call("discord/code", "GET", {code:this.code});
+			const result = await ApiHelper.call("discord/code", "GET", {code:this.code});
 			if(result.status !== 200) {
 				this.linkErrorCode = result.json.errorCode || "UNKNOWN";
 			}else{
@@ -178,7 +178,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public async confirmLink():Promise<void> {
 		this.submitting = true;
 		try {
-			const result = await ApiController.call("discord/code", "POST", {code:this.code}, false);
+			const result = await ApiHelper.call("discord/code", "POST", {code:this.code}, false);
 			if(result.status !== 200) {
 				this.channelName = result.json.channelName!;
 				this.linkErrorCode = result.json.errorCode || "UNKNOWN";
@@ -198,7 +198,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public async unlink():Promise<void> {
 		this.submitting = true;
 		try {
-			const result = await ApiController.call("discord/link", "DELETE");
+			const result = await ApiHelper.call("discord/link", "DELETE");
 			if(result.json.success) {
 				this.linkedToGuild = "";
 				this.$store.auth.twitch.user.discordLinked = false;
@@ -229,7 +229,7 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	}
 
 	private async listChannels():Promise<void> {
-		const res = await ApiController.call("discord/channels");
+		const res = await ApiHelper.call("discord/channels");
 		if(res.status == 200) {
 			this.channelList = res.json.channelList;
 		}

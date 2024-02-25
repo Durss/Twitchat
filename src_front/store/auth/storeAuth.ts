@@ -3,7 +3,7 @@ import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import ApiController from "@/utils/ApiController";
+import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import Utils from "@/utils/Utils";
 import PatreonHelper from "@/utils/patreon/PatreonHelper";
@@ -57,7 +57,7 @@ export const storeAuth = defineStore('auth', {
 			//Refresh token if it's going to expire within the next 5 minutes
 			if(twitchAuthResult) {
 				try {
-					const res 			= await ApiController.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});
+					const res 			= await ApiHelper.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});
 					twitchAuthResult	= res.json;
 				}catch(error) {
 					if(callback) callback(false);
@@ -103,7 +103,7 @@ export const storeAuth = defineStore('auth', {
 				let twitchAuthResult:TwitchDataTypes.AuthTokenResult = storeValue? JSON.parse(storeValue) : undefined;
 				if(code) {
 					//Convert oAuth code to access_token
-					const res = await ApiController.call("auth/twitch", "GET", {code});
+					const res = await ApiHelper.call("auth/twitch", "GET", {code});
 					twitchAuthResult = res.json;
 					twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
 					DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
@@ -148,7 +148,7 @@ export const storeAuth = defineStore('auth', {
 
 				if(Config.instance.BETA_MODE) {
 					window.setInitMessage("checking beta access permissions");
-					const res = await ApiController.call("beta/user", "GET", {uid:userRes.user_id});
+					const res = await ApiHelper.call("beta/user", "GET", {uid:userRes.user_id});
 					if(res.status != 200 || res.json.data.beta !== true) {
 						if(cb) cb(false, true);
 						else router.push({name:"login", params:{betaReason:"true"}});
@@ -302,7 +302,7 @@ export const storeAuth = defineStore('auth', {
 				upgrade:false,
 				isPremiumDonor:false,
 			}
-			const res = await ApiController.call("user");
+			const res = await ApiHelper.call("user");
 
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;

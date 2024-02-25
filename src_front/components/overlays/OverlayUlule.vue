@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -52,7 +52,7 @@ export default class OverlayUlule extends Vue {
 		this.currency = Utils.getQueryParameterByName("currency") || "$";
 
 		try {
-			const apiRes = await ApiController.call("ulule/project", "GET", {project});
+			const apiRes = await ApiHelper.call("ulule/project", "GET", {project});
 			if(apiRes.status == 200) {
 				const projectData = apiRes.json;
 				this.title = Utils.getQueryParameterByName("title") || projectData.name_en || projectData.name_fr || projectData.name_ca || projectData.name_de || projectData.name_es || projectData.name_it || projectData.name_pt || projectData.name_nl;

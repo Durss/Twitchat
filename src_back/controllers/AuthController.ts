@@ -44,7 +44,6 @@ export default class AuthController extends AbstractController {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
-
 	/**
 	 * Generates an access token from an auth code for a Twitch session
 	 * 

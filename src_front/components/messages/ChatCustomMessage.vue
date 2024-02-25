@@ -48,7 +48,7 @@ import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import Utils from '@/utils/Utils';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Database from '@/store/Database';
 import gsap from 'gsap';
 
@@ -124,7 +124,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 				this.loading = true;
 				const message = await Utils.parseGlobalPlaceholders(button.message || "");
 				try {
-					const res = await ApiController.call("discord/answer", "POST", {message:message, data:button.data}, false);
+					const res = await ApiHelper.call("discord/answer", "POST", {message:message, data:button.data}, false);
 					if(res.status == 200) {
 						this.messageData.actions = [];
 						Database.instance.updateMessage(this.messageData);

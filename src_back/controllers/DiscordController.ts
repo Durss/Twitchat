@@ -238,7 +238,7 @@ export default class DiscordController extends AbstractController {
 				body.content += "\n**__Message__**:";
 				body.content += "```"+json.message.replace('`', '\`')+"```";
 			}
-			console.log(body);
+			
 			//Send to discord
 			await this._rest.post(Routes.channelMessages(guild.logChanTarget), {body,files:[upload]});
 		}catch(error) {

@@ -3,7 +3,7 @@ import StoreProxy from "@/store/StoreProxy";
 import { TriggerTypes } from "@/types/TriggerActionDataTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import ApiController from "@/utils/ApiController";
+import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
 import OBSWebsocket from "@/utils/OBSWebsocket";
 import Utils from "@/utils/Utils";
@@ -759,7 +759,7 @@ export default class MessengerProxy {
 				if(users.length == 0) {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
-					const res = await ApiController.call("user/data", "GET", {uid:users[0].id}, false);
+					const res = await ApiHelper.call("user/data", "GET", {uid:users[0].id}, false);
 					if(res.status === 200) {
 						if(cmd === "/loaduserdata") {
 							DataStore.loadFromJSON(res.json.data);

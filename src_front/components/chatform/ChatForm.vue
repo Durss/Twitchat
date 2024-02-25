@@ -292,7 +292,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
 import TTSUtils from '@/utils/TTSUtils';
@@ -528,7 +528,7 @@ export default class ChatForm extends Vue {
 		// console.log(lande("joyeux anniversaire !"));
 		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
 		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
-		// ApiController.call("google/translate", "GET", obj, false)
+		// ApiHelper.call("google/translate", "GET", obj, false)
 		// .then(res=>{
 		// 	console.log("Translated", res.json.data.translation);
 		// });
@@ -742,7 +742,7 @@ export default class ChatForm extends Vue {
 		
 		if(isAdmin && cmd == "/tenorgifload") {
 			console.log(this.$store.chat.messages);
-			console.log(await ApiController.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
+			console.log(await ApiHelper.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
 		

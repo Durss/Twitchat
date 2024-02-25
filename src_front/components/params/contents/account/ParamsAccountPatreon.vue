@@ -64,7 +64,7 @@
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -88,7 +88,7 @@ export default class ParamsAccountPatreon extends Vue {
 	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
-		const {json} = await ApiController.call("patreon/isApiDown");
+		const {json} = await ApiHelper.call("patreon/isApiDown");
 		this.patreonDown = json.data.isDown === true;
 		
 		
@@ -97,7 +97,7 @@ export default class ParamsAccountPatreon extends Vue {
 		if(authParams) {
 			this.authenticating = true;
 
-			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:authParams.csrf});
+			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:authParams.csrf});
 			if(!csrf.success) {
 				this.$store.main.alert(csrf.message || "Patreon authentication failed");
 			}else{
@@ -122,7 +122,7 @@ export default class ParamsAccountPatreon extends Vue {
 	public async authenticate():Promise<void> {
 		this.redirecting = true;
 		
-		const {json} = await ApiController.call("auth/CSRFToken");
+		const {json} = await ApiHelper.call("auth/CSRFToken");
 		this.csrfToken = json.token;
 		const url = new URL("https://www.patreon.com/oauth2/authorize");
 		url.searchParams.append("response_type", "code");

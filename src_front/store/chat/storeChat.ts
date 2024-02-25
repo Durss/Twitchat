@@ -4,7 +4,7 @@ import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -796,7 +796,7 @@ export const storeChat = defineStore('chat', {
 					const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 					if(lang && !spokenLanguages.includes(lang.iso1)) {
 						const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
-						ApiController.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
+						ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
 						.then(res=>{
 							if(res.json.data.translation) {
 								translatable.translation = {

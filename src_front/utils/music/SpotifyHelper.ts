@@ -8,7 +8,7 @@ import PublicAPI from "@/utils/PublicAPI";
 import Utils from "@/utils/Utils";
 import type { JsonObject } from "type-fest";
 import { reactive } from "vue";
-import ApiController from "../ApiController";
+import ApiHelper from "../ApiHelper";
 import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
 
 /**
@@ -108,7 +108,7 @@ export default class SpotifyHelper {
 	 */
 	public async startAuthFlow():Promise<void> {
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
-		const {json} = await ApiController.call("auth/CSRFToken");
+		const {json} = await ApiHelper.call("auth/CSRFToken");
 
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		const url = new URL("https://accounts.spotify.com/authorize");

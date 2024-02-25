@@ -10,7 +10,7 @@ import Utils from "./Utils";
 /**
 * Created : 13/07/2023 
 */
-export default class ApiController {
+export default class ApiHelper {
 	
 	constructor() {
 	}

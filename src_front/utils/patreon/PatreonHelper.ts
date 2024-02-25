@@ -1,7 +1,7 @@
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { reactive } from "vue";
-import ApiController from "../ApiController";
+import ApiHelper from "../ApiHelper";
 
 /**
 * Created : 13/07/2023 
@@ -70,7 +70,7 @@ export default class PatreonHelper {
 	 * @param code 
 	 */
 	public async authenticate(code:string):Promise<void> {
-		const res = await ApiController.call("patreon/authenticate", "POST", {code:code, redirect_uri:this.redirectURI});
+		const res = await ApiHelper.call("patreon/authenticate", "POST", {code:code, redirect_uri:this.redirectURI});
 
 		if(res.status == 200) {
 			this._token = {
@@ -96,7 +96,7 @@ export default class PatreonHelper {
 	public async getIsMember() {
 		if(!this._token) return null;
 		
-		const res = await ApiController.call("patreon/isMember", "GET", {token:this._token.access_token});
+		const res = await ApiHelper.call("patreon/isMember", "GET", {token:this._token.access_token});
 		this._isMember = res.json.data.isMember;
 		if(this._isMember) {
 			StoreProxy.chat.cleanupDonationRelatedMessages();
@@ -117,7 +117,7 @@ export default class PatreonHelper {
 	 * Refreshes access token
 	 */
 	private async refreshToken():Promise<void> {
-		const res = await ApiController.call("patreon/refresh_token", "POST", {token:this._token?.refresh_token});
+		const res = await ApiHelper.call("patreon/refresh_token", "POST", {token:this._token?.refresh_token});
 		if(res.status == 200 && res.json) {
 			this._token = {
 				access_token: res.json.data.access_token,

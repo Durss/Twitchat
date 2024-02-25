@@ -149,7 +149,7 @@ import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
@@ -262,7 +262,7 @@ export default class ChatAd extends Vue {
 	public async makeDonationPublic():Promise<void> {
 		this.loading = true;
 		try {
-			ApiController.call("user/donor/anon", "POST", {public:true});
+			ApiHelper.call("user/donor/anon", "POST", {public:true});
 		}catch(error) {
 		}
 		this.loading = false;

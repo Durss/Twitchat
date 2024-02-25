@@ -513,7 +513,7 @@ import TTButton from '@/components/TTButton.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import Icon from '@/components/Icon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import { Component, Vue } from 'vue-facing-decorator';
 import Login from './Login.vue';
 import DataStore from '@/store/DataStore';
@@ -568,7 +568,7 @@ export default class PrivacyPolicy extends Vue {
 
 	public downloadData():void {
 		this.downloadingData = true;
-		ApiController.call("user/data", "GET").then(async (result) => {
+		ApiHelper.call("user/data", "GET").then(async (result) => {
 			if(result.json.success) {
 				const data = JSON.stringify(result.json.data);
 				Utils.downloadFile("twitchat_data.json", data);
@@ -585,7 +585,7 @@ export default class PrivacyPolicy extends Vue {
 		this.$confirm("Delete your data?",
 		"You will be logged out and all your Twitchat parameters will be erased from Twitchat server and from your browser storage.<br><br><strong>This cannot be undone</strong>!")
 		.then(()=> {
-			ApiController.call("user/data", "DELETE").then(()=>{
+			ApiHelper.call("user/data", "DELETE").then(()=>{
 				this.deletingData = false;
 				this.deleteDone = true;
 				DataStore.clear();

@@ -4,7 +4,7 @@ import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -154,7 +154,7 @@ export const storeMain = defineStore("main", {
 			//Load app configs (cliend ID, scopes, ...)
 			window.setInitMessage("loading configs");
 			try {
-				const res = await ApiController.call("configs");
+				const res = await ApiHelper.call("configs");
 				jsonConfigs = res.json;
 			}catch(error) {
 				this.alert("Unable to contact server :(", true, true);
@@ -285,7 +285,7 @@ export const storeMain = defineStore("main", {
 			// 	// "Content-Type":"text/event-stream",
 			// 	"Connection":"keep-alive"
 			// };
-			// ApiController.call("sse/register", "POST", {test:"oké"}, true, 10, headers);
+			// ApiHelper.call("sse/register", "POST", {test:"oké"}, true, 10, headers);
 			const evtSource = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+StoreProxy.auth.twitch.access_token);
 			evtSource.onmessage = (event) => {
 				try {

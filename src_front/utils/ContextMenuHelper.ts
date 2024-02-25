@@ -14,7 +14,7 @@ import domtoimage from 'dom-to-image-more';
 import Utils from "./Utils";
 import Config from "./Config";
 import lande from "lande";
-import ApiController from "./ApiController";
+import ApiHelper from "./ApiHelper";
 import Database from "@/store/Database";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import YoutubeHelper from "./youtube/YoutubeHelper";
@@ -559,7 +559,7 @@ export default class ContextMenuHelper {
 	 */
 	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
-		ApiController.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
+		ApiHelper.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.status == 401) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("premium.restricted_access"));
@@ -787,7 +787,7 @@ export default class ContextMenuHelper {
 								const formData = new FormData();
 								formData.append("message", JSON.stringify(json));
 								formData.append("image", blob, fileName+".png");
-								ApiController.call("discord/image", "POST", formData, false, 0, {"Content-Rype": "multipart/form-data"})
+								ApiHelper.call("discord/image", "POST", formData, false, 0, {"Content-Rype": "multipart/form-data"})
 								.then(result=> {
 									if(result.status == 200) {
 										StoreProxy.main.messageExportState = "discord";

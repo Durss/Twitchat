@@ -13,7 +13,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import { watch } from 'vue';
 import { Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
@@ -44,7 +44,7 @@ export default class DonorPublicState extends Vue {
 		if(this.isDonor) {
 			//Load current anon state of the user's donation
 			try {
-				const {json} = await ApiController.call("user/donor/anon");
+				const {json} = await ApiHelper.call("user/donor/anon");
 				if(json.success === true) {
 					this.publicDonation = json.data.public === true;
 				}
@@ -58,7 +58,7 @@ export default class DonorPublicState extends Vue {
 
 	private async updateDonationState():Promise<void> {
 		try {
-			await ApiController.call("user/donor/anon", "POST", {public:this.publicDonation});
+			await ApiHelper.call("user/donor/anon", "POST", {public:this.publicDonation});
 			this.$emit("change");
 		}catch(error) {
 		}

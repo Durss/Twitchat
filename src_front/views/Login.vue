@@ -94,7 +94,7 @@ import TTButton from '@/components/TTButton.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import ScopeSelector from '@/components/login/ScopeSelector.vue';
 import DataStore from '@/store/DataStore';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -180,7 +180,7 @@ export default class Login extends Vue {
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const res = await ApiController.call("auth/CSRFToken", "POST", {token:csrfToken});
+				const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
 				if(!res.json.success) {
 					if(res.json.message) this.$store.main.alert(res.json.message);
 					this.authenticating = false;
@@ -249,7 +249,7 @@ export default class Login extends Vue {
 	public async generateCSRF(redirect:boolean = false):Promise<void> {
 		this.generatingCSRF = true;
 		try {
-			const {json} = await ApiController.call("auth/CSRFToken", "GET");
+			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 			this.onScopesUpdate
 		}catch(e) {
@@ -291,7 +291,7 @@ export default class Login extends Vue {
 	public transferData():void {
 		this.$confirm(this.$t("login.transfer_confirm_title"), this.$t("login.transfer_confirm_description")).then(async ()=>{
 			this.transferingData = true;
-			const res = await ApiController.call("beta/user/migrateToProduction", "POST");
+			const res = await ApiHelper.call("beta/user/migrateToProduction", "POST");
 			if(res.status == 200) {
 				this.transferComplete = true;
 			}else{
@@ -305,7 +305,7 @@ export default class Login extends Vue {
 	 * Check if the user has data on beta server that can be migrated to production
 	 */
 	public async checkIfCanMigrate():Promise<void> {
-		const res = await ApiController.call("beta/user/hasData");
+		const res = await ApiHelper.call("beta/user/hasData");
 		if(res.status === 200) {
 			const json = res.json;
 			if(json.success) {

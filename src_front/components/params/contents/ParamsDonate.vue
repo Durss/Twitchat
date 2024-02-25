@@ -160,7 +160,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import { watch } from 'vue';
 import { Component, Vue } from 'vue-facing-decorator';
@@ -315,7 +315,7 @@ export default class ParamsDonate extends Vue {
 					this.loading = true;
 					this.criticalError = false;
 					try {
-						const res = await ApiController.call("paypal/create_order", "POST", { intent: "capture", amount:this.amount, currency:this.currency });
+						const res = await ApiHelper.call("paypal/create_order", "POST", { intent: "capture", amount:this.amount, currency:this.currency });
 						this.loading = false;
 						if(res.json.success) {
 							return res.json.data.orderId;
@@ -344,7 +344,7 @@ export default class ParamsDonate extends Vue {
 						obj[key] = data[key as orderKeys] as string;
 					}
 					try {
-						const orderRes = await ApiController.call("paypal/complete_order", "POST", obj);
+						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj);
 						if(orderRes.json.success === true) {
 							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
 							this.$store.auth.twitch.user.donor.state = true;

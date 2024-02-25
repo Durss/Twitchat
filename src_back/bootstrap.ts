@@ -19,6 +19,7 @@ import GoogleController from './controllers/GoogleController';
 import SSEController from './controllers/SSEController';
 import DiscordController from './controllers/DiscordController';
 import I18n from './utils/I18n';
+import ApiController from './controllers/ApiController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -56,6 +57,8 @@ server.register(FastifySSEPlugin)
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(()=> {
 	//Create controllers
+	const discord = new DiscordController(server).initialize();
+	new UserController(server,discord).initialize();
 	new MiddlewareController(server).initialize();
 	new FileServeController(server).initialize();
 	new AuthController(server).initialize();
@@ -68,8 +71,7 @@ server.register(FastifySSEPlugin)
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();
-	const discord = new DiscordController(server).initialize();
-	new UserController(server,discord).initialize();
+	new ApiController(server).initialize();
 	
 	//Start server
 	start();

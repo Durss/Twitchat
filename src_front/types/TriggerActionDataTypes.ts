@@ -884,37 +884,29 @@ export interface TriggerScheduleData {
 	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
+export interface TriggerActionStreamInfoData extends TriggerActionData{
+}
+
 /**
  * Represents a tree structure item.
  * Either a trigger folder or a trigger item entry
  */
 export interface TriggerTreeItemData{
-	type:"folder"|"trigger";
-	id:string;
-	/**
-	 * Folder's name
-	 */
-	name?:string;
-	/**
-	 * Trigger ID for a "trigger" type
-	 */
-	triggerId?:string;
-	/**
-	 * Set to false to disable triggers within this folder
-	 */
-	enabled?:boolean;
-	/**
-	 * Is the folder expanded?
-	 */
-	expand?:boolean;
-	/**
-	 * Custom folder color
-	 */
-	color?:string;
-	/**
-	 * Folder's children
-	 */
-	children?:TriggerTreeItemData[];
+	type:"discord";
+	discordAction:{
+		/**
+		 * Define the discord action type to execute
+		 */
+		action:"message";
+		/**
+		 * Message to send to discord
+		 */
+		message:string;
+		/**
+		 * Channel ID to send the message to
+		 */
+		channelId:string;
+	}
 }
 
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];
