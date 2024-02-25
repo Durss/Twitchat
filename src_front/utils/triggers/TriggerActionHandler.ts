@@ -2317,6 +2317,13 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"✔ Extension updated successfuly"});
 						}
 					}
+				}else
+
+				//Handle twitch extension action
+				if(step.type == "discord") {
+					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
+					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent);
+					ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
 				}
 				
 			}catch(error:any) {

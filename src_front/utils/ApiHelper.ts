@@ -398,4 +398,10 @@ type ApiEndpoints =  {
 			channelList:{id:string, name:string}[];
 		}
 	};
+	"discord/message": {
+		POST: {
+			success:boolean;
+			messageId:string;
+		}
+	};
 }

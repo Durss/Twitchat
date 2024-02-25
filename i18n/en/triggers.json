@@ -142,6 +142,8 @@
 				"action_music_tt": "You need to connect Spotify on the <strong>Connexions</strong> section",
 				"action_voicemod": "Control Voicemod",
 				"action_voicemod_tt": "You need to connect with Voicemod",
+				"action_discord": "Discord",
+				"action_discord_tt": "You need to link Twitchat with Discord",
 				"action_http": "HTTP call",
 				"action_ws": "Websocket message",
 				"action_poll": "Start poll",
@@ -174,6 +176,10 @@
 				"param_alertCD": "Tell users if they're cooled down",
 				"commands_list":"Chat commands",
 				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command"
+			},
+			"discord": {
+				"param_message": "Message to send to Discord",
+				"param_channel": "Discord channel to send message to"
 			},
 			"highlight": {
 				"header": "You need to configure the {LINK} to use this action.",

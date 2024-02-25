@@ -125,6 +125,12 @@
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</TTButton>
 				
+				<TTButton class="button" @click.capture="selectActionType('discord')"
+					icon="discord"
+					v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_triggerAction_discord'}"
+					:disabled="!discordEnabled"
+					v-tooltip="discordEnabled? '' : $t('triggers.actions.common.action_discord_tt')">{{ $t('triggers.actions.common.action_discord') }}</TTButton>
+				
 				<TTButton class="button" @click.capture="selectActionType('goxlr')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
 					icon="goxlr" premium
@@ -185,6 +191,7 @@
 		<TriggerActionClickHeatEntry v-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
 		<TriggerActionRewardEntry v-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionExtensionEntry v-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
+		<TriggerActionDiscordEntry v-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -239,6 +246,7 @@ import TriggerActionVoicemodEntry from './entries/TriggerActionVoicemodEntry.vue
 import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
+import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 
 @Component({
 	components:{
@@ -264,6 +272,7 @@ import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.v
 		TriggerActionCustomBadge,
 		TriggerActionRandomEntry,
 		TriggerActionTriggerEntry,
+		TriggerActionDiscordEntry,
 		TriggerActionVoicemodEntry,
 		TriggerActionClickHeatEntry,
 		TriggerActionExtensionEntry,
@@ -300,6 +309,7 @@ export default class TriggerActionEntry extends Vue {
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
+	public get discordEnabled():boolean { return this.$store.auth.twitch.user.discordLinked === true; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }

@@ -47,6 +47,7 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/code', async (request, response) => await this.registerCode(request, response));
 		this.server.post('/api/discord/answer', async (request, response) => await this.postAnswer(request, response));
 		this.server.post('/api/discord/interaction', async (request, response) => await this.postInteraction(request, response));
+		this.server.post('/api/discord/message', async (request, response) => await this.postMessage(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
 		
 		this.initDatabase();
@@ -136,6 +137,35 @@ export default class DiscordController extends AbstractController {
 			.status(200)
 			.send(JSON.stringify({success:true,  linked:false}));
 		}
+	}
+
+	/**
+	 * Post a message to the given channel
+	 */
+	private async postMessage(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
+		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
+		//Check if token is oAuth valid
+		if(!user || !guild) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
+		const params = request.body as any;
+
+		const body = {
+			content:params.message
+		}
+		
+		//Send to discord
+		const message = await this._rest.post(Routes.channelMessages(params.channelId), {body});
+		console.log(message);
+
+		response.header('Content-Type', 'application/json')
+		.status(200)
+		.send(JSON.stringify({success:true}));
 	}
 
 	/**
@@ -448,7 +478,7 @@ export default class DiscordController extends AbstractController {
 		.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.link.description"))
 		.addStringOption(option => {
-			option.setName("channel")
+			option.setName("twitch_login")
 			option.setDescription(I18n.instance.get("en", "server.discord.commands.link.option_channel"))
 			.setRequired(true);
 			
@@ -560,11 +590,11 @@ export default class DiscordController extends AbstractController {
 		}
 
 		//Create missing commands
-		if(missingCmds.length > 0) {
-			Logger.warn("Creating commands "+missingCmds.map(v=>v.name).join(", "));
+		// if(missingCmds.length > 0) {
+		// 	Logger.warn("Creating commands "+missingCmds.map(v=>v.name).join(", "));
 			// await this._rest.put(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID), {body:commandList});
 			await this._rest.put(Routes.applicationCommands(Config.credentials.discord_client_id), {body:commandList});
-		}
+		// }
 
 		//Reload a fresh command list to get the ID of the register command
 		const freshCommandList:SlashCommandDefinition[] = await this._rest.get(Routes.applicationCommands(Config.credentials.discord_client_id)) as SlashCommandDefinition[];
@@ -580,7 +610,7 @@ export default class DiscordController extends AbstractController {
 	 * @param command 
 	 */
 	private async configureTwitchChannel(request:FastifyRequest, response:FastifyReply, command:SlashCommandPayload):Promise<void> {
-		const channel = (command.data.options.find(v=>v.name == "channel")?.value || "").trim();
+		const channel = (command.data.options.find(v=>v.name == "twitch_login")?.value || "").trim();
 		const users = await TwitchUtils.loadUsers([channel]);
 		if(users == false) {
 			response.status(200).send({

@@ -52,6 +52,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHeatClickData
 								| TriggerActionRewardData
 								| TriggerActionExtensionData
+								| TriggerActionDiscordData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -175,6 +176,13 @@ export interface TriggerData {
 	 * @deprecated Only here for typings on data migration.
 	*/
 	prevKey?:string;
+}
+
+export interface TriggerScheduleData {
+	type:TriggerScheduleTypesValue|"0";
+	repeatDuration:number;
+	repeatMinMessages:number;
+	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
 export interface TriggerChatCommandParam {
@@ -853,7 +861,7 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	disableAfterExec?:boolean;
 }
 
-export interface TriggerActionStreamInfoData extends TriggerActionData{
+export interface TriggerActionStreamInfoData extends TriggerActionData {
 	type:"stream_infos";
 	/**
 	 * New stream title
@@ -877,21 +885,10 @@ export interface TriggerActionStreamInfoData extends TriggerActionData{
 	labels?:{id:string, enabled:boolean}[];
 }
 
-export interface TriggerScheduleData {
-	type:TriggerScheduleTypesValue|"0";
-	repeatDuration:number;
-	repeatMinMessages:number;
-	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
-}
-
-export interface TriggerActionStreamInfoData extends TriggerActionData{
-}
-
 /**
- * Represents a tree structure item.
- * Either a trigger folder or a trigger item entry
+ * Represents a discord action data
  */
-export interface TriggerTreeItemData{
+export interface TriggerActionDiscordData extends TriggerActionData {
 	type:"discord";
 	discordAction:{
 		/**
@@ -907,6 +904,39 @@ export interface TriggerTreeItemData{
 		 */
 		channelId:string;
 	}
+}
+
+/**
+ * Represents a tree structure item.
+ * Either a trigger folder or a trigger item entry
+ */
+export interface TriggerTreeItemData{
+	type:"folder"|"trigger";
+	id:string;
+	/**
+	 * Folder's name
+	 */
+	name?:string;
+	/**
+	 * Trigger ID for a "trigger" type
+	 */
+	triggerId?:string;
+	/**
+	 * Set to false to disable triggers within this folder
+	 */
+	enabled?:boolean;
+	/**
+	 * Is the folder expanded?
+	 */
+	expand?:boolean;
+	/**
+	 * Custom folder color
+	 */
+	color?:string;
+	/**
+	 * Folder's children
+	 */
+	children?:TriggerTreeItemData[];
 }
 
 export const AD_APPROACHING_INTERVALS = [5*60000, 4*60000, 3*60000, 2*60000, 1*60000, 30000, 20000, 10000, 5000];

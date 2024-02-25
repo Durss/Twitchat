@@ -88,10 +88,11 @@
 		},
 		"ad_block":"Une requête a été bloquée par votre navigateur.\nIl est très fortement conseillé de désactiver tout bloqueur de publicité pour Twitchat.\nIls sont connus pour pour casser les notifications de publicité en approche, empêcher le lancement de publicités, couper la connexion au tchat aléatoirement et dans les pires cas bloquer toutes les requêtes à l'API Twitch.\n\nTwitchat ne collecte ni donnée personnelle ni donnée analytique.",
 		"discord":{
+			"channels_loading_error":"Une erreur est survenue lors de la récupération de vos salons discord",
 			"UNKNOWN":"Une erreur inconnue est survenue :(",
 			"INVALID_TOKEN":"Code invalide",
 			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
-			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le chan \"{CHANNEL}\""
+			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon \"{CHANNEL}\""
 		}
 	}
 }

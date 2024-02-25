@@ -602,6 +602,15 @@ import Ajv from "ajv";
 										slotType: {enum: ["","component", "overlay", "panel"]},
 									}
 								},
+								discordAction: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: {enum: ["message"]},
+										message: {type:"string", maxLength:50},
+										channelId: {type:"string", maxLength:100},
+									}
+								},
 							}
 						},
 					}

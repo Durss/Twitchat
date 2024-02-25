@@ -142,6 +142,8 @@
 				"action_music_tt": "Vous devez connecter Spotify dans les <strong>Connexions</strong>",
 				"action_voicemod": "Contrôler Voicemod",
 				"action_voicemod_tt": "Vous devez connecter Voicemod dans les paramètres",
+				"action_discord": "Discord",
+				"action_discord_tt": "Vous devez lier Twitchat à Discord",
 				"action_http": "Appel HTTP",
 				"action_ws": "Message Websocket",
 				"action_poll": "Lancer un sondage",
@@ -174,6 +176,10 @@
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
 				"commands_list": "Commandes de tchat",
 				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
+			},
+			"discord": {
+				"param_message": "Message à envoyer sur Discord",
+				"param_channel": "Salon Discord dans lequel envoyer le message"
 			},
 			"highlight": {
 				"header": "{LINK} de mise en avant pour utiliser cette action.",
