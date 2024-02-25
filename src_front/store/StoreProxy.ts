@@ -2077,8 +2077,9 @@ export interface IQnaActions {
 
 
 export interface IDiscordState {
-	chatCols:number[],
-	logChanTarget:string,
+	chatCols:number[];
+	logChanTarget:string;
+	reactionsEnabled:boolean;
 }
 
 export interface IDiscordGetters {

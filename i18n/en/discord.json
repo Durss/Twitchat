@@ -1,11 +1,11 @@
 {
 	"discord":{
 		"header":"Link Twitchat with Discord for an easier communication with your mods.",
-		"linked":"Twitchat is linked to {GUILD} Discord server",
-		"unkinkBt":"Unlink",
+		"unkinkBt":"Unlink from {GUILD}",
 		"install_bt":"Install Twitchat on your Discord",
 		"install_code":"Use {CMD} command on Discord, and enter the given code bellow",
 		"install_confirm":"Do you really want to link Twitchat with the following Discord server?",
+		"reactions":"Permettre d'ajouter une réaction aux messages reçus",
 		"channel_logs":"Discord chan to save chat messages to",
 		"channel_logs_info":"To save a message on Discord, right click on it and click \"{OPTION}\" option.\nCan be useful to keep a trace of toxic messages or users.",
 		"chat_col":"Chat columns in which messages received from Discord should be displayed"

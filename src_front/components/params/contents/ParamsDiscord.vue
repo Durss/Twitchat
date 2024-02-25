@@ -12,11 +12,11 @@
 		</section>
 		
 		<template v-else-if="linkedToGuild">
-			<section class="card-item linked">
-				<i18n-t scope="global"  tag="p" keypath="discord.linked">
-					<template #GUILD><mark>{{ linkedToGuild }}</mark></template>
-				</i18n-t>
-				<TTButton icon="cross" alert @click="unlink()" :loading="submitting">{{ $t("discord.unkinkBt") }}</TTButton>
+			<TTButton class="unlinkBt" icon="cross" alert @click="unlink()" :loading="submitting">{{ $t("discord.unkinkBt", {GUILD:linkedToGuild}) }}</TTButton>
+
+			<section class="card-item reactions">
+				<Icon name="emote" />
+				<ParamItem :paramData="param_reactions" noBackground v-model="$store.discord.reactionsEnabled" @change="saveParams()" />
 			</section>
 
 			<section class="card-item colSelector">
@@ -34,7 +34,7 @@
 				<ul>
 					<li v-for="chan in channelList" :key="chan.id">
 						<TTButton :secondary="$store.discord.logChanTarget == chan.id"
-						@click="$store.discord.logChanTarget = chan.id; $store.discord.saveParams()">{{ chan.name }}</TTButton>
+						@click="$store.discord.logChanTarget = chan.id; saveParams()">{{ chan.name }}</TTButton>
 					</li>
 				</ul>
 				<div class="card-item info">
@@ -76,16 +76,19 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
-import type IParameterContent from './IParameterContent';
-import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
+import TTButton from '@/components/TTButton.vue';
 import ApiController from '@/utils/ApiController';
+import { Component, Vue } from 'vue-facing-decorator';
+import ParamItem from '../ParamItem.vue';
+import type IParameterContent from './IParameterContent';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
+		ParamItem,
 	},
 	emits:[],
 })
@@ -102,9 +105,8 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public linkLoading:boolean = false;
 	public linkConfirm:boolean = false;
 	public linkErrorCode:string = "";
-	// public discordChanId:string = "";
-	// public cols:number[] = [];
 	public channelList:{id:string, name:string}[] = [];
+	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
 	
 	public async beforeMount():Promise<void> {
 		const result = await ApiController.call("discord/link");
@@ -214,6 +216,13 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 		}else{
 			this.$store.discord.chatCols.splice(arrayIndex, 1);
 		}
+		this.saveParams();
+	}
+	
+	/**
+	 * Saves params
+	 */
+	public async saveParams():Promise<void> {
 		this.$store.discord.saveParams();
 	}
 
@@ -222,6 +231,9 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 		if(res.status == 200) {
 			this.channelList = res.json.channelList;
 		}
+
+		await this.$nextTick()
+		this.saveParams();
 	}
 
 }
@@ -239,12 +251,8 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 		margin: auto;
 	}
 
-	.linked {
-		text-align: center;
-		align-items: center;
-		.icon {
-			height: 1.5em;
-		}
+	.unlinkBt {
+		align-self: center;
 	}
 
 	section:not(.codeForm) {

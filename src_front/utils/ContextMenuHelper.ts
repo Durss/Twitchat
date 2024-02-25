@@ -788,10 +788,15 @@ export default class ContextMenuHelper {
 								formData.append("message", JSON.stringify(json));
 								ApiController.call("discord/image", "POST", formData)
 								.then(result=> {
-									StoreProxy.main.messageExportState = "discord";
+									if(result.status == 200) {
+										StoreProxy.main.messageExportState = "discord";
+									}else{
+										StoreProxy.main.messageExportState = "error";
+									}
 									clearTimeout(errorTimeout);
 								}).catch(error =>{
-									
+									StoreProxy.main.messageExportState = "error";
+									clearTimeout(errorTimeout);
 								});
 							});
 						}else{

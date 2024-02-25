@@ -82,8 +82,9 @@ export default class DiscordController extends AbstractController {
 	 */
 	public updateParams(uid:string, data:any):void {
 		const guild = DiscordController._twitchId2GuildId[uid];
-		guild.chatCols = data.chatCols;
-		guild.logChanTarget = data.logChanTarget;
+		guild.chatCols			= data.chatCols;
+		guild.logChanTarget		= data.logChanTarget;
+		guild.reactionsEnabled	= data.reactionsEnabled;
 		DiscordController._twitchId2GuildId[guild.guildID] = guild;
 		fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 		this.buildTwitchHashmap();
@@ -291,6 +292,7 @@ export default class DiscordController extends AbstractController {
 				guildChannelId:token.guildChannelID,
 				logChanTarget:"",
 				chatCols:[],
+				reactionsEnabled:false,
 			};
 			fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 			this.buildTwitchHashmap();
@@ -679,7 +681,7 @@ export default class DiscordController extends AbstractController {
 								theme:"alert",
 								data:{messageId:originalMessage.id, channelId:command.channel_id},
 							})
-						}else{
+						}else if(guild.reactionsEnabled !== false){
 							["👌","❤️","😂","😟","⛔"].forEach(reaction => {
 								actions.push({
 									actionType:"discord",
@@ -835,6 +837,7 @@ interface TwitchatGuild2Twitch {
 	guildID: string;
 	guildName: string;
 	guildChannelId: string;
+	reactionsEnabled: boolean;
 	logChanTarget: string;
 	chatCols: number[];
 }
