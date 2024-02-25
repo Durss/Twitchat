@@ -2319,11 +2319,21 @@ export default class TriggerActionHandler {
 					}
 				}else
 
-				//Handle twitch extension action
+				//Handle discord action
 				if(step.type == "discord") {
 					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
 					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent);
-					ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
+					logStep.messages.push({date:Date.now(), value:"Sending message: "+messageText});
+					try {
+						const res = await ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
+						if(res.json.success) {
+							logStep.messages.push({date:Date.now(), value:"✔ Message posted to discord"});
+						}else{
+							throw (new Error("posting failed"));
+						}
+					}catch(error) {
+						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+					}
 				}
 				
 			}catch(error:any) {

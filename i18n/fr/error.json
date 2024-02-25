@@ -90,6 +90,7 @@
 		"discord":{
 			"channels_loading_error":"Une erreur est survenue lors de la récupération de vos salons discord",
 			"UNKNOWN":"Une erreur inconnue est survenue :(",
+			"POST_FAILED":"L'envoi du message sur Discord a échoué",
 			"INVALID_TOKEN":"Code invalide",
 			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
 			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon \"{CHANNEL}\""

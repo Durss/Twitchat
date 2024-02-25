@@ -8,6 +8,8 @@
 		"reactions":"Allow to react on messages received",
 		"channel_logs":"Discord chan to save chat messages to",
 		"channel_logs_info":"To save a message on Discord, right click on it and click \"{OPTION}\" option.\nCan be useful to keep a trace of toxic messages or users.",
-		"chat_col":"Chat columns in which messages received from Discord should be displayed"
+		"chat_col":"Chat columns in which messages received from Discord should be displayed",
+		"quick_actions":"Add quick actions usable by right clicking a message",
+		"quick_actions_addBt":"Add quick action"
 	}
 }

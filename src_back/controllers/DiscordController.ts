@@ -160,12 +160,21 @@ export default class DiscordController extends AbstractController {
 		}
 		
 		//Send to discord
-		const message = await this._rest.post(Routes.channelMessages(params.channelId), {body});
-		console.log(message);
+		try {
+			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body})) as {id:string};
+			
+			if(!message.id) throw(new Error("Failed posting message"));
 
-		response.header('Content-Type', 'application/json')
-		.status(200)
-		.send(JSON.stringify({success:true}));
+			response.header('Content-Type', 'application/json')
+			.status(200)
+			.send(JSON.stringify({success:true, messageId:message.id}));
+			
+		}catch(error) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			return;
+		}
 	}
 
 	/**

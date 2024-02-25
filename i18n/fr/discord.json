@@ -8,6 +8,8 @@
 		"reactions":"Permettre d'ajouter une réaction aux messages reçus",
 		"channel_logs":"Salon Discord dans lequel enregistrer des messages de tchat",
 		"channel_logs_info":"Pour enregistrer un message sur Discord, faites click-droit dessus et cliquez sur l'option \"{OPTION}\".\nPermet de facilement conserver une trace des messages ou personnes toxiques.",
-		"chat_col":"Colonnes de tchat dans lesquelles afficher les messages reçus depuis Discord"
+		"chat_col":"Colonnes de tchat dans lesquelles afficher les messages reçus depuis Discord",
+		"quick_actions":"Ajoutez des actions rapides utilisables depuis un click droit sur un message",
+		"quick_actions_addBt":"Ajouter une action rapide"
 	}
 }

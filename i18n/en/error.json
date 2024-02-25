@@ -90,6 +90,7 @@
 		"discord":{
 			"channels_loading_error":"Something went wrong when loading Discord channel list",
 			"UNKNOWN":"An unexpected error occured :(",
+			"POST_FAILED":"Posting message to Discord failed",
 			"INVALID_TOKEN":"Invalid code",
 			"INVALID_USER":"You are not allowed to use this code",
 			"MISSING_ACCESS":"Twitchat bot does not have permission to write on channel \"{CHANNEL}\""

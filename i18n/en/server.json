@@ -1,7 +1,7 @@
 {
 	"server":{
 		"discord":{
-			"code":"## :link: Link Twitchat with Discord\nOpen Twitchat, and enter the following code under **parameters => discord**.\n## {CODE}\nThe code will expire in 1 minute.\n## :rotating_light: Discord permissions\nGo under `Parameters ► Integrations ► Twitchat` to define who can use the commands.\nPlease also make sure the bot has access to the chans you want it to answer.",
+			"code":"## :link: Link Twitchat with Discord\nOpen Twitchat, and enter the following code under **parameters => discord**.\n# `{CODE}`\nThe code will expire in 1 minute.\n## :rotating_light: Discord permissions\nGo under `Parameters ► Integrations ► Twitchat` to define who can use the commands.\nPlease also make sure the bot has access to the chans you want it to answer.",
 			"install_instructions":":no_entry: No twitch user has been linked to this discord.\nPlease use </{CMD}:{CMD_ID}> command to link your Twitchat account with this discord.",
 			"link_success":"## :white_check_mark: Link complete\nThis discord is now linked with `{LOGIN}` Twitchat account.\nUse </{CMD_SAY}:{CMD_SAY_ID}> command to send a message on Twitchat or </{CMD_ASK}:{CMD_ASK_ID}> command to send a message asking the streamer to answer by Yes or No.",
 			"guild_loading_failed":":no_entry: Cannot get guild details for guild ID `{GUILD}`",

@@ -30,6 +30,11 @@
 			</section>
 
 			<section class="card-item chanSelector">
+				<Icon name="commands" />{{$t("discord.quick_actions")}}
+				<ParamsDiscordQuickActions />
+			</section>
+
+			<section class="card-item chanSelector">
 				<Icon name="save" />{{$t("discord.channel_logs")}}
 				<ul>
 					<li v-for="chan in channelList" :key="chan.id">
@@ -83,12 +88,14 @@ import { Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ParamsDiscordQuickActions from './discord/ParamsDiscordQuickActions.vue';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ParamItem,
+		ParamsDiscordQuickActions,
 	},
 	emits:[],
 })
