@@ -1,0 +1,25 @@
+{
+	"server":{
+		"discord":{
+			"link_success":"## :white_check_mark: Link complete\nThis discord is now linked with `{LOGIN}` Twitchat account.\nUse </{CMD_SAY}:{CMD_SAY_ID}> command to send a message on Twitchat or </{CMD_ASK}:{CMD_ASK_ID}> command to send a message asking the streamer to answer by Yes or No.",
+			"code":"## Link Twitchat with Discord\nOpen Twitchat, and enter the following code under **parameters => discord**.\n## {CODE}\nThe code will expire in 1 minute",
+			"install_instructions":":no_entry: No twitch user has been linked to this discord.\nPlease use </{CMD}:{CMD_ID}> command to link your Twitchat account with this discord.",
+			"guild_loading_failed":":no_entry: Cannot get guild details for guild ID `{GUILD}`",
+			"twitch_user_not_found":":no_entry: No twitch user found with name `{CHANNEL}`",
+			"commands":{
+				"link":{
+					"description":"Link a Twitch account with this Discord server",
+					"option_channel":"Twitch account to link"
+				},
+				"say":{
+					"description":"Send a message to the streamer on Twitchat",
+					"option_message":"Message to send",
+					"option_style":"Message style"
+				},
+				"ask":{
+					"description":"Send a message to the streamer on Twitchat and ask them to reply Yes or No"
+				}
+			}
+		}
+	}
+}

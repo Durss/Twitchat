@@ -313,6 +313,7 @@ export const storeAuth = defineStore('auth', {
 			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
 			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
 			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
+			this.twitch.user.discordLinked			= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {
 			// 	this.twitch.user.donor.earlyDonor = 

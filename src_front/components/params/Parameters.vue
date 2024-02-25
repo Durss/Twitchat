@@ -100,6 +100,7 @@
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
+				<ParamsDiscord v-if="content == contentDiscord" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -154,6 +155,7 @@ import draggable from 'vuedraggable';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 import ParamsYoutube from './contents/ParamsYoutube.vue';
+import ParamsDiscord from './contents/ParamsDiscord.vue';
 
 @Component({
 	components:{
@@ -170,6 +172,7 @@ import ParamsYoutube from './contents/ParamsYoutube.vue';
 		ParamsGoXLR,
 		ParamsDonate,
 		ParamsValues,
+		ParamsDiscord,
 		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
@@ -214,6 +217,7 @@ export default class Parameters extends Vue {
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
 		{pinned:false, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
+		{pinned:false, icon:"discord", page:TwitchatDataTypes.ParameterPages.DISCORD, labelKey:'params.categories.discord', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_discord'}},
 		{pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary", fixed:true},
 		{pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium", fixed:true},
 	];
@@ -248,6 +252,7 @@ export default class Parameters extends Vue {
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
 	public get contentYoutube():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.YOUTUBE; }
+	public get contentDiscord():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DISCORD; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
@@ -298,6 +303,7 @@ export default class Parameters extends Vue {
 				if(sortedEntries.findIndex(v=>v.page == item.page) > -1) continue;
 				//Missing item, add it to the top
 				sortedEntries.unshift(item);
+				item.pinned = true;
 			}
 			this.menuEntries = sortedEntries;
 		}

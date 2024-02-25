@@ -1492,6 +1492,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
 	for (k in map) {
 		let entry = map[k]!;
+		if(entry.findIndex(v=>v.tag == "MY_LOGIN") == -1) {
+			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"});
+			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
 		}

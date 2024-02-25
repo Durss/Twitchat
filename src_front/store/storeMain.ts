@@ -288,8 +288,6 @@ export const storeMain = defineStore("main", {
 			// ApiController.call("sse/register", "POST", {test:"oké"}, true, 10, headers);
 			const evtSource = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+StoreProxy.auth.twitch.access_token);
 			evtSource.onmessage = (event) => {
-				console.log("ON EVENT");
-				console.log(event.data)
 				try {
 					const json = JSON.parse(event.data);
 					if(json.code == "AUTHENTICATION_FAILED") {
@@ -297,27 +295,36 @@ export const storeMain = defineStore("main", {
 						evtSource.close();
 					}
 					if(json.code == "MESSAGE") {
+						const chunksMessage = TwitchUtils.parseMessageToChunks(json.data.message || "", undefined, true);
+						const chunksQuote = !json.data.quote? [] : TwitchUtils.parseMessageToChunks(json.data.quote, undefined, true);
 						const message:TwitchatDataTypes.MessageCustomData = {
-							id:Utils.getUUID(),
-							channel_id:sAuth.twitch.user.id,
-							date:Date.now(),
-							platform:"twitchat",
-							type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
-							message:json.data.message,
+							id: Utils.getUUID(),
+							channel_id:StoreProxy.auth.twitch.user.id,
+							date: Date.now(),
+							platform: "twitchat",
+							col: json.data.col,
+							type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+							actions: json.data.actions,
+							message: json.data.message,
+							message_chunks: chunksMessage,
+							message_html: TwitchUtils.messageChunksToHTML(chunksMessage),
+							quote: json.data.quote,
+							quote_chunks: chunksQuote,
+							quote_html: TwitchUtils.messageChunksToHTML(chunksQuote),
+							highlightColor: json.data.highlightColor,
+							style:json.data.style,
 							icon:"discord",
 							user:{
 								name:json.data.username,
 							},
-							style:json.data.style,
-						}
-						sChat.addMessage(message)
+						};
+						sChat.addMessage(message);
 					}
 				}catch(error) {
 					//ignore
 				}
 			};
 			evtSource.onopen = (event) => {
-				console.log("ON OPEN");
 			}
 
 			//Warn the user about the automatic "ad" message sent every 2h
@@ -559,7 +566,8 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_CHAT_MESSAGE, (e:TwitchatEvent)=> {
 				const data = e.data as TwitchatDataTypes.MessageCustomDataAPI;
-				const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const chunksQuote = !data.quote? [] : TwitchUtils.parseMessageToChunks(data.quote, undefined, true);
 				const message:TwitchatDataTypes.MessageCustomData = {
 					id: Utils.getUUID(),
 					date: Date.now(),
@@ -567,8 +575,12 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 					actions: data.actions,
 					message: data.message,
-					message_chunks: chunks,
-					message_html: TwitchUtils.messageChunksToHTML(chunks),
+					message_chunks: chunksMessage,
+					message_html: TwitchUtils.messageChunksToHTML(chunksMessage),
+					quote: data.quote,
+					quote_chunks: chunksQuote,
+					quote_html: TwitchUtils.messageChunksToHTML(chunksQuote),
+					highlightColor: data.highlightColor,
 					col: data.col,
 					style: data.style,
 					icon: data.icon,
@@ -864,16 +876,16 @@ export const storeMain = defineStore("main", {
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
 			const sChat = StoreProxy.chat;
-			const sAuth = StoreProxy.auth;
 			const sHeat = StoreProxy.heat;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
 			const sUsers = StoreProxy.users;
 			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
-			const sTriggers = StoreProxy.triggers;
-			const sAutomod = StoreProxy.automod;
 			const sValues = StoreProxy.values;
+			const sDiscord = StoreProxy.discord;
+			const sAutomod = StoreProxy.automod;
+			const sTriggers = StoreProxy.triggers;
 			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
 			//Loading parameters from local storage and pushing them to current store
@@ -1115,6 +1127,12 @@ export const storeMain = defineStore("main", {
 			const heatDistortionParams = DataStore.get(DataStore.OVERLAY_DISTORTIONS);
 			if(heatDistortionParams) {
 				sHeat.distortionList = JSON.parse(heatDistortionParams);
+			}
+
+			//Init discord params
+			const discordParams = DataStore.get(DataStore.DISCORD_PARAMS);
+			if(discordParams) {
+				sDiscord.populateData(JSON.parse(discordParams));
 			}
 			
 

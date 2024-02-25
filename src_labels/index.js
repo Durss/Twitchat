@@ -54,6 +54,10 @@ for(let i=0; i < files.length; i++) {
 }
 const dest = path.join(__dirname, "../static/labels.json");
 fs.writeFileSync(dest, JSON.stringify(output), {encoding:"utf-8"});
+const dest2 = path.join(__dirname, "../dist/labels.json");
+if(fs.existsSync(dest2)) {
+	fs.writeFileSync(dest2, JSON.stringify(output), {encoding:"utf-8"});
+}
 
 console.log("\x1b[32m All files compiled to:", dest, "\x1b[0m");
 

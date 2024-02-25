@@ -30,9 +30,9 @@ export default class ApiController {
 	 * @param data 
 	 * @param method 
 	 */
-	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:any, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}):Promise<{status:number, json:ApiResponse<ApiEndpoints, U, M>}> {
+	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:FormData|any, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}):Promise<{status:number;json:ApiResponse<ApiEndpoints, U, M>}> {
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
-		if(!headers["Content-Type"]) {
+		if(!headers["Content-Type"] && !(data instanceof FormData)) {
 			headers["Content-Type"] = "application/json";
 		}
 		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
@@ -44,6 +44,9 @@ export default class ApiController {
 			headers,
 		}
 		if(data) {
+			if(data instanceof FormData) {
+				options.body = data;
+			}else
 			if(method === "POST") {
 				options.body = JSON.stringify(data);
 			}else{
@@ -71,9 +74,12 @@ export default class ApiController {
 			await Utils.promisedTimeout(1000);
 			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
 		}else
-		if(status == 401) {
-			await StoreProxy.auth.twitch_tokenRefresh(true);
-			return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
+		if(status == 401 && attemptIndex < 2) {
+			//If it's a twitch endpoint, try to refresh session and try again
+			if(endpoint.indexOf(Config.instance.TWITCH_API_PATH) > -1) {
+				await StoreProxy.auth.twitch_tokenRefresh(true);
+				return this.call(endpoint, method, data, retryOnFail, attemptIndex+1);
+			}
 		}
 		return {status, json};
 	}
@@ -104,17 +110,17 @@ type ApiEndpoints =  {
 			scope: string[];
 			token_type: string;
 			expires_at: number;
-		},
-	},
+		};
+	};
 	"auth/CSRFToken": {
 		GET: {
-			token:string,
-		},
+			token:string;
+		};
 		POST: {
-			success:boolean,
-			message?:string,
-		},
-	},
+			success:boolean;
+			message?:string;
+		};
+	};
 	"auth/twitch/refreshtoken": {
 		GET: {
 			access_token: string;
@@ -123,18 +129,18 @@ type ApiEndpoints =  {
 			scope: string[];
 			token_type: string;
 			expires_at: number;
-		},
-	},
+		};
+	};
 	"beta/user": {
 		GET: {
-			success:true,
-			data:{beta:boolean},
-		},
-	},
+			success:true;
+			data:{beta:boolean};
+		};
+	};
 	"beta/user/hasData": {
 		GET: {
-			success:boolean,
-			message?:string,
+			success:boolean;
+			message?:string;
 			data?:{
 				betaDate?: number;
 				prodDate?: number;
@@ -142,210 +148,253 @@ type ApiEndpoints =  {
 				prodVersion?: number;
 			}
 		}
-	},
+	};
 	"beta/user/migrateToProduction": {
-		POST: { success:boolean },
-	},
+		POST: { success:boolean };
+	};
 	"admin/beta/user": {
 		POST: {
-			success:true,
-			userList:string[],
-		},
+			success:true;
+			userList:string[];
+		};
 		DELETE: {
-			success:true,
-			userList:string[],
-		},
-	},
+			success:true;
+			userList:string[];
+		};
+	};
 	"admin/beta/user/migrateToProduction": {
-		POST: { success:boolean },
-	},
+		POST: { success:boolean };
+	};
 	"admin/beta/user/all": {
 		DELETE: {
-			success:true,
-			userList:string[],
-		},
-	},
+			success:true;
+			userList:string[];
+		};
+	};
 	"user/donor/all": {
 		GET: {
-			success:true,
+			success:true;
 			data:{
 				list:{
 					uid: string;
 					v: number;
 				}[]
-			},
-		},
-	},
+			};
+		};
+	};
 	"user/donor/anon": {
 		GET: {
-			success:true,
+			success:true;
 			data:{
 				public:boolean
-			},
-		},
+			};
+		};
 		POST: {
-			success:true,
-			message?:string,
-		},
-	},
+			success:true;
+			message?:string;
+		};
+	};
 	"script": {
-		GET: string,
-	},
+		GET: string;
+	};
 	"configs": {
-		GET: ServerConfig,
-	},
+		GET: ServerConfig;
+	};
 	"spotify/auth": {
-		GET: {},
-	},
+		GET: {};
+	};
 	"spotify/refresh_token": {
-		GET: {},
-	},
+		GET: {};
+	};
 	"ulule/project" : {
-		GET: UluleTypes.Project,
-	},
+		GET: UluleTypes.Project;
+	};
 	"user": {
 		GET: {
-			success:boolean,
+			success:boolean;
 			data:{
-				isAdmin:boolean,
-				isDonor:boolean,
-				isEarlyDonor:boolean,
-				isPremiumDonor:boolean,
-				level:number,
+				isAdmin:boolean;
+				isDonor:boolean;
+				isEarlyDonor:boolean;
+				isPremiumDonor:boolean;
+				discordLinked:boolean;
+				level:number;
 			}
-		},
-		POST: {},
-	},
+		};
+		POST: {};
+	};
 	"user/all": {
 		GET: {
-			success:boolean, 
-			message:string, 
+			success:boolean; 
+			message:string; 
 			users:{
-				id:string, 
-				date:number, 
+				id:string; 
+				date:number;
 				user:TwitchDataTypes.UserInfo
-			}[],
-		},
-	},
+			}[];
+		};
+	};
 	"user/data": {
 		GET: {
-			success:boolean,
-			data:any,
-		},
+			success:boolean;
+			data:any;
+		};
 		POST: {
-			success:boolean,
-			message?:string,
-		},
+			success:boolean;
+			message?:string;
+		};
 		DELETE: {
-			success:boolean,
-		},
-	},
+			success:boolean;
+		};
+	};
 	"patreon/authenticate": {
 		POST: {
-			success:boolean,
-			message?:string,
+			success:boolean;
+			message?:string;
 			data: {
-				access_token: string,
-				expires_in: number,
-				token_type: string,
-				scope: string,
-				refresh_token: string,
-				version: string,
-				expires_at: number,
+				access_token: string;
+				expires_in: number;
+				token_type: string;
+				scope: string;
+				refresh_token: string;
+				version: string;
+				expires_at: number;
 			}
 		}
-	},
+	};
 	"patreon/refresh_token": {
 		POST: {
-			success:boolean,
-			message?:string,
+			success:boolean;
+			message?:string;
 			data: {
-				access_token: string,
-				refresh_token: string,
-				expires_in: number,
-				scope: string,
-				token_type: string,
-				expires_at: number,
+				access_token: string;
+				refresh_token: string;
+				expires_in: number;
+				scope: string;
+				token_type: string;
+				expires_at: number;
 			}
 		}
-	},
+	};
 	"patreon/isMember": {
 		GET: {
-			success:boolean,
-			message?:string,
-			data: {isMember:boolean},
+			success:boolean;
+			message?:string;
+			data: {isMember:boolean};
 		}
-	},
+	};
 	"patreon/isApiDown": {
 		GET: {
-			success:boolean,
-			message?:string,
-			data: {isDown:boolean},
+			success:boolean;
+			message?:string;
+			data: {isDown:boolean};
 		}
-	},
+	};
 	"tenor/search": {
 		GET: {
-			success:boolean,
-			message?:string,
-			data: TenorGif[],
+			success:boolean;
+			message?:string;
+			data: TenorGif[];
 		}
-	},
+	};
 	"paypal/create_order": {
 		POST: {
-			success:boolean,
+			success:boolean;
 			error?:string;
-			data: {orderId:string},
+			data: {orderId:string};
 		}
-	},
+	};
 	"paypal/complete_order": {
 		POST: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
-			data: {orderId:string},
+			data: {orderId:string};
 		}
-	},
+	};
 	"google/translate": {
 		GET: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
-			data:{translation?:string},
+			data:{translation?:string};
 		}
-	},
+	};
 	"youtube/oauthURL": {
 		GET: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
-			data:{url?:string},
+			data:{url?:string};
 		}
-	},
+	};
 	"youtube/authenticate": {
 		POST: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
-			data:{token?:YoutubeAuthToken},
+			data:{token?:YoutubeAuthToken};
 		}
-	},
+	};
 	"youtube/refreshtoken": {
 		POST: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
-			data:{token?:YoutubeAuthToken},
+			data:{token?:YoutubeAuthToken};
 		}
-	},
+	};
 	"admin/labels": {
 		POST: {
-			success:boolean,
+			success:boolean;
 			error?:string;
 			errorCode?:string;
 		}
-	},
+	};
 	"sse/register": {
 		GET: {
 		}
-	},
+	};
+	"discord/code": {
+		GET: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+			guildName?:string;
+		},
+		POST: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+			guildName?:string;
+		}
+	};
+	"discord/image": {
+		POST: {
+			success:boolean;
+		}
+	};
+	"discord/link": {
+		GET: {
+			success:boolean;
+			linked:boolean;
+			guildName:string;
+			logChannel:string;
+			answerChannel:string;
+		};
+		DELETE: {
+			success:boolean;
+		}
+	};
+	"discord/answer": {
+		POST: {
+			success:boolean;
+		}
+	};
+	"discord/channels": {
+		GET: {
+			success:boolean;
+			channelList:{id:string, name:string}[];
+		}
+	};
 }

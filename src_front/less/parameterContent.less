@@ -16,7 +16,10 @@
 	}
 
 	&>.head {
-		text-align: center;
+		gap: .5em;
+		display: flex;
+		align-items: center;
+		flex-direction: column;
 		&.small, &>.small {
 			font-size: .8em;
 			.btExample {
@@ -26,9 +29,6 @@
 				background-color: var(--color-alert);
 				vertical-align: middle;
 			}
-		}
-		&>.small {
-			margin-top: .5em;
 		}
 	}
 

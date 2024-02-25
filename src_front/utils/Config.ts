@@ -39,9 +39,10 @@ export default class Config {
 	 */
 	public LIFETIME_DONOR_VALUE = 89;
 	/**
-	 * Port for the twitchat's server services
+	 * Date for features additions
 	 */
 	public NEW_FLAGS_DATE_V11 = new Date("02-01-2024 10:44:59").getTime();
+	public NEW_FLAGS_DATE_V12 = new Date("24-02-2024 19:00:00").getTime();
 	/**
 	 * Get if twitchat is running on an OBS dock
 	 */
@@ -50,6 +51,9 @@ export default class Config {
 	 * URL of twitchat's discord
 	 */
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
+	public get DISCORD_BOT_URL():string {
+		return "https://discord.com/oauth2/authorize?client_id="+this._serverConfig.discord_client_id+"&permissions=536905792&scope=applications.commands+bot";
+	}
 	/**
 	 * URL of twitchat's youtube
 	 */
@@ -170,7 +174,7 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"tainalo2"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},
@@ -359,4 +363,5 @@ export interface ServerConfig {
 	contact_mail: string;
 	youtube_client_id: string;
 	youtube_scopes: string[];
+	discord_client_id: string;
 }

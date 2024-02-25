@@ -409,26 +409,39 @@ export default class ContextMenuHelper {
 			}
 		}
 
-		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-		if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-				//Add splitter after previous item if any
-				if(options.length > 0) options[options.length-1].divided = true;
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+			const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+			const entryCount = options.length; 
+			let optionAdded = false;
+			if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
+				optionAdded = true;
 				options.push({ 
-							label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
-							icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
-							onClick: () => this.exportMessage(message, htmlNode),
+					label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
+					icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
+					onClick: () => this.exportMessage(message, htmlNode),
+				});
+			}
+			if(me.discordLinked === true && StoreProxy.discord.logChanTarget) {
+				optionAdded = true;
+				options.push({ 
+							label: t("chat.context_menu.export_discord"),
+							icon: this.getIcon("icons/discord.svg"),
+							onClick: () => this.exportMessage(message, htmlNode, true),
 						});
+			}
+			if(optionAdded) {
+				//Add splitter after previous item if any
+				if(entryCount > 0) options[entryCount-1].divided = true;
 			}
 		}
 			
@@ -625,7 +638,7 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageMusicAddedToQueueData
 								| TwitchatDataTypes.MessageWatchStreakData
-								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
+								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement, discord:boolean = false):Promise<void> {
 
 		StoreProxy.main.messageExportState = "progress";
 		const errorTimeout = setTimeout(()=> {
@@ -663,7 +676,8 @@ export default class ContextMenuHelper {
 		infosDiv.style.borderRadius = ".3em";
 		infosDiv.style.backgroundColor = bgcolor;
 		let html = `<div><strong>Message type:</strong> ${message.type}</div>
-		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>`;
+		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
+		<div><strong>Platform:</strong> ${message.platform}</div>`;
 		if(user) {
 			html += `<div><strong>User login:</strong> ${user.login}</div>
 			<div><strong>User ID:</strong> ${user.id}</div>`;
@@ -754,22 +768,51 @@ export default class ContextMenuHelper {
 						ctx.fillRect(0, 0, canvas.width, canvas.height);
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
-						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
-						clone.remove();
-						const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
-						
-						canvas.toBlob((blob)=> {
-							navigator.clipboard.write([
-								new ClipboardItem({ 'image/png': blob!}),
-							]).then(()=>{
-								StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
-								clearTimeout(errorTimeout);
-							}).catch((error)=> {
-								console.log(error);
-								StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
-								clearTimeout(errorTimeout);
+						if(discord) {
+							canvas.toBlob((blob)=> {
+								if(!blob) return;
+								const json:any = {
+									userName:user?.login,
+									userId:user?.id,
+									date:message.date,
+									messageId:message.id,
+									messageType:message.type,
+									messagePlatform:message.platform,
+								};
+								if(message.hasOwnProperty("message")) {
+									json.message = (message as TwitchatDataTypes.MessageChatData).message;
+								}
+								//Send image and message to discord
+								const formData = new FormData();
+								formData.append("image", blob, fileName+".png");
+								formData.append("message", JSON.stringify(json));
+								ApiController.call("discord/image", "POST", formData)
+								.then(result=> {
+									StoreProxy.main.messageExportState = "discord";
+									clearTimeout(errorTimeout);
+								}).catch(error =>{
+									
+								});
 							});
-						}, "image/png");
+						}else{
+							//Download image
+							Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
+							clone.remove();
+							const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
+							
+							canvas.toBlob((blob)=> {
+								navigator.clipboard.write([
+									new ClipboardItem({ 'image/png': blob!}),
+								]).then(()=>{
+									StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
+									clearTimeout(errorTimeout);
+								}).catch((error)=> {
+									console.log(error);
+									StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
+									clearTimeout(errorTimeout);
+								});
+							}, "image/png");
+						}
 					});
 					messageImg.setAttribute("src", dataUrl);
 				})

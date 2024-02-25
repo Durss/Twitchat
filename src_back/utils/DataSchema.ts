@@ -1419,6 +1419,19 @@ import Ajv from "ajv";
 					}
 				}
 			},
+		},
+		discordParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				logChanTarget: {type:"string", maxLength:40},
+				chatCols: {
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items:{type:"number", minimum:0, maximum:100},
+				},
+			}
 		}
 	}
 }

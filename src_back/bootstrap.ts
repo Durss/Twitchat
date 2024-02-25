@@ -2,6 +2,7 @@ import Fastify, { FastifyInstance } from 'fastify';
 import Config from "./utils/Config";
 import Logger from './utils/Logger';
 import {FastifySSEPlugin} from "fastify-sse-v2";
+import {fastifyMultipart} from "@fastify/multipart";
 import * as fs from "fs";
 import AuthController from './controllers/AuthController';
 import DonorController from './controllers/DonorController';
@@ -17,6 +18,7 @@ import PaypalController from './controllers/PaypalController';
 import GoogleController from './controllers/GoogleController';
 import SSEController from './controllers/SSEController';
 import DiscordController from './controllers/DiscordController';
+import I18n from './utils/I18n';
 
 // Run the server!
 async function start():Promise<void> {
@@ -38,9 +40,18 @@ fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
 
+I18n.instance.initialize();
+
 const server:FastifyInstance = Fastify({logger: false});
-server.register(FastifySSEPlugin);
-server.register(import('fastify-raw-body'), {
+server.register(FastifySSEPlugin)
+.register(fastifyMultipart,{
+	limits: {
+		fileSize: 2000000,  // For multipart forms, the max file size in bytes
+		files: 2,           // Max number of file fields
+		parts: 100         // For multipart forms, the max number of parts (fields + files)
+	}
+})
+.register(import("fastify-raw-body"), {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(()=> {
 	//Create controllers
@@ -48,7 +59,6 @@ server.register(import('fastify-raw-body'), {
 	new FileServeController(server).initialize();
 	new AuthController(server).initialize();
 	new DonorController(server).initialize();
-	new UserController(server).initialize();
 	new SpotifyController(server).initialize();
 	new BetaController(server).initialize();
 	new UluleController(server).initialize();
@@ -57,7 +67,8 @@ server.register(import('fastify-raw-body'), {
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();
-	new DiscordController(server).initialize();
+	const discord = new DiscordController(server).initialize();
+	new UserController(server,discord).initialize();
 	
 	//Start server
 	start();

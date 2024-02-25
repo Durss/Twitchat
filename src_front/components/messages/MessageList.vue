@@ -451,7 +451,9 @@ export default class MessageList extends Vue {
 
 		//Avoid adding any new message when showing a custom list of emssage (ex: hype train filtered activities)
 		if(this.customActivitiesDisplayed) return false;
-		if(m.col != undefined && m.col > -1 && m.col != this.config.order) return false;
+		//Check if this message should be displayed on this column
+		const colValid = Array.isArray(m.col)? m.col.length == 0 || m.col.includes(this.config.order) : m.col == undefined || m.col == this.config.order;
+		if(!colValid) return false;
 		
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
 		if (m.deleted) {

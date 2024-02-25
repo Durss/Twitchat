@@ -282,7 +282,7 @@ interface Credentials {
 
 	contact_mail:string;
 
-	discord_app_id:string;
+	discord_client_id:string;
 	discord_public_key:string;
 	discord_bot_token:string;
 }

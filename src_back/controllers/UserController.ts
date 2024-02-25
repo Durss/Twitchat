@@ -6,13 +6,14 @@ import { schemaValidator } from '../utils/DataSchema';
 import Logger from '../utils/Logger';
 import TwitchUtils from '../utils/TwitchUtils';
 import AbstractController from "./AbstractController";
+import DiscordController from './DiscordController';
 
 /**
 * Created : 13/03/2022 
 */
 export default class UserController extends AbstractController {
 
-	constructor(public server:FastifyInstance) {
+	constructor(public server:FastifyInstance, private discordController:DiscordController) {
 		super();
 	}
 	
@@ -86,7 +87,7 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean, discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}
@@ -94,6 +95,10 @@ export default class UserController extends AbstractController {
 		//Is user an early donor of twitchat?
 		if(this.earlyDonors[userInfo.user_id] === true) {
 			data.isEarlyDonor = true;
+		}
+
+		if(DiscordController.isDiscordLinked(userInfo.user_id) === true) {
+			data.discordLinked = true;
 		}
 
 		response.header('Content-Type', 'application/json');
@@ -187,6 +192,10 @@ export default class UserController extends AbstractController {
 				fs.unlinkSync(cleanupFilePath);
 			}
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+
+			if(body.discordParams) {
+				this.discordController.updateParams(userInfo.user_id, body.discordParams);
+			}
 
 			response.header('Content-Type', 'application/json');
 			response.status(200);

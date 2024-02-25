@@ -86,6 +86,11 @@
 			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"A reward with this name already exists",
 			"refund_redemption": "Something went wrong when refunding redemption.\nRedemption may have already been refund."
 		},
-		"ad_block":"A request has been blocked by your browser.\nIt's strongly suggested you disable any ad blocker for Twitchat as they make it very unstable in unpredictable ways.\nAdblockers are known to break Ad notifications, block /commercial command, to randomly cut connection to chat and un the worst cases block all requests to Twitch API.\n\nTwitchat does not collect any personnal or analytic data."
+		"ad_block":"A request has been blocked by your browser.\nIt's strongly suggested you disable any ad blocker for Twitchat as they make it very unstable in unpredictable ways.\nAdblockers are known to break Ad notifications, block /commercial command, to randomly cut connection to chat and un the worst cases block all requests to Twitch API.\n\nTwitchat does not collect any personnal or analytic data.",
+		"discord":{
+			"UNKNOWN":"An unexpected error occured :(",
+			"INVALID_TOKEN":"Invalid code",
+			"INVALID_USER":"You are not allowed to use this code"
+		}
 	}
 }

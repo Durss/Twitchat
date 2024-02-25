@@ -26,6 +26,7 @@
 	},
 	"dependencies": {
 		"@fastify/cors": "^8.1.0",
+		"@fastify/multipart": "^8.1.0",
 		"@fastify/rate-limit": "^7.5.0",
 		"@fastify/static": "^6.5.0",
 		"ajv": "^8.12.0",

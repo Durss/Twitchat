@@ -54,6 +54,7 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
+import { storeDiscord } from './store/discord/storeDiscord';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -243,6 +244,7 @@ function buildApp() {
 	StoreProxy.account = storeAccount();
 	StoreProxy.extension = storeExtension();
 	StoreProxy.qna = storeQna();
+	StoreProxy.discord = storeDiscord();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -277,6 +279,7 @@ function buildApp() {
 		values:				StoreProxy.values,
 		extension:			StoreProxy.extension,
 		qna:				StoreProxy.qna,
+		discord:			StoreProxy.discord,
 	}
 	
 	app.use(router)

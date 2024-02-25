@@ -2355,6 +2355,7 @@ export default class TriggerActionHandler {
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
 		const channelId = StoreProxy.auth.twitch.user.id;
+		const me = StoreProxy.auth.twitch.user;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
 		try {
@@ -2382,6 +2383,13 @@ export default class TriggerActionHandler {
 				//Pointers starting with "__" are parsed here
 				if(placeholder.pointer.indexOf("__")==0) {
 					const pointer = placeholder.pointer.toLowerCase();
+					/**
+					 * If the placeholder requests for the current stream info
+					 */
+					if(pointer.indexOf("__me__") == 0) {
+						const pointerLocal = pointer.replace('__me__.', '') as keyof Pick<TwitchatDataTypes.TwitchatUser, "id" | "login">;
+						value = me[pointerLocal];
+					}
 					/**
 					 * If the placeholder requests for the current stream info
 					 */

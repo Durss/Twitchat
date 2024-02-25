@@ -1,0 +1,13 @@
+{
+	"discord":{
+		"header":"Liez Twitchat et Discord pour une communication simplifiée avec vos modos.",
+		"linked":"Twitchat est actuellement lié au serveur Discord {GUILD}",
+		"unkinkBt":"Délier",
+		"install_bt":"Installez Twitchat sur votre Discord",
+		"install_code":"Utilisez la commande {CMD} sur Discord, puis entrez le code reçu ci-dessous",
+		"install_confirm":"Souhaitez-vous lier votre Twitchat avec le serveur Discord suivant?",
+		"channel_logs":"Chan Discord dans lequel enregistrer des messages de tchat",
+		"channel_logs_info":"Pour enregistrer un message sur Discord, faites click-droit dessus et cliquez sur l'option \"{OPTION}\".\nPermet de facilement conserver une trace des messages ou personnes toxiques.",
+		"chat_col":"Colonnes de tchat dans lesquelles afficher les messages reçus depuis Discord"
+	}
+}

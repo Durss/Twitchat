@@ -52,6 +52,7 @@ export default class StoreProxy {
 	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static extension:IExtensionState & IExtensionGetters & IExtensionActions & {$state:IExtensionState, $reset:()=>void};
 	public static qna:IQnaState & IQnaGetters & IQnaActions & {$state:IQnaState, $reset:()=>void};
+	public static discord:IDiscordState & IDiscordGetters & IDiscordActions & {$state:IDiscordState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -80,7 +81,7 @@ export interface IMainState {
 	 * When right cliking a message we can export it as an
 	 * image. This object contains the export state.
 	 */
-	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"error"|null;
+	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"discord"|"error"|null;
 	/**
 	 * Method to call to trigger install of twitchat on the device
 	 */
@@ -2070,4 +2071,20 @@ export interface IQnaActions {
 	 * @param messageID id of the message
 	 */
 	deleteMessage(messageID:string):void;
+}
+
+
+
+
+export interface IDiscordState {
+	chatCols:number[],
+	logChanTarget:string,
+}
+
+export interface IDiscordGetters {
+}
+
+export interface IDiscordActions {
+	populateData(data:IDiscordState):void;
+	saveParams():void;
 }
