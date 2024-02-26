@@ -168,7 +168,7 @@ export default class DiscordController extends AbstractController {
 			response.header('Content-Type', 'application/json')
 			.status(200)
 			.send(JSON.stringify({success:true, messageId:message.id}));
-			
+
 		}catch(error) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
@@ -344,7 +344,8 @@ export default class DiscordController extends AbstractController {
 				await this._rest.post(Routes.channelMessages(token.guildChannelID), {body:{content:message}});
 				fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 				this.buildTwitchHashmap();
-			}catch(result) {
+			}catch(error:any) {
+				const result:{status:number} = error;
 				status = result.status;
 				if(status == 403) {
 					errorCode = "MISSING_ACCESS";
