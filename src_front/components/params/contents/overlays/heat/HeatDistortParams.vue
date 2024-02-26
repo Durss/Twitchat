@@ -103,7 +103,11 @@ export default class HeatDistortParams extends Vue {
 
 	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
 	
-	public get canEnable():boolean { return this.modelValue.enabled || this.$store.heat.distortionList.filter(v=>v.enabled).length < Config.instance.MAX_DISTORTION_OVERLAYS; }
+	public get canEnable():boolean {
+		return this.modelValue.enabled
+			|| this.$store.auth.isPremium
+			|| this.$store.heat.distortionList.filter(v=>v.enabled).length < Config.instance.MAX_DISTORTION_OVERLAYS;
+	}
 
 	public get sourcePathLabel():string {
 		const chunks:string[] = [];
