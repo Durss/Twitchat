@@ -1,21 +1,22 @@
 .DS_Store
 node_modules
-build
+/build
 /dist
 /server
 /userData
 /server
 /userData_fake_production
 /updates_graphics
-announcements.json
-patreon
-donors
-patreon
-beta
+/patreon
+/donors
+/discord
+/patreon
+/beta
 env.conf
 
 credentials/*
 !credentials.default.json
+/announcements.json
 
 
 # local env files
