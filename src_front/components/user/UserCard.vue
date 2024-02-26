@@ -368,18 +368,22 @@ export default class UserCard extends Vue {
 	public async loadUserInfo():Promise<void> {
 		this.error = false;
 		this.loading = true;
-		this.createDate = "";
-		this.followersCount = -1;
-		this.followDate = "";
-		this.currentStream = null;
-		this.subState = null;
-		this.subStateLoaded = false;
-		this.customLogin = "";
-		this.banReason = "";
-		this.edittingLogin = false;
+		this.isTwitchProfile = false;
+		this.edittingLogin = true;
 		this.manageBadges = false;
 		this.manageUserNames = false;
-		this.isTwitchProfile = this.platform == "twitch";
+		this.subState = null;
+		this.subStateLoaded = false;
+		this.currentStream = null;
+		this.banReason = "";
+		this.customLogin = "";
+		this.createDate = "";
+		this.followDate = "";
+		this.userDescription = "";
+		this.channelId = "";
+		this.followersCount = -1;
+		this.badges = [];
+		this.messageHistory = [];
 
 		if(!this.$store.users.userCard) {
 			this.loading = false;
@@ -421,6 +425,7 @@ export default class UserCard extends Vue {
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
 				}
+				this.badges = user.channelInfo[this.channelId].badges;
 				
 				//Async loading of data
 				TwitchUtils.loadCurrentStreamInfo([u.id]).then(v=> {
