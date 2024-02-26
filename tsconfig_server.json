@@ -12,6 +12,8 @@
 		"baseUrl": ".",
 		"outDir": "./server",
 		"skipLibCheck": true,
+		"resolveJsonModule": true,
+		"esModuleInterop": true,
 		"paths": {
 			"@/*": [
 				"src_back/*"

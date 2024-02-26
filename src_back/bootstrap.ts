@@ -1,8 +1,6 @@
 import Fastify, { FastifyInstance } from 'fastify';
 import Config from "./utils/Config";
 import Logger from './utils/Logger';
-import {FastifySSEPlugin} from "fastify-sse-v2";
-import * as fastifyMultipart from "@fastify/multipart";
 import * as fs from "fs";
 import AuthController from './controllers/AuthController';
 import DonorController from './controllers/DonorController';
@@ -44,8 +42,8 @@ fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
 I18n.instance.initialize();
 
 const server:FastifyInstance = Fastify({logger: false});
-server.register(FastifySSEPlugin)
-.register(fastifyMultipart,{
+server.register(import("fastify-sse-v2"))
+.register(import("@fastify/multipart"),{
 	attachFieldsToBody: 'keyValues',
 	limits: {
 		fileSize: 2000000,  // For multipart forms, the max file size in bytes
