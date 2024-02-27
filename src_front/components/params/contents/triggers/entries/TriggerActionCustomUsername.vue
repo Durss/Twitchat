@@ -11,7 +11,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
 import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomUsernameData as TriggerCustomUsernameData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
@@ -24,7 +24,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
-export default class TriggerActionCustomUsername extends AbstractTriggerActionEntry {
+ class TriggerActionCustomUsername extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerCustomUsernameData;
@@ -72,6 +72,7 @@ export default class TriggerActionCustomUsername extends AbstractTriggerActionEn
 		this.param_username.placeholderList = list;
 	}
 }
+export default toNative(TriggerActionCustomUsername);
 </script>
 
 <style scoped lang="less">

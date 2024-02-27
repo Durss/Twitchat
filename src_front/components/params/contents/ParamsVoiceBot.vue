@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import VoiceControlForm from '../../voice/VoiceControlForm.vue';
 import TTButton from '../../TTButton.vue';
 import VoiceController from '@/utils/voice/VoiceController';
@@ -40,7 +40,7 @@ import type IParameterContent from './IParameterContent';
 	},
 	emits:[]
 })
-export default class ParamsVoiceBot extends Vue implements IParameterContent {
+ class ParamsVoiceBot extends Vue implements IParameterContent {
 	
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
@@ -56,6 +56,7 @@ export default class ParamsVoiceBot extends Vue implements IParameterContent {
 
 }
 
+export default toNative(ParamsVoiceBot);
 </script>
 
 <style scoped lang="less">

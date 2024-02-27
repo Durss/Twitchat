@@ -22,7 +22,7 @@
 <script lang="ts">
 import Config from '@/utils/Config';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ClearButton from '../ClearButton.vue';
@@ -35,7 +35,7 @@ import ClearButton from '../ClearButton.vue';
 	},
 	emits:["close"]
 })
-export default class Gngngn extends Vue {
+ class Gngngn extends Vue {
 
 	public get discordPath():string { return Config.instance.DISCORD_URL; }
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
@@ -54,6 +54,7 @@ export default class Gngngn extends Vue {
 		}});
 	}
 }
+export default toNative(Gngngn);
 </script>
 
 <style scoped lang="less">

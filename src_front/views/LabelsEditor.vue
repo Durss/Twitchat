@@ -71,7 +71,7 @@ import TTButton from '@/components/TTButton.vue';
 import StoreProxy from '@/store/StoreProxy';
 import Utils from '@/utils/Utils';
 import type { RemoveIndexSignature } from '@intlify/core-base';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
 import AppLangSelector from '@/components/AppLangSelector.vue';
 //@ts-ignore
@@ -90,7 +90,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 	},
 	emits:[],
 })
-export default class LabelsEditor extends Vue {
+ class LabelsEditor extends Vue {
 
 	public selectedSectionKey:string = "";
 	public selectedSection:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}>|null = null;
@@ -259,6 +259,7 @@ export default class LabelsEditor extends Vue {
 	}
 
 }
+export default toNative(LabelsEditor);
 </script>
 
 <style scoped lang="less">

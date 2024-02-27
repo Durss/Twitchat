@@ -50,7 +50,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
@@ -63,7 +63,7 @@ import TriggerList from '../TriggerList.vue';
 		SimpleTriggerList,
 	}
 })
-export default class TriggerActionTriggerEntry extends Vue {
+ class TriggerActionTriggerEntry extends Vue {
 
 	@Prop()
 	public action!:TriggerActionTriggerData;
@@ -163,6 +163,7 @@ export default class TriggerActionTriggerEntry extends Vue {
 	}
 
 }
+export default toNative(TriggerActionTriggerEntry);
 </script>
 
 <style scoped lang="less">

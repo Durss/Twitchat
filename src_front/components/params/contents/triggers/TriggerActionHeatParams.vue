@@ -58,7 +58,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSSourceItem } from '@/utils/OBSWebsocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import HeatScreenPreview from '../heat/areas/HeatScreenPreview.vue';
 import OBSWebsocket from '@/utils/OBSWebsocket';
@@ -75,7 +75,7 @@ import { watch } from 'vue';
 	},
 	emits:[],
 })
-export default class TriggerActionHeatParams extends Vue {
+ class TriggerActionHeatParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -194,6 +194,7 @@ export default class TriggerActionHeatParams extends Vue {
 	}
 
 }
+export default toNative(TriggerActionHeatParams);
 </script>
 
 <style scoped lang="less">

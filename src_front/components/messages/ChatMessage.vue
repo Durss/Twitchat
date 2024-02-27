@@ -152,7 +152,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import type { StyleValue } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import CustomUserBadges from '../user/CustomUserBadges.vue';
 import AbstractChatMessage from './AbstractChatMessage';
@@ -172,7 +172,7 @@ import ChatModTools from './components/ChatModTools.vue';
 	},
 	emits:['showConversation', 'showUserMessages', 'unscheduleMessageOpen', 'onOverMessage', 'onRead'],
 })
-export default class ChatMessage extends AbstractChatMessage {
+ class ChatMessage extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
@@ -714,6 +714,7 @@ export default class ChatMessage extends AbstractChatMessage {
 		}
 	}
 }
+export default toNative(ChatMessage);
 </script>
 
 <style scoped lang="less">

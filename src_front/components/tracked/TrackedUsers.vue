@@ -37,7 +37,7 @@ import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -53,7 +53,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	},
 	emits:["close"]
 })
-export default class TrackedUsers extends AbstractSidePanel {
+ class TrackedUsers extends AbstractSidePanel {
 
 	public refreshing:boolean = false;
 	public selectedUser:TwitchatDataTypes.TwitchatUser | null = null;
@@ -150,6 +150,7 @@ export default class TrackedUsers extends AbstractSidePanel {
 	}
 
 }
+export default toNative(TrackedUsers);
 </script>
 
 <style scoped lang="less">

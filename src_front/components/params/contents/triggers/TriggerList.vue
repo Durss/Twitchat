@@ -28,7 +28,7 @@ import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinitio
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerListItem from './TriggerListItem.vue';
 import { gsap } from 'gsap/all';
 import { RoughEase } from 'gsap/all';
@@ -47,7 +47,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:["select", "testTrigger"],
 })
-export default class TriggerList extends Vue {
+ class TriggerList extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
@@ -323,6 +323,7 @@ export interface TriggerListFolderEntry {
 	color:TwitchatDataTypes.ParameterData<string>;
 	items:(TriggerListEntry|TriggerListFolderEntry)[];
 }
+export default toNative(TriggerList);
 </script>
 
 <style scoped lang="less">

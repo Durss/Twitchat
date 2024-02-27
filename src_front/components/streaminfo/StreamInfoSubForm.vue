@@ -49,7 +49,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AutoCompleteForm from '../params/AutoCompleteForm.vue';
 import ParamItem from '../params/ParamItem.vue';
@@ -64,7 +64,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["update:title", "update:tags", "update:category", "update:branded", "update:labels"]
 })
-export default class StreamInfoSubForm extends Vue {
+ class StreamInfoSubForm extends Vue {
 
 	@Prop({type:String, default:""})
 	public title!:string;
@@ -222,6 +222,7 @@ export default class StreamInfoSubForm extends Vue {
 	}
 
 }
+export default toNative(StreamInfoSubForm);
 </script>
 
 <style scoped lang="less">

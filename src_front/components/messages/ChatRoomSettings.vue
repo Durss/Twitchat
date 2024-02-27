@@ -37,7 +37,7 @@ import TTButton from '@/components/TTButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import AbstractChatMessage from './AbstractChatMessage';
@@ -52,7 +52,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 	},
 	emits:["onRead"]
 })
-export default class ChatRoomSettings extends AbstractChatMessage {
+ class ChatRoomSettings extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRoomSettingsData;
@@ -85,6 +85,7 @@ export default class ChatRoomSettings extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatRoomSettings);
 </script>
 
 <style scoped lang="less">

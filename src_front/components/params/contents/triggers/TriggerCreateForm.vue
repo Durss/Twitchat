@@ -114,7 +114,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerActionList from './TriggerActionList.vue';
 
 @Component({
@@ -125,7 +125,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	},
 	emits:["selectTrigger", "updateHeader"],
 })
-export default class TriggerCreateForm extends Vue {
+ class TriggerCreateForm extends Vue {
 
 	@Prop({default:[]})
 	public obsScenes!:OBSSceneItem[];
@@ -698,6 +698,7 @@ interface TriggerCategory{
 	events:TriggerTypeDefinition[];
 	newDate?:number;
 }
+export default toNative(TriggerCreateForm);
 </script>
 
 <style scoped lang="less">

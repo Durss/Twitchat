@@ -16,7 +16,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
 import ParamItem from '../params/ParamItem.vue';
 
@@ -27,7 +27,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["update:modelValue", "update:complete"]
 })
-export default class VoiceGlobalCommands extends Vue {
+ class VoiceGlobalCommands extends Vue {
 
 	@Prop()
 	public modelValue:VoiceAction[] = [];
@@ -86,6 +86,7 @@ export default class VoiceGlobalCommands extends Vue {
 	}
 
 }
+export default toNative(VoiceGlobalCommands);
 </script>
 
 <style scoped lang="less">

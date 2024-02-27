@@ -33,7 +33,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import type { StyleValue } from 'vue';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
 
@@ -41,7 +41,7 @@ import DOMPurify from 'isomorphic-dompurify';
 	components:{},
 	emits:[],
 })
-export default class OverlayAdBreak extends AbstractOverlay {
+ class OverlayAdBreak extends AbstractOverlay {
 
 	public show:boolean = false;
 	public label:string = "";
@@ -337,6 +337,7 @@ export default class OverlayAdBreak extends AbstractOverlay {
 }
 
 type AdType = "approaching"|"running"|"none";
+export default toNative(OverlayAdBreak);
 </script>
 
 <style scoped lang="less">

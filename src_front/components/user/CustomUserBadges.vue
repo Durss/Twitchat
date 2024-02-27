@@ -9,13 +9,13 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["select"],
 })
-export default class CustomUserBadges extends Vue {
+ class CustomUserBadges extends Vue {
 
 	@Prop()
 	public user!:TwitchatDataTypes.TwitchatUser;
@@ -47,4 +47,5 @@ export default class CustomUserBadges extends Vue {
 	}
 
 }
+export default toNative(CustomUserBadges);
 </script>

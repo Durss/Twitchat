@@ -40,7 +40,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee'
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
@@ -51,7 +51,7 @@ import DOMPurify from 'isomorphic-dompurify';
 	},
 	emits:["seek"]
 })
-export default class OverlayMusicPlayer extends AbstractOverlay {
+ class OverlayMusicPlayer extends AbstractOverlay {
 	
 	@Prop({
 			type: Boolean,
@@ -220,6 +220,7 @@ export default class OverlayMusicPlayer extends AbstractOverlay {
 	}
 
 }
+export default toNative(OverlayMusicPlayer);
 </script>
 
 <style scoped lang="less">

@@ -29,13 +29,13 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["search", "update:modelValue"]
 })
-export default class AutoCompleteForm extends Vue {
+ class AutoCompleteForm extends Vue {
 
 	@Prop({
 			type:String,
@@ -145,6 +145,7 @@ export default class AutoCompleteForm extends Vue {
 	}
 
 }
+export default toNative(AutoCompleteForm);
 </script>
 
 <style scoped lang="less">

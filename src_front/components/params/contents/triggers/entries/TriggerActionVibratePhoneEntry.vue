@@ -10,7 +10,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionVibrateData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { VIBRATION_PATTERNS } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -18,7 +18,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class TriggerActionVibratePhoneEntry extends Vue {
+ class TriggerActionVibratePhoneEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionVibrateData;
@@ -51,6 +51,7 @@ export default class TriggerActionVibratePhoneEntry extends Vue {
 	}
 		
 }
+export default toNative(TriggerActionVibratePhoneEntry);
 </script>
 
 <style scoped lang="less">

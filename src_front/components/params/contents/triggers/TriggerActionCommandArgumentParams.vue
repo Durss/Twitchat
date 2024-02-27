@@ -46,7 +46,7 @@
 <script lang="ts">
 import type { TriggerChatCommandParam, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
@@ -57,7 +57,7 @@ import { gsap } from 'gsap';
 	},
 	emits:[],
 })
-export default class TriggerActionCommandArgumentParams extends Vue {
+ class TriggerActionCommandArgumentParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -103,6 +103,7 @@ export default class TriggerActionCommandArgumentParams extends Vue {
 	}
 
 }
+export default toNative(TriggerActionCommandArgumentParams);
 </script>
 
 <style scoped lang="less">

@@ -9,12 +9,12 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class ChatMessageInfoBadges extends Vue {
+ class ChatMessageInfoBadges extends Vue {
 
 	@Prop
 	public infos!:TwitchatDataTypes.MessageBadgeData[];
@@ -64,6 +64,7 @@ export default class ChatMessageInfoBadges extends Vue {
 	}
 
 }
+export default toNative(ChatMessageInfoBadges);
 </script>
 
 <style scoped lang="less">

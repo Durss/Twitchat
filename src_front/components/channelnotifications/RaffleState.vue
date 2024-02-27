@@ -74,7 +74,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, {type OBSSourceItem} from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 import TTButton from '../TTButton.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
@@ -88,7 +88,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	},
 	emits:["close"]
 })
-export default class RaffleState extends Vue {
+ class RaffleState extends Vue {
 
 	public picking:boolean = false;
 	public disposed:boolean = false;
@@ -218,6 +218,7 @@ export default class RaffleState extends Vue {
 		this.timerPercent = 1 - (duration-elapsed)/duration;
 	}
 }
+export default toNative(RaffleState);
 </script>
 
 <style scoped lang="less">

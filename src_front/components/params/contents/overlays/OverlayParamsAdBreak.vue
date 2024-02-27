@@ -98,7 +98,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import OverlayInstaller from './OverlayInstaller.vue';
 import ParamItem from '../../ParamItem.vue';
 import TTButton from '@/components/TTButton.vue';
@@ -116,7 +116,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:[],
 })
-export default class OverlayParamsAdBreak extends Vue {
+ class OverlayParamsAdBreak extends Vue {
 
 	public overlayExists = false;
 	public testingRunning = false;
@@ -246,6 +246,7 @@ export default class OverlayParamsAdBreak extends Vue {
 		}, 250);
 	}
 }
+export default toNative(OverlayParamsAdBreak);
 </script>
 
 <style scoped lang="less">

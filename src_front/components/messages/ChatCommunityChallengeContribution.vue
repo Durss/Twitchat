@@ -37,14 +37,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"],
 })
-export default class ChatCommunityChallengeContribution extends AbstractChatMessage {
+ class ChatCommunityChallengeContribution extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCommunityChallengeContributionData;
@@ -57,6 +57,7 @@ export default class ChatCommunityChallengeContribution extends AbstractChatMess
 		return Math.floor(this.messageData.challenge.progress / this.messageData.challenge.goal * 100);
 	}
 }
+export default toNative(ChatCommunityChallengeContribution);
 </script>
 
 <style scoped lang="less">

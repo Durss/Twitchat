@@ -13,7 +13,7 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import HeatDebugPopout from '@/views/HeatDebugPopout.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -22,9 +22,10 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class HeatDebug extends Vue {
+ class HeatDebug extends Vue {
 
 }
+export default toNative(HeatDebug);
 </script>
 
 <style scoped lang="less">

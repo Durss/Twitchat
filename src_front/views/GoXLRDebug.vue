@@ -37,7 +37,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -46,7 +46,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class GoXLRDebug extends Vue {
+ class GoXLRDebug extends Vue {
 
 	public error:boolean = false;
 	public fxEnabled:boolean = false;
@@ -115,6 +115,7 @@ export default class GoXLRDebug extends Vue {
 	}
 
 }
+export default toNative(GoXLRDebug);
 </script>
 
 <style scoped lang="less">

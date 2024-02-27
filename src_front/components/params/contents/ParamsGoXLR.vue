@@ -88,7 +88,7 @@ import type { GoXLRTypes } from '@/types/GoXLRTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import type { StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
@@ -107,7 +107,7 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 	},
 	emits:[],
 })
-export default class ParamsGoXLR extends Vue {
+ class ParamsGoXLR extends Vue {
 
 	public connecting:boolean = false;
 	public showEncoderWarning:boolean = false;
@@ -213,6 +213,7 @@ export default class ParamsGoXLR extends Vue {
 		}
 	}
 }
+export default toNative(ParamsGoXLR);
 </script>
 
 <style scoped lang="less">

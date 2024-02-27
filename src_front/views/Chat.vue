@@ -190,7 +190,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
@@ -253,7 +253,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		EmergencyFollowsListModal,
 	},
 })
-export default class Chat extends Vue {
+ class Chat extends Vue {
 
 	public buildIndex = 0;
 	public showDonorBadge = true;
@@ -941,6 +941,7 @@ export default class Chat extends Vue {
 
 
 
+export default toNative(Chat);
 </script>
 
 <style scoped lang="less">

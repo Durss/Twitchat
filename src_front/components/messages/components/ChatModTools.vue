@@ -23,7 +23,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
@@ -36,7 +36,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 /**
  * TODO replace <Button> to simplement native <button> elements
  */
-export default class ChatModTools extends Vue {
+ class ChatModTools extends Vue {
 	
 	@Prop
 	public canDelete!:boolean;
@@ -136,6 +136,7 @@ export default class ChatModTools extends Vue {
 		clearTimeout(this.closeTimeout);
 	}
 }
+export default toNative(ChatModTools);
 </script>
 
 <style scoped lang="less">

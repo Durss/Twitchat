@@ -9,7 +9,7 @@
 import Icon from '@/components/Icon.vue';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -18,7 +18,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class TriggerGoXLRParams extends Vue {
+ class TriggerGoXLRParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -30,6 +30,7 @@ export default class TriggerGoXLRParams extends Vue {
 	}
 
 }
+export default toNative(TriggerGoXLRParams);
 </script>
 
 <style scoped lang="less">

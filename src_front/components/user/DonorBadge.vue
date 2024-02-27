@@ -92,12 +92,12 @@ C62.5,8,58.7,17.2,64.8,19.2L64.8,19.2z"/>
 import StoreProxy from '@/store/StoreProxy';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class DonorBadge extends Vue {
+ class DonorBadge extends Vue {
 
 	@Prop({type:Boolean, default:false})
 	public light!:boolean;
@@ -231,6 +231,7 @@ interface StarData {
 	va:number;
 	s:number;
 }
+export default toNative(DonorBadge);
 </script>
 
 <style scoped lang="less">

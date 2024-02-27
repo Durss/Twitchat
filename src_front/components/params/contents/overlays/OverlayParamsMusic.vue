@@ -50,7 +50,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -62,7 +62,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
-export default class OverlayParamsMusic extends Vue {
+ class OverlayParamsMusic extends Vue {
 
 	public param_noScroll:TwitchatDataTypes.ParameterData<boolean>				= {type:"boolean", value:false, labelKey:"overlay.music_common.no_scroll"};
 	public param_openFromLeft:TwitchatDataTypes.ParameterData<boolean>			= {type:"boolean", value:false, labelKey:"overlay.music_common.open_from_left"};
@@ -118,6 +118,7 @@ export default class OverlayParamsMusic extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsMusic);
 </script>
 
 <style scoped lang="less">

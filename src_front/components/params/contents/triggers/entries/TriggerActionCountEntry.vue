@@ -41,7 +41,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import { COUNTER_EDIT_SOURCE_CHATTERS, COUNTER_EDIT_SOURCE_EVERYONE, COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerActionCountDataActionList, type ITriggerPlaceholder, type TriggerActionCounterData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -49,7 +49,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		ParamItem,
 	},
 })
-export default class TriggerActionCountEntry extends AbstractTriggerActionEntry {
+ class TriggerActionCountEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionCounterData;
@@ -160,6 +160,7 @@ export default class TriggerActionCountEntry extends AbstractTriggerActionEntry 
 	}
 
 }
+export default toNative(TriggerActionCountEntry);
 </script>
 
 <style scoped lang="less">

@@ -18,7 +18,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TriggerActionGoXLRDataActionList, type TriggerActionGoXLRData, type TriggerActionGoXLRDataAction, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import GoXLRUI from '@/components/goxlr/GoXLRUI.vue';
@@ -32,7 +32,7 @@ import { GoXLRTypes } from '@/types/GoXLRTypes';
 	},
 	emits:[],
 })
-export default class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
+ class TriggerActionGoXLREntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionGoXLRData;
@@ -97,6 +97,7 @@ export default class TriggerActionGoXLREntry extends AbstractTriggerActionEntry 
 	}
 
 }
+export default toNative(TriggerActionGoXLREntry);
 </script>
 
 <style scoped lang="less">

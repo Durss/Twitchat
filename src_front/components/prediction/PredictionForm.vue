@@ -69,7 +69,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -89,7 +89,7 @@ import DataStore from '@/store/DataStore';
 	},
 	emits:['close']
 })
-export default class PredictionForm extends AbstractSidePanel {
+ class PredictionForm extends AbstractSidePanel {
 	
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
@@ -259,6 +259,7 @@ export default class PredictionForm extends AbstractSidePanel {
 	}
 
 }
+export default toNative(PredictionForm);
 </script>
 
 <style scoped lang="less">

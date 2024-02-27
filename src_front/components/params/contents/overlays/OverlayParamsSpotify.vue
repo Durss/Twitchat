@@ -25,7 +25,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import OverlayMusicPlayer from '../../../overlays/OverlayMusicPlayer.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -40,7 +40,7 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 	},
 	emits:[]
 })
-export default class OverlayParamsSpotify extends Vue {
+ class OverlayParamsSpotify extends Vue {
 	
 	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
@@ -53,6 +53,7 @@ export default class OverlayParamsSpotify extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsSpotify);
 </script>
 
 <style scoped lang="less">

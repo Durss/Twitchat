@@ -15,13 +15,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import ContextMenu from "@imengyu/vue3-context-menu";
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class ContextMenuTimeoutDuration extends Vue {
+ class ContextMenuTimeoutDuration extends Vue {
 
 	@Prop
 	public user!:TwitchatDataTypes.TwitchatUser;
@@ -59,6 +59,7 @@ export default class ContextMenuTimeoutDuration extends Vue {
 	}
 
 }
+export default toNative(ContextMenuTimeoutDuration);
 </script>
 
 <style scoped lang="less">

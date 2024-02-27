@@ -25,7 +25,7 @@
 
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamsAccountPatreon from './account/ParamsAccountPatreon.vue';
 import SponsorTable from '@/components/premium/SponsorTable.vue';
 
@@ -37,9 +37,10 @@ import SponsorTable from '@/components/premium/SponsorTable.vue';
 	},
 	emits:[],
 })
-export default class ParamsPremium extends Vue {
+ class ParamsPremium extends Vue {
 
 }
+export default toNative(ParamsPremium);
 </script>
 
 <style scoped lang="less">

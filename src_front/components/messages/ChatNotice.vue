@@ -9,14 +9,14 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatNotice extends AbstractChatMessage {
+ class ChatNotice extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageNoticeData;
@@ -65,6 +65,7 @@ export default class ChatNotice extends AbstractChatMessage {
 		this.$store.accessibility.setAriaPolite(this.message);
 	}
 }
+export default toNative(ChatNotice);
 </script>
 
 <style scoped lang="less">

@@ -22,7 +22,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import ConnectSpotifyForm from './connexions/ConnectSpotifyForm.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
@@ -42,7 +42,7 @@ import Config from '@/utils/Config';
 	},
 	emits:[],
 })
-export default class ParamsConnexions extends Vue implements IParameterContent {
+ class ParamsConnexions extends Vue implements IParameterContent {
 
 	public allowHighlight:boolean = true;
 
@@ -60,6 +60,7 @@ export default class ParamsConnexions extends Vue implements IParameterContent {
 		}
 	}
 }
+export default toNative(ParamsConnexions);
 </script>
 
 <style scoped lang="less">

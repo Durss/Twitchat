@@ -72,7 +72,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 
 @Component({
@@ -82,7 +82,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["update:modelValue", "insert"]
 })
-export default class PlaceholderSelector extends Vue {
+ class PlaceholderSelector extends Vue {
 
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];
@@ -180,6 +180,7 @@ export default class PlaceholderSelector extends Vue {
 		gsap.fromTo(event.target, {scaleY:1.5, filter:"brightness(5)"}, {scaleY:1, filter:"brightness(1)", duration:.25, ease:"sine.out"});
 	}
 }
+export default toNative(PlaceholderSelector);
 </script>
 
 <style lang="less">

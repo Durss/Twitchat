@@ -13,12 +13,12 @@
 
 <script lang="ts">
 import VoiceAction from '@/utils/voice/VoiceAction';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class VoiceGlobalCommandsHelper extends Vue {
+ class VoiceGlobalCommandsHelper extends Vue {
 
 	@Prop({
 			type: Boolean,
@@ -55,6 +55,7 @@ export default class VoiceGlobalCommandsHelper extends Vue {
 		
 
 }
+export default toNative(VoiceGlobalCommandsHelper);
 </script>
 
 <style scoped lang="less">

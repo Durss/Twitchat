@@ -122,7 +122,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
@@ -188,7 +188,7 @@ import ParamsYoutube from './contents/ParamsYoutube.vue';
 	}
 })
 
-export default class Parameters extends Vue {
+ class Parameters extends Vue {
 
 	public closed:boolean = true;
 	public showCTA:boolean = true;
@@ -509,6 +509,7 @@ interface RawMenuEntry {
 	id:TwitchatDataTypes.ParameterPagesStringType;
 	pinned:boolean;
 }
+export default toNative(Parameters);
 </script>
 
 <style scoped lang="less">

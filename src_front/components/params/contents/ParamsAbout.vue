@@ -58,7 +58,7 @@
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import ParamsSponsor from './ParamsSponsor.vue';
 
@@ -69,7 +69,7 @@ import ParamsSponsor from './ParamsSponsor.vue';
 		ParamsSponsor,
 	}
 })
-export default class ParamsAbout extends Vue implements IParameterContent {
+ class ParamsAbout extends Vue implements IParameterContent {
 	
 
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
@@ -78,6 +78,7 @@ export default class ParamsAbout extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 }
+export default toNative(ParamsAbout);
 </script>
 
 <style scoped lang="less">

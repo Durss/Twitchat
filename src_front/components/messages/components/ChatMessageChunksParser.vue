@@ -30,13 +30,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import type { StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class ChatMessageChunksParser extends Vue {
+ class ChatMessageChunksParser extends Vue {
 
 	@Prop
 	public platform!:TwitchatDataTypes.ChatPlatform;
@@ -71,6 +71,7 @@ export default class ChatMessageChunksParser extends Vue {
 		return {};
 	}
 }
+export default toNative(ChatMessageChunksParser);
 </script>
 
 <style scoped lang="less">

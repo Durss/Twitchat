@@ -79,7 +79,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import UnicodeUtils from '@/utils/UnicodeUtils';
 import Utils from '@/utils/Utils';
 import { reactive, watch, type StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ToggleButton from '../../ToggleButton.vue';
@@ -99,7 +99,7 @@ import Icon from '@/components/Icon.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsAutomod extends Vue implements IParameterContent {
+ class ParamsAutomod extends Vue implements IParameterContent {
 
 	public testStr:string = "";//ⓣ🅗ｉ⒮ 𝖎𝓼 𝕒 𝙩🄴🆂𝔱 - ǝsɹǝʌǝɹ
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
@@ -235,6 +235,7 @@ export default class ParamsAutomod extends Vue implements IParameterContent {
 	}
 
 }
+export default toNative(ParamsAutomod);
 </script>
 
 <style scoped lang="less">

@@ -15,14 +15,14 @@
 <script lang="ts">
 import { storeParams } from '@/store/params/storeParams';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatRaffleResult extends AbstractChatMessage {
+ class ChatRaffleResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRaffleData;
@@ -36,6 +36,7 @@ export default class ChatRaffleResult extends AbstractChatMessage {
 		return user;
 	}
 }
+export default toNative(ChatRaffleResult);
 </script>
 
 <style scoped lang="less">

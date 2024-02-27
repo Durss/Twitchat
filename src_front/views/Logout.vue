@@ -34,16 +34,17 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		Button: TTButton,
 	}
 })
-export default class Logout extends Vue {
+ class Logout extends Vue {
 	public showDetails = false;
 }
+export default toNative(Logout);
 </script>
 
 <style scoped lang="less">

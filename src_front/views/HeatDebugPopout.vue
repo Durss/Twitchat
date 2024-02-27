@@ -16,13 +16,13 @@ import DataStore from '@/store/DataStore';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
 import { watch, type StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class HeatDebugPopout extends Vue {
+ class HeatDebugPopout extends Vue {
 
 	public isPopout:boolean = false;
 	public clicks:ClickData[] = [];
@@ -156,6 +156,7 @@ interface ClickData {
 	py:number;
 	color:string;
 }
+export default toNative(HeatDebugPopout);
 </script>
 
 <style scoped lang="less">

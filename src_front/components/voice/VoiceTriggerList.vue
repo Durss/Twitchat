@@ -80,7 +80,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -94,7 +94,7 @@ import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 		VoiceGlobalCommands,
 	}
 })
-export default class VoiceTriggerList extends Vue {
+ class VoiceTriggerList extends Vue {
 
 	public actions:VoiceAction[] = [];
 	public globalCommands:VoiceAction[] = [];
@@ -254,6 +254,7 @@ export default class VoiceTriggerList extends Vue {
 	}
 
 }
+export default toNative(VoiceTriggerList);
 </script>
 
 <style scoped lang="less">

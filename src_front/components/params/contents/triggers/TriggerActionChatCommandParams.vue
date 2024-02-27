@@ -37,7 +37,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
@@ -51,7 +51,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 		TriggerActionCommandArgumentParams,
 	}
 })
-export default class TriggerActionChatCommandParams extends Vue {
+ class TriggerActionChatCommandParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -138,6 +138,7 @@ export default class TriggerActionChatCommandParams extends Vue {
 	}
 
 }
+export default toNative(TriggerActionChatCommandParams);
 </script>
 
 <style scoped lang="less">

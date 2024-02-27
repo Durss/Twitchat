@@ -143,7 +143,7 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import MessageItem from '../MessageItem.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import Config from '@/utils/Config';
@@ -160,7 +160,7 @@ import Config from '@/utils/Config';
 	},
 	emits: ['submit', 'add', 'change'],
 })
-export default class MessageListFilter extends Vue {
+ class MessageListFilter extends Vue {
 	
 	@Prop({type:Boolean, default: false})
 	public open!:boolean;
@@ -1036,6 +1036,7 @@ export default class MessageListFilter extends Vue {
 	}
 
 }
+export default toNative(MessageListFilter);
 </script>
 
 <style scoped lang="less">

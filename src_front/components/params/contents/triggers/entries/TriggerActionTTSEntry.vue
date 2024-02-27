@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -28,7 +28,7 @@ import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/
 	},
 	emits:["update"]
 })
-export default class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
+ class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionChatData;
@@ -48,6 +48,7 @@ export default class TriggerActionTTSEntry extends AbstractTriggerActionEntry {
 	}
 
 }
+export default toNative(TriggerActionTTSEntry);
 </script>
 
 <style scoped lang="less">

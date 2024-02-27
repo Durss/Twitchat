@@ -20,19 +20,20 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatBingoResult extends AbstractChatMessage {
+ class ChatBingoResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageBingoData;
 
 }
+export default toNative(ChatBingoResult);
 </script>
 
 <style scoped lang="less">

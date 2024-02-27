@@ -30,7 +30,7 @@
 import TTButton from '@/components/TTButton.vue';
 import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerConditionListItem from './TriggerConditionListItem.vue';
@@ -45,7 +45,7 @@ import TriggerConditionListItem from './TriggerConditionListItem.vue';
 	},
 	emits: ["delete"],
 })
-export default class TriggerConditionListGroupItem extends Vue {
+ class TriggerConditionListGroupItem extends Vue {
 
 	@Prop
 	public triggerData!: TriggerData;
@@ -94,6 +94,7 @@ export default class TriggerConditionListGroupItem extends Vue {
 
 }
 
+export default toNative(TriggerConditionListGroupItem);
 </script>
 
 <style scoped lang="less">

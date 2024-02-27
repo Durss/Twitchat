@@ -8,12 +8,12 @@
 <script lang="ts">
 import Utils from '@/utils/Utils';
 import type { StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class ProgressBar extends Vue {
+ class ProgressBar extends Vue {
 
 	@Prop({type:Number,default:0})
 	public percent!:number;
@@ -75,6 +75,7 @@ export default class ProgressBar extends Vue {
 		}
 	}
 }
+export default toNative(ProgressBar);
 </script>
 
 <style scoped lang="less">

@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
@@ -25,7 +25,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	},
 	emits:["onRead"]
 })
-export default class ChatFollowbotEvents extends AbstractChatMessage {
+ class ChatFollowbotEvents extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageFollowbotData;
@@ -33,6 +33,7 @@ export default class ChatFollowbotEvents extends AbstractChatMessage {
 	public expand:boolean = false;
 
 }
+export default toNative(ChatFollowbotEvents);
 </script>
 
 <style scoped lang="less">

@@ -38,7 +38,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from '../messages/ChatMessage.vue';
 import ParamItem from './ParamItem.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
@@ -50,7 +50,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		PlaceholderSelector,
 	}
 })
-export default class PostOnChatParam extends Vue {
+ class PostOnChatParam extends Vue {
 	
 	@Prop
 	public icon!:string;
@@ -196,6 +196,7 @@ export default class PostOnChatParam extends Vue {
 		};
 	}
 }
+export default toNative(PostOnChatParam);
 </script>
 
 <style scoped lang="less">

@@ -28,7 +28,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
@@ -40,7 +40,7 @@ import MessageTranslation from './MessageTranslation.vue';
 	},
 	emits:["onRead"],
 })
-export default class ChatBits extends AbstractChatMessage {
+ class ChatBits extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCheerData;
@@ -109,6 +109,7 @@ export default class ChatBits extends AbstractChatMessage {
 		},100);
 	}
 }
+export default toNative(ChatBits);
 </script>
 
 <style scoped lang="less">

@@ -134,7 +134,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { reactive, watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleButton from '@/components/ToggleButton.vue';
@@ -150,7 +150,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 	},
 	emits:[]
 })
-export default class ParamsCounters extends Vue implements IParameterContent {
+ class ParamsCounters extends Vue implements IParameterContent {
 
 	public showForm:boolean = false;
 	public timeoutSearch:number = -1;
@@ -588,6 +588,7 @@ interface UserEntry {
 	user:TwitchatDataTypes.TwitchatUser,
 	hide:boolean,
 }
+export default toNative(ParamsCounters);
 </script>
 
 <style scoped lang="less">

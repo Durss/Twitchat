@@ -85,7 +85,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { reactive } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
@@ -95,7 +95,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	},
 	emits:["close", "triggersLogs", "obsHeatLogs"]
 })
-export default class DevmodeMenu extends Vue {
+ class DevmodeMenu extends Vue {
 
 	public pubsubHistoryLink:string|null = null;
 	public generatingHistory = false;
@@ -448,6 +448,7 @@ type Subaction = "first"
 				| "cheer_pin"
 				| "recent";
 
+export default toNative(DevmodeMenu);
 </script>
 
 <style scoped lang="less">

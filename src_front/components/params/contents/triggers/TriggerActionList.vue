@@ -143,7 +143,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
@@ -176,7 +176,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	},
 	emits:[],
 })
-export default class TriggerActionList extends Vue {
+ class TriggerActionList extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -542,6 +542,7 @@ export default class TriggerActionList extends Vue {
 		}
 	}
 }
+export default toNative(TriggerActionList);
 </script>
 
 <style scoped lang="less">

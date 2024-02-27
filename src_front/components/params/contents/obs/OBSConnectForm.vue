@@ -36,7 +36,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';
@@ -49,7 +49,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
-export default class OBSConnectForm extends Vue {
+ class OBSConnectForm extends Vue {
 
 	public loading:boolean = false;
 	public connected:boolean = false;
@@ -119,6 +119,7 @@ export default class OBSConnectForm extends Vue {
 	}
 
 }
+export default toNative(OBSConnectForm);
 </script>
 
 <style scoped lang="less">

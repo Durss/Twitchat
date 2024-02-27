@@ -67,7 +67,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../PermissionsForm.vue';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
@@ -89,7 +89,7 @@ import OBSBrowserSources from './obs/OBSBrowserSources.vue';
 	},
 	emits:[]
 })
-export default class ParamsOBS extends Vue implements IParameterContent {
+ class ParamsOBS extends Vue implements IParameterContent {
 
 	public loading = false;
 	public connected = false;
@@ -162,6 +162,7 @@ export default class ParamsOBS extends Vue implements IParameterContent {
 		}
 	}
 }
+export default toNative(ParamsOBS);
 </script>
 
 <style scoped lang="less">

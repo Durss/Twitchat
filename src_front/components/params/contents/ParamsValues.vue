@@ -115,7 +115,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { reactive, watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import Config from '@/utils/Config';
@@ -130,7 +130,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:[]
 })
-export default class ParamsValues extends Vue implements IParameterContent {
+ class ParamsValues extends Vue implements IParameterContent {
 
 	public showForm:boolean = false;
 	public timeoutSearch:number = -1;
@@ -470,6 +470,7 @@ interface UserEntry {
 	hide:boolean,
 }
 
+export default toNative(ParamsValues);
 </script>
 
 <style scoped lang="less">

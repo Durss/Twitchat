@@ -16,7 +16,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 
@@ -27,7 +27,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"],
 })
-export default class CustomUserNameManager extends Vue {
+ class CustomUserNameManager extends Vue {
 
 	public async mounted():Promise<void> {
 		const customUsernames = this.$store.users.customUsernames;
@@ -42,6 +42,7 @@ export default class CustomUserNameManager extends Vue {
 	}
 
 }
+export default toNative(CustomUserNameManager);
 </script>
 
 <style scoped lang="less">

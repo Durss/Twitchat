@@ -51,7 +51,7 @@
 import { TriggerEventPlaceholders, type TriggerActionBingoData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -71,7 +71,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	},
 	emits:["close"]
 })
-export default class BingoForm extends AbstractSidePanel {
+ class BingoForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -177,6 +177,7 @@ export default class BingoForm extends AbstractSidePanel {
 	}
 
 }
+export default toNative(BingoForm);
 </script>
 
 <style scoped lang="less">

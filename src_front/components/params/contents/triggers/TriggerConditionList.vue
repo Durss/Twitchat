@@ -17,7 +17,7 @@ import TTButton from '@/components/TTButton.vue';
 import type { TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import { reactive, watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
 
 @Component({
@@ -27,7 +27,7 @@ import TriggerConditionListGroupItem from './TriggerConditionListGroupItem.vue';
 	},
 	emits:[],
 })
-export default class TriggerConditionList extends Vue {
+ class TriggerConditionList extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -95,6 +95,7 @@ export default class TriggerConditionList extends Vue {
 	}
 
 }
+export default toNative(TriggerConditionList);
 </script>
 
 <style scoped lang="less">

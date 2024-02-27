@@ -13,12 +13,12 @@
 <script lang="ts">
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class VoiceTranscript extends Vue {
+ class VoiceTranscript extends Vue {
 
 	public show:boolean = false;
 
@@ -60,6 +60,7 @@ export default class VoiceTranscript extends Vue {
 	}
 
 }
+export default toNative(VoiceTranscript);
 </script>
 
 <style scoped lang="less">

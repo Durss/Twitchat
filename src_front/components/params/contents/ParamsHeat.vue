@@ -38,7 +38,7 @@ import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import HeatOverlayClick from './heat/HeatOverlayClick.vue';
 import HeatScreenList from './heat/HeatScreenList.vue';
@@ -55,7 +55,7 @@ import HeatDebug from './heat/HeatDebug.vue';
 	},
 	emits:[],
 })
-export default class ParamsHeat extends Vue {
+ class ParamsHeat extends Vue {
 	
 	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
@@ -126,6 +126,7 @@ export default class ParamsHeat extends Vue {
 	}
 
 }
+export default toNative(ParamsHeat);
 </script>
 
 <style scoped lang="less">

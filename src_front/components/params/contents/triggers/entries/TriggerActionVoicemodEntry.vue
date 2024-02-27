@@ -23,7 +23,7 @@ import { TriggerActionVoicemodDataActionList, type ITriggerPlaceholder, type Tri
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
@@ -34,7 +34,7 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 	},
 	emits:["update"]
 })
-export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
+ class TriggerActionVoicemodEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionVoicemodData;
@@ -188,6 +188,7 @@ export default class TriggerActionVoicemodEntry extends AbstractTriggerActionEnt
 	}
 
 }
+export default toNative(TriggerActionVoicemodEntry);
 </script>
 
 <style scoped lang="less">

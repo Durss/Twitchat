@@ -17,7 +17,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import ParamItem from '../params/ParamItem.vue';
 import DonorBadge from './DonorBadge.vue';
@@ -32,7 +32,7 @@ import DonorPublicState from './DonorPublicState.vue';
 	},
 	emits:[],
 })
-export default class DonorState extends Vue {
+ class DonorState extends Vue {
 
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
 	public get donorLevel():number { return this.$store.auth.twitch.user.donor.level; }
@@ -41,6 +41,7 @@ export default class DonorState extends Vue {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 }
+export default toNative(DonorState);
 </script>
 
 <style scoped lang="less">

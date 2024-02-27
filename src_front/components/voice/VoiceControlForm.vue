@@ -27,7 +27,7 @@
 import DataStore from '@/store/DataStore';
 import VoiceController from '@/utils/voice/VoiceController';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import LangSelector from '../LangSelector.vue';
 import Splitter from '../Splitter.vue';
@@ -43,7 +43,7 @@ import VoiceTriggerList from './VoiceTriggerList.vue';
 		VoiceTriggerList,
 	}
 })
-export default class VoiceControlForm extends Vue {
+ class VoiceControlForm extends Vue {
 
 	@Prop({type: Boolean, default: false})
 	public sttOnly!:boolean;
@@ -83,6 +83,7 @@ export default class VoiceControlForm extends Vue {
 	}
 
 }
+export default toNative(VoiceControlForm);
 </script>
 
 <style scoped lang="less">

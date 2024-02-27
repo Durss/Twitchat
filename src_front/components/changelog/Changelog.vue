@@ -96,7 +96,7 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
 import TTButton from '../TTButton.vue';
@@ -121,7 +121,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 	},
 	emits:["close"]
 })
-export default class Changelog extends Vue {
+ class Changelog extends Vue {
 
 	public showFu:boolean = false;
 	public showReadAlert:boolean = false;
@@ -307,6 +307,7 @@ export default class Changelog extends Vue {
 	}
 
 }
+export default toNative(Changelog);
 </script>
 
 <style scoped lang="less">

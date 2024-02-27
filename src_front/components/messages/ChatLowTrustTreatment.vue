@@ -41,14 +41,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:['onOverMessage', 'onRead'],
 })
-export default class ChatLowTrustTreatment extends AbstractChatMessage {
+ class ChatLowTrustTreatment extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageLowtrustTreatmentData;
@@ -60,6 +60,7 @@ export default class ChatLowTrustTreatment extends AbstractChatMessage {
 		return res;
 	}
 }
+export default toNative(ChatLowTrustTreatment);
 </script>
 
 <style scoped lang="less">

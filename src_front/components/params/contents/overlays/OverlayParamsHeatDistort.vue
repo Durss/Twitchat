@@ -70,7 +70,7 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
 
 @Component({
@@ -81,7 +81,7 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 	},
 	emits:[],
 })
-export default class OverlayParamsHeatDistort extends Vue {
+ class OverlayParamsHeatDistort extends Vue {
 
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
@@ -198,6 +198,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsHeatDistort);
 </script>
 
 <style scoped lang="less">

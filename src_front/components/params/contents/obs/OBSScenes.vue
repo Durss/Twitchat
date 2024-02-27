@@ -18,7 +18,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
@@ -26,7 +26,7 @@ import ParamItem from '../../ParamItem.vue';
 		ParamItem,
 	}
 })
-export default class OBSScenes extends Vue {
+ class OBSScenes extends Vue {
 
 	public sceneParams:TwitchatDataTypes.ParameterData<string>[] = [];
 
@@ -62,6 +62,7 @@ export default class OBSScenes extends Vue {
 	}
 
 }
+export default toNative(OBSScenes);
 </script>
 
 <style scoped lang="less">

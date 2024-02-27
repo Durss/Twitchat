@@ -29,7 +29,7 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -37,7 +37,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	emits: ['click', 'update:modelValue', 'update:file'],
 	expose: ['value'],
 })
-export default class TTButton extends Vue {
+ class TTButton extends Vue {
 
 	@Prop
 	public icon!:string;
@@ -159,6 +159,7 @@ export default class TTButton extends Vue {
 	}
 
 }
+export default toNative(TTButton);
 </script>
 
 <style lang="less" scoped>

@@ -39,7 +39,7 @@
 import ParamItem from '@/components/params/ParamItem.vue';
 import { VALUE_EDIT_SOURCE_SENDER, type ITriggerPlaceholder, type TriggerActionValueData, type TriggerData, VALUE_PLACEHOLDER_PREFIX, VALUE_EDIT_SOURCE_EVERYONE, VALUE_EDIT_SOURCE_CHATTERS } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import { watch } from 'vue';
 
@@ -48,7 +48,7 @@ import { watch } from 'vue';
 		ParamItem,
 	},
 })
-export default class TriggerActionValueEntry extends AbstractTriggerActionEntry {
+ class TriggerActionValueEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionValueData;
@@ -149,6 +149,7 @@ export default class TriggerActionValueEntry extends AbstractTriggerActionEntry 
 	}
 
 }
+export default toNative(TriggerActionValueEntry);
 </script>
 
 <style scoped lang="less">

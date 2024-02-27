@@ -5,7 +5,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import SwitchButton from './SwitchButton.vue';
 import Utils from '@/utils/Utils';
 
@@ -15,7 +15,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
-export default class ThemeSelector extends Vue {
+ class ThemeSelector extends Vue {
 
 	public lightMode:boolean = false;
 
@@ -28,6 +28,7 @@ export default class ThemeSelector extends Vue {
 	}
 
 }
+export default toNative(ThemeSelector);
 </script>
 
 <style scoped lang="less">

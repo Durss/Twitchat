@@ -53,7 +53,7 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ParamItem from '../ParamItem.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
@@ -70,7 +70,7 @@ import Icon from '@/components/Icon.vue';
 	},
 	emits:[]
 })
-export default class ParamsVoicemod extends Vue implements IParameterContent {
+ class ParamsVoicemod extends Vue implements IParameterContent {
 
 	public connected:boolean = false;
 	public connecting:boolean = false;
@@ -239,6 +239,7 @@ export default class ParamsVoicemod extends Vue implements IParameterContent {
 		}
 	}
 }
+export default toNative(ParamsVoicemod);
 </script>
 
 <style scoped lang="less">

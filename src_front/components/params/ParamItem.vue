@@ -320,7 +320,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import CountryFlag from 'vue-country-flag-next';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
 import TTButton from '../TTButton.vue';
@@ -341,7 +341,7 @@ import DurationForm from '../DurationForm.vue';
 	},
 	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
 })
-export default class ParamItem extends Vue {
+ class ParamItem extends Vue {
 	
 	@Prop
 	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
@@ -784,6 +784,7 @@ export default class ParamItem extends Vue {
 		}
 	}
 }
+export default toNative(ParamItem);
 </script>
 
 <style scoped lang="less">

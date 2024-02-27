@@ -107,7 +107,7 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
 
@@ -120,7 +120,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	},
 	emits:[],
 })
-export default class OverlayParamsBitswall extends Vue {
+ class OverlayParamsBitswall extends Vue {
 
 	public loading = false;
 	public overlayExists = false;
@@ -271,6 +271,7 @@ export default class OverlayParamsBitswall extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsBitswall);
 </script>
 
 <style scoped lang="less">

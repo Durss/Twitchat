@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from './TTButton.vue';
 
 @Component({
@@ -30,7 +30,7 @@ import TTButton from './TTButton.vue';
 	},
 	emits:["update:modelValue"],
 })
-export default class TabMenu extends Vue {
+ class TabMenu extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;
@@ -98,6 +98,7 @@ export default class TabMenu extends Vue {
 	}
 
 }
+export default toNative(TabMenu);
 </script>
 
 <style scoped lang="less">

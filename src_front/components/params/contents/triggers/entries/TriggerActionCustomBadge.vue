@@ -81,7 +81,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
 import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
@@ -94,7 +94,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
-export default class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
+ class TriggerActionCustomBadge extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerCustomBadgesData;
@@ -173,6 +173,7 @@ export default class TriggerActionCustomBadge extends AbstractTriggerActionEntry
 		// this.param_value.placeholderList = list.filter(v=>v.numberParsable == true);
 	}
 }
+export default toNative(TriggerActionCustomBadge);
 </script>
 
 <style scoped lang="less">

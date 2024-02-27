@@ -37,7 +37,7 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PostOnChatParam from '../PostOnChatParam.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import { gsap } from 'gsap';
@@ -51,7 +51,7 @@ import { gsap } from 'gsap';
 	},
 	emits:["collapse", "expand"],
 })
-export default class ParamsTwitchatAd extends Vue {
+ class ParamsTwitchatAd extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public expand!:boolean;
@@ -130,6 +130,7 @@ export default class ParamsTwitchatAd extends Vue {
 	}
 
 }
+export default toNative(ParamsTwitchatAd);
 </script>
 
 <style scoped lang="less">

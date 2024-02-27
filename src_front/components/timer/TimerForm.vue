@@ -42,7 +42,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -58,7 +58,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"]
 })
-export default class TimerForm extends AbstractSidePanel {
+ class TimerForm extends AbstractSidePanel {
 
 	public mode:"timer"|"countdown" = "timer";
 	
@@ -78,6 +78,7 @@ export default class TimerForm extends AbstractSidePanel {
 		this.$store.timer.countdownStart(duration * 1000);
 	}
 }
+export default toNative(TimerForm);
 </script>
 
 <style scoped lang="less">

@@ -53,7 +53,7 @@ import { TriggerEventPlaceholders, type TriggerActionPollData, type TriggerData,
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -72,7 +72,7 @@ import DataStore from '@/store/DataStore';
 	},
 	emits:['close']
 })
-export default class PollForm extends AbstractSidePanel {
+ class PollForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
@@ -216,6 +216,7 @@ export default class PollForm extends AbstractSidePanel {
 		}
 	}
 }
+export default toNative(PollForm);
 </script>
 
 <style scoped lang="less">

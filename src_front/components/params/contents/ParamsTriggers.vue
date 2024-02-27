@@ -100,7 +100,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 import TriggerActionList from './triggers/TriggerActionList.vue';
 import TriggerCreateForm from './triggers/TriggerCreateForm.vue';
@@ -115,7 +115,7 @@ import TriggerList from './triggers/TriggerList.vue';
 	},
 	emits:[],
 })
-export default class ParamsTriggers extends Vue implements IParameterContent {
+ class ParamsTriggers extends Vue implements IParameterContent {
 
 	public eventsCount:number = 0;
 	public showForm:boolean = false;
@@ -564,6 +564,7 @@ export default class ParamsTriggers extends Vue implements IParameterContent {
 		}).catch(error=>{});
 	}
 }
+export default toNative(ParamsTriggers);
 </script>
 
 <style scoped lang="less">

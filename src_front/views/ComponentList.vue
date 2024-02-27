@@ -314,7 +314,7 @@ import type { TwitchDataTypes } from '@/types//twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import staticEmotes from '@/utils/twitch/staticEmoteList.json';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import ToggleButton from '@/components/ToggleButton.vue';
 import DurationForm from '@/components/DurationForm.vue';
@@ -337,7 +337,7 @@ import DurationForm from '@/components/DurationForm.vue';
 	},
 	emits:[],
 })
-export default class ComponentList extends Vue {
+ class ComponentList extends Vue {
 
 	public type:"button"|"link" = "button";
 	public time:number = 0;
@@ -414,6 +414,7 @@ export default class ComponentList extends Vue {
 	}
 
 }
+export default toNative(ComponentList);
 </script>
 
 <style scoped lang="less">

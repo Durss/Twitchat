@@ -43,7 +43,7 @@
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
 
 @Component({
@@ -52,7 +52,7 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 	},
 	emits:["changeState", "delete", "testTrigger", "select", "duplicate"],
 })
-export default class TriggerListItem extends Vue {
+ class TriggerListItem extends Vue {
 
 	@Prop
 	public entryData!:TriggerListEntry;
@@ -73,6 +73,7 @@ export default class TriggerListItem extends Vue {
 	}
 
 }
+export default toNative(TriggerListItem);
 </script>
 
 <style scoped lang="less">

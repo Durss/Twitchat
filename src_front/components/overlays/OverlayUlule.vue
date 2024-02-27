@@ -18,13 +18,13 @@
 import ApiController from '@/utils/ApiController';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class OverlayUlule extends Vue {
+ class OverlayUlule extends Vue {
 
 	public title:string = "";
 	public currentGoal:number = 0;
@@ -88,6 +88,7 @@ export default class OverlayUlule extends Vue {
 		clearTimeout(this.timeout);
 	}
 }
+export default toNative(OverlayUlule);
 </script>
 
 <style scoped lang="less">

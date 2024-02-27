@@ -43,7 +43,7 @@
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 
 @Component({
@@ -52,7 +52,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["complete"],
 })
-export default class RewardListTransferForm extends Vue {
+ class RewardListTransferForm extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;
@@ -91,6 +91,7 @@ export default class RewardListTransferForm extends Vue {
 		this.tranfering = false;
 	}
 }
+export default toNative(RewardListTransferForm);
 </script>
 
 <style scoped lang="less">

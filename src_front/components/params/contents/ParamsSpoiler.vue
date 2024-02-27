@@ -37,7 +37,7 @@
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import type IParameterContent from './IParameterContent';
@@ -51,7 +51,7 @@ import ParamItem from '../ParamItem.vue';
 		PermissionsForm,
 	}
 })
-export default class ParamsSpoiler extends Vue implements IParameterContent {
+ class ParamsSpoiler extends Vue implements IParameterContent {
 
 	public spoilerExample!: TwitchatDataTypes.MessageChatData;
 	public param_autospoil:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"spoiler.autospoil_new_users", icon:"firstTime"};
@@ -93,6 +93,7 @@ export default class ParamsSpoiler extends Vue implements IParameterContent {
 	}
 
 }
+export default toNative(ParamsSpoiler);
 </script>
 
 <style scoped lang="less">

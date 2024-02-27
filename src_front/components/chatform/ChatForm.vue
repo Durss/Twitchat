@@ -305,7 +305,7 @@ import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
@@ -344,7 +344,7 @@ import Logger from '@/utils/Logger';
 		"update:showCredits",
 	],
 })
-export default class ChatForm extends Vue {
+ class ChatForm extends Vue {
 
 	@Prop
 	public showFeed!:boolean;
@@ -1044,6 +1044,7 @@ export default class ChatForm extends Vue {
 	}
 
 }
+export default toNative(ChatForm);
 </script>
 
 <style scoped lang="less">

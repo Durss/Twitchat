@@ -23,13 +23,13 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["select"],
 })
-export default class SimpleTriggerList extends Vue {
+ class SimpleTriggerList extends Vue {
 
 	@Prop({type:String, default:""})
 	public filteredItemId!:string;
@@ -66,6 +66,7 @@ export default class SimpleTriggerList extends Vue {
 	}
 
 }
+export default toNative(SimpleTriggerList);
 </script>
 
 <style scoped lang="less">
