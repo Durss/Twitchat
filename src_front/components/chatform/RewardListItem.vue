@@ -39,7 +39,7 @@ import type * as CMTypes from "@imengyu/vue3-context-menu";
 import ContextMenu from '@imengyu/vue3-context-menu';
 import { h, type RendererElement, type RendererNode, type StyleValue, type VNode } from 'vue';
 import contenteditable from 'vue-contenteditable';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
@@ -55,7 +55,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	},
 	emits:["transfer", "edit", "delete"],
 })
-export default class RewardListItem extends Vue {
+ class RewardListItem extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;
@@ -264,6 +264,7 @@ export default class RewardListItem extends Vue {
 	}
 
 }
+export default toNative(RewardListItem);
 </script>
 
 <style scoped lang="less">

@@ -11,13 +11,13 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits: ['update:modelValue', 'change'],
 })
-export default class ToggleButton extends Vue {
+ class ToggleButton extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;
@@ -79,6 +79,7 @@ export default class ToggleButton extends Vue {
 	}
 
 }
+export default toNative(ToggleButton);
 </script>
 
 <style scoped lang="less">

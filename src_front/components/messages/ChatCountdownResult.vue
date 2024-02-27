@@ -20,18 +20,19 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatCountdownResult extends AbstractChatMessage {
+ class ChatCountdownResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCountdownData;
 }
+export default toNative(ChatCountdownResult);
 </script>
 
 <style scoped lang="less">

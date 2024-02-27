@@ -81,7 +81,7 @@ import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
@@ -102,7 +102,7 @@ import Icon from '@/components/Icon.vue';
 	}
 })
 //TODO replace all the hardcoded message types and build them dynamically
-export default class ParamsTTS extends Vue implements IParameterContent {
+ class ParamsTTS extends Vue implements IParameterContent {
 
 	public testStr:string = "";
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", label:"", value:false};
@@ -462,6 +462,7 @@ export default class ParamsTTS extends Vue implements IParameterContent {
 		}});
 	}
 }
+export default toNative(ParamsTTS);
 </script>
 
 <style scoped lang="less">

@@ -37,7 +37,7 @@ import DataStore from '@/store/DataStore';
 import type { SocketParams } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
@@ -48,7 +48,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
-export default class ConnectWebsocket extends Vue {
+ class ConnectWebsocket extends Vue {
 
 	public error = false;
 	public showSuccess = false;
@@ -107,6 +107,7 @@ export default class ConnectWebsocket extends Vue {
 		});
 	}
 }
+export default toNative(ConnectWebsocket);
 </script>
 
 <style scoped lang="less">

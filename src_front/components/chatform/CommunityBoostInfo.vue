@@ -13,12 +13,12 @@
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class CommunityBoostInfo extends Vue {
+ class CommunityBoostInfo extends Vue {
 
 	public interpolatedPercent = 0;
 	public interpolatedProgress = 0;
@@ -56,6 +56,7 @@ export default class CommunityBoostInfo extends Vue {
 		gsap.to(this, {duration:1, interpolatedProgress:this.progress, ease:"sine.inOut"});
 	}
 }
+export default toNative(CommunityBoostInfo);
 </script>
 
 <style scoped lang="less">

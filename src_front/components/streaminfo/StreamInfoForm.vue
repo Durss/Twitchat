@@ -51,7 +51,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -71,7 +71,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 	},
 	emits:["close"]
 })
-export default class StreamInfoForm extends AbstractSidePanel {
+ class StreamInfoForm extends AbstractSidePanel {
 
 	public param_savePreset:TwitchatDataTypes.ParameterData<boolean, unknown, string>	= {value:false, type:"boolean", labelKey:"stream.form_save_preset"};
 	public param_namePreset:TwitchatDataTypes.ParameterData<string>						= {value:"", type:"string", maxLength:50, labelKey:"stream.form_save_preset_name", placeholderKey:"stream.form_save_preset_name_placeholder"};
@@ -252,6 +252,7 @@ export default class StreamInfoForm extends AbstractSidePanel {
 	}
 
 }
+export default toNative(StreamInfoForm);
 </script>
 
 <style scoped lang="less">

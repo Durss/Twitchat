@@ -67,7 +67,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import type IParameterContent from './IParameterContent';
 import OverlayParamsCounter from './overlays/OverlayParamsCounter.vue';
@@ -99,7 +99,7 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 	},
 	emits:[]
 })
-export default class ParamsOverlays extends Vue implements IParameterContent {
+ class ParamsOverlays extends Vue implements IParameterContent {
 
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
@@ -157,6 +157,7 @@ export default class ParamsOverlays extends Vue implements IParameterContent {
 	}
 }
 
+export default toNative(ParamsOverlays);
 </script>
 
 <style scoped lang="less">

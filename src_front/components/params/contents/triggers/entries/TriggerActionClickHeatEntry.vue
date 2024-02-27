@@ -18,7 +18,7 @@
 import ParamItem from '@/components/params/ParamItem.vue';
 import { TriggerTypes, type ITriggerPlaceholder, type TriggerActionHeatClickData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -27,7 +27,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
-export default class TriggerActionClickHeatEntry extends AbstractTriggerActionEntry {
+ class TriggerActionClickHeatEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionHeatClickData;
@@ -81,6 +81,7 @@ export default class TriggerActionClickHeatEntry extends AbstractTriggerActionEn
 
 
 }
+export default toNative(TriggerActionClickHeatEntry);
 </script>
 
 <style scoped lang="less">

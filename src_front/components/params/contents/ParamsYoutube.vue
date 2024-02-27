@@ -6,7 +6,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ConnectYoutube from './connexions/ConnectYoutube.vue';
 import Icon from '@/components/Icon.vue';
 
@@ -17,9 +17,10 @@ import Icon from '@/components/Icon.vue';
 	},
 	emits:[],
 })
-export default class ParamsYoutube extends Vue {
+ class ParamsYoutube extends Vue {
 
 }
+export default toNative(ParamsYoutube);
 </script>
 
 <style scoped lang="less">

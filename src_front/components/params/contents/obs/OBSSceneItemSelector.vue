@@ -34,13 +34,13 @@
 
 <script lang="ts">
 import OBSWebsocket, { type OBSItemPath, type OBSSourceItem } from '@/utils/OBSWebsocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits: ['update:modelValue', 'change'],
 })
-export default class OBSSceneItemSelector extends Vue {
+ class OBSSceneItemSelector extends Vue {
 
 	@Prop({default:[]})
 	public modelValue!:OBSItemPath;
@@ -121,6 +121,7 @@ export default class OBSSceneItemSelector extends Vue {
 	}
 
 }
+export default toNative(OBSSceneItemSelector);
 </script>
 
 <style scoped lang="less">

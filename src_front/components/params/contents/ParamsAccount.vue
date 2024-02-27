@@ -56,7 +56,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TTSUtils from '@/utils/TTSUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import AppLangSelector from '@/components/AppLangSelector.vue';
@@ -79,7 +79,7 @@ import ApiController from '@/utils/ApiController';
 	},
 	emits:[],
 })
-export default class ParamsAccount extends Vue implements IParameterContent {
+ class ParamsAccount extends Vue implements IParameterContent {
 
 	public oAuthURL = "";
 	public showObs = false;
@@ -178,6 +178,7 @@ export default class ParamsAccount extends Vue implements IParameterContent {
 	}
 
 }
+export default toNative(ParamsAccount);
 </script>
 
 <style scoped lang="less">

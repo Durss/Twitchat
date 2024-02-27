@@ -40,7 +40,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -57,7 +57,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	},
 	emits:["close"],
 })
-export default class QnaForm extends AbstractSidePanel {
+ class QnaForm extends AbstractSidePanel {
 	
 	public conflict:boolean = false;
 	public command:TwitchatDataTypes.ParameterData<string>	= {type:"string", value:"!q", placeholder:"!sugg", maxLength:30, labelKey:"qna.form.param_command", icon:"commands"};
@@ -104,6 +104,7 @@ export default class QnaForm extends AbstractSidePanel {
 	}
 
 }
+export default toNative(QnaForm);
 </script>
 
 <style scoped lang="less">

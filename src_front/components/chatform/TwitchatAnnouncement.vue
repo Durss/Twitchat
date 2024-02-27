@@ -66,7 +66,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -86,7 +86,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"],
 })
-export default class TwitchatAnnouncement extends AbstractSidePanel {
+ class TwitchatAnnouncement extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public success:boolean = false;
@@ -225,6 +225,7 @@ export default class TwitchatAnnouncement extends AbstractSidePanel {
 	}
 	
 }
+export default toNative(TwitchatAnnouncement);
 </script>
 
 <style scoped lang="less">

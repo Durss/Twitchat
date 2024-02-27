@@ -41,7 +41,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import PermissionsForm from '../../PermissionsForm.vue';
 import Splitter from '../../Splitter.vue';
@@ -58,7 +58,7 @@ import type IParameterContent from './IParameterContent';
 		PermissionsForm,
 	}
 })
-export default class ParamsAlert extends Vue implements IParameterContent {
+ class ParamsAlert extends Vue implements IParameterContent {
 	
 	public param_chatCommand:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"alert.command", value:"!alert"};
 	public param_message:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"alert.option_popin", value:true};
@@ -134,6 +134,7 @@ export default class ParamsAlert extends Vue implements IParameterContent {
 	}
 
 }
+export default toNative(ParamsAlert);
 </script>
 
 <style scoped lang="less">

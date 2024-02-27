@@ -91,7 +91,7 @@ import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
 
 @Component({
@@ -99,7 +99,7 @@ import ProgressBar from '../ProgressBar.vue';
 		ProgressBar,
 	}
 })
-export default class HypeTrainState extends Vue {
+ class HypeTrainState extends Vue {
 
 	public timerPercent:number = 0;
 	public timerDuration:number = 0;
@@ -280,6 +280,7 @@ export default class HypeTrainState extends Vue {
 	}
 
 }
+export default toNative(HypeTrainState);
 </script>
 
 <style scoped lang="less">

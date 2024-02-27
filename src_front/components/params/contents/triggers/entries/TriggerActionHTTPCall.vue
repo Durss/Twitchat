@@ -57,7 +57,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionHTTPCallData, TriggerActionHTTPCallDataAction, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import TTButton from '@/components/TTButton.vue';
 
@@ -69,7 +69,7 @@ import TTButton from '@/components/TTButton.vue';
 	},
 	emits:["update"]
 })
-export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
+ class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionHTTPCallData;
@@ -152,6 +152,7 @@ export default class TriggerActionHTTPCall extends AbstractTriggerActionEntry {
 	}
 
 }
+export default toNative(TriggerActionHTTPCall);
 </script>
 
 <style scoped lang="less">

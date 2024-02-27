@@ -13,7 +13,7 @@
 <script lang="ts">
 import { TriggerTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
 
@@ -24,7 +24,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 	},
 	emits:[],
 })
-export default class TriggerActionSlashCommandParams extends Vue {
+ class TriggerActionSlashCommandParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -65,6 +65,7 @@ export default class TriggerActionSlashCommandParams extends Vue {
 		}
 	}
 }
+export default toNative(TriggerActionSlashCommandParams);
 </script>
 
 <style scoped lang="less">

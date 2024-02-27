@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ToggleButton from './ToggleButton.vue';
 
 @Component({
@@ -28,7 +28,7 @@ import ToggleButton from './ToggleButton.vue';
 	},
 	emits: ['update:modelValue', 'change'],
 })
-export default class SwitchButton extends Vue {
+ class SwitchButton extends Vue {
 	@Prop
 	public label1!:string;
 	
@@ -80,6 +80,7 @@ export default class SwitchButton extends Vue {
 	}
 
 }
+export default toNative(SwitchButton);
 </script>
 
 <style scoped lang="less">

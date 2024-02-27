@@ -138,7 +138,7 @@ import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import CountryFlag from 'vue-country-flag-next';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import AnchorsMenu from '../components/AnchorsMenu.vue';
 import Splitter from '../components/Splitter.vue';
 import Login from './Login.vue';
@@ -155,7 +155,7 @@ import StoreProxy from '@/store/StoreProxy';
 		ThemeSelector,
 	}
 })
-export default class Home extends Vue {
+ class Home extends Vue {
 
 	public showLogin = false;
 	public anchors:TwitchatDataTypes.AnchorData[] = [];
@@ -355,6 +355,7 @@ export default class Home extends Vue {
 		}
 	}
 }
+export default toNative(Home);
 </script>
 
 <style lang="less">

@@ -30,7 +30,7 @@
 <script lang="ts">
 import { Languages } from '@/Languages';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
 
 @Component({
@@ -39,7 +39,7 @@ import CountryFlag from 'vue-country-flag-next';
 	},
 	emits:["update:lang"]
 })
-export default class LangSelector extends Vue {
+ class LangSelector extends Vue {
 
 	@Prop
 	public lang!:string;
@@ -109,6 +109,7 @@ export default class LangSelector extends Vue {
 	}
 
 }
+export default toNative(LangSelector);
 </script>
 
 <style scoped lang="less">

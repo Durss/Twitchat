@@ -151,7 +151,7 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Splitter from '../Splitter.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -168,7 +168,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:["showModal", "onRead"]
 })
-export default class ChatAd extends Vue {
+ class ChatAd extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.MessageTwitchatAdData;
@@ -278,6 +278,7 @@ export default class ChatAd extends Vue {
 	}
 
 }
+export default toNative(ChatAd);
 </script>
 
 <style scoped lang="less">

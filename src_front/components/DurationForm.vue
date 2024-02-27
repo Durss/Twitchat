@@ -37,7 +37,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import contenteditable from 'vue-contenteditable';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
@@ -48,7 +48,7 @@ import { watch } from 'vue';
 	},
 	emits:["update:modelValue", "change"],
 })
-export default class DurationForm extends Vue {
+ class DurationForm extends Vue {
 
 	@Prop({default:0, type:Number})
 	public modelValue!:number;
@@ -153,6 +153,7 @@ export default class DurationForm extends Vue {
 	}
 
 }
+export default toNative(DurationForm);
 </script>
 
 <style scoped lang="less">

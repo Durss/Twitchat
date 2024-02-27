@@ -17,7 +17,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from './params/ParamItem.vue';
 
 @Component({
@@ -26,7 +26,7 @@ import ParamItem from './params/ParamItem.vue';
 	},
 	emits:["update:modelValue"],
 })
-export default class PermissionsForm extends Vue {
+ class PermissionsForm extends Vue {
 	@Prop
 	public modelValue!:TwitchatDataTypes.PermissionsData;
 	
@@ -75,6 +75,7 @@ export default class PermissionsForm extends Vue {
 	}
 
 }
+export default toNative(PermissionsForm);
 </script>
 
 <style scoped lang="less">

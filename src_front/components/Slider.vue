@@ -8,13 +8,13 @@
 
 <script lang="ts">
 import { watch, type StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["update:modelValue", "stop", "start", "change"],
 })
-export default class Slider extends Vue {
+ class Slider extends Vue {
 
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
@@ -168,6 +168,7 @@ export default class Slider extends Vue {
 		this.fillPercent = (this.localValue - this.min) / (this.max - this.min);
 	}
 }
+export default toNative(Slider);
 </script>
 
 <style scoped lang="less">

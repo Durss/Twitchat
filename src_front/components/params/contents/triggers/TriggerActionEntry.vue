@@ -213,7 +213,7 @@ import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import BingoForm from '../../../bingo/BingoForm.vue';
 import RaffleForm from '../../../raffle/RaffleForm.vue';
 import TriggerActionChatEntry from './entries/TriggerActionChatEntry.vue';
@@ -276,7 +276,7 @@ import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.v
 	},
 	emits:["delete", "duplicate"]
 })
-export default class TriggerActionEntry extends Vue {
+ class TriggerActionEntry extends Vue {
 
 	@Prop
 	public action!:TriggerActionTypes;
@@ -524,6 +524,7 @@ export default class TriggerActionEntry extends Vue {
 	}
 
 }
+export default toNative(TriggerActionEntry);
 </script>
 
 <style lang="less">

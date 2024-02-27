@@ -80,7 +80,7 @@
 </template>
 
 <script lang="ts">
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -97,7 +97,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"],
 })
-export default class StreamSummary extends AbstractSidePanel {
+ class StreamSummary extends AbstractSidePanel {
 
 	public loading:boolean = true;
 	public noData:boolean = false;
@@ -486,6 +486,7 @@ interface UserActivities{
 	toUserCount:number;
 	toDuration:number;
 }
+export default toNative(StreamSummary);
 </script>
 
 <style scoped lang="less">

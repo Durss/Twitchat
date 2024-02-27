@@ -27,7 +27,7 @@
 import { MusicTriggerEvents, TriggerEventPlaceholders, TriggerEventTypeCategories, TriggerMusicTypes, TriggerTypes, type ITriggerPlaceholder, type TriggerActionMusicEntryData, type TriggerData, type TriggerMusicEventType, type TriggerMusicTypesValue, TriggerActionPlaceholders, TriggerActionMusicEntryDataSelectionList, type TriggerActionMusicEntryDataSelection } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
@@ -37,7 +37,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		ParamItem,
 	},
 })
-export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
+ class TriggerActionMusicEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionMusicEntryData;
@@ -93,6 +93,7 @@ export default class TriggerActionMusicEntry extends AbstractTriggerActionEntry 
 	}
 
 }
+export default toNative(TriggerActionMusicEntry);
 </script>
 
 <style scoped lang="less">

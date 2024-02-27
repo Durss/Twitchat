@@ -27,7 +27,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import PlaceholderSelector from '@/components/params/PlaceholderSelector.vue';
 import type { ITriggerPlaceholder, TriggerActionTypes, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import DurationForm from '@/components/DurationForm.vue';
 
@@ -40,7 +40,7 @@ import DurationForm from '@/components/DurationForm.vue';
 	},
 	emits:["delete"],
 })
-export default class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
+ class TriggerActionDelayEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionTypes;
@@ -74,6 +74,7 @@ export default class TriggerActionDelayEntry extends AbstractTriggerActionEntry 
 	}
 	
 }
+export default toNative(TriggerActionDelayEntry);
 </script>
 
 <style scoped lang="less">

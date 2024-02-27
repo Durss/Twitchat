@@ -54,7 +54,7 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonArray } from "type-fest";
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -67,7 +67,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
-export default class OverlayParamsRaffle extends Vue {
+ class OverlayParamsRaffle extends Vue {
 
 	public loading = false;
 	public overlayExists = false;
@@ -134,6 +134,7 @@ export default class OverlayParamsRaffle extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsRaffle);
 </script>
 
 <style scoped lang="less">

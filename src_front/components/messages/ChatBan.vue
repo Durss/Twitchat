@@ -36,7 +36,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import TTButton from '../TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -47,7 +47,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:["onRead"]
 })
-export default class ChatBan extends AbstractChatMessage {
+ class ChatBan extends AbstractChatMessage {
 	
 	@Prop	
 	declare messageData:TwitchatDataTypes.MessageBanData;
@@ -88,6 +88,7 @@ export default class ChatBan extends AbstractChatMessage {
 		this.showUnbanBt = false;
 	}
 }
+export default toNative(ChatBan);
 </script>
 
 <style scoped lang="less">

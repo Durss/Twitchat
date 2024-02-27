@@ -14,13 +14,13 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class Icon extends Vue {
+ class Icon extends Vue {
 
 	@Prop
 	public name!:string;
@@ -90,6 +90,7 @@ export default class Icon extends Vue {
 
 
 }
+export default toNative(Icon);
 </script>
 <style scoped lang="less">
 .icon{

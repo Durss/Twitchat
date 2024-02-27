@@ -7,13 +7,13 @@
 
 <script lang="ts">
 import { gsap } from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class ButtonNotification extends Vue {
+ class ButtonNotification extends Vue {
 
 	@Prop()
 	public icon!:string;
@@ -30,6 +30,7 @@ export default class ButtonNotification extends Vue {
 	}
 
 }
+export default toNative(ButtonNotification);
 </script>
 
 <style scoped lang="less">

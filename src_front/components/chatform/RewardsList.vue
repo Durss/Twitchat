@@ -60,7 +60,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
@@ -84,7 +84,7 @@ import RewardListTransferForm from './RewardListTransferForm.vue';
 /**
  * This displays all the user's rewards.
  */
-export default class RewardsList extends Vue {
+ class RewardsList extends Vue {
 
 	public loading:boolean = true;
 	public createReward:boolean = false;
@@ -188,6 +188,7 @@ export default class RewardsList extends Vue {
 		}
 	}
 }
+export default toNative(RewardsList);
 </script>
 
 <style scoped lang="less">

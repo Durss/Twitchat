@@ -63,7 +63,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import ApiController from '@/utils/ApiController';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -79,7 +79,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
-export default class TTUserList extends AbstractSidePanel {
+ class TTUserList extends AbstractSidePanel {
 
 	public users:UserData[] = [];
 	public usersSpool:UserData[] = [];
@@ -193,6 +193,7 @@ export default class TTUserList extends AbstractSidePanel {
 }
 
 interface UserData {id:string, date:number, user:TwitchDataTypes.UserInfo}
+export default toNative(TTUserList);
 </script>
 
 <style scoped lang="less">

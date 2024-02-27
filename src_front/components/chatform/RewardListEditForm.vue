@@ -25,7 +25,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
 import { watch } from 'vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -39,7 +39,7 @@ import type { ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 	},
 	emits:["update:modelValue"],
 })
-export default class RewardListEditForm extends Vue {
+ class RewardListEditForm extends Vue {
 
 	@Prop
 	public reward!:TwitchDataTypes.Reward;
@@ -182,6 +182,7 @@ export default class RewardListEditForm extends Vue {
 	}
 	
 }
+export default toNative(RewardListEditForm);
 </script>
 
 <style scoped lang="less">

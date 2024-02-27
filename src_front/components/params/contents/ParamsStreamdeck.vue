@@ -52,7 +52,7 @@
 import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import type IParameterContent from './IParameterContent';
 
 @Component({
@@ -62,13 +62,14 @@ import type IParameterContent from './IParameterContent';
 	},
 	emits:[]
 })
-export default class ParamsStreamdeck extends Vue implements IParameterContent {
+ class ParamsStreamdeck extends Vue implements IParameterContent {
 	
 	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 
 	public onNavigateBack(): boolean { return false; }
 
 }
+export default toNative(ParamsStreamdeck);
 </script>
 
 <style scoped lang="less">

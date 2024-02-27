@@ -40,7 +40,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
@@ -55,7 +55,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:["onRead"]
 })
-export default class ChatTrackAddedToQueue extends AbstractChatMessage {
+ class ChatTrackAddedToQueue extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageMusicAddedToQueueData;
@@ -130,6 +130,7 @@ export default class ChatTrackAddedToQueue extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatTrackAddedToQueue);
 </script>
 
 <style scoped lang="less">

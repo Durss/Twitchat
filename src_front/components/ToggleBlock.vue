@@ -51,7 +51,7 @@ import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import contenteditable from 'vue-contenteditable';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 /**
  * To add actions on the right or left of the header
@@ -69,7 +69,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["startDrag", "update:title", "update:open"],
 })
-export default class ToggleBlock extends Vue {
+ class ToggleBlock extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public icons!:string[];
@@ -238,6 +238,7 @@ export default class ToggleBlock extends Vue {
 	}
 
 }
+export default toNative(ToggleBlock);
 </script>
 
 <style scoped lang="less">

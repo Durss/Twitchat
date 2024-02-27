@@ -56,7 +56,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
@@ -72,7 +72,7 @@ import Database from '@/store/Database';
 	},
 	emits:["onRead"],
 })
-export default class ChatReward extends AbstractChatMessage {
+ class ChatReward extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRewardRedeemData;
@@ -159,6 +159,7 @@ export default class ChatReward extends AbstractChatMessage {
 		console.log(this.childrenList);
 	}
 }
+export default toNative(ChatReward);
 </script>
 
 <style scoped lang="less">

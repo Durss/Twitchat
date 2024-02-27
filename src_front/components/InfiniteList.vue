@@ -21,13 +21,13 @@
 <script lang="ts">
 import type { StyleValue } from 'vue';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:['update:scrollOffset'],
 })
-export default class InfiniteList extends Vue {
+ class InfiniteList extends Vue {
 
 	@Prop({
 			type:String,
@@ -305,6 +305,7 @@ interface IListItem {
 	py:number;
 }
 
+export default toNative(InfiniteList);
 </script>
 
 <style scoped lang="less">

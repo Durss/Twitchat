@@ -12,7 +12,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import type { JsonObject } from "type-fest";
 import PublicAPI from '@/utils/PublicAPI';
@@ -30,7 +30,7 @@ import gsap from 'gsap';
 	},
 	emits:["close"],
 })
-export default class EndingCreditsControls extends Vue {
+ class EndingCreditsControls extends Vue {
 
 	public speed:number = 0;
 	public ignoreSpeedchange:boolean = false;
@@ -128,6 +128,7 @@ export default class EndingCreditsControls extends Vue {
 	}
 
 }
+export default toNative(EndingCreditsControls);
 </script>
 
 <style scoped lang="less">

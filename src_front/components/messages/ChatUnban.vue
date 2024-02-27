@@ -17,14 +17,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatBan extends AbstractChatMessage {
+ class ChatBan extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageBanData;
@@ -40,6 +40,7 @@ export default class ChatBan extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatBan);
 </script>
 
 <style scoped lang="less">

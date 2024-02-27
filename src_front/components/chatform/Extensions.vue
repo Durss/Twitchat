@@ -56,7 +56,7 @@
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
@@ -74,7 +74,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"],
 })
-export default class Extensions extends AbstractSidePanel {
+ class Extensions extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public loading:boolean = true;
@@ -183,6 +183,7 @@ interface ExtensionItem {
 	loading:boolean;
 	slotOptions:{type:TwitchDataTypes.Extension["type"][number]|"split", index:string}[];
 }
+export default toNative(Extensions);
 </script>
 
 <style scoped lang="less">

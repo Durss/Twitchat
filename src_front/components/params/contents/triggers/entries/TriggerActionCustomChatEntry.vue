@@ -76,7 +76,7 @@ import type { ITriggerPlaceholder, TriggerActionCustomMessageData, TriggerData }
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { reactive } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import ToggleBlock from '@/components/ToggleBlock.vue';
@@ -94,7 +94,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
-export default class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
+ class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionCustomMessageData;
@@ -269,6 +269,7 @@ type keys = keyof NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[nu
 type Key2ParamMap = {
   [K in keys]: TwitchatDataTypes.ParameterData<unknown>;
 };
+export default toNative(TriggerActionCustomChatEntry);
 </script>
 
 <style scoped lang="less">

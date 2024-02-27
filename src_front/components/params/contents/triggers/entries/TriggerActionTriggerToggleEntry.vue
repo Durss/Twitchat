@@ -25,7 +25,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionTriggerToggleData, TriggerActionTriggerToggleDataAction, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TriggerList from '../TriggerList.vue';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 
@@ -37,7 +37,7 @@ import SimpleTriggerList from '../SimpleTriggerList.vue';
 	},
 	emits:[],
 })
-export default class TriggerActionTriggerToggleEntry extends Vue {
+ class TriggerActionTriggerToggleEntry extends Vue {
 	
 	@Prop
 	public action!:TriggerActionTriggerToggleData;
@@ -65,6 +65,7 @@ export default class TriggerActionTriggerToggleEntry extends Vue {
 		if(trigger) this.$store.triggers.openTriggerEdition(trigger)
 	}
 }
+export default toNative(TriggerActionTriggerToggleEntry);
 </script>
 
 <style scoped lang="less">

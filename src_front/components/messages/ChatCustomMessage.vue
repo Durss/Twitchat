@@ -32,7 +32,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
@@ -52,7 +52,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 	},
 	emits:["onRead"]
 })
-export default class ChatCustomMessage extends AbstractChatMessage {
+ class ChatCustomMessage extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCustomData;
@@ -110,6 +110,7 @@ export default class ChatCustomMessage extends AbstractChatMessage {
 		}
 	}
 }
+export default toNative(ChatCustomMessage);
 </script>
 
 <style scoped lang="less">

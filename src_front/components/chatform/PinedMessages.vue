@@ -41,7 +41,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
@@ -57,7 +57,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	},
 	emits:["close"]
 })
-export default class PinedMessages extends AbstractSidePanel {
+ class PinedMessages extends AbstractSidePanel {
 	
 	public overlayAvailable = false;
 	public highlightLoading = true;
@@ -118,6 +118,7 @@ export default class PinedMessages extends AbstractSidePanel {
 	}
 
 }
+export default toNative(PinedMessages);
 </script>
 
 <style scoped lang="less">

@@ -96,7 +96,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 
@@ -107,7 +107,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	emits:["setCustomActivities", "onRead"]
 })
 
-export default class ChatHypeTrainResult extends AbstractChatMessage {
+ class ChatHypeTrainResult extends AbstractChatMessage {
 	
 	@Prop({
 			type:Boolean,
@@ -197,6 +197,7 @@ export default class ChatHypeTrainResult extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatHypeTrainResult);
 </script>
 
 <style scoped lang="less">

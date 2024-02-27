@@ -26,7 +26,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -50,7 +50,7 @@ import RaidState from './RaidState.vue';
 	},
 	emits:['close','showDimmer', 'hideDimmer'],
 })
-export default class ChannelNotifications extends AbstractSidePanel {
+ class ChannelNotifications extends AbstractSidePanel {
 
 	@Prop
 	public currentContent!:TwitchatDataTypes.NotificationTypes;
@@ -106,6 +106,7 @@ export default class ChannelNotifications extends AbstractSidePanel {
 	// 	}
 	// }
 }
+export default toNative(ChannelNotifications);
 </script>
 
 <style scoped lang="less">

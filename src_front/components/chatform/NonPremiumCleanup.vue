@@ -154,7 +154,7 @@ import type { TriggerData, TriggerTreeItemData } from '@/types/TriggerActionData
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/all';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
@@ -179,7 +179,7 @@ import Config from '@/utils/Config';
 	},
 	emits:["close"],
 })
-export default class NonPremiumCleanup extends Vue {
+ class NonPremiumCleanup extends Vue {
 
 	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length <= this.$config.MAX_TRIGGERS; }
 	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
@@ -379,6 +379,7 @@ export default class NonPremiumCleanup extends Vue {
 	}
 
 }
+export default toNative(NonPremiumCleanup);
 </script>
 
 <style scoped lang="less">

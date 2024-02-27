@@ -21,12 +21,12 @@
 <script lang="ts">
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class TimerCountDownInfo extends Vue {
+ class TimerCountDownInfo extends Vue {
 	
 	public timer:string = "";
 	public countdown:string = "";
@@ -73,6 +73,7 @@ export default class TimerCountDownInfo extends Vue {
 	public stopCountdown():void { this.$store.timer.countdownStop() }
 
 }
+export default toNative(TimerCountDownInfo);
 </script>
 
 <style scoped lang="less">

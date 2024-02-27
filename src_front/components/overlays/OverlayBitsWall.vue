@@ -25,7 +25,7 @@ import Utils from '@/utils/Utils';
 import gsap from "gsap";
 import * as Matter from "matter-js";
 import * as PIXI from 'pixi.js';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import { Linear } from "gsap";
 
@@ -44,7 +44,7 @@ let bodyId2Data:{[key:string]:CheermoteData} = {}
 	components:{},
 	emits:[],
 })
-export default class OverlayBitsWall extends AbstractOverlay {
+ class OverlayBitsWall extends AbstractOverlay {
 
 	public shaderMode:boolean = false;
 	public engineReady:boolean = false;
@@ -661,6 +661,7 @@ interface CheermoteData {
 	destroyed:boolean;
 	guid:string;
 }
+export default toNative(OverlayBitsWall);
 </script>
 
 <style scoped lang="less">

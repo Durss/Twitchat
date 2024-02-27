@@ -18,7 +18,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { ITriggerPlaceholder, TriggerActionStreamInfoData, TriggerData } from '@/types/TriggerActionDataTypes';
@@ -31,7 +31,7 @@ import type { ITriggerPlaceholder, TriggerActionStreamInfoData, TriggerData } fr
 	},
 	emits:["update"]
 })
-export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
+ class TriggerActionStreamInfoEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionStreamInfoData;
@@ -79,6 +79,7 @@ export default class TriggerActionStreamInfoEntry extends AbstractTriggerActionE
 	}
 
 }
+export default toNative(TriggerActionStreamInfoEntry);
 </script>
 
 <style scoped lang="less">

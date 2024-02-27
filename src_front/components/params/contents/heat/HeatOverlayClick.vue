@@ -21,7 +21,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import PostOnChatParam from '../../PostOnChatParam.vue';
 
@@ -33,7 +33,7 @@ import PostOnChatParam from '../../PostOnChatParam.vue';
 	},
 	emits:[],
 })
-export default class HeatOverlayClick extends Vue {
+ class HeatOverlayClick extends Vue {
 	
 	public overlayTypes:OverlayKey[] = ["spotify", "ulule"];
 	public botMessageKeys:TwitchatDataTypes.BotMessageField[] = ["heatSpotify", "heatUlule"];
@@ -68,6 +68,7 @@ export default class HeatOverlayClick extends Vue {
 }
 
 type OverlayKey = "spotify" | "ulule";
+export default toNative(HeatOverlayClick);
 </script>
 
 <style scoped lang="less">

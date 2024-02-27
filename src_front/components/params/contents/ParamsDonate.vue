@@ -163,7 +163,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiController from '@/utils/ApiController';
 import Config from '@/utils/Config';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import ParamsDonorList from './ParamsDonorList.vue';
 
@@ -177,7 +177,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 	},
 	emits:[],
 })
-export default class ParamsDonate extends Vue {
+ class ParamsDonate extends Vue {
 
 	public loading:boolean = true;
 	public premium:boolean = false;
@@ -510,6 +510,7 @@ export default class ParamsDonate extends Vue {
 		premiumLabel.style.transform = "translate(0, calc(100% - .5em)) scaleY("+(this.premium? 1 : 0)+")"
 	}
 }
+export default toNative(ParamsDonate);
 </script>
 
 <style scoped lang="less">

@@ -31,7 +31,7 @@ import Config from '@/utils/Config';
 import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/TwitchScopes';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -44,7 +44,7 @@ import ToggleButton from '../ToggleButton.vue';
 	},
 	emits:["update"]
 })
-export default class ScopeSelector extends Vue {
+ class ScopeSelector extends Vue {
 	@Prop({
 			type:Array,
 			default:[],
@@ -148,6 +148,7 @@ export default class ScopeSelector extends Vue {
 		gsap.from(this.$refs.permsList as HTMLDivElement, {height:"1.5em", duration:.5, ease:"sine.inOut", clearProps:"all"});
 	}
 }
+export default toNative(ScopeSelector);
 </script>
 
 <style scoped lang="less">

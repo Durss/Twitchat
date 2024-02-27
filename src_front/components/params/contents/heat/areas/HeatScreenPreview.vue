@@ -22,7 +22,7 @@
 import Icon from '@/components/Icon.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -31,7 +31,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["delete", "duplicate", "update", "select"],
 })
-export default class HeatScreenPreview extends Vue {
+ class HeatScreenPreview extends Vue {
 
 	@Prop
 	public screen!:HeatScreen;
@@ -79,6 +79,7 @@ export default class HeatScreenPreview extends Vue {
 	}
 
 }
+export default toNative(HeatScreenPreview);
 </script>
 
 <style scoped lang="less">

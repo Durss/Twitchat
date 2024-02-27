@@ -5,13 +5,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class ClearButton extends Vue {
+ class ClearButton extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;
@@ -32,6 +32,7 @@ export default class ClearButton extends Vue {
 	}
 
 }
+export default toNative(ClearButton);
 </script>
 
 <style scoped lang="less">

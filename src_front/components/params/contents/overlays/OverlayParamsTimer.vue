@@ -51,7 +51,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -63,12 +63,13 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
-export default class OverlayParamsTimer extends Vue {
+ class OverlayParamsTimer extends Vue {
 	
 	public startTimer():void { this.$store.timer.timerStart(); }
 	public startCountdown():void { this.$store.timer.countdownStart(2 * 60 * 1000); }
 
 }
+export default toNative(OverlayParamsTimer);
 </script>
 
 <style scoped lang="less">

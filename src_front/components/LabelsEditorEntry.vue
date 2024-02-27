@@ -42,7 +42,7 @@ import gsap from 'gsap';
 import { watch } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import CountryFlag from 'vue-country-flag-next';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
 import TTButton from './TTButton.vue';
 
@@ -55,7 +55,7 @@ import TTButton from './TTButton.vue';
 	},
 	emits:["change"]
 })
-export default class LabelsEditorEntry extends Vue {
+ class LabelsEditorEntry extends Vue {
 
 	@Prop
 	public value!:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> | string;
@@ -217,6 +217,7 @@ export default class LabelsEditorEntry extends Vue {
 	}
 
 }
+export default toNative(LabelsEditorEntry);
 </script>
 
 <style scoped lang="less">

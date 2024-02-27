@@ -106,7 +106,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 
 @Component({
@@ -115,7 +115,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["showModal"]
 })
-export default class ChatTipAndTrickAd extends Vue {
+ class ChatTipAndTrickAd extends Vue {
 
 	public tipIndex = 0;
 	private maxIndex = 11;
@@ -144,6 +144,7 @@ export default class ChatTipAndTrickAd extends Vue {
 		}
 	}
 }
+export default toNative(ChatTipAndTrickAd);
 </script>
 
 <style scoped lang="less">

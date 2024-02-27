@@ -14,7 +14,7 @@ import ClearButton from '@/components/ClearButton.vue';
 import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -22,7 +22,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 		ClearButton,
 	},
 })
-export default class AlertView extends Vue {
+ class AlertView extends Vue {
 	public message = "";
 	public timeout!:number;
 	public locked:boolean = false;
@@ -73,6 +73,7 @@ export default class AlertView extends Vue {
 		this.$store.main.alertData.message = "";
 	}
 }
+export default toNative(AlertView);
 </script>
 
 <style lang="less" scoped>

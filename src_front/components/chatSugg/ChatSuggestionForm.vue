@@ -55,7 +55,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -76,7 +76,7 @@ import type { TriggerActionChatSuggestionsData, TriggerData } from '@/types/Trig
 	},
 	emits:["close"]
 })
-export default class ChatSuggestionForm extends AbstractSidePanel {
+ class ChatSuggestionForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
@@ -171,6 +171,7 @@ export default class ChatSuggestionForm extends AbstractSidePanel {
 		}
 	}
 }
+export default toNative(ChatSuggestionForm);
 </script>
 
 <style scoped lang="less">

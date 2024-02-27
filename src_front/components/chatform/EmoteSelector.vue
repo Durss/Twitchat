@@ -73,7 +73,7 @@ import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
@@ -85,7 +85,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close", "select"]
 })
-export default class EmoteSelector extends Vue {
+ class EmoteSelector extends Vue {
 
 	public users:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[] = [];
 	public filter = "";
@@ -370,6 +370,7 @@ export default class EmoteSelector extends Vue {
 	}
 
 }
+export default toNative(EmoteSelector);
 </script>
 
 <style scoped lang="less">

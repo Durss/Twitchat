@@ -37,13 +37,13 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import DOMPurify from 'isomorphic-dompurify';
 
 @Component({
 	components:{}
 })
-export default class OverlayChatHighlight extends Vue {
+ class OverlayChatHighlight extends Vue {
 
 	public message:string = "";
 	public clipData:TwitchatDataTypes.ClipInfo|null = null;
@@ -251,6 +251,7 @@ export default class OverlayChatHighlight extends Vue {
 		}
 	}
 }
+export default toNative(OverlayChatHighlight);
 </script>
 
 <style scoped lang="less">

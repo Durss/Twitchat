@@ -25,7 +25,7 @@
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ToggleBlock from '../components/ToggleBlock.vue';
 import ParamItem from '../components/params/ParamItem.vue';
 import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
@@ -41,7 +41,7 @@ import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 		VoiceControlForm,
 	}
 })
-export default class RemoteVoiceControl extends Vue {
+ class RemoteVoiceControl extends Vue {
 
 	public loading:boolean = false;
 	public connectError:boolean = false;
@@ -55,6 +55,7 @@ export default class RemoteVoiceControl extends Vue {
 	}
 
 }
+export default toNative(RemoteVoiceControl);
 </script>
 
 <style scoped lang="less">

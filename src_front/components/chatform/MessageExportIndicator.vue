@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import { watch } from 'vue';
 
@@ -25,7 +25,7 @@ import { watch } from 'vue';
 	},
 	emits:[],
 })
-export default class MessageExportIndicator extends Vue {
+ class MessageExportIndicator extends Vue {
 
 	private closeTimeout:number = -1;
 
@@ -56,6 +56,7 @@ export default class MessageExportIndicator extends Vue {
 	}
 
 }
+export default toNative(MessageExportIndicator);
 </script>
 
 <style scoped lang="less">

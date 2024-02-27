@@ -43,7 +43,7 @@ import { ScheduleTriggerEvents, type TriggerData, type TriggerScheduleEventType,
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import PermissionsForm from '../../../PermissionsForm.vue';
 import ParamItem from '../../ParamItem.vue';
 
@@ -55,7 +55,7 @@ import ParamItem from '../../ParamItem.vue';
 		PermissionsForm,
 	}
 })
-export default class TriggerActionScheduleParams extends Vue {
+ class TriggerActionScheduleParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -133,6 +133,7 @@ export default class TriggerActionScheduleParams extends Vue {
 	}
 
 }
+export default toNative(TriggerActionScheduleParams);
 </script>
 
 <style scoped lang="less">

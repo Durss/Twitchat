@@ -21,7 +21,7 @@ import type { OBSInputItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
@@ -30,7 +30,7 @@ import ParamItem from '../../ParamItem.vue';
 		ParamItem,
 	}
 })
-export default class OBSAudioSourceForm extends Vue {
+ class OBSAudioSourceForm extends Vue {
 
 	public noAudioSource = false;
 	public loadingAudioSources = false;
@@ -115,6 +115,7 @@ export default class OBSAudioSourceForm extends Vue {
 	}
 
 }
+export default toNative(OBSAudioSourceForm);
 </script>
 
 <style scoped lang="less">

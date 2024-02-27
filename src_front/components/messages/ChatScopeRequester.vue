@@ -25,7 +25,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScope2Icon, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import ClearButton from '../ClearButton.vue';
@@ -37,7 +37,7 @@ import ClearButton from '../ClearButton.vue';
 	},
 	emits:["onRead", "openFilters"]
 })
-export default class ChatScopeRequester extends AbstractChatMessage {
+ class ChatScopeRequester extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageScopeRequestData;
@@ -63,6 +63,7 @@ export default class ChatScopeRequester extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatScopeRequester);
 </script>
 
 <style scoped lang="less">
