@@ -369,7 +369,7 @@ export default class UserCard extends Vue {
 		this.error = false;
 		this.loading = true;
 		this.isTwitchProfile = false;
-		this.edittingLogin = true;
+		this.edittingLogin = false;
 		this.manageBadges = false;
 		this.manageUserNames = false;
 		this.subState = null;
@@ -384,6 +384,7 @@ export default class UserCard extends Vue {
 		this.followersCount = -1;
 		this.badges = [];
 		this.messageHistory = [];
+		this.isTwitchProfile = this.platform == "twitch";
 
 		if(!this.$store.users.userCard) {
 			this.loading = false;
@@ -424,8 +425,8 @@ export default class UserCard extends Vue {
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
+					this.badges = user.channelInfo[this.channelId].badges;
 				}
-				this.badges = user.channelInfo[this.channelId].badges;
 				
 				//Async loading of data
 				TwitchUtils.loadCurrentStreamInfo([u.id]).then(v=> {
