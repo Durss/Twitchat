@@ -45,7 +45,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import TabMenu from '../TabMenu.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -60,7 +60,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	},
 	emits:["close"]
 })
-export default class UserList extends Vue {
+ class UserList extends Vue {
 
 	public showInfo:boolean = false;
 	public myChannelId!:string;
@@ -238,6 +238,7 @@ interface ChannelUserList {
 		bots:TwitchatDataTypes.TwitchatUser[];
 	}
 }
+export default toNative(UserList);
 </script>
 
 <style scoped lang="less">

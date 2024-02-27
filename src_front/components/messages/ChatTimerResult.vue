@@ -15,14 +15,14 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"]
 })
-export default class ChatTimerResult extends AbstractChatMessage {
+ class ChatTimerResult extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageTimerData;
@@ -32,6 +32,7 @@ export default class ChatTimerResult extends AbstractChatMessage {
 	public beforeMount(): void {
 	}
 }
+export default toNative(ChatTimerResult);
 </script>
 
 <style scoped lang="less">

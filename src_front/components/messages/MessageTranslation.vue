@@ -8,7 +8,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
 import Icon from '../Icon.vue';
 
@@ -19,7 +19,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:[],
 })
-export default class MessageTranslation extends Vue {
+ class MessageTranslation extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.TranslatableMessage;
@@ -33,6 +33,7 @@ export default class MessageTranslation extends Vue {
 		return iso;
 	}
 }
+export default toNative(MessageTranslation);
 </script>
 
 <style scoped lang="less">

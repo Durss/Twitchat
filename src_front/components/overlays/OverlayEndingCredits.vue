@@ -128,7 +128,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import { watch, type StyleValue } from 'vue';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
 import gsap from 'gsap';
@@ -137,7 +137,7 @@ import gsap from 'gsap';
 	components:{},
 	emits:[],
 })
-export default class OverlayEndingCredits extends AbstractOverlay {
+ class OverlayEndingCredits extends AbstractOverlay {
 
 	public display:boolean = false;
 	public noEntry:boolean = false;
@@ -810,6 +810,7 @@ interface SlotItem {
 	entryCount:number;
 }
 
+export default toNative(OverlayEndingCredits);
 </script>
 
 <style scoped lang="less">

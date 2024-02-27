@@ -60,7 +60,7 @@ import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import { watch } from '@vue/runtime-core';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ButtonNotification from '../ButtonNotification.vue';
 import MessageItem from '../messages/MessageItem.vue';
 import Config from '@/utils/Config';
@@ -71,7 +71,7 @@ import Config from '@/utils/Config';
 		MessageItem,
 	}
 })
-export default class NewUsers extends Vue {
+ class NewUsers extends Vue {
 
 	public overIndex = -1;
 	public showList = true;
@@ -389,6 +389,7 @@ export default class NewUsers extends Vue {
 	}
 
 }
+export default toNative(NewUsers);
 </script>
 
 <style scoped lang="less">

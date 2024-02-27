@@ -74,7 +74,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import { gsap } from 'gsap';
@@ -86,7 +86,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		ToggleBlock,
 	}
 })
-export default class RaidState extends Vue {
+ class RaidState extends Vue {
 
 	public timeLeft = "";
 	public censorCount = false;
@@ -208,6 +208,7 @@ export default class RaidState extends Vue {
 	}
 
 }
+export default toNative(RaidState);
 </script>
 
 <style scoped lang="less">

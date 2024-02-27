@@ -27,7 +27,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
@@ -39,7 +39,7 @@ import { watch } from 'vue';
 	},
 	emits:["close"],
 })
-export default class ShoutoutList extends Vue {
+ class ShoutoutList extends Vue {
 
 	public channelId:string = "";
 	public timerOffset:number = 0;
@@ -125,6 +125,7 @@ export default class ShoutoutList extends Vue {
 	}
 
 }
+export default toNative(ShoutoutList);
 </script>
 
 <style scoped lang="less">

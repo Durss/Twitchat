@@ -15,7 +15,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DistortionLiquid from './distortions/DistortionLiquid.vue';
 import DistortionExpand from './distortions/DistortionExpand.vue';
@@ -31,7 +31,7 @@ import DistortionHeart from './distortions/DistortionHeart.vue';
 	},
 	emits:[],
 })
-export default class OverlayDistort extends AbstractOverlay {
+ class OverlayDistort extends AbstractOverlay {
 
 	public distortionData:TwitchatDataTypes.HeatDistortionData|null = null;
 
@@ -62,6 +62,7 @@ export default class OverlayDistort extends AbstractOverlay {
 	}
 	
 }
+export default toNative(OverlayDistort);
 </script>
 
 <style scoped lang="less">

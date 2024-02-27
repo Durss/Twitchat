@@ -105,7 +105,7 @@ import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
@@ -121,7 +121,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		ChatMessageChunksParser,
 	},
 })
-export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
+ class TriggerActionRandomEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRandomData;
@@ -224,6 +224,7 @@ export default class TriggerActionRandomEntry extends AbstractTriggerActionEntry
 
 }
 
+export default toNative(TriggerActionRandomEntry);
 </script>
 
 <style scoped lang="less">

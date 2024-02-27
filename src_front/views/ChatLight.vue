@@ -8,14 +8,14 @@
 
 <script lang="ts">
 import MessageList from '@/components/messages/MessageList.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		MessageList,
 	}
 })
-export default class ChatLight extends Vue {
+ class ChatLight extends Vue {
 
 	public maxSize = 50;
 
@@ -23,6 +23,7 @@ export default class ChatLight extends Vue {
 		this.$store.chat.realHistorySize = this.maxSize;//Reduces memory footprint
 	}
 }
+export default toNative(ChatLight);
 </script>
 
 <style scoped lang="less">

@@ -62,7 +62,7 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 
@@ -73,7 +73,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:[ "close" ]
 })
-export default class CommandHelper extends Vue {
+ class CommandHelper extends Vue {
 	
 	public raidUser:string = "";
 	public channelId:string = "";
@@ -339,6 +339,7 @@ export default class CommandHelper extends Vue {
 		this.$store.auth.requestTwitchScopes([TwitchScopes.START_RAID]);
 	}
 }
+export default toNative(CommandHelper);
 </script>
 
 <style scoped lang="less">

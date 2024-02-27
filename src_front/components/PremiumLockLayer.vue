@@ -7,7 +7,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from './TTButton.vue';
 import Icon from './Icon.vue';
 
@@ -18,7 +18,7 @@ import Icon from './Icon.vue';
 	},
 	emits:[],
 })
-export default class PremiumLockLayer extends Vue {
+ class PremiumLockLayer extends Vue {
 
 	/**
 	 * Open premium section
@@ -28,6 +28,7 @@ export default class PremiumLockLayer extends Vue {
 	}
 
 }
+export default toNative(PremiumLockLayer);
 </script>
 
 <style scoped lang="less">

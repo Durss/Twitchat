@@ -68,7 +68,7 @@
 import type { LogHeat } from '@/utils/Logger';
 import Logger from '@/utils/Logger';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
@@ -85,7 +85,7 @@ import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.v
 	},
 	emits:["close"]
 })
-export default class HeatLogs extends AbstractSidePanel {
+ class HeatLogs extends AbstractSidePanel {
 
 	public reloading = false;
 
@@ -154,6 +154,7 @@ export default class HeatLogs extends AbstractSidePanel {
 		this.refreshList();
 	}
 }
+export default toNative(HeatLogs);
 </script>
 
 <style scoped lang="less">

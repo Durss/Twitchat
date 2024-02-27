@@ -19,7 +19,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import Icon from '../Icon.vue';
 
@@ -29,7 +29,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["onRead"],
 })
-export default class ChatAdBreakStarted extends AbstractChatMessage {
+ class ChatAdBreakStarted extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageAdBreakStartData;
@@ -45,6 +45,7 @@ export default class ChatAdBreakStarted extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatAdBreakStarted);
 </script>
 
 <style scoped lang="less">

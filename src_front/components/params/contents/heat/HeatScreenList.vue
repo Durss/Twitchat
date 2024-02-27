@@ -44,7 +44,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { HeatScreen } from '@/types/HeatDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
 import draggable from 'vuedraggable';
@@ -59,7 +59,7 @@ import draggable from 'vuedraggable';
 	},
 	emits:[],
 })
-export default class HeatScreenList extends Vue {
+ class HeatScreenList extends Vue {
 
 	public currentScreen:HeatScreen|null = null;
 
@@ -115,6 +115,7 @@ export default class HeatScreenList extends Vue {
 	}
 
 }
+export default toNative(HeatScreenList);
 </script>
 
 <style scoped lang="less">

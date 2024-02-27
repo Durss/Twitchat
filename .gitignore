@@ -17,6 +17,7 @@ env.conf
 
 credentials/*
 !credentials.default.json
+/announcements.json
 
 
 # local env files

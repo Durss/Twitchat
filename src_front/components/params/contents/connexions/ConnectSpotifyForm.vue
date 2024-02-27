@@ -56,7 +56,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
@@ -67,7 +67,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
-export default class ConnectSpotifyForm extends Vue {
+ class ConnectSpotifyForm extends Vue {
 
 	public error = "";
 	public open = false;
@@ -137,6 +137,7 @@ export default class ConnectSpotifyForm extends Vue {
 	}
 
 }
+export default toNative(ConnectSpotifyForm);
 </script>
 
 <style scoped lang="less">

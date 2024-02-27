@@ -37,7 +37,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../InfiniteList.vue';
 import type { JsonObject } from "type-fest";
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -48,7 +48,7 @@ import type { StyleValue } from 'vue';
 		InfiniteList,
 	}
 })
-export default class OverlaysRaffleWheel extends Vue {
+ class OverlaysRaffleWheel extends Vue {
 
 	public itemList:TwitchatDataTypes.EntryItem[] = [];
 	public itemSize = 50;
@@ -363,6 +363,7 @@ interface StarData {
 	va:number;
 	s:number;
 }
+export default toNative(OverlaysRaffleWheel);
 </script>
 
 <style scoped lang="less">

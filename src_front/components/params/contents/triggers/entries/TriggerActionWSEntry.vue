@@ -42,7 +42,7 @@ import ParamItem from '@/components/params/ParamItem.vue';
 import type { ITriggerPlaceholder, TriggerActionWSData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import WebsocketTrigger from '@/utils/WebsocketTrigger';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -52,7 +52,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["update"]
 })
-export default class TriggerActionWSEntry extends AbstractTriggerActionEntry {
+ class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionWSData;
@@ -96,6 +96,7 @@ export default class TriggerActionWSEntry extends AbstractTriggerActionEntry {
 	}
 
 }
+export default toNative(TriggerActionWSEntry);
 </script>
 
 <style scoped lang="less">

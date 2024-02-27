@@ -20,7 +20,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessage from './ChatMessage.vue';
 
@@ -30,7 +30,7 @@ import ChatMessage from './ChatMessage.vue';
 	},
 	emits:["onRead"]
 })
-export default class ChatPinNotice extends AbstractChatMessage {
+ class ChatPinNotice extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessagePinData|TwitchatDataTypes.MessageUnpinData;
@@ -54,6 +54,7 @@ export default class ChatPinNotice extends AbstractChatMessage {
 		return "chat.pin.unpinned";
 	}
 }
+export default toNative(ChatPinNotice);
 </script>
 
 <style scoped lang="less">

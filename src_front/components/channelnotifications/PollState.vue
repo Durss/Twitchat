@@ -34,7 +34,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ProgressBar from '../ProgressBar.vue';
 
@@ -44,7 +44,7 @@ import ProgressBar from '../ProgressBar.vue';
 		ProgressBar,
 	}
 })
-export default class PollState extends Vue {
+ class PollState extends Vue {
 
 	public loading = false;
 	public progressPercent = 0;
@@ -119,6 +119,7 @@ export default class PollState extends Vue {
 		this.$store.users.openUserCard(this.poll.creator!);
 	}
 }
+export default toNative(PollState);
 </script>
 
 <style scoped lang="less">

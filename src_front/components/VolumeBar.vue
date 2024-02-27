@@ -12,13 +12,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["update:modelValue"]
 })
-export default class VolumeBar extends Vue {
+ class VolumeBar extends Vue {
 
 	@Prop({
 			type:Number,
@@ -52,6 +52,7 @@ export default class VolumeBar extends Vue {
 		this.$emit("update:modelValue", percent);
 	}
 }
+export default toNative(VolumeBar);
 </script>
 
 <style scoped lang="less">

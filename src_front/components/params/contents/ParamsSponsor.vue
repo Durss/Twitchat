@@ -61,7 +61,7 @@ import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
 import ToggleBlock from '@/components/ToggleBlock.vue';
@@ -76,7 +76,7 @@ import SponsorTable from '@/components/premium/SponsorTable.vue';
 		SponsorTable,
 	}
 })
-export default class ParamsSponsor extends Vue implements IParameterContent {
+ class ParamsSponsor extends Vue implements IParameterContent {
 
 	@Prop({type:Boolean, default:false})
 	public animate!:boolean;
@@ -145,6 +145,7 @@ export default class ParamsSponsor extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 }
+export default toNative(ParamsSponsor);
 </script>
 
 <style scoped lang="less">

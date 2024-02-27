@@ -75,7 +75,7 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -87,7 +87,7 @@ import ClearButton from '../ClearButton.vue';
 	},
 	emits:["close"]
 })
-export default class LiveFollowings extends AbstractSidePanel {
+ class LiveFollowings extends AbstractSidePanel {
 
 	public streams:TwitchDataTypes.StreamInfo[] = [];
 	public roomSettings:{[key:string]:TwitchatDataTypes.IRoomSettings} = {};
@@ -190,6 +190,7 @@ export default class LiveFollowings extends AbstractSidePanel {
 		}).catch(()=> { });
 	}
 }
+export default toNative(LiveFollowings);
 </script>
 
 <style scoped lang="less">

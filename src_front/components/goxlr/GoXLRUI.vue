@@ -10,7 +10,7 @@
 import GoXLRSocketEvent from '@/events/GoXLRSocketEvent';
 import { GoXLRTypes } from '@/types/GoXLRTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import { watch } from 'vue';
 
@@ -20,7 +20,7 @@ import { watch } from 'vue';
 	},
 	emits:["click", "change", "update:modelValue"],
 })
-export default class GoXLRUI extends Vue {
+ class GoXLRUI extends Vue {
 
 	@Prop({default: []})
 	public modelValue!:GoXLRTypes.ButtonTypesData[];
@@ -240,6 +240,7 @@ export default class GoXLRUI extends Vue {
 		}
 	}
 }
+export default toNative(GoXLRUI);
 </script>
 
 <style scoped lang="less">

@@ -19,7 +19,7 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -32,7 +32,7 @@ import gsap from 'gsap';
 		Button: TTButton,
 	}
 })
-export default class CommercialTimer extends Vue {
+ class CommercialTimer extends Vue {
 
 	public showTimer:boolean = false;
 	public error:boolean = false;
@@ -121,6 +121,7 @@ export default class CommercialTimer extends Vue {
 	}
 
 }
+export default toNative(CommercialTimer);
 </script>
 
 <style scoped lang="less">

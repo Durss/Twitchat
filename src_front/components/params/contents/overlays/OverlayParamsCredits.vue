@@ -219,7 +219,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -240,7 +240,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		OverlayInstaller,
 	}
 })
-export default class OverlayParamsCredits extends Vue {
+ class OverlayParamsCredits extends Vue {
 
 	public param_fadeSize:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:50, min:0, max:400, labelKey:"overlay.credits.param_fadeSize", icon:"fade"};
 	public param_padding:TwitchatDataTypes.ParameterData<number> = {type:"slider", value:100, min:0, max:1000, labelKey:"overlay.credits.param_padding", icon:"margin"};
@@ -616,6 +616,7 @@ export default class OverlayParamsCredits extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsCredits);
 </script>
 
 <style scoped lang="less">

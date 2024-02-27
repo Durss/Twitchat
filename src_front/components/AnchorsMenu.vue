@@ -16,13 +16,13 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["select"],
 })
-export default class AnchorsMenu extends Vue {
+ class AnchorsMenu extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public items!:TwitchatDataTypes.AnchorData[];
@@ -81,6 +81,7 @@ export default class AnchorsMenu extends Vue {
 
 
 }
+export default toNative(AnchorsMenu);
 </script>
 
 <style scoped lang="less">

@@ -24,7 +24,7 @@ import TTButton from '@/components/TTButton.vue';
 import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -32,7 +32,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class OBSBrowserSources extends Vue {
+ class OBSBrowserSources extends Vue {
 
 	public refreshingAll:boolean = false;
 	public sources:{loading:boolean, success:boolean, source:OBSInputItem, url:string, localFile:boolean}[] = [];
@@ -83,6 +83,7 @@ export default class OBSBrowserSources extends Vue {
 	}
 
 }
+export default toNative(OBSBrowserSources);
 </script>
 
 <style scoped lang="less">

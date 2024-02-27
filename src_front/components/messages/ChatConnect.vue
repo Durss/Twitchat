@@ -23,7 +23,7 @@
 
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import TTButton from '../TTButton.vue';
 import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
@@ -34,7 +34,7 @@ import TwitchMessengerClient from '@/messaging/TwitchMessengerClient';
 	},
 	emits:["onRead"]
 })
-export default class ChatConnect extends AbstractChatMessage {
+ class ChatConnect extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageConnectData | TwitchatDataTypes.MessageDisconnectData;
@@ -79,6 +79,7 @@ export default class ChatConnect extends AbstractChatMessage {
 		}, 5000);
 	}
 }
+export default toNative(ChatConnect);
 </script>
 
 <style scoped lang="less">

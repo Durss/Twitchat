@@ -9,13 +9,13 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["update:modelValue"],
 })
-export default class Checkbox extends Vue {
+ class Checkbox extends Vue {
 
 	public checked:boolean = false;
 
@@ -36,6 +36,7 @@ export default class Checkbox extends Vue {
 	}
 
 }
+export default toNative(Checkbox);
 </script>
 
 <style scoped lang="less">

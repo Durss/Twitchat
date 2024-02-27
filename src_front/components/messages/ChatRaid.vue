@@ -51,7 +51,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 
@@ -61,7 +61,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	},
 	emits:["onRead"],
 })
-export default class ChatRaid extends AbstractChatMessage {
+ class ChatRaid extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageRaidData;
@@ -98,6 +98,7 @@ export default class ChatRaid extends AbstractChatMessage {
 		this.shoutoutLoading = false;
 	}
 }
+export default toNative(ChatRaid);
 </script>
 
 <style scoped lang="less">

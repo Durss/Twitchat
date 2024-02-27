@@ -299,7 +299,7 @@
 
 <script lang="ts">
 import ThemeSelector from '@/components/ThemeSelector.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -307,7 +307,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class TermsOfUse extends Vue {
+ class TermsOfUse extends Vue {
 
 	public mounted():void {
 		//Force scroll to hash if any
@@ -320,6 +320,7 @@ export default class TermsOfUse extends Vue {
 	}
 
 }
+export default toNative(TermsOfUse);
 </script>
 
 <style scoped lang="less">

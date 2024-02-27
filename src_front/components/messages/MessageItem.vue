@@ -155,7 +155,7 @@
 <script lang="ts">
 import ChatMessage from '@/components/messages/ChatMessage.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatAd from './ChatAd.vue';
 import ChatAutobanJoin from './ChatAutobanJoin.vue';
 import ChatBan from './ChatBan.vue';
@@ -237,7 +237,7 @@ import ChatCustomMessage from './ChatCustomMessage.vue';
 	},
 	emits:[],
 })
-export default class MessageItem extends Vue {
+ class MessageItem extends Vue {
 
 	@Prop
 	public messageData!:TwitchatDataTypes.ChatMessageTypes;
@@ -246,6 +246,7 @@ export default class MessageItem extends Vue {
 	declare children:TwitchatDataTypes.ChatMessageTypes[];
 
 }
+export default toNative(MessageItem);
 </script>
 <style scoped lang="less">
 .message{

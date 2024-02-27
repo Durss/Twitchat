@@ -26,7 +26,7 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import StoreProxy from '@/store/StoreProxy';
@@ -39,7 +39,7 @@ import StoreProxy from '@/store/StoreProxy';
 	},
 	emits:[],
 })
-export default class GoXLRConnectForm extends Vue {
+ class GoXLRConnectForm extends Vue {
 
 	public error:boolean = false;
 	public opened:boolean = true;
@@ -88,6 +88,7 @@ export default class GoXLRConnectForm extends Vue {
 	}
 
 }
+export default toNative(GoXLRConnectForm);
 </script>
 
 <style scoped lang="less">

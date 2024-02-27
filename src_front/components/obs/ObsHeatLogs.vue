@@ -40,7 +40,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Logger from '@/utils/Logger';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -54,7 +54,7 @@ import ParamItem from '../params/ParamItem.vue';
 	},
 	emits:["close"]
 })
-export default class ObsHeatLogs extends AbstractSidePanel {
+ class ObsHeatLogs extends AbstractSidePanel {
 
 	public search:string = "";
 	public searching:boolean = false;
@@ -106,6 +106,7 @@ export default class ObsHeatLogs extends AbstractSidePanel {
 	}
 
 }
+export default toNative(ObsHeatLogs);
 </script>
 
 <style scoped lang="less">

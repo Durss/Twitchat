@@ -177,7 +177,7 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -200,7 +200,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	},
 	emits:["close"]
 })
-export default class RaffleForm extends AbstractSidePanel {
+ class RaffleForm extends AbstractSidePanel {
 	
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
@@ -494,6 +494,7 @@ export default class RaffleForm extends AbstractSidePanel {
 	}
 	
 }
+export default toNative(RaffleForm);
 </script>
 
 <style scoped lang="less">

@@ -22,7 +22,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHelper.vue';
 
 @Component({
@@ -31,7 +31,7 @@ import VoiceGlobalCommandsHelper from '../components/voice/VoiceGlobalCommandsHe
 		VoiceGlobalCommandsHelper,
 	}
 })
-export default class Confirm extends Vue {
+ class Confirm extends Vue {
 	
 	public confirmData:TwitchatDataTypes.ConfirmData|null = null;
 	public submitPressed = false;
@@ -143,6 +143,7 @@ export default class Confirm extends Vue {
 		this.$store.main.closeConfirm();
 	}
 }
+export default toNative(Confirm);
 </script>
 
 <style lang="less" scoped>

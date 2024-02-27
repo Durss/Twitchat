@@ -27,7 +27,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonObject } from 'type-fest';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -38,7 +38,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 	},
 	emits:["onRead"]
 })
-export default class ChatMessageClipPending extends AbstractChatMessage {
+ class ChatMessageClipPending extends AbstractChatMessage {
 	
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageClipCreate;
@@ -102,6 +102,7 @@ export default class ChatMessageClipPending extends AbstractChatMessage {
 	}
 
 }
+export default toNative(ChatMessageClipPending);
 </script>
 
 <style scoped lang="less">

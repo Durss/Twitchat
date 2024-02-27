@@ -70,7 +70,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import OBSSceneItemSelector from '../../obs/OBSSceneItemSelector.vue';
 import OverlayInstaller from '../OverlayInstaller.vue';
 
@@ -87,7 +87,7 @@ import OverlayInstaller from '../OverlayInstaller.vue';
 	},
 	emits:["delete", "created"],
 })
-export default class HeatDistortParams extends Vue {
+ class HeatDistortParams extends Vue {
 	
 	@Prop
 	public modelValue!:TwitchatDataTypes.HeatDistortionData;
@@ -103,7 +103,11 @@ export default class HeatDistortParams extends Vue {
 
 	public get heatEnabled():boolean { return HeatSocket.instance.connected; }
 	
-	public get canEnable():boolean { return this.modelValue.enabled || this.$store.heat.distortionList.filter(v=>v.enabled).length < Config.instance.MAX_DISTORTION_OVERLAYS; }
+	public get canEnable():boolean {
+		return this.modelValue.enabled
+			|| this.$store.auth.isPremium
+			|| this.$store.heat.distortionList.filter(v=>v.enabled).length < Config.instance.MAX_DISTORTION_OVERLAYS;
+	}
 
 	public get sourcePathLabel():string {
 		const chunks:string[] = [];
@@ -209,6 +213,7 @@ export default class HeatDistortParams extends Vue {
 		}
 	}
 }
+export default toNative(HeatDistortParams);
 </script>
 
 <style scoped lang="less">

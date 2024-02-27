@@ -10,7 +10,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 
 @Component({
@@ -18,7 +18,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 		ChatMessageChunksParser,
 	}
 })
-export default class ChatAlertMessage extends Vue {
+ class ChatAlertMessage extends Vue {
 
 	public message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData | null = null;
 
@@ -41,6 +41,7 @@ export default class ChatAlertMessage extends Vue {
 	}
 
 }
+export default toNative(ChatAlertMessage);
 </script>
 
 <style scoped lang="less">

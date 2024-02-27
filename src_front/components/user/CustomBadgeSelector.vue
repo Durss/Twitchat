@@ -30,7 +30,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 
@@ -41,7 +41,7 @@ import TTButton from '../TTButton.vue';
 	},
 	emits:["manageBadges", "limitReached"],
 })
-export default class CustomBadgeSelector extends Vue {
+ class CustomBadgeSelector extends Vue {
 
 	@Prop
 	public user!:TwitchatDataTypes.TwitchatUser;
@@ -84,6 +84,7 @@ export default class CustomBadgeSelector extends Vue {
 	}
 
 }
+export default toNative(CustomBadgeSelector);
 </script>
 
 <style scoped lang="less">

@@ -7,12 +7,12 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{}
 })
-export default class Splitter extends Vue {
+ class Splitter extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;
@@ -28,6 +28,7 @@ export default class Splitter extends Vue {
 	}
 
 }
+export default toNative(Splitter);
 </script>
 
 <style scoped lang="less">

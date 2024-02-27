@@ -13,7 +13,7 @@
 <script lang="ts">
 import type { ITriggerPlaceholder, TriggerActionHighlightData, TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
@@ -24,7 +24,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["update"]
 })
-export default class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
+ class TriggerActionHighlightEntry extends AbstractTriggerActionEntry {
 	
 	@Prop
 	declare action:TriggerActionHighlightData;
@@ -61,6 +61,7 @@ export default class TriggerActionHighlightEntry extends AbstractTriggerActionEn
 	}
 
 }
+export default toNative(TriggerActionHighlightEntry);
 </script>
 
 <style scoped lang="less">

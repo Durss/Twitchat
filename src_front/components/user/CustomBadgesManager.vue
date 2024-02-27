@@ -59,7 +59,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
 import ToggleButton from '../ToggleButton.vue';
@@ -72,7 +72,7 @@ import Config from '@/utils/Config';
 	},
 	emits:["close"],
 })
-export default class CustomBadgesManager extends Vue {
+ class CustomBadgesManager extends Vue {
 
 	public loading:boolean = true;
 	public badgeName:string = "";
@@ -214,6 +214,7 @@ export default class CustomBadgesManager extends Vue {
 	}
 
 }
+export default toNative(CustomBadgesManager);
 </script>
 
 <style scoped lang="less">

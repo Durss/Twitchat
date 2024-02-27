@@ -42,13 +42,13 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{}
 })
-export default class OverlayCounter extends AbstractOverlay {
+ class OverlayCounter extends AbstractOverlay {
 
 	@Prop({type: Boolean, default: false})
 	public embed!:boolean;
@@ -183,6 +183,7 @@ export default class OverlayCounter extends AbstractOverlay {
 	// }
 
 }
+export default toNative(OverlayCounter);
 </script>
 
 <style scoped lang="less">

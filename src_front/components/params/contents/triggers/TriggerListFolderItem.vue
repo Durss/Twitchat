@@ -88,7 +88,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
@@ -106,7 +106,7 @@ import TriggerListItem from './TriggerListItem.vue';
 	},
 	emits:["update:items","change","changeState","delete","duplicate","testTrigger","select"],
 })
-export default class TriggerListFolderItem extends Vue {
+ class TriggerListFolderItem extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
@@ -188,6 +188,7 @@ export default class TriggerListFolderItem extends Vue {
 	}
 
 }
+export default toNative(TriggerListFolderItem);
 </script>
 
 <style scoped lang="less">

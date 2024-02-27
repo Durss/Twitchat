@@ -91,7 +91,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import ParamItem from '../ParamItem.vue';
 import PostOnChatParam from '../PostOnChatParam.vue';
@@ -107,7 +107,7 @@ import { watch } from 'vue';
 	},
 	emits:[],
 })
-export default class ParamsList extends Vue implements IParameterContent {
+ class ParamsList extends Vue implements IParameterContent {
 
 	@Prop
 	public category!:TwitchatDataTypes.ParameterCategory;
@@ -258,6 +258,7 @@ export default class ParamsList extends Vue implements IParameterContent {
 	}
 
 }
+export default toNative(ParamsList);
 </script>
 
 <style scoped lang="less">

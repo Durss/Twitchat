@@ -47,7 +47,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -64,7 +64,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 	},
 	emits:["close"]
 })
-export default class WhispersState extends AbstractSidePanel {
+ class WhispersState extends AbstractSidePanel {
 
 	public error = false;
 	public whisper:string | null = null;
@@ -147,6 +147,7 @@ export default class WhispersState extends AbstractSidePanel {
 	}
 
 }
+export default toNative(WhispersState);
 </script>
 
 <style scoped lang="less">

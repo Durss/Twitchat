@@ -125,7 +125,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 import MessageTranslation from './MessageTranslation.vue';
@@ -138,7 +138,7 @@ import * as Sentry from "@sentry/vue";
 	},
 	emits:["onRead"],
 })
-export default class ChatSubscription extends AbstractChatMessage {
+ class ChatSubscription extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageSubscriptionData;
@@ -163,6 +163,7 @@ export default class ChatSubscription extends AbstractChatMessage {
 	public beforeMount(): void {
 	}
 }
+export default toNative(ChatSubscription);
 </script>
 
 <style scoped lang="less">

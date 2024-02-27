@@ -8,14 +8,14 @@ import bubble from '@/assets/img/distortions/bubble.png';
 import bubbleShadow from '@/assets/img/distortions/bubble_shadow.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap, { Elastic } from 'gsap/all';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class DistortionExpand extends AbstractDistortion {
+ class DistortionExpand extends AbstractDistortion {
 
 	@Prop()
 	declare params:TwitchatDataTypes.HeatDistortionData;
@@ -45,6 +45,7 @@ export default class DistortionExpand extends AbstractDistortion {
 	}
 	
 }
+export default toNative(DistortionExpand);
 </script>
 
 <style scoped lang="less">

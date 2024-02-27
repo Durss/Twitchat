@@ -53,7 +53,7 @@ import ApiHelper from '@/utils/ApiHelper';
 import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
 import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
@@ -68,7 +68,7 @@ import { Sine } from 'gsap';
 	},
 	emits:[],
 })
-export default class ConnectYoutube extends Vue {
+ class ConnectYoutube extends Vue {
 
 	/**
 	 * Used as a temporary solution.
@@ -175,6 +175,7 @@ export default class ConnectYoutube extends Vue {
 	}
 
 }
+export default toNative(ConnectYoutube);
 </script>
 
 <style scoped lang="less">

@@ -18,7 +18,7 @@
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import ParamItem from '../../../ParamItem.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
@@ -29,7 +29,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["update"]
 })
-export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
+ class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionChatData;
@@ -75,6 +75,7 @@ export default class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 	}
 
 }
+export default toNative(TriggerActionChatEntry);
 </script>
 
 <style scoped lang="less">

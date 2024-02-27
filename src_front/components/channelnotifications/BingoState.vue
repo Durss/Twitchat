@@ -33,7 +33,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
 
@@ -44,7 +44,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
-export default class BingoState extends Vue {
+ class BingoState extends Vue {
 
 	public winnerPlaceholders:TwitchatDataTypes.PlaceholderEntry[] = [];
 
@@ -65,6 +65,7 @@ export default class BingoState extends Vue {
 	}
 
 }
+export default toNative(BingoState);
 </script>
 
 <style scoped lang="less">

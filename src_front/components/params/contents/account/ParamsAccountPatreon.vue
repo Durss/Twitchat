@@ -67,7 +67,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -75,7 +75,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class ParamsAccountPatreon extends Vue {
+ class ParamsAccountPatreon extends Vue {
 
 	public patreonDown:boolean = false;
 	public redirecting:boolean = false;
@@ -137,6 +137,7 @@ export default class ParamsAccountPatreon extends Vue {
 		this.$store.params.openParamsPage("donate", TwitchatDataTypes.ParamDeepSections.PREMIUM)
 	}
 }
+export default toNative(ParamsAccountPatreon);
 </script>
 
 <style scoped lang="less">

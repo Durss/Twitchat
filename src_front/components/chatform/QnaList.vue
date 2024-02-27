@@ -57,7 +57,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
@@ -73,7 +73,7 @@ import ChatMessageChunksParser from '../messages/components/ChatMessageChunksPar
 	},
 	emits:["close"],
 })
-export default class QnaList extends AbstractSidePanel {
+ class QnaList extends AbstractSidePanel {
 	
 	public overlayAvailable = false;
 	public highlightLoading = true;
@@ -175,6 +175,7 @@ export default class QnaList extends AbstractSidePanel {
 		})
 	}
 }
+export default toNative(QnaList);
 </script>
 
 <style scoped lang="less">

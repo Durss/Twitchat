@@ -12,7 +12,7 @@
 <script lang="ts">
 import DataStore from '@/store/DataStore';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import CountryFlag from 'vue-country-flag-next';
 import StoreProxy from '@/store/StoreProxy';
 
@@ -21,7 +21,7 @@ import StoreProxy from '@/store/StoreProxy';
 		CountryFlag,
 	}
 })
-export default class AppLangSelector extends Vue {
+ class AppLangSelector extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public allLocales!:boolean;
@@ -43,6 +43,7 @@ export default class AppLangSelector extends Vue {
 	}
 
 }
+export default toNative(AppLangSelector);
 </script>
 
 <style scoped lang="less">

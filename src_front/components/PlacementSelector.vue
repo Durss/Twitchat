@@ -42,13 +42,13 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["update:modelValue"],
 })
-export default class PlacementSelector extends Vue {
+ class PlacementSelector extends Vue {
 
 	@Prop
 	public modelValue!:TwitchatDataTypes.ScreenPosition;
@@ -76,6 +76,7 @@ export default class PlacementSelector extends Vue {
 	}
 
 }
+export default toNative(PlacementSelector);
 </script>
 
 <style scoped lang="less">

@@ -68,7 +68,7 @@
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
 import Logger, { type LogTrigger, type LogTriggerStep } from '@/utils/Logger';
 import Utils from '@/utils/Utils';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -82,7 +82,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
-export default class TriggersLogs extends AbstractSidePanel {
+ class TriggersLogs extends AbstractSidePanel {
 
 	public reloading:boolean = false;
 
@@ -139,6 +139,7 @@ export default class TriggersLogs extends AbstractSidePanel {
 	}
 
 }
+export default toNative(TriggersLogs);
 </script>
 
 <style scoped lang="less">

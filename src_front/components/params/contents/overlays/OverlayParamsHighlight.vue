@@ -107,7 +107,7 @@ import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { LoremIpsum } from 'lorem-ipsum';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -120,7 +120,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		PlacementSelector,
 	}
 })
-export default class OverlayParamsHighlight extends Vue {
+ class OverlayParamsHighlight extends Vue {
 	
 	public overlayExists = false;
 	public checkingOverlayPresence = false;
@@ -198,6 +198,7 @@ export default class OverlayParamsHighlight extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsHighlight);
 </script>
 
 <style scoped lang="less">

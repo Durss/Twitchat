@@ -5,7 +5,7 @@
 
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -13,9 +13,10 @@ import { Component, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class OverlayParamsTTS extends Vue {
+ class OverlayParamsTTS extends Vue {
 
 }
+export default toNative(OverlayParamsTTS);
 </script>
 
 <style scoped lang="less">

@@ -47,7 +47,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import { watch, type StyleValue } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -56,7 +56,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["update", "close"],
 })
-export default class HeatScreenEditor extends Vue {
+ class HeatScreenEditor extends Vue {
 
 	@Prop
 	public screen!:HeatScreen;
@@ -451,6 +451,7 @@ export default class HeatScreenEditor extends Vue {
 	}
 
 }
+export default toNative(HeatScreenEditor);
 </script>
 
 <style scoped lang="less">

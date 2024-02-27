@@ -37,7 +37,7 @@ import TTButton from '@/components/TTButton.vue';
 import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import gsap from 'gsap';
 import Utils from '@/utils/Utils';
 
@@ -47,7 +47,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:["obsSourceCreated"],
 })
-export default class OverlayInstaller extends Vue {
+ class OverlayInstaller extends Vue {
 
 	@Prop({type:String, default:""})
 	public id!:string;
@@ -159,6 +159,7 @@ export default class OverlayInstaller extends Vue {
 	}
 
 }
+export default toNative(OverlayInstaller);
 </script>
 
 <style scoped lang="less">

@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { watch, type VNode } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
@@ -28,7 +28,7 @@ import EventSub from './utils/twitch/EventSub';
 		Confirm,
 	}
 })
-export default class App extends Vue {
+ class App extends Vue {
 
 	public node!:VNode;
 	public cursorImage:"pointer"|"arrow" = "arrow";
@@ -198,6 +198,7 @@ export default class App extends Vue {
 		this.cursorProps.top = (this.mousePos.y-2)+'px';
 	}
 }
+export default toNative(App);
 </script>
 
 <style scoped lang="less">

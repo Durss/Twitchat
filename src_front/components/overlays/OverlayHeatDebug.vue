@@ -7,13 +7,13 @@
 
 <script lang="ts">
 import Utils from '@/utils/Utils';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class OverlayHeatDebug extends Vue {
+ class OverlayHeatDebug extends Vue {
 
 	public mounted():void {
 		const canvas = this.$refs.canvas as HTMLCanvasElement;
@@ -55,6 +55,7 @@ export default class OverlayHeatDebug extends Vue {
 	}
 
 }
+export default toNative(OverlayHeatDebug);
 </script>
 
 <style scoped lang="less">

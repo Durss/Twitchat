@@ -514,7 +514,7 @@ import ClearButton from '@/components/ClearButton.vue';
 import Icon from '@/components/Icon.vue';
 import ThemeSelector from '@/components/ThemeSelector.vue';
 import ApiHelper from '@/utils/ApiHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Login from './Login.vue';
 import DataStore from '@/store/DataStore';
 import Utils from '@/utils/Utils';
@@ -530,7 +530,7 @@ import Config from '@/utils/Config';
 	},
 	emits:[],
 })
-export default class PrivacyPolicy extends Vue {
+ class PrivacyPolicy extends Vue {
 
 	public confirmation:string = "";
 	public showDeleteInput:boolean = false;
@@ -596,6 +596,7 @@ export default class PrivacyPolicy extends Vue {
 	}
 
 }
+export default toNative(PrivacyPolicy);
 </script>
 
 <style scoped lang="less">

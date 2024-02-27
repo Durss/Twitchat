@@ -34,7 +34,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import AbstractChatMessage from './AbstractChatMessage';
 import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
@@ -46,7 +46,7 @@ import ChatMessageInfoBadges from './components/ChatMessageInfoBadges.vue';
 	},
 	emits:["onRead"],
 })
-export default class ChatAutobanJoin extends AbstractChatMessage {
+ class ChatAutobanJoin extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageAutobanJoinData;
@@ -73,6 +73,7 @@ export default class ChatAutobanJoin extends AbstractChatMessage {
 		this.canBlock = false;
 	}
 }
+export default toNative(ChatAutobanJoin);
 </script>
 
 <style scoped lang="less">

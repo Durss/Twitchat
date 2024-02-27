@@ -49,13 +49,13 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { gsap } from 'gsap';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["scrollBy"]
 })
-export default class SponsorTable extends Vue {
+ class SponsorTable extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public expand!:boolean;
@@ -141,6 +141,7 @@ export default class SponsorTable extends Vue {
 	}
 
 }
+export default toNative(SponsorTable);
 </script>
 
 <style scoped lang="less">

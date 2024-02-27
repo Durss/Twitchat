@@ -15,7 +15,7 @@ import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../params/ParamItem.vue';
 import Icon from '../Icon.vue';
 
@@ -27,7 +27,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["change"],
 })
-export default class DonorPublicState extends Vue {
+ class DonorPublicState extends Vue {
 
 	@Prop({type:Boolean, default:false})
 	public noInfos!:boolean;
@@ -65,6 +65,7 @@ export default class DonorPublicState extends Vue {
 	}
 
 }
+export default toNative(DonorPublicState);
 </script>
 
 <style scoped lang="less">

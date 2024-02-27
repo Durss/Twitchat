@@ -8,14 +8,14 @@ import heart from '@/assets/img/distortions/heart.png';
 import heartShadow from '@/assets/img/distortions/heart_shadow.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap/all';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 
 @Component({
 	components:{},
 	emits:[],
 })
-export default class DistortionHeart extends AbstractDistortion {
+ class DistortionHeart extends AbstractDistortion {
 
 	@Prop()
 	declare params:TwitchatDataTypes.HeatDistortionData;
@@ -48,6 +48,7 @@ export default class DistortionHeart extends AbstractDistortion {
 	}
 	
 }
+export default toNative(DistortionHeart);
 </script>
 
 <style scoped lang="less">

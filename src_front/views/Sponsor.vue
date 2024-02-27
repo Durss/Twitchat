@@ -23,7 +23,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import { gsap } from 'gsap';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../components/TTButton.vue';
 import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 
@@ -33,7 +33,7 @@ import ParamsSponsor from '../components/params/contents/ParamsSponsor.vue';
 		ParamsSponsor,
 	}
 })
-export default class Sponsor extends Vue {
+ class Sponsor extends Vue {
 
 	public get enabledLocales():string[] {
 		return this.$i18n.availableLocales.filter(v=> {
@@ -55,6 +55,7 @@ export default class Sponsor extends Vue {
 	}
 
 }
+export default toNative(Sponsor);
 </script>
 
 <style scoped lang="less">

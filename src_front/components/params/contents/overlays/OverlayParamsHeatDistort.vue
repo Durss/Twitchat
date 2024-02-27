@@ -8,10 +8,10 @@
 		
 		<div class="card-item alert center" v-if="!obsConnected">
 			<p>{{ $t("heat.need_OBS") }}</p>
-			<Button class="button"
+			<TTButton class="button"
 				icon="obs"
 				light alert
-				@click="$store.params.openParamsPage(contentObs)">{{ $t('heat.need_OBS_connectBt') }}</Button>
+				@click="$store.params.openParamsPage(contentObs)">{{ $t('heat.need_OBS_connectBt') }}</TTButton>
 		</div>
 		
 		<template v-else>
@@ -30,11 +30,11 @@
 				</i18n-t>
 			</div>
 			
-			<Button class="item center" icon="add" primary @click="addDistortion()"
-			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			<TTButton class="item center" icon="add" primary @click="addDistortion()"
+			v-if="distortionList.length < maxEntries">{{ $t("overlay.heatDistort.add_overlay") }}</TTButton>
 			
-			<Button class="item center" icon="add" premium @click="expandPremiumInfo = true"
-			v-else-if="!expandPremiumInfo && !isPremium">{{ $t("overlay.heatDistort.add_overlay") }}</Button>
+			<TTButton class="item center" icon="add" premium @click="expandPremiumInfo = true"
+			v-else-if="!expandPremiumInfo && !isPremium">{{ $t("overlay.heatDistort.add_overlay") }}</TTButton>
 
 			<div class="card-item maximumReached" v-else>
 				<p class="label">
@@ -43,7 +43,7 @@
 						<template #COUNT>{{ premiumCount }}</template>
 					</i18n-t>
 				</p>
-				<Button icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</Button>
+				<TTButton icon="premium" premium v-if="!isPremium" @click="becomePremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 			</div>
 
 			<div class="card-item item footer">
@@ -70,18 +70,18 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
 import gsap from 'gsap/all';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		HeatDistortParams,
 	},
 	emits:[],
 })
-export default class OverlayParamsHeatDistort extends Vue {
+ class OverlayParamsHeatDistort extends Vue {
 
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;
@@ -198,6 +198,7 @@ export default class OverlayParamsHeatDistort extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsHeatDistort);
 </script>
 
 <style scoped lang="less">

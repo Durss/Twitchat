@@ -40,7 +40,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -54,7 +54,7 @@ import ChatMessage from '../messages/ChatMessage.vue';
 	},
 	emits:["close"]
 })
-export default class MessageSearch extends AbstractSidePanel {
+ class MessageSearch extends AbstractSidePanel {
 
 	public search = "";
 	public messages:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -112,6 +112,7 @@ export default class MessageSearch extends AbstractSidePanel {
 	}
 
 }
+export default toNative(MessageSearch);
 </script>
 
 <style scoped lang="less">

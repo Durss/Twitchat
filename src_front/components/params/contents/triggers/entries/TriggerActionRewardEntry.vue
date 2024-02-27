@@ -31,7 +31,7 @@ import { TriggerActionRewardDataActionList, TriggerActionRewardDataStateList, ty
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -42,7 +42,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[],
 })
-export default class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
+ class TriggerActionRewardEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionRewardData;
@@ -125,6 +125,7 @@ export default class TriggerActionRewardEntry extends AbstractTriggerActionEntry
 	}
 
 }
+export default toNative(TriggerActionRewardEntry);
 </script>
 
 <style scoped lang="less">

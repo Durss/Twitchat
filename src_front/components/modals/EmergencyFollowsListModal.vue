@@ -92,7 +92,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import InfiniteList from '../InfiniteList.vue';
 import { useTippy } from 'vue-tippy';
@@ -104,7 +104,7 @@ import { useTippy } from 'vue-tippy';
 	},
 	emits:["close"]
 })
-export default class EmergencyFollowsListModal extends Vue {
+ class EmergencyFollowsListModal extends Vue {
 
 	public search:string = "";
 	public scrollOffset:number = 0;
@@ -254,6 +254,7 @@ export default class EmergencyFollowsListModal extends Vue {
 	}
 
 }
+export default toNative(EmergencyFollowsListModal);
 </script>
 
 <style scoped lang="less">

@@ -7,7 +7,7 @@
 <script lang="ts">
 import { AD_APPROACHING_INTERVALS, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import Utils from '@/utils/Utils';
 
@@ -17,7 +17,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
-export default class TriggerAdApproachParams extends Vue {
+ class TriggerAdApproachParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -34,6 +34,7 @@ export default class TriggerAdApproachParams extends Vue {
 	}
 
 }
+export default toNative(TriggerAdApproachParams);
 </script>
 
 <style scoped lang="less">

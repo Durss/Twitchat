@@ -11,7 +11,7 @@
 import PermissionsForm from '@/components/PermissionsForm.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -20,7 +20,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:[],
 })
-export default class TriggerActionAnyMessageParams extends Vue {
+ class TriggerActionAnyMessageParams extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -42,6 +42,7 @@ export default class TriggerActionAnyMessageParams extends Vue {
 	}
 
 }
+export default toNative(TriggerActionAnyMessageParams);
 </script>
 
 <style scoped lang="less">

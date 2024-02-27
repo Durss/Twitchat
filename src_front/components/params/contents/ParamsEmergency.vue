@@ -88,7 +88,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import { watch, type StyleValue } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';
 import ToggleBlock from '../../ToggleBlock.vue';
 import ParamItem from '../ParamItem.vue';
@@ -103,7 +103,7 @@ import type IParameterContent from './IParameterContent';
 		PermissionsForm,
 	}
 })
-export default class ParamsEmergency extends Vue implements IParameterContent {
+ class ParamsEmergency extends Vue implements IParameterContent {
 
 	public param_obsScene:TwitchatDataTypes.ParameterData<string, string>				= {type:"list", value:""};
 	public param_enable:TwitchatDataTypes.ParameterData<boolean>						= {type:"boolean", value:false, labelKey:"global.enable"};
@@ -288,6 +288,7 @@ export default class ParamsEmergency extends Vue implements IParameterContent {
 		this.selectedOBSSources = list;
 	}
 }
+export default toNative(ParamsEmergency);
 </script>
 
 <style scoped lang="less">

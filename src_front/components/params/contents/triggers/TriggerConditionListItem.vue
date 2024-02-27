@@ -26,7 +26,7 @@ import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerConditionOperatorList, Trigger
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 
 @Component({
@@ -36,7 +36,7 @@ import ParamItem from '../../ParamItem.vue';
 	},
 	emits:[],
 })
-export default class TriggerConditionListItem extends Vue {
+ class TriggerConditionListItem extends Vue {
 
 	@Prop
 	public triggerData!:TriggerData;
@@ -208,6 +208,7 @@ export interface ConditionListValues<T> extends TwitchatDataTypes.ParameterDataL
 	fixedValues?:TwitchatDataTypes.ParameterDataListValue<unknown>[];
 }
 
+export default toNative(TriggerConditionListItem);
 </script>
 
 <style scoped lang="less">

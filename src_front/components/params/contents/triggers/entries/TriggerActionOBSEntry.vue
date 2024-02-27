@@ -54,7 +54,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { OBSFilter, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import OBSWebsocket, { type OBSInputItem } from '@/utils/OBSWebsocket';
 import { watch } from 'vue';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -63,7 +63,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:[]
 })
-export default class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
+ class TriggerActionOBSEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionObsData;
@@ -405,6 +405,7 @@ interface SourceItem extends TwitchatDataTypes.ParameterDataListValue<string> {
 	type:"scene"|"source"|"input";
 	name:string;
 }
+export default toNative(TriggerActionOBSEntry);
 </script>
 
 <style scoped lang="less">

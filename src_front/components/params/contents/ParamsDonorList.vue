@@ -41,7 +41,7 @@ import StoreProxy from '@/store/StoreProxy';
 import ApiHelper from '@/utils/ApiHelper';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import InfiniteList from '../../InfiniteList.vue';
 import DonorBadge from '../../user/DonorBadge.vue';
 import DonorPublicState from '@/components/user/DonorPublicState.vue';
@@ -53,7 +53,7 @@ import DonorPublicState from '@/components/user/DonorPublicState.vue';
 		DonorPublicState,
 	}
 })
-export default class ParamsDonorList extends Vue {
+ class ParamsDonorList extends Vue {
 
 	public badges:{level:number, count:number}[] = [];
 	public itemList:{uid:string, v:number, login:string, index:number}[] = [];
@@ -148,6 +148,7 @@ export default class ParamsDonorList extends Vue {
 	}
 
 }
+export default toNative(ParamsDonorList);
 </script>
 
 <style scoped lang="less">

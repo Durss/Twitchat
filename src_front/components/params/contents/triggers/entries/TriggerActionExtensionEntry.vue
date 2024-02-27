@@ -21,7 +21,7 @@ import RewardListEditForm from '@/components/chatform/RewardListEditForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionExtensionData, TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from 'vue';
@@ -36,7 +36,7 @@ import TTButton from '@/components/TTButton.vue';
 	},
 	emits:[],
 })
-export default class TriggerActionExtensionEntry extends AbstractTriggerActionEntry {
+ class TriggerActionExtensionEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionExtensionData;
@@ -110,6 +110,7 @@ interface ISlotItem<T> extends TwitchatDataTypes.ParameterData<T> {
 	slotIndex:TriggerActionExtensionData["extension"]["slotIndex"];
 	slotType:TriggerActionExtensionData["extension"]["slotType"];
 }
+export default toNative(TriggerActionExtensionEntry);
 </script>
 
 <style scoped lang="less">

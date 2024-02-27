@@ -49,7 +49,7 @@
 <script lang="ts">
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
 import DataStore from '@/store/DataStore';
 import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
@@ -63,7 +63,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	},
 	emits:[],
 })
-export default class OverlayParamsUlule extends Vue {
+ class OverlayParamsUlule extends Vue {
 
 	public param_project:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_name", placeholder:"https://ulule.com/your-project..."}
 	public param_goals:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:200, labelKey:"overlay.ulule.project_goals", placeholder:"10000,25000,50000,100000,...", tooltipKey:"overlay.ulule.project_goals_tt"}
@@ -101,6 +101,7 @@ export default class OverlayParamsUlule extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsUlule);
 </script>
 
 <style scoped lang="less">

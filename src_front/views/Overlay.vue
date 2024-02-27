@@ -15,7 +15,7 @@
 </template>
 
 <script lang="ts">
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Utils from '@/utils/Utils';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -56,7 +56,7 @@ const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/
 		OverlayChatHighlight,
 	}
 })
-export default class Overlay extends Vue {
+ class Overlay extends Vue {
 
 	public overlay:TwitchatDataTypes.OverlayTypes|"" = "";
 
@@ -106,6 +106,7 @@ export default class Overlay extends Vue {
 	}
 
 }
+export default toNative(Overlay);
 </script>
 
 <style scoped lang="less">

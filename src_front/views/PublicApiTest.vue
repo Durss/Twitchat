@@ -51,7 +51,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import { Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -61,7 +61,7 @@ import { Component, Vue } from 'vue-facing-decorator';
 		ToggleBlock,
 	}
 })
-export default class PublicApiTest extends Vue {
+ class PublicApiTest extends Vue {
 
 	public eventList:{key:TwitchatEventType, active:boolean, data:any|null}[] = [];
 	public actionList:{key:TwitchatActionType}[] = [];
@@ -170,6 +170,7 @@ export default class PublicApiTest extends Vue {
 	}
 
 }
+export default toNative(PublicApiTest);
 </script>
 
 <style scoped lang="less">

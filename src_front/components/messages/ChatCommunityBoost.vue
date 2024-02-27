@@ -14,19 +14,20 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { Component, Prop } from 'vue-facing-decorator';
+import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractChatMessage from './AbstractChatMessage';
 
 @Component({
 	components:{},
 	emits:["onRead"],
 })
-export default class ChatCommunityBoost extends AbstractChatMessage {
+ class ChatCommunityBoost extends AbstractChatMessage {
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageCommunityBoostData
 
 }
+export default toNative(ChatCommunityBoost);
 </script>
 
 <style scoped lang="less">

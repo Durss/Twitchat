@@ -101,7 +101,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import { watch } from 'vue';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -111,7 +111,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["close"]
 })
-export default class Login extends Vue {
+ class Login extends Vue {
 
 	@Prop({
 			type:Boolean,
@@ -319,6 +319,7 @@ export default class Login extends Vue {
 	}
 
 }
+export default toNative(Login);
 </script>
 
 <style scoped lang="less">

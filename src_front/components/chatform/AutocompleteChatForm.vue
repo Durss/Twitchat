@@ -38,7 +38,7 @@ import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
@@ -48,7 +48,7 @@ import { Component, Prop, Vue } from 'vue-facing-decorator';
  * This component is used to select an emote by typing ":xxx" on the
  * message field.
  */
-export default class AutocompleteChatForm extends Vue {
+ class AutocompleteChatForm extends Vue {
 	
 	@Prop
 	public search!:string;
@@ -367,6 +367,7 @@ interface CommandItem {
 	tooltipKey?:string;
 	rawCmd?:TwitchatDataTypes.CommandData;
 }
+export default toNative(AutocompleteChatForm);
 </script>
 
 <style scoped lang="less">

@@ -47,7 +47,7 @@
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import gsap from 'gsap';
-import { Component } from 'vue-facing-decorator';
+import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
@@ -65,7 +65,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["close"]
 })
-export default class ChatSuggestionState extends AbstractSidePanel {
+ class ChatSuggestionState extends AbstractSidePanel {
 
 	public loading = false;
 	public disposed = false;
@@ -159,6 +159,7 @@ export default class ChatSuggestionState extends AbstractSidePanel {
 	}
 
 }
+export default toNative(ChatSuggestionState);
 </script>
 
 <style scoped lang="less">

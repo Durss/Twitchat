@@ -91,7 +91,7 @@
 import OverlayCounter from '@/components/overlays/OverlayCounter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { Component, Prop, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
@@ -106,7 +106,7 @@ import type { SourceTransform } from '@/utils/OBSWebsocket';
 	},
 	emits:[]
 })
-export default class OverlayParamsCounter extends Vue {
+ class OverlayParamsCounter extends Vue {
 	
 	public counterExample:TwitchatDataTypes.CounterData = {
 		id:Utils.getUUID(),
@@ -147,6 +147,7 @@ export default class OverlayParamsCounter extends Vue {
 	}
 
 }
+export default toNative(OverlayParamsCounter);
 </script>
 
 <style scoped lang="less">
