@@ -73,4 +73,4 @@ server.register(import("fastify-sse-v2"))
 	
 	//Start server
 	start();
-})
+});

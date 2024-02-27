@@ -1,7 +1,6 @@
-import { Multipart } from "@fastify/multipart";
 import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
-import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, RawFile, Routes, SlashCommandBuilder } from "discord.js";
-import fastify, { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
+import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder } from "discord.js";
+import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
 import I18n from "../utils/I18n";

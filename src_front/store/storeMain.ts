@@ -280,12 +280,9 @@ export const storeMain = defineStore("main", {
 			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
+			StoreProxy.discord.initialize();
 
-			// const headers = {
-			// 	// "Content-Type":"text/event-stream",
-			// 	"Connection":"keep-alive"
-			// };
-			// ApiHelper.call("sse/register", "POST", {test:"oké"}, true, 10, headers);
+			//TODO move this to dedicated helper
 			const evtSource = new EventSource(Config.instance.API_PATH+"/sse/register?token=Bearer "+StoreProxy.auth.twitch.access_token);
 			evtSource.onmessage = (event) => {
 				try {

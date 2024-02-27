@@ -181,6 +181,7 @@ export default class AutocompleteChatForm extends Vue {
 		const sAuth = this.$store.auth;
 		const sChat = this.$store.chat;
 		const sTTS = this.$store.tts;
+		const sDiscord = this.$store.discord;
 		const s = this.search.toLowerCase();
 		if(s?.length > 0) {
 			//Search for users
@@ -233,6 +234,7 @@ export default class AutocompleteChatForm extends Vue {
 			if(this.commands) {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
+				const hasDiscordCmd = sDiscord.linked && sDiscord.chatCmdTarget
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
 				
@@ -253,6 +255,9 @@ export default class AutocompleteChatForm extends Vue {
 						
 						//Remove channel point related commands if user isn't affiliate or partner
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;
+						
+						//Remove discord related command if discord not configured
+						if(e.needDiscordChan === true && !hasDiscordCmd) continue;
 						
 						res.push({
 							type:"cmdS",

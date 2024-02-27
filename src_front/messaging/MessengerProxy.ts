@@ -232,6 +232,8 @@ export default class MessengerProxy {
 		if(!channelId) channelId = StoreProxy.auth.twitch.user.id;
 		const isAdmin = StoreProxy.auth.twitch.user.is_admin === true;
 		const hasChannelPoints = StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner;
+		const me = StoreProxy.auth.twitch.user;
+		const chunks = TwitchUtils.parseMessageToChunks(message);
 		
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
@@ -239,8 +241,6 @@ export default class MessengerProxy {
 		for (let i = 0; i < triggerCommands.length; i++) {
 			const t = triggerCommands[i];
 			if(cmd == t.chatCommand!.toLowerCase()) {
-				const me = StoreProxy.auth.twitch.user;
-				const chunks = TwitchUtils.parseMessageToChunks(message);
 				const messageData:TwitchatDataTypes.MessageChatData = {
 					platform:"twitch",
 					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
@@ -406,7 +406,7 @@ export default class MessengerProxy {
 		if(cmd == "/so" || cmd == "/shoutout") {
 			//Make a shoutout
 			await StoreProxy.users.getUserFrom("twitch", channelId, undefined, params[0].toLowerCase().replace(/[^a-z0-9_]+/gi, "").trim(), undefined, async (user)=> {
-				await StoreProxy.users.shoutout(StoreProxy.auth.twitch.user.id, user);
+				await StoreProxy.users.shoutout(me.id, user);
 			});
 			return true;
 		}else
@@ -457,14 +457,14 @@ export default class MessengerProxy {
 				StoreProxy.main.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
 			}else{
 				const userInfo = res[0];
-				const user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, userInfo.id, userInfo.login, userInfo.display_name);
+				const user = StoreProxy.users.getUserFrom("twitch", me.id, userInfo.id, userInfo.login, userInfo.display_name);
 				StoreProxy.users.openUserCard(user, channelId, "twitch");
 			}
 			return true;
 		}
 				
 		if(cmd == "/logself") {
-			console.log(StoreProxy.auth.twitch.user);
+			console.log(me);
 			return true;
 		}else
 
@@ -594,6 +594,16 @@ export default class MessengerProxy {
 			
 			StoreProxy.bingo.startBingo(payload);
 			return true;
+		}else
+
+		if(cmd == "/discord") {
+			const discordChan = StoreProxy.discord.chatCmdTarget;
+			if(discordChan) {
+				const prefix = "**"+me.login+"**: ";
+				const res = await ApiHelper.call("discord/message", "POST", {message:prefix+params[0], channelId:discordChan});
+				console.log(res);
+				return true;
+			}
 		}else
 		
 		if(isAdmin && cmd == "/fakeso" || cmd == "/fakeshoutout") {

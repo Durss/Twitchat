@@ -582,6 +582,12 @@ export const storeChat = defineStore('chat', {
 				cmd:"/heatlogs",
 				detailsKey:"params.commands.heatlogs",
 			},
+			{
+				id:"discord",
+				cmd:"/discord {message}",
+				detailsKey:"params.commands.discord",
+				needDiscordChan:true,
+			},
 		],
 
 		spoilerParams: {

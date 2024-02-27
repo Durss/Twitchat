@@ -42,7 +42,7 @@ import { storePrediction } from './store/prediction/storePrediction';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
+import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IDiscordActions, type IDiscordGetters, type IDiscordState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
 import { storeQna } from './store/storeQna/storeQna';
 import { storeValues } from './store/storeValues/storeValues';
 import { storeStream } from './store/stream/storeStream';
@@ -244,7 +244,8 @@ function buildApp() {
 	StoreProxy.account = storeAccount();
 	StoreProxy.extension = storeExtension();
 	StoreProxy.qna = storeQna();
-	StoreProxy.discord = storeDiscord();
+	//Dirty typing. Couldn't figure out how to properly type pinia getters
+	StoreProxy.discord = (storeDiscord() as unknown) as IDiscordState & IDiscordGetters & IDiscordActions & { $state: IDiscordState; $reset:()=>void };
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {

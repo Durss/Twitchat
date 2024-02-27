@@ -2078,14 +2078,18 @@ export interface IQnaActions {
 
 export interface IDiscordState {
 	chatCols:number[];
+	chatCmdTarget:string;
 	logChanTarget:string;
+	linkedToGuild:string;
 	reactionsEnabled:boolean;
 }
 
 export interface IDiscordGetters {
+	linked:boolean;
 }
 
 export interface IDiscordActions {
+	initialize():Promise<void>;
 	populateData(data:IDiscordState):void;
 	saveParams():void;
 }

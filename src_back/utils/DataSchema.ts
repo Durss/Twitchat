@@ -1434,7 +1434,9 @@ import Ajv from "ajv";
 			additionalProperties: false,
 			properties: {
 				reactionsEnabled: {type:"boolean"},
+				chatCmdTarget: {type:"string", maxLength:40},
 				logChanTarget: {type:"string", maxLength:40},
+				quickActions: {type:"string", maxLength:40},
 				chatCols: {
 					type:"array",
 					minItems:0,

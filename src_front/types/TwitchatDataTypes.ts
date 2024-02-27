@@ -747,6 +747,7 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 		needAdmin?:boolean;
 		needModerator?:boolean,
+		needDiscordChan?:boolean;
 		twitchCmd?:boolean,
 		twitch_scopes?:TwitchScopesString[],
 	}
@@ -1783,6 +1784,15 @@ export namespace TwitchatDataTypes {
 		opacity:number;
 		break_senderOnly:boolean;
 		break_durations?:{1:number, 100:number, 1000:number, 5000:number, 10000:number};
+	}
+
+	/**
+	 * Contains params about the bits wall overlay
+	 */
+	export interface DiscordQuickActionData {
+		id:string;
+		action:"message";
+		message?:string;
 	}
 
 
