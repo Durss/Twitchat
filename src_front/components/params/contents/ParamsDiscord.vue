@@ -30,18 +30,25 @@
 			</section>
 
 			<section class="card-item chanSelector">
-				<Icon name="commands" />{{$t("discord.quick_actions")}}
-				<ParamsDiscordQuickActions />
+				<Icon name="commands" />
+				<i18n-t scope="global" tag="p" keypath="discord.channel_cmd">
+					<template #CMD><mark>{{ $store.chat.commands.find(v=>v.id == "discord")?.cmd }}</mark></template>
+				</i18n-t>
+				<select v-model="$store.discord.chatCmdTarget" @change="saveParams()">
+					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+				</select>
+			</section>
+
+			<section class="card-item chanSelector">
+				<Icon name="rightClick" />{{$t("discord.quick_actions")}}
+				<ParamsDiscordQuickActions channelList />
 			</section>
 
 			<section class="card-item chanSelector">
 				<Icon name="save" />{{$t("discord.channel_logs")}}
-				<ul>
-					<li v-for="chan in channelList" :key="chan.id">
-						<TTButton :secondary="$store.discord.logChanTarget == chan.id"
-						@click="$store.discord.logChanTarget = chan.id; saveParams()">{{ chan.name }}</TTButton>
-					</li>
-				</ul>
+				<select v-model="$store.discord.logChanTarget" @change="saveParams()">
+					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+				</select>
 				<div class="card-item info">
 					<Icon name="info" />
 					<i18n-t scope="global"  tag="span" keypath="discord.channel_logs_info">
@@ -235,10 +242,14 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 		this.$store.discord.saveParams();
 	}
 
+	/**
+	 * Get discord channel list
+	 */
 	private async listChannels():Promise<void> {
 		const res = await ApiHelper.call("discord/channels");
 		if(res.status == 200) {
 			this.channelList = res.json.channelList;
+			this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
 		}
 
 		await this.$nextTick()
