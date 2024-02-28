@@ -69,7 +69,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	},
 	emits:["startDrag", "update:title", "update:open"],
 })
- class ToggleBlock extends Vue {
+export class ToggleBlock extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public icons!:string[];

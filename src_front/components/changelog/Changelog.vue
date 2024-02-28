@@ -99,7 +99,7 @@ import gsap from 'gsap';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';
-import TTButton from '../TTButton.vue';
+import TTButton, {TTButton as TTButtonClass} from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
@@ -261,7 +261,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 	 * @param e 
 	 */
 	private onMouseMove(e:MouseEvent):void {
-		const bt = (this.$refs.noCare as TTButton);
+		const bt = (this.$refs.noCare as TTButtonClass);
 		if(!bt) return;
 		const bounds = bt.$el.getBoundingClientRect();
 		const dist = Math.sqrt(Math.pow(bounds.x + bounds.width * .5 - e.clientX, 2) + Math.pow(bounds.y + bounds.height * .5 - e.clientY, 2));

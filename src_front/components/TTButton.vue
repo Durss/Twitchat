@@ -37,7 +37,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	emits: ['click', 'update:modelValue', 'update:file'],
 	expose: ['value'],
 })
- class TTButton extends Vue {
+export class TTButton extends Vue {
 
 	@Prop
 	public icon!:string;

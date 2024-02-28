@@ -607,7 +607,7 @@ import Ajv from "ajv";
 									additionalProperties: false,
 									properties: {
 										action: {enum: ["message"]},
-										message: {type:"string", maxLength:50},
+										message: {type:"string", maxLength:2000},
 										channelId: {type:"string", maxLength:100},
 									}
 								},

@@ -962,10 +962,11 @@ export default class Utils {
 	 * @param src 
 	 * @returns 
 	 */
-	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true, message:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
+	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true, message?:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
 		let placeholders:ITriggerPlaceholder<any>[] = [];
-		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+		if(message
+		&& (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)) {
 			placeholders = placeholders.concat(TriggerEventPlaceholders(TriggerTypes.ANY_MESSAGE).concat());
 		}
 		const trigger:TriggerData = {

@@ -538,7 +538,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		}else
 
 		if(slotDef.id == "text") {
-			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACEHOLDERS).concat();
 			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
 		}else
 

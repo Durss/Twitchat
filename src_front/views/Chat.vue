@@ -152,7 +152,7 @@ import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
-import ChatForm from '@/components/chatform/ChatForm.vue';
+import ChatForm, {ChatForm as ChatFormClass} from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
@@ -762,7 +762,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	 * Called when selecting an emote from the emote selectors
 	 */
 	public onSelectEmote(item:string):void {
-		(this.$refs.chatForm as ChatForm).onSelectItem(item);
+		(this.$refs.chatForm as ChatFormClass).onSelectItem(item);
 	}
 
 	/**
