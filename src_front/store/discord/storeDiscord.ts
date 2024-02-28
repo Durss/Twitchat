@@ -4,6 +4,8 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IDiscordActions, IDiscordGetters, IDiscordState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import StoreProxy from '../StoreProxy';
 
 export const storeDiscord = defineStore('discord', {
 	state: () => ({
@@ -52,6 +54,14 @@ export const storeDiscord = defineStore('discord', {
 				name:"",
 				message:""
 			})
+		},
+		delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void{
+			StoreProxy.main.confirm(StoreProxy.i18n.t("discord.quick_delete"))
+			.then(v=> {
+				const index = this.quickActions.findIndex(v=>v.id == action.id);
+				this.quickActions.splice(index, 1);
+				this.saveParams();
+			}).catch(error=>{})
 		},
 		saveParams():void {
 			DataStore.set(DataStore.DISCORD_PARAMS, {

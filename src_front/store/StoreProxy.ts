@@ -3,17 +3,16 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
+import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
-import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
-import { boolean } from "mathjs";
 
 /**
 * Created : 23/09/2022 
@@ -2099,5 +2098,6 @@ export interface IDiscordActions {
 	initialize():Promise<void>;
 	populateData(data:IDiscordState):void;
 	addQuickAction():void;
+	delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void;
 	saveParams():void;
 }

@@ -379,8 +379,10 @@ export default class ContextMenuHelper {
 				const list = StoreProxy.discord.quickActions;
 				const children:CMTypes.MenuItem[] = [];
 				list.forEach(action=> {
+					if(!action.message || !action.channelId) return;
 					children.push({
-						label: action.name,
+						icon: this.getIcon("icons/whispers.svg"),
+						label: (action.name || (action.message||"").substring(0,20)).replace(/ /gi, " "),
 						onClick: () => this.discordQuickAction(message, action),
 					});
 				})

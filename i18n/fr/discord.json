@@ -17,6 +17,7 @@
 		"quick_actions_name":"Nom",
 		"quick_actions_message":"Message à envoyer",
 		"quick_actions_channel":"Salon dans lequel envoyer le message",
+		"quick_delete":"Supprimer l'action ?",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* a été banni",
 			"reason":"Raison du ban",

@@ -17,6 +17,7 @@
 		"quick_actions_name":"Name",
 		"quick_actions_message":"Message to send",
 		"quick_actions_channel":"Discord chan to send message to",
+		"quick_delete":"Delete action?",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* got banned",
 			"reason":"Ban reason",

@@ -1,7 +1,10 @@
 <template>
 	<div class="paramsdiscordquickactions">
 		<TTButton primary icon="add" @click="$store.discord.addQuickAction()">{{ $t("discord.quick_actions_addBt") }}</TTButton>
-		<ToggleBlock medium :title="a.data.name || ' '" v-for="a in quickActions" :key="a.data.id" :open="false">
+		<ToggleBlock medium :title="a.data.name || (a.data.message||'').substring(0,20) || '???'" v-for="a in quickActions" :key="a.data.id" :open="false">
+			<template #left_actions>
+				<TTButton class="deleteBt" icon="trash" alert @click.stop="$store.discord.delQuickAction(a.data)" />
+			</template>
 			<div class="entry">
 				<ParamItem class="param" @change="$emit('change')" :paramData='a.name' v-model="a.data.name"></ParamItem>
 				<ParamItem class="param" @change="$emit('change')" :paramData='a.message' v-model="a.data.message"></ParamItem>
@@ -68,6 +71,12 @@ export default toNative(ParamsDiscordQuickActions);
 	display: flex;
 	flex-direction: column;
 	align-items: center;
+	.deleteBt {
+		margin: -.25em -.5em;
+		margin-right: 0;
+		border-radius: 0;
+		padding-left: .4em;
+	}
 
 	.entry {
 		gap: .25em;
