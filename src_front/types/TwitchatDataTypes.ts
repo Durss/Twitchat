@@ -1288,10 +1288,6 @@ export namespace TwitchatDataTypes {
 		 * as spoiler if the related option is enabled on the spoiler section
 		 */
 		noAutospoil?:boolean;
-		/**
-		 * Has user linked their discord to twitchat?
-		 */
-		discordLinked?:boolean;
 	}
 
 	/**

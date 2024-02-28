@@ -309,7 +309,7 @@ import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }
-	public get discordEnabled():boolean { return this.$store.auth.twitch.user.discordLinked === true; }
+	public get discordEnabled():boolean { return this.$store.discord.discordLinked === true; }
 	public get goxlrEnabled():boolean { return GoXLRSocket.instance.connected; }
 	public get wsConnected():boolean { return WebsocketTrigger.instance.connected; }
 	public get canManageRewards():boolean { return TwitchUtils.hasScopes([TwitchScopes.MANAGE_REWARDS]); }

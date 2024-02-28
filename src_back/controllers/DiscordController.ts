@@ -416,10 +416,17 @@ export default class DiscordController extends AbstractController {
 			//Add 1 minute to the expiration date
 			token.expires_at += this._tokenValidityDuration;
 		}
+		const result:{[key:string]:any} = { success:status == 200 }
+		if(result.success) {
+			result.guildName = token.guildName;
+		}else{
+			result.errorCode = errorCode;
+			result.channelName = token.channelName;
+		}
 
 		response.header('Content-Type', 'application/json')
 		.status(status)
-		.send(JSON.stringify({success:status == 200, guildName:token.guildName, errorCode, channelName:token.channelName}));
+		.send(JSON.stringify(result));
 	}
 
 	/**
@@ -450,6 +457,7 @@ export default class DiscordController extends AbstractController {
 				fail_if_not_exists:false,
 			}
 		}
+		
 		if(data.reaction) {
 			await this._rest.put(Routes.channelMessageOwnReaction(data.channelId, data.messageId, encodeURIComponent(data.reaction)));
 		}else{
@@ -768,6 +776,7 @@ export default class DiscordController extends AbstractController {
 						const style = command.data.options.find(v=>v.name == "style")?.value || "message";
 						const confirm = command.data.name == "ask"
 						const guild = DiscordController._twitchId2GuildId[uid];
+
 						let highlightColor = "";
 						if(style == "highlight") {
 							highlightColor = "#5865f2"
@@ -801,6 +810,7 @@ export default class DiscordController extends AbstractController {
 							})
 						}
 
+						
 						let cols:number[] = [];
 						if(guild.chatCols.length > 0) cols = guild.chatCols;
 

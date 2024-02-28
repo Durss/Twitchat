@@ -38,7 +38,7 @@ class ParamsDiscordQuickActions extends Vue {
 	public pram_channel:TwitchatDataTypes.ParameterData<string>[] = [];
 
 	public get quickActions():{data:TwitchatDataTypes.DiscordQuickActionData, name:TwitchatDataTypes.ParameterData<string>, message:TwitchatDataTypes.ParameterData<string>, channel:TwitchatDataTypes.ParameterData<string>}[] {
-		return this.$store.discord.quickActions.map(a => {
+		return (this.$store.discord.quickActions || []).map(a => {
 			return reactive({
 				data:a,
 				name: {type:"string", value:"", labelKey:"discord.quick_actions_name", maxLength:20},

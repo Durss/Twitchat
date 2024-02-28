@@ -2076,6 +2076,7 @@ export interface IQnaActions {
 
 
 export interface IDiscordState {
+	discordLinked:boolean;
 	chatCols:number[];
 	banLogThread:boolean;
 	banLogTarget:string;
@@ -2096,6 +2097,9 @@ export interface IDiscordGetters {
 
 export interface IDiscordActions {
 	initialize():Promise<void>;
+	validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}>;
+	submitCode(code:string):Promise<true|string>;
+	unlinkDiscord():Promise<true|string>;
 	populateData(data:IDiscordState):void;
 	addQuickAction():void;
 	delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void;

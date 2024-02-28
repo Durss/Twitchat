@@ -454,7 +454,7 @@ export default class ContextMenuHelper {
 					onClick: () => this.exportMessage(message, htmlNode),
 				});
 			}
-			if(me.discordLinked === true && StoreProxy.discord.logChanTarget) {
+			if(StoreProxy.discord.discordLinked === true && StoreProxy.discord.logChanTarget) {
 				optionAdded = true;
 				options.push({ 
 							label: t("chat.context_menu.export_discord"),

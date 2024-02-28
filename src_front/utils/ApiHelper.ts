@@ -387,6 +387,8 @@ type ApiEndpoints =  {
 		};
 		DELETE: {
 			success:boolean;
+			error?:string;
+			errorCode?:string;
 		}
 	};
 	"discord/answer": {

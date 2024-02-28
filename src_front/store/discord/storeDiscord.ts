@@ -9,6 +9,7 @@ import StoreProxy from '../StoreProxy';
 
 export const storeDiscord = defineStore('discord', {
 	state: () => ({
+		discordLinked:true,
 		chatCols:[],
 		banLogTarget:"",
 		banLogThread:true,
@@ -34,9 +35,52 @@ export const storeDiscord = defineStore('discord', {
 			const result = await ApiHelper.call("discord/link");
 			if(result.json.linked === true) {
 				this.linkedToGuild = result.json.guildName;
+				const channels = await ApiHelper.call("discord/channels");
+				this.channelList = channels.json.channelList;
+				this.discordLinked = true;
 			}
-			const channels = await ApiHelper.call("discord/channels");
-			this.channelList = channels.json.channelList;
+		},
+		async validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}> {
+			try {
+				const result = await ApiHelper.call("discord/code", "GET", {code}, false);
+				if(result.json.success) {
+					return {success:true, guildName:result.json.guildName};
+				}else if(result.status == 401){
+					return {success:false, errorCode:result.json.errorCode || "UNAUTHORIZED"};
+				}else{
+					return {success:false, errorCode:result.json.errorCode || "UNKNOWN"};
+				}
+			}catch(error){};
+			return {success:false, errorCode:"UNKNOWN"};
+		},
+		async submitCode(code:string):Promise<true|string> {
+			try {
+				const result = await ApiHelper.call("discord/code", "POST", {code}, false);
+				if(result.json.success === true) {
+					await this.initialize();
+					return true;
+				}else if(result.status == 401){
+					return result.json.errorCode || "UNAUTHORIZED";
+				}else{
+					return result.json.errorCode || "UNKNOWN";
+				}
+			}catch(error){};
+			return "UNKNOWN";
+		},
+		async unlinkDiscord():Promise<true|string> {
+			try {
+				const result = await ApiHelper.call("discord/link", "DELETE");
+				if(result.json.success) {
+					this.discordLinked = false;
+					return true;
+				}else if(result.status == 401){
+					return result.json.errorCode || "UNAUTHORIZED";
+				}else{
+					return result.json.errorCode || "UNKNOWN";
+				}
+			}catch(error) {
+			}
+			return "UNKNOWN"
 		},
 		populateData(data:IDiscordState):void {
 			this.chatCols = data.chatCols || [];

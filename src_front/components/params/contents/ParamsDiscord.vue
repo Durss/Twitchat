@@ -7,12 +7,8 @@
 			<TTButton icon="discord" primary type="link" :href="$config.DISCORD_BOT_URL" target="_blank">{{ $t("discord.install_bt") }}</TTButton>
 		</div>
 		
-		<section class="card-item" v-if="stateLoading">
-			<Icon class="loader" name="loader" />
-		</section>
-		
-		<template v-else-if="linkedToGuild">
-			<TTButton class="unlinkBt" icon="cross" alert @click="unlink()" :loading="submitting">{{ $t("discord.unkinkBt", {GUILD:linkedToGuild}) }}</TTButton>
+		<template v-if="$store.discord.discordLinked">
+			<TTButton class="unlinkBt" icon="cross" alert @click="unlink()" :loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
 
 			<section class="card-item reactions">
 				<Icon name="emote" />
@@ -68,11 +64,11 @@
 			</section>
 		</template>
 		
-		<section class="card-item confirm" v-else-if="linkConfirm">
+		<section class="card-item confirm" v-else-if="askLinkConfirmation">
 			<div>{{ $t("discord.install_confirm") }}</div>
 			<mark class="discordName">{{ discordName }}</mark>
 			<div class="ctas">
-				<TTButton icon="cross" alert @click="linkConfirm = false; errorCode=''">{{ $t("global.cancel") }}</TTButton>
+				<TTButton icon="cross" alert @click="askLinkConfirmation = false; errorCode=''">{{ $t("global.cancel") }}</TTButton>
 				<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
 			</div>
 		</section>
@@ -126,15 +122,11 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	public codeLength:number = 4;
 	public duration:number = 0;
 	public discordName:string = "";
-	public linkedToGuild:string = "";
-	public channelName:string = "";
 	public validateDebounce:number = -1;
 	public submitting:boolean = false;
-	public stateLoading:boolean = true;
 	public linkLoading:boolean = false;
-	public linkConfirm:boolean = false;
+	public askLinkConfirmation:boolean = false;
 	public errorCode:string = "";
-	public channelList:{id:string, name:string}[] = [];
 	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
 	public param_banLogThread:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.channel_ban_log_thread"};
 	public messagePreview:TwitchatDataTypes.MessageCustomData = {
@@ -150,29 +142,16 @@ class ParamsDiscord extends Vue implements IParameterContent {
 		}
 	}
 	
+	/**
+	 * Get discord channel list
+	 */
+	public get channelList():{id:string, name:string}[] {
+		let list = (this.$store.discord.channelList || []).concat();
+		list.unshift({id:"", name:this.$t("global.select_placeholder")});
+		return list;
+	}
+	
 	public async beforeMount():Promise<void> {
-		try {
-			const result = await ApiHelper.call("discord/link");
-			if(result.json.success) {
-				if(result.json.linked === true) {
-					this.linkedToGuild = result.json.guildName;
-				}
-			}else if(result.status == 401){
-				this.errorCode = "UNKNOWN";
-			}else{
-				this.errorCode = result.json.errorCode || "UNKNOWN";
-			}
-		}catch(error) {
-			this.errorCode = "UNKNOWN";
-		}
-
-		if(this.linkedToGuild) {
-			this.channelList = this.$store.discord.channelList.concat();
-			this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
-		}
-
-		this.stateLoading = false;
-
 		this.saveParams();
 	}
 
@@ -241,16 +220,16 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	 * Validate current code
 	 */
 	public async validateCode():Promise<void> {
-		try {
-			const result = await ApiHelper.call("discord/code", "GET", {code:this.code});
-			if(result.status !== 200) {
-				this.errorCode = result.json.errorCode || "UNKNOWN";
-			}else{
-				this.discordName = result.json.guildName || "???";
-				this.linkConfirm = true;
-			}
-		}catch(error) {
+		this.linkLoading = true;
+
+		const res = await this.$store.discord.validateCode(this.code);
+		if(res.success) {
+			this.discordName = res.guildName || "???";
+			this.askLinkConfirmation = true;
+		}else{
+			this.errorCode = res.errorCode || "UNKNOWN";
 		}
+
 		this.linkLoading = false;
 	}
 
@@ -259,18 +238,14 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	 */
 	public async confirmLink():Promise<void> {
 		this.submitting = true;
-		try {
-			const result = await ApiHelper.call("discord/code", "POST", {code:this.code}, false);
-			if(result.status !== 200) {
-				this.channelName = result.json.channelName!;
-				this.errorCode = result.json.errorCode || "UNKNOWN";
-			}else{
-				this.linkedToGuild = result.json.guildName!;
-				this.$store.auth.twitch.user.discordLinked = true;
-			}
-		}catch(error) {
-		}
+
+		const res = await this.$store.discord.submitCode(this.code);
+		if(res !== true) this.errorCode = res;
+		this.askLinkConfirmation = false;
+
 		this.submitting = false;
+		await this.$nextTick();
+		this.saveParams();
 	}
 
 	/**
@@ -278,14 +253,10 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	 */
 	public async unlink():Promise<void> {
 		this.submitting = true;
-		try {
-			const result = await ApiHelper.call("discord/link", "DELETE");
-			if(result.json.success) {
-				this.linkedToGuild = "";
-				this.$store.auth.twitch.user.discordLinked = false;
-			}
-		}catch(error) {
-		}
+		
+		const res = await this.$store.discord.unlinkDiscord();
+		if(res !== true) this.errorCode = res;
+
 		this.submitting = false;
 	}
 
