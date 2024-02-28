@@ -40,7 +40,7 @@ import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ChatMessage from '../messages/ChatMessage.vue';
-import ParamItem from './ParamItem.vue';
+import ParamItem, {ParamItem as ParamItemClass} from './ParamItem.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 
 @Component({
@@ -149,7 +149,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 		if(this.enabledParam.value && this.isFirstRender) {
 			this.isFirstRender = false;
 			await this.$nextTick();
-			this.placeholderTarget = (this.$refs.paramItem as ParamItem).$el.getElementsByTagName("textarea")[0];
+			this.placeholderTarget = (this.$refs.paramItem as ParamItemClass).$el.getElementsByTagName("textarea")[0];
 		}
 		this.updatePreview();
 	}
