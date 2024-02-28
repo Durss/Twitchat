@@ -10,8 +10,9 @@
 				<span class="message" v-else-if="messageData.message">{{messageData.message}}</span>
 			</div>
 			
-			<div class="ctas" v-if="messageData.actions">
+			<template v-if="messageData.actions">
 				<Button v-for="action in messageData.actions"
+				class="cta"
 				small
 				:loading="loading"
 				:type="demo == false && action.actionType == 'url'? 'link' : 'button'"
@@ -24,7 +25,7 @@
 				:secondary="action.theme == 'secondary'"
 				@click.stop="onClickButton(action)"
 				>{{ action.label }}</Button>
-			</div>
+			</template>
 
 			<div class="quote" v-if="messageData.quote">
 				<span class="message" v-if="messageData.quote_chunks"><ChatMessageChunksParser :chunks="messageData.quote_chunks" /></span>
@@ -146,24 +147,28 @@ export default toNative(ChatCustomMessage);
 
 <style scoped lang="less">
 .chatcustommessage{
-	min-height: 1.75em;
-	padding-right: 2em;
 	max-width: 100%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
 	.closeBt {
-		z-index: 0;
 		padding: .35em;
+		position: relative;
+		flex-shrink: 0;
+		align-self: flex-start;
 	}
 	.messageHolder {
 		overflow: hidden;
-		row-gap: .5em;
-		column-gap: 1em;
+		row-gap: .25em;
+		column-gap: .5em;
 		display: flex;
 		flex-wrap: wrap;
 		flex-direction: row;
 		justify-content: flex-end;
+		align-items: center;
+		flex-grow: 1;
 		.content {
 			flex-grow: 1;
-			
 			.icon {
 				height: 1em;
 				margin-right: .25em;
@@ -184,12 +189,9 @@ export default toNative(ChatCustomMessage);
 				word-break: break-word;
 				white-space: pre-line;
 			}
-		}
-		.ctas {
-			gap: .5em;
-			display: flex;
-			flex-wrap: wrap;
-			max-width: 100%;
+			.cta {
+				align-self: right;
+			}
 		}
 
 		.quote {

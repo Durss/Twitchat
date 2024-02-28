@@ -370,6 +370,27 @@ export default class ContextMenuHelper {
 				}
 			}
 
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
+			&& StoreProxy.discord.quickActions?.length > 0) {
+				//Add splitter after previous option
+				if(options.length > 0) options[options.length-1].divided = true;
+
+				const list = StoreProxy.discord.quickActions;
+				const children:CMTypes.MenuItem[] = [];
+				list.forEach(action=> {
+					children.push({
+						label: action.name,
+						onClick: () => this.discordQuickAction(message, action),
+					});
+				})
+				options.push({ 
+					label: t("chat.context_menu.discord_quick_actions"),
+					icon: this.getIcon("icons/discord.svg"),
+					children,
+				});
+			}
+
 			this.addCustomTriggerEntries(options, message);
 		
 			//Update "highlight message" state according to overlay presence
@@ -835,5 +856,14 @@ export default class ContextMenuHelper {
 			StoreProxy.main.messageExportState = "error";
 			clearTimeout(errorTimeout);
 		});
+	}
+
+	/**
+	 * Executes a discord quick action
+	 */
+	private async discordQuickAction(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData, action:TwitchatDataTypes.DiscordQuickActionData):Promise<void> {
+		const text = await Utils.parseGlobalPlaceholders(action.message || "", false, message);
+		const channelId = action.channelId;
+		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
 	}
 }

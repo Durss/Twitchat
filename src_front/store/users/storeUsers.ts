@@ -11,6 +11,7 @@ import { reactive, type UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IUsersActions, IUsersGetters, IUsersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import ApiHelper from '@/utils/ApiHelper';
 
 interface BatchItem {
 	channelId?:string;
@@ -500,9 +501,19 @@ export const storeUsers = defineStore('users', {
 
 		async flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void> {
 			let bannedUser:TwitchatDataTypes.TwitchatUser|null = null;
+			//Search user
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
 				if(u.id === uid && platform == u.platform && u.channelInfo[channelId]) {
+					const banEndDate = Date.now() + (duration_s || 0) * 1000;
+					//User already perma banned, stop there
+					if(u.channelInfo[channelId].is_banned && !duration_s) return;
+					//If already temporary banned and ban end is less than 2s
+					//away from thje expected one, stop there
+					if(u.channelInfo[channelId].is_banned
+						&& u.channelInfo[channelId].banEndDate
+						&& Math.abs(banEndDate - u.channelInfo[channelId].banEndDate!) < 2) return;
+
 					u.channelInfo[channelId].is_banned = true;
 					if(u.channelInfo[channelId].is_moderator === true
 					&& StoreProxy.params.features.autoRemod.value == true) {
@@ -511,8 +522,9 @@ export const storeUsers = defineStore('users', {
 						u.channelInfo[channelId].autoRemod = true;
 					}
 					u.channelInfo[channelId].is_moderator = false;
+					//Set ban state
 					if(duration_s) {
-						u.channelInfo[channelId].banEndDate = Date.now() + duration_s * 1000;
+						u.channelInfo[channelId].banEndDate = banEndDate;
 					}else{
 						delete u.channelInfo[channelId].banEndDate;
 					}
@@ -520,6 +532,7 @@ export const storeUsers = defineStore('users', {
 					break;
 				}
 			}
+			//Get ban reason from twitch
 			if(bannedUser && platform == "twitch") {
 				const res = await TwitchUtils.getBannedUsers(channelId, [bannedUser.id]);
 				if(res.length > 0) {
@@ -529,6 +542,7 @@ export const storeUsers = defineStore('users', {
 			if(unbanFlagTimeouts[uid]) {
 				clearTimeout(unbanFlagTimeouts[uid]);
 			}
+			
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
@@ -547,7 +561,115 @@ export const storeUsers = defineStore('users', {
 							}
 						}
 					}
-				}, duration_s*1000)
+				}, duration_s*1000);
+			}else{
+				//Send logs to discord if requested
+				const sDiscord = StoreProxy.discord;
+				//Get creation date of the user if not already existing
+				if(sDiscord.linked && sDiscord.banLogTarget && bannedUser) {
+					if(!bannedUser.created_at_ms && platform == "twitch") {
+						const res = await TwitchUtils.loadUserInfo([uid]);
+						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0].created_at).getTime();
+					}
+					let history = [];
+					const t = StoreProxy.i18n.t;
+					const messages = StoreProxy.chat.messages;
+					let message = "";
+					for (let i = messages.length-1; i > Math.max(0, messages.length - 200); i--) {
+						const m = messages[i];
+						let labelCode = "";
+						let params:{[key:string]:string} = {DATE:Utils.formatDate(new Date(m.date))};
+						if((m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) 
+						&& m.user.id == uid) {
+							params.MESSAGE = m.message;
+							labelCode = m.deleted? "message_deleted" : "message";
+							if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && m.answersTo) {
+								labelCode = m.deleted? "message_answer_deleted" : "message_answer";
+								params.USER = m.answersTo.user.login;
+								params.MESSAGE_ANSWERED = m.answersTo.message;
+							}
+						}
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD && m.user.id == uid) {
+							labelCode = "redeem";
+							params.REWARD = m.reward.title;
+							if(m.message){
+								labelCode = "redeem_message";
+								params.MESSAGE = m.message;
+							}
+						}
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING && m.user.id == uid) {
+							labelCode = "follow";
+						}
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.CHEER && m.user.id == uid) {
+							labelCode = "cheer";
+							params.BITS = m.bits.toString();
+							if(m.message){
+								labelCode = "redeem_message";
+								params.MESSAGE = m.message;
+							}
+						}
+						if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && m.user.id == uid) {
+							if((m.gift_recipients?.length || 0) > 0) {
+								labelCode = "subgift";
+								params.TIER = m.tier.toString();
+								params.COUNT = m.gift_recipients!.length.toString();
+								params.RECIPIENTS = (m.gift_recipients || []).map(v=>v.login).join(", ");
+							}else{
+								labelCode = "sub";
+								params.TIER = m.tier.toString();
+								if(m.message) {
+									labelCode = "sub_message";
+									params.MESSAGE = m.message;
+								}
+							}
+						}
+						if(labelCode) {
+							const str = t("discord.log_pattern."+labelCode, params);
+							if(str && (message+"\n"+str).length > 1900) {
+								history.unshift(message);
+								message = str;
+							}else{
+								message = str +"\n"+ message;
+							}
+						}
+					}
+					if(message) {
+						history.unshift(message);
+					}
+					const followDate = bannedUser.channelInfo[channelId].following_date_ms;
+					const followDateStr = followDate? Utils.formatDate(new Date(followDate), true) : t('discord.log_pattern.not_following');
+					const createDateStr = bannedUser.created_at_ms? Utils.formatDate(new Date(bannedUser.created_at_ms!)) : "-";
+					history.unshift(`**${t('discord.log_pattern.uid')}**: \`${bannedUser.id}\`
+**${t('discord.log_pattern.login')}**: \`${bannedUser.login}\`
+**${t('discord.log_pattern.displayname')}**: \`${bannedUser.displayName}\`
+**${t('discord.log_pattern.created_at')}**: \`${createDateStr}\`
+**${t('discord.log_pattern.followed_at')}**: \`${followDateStr}\``);
+					let messageStr = t("discord.log_pattern.intro", {USER:bannedUser.login, UID:bannedUser.id});
+					if(bannedUser.channelInfo[channelId].banReason) messageStr += "\n**"+t("discord.log_pattern.reason")+"**: `"+bannedUser.channelInfo[channelId].banReason+"`";
+
+					if(sDiscord.banLogThread == true) {
+						//Send in a thread
+						ApiHelper.call("discord/thread", "POST", {
+							message:messageStr,
+							channelId:sDiscord.banLogTarget,
+							threadName:bannedUser.login+" #"+bannedUser.id,
+							history,
+						});
+					}else{
+						//Send as normal messages
+						await ApiHelper.call("discord/message", "POST", {
+							message:messageStr,
+							channelId:sDiscord.banLogTarget,
+						});
+						
+						history.forEach(async message=> {
+							await ApiHelper.call("discord/message", "POST", {
+								message,
+								channelId:sDiscord.banLogTarget,
+							});
+						})
+					}
+				}
 			}
 			StoreProxy.chat.delUserMessages(uid, channelId);
 		},

@@ -47,6 +47,7 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/answer', async (request, response) => await this.postAnswer(request, response));
 		this.server.post('/api/discord/interaction', async (request, response) => await this.postInteraction(request, response));
 		this.server.post('/api/discord/message', async (request, response) => await this.postMessage(request, response));
+		this.server.post('/api/discord/thread', async (request, response) => await this.postThread(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
 		
 		this.initDatabase();
@@ -152,7 +153,7 @@ export default class DiscordController extends AbstractController {
 			return;
 		}
 
-		const params = request.body as any;
+		const params = request.body as {message:string, channelId:string};
 
 		const body = {
 			content:params.message
@@ -169,6 +170,65 @@ export default class DiscordController extends AbstractController {
 			.send(JSON.stringify({success:true, messageId:message.id}));
 
 		}catch(error) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			return;
+		}
+	}
+
+	/**
+	 * Create a new thread and post the given message in it
+	 */
+	private async postThread(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
+		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
+		//Check if token is oAuth valid
+		if(!user || !guild) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			return;
+		}
+
+		const params = request.body as {message:string, channelId:string, threadName:string, history:string[]};
+
+		const body = {
+			name:params.threadName,
+			autoArchiveDuration: 60,
+			content:params.message
+		}
+		
+		//Send to discord
+		try {
+			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
+			const thread = (await this._rest.post(Routes.threads(params.channelId, message.id), {body})) as {id:string};
+			//merge histories together until it reaches max chars count for 1 message
+			let merge = "";
+			let mergeHistory:string[] = [params.history[0]];//First message contains user info
+			for (let i = 1; i < params.history.length; i++) {
+				const h = params.history[i];
+				if((merge+h).length < 1900) {
+					merge += "\n"+h;
+				}else{
+					mergeHistory.push(merge);
+					merge = h;
+				}
+			}
+			if(merge) mergeHistory.push(merge);
+
+			mergeHistory.forEach(async entry=> {
+				(await this._rest.post(Routes.channelMessages(thread.id), {body:{content:entry}})) as {id:string};
+			})
+			
+			if(!message.id) throw(new Error("Failed posting message"));
+
+			response.header('Content-Type', 'application/json')
+			.status(200)
+			.send(JSON.stringify({success:true, messageId:message.id}));
+
+		}catch(error) {
+			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
 			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
@@ -610,6 +670,13 @@ export default class DiscordController extends AbstractController {
 		this._commandSay = freshCommandList.find(v=>v.name == SAY_CMD.name);
 		this._commandAsk = freshCommandList.find(v=>v.name == ASK_CMD.name);
 		this._commandLink = freshCommandList.find(v=>v.name == LINK_CMD.name);
+
+		const body = {
+			name:"coucou",
+			autoArchiveDuration: 60,
+
+			reason: 'this is a test',
+		}
 	}
 
 	/**

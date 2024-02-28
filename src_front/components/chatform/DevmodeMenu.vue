@@ -220,7 +220,8 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 			
 			//Pressing CTRL while clicking a button will force the user to self
 			if(event.ctrlKey && message.hasOwnProperty("user")) {
-				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
+				// (message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
+				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "647389082", "durssbot", "DurssBot");
 			}
 			this.$store.chat.addMessage(message);
 		}, false);

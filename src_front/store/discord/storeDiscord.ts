@@ -1,17 +1,21 @@
-import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import type { IDiscordActions, IDiscordGetters, IDiscordState } from '../StoreProxy';
-import DataStore from '../DataStore';
 import ApiHelper from '@/utils/ApiHelper';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import DataStore from '../DataStore';
+import type { IDiscordActions, IDiscordGetters, IDiscordState } from '../StoreProxy';
+import Utils from '@/utils/Utils';
 
 export const storeDiscord = defineStore('discord', {
 	state: () => ({
 		chatCols:[],
+		banLogTarget:"",
+		banLogThread:true,
 		chatCmdTarget:"",
 		logChanTarget:"",
 		linkedToGuild:"",
-		quickActions:"",
 		reactionsEnabled:true,
+		quickActions:[],
+		channelList:[],
 
 	} as IDiscordState),
 
@@ -29,17 +33,35 @@ export const storeDiscord = defineStore('discord', {
 			if(result.json.linked === true) {
 				this.linkedToGuild = result.json.guildName;
 			}
+			const channels = await ApiHelper.call("discord/channels");
+			this.channelList = channels.json.channelList;
 		},
 		populateData(data:IDiscordState):void {
-			this.chatCols = data.chatCols;
-			this.logChanTarget = data.logChanTarget;
-			this.reactionsEnabled = data.reactionsEnabled;
+			this.chatCols = data.chatCols || [];
+			this.banLogTarget = data.banLogTarget || "";
+			this.chatCmdTarget = data.chatCmdTarget || "";
+			this.logChanTarget = data.logChanTarget || "";
+			this.banLogThread = data.banLogThread == true;
+			this.reactionsEnabled = data.reactionsEnabled == true;
+			this.quickActions = data.quickActions || [];
+		},
+		addQuickAction():void {
+			this.quickActions.unshift({
+				id:Utils.getUUID(),
+				action:"message",
+				name:"",
+				message:""
+			})
 		},
 		saveParams():void {
 			DataStore.set(DataStore.DISCORD_PARAMS, {
 				chatCols:this.chatCols,
+				banLogTarget:this.banLogTarget,
+				banLogThread:this.banLogThread,
+				chatCmdTarget:this.chatCmdTarget,
 				logChanTarget:this.logChanTarget,
 				reactionsEnabled:this.reactionsEnabled,
+				quickActions:this.quickActions,
 			});
 			DataStore.save();
 		}

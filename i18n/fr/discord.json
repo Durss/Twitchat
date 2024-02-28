@@ -9,8 +9,35 @@
 		"channel_logs":"Salon Discord dans lequel enregistrer des messages de tchat",
 		"channel_logs_info":"Pour enregistrer un message sur Discord, faites click-droit dessus et cliquez sur l'option \"{OPTION}\".\nPermet de facilement conserver une trace des messages ou personnes toxiques.",
 		"channel_cmd":"Salon Discord dans lequel envoyer des messages avec la commande {CMD}",
+		"channel_ban_log":"Salon Discord dans lequel envoyer les dernières activités et des infos à propos des personnes bannies",
+		"channel_ban_log_thread":"Créer un fil pour chaque ban",
 		"chat_col":"Colonnes de tchat dans lesquelles afficher les messages reçus depuis Discord",
 		"quick_actions":"Ajoutez des actions rapides utilisables depuis un click droit sur un message",
-		"quick_actions_addBt":"Ajouter une action rapide"
+		"quick_actions_addBt":"Ajouter une action rapide",
+		"quick_actions_name":"Nom",
+		"quick_actions_message":"Message à envoyer",
+		"quick_actions_channel":"Salon dans lequel envoyer le message",
+		"log_pattern":{
+			"intro":"`{USER}` *(#{UID})* a été banni",
+			"reason":"Raison du ban",
+			"uid":"ID",
+			"login":"Login",
+			"displayname":"Pseudo",
+			"created_at":"Date de création",
+			"followed_at":"Follower depuis",
+			"not_following":"ne follow pas",
+			"follow":"*[{DATE}]*\n:heart: A suivit votre chaîne",
+			"sub":"*[{DATE}]*\n:star: A pris un abonnement de `niveau {TIER}`",
+			"sub_message":"*[{DATE}]*\n:star: A pris un abonnement de `niveau {TIER}` avec pour message\n> {MESSAGE}",
+			"subgift":"*[{DATE}]*\n:gift: A offert {COUNT} abonnements de `niveau {TIER}` à {RECIPIENTS}",
+			"redeem":"*[{DATE}]*\n:tickets: A acheté la récompense de points de chaîne `{REWARD}`",
+			"redeem_message":"*[{DATE}]*\n:tickets: A acheté la récompense de points de chaîne avec pour message :\n> {MESSAGE}",
+			"message":"*[{DATE}]*\n:envelope: A envoyé le message :\n> {MESSAGE}",
+			"message_answer":"*[{DATE}]*\n:envelope: A envoyé le message:\n> {MESSAGE}\n:envelope_with_arrow: En réponse à {USER} qui a dit:\n> {MESSAGE_ANSWERED}",
+			"message_deleted":"*[{DATE}]*\n:wastebasket: :envelope: A envoyé le message supprimé :\n> {MESSAGE}",
+			"message_answer_deleted":"*[{DATE}]*\n:wastebasket: :envelope: A envoyé le message supprimé :\n> {MESSAGE}\n:envelope_with_arrow: En réponse à {USER} qui a dit:\n> {MESSAGE_ANSWERED}",
+			"cheer":"*[{DATE}]*\n:gem: A envoyé `{BITS}` bits",
+			"cheer_answer":"*[{DATE}]*\n:gem: A envoyé `{BITS}` bits avec ce message :\n> {MESSAGE}"
+		}
 	}
 }

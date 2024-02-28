@@ -17,6 +17,7 @@
 			<section class="card-item reactions">
 				<Icon name="emote" />
 				<ParamItem :paramData="param_reactions" noBackground v-model="$store.discord.reactionsEnabled" @change="saveParams()" />
+				<div class="message"><MessageItem :messageData="messagePreview"></MessageItem></div>
 			</section>
 
 			<section class="card-item colSelector">
@@ -27,6 +28,15 @@
 					@click="selectColumn(col.order)"
 					:secondary="$store.discord.chatCols.indexOf(col.order) > -1">{{ index+1 }}</TTButton>
 				</div>
+			</section>
+
+			<section class="card-item chanSelector">
+				<Icon name="mod" />
+				{{$t("discord.channel_ban_log")}}
+				<select v-model="$store.discord.banLogTarget" @change="saveParams()">
+					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+				</select>
+				<ParamItem :paramData="param_banLogThread" noBackground v-model="$store.discord.banLogThread" @change="saveParams()" />
 			</section>
 
 			<section class="card-item chanSelector">
@@ -41,7 +51,7 @@
 
 			<section class="card-item chanSelector">
 				<Icon name="rightClick" />{{$t("discord.quick_actions")}}
-				<ParamsDiscordQuickActions channelList />
+				<ParamsDiscordQuickActions channelList @change="saveParams()" />
 			</section>
 
 			<section class="card-item chanSelector">
@@ -91,22 +101,25 @@
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import ApiHelper from '@/utils/ApiHelper';
-import { Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamsDiscordQuickActions from './discord/ParamsDiscordQuickActions.vue';
+import MessageItem from '@/components/messages/MessageItem.vue';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
 		Icon,
 		TTButton,
 		ParamItem,
+		MessageItem,
 		ParamsDiscordQuickActions,
 	},
 	emits:[],
 })
-export default class ParamsDiscord extends Vue implements IParameterContent {
+class ParamsDiscord extends Vue implements IParameterContent {
 
 	public code:string = "";
 	public codeLength:number = 4;
@@ -122,15 +135,31 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	public linkErrorCode:string = "";
 	public channelList:{id:string, name:string}[] = [];
 	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
+	public param_banLogThread:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.channel_ban_log_thread"};
+	public messagePreview:TwitchatDataTypes.MessageCustomData = {
+		channel_id:"",
+		date:Date.now(),
+		id:Utils.getUUID(),
+		platform:"twitchat",
+		type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+		message:"Lorem ipsum dolor sit amet.",
+		icon:"discord",
+		user:{
+			name:"DiscordUser"
+		}
+	}
 	
 	public async beforeMount():Promise<void> {
 		const result = await ApiHelper.call("discord/link");
 		if(result.json.linked === true) {
 			this.linkedToGuild = result.json.guildName;
 		}
-		await this.listChannels();
+		this.channelList = this.$store.discord.channelList.concat();
+		this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
 
 		this.stateLoading = false;
+
+		this.saveParams();
 	}
 
 	public onNavigateBack(): boolean { return false; }
@@ -199,7 +228,6 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 			}else{
 				this.linkedToGuild = result.json.guildName!;
 				this.$store.auth.twitch.user.discordLinked = true;
-				await this.listChannels();
 			}
 		}catch(error) {
 		}
@@ -239,24 +267,22 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 	 * Saves params
 	 */
 	public async saveParams():Promise<void> {
+		if(this.$store.discord.reactionsEnabled) {
+			const actions:TwitchatDataTypes.MessageCustomData["actions"] = [];
+			["👌","❤️","😂","😟","⛔"].forEach(reaction => {
+				actions.push({
+					label:reaction,
+				})
+			})
+			this.messagePreview.actions = actions;
+		}else{
+			this.messagePreview.actions = [];
+		}
 		this.$store.discord.saveParams();
 	}
 
-	/**
-	 * Get discord channel list
-	 */
-	private async listChannels():Promise<void> {
-		const res = await ApiHelper.call("discord/channels");
-		if(res.status == 200) {
-			this.channelList = res.json.channelList;
-			this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
-		}
-
-		await this.$nextTick()
-		this.saveParams();
-	}
-
 }
+export default toNative(ParamsDiscord);
 </script>
 
 <style scoped lang="less">
@@ -315,11 +341,10 @@ export default class ParamsDiscord extends Vue implements IParameterContent {
 		}
 	}
 
-	.success {
-		text-align: center;
-		max-width: 400px;
-		.icon {
-			height: 2em;
+	.reactions {
+		.message {
+			border-radius: var(--border-radius);
+			background-color: var(--background-color-primary);
 		}
 	}
 

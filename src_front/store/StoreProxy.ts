@@ -2078,10 +2078,17 @@ export interface IQnaActions {
 
 export interface IDiscordState {
 	chatCols:number[];
+	banLogThread:boolean;
+	banLogTarget:string;
 	chatCmdTarget:string;
 	logChanTarget:string;
 	linkedToGuild:string;
 	reactionsEnabled:boolean;
+	quickActions:TwitchatDataTypes.DiscordQuickActionData[];
+	channelList: {
+		id: string;
+		name: string;
+	}[]
 }
 
 export interface IDiscordGetters {
@@ -2091,5 +2098,6 @@ export interface IDiscordGetters {
 export interface IDiscordActions {
 	initialize():Promise<void>;
 	populateData(data:IDiscordState):void;
+	addQuickAction():void;
 	saveParams():void;
 }

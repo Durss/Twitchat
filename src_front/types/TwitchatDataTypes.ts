@@ -1792,7 +1792,9 @@ export namespace TwitchatDataTypes {
 	export interface DiscordQuickActionData {
 		id:string;
 		action:"message";
+		name:string;
 		message?:string;
+		channelId?:string;
 	}
 
 

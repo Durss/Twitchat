@@ -1459,6 +1459,10 @@ export const storeChat = defineStore('chat', {
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
+			
+			//If message doesn't exist, stop there
+			if(i == -1) return;
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {

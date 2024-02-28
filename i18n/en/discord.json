@@ -9,8 +9,35 @@
 		"channel_logs":"Discord chan to save chat messages to",
 		"channel_logs_info":"To save a message on Discord, right click on it and click \"{OPTION}\" option.\nCan be useful to keep a trace of toxic messages or users.",
 		"channel_cmd":"Discord chan to send messages when using {CMD}",
+		"channel_ban_log":"Discord chan to send last activities and infos about banned users",
+		"channel_ban_log_thread":"Create a thread for each ban",
 		"chat_col":"Chat columns in which messages received from Discord should be displayed",
 		"quick_actions":"Add quick actions usable by right clicking a message",
-		"quick_actions_addBt":"Add quick action"
+		"quick_actions_addBt":"Add quick action",
+		"quick_actions_name":"Name",
+		"quick_actions_message":"Message to send",
+		"quick_actions_channel":"Discord chan to send message to",
+		"log_pattern":{
+			"intro":"`{USER}` *(#{UID})* got banned",
+			"reason":"Ban reason",
+			"uid":"User ID",
+			"login":"User login",
+			"displayname":"User display name",
+			"created_at":"Account creation",
+			"followed_at":"Follower since",
+			"not_following":"not a follower",
+			"follow":"*[{DATE}]*\n:heart: Followed your channel",
+			"sub":"*[{DATE}]*\n:star: Subscribed at `tier {TIER}`",
+			"sub_message":"*[{DATE}]*\n:star: Subscribed at `tier {TIER}` with message\n> {MESSAGE}",
+			"subgift":"*[{DATE}]*\n:gift: Gifted {COUNT} `tier {TIER}` to {RECIPIENTS}",
+			"redeem":"*[{DATE}]*\n:tickets: Reedeemed reward `{REWARD}`",
+			"redeem_message":"*[{DATE}]*\n:tickets: Reedeemed reward `{REWARD}` with message:\n> {MESSAGE}",
+			"message":"*[{DATE}]*\n:envelope: Sent message:\n> {MESSAGE}",
+			"message_answer":"*[{DATE}]*\n:envelope: Sent message:\n> {MESSAGE}\n:envelope_with_arrow: As an answer to {USER} that said:\n> {MESSAGE_ANSWERED}",
+			"message_deleted":"*[{DATE}]*\n:wastebasket: :envelope: Sent deleted message:\n> {MESSAGE}",
+			"message_answer_deleted":"*[{DATE}]*\n:wastebasket: :envelope: Sent deleted message:\n> {MESSAGE}\n:envelope_with_arrow: As an answer to {USER} that said:\n> {MESSAGE_ANSWERED}",
+			"cheer":"*[{DATE}]*\n:gem: Sent `{BITS}` bits",
+			"cheer_answer":"*[{DATE}]*\n:gem: Sent `{BITS}` bits with message:\n> {MESSAGE}"
+		}
 	}
 }

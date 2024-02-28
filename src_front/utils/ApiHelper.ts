@@ -404,4 +404,10 @@ type ApiEndpoints =  {
 			messageId:string;
 		}
 	};
+	"discord/thread": {
+		POST: {
+			success:boolean;
+			messageId:string;
+		}
+	};
 }

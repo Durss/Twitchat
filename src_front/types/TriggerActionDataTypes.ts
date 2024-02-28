@@ -1058,7 +1058,7 @@ export const TriggerTypes = {
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
 	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
 	TWITCHAT_MESSAGE:"twitchat_message",
-	GLOBAL_PLACHOLDERS:"global_placholders",
+	GLOBAL_PLACEHOLDERS:"global_placeholders",
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
@@ -1538,7 +1538,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"ULULE_CAMPAIGN_URL", descKey:'triggers.placeholders.ulule_campaign_url', pointer:"__ulule__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://ulule.com"});
 		}
 
-		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1 && key != TriggerTypes.GLOBAL_PLACHOLDERS) {
+		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1 && key != TriggerTypes.GLOBAL_PLACEHOLDERS) {
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My trigger"});
 			entry.push({tag:"TRIGGER_ID", descKey:"triggers.placeholders.trigger_id", pointer:"__trigger__.id", numberParsable:false, isUserID:false, globalTag:true, example:"00000000-0000-0000-0000-000000000000"});
 		}

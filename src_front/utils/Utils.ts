@@ -1,5 +1,5 @@
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, TriggerEventPlaceholders } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, TriggerEventPlaceholders, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
 import { TwitchScopes } from './twitch/TwitchScopes';
@@ -962,28 +962,34 @@ export default class Utils {
 	 * @param src 
 	 * @returns 
 	 */
-	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true):Promise<string> {
-		const placeholders = TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true, message:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
+		let placeholders:ITriggerPlaceholder<any>[] = [];
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
+			placeholders = placeholders.concat(TriggerEventPlaceholders(TriggerTypes.ANY_MESSAGE).concat());
+		}
 		const trigger:TriggerData = {
 			id:"",
-			type:TriggerTypes.GLOBAL_PLACHOLDERS,
+			type:TriggerTypes.GLOBAL_PLACEHOLDERS,
 			enabled:true,
 			actions:[],
 		};
-		const message:TwitchatDataTypes.MessageChatData = {
-			id:"",
-			channel_id:"",
-			platform:"twitch",
-			date:Date.now(),
-			is_short:false,
-			message:"",
-			message_html:"",
-			message_chunks:[],
-			message_size:0,
-			answers:[],
-			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-			user:StoreProxy.auth.twitch.user,
-		};
+		if(!message) {
+			message = {
+				id:"",
+				channel_id:"",
+				platform:"twitch",
+				date:Date.now(),
+				is_short:false,
+				message:"",
+				message_html:"",
+				message_chunks:[],
+				message_size:0,
+				answers:[],
+				type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+				user:StoreProxy.auth.twitch.user,
+			};
+		}
 		return await TriggerActionHandler.instance.parsePlaceholders({}, placeholders, trigger, message, src, null, false, false, stripHTMLTags);
 
 	}
