@@ -1,8 +1,7 @@
 <template>
 	<div class="triggeractiondiscordentry triggerActionForm">
 		<ParamItem :paramData="param_message" v-model="action.discordAction.message" forceChildDisplay/>
-		<div v-if="channelLoadingError" class="card-item alert"></div>
-		<ParamItem v-else :paramData="param_channel" v-model="action.discordAction.channelId" forceChildDisplay/>
+		<ParamItem :paramData="param_channel" v-model="action.discordAction.channelId" forceChildDisplay/>
 	</div>
 </template>
 
@@ -28,7 +27,6 @@ class TriggerActionDiscordEntry extends AbstractTriggerActionEntry {
 	@Prop
 	declare triggerData:TriggerData;
 	
-	public channelLoadingError:boolean = true;
 	public param_message:TwitchatDataTypes.ParameterData<string> = { type:"string", longText:true, value:"", icon:"whispers", maxLength:2000, labelKey:"triggers.actions.discord.param_message" };
 	public param_channel:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"", icon:"discord", labelKey:"triggers.actions.discord.param_channel" };
 
