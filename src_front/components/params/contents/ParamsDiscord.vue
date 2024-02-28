@@ -84,6 +84,7 @@
 			<div class="code">
 				<input type="text" placeholder="_"
 					v-for="i, index in codeLength"
+					@keydown="onKeyDown"
 					@input="onChange"
 					:value="code[index]"
 					v-click2Select
@@ -178,7 +179,32 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	public onNavigateBack(): boolean { return false; }
 
 	/**
-	 * Called wanytime an input's value changes
+	 * Called when pressing a key on an input of the code form
+	 * @param event 
+	 */
+	public onKeyDown(event:KeyboardEvent):void {
+		if(event.key == "Backspace") {
+			//Set focus to prev input
+			const inputs = this.$refs.codeInput as HTMLInputElement[];
+			let index = inputs.findIndex(v=>v === event.target);
+			let currentInput = event.target as HTMLInputElement;
+			if(currentInput.selectionEnd) {
+				//Remove all chars after the carret
+				currentInput.value = "";
+			}
+			index --;
+			if(index < 0) index = 0;
+			inputs[index].focus();
+			inputs[index].select();
+			event.stopPropagation();
+			event.preventDefault();
+			//Define new code as a concatenation of all inputs values
+			this.code = inputs.map(v=>v.value).join("").substring(0, this.codeLength);
+		}
+	}
+
+	/**
+	 * Called anytime an input's value changes
 	 * cycles the focus and manage copy/paste properly
 	 * @param event 
 	 */
@@ -188,8 +214,8 @@ class ParamsDiscord extends Vue implements IParameterContent {
 		if(currentInput.selectionEnd) {
 			//Remove all chars after the carret
 			currentInput.value = currentInput.value.substring(0,currentInput.selectionEnd);
-			
 		}
+
 		//Set focus to next input
 		let index = inputs.findIndex(v=>v === event.target);
 		index ++;
