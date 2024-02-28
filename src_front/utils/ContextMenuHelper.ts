@@ -385,7 +385,7 @@ export default class ContextMenuHelper {
 						label: (action.name || (action.message||"").substring(0,20)).replace(/ /gi, " "),
 						onClick: () => this.discordQuickAction(message, action),
 					});
-				})
+				});
 				options.push({ 
 					label: t("chat.context_menu.discord_quick_actions"),
 					icon: this.getIcon("icons/discord.svg"),

@@ -1,5 +1,5 @@
 import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
-import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder } from "discord.js";
+import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder, UserFlags } from "discord.js";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from "../utils/Config";
@@ -116,7 +116,7 @@ export default class DiscordController extends AbstractController {
 		if(!user) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -149,7 +149,7 @@ export default class DiscordController extends AbstractController {
 		if(!user || !guild) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -187,7 +187,7 @@ export default class DiscordController extends AbstractController {
 		if(!user || !guild) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -247,7 +247,7 @@ export default class DiscordController extends AbstractController {
 		if(!user) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -275,7 +275,7 @@ export default class DiscordController extends AbstractController {
 		if(!user || !guild) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -304,7 +304,7 @@ export default class DiscordController extends AbstractController {
 		if(!user || !guild) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -363,7 +363,7 @@ export default class DiscordController extends AbstractController {
 		if(!user) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 
@@ -436,7 +436,7 @@ export default class DiscordController extends AbstractController {
 		if(!user || !guild) {
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", success:false}));
+			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
 			return;
 		}
 		
@@ -671,13 +671,6 @@ export default class DiscordController extends AbstractController {
 		this._commandSay = freshCommandList.find(v=>v.name == SAY_CMD.name);
 		this._commandAsk = freshCommandList.find(v=>v.name == ASK_CMD.name);
 		this._commandLink = freshCommandList.find(v=>v.name == LINK_CMD.name);
-
-		const body = {
-			name:"coucou",
-			autoArchiveDuration: 60,
-
-			reason: 'this is a test',
-		}
 	}
 
 	/**

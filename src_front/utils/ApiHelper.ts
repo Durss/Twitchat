@@ -382,6 +382,8 @@ type ApiEndpoints =  {
 			guildName:string;
 			logChannel:string;
 			answerChannel:string;
+			error?:string;
+			errorCode?:string;
 		};
 		DELETE: {
 			success:boolean;

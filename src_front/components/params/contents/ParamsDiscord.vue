@@ -72,10 +72,9 @@
 			<div>{{ $t("discord.install_confirm") }}</div>
 			<mark class="discordName">{{ discordName }}</mark>
 			<div class="ctas">
-				<TTButton icon="cross" alert @click="linkConfirm = false; linkErrorCode=''">{{ $t("global.cancel") }}</TTButton>
+				<TTButton icon="cross" alert @click="linkConfirm = false; errorCode=''">{{ $t("global.cancel") }}</TTButton>
 				<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
 			</div>
-			<div @click="linkErrorCode = ''" v-if="linkErrorCode" class="card-item alert error">{{ $t("error.discord."+linkErrorCode, {CHANNEL:channelName}) }}</div>
 		</section>
 
 		<section class="card-item codeForm" v-else>
@@ -91,8 +90,9 @@
 					ref="codeInput">
 			</div>
 			<Icon class="loader" name="loader" v-if="linkLoading" />
-			<div @click="linkErrorCode = ''" v-if="linkErrorCode" class="card-item alert error">{{ $t("error.discord."+linkErrorCode) }}</div>
 		</section>
+		
+		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">{{ $t("error.discord."+errorCode) }}</div>
 
 	</div>
 </template>
@@ -132,7 +132,7 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	public stateLoading:boolean = true;
 	public linkLoading:boolean = false;
 	public linkConfirm:boolean = false;
-	public linkErrorCode:string = "";
+	public errorCode:string = "";
 	public channelList:{id:string, name:string}[] = [];
 	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
 	public param_banLogThread:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.channel_ban_log_thread"};
@@ -150,12 +150,25 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	}
 	
 	public async beforeMount():Promise<void> {
-		const result = await ApiHelper.call("discord/link");
-		if(result.json.linked === true) {
-			this.linkedToGuild = result.json.guildName;
+		try {
+			const result = await ApiHelper.call("discord/link");
+			if(result.json.success) {
+				if(result.json.linked === true) {
+					this.linkedToGuild = result.json.guildName;
+				}
+			}else if(result.status == 401){
+				this.errorCode = "UNKNOWN";
+			}else{
+				this.errorCode = result.json.errorCode || "UNKNOWN";
+			}
+		}catch(error) {
+			this.errorCode = "UNKNOWN";
 		}
-		this.channelList = this.$store.discord.channelList.concat();
-		this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
+
+		if(this.linkedToGuild) {
+			this.channelList = this.$store.discord.channelList.concat();
+			this.channelList.unshift({id:"", name:this.$t("global.select_placeholder")});
+		}
 
 		this.stateLoading = false;
 
@@ -189,7 +202,7 @@ class ParamsDiscord extends Vue implements IParameterContent {
 
 		if(this.code.length == this.codeLength) {
 			this.linkLoading = true;
-			this.linkErrorCode = "";
+			this.errorCode = "";
 			//Debounce updates to avoid spamming server
 			clearTimeout(this.validateDebounce);
 			this.validateDebounce = setTimeout(()=>{
@@ -205,7 +218,7 @@ class ParamsDiscord extends Vue implements IParameterContent {
 		try {
 			const result = await ApiHelper.call("discord/code", "GET", {code:this.code});
 			if(result.status !== 200) {
-				this.linkErrorCode = result.json.errorCode || "UNKNOWN";
+				this.errorCode = result.json.errorCode || "UNKNOWN";
 			}else{
 				this.discordName = result.json.guildName || "???";
 				this.linkConfirm = true;
@@ -224,7 +237,7 @@ class ParamsDiscord extends Vue implements IParameterContent {
 			const result = await ApiHelper.call("discord/code", "POST", {code:this.code}, false);
 			if(result.status !== 200) {
 				this.channelName = result.json.channelName!;
-				this.linkErrorCode = result.json.errorCode || "UNKNOWN";
+				this.errorCode = result.json.errorCode || "UNKNOWN";
 			}else{
 				this.linkedToGuild = result.json.guildName!;
 				this.$store.auth.twitch.user.discordLinked = true;
@@ -290,6 +303,7 @@ export default toNative(ParamsDiscord);
 
 	.error {
 		cursor: pointer;
+		align-self: center;
 	}
 
 	.loader {
@@ -305,7 +319,9 @@ export default toNative(ParamsDiscord);
 		&>.icon {
 			height: 2em;
 			vertical-align: middle;
-			margin-right: .5em;
+			&:not(.loader) {
+				margin-right: .5em;
+			}
 		}
 	}
 

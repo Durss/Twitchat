@@ -52,7 +52,7 @@ export default class Config {
 	 */
 	public DISCORD_URL = "https://discord.gg/fmqD2xUYvP";
 	public get DISCORD_BOT_URL():string {
-		return "https://discord.com/oauth2/authorize?client_id="+this._serverConfig.discord_client_id+"&permissions=395137001472&scope=applications.commands+bot";
+		return "https://discord.com/oauth2/authorize?client_id="+this._serverConfig.discord_client_id+"&scope=applications.commands+bot";
 	}
 	/**
 	 * URL of twitchat's youtube
