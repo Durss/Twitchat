@@ -217,7 +217,8 @@ export default class DiscordController extends AbstractController {
 			}
 			if(merge) mergeHistory.push(merge);
 
-			mergeHistory.forEach(async entry=> {
+			//Limit to 10 messages
+			mergeHistory.slice(0,10).forEach(async entry=> {
 				(await this._rest.post(Routes.channelMessages(thread.id), {body:{content:entry}})) as {id:string};
 			})
 			
