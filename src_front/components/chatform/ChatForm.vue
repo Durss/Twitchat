@@ -344,7 +344,7 @@ import Logger from '@/utils/Logger';
 		"update:showCredits",
 	],
 })
- class ChatForm extends Vue {
+export class ChatForm extends Vue {
 
 	@Prop
 	public showFeed!:boolean;

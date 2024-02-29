@@ -160,7 +160,7 @@ import Config from '@/utils/Config';
 	},
 	emits: ['submit', 'add', 'change'],
 })
- class MessageListFilter extends Vue {
+export class MessageListFilter extends Vue {
 	
 	@Prop({type:Boolean, default: false})
 	public open!:boolean;

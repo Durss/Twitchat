@@ -341,7 +341,7 @@ import DurationForm from '../DurationForm.vue';
 	},
 	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
 })
- class ParamItem extends Vue {
+export class ParamItem extends Vue {
 	
 	@Prop
 	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;

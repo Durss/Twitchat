@@ -84,7 +84,7 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+import ToggleBlock, {ToggleBlock as ToggleBlockClass} from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { watch } from 'vue';
@@ -153,7 +153,7 @@ import TriggerListItem from './TriggerListItem.vue';
 			this.lastHovered = ref;
 			clearTimeout(this.refToOpenTimeout[ref]);
 			this.refToOpenTimeout[ref] = setTimeout(()=> {
-				const block = this.$refs[ref] as ToggleBlock;
+				const block = this.$refs[ref] as ToggleBlockClass;
 				if(block) block.localOpen = true;
 				else console.warn("REF not found", ref);
 				

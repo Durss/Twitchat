@@ -123,7 +123,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import MessageItem from './MessageItem.vue';
-import MessageListFilter from './components/MessageListFilter.vue';
+import MessageListFilter, {MessageListFilter as MessageListFilterClass} from './components/MessageListFilter.vue';
 import { RoughEase } from 'gsap/all';
 import { Linear } from 'gsap/all';
 
@@ -358,7 +358,7 @@ import { Linear } from 'gsap/all';
 	 * Opens up the message filters
 	 */
 	public openFilters(): void {
-		(this.$refs.listFilter as MessageListFilter).openFilters();
+		(this.$refs.listFilter as MessageListFilterClass).openFilters();
 	}
 
 	/**
