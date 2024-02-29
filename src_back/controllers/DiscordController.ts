@@ -745,7 +745,6 @@ export default class DiscordController extends AbstractController {
 			});
 		}else{
 			if(!COMMAND_NAMES.includes(command.data.name)) {
-				console.log("NOT INCLUDE");
 				//Executing trigger command
 				const params = (command.data.options||[]).map(option => {
 					return {
@@ -753,7 +752,6 @@ export default class DiscordController extends AbstractController {
 						value:option.value,
 					}
 				});
-				console.log(command.data.name, params);
 				SSEController.sendToUser(uid, SSECode.TRIGGER_SLASH_COMMAND, {command:command.data.name, params});
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
@@ -827,7 +825,7 @@ export default class DiscordController extends AbstractController {
 							let cols:number[] = [];
 							if(guild.chatCols.length > 0) cols = guild.chatCols;
 	
-							SSEController.sendToUser(uid, SSECode.TRIGGER_SLASH_COMMAND, {messageId:originalMessage.id, col:cols, message, highlightColor, style, username:command.member.user.username, actions});
+							SSEController.sendToUser(uid, SSECode.NOTIFICATION, {messageId:originalMessage.id, col:cols, message, highlightColor, style, username:command.member.user.username, actions});
 							break;
 						}
 					}catch(error) {
