@@ -2609,6 +2609,10 @@ export namespace TwitchatDataTypes {
 		 */
 		is_gift: boolean;
 		/**
+		 * true if user upgraded from a prime to normal sub
+		 */
+		is_primeUpgrade: boolean;
+		/**
 		 * true if user renewed a subgift they got before
 		 */
 		is_giftUpgrade: boolean;

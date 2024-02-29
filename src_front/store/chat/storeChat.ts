@@ -1108,6 +1108,24 @@ export const storeChat = defineStore('chat', {
 
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
+						tier:message.tier,
+						months:message.months,
+						user:{
+							id:message.user.id,
+							login:message.user.login,
+						},
+						message:message.message || "",
+						message_chunks:(message.message_chunks as unknown) as JsonObject || [],
+						recipients:message.gift_recipients?.map(u=>{return {uid:u.id, login:u.login}}) || [],
+						streakMonths:message.streakMonths,
+						totalSubDuration:message.totalSubDuration,
+						giftCount:message.gift_count || 0,
+						isPrimeUpgrade:message.is_primeUpgrade,
+						isGift:message.is_gift,
+						isGiftUpgrade:message.is_giftUpgrade,
+						isResub:message.is_resub,
+					});
 					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
