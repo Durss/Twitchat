@@ -7,88 +7,107 @@
 			<TTButton icon="discord" primary type="link" :href="$config.DISCORD_BOT_URL" target="_blank">{{ $t("discord.install_bt") }}</TTButton>
 		</div>
 		
-		<template v-if="$store.discord.discordLinked">
-			<TTButton class="unlinkBt" icon="cross" alert @click="unlink()" :loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
-
-			<section class="card-item reactions">
-				<Icon name="emote" />
-				<ParamItem :paramData="param_reactions" noBackground v-model="$store.discord.reactionsEnabled" @change="saveParams()" />
-				<div class="message"><MessageItem :messageData="messagePreview"></MessageItem></div>
-			</section>
-
-			<section class="card-item colSelector">
-				<Icon name="split" />{{$t("discord.chat_col")}}
-				<div class="columnList">
-					<TTButton v-for="col, index in $store.params.chatColumnsConfig"
-					:key="index"
-					@click="selectColumn(col.order)"
-					:secondary="$store.discord.chatCols.indexOf(col.order) > -1">{{ index+1 }}</TTButton>
-				</div>
-			</section>
-
-			<section class="card-item chanSelector">
-				<Icon name="mod" />
-				{{$t("discord.channel_ban_log")}}
-				<select v-model="$store.discord.banLogTarget" @change="saveParams()">
-					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
-				</select>
-				<ParamItem :paramData="param_banLogThread" noBackground v-model="$store.discord.banLogThread" @change="saveParams()" />
-			</section>
-
-			<section class="card-item chanSelector">
-				<Icon name="commands" />
-				<i18n-t scope="global" tag="p" keypath="discord.channel_cmd">
-					<template #CMD><mark>{{ $store.chat.commands.find(v=>v.id == "discord")?.cmd }}</mark></template>
-				</i18n-t>
-				<select v-model="$store.discord.chatCmdTarget" @change="saveParams()">
-					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
-				</select>
-			</section>
-
-			<section class="card-item chanSelector">
-				<Icon name="rightClick" />{{$t("discord.quick_actions")}}
-				<ParamsDiscordQuickActions channelList @change="saveParams()" />
-			</section>
-
-			<section class="card-item chanSelector">
-				<Icon name="save" />{{$t("discord.channel_logs")}}
-				<select v-model="$store.discord.logChanTarget" @change="saveParams()">
-					<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
-				</select>
-				<div class="card-item info">
-					<Icon name="info" />
-					<i18n-t scope="global"  tag="span" keypath="discord.channel_logs_info">
-						<template #OPTION><mark>{{ $t("chat.context_menu.export_discord") }}</mark></template>
+		<TTButton class="unlinkBt" icon="cross"
+			v-if="$store.discord.discordLinked"
+			alert @click="unlink()"
+			:loading="submitting">{{ $t("discord.unkinkBt", {GUILD:$store.discord.linkedToGuild}) }}</TTButton>
+		
+		<div class="content">
+			<template v-if="$store.discord.discordLinked">
+	
+				<section class="card-item colSelector">
+					<Icon name="split" />
+					<span>{{$t("discord.chat_col")}}</span>
+					<div class="columnList">
+						<TTButton v-for="col, index in $store.params.chatColumnsConfig"
+						:key="index"
+						@click="selectColumn(col.order)"
+						:secondary="$store.discord.chatCols.indexOf(col.order) > -1">{{ index+1 }}</TTButton>
+					</div>
+				</section>
+	
+				<section class="card-item reactions">
+					<Icon name="emote" />
+					<ParamItem :paramData="param_reactions" noBackground v-model="$store.discord.reactionsEnabled" @change="saveParams()" />
+					<div class="message"><MessageItem :messageData="messagePreview"></MessageItem></div>
+				</section>
+	
+				<section class="card-item">
+					<Icon name="mod" />
+					<span>{{$t("discord.channel_ban_log")}}</span>
+					<select v-model="$store.discord.banLogTarget" @change="saveParams()">
+						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+					</select>
+					<ParamItem :paramData="param_banLogThread" noBackground v-model="$store.discord.banLogThread" @change="saveParams()" />
+				</section>
+	
+				<section class="card-item">
+					<Icon name="commands" />
+					<i18n-t scope="global" tag="p" keypath="discord.channel_cmd">
+						<template #CMD><mark>{{ $store.chat.commands.find(v=>v.id == "discord")?.cmd }}</mark></template>
 					</i18n-t>
+					<select v-model="$store.discord.chatCmdTarget" @change="saveParams()">
+						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+					</select>
+				</section>
+	
+				<section class="card-item">
+					<Icon name="rightClick" />
+					<span>{{$t("discord.quick_actions")}}</span>
+					<ParamsDiscordQuickActions channelList @change="saveParams()" />
+				</section>
+	
+				<section class="card-item">
+					<Icon name="save" />
+					<span>{{$t("discord.channel_logs")}}</span>
+					<select v-model="$store.discord.logChanTarget" @change="saveParams()">
+						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+					</select>
+					<div class="card-item info">
+						<Icon name="info" />
+						<i18n-t scope="global"  tag="span" keypath="discord.channel_logs_info">
+							<template #OPTION><mark>{{ $t("chat.context_menu.export_discord") }}</mark></template>
+						</i18n-t>
+					</div>
+				</section>
+	
+				<section class="card-item slashCmd">
+					<Icon name="broadcast" />
+					<i18n-t tag="span" keypath="discord.public_triggers">
+						<template #TRIGGER_LINK><a @click.stop="openTriggers()">{{ $t("params.categories.triggers") }}</a></template>
+						<template #SLASH_CMD><strong>{{ $t("triggers.events.SLASH_COMMAND.label") }}</strong></template>
+						<template #OPTION><strong>{{ $t("triggers.slash_cmd.param_cmd_discord") }}</strong></template>
+						<template #ICON><Icon name="info" /></template>
+					</i18n-t>
+				</section>
+			</template>
+			
+			<section class="card-item confirm" v-else-if="askLinkConfirmation">
+				<div>{{ $t("discord.install_confirm") }}</div>
+				<mark class="discordName">{{ discordName }}</mark>
+				<div class="ctas">
+					<TTButton icon="cross" alert @click="askLinkConfirmation = false; errorCode=''">{{ $t("global.cancel") }}</TTButton>
+					<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
 				</div>
 			</section>
-		</template>
-		
-		<section class="card-item confirm" v-else-if="askLinkConfirmation">
-			<div>{{ $t("discord.install_confirm") }}</div>
-			<mark class="discordName">{{ discordName }}</mark>
-			<div class="ctas">
-				<TTButton icon="cross" alert @click="askLinkConfirmation = false; errorCode=''">{{ $t("global.cancel") }}</TTButton>
-				<TTButton icon="checkmark" primary @click="confirmLink()" :loading="submitting">{{ $t("global.confirm") }}</TTButton>
-			</div>
-		</section>
-
-		<section class="card-item codeForm" v-else>
-			<i18n-t scope="global"  tag="p" keypath="discord.install_code">
-				<template #CMD><mark>/link</mark></template>
-			</i18n-t>
-			<div class="code">
-				<input type="text" placeholder="_"
-					v-for="i, index in codeLength"
-					@keydown="onKeyDown"
-					@input="onChange"
-					:value="code[index]"
-					v-click2Select
-					ref="codeInput">
-			</div>
-			<Icon class="loader" name="loader" v-if="linkLoading" />
-		</section>
-		
+	
+			<section class="card-item codeForm" v-else>
+				<i18n-t scope="global"  tag="p" keypath="discord.install_code">
+					<template #CMD><mark>/link</mark></template>
+				</i18n-t>
+				<div class="code">
+					<input type="text" placeholder="_"
+						v-for="i, index in codeLength"
+						@keydown="onKeyDown"
+						@input="onChange"
+						:value="code[index]"
+						v-click2Select
+						ref="codeInput">
+				</div>
+				<Icon class="loader" name="loader" v-if="linkLoading" />
+			</section>
+			
+		</div>
 		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">{{ $t("error.discord."+errorCode) }}</div>
 
 	</div>
@@ -291,12 +310,20 @@ class ParamsDiscord extends Vue implements IParameterContent {
 		this.$store.discord.saveParams();
 	}
 
+	/**
+	 * Open triggers page
+	 */
+	public openTriggers():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
+	}
+
 }
 export default toNative(ParamsDiscord);
 </script>
 
 <style scoped lang="less">
 .paramsdiscord{
+	max-width: calc(100vw - 350px) !important;
 
 	.error {
 		cursor: pointer;
@@ -312,52 +339,74 @@ export default toNative(ParamsDiscord);
 		align-self: center;
 	}
 
-	section:not(.codeForm) {
-		&>.icon {
-			height: 2em;
-			vertical-align: middle;
-			&:not(.loader) {
-				margin-right: .5em;
-			}
-		}
-	}
+	.content {
+		align-self: center;
+		max-width: 1000px;
+		gap: 1em;
+		display: flex;
+		flex-direction: row;
+		flex-wrap: wrap;
+		justify-content: center;
+		align-items: flex-start;
 
-	.chanSelector, .colSelector {
-		max-width: 350px;
-		ul {
-			max-height: 200px;
-			overflow: auto;
-			li {
-				margin-bottom: .25em;
-				.button {
-					width: 100%;
+		section {
+			margin: unset;
+			max-width: 320px;
+			&>.icon {
+				height: 2em;
+				vertical-align: middle;
+				&:not(.loader) {
+					margin-right: .5em;
 				}
 			}
-		}
-		.info {
-			font-size: .8em;
-			text-align: justify;
-			background-color: var(--color-secondary-fadest);
-			.icon {
-				height: 1em;
-				margin-right: .25em;
+			span {
+				line-height: 1.25em;
+				white-space: pre-line;
 			}
-		}
-		.columnList {
-			gap: .5em;
-			row-gap: .25em;
-			display: flex;
-			flex-direction: row;
-			flex-wrap: wrap;
-			align-items: center;
-			justify-content: center;
-		}
-	}
 
-	.reactions {
-		.message {
-			border-radius: var(--border-radius);
-			background-color: var(--background-color-primary);
+			ul {
+				max-height: 200px;
+				overflow: auto;
+				li {
+					margin-bottom: .25em;
+					.button {
+						width: 100%;
+					}
+				}
+			}
+			.info {
+				font-size: .8em;
+				text-align: justify;
+				background-color: var(--color-secondary-fadest);
+				.icon {
+					height: 1em;
+					margin-right: .25em;
+				}
+			}
+			.columnList {
+				gap: .5em;
+				row-gap: .25em;
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: center;
+			}
+
+			&.reactions {
+				max-width: 320px;
+				.message {
+					border-radius: var(--border-radius);
+					background-color: var(--background-color-primary);
+				}
+			}
+			&.slashCmd {
+				font-size: .9em;
+				span .icon {
+					height: 1em;
+					vertical-align: middle;
+				}
+			}
 		}
 	}
 

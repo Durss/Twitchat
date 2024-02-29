@@ -414,4 +414,11 @@ type ApiEndpoints =  {
 			messageId:string;
 		}
 	};
+	"discord/commands": {
+		POST: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+		}
+	};
 }

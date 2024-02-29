@@ -566,7 +566,7 @@ export const storeUsers = defineStore('users', {
 				//Send logs to discord if requested
 				const sDiscord = StoreProxy.discord;
 				//Get creation date of the user if not already existing
-				if(sDiscord.linked && sDiscord.banLogTarget && bannedUser) {
+				if(sDiscord.discordLinked && sDiscord.banLogTarget && bannedUser) {
 					if(!bannedUser.created_at_ms && platform == "twitch") {
 						const res = await TwitchUtils.loadUserInfo([uid]);
 						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0].created_at).getTime();

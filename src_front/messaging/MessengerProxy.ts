@@ -600,7 +600,7 @@ export default class MessengerProxy {
 			const discordChan = StoreProxy.discord.chatCmdTarget;
 			if(discordChan) {
 				const prefix = "**"+me.login+"**: ";
-				const res = await ApiHelper.call("discord/message", "POST", {message:prefix+params[0], channelId:discordChan});
+				const res = await ApiHelper.call("discord/message", "POST", {message:prefix+params.join(" "), channelId:discordChan});
 				console.log(res);
 				return true;
 			}

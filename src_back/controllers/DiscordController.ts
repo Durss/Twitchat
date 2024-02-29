@@ -220,6 +220,45 @@ export default class DiscordController extends AbstractController {
 	private async postCommands(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const res = await this.guildGuard(request, response);
 		if(res == false) return;
+		const {user, guild} = res;
+
+		const perms = PermissionsBitField.Flags.Administrator
+					& PermissionsBitField.Flags.ManageGuild
+					& PermissionsBitField.Flags.ModerateMembers;
+		const body = request.body as  {commands:{name:string, params:{name:string}[]}[]}
+		let commandList:SlashCommandBuilder[] = [];
+		body.commands.forEach(cmdDef => {
+			const cmd = new SlashCommandBuilder()
+			.setName(cmdDef.name)
+			.setDescription(cmdDef.name)
+			.setDefaultMemberPermissions(perms);
+
+			cmdDef.params.forEach(p => {
+				cmd.addStringOption(option => {
+					option.setName(p.name)
+					.setDescription(p.name)
+					.setRequired(true);
+					return option;
+				});
+			});
+			commandList.push(cmd);
+		});
+
+		try {
+			Logger.info("Creating guild "+commandList.length+" commands");
+			// const currentCommands = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, guild.guildID));
+			await this._rest.put(Routes.applicationGuildCommands(Config.credentials.discord_client_id, guild.guildID), {body:commandList});
+			response.header('Content-Type', 'application/json')
+			.status(200)
+			.send(JSON.stringify({success:true}));
+
+		}catch(error) {
+			console.log(error);
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Failed creating Discord guild command", errorCode:"GUILD_COMMAND_CREATE_FAILED", success:false}));
+			return;
+		}
 
 	}
 
@@ -450,16 +489,16 @@ export default class DiscordController extends AbstractController {
 			}
 			case InteractionType.APPLICATION_COMMAND: {
 				let command = json as SlashCommandPayload;
-				// Logger.info(command.member.user.username+" executes command "+command.data.name);
+				Logger.info(command.member.user.username+" executes command "+command.data.name);
 				switch(command.data.name) {
 					case "link":{
 						await this.configureTwitchChannel(request, response, command);
 						break;
 					}
 					case "ask":
-					case "say":{
+					case "say":
+					default:{
 						await this.sendMessageToTwitchat(request, response, command);
-						break;
 					}
 				}
 				break;
@@ -705,76 +744,98 @@ export default class DiscordController extends AbstractController {
 				},
 			});
 		}else{
-			const message = command.data.options.find(v=>v.name == "message")!.value;
-			response.status(200).send({
-				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
-				data: {
-					// content: I18n.instance.get(command.locale, "server.discord.message_sent", {MESSAGE:message}),
-					content: "> "+message,
-				},
-			});
+			if(!COMMAND_NAMES.includes(command.data.name)) {
+				console.log("NOT INCLUDE");
+				//Executing trigger command
+				const params = (command.data.options||[]).map(option => {
+					return {
+						name:option.name,
+						value:option.value,
+					}
+				});
+				console.log(command.data.name, params);
+				SSEController.sendToUser(uid, SSECode.TRIGGER_SLASH_COMMAND, {command:command.data.name, params});
+				response.status(200).send({
+					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+					data: {
+						content: ":ok:",
+					},
+				});
 
-			let attempts = 0;
-			do {
-				try {
-					//There must be a cleaner way to get the message initiating the interaction
-					//than polling the message list until we get a message containing the 
-					//interaction ID, but I couldn't find a any :/
-					const params = new URLSearchParams();
-					params.set("limit", "10");
-					let messages = await this._rest.get(Routes.channelMessages(command.channel_id), {query:params}) as any[];
-					const originalMessage = messages.find(mess => mess.interaction && mess.interaction.id == command.id);
-					if(originalMessage) {
+			}else{
+				const message = command.data.options.find(v=>v.name == "message")!.value;
+				if(message) {
+					response.status(200).send({
+						type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
+						data: {
+							content: "> "+message,
+						},
+					});
+				}
 
-						const style = command.data.options.find(v=>v.name == "style")?.value || "message";
-						const confirm = command.data.name == "ask"
-						const guild = DiscordController._twitchId2GuildId[uid];
-
-						let highlightColor = "";
-						if(style == "highlight") {
-							highlightColor = "#5865f2"
-						}
-						const actions:{icon?:string,label:string,actionType?:"discord",data?:ActionPayload,quote?:string,message?:string, theme?:"default"|"primary"|"secondary"|"alert"}[] = [];
-						if(confirm) {
-							actions.push({
-								actionType:"discord",
-								label:I18n.instance.get(guild.locale, "global.yes"),
-								message:":white_check_mark: "+I18n.instance.get(guild.locale, "global.yes"),
-								icon:"checkmark",
-								theme:"primary",
-								data:{messageId:originalMessage.id, channelId:command.channel_id},
-							})
-							actions.push({
-								actionType:"discord",
-								label:I18n.instance.get(guild.locale, "global.no"),
-								message:":no_entry: "+I18n.instance.get(guild.locale, "global.no"),
-								icon:"cross",
-								theme:"alert",
-								data:{messageId:originalMessage.id, channelId:command.channel_id},
-							})
-						}else if(guild.reactionsEnabled !== false){
-							["👌","❤️","😂","😟","⛔"].forEach(reaction => {
+				//Executing a app command
+				let attempts = 0;
+				do {
+					try {
+						//There must be a cleaner way to get the message initiating the interaction
+						//than polling the message list until we get a message containing the 
+						//interaction ID, but I couldn't find a any :/
+						const params = new URLSearchParams();
+						params.set("limit", "10");
+						let messages = await this._rest.get(Routes.channelMessages(command.channel_id), {query:params}) as any[];
+						const originalMessage = messages.find(mess => mess.interaction && mess.interaction.id == command.id);
+						if(originalMessage) {
+	
+							const style = command.data.options.find(v=>v.name == "style")?.value || "message";
+							const confirm = command.data.name == "ask"
+							const guild = DiscordController._twitchId2GuildId[uid];
+	
+							let highlightColor = "";
+							if(style == "highlight") {
+								highlightColor = "#5865f2";
+							}
+							const actions:{icon?:string,label:string,actionType?:"discord",data?:ActionPayload,quote?:string,message?:string, theme?:"default"|"primary"|"secondary"|"alert"}[] = [];
+							if(confirm) {
 								actions.push({
 									actionType:"discord",
-									label:reaction,
-									message:reaction,
-									data:{messageId:originalMessage.id, channelId:command.channel_id, reaction},
+									label:I18n.instance.get(guild.locale, "global.yes"),
+									message:":white_check_mark: "+I18n.instance.get(guild.locale, "global.yes"),
+									icon:"checkmark",
+									theme:"primary",
+									data:{messageId:originalMessage.id, channelId:command.channel_id},
 								})
-							})
+								actions.push({
+									actionType:"discord",
+									label:I18n.instance.get(guild.locale, "global.no"),
+									message:":no_entry: "+I18n.instance.get(guild.locale, "global.no"),
+									icon:"cross",
+									theme:"alert",
+									data:{messageId:originalMessage.id, channelId:command.channel_id},
+								})
+							}else if(guild.reactionsEnabled !== false){
+								["👌","❤️","😂","😟","⛔"].forEach(reaction => {
+									actions.push({
+										actionType:"discord",
+										label:reaction,
+										message:reaction,
+										data:{messageId:originalMessage.id, channelId:command.channel_id, reaction},
+									})
+								})
+							}
+	
+							
+							let cols:number[] = [];
+							if(guild.chatCols.length > 0) cols = guild.chatCols;
+	
+							SSEController.sendToUser(uid, SSECode.TRIGGER_SLASH_COMMAND, {messageId:originalMessage.id, col:cols, message, highlightColor, style, username:command.member.user.username, actions});
+							break;
 						}
-
-						
-						let cols:number[] = [];
-						if(guild.chatCols.length > 0) cols = guild.chatCols;
-
-						SSEController.sendToUser(uid, SSECode.MESSAGE, {messageId:originalMessage.id, col:cols, message, highlightColor, style, username:command.member.user.username, actions});
-						break;
+					}catch(error) {
+						console.error(error);
 					}
-				}catch(error) {
-					console.error(error);
-				}
-				await Utils.promisedTimeout(250);
-			}while(++attempts < 10)
+					await Utils.promisedTimeout(250);
+				}while(++attempts < 10)
+			}
 		}
 	}
 
@@ -799,7 +860,9 @@ export default class DiscordController extends AbstractController {
 		return {user, guild};
 	}
 }
-type COMMAND_NAME = "link" | "say" | "ask";
+
+const COMMAND_NAMES = ["link", "say", "ask"] as const;
+type COMMAND_NAME = typeof COMMAND_NAMES[number];
 
 
 type InteractionTypeValues  = keyof typeof InteractionType;

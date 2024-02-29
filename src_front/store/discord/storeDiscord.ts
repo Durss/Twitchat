@@ -25,7 +25,6 @@ export const storeDiscord = defineStore('discord', {
 
 
 	getters: {
-		linked():boolean { return this.linkedToGuild != ""; }
 	},
 
 

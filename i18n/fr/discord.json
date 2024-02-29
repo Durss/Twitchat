@@ -18,6 +18,7 @@
 		"quick_actions_message":"Message à envoyer",
 		"quick_actions_channel":"Salon dans lequel envoyer le message",
 		"quick_delete":"Supprimer l'action ?",
+		"public_triggers":"Créez des /commandes Discord pour permettre à vos modos de contrôler Twitchat.\n\n{ICON} Créez un {TRIGGER_LINK} \"{SLASH_CMD}\" et cochez l'option \"{OPTION}\"",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* a été banni",
 			"reason":"Raison du ban",

@@ -18,6 +18,7 @@
 		"quick_actions_message":"Message to send",
 		"quick_actions_channel":"Discord chan to send message to",
 		"quick_delete":"Delete action?",
+		"public_triggers":"Create custom Discord /commands to let your mods act on Twitchat.\n\n{ICON} Create a \"{SLASH_CMD}\" {TRIGGER_LINK} and tick the \"{OPTION}\" option",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* got banned",
 			"reason":"Ban reason",

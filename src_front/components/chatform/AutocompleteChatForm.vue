@@ -234,7 +234,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			if(this.commands) {
 				const cmds = sChat.commands;
 				const hasChannelPoints = sAuth.twitch.user.is_affiliate || sAuth.twitch.user.is_partner;
-				const hasDiscordCmd = sDiscord.linked && sDiscord.chatCmdTarget
+				const hasDiscordCmd = sDiscord.discordLinked && sDiscord.chatCmdTarget;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
 				

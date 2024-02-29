@@ -2092,7 +2092,6 @@ export interface IDiscordState {
 }
 
 export interface IDiscordGetters {
-	linked:boolean;
 }
 
 export interface IDiscordActions {

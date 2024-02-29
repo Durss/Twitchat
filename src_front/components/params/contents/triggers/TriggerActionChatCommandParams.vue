@@ -1,6 +1,7 @@
 <template>
 	<div class="triggerActionchatcommandparams">
 		<ParamItem noBackground :paramData="param_cmd" v-model="triggerData.chatCommand"
+			:autofocus="true"
 			@change="onUpdateCommand()"
 			:error="cmdNameConflict || slashCmdAlert"
 			:errorMessage="$t(slashCmdAlert? 'triggers.actions.chat.use_slash_cmd' : 'triggers.actions.chat.conflict')" />

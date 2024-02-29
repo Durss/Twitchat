@@ -156,6 +156,10 @@ export interface TriggerData {
 	 */
 	addToContextMenu?:boolean;
 	/**
+	 * Should this command be added to discord?
+	 */
+	addToDiscord?:boolean;
+	/**
 	 * Contains IDs of the clickable areas
 	 */
 	heatAreaIds?:string[];

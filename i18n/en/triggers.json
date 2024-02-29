@@ -108,6 +108,7 @@
 			"param_cmd": "Command",
 			"param_cmd_placeholder": "/command...",
 			"param_ctx_menu": "Add to moderation actions (right click a message)",
+			"param_discord": "Add it to your Discord commands",
 			"param_cmd_params": "Optional command params",
 			"param_cmd_params_tt": "This allows you to extract parts of the user's message to custom placeholders for later use on any action of the trigger",
 			"param_cmd_params_placeholder": "add a parameter...",
