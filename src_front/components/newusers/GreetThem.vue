@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		
-		<div class="messageList" v-if="showList" ref="messagesFiltered">
+		<div class="messageList" v-if="showList" ref="messageList">
 			<template v-for="(m,index) in messagesFiltered" :key="m.id">
 				<MessageItem class="message"
 					ref="message"
@@ -155,10 +155,10 @@ import Config from '@/utils/Config';
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		// if(!Config.instance.IS_PROD) {
-		// 	const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-		// 	this.messages = this.messages.concat(history).splice(0,50);
-		// }
+		if(!Config.instance.IS_PROD) {
+			const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+			this.messages = this.messages.concat(history).splice(0,50);
+		}
 
 		// watch(()=>this.localMessages, (v)=>{
 		// 	console.log("update");
