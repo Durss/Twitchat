@@ -576,7 +576,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
 
