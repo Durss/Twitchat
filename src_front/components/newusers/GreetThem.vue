@@ -32,7 +32,7 @@
 			</div>
 		</div>
 		
-		<div class="messageList" v-if="showList" ref="messagesFiltered">
+		<div class="messageList" v-if="showList" ref="messageList">
 			<template v-for="(m,index) in messagesFiltered" :key="m.id">
 				<MessageItem class="message"
 					ref="message"
