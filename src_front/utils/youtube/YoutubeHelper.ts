@@ -3,7 +3,7 @@ import StoreProxy, { type RequireField } from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { YoutubeAuthToken, YoutubeChannelInfo, YoutubeFollowerResult as YoutubeFollowerResult, YoutubeLiveBroadcast, YoutubeMessages } from "@/types/youtube/YoutubeDataTypes";
 import { reactive } from "vue";
-import ApiController from "../ApiController";
+import ApiHelper from "../ApiHelper";
 import Logger from "../Logger";
 import Utils from "../Utils";
 import TwitchUtils from "../twitch/TwitchUtils";
@@ -125,7 +125,7 @@ export default class YoutubeHelper {
 	 */
 	public async startAuthFlow(grantModerate:boolean):Promise<void> {
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"youtube/auth"}).href;
-		const oauth = await ApiController.call("youtube/oauthURL", "GET", {redirectURI, grantModerate});
+		const oauth = await ApiHelper.call("youtube/oauthURL", "GET", {redirectURI, grantModerate});
 		if(oauth.status == 200 && oauth.json.data.url)  {
 			document.location.href = oauth.json.data.url;
 		}else{
@@ -140,7 +140,7 @@ export default class YoutubeHelper {
 	public async authenticate(code:string):Promise<YoutubeAuthToken|null> {
 		Logger.instance.log("youtube", {log:"Authenticating user...", credits: this._creditsUsed, liveID:this._currentLiveId});
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"youtube/auth"}).href;
-		const res = await ApiController.call("youtube/authenticate", "POST", {code, redirectURI});
+		const res = await ApiHelper.call("youtube/authenticate", "POST", {code, redirectURI});
 		if(res.status == 200 && res.json.data.token) {
 			const token = res.json.data.token as YoutubeAuthToken;
 			DataStore.set(DataStore.YOUTUBE_AUTH_TOKEN, token, false);
@@ -688,7 +688,7 @@ export default class YoutubeHelper {
 			scope:this._token.scope,
 			redirectURI,
 		};
-		const res = await ApiController.call("youtube/refreshtoken", "POST", params);
+		const res = await ApiHelper.call("youtube/refreshtoken", "POST", params);
 		
 		if(res.status == 200 && res.json.data.token) {
 			const token = res.json.data.token as YoutubeAuthToken;

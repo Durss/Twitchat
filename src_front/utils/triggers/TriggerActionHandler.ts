@@ -10,7 +10,7 @@ import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
 import { TriggerActionPlaceholders, TriggerEventPlaceholders, TriggerMusicTypes, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypesKey, type TriggerTypesValue } from "../../types/TriggerActionDataTypes";
 import type { SearchTrackItem } from "../../types/spotify/SpotifyDataTypes";
-import ApiController from "../ApiController";
+import ApiHelper from "../ApiHelper";
 import Config from "../Config";
 import type { LogTrigger, LogTriggerStep } from "../Logger";
 import Logger from "../Logger";
@@ -2317,6 +2317,23 @@ export default class TriggerActionHandler {
 							logStep.messages.push({date:Date.now(), value:"✔ Extension updated successfuly"});
 						}
 					}
+				}else
+
+				//Handle discord action
+				if(step.type == "discord") {
+					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
+					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent);
+					logStep.messages.push({date:Date.now(), value:"Sending message: "+messageText});
+					try {
+						const res = await ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
+						if(res.json.success) {
+							logStep.messages.push({date:Date.now(), value:"✔ Message posted to discord"});
+						}else{
+							throw (new Error("posting failed"));
+						}
+					}catch(error) {
+						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+					}
 				}
 				
 			}catch(error:any) {
@@ -2355,6 +2372,7 @@ export default class TriggerActionHandler {
 		const ululeProject = DataStore.get(DataStore.ULULE_PROJECT);
 		const isPremium = StoreProxy.auth.isPremium;
 		const channelId = StoreProxy.auth.twitch.user.id;
+		const me = StoreProxy.auth.twitch.user;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
 
 		try {
@@ -2385,6 +2403,13 @@ export default class TriggerActionHandler {
 					/**
 					 * If the placeholder requests for the current stream info
 					 */
+					if(pointer.indexOf("__me__") == 0) {
+						const pointerLocal = pointer.replace('__me__.', '') as keyof Pick<TwitchatDataTypes.TwitchatUser, "id" | "login">;
+						value = me[pointerLocal];
+					}
+					/**
+					 * If the placeholder requests for the current stream info
+					 */
 					if(pointer.indexOf("__my_stream__") == 0 && streamInfos) {
 						const pointerLocal = pointer.replace('__my_stream__.', '') as keyof TwitchatDataTypes.StreamInfo | "duration" | "duration_ms";
 						const startDate = (streamInfos.started_at || Date.now());
@@ -2409,7 +2434,7 @@ export default class TriggerActionHandler {
 								//Think about a cleaner way to do this
 								const project = ululeProject.replace(/.*ulule.[a-z]{2,3}\/([^?\/]+).*/gi, "$1");
 								try {
-									const apiRes = await ApiController.call("ulule/project", "GET", {project});
+									const apiRes = await ApiHelper.call("ulule/project", "GET", {project});
 									if(apiRes.status == 200) {
 										value = Utils.getQueryParameterByName("title") || apiRes.json.name_en || apiRes.json.name_fr || apiRes.json.name_ca || apiRes.json.name_de || apiRes.json.name_es || apiRes.json.name_it || apiRes.json.name_pt || apiRes.json.name_nl;
 									}

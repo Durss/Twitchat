@@ -59,6 +59,7 @@ export namespace TwitchatDataTypes {
 		CONNEXIONS: "connexions",
 		PREMIUM: "premium",
 		YOUTUBE: "youtube",
+		DISCORD: "discord",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 
@@ -746,6 +747,7 @@ export namespace TwitchatDataTypes {
 		needTTS?:boolean;
 		needAdmin?:boolean;
 		needModerator?:boolean,
+		needDiscordChan?:boolean;
 		twitchCmd?:boolean,
 		twitch_scopes?:TwitchScopesString[],
 	}
@@ -1780,6 +1782,17 @@ export namespace TwitchatDataTypes {
 		break_durations?:{1:number, 100:number, 1000:number, 5000:number, 10000:number};
 	}
 
+	/**
+	 * Contains params about the bits wall overlay
+	 */
+	export interface DiscordQuickActionData {
+		id:string;
+		action:"message";
+		name:string;
+		message?:string;
+		channelId?:string;
+	}
+
 
 
 	/**
@@ -2125,8 +2138,9 @@ export namespace TwitchatDataTypes {
 		fake?:boolean;
 		/**
 		 * Optional column index to display the message to
+		 * Can be an array of column indices
 		 */
-		col?:number;//Use this to send a message on a specific column index
+		col?:number|number[];
 	}
 
 	export type MergeableMessageTypes = Extract<ChatMessageTypes, {message_size?:number}>["type"];
@@ -2594,6 +2608,10 @@ export namespace TwitchatDataTypes {
 		 * true if it's a gift
 		 */
 		is_gift: boolean;
+		/**
+		 * true if user upgraded from a prime to normal sub
+		 */
+		is_primeUpgrade: boolean;
 		/**
 		 * true if user renewed a subgift they got before
 		 */
@@ -3827,13 +3845,25 @@ export namespace TwitchatDataTypes {
 		 */
 		message?:string;
 		/**
+		 * Option quote displayed in a dedicated holder
+		 */
+		quote?:string;
+		/**
 		 * Message sent (raw chunks)
 		 */
 		message_chunks?:ParseMessageChunk[];
 		/**
+		 * Quote (raw chunks)
+		 */
+		quote_chunks?:ParseMessageChunk[];
+		/**
 		 * Message sent (html parsed)
 		 */
 		message_html?:string;
+		/**
+		 * Quote (html parsed)
+		 */
+		quote_html?:string;
 		/**
 		 * Icon ID
 		 */
@@ -3862,7 +3892,7 @@ export namespace TwitchatDataTypes {
 			/**
 			 * Type of action to executee
 			 */
-			actionType?:"url"|"trigger"|"message",
+			actionType?:"url"|"trigger"|"message"|"discord",
 			/**
 			 * Target to open URL to (_blank, _self, ...)
 			 */
@@ -3883,10 +3913,14 @@ export namespace TwitchatDataTypes {
 			 * Button's style
 			 */
 			theme?:"primary"|"secondary"|"alert"|""|"default"|"light",
+			/**
+			 * Placeholder to store any data that will be sent in PSOT to the discord endpoint
+			 */
+			data?:any,
 		}[];
 	}
 
-	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user">
+	export type MessageCustomDataAPI = Pick<TwitchatDataTypes.MessageCustomData, "actions" | "col" | "style" | "highlightColor" | "icon" | "message" | "user" | "quote">
 
 	/**
 	 * Represents a Q&A session start

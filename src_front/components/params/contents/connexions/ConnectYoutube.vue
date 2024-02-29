@@ -49,7 +49,7 @@
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
@@ -120,7 +120,7 @@ import { Sine } from 'gsap';
 			this.open = true;	
 			this.loading = true;
 
-			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:youtubeAuthParams.csrf});
+			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:youtubeAuthParams.csrf});
 			if(!csrf.success) {
 				this.$store.main.alert(csrf.message || "Youtube authentication failed");
 			}else{

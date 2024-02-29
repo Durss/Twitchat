@@ -324,9 +324,9 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 
 	public beforeMount():void {
 		this.param_queue.options = this.$store.triggers.queues;
-		if(this.triggerData.actions.length === 0) {
-			this.addActionAt(0);
-		}
+		// if(this.triggerData.actions.length === 0) {
+		// 	this.addActionAt(0);
+		// }
 
 		//Not super clean way of getting the param content holder but don't
 		//know any cleaner one.

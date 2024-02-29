@@ -4,14 +4,16 @@ import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
 import Logger from '../utils/Logger';
+import TwitchUtils from '../utils/TwitchUtils';
 import AbstractController from "./AbstractController";
+import DiscordController from './DiscordController';
 
 /**
 * Created : 13/03/2022 
 */
 export default class UserController extends AbstractController {
 
-	constructor(public server:FastifyInstance) {
+	constructor(public server:FastifyInstance, private discordController:DiscordController) {
 		super();
 	}
 	
@@ -51,13 +53,8 @@ export default class UserController extends AbstractController {
 	 * Get a user's donor/admin state
 	 */
 	private async getUserState(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		let isDonor:boolean = false, level:number = -1, amount:number = -1;
 		if(fs.existsSync( Config.donorsList )) {
@@ -85,7 +82,7 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
+		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean, discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}
@@ -93,6 +90,10 @@ export default class UserController extends AbstractController {
 		//Is user an early donor of twitchat?
 		if(this.earlyDonors[userInfo.user_id] === true) {
 			data.isEarlyDonor = true;
+		}
+
+		if(DiscordController.isDiscordLinked(userInfo.user_id) === true) {
+			data.discordLinked = true;
 		}
 
 		response.header('Content-Type', 'application/json');
@@ -104,13 +105,8 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async getUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		const uid:string = (request.query as any).uid ?? userInfo.user_id;
 
@@ -132,14 +128,9 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async postUserData(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 		const body:any = request.body;
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
@@ -187,6 +178,10 @@ export default class UserController extends AbstractController {
 			}
 			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
 
+			if(body.discordParams) {
+				this.discordController.updateParams(userInfo.user_id, body.discordParams);
+			}
+
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true}));
@@ -205,13 +200,8 @@ export default class UserController extends AbstractController {
 	 * Delete a user's data
 	 */
 	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		//Delete user's data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";

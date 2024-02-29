@@ -42,8 +42,8 @@ export default class MiddlewareController extends AbstractController {
 				'retry-after': false
 			},
 			allowList: (request, key) => {
-				//Apply rate limit only to API endpoints
-				return !/\/api\//.test(request.url) && request.url != "/api/configs";
+				//Apply rate limit only to API endpoints except config and SSE
+				return !/\/api\//.test(request.url) && request.url != "/api/configs" && request.url != "/api/sse/register";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);

@@ -7,6 +7,9 @@
 			<div v-if="state == 'complete_downloadOnly' || state == 'complete'">
 				<Icon name="checkmark" />{{ $t("global.messageExport.complete_downloaded") }}
 			</div>
+			<div v-if="state == 'complete_downloadOnly' || state == 'discord'">
+				<Icon name="checkmark" />{{ $t("global.messageExport.complete_discord") }}
+			</div>
 			<div v-if="state == 'complete_copyOnly' || state == 'complete'">
 				<Icon name="checkmark" />{{ $t("global.messageExport.complete_copied") }}
 			</div>
@@ -42,6 +45,7 @@ import { watch } from 'vue';
 		watch(() => this.state, () => {
 			//Auto close after success
 			if(this.state == "complete"
+			|| this.state == "discord"
 			|| this.state == "complete_copyOnly"
 			|| this.state == "complete_downloadOnly") {
 				this.closeTimeout = setTimeout(() => {

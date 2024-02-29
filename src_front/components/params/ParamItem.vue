@@ -327,6 +327,7 @@ import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
 import DurationForm from '../DurationForm.vue';
+import { reactive } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -578,9 +579,9 @@ export class ParamItem extends Vue {
 		
 		watch(() => this.paramData.listValues, ()=> this.updateSelectedListValue());
 		
-		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
-		
 		watch(() => this.paramData.children, () => this.buildChildren() );
+		
+		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
 		
 		this.buildChildren();
 		

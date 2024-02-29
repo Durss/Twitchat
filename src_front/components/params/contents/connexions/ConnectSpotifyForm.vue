@@ -54,7 +54,7 @@
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
@@ -102,7 +102,7 @@ import ParamItem from '../../ParamItem.vue';
 			this.open = true;	
 			this.authenticating = true;
 
-			const {json:csrf} = await ApiController.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
+			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
 			if(!csrf.success) {
 				this.$store.main.alert(csrf.message || "Spotify authentication failed");
 			}else{

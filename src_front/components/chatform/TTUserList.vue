@@ -60,7 +60,7 @@
 
 <script lang="ts">
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import {toNative,  Component } from 'vue-facing-decorator';
@@ -128,7 +128,7 @@ import Icon from '../Icon.vue';
 		this.users = [];
 		this.usersSpool = [];
 		try {
-			const {json} = await ApiController.call("user/all");
+			const {json} = await ApiHelper.call("user/all");
 			if(json.success) {
 				const users = json.users;
 				this.activeLast24h = 0;

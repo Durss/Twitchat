@@ -28,6 +28,7 @@ export default class TwitchatEvent extends Event {
 	public static FOLLOW:TwitchatEventType = "FOLLOW";
 	public static REWARD_REDEEM:TwitchatEventType = "REWARD_REDEEM";
 	public static BITS:TwitchatEventType = "BITS";
+	public static SUBSCRIPTION:TwitchatEventType = "SUBSCRIPTION";
 	public static POLL_PROGRESS:TwitchatEventType = "POLL_PROGRESS";
 	public static PREDICTION_PROGRESS:TwitchatEventType = "PREDICTION_PROGRESS";
 	public static MENTION:TwitchatEventType = "MENTION";
@@ -170,6 +171,7 @@ export const TwitchatEventTypeList = [
 	"FOLLOW",
 	"REWARD_REDEEM",
 	"BITS",
+	"SUBSCRIPTION",
 	"MENTION",
 	"CURRENT_TRACK",
 	"TRACK_ADDED_TO_QUEUE",

@@ -239,7 +239,6 @@ import Utils from '@/utils/Utils';
 			label:{type:"string", value:"", maxLength:100, labelKey:"triggers.actions.customChat.param_action_label"},
 			theme:{type:"list", value:'', listValues:this.buttonThemes, labelKey:"triggers.actions.customChat.param_action_theme"},
 			message:{type:"string", value:'', maxLength:500, longText:true, placeholderList:this.placeholderList, labelKey:"triggers.actions.customChat.param_action_message"},
-			urlTarget:{type:"string", value:''},
 		}
 		this.actionParams.push(params);
 	}
@@ -266,9 +265,9 @@ import Utils from '@/utils/Utils';
 }
 
 type keys = keyof NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number];
-type Key2ParamMap = {
+type Key2ParamMap = Omit<{
   [K in keys]: TwitchatDataTypes.ParameterData<unknown>;
-};
+}, "urlTarget"|"data">;
 export default toNative(TriggerActionCustomChatEntry);
 </script>
 

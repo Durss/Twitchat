@@ -11,6 +11,7 @@
 		"or": "or",
 		"and": "and",
 		"submit": "Submit",
+		"confirm": "Confirm",
 		"cancel": "Cancel",
 		"continue": "Continue",
 		"create": "Create",
@@ -212,6 +213,7 @@
 			"tooltip": "Message export in progress",
 			"complete_downloaded": "Message downloaded.",
 			"complete_copied": "Message copied to clipboard.\r\nPress CTRL+V on discord, paint, ...",
+			"complete_discord": "Message sent to Discord",
 			"error": "An error has occured while exporting message :("
 		}
 	}

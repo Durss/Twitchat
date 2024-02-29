@@ -4,7 +4,7 @@ import GlobalEvent from '@/events/GlobalEvent';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import PublicAPI from '@/utils/PublicAPI';
 import SchedulerHelper from '@/utils/SchedulerHelper';
@@ -582,6 +582,12 @@ export const storeChat = defineStore('chat', {
 				cmd:"/heatlogs",
 				detailsKey:"params.commands.heatlogs",
 			},
+			{
+				id:"discord",
+				cmd:"/discord {message}",
+				detailsKey:"params.commands.discord",
+				needDiscordChan:true,
+			},
 		],
 
 		spoilerParams: {
@@ -796,7 +802,7 @@ export const storeChat = defineStore('chat', {
 					const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 					if(lang && !spokenLanguages.includes(lang.iso1)) {
 						const langTarget = (sParams.features.autoTranslateFirstLang.value as string[])[0];
-						ApiController.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
+						ApiHelper.call("google/translate", "GET", {langSource:lang.iso1, langTarget, text:text}, false)
 						.then(res=>{
 							if(res.json.data.translation) {
 								translatable.translation = {
@@ -1102,6 +1108,24 @@ export const storeChat = defineStore('chat', {
 
 				//New sub
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
+					PublicAPI.instance.broadcast(TwitchatEvent.SUBSCRIPTION, {
+						tier:message.tier,
+						months:message.months,
+						user:{
+							id:message.user.id,
+							login:message.user.login,
+						},
+						message:message.message || "",
+						message_chunks:(message.message_chunks as unknown) as JsonObject || [],
+						recipients:message.gift_recipients?.map(u=>{return {uid:u.id, login:u.login}}) || [],
+						streakMonths:message.streakMonths,
+						totalSubDuration:message.totalSubDuration,
+						giftCount:message.gift_count || 0,
+						isPrimeUpgrade:message.is_primeUpgrade,
+						isGift:message.is_gift,
+						isGiftUpgrade:message.is_giftUpgrade,
+						isResub:message.is_resub,
+					});
 					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
@@ -1453,6 +1477,10 @@ export const storeChat = defineStore('chat', {
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
+			
+			//If message doesn't exist, stop there
+			if(i == -1) return;
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD
 			|| message.type == TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST
 			|| (message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.is_ad)) {

@@ -8,6 +8,9 @@ import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../Stor
 import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+
+let discordCmdUpdateDebounce:number = -1;
 
 export const storeTriggers = defineStore('triggers', {
 	state: () => ({
@@ -124,7 +127,36 @@ export const storeTriggers = defineStore('triggers', {
 			list.forEach((data:TriggerData)=> {
 				data.actions = cleanEmptyActions(data.actions);
 			})
-
+			
+			//Create discord commands if requested by some slash commands
+			//and discord is linked
+			if(StoreProxy.discord.discordLinked) {
+				clearTimeout(discordCmdUpdateDebounce);
+				discordCmdUpdateDebounce = setTimeout(() => {
+					const commands:{name:string, params:{name:string}[]}[] = [];
+					list.forEach((data:TriggerData)=> {
+						if(data.type == TriggerTypes.SLASH_COMMAND
+						&& data.chatCommand
+						&& data.addToDiscord === true) {
+							const params: typeof commands[number]["params"] = [];
+							if(data.chatCommandParams) {
+								data.chatCommandParams.forEach(p => {
+									params.push({name:p.tag});
+								});
+							}
+							commands.push({
+								name:data.chatCommand.replace(/[^a-z0-9]/gi, ""),
+								params
+							});
+						}
+					})
+					if(commands.length > 0) {
+						ApiHelper.call("discord/commands", "POST", {commands}, false).then(res=>{
+							console.log("res=>",res)
+						});
+					}
+				}, 10000);
+			}
 
 			DataStore.set(DataStore.TRIGGERS, list);
 			TriggerActionHandler.instance.populate(list);

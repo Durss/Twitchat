@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import Config from '../utils/Config';
-import AbstractController from "./AbstractController";
 import * as fs from "fs";
 import * as path from "path";
+import Config from '../utils/Config';
+import TwitchUtils from "../utils/TwitchUtils";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 14/12/2022 
@@ -59,13 +60,8 @@ export default class BetaController extends AbstractController {
 	 * Check if a user has data on the beta server
 	 */
 	private async getUserHasData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, userInfo.user_id+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, userInfo.user_id+".json");
@@ -121,13 +117,8 @@ export default class BetaController extends AbstractController {
 	 * Migrate a user's data from beta to production
 	 */
 	private async migrateUser(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		const prodFile = path.join(Config.PRODUCTION_USER_DATA_PATH_FROM_BETA, userInfo.user_id+".json");
 		const betaFile = path.join(Config.USER_DATA_PATH, userInfo.user_id+".json");

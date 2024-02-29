@@ -368,17 +368,22 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 	public async loadUserInfo():Promise<void> {
 		this.error = false;
 		this.loading = true;
-		this.createDate = "";
-		this.followersCount = -1;
-		this.followDate = "";
-		this.currentStream = null;
-		this.subState = null;
-		this.subStateLoaded = false;
-		this.customLogin = "";
-		this.banReason = "";
+		this.isTwitchProfile = false;
 		this.edittingLogin = false;
 		this.manageBadges = false;
 		this.manageUserNames = false;
+		this.subState = null;
+		this.subStateLoaded = false;
+		this.currentStream = null;
+		this.banReason = "";
+		this.customLogin = "";
+		this.createDate = "";
+		this.followDate = "";
+		this.userDescription = "";
+		this.channelId = "";
+		this.followersCount = -1;
+		this.badges = [];
+		this.messageHistory = [];
 		this.isTwitchProfile = this.platform == "twitch";
 
 		if(!this.$store.users.userCard) {
@@ -420,6 +425,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 					const staticBadges:Badges = {};
 					staticBadges[u.broadcaster_type] = "1";
 					user.channelInfo[this.channelId].badges = TwitchUtils.getBadgesFromRawBadges(this.channelId, undefined, staticBadges);
+					this.badges = user.channelInfo[this.channelId].badges;
 				}
 				
 				//Async loading of data

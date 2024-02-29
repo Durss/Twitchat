@@ -1,8 +1,9 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
-import AbstractController from "./AbstractController";
-import Logger from "../utils/Logger";
 import * as fetch from "node-fetch";
 import Config from "../utils/Config";
+import Logger from "../utils/Logger";
+import TwitchUtils from "../utils/TwitchUtils";
+import AbstractController from "./AbstractController";
 
 /**
 * Created : 17/08/2023 
@@ -38,13 +39,8 @@ export default class PaypalController extends AbstractController {
 	 * Create a paypal order
 	 */
 	private async postCreateOrder(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const userInfo = await Config.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		const token = await this.getToken();
 		const body:any = request.body;
@@ -102,13 +98,8 @@ export default class PaypalController extends AbstractController {
 	 * Complete a paypal order
 	 */
 	private async postCompleteOrder(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const twitchUser = await Config.getUserFromToken(request.headers.authorization);
-		if(!twitchUser) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const twitchUser = await super.twitchUserGuard(request, response);
+		if(twitchUser == false) return;
 		
 		const token = await this.getToken();
 		const body:any = request.body;

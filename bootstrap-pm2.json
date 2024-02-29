@@ -21,7 +21,12 @@
 		"src_labels",
 		"userData",
 		".git",
-		"donors.json"
+		"announcements.json",
+		"patreon",
+		"donors",
+		"discord",
+		"patreon",
+		"beta"
 	],
 	"watch": [
 		"./server"

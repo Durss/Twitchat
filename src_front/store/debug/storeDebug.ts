@@ -133,6 +133,7 @@ export const storeDebug = defineStore('debug', {
 						is_gift:false,
 						is_giftUpgrade:false,
 						is_resub:false,
+						is_primeUpgrade:false,
 						gift_upgradeSender:Utils.pickRand(fakeUsers)
 					};
 					m.message_size = TwitchUtils.computeMessageSize(chunks);

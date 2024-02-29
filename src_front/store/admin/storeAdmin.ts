@@ -1,5 +1,5 @@
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes'
-import ApiController from '@/utils/ApiController'
+import ApiHelper from '@/utils/ApiHelper'
 import Utils from '@/utils/Utils'
 import TwitchUtils from '@/utils/twitch/TwitchUtils'
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia'
@@ -26,7 +26,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiController.call("admin/beta/user", "POST", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user", "POST", {uid:users[0].id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -60,7 +60,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiController.call("admin/beta/user", "DELETE", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user", "DELETE", {uid:users[0].id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -89,7 +89,7 @@ export const storeAdmin = defineStore('Admin', {
 		},
 		
 		async removeAllBetaUser():Promise<void> {
-			const res = await ApiController.call("admin/beta/user/all", "DELETE");
+			const res = await ApiHelper.call("admin/beta/user/all", "DELETE");
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {
@@ -123,7 +123,7 @@ export const storeAdmin = defineStore('Admin', {
 				StoreProxy.main.alert("User "+login+" not found");
 				return;
 			}
-			const res = await ApiController.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0].id});
+			const res = await ApiHelper.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0].id});
 			try {
 				if(res.status === 200 && res.json.success) {
 					const message:TwitchatDataTypes.MessageNoticeData = {

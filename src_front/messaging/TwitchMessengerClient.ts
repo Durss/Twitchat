@@ -579,6 +579,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			is_gift: false,
 			is_giftUpgrade: false,
 			is_resub: false,
+			is_primeUpgrade: false,
 			months:this.getNumValueFromTag(tags["msg-param-multimonth-duration"], -1),
 			streakMonths:this.getNumValueFromTag(tags["msg-param-streak-months"], -1),
 			totalSubDuration:this.getNumValueFromTag(tags["msg-param-cumulative-months"], -1),
@@ -765,7 +766,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			channel_id,
 			date:parseInt(tags["tmi-sent-ts"] as string ?? Date.now().toString()),
 			user:this.getUserFromTags(tags, channel_id),
-			bits:parseFloat(tags.bits as string) ?? -1,
+			bits:this.getNumValueFromTag(tags.bits||"0", -1),
 			message,
 			message_chunks:chunks,
 			message_html:TwitchUtils.messageChunksToHTML(chunks),
@@ -790,6 +791,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	private subscriptionPrimeUpgrade(channel:string, username:string, methods:tmi.SubMethods, tags:tmi.PrimeUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
+		data.is_primeUpgrade = true;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
 

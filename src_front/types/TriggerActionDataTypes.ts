@@ -52,6 +52,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionHeatClickData
 								| TriggerActionRewardData
 								| TriggerActionExtensionData
+								| TriggerActionDiscordData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -155,6 +156,10 @@ export interface TriggerData {
 	 */
 	addToContextMenu?:boolean;
 	/**
+	 * Should this command be added to discord?
+	 */
+	addToDiscord?:boolean;
+	/**
 	 * Contains IDs of the clickable areas
 	 */
 	heatAreaIds?:string[];
@@ -175,6 +180,13 @@ export interface TriggerData {
 	 * @deprecated Only here for typings on data migration.
 	*/
 	prevKey?:string;
+}
+
+export interface TriggerScheduleData {
+	type:TriggerScheduleTypesValue|"0";
+	repeatDuration:number;
+	repeatMinMessages:number;
+	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
 }
 
 export interface TriggerChatCommandParam {
@@ -853,7 +865,7 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	disableAfterExec?:boolean;
 }
 
-export interface TriggerActionStreamInfoData extends TriggerActionData{
+export interface TriggerActionStreamInfoData extends TriggerActionData {
 	type:"stream_infos";
 	/**
 	 * New stream title
@@ -877,11 +889,25 @@ export interface TriggerActionStreamInfoData extends TriggerActionData{
 	labels?:{id:string, enabled:boolean}[];
 }
 
-export interface TriggerScheduleData {
-	type:TriggerScheduleTypesValue|"0";
-	repeatDuration:number;
-	repeatMinMessages:number;
-	dates:{daily:boolean, monthly:boolean, yearly:boolean, value:string}[];
+/**
+ * Represents a discord action data
+ */
+export interface TriggerActionDiscordData extends TriggerActionData {
+	type:"discord";
+	discordAction:{
+		/**
+		 * Define the discord action type to execute
+		 */
+		action:"message";
+		/**
+		 * Message to send to discord
+		 */
+		message:string;
+		/**
+		 * Channel ID to send the message to
+		 */
+		channelId:string;
+	}
 }
 
 /**
@@ -1036,7 +1062,7 @@ export const TriggerTypes = {
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
 	TWITCHAT_SHOUTOUT_QUEUE:"shoutout_queue",
 	TWITCHAT_MESSAGE:"twitchat_message",
-	GLOBAL_PLACHOLDERS:"global_placholders",
+	GLOBAL_PLACEHOLDERS:"global_placeholders",
 } as const;
 export type TriggerTypesKey = keyof typeof TriggerTypes;
 export type TriggerTypesValue = typeof TriggerTypes[TriggerTypesKey];
@@ -1196,6 +1222,11 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MONTHS_TOTAL", descKey:'triggers.placeholders.sub_months_total', pointer:"totalSubDuration", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_PREPAID", descKey:'triggers.placeholders.sub_months_prepaid', pointer:"months", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 		{tag:"MONTHS_STREAK", descKey:'triggers.placeholders.sub_months_streak', pointer:"streakMonths", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_RESUB", descKey:'triggers.placeholders.sub_resub', pointer:"is_resub", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_PRIME_UPGRADE", descKey:'triggers.placeholders.sub_prime_upgrade', pointer:"is_primeUpgrade", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"IS_GIFT_UPGRADE", descKey:'triggers.placeholders.sub_gift_upgrade', pointer:"is_giftUpgrade", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"GIFT_UPGRADE_SENDER_ID", descKey:'triggers.placeholders.sub_gift_upgrade_user_id', pointer:"gift_upgradeSender.id", numberParsable:false, isUserID:true} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
+		{tag:"GIFT_UPGRADE_SENDER_NAME", descKey:'triggers.placeholders.sub_gift_upgrade_user_name', pointer:"gift_upgradeSender.displayNameOriginal", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageSubscriptionData>,
 	];
 	
 	map[TriggerTypes.SUBGIFT] = [
@@ -1492,6 +1523,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	const hasUlule = DataStore.get(DataStore.ULULE_PROJECT);
 	for (k in map) {
 		let entry = map[k]!;
+		if(entry.findIndex(v=>v.tag == "MY_LOGIN") == -1) {
+			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"});
+			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});
 		}
@@ -1512,7 +1547,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 			entry.push({tag:"ULULE_CAMPAIGN_URL", descKey:'triggers.placeholders.ulule_campaign_url', pointer:"__ulule__.url", numberParsable:false, isUserID:false, globalTag:true, example:"https://ulule.com"});
 		}
 
-		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1 && key != TriggerTypes.GLOBAL_PLACHOLDERS) {
+		if(entry.findIndex(v=>v.tag == "TRIGGER_NAME") == -1 && key != TriggerTypes.GLOBAL_PLACEHOLDERS) {
 			entry.push({tag:"TRIGGER_NAME", descKey:"triggers.placeholders.trigger_name", pointer:"__trigger__.name", numberParsable:false, isUserID:false, globalTag:true, example:"My trigger"});
 			entry.push({tag:"TRIGGER_ID", descKey:"triggers.placeholders.trigger_id", pointer:"__trigger__.id", numberParsable:false, isUserID:false, globalTag:true, example:"00000000-0000-0000-0000-000000000000"});
 		}

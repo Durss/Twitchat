@@ -547,6 +547,7 @@ export default class EventSub {
 			is_gift: sub.is_gift,
 			is_giftUpgrade: false,
 			is_resub: false,
+			is_primeUpgrade: false,
 			months:1,
 			streakMonths:-1,
 			totalSubDuration:-1,

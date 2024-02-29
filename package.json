@@ -1,6 +1,6 @@
 {
 	"name": "twitchat",
-	"version": "11.3.1",
+	"version": "11.4.4",
 	"private": false,
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
@@ -26,10 +26,13 @@
 	},
 	"dependencies": {
 		"@fastify/cors": "^8.1.0",
+		"@fastify/multipart": "^8.1.0",
 		"@fastify/rate-limit": "^7.5.0",
 		"@fastify/static": "^6.5.0",
 		"ajv": "^8.12.0",
 		"core-js": "^3.8.3",
+		"discord-interactions": "^3.4.0",
+		"discord.js": "^14.14.1",
 		"fast-json-patch": "^3.1.1",
 		"fastify": "^4.24.3",
 		"fastify-raw-body": "^4.2.1",

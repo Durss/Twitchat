@@ -86,6 +86,15 @@
 			"CREATE_CUSTOM_REWARD_DUPLICATE_REWARD":"Une récompense du même nom est déjà existante",
 			"refund_redemption": "Une erreur est survenue lors du remboursement de la récompense.\nPeut-être a-t-elle déjà été remboursée."
 		},
-		"ad_block":"Une requête a été bloquée par votre navigateur.\nIl est très fortement conseillé de désactiver tout bloqueur de publicité pour Twitchat.\nIls sont connus pour pour casser les notifications de publicité en approche, empêcher le lancement de publicités, couper la connexion au tchat aléatoirement et dans les pires cas bloquer toutes les requêtes à l'API Twitch.\n\nTwitchat ne collecte ni donnée personnelle ni donnée analytique."
+		"ad_block":"Une requête a été bloquée par votre navigateur.\nIl est très fortement conseillé de désactiver tout bloqueur de publicité pour Twitchat.\nIls sont connus pour pour casser les notifications de publicité en approche, empêcher le lancement de publicités, couper la connexion au tchat aléatoirement et dans les pires cas bloquer toutes les requêtes à l'API Twitch.\n\nTwitchat ne collecte ni donnée personnelle ni donnée analytique.",
+		"discord":{
+			"UNKNOWN":"Une erreur inconnue est survenue :(",
+			"UNAUTHORIZED":"Votre session d'authentification Twitch a expiré",
+			"POST_FAILED":"L'envoi du message sur Discord a échoué",
+			"INVALID_TOKEN":"Code invalide",
+			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
+			"GUILD_COMMAND_CREATE_FAILED":"Une erreur est survenue lors de la création des commands Discord",
+			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon \"{CHANNEL}\""
+		}
 	}
 }

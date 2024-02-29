@@ -14,7 +14,7 @@ import domtoimage from 'dom-to-image-more';
 import Utils from "./Utils";
 import Config from "./Config";
 import lande from "lande";
-import ApiController from "./ApiController";
+import ApiHelper from "./ApiHelper";
 import Database from "@/store/Database";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import YoutubeHelper from "./youtube/YoutubeHelper";
@@ -370,6 +370,29 @@ export default class ContextMenuHelper {
 				}
 			}
 
+			if((message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
+			&& StoreProxy.discord.quickActions?.length > 0) {
+				//Add splitter after previous option
+				if(options.length > 0) options[options.length-1].divided = true;
+
+				const list = StoreProxy.discord.quickActions;
+				const children:CMTypes.MenuItem[] = [];
+				list.forEach(action=> {
+					if(!action.message || !action.channelId) return;
+					children.push({
+						icon: this.getIcon("icons/whispers.svg"),
+						label: (action.name || (action.message||"").substring(0,20)).replace(/ /gi, " "),
+						onClick: () => this.discordQuickAction(message, action),
+					});
+				});
+				options.push({ 
+					label: t("chat.context_menu.discord_quick_actions"),
+					icon: this.getIcon("icons/discord.svg"),
+					children,
+				});
+			}
+
 			this.addCustomTriggerEntries(options, message);
 		
 			//Update "highlight message" state according to overlay presence
@@ -409,26 +432,39 @@ export default class ContextMenuHelper {
 			}
 		}
 
-		const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-		if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
-			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
-			|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
-				//Add splitter after previous item if any
-				if(options.length > 0) options[options.length-1].divided = true;
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.CHEER
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
+			const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+			const entryCount = options.length; 
+			let optionAdded = false;
+			if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
+				optionAdded = true;
 				options.push({ 
-							label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
-							icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
-							onClick: () => this.exportMessage(message, htmlNode),
+					label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
+					icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
+					onClick: () => this.exportMessage(message, htmlNode),
+				});
+			}
+			if(StoreProxy.discord.discordLinked === true && StoreProxy.discord.logChanTarget) {
+				optionAdded = true;
+				options.push({ 
+							label: t("chat.context_menu.export_discord"),
+							icon: this.getIcon("icons/discord.svg"),
+							onClick: () => this.exportMessage(message, htmlNode, true),
 						});
+			}
+			if(optionAdded) {
+				//Add splitter after previous item if any
+				if(entryCount > 0) options[entryCount-1].divided = true;
 			}
 		}
 			
@@ -546,7 +582,7 @@ export default class ContextMenuHelper {
 	 */
 	private translate(message:TwitchatDataTypes.TranslatableMessage, langSource:typeof TranslatableLanguagesMap[keyof typeof TranslatableLanguagesMap], text:string):void {
 		const langTarget = (StoreProxy.params.features.autoTranslateFirstLang.value as string[])[0];
-		ApiController.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
+		ApiHelper.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.status == 401) {
 				StoreProxy.main.alert(StoreProxy.i18n.t("premium.restricted_access"));
@@ -625,7 +661,7 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageMusicAddedToQueueData
 								| TwitchatDataTypes.MessageWatchStreakData
-								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement):Promise<void> {
+								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement, discord:boolean = false):Promise<void> {
 
 		StoreProxy.main.messageExportState = "progress";
 		const errorTimeout = setTimeout(()=> {
@@ -663,7 +699,8 @@ export default class ContextMenuHelper {
 		infosDiv.style.borderRadius = ".3em";
 		infosDiv.style.backgroundColor = bgcolor;
 		let html = `<div><strong>Message type:</strong> ${message.type}</div>
-		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>`;
+		<div><strong>Date:</strong> ${Utils.formatDate(new Date(message.date), true)}</div>
+		<div><strong>Platform:</strong> ${message.platform}</div>`;
 		if(user) {
 			html += `<div><strong>User login:</strong> ${user.login}</div>
 			<div><strong>User ID:</strong> ${user.id}</div>`;
@@ -754,22 +791,57 @@ export default class ContextMenuHelper {
 						ctx.fillRect(0, 0, canvas.width, canvas.height);
 						ctx.drawImage(messageImg, 0, 0, messageImg.width, messageImg.height);
 						ctx.drawImage(infoImg, 0, messageImg.height + gap, infoImg.width, infoImg.height);
-						Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
-						clone.remove();
-						const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
-						
-						canvas.toBlob((blob)=> {
-							navigator.clipboard.write([
-								new ClipboardItem({ 'image/png': blob!}),
-							]).then(()=>{
-								StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
-								clearTimeout(errorTimeout);
-							}).catch((error)=> {
-								console.log(error);
-								StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
-								clearTimeout(errorTimeout);
+						if(discord) {
+							canvas.toBlob((blob)=> {
+								if(!blob) return;
+								const json:any = {
+									fileName,
+									userName:user?.login,
+									userId:user?.id,
+									date:message.date,
+									messageId:message.id,
+									messageType:message.type,
+									messagePlatform:message.platform,
+								};
+								if(message.hasOwnProperty("message")) {
+									json.message = (message as TwitchatDataTypes.MessageChatData).message;
+								}
+								//Send image and message to discord
+								const formData = new FormData();
+								formData.append("message", JSON.stringify(json));
+								formData.append("image", blob, fileName+".png");
+								ApiHelper.call("discord/image", "POST", formData, false, 0, {"Content-Rype": "multipart/form-data"})
+								.then(result=> {
+									if(result.status == 200) {
+										StoreProxy.main.messageExportState = "discord";
+									}else{
+										StoreProxy.main.messageExportState = "error";
+									}
+									clearTimeout(errorTimeout);
+								}).catch(error =>{
+									StoreProxy.main.messageExportState = "error";
+									clearTimeout(errorTimeout);
+								});
 							});
-						}, "image/png");
+						}else{
+							//Download image
+							Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
+							clone.remove();
+							const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
+							
+							canvas.toBlob((blob)=> {
+								navigator.clipboard.write([
+									new ClipboardItem({ 'image/png': blob!}),
+								]).then(()=>{
+									StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
+									clearTimeout(errorTimeout);
+								}).catch((error)=> {
+									console.log(error);
+									StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
+									clearTimeout(errorTimeout);
+								});
+							}, "image/png");
+						}
 					});
 					messageImg.setAttribute("src", dataUrl);
 				})
@@ -786,5 +858,14 @@ export default class ContextMenuHelper {
 			StoreProxy.main.messageExportState = "error";
 			clearTimeout(errorTimeout);
 		});
+	}
+
+	/**
+	 * Executes a discord quick action
+	 */
+	private async discordQuickAction(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData, action:TwitchatDataTypes.DiscordQuickActionData):Promise<void> {
+		const text = await Utils.parseGlobalPlaceholders(action.message || "", false, message);
+		const channelId = action.channelId;
+		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
 	}
 }

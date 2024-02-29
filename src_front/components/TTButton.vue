@@ -562,6 +562,9 @@ body.light {
 		&.selected {
 			color: var(--color-text);
 		}
+		.label {
+			text-shadow: none;
+		}
 	}
 }
 </style>

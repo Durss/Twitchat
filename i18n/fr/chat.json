@@ -353,7 +353,9 @@
 			"to": "Ban temporaire",
 			"export":"Télécharger une capture",
 			"export_clipboard":"Copier une capture dans le presse-papier",
-			"translate":"Traduire le message"
+			"translate":"Traduire le message",
+			"export_discord":"Envoyer dans Discord",
+			"discord_quick_actions":"Actions Discord"
 		},
 		"custom_badge": {
 			"label": {

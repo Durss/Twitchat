@@ -147,6 +147,7 @@ import Ajv from "ajv";
 					type: {type:"string", maxLength:5},
 					enabled: {type:"boolean"},
 					addToContextMenu: {type:"boolean"},
+					addToDiscord: {type:"boolean"},
 					rewardId:{type:"string", maxLength:100},
 					name:{type:"string", maxLength:100},
 					chatCommand:{type:"string", maxLength:100},
@@ -600,6 +601,15 @@ import Ajv from "ajv";
 										enable: {type:"boolean"},
 										slotIndex: {enum: ["","1","2","3"]},
 										slotType: {enum: ["","component", "overlay", "panel"]},
+									}
+								},
+								discordAction: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: {enum: ["message"]},
+										message: {type:"string", maxLength:2000},
+										channelId: {type:"string", maxLength:100},
 									}
 								},
 							}
@@ -1419,6 +1429,39 @@ import Ajv from "ajv";
 					}
 				}
 			},
+		},
+		discordParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				banLogThread: {type:"boolean"},
+				reactionsEnabled: {type:"boolean"},
+				banLogTarget: {type:"string", maxLength:40},
+				chatCmdTarget: {type:"string", maxLength:40},
+				logChanTarget: {type:"string", maxLength:40},
+				quickActions: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							action: {type:"string", maxLength:20},
+							name: {type:"string", maxLength:20},
+							message: {type:"string", maxLength:2000},
+							channelId: {type:"string", maxLength:40},
+						}
+					}
+				},
+				chatCols: {
+					type:"array",
+					minItems:0,
+					maxItems:100,
+					items:{type:"number", minimum:0, maximum:100},
+				},
+			}
 		}
 	}
 }

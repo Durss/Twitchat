@@ -538,7 +538,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		}else
 
 		if(slotDef.id == "text") {
-			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACHOLDERS).concat();
+			const placeholderList	= TriggerEventPlaceholders(TriggerTypes.GLOBAL_PLACEHOLDERS).concat();
 			this.param_text[id]		= {type:"string", value:"", longText:true, maxLength:1000, placeholderList};
 		}else
 
@@ -576,7 +576,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
+		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
 

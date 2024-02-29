@@ -15,6 +15,9 @@ import TenorController from './controllers/TenorController';
 import PaypalController from './controllers/PaypalController';
 import GoogleController from './controllers/GoogleController';
 import SSEController from './controllers/SSEController';
+import DiscordController from './controllers/DiscordController';
+import I18n from './utils/I18n';
+import ApiController from './controllers/ApiController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -34,18 +37,30 @@ async function start():Promise<void> {
 fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
 fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
+
+I18n.instance.initialize();
 
 const server:FastifyInstance = Fastify({logger: false});
-server.register(import("fastify-sse-v2"));
-server.register(import('fastify-raw-body'), {
+server.register(import("fastify-sse-v2"))
+.register(import("@fastify/multipart"),{
+	attachFieldsToBody: 'keyValues',
+	limits: {
+		fileSize: 2000000,  // For multipart forms, the max file size in bytes
+		files: 2,           // Max number of file fields
+		parts: 100         // For multipart forms, the max number of parts (fields + files)
+	}
+})
+.register(import("fastify-raw-body"), {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(()=> {
 	//Create controllers
+	const discord = new DiscordController(server).initialize();
+	new UserController(server,discord).initialize();
 	new MiddlewareController(server).initialize();
 	new FileServeController(server).initialize();
 	new AuthController(server).initialize();
 	new DonorController(server).initialize();
-	new UserController(server).initialize();
 	new SpotifyController(server).initialize();
 	new BetaController(server).initialize();
 	new UluleController(server).initialize();
@@ -54,7 +69,8 @@ server.register(import('fastify-raw-body'), {
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();
+	new ApiController(server).initialize();
 	
 	//Start server
 	start();
-})
+});

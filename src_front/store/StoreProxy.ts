@@ -3,17 +3,16 @@ import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import type { HeatScreen } from "@/types/HeatDataTypes";
 import type { TriggerActionCountDataAction, TriggerActionTypes, TriggerData, TriggerTreeItemData } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { SpotifyAuthResult, SpotifyAuthToken } from "@/types/spotify/SpotifyDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { PubSubDataTypes } from "@/utils/twitch/PubSubDataTypes";
 import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type VoiceAction from "@/utils/voice/VoiceAction";
 import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
+import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { YoutubeAuthResult, YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
-import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
-import { boolean } from "mathjs";
 
 /**
 * Created : 23/09/2022 
@@ -52,6 +51,7 @@ export default class StoreProxy {
 	public static values:IValuesState & IValuesGetters & IValuesActions & {$state:IValuesState, $reset:()=>void};
 	public static extension:IExtensionState & IExtensionGetters & IExtensionActions & {$state:IExtensionState, $reset:()=>void};
 	public static qna:IQnaState & IQnaGetters & IQnaActions & {$state:IQnaState, $reset:()=>void};
+	public static discord:IDiscordState & IDiscordGetters & IDiscordActions & {$state:IDiscordState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -80,7 +80,7 @@ export interface IMainState {
 	 * When right cliking a message we can export it as an
 	 * image. This object contains the export state.
 	 */
-	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"error"|null;
+	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"discord"|"error"|null;
 	/**
 	 * Method to call to trigger install of twitchat on the device
 	 */
@@ -2070,4 +2070,37 @@ export interface IQnaActions {
 	 * @param messageID id of the message
 	 */
 	deleteMessage(messageID:string):void;
+}
+
+
+
+
+export interface IDiscordState {
+	discordLinked:boolean;
+	chatCols:number[];
+	banLogThread:boolean;
+	banLogTarget:string;
+	chatCmdTarget:string;
+	logChanTarget:string;
+	linkedToGuild:string;
+	reactionsEnabled:boolean;
+	quickActions:TwitchatDataTypes.DiscordQuickActionData[];
+	channelList: {
+		id: string;
+		name: string;
+	}[]
+}
+
+export interface IDiscordGetters {
+}
+
+export interface IDiscordActions {
+	initialize():Promise<void>;
+	validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}>;
+	submitCode(code:string):Promise<true|string>;
+	unlinkDiscord():Promise<true|string>;
+	populateData(data:IDiscordState):void;
+	addQuickAction():void;
+	delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void;
+	saveParams():void;
 }

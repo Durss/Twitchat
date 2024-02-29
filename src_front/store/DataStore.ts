@@ -1,7 +1,7 @@
 import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ApiController from "@/utils/ApiController";
+import ApiHelper from "@/utils/ApiHelper";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
@@ -92,6 +92,7 @@ export default class DataStore {
 	public static PARAMS_SECTIONS_CTA:string = "paramsSectionsCTA";
 	public static BITS_WALL_PARAMS:string = "bitsWallParams";
 	public static AB_SENTRY:string = "ab_sentry";
+	public static DISCORD_PARAMS:string = "discordParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -356,7 +357,7 @@ export default class DataStore {
 		if(!this.store) this.init();
 
 		try {
-			const res = await ApiController.call("user/data");
+			const res = await ApiHelper.call("user/data");
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
@@ -509,7 +510,7 @@ export default class DataStore {
 					}
 				}
 	
-				await ApiController.call("user/data", "POST", data);
+				await ApiHelper.call("user/data", "POST", data);
 				
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves

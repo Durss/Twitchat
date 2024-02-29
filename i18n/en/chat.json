@@ -353,7 +353,9 @@
 			"to":"Timeout",
 			"export":"Download screen",
 			"export_clipboard":"Copy screen to clipboard",
-			"translate":"Translate message"
+			"translate":"Translate message",
+			"export_discord":"Send to Discord",
+			"discord_quick_actions":"Discord actions"
 		},
 		"custom_badge": {
 			"label": {

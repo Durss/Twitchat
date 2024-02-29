@@ -113,6 +113,8 @@ export default class FileServeController extends AbstractController {
 
 				youtube_client_id:"",
 				youtube_scopes:[] as string[],
+				
+				discord_client_id:Config.credentials.discord_client_id,
 			};
 				
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;
@@ -120,6 +122,7 @@ export default class FileServeController extends AbstractController {
 				json.youtube_client_id = youtubeCredentials.client_id;
 				json.youtube_scopes = Config.credentials.youtube_scopes;
 			}
+			
 			this.config_cache = config = JSON.stringify(json);
 		}
 		response.header('Content-Type', 'application/json');

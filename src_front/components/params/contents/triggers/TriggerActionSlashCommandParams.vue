@@ -1,10 +1,12 @@
 <template>
 	<div class="triggeractionslashcommandparams">
 		<ParamItem noBackground :paramData="param_command" v-model="triggerData.chatCommand"
+			:autofocus="true"
 			@change="onUpdateCommand()"
 			:error="cmdNameConflict"
 			:errorMessage="$t('triggers.actions.chat.conflict')" />
 		<ParamItem noBackground :paramData="param_addToContextMenu" v-model="triggerData.addToContextMenu" />
+		<ParamItem v-if="$store.discord.discordLinked" noBackground :paramData="param_addToDiscord" v-model="triggerData.addToDiscord" />
 		
 		<TriggerActionCommandArgumentParams :triggerData="triggerData" />
 	</div>
@@ -32,6 +34,7 @@ import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentPa
 	public cmdNameConflict = false;
 	public param_command:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"commands", labelKey:"triggers.slash_cmd.param_cmd", placeholderKey:"triggers.slash_cmd.param_cmd_placeholder" };
 	public param_addToContextMenu:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"rightClick", labelKey:"triggers.slash_cmd.param_ctx_menu" };
+	public param_addToDiscord:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"discord", labelKey:"triggers.slash_cmd.param_discord" };
 		
 
 	public onUpdateCommand():void {

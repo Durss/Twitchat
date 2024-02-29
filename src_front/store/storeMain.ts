@@ -4,7 +4,7 @@ import TwitchatEvent, { type TwitchatEventType } from '@/events/TwitchatEvent';
 import router from '@/router';
 import { TriggerTypes, rebuildPlaceholdersCache, type SocketParams, type TriggerActionChatData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -32,6 +32,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import MessengerProxy from '@/messaging/MessengerProxy';
 import SSEHelper from '@/utils/SSEHelper';
 
 export const storeMain = defineStore("main", {
@@ -155,7 +156,7 @@ export const storeMain = defineStore("main", {
 			//Load app configs (cliend ID, scopes, ...)
 			window.setInitMessage("loading configs");
 			try {
-				const res = await ApiController.call("configs");
+				const res = await ApiHelper.call("configs");
 				jsonConfigs = res.json;
 			}catch(error) {
 				this.alert("Unable to contact server :(", true, true);
@@ -281,6 +282,7 @@ export const storeMain = defineStore("main", {
 			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
+			StoreProxy.discord.initialize();
 			SSEHelper.instance.initialize();
 
 			//Warn the user about the automatic "ad" message sent every 2h
@@ -522,7 +524,8 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.CUSTOM_CHAT_MESSAGE, (e:TwitchatEvent)=> {
 				const data = e.data as TwitchatDataTypes.MessageCustomDataAPI;
-				const chunks = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const chunksQuote = !data.quote? [] : TwitchUtils.parseMessageToChunks(data.quote, undefined, true);
 				const message:TwitchatDataTypes.MessageCustomData = {
 					id: Utils.getUUID(),
 					date: Date.now(),
@@ -530,8 +533,12 @@ export const storeMain = defineStore("main", {
 					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
 					actions: data.actions,
 					message: data.message,
-					message_chunks: chunks,
-					message_html: TwitchUtils.messageChunksToHTML(chunks),
+					message_chunks: chunksMessage,
+					message_html: TwitchUtils.messageChunksToHTML(chunksMessage),
+					quote: data.quote,
+					quote_chunks: chunksQuote,
+					quote_html: TwitchUtils.messageChunksToHTML(chunksQuote),
+					highlightColor: data.highlightColor,
 					col: data.col,
 					style: data.style,
 					icon: data.icon,
@@ -827,16 +834,16 @@ export const storeMain = defineStore("main", {
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
 			const sChat = StoreProxy.chat;
-			const sAuth = StoreProxy.auth;
 			const sHeat = StoreProxy.heat;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
 			const sUsers = StoreProxy.users;
 			const sStream = StoreProxy.stream;
 			const sParams = StoreProxy.params;
-			const sTriggers = StoreProxy.triggers;
-			const sAutomod = StoreProxy.automod;
 			const sValues = StoreProxy.values;
+			const sDiscord = StoreProxy.discord;
+			const sAutomod = StoreProxy.automod;
+			const sTriggers = StoreProxy.triggers;
 			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
 			//Loading parameters from local storage and pushing them to current store
@@ -1078,6 +1085,12 @@ export const storeMain = defineStore("main", {
 			const heatDistortionParams = DataStore.get(DataStore.OVERLAY_DISTORTIONS);
 			if(heatDistortionParams) {
 				sHeat.distortionList = JSON.parse(heatDistortionParams);
+			}
+
+			//Init discord params
+			const discordParams = DataStore.get(DataStore.DISCORD_PARAMS);
+			if(discordParams) {
+				sDiscord.populateData(JSON.parse(discordParams));
 			}
 			
 

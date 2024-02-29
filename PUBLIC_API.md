@@ -716,20 +716,31 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 ### JSON param *(all props are optional)*
 ```typescript
 {
+	//Message to display
     message?: string;
+	//User info
     user?: {
         name: string;
         color?: string;
     };
+	//Column index to display the message to
     col?: number;
+	//Button icon see list of values above
     icon?: string;
+	//Color of the message for "highlight" style
     highlightColor?: string;
+	//Message style
     style?: "message"|"highlight"|"error";
+	//Option quote displayed in a dedicated holder
+	quote?:string;
 	//buttons to add
     actions?: {
+		//Button icon see list of values above
 		icon?:string;
+		//Button label
 		label:string;
-		actionType?:"url"|"trigger"|"message";
+		//Type of action
+		actionType?:"url"|"trigger"|"message"|"discord";
 		//Page to open in a new tab for "url" actionType
 		url?:string;
 		//window target for "url" actionType
@@ -737,8 +748,9 @@ ad add alert animate announcement anon api automod badge ban bingo bits block bo
 		//Trigger to execute for "trigger" actionType.
 		//Use CTRL+Alt+D on your triggers list to show their IDs
 		triggerId?:string;
-		//Message sent on chat for "message" actionType
+		//Message sent on chat for "message" and "discord" actionType values
 		message?:string;
+		//Button style
 		theme?:"default"|"primary"|"secondary"|"alert";
     }[];
 }

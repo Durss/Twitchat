@@ -1,0 +1,25 @@
+{
+	"server":{
+		"discord":{
+			"code":"## :link: Lier Twitchat et Discord\nOuvrez Twitchat et entrez le code suivant dans **paramètres => Discord**.\n# `{CODE}`\nLe code restera valide durant 1 minute.\n## :rotating_light: Permissions Discord\nRendez-vous dans les `Paramètres ► Intégrations ► Twitchat` pour définir qui peut utiliser les commandes.\n:warning: Pensez également à ajouter le bot dans les permissions des salons où vous souhaitez qu'il puisse parler.",
+			"install_instructions":":no_entry: Aucun compte Twitch n'a été lié à ce serveur Discord.\nUtiliser la commande </{CMD}:{CMD_ID}> pour lier votre compte Twitchat avec ce serveur Discord.",
+			"link_success":"## :white_check_mark: Liaison terminée\nCe serveur Discord a bien été lié au compte Twitchat de `{LOGIN}`.\nUtilisez la commande </{CMD_SAY}:{CMD_SAY_ID}> pour envoyer un message sur Twitchat ou la commande </{CMD_ASK}:{CMD_ASK_ID}> pour envoyer un message invitant à répondre par Oui ou Non.",
+			"guild_loading_failed":":no_entry: Une erreur est survenue lors de la récupération des infos du serveur Discord d'ID `{GUILD}`",
+			"twitch_user_not_found":":no_entry: Aucun compte Twitch n'existe pour le nom `{CHANNEL}`",
+			"commands":{
+				"link":{
+					"description":"Lier un compte Twitch avec ce Discord",
+					"option_channel":"Compte Twitch à lier"
+				},
+				"say":{
+					"description":"Envoyer un message à la personne qui diffuse sur Twitchat",
+					"option_message":"Message à envoyer",
+					"option_style":"Style graphique du message"
+				},
+				"ask":{
+					"description":"Envoyer un message à la personne qui diffuse sur Twitchat et lui demander de répondre par Oui ou Non"
+				}
+			}
+		}
+	}
+}

@@ -78,7 +78,7 @@ import AppLangSelector from '@/components/AppLangSelector.vue';
 import { BlobWriter, TextReader, ZipWriter } from "https://deno.land/x/zipjs@v2.7.32/index.js";
 import { watch } from 'vue';
 import gsap from 'gsap';
-import ApiController from '@/utils/ApiController';
+import ApiHelper from '@/utils/ApiHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 
@@ -254,7 +254,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 			lang:this.$i18n.locale,
 			labels:labels[section as keyof typeof labels]
 		};
-		let res = await ApiController.call("admin/labels", "POST", body, false);
+		let res = await ApiHelper.call("admin/labels", "POST", body, false);
 		PublicAPI.instance.broadcast(TwitchatEvent.LABELS_UPDATE);
 	}
 
