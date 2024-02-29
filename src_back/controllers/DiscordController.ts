@@ -756,7 +756,7 @@ export default class DiscordController extends AbstractController {
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: ":ok:",
+						content: "**:white_check_mark:**",
 					},
 				});
 
