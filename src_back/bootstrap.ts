@@ -14,6 +14,7 @@ import PatreonController from './controllers/PatreonController';
 import TenorController from './controllers/TenorController';
 import PaypalController from './controllers/PaypalController';
 import GoogleController from './controllers/GoogleController';
+import SSEController from './controllers/SSEController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -35,6 +36,7 @@ fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
 
 const server:FastifyInstance = Fastify({logger: false});
+server.register(import("fastify-sse-v2"));
 server.register(import('fastify-raw-body'), {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
 }).then(()=> {
@@ -51,6 +53,7 @@ server.register(import('fastify-raw-body'), {
 	new TenorController(server).initialize();
 	new PaypalController(server).initialize();
 	new GoogleController(server).initialize();
+	new SSEController(server).initialize();
 	
 	//Start server
 	start();

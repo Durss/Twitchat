@@ -32,6 +32,7 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
+import SSEHelper from '@/utils/SSEHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -280,6 +281,7 @@ export const storeMain = defineStore("main", {
 			const sVoice = StoreProxy.voice;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
+			SSEHelper.instance.initialize();
 
 			//Warn the user about the automatic "ad" message sent every 2h
 			if(DataStore.get(DataStore.TWITCHAT_AD_WARNED) !== "true" && !sAuth.isDonor) {

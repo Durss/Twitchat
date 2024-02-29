@@ -535,7 +535,7 @@
 			"my_stream_title": "Titre de mon stream",
 			"my_stream_category": "Catégorie de mon stream",
 			"my_stream_duration": "Durée de mon stream formatée",
-			"my_stream_duration_ms": "Durée de mon en millisecondes",
+			"my_stream_duration_ms": "Durée de mon stream en millisecondes",
 			"my_stream_live": "Suis-je en live ?",
 			"stream_title": "Titre du stream",
 			"stream_category": "Catégorie du stream",
