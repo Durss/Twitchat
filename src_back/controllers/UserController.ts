@@ -53,13 +53,8 @@ export default class UserController extends AbstractController {
 	 * Get a user's donor/admin state
 	 */
 	private async getUserState(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		let isDonor:boolean = false, level:number = -1, amount:number = -1;
 		if(fs.existsSync( Config.donorsList )) {
@@ -110,13 +105,8 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async getUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		const uid:string = (request.query as any).uid ?? userInfo.user_id;
 
@@ -138,14 +128,9 @@ export default class UserController extends AbstractController {
 	 * Get/set a user's data
 	 */
 	private async postUserData(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 		const body:any = request.body;
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
 
 		//Get users' data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
@@ -215,13 +200,8 @@ export default class UserController extends AbstractController {
 	 * Delete a user's data
 	 */
 	private async deleteUserData(request:FastifyRequest, response:FastifyReply) {
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return;
-		}
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
 
 		//Delete user's data
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";

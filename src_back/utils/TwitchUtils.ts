@@ -191,7 +191,7 @@ export default class TwitchUtils {
 	*******************/
 }
 
-interface TwitchToken {
+export interface TwitchToken {
 	client_id: string;
 	login: string;
 	scopes: string[];

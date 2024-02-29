@@ -5,7 +5,7 @@ import * as fs from "fs";
 import Config from "../utils/Config";
 import I18n from "../utils/I18n";
 import Logger from "../utils/Logger";
-import TwitchUtils from "../utils/TwitchUtils";
+import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils";
 import Utils from "../utils/Utils";
 import AbstractController from "./AbstractController";
 import SSEController, { SSECode } from "./SSEController";
@@ -48,6 +48,7 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/interaction', async (request, response) => await this.postInteraction(request, response));
 		this.server.post('/api/discord/message', async (request, response) => await this.postMessage(request, response));
 		this.server.post('/api/discord/thread', async (request, response) => await this.postThread(request, response));
+		this.server.post('/api/discord/commands', async (request, response) => await this.postCommands(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
 		
 		this.initDatabase();
@@ -110,15 +111,8 @@ export default class DiscordController extends AbstractController {
 	 * Gets to which discord our twitchat account is linked
 	 */
 	private async getLinkedState(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-
-		//Check if token is oAuth valid
-		if(!user) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const user = await super.twitchUserGuard(request, response);
+		if(user == false) return;
 
 		let entry:TwitchatGuild2Twitch|undefined;
 		for (const guild in DiscordController._guildId2TwitchId) {
@@ -143,21 +137,11 @@ export default class DiscordController extends AbstractController {
 	 * Post a message to the given channel
 	 */
 	private async postMessage(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
-		//Check if token is oAuth valid
-		if(!user || !guild) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const res = await this.guildGuard(request, response);
+		if(res == false) return;
 
 		const params = request.body as {message:string, channelId:string};
-
-		const body = {
-			content:params.message
-		}
+		const body = { content:params.message }
 		
 		//Send to discord
 		try {
@@ -181,15 +165,8 @@ export default class DiscordController extends AbstractController {
 	 * Create a new thread and post the given message in it
 	 */
 	private async postThread(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
-		//Check if token is oAuth valid
-		if(!user || !guild) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const res = await this.guildGuard(request, response);
+		if(res == false) return;
 
 		const params = request.body as {message:string, channelId:string, threadName:string, history:string[]};
 
@@ -238,18 +215,20 @@ export default class DiscordController extends AbstractController {
 	}
 
 	/**
+	 * Create discord commands
+	 */
+	private async postCommands(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const res = await this.guildGuard(request, response);
+		if(res == false) return;
+
+	}
+
+	/**
 	 * Unlinks a discord guild
 	 */
 	private async deleteLinkState(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-
-		//Check if token is oAuth valid
-		if(!user) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const user = await super.twitchUserGuard(request, response);
+		if(user == false) return;
 
 		for (const guild in DiscordController._guildId2TwitchId) {
 			if(DiscordController._guildId2TwitchId[guild].twitchUID == user.user_id){
@@ -269,15 +248,9 @@ export default class DiscordController extends AbstractController {
 	 * List discord chanels
 	 */
 	private async getChannelList(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
-		//Check if token is oAuth valid
-		if(!user || !guild) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const auth = await this.guildGuard(request, response);
+		if(auth == false) return;
+		const {user, guild} = auth;
 
 		const res:GuildChannel[] = await this._rest.get(Routes.guildChannels(guild.guildID)) as GuildChannel[];
 		const channelList = res.filter(chan => chan.type == ChannelType.GuildText)
@@ -298,15 +271,9 @@ export default class DiscordController extends AbstractController {
 	 * Called when a user request to post a chat message data to discord
 	 */
 	private async postAnImageToDiscord(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
-		//Check if token is oAuth valid
-		if(!user || !guild) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const auth = await this.guildGuard(request, response);
+		if(auth == false) return;
+		const {user, guild} = auth;
 
 		try {
 			const params = request.body as any;
@@ -357,15 +324,8 @@ export default class DiscordController extends AbstractController {
 	 * Called when a user request if a validation is pending or confirms a link
 	 */
 	private async registerCode(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-
-		//Check if token is oAuth valid
-		if(!user) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const user = await super.twitchUserGuard(request, response);
+		if(user == false) return;
 
 		const params = request.method === "POST"? request.body as any : request.query as any;
 		const code = params.code as string;
@@ -430,22 +390,15 @@ export default class DiscordController extends AbstractController {
 	}
 
 	/**
-	 * Called when stream answers to a custom message by clicking one of the available CTAs
+	 * Called when streamer answers to a custom message by clicking one of the available CTAs
 	 * 
 	 * @param request 
 	 * @param response 
 	 * @returns 
 	 */
 	private async postAnswer(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const user = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
-		//Check if token is oAuth valid
-		if(!user || !guild) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid access token", errorCode:"UNAUTHORIZED", error:"Invalid Twitch access token", success:false}));
-			return;
-		}
+		const auth = await this.guildGuard(request, response);
+		if(auth == false) return;
 		
 		const params = request.body as any;
 		const data:ActionPayload = params.data;
@@ -823,6 +776,27 @@ export default class DiscordController extends AbstractController {
 				await Utils.promisedTimeout(250);
 			}while(++attempts < 10)
 		}
+	}
+
+	/**
+	 * Check if user is authenticated and linked their discord
+	 * @param request 
+	 * @param response 
+	 * @returns 
+	 */
+	private async guildGuard(request:FastifyRequest, response:FastifyReply):Promise<false|{user:TwitchToken, guild:TwitchatGuild2Twitch}> {
+		const user = await super.twitchUserGuard(request, response);
+		if(user == false) return false;
+		const guild = DiscordController._twitchId2GuildId[user? user.user_id:""];
+		//Check user linked their discord
+		if(!guild) {
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Missing discord guild", errorCode:"MISSING_GUILD", error:"Missing discord guild", success:false}));
+			return false;
+		}
+
+		return {user, guild};
 	}
 }
 type COMMAND_NAME = "link" | "say" | "ask";

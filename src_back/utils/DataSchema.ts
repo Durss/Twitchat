@@ -147,6 +147,7 @@ import Ajv from "ajv";
 					type: {type:"string", maxLength:5},
 					enabled: {type:"boolean"},
 					addToContextMenu: {type:"boolean"},
+					addToDiscord: {type:"boolean"},
 					rewardId:{type:"string", maxLength:100},
 					name:{type:"string", maxLength:100},
 					chatCommand:{type:"string", maxLength:100},

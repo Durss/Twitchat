@@ -1,7 +1,7 @@
 import { FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import Config from '../utils/Config';
-import TwitchUtils from "../utils/TwitchUtils";
+import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils";
 import type { PatreonMember } from "./PatreonController";
 
 /**
@@ -48,59 +48,59 @@ export default class AbstractController {
 	}
 
 	/**
-	 * Returns true if it passes the admin check
+	 * Returns true if it passes the user is authenticated
 	 * @param request 
 	 * @param response 
 	 */
-	protected async adminGuard(request:FastifyRequest, response:FastifyReply):Promise<boolean> {
+	protected async twitchUserGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
 		//Missing auth token
 		if(!request.headers.authorization) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({success:false}));
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({errorCode:"MISSING_ACCESS_TOKEN", error:"Missing Twitch access token", success:false}));
 			return false;
 		}
 		
 		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({errorCode:"INVALID_ACCESS_TOKEN", error:"Invalid Twitch access token", success:false}));
 			return false;
 		}
 	
-		//Only allow admins
-		if(Config.credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"You're not allowed to call this endpoint", success:false}));
-			return false;
-		}
-		return true;
+		return userInfo;
 	}
+
 	/**
 	 * Returns true if it passes the admin check
 	 * @param request 
 	 * @param response 
 	 */
-	protected async premiumGuard(request:FastifyRequest, response:FastifyReply):Promise<boolean> {
-		if(!request.headers.authorization) {
-			//Missing auth token
+	protected async adminGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
+		const userInfo = await this.twitchUserGuard(request, response)
+		if(userInfo === false) return false;
+
+		//Only allow admins
+		if(Config.credentials.admin_ids.indexOf(userInfo.user_id) == -1) {
 			response.header('Content-Type', 'application/json');
 			response.status(401);
-			response.send(JSON.stringify({success:false}));
+			response.send(JSON.stringify({errorCode:"MISSING_ADMIN_PERMISSION", message:"You're not allowed to call this endpoint", success:false}));
 			return false;
 		}
-		
-		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
-		if(!userInfo) {
-			//Invalid token
-			response.header('Content-Type', 'application/json');
-			response.status(401);
-			response.send(JSON.stringify({message:"Invalid access token", success:false}));
-			return false;
-		}
-	
+
+		return userInfo;
+	}
+
+	/**
+	 * Returns true if it passes the admin check
+	 * @param request 
+	 * @param response 
+	 */
+	protected async premiumGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
+		const userInfo = await this.twitchUserGuard(request, response)
+		if(userInfo === false) return false;
+
 		const cache = this.premiumState_cache[userInfo.user_id];
 		let isPremium = cache != undefined && cache < Date.now();
 
@@ -139,7 +139,7 @@ export default class AbstractController {
 			return false;
 		}
 		this.premiumState_cache[userInfo.user_id] = Date.now() + 6 * 60 * 1000;
-		return true;
+		return userInfo;
 	}
 	
 	/**
