@@ -29,6 +29,7 @@ export namespace TwitchatDataTypes {
 		HIGHLIGHT: "chathighlight",
 		WEBSOCKET: "websocket",
 		STREAMLABS: "streamlabs",
+		STREAMELEMENTS: "streamelements",
 		STREAMDECK: "streamdeck",
 		HEAT_AREAS: "heatAreas",
 	} as const;
@@ -1841,6 +1842,7 @@ export namespace TwitchatDataTypes {
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
+		STREAMELEMENTS:"streamelements",
 		GOXLR_FX_STATE:"goxlr_fx_state",
 		STREAM_OFFLINE:"stream_offline",
 		CHAT_HIGHLIGHT:"chat_highlight",
@@ -1924,8 +1926,8 @@ export namespace TwitchatDataTypes {
 		room_settings:true,
 		stream_online:true,
 		scope_request:true,
-		credits_complete:false,
 		followbot_list:true,
+		streamelements:true,
 		stream_offline:true,
 		ad_break_start:false,
 		chat_highlight:false,//Used for "highlight on overlay" events
@@ -1933,6 +1935,7 @@ export namespace TwitchatDataTypes {
 		goxlr_fx_state:false,
 		history_splitter:true,
 		obs_stop_stream:false,
+		credits_complete:false,
 		user_watch_streak:true,
 		hype_train_start:false,
 		obs_scene_change:false,
@@ -2066,6 +2069,7 @@ export namespace TwitchatDataTypes {
 									| MessageQnaDeleteData
 									| MessageCreditsCompleteData
 									| MessageStreamlabsData
+									| MessageStreamelementsData
 	;
 	
 	/**
@@ -2098,6 +2102,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		// {type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -3990,42 +3995,84 @@ export namespace TwitchatDataTypes {
 	 * Represents a streamlabs event
 	 */
 	export type MessageStreamlabsData = StreamlabsDonationData | StreamlabsMerchData | StreamlabsPatreonPledgeData;
-	interface StreamlabsDonationBaseData extends AbstractTwitchatMessage{
-		type:"streamlabs";
-		eventType:"donation" | "merch" | "patreon_pledge";
-	}
-	export interface StreamlabsDonationData extends StreamlabsDonationBaseData{
-		eventType:"donation";
-		amount:number;
-		amountFormatted:string;
-		message:string;
-		message_chunks:ParseMessageChunk[];
-		message_html:string;
-		userName:string;
-		currency:string;
-	}
+		interface StreamlabsDonationBaseData extends AbstractTwitchatMessage{
+			type:"streamlabs";
+			eventType:"donation" | "merch" | "patreon_pledge";
+		}
+		export interface StreamlabsDonationData extends StreamlabsDonationBaseData{
+			eventType:"donation";
+			amount:number;
+			amountFormatted:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			currency:string;
+		}
+		
+		/**
+		 * Represents a streamlabs event
+		 */
+		export interface StreamlabsMerchData extends StreamlabsDonationBaseData {
+			eventType:"merch";
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			product:string;
+		}
+		
+		/**
+		 * Represents a streamlabs event
+		 */
+		export interface StreamlabsPatreonPledgeData extends StreamlabsDonationBaseData {
+			eventType:"patreon_pledge";
+			amount:number;
+			amountFormatted:string;
+			userName:string;
+			currency:string;
+		}
 	
 	/**
 	 * Represents a streamlabs event
 	 */
-	export interface StreamlabsMerchData extends StreamlabsDonationBaseData {
-		eventType:"merch";
-		message:string;
-		message_chunks:ParseMessageChunk[];
-		message_html:string;
-		userName:string;
-		product:string;
-	}
-	
-	/**
-	 * Represents a streamlabs event
-	 */
-	export interface StreamlabsPatreonPledgeData extends StreamlabsDonationBaseData {
-		eventType:"patreon_pledge";
-		amount:number;
-		amountFormatted:string;
-		userName:string;
-		currency:string;
-	}
+	export type MessageStreamelementsData = StreamelementsDonationData | StreamelementsMerchData | StreamelementsPatreonPledgeData;
+		interface StreamelementsDonationBaseData extends AbstractTwitchatMessage{
+			type:"streamelements";
+			eventType:"donation" | "merch" | "patreon_pledge";
+		}
+		export interface StreamelementsDonationData extends StreamelementsDonationBaseData{
+			eventType:"donation";
+			amount:number;
+			amountFormatted:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			currency:string;
+		}
+		
+		/**
+		 * Represents a streamlabs event
+		 */
+		export interface StreamelementsMerchData extends StreamelementsDonationBaseData {
+			eventType:"merch";
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			product:string;
+		}
+		
+		/**
+		 * Represents a streamlabs event
+		 */
+		export interface StreamelementsPatreonPledgeData extends StreamelementsDonationBaseData {
+			eventType:"patreon_pledge";
+			amount:number;
+			amountFormatted:string;
+			userName:string;
+			currency:string;
+		}
 
 }

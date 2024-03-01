@@ -15,6 +15,7 @@ import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { DiscordStoreData } from "./discord/storeDiscord";
 import type { SreamlabsStoreData } from "./streamlabs/storeStreamlabs";
+import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
 
 /**
 * Created : 23/09/2022 
@@ -55,6 +56,7 @@ export default class StoreProxy {
 	public static qna:IQnaState & IQnaGetters & IQnaActions & {$state:IQnaState, $reset:()=>void};
 	public static discord:IDiscordState & IDiscordGetters & IDiscordActions & {$state:IDiscordState, $reset:()=>void};
 	public static streamlabs:IStreamlabsState & IStreamlabsGetters & IStreamlabsActions & {$state:IStreamlabsState, $reset:()=>void};
+	public static streamelements:IStreamelementsState & IStreamelementsGetters & IStreamelementsActions & {$state:IStreamelementsState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -2155,6 +2157,51 @@ export interface IStreamlabsActions {
 	 * @param data 
 	 */
 	populateData(data:SreamlabsStoreData):void;
+	/**
+	 * Connect to WS with given token
+	 */
+	connect(token:string, isReconnect?:boolean):Promise<boolean>;
+	/**
+	 * Disconnects from streamlabs
+	 */
+	disconnect():void;
+	/**
+	 * Saves current data to server
+	 */
+	saveData():void;
+	/**
+	 * Get the oAuth URL for streamlabs
+	 */
+	getOAuthURL():Promise<string>
+	/**
+	 * Called after authenticating with Streamlabs
+	 */
+	setAuthResult(code:string, csrf:string):void;
+	/**
+	 * Authenticate to streamlabs after getting oAuth code
+	 */
+	getAccessToken():Promise<boolean>
+}
+
+
+
+
+export interface IStreamelementsState {
+	accessToken:string;
+	socketToken:string;
+	connected:boolean;
+	authResult:{code:string, csrf:string};
+}
+
+export interface IStreamelementsGetters {
+}
+
+export interface IStreamelementsActions {
+	/**
+	 * Populates the store from user's data
+	 * @param data 
+	 */
+	populateData(data:StreamelementsStoreData):void;
 	/**
 	 * Connect to WS with given token
 	 */

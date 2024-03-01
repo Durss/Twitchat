@@ -94,6 +94,7 @@ export default class DataStore {
 	public static AB_SENTRY:string = "ab_sentry";
 	public static DISCORD_PARAMS:string = "discordParams";
 	public static STREAMLABS:string = "streamlabs";
+	public static STREAMELEMENTS:string = "streamelements";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
@@ -124,6 +125,7 @@ export default class DataStore {
 		this.SENT_MESSAGE_HISTORY,
 		this.YOUTUBE_AUTH_TOKEN,
 		this.STREAMLABS,
+		this.STREAMELEMENTS,
 	];
 	
 	

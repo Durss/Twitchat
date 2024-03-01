@@ -438,4 +438,13 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"streamelements/auth": {
+		POST: {
+			success:boolean;
+			accessToken?:string;
+			socketToken?:string;
+			error?:string;
+			errorCode?:string;
+		}
+	};
 }

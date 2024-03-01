@@ -217,6 +217,29 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/streamelements/auth',
+		name: 'streamelements/auth',
+		redirect:() => {
+			const sMain = StoreProxy.main;
+			const sParams = StoreProxy.params;
+			const sStreamelements = StoreProxy.streamelements;
+			if(Utils.getQueryParameterByName("code")) {
+				const params = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				sStreamelements.setAuthResult(params.code, params.csrf);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
+			}else{
+				sMain.alert( StoreProxy.i18n.t("error.streamlabs_denied") );
+			}
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
 		path: '/overlay/:id(.*)',
 		name: 'overlay',
 		component: Overlay,

@@ -56,6 +56,7 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
+import { storeStreamelements } from './store/streamelements/storeStreamelements';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -248,6 +249,7 @@ function buildApp() {
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.discord = (storeDiscord() as unknown) as IDiscordState & IDiscordGetters & IDiscordActions & { $state: IDiscordState; $reset:()=>void };
 	StoreProxy.streamlabs = storeStreamlabs();
+	StoreProxy.streamelements = storeStreamelements();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -284,6 +286,7 @@ function buildApp() {
 		qna:				StoreProxy.qna,
 		discord:			StoreProxy.discord,
 		streamlabs:			StoreProxy.streamlabs,
+		streamelements:		StoreProxy.streamelements,
 	}
 	
 	app.use(router)

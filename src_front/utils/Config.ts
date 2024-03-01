@@ -247,6 +247,10 @@ export default class Config {
 	 * Streamlabs client ID
 	 */
 	public get STREAMLABS_CLIENT_ID():string { return this._serverConfig.streamlabs_client_id; }
+	/**
+	 * Streamelements client ID
+	 */
+	public get STREAMELEMENTS_CLIENT_ID():string { return this._serverConfig.streamelements_client_id; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -370,4 +374,5 @@ export interface ServerConfig {
 	discord_client_id: string;
 	streamlabs_client_id:string;
 	streamlabs_redirect_uri:string;
+	streamelements_client_id:string;
 }
