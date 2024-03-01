@@ -74,16 +74,15 @@ class ConnectStreamlabs extends Vue {
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
 			mess.eventType = "donation";
 			this.fakeDonation = mess;
-			console.log(mess);
-		});
+		}, false);
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
 			mess.eventType = "merch";
 			this.fakeMerch = mess;
-		});
+		}, false);
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
 			mess.eventType = "patreon_pledge";
 			this.fakePatreon = mess;
-		});
+		}, false);
 	}
 
 	/**

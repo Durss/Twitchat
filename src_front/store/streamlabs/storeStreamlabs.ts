@@ -77,8 +77,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				const result = await ApiHelper.call("streamlabs/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
-					this.socketToken = result.json.socketToken!;
-					return await this.connect(this.socketToken);
+					this.socketToken = "";
+					return await this.connect(result.json.socketToken!);
 				}
 				return false;
 			}catch(error){
@@ -91,12 +91,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			//Token changed
 			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
+			
+			this.disconnect();
+
 			if(!isReconnect) {
 				this.socketToken = token;
 				this.saveData();
 			}
-			
-			this.disconnect()
 
 			autoReconnect = true;
 
@@ -257,6 +258,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		disconnect():void {
 			autoReconnect = false;
 			this.connected = false;
+			this.socketToken = "";
+			this.accessToken = "";
+			this.saveData();
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();
