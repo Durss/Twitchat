@@ -55,7 +55,7 @@ export default class SetIntervalWorker {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		this._worker = new Worker("interval_worker.js");
+		this._worker = new Worker("/interval_worker.js");
 		this._worker.onmessage = (event) => {
 			const message = event.data;
 			if (message.type === "intervalMessage") {
