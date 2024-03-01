@@ -96,6 +96,6 @@
 			"GUILD_COMMAND_CREATE_FAILED":"Failed creating Discord commands",
 			"MISSING_ACCESS":"Twitchat bot does not have permission to write on channel \"{CHANNEL}\""
 		},
-		"streamlabs_connect_failed":"Authentication failed.\nPlease double chek your token is valid."
+		"streamlabs_connect_failed":"Streamlabs authentication failed.\nPlease double chek your token is valid."
 	}
 }
