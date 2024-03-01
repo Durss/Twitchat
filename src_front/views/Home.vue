@@ -696,7 +696,6 @@ body.light {
 					
 					:deep(mark) {
 						background-color: var(--color-secondary);
-						font-size: .8em;
 						border-radius: .5em;
 						padding: 2px 10px;
 					}

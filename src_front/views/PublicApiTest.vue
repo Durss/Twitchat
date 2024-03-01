@@ -43,20 +43,18 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ParamsOBS from '@/components/params/contents/ParamsOBS.vue';
-import ParamItem from '@/components/params/ParamItem.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import ParamItem from '@/components/params/ParamItem.vue';
 import { TwitchatActionTypeList, TwitchatEventTypeList, type TwitchatActionType, type TwitchatEventType } from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import type { JsonArray, JsonObject, JsonValue } from 'type-fest';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		Button: TTButton,
-		ParamsOBS,
 		ParamItem,
 		ToggleBlock,
 	}

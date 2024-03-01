@@ -1,6 +1,6 @@
 <template>
 	<div class="overlayparamsheatdistort overlayParamsSection" :title="$t('overlay.heatDistort.title')" :icons="['distort']">
-		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
@@ -11,7 +11,7 @@
 			<TTButton class="button"
 				icon="obs"
 				light alert
-				@click="$store.params.openParamsPage(contentObs)">{{ $t('heat.need_OBS_connectBt') }}</TTButton>
+				@click="openObs()">{{ $t('heat.need_OBS_connectBt') }}</TTButton>
 		</div>
 		
 		<template v-else>
@@ -88,7 +88,6 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get isPremium():boolean{ return this.$store.auth.isPremium; }
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
 	public get maxEntries():number{ return this.isPremium? Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM : Config.instance.MAX_DISTORTION_OVERLAYS; }
 	public get premiumCount():number{ return Config.instance.MAX_DISTORTION_OVERLAYS_PREMIUM; }
 	public get distortionList():TwitchatDataTypes.HeatDistortionData[] { return this.$store.heat.distortionList; }
@@ -98,7 +97,11 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+	}
+
+	public openObs():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	public addDistortion():void {

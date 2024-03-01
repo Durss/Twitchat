@@ -12,7 +12,7 @@
 							<img src="@/assets/icons/alert.svg">
 							<i18n-t scope="global" class="label" tag="p" keypath="global.obs_connect">
 								<template #LINK>
-									<a @click="$store.params.openParamsPage(contentObs)">{{ $t("global.obs_connect_link") }}</a>
+									<a @click="$store.params.openParamsPage(contentConnexions ,subcontentObs)">{{ $t("global.obs_connect_link") }}</a>
 								</template>
 							</i18n-t>
 						</div>
@@ -144,7 +144,8 @@ import { watch } from 'vue';
 		return res;
 	}
 	
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
 	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
 

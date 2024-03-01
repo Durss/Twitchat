@@ -9,7 +9,7 @@
 					<TTButton class="button"
 						icon="obs"
 						light alert
-						@click="$store.params.openParamsPage(contentObs)">{{ $t('overlay.connection.obsBt') }}</TTButton>
+						@click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t('overlay.connection.obsBt') }}</TTButton>
 				</template>
 				<template #DOCK>
 					<TTButton class="button"
@@ -111,7 +111,8 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }
 	public get spotifyConfigured():boolean { return SpotifyHelper.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get overlayUrl():string { return this.$overlayURL("unified"); }
 
 	public get classes():string[] {

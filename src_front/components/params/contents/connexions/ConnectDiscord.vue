@@ -116,14 +116,13 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
-import ApiHelper from '@/utils/ApiHelper';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ParamsDiscordQuickActions from './discord/ParamsDiscordQuickActions.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import type IParameterContent from '../IParameterContent';
+import ParamsDiscordQuickActions from '../discord/ParamsDiscordQuickActions.vue';
+import { ParamItem } from '../../ParamItem.vue';
 
 @Component({
 	components:{
@@ -135,7 +134,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
-class ParamsDiscord extends Vue implements IParameterContent {
+class ConnectDiscord extends Vue implements IParameterContent {
 
 	public code:string = "";
 	public codeLength:number = 4;
@@ -318,7 +317,7 @@ class ParamsDiscord extends Vue implements IParameterContent {
 	}
 
 }
-export default toNative(ParamsDiscord);
+export default toNative(ConnectDiscord);
 </script>
 
 <style scoped lang="less">

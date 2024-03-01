@@ -603,7 +603,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	 * Open OBS parameters
 	 */
 	public openOBS():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 	}
 
 	/**

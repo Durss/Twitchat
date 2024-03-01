@@ -23,19 +23,14 @@
 
 <script lang="ts">
 import DataStore from '@/store/DataStore';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ToggleBlock from '../components/ToggleBlock.vue';
-import ParamItem from '../components/params/ParamItem.vue';
-import ParamsOBS from '../components/params/contents/ParamsOBS.vue';
 import OBSConnectForm from '../components/params/contents/obs/OBSConnectForm.vue';
 import VoiceControlForm from '../components/voice/VoiceControlForm.vue';
 
 @Component({
 	components:{
-		ParamItem,
-		ParamsOBS,
 		ToggleBlock,
 		OBSConnectForm,
 		VoiceControlForm,

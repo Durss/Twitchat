@@ -1,6 +1,6 @@
 <template>
 	<div class="overlayparamsbitswall overlayParamsSection">
-		<a href="https://www.youtube.com/watch?v=7rC4MAqAQR0" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/watch?v=7rC4MAqAQR0" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
@@ -205,7 +205,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public testOverlay(pinLevel:number = -1):void {

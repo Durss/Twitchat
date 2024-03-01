@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.obs.header">
 				<template #LINK>
-					<a @click="$store.params.openParamsPage(contentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t("triggers.actions.obs.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -98,7 +98,8 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	private filters:OBSFilter[] = [];
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get showPlaceholderWarning():boolean {
 		if(!this.isMediaSource || this.action_conf.value == "show") return false;
 		return /\{[^ }]+\}/gi.test(this.media_conf.value);

@@ -1,0 +1,11 @@
+{
+	"streamlabs":{
+		"header":"Receive {LINK} alerts on Twitchat",
+		"find_key_title":"Where to find?",
+		"find_key":"{LINK}, and go under {TAB} tab. You'll find the key after {ITEM}",
+		"find_key_link":"Open your Dashboard",
+		"find_key_item":"Your Socket API Token",
+		"find_key_tab":"API tokens",
+		"param_key":"Socket API Token"
+	}
+}

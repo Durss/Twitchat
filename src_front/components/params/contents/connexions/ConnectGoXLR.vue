@@ -2,11 +2,13 @@
 	<div class="paramsgoxlr parameterContent">
 		<Icon name="goxlr" class="icon" />
 		
-		<i18n-t scope="global" class="head" tag="div" keypath="goxlr.header">
-			<template #LINK>
-				<a href="https://github.com/GoXLR-on-Linux/goxlr-utility/releases/latest" target="_blank">{{ $t("goxlr.header_link") }}</a>
-			</template>
-		</i18n-t>
+		<div class="head">
+			<i18n-t scope="global" tag="span" keypath="goxlr.header">
+				<template #LINK>
+					<a href="https://github.com/GoXLR-on-Linux/goxlr-utility/releases/latest" target="_blank">{{ $t("goxlr.header_link") }}</a>
+				</template>
+			</i18n-t>
+		</div>
 
 		<template v-if="$store.auth.isPremium">
 			<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
@@ -21,7 +23,7 @@
 			</div>
 		</template>
 		<template v-else>
-			<Button icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</Button>
+			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
 			<img src="@/assets/img/goxlr_features.png" alt="goxlr" class="interfaceExample">
 		</template>
 
@@ -59,7 +61,7 @@
 		
 		<section class="card-item info">
 			<p v-for="info, index in $tm('goxlr.infos')"><Icon name="info" v-if="index === 0" />{{ info }}</p>
-			<Button class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</Button>
+			<TTButton class="triggersBt" @click="openTriggers()">{{ $t("goxlr.triggersBt") }}</TTButton>
 		</section>
 
 		<div class="youtubeLinks">
@@ -89,25 +91,23 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import PermissionsForm from '../../PermissionsForm.vue';
-import Splitter from '../../Splitter.vue';
-import ParamItem from '../ParamItem.vue';
-import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
+import Splitter from '../../../Splitter.vue';
+import ParamItem from '../../ParamItem.vue';
+import GoXLRConnectForm from '../goxlr/GoXLRConnectForm.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 		GoXLRUI,
 		Splitter,
 		ParamItem,
 		ToggleBlock,
 		GoXLRConnectForm,
-		PermissionsForm,
 	},
 	emits:[],
 })
- class ParamsGoXLR extends Vue {
+ class ConnectGoXLR extends Vue {
 
 	public connecting:boolean = false;
 	public showEncoderWarning:boolean = false;
@@ -213,7 +213,7 @@ import GoXLRConnectForm from './goxlr/GoXLRConnectForm.vue';
 		}
 	}
 }
-export default toNative(ParamsGoXLR);
+export default toNative(ConnectGoXLR);
 </script>
 
 <style scoped lang="less">

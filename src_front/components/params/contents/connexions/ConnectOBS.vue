@@ -68,13 +68,13 @@ import OBSWebsocket from '@/utils/OBSWebsocket';
 import { watch } from '@vue/runtime-core';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import PermissionsForm from '../../PermissionsForm.vue';
-import ParamItem from '../ParamItem.vue';
-import type IParameterContent from './IParameterContent';
-import OBSAudioSourceForm from './obs/OBSAudioSourceForm.vue';
-import OBSConnectForm from './obs/OBSConnectForm.vue';
-import OBSScenes from './obs/OBSScenes.vue';
-import OBSBrowserSources from './obs/OBSBrowserSources.vue';
+import PermissionsForm from '../../../PermissionsForm.vue';
+import ParamItem from '../../ParamItem.vue';
+import OBSAudioSourceForm from '../obs/OBSAudioSourceForm.vue';
+import OBSConnectForm from '../obs/OBSConnectForm.vue';
+import OBSScenes from '../obs/OBSScenes.vue';
+import OBSBrowserSources from '../obs/OBSBrowserSources.vue';
+import type IParameterContent from '../IParameterContent';
 
 
 @Component({
@@ -89,7 +89,7 @@ import OBSBrowserSources from './obs/OBSBrowserSources.vue';
 	},
 	emits:[]
 })
- class ParamsOBS extends Vue implements IParameterContent {
+ class ConnectOBS extends Vue implements IParameterContent {
 
 	public loading = false;
 	public connected = false;
@@ -162,7 +162,7 @@ import OBSBrowserSources from './obs/OBSBrowserSources.vue';
 		}
 	}
 }
-export default toNative(ParamsOBS);
+export default toNative(ConnectOBS);
 </script>
 
 <style scoped lang="less">

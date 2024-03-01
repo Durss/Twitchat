@@ -139,7 +139,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	public onSelectOBSScene():void {
 		if(this.params_target.value == "obs") {
-			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OBS);
+			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.OBS);
 			return;
 		}
 		this.screen.activeOBSScene = this.params_target.value;

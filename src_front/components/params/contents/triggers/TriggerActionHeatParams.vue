@@ -159,7 +159,7 @@ import { watch } from 'vue';
 	}
 
 	public openHeatParams():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT_AREAS);
 	}
 
 	public openOBSParams():void {

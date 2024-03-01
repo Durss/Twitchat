@@ -18,12 +18,17 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
+		GOXLR: "goxlr",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		PREMIUM: "premium",
 		YOUTUBE: "youtube",
+		DISCORD: "discord",
+		VOICEMOD: "voicemod",
 		HIGHLIGHT: "chathighlight",
 		WEBSOCKET: "websocket",
+		STREAMLABS: "streamlabs",
+		STREAMDECK: "streamdeck",
 		HEAT_AREAS: "heatAreas",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
@@ -38,12 +43,8 @@ export namespace TwitchatDataTypes {
 		ACCOUNT: "account",
 		ABOUT: "about",
 		FEATURES: "features",
-		OBS: "obs",
-		HEAT: "heat",
 		SPONSOR: "sponsor",
 		DONATE: "donate",
-		STREAMDECK: "streamdeck",
-		GOXLR: "goxlr",
 		TRIGGERS: "triggers",
 		COUNTERS: "counters",
 		VALUES: "values",
@@ -54,12 +55,9 @@ export namespace TwitchatDataTypes {
 		TTS: "tts",
 		VOICE: "voice",
 		AUTOMOD: "automod",
-		VOICEMOD: "voicemod",
 		AD: "ad",
 		CONNEXIONS: "connexions",
 		PREMIUM: "premium",
-		YOUTUBE: "youtube",
-		DISCORD: "discord",
 	} as const;
 	export type ParameterPagesStringType = typeof ParameterPages[keyof typeof ParameterPages];
 

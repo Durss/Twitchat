@@ -6,7 +6,6 @@
 		"donate_link":"donating to FrostyCoolSlug",
 		"connecting":"connecting to GoXLR-Utility...",
 		"connect_failed":"Unable to connect to GoXLR-Utility",
-		"connect_success":"Twitchat is connected to GoXLR-Utility",
 		"no_device":"There is no GoXLR device detected by GoXLR-Utility",
 		"triggersBt":"Create triggers",
 		"param_chat_col":"Chat column",

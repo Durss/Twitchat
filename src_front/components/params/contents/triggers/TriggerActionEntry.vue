@@ -489,13 +489,13 @@ import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 			}
 			case "voicemod": {
 				if(!this.voicemodEnabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VOICEMOD);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.VOICEMOD);
 					return;
 				}break
 			}
 			case "goxlr": {
 				if(!this.goxlrEnabled) {
-					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.GOXLR);
+					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.GOXLR);
 					return;
 				}break
 			}

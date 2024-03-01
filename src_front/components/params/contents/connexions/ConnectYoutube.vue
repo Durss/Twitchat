@@ -1,8 +1,11 @@
 <template>
-	<component :is="listMode !== false? 'ToggleBlock' : 'div'" :open="open" class="connectyoutube" title="Youtube" :icons="['youtube']">
-		<div class="holder">
+	<div class="connectyoutube parameterContent">
+		<Icon name="youtube" alt="youtube icon" class="icon" />
+
+		<div class="head">{{ $t("connexions.youtube.header") }}</div>
+
+		<div class="content">
 			<div class="card-item primary" v-if="connected && showSuccess" @click="showSuccess = false">{{ $t("connexions.youtube.success") }}</div>
-			<div>{{ $t("connexions.youtube.header") }}</div>
 
 			<div class="card-item liveHolder" v-if="connected && broadcastList">
 				<template v-if="broadcastList.length > 0">
@@ -43,7 +46,7 @@
 				<a href="http://www.google.com/policies/privacy" target="_blank">{{ $t("connexions.youtube.policy") }}</a>
 			</div>
 		</div>
-	</component>
+	</div>
 </template>
 
 <script lang="ts">
@@ -180,14 +183,7 @@ export default toNative(ConnectYoutube);
 
 <style scoped lang="less">
 .connectyoutube{
-	:deep(.header) {
-		&>.icon {
-			//Google wants their logo to be at least 20px high
-			height: 20px;
-			width: auto;
-		}
-	}
-	.holder {
+	.content {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
@@ -263,16 +259,16 @@ export default toNative(ConnectYoutube);
 				}
 			}
 		}
-	}
-
-	.legal {
-		text-align: center;
-		&>* {
-			display: block;
-			&:not(:first-child) {
-				margin-top: .25em;
+		.legal {
+			text-align: center;
+			&>* {
+				display: block;
+				&:not(:first-child) {
+					margin-top: .25em;
+				}
 			}
 		}
 	}
+
 }
 </style>

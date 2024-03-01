@@ -1,35 +1,36 @@
 <template>
-	<ToggleBlock class="goxlrconnectform" :title="$t('goxlr.connect_form.title')" :open="opened" :icons="['info']">
-		<form @submit.prevent="connect()" v-if="!connected">
+	<div class="goxlrconnectform">
+		<form class="card-item" @submit.prevent="connect()" v-if="!connected">
 			<ParamItem :paramData="param_ip" @change="onIpChange()" />
+			
 			<i18n-t scope="global" class="card-item secondary" tag="div" v-if="securityWarning" keypath="goxlr.connect_form.ip_security">
 				<template #LINK>
 					<a :href="discordURL" target="_blank">{{ $t("goxlr.connect_form.ip_security_link") }}</a>
 				</template>
 			</i18n-t>
+
 			<ParamItem :paramData="param_port" />
+
 			<Button type="submit" :loading="connecting"
 			:disabled="!isPremium"
 			v-tooltip="!isPremium? $t('premium.restricted_access') : ''">{{ $t("global.connect") }}</Button>
 			<div class="card-item alert message error" v-if="error" @click="error = false">{{ $t("goxlr.connect_failed") }}</div>
 		</form>
 		<template v-else>
-			<div class="message">{{ $t("goxlr.connect_success") }}</div>
 			<Button class="disconnectBt" type="button"
 			@click="disconnect()" alert>{{ $t("global.disconnect") }}</Button>
 		</template>
-	</ToggleBlock>
+	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import GoXLRSocket from '@/utils/goxlr/GoXLRSocket';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ParamItem from '../../ParamItem.vue';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import StoreProxy from '@/store/StoreProxy';
 
 @Component({
 	components:{
@@ -58,11 +59,12 @@ import StoreProxy from '@/store/StoreProxy';
 		this.error = false;
 		this.connecting = true;
 		try {
-			await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
+			let res = await GoXLRSocket.instance.connect(this.param_ip.value, this.param_port.value).catch(()=> {
 				if(!this.$store.auth.isPremium) {
 					this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				}
 			});
+			if(!res) this.error = true;
 		}catch(error) {
 			console.log(error);
 			this.error = true;
@@ -99,14 +101,19 @@ export default toNative(GoXLRConnectForm);
 	
 	.disconnectBt {
 		margin: auto;
-		margin-top: .5em;
 		display: flex;
 	}
 
 	form {
+		margin: auto;
+		width: fit-content;
 		gap: .5em;
 		display: flex;
 		flex-direction: column;
+		:deep(.inputHolder), :deep(input) {
+			flex-basis: 150px !important;
+			flex-grow: unset;
+		}
 	}
 	.message {
 		text-align: center;

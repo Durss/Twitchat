@@ -1,35 +1,41 @@
 <template>
-	<ToggleBlock :open="open" class="connectspotifyform" title="Spotify" :icons="['spotify']">
-		<div class="holder">
-			<template v-if="!connected">
-				<div>{{ $t("connexions.spotify.usage") }}</div>
-				<div class="card-item secondary">{{ $t("connexions.spotify.usage_premium") }}</div>
-			</template>
-	
-			<div class="info" v-if="!connected && !authenticating">
-				<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
-					<template #URL>
-						<strong>
-							<a :href="$t('music.spotify_instructions')" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
-						</strong>
-					</template>
-				</i18n-t>
-			</div>
+	<div class="paramsspotify parameterContent">
+		<Icon name="spotify" alt="spotify icon" class="icon" />
 
-			<form @submit.prevent="authenticate()" v-if="!connected">
-				<ParamItem class="item" :paramData="paramClient" autofocus @change="authenticate(false)" />
-				<ParamItem class="item" :paramData="paramSecret" @change="authenticate(false)" />
-				<Button class="item" v-if="!connected && !authenticating"
+		<div class="head">
+				<div>{{ $t("connexions.spotify.usage") }}</div>
+			<div class="card-item needsPremium">{{ $t("connexions.spotify.usage_premium") }}</div>
+		</div>
+
+		<div class="content">
+			<a href="https://www.youtube.com/playlist?list=PLJsQIzUbrDiEDuQ66YhtM6C8D3hZKL629" target="_blank" class="youtubeTutorialBt">
+				<Icon name="youtube" theme="light" />
+				<span>{{ $t('overlay.youtube_demo_tt') }}</span>
+				<Icon name="newtab" theme="light" />
+			</a>
+			
+			<form class="card-item" v-if="!connected" @submit.prevent="authenticate()">
+				<div class="info" v-if="!authenticating">
+					<i18n-t scope="global" tag="div" keypath="connexions.spotify.how_to">
+						<template #URL>
+							<strong>
+								<a :href="$t('music.spotify_instructions')" target="_blank">{{ $t("connexions.spotify.how_to_read") }}</a>
+							</strong>
+						</template>
+					</i18n-t>
+				</div>
+	
+				<ParamItem class="item" :paramData="paramClient" autofocus @change="authenticate(false)" noba />
+				<ParamItem class="item" :paramData="paramSecret" @change="authenticate(false)" noba />
+				<TTButton v-if="!authenticating"
 					type="submit"
 					:loading="loading"
-					:disabled="!canConnect">{{ $t('global.connect') }}</Button>
+					:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
 			</form>
 
-			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
-	
-			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.spotify.success") }}</div>
+			<div class="card-item" v-else>
+				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.spotify.success") }}</div>
 
-			<template v-if="connected">
 				<i18n-t scope="global" tag="div" keypath="connexions.spotify.usage_connected">
 					<template #OVERLAY>
 						<a @click="openOverlays()">{{ $t("connexions.spotify.usage_connected_overlay") }}</a>
@@ -39,35 +45,35 @@
 					</template>
 				</i18n-t>
 
-				<div class="card-item secondary">{{ $t("connexions.spotify.usage_premium") }}</div>
+				<TTButton @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</TTButton>
+			</div>
 
-				<Button @click="disconnect()" icon="cross" alert>{{ $t('global.disconnect') }}</Button>
-			</template>
-	
+			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
+
 			<Icon v-if="authenticating" name="loader" />
-		</div>
 
-	</ToggleBlock>
+		</div>
+	</div>
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
+import Icon from '@/components/Icon.vue';
+import { TTButton } from '@/components/TTButton.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SpotifyHelper from '@/utils/music/SpotifyHelper';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../../ParamItem.vue';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import { ParamItem } from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ParamItem,
-		ToggleBlock,
 	},
 	emits:[],
 })
- class ConnectSpotifyForm extends Vue {
+class ConnectSpotify extends Vue {
 
 	public error = "";
 	public open = false;
@@ -135,24 +141,36 @@ import ParamItem from '../../ParamItem.vue';
 	public openTriggers():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 	}
-
 }
-export default toNative(ConnectSpotifyForm);
+export default toNative(ConnectSpotify);
 </script>
 
 <style scoped lang="less">
-.connectspotifyform{
-	.holder {
+.paramsspotify{
+	
+	.content {
+		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		align-items: center;
-		gap: 1em;
-
-		form {
+		
+		.card-item {
+			margin: auto;
+			max-width: 400px;
 			display: flex;
 			flex-direction: column;
+			align-items: center;
 			gap: .5em;
+			:deep(.inputHolder) {
+				flex-basis: 100%;
+			}
+			.item {
+				align-self: stretch;
+			}
 		}
+	}
+
+	.needsPremium {
+		background: var(--color-secondary-fader);
 	}
 }
 </style>

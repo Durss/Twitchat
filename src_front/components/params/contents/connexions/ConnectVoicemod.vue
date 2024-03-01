@@ -2,11 +2,13 @@
 	<div class="paramsvoicemod parameterContent">
 		<Icon name="voicemod" class="icon" />
 		
-		<i18n-t scope="global" class="head" tag="div" keypath="voicemod.header">
-			<template #LINK>
-				<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
-			</template>
-		</i18n-t>
+		<div class="head">
+			<i18n-t scope="global" tag="div" keypath="voicemod.header">
+				<template #LINK>
+					<a href="https://www.voicemod.net" target="_blank">{{ $t("voicemod.header_link") }}</a>
+				</template>
+			</i18n-t>
+		</div>
 
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
 
@@ -54,12 +56,12 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import Splitter from '../../Splitter.vue';
-import ParamItem from '../ParamItem.vue';
-import PermissionsForm from '../../PermissionsForm.vue';
+import Splitter from '../../../Splitter.vue';
+import ParamItem from '../../ParamItem.vue';
+import PermissionsForm from '../../../PermissionsForm.vue';
 import type { VoicemodTypes } from '@/utils/voice/VoicemodTypes';
-import type IParameterContent from './IParameterContent';
 import Icon from '@/components/Icon.vue';
+import type IParameterContent from '../IParameterContent';
 
 @Component({
 	components:{
@@ -70,7 +72,7 @@ import Icon from '@/components/Icon.vue';
 	},
 	emits:[]
 })
- class ParamsVoicemod extends Vue implements IParameterContent {
+ class ConnectVoicemod extends Vue implements IParameterContent {
 
 	public connected:boolean = false;
 	public connecting:boolean = false;
@@ -239,7 +241,7 @@ import Icon from '@/components/Icon.vue';
 		}
 	}
 }
-export default toNative(ParamsVoicemod);
+export default toNative(ConnectVoicemod);
 </script>
 
 <style scoped lang="less">

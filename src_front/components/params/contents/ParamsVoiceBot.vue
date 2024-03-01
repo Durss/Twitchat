@@ -18,7 +18,7 @@
 		
 		<div class="card-item alert connectObs" v-if="!obsConnected">
 			<div>{{ $t("voice.need_OBS") }}</div>
-			<Button class="button" icon="obs" light alert @click="$store.params.openParamsPage(contentObs)">{{ $t('voice.obs_connectBt') }}</Button>
+			<Button class="button" icon="obs" light alert @click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t('voice.obs_connectBt') }}</Button>
 		</div>
 	</div>
 </template>
@@ -42,7 +42,8 @@ import type IParameterContent from './IParameterContent';
 })
  class ParamsVoiceBot extends Vue implements IParameterContent {
 	
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get voiceApiAvailable():boolean { return VoiceController.instance.apiAvailable && !Config.instance.OBS_DOCK_CONTEXT; }

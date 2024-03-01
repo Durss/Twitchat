@@ -12,7 +12,7 @@
 			<h1>{{ $t('tips.streamdeck.title') }}</h1>
 			<div>{{ $t('tips.streamdeck.info_1') }}</div>
 			<div>{{ $t('tips.streamdeck.info_2') }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentStreamdeck)" >{{ $t('tips.tryBt') }}</TTButton>
+			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentStreamdeck)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===2" class="entry">
@@ -42,7 +42,7 @@
 			<h1>{{ $t('tips.obs.title') }}</h1>
 			<div>{{ $t('tips.obs.info_1') }}</div>
 			<div>{{ $t('tips.obs.info_2') }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentObs)" >{{ $t('tips.tryBt') }}</TTButton>
+			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentObs)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===6" class="entry">
@@ -124,8 +124,8 @@ import TTButton from '../TTButton.vue';
 	public get contentChatHighlight() { return TwitchatDataTypes.ParamDeepSections.HIGHLIGHT; }
 	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
-	public get contentObs() { return TwitchatDataTypes.ParameterPages.OBS; }
-	public get contentStreamdeck() { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
+	public get subcontentObs() { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get subcontentStreamdeck() { return TwitchatDataTypes.ParamDeepSections.STREAMDECK; }
 
 	public beforeMount():void {
 		this.tipIndex = Math.floor(Math.random()*(this.maxIndex+1));

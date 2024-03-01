@@ -44,7 +44,7 @@
 						<Icon name="info" class="paramIcon" />
 						<i18n-t scope="global" class="label" tag="span" keypath="emergency.actions.obs_connect">
 							<template #LINK>
-								<a @click="$store.params.openParamsPage(contentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
+								<a @click="$store.params.openParamsPage(contentConnexions, subcontentObs)">{{ $t("emergency.actions.obs_connect_link") }}</a>
 							</template>
 						</i18n-t>
 					</div>
@@ -142,7 +142,8 @@ import type IParameterContent from './IParameterContent';
 	}
 	
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get subcontentObs():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
 	public get userName():string { return this.$store.auth.twitch.user.login; } 
 	

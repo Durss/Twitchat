@@ -3,7 +3,7 @@
 		<div class="innerHolder">
 			<div v-if="isDonate || isDonateReminder" class="card-item primary sponsor">
 				<div class="header">
-					<ClearButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" v-if="$store.params.donationReminderEnabled" />
+					<ClearButton  @click.stop="deleteMessage()" v-if="$store.params.donationReminderEnabled" />
 					<div class="title">{{ $t('chat.sponsor.title') }}</div>
 				</div>
 				<div class="content" v-html="isDonateReminder? $t('chat.sponsor.head_reminder') : $t('chat.sponsor.head')"></div>
@@ -112,7 +112,7 @@
 	
 			<div v-if="isAdBreakScopeRequest" class="card-item primary adBreak">
 				<div class="header">
-					<ClearButton :aria-label="$t('changelog.closeBt_aria')" @click.stop="deleteMessage()" />
+					<ClearButton @click.stop="deleteMessage()" />
 					<div class="title"><img src="@/assets/icons/ad.svg" class="icon small"> {{ $t('chat.adBreakScope.header') }}</div>
 				</div>
 				<div class="content">
@@ -196,21 +196,8 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 	public get isDonor():boolean { return StoreProxy.auth.twitch.user.donor.state; }
 
-	public get contentAppearance():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.APPEARANCE; } 
-	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; } 
-	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; } 
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; } 
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; } 
-	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; } 
-	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; } 
-	public get contentOverlays():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OVERLAYS; } 
-	public get contentEmergency():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.EMERGENCY; } 
-	public get contentSpoiler():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.SPOILER; } 
-	public get contentAlert():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ALERT; } 
-	public get contentTts():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TTS; } 
-	public get contentVoice():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICE; } 
-	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; } 
 	public get contentMainMenu():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.MAIN_MENU; } 
 
 	public async getSvgIcon(name:string) {

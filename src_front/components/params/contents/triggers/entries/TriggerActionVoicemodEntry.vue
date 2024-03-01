@@ -4,7 +4,7 @@
 			<img src="@/assets/icons/info.svg" alt="info">
 			<i18n-t scope="global" class="label" tag="p" keypath="triggers.actions.voicemod.header">
 				<template #LINK>
-					<a @click="$store.params.openParamsPage(contentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
+					<a @click="$store.params.openParamsPage(contentConnexions, subcontentVM)">{{ $t("triggers.actions.voicemod.header_link") }}</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -52,7 +52,8 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 	private soundListItemIDToData:{[key:string]:{type:"id"|"placeholder", value:string}} = {};
 	
 	public get vmConnected():boolean { return VoicemodWebSocket.instance.connected; }
-	public get contentVM():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; } 
+	public get subcontentVM():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.VOICEMOD; }
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 
 	public beforeMount():void {
 		this.param_action.listValues = TriggerActionVoicemodDataActionList.map((v):TwitchatDataTypes.ParameterDataListValue<TriggerActionVoicemodDataAction>=> {

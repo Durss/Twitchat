@@ -8,7 +8,7 @@
 				@click="grantScopes()">{{ $t('overlay.heatDistort.grant_scopeBt') }}</Button>
 		</div>
 		
-		<a href="https://www.youtube.com/watch?v=p_DYIjclLCM" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/watch?v=p_DYIjclLCM" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />

@@ -1,38 +1,45 @@
 <template>
-	<ToggleBlock class="connectwebsocket" title="Trigger websocket" :icons="['broadcast']">
-		<div class="holder">
+	<div class="connectwebsocket parameterContent">
+		<Icon name="broadcast" alt="socket icon" class="icon" />
 
-			<div class="row">{{ $t("connexions.triggerSocket.usage") }}</div>
+		<div class="head">{{ $t("connexions.triggerSocket.usage") }}</div>
 
-			<form class="row" v-if="!connected" @submit.prevent="connect()">
-				<ParamItem class="item" :paramData="param_ip" autofocus @change="onChangeValue"/>
-				<ParamItem class="item" :paramData="param_port" @change="onChangeValue"/>
-				<ParamItem class="item" :paramData="param_secured" @change="onChangeValue"/>
+		<div class="content">
+			<form class="card-item" v-if="!connected" @submit.prevent="connect()">
+				<ParamItem noBackground :paramData="param_ip" autofocus @change="onChangeValue"/>
+				<ParamItem noBackground :paramData="param_port" @change="onChangeValue"/>
+				<ParamItem noBackground :paramData="param_secured" @change="onChangeValue"/>
 		
 				<div class="ctas">
-					<Button type="reset" v-if="!connected" alert
+					<TTButton type="reset" v-if="!connected" alert
 						@click="clearForm()"
 						:loading="connecting"
-						:disabled="!canConnect">{{ $t('global.clear') }}</Button>
-					<Button type="submit" v-if="!connected"
+						:disabled="!canConnect">{{ $t('global.clear') }}</TTButton>
+					<TTButton type="submit" v-if="!connected"
 						:loading="connecting"
-						:disabled="!canConnect">{{ $t('global.connect') }}</Button>
+						:disabled="!canConnect">{{ $t('global.connect') }}</TTButton>
 				</div>
 			</form>
-	
-			<div class="card-item primary" v-if="connected && showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
 			
 			<div class="card-item alert" v-if="error" @click="error=false">{{$t("error.trigger_socket")}}</div>
+	
+			<template v-if="connected">
+				<div class="card-item primary" v-if="showSuccess">{{ $t("connexions.triggerSocket.success") }}</div>
 
-			<Button class="connectBt" v-if="connected" @click="disconnect()">{{ $t('global.disconnect') }}</Button>
+				<div class="card-item infos">
+					<div><strong>{{ $t(param_ip.labelKey!) }}</strong>: {{param_ip.value}}</div>
+					<div><strong>{{ $t(param_port.labelKey!) }}</strong>: {{param_port.value}}</div>
+				</div>
+	
+				<TTButton class="connectBt" alert @click="disconnect()">{{ $t('global.disconnect') }}</TTButton>
+			</template>
 		</div>
 
-	</ToggleBlock>
+	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock from '@/components/ToggleBlock.vue';
 import DataStore from '@/store/DataStore';
 import type { SocketParams } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
@@ -42,8 +49,7 @@ import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
-		ToggleBlock,
+		TTButton,
 		ParamItem,
 	},
 	emits:[],
@@ -112,13 +118,13 @@ export default toNative(ConnectWebsocket);
 
 <style scoped lang="less">
 .connectwebsocket{
-	.holder {
+	.content {
 		display: flex;
 		flex-direction: column;
 		align-items: center;
 		gap: 1em;
 	
-		.row {
+		form {
 			display: flex;
 			flex-direction: column;
 			gap:.5em;
@@ -128,6 +134,12 @@ export default toNative(ConnectWebsocket);
 			display: flex;
 			flex-direction: row;
 			justify-content: center;
+		}
+
+		.infos {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
 		}
 	}
 	

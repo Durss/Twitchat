@@ -1,6 +1,6 @@
 <template>
 	<div class="overlayparamshighlight overlayParamsSection">
-		<a href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank" class="youtubeBt">
+		<a href="https://www.youtube.com/watch?v=Yv3ACHtNj3Q" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />

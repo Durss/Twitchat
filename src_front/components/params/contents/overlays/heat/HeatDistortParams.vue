@@ -155,7 +155,7 @@ import OverlayInstaller from '../OverlayInstaller.vue';
 	}
 
 	public openHeat():void {
-		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.HEAT);
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
 	}
 
 	public async onObsSourceCreated(data:{sourceName:string}):Promise<void> {

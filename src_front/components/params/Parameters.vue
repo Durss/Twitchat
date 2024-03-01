@@ -79,8 +79,6 @@
 					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
 				<ParamsList v-if="isGenericListContent || filteredParams.length > 0" :category="content" :filteredParams="filteredParams" ref="currentContent" />
-				<ParamsStreamdeck v-if="content == contentStreamdeck" ref="currentContent" />
-				<ParamsOBS v-if="content == contentObs" ref="currentContent" />
 				<ParamsEmergency v-if="content == contentEmergency" ref="currentContent" />
 				<ParamsTTS v-if="content == contentTts" ref="currentContent" />
 				<ParamsSpoiler v-if="content == contentSpoiler" ref="currentContent" />
@@ -90,17 +88,12 @@
 				<ParamsOverlays v-if="content == contentOverlays" ref="currentContent" />
 				<ParamsTriggers v-if="content == contentTriggers" ref="currentContent" />
 				<ParamsVoiceBot v-if="content == contentVoice" ref="currentContent" />
-				<ParamsVoicemod v-if="content == contentVoicemod" ref="currentContent" />
 				<ParamsAutomod v-if="content == contentAutomod" ref="currentContent" />
 				<ParamsCounters v-if="content == contentCounters" ref="currentContent" />
-				<ParamsConnexions v-if="content == contentConnexions" ref="currentContent" />
-				<ParamsHeat v-if="content == contentHeat" ref="currentContent" />
-				<ParamsGoXLR v-if="content == contentGoXLR" ref="currentContent" />
-				<ParamsYoutube v-if="content == contentYoutube" ref="currentContent" />
+				<ParamsConnections v-if="content == contentConnexions" ref="currentContent" />
 				<ParamsPremium v-if="content == contentPremium" ref="currentContent" />
 				<ParamsDonate v-if="content == contentDonate" ref="currentContent" />
 				<ParamsValues v-if="content == contentValues" ref="currentContent" />
-				<ParamsDiscord v-if="content == contentDiscord" ref="currentContent" />
 
 				<div class="searchResult" v-if="search">
 					<div class="noResult" v-if="filteredParams.length == 0">{{ $t("params.search_no_result") }}</div>
@@ -133,61 +126,47 @@ import ParamsAbout from './contents/ParamsAbout.vue';
 import ParamsAccount from './contents/ParamsAccount.vue';
 import ParamsAlert from './contents/ParamsAlert.vue';
 import ParamsAutomod from './contents/ParamsAutomod.vue';
-import ParamsConnexions from './contents/ParamsConnexions.vue';
+import ParamsConnections from './contents/ParamsConnections.vue';
 import ParamsCounters from './contents/ParamsCounters.vue';
 import ParamsDonate from './contents/ParamsDonate.vue';
 import ParamsEmergency from './contents/ParamsEmergency.vue';
-import ParamsGoXLR from './contents/ParamsGoXLR.vue';
-import ParamsHeat from './contents/ParamsHeat.vue';
 import ParamsList from './contents/ParamsList.vue';
-import ParamsOBS from './contents/ParamsOBS.vue';
 import ParamsOverlays from './contents/ParamsOverlays.vue';
 import ParamsPremium from './contents/ParamsPremium.vue';
 import ParamsSpoiler from './contents/ParamsSpoiler.vue';
-import ParamsStreamdeck from './contents/ParamsStreamdeck.vue';
 import ParamsTTS from './contents/ParamsTTS.vue';
 import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
-import ParamsVoicemod from './contents/ParamsVoicemod.vue';
 import draggable from 'vuedraggable';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
-import ParamsYoutube from './contents/ParamsYoutube.vue';
-import ParamsDiscord from './contents/ParamsDiscord.vue';
 
 @Component({
 	components:{
 		draggable,
 		TTButton,
-		ParamsOBS,
 		ParamsTTS,
 		DonorState,
-		ParamsHeat,
 		ParamsList,
 		ClearButton,
 		ParamsAbout,
 		ParamsAlert,
-		ParamsGoXLR,
 		ParamsDonate,
 		ParamsValues,
-		ParamsDiscord,
 		ParamsPremium,
 		ParamsAutomod,
 		ParamsSpoiler,
 		ParamsAccount,
 		ThemeSelector,
-		ParamsYoutube,
 		ParamsCounters,
 		ParamsOverlays,
 		ParamsTriggers,
 		ParamsVoiceBot,
-		ParamsVoicemod,
 		ParamsEmergency,
-		ParamsStreamdeck,
 		ParamsTwitchatAd,
-		ParamsConnexions,
+		ParamsConnections,
 	}
 })
 
@@ -207,17 +186,10 @@ import ParamsDiscord from './contents/ParamsDiscord.vue';
 		{pinned:false, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
 		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_overlays_1'}},
 		{pinned:false, icon:"tts", page:TwitchatDataTypes.ParameterPages.TTS, labelKey:'params.categories.tts'},
-		{pinned:false, icon:"obs", page:TwitchatDataTypes.ParameterPages.OBS, labelKey:'params.categories.obs', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_obs'}},
-		{pinned:false, icon:"heat", page:TwitchatDataTypes.ParameterPages.HEAT, labelKey:'params.categories.heat', newflag:{date:1693519200000, id:'params_heat'}},
-		{pinned:true, icon:"voicemod", page:TwitchatDataTypes.ParameterPages.VOICEMOD, labelKey:'params.categories.voicemod'},
-		{pinned:true, icon:"elgato", page:TwitchatDataTypes.ParameterPages.STREAMDECK, labelKey:'params.categories.streamdeck'},
-		{pinned:true, icon:"goxlr", page:TwitchatDataTypes.ParameterPages.GOXLR, labelKey:'params.categories.goxlr', premium:true, newflag:{date:1693519200000, id:'params_goxlr'}},
-		{pinned:true, icon:"youtube", page:TwitchatDataTypes.ParameterPages.YOUTUBE, labelKey:'params.categories.youtube', premium:true, newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_youtube'}},
-		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions'},
+		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_about'}},
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
 		{pinned:false, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
-		{pinned:false, icon:"discord", page:TwitchatDataTypes.ParameterPages.DISCORD, labelKey:'params.categories.discord', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_discord'}},
 		{pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary", fixed:true},
 		{pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium", fixed:true},
 	];
@@ -233,12 +205,7 @@ import ParamsDiscord from './contents/ParamsDiscord.vue';
 	public get contentAccount():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ACCOUNT; }
 	public get contentAbout():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.ABOUT; }
 	public get contentFeatures():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.FEATURES; }
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; }
-	public get contentHeat():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.HEAT; }
-	public get contentVoicemod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VOICEMOD; }
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE; }
-	public get contentStreamdeck():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.STREAMDECK; }
-	public get contentGoXLR():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.GOXLR; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get contentCounters():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.COUNTERS; }
 	public get contentValues():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.VALUES; }
@@ -251,8 +218,6 @@ import ParamsDiscord from './contents/ParamsDiscord.vue';
 	public get contentAutomod():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.AUTOMOD; }
 	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM; }
-	public get contentYoutube():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.YOUTUBE; }
-	public get contentDiscord():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DISCORD; }
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;

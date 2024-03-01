@@ -27,7 +27,7 @@
 				<span class="index">3.</span>
 				<i18n-t scope="global" tag="span" keypath="streamdeck.step_3">
 					<template #TAB_LINK>
-						<a @click="$store.params.openParamsPage(contentObs)">{{ $t("streamdeck.step_3_tab_link") }}</a>
+						<a @click="$store.params.openParamsPage(contentConnexions, subcontentOBS)">{{ $t("streamdeck.step_3_tab_link") }}</a>
 					</template>
 				</i18n-t>
 			</li>
@@ -53,7 +53,7 @@ import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import type IParameterContent from './IParameterContent';
+import type IParameterContent from '../IParameterContent';
 
 @Component({
 	components:{
@@ -62,14 +62,15 @@ import type IParameterContent from './IParameterContent';
 	},
 	emits:[]
 })
- class ParamsStreamdeck extends Vue implements IParameterContent {
+ class ConnectStreamdeck extends Vue implements IParameterContent {
 	
-	public get contentObs():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.OBS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get subcontentOBS():TwitchatDataTypes.ParamDeepSectionsStringType { return TwitchatDataTypes.ParamDeepSections.OBS; } 
 
 	public onNavigateBack(): boolean { return false; }
 
 }
-export default toNative(ParamsStreamdeck);
+export default toNative(ConnectStreamdeck);
 </script>
 
 <style scoped lang="less">

@@ -5,7 +5,7 @@
 		<div class="head">
 			<p>{{ $t("heat.header") }}</p>
 			<Button class="installBt" :href="$config.HEAT_EXTENSION"
-				type="link" secondary
+				type="link" primary
 				icon="newtab"
 				target="_blank">{{ $t("heat.install") }}</Button>
 		</div>
@@ -38,12 +38,12 @@ import TTButton from '@/components/TTButton.vue';
 import DataStore from '@/store/DataStore';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import HeatSocket from '@/utils/twitch/HeatSocket';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import ParamItem from '../ParamItem.vue';
-import HeatOverlayClick from './heat/HeatOverlayClick.vue';
-import HeatScreenList from './heat/HeatScreenList.vue';
 import type { StyleValue } from 'vue';
-import HeatDebug from './heat/HeatDebug.vue';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
+import HeatDebug from './../heat/HeatDebug.vue';
+import HeatOverlayClick from './../heat/HeatOverlayClick.vue';
+import HeatScreenList from './../heat/HeatScreenList.vue';
 
 @Component({
 	components:{
@@ -55,7 +55,7 @@ import HeatDebug from './heat/HeatDebug.vue';
 	},
 	emits:[],
 })
- class ParamsHeat extends Vue {
+ class ConnectHeat extends Vue {
 	
 	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
@@ -126,7 +126,7 @@ import HeatDebug from './heat/HeatDebug.vue';
 	}
 
 }
-export default toNative(ParamsHeat);
+export default toNative(ConnectHeat);
 </script>
 
 <style scoped lang="less">
