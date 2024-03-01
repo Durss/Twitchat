@@ -14,6 +14,11 @@
 			<TTButton class="button" @click="latestUpdates()" icon="update">{{ $t('account.updatesBt') }}</TTButton>
 			<TTButton class="button" @click="ahs()" icon="twitchat" v-if="canInstall">{{ $t('account.installBt') }}</TTButton>
 		</section>
+
+		<section class="card-item">
+			<div class="title">{{ $t('account.language') }}</div>
+			<AppLangSelector />
+		</section>
 		
 		<section class="card-item scopes">
 			<div class="title"><Icon name="lock_fit" class="icon" />{{$t("account.authorization")}}</div>
@@ -27,11 +32,6 @@
 				:loading="generatingCSRF"
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				icon="twitch">{{ $t('login.authorizeBt') }}</TTButton>
-		</section>
-
-		<section class="card-item">
-			<div class="title">{{ $t('account.language') }}</div>
-			<AppLangSelector />
 		</section>
 
 		<section v-if="isDonor" class="card-item donorState">

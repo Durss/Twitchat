@@ -61,7 +61,7 @@
 			<h1>{{ $t('tips.music.title') }}</h1>
 			<div v-html="$t('tips.music.info_1')"></div>
 			<div>{{ $t('tips.music.info_2') }}</div>
-			<TTButton primary light @click.stop="openParamPage(contentConnexions)" >{{ $t('tips.tryBt') }}</TTButton>
+			<TTButton primary light @click.stop="openParamPage(contentConnexions, subcontentSpotify)" >{{ $t('tips.tryBt') }}</TTButton>
 		</div>
 		
 		<div v-if="tipIndex===8" class="entry">
@@ -125,6 +125,7 @@ import TTButton from '../TTButton.vue';
 	public get contentConnexions() { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 	public get contentTriggers() { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
 	public get subcontentObs() { return TwitchatDataTypes.ParamDeepSections.OBS; }
+	public get subcontentSpotify() { return TwitchatDataTypes.ParamDeepSections.SPOTIFY; }
 	public get subcontentStreamdeck() { return TwitchatDataTypes.ParamDeepSections.STREAMDECK; }
 
 	public beforeMount():void {
