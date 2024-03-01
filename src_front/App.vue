@@ -11,15 +11,13 @@
 </template>
 
 <script lang="ts">
+import gsap from 'gsap';
 import { watch, type VNode } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
-import gsap from 'gsap';
-import MessengerProxy from './messaging/MessengerProxy';
-import Utils from './utils/Utils';
-import EventSub from './utils/twitch/EventSub';
+import SetIntervalWorker from './utils/SetIntervalWorker';
 
 
 @Component({
@@ -63,7 +61,6 @@ import EventSub from './utils/twitch/EventSub';
 		this.onWindowResize();
 		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
-
 		
 		if(this.demoMode) {
 			// document.addEventListener("keydown", (e)=>{

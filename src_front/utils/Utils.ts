@@ -1,15 +1,16 @@
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerTypesDefinitionList, TriggerTypes, type TriggerData, type TriggerTypeDefinition, TriggerEventPlaceholders, type ITriggerPlaceholder } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, TriggerTypesDefinitionList, type ITriggerPlaceholder, type TriggerData, type TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { JsonObject } from 'type-fest';
+import TriggerActionHandler from './triggers/TriggerActionHandler';
 import { TwitchScopes } from './twitch/TwitchScopes';
 import TwitchUtils from './twitch/TwitchUtils';
-import TriggerActionHandler from './triggers/TriggerActionHandler';
 
 /**
  * Created by Durss
  */
 export default class Utils {
+
 
 	/**
 	 * Check if user browser them is light mode

@@ -6,10 +6,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import SetIntervalWorker from '@/utils/SetIntervalWorker';
 
 
 let socket:WebSocket|undefined = undefined;
-let pingInterval:number = -1;
+let pingInterval:string = "";
 let reconnectTimeout:number = -1;
 let reconnectAttempts:number = 0;
 let isAutoInit:boolean = false;
@@ -87,8 +88,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						if(code == "0") {
 							const message = json as StreamlabsWelcomeData;
 							//Send PING command regularly
-							clearInterval(pingInterval)
-							pingInterval = setInterval(()=>{
+							if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+							pingInterval = SetIntervalWorker.instance.create(()=>{
 								socket?.send("2");
 							}, message.pingInterval || 10000);
 						}else
@@ -188,7 +189,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					if(!autoReconnect) return;
 	
 					this.connected = false;
-					clearInterval(pingInterval);
+					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
 					reconnectTimeout = setTimeout(()=> {
@@ -202,7 +203,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					this.connected = false;
 					if(!autoReconnect) return;
 					reconnectAttempts ++;
-					clearInterval(pingInterval);
+					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
 					reconnectTimeout = setTimeout(()=> {
 						socket = undefined;
@@ -215,8 +216,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		disconnect():void {
 			autoReconnect = false;
 			this.connected = false;
-			clearInterval(pingInterval);
-			clearInterval(reconnectTimeout);
+			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();
 		},
 

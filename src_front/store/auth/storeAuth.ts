@@ -15,6 +15,7 @@ import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import SetIntervalWorker from "@/utils/SetIntervalWorker";
 
 let refreshTokenTO:number = -1;
 
@@ -239,7 +240,7 @@ export const storeAuth = defineStore('auth', {
 						}
 					};
 					loadFollowers();
-					setInterval(()=>loadFollowers(), 5 * 60000);
+					const id = SetIntervalWorker.instance.create(()=>loadFollowers(), 5 * 60000);
 				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
@@ -250,7 +251,7 @@ export const storeAuth = defineStore('auth', {
 						this.totalSubscribers[uid] = res.subs;
 					};
 					loadSubscribers();
-					setInterval(()=>loadSubscribers(), 5 * 60000);
+					const id = SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
 				}
 
 				//Preload moderators of the channel and flag them accordingly

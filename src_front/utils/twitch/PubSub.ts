@@ -10,6 +10,7 @@ import TriggerActionHandler from '../triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from './PubSubDataTypes';
 import { TwitchScopes } from './TwitchScopes';
 import * as Sentry from "@sentry/vue";
+import SetIntervalWorker from '../SetIntervalWorker';
 
 /**
 * Created : 13/01/2022 
@@ -18,7 +19,7 @@ export default class PubSub extends EventDispatcher {
 
 	private static _instance:PubSub;
 	private socket!:WebSocket;
-	private pingInterval:number = -1;
+	private pingInterval:string = "";
 	private reconnectTimeout:number = -1;
 	private hypeTrainApproachingTimer!:number;
 	private hypeTrainProgressTimer!:number;
@@ -61,8 +62,8 @@ export default class PubSub extends EventDispatcher {
 		this.socket.onopen = async () => {
 			//It's required to ping the server at least every 5min
 			//to keep the connection alive
-			clearInterval(this.pingInterval);
-			this.pingInterval = window.setInterval(() => {
+			if(this.pingInterval) SetIntervalWorker.instance.delete(this.pingInterval);
+			this.pingInterval = SetIntervalWorker.instance.create(()=>()=>{
 				this.ping();
 			}, 60000*4);
 
@@ -163,7 +164,7 @@ export default class PubSub extends EventDispatcher {
 		};
 		
 		this.socket.onclose = (event) => {
-			clearInterval(this.pingInterval);
+			if(this.pingInterval) SetIntervalWorker.instance.delete(this.pingInterval);
 			// if (event.wasClean) {
 			// 	alert(`[close] Connection closed cleanly, code=${event.code} reason=${event.reason}`);
 			// } else {

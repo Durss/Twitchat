@@ -4,6 +4,7 @@ import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import { TriggerScheduleTypes, TriggerTypes, type TriggerData } from "../types/TriggerActionDataTypes";
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
+import SetIntervalWorker from "./SetIntervalWorker";
 
 /**
 * Created : 02/09/2022 
@@ -13,7 +14,6 @@ export default class SchedulerHelper {
 	private static _instance:SchedulerHelper;
 	private _started:boolean = false;
 	private _pendingSchedules:{messageCount:number, date:number, trigger:TriggerData}[] = [];
-	private _prevExecute_ts:number = 0;
 	private _adScheduleTimeout?:number;
 	private _adSchedule!:TriggerData;
 	
@@ -180,7 +180,6 @@ export default class SchedulerHelper {
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
-		this.computeFrame();
 		
 		this._adSchedule = {
 			type:TriggerTypes.TWITCHAT_AD,
@@ -233,14 +232,10 @@ export default class SchedulerHelper {
 		this.scheduleTrigger(this._adSchedule);
 		this.scheduleTrigger(liveChannelsSchedule);
 		this.scheduleTrigger(shoutoutQueueSchedule);
+		SetIntervalWorker.instance.create(()=>this.computeFrame(), 5000);
 	}
 
 	private computeFrame():void {
-		requestAnimationFrame(()=>this.computeFrame());
-		//Execute process only once every 5s
-		if(Date.now() - this._prevExecute_ts < 5000) return;
-		this._prevExecute_ts = Date.now();
-
 		// const s = Date.now();
 		// console.log("1 > ", Date.now() - s);
 
