@@ -166,4 +166,15 @@ export default toNative(ParamsConnections);
 		}
 	}
 }
+
+@media only screen and (max-width: 420px) {
+	.paramsconnexions{
+		max-width: unset !important;
+		.content {
+			button {
+				width: 40%;
+			}
+		}
+	}
+}
 </style>
