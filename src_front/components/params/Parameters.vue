@@ -17,6 +17,7 @@
 				
 				<div class="editBtHolder">
 					<TTButton class="editModeBt" primary
+						v-newflag="showNewFlagOnPin? {date:$config.NEW_FLAGS_DATE_V12, id:'menu_pin_0'} : undefined"
 						@click="editPins = !editPins; hideCTA();"
 						v-tooltip="$t('params.customize_sections_tt')"
 						:icon="editPins? 'unpin' : 'pin'" />
@@ -41,6 +42,7 @@
 					<template #item="{element, index}:{element:MenuEntry, index:number}">
 						<div :class="element.fixed === true? 'entry fixed' : 'entry'" v-show="element.pinned || editPins">
 							<TTButton @click="openPage(element.page, true)"
+								class="menuItem"
 								v-newflag="element.newflag"
 								:class="[(element.premium ? 'premiumIndicator '+element.icon : element.icon), (element.pinned ? '' : 'disabled')].filter(v=>v!='').join(' ')"
 								:icon="editPins? 'dragZone' : element.icon"
@@ -175,12 +177,13 @@ import Config from '@/utils/Config';
 	public closed:boolean = true;
 	public showCTA:boolean = true;
 	public editPins:boolean = false;
+	public showNewFlagOnPin:boolean = false;
 	public filteredParams:TwitchatDataTypes.ParameterData<unknown>[] = [];
 	public menuEntries:MenuEntry[] = [
 		{pinned:true, icon:"params", page:TwitchatDataTypes.ParameterPages.FEATURES, labelKey:'params.categories.features', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatfeatures_1'}},
 		{pinned:true, icon:"show", page:TwitchatDataTypes.ParameterPages.APPEARANCE, labelKey:'params.categories.appearance', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_chatappearance'}},
 		{pinned:true, icon:"overlay", page:TwitchatDataTypes.ParameterPages.OVERLAYS, labelKey:'params.categories.overlays', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'params_overlays_1'}},
-		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_about'}},
+		{pinned:false, icon:"offline", page:TwitchatDataTypes.ParameterPages.CONNEXIONS, labelKey:'params.categories.connexions', newflag:{date:Config.instance.NEW_FLAGS_DATE_V12, id:'params_connexion'}},
 		{pinned:false, icon:"broadcast", page:TwitchatDataTypes.ParameterPages.TRIGGERS, labelKey:'params.categories.triggers', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_triggers_1'}},
 		{pinned:false, icon:"placeholder", page:TwitchatDataTypes.ParameterPages.VALUES, labelKey:'params.categories.values', newflag:{date:Config.instance.NEW_FLAGS_DATE_V11, id:'paramsparams_values'}},
 		{pinned:false, icon:"count", page:TwitchatDataTypes.ParameterPages.COUNTERS, labelKey:'params.categories.counters'},
@@ -301,6 +304,8 @@ import Config from '@/utils/Config';
 		this.keyDownCaptureHandler = (e:KeyboardEvent) => this.onKeyDown(e, true);
 		document.addEventListener("keydown", this.keyDownHandler);
 		document.addEventListener("keydown", this.keyDownCaptureHandler, {capture:true});
+
+		this.showNewFlagOnPin = this.$el.querySelectorAll(".menuItem.newFlag").length > 0
 	}
 
 	public beforeUnmount():void {
