@@ -95,6 +95,7 @@
 			"INVALID_USER":"Vous n'êtes pas autorisé·e à utiliser ce code",
 			"GUILD_COMMAND_CREATE_FAILED":"Une erreur est survenue lors de la création des commands Discord",
 			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon \"{CHANNEL}\""
-		}
+		},
+		"streamlabs_connect_failed":"Authentication échouée.\nVérifiez que le jeton est correct."
 	}
 }

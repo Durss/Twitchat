@@ -13,6 +13,8 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
+import type { DiscordStoreData } from "./discord/storeDiscord";
+import type { SreamlabsStoreData } from "./streamlabs/storeStreamlabs";
 
 /**
 * Created : 23/09/2022 
@@ -52,6 +54,7 @@ export default class StoreProxy {
 	public static extension:IExtensionState & IExtensionGetters & IExtensionActions & {$state:IExtensionState, $reset:()=>void};
 	public static qna:IQnaState & IQnaGetters & IQnaActions & {$state:IQnaState, $reset:()=>void};
 	public static discord:IDiscordState & IDiscordGetters & IDiscordActions & {$state:IDiscordState, $reset:()=>void};
+	public static streamlabs:IStreamlabsState & IStreamlabsGetters & IStreamlabsActions & {$state:IStreamlabsState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -2095,12 +2098,71 @@ export interface IDiscordGetters {
 }
 
 export interface IDiscordActions {
+	/**
+	 * Init the discord link state
+	 */
 	initialize():Promise<void>;
+	/**
+	 * Checks if the given code is valid for the current user
+	 * @param code 
+	 */
 	validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}>;
+	/**
+	 * Submit the given code to confirm discord link
+	 * @param code 
+	 */
 	submitCode(code:string):Promise<true|string>;
+	/**
+	 * Remove the lmink with discord
+	 */
 	unlinkDiscord():Promise<true|string>;
-	populateData(data:IDiscordState):void;
+	/**
+	 * Populates the store from user's data
+	 * @param data 
+	 */
+	populateData(data:DiscordStoreData):void;
+	/**
+	 * Create a new quick action
+	 */
 	addQuickAction():void;
+	/**
+	 * Delete the given quick action
+	 * @param action 
+	 */
 	delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void;
+	/**
+	 * Trigger a save of the params to server
+	 */
 	saveParams():void;
+}
+
+
+
+
+export interface IStreamlabsState {
+	token:string;
+	connected:boolean;
+}
+
+export interface IStreamlabsGetters {
+}
+
+export interface IStreamlabsActions {
+	/**
+	 * Populates the store from user's data
+	 * @param data 
+	 */
+	populateData(data:SreamlabsStoreData):void;
+	/**
+	 * Connect to WS with given token
+	 */
+	connect(token:string, isReconnect?:boolean):Promise<boolean>;
+	/**
+	 * Disconnects from streamlabs
+	 */
+	disconnect():void;
+	/**
+	 * Saves current data to server
+	 */
+	saveData():void;
 }

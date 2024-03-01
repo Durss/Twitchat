@@ -30,6 +30,7 @@ import { storeChatSuggestion } from './store/chatSugg/storeChatSuggestion';
 import { storeCounters } from './store/counters/storeCounters';
 import DataStore from './store/DataStore';
 import { storeDebug } from './store/debug/storeDebug';
+import { storeDiscord } from './store/discord/storeDiscord';
 import { storeEmergency } from './store/emergency/storeEmergency';
 import { storeExtension } from './store/extension/storeExtension';
 import { storeHeat } from './store/heat/storeHeat';
@@ -43,8 +44,9 @@ import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IDiscordActions, type IDiscordGetters, type IDiscordState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
-import { storeQna } from './store/storeQna/storeQna';
-import { storeValues } from './store/storeValues/storeValues';
+import { storeQna } from './store/qna/storeQna';
+import { storeStreamlabs } from './store/streamlabs/storeStreamlabs';
+import { storeValues } from './store/values/storeValues';
 import { storeStream } from './store/stream/storeStream';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
@@ -54,7 +56,6 @@ import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
-import { storeDiscord } from './store/discord/storeDiscord';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -246,6 +247,7 @@ function buildApp() {
 	StoreProxy.qna = storeQna();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.discord = (storeDiscord() as unknown) as IDiscordState & IDiscordGetters & IDiscordActions & { $state: IDiscordState; $reset:()=>void };
+	StoreProxy.streamlabs = storeStreamlabs();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -281,6 +283,7 @@ function buildApp() {
 		extension:			StoreProxy.extension,
 		qna:				StoreProxy.qna,
 		discord:			StoreProxy.discord,
+		streamlabs:			StoreProxy.streamlabs,
 	}
 	
 	app.use(router)

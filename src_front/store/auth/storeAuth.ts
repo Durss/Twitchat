@@ -173,6 +173,8 @@ export const storeAuth = defineStore('auth', {
 				const sStream = StoreProxy.stream;
 				const sRewards = StoreProxy.rewards;
 				const sExtension = StoreProxy.extension;
+
+				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				
 				try {
 					window.setInitMessage("migrating local parameter data");
@@ -195,6 +197,7 @@ export const storeAuth = defineStore('auth', {
 				}catch(error) {
 					sMain.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
 					console.log(error);
+					return;
 				}
 
 				DataStore.set(DataStore.DONOR_LEVEL, this.twitch.user.donor.level);
@@ -202,7 +205,6 @@ export const storeAuth = defineStore('auth', {
 				MessengerProxy.instance.connect();
 				PubSub.instance.connect();
 				EventSub.instance.connect();
-				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 				sRewards.loadRewards();
 				sExtension.init();
 				sStream.loadStreamInfo("twitch", this.twitch.user.id);

@@ -140,6 +140,7 @@ export default toNative(ParamsConnections);
 		align-items: center;
 		// align-items: flex-start;
 		button {
+			padding: 1em;
 			gap:.5em;
 			display: flex;
 			flex-direction: column;

@@ -846,6 +846,7 @@ export const storeMain = defineStore("main", {
 			const sTriggers = StoreProxy.triggers;
 			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
+			const sStreamalbs = StoreProxy.streamlabs;
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
 			for (const cat in sParams.$state) {
@@ -1092,7 +1093,12 @@ export const storeMain = defineStore("main", {
 			if(discordParams) {
 				sDiscord.populateData(JSON.parse(discordParams));
 			}
-			
+
+			//Init streamlabs params
+			const streamlabsParams = DataStore.get(DataStore.STREAMLABS);
+			if(streamlabsParams) {
+				sStreamalbs.populateData(JSON.parse(streamlabsParams));
+			}
 
 			Database.instance.connect().then(async ()=> {
 				await StoreProxy.chat.preloadMessageHistory();

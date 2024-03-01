@@ -7,7 +7,7 @@
 
 		<div class="hoverActions" v-if="!expand">
 			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
-			v-newflag="{id:'messagefilters', date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
+			v-newflag="{id:'messagefilters_'+Math.max(...filters.map(v=>v.storage!.newFlag)), date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
@@ -243,7 +243,7 @@ export class MessageListFilter extends Vue {
 			const f = filterList[i];
 			const children:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
 			const paramData:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]> = {type:"boolean",
-								value:this.config.filters[f.type],
+								value:this.config.filters[f.type] || true,
 								labelKey:f.labelKey,
 								icon:f.icon,
 								twitch_scopes:f.scopes.length > 0? undefined : f.scopes.concat(),

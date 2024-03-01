@@ -150,6 +150,10 @@
 	<ChatCustomMessage class="message"
 		v-else-if="messageData.type == 'custom'"
 		:messageData="messageData" />
+
+	<ChatStreamlabsEvent class="message"
+		v-else-if="messageData.type == 'streamlabs'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -193,6 +197,7 @@ import ChatHistorySplitter from './ChatHistorySplitter.vue';
 import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
 import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
 import ChatCustomMessage from './ChatCustomMessage.vue';
+import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
 
 @Component({
 	components:{
@@ -224,6 +229,7 @@ import ChatCustomMessage from './ChatCustomMessage.vue';
 		ChatCommunityBoost,
 		ChatScopeRequester,
 		ChatHistorySplitter,
+		ChatStreamlabsEvent,
 		ChatFollowbotEvents,
 		ChatHypeTrainResult,
 		ChatCountdownResult,

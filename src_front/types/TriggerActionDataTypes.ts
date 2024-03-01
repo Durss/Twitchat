@@ -254,6 +254,7 @@ export const TriggerEventTypeCategories = {
 	MISC:			{id:11, labelKey:"triggers.categories.misc", icons:["broadcast"]} as TriggerEventTypeCategory,
 	COUNTER_VALUE:	{id:12, labelKey:"triggers.categories.count_and_values", icons:["count", "placeholder"]} as TriggerEventTypeCategory,
 	GOXLR:			{id:13, labelKey:"triggers.categories.goxlr", icons:["goxlr"]} as TriggerEventTypeCategory,
+	STREAMLABS:		{id:14, labelKey:"triggers.categories.streamlabs", icons:["streamlabs"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1057,6 +1058,9 @@ export const TriggerTypes = {
 	USER_JOIN:"100",//private undocument trigger type
 	USER_LEAVE:"101",//private undocument trigger type
 	CREDITS_COMPLETE:"102",
+	STREAMLABS_DONATION:"103",
+	STREAMLABS_MERCH:"104",
+	STREAMLABS_PATREON_PLEDGE:"105",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1499,6 +1503,29 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.QNA_DELETE] = [
 		{tag:"COMMAND", descKey:'triggers.placeholders.qna_command', pointer:"qnaSession.command", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageQnaStartData | TwitchatDataTypes.MessageQnaStopData | TwitchatDataTypes.MessageQnaDeleteData>,
 	];
+	
+	map[TriggerTypes.STREAMLABS_DONATION] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+	];
+	map[TriggerTypes.STREAMLABS_MERCH] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"PRODUCT", descKey:'triggers.placeholders.merch_product', pointer:"product", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsMerchData>,
+	];
+	map[TriggerTypes.STREAMLABS_PATREON_PLEDGE] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
+	];
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
@@ -1745,6 +1772,9 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.label", value:TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED, descriptionKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_DONATION.label", value:TriggerTypes.STREAMLABS_DONATION, descriptionKey:"triggers.events.STREAMLABS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_MERCH.label", value:TriggerTypes.STREAMLABS_MERCH, descriptionKey:"triggers.events.STREAMLABS_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.label", value:TriggerTypes.STREAMLABS_PATREON_PLEDGE, descriptionKey:"triggers.events.STREAMLABS_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON, goxlrMiniCompatible:true},

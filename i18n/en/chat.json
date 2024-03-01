@@ -101,7 +101,8 @@
 				"user_watch_streak": "Consecutive watch streak",
 				"stream_online": "Stream online/offline",
 				"hype_chat": "Hype chat",
-				"ad_break_start_chat": "Ad break started manually"
+				"ad_break_start_chat": "Ad break started manually",
+				"streamlabs": "Streamlabs events"
 			},
 			"message_filters": {
 				"viewers": "Sent by viewers",
@@ -412,6 +413,11 @@
 		},
 		"ad_break_start": {
 			"label": "{USER} started a {DURATION}s ad break"
+		},
+		"streamlabs": {
+			"donation": "{USER} made a {AMOUNT} donation on Streamlabs",
+			"merch": "{USER} bought {PRODUCT} on Streamlabs",
+			"patreon_pledge": "{USER} subscribed on Patreon for {AMOUNT}"
 		}
 	}
 }

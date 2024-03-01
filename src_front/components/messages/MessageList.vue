@@ -272,7 +272,7 @@ import { Linear } from 'gsap/all';
 
 		let noConfig = true;
 		for (const key in this.config.filters) {
-			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]] === true) {
+			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"]] === true) {
 				noConfig = false;
 				break;
 			}
@@ -666,6 +666,10 @@ import { Linear } from 'gsap/all';
 			
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
 				return this.config.filters.ad_break_start_chat === true;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+				return this.config.filters.streamlabs !== false;
 			}
 			
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {

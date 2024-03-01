@@ -93,6 +93,7 @@ export default class DataStore {
 	public static BITS_WALL_PARAMS:string = "bitsWallParams";
 	public static AB_SENTRY:string = "ab_sentry";
 	public static DISCORD_PARAMS:string = "discordParams";
+	public static STREAMLABS:string = "streamlabs";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

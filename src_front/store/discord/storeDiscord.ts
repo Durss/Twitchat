@@ -81,7 +81,7 @@ export const storeDiscord = defineStore('discord', {
 			}
 			return "UNKNOWN"
 		},
-		populateData(data:IDiscordState):void {
+		populateData(data:DiscordStoreData):void {
 			this.chatCols = data.chatCols || [];
 			this.banLogTarget = data.banLogTarget || "";
 			this.chatCmdTarget = data.chatCmdTarget || "";
@@ -107,7 +107,7 @@ export const storeDiscord = defineStore('discord', {
 			}).catch(error=>{})
 		},
 		saveParams():void {
-			DataStore.set(DataStore.DISCORD_PARAMS, {
+			const data:DiscordStoreData = {
 				chatCols:this.chatCols,
 				banLogTarget:this.banLogTarget,
 				banLogThread:this.banLogThread,
@@ -115,8 +115,8 @@ export const storeDiscord = defineStore('discord', {
 				logChanTarget:this.logChanTarget,
 				reactionsEnabled:this.reactionsEnabled,
 				quickActions:this.quickActions,
-			});
-			DataStore.save();
+			};
+			DataStore.set(DataStore.DISCORD_PARAMS, data);
 		}
 	} as IDiscordActions
 	& ThisType<IDiscordActions
@@ -126,3 +126,13 @@ export const storeDiscord = defineStore('discord', {
 		& PiniaCustomProperties
 	>,
 })
+
+export interface DiscordStoreData {
+	chatCols:number[];
+	banLogThread:boolean;
+	banLogTarget:string;
+	chatCmdTarget:string;
+	logChanTarget:string;
+	reactionsEnabled:boolean;
+	quickActions:TwitchatDataTypes.DiscordQuickActionData[];
+}

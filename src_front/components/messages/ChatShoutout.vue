@@ -36,7 +36,7 @@
 
 			<div class="streamInfo">
 				<div class="infos" v-if="messageData.stream.title">
-					<div class="title quote">
+					<div class="quote">
 						<span>{{messageData.stream.title}}</span>
 						<div class="details" v-if="messageData.stream.category">
 							<p class="category">{{messageData.stream.category}}</p>

@@ -101,7 +101,8 @@
 				"user_watch_streak": "Streams consécutifs vus",
 				"stream_online": "Stream commencé/arrêté",
 				"hype_chat": "Hype chat",
-				"ad_break_start_chat": "Lancement manuel de publicité"
+				"ad_break_start_chat": "Lancement manuel de publicité",
+				"streamlabs": "Évènement Streamlabs"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -412,6 +413,11 @@
 		},
 		"ad_break_start": {
 			"label": "{USER} a lancé une publicité de {DURATION}s"
+		},
+		"streamlabs": {
+			"donation": "{USER} a fait un don de {AMOUNT} sur Streamlabs",
+			"merch": "{USER} a acheté {PRODUCT} sur Streamlabs",
+			"patreon_pledge": "{USER} s'est abonné sur Patreon pour {AMOUNT}"
 		}
 	}
 }

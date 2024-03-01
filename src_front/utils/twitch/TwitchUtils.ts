@@ -2920,7 +2920,8 @@ export default class TwitchUtils {
 				let subIndex = 0;
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
-					const islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v)
+					let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+					if(/.*[0-9]+/.test(v)) islink = false;
 					const node:TwitchatDataTypes.ParseMessageChunk = {
 						type:islink? "url" : "text",
 						value:v,
@@ -2931,6 +2932,7 @@ export default class TwitchUtils {
 					}
 					result.splice(i+subIndex, 0, node);
 					subIndex++;
+					i++
 				})
 			}
 		}

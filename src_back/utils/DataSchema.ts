@@ -1462,6 +1462,13 @@ import Ajv from "ajv";
 					items:{type:"number", minimum:0, maximum:100},
 				},
 			}
+		},
+		streamlabs: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				token: {type:"string", maxLength:1000},
+			}
 		}
 	}
 }

@@ -501,7 +501,8 @@
 			"obs": "OBS",
 			"misc": "Autres",
 			"count_and_values": "Compteurs & Valeurs",
-			"goxlr": "GoXLR"
+			"goxlr": "GoXLR",
+			"streamlabs": "Streamlabs"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -679,7 +680,10 @@
 			"last_cheer":"Nom du dernier cheer",
 			"last_cheer_id":"ID du dernier cheer",
 			"last_cheer_amount":"Valeur du dernier cheer",
-			"qna_command":"Commande pour soumettre une question"
+			"qna_command":"Commande pour soumettre une question",
+			"merch_product":"Nom du produit acheté",
+			"donation_amount":"Somme donnée",
+			"donation_amount_formatted":"Somme donnée formattée"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1115,6 +1119,19 @@
 			"CREDITS_COMPLETE": {
 				"label": "Credits de fin terminés",
 				"description": "Actions à exécuter lorsque les crédits de fin terminent de défiler"
+			},
+			"STREAMLABS_DONATION": {
+				"label": "Don reçu sur Streamlabs",
+				"description": "Actions à exécuter lorsque vous recevez un don sur Streamlabs"
+			},
+			"STREAMLABS_MERCH": {
+				"label": "Article acheté sur Streamlabs",
+				"description": "Actions à exécuter lorsque quelqu'un achète un article sur Streamlabs"
+			},
+			"STREAMLABS_PATREON_PLEDGE": {
+				"label": "Nouvel abonné sur Patreon",
+				"description": "Actions à exécuter lorsqu'une personne s'abonne à votre Patreon {INFO}",
+				"description_info": "(Nécessite de lier votre compte Patreon sur Streamlabs)"
 			}
 		},
 		"musicEvents": {

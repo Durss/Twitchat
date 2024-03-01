@@ -2,6 +2,7 @@ import type { OBSItemPath } from "@/utils/OBSWebsocket";
 import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
+import Config from "@/utils/Config";
 
 export namespace TwitchatDataTypes {
 
@@ -172,7 +173,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Filter params of the col
 		 */
-		filters:{[key in typeof MessageListFilterTypes[number]["type"]]:boolean};
+		filters:Partial<{[key in typeof MessageListFilterTypes[number]["type"]]:boolean}>;
 		/**
 		 * Filter params of the "messages" sub section
 		 */
@@ -1829,6 +1830,7 @@ export namespace TwitchatDataTypes {
 		PREDICTION:"prediction",
 		HEAT_CLICK:"heat_click",
 		MUSIC_STOP:"music_stop",
+		STREAMLABS:"streamlabs",
 		MUSIC_START:"music_start",
 		TWITCHAT_AD:"twitchat_ad",
 		VALUE_UPDATE:"value_update",
@@ -1836,7 +1838,6 @@ export namespace TwitchatDataTypes {
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
-		CREDITS_COMPLETE:"credits_complete",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
@@ -1847,6 +1848,7 @@ export namespace TwitchatDataTypes {
 		COUNTER_UPDATE:"counter_update",
 		AD_BREAK_START:"ad_break_start",
 		OBS_STOP_STREAM:"obs_stop_stream",
+		CREDITS_COMPLETE:"credits_complete",
 		HISTORY_SPLITTER:"history_splitter",
 		OBS_START_STREAM:"obs_start_stream",
 		HYPE_TRAIN_START:"hype_train_start",
@@ -1905,6 +1907,7 @@ export namespace TwitchatDataTypes {
 		voicemod:false,
 		following:true,
 		countdown:true,
+		streamlabs:true,
 		clear_chat:true,
 		disconnect:true,
 		prediction:true,
@@ -2062,6 +2065,7 @@ export namespace TwitchatDataTypes {
 									| MessageQnaStopData
 									| MessageQnaDeleteData
 									| MessageCreditsCompleteData
+									| MessageStreamlabsData
 	;
 	
 	/**
@@ -2087,12 +2091,14 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"raid",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
+		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
 		{type:TwitchatMessageType.HYPE_TRAIN_SUMMARY,					labelKey:"chat.filters.message_types.hype_train_summary",					icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
 		{type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
 		{type:TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,				labelKey:"chat.filters.message_types.community_boost_complete",				icon:"boost",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -3975,10 +3981,52 @@ export namespace TwitchatDataTypes {
 	}
 	
 	/**
-	 * Represents a encing credits that completed
+	 * Represents a ending credits that completed
 	 */
 	export interface MessageCreditsCompleteData extends AbstractTwitchatMessage {
 		type:"credits_complete";
+	}
+	
+	/**
+	 * Represents a streamlabs event
+	 */
+	export type MessageStreamlabsData = StreamlabsDonationData | StreamlabsMerchData | StreamlabsPatreonPledgeData;
+	interface StreamlabsDonationBaseData extends AbstractTwitchatMessage{
+		type:"streamlabs";
+		eventType:"donation" | "merch" | "patreon_pledge";
+	}
+	export interface StreamlabsDonationData extends StreamlabsDonationBaseData{
+		eventType:"donation";
+		amount:number;
+		amountFormatted:string;
+		message:string;
+		message_chunks:ParseMessageChunk[];
+		message_html:string;
+		userName:string;
+		currency:string;
+	}
+	
+	/**
+	 * Represents a streamlabs event
+	 */
+	export interface StreamlabsMerchData extends StreamlabsDonationBaseData {
+		eventType:"merch";
+		message:string;
+		message_chunks:ParseMessageChunk[];
+		message_html:string;
+		userName:string;
+		product:string;
+	}
+	
+	/**
+	 * Represents a streamlabs event
+	 */
+	export interface StreamlabsPatreonPledgeData extends StreamlabsDonationBaseData {
+		eventType:"patreon_pledge";
+		amount:number;
+		amountFormatted:string;
+		userName:string;
+		currency:string;
 	}
 
 }

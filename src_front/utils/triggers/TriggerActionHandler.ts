@@ -512,6 +512,17 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS:{
+				const eventType:{[key in TwitchatDataTypes.MessageStreamlabsData["eventType"]]:TriggerTypesValue} = {
+						"donation":TriggerTypes.STREAMLABS_DONATION,
+						"merch":TriggerTypes.STREAMLABS_MERCH,
+						"patreon_pledge":TriggerTypes.STREAMLABS_PATREON_PLEDGE,
+					} as const;
+				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
