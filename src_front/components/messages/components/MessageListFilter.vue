@@ -7,7 +7,7 @@
 
 		<div class="hoverActions" v-if="!expand">
 			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
-			v-newflag="{id:'messagefilters', date:Math.max(...Object.values(typeToNew))}">
+			v-newflag="{id:'messagefilters', date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
 			</button>
 			<button class="addBt" @click="$emit('add')" v-tooltip="{content:$t('global.tooltips.column_add'), placement:'left' }"
@@ -52,13 +52,16 @@
 
 					<div class="item" v-for="f in filters"
 					:key="'filter_'+f.storage"
-					v-newflag="typeToNew[f.storage!]? {date:typeToNew[f.storage!], id:'messagefilters_'+f.storage} : undefined">
+					v-newflag="f.storage!.newFlag > 0? {date:f.storage!.newFlag, id:'messagefilters_'+f.storage!.type} : undefined">
+						<Icon name="show" class="preview"
+							v-if="f.storage!.type != 'message'"
+							@mouseleave="mouseLeaveItem()"
+							@mouseenter="mouseEnterItem(f.storage!)" />
+
 						<ParamItem :paramData="f" autoFade
 						@change="saveData()"
-						@mouseleave="mouseLeaveItem"
-						@mouseenter="mouseEnterItem"
-						v-model="config.filters[f.storage as 'message']">
-							<template #child v-if="f.storage == whisperType && config.filters.whisper === true">
+						v-model="config.filters[f.storage!.type as 'message']">
+							<template #child v-if="f.storage?.type == whisperType && config.filters.whisper === true">
 								<ToggleBlock class="whispersPermissions"
 								:title="$t('chat.filters.whispers_permissions')"
 								small
@@ -66,27 +69,35 @@
 									<PermissionsForm v-model="config.whispersPermissions" @update:modelValue="saveData()" />
 								</ToggleBlock>
 							</template>
-							<template #child v-if="f.storage == messageType && config.filters.message === true">
+							<template #child v-if="f.storage?.type == messageType && config.filters.message === true">
 								<div class="subFilters">
-									<ParamItem class="item"
-										v-if="config.filters.message === true"
-										key="subfilter_blockUsers"
-										:childLevel="1"
-										:paramData="param_hideUsers"
-										@click.stop
-										@change="saveData()"
-										v-model="config.userBlockList" />
-								
-									<ParamItem class="item" v-for="f in messageFilters" autoFade
-										v-if="config.filters.message === true"
-										:key="'subfilter_'+f.storage"
-										:childLevel="1"
-										:paramData="f"
-										@click.stop
-										@change="saveData()"
-										@mouseleave="mouseLeaveItem"
-										@mouseenter="previewSubMessage(f.storage as 'bots'/* couldn't find a way to strongly cast storage type */)"
-										v-model="config.messageFilters[f.storage as 'bots']" />
+									<div class="item">
+										<div class="preview"></div>
+										
+										<ParamItem
+											v-if="config.filters.message === true"
+											key="subfilter_blockUsers"
+											:paramData="param_hideUsers"
+											@click.stop
+											@change="saveData()"
+											v-model="config.userBlockList" />
+									</div>
+									
+									<div class="item" v-for="f in messageFilters">
+										<Icon name="show" class="preview"
+											v-if="f.storage!.hasPreview"
+											@mouseleave="mouseLeaveItem()"
+											@mouseenter="previewSubMessage(f.storage!)" />
+										<div v-else class="preview"></div>
+											
+										<ParamItem autoFade
+											v-if="config.filters.message === true"
+											:key="'subfilter_'+f.storage"
+											:paramData="f"
+											@click.stop
+											@change="saveData()"
+											v-model="config.messageFilters[f.storage!.type]" />
+									</div>
 								</div>
 							</template>
 						</ParamItem>
@@ -108,23 +119,23 @@
 					@change="saveData()"
 					v-model="config.showPanelsHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
-			</div>
 
-			<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
-				<div class="card-item alert missingScope" v-if="missingScope">
-					<img src="@/assets/icons/unlock.svg" class="lockicon">
-					<p>{{ $t("chat.filters.scope_missing") }}</p>
-				</div>
+				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
+					<div class="card-item alert missingScope" v-if="missingScope">
+						<img src="@/assets/icons/unlock.svg" class="lockicon">
+						<p>{{ $t("chat.filters.scope_missing") }}</p>
+					</div>
 
-				<div class="preview" v-if="loadingPreview">
-					<Icon name="loader" class="loader" />
-				</div>
-	
-				<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
-					<MessageItem :messageData="m"
-						lightMode
-						disableConversation
-					/>
+					<div class="preview" v-if="loadingPreview">
+						<Icon name="loader" class="loader" />
+					</div>
+		
+					<div class="preview" v-for="m in previewData" :key="'preview_'+m.id" @click="clickPreview($event)">
+						<MessageItem :messageData="m"
+							lightMode
+							disableConversation
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -132,21 +143,20 @@
 </template>
 
 <script lang="ts">
-import TTButton from '@/components/TTButton.vue';
+import ClearButton from '@/components/ClearButton.vue';
 import PermissionsForm from '@/components/PermissionsForm.vue';
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import { TwitchScopes, type TwitchScopesString } from '@/utils/twitch/TwitchScopes';
+import type { TwitchScopesString } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import MessageItem from '../MessageItem.vue';
-import ClearButton from '@/components/ClearButton.vue';
-import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -172,12 +182,8 @@ export class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public showCTA:boolean = false;
-	public typeToNew!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:number}>;
-	public typeToLabel!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string}>;
-	public typeToIcon!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:string}>;
-	public typeToScopes!:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchScopesString[]}>;
 	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
-	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
+	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]>[] = [];
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public mouseOverToggle:boolean = false;
 	public loadingPreview:boolean = false;
@@ -193,7 +199,7 @@ export class MessageListFilter extends Vue {
 	private touchMode = false;
 	private clickHandler!:(e:MouseEvent|TouchEvent) => void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]]:TwitchatDataTypes.ChatMessageTypes[]|null}> = {}
+	private messagesCache:Partial<{[key in typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"]]:TwitchatDataTypes.ChatMessageTypes[]|null}> = {}
 	private subMessagesCache:Partial<{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchatDataTypes.ChatMessageTypes[]|null}> = {}
 
 	public get whisperType() { return TwitchatDataTypes.TwitchatMessageType.WHISPER; }
@@ -231,200 +237,42 @@ export class MessageListFilter extends Vue {
 			}
 		}
 
-		this.typeToNew = {};
-		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]						= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
-		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
-		this.typeToNew[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]					= new Date("01-14-2024 19:01:21 GMT+0100").getTime();
-
-		this.typeToLabel = {};
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "chat.filters.message_types.twitchat_ad";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BAN]									= "chat.filters.message_types.ban";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAID]								= "chat.filters.message_types.raid";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.POLL]								= "chat.filters.message_types.poll";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.JOIN]								= "chat.filters.message_types.join";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "chat.filters.message_types.unban";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "chat.filters.message_types.leave";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "chat.filters.message_types.cheer";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "chat.filters.message_types.bingo";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "chat.filters.message_types.raffle";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "chat.filters.message_types.pinned";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "chat.filters.message_types.reward";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "chat.filters.message_types.notice";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "chat.filters.message_types.message";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "chat.filters.message_types.whisper";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]							= "chat.filters.message_types.shoutout";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "chat.filters.message_types.following";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "chat.filters.message_types.countdown";
-		// this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "chat.filters.message_types.hype_chat";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "chat.filters.message_types.prediction";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]						= "chat.filters.message_types.subscription";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "chat.filters.message_types.stream_online";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "chat.filters.message_types.user_watch_streak";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "chat.filters.message_types.hype_train_summary";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= "chat.filters.message_types.ad_break_start_chat";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]				= "chat.filters.message_types.music_added_to_queue";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "chat.filters.message_types.hype_train_cooled_down";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]			= "chat.filters.message_types.community_boost_complete";
-		this.typeToLabel[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]	= "chat.filters.message_types.community_challenge_contribution";
-		
-		this.typeToIcon = {};
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD]							= "twitchat";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BAN]									= "ban";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= "unban";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAID]									= "raid";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.POLL]									= "poll";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.JOIN]									= "enter";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.LEAVE]								= "leave";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.CHEER]								= "bits";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.BINGO]								= "bingo";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.RAFFLE]								= "ticket";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PINNED]								= "pin";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.REWARD]								= "channelPoints";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.NOTICE]								= "info";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MESSAGE]								= "user";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.WHISPER]								= "whispers";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SHOUTOUT]								= "shoutout";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= "follow";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COUNTDOWN]							= "countdown";
-		// this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT]							= "hypeChat";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= "prediction";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION]							= "sub";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE]						= "online";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK]					= "watchStreak";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= "train";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]					= "ad";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE]					= "music";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= "train";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE]				= "boost";
-		this.typeToIcon[TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION]		= "channelPoints";
-		
-		this.typeToScopes = {};
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.BAN]								= [TwitchScopes.MODERATION_EVENTS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.UNBAN]								= [TwitchScopes.MODERATION_EVENTS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.REWARD]								= [TwitchScopes.LIST_REWARDS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.WHISPER]							= [TwitchScopes.WHISPER_READ];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.POLL]								= [TwitchScopes.MANAGE_POLLS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.PREDICTION]							= [TwitchScopes.MANAGE_PREDICTIONS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY]					= [TwitchScopes.READ_HYPE_TRAIN];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN]				= [TwitchScopes.READ_HYPE_TRAIN];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.FOLLOWING]							= [TwitchScopes.LIST_FOLLOWERS];
-		this.typeToScopes[TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT]				= [TwitchScopes.ADS_READ];
-
-		let sortedFilters:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [
-			TwitchatDataTypes.TwitchatMessageType.FOLLOWING,
-			TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION,
-			TwitchatDataTypes.TwitchatMessageType.CHEER,
-			// TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT,
-			TwitchatDataTypes.TwitchatMessageType.RAID,
-			TwitchatDataTypes.TwitchatMessageType.PINNED,
-			TwitchatDataTypes.TwitchatMessageType.SHOUTOUT,
-			TwitchatDataTypes.TwitchatMessageType.BAN,
-			TwitchatDataTypes.TwitchatMessageType.UNBAN,
-			TwitchatDataTypes.TwitchatMessageType.REWARD,
-			TwitchatDataTypes.TwitchatMessageType.POLL,
-			TwitchatDataTypes.TwitchatMessageType.PREDICTION,
-			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY,
-			TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-			TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
-			TwitchatDataTypes.TwitchatMessageType.BINGO,
-			TwitchatDataTypes.TwitchatMessageType.RAFFLE,
-			TwitchatDataTypes.TwitchatMessageType.COUNTDOWN,
-			TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE,
-			TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-			TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT,
-			TwitchatDataTypes.TwitchatMessageType.JOIN,
-			TwitchatDataTypes.TwitchatMessageType.LEAVE,
-			TwitchatDataTypes.TwitchatMessageType.NOTICE,
-			TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK,
-			TwitchatDataTypes.TwitchatMessageType.TWITCHAT_AD,
-			TwitchatDataTypes.TwitchatMessageType.WHISPER,
-			TwitchatDataTypes.TwitchatMessageType.MESSAGE,
-		];
-
 		this.filters = [];
-		for (let i = 0; i < sortedFilters.length; i++) {
-			const f = sortedFilters[i];
+		const filterList = TwitchatDataTypes.MessageListFilterTypes;
+		for (let i = 0; i < filterList.length; i++) {
+			const f = filterList[i];
 			const children:TwitchatDataTypes.ParameterData<boolean, unknown, boolean>[] = [];
 			const paramData:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]> = {type:"boolean",
-								value:this.config.filters[f],
-								labelKey:this.typeToLabel[f] ?? f,
-								icon:this.typeToIcon[f],
-								twitch_scopes:this.typeToScopes[f],
+								value:this.config.filters[f.type],
+								labelKey:f.labelKey,
+								icon:f.icon,
+								twitch_scopes:f.scopes.length > 0? undefined : f.scopes.concat(),
 								storage:f,
-							}
+							};
 
 			this.filters.push(paramData);
 
 			//Add sub-filters to the message types so we can filter mods, new users, automod, etc...
-			if(f === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				const keyToLabel = this.$tm("chat.filters.message_filters") as {[key in messageFilterTypes]:string}
-				const keyToIcon:{[key in messageFilterTypes]:string} = {
-					viewers:"user",
-					vips:"vip",
-					subs:"sub",
-					moderators:"mod",
-					partners:"partner",
-					bots:"bot",
-					deleted:"delete",
-					automod:"shield",
-					suspiciousUsers:"shield",
-					commands:"commands",
-					short:"",
-					tracked:"magnet",
-					pinned:"pin",
-				};
-				this.messageKeyToScope = {
-					viewers:[],
-					vips:[],
-					subs:[],
-					moderators:[],
-					partners:[],
-					bots:[],
-					deleted:[],
-					automod:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS],
-					suspiciousUsers:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS],
-					commands:[],
-					short:[],
-					tracked:[],
-					pinned:[],
-				};
-				//Create parent toggle
-				if(!this.config.messageFilters) {
-					this.config.messageFilters = {
-						bots:true,
-						automod:true,
-						commands:true,
-						deleted:true,
-						suspiciousUsers:true,
-						viewers:true,
-						vips:true,
-						subs:true,
-						moderators:true,
-						partners:true,
-						short:true,
-						tracked:true,
-						pinned:true,
-					};
-				}
-				for (const key in keyToLabel) {
-					const k = key as messageFilterTypes;
-					if(this.config.messageFilters[k] == undefined) {
-						this.config.messageFilters[k] = true;
+			if(f.type === TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
+				const entries = TwitchatDataTypes.MessageListChatMessageFilterTypes;
+				for (let i = 0; i < entries.length; i++) {
+					const entry = entries[i];
+					let type = entry.type;
+					if(this.config.messageFilters[type] == undefined) {
+						this.config.messageFilters[type] = true;
 					}
 
-					const paramData:TwitchatDataTypes.ParameterData<boolean, unknown, string[]> = {type:"boolean",
-						value:this.config.messageFilters[k],
-						labelKey:"chat.filters.message_filters."+k,
-						storage:key,
-						icon:keyToIcon[k],
+					const paramData:TwitchatDataTypes.ParameterData<boolean, unknown, string[]> = {
+						type:"boolean",
+						value:this.config.messageFilters[type],
+						labelKey:entry.labelKey,
+						storage:entry,
+						icon:entry.icon,
 					};
 					
-					if(this.messageKeyToScope[k] && this.messageKeyToScope[k].length > 0) {
-						paramData.twitch_scopes = this.messageKeyToScope[k];
-					}
+					if(entry.scopes.length > 0) paramData.twitch_scopes = entry.scopes;
 
-					if(k == 'commands') {
+					if(type == 'commands') {
 						const subParam:TwitchatDataTypes.ParameterData<string[]> = {
 								type:"editablelist",
 								longText:true,
@@ -439,10 +287,10 @@ export class MessageListFilter extends Vue {
 								}};
 						paramData.children = [subParam];
 					}
-					if(k == "short") {
+					if(type == "short") {
 						paramData.tooltipKey = 'chat.filters.short_tt';
 					}
-					if(k == "tracked") {
+					if(type == "tracked") {
 						paramData.tooltipKey = 'chat.filters.tracked_tt';
 					}
 					children.push(paramData);
@@ -501,25 +349,25 @@ export class MessageListFilter extends Vue {
 		document.removeEventListener("touchmove", this.mouseMoveHandler);
 	}
 
-	public mouseEnterItem(event:MouseEvent, data:TwitchatDataTypes.ParameterData<boolean>):void {
+	public mouseEnterItem(data:typeof TwitchatDataTypes.MessageListFilterTypes[number]):void {
 		this.mouseOverToggle = true;
-		this.previewMessage(data.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]);
+		this.previewMessage(data);
 	}
 	
-	public mouseLeaveItem(event:MouseEvent):void {
+	public mouseLeaveItem():void {
 		if(this.touchMode) return;
 		this.mouseOverToggle = false;
 		this.missingScope = false;
 		this.previewData = [];
 	}
 
-	public async previewMessage(type:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
+	public async previewMessage(filter:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
-		this.missingScope = this.typeToScopes[type] != undefined && !TwitchUtils.hasScopes(this.typeToScopes[type]!);
+		this.missingScope = filter.scopes.length > 0  && !TwitchUtils.hasScopes(filter.scopes);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
-		const cached = this.messagesCache[type];
+		const cached = this.messagesCache[filter.type];
 		if(cached && cached.length > 0) {
 			this.previewData = cached;
 			this.loadingPreview = false;
@@ -528,47 +376,47 @@ export class MessageListFilter extends Vue {
 
 		await this.$nextTick();
 
-		this.messagesCache[type] = [];
-		if(type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
+		this.messagesCache[filter.type] = [];
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
 			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
 			this.loadingPreview = false;
 
 		}else
-		if(type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = false;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
@@ -576,19 +424,19 @@ export class MessageListFilter extends Vue {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = true;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(dataCast);
 			}, false);
 			this.loadingPreview = false;
 
 		}else
-		if(type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = false;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
@@ -596,7 +444,7 @@ export class MessageListFilter extends Vue {
 				if(!data || !this.mouseOverToggle) return;
 				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
 				dataCast.received = true;
-				this.messagesCache[type]?.push(data);
+				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(dataCast);
 			}, false);
@@ -604,12 +452,12 @@ export class MessageListFilter extends Vue {
 
 		}else{
 
-			this.$store.debug.simulateMessage(type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage(filter.type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				this.loadingPreview = false;
 	
 				if(!data || !this.mouseOverToggle) return;
 
-				this.messagesCache[type] = [data];
+				this.messagesCache[filter.type] = [data];
 	
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData = [data];
@@ -632,14 +480,14 @@ export class MessageListFilter extends Vue {
 		}
 	}
 
-	public async previewSubMessage(type:keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters):Promise<void> {
+	public async previewSubMessage(entry:typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
 		this.previewIndex ++;
-		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[type] && !TwitchUtils.hasScopes(this.messageKeyToScope[type]);
+		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[entry.type] && !TwitchUtils.hasScopes(this.messageKeyToScope[entry.type]);
 		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
-		const cached = this.subMessagesCache[type];
+		const cached = this.subMessagesCache[entry.type];
 		if(cached === null) {
 			this.previewData = [];
 			this.loadingPreview = false;
@@ -653,37 +501,37 @@ export class MessageListFilter extends Vue {
 
 		await this.$nextTick();
 
-		this.subMessagesCache[type] = [];
+		this.subMessagesCache[entry.type] = [];
 		this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 			this.loadingPreview = false;
 			if(!data || !this.mouseOverToggle) return;
 			
 			const dataCast = data as TwitchatDataTypes.MessageChatData;
 
-			if(type == "automod") {
+			if(entry.type == "automod") {
 				let words:string[] = [];
 				do {
 					words.push( Utils.pickRand(dataCast.message.split(" ")) );
 				}while(Math.random() > .5)
 
 				dataCast.twitch_automod = { reasons:["bullying"], words };
-			}else if(type == "deleted") {
+			}else if(entry.type == "deleted") {
 				dataCast.deleted = true;
-			}else if(type == "suspiciousUsers") {
+			}else if(entry.type == "suspiciousUsers") {
 				dataCast.twitch_isSuspicious = true;
 			}else {
-				this.subMessagesCache[type] = null;
+				this.subMessagesCache[entry.type] = null;
 				return;
 			}
 
 			if(previewIndexLoc != this.previewIndex) return;
 
 			this.previewData.push(data);
-			this.subMessagesCache[type] = this.previewData;
+			this.subMessagesCache[entry.type] = this.previewData;
 
 		}, false, false);
 		
-		if(type == "automod") {
+		if(entry.type == "automod") {
 			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
 				if(!data || !this.mouseOverToggle) return;
 
@@ -701,7 +549,7 @@ export class MessageListFilter extends Vue {
 				if(previewIndexLoc != this.previewIndex) return;
 
 				this.previewData.push(data);
-				this.subMessagesCache[type] = this.previewData;
+				this.subMessagesCache[entry.type] = this.previewData;
 			}, false, false);
 		}
 	}
@@ -726,7 +574,8 @@ export class MessageListFilter extends Vue {
 		this.error = false;
 		let noSelection = true;
 		for (const key in this.config.filters) {
-			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]] === true) {
+			const typedKey = key as typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"];
+			if(this.config.filters[typedKey] === true) {
 				noSelection = false;
 				break;
 			}
@@ -742,6 +591,8 @@ export class MessageListFilter extends Vue {
 	 * Force data save
 	 */
 	public saveData():void {
+		//Make sure the "show panels here" option is enabled in at
+		//least 1 column
 		this.$nextTick(()=> {
 			let selectedIndex = -1;
 			const cols = this.$store.params.chatColumnsConfig;
@@ -755,8 +606,11 @@ export class MessageListFilter extends Vue {
 			}
 		});
 
-		this.$emit("change");
-		this.$store.params.saveChatColumnConfs();
+		//Delay save to avoid UI lag during toggle
+		setTimeout(()=>{
+			this.$emit("change");
+			this.$store.params.saveChatColumnConfs();
+		}, 300);
 	}
 
 	/**
@@ -770,7 +624,7 @@ export class MessageListFilter extends Vue {
 			this.filters[i].value = false;
 		}
 		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
-		const ids:typeof TwitchatDataTypes.MessageListFilterTypes[number][] = [];
+		const ids:typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"][] = [];
 		switch(id) {
 			case "chat": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
@@ -867,7 +721,7 @@ export class MessageListFilter extends Vue {
 		}
 
 		for (let i = 0; i < ids.length; i++) {
-			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]) === ids[i]);
+			const filter = this.filters.find(v => (v.storage as typeof TwitchatDataTypes.MessageListFilterTypes[number]).type === ids[i]);
 			if(filter) filter.value = true;
 		}
 
@@ -989,7 +843,7 @@ export class MessageListFilter extends Vue {
 
 		//If "messages" filter is selected, check for sub filters
 		if(this.filters.find(v=>{
-			return v.storage == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
+			return v.storage?.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE;
 		})?.value=== true) {
 			for (let i = 0; i < this.messageFilters.length; i++) {
 				const f = this.messageFilters[i];
@@ -1229,7 +1083,7 @@ export default toNative(MessageListFilter);
 			margin: auto;
 			gap: .5em;
 
-			.head {
+			&>.head {
 				display: flex;
 				flex-direction: row;
 				width: 100%;
@@ -1277,9 +1131,21 @@ export default toNative(MessageListFilter);
 				.item{
 					flex-shrink: 0;
 					font-size: .9em;
+					display: flex;
+					flex-direction: row;
+					align-items: center;
 					:deep(.child) {
 						font-size: .9rem;
 						width: calc(100% - .5em);
+					}
+					.paramitem {
+						flex-grow: 1;
+					}
+					.preview {
+						height: 1em;
+						width: 1em;
+						margin-right: .5em;
+						flex-shrink: 0;
 					}
 				}
 				.subFilters {
@@ -1287,6 +1153,11 @@ export default toNative(MessageListFilter);
 					display: flex;
 					flex-direction: column;
 					&>.item {
+						flex-shrink: 0;
+						font-size: .9em;
+						display: flex;
+						flex-direction: row;
+						align-items: center;
 						margin-top: 0;
 					}
 				}
@@ -1312,12 +1183,16 @@ export default toNative(MessageListFilter);
 
 		.previewList {
 			position: absolute;
-			width: calc(100% - 1em*2);
-			max-width: 500px;
+			width: 100%;
+			max-width: min(100%, 500px);
+			margin:auto;
+			max-height: 500px;
+			overflow: hidden;
 			transform: translateX(-50%);
 			left: 50%;
 			top: 99999px;
 			z-index: 1;
+			background-color: var(--background-color-primary);
 			.preview {
 				background-color: var(--background-color-primary);
 				padding: .25em;

@@ -1,5 +1,5 @@
 import type { OBSItemPath } from "@/utils/OBSWebsocket";
-import type { TwitchScopesString } from "@/utils/twitch/TwitchScopes";
+import { TwitchScopes, type TwitchScopesString } from "@/utils/twitch/TwitchScopes";
 import type { JsonObject } from 'type-fest';
 import type { GoXLRTypes } from "./GoXLRTypes";
 
@@ -172,7 +172,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Filter params of the col
 		 */
-		filters:{[key in typeof MessageListFilterTypes[number]]:boolean};
+		filters:{[key in typeof MessageListFilterTypes[number]["type"]]:boolean};
 		/**
 		 * Filter params of the "messages" sub section
 		 */
@@ -2073,38 +2073,57 @@ export namespace TwitchatDataTypes {
 	];
 	
 	/**
-	 * Defines the filters
+	 * Defines the possible chat filters
 	 */
-	export const MessageListFilterTypes = [
-		TwitchatMessageType.BAN,
-		TwitchatMessageType.RAID,
-		TwitchatMessageType.POLL,
-		TwitchatMessageType.JOIN,
-		TwitchatMessageType.UNBAN,
-		TwitchatMessageType.LEAVE,
-		TwitchatMessageType.CHEER,
-		TwitchatMessageType.BINGO,
-		TwitchatMessageType.RAFFLE,
-		TwitchatMessageType.REWARD,
-		TwitchatMessageType.NOTICE,
-		TwitchatMessageType.PINNED,
-		TwitchatMessageType.MESSAGE,
-		TwitchatMessageType.WHISPER,
-		TwitchatMessageType.SHOUTOUT,
-		TwitchatMessageType.FOLLOWING,
-		// TwitchatMessageType.HYPE_CHAT,
-		TwitchatMessageType.COUNTDOWN,
-		TwitchatMessageType.PREDICTION,
-		TwitchatMessageType.TWITCHAT_AD,
-		TwitchatMessageType.SUBSCRIPTION,
-		TwitchatMessageType.STREAM_ONLINE,//also works for STREAM_OFFLINE
-		TwitchatMessageType.USER_WATCH_STREAK,
-		TwitchatMessageType.HYPE_TRAIN_SUMMARY,
-		TwitchatMessageType.AD_BREAK_START_CHAT,
-		TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-		TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,
-		TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,
-		TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,
+	export const MessageListFilterTypes:{type:TwitchatMessageStringType, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
+		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
+		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"unban",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.PINNED,								labelKey:"chat.filters.message_types.pinned",								icon:"pin",				scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
+		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"enter",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
+		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
+		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"raid",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
+		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
+		{type:TwitchatMessageType.HYPE_TRAIN_SUMMARY,					labelKey:"chat.filters.message_types.hype_train_summary",					icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
+		{type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
+		{type:TwitchatMessageType.COMMUNITY_BOOST_COMPLETE,				labelKey:"chat.filters.message_types.community_boost_complete",				icon:"boost",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
+		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"poll",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.LEAVE,								labelKey:"chat.filters.message_types.leave",								icon:"leave",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"info",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.USER_WATCH_STREAK,					labelKey:"chat.filters.message_types.user_watch_streak",					icon:"watchStreak",		scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.TWITCHAT_AD,							labelKey:"chat.filters.message_types.twitchat_ad",							icon:"twitchat",		scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.WHISPER,								labelKey:"chat.filters.message_types.whisper",								icon:"whispers",		scopes:[TwitchScopes.WHISPER_READ],	newFlag:0},
+		{type:TwitchatMessageType.MESSAGE,								labelKey:"chat.filters.message_types.message",								icon:"user",			scopes:[],	newFlag:0},
+		// {type:TwitchatMessageType.HYPE_CHAT, },
+	] as const;
+	
+	/**
+	 * Defines the possible chat message filters
+	 */
+	export const MessageListChatMessageFilterTypes = [
+		{type:"viewers",		labelKey:"chat.filters.message_filters.viewers", 		icon:"user",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"vips",			labelKey:"chat.filters.message_filters.vips", 			icon:"vip",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"subs",			labelKey:"chat.filters.message_filters.subs", 			icon:"sub",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"moderators",		labelKey:"chat.filters.message_filters.moderators", 	icon:"mod",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"partners",		labelKey:"chat.filters.message_filters.partners", 		icon:"partner",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"bots",			labelKey:"chat.filters.message_filters.bots", 			icon:"bot",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"tracked",		labelKey:"chat.filters.message_filters.tracked", 		icon:"magnet",	hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"deleted",		labelKey:"chat.filters.message_filters.deleted", 		icon:"delete",	hasPreview:true,	scopes:[] as TwitchScopesString[]},
+		{type:"pinned",			labelKey:"chat.filters.message_filters.pinned", 		icon:"pin",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"automod",		labelKey:"chat.filters.message_filters.automod", 		icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[]},
+		{type:"suspiciousUsers",labelKey:"chat.filters.message_filters.suspiciousUsers",icon:"shield",	hasPreview:true,	scopes:[TwitchScopes.AUTOMOD,TwitchScopes.MODERATION_EVENTS] as TwitchScopesString[]},
+		{type:"commands",		labelKey:"chat.filters.message_filters.commands", 		icon:"commands",hasPreview:false,	scopes:[] as TwitchScopesString[]},
+		{type:"short",			labelKey:"chat.filters.message_filters.short", 			icon:"",		hasPreview:false,	scopes:[] as TwitchScopesString[]},
 	] as const;
 
 	/**
