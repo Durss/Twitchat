@@ -509,6 +509,8 @@
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_id": "User ID",
+			"my_user": "My user name",
+			"my_user_id": "My user ID",
 			"user_avatar": "User avatar URL",
 			"user_list_name": "User names",
 			"user_list_id": "User IDs",
@@ -682,6 +684,7 @@
 			"last_cheer_amount":"Last cheer amount",
 			"qna_command":"Command to submit a Q&A entry",
 			"merch_product":"Product name",
+			"currency":"Currency",
 			"donation_amount":"Donation amount",
 			"donation_amount_formatted":"Donation amount formatted"
 		},

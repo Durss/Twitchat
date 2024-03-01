@@ -1507,7 +1507,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.STREAMLABS_DONATION] = [
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
-		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsDonationData>,
@@ -1523,7 +1523,7 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	map[TriggerTypes.STREAMLABS_PATREON_PLEDGE] = [
 		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
-		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
+		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 	];
 
@@ -1551,8 +1551,8 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 	for (k in map) {
 		let entry = map[k]!;
 		if(entry.findIndex(v=>v.tag == "MY_LOGIN") == -1) {
-			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"});
-			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
+			entry.push({tag:"MY_ID", descKey:'triggers.placeholders.my_user_id', pointer:"__me__.id", numberParsable:false, isUserID:true, globalTag:true, example:"123456"});
+			entry.push({tag:"MY_LOGIN", descKey:'triggers.placeholders.my_user', pointer:"__me__.login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
 		}
 		if(entry.findIndex(v=>v.tag == "NOW") == -1) {
 			entry.push({tag:"NOW", descKey:'triggers.placeholders.now', pointer:"__date__.now", numberParsable:true, isUserID:false, globalTag:true, example:Date.now().toString()});

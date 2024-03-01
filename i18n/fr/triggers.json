@@ -509,6 +509,8 @@
 			"trigger_id": "ID du trigger actuel",
 			"user": "Pseudo",
 			"user_id": "ID utilisateur",
+			"my_user": "Mon pseudo",
+			"my_user_id": "Mon ID utilisateur",
 			"user_avatar": "URL de l'avatar",
 			"user_list_name": "Pseudos",
 			"user_list_id": "IDs utilisateur",
@@ -682,8 +684,9 @@
 			"last_cheer_amount":"Valeur du dernier cheer",
 			"qna_command":"Commande pour soumettre une question",
 			"merch_product":"Nom du produit acheté",
+			"currency":"Devise",
 			"donation_amount":"Somme donnée",
-			"donation_amount_formatted":"Somme donnée formattée"
+			"donation_amount_formatted":"Somme donnée formatée"
 		},
 		"events": {
 			"CHAT_COMMAND": {
