@@ -12,7 +12,7 @@ let socket:WebSocket|undefined = undefined;
 let pingInterval:number = -1;
 let reconnectTimeout:number = -1;
 let reconnectAttempts:number = 0;
-let isAutoInit:boolean = true;
+let isAutoInit:boolean = false;
 let autoReconnect:boolean = false;
 
 export const storeStreamlabs = defineStore('streamlabs', {
@@ -37,8 +37,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(data) {
 				const json = JSON.parse(data) as SreamlabsStoreData;
 				this.token = json.token;
-				this.connect(this.token);
-				isAutoInit = false;
+				if(this.token) {
+					isAutoInit = true;
+					this.connect(this.token);
+				}
 			}
 		},
 
@@ -177,6 +179,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						console.log(event.data);
 						console.error(error);
 					}
+					isAutoInit = false;
 				};
 			
 				socket.onclose = (event) => {
