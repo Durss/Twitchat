@@ -446,4 +446,9 @@ export default toNative(ConnectDiscord);
 		}
 	}
 }
+@media only screen and (max-width: 800px) {
+	.paramsdiscord{
+		max-width: unset !important;
+	}
+}
 </style>
