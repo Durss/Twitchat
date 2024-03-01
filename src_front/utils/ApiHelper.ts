@@ -421,4 +421,21 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"streamlabs/auth": {
+		POST: {
+			success:boolean;
+			accessToken?:string;
+			socketToken?:string;
+			error?:string;
+			errorCode?:string;
+		}
+	};
+	"streamlabs/socketToken": {
+		GET: {
+			success:boolean;
+			socketToken?:string;
+			error?:string;
+			errorCode?:string;
+		}
+	};
 }

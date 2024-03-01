@@ -36,7 +36,5 @@ export default class ApiController extends AbstractController {
 	 * @param response 
 	 */
 	private async postRemoteAction(request:FastifyRequest, response:FastifyReply) {
-
-		// SSEController.sendToUser()
 	}
 }

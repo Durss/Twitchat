@@ -18,6 +18,7 @@ import SSEController from './controllers/SSEController';
 import DiscordController from './controllers/DiscordController';
 import I18n from './utils/I18n';
 import ApiController from './controllers/ApiController';
+import StreamlabsController from './controllers/StreamlabsController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -70,6 +71,7 @@ server.register(import("fastify-sse-v2"))
 	new GoogleController(server).initialize();
 	new SSEController(server).initialize();
 	new ApiController(server).initialize();
+	new StreamlabsController(server).initialize();
 	
 	//Start server
 	start();

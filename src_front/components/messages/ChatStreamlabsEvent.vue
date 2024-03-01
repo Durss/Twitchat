@@ -33,7 +33,7 @@ import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 	components:{
 		ChatMessageChunksParser,
 	},
-	emits:[],
+	emits:["onRead"],
 })
 class ChatStreamlabsEvent extends AbstractChatMessage {
 	

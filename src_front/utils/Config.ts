@@ -243,6 +243,10 @@ export default class Config {
 	 * Youtube's scopes
 	 */
 	public get YOUTUBE_SCOPES():string[] { return this._serverConfig.youtube_scopes; }
+	/**
+	 * Streamlabs client ID
+	 */
+	public get STREAMLABS_CLIENT_ID():string { return this._serverConfig.streamlabs_client_id; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -364,4 +368,6 @@ export interface ServerConfig {
 	youtube_client_id: string;
 	youtube_scopes: string[];
 	discord_client_id: string;
+	streamlabs_client_id:string;
+	streamlabs_redirect_uri:string;
 }

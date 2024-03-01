@@ -6,6 +6,7 @@
 		"find_key_link":"Open your Dashboard",
 		"find_key_item":"Your Socket API Token",
 		"find_key_tab":"API tokens",
+		"examples":"Message examples",
 		"param_key":"Socket API Token"
 	}
 }

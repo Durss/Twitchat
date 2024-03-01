@@ -115,6 +115,9 @@ export default class FileServeController extends AbstractController {
 				youtube_scopes:[] as string[],
 				
 				discord_client_id:Config.credentials.discord_client_id,
+
+				streamlabs_client_id:Config.credentials.streamlabs_client_id,
+				streamlabs_redirect_uri:Config.credentials.streamlabs_redirect_uri,
 			};
 				
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;

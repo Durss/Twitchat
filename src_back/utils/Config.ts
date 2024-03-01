@@ -285,4 +285,8 @@ interface Credentials {
 	discord_client_id:string;
 	discord_public_key:string;
 	discord_bot_token:string;
+
+	streamlabs_client_id:string;
+	streamlabs_client_secret:string;
+	streamlabs_redirect_uri:string;
 }

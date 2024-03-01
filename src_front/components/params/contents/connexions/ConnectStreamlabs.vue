@@ -16,41 +16,33 @@
 		</section>
 
 		<section v-else-if="!$store.streamlabs.connected">
-			<form @submit.prevent="connect()">
-				<ParamItem class="param" :paramData="param_key" />
-	
-				<ToggleBlock small :title="$t('streamlabs.find_key_title')" :open="false">
-					<i18n-t tag="p" class="whereToFind" scope="global" keypath="streamlabs.find_key">
-						<template #LINK><a href="https://streamlabs.com/dashboard#/settings/api-settings" target="_blank">{{ $t("streamlabs.find_key_link") }}</a></template>
-						<template #TAB><mark>{{ $t("streamlabs.find_key_tab") }}</mark></template>
-						<template #ITEM><mark>{{ $t("streamlabs.find_key_item") }}</mark></template>
-					</i18n-t>
-				</ToggleBlock>
-				
-				<TTButton type="submit" :loading="loading">{{ $t("global.connect") }}</TTButton>
-
-				<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamlabs_connect_failed") }}</div>
-			</form>
+			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
+			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamlabs_connect_failed") }}</div>
 		</section>
 
 		<section v-else>
-			<TTButton alert @click="$store.streamlabs.disconnect()">{{ $t("global.disconnect") }}</TTButton>
+			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
+		</section>
+
+		<section class="examples">
+			<h2><Icon name="whispers"/>{{$t("streamlabs.examples")}}</h2>
+			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
+			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
+			<MessageItem v-if="fakePatreon" :messageData="fakePatreon" />
 		</section>
 	</div>
 </template>
 
 <script lang="ts">
+import { TTButton } from '@/components/TTButton.vue';
+import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
-import { ParamItem } from '../../ParamItem.vue';
-import { TTButton } from '@/components/TTButton.vue';
-import { ToggleBlock } from '@/components/ToggleBlock.vue';
 
 @Component({
 	components:{
 		TTButton,
-		ParamItem,
-		ToggleBlock,
+		MessageItem,
 	},
 	emits:[],
 })
@@ -58,26 +50,48 @@ class ConnectStreamlabs extends Vue {
 
 	public error = false;
 	public loading = false;
-	public connected = false;
-
-	public param_key:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"streamlabs.param_key"};
+	public oAuthURL = "";
+	public fakeDonation:TwitchatDataTypes.StreamlabsDonationData|undefined = undefined;
+	public fakeMerch:TwitchatDataTypes.StreamlabsMerchData|undefined = undefined;
+	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
 
 	public beforeMount():void {
-		this.param_key.value = this.$store.streamlabs.token || "";
+		if(!this.$store.streamlabs.connected) {
+			if(this.$store.streamlabs.authResult.code) {
+				//Complete oauth process
+				this.loading = true
+				this.$store.streamlabs.getAccessToken()
+				.then(success => {
+					this.error = !success;
+					this.loading = false;
+					this.loadAuthURL();
+				})
+			}else{
+				//Preload oAuth URL
+				this.loadAuthURL();
+			}
+		}
+		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
+			mess.eventType = "donation";
+			this.fakeDonation = mess;
+			console.log(mess);
+		});
+		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
+			mess.eventType = "merch";
+			this.fakeMerch = mess;
+		});
+		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
+			mess.eventType = "patreon_pledge";
+			this.fakePatreon = mess;
+		});
 	}
 
 	/**
-	 * Connect to socket
+	 * Disconnects from streamlabs
 	 */
-	public async connect():Promise<void> {
-		this.error = false;
-		this.loading = true;
-		try {
-			this.error = !(await this.$store.streamlabs.connect(this.param_key.value));
-		}catch(error) {
-			this.error = true;
-		}
-		this.loading = false;
+	public disconnect():void{
+		this.$store.streamlabs.disconnect();
+		this.loadAuthURL();
 	}
 
 	/**
@@ -87,33 +101,35 @@ class ConnectStreamlabs extends Vue {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
+	/**
+	 * initiliaze the auth url
+	 */
+	private loadAuthURL():void{
+		this.loading = true;
+		this.$store.streamlabs.getOAuthURL().then(res => {
+			this.oAuthURL = res;
+			this.loading = false;
+		});
+	}
+
 }
 export default toNative(ConnectStreamlabs);
 </script>
 
 <style scoped lang="less">
 .connectstreamlabs{
-	form {
-		display: flex;
-		flex-direction: column;
-		gap: .5em;
-		margin: auto;
-		width: 400px;
+	.error {
+		cursor: pointer;
+		line-height: 1.2em;
+		text-align: center;
+		white-space: pre-line;
+	}
 
-		.whereToFind {
-			text-align: justify;
-			line-height: 1.25em;
-		}
-		.param {
-			:deep(label) {
-				flex-basis: 100% !important;
-			}
-		}
-		.error {
-			cursor: pointer;
-			line-height: 1.2em;
-			text-align: center;
-			white-space: pre-line;
+	.examples {
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
 		}
 	}
 }

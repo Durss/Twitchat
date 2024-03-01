@@ -2140,8 +2140,10 @@ export interface IDiscordActions {
 
 
 export interface IStreamlabsState {
-	token:string;
+	accessToken:string;
+	socketToken:string;
 	connected:boolean;
+	authResult:{code:string, csrf:string};
 }
 
 export interface IStreamlabsGetters {
@@ -2165,4 +2167,16 @@ export interface IStreamlabsActions {
 	 * Saves current data to server
 	 */
 	saveData():void;
+	/**
+	 * Get the oAuth URL for streamlabs
+	 */
+	getOAuthURL():Promise<string>
+	/**
+	 * Called after authenticating with Streamlabs
+	 */
+	setAuthResult(code:string, csrf:string):void;
+	/**
+	 * Authenticate to streamlabs after getting oAuth code
+	 */
+	getAccessToken():Promise<boolean>
 }

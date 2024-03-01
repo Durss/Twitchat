@@ -1,12 +1,14 @@
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+import Config from '@/utils/Config';
+import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IStreamlabsActions, IStreamlabsGetters, IStreamlabsState } from '../StoreProxy';
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import SetIntervalWorker from '@/utils/SetIntervalWorker';
 
 
 let socket:WebSocket|undefined = undefined;
@@ -18,14 +20,16 @@ let autoReconnect:boolean = false;
 
 export const storeStreamlabs = defineStore('streamlabs', {
 	state: () => ({
-		token:"",
+		accessToken:"",
+		socketToken:"",
 		connected:false,
+		authResult:{code:"", csrf:""},
 	} as IStreamlabsState),
 
 
 
 	getters: {
-
+		
 	} as IStreamlabsGetters
 	& ThisType<UnwrapRef<IStreamlabsState> & _StoreWithGetters<IStreamlabsGetters> & PiniaCustomProperties>
 	& _GettersTree<IStreamlabsState>,
@@ -37,11 +41,48 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			const data = DataStore.get(DataStore.STREAMLABS);
 			if(data) {
 				const json = JSON.parse(data) as SreamlabsStoreData;
-				this.token = json.token;
-				if(this.token) {
+				this.accessToken = json.accessToken;
+				if(this.accessToken) {
 					isAutoInit = true;
-					this.connect(this.token);
+					const result = await ApiHelper.call("streamlabs/socketToken", "GET", {accessToken:this.accessToken}, false);
+					if(result.json.success) {
+						this.socketToken = result.json.socketToken || "";
+						this.connect(this.socketToken);
+					}else{
+						StoreProxy.main.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
+					}
 				}
+			}
+		},
+
+		async getOAuthURL():Promise<string> {
+			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
+			const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"streamlabs/auth"}).href;
+			const url = new URL("https://streamlabs.com/api/v2.0/authorize");
+			url.searchParams.set("client_id",Config.instance.STREAMLABS_CLIENT_ID);
+			url.searchParams.set("redirect_uri",redirectURI);
+			url.searchParams.set("scope","socket.token");
+			url.searchParams.set("response_type","code");
+			url.searchParams.set("state", csrfToken.json.token);
+			return url.href;
+		},
+		
+		setAuthResult(code:string, csrf:string):void {
+			this.authResult.code = code;
+			this.authResult.csrf = csrf;
+		},
+		
+		async getAccessToken():Promise<boolean> {
+			try {
+				const result = await ApiHelper.call("streamlabs/auth", "POST", this.authResult, false)
+				if(result.json.success) {
+					this.accessToken = result.json.accessToken!;
+					this.socketToken = result.json.socketToken!;
+					return await this.connect(this.socketToken);
+				}
+				return false;
+			}catch(error){
+				return false;
 			}
 		},
 
@@ -49,9 +90,9 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			if(!StoreProxy.auth.isPremium) return Promise.resolve(false);
 
 			//Token changed
-			if(isReconnect && token != this.token) return Promise.resolve(false);
+			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
 			if(!isReconnect) {
-				this.token = token;
+				this.socketToken = token;
 				this.saveData();
 			}
 			
@@ -61,7 +102,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 			return new Promise<boolean>((resolve, reject)=> {
 	
-				socket = new WebSocket(`wss://sockets.streamlabs.com/socket.io/?EIO=3&transport=websocket&token=${this.token}`);
+				socket = new WebSocket(`wss://sockets.streamlabs.com/socket.io/?EIO=3&transport=websocket&token=${this.socketToken}`);
 	
 				socket.onopen = async () => {
 					reconnectAttempts = 0;
@@ -185,7 +226,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 			
 				socket.onclose = (event) => {
 					//Do not reconnect if token changed
-					if(token != this.token) return;
+					if(token != this.socketToken) return;
 					if(!autoReconnect) return;
 	
 					this.connected = false;
@@ -223,7 +264,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 		saveData():void {
 			const data:SreamlabsStoreData = {
-				token:this.token,
+				accessToken:this.accessToken,
+				socketToken:this.socketToken,
 			}
 			DataStore.set(DataStore.STREAMLABS, data);
 		}
@@ -238,7 +280,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 })
 
 export interface SreamlabsStoreData {
-	token:string;
+	accessToken:string;
+	socketToken:string;
 }
 
 interface StreamlabsWelcomeData {

@@ -54,6 +54,9 @@
 			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
 			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
 			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
+			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
@@ -159,6 +162,10 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
+				case "sl_donation":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "donation"; break;
+				case "sl_merch":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "merch"; break;
+				case "sl_patreon":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "patreon_pledge"; break;
+				
 				case "cheer_pin": {
 					setTimeout(()=> {
 						const m = (message as TwitchatDataTypes.MessageCheerData);
@@ -447,7 +454,10 @@ type Subaction = "first"
 				| "hypeChat"
 				| "clip"
 				| "cheer_pin"
-				| "recent";
+				| "recent"
+				| "sl_donation"
+				| "sl_merch"
+				| "sl_patreon";
 
 export default toNative(DevmodeMenu);
 </script>

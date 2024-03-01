@@ -123,6 +123,7 @@ export default class DataStore {
 		this.NEW_FLAGS,
 		this.SENT_MESSAGE_HISTORY,
 		this.YOUTUBE_AUTH_TOKEN,
+		this.STREAMLABS,
 	];
 	
 	

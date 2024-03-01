@@ -1289,6 +1289,27 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessageStreamlabsData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						amount:13,
+						amountFormatted:"$13",
+						currency:"EUR",
+						eventType:"donation",
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						userName:user.displayNameOriginal,
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;
