@@ -23,7 +23,7 @@
 			</div>
 		</template>
 		<template v-else>
-			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
+			<TTButton class="premiumBt" icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
 			<img src="@/assets/img/goxlr_features.png" alt="goxlr" class="interfaceExample">
 		</template>
 
@@ -218,6 +218,9 @@ export default toNative(ConnectGoXLR);
 
 <style scoped lang="less">
 .paramsgoxlr{
+	.premium {
+		align-self: center;
+	}
 	.fadeHolder {
 		transition: opacity .2s;
 		width: 100%;

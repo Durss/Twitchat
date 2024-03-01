@@ -4,6 +4,8 @@
 
 		<div class="head">{{ $t("connexions.youtube.header") }}</div>
 
+		<TTButton class="premiumBt" icon="premium" @click="$store.params.openParamsPage('premium')" big v-if="!$store.auth.isPremium" premium>{{ $t("premium.become_premiumBt") }}</TTButton>
+
 		<div class="content">
 			<div class="card-item primary" v-if="connected && showSuccess" @click="showSuccess = false">{{ $t("connexions.youtube.success") }}</div>
 
@@ -34,8 +36,7 @@
 					<ParamItem :paramData="param_scope_read" noBackground />
 					<ParamItem :paramData="param_scope_moderate" noBackground ref="moderateScope" />
 				</div>
-				<TTButton class="connectBt" icon="premium" @click="$store.params.openParamsPage('premium')" v-if="!$store.auth.isPremium" premium>{{ $t("premium.become_premiumBt") }}</TTButton>
-				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading" v-else>{{ $t("global.connect") }}</TTButton>
+				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading" :disabled="!$store.auth.isPremium">{{ $t("global.connect") }}</TTButton>
 			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
 			
@@ -183,6 +184,9 @@ export default toNative(ConnectYoutube);
 
 <style scoped lang="less">
 .connectyoutube{
+	.premium {
+		align-self: center;
+	}
 	.content {
 		display: flex;
 		flex-direction: column;
