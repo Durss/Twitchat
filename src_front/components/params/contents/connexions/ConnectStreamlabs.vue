@@ -72,7 +72,11 @@ class ConnectStreamlabs extends Vue {
 	public async connect():Promise<void> {
 		this.error = false;
 		this.loading = true;
-		this.error = !await this.$store.streamlabs.connect(this.param_key.value);
+		try {
+			this.error = !(await this.$store.streamlabs.connect(this.param_key.value));
+		}catch(error) {
+			this.error = true;
+		}
 		this.loading = false;
 	}
 

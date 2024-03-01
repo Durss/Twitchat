@@ -12,6 +12,7 @@ let socket:WebSocket|undefined = undefined;
 let pingInterval:number = -1;
 let reconnectTimeout:number = -1;
 let reconnectAttempts:number = 0;
+let isAutoInit:boolean = true;
 let autoReconnect:boolean = false;
 
 export const storeStreamlabs = defineStore('streamlabs', {
@@ -37,6 +38,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 				const json = JSON.parse(data) as SreamlabsStoreData;
 				this.token = json.token;
 				this.connect(this.token);
+				isAutoInit = false;
 			}
 		},
 
@@ -69,6 +71,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 					//Connection acknwoledgment
 					if(event.data == "40") {
 						this.connected = true;
+						resolve(true);
 						return;
 					}
 					try {
@@ -90,6 +93,10 @@ export const storeStreamlabs = defineStore('streamlabs', {
 
 						//Authentication failed
 						if(code == "44") {
+							//Show error on top of page
+							if(isAutoInit) {
+								StoreProxy.main.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
+							}
 							this.disconnect();
 							resolve(false);
 
