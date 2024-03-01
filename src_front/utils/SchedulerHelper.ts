@@ -69,9 +69,12 @@ export default class SchedulerHelper {
 	 * @returns 
 	 */
 	public unscheduleTrigger(trigger:TriggerData):void {
-		const existingIndex = this._pendingSchedules.findIndex(v=>v.trigger.id == trigger.id);
-		if(existingIndex > -1) {
-			this._pendingSchedules.splice(existingIndex, 1);
+		for (let i = 0; i < this._pendingSchedules.length; i++) {
+			const element = this._pendingSchedules[i];
+			if(element.trigger.id == trigger.id) {
+				this._pendingSchedules.splice(i, 1);
+				i--;
+			}
 		}
 	}
 
