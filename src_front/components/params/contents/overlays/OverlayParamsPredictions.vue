@@ -148,11 +148,11 @@ class OverlayParamsPredictions extends Vue {
 			this.$store.prediction.setPrediction(predi);
 		}, 1000);
 
-		// clearTimeout(this.simulateEndTimeout);
-		// this.simulateEndTimeout = setTimeout(() => {
-		// 	SetIntervalWorker.instance.delete(this.simulateInterval);
-		// 	this.$store.prediction.setPrediction(null);
-		// }, predi.duration_s * 1000);
+		clearTimeout(this.simulateEndTimeout);
+		this.simulateEndTimeout = setTimeout(() => {
+			SetIntervalWorker.instance.delete(this.simulateInterval);
+			this.$store.prediction.setPrediction(null);
+		}, predi.duration_s * 1000);
 
 		this.$store.prediction.setPrediction(predi);
 	}
