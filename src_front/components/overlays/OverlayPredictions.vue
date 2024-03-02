@@ -134,7 +134,7 @@ class OverlayPredictions extends Vue {
 		let labels = this.$refs.labels as HTMLElement
 		let items = this.$refs.bar as HTMLElement[] || HTMLElement;
 		if(!Array.isArray(items)) items = [items];
-		const minWidth = parseInt(this.$el.minWidth || "400");
+		const minWidth = parseInt(this.$el.minWidth || "300");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
 		console.log(minWidth, width);
 
@@ -158,11 +158,10 @@ class OverlayPredictions extends Vue {
 						onComplete:(item)=>{
 							items.forEach(item=>{
 								item.style.width = width+"px";
-								item.style.minWidth = "";
+								item.style.minWidth = width+"px";
 							});
 						}});
 		}else{
-
 			const holder = this.$refs.holder as HTMLElement;
 			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
 		}
@@ -184,7 +183,7 @@ export default toNative(OverlayPredictions);
 	align-items: center;
 	overflow: hidden;
 	transform-origin: center center;
-	min-width: 400px;
+	min-width: 300px;
 
 	h1 {
 		text-align: center;
