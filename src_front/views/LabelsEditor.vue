@@ -1,12 +1,9 @@
 <template>
 	<div class="labelseditor">
 		<div class="head">
-			<!-- <select v-model="locale">
-				<option :value="lang" v-for="lang in $i18n.availableLocales">{{ $t('global.lang_label', lang)}}</option>
-			</select> -->
 			<AppLangSelector class="langSelector" allLocales />
 			<div class="sectionList">
-				<TTButton v-for="(value, key) in labels" :key="key"
+				<TTButton v-for="(value, key) in labelsRef" :key="key"
 				:selected="selectedSectionKey == key"
 				:value="value"
 				:parentKey="key"
@@ -23,7 +20,7 @@
 			<div class="card-item alert" v-if="noResult">No result</div>
 		</div>
 
-		<template v-if="selectedSection">
+		<template v-if="selectedSectionLabels">
 			<div class="card-item progress"
 			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
 	
@@ -31,13 +28,14 @@
 				<div class="header">
 					<h2 class="title">{{ selectedSectionKey }}</h2>
 				</div>
-				<template  v-for="(value, key) in selectedSection" :key="[selectedSectionKey,key].join('.')">
+				<template v-for="(value, key) in selectedSectionLabels" :key="[selectedSectionKey,key].join('.')">
 					<LabelsEditorEntry
 						:value="value"
 						:langRef="langRef"
 						:pathToSelect="pathToSelect"
 						:path="[selectedSectionKey,key]"
-						@change="computeProgresses(); saveSection()"
+						@change="computeProgresses(); saveSection();"
+						@delete="computeProgresses(); saveSection(); onSelectSection(selectedSectionKey,[],true);"
 						/>
 				</template>
 			</div>
@@ -66,21 +64,22 @@
 </template>
 
 <script lang="ts">
+import AppLangSelector from '@/components/AppLangSelector.vue';
 import LabelsEditorEntry from '@/components/LabelsEditorEntry.vue';
 import TTButton from '@/components/TTButton.vue';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import StoreProxy from '@/store/StoreProxy';
+import ApiHelper from '@/utils/ApiHelper';
+import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import type { RemoveIndexSignature } from '@intlify/core-base';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import gsap from 'gsap';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import type { LocaleMessageValue, VueMessageType } from 'vue-i18n';
-import AppLangSelector from '@/components/AppLangSelector.vue';
 //@ts-ignore
 import { BlobWriter, TextReader, ZipWriter } from "https://deno.land/x/zipjs@v2.7.32/index.js";
 import { watch } from 'vue';
-import gsap from 'gsap';
-import ApiHelper from '@/utils/ApiHelper';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
+import type { JsonObject } from "type-fest";
 
 @Component({
 	components:{
@@ -93,8 +92,9 @@ import TwitchatEvent from '@/events/TwitchatEvent';
  class LabelsEditor extends Vue {
 
 	public selectedSectionKey:string = "";
-	public selectedSection:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}>|null = null;
-	public labels:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
+	public selectedSectionLabels:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}>|null = null;
+	public labelsCurrent:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
+	public labelsRef:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public progresses:{[key:string]:{total:number, done:number}} = {};
 	public langRef = "en";
 	public search = "";
@@ -105,25 +105,53 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 	private currentErrorIndex = -1;
 
 	public getProgressClasses(section:string):string[] {
-		const res = [];
+		const res:string[] = [];
 		const progress = this.progresses[section];
 		if(progress.done/progress.total < .9) res.push("alert");
 		else if(progress.done/progress.total < 1) res.push("secondary");
+		else if(progress.done/progress.total > 1) res.push("premium");
 		else res.push("primary");
 		return res;
 	}
 
 	public beforeMount() {
-		this.labels = StoreProxy.i18n.getLocaleMessage(this.langRef);
+		this.labelsRef = StoreProxy.i18n.getLocaleMessage(this.langRef);
 		watch(()=>this.$i18n.locale, ()=>{
 			this.computeProgresses(true);
+			if(this.selectedSectionKey) {
+				this.onSelectSection(this.selectedSectionKey, [] , true);
+			}
 		});
 		this.computeProgresses();
 	}
 
-	public onSelectSection(key:string, pathToSelect:string[] = []):void {
-		if(this.selectedSectionKey === key) return;
-		this.selectedSection = this.labels[key as keyof typeof this.labels];
+	public onSelectSection(key:string, pathToSelect:string[] = [], force:boolean = false):void {
+		if(this.selectedSectionKey === key && !force) return;
+		let labelsRef = this.labelsRef[key as keyof typeof this.labelsRef];
+		let labelsCurrent = this.labelsCurrent[key as keyof typeof this.labelsCurrent] as JsonObject;
+
+		const mergeJSON = (json1:JsonObject, json2:JsonObject) => {
+			let mergedJSON = { ...json1 } as JsonObject;
+
+			for (let key in json2) {
+				if (json2.hasOwnProperty(key)) {
+					if (mergedJSON.hasOwnProperty(key)) {
+						if (!Array.isArray(mergedJSON[key]) && !Array.isArray(json2[key])) {
+							if (typeof mergedJSON[key] === 'object' && typeof json2[key] === 'object') {
+								mergedJSON[key] = mergeJSON(mergedJSON[key] as JsonObject, json2[key] as JsonObject);
+							} else {
+								mergedJSON[key] = json2[key];
+							}
+						}
+					} else {
+						mergedJSON[key] = json2[key];
+					}
+				}
+			}
+			return mergedJSON;
+		}
+
+		this.selectedSectionLabels = mergeJSON(labelsRef, labelsCurrent);
 		this.selectedSectionKey = key;
 		this.currentErrorIndex = -1;
 		this.pathToSelect = pathToSelect;
@@ -132,7 +160,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 
 	public async downloadSection():Promise<void> {
 		const json:any = {};
-		json[this.selectedSectionKey] = this.selectedSection;
+		json[this.selectedSectionKey] = this.selectedSectionLabels;
 		Utils.downloadFile(this.selectedSectionKey+".json", JSON.stringify(json))
 	}
 
@@ -152,18 +180,21 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 	}
 
 	public computeProgresses(forceAll:boolean = false):void {
-		const ref = StoreProxy.i18n.getLocaleMessage(this.langRef);
-		const buildPaths = (obj:any, parentPath:string[] = []):string[] => {
+		const ref = this.labelsRef;
+		const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
+		this.labelsCurrent = labels;
+		if(labels == undefined) return;
+		const buildPaths = (obj:any, parentPath:string[] = []):string[][] => {
 			let paths:any = [];
 
 			for (const key in obj) {
 				const currentPath:string[] = [...parentPath, key];
 
-				// if (Array.isArray(obj[key])) {
-				// 	console.log("ignore");
-				// 	continue;
-				// } else
-				if (typeof obj[key] === 'object' && obj[key] !== null) {
+				//Ignore array items
+				if (Array.isArray(obj[key])) {
+					continue;
+				} else
+				if (typeof obj[key] === 'object' && obj[key] !== null && Object.keys(obj[key]).length > 0) {
 					paths = paths.concat(buildPaths(obj[key], currentPath));
 				} else {
 					paths.push(currentPath);
@@ -173,32 +204,41 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 			return paths;
 		}
 
-		// console.log(buildPaths(ref["bingo"], ["bingo"]));
-		// return;
 		const sections:string[] = (this.selectedSectionKey && !forceAll)? [this.selectedSectionKey] : Object.keys(ref);
 		for (let h = 0; h < sections.length; h++) {
 			let total = 0;
 			let done = 0;
 			const section = sections[h];
-			const keys = buildPaths(ref[section as keyof typeof ref], [section]);
-			const labels = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
-			if(labels == undefined) continue;
+			let keys = buildPaths(ref[section as keyof typeof ref], [section])
+						.concat(buildPaths(labels[section as keyof typeof ref], [section]));
+			let keysDone:{[key:string]:boolean} = {};
+			//Dedupe key paths
+			keys = keys.filter(a => {
+				if(keysDone[a.join(".")] == true) return false;
+				keysDone[a.join(".")] = true;
+				return true;
+			});
+
 			for (let i = 0; i < keys.length; i++) {
 				total ++;
 				let chunks = keys[i];
-				let root:typeof labels | null = labels;
+				let rootLabels:typeof labels | null = labels;
 				let rootRef = ref;
 				for (let j = 0; j < chunks.length; j++) {
 					const key = chunks[j];
-					root = root[key as keyof typeof root];
+					rootLabels = rootLabels[key as keyof typeof rootLabels];
 					rootRef = rootRef[key as keyof typeof rootRef];
-					if(root == undefined || (root == "" && rootRef != "")) {
-						console.log("Missing", key);
-						root = null;
+					if(rootRef == undefined) {
+						//Item is missing from ref, add 1 to total done so it overflows
+						//the expected amount
+						total --;
+						break;
+					}else if(rootLabels == undefined || (rootLabels == "" && rootRef != "")) {
+						rootLabels = null;
 						break;
 					}
 				}
-				if(root != undefined && root != null) done ++;
+				if(rootLabels != undefined && rootLabels != null) done ++;
 			}
 			this.progresses[section] = {done, total};
 		}
@@ -235,7 +275,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 
 			return matchingPaths;
 		}
-		this.selectedSection = null;
+		this.selectedSectionLabels = null;
 		this.selectedSectionKey = "";
 		this.searchKeys = searchValueWithPaths(labels, this.search);
 		this.noResult = this.searchKeys.length == 0;
