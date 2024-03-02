@@ -136,6 +136,8 @@ class OverlayPredictions extends Vue {
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "400");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
+		console.log(minWidth, width);
+
 		
 		gsap.killTweensOf(this.$el);
 		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out"});
@@ -155,12 +157,12 @@ class OverlayPredictions extends Vue {
 			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration:.5, width, stagger:.05,
 						onComplete:(item)=>{
 							items.forEach(item=>{
-								item.style.width = "";
+								item.style.width = width+"px";
 								item.style.minWidth = "";
 							});
 						}});
 		}else{
-			
+
 			const holder = this.$refs.holder as HTMLElement;
 			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
 		}
