@@ -34,6 +34,7 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
+			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
 			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
 			<button class="item" @click="subContent = 'credits'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_credits'}"><img src="@/assets/img/overlays/ending_credits.jpg"></button>
@@ -44,7 +45,6 @@
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
-			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate"><img src="@/assets/img/overlays/predictions.jpg"></button>
 		</div>
 		
 		<div class="form">
