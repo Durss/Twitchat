@@ -95,6 +95,7 @@ export default class DataStore {
 	public static DISCORD_PARAMS:string = "discordParams";
 	public static STREAMLABS:string = "streamlabs";
 	public static STREAMELEMENTS:string = "streamelements";
+	public static PREDICTION_OVERLAY_PARAMS:string = "predictionOverlayParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

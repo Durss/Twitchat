@@ -1,19 +1,24 @@
 <template>
 	<div class="section" :class="classes" v-if="!isLabel">
 		<div class="header">
+			<TTButton v-if="uselessCategory" icon="trash" alert light class="deleteBt" @click.stop="deleteLabel()" />
 			<h2 class="title">{{path[path.length-1]}}</h2>
 		</div>
-		<LabelsEditorEntry v-for="(val, key) in value"
-			@change="$emit('change')"
-			:value="val"
-			:langRef="langRef"
-			:path="[...path,key]"
-			:pathToSelect="pathToSelect"
-			:data-test="[...path,key].join('.')"
-			:key="[...path,key].join()" />
+		<template v-for="(val, key) in value" :key="[...path,key].join()">
+			<LabelsEditorEntry
+				@change="$emit('change')"
+				@delete="$emit('delete')"
+				:value="val"
+				:langRef="langRef"
+				:path="[...path,key]"
+				:pathToSelect="pathToSelect"
+				:data-test="[...path,key].join('.')"
+				 />
+		</template>
 	</div>
 	
 	<div class="label" :class="classes" v-else @click="open($event)">
+		<TTButton v-if="uselessLabel" icon="trash" alert light class="deleteBt" @click.stop="deleteLabel()" />
 		<strong class="key">{{path[path.length-1]}}</strong>
 		<div class="form">
 			<contenteditable class="text" tag="div"
@@ -27,7 +32,7 @@
 			<div class="sources" v-if="showSources">
 				<div v-for="lang in $i18n.availableLocales.filter(v=>v != $i18n.locale)">
 					<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" />
-					<TTButton transparent icon="copy" v-tooltip="'Copy value'" @click="copyValue(getUnparsedLabel(lang))"></TTButton>
+					<TTButton transparent icon="copy" v-tooltip="'Copy value'" @click="copyValue(getUnparsedLabel(lang) || '')"></TTButton>
 					<span>{{ getUnparsedLabel(lang) }}</span>
 				</div>
 			</div>
@@ -53,7 +58,7 @@ import TTButton from './TTButton.vue';
 		CountryFlag,
 		contenteditable,
 	},
-	emits:["change"]
+	emits:["change", "delete"]
 })
  class LabelsEditorEntry extends Vue {
 
@@ -72,6 +77,9 @@ import TTButton from './TTButton.vue';
 	public labelValue:string = "";
 	public showSources:boolean = false;
 	public defaultLabel ="### MISSING LABEL ###";
+	public missingLabel:boolean = false;
+	public uselessLabel:boolean = false;
+	public uselessCategory:boolean = false;
 	
 	private opened = false;
 	private wasErrored = false;
@@ -84,14 +92,14 @@ import TTButton from './TTButton.vue';
 		return typeof this.value == "string" ||  typeof this.value == "number" || typeof this.value == "boolean";
 	}
 
-	public getUnparsedLabel(locale:string):string {
+	public getUnparsedLabel(locale:string):string|null {
 		let root = StoreProxy.i18n.getLocaleMessage(locale);
 		let messages:any = root;
 		const chunks = this.path;
 		for (let i = 0; i < chunks.length; i++) {
 			const key = chunks[i];
 			messages = messages[key as keyof typeof messages];
-			if(messages == undefined) return "";
+			if(messages == undefined) return null;
 		}
 		return messages;
 	}
@@ -99,7 +107,9 @@ import TTButton from './TTButton.vue';
 	public get classes():string[] {
 		const res = ["labelseditorentry", "card-item"];
 		if(this.isArray) res.push("isArray");
-		if(this.isLabel && this.labelValue == this.defaultLabel) res.push("missingLabel");
+		if(this.uselessCategory) res.push("uselessCategory");
+		if(this.uselessLabel) res.push("uselessLabel");
+		if(this.missingLabel) res.push("missingLabel");
 		return res;
 	}
 
@@ -137,11 +147,22 @@ import TTButton from './TTButton.vue';
 	}
 
 	public initLabel():void {
-		let label = this.getUnparsedLabel(this.$i18n.locale);
-		if(this.isLabel && label == undefined || (label == "" && this.getUnparsedLabel(this.langRef) != "")) {
-			this.labelValue = this.defaultLabel;
+		let labelRef = this.getUnparsedLabel(this.langRef);
+		let labelCurrent = this.getUnparsedLabel(this.$i18n.locale);
+		this.missingLabel = false;
+		this.uselessLabel = false;
+		if(this.isLabel) {
+			if(labelCurrent == null && labelRef != null) {
+				this.missingLabel = true;
+				this.labelValue = this.defaultLabel;
+			}else if(labelCurrent != null && labelRef == null) {
+				this.uselessLabel = true;
+				this.labelValue = labelCurrent;
+			}else{
+				this.labelValue = labelCurrent?.toString() || "";
+			}
 		}else{
-			this.labelValue = this.getUnparsedLabel(this.$i18n.locale).toString();
+			if(!labelRef) this.uselessCategory = true;
 		}
 	}
 
@@ -171,7 +192,7 @@ import TTButton from './TTButton.vue';
 		}});
 	}
 
-	public onEditLabel(reinit:boolean = true):void {
+	public onEditLabel(reinit:boolean = true, deleteMode:boolean = false):void {
 		let root = StoreProxy.i18n.getLocaleMessage(this.$i18n.locale);
 		let messages:any = root;
 		let path:string[] = [];
@@ -188,11 +209,15 @@ import TTButton from './TTButton.vue';
 						messages = messages[key] = [];
 					}else if(typeof v == "object") {
 						messages = messages[key] = {};
-					}else{
+					}else if(!deleteMode){
 						messages = v;
 					}
 				}
 			}else{
+				if(deleteMode) {
+					delete messages[key];
+					continue;
+				}else
 				if(this.labelValue != this.defaultLabel) {
 					let v:any = this.labelValue.replace(/\n/gi, "\n");
 					if(this.originalType == "boolean") v = v === "true"
@@ -206,14 +231,22 @@ import TTButton from './TTButton.vue';
 
 		//Broadcast change if state changed
 		const errored = this.labelValue == this.defaultLabel;
-		if(!reinit) {
+		if(!reinit && !deleteMode) {
 			this.wasErrored = errored;
 			this.prevValue = this.labelValue;
 		}
-		else if(this.wasErrored != errored || this.prevValue != this.labelValue) {
-			console.log("CHANGE", this.path);
+		else if(this.wasErrored != errored || this.prevValue != this.labelValue || deleteMode) {
 			this.$emit("change");
+			if(deleteMode) {
+				this.$emit("delete");
+			}
 		}
+	}
+
+	public deleteLabel():void {
+		this.$confirm("Delete entry?").then(()=> {
+			this.onEditLabel(false, true);
+		}).catch(()=>{});
 	}
 
 }
@@ -265,6 +298,12 @@ export default toNative(LabelsEditorEntry);
 				}
 			}
 		}
+		.deleteBt {
+			align-self: stretch;
+			border-radius: 0;
+			width: 2em;
+			flex-shrink: 0;
+		}
 	}
 
 	&.section {
@@ -274,13 +313,32 @@ export default toNative(LabelsEditorEntry);
 		gap: .25em;
 		display: flex;
 		flex-direction: column;
+
+		.header {
+			
+			.deleteBt {
+				align-self: stretch;
+				border-radius: 0;
+				width: 2em;
+				flex-shrink: 0;
+				margin: -.5em;
+			}
+		}
 	}
 	
-	&.missingLabel {
+	&.missingLabel, &.uselessLabel {
 		background-color: var(--color-alert);
 		.form>.text {
 			background-color: var(--grayout-fader);
 		}
+	
+		&.uselessLabel {
+			background-color: var(--color-premium);
+		}
+	}
+
+	&.uselessCategory {
+		background-color: var(--color-premium);
 	}
 }
 </style>

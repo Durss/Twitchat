@@ -84,7 +84,7 @@
 
 			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
 			
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.highlight.no_overlay") }}</div>
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 		
 		<div class="card-item footer">

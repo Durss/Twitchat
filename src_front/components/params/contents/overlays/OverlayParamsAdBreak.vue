@@ -59,7 +59,7 @@
 					<div class="center" v-if="overlayExists">
 						<Button :loading="testingApproaching" @click="testApproaching()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
 					</div>
-					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 				</div>
 
 			</ParamItem>
@@ -81,7 +81,7 @@
 					<div class="center" v-if="overlayExists">
 						<Button :loading="testingRunning" @click="testRunning()" icon="test">{{ $t('overlay.adBreak.testBt') }}</Button>
 					</div>
-					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+					<div class="center card-item alert" v-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 				</div>
 			</ParamItem>
 		</section>

@@ -570,7 +570,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 					const outcomes:TwitchatDataTypes.MessagePredictionDataOutcome[] = [];
-					const count = Math.ceil(Math.random()*9)+1;
+					const count = Math.random() > .5? 2 : Math.ceil(Math.random()*9)+1;
 					let totalPoints = 0;
 					let totalUsers = 0;
 					for(let i=0; i < count; i++) {

@@ -1469,6 +1469,18 @@ import Ajv from "ajv";
 			properties: {
 				token: {type:"string", maxLength:1000},
 			}
+		},
+		predictionOverlayParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				listMode: {type:"boolean"},
+				listModeOnlyMore2: {type:"boolean"},
+				showLabels: {type:"boolean"},
+				showVotes: {type:"boolean"},
+				showVoters: {type:"boolean"},
+				showPercent: {type:"boolean"},
+			}
 		}
 	}
 }

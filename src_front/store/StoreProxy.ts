@@ -16,6 +16,7 @@ import type { Router } from "vue-router";
 import type { DiscordStoreData } from "./discord/storeDiscord";
 import type { SreamlabsStoreData } from "./streamlabs/storeStreamlabs";
 import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
+import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 
 /**
 * Created : 23/09/2022 
@@ -641,7 +642,7 @@ export interface IDebugActions {
 	 * @param postOnChat 
 	 * @param allowConversations 
 	 */
-	simulateMessage<T>(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:T)=>void, postOnChat?:boolean, allowConversations?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	simulateMessage<T=TwitchatDataTypes.ChatMessageTypes>(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:T)=>void, postOnChat?:boolean, allowConversations?:boolean):Promise<T>;
 	/**
 	 * Sends a fake notice of the specified type on chat
 	 * @param type 
@@ -649,14 +650,14 @@ export interface IDebugActions {
 	 * @param postOnChat 
 	 * @param allowConversations 
 	 */
-	simulateNotice<T>(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:T)=>void, postOnChat?:boolean):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	simulateNotice<T=TwitchatDataTypes.ChatMessageTypes>(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:T)=>void, postOnChat?:boolean):Promise<T>;
 	/**
 	 * Sends a random fake message of any type
 	 * @param postOnChat 
 	 * @param forcedMessage 
 	 * @param hook 
 	 */
-	sendRandomFakeMessage<T>(postOnChat:boolean, forcedMessage?:string, hook?:(message:T)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes>;
+	sendRandomFakeMessage<T=TwitchatDataTypes.ChatMessageTypes>(postOnChat:boolean, forcedMessage?:string, hook?:(message:T)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<T>;
 }
 
 
@@ -973,6 +974,10 @@ export interface IPredictionState {
 	 * Current prediction data
 	 */
 	data:TwitchatDataTypes.MessagePredictionData | null;
+	/**
+	 * Contains params about the prediction overlay
+	 */
+	overlayParams:PredictionOverlayParamStoreData;
 }
 
 export interface IPredictionGetters {
@@ -983,6 +988,15 @@ export interface IPredictionActions {
 	 * Set current prediction data
 	 */
 	setPrediction(payload:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean):void;
+	/**
+	 * Populates data from data store value
+	 */
+	populateData(params:PredictionOverlayParamStoreData):void;
+	/**
+	 * Updates overlay params
+	 * @param params 
+	 */
+	setOverlayParams(params:PredictionOverlayParamStoreData):void;
 }
 
 

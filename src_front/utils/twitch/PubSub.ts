@@ -65,7 +65,7 @@ export default class PubSub extends EventDispatcher {
 			if(this.pingInterval) SetIntervalWorker.instance.delete(this.pingInterval);
 			this.pingInterval = SetIntervalWorker.instance.create(()=>()=>{
 				this.ping();
-			}, 60000*4);
+			}, 10000);
 
 			const myUID = StoreProxy.auth.twitch.user.id;
 			const subscriptions = [

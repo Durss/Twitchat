@@ -14,6 +14,7 @@
 		"title_install":"Installer",
 		"title_settings":"Configurations",
 		"install_instructions_title":"Instructions",
+		"overlay_not_configured": "Overlay non configuré ou masqué",
 		"connection": {
 			"title": "Les overlays nécessitent de {OBS} ou {DOCK}",
 			"obsBt": "Lier OBS",
@@ -25,7 +26,6 @@
 			"title": "Roue animée",
 			"head": "Affiche une roue animée lorsqu'un tirage au sort est lancé.",
 			"css": "Changez l'apparence de la roue via ces sélecteurs CSS",
-			"no_overlay": "Overlay non configuré ou masqué",
 			"start": "Pour lancer un tirage au sort utilisez le menu de commandes {MENU} ou la commande {CMD}.",
 			"testBt": "Lancer une animation de test"
 		},
@@ -54,7 +54,6 @@
 			"css": "Changez l'apparence de la mise en avant via ces sélecteurs CSS",
 			"message_pos": "Position du message",
 			"testBt": "Tester",
-			"no_overlay": "Overlay non configuré ou masqué",
 			"alternative_tool": "Pour une solution dédiée plus complète jetez un oeil à {URL}"
 		},
 		"music_common": {
@@ -144,7 +143,6 @@
 			"param_ignoreCustomBots":"Masquer des comptes personnalisés",
 			"param_hideEmptySlots":"Masquer les sections ne contenant aucune entrée",
 			"scroll_tt":"Défiler jusqu'à cette section",
-			"no_overlay":"Overlay non configuré ou masqué",
 			"testBt":"Lancer un faux générique",
 			"moderators_label":"MODERATEUR·ICES",
 			"empty_slot":"Aucune entrée ☹️",
@@ -261,7 +259,6 @@
 		"bitswall":{
 			"title":"Bits wall",
 			"head":"Les bits reçus tomberont sur votre stream.\nLes viewers peuvent \"casser\" les bits en plus petits en les cliquant via l'extension Heat.",
-			"no_overlay":"Overlay non configuré ou masqué",
 			"testBt":"Envoyer des bits",
 			"simulate_pinned":"Simuler des cheers épinglés",
 			"simulate_pinned_level":"Niveau",
@@ -272,6 +269,19 @@
 			"param_textureAlpha":"Opacité des cheermotes ({VALUE}%)",
 			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)",
 			"param_durations":"Durées avant destruction des cheermotes"
+		},
+		"predictions":{
+			"title":"Predictions",
+			"head":"Afficher la prédiction en cours sur votre stream",
+			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS",
+			"testBt":"Tester",
+			"param_listMode":"Afficher sous forme de liste",
+			"param_listModeOnlyMore2":"Unniquement s'il y a plus de 2 items",
+			"param_showTitle":"Afficher le titre du sondage",
+			"param_showLabels":"Afficher le titre des entrées",
+			"param_showVotes":"Afficher le nombre de votes",
+			"param_showVoters":"Afficher le nombre participant·es",
+			"param_showPercent":"Afficher les pourcentages"
 		}
 	}
 }

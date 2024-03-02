@@ -549,6 +549,13 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Called when prediction overlay declares its presence
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (StoreProxy.prediction.overlayParams as unknown) as JsonObject});
+			});
+
+			/**
 			 * Called when switching to another scene
 			 */
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
@@ -846,7 +853,8 @@ export const storeMain = defineStore("main", {
 			const sTriggers = StoreProxy.triggers;
 			const sCounters = StoreProxy.counters;
 			const sEmergency = StoreProxy.emergency;
-			const sStreamalbs = StoreProxy.streamlabs;
+			const sStreamlabs = StoreProxy.streamlabs;
+			const sPrediction = StoreProxy.prediction;
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
 			for (const cat in sParams.$state) {
@@ -1097,7 +1105,13 @@ export const storeMain = defineStore("main", {
 			//Init streamlabs params
 			const streamlabsParams = DataStore.get(DataStore.STREAMLABS);
 			if(streamlabsParams) {
-				sStreamalbs.populateData(JSON.parse(streamlabsParams));
+				sStreamlabs.populateData(JSON.parse(streamlabsParams));
+			}
+
+			//Init streamlabs params
+			const predictionParams = DataStore.get(DataStore.PREDICTION_OVERLAY_PARAMS);
+			if(predictionParams) {
+				sPrediction.populateData(JSON.parse(predictionParams));
 			}
 
 			Database.instance.connect().then(async ()=> {

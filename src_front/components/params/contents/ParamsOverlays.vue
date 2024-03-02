@@ -44,6 +44,7 @@
 			<button class="item" @click="subContent = 'counter'"><img src="@/assets/img/overlays/counters.jpg"></button>
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
+			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate"><img src="@/assets/img/overlays/predictions.jpg"></button>
 		</div>
 		
 		<div class="form">
@@ -58,6 +59,7 @@
 			<!-- <OverlayParamsTTS class="block"			:open="subContent == 'tts'"				v-if="subContent == 'tts'" /> -->
 			<OverlayParamsAdBreak class="block"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
 			<OverlayParamsUlule class="block"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
+			<OverlayParamsPredictions class="block"	:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
 		</div>
 	</div>
 </template>
@@ -81,6 +83,7 @@ import OverlayParamsHeatDistort from './overlays/OverlayParamsHeatDistort.vue';
 import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
 import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
+import OverlayParamsPredictions from './overlays/OverlayParamsPredictions.vue';
 
 @Component({
 	components:{
@@ -95,6 +98,7 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 		OverlayParamsCredits,
 		OverlayParamsBitswall,
 		OverlayParamsHighlight,
+		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
 	},
 	emits:[]
@@ -107,6 +111,7 @@ import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 	
 	private keyupHandler!:(e:KeyboardEvent) => void;
 	
+	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
 	public get exchangeChannelAvailable():boolean { return this.localConnectionAvailable || this.obsConnected; }

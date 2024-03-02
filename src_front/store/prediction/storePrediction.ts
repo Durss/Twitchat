@@ -5,10 +5,20 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
+import DataStore from '../DataStore';
 
 export const storePrediction = defineStore('prediction', {
 	state: () => ({
 		data: null,
+		overlayParams: {
+			showTitle:true,
+			listMode:true,
+			listModeOnlyMore2:true,
+			showLabels:true,
+			showVotes:false,
+			showVoters:false,
+			showPercent:false,
+		},
 	} as IPredictionState),
 
 
@@ -28,10 +38,22 @@ export const storePrediction = defineStore('prediction', {
 				}
 
 				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {prediction: (data as unknown) as JsonObject});
+			}else if(this.data){
+				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {});
 			}
 
 			this.data = data;
 		},
+
+		populateData(params:PredictionOverlayParamStoreData):void {
+			this.overlayParams = params;
+		},
+
+		setOverlayParams(params:PredictionOverlayParamStoreData):void {
+			this.overlayParams = params;
+			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, params);
+			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (params as unknown) as JsonObject});
+		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions
 		& UnwrapRef<IPredictionState>
@@ -39,4 +61,14 @@ export const storePrediction = defineStore('prediction', {
 		& _StoreWithGetters<IPredictionGetters>
 		& PiniaCustomProperties
 	>,
-})
+});
+
+export interface PredictionOverlayParamStoreData {
+	listMode:boolean;
+	listModeOnlyMore2:boolean;
+	showTitle:boolean;
+	showLabels:boolean;
+	showVotes:boolean;
+	showVoters:boolean;
+	showPercent:boolean;
+}

@@ -75,6 +75,8 @@ export default class TwitchatEvent extends Event {
 	public static AD_BREAK_DATA:TwitchatEventType = "AD_BREAK_DATA";
 	public static DISTORT_OVERLAY_PARAMETERS:TwitchatEventType = "DISTORT_OVERLAY_PARAMETERS";
 	public static BITSWALL_OVERLAY_PARAMETERS:TwitchatEventType = "BITSWALL_OVERLAY_PARAMETERS";
+	public static PREDICTIONS_OVERLAY_PRESENCE:TwitchatEventType = "PREDICTIONS_OVERLAY_PRESENCE";
+	public static PREDICTIONS_OVERLAY_PARAMETERS:TwitchatEventType = "PREDICTIONS_OVERLAY_PARAMETERS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -146,6 +148,8 @@ export default class TwitchatEvent extends Event {
 	public static GET_DISTORT_OVERLAY_PARAMETERS:TwitchatActionType = "GET_DISTORT_OVERLAY_PARAMETERS";
 	public static GET_BITS_WALL_OVERLAY_PARAMETERS:TwitchatActionType = "GET_BITS_WALL_OVERLAY_PARAMETERS";
 	public static CUSTOM_CHAT_MESSAGE:TwitchatActionType = "CUSTOM_CHAT_MESSAGE";
+	public static GET_PREDICTIONS_OVERLAY_PRESENCE:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PRESENCE";
+	public static GET_PREDICTIONS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PARAMETERS";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -220,6 +224,8 @@ export const TwitchatEventTypeList = [
 	"AD_BREAK_DATA",
 	"DISTORT_OVERLAY_PARAMETERS",
 	"BITSWALL_OVERLAY_PARAMETERS",
+	"PREDICTIONS_OVERLAY_PRESENCE",
+	"PREDICTIONS_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -293,5 +299,7 @@ export const TwitchatActionTypeList = [
 	"GET_DISTORT_OVERLAY_PARAMETERS",
 	"GET_BITS_WALL_OVERLAY_PARAMETERS",
 	"CUSTOM_CHAT_MESSAGE",
+	"GET_PREDICTIONS_OVERLAY_PRESENCE",
+	"GET_PREDICTIONS_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

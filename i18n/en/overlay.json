@@ -14,6 +14,7 @@
 		"title_install":"Install",
 		"title_settings":"Settings",
 		"install_instructions_title":"Instructions",
+		"overlay_not_configured":"Overlay not configured or hidden",
 		"connection": {
 			"title": "The overlays need you to {OBS} or {DOCK}",
 			"obsBt": "connect with OBS",
@@ -25,7 +26,6 @@
 			"title": "Animated wheel",
 			"head": "Shows an animated wheel when doing a raffle.",
 			"css": "You can change the appearance of the wheel by overriding these CSS values on OBS browser source params",
-			"no_overlay": "overlay not configured or hidden",
 			"start": "To start a raffle, open the commands menu {MENU} or use the {CMD} command.",
 			"testBt": "Start a test animation"
 		},
@@ -54,7 +54,6 @@
 			"css": "You can change the appearance of the message by overriding these CSS IDs on OBS browser source params",
 			"message_pos": "Message position",
 			"testBt": "Send test message",
-			"no_overlay": "overlay not configured or hidden",
 			"alternative_tool": "Check out {URL} for a dedicated tool doing this with much more options"
 		},
 		"music_common": {
@@ -144,7 +143,6 @@
 			"param_hideEmptySlots":"Hide sections with no entry",
 			"delete_confirm_title":"Delete category?",
 			"scroll_tt":"Scroll this section into view",
-			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Start fake credits",
 			"moderators_label":"MODERATORS",
 			"empty_slot":"No entry ☹️",
@@ -261,7 +259,6 @@
 		"bitswall":{
 			"title":"Bits wall",
 			"head":"Cheers sent by viewers will fall on your screen.\nViewers can \"break\" cheers by clicking them with Heat extension.",
-			"no_overlay":"Overlay not configured or hidden",
 			"testBt":"Send bits",
 			"simulate_pinned":"Simulate pinned cheers",
 			"simulate_pinned_level":"Level",
@@ -272,6 +269,19 @@
 			"param_textureAlpha":"Cheermotes opacity ({VALUE}%)",
 			"param_cristalEffect":"Enable Cristal effect (Requires <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a> OBS plugin)",
 			"param_durations":"Durations before destroying cheermotes"
+		},
+		"predictions":{
+			"title":"Predictions",
+			"head":"Show current prediction on your stream",
+			"css": "You can change the appearance of the prediction by overriding these CSS values on OBS browser source params",
+			"testBt":"Test",
+			"param_listMode":"Show outcomes as list",
+			"param_listModeOnlyMore2":"Only if there are more than 2 outcomes",
+			"param_showTitle":"Show prediction title",
+			"param_showLabels":"Show outcome titles",
+			"param_showVotes":"Show vote count",
+			"param_showVoters":"Show voter count",
+			"param_showPercent":"Show percentages"
 		}
 	}
 }

@@ -32,7 +32,7 @@
 			
 			<TTButton class="center" v-else-if="overlayExists" :loading="loading" @click="testWheel()" icon="test">{{ $t('overlay.raffle.testBt') }}</TTButton>
 	
-			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.raffle.no_overlay") }}</div>
+			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 		
 		<div class="card-item footer">
