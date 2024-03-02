@@ -1476,6 +1476,7 @@ import Ajv from "ajv";
 			properties: {
 				listMode: {type:"boolean"},
 				listModeOnlyMore2: {type:"boolean"},
+				showTitle: {type:"boolean"},
 				showLabels: {type:"boolean"},
 				showVotes: {type:"boolean"},
 				showVoters: {type:"boolean"},
