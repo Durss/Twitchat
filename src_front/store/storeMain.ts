@@ -549,10 +549,17 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
-			 * Called when prediction overlay declares its presence
+			 * Called when prediction overlay request for its configs
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
 				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (StoreProxy.prediction.overlayParams as unknown) as JsonObject});
+			});
+
+			/**
+			 * Called when poll overlay request for its configs
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS, (e:TwitchatEvent)=> {
+				PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, {parameters: (StoreProxy.poll.overlayParams as unknown) as JsonObject});
 			});
 
 			/**
