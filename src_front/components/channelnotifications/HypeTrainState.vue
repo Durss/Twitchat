@@ -54,9 +54,10 @@
 					<div class="icon"><img src="@/assets/icons/sub.svg"></div>
 				</div>
 
-				<img :src="conductor_subs.user.avatarPath" class="avatar">
-
-				<a class="userlink" @click.stop="openUserCard(conductor_subs!.user)">{{conductor_subs.user.displayName}}</a>
+				<a @click.stop="openUserCard(conductor_subs!.user)">
+					<img :src="conductor_subs.user.avatarPath" class="avatar">
+					<span class="userlink">{{conductor_subs.user.displayName}}</span>
+				</a>
 
 				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_subs" :plural="getConductorSubCount()">
 					<template #COUNT>
@@ -70,10 +71,11 @@
 					<div class="icon"><img src="@/assets/icons/bits.svg"></div>
 				</div>
 
-				<img :src="conductor_bits.user.avatarPath" class="avatar">
+				<a @click.stop="openUserCard(conductor_subs!.user)">
+					<img :src="conductor_bits.user.avatarPath" class="avatar">
+					<span class="userlink">{{conductor_bits.user.displayName}}</span>
+				</a>
 
-				<a class="userlink" @click.stop="openUserCard(conductor_bits!.user)">{{conductor_bits.user.displayName}}</a>
-				
 				<i18n-t scope="global" tag="div" class="label" keypath="train.conductor_bits" :plural="getConductorBitsCount()">
 					<template #COUNT>
 						<span class="count">{{ getConductorBitsCount() }}</span>
