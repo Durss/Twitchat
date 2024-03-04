@@ -96,7 +96,8 @@ export const storeDiscord = defineStore('discord', {
 				action:"message",
 				name:"",
 				message:""
-			})
+			});
+			this.saveParams();
 		},
 		delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void{
 			StoreProxy.main.confirm(StoreProxy.i18n.t("discord.quick_delete"))
