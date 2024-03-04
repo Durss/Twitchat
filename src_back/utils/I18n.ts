@@ -68,7 +68,7 @@ export default class I18n {
 			if(lang != "en") {
 				return this.get("en", path, replaces);
 			}else{
-				return "[missing label for language "+lang+": "+path+" ]";
+				return "[missing label for language "+lang+": "+path+"]";
 			}
 		}
 

@@ -146,7 +146,6 @@ import DOMPurify from 'isomorphic-dompurify';
 
 		
 		const data = (e.data as unknown) as TwitchatDataTypes.ChatHighlightInfo;
-		console.log(data);
 		this.clipData = data.clip!;
 		this.params = data.params!;
 		this.message = "";

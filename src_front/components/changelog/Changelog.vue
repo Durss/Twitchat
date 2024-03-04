@@ -206,7 +206,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 
 		//If not all slides have been read or spent less than 30s on it
 		const didntReadAll = [...this.slideCountRead].length < this.items.length - 1; //don't care about last slide
-		this.readAtSpeedOfLight = Date.now() - this.openedAt < 30 * 1000 && !didntReadAll;
+		this.readAtSpeedOfLight = Date.now() - this.openedAt < this.items.length * 2000 && !didntReadAll;
 		if(!forceClose && (didntReadAll || this.readAtSpeedOfLight)) {
 			this.showReadAlert = true;
 			return;
