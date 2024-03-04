@@ -2,12 +2,12 @@
 	<div class="durationform input-field">
 		<contenteditable class="input" tag="span" ref="inputH"
 			v-model="hours"
-			v-autofocus="autofocus"
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
 			maxLength="9"
 			@keydown="onKeyDown($event, 'h')"
+			@focus="onFocus($event)"
 			@blur="clamp('h'); onChange()" />
 		
 		<p class="split">h</p>
@@ -19,17 +19,20 @@
 			:no-html="true"
 			maxLength="9"
 			@keydown="onKeyDown($event, 'm')"
+			@focus="onFocus($event)"
 			@blur="clamp('m'); onChange()" />
 
 		<p class="split">m</p>
 
 		<contenteditable class="input" tag="span" ref="inputS"
 			v-model="seconds"
+			v-autofocus="autofocus"
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
 			maxLength="9"
 			@keydown="onKeyDown($event, 's')"
+			@focus="onFocus($event)"
 			@blur="clamp('s'); onChange()" />
 
 		<p class="split">s</p>
@@ -37,10 +40,10 @@
 </template>
 
 <script lang="ts">
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import contenteditable from 'vue-contenteditable';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
+import contenteditable from 'vue-contenteditable';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
@@ -84,7 +87,6 @@ import { watch } from 'vue';
 		if(v > this.max) v = this.max;
 		if(v < this.min) v = this.min;
 		if(v != prevV) v = this.initValue(v);
-		console.log(v);
 		this.$emit("update:modelValue", v);
 		this.$emit("change", v);
 	}
@@ -120,6 +122,16 @@ import { watch } from 'vue';
 					(inputs[index].$el as HTMLSpanElement).focus();
 				}
 			}
+		}
+	}
+	public onFocus(event:FocusEvent):void {
+		const input = event.target as HTMLElement;
+		const range = document.createRange();
+		range.selectNodeContents(input);
+		const sel = window.getSelection();
+		if(sel) {
+			sel.removeAllRanges();
+			sel.addRange(range);
 		}
 	}
 
