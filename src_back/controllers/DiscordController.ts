@@ -137,11 +137,11 @@ export default class DiscordController extends AbstractController {
 	 * Post a message to the given channel
 	 */
 	private async postMessage(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const res = await this.guildGuard(request, response);
-		if(res == false) return;
+		const guard = await this.guildGuard(request, response);
+		if(guard == false) return;
 
 		const params = request.body as {message:string, channelId:string};
-		const body = { content:params.message }
+		const body = { content:"**"+guard.user.login+"**: "+params.message }
 		
 		//Send to discord
 		try {
