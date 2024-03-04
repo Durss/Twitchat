@@ -46,6 +46,11 @@ export default class AbstractTriggerActionEntry extends Vue {
 		//Add command params
 		if(this.triggerData.chatCommandParams) {
 			this.triggerData.chatCommandParams.forEach(v=> {
+				//If a staitc placeholder already exists with the same name, remove it.
+				//Chat command params have priority over them.
+				const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == v.tag.toLowerCase());
+				if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
+				
 				placeholdersList.push({
 					tag:v.tag,
 					pointer:"",
@@ -73,6 +78,11 @@ export default class AbstractTriggerActionEntry extends Vue {
 			if(a.mode != "list" && a.mode != "number") continue;
 			//If custom placeholder isn't defined, ignore it
 			if(!a.placeholder) continue;
+
+			//If a staitc placeholder already exists with the same name, remove it.
+			//Dynamic placeholder have priority over them.
+			const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
+			if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
 
 			placeholdersList.push({
 								tag:a.placeholder,
