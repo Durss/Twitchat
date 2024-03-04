@@ -211,6 +211,7 @@ export default toNative(PostOnChatParam);
 
 	.message {
 		position: relative;
+		font-size: 1em;
 	}
 	
 	.preview {
