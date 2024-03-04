@@ -332,6 +332,7 @@ export default toNative(ConnectDiscord);
 	.loader {
 		height: 2em;
 		margin: auto;
+		display: block;
 	}
 
 	.unlinkBt {
@@ -449,6 +450,13 @@ export default toNative(ConnectDiscord);
 @media only screen and (max-width: 800px) {
 	.paramsdiscord{
 		max-width: unset !important;
+		.codeForm {
+			.code {
+				input {
+					font-size: 2.5em;
+				}
+			}
+		}
 	}
 }
 </style>
