@@ -71,6 +71,8 @@
 			<Button small @click="simulateEvent($event, 'disconnect')" icon="offline">Chat disconnected</Button>
 			<Button small @click="simulateEvent($event, 'stream_online')" icon="online">Stream online</Button>
 			<Button small @click="simulateEvent($event, 'stream_offline')" icon="offline">Stream offline</Button>
+			<Button small @click="simulateEvent($event, 'stream_online', 'my_stream_online')" icon="offline">My stream started</Button>
+			<Button small @click="simulateEvent($event, 'stream_offline', 'my_stream_offline')" icon="offline">My stream stoped</Button>
 			<Button small @click="openTriggersLogs()" icon="broadcast">Show triggers logs</Button>
 			<Button small @click="openOBSHeatLogs()" icon="obs">Show OBS logs</Button>
 			<Button small @click="exportPubsubHistory()" icon="download" :loading="generatingHistory" v-if="!pubsubHistoryLink">Export events history</Button>
@@ -145,6 +147,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	}
 
 	public async simulateEvent(event:MouseEvent, type:TwitchatDataTypes.TwitchatMessageStringType, subAction?:Subaction):Promise<void> {
+		const me = StoreProxy.auth.twitch.user;
 		this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(type, async (message)=> {
 			switch(subAction) {
 				case "raidOffline":			(message as TwitchatDataTypes.MessageRaidData).stream.wasLive = false;break;
@@ -165,7 +168,15 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "sl_donation":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "donation"; break;
 				case "sl_merch":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "merch"; break;
 				case "sl_patreon":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "patreon_pledge"; break;
-				
+				case "my_stream_online":
+				case "my_stream_offline":{
+					(message as TwitchatDataTypes.MessageStreamOfflineData).info.user = me;
+					(message as TwitchatDataTypes.MessageStreamOfflineData).info.category = "Minecraft";
+					(message as TwitchatDataTypes.MessageStreamOfflineData).info.live = subAction == "my_stream_online";
+					(message as TwitchatDataTypes.MessageStreamOfflineData).info.title = "Putting some cubes everywhere !";
+					(message as TwitchatDataTypes.MessageStreamOfflineData).info.tags = ["cubes", "minecraft", "twitchat"];
+					break;
+				}
 				case "cheer_pin": {
 					setTimeout(()=> {
 						const m = (message as TwitchatDataTypes.MessageCheerData);
@@ -228,7 +239,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 			//Pressing CTRL while clicking a button will force the user to self
 			if(event.ctrlKey && message.hasOwnProperty("user")) {
 				// (message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
-				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, "647389082", "durssbot", "DurssBot");
+				(message as TwitchatDataTypes.MessageChatData).user = StoreProxy.users.getUserFrom("twitch", me.id, "647389082", "durssbot", "DurssBot");
 			}
 			this.$store.chat.addMessage(message);
 		}, false);
@@ -457,7 +468,9 @@ type Subaction = "first"
 				| "recent"
 				| "sl_donation"
 				| "sl_merch"
-				| "sl_patreon";
+				| "sl_patreon"
+				| "my_stream_online"
+				| "my_stream_offline";
 
 export default toNative(DevmodeMenu);
 </script>
