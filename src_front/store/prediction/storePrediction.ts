@@ -18,7 +18,8 @@ export const storePrediction = defineStore('prediction', {
 			showVotes:false,
 			showVoters:false,
 			showPercent:false,
-			showProgress:true,
+			showTimer:true,
+			placement:"bl",
 		},
 	} as IPredictionState),
 
@@ -54,7 +55,8 @@ export const storePrediction = defineStore('prediction', {
 			this.overlayParams.showVotes =			params.showVotes !== false;
 			this.overlayParams.showVoters =			params.showVoters !== false;
 			this.overlayParams.showPercent =		params.showPercent !== false;
-			this.overlayParams.showProgress =		params.showProgress !== false;
+			this.overlayParams.showTimer =			params.showTimer !== false;
+			this.overlayParams.placement =			params.placement || "br";
 		},
 
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {
@@ -79,5 +81,6 @@ export interface PredictionOverlayParamStoreData {
 	showVotes:boolean;
 	showVoters:boolean;
 	showPercent:boolean;
-	showProgress:boolean;
+	showTimer:boolean;
+	placement:TwitchatDataTypes.ScreenPosition;
 }

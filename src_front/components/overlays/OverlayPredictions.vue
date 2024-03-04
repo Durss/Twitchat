@@ -1,6 +1,6 @@
 <template>
-	<div class="overlaypredictions" id="holder" v-if="prediction && parameters">
-		<div id="progress" class="progress" ref="progress" v-show="parameters.showProgress"></div>
+	<div :class="classes" id="holder" v-if="prediction && parameters">
+		<div id="progress" class="progress" ref="progress" v-show="parameters.showTimer"></div>
 		<h1 id="title" v-if="parameters.showTitle">{{ prediction?.title }}</h1>
 		<div id="list" class="list" v-if="listMode">
 			<div id="list_choice" class="choice" v-for="(c, index) in prediction.outcomes" ref="bar">
@@ -60,7 +60,8 @@ class OverlayPredictions extends Vue {
 		showPercent:false,
 		showVoters:false,
 		showVotes:false,
-		showProgress:true,
+		showTimer:true,
+		placement:"bl",
 	};
 	
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
@@ -72,6 +73,13 @@ class OverlayPredictions extends Vue {
 		&& (!this.parameters.listModeOnlyMore2 || (this.parameters.listModeOnlyMore2 && this.prediction!.outcomes.length > 2))
 	}
 
+	public get classes():string[] {
+		return [
+			"overlaypredictions",
+			"position-"+this.parameters.placement
+		];
+	}
+
 	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):StyleValue {
 		return {
 			backgroundSize: `${this.getPercent(c)}% 100%`,
@@ -79,16 +87,19 @@ class OverlayPredictions extends Vue {
 	}
 
 	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome):number {
+		let maxVotes = 0;
 		let totalVotes = 0;
 		if(this.prediction) {
 			for (let i = 0; i < this.prediction.outcomes.length; i++) {
 				totalVotes += this.prediction.outcomes[i].votes;
+				maxVotes = Math.max(maxVotes, this.prediction.outcomes[i].votes);
 			}
 			if(totalVotes == 0) {
 				if(this.listMode) return 0;
 				return 100/this.prediction.outcomes.length;
 			}
 		}
+		if(this.listMode) totalVotes = maxVotes;	
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
@@ -127,7 +138,8 @@ class OverlayPredictions extends Vue {
 				const percentDone = timeSpent / (prediction.duration_s * 1000);
 				const percentRemaining = 1 - percentDone;
 				const duration = prediction.duration_s * percentRemaining;
-				gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:0});
+				gsap.killTweensOf(progressBar);
+				gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
 			}
 		}
 	}
@@ -151,7 +163,7 @@ class OverlayPredictions extends Vue {
 
 		
 		gsap.killTweensOf(this.$el);
-		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out"});
+		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});
 		
 		if(labels) {
 			labels.removeAttribute("style");
@@ -223,7 +235,7 @@ export default toNative(OverlayPredictions);
 				display: block;
 				overflow: hidden;
 				text-overflow: ellipsis;
-				text-wrap: nowrap;
+				white-space: nowrap;
 				transition: flex-basis .3s;
 				min-width: 2px;
 			}
@@ -282,7 +294,9 @@ export default toNative(OverlayPredictions);
 			}
 			h2 {
 				margin-bottom: .25em;
-				text-wrap: nowrap;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
 			}
 			.bar {
 				min-height: 1em;
@@ -339,6 +353,57 @@ export default toNative(OverlayPredictions);
 				margin-right: .25em;
 			}
 		}
+	}
+	
+	// transition: transform .25s, top .25s, right .25s, bottom .25s, left .25s;
+	&.position-tl {
+		top: 2em;
+		left: 2em;
+	}
+
+	&.position-t {
+		top: 2em;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	&.position-tr {
+		top: 2em;
+		right: 2em;
+	}
+
+	&.position-l {
+		top: 50%;
+		left: 2em;
+		transform: translateY(-50%);
+	}
+
+	&.position-m {
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	&.position-r {
+		top: 50%;
+		right: 2em;
+		transform: translateY(-50%);
+	}
+
+	&.position-bl {
+		bottom: 2em;
+		left: 2em;
+	}
+
+	&.position-b {
+		bottom: 2em;
+		left: 50%;
+		transform: translateX(-50%);
+	}
+
+	&.position-br {
+		bottom: 2em;
+		right: 2em;
 	}
 }
 </style>

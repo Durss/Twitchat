@@ -83,7 +83,11 @@
 				<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showVoters" v-model="params.showVoters" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
-				<ParamItem :paramData="param_showProgress" v-model="params.showProgress" @change="onChangeParam()" />
+				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
+				<div class="card-item placement">
+					<p>{{ $t("overlay.predictions.param_placement") }}</p>
+					<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
+				</div>
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.predictions.testBt') }}</TTButton>
 			</template>
 	
@@ -104,6 +108,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
 import { ParamItem } from '../../ParamItem.vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
+import PlacementSelector from '@/components/PlacementSelector.vue';
 
 @Component({
 	components:{
@@ -111,6 +116,7 @@ import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePr
 		ParamItem,
 		ToggleBlock,
 		OverlayInstaller,
+		PlacementSelector,
 	},
 	emits:[],
 })
@@ -145,7 +151,8 @@ class OverlayParamsPredictions extends Vue {
 			showVotes: this.$store.prediction.overlayParams.showVotes,
 			showVoters: this.$store.prediction.overlayParams.showVoters,
 			showPercent: this.$store.prediction.overlayParams.showPercent,
-			showProgress: this.$store.prediction.overlayParams.showProgress,
+			showTimer: this.$store.prediction.overlayParams.showTimer,
+			placement: this.$store.prediction.overlayParams.placement,
 		}
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -189,7 +196,7 @@ class OverlayParamsPredictions extends Vue {
 			v.voters = 0;
 			v.votes = 0;
 		});
-		predi.duration_s = 10;
+		predi.duration_s = 30;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		this.simulateInterval = SetIntervalWorker.instance.create(()=>{
@@ -224,6 +231,11 @@ export default toNative(OverlayParamsPredictions);
 
 <style scoped lang="less">
 .overlayparamspredictions{
-	
+
+	.placement {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+	}
 }
 </style>
