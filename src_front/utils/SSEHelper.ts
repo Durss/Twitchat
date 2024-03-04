@@ -5,6 +5,7 @@ import MessengerProxy from "@/messaging/MessengerProxy";
 import TwitchUtils from "./twitch/TwitchUtils";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import Utils from "./Utils";
+import TriggerActionHandler from "./triggers/TriggerActionHandler";
 
 /**
 * Created : 29/02/2024 
@@ -85,17 +86,39 @@ export default class SSEHelper {
 		const trigger = StoreProxy.triggers.triggerList.find(v=>{
 			return v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand == "/"+data.command;
 		});
-		let message:string[] = ["/"+data.command];
 		if(!trigger) return;
+		let text:string[] = [];
 		//Set params in the expected order
 		if(trigger.chatCommandParams) {
 			trigger.chatCommandParams.forEach(cmdParam => {
 				const param = (data.params||[]).find(v=>(v.name||"").toLowerCase() == cmdParam.tag.toLowerCase())
-				if(param?.value) message.push(param.value);
+				// if(param?.value) text.push(param.value);
+				if(param?.value) text.push("{"+param.name+"}");
 			})
 		}
 		//Send message to be executed by the triggers
-		MessengerProxy.instance.sendMessage(message.join(" "));
+		// MessengerProxy.instance.sendMessage(message.join(" "));
+
+		const placeholders:{[key: string]: string | number} = {};
+		const message:TwitchatDataTypes.MessageChatData =  {
+			id:Utils.getUUID(),
+			date:Date.now(),
+			channel_id:StoreProxy.auth.twitch.user.id,
+			answers:[],
+			is_short:false,
+			message:text.join(" "),
+			message_chunks:[],
+			message_html:"",
+			message_size:0,
+			platform:"twitchat",
+			type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+			user:StoreProxy.auth.twitch.user,
+		};
+		data.params.forEach(p => {
+			placeholders[p.name.toUpperCase()] = TwitchUtils.messageChunksToHTML(TwitchUtils.parseMessageToChunks(p.value, undefined, true, "twitch"));
+		})
+		console.log("DYNAMIC PLACEHOLDERS", placeholders);
+		TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
 	}
 
 	/**

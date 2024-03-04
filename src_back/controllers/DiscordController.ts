@@ -222,30 +222,31 @@ export default class DiscordController extends AbstractController {
 		if(res == false) return;
 		const {user, guild} = res;
 
-		const perms = PermissionsBitField.Flags.Administrator
-					& PermissionsBitField.Flags.ManageGuild
-					& PermissionsBitField.Flags.ModerateMembers;
-		const body = request.body as  {commands:{name:string, params:{name:string}[]}[]}
-		let commandList:SlashCommandBuilder[] = [];
-		body.commands.forEach(cmdDef => {
-			const cmd = new SlashCommandBuilder()
-			.setName(cmdDef.name)
-			.setDescription(cmdDef.name)
-			.setDefaultMemberPermissions(perms);
-
-			cmdDef.params.forEach(p => {
-				cmd.addStringOption(option => {
-					option.setName(p.name)
-					.setDescription(p.name)
-					.setRequired(true);
-					return option;
-				});
-			});
-			commandList.push(cmd);
-		});
 
 		try {
-			Logger.info("Creating guild "+commandList.length+" commands");
+			const perms = PermissionsBitField.Flags.Administrator
+						& PermissionsBitField.Flags.ManageGuild
+						& PermissionsBitField.Flags.ModerateMembers;
+			const body = request.body as  {commands:{name:string, params:{name:string}[]}[]}
+			let commandList:SlashCommandBuilder[] = [];
+			body.commands.forEach(cmdDef => {
+				const cmd = new SlashCommandBuilder()
+				.setName(cmdDef.name.toLowerCase())
+				.setDescription(cmdDef.name)
+				.setDefaultMemberPermissions(perms);
+
+				cmdDef.params.forEach(p => {
+					cmd.addStringOption(option => {
+						option.setName(p.name.toLowerCase())
+						.setDescription(p.name)
+						.setRequired(true);
+						return option;
+					});
+				});
+				commandList.push(cmd);
+			});
+
+			Logger.info("Creating "+commandList.length+" guild commands");
 			// const currentCommands = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, guild.guildID));
 			await this._rest.put(Routes.applicationGuildCommands(Config.credentials.discord_client_id, guild.guildID), {body:commandList});
 			response.header('Content-Type', 'application/json')
@@ -756,7 +757,7 @@ export default class DiscordController extends AbstractController {
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: "**:white_check_mark:**",
+						content: "**:white_check_mark:** `/"+command.data.name+"` `"+params.map(v=>v.value).join("` `")+"`",
 					},
 				});
 

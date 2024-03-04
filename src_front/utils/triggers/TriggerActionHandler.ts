@@ -894,8 +894,10 @@ export default class TriggerActionHandler {
 				//Add all params in the dynamic placeholders
 				for (let i = 0; i < trigger.chatCommandParams.length; i++) {
 					const param = trigger.chatCommandParams[i];
-					dynamicPlaceholders[param.tag] = params[i] || "";
-					log.entries.push({date:Date.now(), type:"message", value:"Add dynamic placeholder \"{"+param.tag+"}\" => \""+params[i]+"\""});
+					if(!dynamicPlaceholders[param.tag.toUpperCase()]) {
+						dynamicPlaceholders[param.tag.toUpperCase()] = params[i] || "";
+						log.entries.push({date:Date.now(), type:"message", value:"Add dynamic placeholder \"{"+param.tag.toUpperCase()+"}\" => \""+params[i]+"\""});
+					}
 				}
 			}
 		}
@@ -1193,7 +1195,7 @@ export default class TriggerActionHandler {
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
-						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true);
+						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text as string, subEvent, true, false, false);
 						let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 						if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.FOLLOWING
@@ -1204,16 +1206,24 @@ export default class TriggerActionHandler {
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID_STARTED
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.BINGO
 						|| message.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT
-						|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
-							user = message.user;
-							if(!message.user.displayName || !message.user.avatarPath || !message.user.login) {
-								//Get user info
-								const [twitchUser] = await TwitchUtils.loadUserInfo([message.user.id]);
-								message.user.avatarPath = twitchUser.profile_image_url;
-								//Populate more info just in case some are missing
-								message.user.login = twitchUser.login;
-								message.user.displayName = twitchUser.display_name;
+						|| message.type == TwitchatDataTypes.TwitchatMessageType.REWARD
+						|| message.type == TwitchatDataTypes.TwitchatMessageType.PINNED
+						|| message.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED) {
+							if(message.type == TwitchatDataTypes.TwitchatMessageType.PINNED
+							|| message.type == TwitchatDataTypes.TwitchatMessageType.UNPINNED){
+								user = message.chatMessage.user;
+							}else{
+								user = message.user;
 							}
+							if(!user.displayName || !user.avatarPath || !user.login) {
+								//Get user info
+								const [twitchUser] = await TwitchUtils.loadUserInfo([user.id]);
+								user.avatarPath = twitchUser.profile_image_url;
+								//Populate more info just in case some are missing
+								user.login = twitchUser.login;
+								user.displayName = twitchUser.display_name;
+							}
+							logStep.messages.push({date:Date.now(), value:"Loaded user \""+user.displayName+"\""});
 						}
 
 
@@ -1239,6 +1249,7 @@ export default class TriggerActionHandler {
 								},
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							}
+							logStep.messages.push({date:Date.now(), value:"Highlight clip ID \""+clipId+"\""});
 							PublicAPI.instance.broadcast(TwitchatEvent.SHOW_CLIP, (data as unknown) as JsonObject);
 
 						}else{
@@ -1248,7 +1259,7 @@ export default class TriggerActionHandler {
 								user,
 								params:StoreProxy.chat.chatHighlightOverlayParams,
 							};
-							log.entries.push({date:Date.now(), type:"message", value:"Highlight message \""+text+"\""});
+							logStep.messages.push({date:Date.now(), value:"Highlight message \""+text+"\""});
 							PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (info as unknown) as JsonObject)
 						}
 						StoreProxy.chat.isChatMessageHighlighted = true;
@@ -1261,7 +1272,7 @@ export default class TriggerActionHandler {
 				//Handle TTS action
 				if(step.type == "tts" && message) {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
-					log.entries.push({date:Date.now(), type:"message", value:"TTS read message \""+text+"\""});
+					logStep.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
 					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
 				}else
 				
@@ -1545,7 +1556,7 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
-									log.entries.push({date:Date.now(), type:"message", value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
+									logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
 									
 									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 									for (let i = 0; i < users.length; i++) {
@@ -1643,7 +1654,7 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_SENDER
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
-								log.entries.push({date:Date.now(), type:"message", value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
+								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
 								
 								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 								for (let i = 0; i < users.length; i++) {
@@ -2385,6 +2396,16 @@ export default class TriggerActionHandler {
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const me = StoreProxy.auth.twitch.user;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
+			
+		//Replace dynamic placeholders. These are user defined placeholders.
+		//Ex: to read a counter value, user must define a placeholder name that
+		//will be populated with the counter's value so this value can be used
+		//in subsequent actions.
+		//Here we use that value
+		for (const key in dynamicPlaceholders) {
+			const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+			res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
+		}
 
 		try {
 			// console.log("===== PARSE TEXT =====");
@@ -2723,17 +2744,6 @@ export default class TriggerActionHandler {
 				if(typeof value != "string") value = JSON.stringify(value);
 				
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
-			}
-			
-			
-			//Replace dynamic placeholders. These are user defined placeholders.
-			//Ex: to read a counter value, user must define a placeholder name that
-			//will be populated with the counter's value so this value can be used
-			//in subsequent actions.
-			//Here we use that value
-			for (const key in dynamicPlaceholders) {
-				const keySafe = key.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				res = res.replace(new RegExp("\\{"+keySafe+"\\}", "gi"), dynamicPlaceholders[key].toString() ?? "");
 			}
 
 			if(removeRemainingTags) {
