@@ -12,7 +12,57 @@
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.predictions.css") }}</div>
 				<ul class="cssStructure">
-					<li>#todo { ... }</li>
+					
+					<li>#holder { ... }
+						<ul>
+							<li>#progress { ... }</li>
+							<li>#title { ... }</li>
+							<li>#list { ... }
+								<ul>
+									<li>#list_choice { ... }
+										<ul>
+											<li>#list_choice_label { ... }</li>
+											<li>#list_choice_bar { ... }
+												<ul>
+													<li>#list_choice_bar_details { ... }
+														<ul>
+															<li>#list_choice_bar_details_percent { ... }</li>
+															<li>#list_choice_bar_details_votes { ... }</li>
+															<li>#list_choice_bar_details_points { ... }</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+							<li>#line { ... }
+								<ul>
+									<li>#line_labelList { ... }
+										<ul>
+											<li>#line_labelList_label { ... }</li>
+										</ul>
+									</li>
+									<li>#line_bar { ... }
+										<ul>
+											<li>#line_bar_item { ... }
+												<ul>
+													<li>#line_bar_item_details { ... }
+														<ul>
+															<li>#line_bar_item_details_percent { ... }</li>
+															<li>#line_bar_item_details_votes { ... }</li>
+															<li>#line_bar_item_details_points { ... }</li>
+														</ul>
+													</li>
+												</ul>
+											</li>
+										</ul>
+									</li>
+								</ul>
+							</li>
+						</ul>
+					</li>
 				</ul>
 			</ToggleBlock>
 		</section>
@@ -33,6 +83,7 @@
 				<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showVoters" v-model="params.showVoters" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
+				<ParamItem :paramData="param_showProgress" v-model="params.showProgress" @change="onChangeParam()" />
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.predictions.testBt') }}</TTButton>
 			</template>
 	
@@ -77,6 +128,7 @@ class OverlayParamsPredictions extends Vue {
 	public param_showVotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"channelPoints", labelKey:"overlay.predictions.param_showVotes"}
 	public param_showVoters:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"user", labelKey:"overlay.predictions.param_showVoters"}
 	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.predictions.param_showPercent"}
+	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.predictions.param_showProgress"}
 
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
@@ -93,6 +145,7 @@ class OverlayParamsPredictions extends Vue {
 			showVotes: this.$store.prediction.overlayParams.showVotes,
 			showVoters: this.$store.prediction.overlayParams.showVoters,
 			showPercent: this.$store.prediction.overlayParams.showPercent,
+			showProgress: this.$store.prediction.overlayParams.showProgress,
 		}
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -136,7 +189,8 @@ class OverlayParamsPredictions extends Vue {
 			v.voters = 0;
 			v.votes = 0;
 		});
-		predi.duration_s = 5;
+		predi.duration_s = 10;
+		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		this.simulateInterval = SetIntervalWorker.instance.create(()=>{
 			const fakeUpdates = Math.ceil(Math.random() * 5);

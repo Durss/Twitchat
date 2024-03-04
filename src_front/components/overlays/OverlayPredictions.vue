@@ -1,30 +1,31 @@
 <template>
-	<div class="overlaypredictions" v-if="prediction && parameters">
+	<div class="overlaypredictions" id="holder" v-if="prediction && parameters">
+		<div id="progress" class="progress" ref="progress" v-show="parameters.showProgress"></div>
 		<h1 id="title" v-if="parameters.showTitle">{{ prediction?.title }}</h1>
-		<div class="list" v-if="listMode">
-			<div class="choice" v-for="(c, index) in prediction.outcomes" ref="bar">
-				<h2 id="label" v-if="parameters.showLabels">{{c.label}}</h2>
-				<div class="bar" id="bar" :style="getAnswerStyles(c)">
-					<div class="details" id="details_holder">
-						<span id="percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
-						<span id="points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
+		<div id="list" class="list" v-if="listMode">
+			<div id="list_choice" class="choice" v-for="(c, index) in prediction.outcomes" ref="bar">
+				<h2 id="list_choice_label" v-if="parameters.showLabels">{{c.label}}</h2>
+				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
+					<div class="details" id="list_choice_bar_details">
+						<span id="list_choice_bar_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
+						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
+						<span id="list_choice_bar_details_points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
 					</div>
 				</div>
 			</div>
 		</div>
-		<div class="battle" v-else ref="holder">
-			<div class="labels" v-if="parameters.showLabels">
-				<h2 id="label" class="outcomeTitle" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
+		<div id="line" class="battle" v-else ref="holder">
+			<div id="line_labelList" class="labels" v-if="parameters.showLabels">
+				<h2 id="line_labelList_label" class="outcomeTitle" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
 					{{ c.label }}
 				</h2>
 			</div>
-			<div class="chunks" id="bar" ref="bar">
-				<div class="chunk" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
-					<div class="details" id="details_holder">
-						<span id="percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
-						<span id="points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
+			<div class="chunks" id="line_bar" ref="bar">
+				<div id="line_bar_item" class="chunk" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
+					<div class="details" id="line_bar_item_details">
+						<span id="line_bar_item_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
+						<span id="line_bar_item_details_votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
+						<span id="line_bar_item_details_points" class="points" v-if="parameters.showVotes"><Icon name="channelPoints" class="icon"/>{{c.votes}}</span>
 					</div>
 				</div>
 			</div>
@@ -40,7 +41,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
-import gsap from 'gsap';
+import gsap, { Linear } from 'gsap';
 
 @Component({
 	components:{
@@ -59,6 +60,7 @@ class OverlayPredictions extends Vue {
 		showPercent:false,
 		showVoters:false,
 		showVotes:false,
+		showProgress:true,
 	};
 	
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
@@ -116,7 +118,17 @@ class OverlayPredictions extends Vue {
 		}else{
 			const opening = this.prediction == null || this.prediction.id != prediction.id;
 			this.prediction = prediction;
-			if(opening) this.$nextTick().then(()=>this.open());
+			await this.$nextTick();
+			if(opening) this.open();
+	
+			const progressBar = this.$refs.progress as HTMLElement;
+			if(progressBar) {
+				const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
+				const percentDone = timeSpent / (prediction.duration_s * 1000);
+				const percentRemaining = 1 - percentDone;
+				const duration = prediction.duration_s * percentRemaining;
+				gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:0});
+			}
 		}
 	}
 	
@@ -136,7 +148,6 @@ class OverlayPredictions extends Vue {
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "300");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
-		console.log(minWidth, width);
 
 		
 		gsap.killTweensOf(this.$el);
@@ -184,6 +195,15 @@ export default toNative(OverlayPredictions);
 	overflow: hidden;
 	transform-origin: center center;
 	min-width: 300px;
+
+	.progress {
+		width: 100%;
+		height: .5em;
+		background-color: #387aff;
+		position: absolute;
+		top: 0;
+		left: 0;
+	}
 
 	h1 {
 		text-align: center;
@@ -297,6 +317,7 @@ export default toNative(OverlayPredictions);
 		display: flex;
 		flex-direction: row;
 		color:var(--color-light);
+		justify-content: center;
 		
 		.percent, .votes, .points {
 			display: flex;
@@ -307,6 +328,7 @@ export default toNative(OverlayPredictions);
 			background-color: rgba(0, 0, 0, .5);
 			font-size: .8em;
 			flex-shrink: 0;
+			font-variant-numeric: tabular-nums;
 
 			&:not(:last-child) {
 				margin-right: .25em;

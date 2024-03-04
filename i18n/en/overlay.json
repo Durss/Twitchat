@@ -281,7 +281,8 @@
 			"param_showLabels":"Show outcome titles",
 			"param_showVotes":"Show vote count",
 			"param_showVoters":"Show voter count",
-			"param_showPercent":"Show percentages"
+			"param_showPercent":"Show percentages",
+			"param_showProgress":"Show timer"
 		}
 	}
 }

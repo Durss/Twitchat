@@ -281,7 +281,8 @@
 			"param_showLabels":"Afficher le titre des entrées",
 			"param_showVotes":"Afficher le nombre de votes",
 			"param_showVoters":"Afficher le nombre participant·es",
-			"param_showPercent":"Afficher les pourcentages"
+			"param_showPercent":"Afficher les pourcentages",
+			"param_showProgress":"Afficher le temps restant"
 		}
 	}
 }

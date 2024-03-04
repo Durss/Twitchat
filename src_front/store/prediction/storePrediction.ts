@@ -18,6 +18,7 @@ export const storePrediction = defineStore('prediction', {
 			showVotes:false,
 			showVoters:false,
 			showPercent:false,
+			showProgress:true,
 		},
 	} as IPredictionState),
 
@@ -46,13 +47,20 @@ export const storePrediction = defineStore('prediction', {
 		},
 
 		populateData(params:PredictionOverlayParamStoreData):void {
-			this.overlayParams = params;
+			this.overlayParams.showTitle =			params.showTitle !== false;
+			this.overlayParams.listMode =			params.listMode !== false;
+			this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
+			this.overlayParams.showLabels =			params.showLabels !== false;
+			this.overlayParams.showVotes =			params.showVotes !== false;
+			this.overlayParams.showVoters =			params.showVoters !== false;
+			this.overlayParams.showPercent =		params.showPercent !== false;
+			this.overlayParams.showProgress =		params.showProgress !== false;
 		},
 
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {
-			this.overlayParams = params;
-			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, params);
-			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (params as unknown) as JsonObject});
+			this.populateData(params);
+			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, this.overlayParams);
+			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
 		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions
@@ -71,4 +79,5 @@ export interface PredictionOverlayParamStoreData {
 	showVotes:boolean;
 	showVoters:boolean;
 	showPercent:boolean;
+	showProgress:boolean;
 }

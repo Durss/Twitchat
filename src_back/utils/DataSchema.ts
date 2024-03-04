@@ -1481,6 +1481,7 @@ import Ajv from "ajv";
 				showVotes: {type:"boolean"},
 				showVoters: {type:"boolean"},
 				showPercent: {type:"boolean"},
+				showProgress: {type:"boolean"},
 			}
 		}
 	}
