@@ -6,14 +6,11 @@
 				<PredictionState class="content" v-else-if="showPrediction" />
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<BingoState class="content" v-else-if="showBingo" />
+				<HypeTrainState class="content" v-else-if="showHypeTrain" />
 			</transition>
 
 			<transition name="slide">
 				<RaidState class="content" v-if="showRaid" />
-			</transition>
-
-			<transition name="slide">
-				<HypeTrainState class="content" v-if="showHypeTrain" />
 			</transition>
 
 			<ClearButton class="closeBt clearButton" v-if="showClose"
@@ -58,7 +55,7 @@ import RaidState from './RaidState.vue';
 	// private clickHandler!:(e:MouseEvent) => void;
 
 	public get showRaid():boolean { return this.$store.stream.currentRaid != null; }
-	public get showHypeTrain():boolean { return this.$store.stream.hypeTrain != undefined; }
+	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.data != null && this.$store.raffle.data!.mode == "chat"; }
@@ -69,6 +66,7 @@ import RaidState from './RaidState.vue';
 			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
+			|| this.showHypeTrain
 			|| this.$store.chat.searchMessages != "")
 		;
 	}
@@ -117,8 +115,10 @@ export default toNative(ChannelNotifications);
 	.holder {
 		position: relative;
 		pointer-events:all;
-		&>* {
-			transition: margin-bottom .35s;
+		&>.content {
+			max-height: 30vh;
+			overflow: auto;
+			transition: all .35s;
 		}
 		.closeBt {
 			position: absolute;
@@ -132,7 +132,12 @@ export default toNative(ChannelNotifications);
 
 		.slide-enter-from,
 		.slide-leave-to {
-			margin-bottom: -100%;
+			// height: 0;
+			max-height: 0;
+			padding-top: 0;
+			padding-bottom: 0;
+			// margin-bottom: -100%;
+			// transform: translateY(100%);
 		}
 	}
 }

@@ -186,7 +186,7 @@ export default class PubSub extends EventDispatcher {
 	 */
 	public async simulateHypeTrain():Promise<void> {
 		const dateOffset = (PubsubJSON.RealHypeTrainData[1] as Date).getTime();
-		const timeScale = .05;
+		const timeScale = .15;
 		for (let i = 0; i < PubsubJSON.RealHypeTrainData.length; i+=2) {
 			const date = PubsubJSON.RealHypeTrainData[i+1] as Date;
 			const event = PubsubJSON.RealHypeTrainData[i] as {data:{message:string}};

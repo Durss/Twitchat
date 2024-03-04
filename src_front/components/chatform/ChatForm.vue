@@ -90,6 +90,14 @@
 				</transition>
 	
 				<transition name="blink">
+					<ButtonNotification :aria-label="$t('chat.form.trainBt_aria')"
+						icon="train"
+						v-tooltip="{content:$t('chat.form.trainBt_aria'), showOnCreate:shouldShowTooltip('train'), onHidden:()=>onHideTooltip('train')}"
+						@click="openNotifications('train')"
+						v-if="$store.stream.hypeTrain" />
+				</transition>
+	
+				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.trackedBt_aria')"
 						icon="magnet"
 						v-if="trackedUserCount > 0"

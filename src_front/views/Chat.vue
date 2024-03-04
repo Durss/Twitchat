@@ -364,6 +364,12 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 			if(raffle && (raffle.command || raffle.reward_id)) this.setCurrentNotification("raffle");
 		});
 
+		//Auto opens the train status when created
+		watch(() => this.$store.stream.hypeTrain, (newValue, oldValue) => {
+			let train = this.$store.stream.hypeTrain;
+			if(newValue && !oldValue) this.setCurrentNotification("train");
+		});
+
 		//Watch for columns changes
 		watch(() => this.$store.params.chatColumnsConfig, () => {
 			this.computeWindowsSizes();
@@ -754,8 +760,16 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		}
 	}
 
-	public setCurrentNotification(value:TwitchatDataTypes.NotificationTypes):void {
-		this.currentNotificationContent = value;
+	public async setCurrentNotification(value:TwitchatDataTypes.NotificationTypes):Promise<void> {
+		if(this.currentNotificationContent == value) {
+			this.currentNotificationContent = "";
+		}else{
+			if(this.currentNotificationContent) {
+				this.currentNotificationContent = "";
+				await Utils.promisedTimeout(370);
+			}
+			this.currentNotificationContent = value;
+		}
 	}
 
 	/**

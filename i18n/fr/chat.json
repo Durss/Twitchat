@@ -51,6 +51,7 @@
 			"spotify_down": "L'API Spotify est cassée.\nL'overlay et les triggers Spotify ne pourront fonctionner tant qu'ils ne l'auront pas réparée.",
 			"creditsBt_aria": "Générique de fin",
 			"qnaBt_aria": "FAQ",
+			"trainBt_aria": "Train de la hype",
 			"youtube_saving_token_aria": "Afin d'économiser les crédits d'API Youtube, le tchat a été déconnecté suite à une longue période d'inactivité.\nCliquez pour reconnecter."
 		},
 		"filters": {
