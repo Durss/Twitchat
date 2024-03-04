@@ -575,7 +575,7 @@ export const storeUsers = defineStore('users', {
 					const t = StoreProxy.i18n.t;
 					const messages = StoreProxy.chat.messages;
 					let message = "";
-					for (let i = messages.length-1; i > Math.max(0, messages.length - 200); i--) {
+					for (let i = messages.length-1; i > Math.max(0, messages.length - 500); i--) {
 						const m = messages[i];
 						let labelCode = "";
 						let params:{[key:string]:string} = {DATE:Utils.formatDate(new Date(m.date))};
@@ -604,7 +604,7 @@ export const storeUsers = defineStore('users', {
 							labelCode = "cheer";
 							params.BITS = m.bits.toString();
 							if(m.message){
-								labelCode = "redeem_message";
+								labelCode = "cheer_message";
 								params.MESSAGE = m.message;
 							}
 						}

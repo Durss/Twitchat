@@ -39,7 +39,7 @@
 			"message_deleted":"*[{DATE}]*\n:wastebasket: :envelope: Sent deleted message:\n> {MESSAGE}",
 			"message_answer_deleted":"*[{DATE}]*\n:wastebasket: :envelope: Sent deleted message:\n> {MESSAGE}\n:envelope_with_arrow: As an answer to {USER} that said:\n> {MESSAGE_ANSWERED}",
 			"cheer":"*[{DATE}]*\n:gem: Sent `{BITS}` bits",
-			"cheer_answer":"*[{DATE}]*\n:gem: Sent `{BITS}` bits with message:\n> {MESSAGE}"
+			"cheer_message":"*[{DATE}]*\n:gem: Sent `{BITS}` bits with message:\n> {MESSAGE}"
 		}
 	}
 }
