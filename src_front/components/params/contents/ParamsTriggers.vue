@@ -544,6 +544,23 @@ import TriggerList from './triggers/TriggerList.vue';
 
 					if(triggerEvent.value == TriggerTypes.AD_APPROACHING) {
 						(m as TwitchatDataTypes.MessageAdBreakApproachingData).delay_ms = trigger.adBreakDelay || 0;
+					}else
+
+					if(triggerEvent.value == TriggerTypes.STREAMLABS_DONATION) {
+						(m as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation";
+						(m as TwitchatDataTypes.StreamlabsDonationData).amount = 123;
+						(m as TwitchatDataTypes.StreamlabsDonationData).amountFormatted = "$123";
+					}else
+
+					if(triggerEvent.value == TriggerTypes.STREAMLABS_MERCH) {
+						(m as TwitchatDataTypes.StreamlabsMerchData).eventType = "merch";
+						(m as TwitchatDataTypes.StreamlabsMerchData).product = "T-shirt";
+					}else
+
+					if(triggerEvent.value == TriggerTypes.STREAMLABS_PATREON_PLEDGE) {
+						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge";
+						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amount = 123;
+						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$123";
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);
