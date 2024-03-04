@@ -77,6 +77,7 @@ class ConnectStreamlabs extends Vue {
 		}, false);
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
 			mess.eventType = "merch";
+			mess.product = "T-shirt";
 			this.fakeMerch = mess;
 		}, false);
 		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
@@ -129,6 +130,9 @@ export default toNative(ConnectStreamlabs);
 			height: 1em;
 			margin-right: .5em;
 			vertical-align: middle;
+		}
+		.chatMessage  {
+			font-size: 1em;
 		}
 	}
 }
