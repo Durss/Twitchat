@@ -202,7 +202,7 @@ export default toNative(OverlayPoll);
 	align-items: center;
 	overflow: hidden;
 	transform-origin: center center;
-	min-width: 300px;
+	min-width: 20em;
 
 	.progress {
 		width: 100%;

@@ -535,7 +535,7 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.POLL: {
 					const choices:TwitchatDataTypes.MessagePollDataChoice[] = [];
-					const count = Math.ceil(Math.random()*5);
+					const count = Math.max(2, Math.ceil(Math.random()*5));
 					let winner!:TwitchatDataTypes.MessagePollDataChoice;
 					let winnerCount = 0;
 					for(let i=0; i < count; i++) {
