@@ -17,6 +17,7 @@ import type { DiscordStoreData } from "./discord/storeDiscord";
 import type { SreamlabsStoreData } from "./streamlabs/storeStreamlabs";
 import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
+import type { PollOverlayParamStoreData } from "./poll/storePoll";
 
 /**
 * Created : 23/09/2022 
@@ -952,6 +953,10 @@ export interface IPollState {
 	 * Current poll data
 	 */
 	data:TwitchatDataTypes.MessagePollData | null,
+	/**
+	 * Contains params about the prediction overlay
+	 */
+	overlayParams:PollOverlayParamStoreData;
 }
 
 export interface IPollGetters {
@@ -964,6 +969,15 @@ export interface IPollActions {
 	 * @param postOnChat 
 	 */
 	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
+	/**
+	 * Populates data from data store value
+	 */
+	populateData(params:PollOverlayParamStoreData):void;
+	/**
+	 * Updates overlay params
+	 * @param params 
+	 */
+	setOverlayParams(params:PollOverlayParamStoreData):void;
 }
 
 

@@ -12,6 +12,7 @@
 		<OverlayDistort v-if="overlay=='distort'" />
 		<OverlayBitsWall v-if="overlay=='bitswall'" />
 		<OverlayPredictions v-if="overlay=='predictions'" />
+		<OverlayPoll v-if="overlay=='polls'" />
 	</div>
 </template>
 
@@ -42,9 +43,11 @@ const OverlayUlule = defineAsyncComponent({loader: () => import('@/components/ov
 const OverlayAdBreak = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayAdBreak.vue')});
 const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDistort.vue')});
 const OverlayPredictions = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPredictions.vue')});
+const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPoll.vue')});
 
 @Component({
 	components:{
+		OverlayPoll,
 		OverlayUlule,
 		OverlayTimer,
 		OverlayAdBreak,

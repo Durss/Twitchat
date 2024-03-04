@@ -96,6 +96,7 @@ export default class DataStore {
 	public static STREAMLABS:string = "streamlabs";
 	public static STREAMELEMENTS:string = "streamelements";
 	public static PREDICTION_OVERLAY_PARAMS:string = "predictionOverlayParams";
+	public static POLL_OVERLAY_PARAMS:string = "pollOverlayParams";
 	
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";

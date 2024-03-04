@@ -840,6 +840,7 @@ export const storeMain = defineStore("main", {
 			 */
 			const sOBS = StoreProxy.obs;
 			const sTTS = StoreProxy.tts;
+			const sPoll = StoreProxy.poll;
 			const sChat = StoreProxy.chat;
 			const sHeat = StoreProxy.heat;
 			const sVoice = StoreProxy.voice;
@@ -1108,10 +1109,16 @@ export const storeMain = defineStore("main", {
 				sStreamlabs.populateData(JSON.parse(streamlabsParams));
 			}
 
-			//Init streamlabs params
+			//Init prediction overlay params
 			const predictionParams = DataStore.get(DataStore.PREDICTION_OVERLAY_PARAMS);
 			if(predictionParams) {
 				sPrediction.populateData(JSON.parse(predictionParams));
+			}
+
+			//Init poll overlay params
+			const pollParams = DataStore.get(DataStore.POLL_OVERLAY_PARAMS);
+			if(pollParams) {
+				sPoll.populateData(JSON.parse(pollParams));
 			}
 
 			Database.instance.connect().then(async ()=> {

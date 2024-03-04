@@ -46,7 +46,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
-	emits:["update:modelValue"],
+	emits:["update:modelValue", "change"],
 })
  class PlacementSelector extends Vue {
 
@@ -63,6 +63,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		
 		watch(() => this.placement, ()=> {
 			this.$emit("update:modelValue", this.placement);
+			this.$emit("change", this.placement);
 		})
 
 		watch(() => this.sidesOnly, ()=> {

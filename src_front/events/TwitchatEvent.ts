@@ -77,6 +77,8 @@ export default class TwitchatEvent extends Event {
 	public static BITSWALL_OVERLAY_PARAMETERS:TwitchatEventType = "BITSWALL_OVERLAY_PARAMETERS";
 	public static PREDICTIONS_OVERLAY_PRESENCE:TwitchatEventType = "PREDICTIONS_OVERLAY_PRESENCE";
 	public static PREDICTIONS_OVERLAY_PARAMETERS:TwitchatEventType = "PREDICTIONS_OVERLAY_PARAMETERS";
+	public static POLLS_OVERLAY_PRESENCE:TwitchatEventType = "POLLS_OVERLAY_PRESENCE";
+	public static POLLS_OVERLAY_PARAMETERS:TwitchatEventType = "POLLS_OVERLAY_PARAMETERS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -150,6 +152,8 @@ export default class TwitchatEvent extends Event {
 	public static CUSTOM_CHAT_MESSAGE:TwitchatActionType = "CUSTOM_CHAT_MESSAGE";
 	public static GET_PREDICTIONS_OVERLAY_PRESENCE:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PRESENCE";
 	public static GET_PREDICTIONS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PARAMETERS";
+	public static GET_POLLS_OVERLAY_PRESENCE:TwitchatActionType = "GET_POLLS_OVERLAY_PRESENCE";
+	public static GET_POLLS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_POLLS_OVERLAY_PARAMETERS";
 
 	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
 		super(type);
@@ -226,6 +230,8 @@ export const TwitchatEventTypeList = [
 	"BITSWALL_OVERLAY_PARAMETERS",
 	"PREDICTIONS_OVERLAY_PRESENCE",
 	"PREDICTIONS_OVERLAY_PARAMETERS",
+	"POLLS_OVERLAY_PRESENCE",
+	"POLLS_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -301,5 +307,7 @@ export const TwitchatActionTypeList = [
 	"CUSTOM_CHAT_MESSAGE",
 	"GET_PREDICTIONS_OVERLAY_PRESENCE",
 	"GET_PREDICTIONS_OVERLAY_PARAMETERS",
+	"GET_POLLS_OVERLAY_PRESENCE",
+	"GET_POLLS_OVERLAY_PARAMETERS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

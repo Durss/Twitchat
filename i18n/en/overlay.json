@@ -282,7 +282,22 @@
 			"param_showVotes":"Show vote count",
 			"param_showVoters":"Show voter count",
 			"param_showPercent":"Show percentages",
-			"param_showProgress":"Show timer"
+			"param_showProgress":"Show timer",
+			"param_placement":"Position on screen"
+		},
+		"polls":{
+			"title":"Polls",
+			"head":"Show current poll on your stream",
+			"css": "You can change the appearance of the poll by overriding these CSS values on OBS browser source params",
+			"testBt":"Test",
+			"param_listMode":"Show choices as list",
+			"param_listModeOnlyMore2":"Only if there are more than 2 choices",
+			"param_showTitle":"Show poll title",
+			"param_showLabels":"Show choice titles",
+			"param_showVotes":"Show vote count",
+			"param_showPercent":"Show percentages",
+			"param_showProgress":"Show timer",
+			"param_placement":"Position on screen"
 		}
 	}
 }

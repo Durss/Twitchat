@@ -74,7 +74,7 @@
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
 			<div class="placement">
-				<p class="">{{ $t("overlay.highlight.message_pos") }}</p>
+				<p>{{ $t("overlay.highlight.message_pos") }}</p>
 				<PlacementSelector v-model="placement" />
 			</div>
 

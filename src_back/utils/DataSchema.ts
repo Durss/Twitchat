@@ -976,7 +976,7 @@ import Ajv from "ajv";
 			type:"object",
 			additionalProperties: false,
 			properties: {
-				position:{type:"string", maxLength:2},
+				position: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
 		},
 		
@@ -1354,8 +1354,8 @@ import Ajv from "ajv";
 				runningThickness: {type:"integer", minimum:0, maximum:100},
 				approachingColor: {type:"string", maxLength:50},
 				runningColor: {type:"string", maxLength:50},
-				approachingPlacement: {type:"string", maxLength:2},
-				runningPlacement: {type:"string", maxLength:2},
+				approachingPlacement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
+				runningPlacement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 				approachingLabel: {type:"string", maxLength:500},
 				runningLabel: {type:"string", maxLength:500}
 			}
@@ -1481,7 +1481,22 @@ import Ajv from "ajv";
 				showVotes: {type:"boolean"},
 				showVoters: {type:"boolean"},
 				showPercent: {type:"boolean"},
-				showProgress: {type:"boolean"},
+				showTimer: {type:"boolean"},
+				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
+			}
+		},
+		pollOverlayParams: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				listMode: {type:"boolean"},
+				listModeOnlyMore2: {type:"boolean"},
+				showTitle: {type:"boolean"},
+				showLabels: {type:"boolean"},
+				showVotes: {type:"boolean"},
+				showPercent: {type:"boolean"},
+				showTimer: {type:"boolean"},
+				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
 		}
 	}

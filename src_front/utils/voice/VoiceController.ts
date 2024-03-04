@@ -225,9 +225,7 @@ export default class VoiceController {
 			}) 
 		}
 
-		console.log(this.hashmapGlobalActions);
 		this.splitRegGlobalActions = new RegExp("(?:^|\\s)("+regChunks.join("|")+")(?:(?:[^\\s]{0,1}$)|(?:[^\\s]{1}\\s)?|\\s)", "gi");
-		console.log(this.splitRegGlobalActions);
 	}
 
 	private triggerAction(action:string, data?:JsonObject):void {

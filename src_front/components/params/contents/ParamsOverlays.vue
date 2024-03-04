@@ -34,6 +34,7 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
+			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg"></button>
 			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
 			<button class="item" @click="subContent = 'bitswall'" v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'overlay_bitswall'}"><img src="@/assets/img/overlays/bits_wall.jpg"></button>
@@ -60,6 +61,7 @@
 			<OverlayParamsAdBreak class="block"		:open="subContent == 'adbreak'"			v-if="subContent == 'adbreak'" />
 			<OverlayParamsUlule class="block"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
 			<OverlayParamsPredictions class="block"	:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
+			<OverlayParamsPolls class="block"		:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
 		</div>
 	</div>
 </template>
@@ -84,11 +86,13 @@ import OverlayParamsTTS from './overlays/OverlayParamsTTS.vue';
 import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 import OverlayParamsPredictions from './overlays/OverlayParamsPredictions.vue';
+import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 
 @Component({
 	components:{
 		TTButton,
 		OverlayParamsTTS,
+		OverlayParamsPolls,
 		OverlayParamsUlule,
 		OverlayParamsTimer,
 		OverlayParamsRaffle,
