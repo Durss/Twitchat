@@ -9,6 +9,7 @@ import ChatCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config, { type ServerConfig } from '@/utils/Config';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
+import SSEHelper from '@/utils/SSEHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
@@ -32,8 +33,6 @@ import type { UnwrapRef } from 'vue';
 import DataStore from './DataStore';
 import Database from './Database';
 import StoreProxy, { type IMainActions, type IMainGetters, type IMainState } from './StoreProxy';
-import MessengerProxy from '@/messaging/MessengerProxy';
-import SSEHelper from '@/utils/SSEHelper';
 
 export const storeMain = defineStore("main", {
 	state: () => ({
@@ -85,9 +84,12 @@ export const storeMain = defineStore("main", {
 		nonPremiumLimitExceeded: ()=> {
 			if(StoreProxy.auth.isPremium) return false;
 
+			const triggersLength = StoreProxy.triggers.triggerList
+			.filter(v=>v.enabled !== false && StoreProxy.triggers.triggerIdToFolderEnabled[v.id] !== false).length;
+
 			return StoreProxy.counters.counterList.filter(v=>v.enabled != false).length > Config.instance.MAX_COUNTERS
 				|| StoreProxy.values.valueList.filter(v=>v.enabled != false).length > Config.instance.MAX_VALUES
-				|| StoreProxy.triggers.triggerList.filter(v=>v.enabled != false).length > Config.instance.MAX_TRIGGERS
+				|| triggersLength > Config.instance.MAX_TRIGGERS
 				|| StoreProxy.heat.screenList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_HEAT_SCREENS
 				|| StoreProxy.users.customBadgeList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_BADGES
 				|| Object.keys(StoreProxy.users.customUserBadges).length > Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION

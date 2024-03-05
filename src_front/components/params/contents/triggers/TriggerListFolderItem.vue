@@ -39,7 +39,7 @@
 				</template>
 				<template #right_actions>
 					<div class="blockActions">
-						<ToggleButton class="triggerToggle" v-model="element.enabled" @change="$emit('change', $event)" />
+						<ToggleButton class="triggerToggle" v-model="element.enabled" @change="onToggleFolder(element)" />
 						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>
@@ -55,7 +55,6 @@
 						:debugMode="debugMode"
 						:triggerId="triggerId"
 						@change="onChange"
-						@changeState="$emit('changeState', element)"
 						@delete="$emit('delete', $event)"
 						@duplicate="$emit('duplicate', $event)"
 						@testTrigger="$emit('testTrigger',$event)"
@@ -70,7 +69,7 @@
 				:noEdit="noEdit"
 				:forceDisableOption="forceDisableOption"
 				:entryData="element"
-				@changeState="$emit('changeState', element)"
+				@changeState="onToggleTrigger(element, $event)"
 				@delete="$emit('delete', $event)"
 				@duplicate="$emit('duplicate', $event)"
 				@testTrigger="$emit('testTrigger',$event)"
@@ -84,11 +83,13 @@
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
-import ToggleBlock, {ToggleBlock as ToggleBlockClass} from '@/components/ToggleBlock.vue';
+import ToggleBlock, { ToggleBlock as ToggleBlockClass } from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import gsap, { Linear } from 'gsap';
+import { RoughEase } from 'gsap/all';
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
@@ -185,6 +186,45 @@ import TriggerListItem from './TriggerListItem.vue';
 			index ++;
 		});
 		this.onChange();
+	}
+
+	public onToggleTrigger(item:TriggerListEntry, el:HTMLElement):void {
+		if(item.trigger.enabled
+		&& !this.$store.auth.isPremium
+		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
+			setTimeout(()=>{
+				item.trigger.enabled = false;
+			}, 350);
+			this.vibrate(el);
+		}else{
+			this.$emit('change');
+		}
+	}
+
+	public onToggleFolder(folder:TriggerListFolderEntry):void {
+		//First emit to update storage
+		this.$emit('change');
+
+		//If there are too much items enabled, disable the folder
+		if(folder.enabled
+		&& !this.$store.auth.isPremium
+		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
+			//Need to wait for animation to complete
+			setTimeout(()=>{
+				folder.enabled = false;
+				//Emit the revert
+				this.$emit('change');
+			}, 200);
+			this.vibrate((this.$refs["folder_"+folder.id] as Vue).$el as HTMLElement);
+		}
+	}
+
+	private vibrate(el:HTMLElement):void {
+		setTimeout(()=>{
+			gsap.fromTo(el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
+			gsap.fromTo(el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+		}, 150);
+		
 	}
 
 }

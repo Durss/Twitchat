@@ -229,21 +229,22 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 	 * @param item 
 	 */
 	public onToggleTrigger(item:TriggerListEntry):void {
-		if(!this.$store.auth.isPremium
-		&& this.$store.triggers.triggerList.filter(v=>v.enabled !== false).length > this.$config.MAX_TRIGGERS) {
-			setTimeout(()=>{
-				item.trigger.enabled = false;
-			}, 350);
-			setTimeout(()=>{
-				const divs = this.$refs["item_"+item.trigger.id] as HTMLElement[];
-				for (let i = 0; i < divs.length; i++) {
-					gsap.fromTo(divs[i], {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
-					gsap.fromTo(divs[i], {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
-				}
-			}, 150);
-		}else{
+		// if(!this.$store.auth.isPremium
+		// && this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
+		// 	console.log(item);
+		// 	setTimeout(()=>{
+		// 		item.trigger.enabled = false;
+		// 	}, 350);
+			// setTimeout(()=>{
+			// 	const divs = this.$refs["item_"+item.trigger.id] as HTMLElement[];
+			// 	for (let i = 0; i < divs.length; i++) {
+			// 		gsap.fromTo(divs[i], {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
+			// 		gsap.fromTo(divs[i], {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+			// 	}
+			// }, 150);
+		// }else{
 			this.$store.triggers.saveTriggers();
-		}
+		// }
 	}
 
 	/**

@@ -14,7 +14,7 @@
 				v-if="$store.triggers.triggerList.length > 0">
 					<template #right_actions>
 						<Icon :name="(triggersOK? 'checkmark' : 'alert')" />
-						<strong>{{$store.triggers.triggerList.filter(v=>v.enabled === true && $store.triggers.triggerIdToFolderEnabled[v.id] !== false).length}}/{{ $config.MAX_TRIGGERS }}</strong>
+						<strong>{{triggerCount}}/{{ $config.MAX_TRIGGERS }}</strong>
 					</template>
 					<div class="itemList">
 						<TriggerListFolderItem
@@ -150,22 +150,20 @@
 </template>
 
 <script lang="ts">
+import type { HeatScreen } from '@/types/HeatDataTypes';
 import type { TriggerData, TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap/all';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
 import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
-import type { HeatScreen } from '@/types/HeatDataTypes';
 import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
-import StoreProxy from '@/store/StoreProxy';
-import Config from '@/utils/Config';
 
 @Component({
 	components:{
@@ -181,7 +179,7 @@ import Config from '@/utils/Config';
 })
  class NonPremiumCleanup extends Vue {
 
-	public get triggersOK():boolean { return this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length <= this.$config.MAX_TRIGGERS; }
+	public get triggersOK():boolean { return this.triggerCount <= this.$config.MAX_TRIGGERS; }
 	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
 	public get valuesOK():boolean { return this.$store.values.valueList.filter(v=>v.enabled !== false).length <= this.$config.MAX_VALUES; }
 	public get heatOK():boolean { return this.$store.heat.screenList.filter(v=>v.enabled !== false).length <= this.$config.MAX_CUSTOM_HEAT_SCREENS; }
@@ -201,6 +199,10 @@ import Config from '@/utils/Config';
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
+
+	public get triggerCount():number {
+		return this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length;
+	}
 
 	public get userBadges():TwitchatDataTypes.TwitchatUser[] {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
@@ -251,7 +253,6 @@ import Config from '@/utils/Config';
 		//Build folder structure
 		const triggerList = this.$store.triggers.triggerList;
 		const idToHasFolder:{[key:string]:boolean} = {};
-		const done:any = {};
 
 		const flatList = triggerList.map<TriggerListEntry>(v=> {
 			const info = Utils.getTriggerDisplayInfo(v);
@@ -273,7 +274,7 @@ import Config from '@/utils/Config';
 							enabled:item.enabled !== false});
 				}else{
 					const entry = flatList.find(v=> v.trigger.id == item.triggerId);
-					if(entry && !done[entry.id]) {
+					if(entry && !idToHasFolder[entry.id]) {
 						idToHasFolder[entry.id] = true;
 						res.push(entry);
 					}
@@ -284,7 +285,8 @@ import Config from '@/utils/Config';
 		this.folderTriggerList = buildItem(this.$store.triggers.triggerTree);
 		for (let i = 0; i < this.triggerList.length; i++) {
 			const t = this.triggerList[i];
-			if(!done[t.id]) {
+			if(!idToHasFolder[t.id]) {
+				idToHasFolder[t.id] = true;
 				this.folderTriggerList.push(t);
 			}
 		}

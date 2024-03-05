@@ -15,7 +15,7 @@
 		v-if="noEdit === false || forceDisableOption !== false"
 		@click="entryData.trigger.enabled = !entryData.trigger.enabled; $emit('changeState')">
 			<ToggleButton v-model="entryData.trigger.enabled"
-			@change="$emit('changeState')"
+			@change="onToggle()"
 			:aria-label="entryData.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
 		</div>
 
@@ -45,6 +45,8 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
+import gsap, { Linear } from 'gsap';
+import { RoughEase } from 'gsap/all';
 
 @Component({
 	components:{
@@ -70,6 +72,22 @@ import type { TriggerListEntry } from "./TriggerList.vue";
 		const event = TriggerTypesDefinitionList().find(v=> v.value === entry.trigger.type);
 		if(!event) return "unknown category"
 		return this.$t(event?.labelKey);
+	}
+
+	public onToggle():void {
+		// if(this.entryData.trigger.enabled
+		// && !this.$store.auth.isPremium
+		// && this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
+		// 	setTimeout(()=>{
+		// 		this.entryData.trigger.enabled = false;
+		// 	}, 350);
+		// 	setTimeout(()=>{
+		// 		gsap.fromTo(this.$el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
+		// 		gsap.fromTo(this.$el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
+		// 	}, 150);
+		// }else{
+			this.$emit('changeState', this.$el);
+		// }
 	}
 
 }

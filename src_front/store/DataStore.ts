@@ -166,7 +166,7 @@ export default class DataStore {
 	 */
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
-		const latestVersion = 52;
+		const latestVersion = 53;
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
@@ -348,6 +348,10 @@ export default class DataStore {
 		}
 		if(v==51) {
 			this.migratePollPredDurations(data);
+			v = 52;
+		}
+		if(v==52) {
+			this.dedupeTriggerTree(data);
 			v = latestVersion;
 		}
 
@@ -1599,6 +1603,47 @@ export default class DataStore {
 				})
 			});
 			data[DataStore.TRIGGERS] = triggers;
+		}
+	}
+	
+	/**
+	 * Remove duplicates from the trigger tree after a mistake on the
+	 * non-premium data cleanup that was duplicating everything on the
+	 * root of the tree
+	 * @param data 
+	 */
+	public static dedupeTriggerTree(data:any):void {
+		
+		//Migrate durations on triggers
+		const tree:TriggerActionDataTypes.TriggerTreeItemData[] = data[DataStore.TRIGGERS_TREE];
+		if(tree && Array.isArray(tree)) {
+			const isInFolder:{[key:string]:boolean} = {};
+			const parseTreeNode = (node:TriggerActionDataTypes.TriggerTreeItemData)=> {
+				if(node.type == "folder") {
+					(node.children || []).forEach(item => {
+						if(item.type == "trigger") {
+							isInFolder[item.triggerId!] = true;
+						}else{
+							parseTreeNode(item);
+						}
+					})
+				}
+			}
+			//Check which nodes are duplicated on root
+			tree.forEach(item=> parseTreeNode(item));
+
+			//Cleanup any trigger from the root tree if it
+			//exists within a folder
+			for (let i = 0; i < tree.length; i++) {
+				const item = tree[i];
+				//Check if current item exists within a folder
+				if(item.type == "trigger" && isInFolder[item.triggerId!] === true) {
+					console.log("Remove", item.triggerId);
+					tree.splice(i, 1);
+					i--;
+				}
+			}
+			data[DataStore.TRIGGERS_TREE] = tree;
 		}
 	}
 }
