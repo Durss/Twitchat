@@ -342,20 +342,20 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		watch(() => this.$store.prediction.data, (newValue, prevValue) => {
 			let prediction = this.$store.prediction.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction");
+			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction", false);
 		});
 
 		//Auto opens the poll status if terminated
 		watch(() => this.$store.poll.data, (newValue, prevValue) => {
 			let poll = this.$store.poll.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
-			if(poll && isNew) this.setCurrentNotification("poll");
+			if(poll && isNew) this.setCurrentNotification("poll", false);
 		});
 
 		//Auto opens the bingo status when created
 		watch(() => this.$store.bingo.data, () => {
 			let bingo = this.$store.bingo.data;
-			if(bingo) this.setCurrentNotification("bingo");
+			if(bingo) this.setCurrentNotification("bingo", false);
 		});
 
 		//Auto opens the raffle status when created
@@ -366,8 +366,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 
 		//Auto opens the train status when created
 		watch(() => this.$store.stream.hypeTrain, (newValue, oldValue) => {
-			let train = this.$store.stream.hypeTrain;
-			if(newValue && !oldValue) this.setCurrentNotification("train");
+			if(newValue && !oldValue) this.setCurrentNotification("train", false);
 		});
 
 		//Watch for columns changes
@@ -744,11 +743,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		}
 
 		if(notif) {
-			if(this.currentNotificationContent == notif) {
-				this.setCurrentNotification("");
-			}else{
-				this.setCurrentNotification(notif);
-			}
+			this.setCurrentNotification(notif);
 		}
 
 		if(modal) {
@@ -760,14 +755,10 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		}
 	}
 
-	public async setCurrentNotification(value:TwitchatDataTypes.NotificationTypes):Promise<void> {
-		if(this.currentNotificationContent == value) {
+	public async setCurrentNotification(value:TwitchatDataTypes.NotificationTypes, toggle:boolean = true):Promise<void> {
+		if(this.currentNotificationContent == value && toggle) {
 			this.currentNotificationContent = "";
 		}else{
-			if(this.currentNotificationContent) {
-				this.currentNotificationContent = "";
-				await Utils.promisedTimeout(370);
-			}
 			this.currentNotificationContent = value;
 		}
 	}

@@ -132,7 +132,10 @@ export default toNative(ChannelNotifications);
 
 		.slide-enter-from,
 		.slide-leave-to {
-			// height: 0;
+			&.slide-leave-to {
+				// filter: brightness(.1);
+				opacity: .2;
+			}
 			max-height: 0;
 			padding-top: 0;
 			padding-bottom: 0;
