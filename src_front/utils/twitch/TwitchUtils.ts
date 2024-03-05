@@ -489,7 +489,15 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		const json = await res.json();
 		if(res.status == 200) {
-			this.getPredictions();
+			//Wait 5s so pubsub has time to make a feedback.
+			//Without that we would get these events:
+			// prediction ended
+			// resolve pending
+			// resolved
+			// prediction ended
+			setTimeout(() => {
+				this.getPredictions();
+			}, 5000);
 			return json.data;
 		}
 		throw(json);

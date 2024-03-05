@@ -69,6 +69,13 @@ export const storePoll = defineStore('poll', {
 			this.populateData(params);
 			DataStore.set(DataStore.POLL_OVERLAY_PARAMS, this.overlayParams);
 			PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+		},
+
+		broadcastState():void {
+			if(this.data) {
+				PublicAPI.instance.broadcast(TwitchatEvent.POLL_PROGRESS, {poll: (this.data as unknown) as JsonObject});
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
 		}
 	} as IPollActions
 	& ThisType<IPollActions

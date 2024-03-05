@@ -979,6 +979,11 @@ export interface IPollActions {
 	 * @param params 
 	 */
 	setOverlayParams(params:PollOverlayParamStoreData):void;
+	/**
+	 * Broadcast current poll state.
+	 * Sends overlay parameters as well
+	 */
+	broadcastState():void;
 }
 
 
@@ -1012,6 +1017,11 @@ export interface IPredictionActions {
 	 * @param params 
 	 */
 	setOverlayParams(params:PredictionOverlayParamStoreData):void;
+	/**
+	 * Broadcast current prediction state.
+	 * Sends overlay parameters as well
+	 */
+	broadcastState():void;
 }
 
 

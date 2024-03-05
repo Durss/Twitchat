@@ -70,6 +70,13 @@ export const storePrediction = defineStore('prediction', {
 			this.populateData(params);
 			DataStore.set(DataStore.PREDICTION_OVERLAY_PARAMS, this.overlayParams);
 			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
+		},
+
+		broadcastState():void {
+			if(this.data) {
+				PublicAPI.instance.broadcast(TwitchatEvent.PREDICTION_PROGRESS, {prediction: (this.data as unknown) as JsonObject});
+			}
+			PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, {parameters: (this.overlayParams as unknown) as JsonObject});
 		}
 	} as IPredictionActions
 	& ThisType<IPredictionActions
