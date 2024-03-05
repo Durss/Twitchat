@@ -263,8 +263,7 @@ export default toNative(OverlayPoll);
 				align-items: center;
 				justify-content: center;
 				overflow: hidden;
-				min-width: 2px;
-				padding: .5em;
+				padding: .5em 0;
 				&:nth-child(odd) {
 					background-color: #387aff;
 				}
