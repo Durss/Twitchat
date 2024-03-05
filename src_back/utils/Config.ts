@@ -154,9 +154,17 @@ export default class Config {
 	 * Folder containing donors infos
 	 */
 	public static get DONORS_DATA_FOLDER(): string {
+		let betaPath = path.join(this.DATA_ROOT, "../../twitchat/donors/");
+		//Remp automatic switch to new data structure if available.
+		//remove this once production is migrated
+		if(this.envName == "beta") {
+			if(fs.existsSync(path.join(this.DATA_ROOT, "../../twitchat/data/donors/"))) {
+				betaPath = path.join(this.DATA_ROOT, "../../twitchat/data/donors/");
+			}
+		}
 		return this.getEnvData({
 			dev: path.join(this.DATA_ROOT, "/donors/"),
-			beta: path.join(this.DATA_ROOT, "/twitchat/donors/"),
+			beta: betaPath,
 			prod: path.join(this.DATA_ROOT, "/donors/"),
 		});
 	}
