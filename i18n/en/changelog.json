@@ -18,11 +18,22 @@
 				"p":true,
 				"i": "streamlabs",
 				"l": "Streamlabs alerts",
-				"d": "Receive Streamlabs events on Twitchat.\n\nGet notified when receiving a tip, when someone buys merch or when someone subscribes on your Patreon (needs you to link Streamlabs with Patreon on your dashboard).\n\nAuomate action on any Streamlabs event with the dedicated trigger events.",
+				"d": "Receive Streamlabs events on Twitchat.\n\nGet notified when receiving a tip, when someone buys merch or when someone subscribes on your Patreon (needs you to link Streamlabs with Patreon on your dashboard).\n\nAutomate action on any Streamlabs event with the dedicated trigger events.",
 				"a": {
 					"l": "Try",
 					"param": "connexions",
 					"subparam": "streamlabs"
+				}
+			},
+			{
+				"p":true,
+				"i": "kofi",
+				"l": "Ko-fi alerts",
+				"d": "Receive Ko-fi events on Twitchat.\n\nGet notified when receiving a donation, when someone buys merch or when someone subscribes monthly.\n\nAutomate action on any Ko-fi event with the dedicated trigger events.",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "kofi"
 				}
 			},
 			{

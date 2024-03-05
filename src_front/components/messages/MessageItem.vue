@@ -154,6 +154,10 @@
 	<ChatStreamlabsEvent class="message"
 		v-else-if="messageData.type == 'streamlabs'"
 		:messageData="messageData" />
+
+	<ChatKofiEvent class="message"
+		v-else-if="messageData.type == 'kofi'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -198,6 +202,7 @@ import ChatTrackAddedToQueue from './ChatTrackAddedToQueue.vue';
 import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
 import ChatCustomMessage from './ChatCustomMessage.vue';
 import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
+import ChatKofiEvent from './ChatKofiEvent.vue';
 
 @Component({
 	components:{
@@ -213,6 +218,7 @@ import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
 		ChatConnect,
 		ChatMessage,
 		ChatShoutout,
+		ChatKofiEvent,
 		ChatPinNotice,
 		ChatJoinLeave,
 		ChatPollResult,

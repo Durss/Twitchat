@@ -69,6 +69,10 @@ export default class SSEHelper {
 			
 			if(json.code == "NOTIFICATION") {
 				this.onNotification(json.data);
+			}else
+			
+			if(json.code == "KO_FI_EVENT") {
+				this.onKofiEvent(json.data);
 			}
 		}catch(error) {
 			//ignore
@@ -117,7 +121,6 @@ export default class SSEHelper {
 		data.params.forEach(p => {
 			placeholders[p.name.toUpperCase()] = TwitchUtils.messageChunksToHTML(TwitchUtils.parseMessageToChunks(p.value, undefined, true, "twitch"));
 		})
-		console.log("DYNAMIC PLACEHOLDERS", placeholders);
 		TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
 	}
 
@@ -151,5 +154,14 @@ export default class SSEHelper {
 			},
 		};
 		StoreProxy.chat.addMessage(message);
+	}
+
+	/**
+	 * Called when receiving an event from Ko-fi
+	 * @param data 
+	 * @returns 
+	 */
+	private onKofiEvent(data:any):void {
+		StoreProxy.kofi.onEvent(data);
 	}
 }

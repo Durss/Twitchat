@@ -71,6 +71,7 @@ export default class SSEController extends AbstractController {
 export const SSECode = {
 	CONNECTED:"CONNECTED" as const,
 	CONNECTING:"CONNECTING" as const,
+	KO_FI_EVENT:"KO_FI_EVENT" as const,
 	NOTIFICATION:"NOTIFICATION" as const,
 	TRIGGER_SLASH_COMMAND:"TRIGGER_SLASH_COMMAND" as const,
 	AUTHENTICATION_FAILED:"AUTHENTICATION_FAILED" as const,

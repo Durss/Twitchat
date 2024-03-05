@@ -502,6 +502,7 @@
 			"misc": "Autres",
 			"count_and_values": "Compteurs & Valeurs",
 			"goxlr": "GoXLR",
+			"kofi": "Ko-fi",
 			"streamlabs": "Streamlabs"
 		},
 		"placeholders": {
@@ -686,7 +687,13 @@
 			"merch_product":"Nom du produit acheté",
 			"currency":"Devise",
 			"donation_amount":"Somme donnée",
-			"donation_amount_formatted":"Somme donnée formatée"
+			"donation_amount_formatted":"Somme donnée formatée",
+			"merch_amount":"Montant de l'achat",
+			"subscription_amount":"Montant de l'abonnement",
+			"kofi_tier":"Nom de l'abonnement (peut être vide)",
+			"kofi_product_names":"Nom des produits achetés (peut être vide)",
+			"kofi_product_ids":"ID des produits achetés",
+			"kofi_first_time_sub":"Abonné·e pour la 1ère fois?"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1135,6 +1142,18 @@
 				"label": "Nouvel abonné sur Patreon",
 				"description": "Actions à exécuter lorsqu'une personne s'abonne à votre Patreon {INFO}",
 				"description_info": "(Nécessite de lier votre compte Patreon sur Streamlabs)"
+			},
+			"KOFI_DONATION": {
+				"label": "Don reçu sur on Ko-fi",
+				"description": "Actions à exécuter lorsque vous recevez un don sur Ko-fi"
+			},
+			"KOFI_MERCH": {
+				"label": "Article acheté sur Ko-fi",
+				"description": "Actions à exécuter lorsque quelqu'un achète un article sur Ko-fi"
+			},
+			"KOFI_SUBSCRIPTION": {
+				"label": "Nouvel abonné sur Ko-fi",
+				"description": "Actions à exécuter lorsqu'une personne s'abonne mensuellement à votre Ko-fi"
 			}
 		},
 		"musicEvents": {

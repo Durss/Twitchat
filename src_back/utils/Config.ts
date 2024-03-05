@@ -74,17 +74,17 @@ export default class Config {
 
 	public static get CREDENTIALS_ROOT(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "/../../credentials/"),
-			beta: path.join(__dirname, "../credentials/"),
-			prod: path.join(__dirname, "../credentials/"),
+			dev: path.join(this.DATA_ROOT, "/credentials/"),
+			beta: path.join(this.DATA_ROOT, "/credentials/"),
+			prod: path.join(this.DATA_ROOT, "/credentials/"),
 		});
 	}
 
 	public static get USER_DATA_PATH(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "/../../userData/"),
-			beta: path.join(__dirname, "../userData/"),
-			prod: path.join(__dirname, "../userData/"),
+			dev: path.join(this.DATA_ROOT, "/userData/"),
+			beta: path.join(this.DATA_ROOT, "/userData/"),
+			prod: path.join(this.DATA_ROOT, "/userData/"),
 		});
 	}
 
@@ -98,9 +98,25 @@ export default class Config {
 
 	public static get ANNOUNCEMENTS_PATH(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "/../../announcements.json"),
-			beta: path.join(__dirname, "../announcements.json"),
-			prod: path.join(__dirname, "../announcements.json"),
+			dev: path.join(this.DATA_ROOT, "/announcements.json"),
+			beta: path.join(this.DATA_ROOT, "/announcements.json"),
+			prod: path.join(this.DATA_ROOT, "/announcements.json"),
+		});
+	}
+
+	public static get KO_FI_USERS(): string {
+		return this.getEnvData({
+			dev: path.join(this.KO_FI_DATA_FOLDER, "/kofi2Twitch.json"),
+			beta: path.join(this.KO_FI_DATA_FOLDER, "/kofi2Twitch.json"),
+			prod: path.join(this.KO_FI_DATA_FOLDER, "/kofi2Twitch.json"),
+		});
+	}
+
+	public static get KO_FI_PRODUCT_CACHE(): string {
+		return this.getEnvData({
+			dev: path.join(this.KO_FI_DATA_FOLDER, "/kofiProduct.json"),
+			beta: path.join(this.KO_FI_DATA_FOLDER, "/kofiProduct.json"),
+			prod: path.join(this.KO_FI_DATA_FOLDER, "/kofiProduct.json"),
 		});
 	}
 
@@ -128,9 +144,9 @@ export default class Config {
 	 */
 	public static get BETA_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../../beta/"),
-			beta: path.join(__dirname, "../beta/"),
-			prod: path.join(__dirname, "../beta/"),
+			dev: path.join(this.DATA_ROOT, "/beta/"),
+			beta: path.join(this.DATA_ROOT, "/beta/"),
+			prod: path.join(this.DATA_ROOT, "/beta/"),
 		});
 	}
 	
@@ -139,9 +155,9 @@ export default class Config {
 	 */
 	public static get DONORS_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../../donors/"),
-			beta: path.join(__dirname, "../../twitchat/donors/"),
-			prod: path.join(__dirname, "../donors/"),
+			dev: path.join(this.DATA_ROOT, "/donors/"),
+			beta: path.join(this.DATA_ROOT, "/twitchat/donors/"),
+			prod: path.join(this.DATA_ROOT, "/donors/"),
 		});
 	}
 	
@@ -150,9 +166,9 @@ export default class Config {
 	 */
 	public static get PATREON_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../../patreon/"),
-			beta: path.join(__dirname, "../patreon/"),
-			prod: path.join(__dirname, "../patreon/"),
+			dev: path.join(this.DATA_ROOT, "/patreon/"),
+			beta: path.join(this.DATA_ROOT, "/patreon/"),
+			prod: path.join(this.DATA_ROOT, "/patreon/"),
 		});
 	}
 	
@@ -161,9 +177,20 @@ export default class Config {
 	 */
 	public static get DISCORD_DATA_FOLDER(): string {
 		return this.getEnvData({
-			dev: path.join(__dirname, "../../discord/"),
-			beta: path.join(__dirname, "../discord/"),
-			prod: path.join(__dirname, "../discord/"),
+			dev: path.join(this.DATA_ROOT, "/discord/"),
+			beta: path.join(this.DATA_ROOT, "/discord/"),
+			prod: path.join(this.DATA_ROOT, "/discord/"),
+		});
+	}
+
+	/**
+	 * Folder containing ko-fi data
+	 */
+	public static get KO_FI_DATA_FOLDER(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/kofi/"),
+			beta: path.join(this.DATA_ROOT, "/kofi/"),
+			prod: path.join(this.DATA_ROOT, "/kofi/"),
 		});
 	}
 	
@@ -198,6 +225,17 @@ export default class Config {
 		if(!fs.existsSync(filePath)) return null;
 		const file = JSON.parse(fs.readFileSync(filePath, "utf-8") || "{web:{}}");
 		return file.web;
+	}
+
+	/**
+	 * Root folder for all data folder
+	 */
+	private static get DATA_ROOT(): string {
+		return this.getEnvData({
+			dev: path.join(__dirname, "/../../data/"),
+			beta: path.join(__dirname, "../data/"),
+			prod: path.join(__dirname, "../data/"),
+		});
 	}
 
 	/**
@@ -289,4 +327,7 @@ interface Credentials {
 	streamlabs_client_id:string;
 	streamlabs_client_secret:string;
 	streamlabs_redirect_uri:string;
+
+	streamelements_client_id:string;
+	streamelements_client_secret:string;
 }

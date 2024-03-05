@@ -161,7 +161,18 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 	"paypal_client_secret":"",
 
 	"donors_remote_api_secret": "",
-	"contact_mail": ""
+	"contact_mail": "",
+
+	"discord_client_id":"",
+	"discord_public_key":"",
+	"discord_bot_token":"",
+
+	"streamlabs_client_id":"",
+	"streamlabs_client_secret":"",
+	"streamlabs_redirect_uri":"",
+
+	"streamelements_client_id":"",
+	"streamelements_client_secret":""
 }
 ```
 Create a [twitch application](https://dev.twitch.tv/console) and fill in the `client_id` and `client_secret` values.\
@@ -224,7 +235,7 @@ node server/boostrap.js
 All the following MUST be done on a seperate folder from the GIT project.\
 [Compile the project](#compile-project) and push the content of the `server` folder on your server root.\
 Next to this file, create a `public` folder and push the content of your local `dist` folder inside it.\
-Also add the `credentials` folder at the root of the project.\
+Also add the `credentials` folder inside a `data` older at the root of the project.\
 Create an `env.conf` file, just write `prod` inside, and push it at the root of the project.\
 Install all the production dependencies and [run the server](#run-server).
 \
@@ -233,7 +244,8 @@ Here is the expected file structure:\
   ├─ node_modules/\
   ├─ public/\
   ├─ utils/\
-  ├─ credentials/\
+  ├─ data/\
+    ├─ credentials/\
   ├─ controllers/\
   ├─ bootstrap.js\
   ├─ env.conf\

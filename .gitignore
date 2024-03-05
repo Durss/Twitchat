@@ -3,16 +3,10 @@ node_modules
 /build
 /dist
 /server
-/userData
 /server
 /userData_fake_production
 /updates_graphics
-/announcements.json
-/patreon
-/donors
-/discord
-/patreon
-/beta
+/data
 env.conf
 
 credentials/*

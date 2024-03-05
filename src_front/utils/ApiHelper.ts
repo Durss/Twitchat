@@ -447,4 +447,22 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"kofi/token": {
+		GET: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+			token?:string;
+		},
+		POST: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+		},
+		DELETE: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+		}
+	};
 }

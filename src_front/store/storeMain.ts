@@ -850,6 +850,7 @@ export const storeMain = defineStore("main", {
 			const sPoll = StoreProxy.poll;
 			const sChat = StoreProxy.chat;
 			const sHeat = StoreProxy.heat;
+			const sKofi = StoreProxy.kofi;
 			const sVoice = StoreProxy.voice;
 			const sMusic = StoreProxy.music;
 			const sUsers = StoreProxy.users;
@@ -863,6 +864,9 @@ export const storeMain = defineStore("main", {
 			const sEmergency = StoreProxy.emergency;
 			const sStreamlabs = StoreProxy.streamlabs;
 			const sPrediction = StoreProxy.prediction;
+
+			sKofi.populateData();
+
 			//Loading parameters from local storage and pushing them to current store
 			const props = DataStore.getAll();
 			for (const cat in sParams.$state) {

@@ -19,6 +19,7 @@ export namespace TwitchatDataTypes {
 		OBS: "obs",
 		TTS: "tts",
 		HEAT: "heat",
+		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
@@ -1802,6 +1803,7 @@ export namespace TwitchatDataTypes {
 		BAN:"ban",
 		RAID:"raid",
 		POLL:"poll",
+		KOFI:"kofi",
 		JOIN:"join",
 		UNBAN:"unban",
 		LEAVE:"leave",
@@ -1888,6 +1890,7 @@ export namespace TwitchatDataTypes {
 		unban:true,
 		poll:true,
 		join:true,
+		kofi:true,
 		leave:true,
 		cheer:true,
 		timer:true,
@@ -2070,6 +2073,7 @@ export namespace TwitchatDataTypes {
 									| MessageCreditsCompleteData
 									| MessageStreamlabsData
 									| MessageStreamelementsData
+									| MessageKofiData
 	;
 	
 	/**
@@ -2102,6 +2106,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		// {type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
@@ -4041,6 +4046,9 @@ export namespace TwitchatDataTypes {
 			type:"streamelements";
 			eventType:"donation" | "merch" | "patreon_pledge";
 		}
+		/**
+		 * Represents a streamlabs donation event
+		 */
 		export interface StreamelementsDonationData extends StreamelementsDonationBaseData{
 			eventType:"donation";
 			amount:number;
@@ -4053,7 +4061,7 @@ export namespace TwitchatDataTypes {
 		}
 		
 		/**
-		 * Represents a streamlabs event
+		 * Represents a streamlabs merch event
 		 */
 		export interface StreamelementsMerchData extends StreamelementsDonationBaseData {
 			eventType:"merch";
@@ -4074,5 +4082,60 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			currency:string;
 		}
+
+	/**
+	 * Represents a kofi event
+	 */
+	export type MessageKofiData = KofiDonationData | KofiMerchData | KofiSubscriptionData;
+		interface KofiDonationBaseData extends AbstractTwitchatMessage{
+			type:"kofi";
+			isPublic:boolean;
+			eventType:"donation" | "merch" | "subscription";
+		}
+		/**
+		 * Represents a kofi donation
+		 */
+		export interface KofiDonationData extends KofiDonationBaseData{
+			eventType:"donation";
+			amount:number;
+			amountFormatted:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			currency:string;
+		}
+		
+		/**
+		 * Represents a kofi merch event
+		 */
+		export interface KofiMerchData extends KofiDonationBaseData {
+			eventType:"merch";
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			userName:string;
+			products:{id:string, quantity:number, name?:string}[];
+			amount:number;
+			amountFormatted:string;
+			currency:string;
+		}
+		
+		/**
+		 * Represents a kofi subscription event
+		 */
+		export interface KofiSubscriptionData extends KofiDonationBaseData {
+			eventType:"subscription";
+			amount:number;
+			amountFormatted:string;
+			userName:string;
+			currency:string;
+			message:string;
+			message_chunks:ParseMessageChunk[];
+			message_html:string;
+			tier?:string;
+			firstTimeSub:boolean;
+		}
+
 
 }

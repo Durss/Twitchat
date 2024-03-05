@@ -1,0 +1,11 @@
+{
+	"kofi":{
+		"header":"Receive {LINK} alerts on Twitchat",
+		"open_dashboard":"Open your dashboard",
+		"find_key":"Expand the \"Advanced\" section and find the \"Verification token\"",
+		"set_url":"Set the following URL in the \"Webhook URL\" input",
+		"set_token":"Copy the verification token bellow",
+		"examples":"Message examples",
+		"param_key":"Verification Token"
+	}
+}

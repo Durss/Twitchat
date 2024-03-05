@@ -19,6 +19,7 @@ import DiscordController from './controllers/DiscordController';
 import I18n from './utils/I18n';
 import ApiController from './controllers/ApiController';
 import StreamlabsController from './controllers/StreamlabsController';
+import KofiController from './controllers/KofiController';
 import StreamelementsController from './controllers/StreamelementsController';
 
 // Run the server!
@@ -40,10 +41,13 @@ fs.mkdirSync(Config.USER_DATA_PATH, { recursive: true });
 fs.mkdirSync(Config.BETA_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DONORS_DATA_FOLDER, { recursive: true });
 fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.DISCORD_DATA_FOLDER, { recursive: true });
+fs.mkdirSync(Config.KO_FI_DATA_FOLDER, { recursive: true });
 
 I18n.instance.initialize();
 
 const server:FastifyInstance = Fastify({logger: false});
+server.register(import("@fastify/formbody"))
 server.register(import("fastify-sse-v2"))
 .register(import("@fastify/multipart"),{
 	attachFieldsToBody: 'keyValues',
@@ -74,6 +78,7 @@ server.register(import("fastify-sse-v2"))
 	new ApiController(server).initialize();
 	new StreamlabsController(server).initialize();
 	new StreamelementsController(server).initialize();
+	new KofiController(server).initialize();
 	
 	//Start server
 	start();

@@ -59,6 +59,7 @@ export default class StoreProxy {
 	public static discord:IDiscordState & IDiscordGetters & IDiscordActions & {$state:IDiscordState, $reset:()=>void};
 	public static streamlabs:IStreamlabsState & IStreamlabsGetters & IStreamlabsActions & {$state:IStreamlabsState, $reset:()=>void};
 	public static streamelements:IStreamelementsState & IStreamelementsGetters & IStreamelementsActions & {$state:IStreamelementsState, $reset:()=>void};
+	public static kofi:IKofiState & IKofiGetters & IKofiActions & {$state:IKofiState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -2254,4 +2255,35 @@ export interface IStreamelementsActions {
 	 * Authenticate to streamlabs after getting oAuth code
 	 */
 	getAccessToken():Promise<boolean>
+}
+
+
+
+
+export interface IKofiState {
+	webhooktoken:string;
+	connected:boolean;
+}
+
+export interface IKofiGetters {
+}
+
+export interface IKofiActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():void;
+	/**
+	 * Connects to Ko-fi
+	 */
+	connect(token:string):Promise<boolean>;
+	/**
+	 * Disconnects from Ko-fi
+	 */
+	disconnect():Promise<boolean>;
+	/**
+	 * Called when receiving a ko-fi event
+	 * @param data 
+	 */
+	onEvent(data:any):void
 }

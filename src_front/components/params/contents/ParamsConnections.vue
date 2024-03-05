@@ -20,6 +20,11 @@
 				<p>Streamlabs</p>
 			</button>
 	
+			<button class="card-item premium" @click="subContent='kofi'">
+				<Icon name="kofi" />
+				<p>Ko-fi</p>
+			</button>
+	
 			<button class="card-item" @click="subContent='voicemod'">
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
@@ -66,6 +71,7 @@
 	<ConnectHeat v-else-if="subContent == 'heat' || subContent == 'heatAreas'" />
 	<ConnectWebsocket v-else-if="subContent == 'websocket'" />
 	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
+	<ConnectKofi v-else-if="subContent == 'kofi'" />
 </template>
 
 <script lang="ts">
@@ -84,10 +90,12 @@ import ConnectOBS from './connexions/ConnectOBS.vue';
 import ConnectHeat from './connexions/ConnectHeat.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
+import ConnectKofi from './connexions/ConnectKofi.vue';
 
 @Component({
 	components:{
 		ConnectOBS,
+		ConnectKofi,
 		ConnectHeat,
 		ConnectGoXLR,
 		ConnectDiscord,

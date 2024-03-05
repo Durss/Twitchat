@@ -1,11 +1,6 @@
 {
 	"streamlabs":{
 		"header":"Recevez des alertes {LINK} dans Twitchat",
-		"find_key_title":"Où le trouver ?",
-		"find_key":"{LINK}, et rendez-vous dans l'onglet {TAB}. Vous trouverez le jeton après {ITEM}",
-		"find_key_link":"Ouvrez votre Dashboard",
-		"find_key_item":"Votre jeton d'API Socket",
-		"find_key_tab":"Jetons de l'API",
 		"examples":"Examples de messages",
 		"param_key":"Jeton d'API Socket"
 	}

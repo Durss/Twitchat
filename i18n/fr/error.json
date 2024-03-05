@@ -97,6 +97,8 @@
 			"MISSING_ACCESS":"Le bot Twitchat n'a pas la permission d'écrire dans le salon \"{CHANNEL}\""
 		},
 		"streamlabs_denied":"Vous avez refusé l'accès à votre profil Streamlabs.",
-		"streamlabs_connect_failed":"Authentication Streamlabs échouée.\nVérifiez que le jeton est correct."
+		"streamlabs_connect_failed":"Authentication Streamlabs échouée.\nVérifiez que le jeton est correct.",
+		"kofi_connect_failed":"Une erreur est survenue lors de la connexion à Ko-fi.",
+		"kofi_disconnect_failed":"Une erreur est survenue lors de la déconnexion de Ko-fi."
 	}
 }

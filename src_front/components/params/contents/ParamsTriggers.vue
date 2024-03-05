@@ -561,6 +561,24 @@ import TriggerList from './triggers/TriggerList.vue';
 						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge";
 						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amount = 123;
 						(m as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$123";
+					}else
+
+					if(triggerEvent.value == TriggerTypes.KOFI_DONATION) {
+						(m as TwitchatDataTypes.KofiDonationData).eventType = "donation";
+						(m as TwitchatDataTypes.KofiDonationData).amount = 123;
+						(m as TwitchatDataTypes.KofiDonationData).amountFormatted = "123";
+					}else
+
+					if(triggerEvent.value == TriggerTypes.KOFI_MERCH) {
+						(m as TwitchatDataTypes.KofiMerchData).eventType = "merch";
+						(m as TwitchatDataTypes.KofiMerchData).products = [{id:"123456", name:"T-shirt", quantity:1}, {id:"234561", name:"Hoodie", quantity:1}];
+					}else
+
+					if(triggerEvent.value == TriggerTypes.KOFI_SUBSCRIPTION) {
+						(m as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription";
+						(m as TwitchatDataTypes.KofiSubscriptionData).amount = 123;
+						(m as TwitchatDataTypes.KofiSubscriptionData).amountFormatted = "123";
+						(m as TwitchatDataTypes.KofiSubscriptionData).tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

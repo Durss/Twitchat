@@ -672,6 +672,14 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.streamlabs !== false;
 			}
 			
+			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+				return this.config.filters.streamelements !== false;
+			}
+			
+			case TwitchatDataTypes.TwitchatMessageType.KOFI: {
+				return this.config.filters.kofi !== false;
+			}
+			
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
 				return true;
 			}

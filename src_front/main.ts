@@ -57,6 +57,7 @@ import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
 import { storeStreamelements } from './store/streamelements/storeStreamelements';
+import { storeKofi } from './store/kofi/storeKofi';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -250,6 +251,7 @@ function buildApp() {
 	StoreProxy.discord = (storeDiscord() as unknown) as IDiscordState & IDiscordGetters & IDiscordActions & { $state: IDiscordState; $reset:()=>void };
 	StoreProxy.streamlabs = storeStreamlabs();
 	StoreProxy.streamelements = storeStreamelements();
+	StoreProxy.kofi = storeKofi();
 	StoreProxy.router = router;
 
 	const storeAccess:IStore = {
@@ -287,6 +289,7 @@ function buildApp() {
 		discord:			StoreProxy.discord,
 		streamlabs:			StoreProxy.streamlabs,
 		streamelements:		StoreProxy.streamelements,
+		kofi:				StoreProxy.kofi,
 	}
 	
 	app.use(router)

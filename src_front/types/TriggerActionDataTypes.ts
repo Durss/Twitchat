@@ -255,6 +255,7 @@ export const TriggerEventTypeCategories = {
 	COUNTER_VALUE:	{id:12, labelKey:"triggers.categories.count_and_values", icons:["count", "placeholder"]} as TriggerEventTypeCategory,
 	GOXLR:			{id:13, labelKey:"triggers.categories.goxlr", icons:["goxlr"]} as TriggerEventTypeCategory,
 	STREAMLABS:		{id:14, labelKey:"triggers.categories.streamlabs", icons:["streamlabs"]} as TriggerEventTypeCategory,
+	KOFI:			{id:15, labelKey:"triggers.categories.kofi", icons:["kofi"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1061,6 +1062,9 @@ export const TriggerTypes = {
 	STREAMLABS_DONATION:"103",
 	STREAMLABS_MERCH:"104",
 	STREAMLABS_PATREON_PLEDGE:"105",
+	KOFI_DONATION:"106",
+	KOFI_MERCH:"107",
+	KOFI_SUBSCRIPTION:"108",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1526,6 +1530,34 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"AMOUNT_FORMATTED", descKey:'triggers.placeholders.donation_amount_formatted', pointer:"amountFormatted", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamlabsPatreonPledgeData>,
 	];
+	
+	map[TriggerTypes.KOFI_DONATION] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiDonationData>,
+	];
+	map[TriggerTypes.KOFI_MERCH] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"PRODUCT_IDS", descKey:'triggers.placeholders.kofi_product_ids', pointer:"products.0.id", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"PRODUCT_NAMES", descKey:'triggers.placeholders.kofi_product_names', pointer:"products.0.name", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.amount', pointer:"amount", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiMerchData>,
+	];
+	map[TriggerTypes.KOFI_SUBSCRIPTION] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.subscription_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"TIER", descKey:'triggers.placeholders.kofi_tier', pointer:"firstTimeSub", numberParsable:true, isUserID:false, values:[{labelKey:"global.yes", value:true}, {labelKey:"global.no", value:false}]} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"FIRST_TIME_SUB", descKey:'triggers.placeholders.kofi_first_time_sub', pointer:"tier", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.KofiSubscriptionData>,
+	];
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
@@ -1774,7 +1806,10 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_DONATION.label", value:TriggerTypes.STREAMLABS_DONATION, descriptionKey:"triggers.events.STREAMLABS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_MERCH.label", value:TriggerTypes.STREAMLABS_MERCH, descriptionKey:"triggers.events.STREAMLABS_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.label", value:TriggerTypes.STREAMLABS_PATREON_PLEDGE, descriptionKey:"triggers.events.STREAMLABS_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.label", value:TriggerTypes.STREAMLABS_PATREON_PLEDGE, descriptionKey:"triggers.events.STREAMLABS_PATREON_PLEDGE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_DONATION.label", value:TriggerTypes.KOFI_DONATION, descriptionKey:"triggers.events.KOFI_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_MERCH.label", value:TriggerTypes.KOFI_MERCH, descriptionKey:"triggers.events.KOFI_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_SUBSCRIPTION.label", value:TriggerTypes.KOFI_SUBSCRIPTION, descriptionKey:"triggers.events.KOFI_SUBSCRIPTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON, goxlrMiniCompatible:true},

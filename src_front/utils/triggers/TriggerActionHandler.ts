@@ -523,6 +523,17 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.KOFI:{
+				const eventType:{[key in TwitchatDataTypes.MessageKofiData["eventType"]]:TriggerTypesValue} = {
+						"donation":TriggerTypes.KOFI_DONATION,
+						"merch":TriggerTypes.KOFI_MERCH,
+						"subscription":TriggerTypes.KOFI_SUBSCRIPTION,
+					} as const;
+				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -755,6 +766,14 @@ export default class TriggerActionHandler {
 		//Check if trigger is within a disabled folder, stop there if so
 		if(sTriggers.triggerIdToFolderEnabled[trigger.id] === false) {
 			log.entries.push({date:Date.now(), type:"message", value:"❌ Trigger is within a disabled folder. Ignore it."});
+			log.error = true;
+			Logger.instance.log("triggers", log);
+			return false;
+		}
+		
+		//Do not execute triggers for ko-fi events if users made their donation private
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.isPublic !== true) {
+			log.entries.push({date:Date.now(), type:"message", value:"❌ User made their Ko-fi transaction private. Don't execute the related triggers to respect their choice."});
 			log.error = true;
 			Logger.instance.log("triggers", log);
 			return false;

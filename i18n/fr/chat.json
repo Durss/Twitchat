@@ -103,7 +103,8 @@
 				"stream_online": "Stream commencé/arrêté",
 				"hype_chat": "Hype chat",
 				"ad_break_start_chat": "Lancement manuel de publicité",
-				"streamlabs": "Évènement Streamlabs"
+				"streamlabs": "Évènements Streamlabs",
+				"kofi": "Évènements Kofi"
 			},
 			"message_filters": {
 				"viewers": "Envoyé par des viewers",
@@ -419,6 +420,13 @@
 			"donation": "{USER} a fait un don de {AMOUNT} sur Streamlabs",
 			"merch": "{USER} a acheté {PRODUCT} sur Streamlabs",
 			"patreon_pledge": "{USER} s'est abonné sur Patreon pour {AMOUNT}"
+		},
+		"kofi": {
+			"anonymous": "Une personne anonyme",
+			"donation": "{USER} a fait un don de {AMOUNT} sur Ko-fi",
+			"merch": "{USER} a acheté {PRODUCT} pour {AMOUNT} sur Ko-fi",
+			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
+			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi"
 		}
 	}
 }
