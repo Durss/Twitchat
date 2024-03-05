@@ -6,6 +6,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPollActions, type IPollGetters, type IPollState } from '../StoreProxy';
 import DataStore from '../DataStore';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 export const storePoll = defineStore('poll', {
 	state: () => ({
@@ -34,6 +35,13 @@ export const storePoll = defineStore('poll', {
 	actions: {
 		setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean) {
 			if(data != null) {
+				//Executes the start poll trigger if there was no poll data before
+				if(!this.data) {
+					data.isStart = true;
+					TriggerActionHandler.instance.execute(data);
+				}else{
+					data.isStart = false;
+				}
 				if(postOnChat) {
 					StoreProxy.chat.addMessage(data);
 				}

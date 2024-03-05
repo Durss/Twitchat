@@ -6,6 +6,7 @@ import type { JsonObject } from 'type-fest';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IPredictionActions, type IPredictionGetters, type IPredictionState } from '../StoreProxy';
 import DataStore from '../DataStore';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 
 export const storePrediction = defineStore('prediction', {
 	state: () => ({
@@ -35,6 +36,12 @@ export const storePrediction = defineStore('prediction', {
 	actions: {
 		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {
 			if(data != null) {
+				if(!this.data) {
+					data.isStart = true;
+					TriggerActionHandler.instance.execute(data);
+				}else{
+					data.isStart = false;
+				}
 				if(postOnChat) {
 					StoreProxy.chat.addMessage(data);
 				}

@@ -178,13 +178,15 @@ export default class TriggerActionHandler {
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
-				if(await this.executeTriggersByType(TriggerTypes.PREDICTION_RESULT, message, testMode, undefined, undefined, forcedTriggerId)) {
+				const eventType = message.isStart === true? TriggerTypes.PREDICTION_START : TriggerTypes.PREDICTION_RESULT;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
 
 			case TwitchatDataTypes.TwitchatMessageType.POLL: {
-				if(await this.executeTriggersByType(TriggerTypes.POLL_RESULT, message, testMode, undefined, undefined, forcedTriggerId)) {
+				const eventType = message.isStart === true? TriggerTypes.POLL_START : TriggerTypes.POLL_RESULT;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}

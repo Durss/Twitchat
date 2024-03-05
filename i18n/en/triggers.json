@@ -754,9 +754,17 @@
 				"label": "Shoutout received",
 				"description": "Actions to execute when given a shoutout on another channel"
 			},
+			"POLL_START": {
+				"label": "Poll started",
+				"description": "Actions to execute when a poll starts"
+			},
 			"POLL_RESULT": {
 				"label": "Poll result",
 				"description": "Actions to execute when a poll completes"
+			},
+			"PREDICTION_START": {
+				"label": "Prediction started",
+				"description": "Actions to execute when a prediction starts"
 			},
 			"PREDICTION_RESULT": {
 				"label": "Prediction result",

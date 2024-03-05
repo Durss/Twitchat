@@ -2518,6 +2518,11 @@ export namespace TwitchatDataTypes {
 		 * Winning choice
 		 */
 		winner?:MessagePollDataChoice;
+		/**
+		 * Defines if it's the first event of the poll
+		 * which means it's just been started
+		 */
+		isStart?:boolean;
 	}
 	export interface MessagePollDataChoice {
 		id: string;
@@ -2577,6 +2582,11 @@ export namespace TwitchatDataTypes {
 		 * Total users participating
 		 */
 		totalUsers:number;
+		/**
+		 * Defines if it's the first event of the prediction
+		 * which means it's just been started
+		 */
+		isStart?:boolean;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;

@@ -151,8 +151,9 @@ export const storeTriggers = defineStore('triggers', {
 						}
 					})
 					if(commands.length > 0) {
+						//Update discord commands
 						ApiHelper.call("discord/commands", "POST", {commands}, false).then(res=>{
-							console.log("res=>",res)
+							//
 						});
 					}
 				}, 10000);

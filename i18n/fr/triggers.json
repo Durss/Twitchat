@@ -754,9 +754,17 @@
 				"label": "Shoutout reçu",
 				"description": "Actions à exécuter lorsqu'une autre chaîne vous fait un shoutout"
 			},
+			"POLL_START": {
+				"label": "Début d'un sondage",
+				"description": "Actions à exécuter lorsqu'un sondage débute"
+			},
 			"POLL_RESULT": {
 				"label": "Résultat de sondage",
 				"description": "Actions à exécuter lorsqu'un sondage termine"
+			},
+			"PREDICTION_START": {
+				"label": "Début d'une prédiction",
+				"description": "Actions à exécuter lorsqu'une prédiction débute"
 			},
 			"PREDICTION_RESULT": {
 				"label": "Résultat de prédiction",

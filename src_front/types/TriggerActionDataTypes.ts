@@ -1065,6 +1065,8 @@ export const TriggerTypes = {
 	KOFI_DONATION:"106",
 	KOFI_MERCH:"107",
 	KOFI_SUBSCRIPTION:"108",
+	POLL_START:"109",
+	PREDICTION_START:"110",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1199,9 +1201,18 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"chatMessage.message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<Omit<TwitchatDataTypes.MessageUnpinData, "chatMessage"> & {chatMessage:SafeMessage}>,
 	];
 	
+	
+	map[TriggerTypes.PREDICTION_START] = [
+		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
+	];
+	
 	map[TriggerTypes.POLL_RESULT] = [
 		{tag:"TITLE", descKey:'triggers.placeholders.poll_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
 		{tag:"WIN", descKey:'triggers.placeholders.poll_win', pointer:"winner.label", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePollData>,
+	];
+	
+	map[TriggerTypes.PREDICTION_START] = [
+		{tag:"TITLE", descKey:'triggers.placeholders.prediction_title', pointer:"title", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessagePredictionData>,
 	];
 	
 	map[TriggerTypes.PREDICTION_RESULT] = [
@@ -1726,7 +1737,9 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.USER, icon:"watchStreak", labelKey:"triggers.events.USER_WATCH_STREAK.label", value:TriggerTypes.USER_WATCH_STREAK, descriptionKey:"triggers.events.USER_WATCH_STREAK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK},
 		{category:TriggerEventTypeCategories.USER, icon:"online", labelKey:"triggers.events.USER_JOIN.label", value:TriggerTypes.USER_JOIN, descriptionKey:"triggers.events.USER_JOIN.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.JOIN, private:true},
 		{category:TriggerEventTypeCategories.USER, icon:"offline", labelKey:"triggers.events.USER_LEAVE.label", value:TriggerTypes.USER_LEAVE, descriptionKey:"triggers.events.USER_LEAVE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.LEAVE, private:true},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_START.label", value:TriggerTypes.POLL_START, descriptionKey:"triggers.events.POLL_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
 		{category:TriggerEventTypeCategories.GAMES, icon:"poll", labelKey:"triggers.events.POLL_RESULT.label", value:TriggerTypes.POLL_RESULT, descriptionKey:"triggers.events.POLL_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.POLL},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_START.label", value:TriggerTypes.PREDICTION_START, descriptionKey:"triggers.events.PREDICTION_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"bingo", labelKey:"triggers.events.BINGO_RESULT.label", value:TriggerTypes.BINGO_RESULT, descriptionKey:"triggers.events.BINGO_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO},
@@ -1757,12 +1770,12 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MOD, icon:"raid", labelKey:"triggers.events.RAID_STARTED.label", value:TriggerTypes.RAID_STARTED, descriptionKey:"triggers.events.RAID_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAID_STARTED},
 		{category:TriggerEventTypeCategories.MOD, icon:"clip", labelKey:"triggers.events.CLIP_CREATED.label", value:TriggerTypes.CLIP_CREATED, descriptionKey:"triggers.events.CLIP_CREATED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE},
 		{category:TriggerEventTypeCategories.MOD, icon:"announcement", labelKey:"triggers.events.ANNOUNCEMENTS.label", value:TriggerTypes.ANNOUNCEMENTS, descriptionKey:"triggers.events.ANNOUNCEMENTS.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MESSAGE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_START.label", value:TriggerTypes.QNA_START, descriptionKey:"triggers.events.QNA_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_START},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_STOP.label", value:TriggerTypes.QNA_STOP, descriptionKey:"triggers.events.QNA_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_STOP},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_DELETE.label", value:TriggerTypes.QNA_DELETE, descriptionKey:"triggers.events.QNA_DELETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_DELETE},
+		{category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_APPROACHING.label", value:TriggerTypes.AD_APPROACHING, descriptionKey:"triggers.events.AD_APPROACHING.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_APPROACHING},
+		{category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_STARTED.label", value:TriggerTypes.AD_STARTED, descriptionKey:"triggers.events.AD_STARTED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START},
+		{category:TriggerEventTypeCategories.MOD, icon:"ad", labelKey:"triggers.events.AD_COMPLETE.label", value:TriggerTypes.AD_COMPLETE, descriptionKey:"triggers.events.AD_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.AD_BREAK_COMPLETE},
+		{category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_START.label", value:TriggerTypes.QNA_START, descriptionKey:"triggers.events.QNA_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_START},
+		{category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_STOP.label", value:TriggerTypes.QNA_STOP, descriptionKey:"triggers.events.QNA_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_STOP},
+		{category:TriggerEventTypeCategories.MOD, icon:"qna", labelKey:"triggers.events.QNA_DELETE.label", value:TriggerTypes.QNA_DELETE, descriptionKey:"triggers.events.QNA_DELETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.QNA_DELETE},
 		{category:TriggerEventTypeCategories.TIMER, icon:"date", labelKey:"triggers.events.SCHEDULE.label", value:TriggerTypes.SCHEDULE, descriptionKey:"triggers.events.SCHEDULE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.NOTICE, testNoticeType:TwitchatDataTypes.TwitchatNoticeType.GENERIC},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_START.label", value:TriggerTypes.TIMER_START, descriptionKey:"triggers.events.TIMER_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
 		{category:TriggerEventTypeCategories.TIMER, icon:"timer", labelKey:"triggers.events.TIMER_STOP.label", value:TriggerTypes.TIMER_STOP, descriptionKey:"triggers.events.TIMER_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIMER},
@@ -1792,7 +1805,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.MISC, icon:"online", labelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.label", value:TriggerTypes.FOLLOWED_STREAM_ONLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_ONLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_ONLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"offline", labelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.label", value:TriggerTypes.FOLLOWED_STREAM_OFFLINE, descriptionKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, disabledReasonLabelKey:"triggers.events.FOLLOWED_STREAM_OFFLINE.disabled_reason"},
 		{category:TriggerEventTypeCategories.MISC, icon:"heat", labelKey:"triggers.events.HEAT_CLICK.label", value:TriggerTypes.HEAT_CLICK, descriptionKey:"triggers.events.HEAT_CLICK.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
+		{category:TriggerEventTypeCategories.MISC, icon:"credits", labelKey:"triggers.events.CREDITS_COMPLETE.label", value:TriggerTypes.CREDITS_COMPLETE, descriptionKey:"triggers.events.CREDITS_COMPLETE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CREDITS_COMPLETE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"count", labelKey:"triggers.events.COUNTER_EDIT.label", value:TriggerTypes.COUNTER_EDIT, descriptionKey:"triggers.events.COUNTER_EDIT.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"add", labelKey:"triggers.events.COUNTER_ADD.label", value:TriggerTypes.COUNTER_ADD, descriptionKey:"triggers.events.COUNTER_ADD.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"minus", labelKey:"triggers.events.COUNTER_DEL.label", value:TriggerTypes.COUNTER_DEL, descriptionKey:"triggers.events.COUNTER_DEL.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
@@ -1801,7 +1814,7 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"loop", labelKey:"triggers.events.COUNTER_LOOPED.label", value:TriggerTypes.COUNTER_LOOPED, descriptionKey:"triggers.events.COUNTER_LOOPED.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE},
 		{category:TriggerEventTypeCategories.COUNTER_VALUE, icon:"placeholder", labelKey:"triggers.events.VALUE_UPDATE.label", value:TriggerTypes.VALUE_UPDATE, descriptionKey:"triggers.events.VALUE_UPDATE.description", isCategory:true, noToggle:true, testMessageType:TwitchatDataTypes.TwitchatMessageType.VALUE_UPDATE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADDED_TO_QUEUE.label", value:TriggerTypes.TRACK_ADDED_TO_QUEUE, descriptionKey:"triggers.events.TRACK_ADDED_TO_QUEUE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
-		{newDate:Config.instance.NEW_FLAGS_DATE_V11, category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.label", value:TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED, descriptionKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
+		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.label", value:TriggerTypes.TRACK_ADD_TO_QUEUE_FAILED, descriptionKey:"triggers.events.TRACK_ADD_TO_QUEUE_FAILED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_START.label", value:TriggerTypes.MUSIC_START, descriptionKey:"triggers.events.MUSIC_START.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_START},
 		{category:TriggerEventTypeCategories.MUSIC, icon:"music", labelKey:"triggers.events.MUSIC_STOP.label", value:TriggerTypes.MUSIC_STOP, descriptionKey:"triggers.events.MUSIC_STOP.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.MUSIC_STOP},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMLABS, icon:"streamlabs", labelKey:"triggers.events.STREAMLABS_DONATION.label", value:TriggerTypes.STREAMLABS_DONATION, descriptionKey:"triggers.events.STREAMLABS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMLABS},
