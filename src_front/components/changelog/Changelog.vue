@@ -64,6 +64,8 @@
 									</template>
 								</i18n-t>
 							</div>
+							
+							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 
 							<TTButton v-if="item.a" icon="test"
 							:premium="item.p === true"
@@ -105,6 +107,7 @@ import ThemeSelector from '../ThemeSelector.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 import SponsorTable from '../premium/SponsorTable.vue';
+import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
 
 @Component({
 	components:{
@@ -116,6 +119,7 @@ import SponsorTable from '../premium/SponsorTable.vue';
 		SponsorTable,
 		ThemeSelector,
 		OverlayCounter,
+		Changelog3rdPartyAnim,
 		Pagination,
 		Navigation,
 	},
@@ -473,10 +477,12 @@ export default toNative(Changelog);
 				}
 				:deep(ul) {
 					margin-left: 1em;
-					margin-bottom: 1em;
 					list-style: disc;
 					li {
 						text-align: left;
+					}
+					&:not(li > ul) {
+						margin-bottom: 1em;
 					}
 				}
 

@@ -73,7 +73,7 @@
 	
 				<section class="card-item slashCmd">
 					<Icon name="broadcast" />
-					<i18n-t tag="span" keypath="discord.public_triggers">
+					<i18n-t scope="global" tag="span" keypath="discord.public_triggers">
 						<template #TRIGGER_LINK><a @click.stop="openTriggers()">{{ $t("params.categories.triggers") }}</a></template>
 						<template #SLASH_CMD><strong>{{ $t("triggers.events.SLASH_COMMAND.label") }}</strong></template>
 						<template #OPTION><strong>{{ $t("triggers.slash_cmd.param_discord") }}</strong></template>
