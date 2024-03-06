@@ -1,24 +1,85 @@
 <template>
 	<div :class="classes">
-		<Button @click.capture="openModal('poll');"			icon="poll"			:disabled="!canCreatePoll" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</Button>
-		<Button @click.capture="openModal('pred');"			icon="prediction"	:disabled="!canCreatePrediction" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</Button>
-		<Button @click.capture="openModal('raffle');"		icon="ticket"		>{{$t('cmdmenu.raffle')}}</Button>
-		<Button @click.capture="openModal('bingo');"		icon="bingo"		>{{$t('cmdmenu.bingo')}}</Button>
-		<Button @click.capture="openModal('qnaForm');"		icon="qna"			v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</Button>
-		<Button @click.capture="openModal('chatsuggForm');"	icon="chatPoll"		>{{$t('cmdmenu.suggestions')}}</Button>
-		<Button @click.capture="openModal('timer');"		icon="timer"		>{{$t('cmdmenu.timer')}}</Button>
-		<Button @click.capture="clearChat();"				icon="clearChat"	:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</Button>
-		<Button @click.capture="openModal('streamInfo');"	icon="info"			:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</Button>
-		<Button @click.capture="openModal('extensions');"	icon="extension"	v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</Button>
-		<Button @click.capture="openModal('twitchatAnnouncement');"	icon="announcement"	v-if="isAdmin" secondary>{{$t('cmdmenu.announcement')}}</Button>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('poll');"
+				icon="poll"
+				:disabled="!canCreatePoll"
+				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.poll')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('poll')" @click="onTogglePin('poll')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('pred');"
+				icon="prediction"
+				:disabled="!canCreatePrediction"
+				v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">{{$t('cmdmenu.prediction')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('prediction')" @click="onTogglePin('prediction')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('raffle');"
+				icon="ticket">{{$t('cmdmenu.raffle')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('raffle')" @click="onTogglePin('raffle')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('bingo');"
+				icon="bingo">{{$t('cmdmenu.bingo')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('bingo')" @click="onTogglePin('bingo')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('qnaForm');"
+				icon="qna"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('qna')" @click="onTogglePin('qna')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('chatsuggForm');"
+				icon="chatPoll">{{$t('cmdmenu.suggestions')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('chatSugg')" @click="onTogglePin('chatSugg')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('timer');"
+				icon="timer">{{$t('cmdmenu.timer')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('timer')" @click="onTogglePin('timer')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="clearChat();"
+				icon="clearChat"
+				:disabled="!canClearChat">{{$t('cmdmenu.chat')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('clearChat')" @click="onTogglePin('clearChat')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('streamInfo');"
+				icon="info"
+				:disabled="!canEditStreamInfos">{{$t('cmdmenu.info')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('streamInfo')" @click="onTogglePin('streamInfo')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="openModal('extensions');"
+				icon="extension"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.extensions'}" :disabled="!canEditStreamInfos">{{$t('cmdmenu.extensions')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('extensions')" @click="onTogglePin('extensions')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="$emit('update:showChatUsers', true); close()"
+				icon="user">{{$t('cmdmenu.chatters')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('chatters')" @click="onTogglePin('chatters')" />
+		</div>
+		<div class="menuItem">
+			<TTButton @click.capture="$emit('update:showRewards', true); close()"
+				icon="channelPoints">{{$t('cmdmenu.rewards')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('rewards')" @click="onTogglePin('rewards')" />
+		</div>
+
+		<TTButton @click.capture="openModal('twitchatAnnouncement');"
+			icon="announcement"
+			v-if="isAdmin" secondary>{{$t('cmdmenu.announcement')}}</TTButton>
 
 		<div class="commercial" v-tooltip="hasChannelPoints? '' : $t('cmdmenu.not_affiliate')">
-			<Button aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</Button>
-			<Button aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">1'00</Button>
-			<Button aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">1'30</Button>
-			<Button aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</Button>
-			<Button aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</Button>
-			<Button aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</Button>
+			<TTButton aria-label="Start a 30s ad"		v-if="adCooldown == 0" small @click.capture="startAd(30);"	:disabled="!canStartCommercial" icon="coin">{{ $t('cmdmenu.start_ad') }}</TTButton>
+			<TTButton aria-label="Start a 60s ad"		v-if="adCooldown == 0" small @click.capture="startAd(60);"	:disabled="!canStartCommercial">1'00</TTButton>
+			<TTButton aria-label="Start a 90s ad"		v-if="adCooldown == 0" small @click.capture="startAd(90);"	:disabled="!canStartCommercial">1'30</TTButton>
+			<TTButton aria-label="Start a 120s ad"	v-if="adCooldown == 0" small @click.capture="startAd(120);"	:disabled="!canStartCommercial">2'00</TTButton>
+			<TTButton aria-label="Start a 150s ad"	v-if="adCooldown == 0" small @click.capture="startAd(150);"	:disabled="!canStartCommercial">2'30</TTButton>
+			<TTButton aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</TTButton>
 			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
 		
@@ -32,7 +93,7 @@
 				<Icon name="raid" />
 				Raiding {{$store.stream.currentRaid!.user.displayName}}
 			</div>
-			<Button aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" alert>{{ $t("global.cancel") }}</Button>
+			<TTButton aria-label="Cancel raid" @click="cancelRaid()" type="button" icon="cross" alert>{{ $t("global.cancel") }}</TTButton>
 		</div>
 
 		<div class="card-item raid" v-else>
@@ -41,14 +102,14 @@
 			</label>
 			<form @submit.prevent="raid()" v-if="canRaid">
 				<input id="raid_input" type="text" :placeholder="$t('cmdmenu.raid_placeholder')" v-model="raidUser" maxlength="50">
-				<Button class="button"
+				<TTButton class="button"
 					aria-label="Start raid"
 					type="submit"
 					icon="checkmark" :disabled="raidUser.length < 3" />
 			</form>
 			<div v-else class="missingScope">
 				<p>{{ $t('cmdmenu.scope_grant') }}</p>
-				<Button icon="unlock" alert small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</Button>
+				<TTButton icon="unlock" alert small @click="requestRaidScopes()" >{{$t('cmdmenu.scope_grantBt')}}</TTButton>
 			</div>
 			<a class="whoStreams" @click.prevent="openModal('liveStreams')">{{ $t("cmdmenu.whoslive") }}</a>
 		</div>
@@ -62,18 +123,29 @@ import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';
+import DataStore from '@/store/DataStore';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		ParamItem,
 	},
-	emits:[ "close" ]
+	emits:[
+		"close",
+		"update:showChatUsers",
+		"update:showRewards",
+	]
 })
  class CommandHelper extends Vue {
+
+	@Prop()
+	public showChatUsers!:boolean;
+
+	@Prop()
+	public showRewards!:boolean;
 	
 	public raidUser:string = "";
 	public channelId:string = "";
@@ -220,7 +292,10 @@ import ParamItem from '../params/ParamItem.vue';
 		if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
 			this.$store.auth.requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
 		}else{
-			TwitchUtils.deleteMessages(StoreProxy.auth.twitch.user.id);
+			this.$confirm(this.$t("params.clearChat_confirm_title"), this.$t("params.clearChat_confirm_desc"))
+			.then(()=>{
+				TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id);
+			}).catch(()=>{});
 		}
 	}
 
@@ -338,6 +413,14 @@ import ParamItem from '../params/ParamItem.vue';
 		if(TwitchUtils.hasScopes([TwitchScopes.START_RAID])) return;
 		this.$store.auth.requestTwitchScopes([TwitchScopes.START_RAID]);
 	}
+
+	public onTogglePin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void {
+		this.$store.params.toggleChatMenuPin(pinId);
+	}
+
+	public isPinned(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):boolean {
+		return this.$store.params.pinnedMenuItems.findIndex(v=>v == pinId) > -1;
+	}
 }
 export default toNative(CommandHelper);
 </script>
@@ -347,6 +430,24 @@ export default toNative(CommandHelper);
 	gap:10px;
 	overflow-x: hidden;
 	color: var(--color-text);
+
+	.menuItem {
+		display: flex;
+		flex-direction: row;
+		flex: 1;
+		justify-content: stretch;
+		.button:first-child {
+			flex: 1;
+			border-top-right-radius: 0;
+			border-bottom-right-radius: 0;
+		}
+		.button:last-child {
+			flex-shrink: 0;
+			margin-left: 1px;
+			border-top-left-radius: 0;
+			border-bottom-left-radius: 0;
+		}
+	}
 
 	.commercial {
 		display: flex;

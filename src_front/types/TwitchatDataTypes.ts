@@ -1794,6 +1794,25 @@ export namespace TwitchatDataTypes {
 		channelId?:string;
 	}
 
+	/**
+	 * Defines the pinnable menu items
+	 */
+	type PinId = "poll" | "prediction" | "raffle" | "bingo" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
+	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
+		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"", labelKey:"cmdmenu.poll"},
+		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"", labelKey:"cmdmenu.prediction"},
+		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"", labelKey:"cmdmenu.raffle"},
+		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"", labelKey:"cmdmenu.bingo"},
+		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"", labelKey:"cmdmenu.qna"},
+		{id:"chatSugg",		isModal:true,	icon:"chatPoll", 		modalId:"chatsuggForm",	modelValueName:"", labelKey:"cmdmenu.suggestions"},
+		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"", labelKey:"cmdmenu.timer"},
+		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"", labelKey:"cmdmenu.info"},
+		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"", labelKey:"cmdmenu.extensions"},
+		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"", labelKey:"cmdmenu.chat"},
+		{id:"chatters",		isModal:false,	icon:"user", 			modalId:"", 			modelValueName:"showChatUsers", labelKey:"cmdmenu.chatters"},
+		{id:"rewards",		isModal:false,	icon:"channelPoints", 	modalId:"", 			modelValueName:"showRewards", labelKey:"cmdmenu.rewards"},
+	];
+
 
 
 	/**

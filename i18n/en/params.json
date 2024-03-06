@@ -74,6 +74,8 @@
 		"ad_bot_info_title": "Can this message be sent by nightbot / wizebot / ...?",
 		"ad_bot_info_content": "Yes<br><br>By default the message is posted with your account.<br>But you can configure any other bot to send that message if you wish.<br><br>Twitchat won't send the message as long as a message containing <strong>twitchat.fr</strong> is sent on the chat by anyone at least every 2h.",
 		"saveHistory": "Keep chat history after reloading Twitchat\r\n(you'll find all the messages back after reloading Twitchat)",
+		"clearChat_confirm_title": "Clear chat?",
+		"clearChat_confirm_desc": "This will clear the chat for your viewers.",
 		"clearHistory": "Clear history",
 		"clearHistory_confirm": "This will clear saved messages.",
 		"mergeConsecutive": "Merge consecutive messages of a user",

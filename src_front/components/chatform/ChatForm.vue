@@ -4,8 +4,13 @@
 			<div class="leftForm">
 				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'chatform_params_1'}" />
 				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_cmds'}" />
-				<ButtonNotification :aria-label="$t('chat.form.usersBt_aria')" icon="user" @click="$emit('update:showChatUsers', true)" @mouseover="updateOnlineUsersTooltip($event)" v-tooltip="$store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : ''" />
-				<ButtonNotification :aria-label="$t('chat.form.rewardsBt_aria')" icon="channelPoints" @click="$emit('update:showRewards', true)" v-if="hasChannelPoints" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_channelPoints'}" />
+
+				<ButtonNotification v-for="item in pinnedMenuItems" :key="item"
+					@mouseover="item.id == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
+					v-tooltip="item.id == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(item.labelKey)"
+					:aria-label="$t(item.labelKey)" 
+					:icon="item.icon"
+					@click="onClickMenuItem(item)" />
 			</div>
 
 			
@@ -328,6 +333,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import Logger from '@/utils/Logger';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -390,6 +396,12 @@ export class ChatForm extends Vue {
 		}else{
 			return 500;
 		}
+	}
+
+	public get pinnedMenuItems():typeof TwitchatDataTypes.PinnableMenuItems[number][] {
+		return this.$store.params.pinnedMenuItems.map(v => {
+			return TwitchatDataTypes.PinnableMenuItems.find(u=>u.id == v)!;
+		});
 	}
 
 	public get emergencyButtonEnabled():boolean {
@@ -1026,6 +1038,26 @@ export class ChatForm extends Vue {
 	 */
 	public openUserCard(user:TwitchatDataTypes.TwitchatUser, channel_id:string):void {
 		this.$store.users.openUserCard(user, channel_id);
+	}
+
+	/**
+	 * Called when clicking a pinnable menu item
+	 */
+	public onClickMenuItem(item:typeof TwitchatDataTypes.PinnableMenuItems[number]):void {
+		if(item.isModal) {
+			this.$store.params.openModal(item.modalId);
+		}else if(item.id=="clearChat"){
+			if(!TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) {
+				this.$store.auth.requestTwitchScopes([TwitchScopes.DELETE_MESSAGES]);
+			}else{
+				this.$confirm(this.$t("params.clearChat_confirm_title"), this.$t("params.clearChat_confirm_desc"))
+				.then(()=>{
+					TwitchUtils.deleteMessages(this.$store.auth.twitch.user.id);
+				}).catch(()=>{});
+			}
+		}else if(item.modelValueName) {
+			this.$emit("update:"+item.modelValueName, true)
+		}
 	}
 
 	/**

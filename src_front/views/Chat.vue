@@ -88,7 +88,6 @@
 			/>
 		</div>
 
-		<!-- Actually not used, what the API allows us to do is useless -->
 		<RewardsList class="contentWindows rewards"
 			v-if="showRewards"
 			@close="showRewards = false" />
@@ -99,13 +98,10 @@
 			@obsHeatLogs="$store.params.openModal('obsHeatLogs')"
 			@close="showDevMenu = false" />
 
-		<!-- <MessageList class="contentWindows feed"
-			v-if="showFeed"
-			@showModal="(v:string) => currentModal = v"
-			:maxMessages="50 ?? $store.params.appearance.historySize.value" /> -->
-
 		<CommandHelper class="contentWindows actions"
 			v-if="showCommands"
+			v-model:showChatUsers="showChatUsers" @update:showChatUsers="(v:boolean) => showChatUsers = v"
+			v-model:showRewards="showRewards" @update:showRewards="(v:boolean) => showRewards = v"
 			@close="showCommands = false"
 		/>
 
@@ -256,7 +252,6 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
  class Chat extends Vue {
 
 	public buildIndex = 0;
-	public showDonorBadge = true;
 	public showQna = false;
 	public showEmotes = false;
 	public showRewards = false;
@@ -266,6 +261,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	public showCommands = false;
 	public showShoutout = false;
 	public showChatUsers = false;
+	public showDonorBadge = true;
 	public showBlinkLayer = false;
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;

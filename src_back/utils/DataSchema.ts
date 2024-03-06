@@ -1498,7 +1498,13 @@ import Ajv from "ajv";
 				showTimer: {type:"boolean"},
 				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
-		}
+		},
+		pinnedChatMenuItem:{
+			type:"array",
+			minItems:0,
+			maxItems:100,
+			items: {type:"string", maxLength:20},
+		},
 	}
 }
 
