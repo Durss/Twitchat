@@ -652,6 +652,10 @@ export default class ContextMenuHelper {
 				},
 			});
 		}
+		//Sort items alphabetically
+		children.sort((a,b)=> {
+			return (a.label! as string).toLowerCase().localeCompare((b.label! as string).toLowerCase());
+		});
 		if(options.length > 0) {
 			options[options.length-1].divided = true;
 		}
