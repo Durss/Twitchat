@@ -82,11 +82,11 @@ class OverlayPredictions extends Vue {
 
 	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):StyleValue {
 		return {
-			backgroundSize: `${this.getPercent(c)}% 100%`,
+			backgroundSize: `${this.getPercent(c, true)}% 100%`,
 		}
 	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome):number {
+	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome, barSize:boolean = false):number {
 		let maxVotes = 0;
 		let totalVotes = 0;
 		if(this.prediction) {
@@ -99,7 +99,7 @@ class OverlayPredictions extends Vue {
 				return 100/this.prediction.outcomes.length;
 			}
 		}
-		if(this.listMode) totalVotes = maxVotes;	
+		if(this.listMode && barSize) totalVotes = maxVotes;	
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
