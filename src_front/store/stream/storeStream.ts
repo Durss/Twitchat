@@ -241,6 +241,9 @@ export const storeStream = defineStore('stream', {
 				StoreProxy.params.donationReminderEnabled = false;
 				StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
 			}
+			
+			//Unschedul ad events
+			(commercialTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
 		},
 
 		setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined) { this.communityBoostState = value; },
@@ -285,7 +288,7 @@ export const storeStream = defineStore('stream', {
 			return info;
 		},
 
-		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart:boolean = false) {
+		setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isManualStart:boolean = false) {
 			this.commercial[channelId] = data;
 
 			let startDate = 0;
@@ -346,7 +349,7 @@ export const storeStream = defineStore('stream', {
 				commercialTimeouts[channelId].push(to);
 			}
 
-			if(isStart) {
+			if(isManualStart) {
 				//If ad has been started by someone, notify on tchat
 				const message:TwitchatDataTypes.MessageAdBreakStartData = {
 					type:adStarter? TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT : TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START,
