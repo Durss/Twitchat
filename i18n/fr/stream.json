@@ -1,5 +1,6 @@
 {
 	"stream": {
+		"form_title":"Infos du stream",
 		"closeBt_aria": "Fermer la fenêtre",
 		"preset_deleteBt_tt": "Supprimer les préréglages",
 		"preset_editBt_tt": "Mettre à jour les préréglages",

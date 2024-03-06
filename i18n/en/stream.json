@@ -1,5 +1,6 @@
 {
 	"stream":{
+		"form_title":"Stream info",
 		"closeBt_aria":"Close form",
 		"preset_deleteBt_tt":"Delete preset",
 		"preset_editBt_tt":"Edit preset",
