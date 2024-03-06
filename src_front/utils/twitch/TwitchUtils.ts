@@ -2929,7 +2929,7 @@ export default class TwitchUtils {
 				res.forEach(v=> {
 					//Add sub chunks to original resulting chunks
 					let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
-					if(/.*[0-9]+/.test(v)) islink = false;
+					if(/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 					const node:TwitchatDataTypes.ParseMessageChunk = {
 						type:islink? "url" : "text",
 						value:v,
