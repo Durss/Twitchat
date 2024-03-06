@@ -56,7 +56,7 @@
 			},
 			{
 				"l": "And more",
-				"d": "<ul><li>Hype train window can be minimized</li><li>2 new global placeholders for triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 new placeholders for Sub trigger:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Major fix of the window asking you to disable triggers if you stopped being premium and had more triggers than allowed. Your triggers ended up being duplicated potentially multiple times.</li></ul>"
+				"d": "<ul><li>Hype train window can be minimized</li><li>8 new trigger events:<ul><li>Poll started</li><li>Prediction started</li><li>Streamlabs donation received</li><li>Streamlabs merch bought</li><li>Patron pledge received from Streamlabs</li><li>Ko-fi donation received</li><li>Ko-fi merch bought</li><li>Ko-fi monthly subscriber</li></ul><li>2 new global placeholders for triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 new placeholders for Sub trigger:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Major fix of the window asking you to disable triggers if you stopped being premium and had more triggers than allowed. Your triggers ended up being duplicated potentially multiple times.</li></ul>"
 			},
 			{
 				"i": "donate",

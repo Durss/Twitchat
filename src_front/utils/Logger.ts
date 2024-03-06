@@ -17,7 +17,7 @@ export default class Logger {
         "irc": LogIRC[],
         "heat": LogHeat[],
         "youtube": LogYoutube[],
-        "triggers": LogTrigger[]
+        "triggers": LogTrigger[],
     } = reactive({
         "ads": [],
         "obs": [],

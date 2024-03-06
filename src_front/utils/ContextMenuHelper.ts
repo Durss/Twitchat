@@ -226,70 +226,70 @@ export default class ContextMenuHelper {
 	
 			//User moderation actions
 			if(canModerateUser) {
-				let classesBan = "alert";
-				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesBan += " disabled";
-				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
+				let classesMod = "alert";
+				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesMod += " disabled";
+				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
 				
 				const classesBlock = "alert";
-				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesBan += " disabled";
-				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesBan += " disabled";
+				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesMod += " disabled";
+				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
 	
 				//Timeout
 				options.push(
 						{ 
 							label: t("chat.context_menu.to"),
-							customClass:classesBan,
+							customClass:classesMod,
 							icon: this.getIcon("icons/timeout.svg"),
 							children: [
 								{
 									label: "1s",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 1),
 								},
 								{
 									label: "10s",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 10),
 								},
 								{
 									label: "1m",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60),
 								},
 								{
 									label: "5m",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 5),
 								},
 								{
 									label: "10m",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 10),
 								},
 								{
 									label: "30m",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 30),
 								},
 								{
 									label: "1h",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 60),
 								},
 								{
 									label: "24h",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 60 * 24),
 								},
 								{
 									label: "1w",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7),
 								},
 								{
 									label: "4w",
-									customClass:classesBan,
+									customClass:classesMod,
 									onClick: () => this.timeoutUser(message, 60 * 60 * 24 * 7 * 4),
 								},
 								{
@@ -307,18 +307,18 @@ export default class ContextMenuHelper {
 					options.push({ 
 								label: t("chat.context_menu.unban"),
 								icon: this.getIcon("icons/unban.svg"),
-								customClass:classesBan,
+								customClass:classesMod,
 								onClick: () => {
 									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
-									this.unbanUser(user, message.channel_id);
+									this.unbanUser(message, message.channel_id);
 								},
 							});
 				}else{
 					options.push({ 
 								label: t("chat.context_menu.ban"),
 								icon: this.getIcon("icons/ban.svg"),
-								customClass:classesBan,
+								customClass:classesMod,
 								onClick: () => this.banUser(message, message.channel_id),
 							});
 				}
@@ -329,18 +329,18 @@ export default class ContextMenuHelper {
 						options.push({ 
 								label: t("chat.context_menu.unban_myRoom"),
 								icon: this.getIcon("icons/unban.svg"),
-								customClass:classesBan,
+								customClass:classesMod,
 								onClick: () => {
 									if(message.platform == "twitch" && !TwitchUtils.requestScopes([TwitchScopes.EDIT_BANNED])) return;
 									if(message.platform == "youtube" && !YoutubeHelper.instance.requestScopes([YoutubeScopes.CHAT_MODERATE])) return;
-									this.unbanUser(user, me.id);
+									this.unbanUser(message, me.id);
 								},
 							});
 					}else{
 						options.push({ 
 								label: t("chat.context_menu.ban_myRoom"),
 								icon: this.getIcon("icons/ban.svg"),
-								customClass:classesBan,
+								customClass:classesMod,
 								onClick: () => this.banUser(message, me.id),
 							});
 					}
@@ -532,6 +532,7 @@ export default class ContextMenuHelper {
 			if(message.fake === true) {
 				//Avoid banning user for real if doing it from a fake message
 				StoreProxy.users.flagBanned(message.platform, channelId, message.user.id);
+				StoreProxy.main.alert("User is not banned for real because it's a fake message");
 			}else{
 				switch(message.platform) {
 					case "twitch":
@@ -548,14 +549,19 @@ export default class ContextMenuHelper {
 	/**
 	 * Unbans a user
 	 */
-	private unbanUser(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
-		switch(user.platform) {
-			case "twitch":
-				TwitchUtils.unbanUser(user, channelId);
-				break;
-			case "youtube":
-				YoutubeHelper.instance.unbanUser(user.id);
-				break;
+	private unbanUser(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData, channelId:string):void {
+		if(message.fake === true) {
+			//Avoid banning user for real if doing it from a fake message
+			StoreProxy.users.flagUnbanned(message.platform, channelId, message.user.id);
+		}else{
+			switch(message.user.platform) {
+				case "twitch":
+					TwitchUtils.unbanUser(message.user, channelId);
+					break;
+				case "youtube":
+					YoutubeHelper.instance.unbanUser(message.user.id);
+					break;
+			}
 		}
 	}
 
