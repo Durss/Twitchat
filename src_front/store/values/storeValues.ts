@@ -8,6 +8,7 @@ import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
 import * as MathJS from 'mathjs';
+import type {JsonObject} from "type-fest";
 
 export const storeValues = defineStore('values', {
 	state: () => ({
@@ -24,6 +25,14 @@ export const storeValues = defineStore('values', {
 
 
 	actions: {
+		populateData():void {
+			//Init values
+			const valuesParams = DataStore.get(DataStore.VALUES);
+			if(valuesParams) {
+				Utils.mergeRemoteObject(JSON.parse(valuesParams), (this.valueList as unknown) as JsonObject);
+			}
+		},
+
 		addValue(data:TwitchatDataTypes.ValueData):void {
 			//User can create up to 3 values if not premium
 			if(!StoreProxy.auth.isPremium && this.valueList.length >= Config.instance.MAX_VALUES) {

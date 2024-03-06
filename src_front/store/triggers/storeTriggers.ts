@@ -9,6 +9,7 @@ import Utils from '@/utils/Utils';
 import StoreProxy from '../StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
+import type { JsonObject } from "type-fest";
 
 let discordCmdUpdateDebounce:number = -1;
 
@@ -43,6 +44,23 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	actions: {
+		populateData() {
+			//Init triggers
+			const triggers = DataStore.get(DataStore.TRIGGERS);
+			if(triggers && triggers != "undefined") {//Dunno how some users ended up having "undefined" as JSON T_T...
+				Utils.mergeRemoteObject(JSON.parse(triggers), (this.triggerList as unknown) as JsonObject);
+				// sTriggers.triggerList = JSON.parse(triggers);
+				TriggerActionHandler.instance.populate(this.triggerList);
+			}
+
+			//Init triggers tree structure
+			const triggerTree = DataStore.get(DataStore.TRIGGERS_TREE);
+			if(triggerTree) {
+				Utils.mergeRemoteObject(JSON.parse(triggerTree), (this.triggerTree as unknown) as JsonObject);
+				this.computeTriggerTreeEnabledStates();
+			}
+		},
+		
 		openTriggerEdition(data:TriggerData) {
 			this.currentEditTriggerData = data;
 			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);

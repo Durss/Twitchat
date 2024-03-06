@@ -620,6 +620,28 @@ export const storeChat = defineStore('chat', {
 
 
 	actions: {
+		populateData():void {
+			//Init spoiler param
+			const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
+			if(spoiler) {
+				Utils.mergeRemoteObject(JSON.parse(spoiler), (this.spoilerParams as unknown) as JsonObject);
+			}
+			
+			//Init chat highlight params
+			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
+			if(chatHighlight) {
+				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (this.chatHighlightOverlayParams as unknown) as JsonObject);
+			}
+			
+			//Init bot messages
+			const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
+			if(botMessages) {
+				//Merge remote and local to avoid losing potential new
+				//default values on local data
+				Utils.mergeRemoteObject(JSON.parse(botMessages), (this.botMessages as unknown) as JsonObject, false);
+			}
+		},
+
 		async preloadMessageHistory():Promise<void> {
 			if(StoreProxy.params.features.saveHistory.value === false) return;
 			Database.instance.getMessageList().then(res=>{

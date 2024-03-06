@@ -33,6 +33,26 @@ export const storePoll = defineStore('poll', {
 
 
 	actions: {
+
+		populateData(params?:PollOverlayParamStoreData):void {
+			if(!params) {
+				//Init poll overlay params
+				const pollParams = DataStore.get(DataStore.POLL_OVERLAY_PARAMS);
+				if(pollParams) {
+					params = JSON.parse(pollParams);
+				}
+			}
+			if(!params) return;
+			this.overlayParams.showTitle =			params.showTitle !== false;
+			this.overlayParams.listMode =			params.listMode !== false;
+			this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
+			this.overlayParams.showLabels =			params.showLabels !== false;
+			this.overlayParams.showVotes =			params.showVotes !== false;
+			this.overlayParams.showPercent =		params.showPercent !== false;
+			this.overlayParams.showTimer =			params.showTimer !== false;
+			this.overlayParams.placement =			params.placement || "bl";
+		},
+
 		setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean) {
 			if(data != null) {
 				//Executes the start poll trigger if there was no poll data before
@@ -52,17 +72,6 @@ export const storePoll = defineStore('poll', {
 			}
 
 			this.data = data;
-		},
-
-		populateData(params:PollOverlayParamStoreData):void {
-			this.overlayParams.showTitle =			params.showTitle !== false;
-			this.overlayParams.listMode =			params.listMode !== false;
-			this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
-			this.overlayParams.showLabels =			params.showLabels !== false;
-			this.overlayParams.showVotes =			params.showVotes !== false;
-			this.overlayParams.showPercent =		params.showPercent !== false;
-			this.overlayParams.showTimer =			params.showTimer !== false;
-			this.overlayParams.placement =			params.placement || "bl";
 		},
 
 		setOverlayParams(params:PollOverlayParamStoreData):void {

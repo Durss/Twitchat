@@ -28,6 +28,14 @@ export const storeCounters = defineStore('counters', {
 
 
 	actions: {
+		populateData():void {
+			//Init counters
+			const countersParams = DataStore.get(DataStore.COUNTERS);
+			if(countersParams) {
+				Utils.mergeRemoteObject(JSON.parse(countersParams), (this.counterList as unknown) as JsonObject);
+			}
+		},
+
 		addCounter(data:TwitchatDataTypes.CounterData):void {
 			this.counterList.push(data);
 			this.saveCounters()

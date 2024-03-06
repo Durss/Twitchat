@@ -34,6 +34,28 @@ export const storePrediction = defineStore('prediction', {
 
 
 	actions: {
+		populateData(params?:PredictionOverlayParamStoreData):void {
+			if(!params) {
+				//Init prediction overlay params
+				const predictionParams = DataStore.get(DataStore.PREDICTION_OVERLAY_PARAMS);
+				if(predictionParams) {
+					params = JSON.parse(predictionParams);
+				}
+			}
+
+			if(!params) return;
+
+			this.overlayParams.showTitle =			params.showTitle !== false;
+			this.overlayParams.listMode =			params.listMode !== false;
+			this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
+			this.overlayParams.showLabels =			params.showLabels !== false;
+			this.overlayParams.showVotes =			params.showVotes !== false;
+			this.overlayParams.showVoters =			params.showVoters !== false;
+			this.overlayParams.showPercent =		params.showPercent !== false;
+			this.overlayParams.showTimer =			params.showTimer !== false;
+			this.overlayParams.placement =			params.placement || "br";
+		},
+
 		setPrediction(data:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean) {
 			if(data != null) {
 				if(!this.data) {
@@ -52,18 +74,6 @@ export const storePrediction = defineStore('prediction', {
 			}
 
 			this.data = data;
-		},
-
-		populateData(params:PredictionOverlayParamStoreData):void {
-			this.overlayParams.showTitle =			params.showTitle !== false;
-			this.overlayParams.listMode =			params.listMode !== false;
-			this.overlayParams.listModeOnlyMore2 =	params.listModeOnlyMore2 !== false;
-			this.overlayParams.showLabels =			params.showLabels !== false;
-			this.overlayParams.showVotes =			params.showVotes !== false;
-			this.overlayParams.showVoters =			params.showVoters !== false;
-			this.overlayParams.showPercent =		params.showPercent !== false;
-			this.overlayParams.showTimer =			params.showTimer !== false;
-			this.overlayParams.placement =			params.placement || "br";
 		},
 
 		setOverlayParams(params:PredictionOverlayParamStoreData):void {

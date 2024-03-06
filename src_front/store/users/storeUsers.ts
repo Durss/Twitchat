@@ -91,6 +91,25 @@ export const storeUsers = defineStore('users', {
 
 
 	actions: {
+		populateData():void {
+			//Init custom user display names
+			const customUsernamesParams = DataStore.get(DataStore.CUSTOM_USERNAMES);
+			if(customUsernamesParams) {
+				this.customUsernames = JSON.parse(customUsernamesParams);
+			}
+
+			//Init custom user badges links (associations between user IDs and badge indices)
+			const customUserbadgesParams = DataStore.get(DataStore.CUSTOM_USER_BADGES);
+			if(customUserbadgesParams) {
+				this.customUserBadges = JSON.parse(customUserbadgesParams);
+			}
+
+			//Init custom user badge list
+			const customBadgeListParams = DataStore.get(DataStore.CUSTOM_BADGE_LIST);
+			if(customBadgeListParams) {
+				this.customBadgeList = JSON.parse(customBadgeListParams);
+			}
+		},
 		/**
 		 * Registers the bots hashmap of a platform
 		 * Maps a lowercased login to a boolean (true)

@@ -30,6 +30,21 @@ export const storeDiscord = defineStore('discord', {
 
 
 	actions: {
+		populateData():void {
+			//Init discord params
+			const discordParams = DataStore.get(DataStore.DISCORD_PARAMS);
+			if(discordParams) {
+				const data = JSON.parse(discordParams);
+				this.chatCols = data.chatCols || [];
+				this.banLogTarget = data.banLogTarget || "";
+				this.chatCmdTarget = data.chatCmdTarget || "";
+				this.logChanTarget = data.logChanTarget || "";
+				this.banLogThread = data.banLogThread == true;
+				this.reactionsEnabled = data.reactionsEnabled == true;
+				this.quickActions = data.quickActions || [];
+			}
+		},
+
 		async initialize():Promise<void> {
 			const result = await ApiHelper.call("discord/link");
 			if(result.json.linked === true) {
@@ -80,15 +95,6 @@ export const storeDiscord = defineStore('discord', {
 			}catch(error) {
 			}
 			return "UNKNOWN"
-		},
-		populateData(data:DiscordStoreData):void {
-			this.chatCols = data.chatCols || [];
-			this.banLogTarget = data.banLogTarget || "";
-			this.chatCmdTarget = data.chatCmdTarget || "";
-			this.logChanTarget = data.logChanTarget || "";
-			this.banLogThread = data.banLogThread == true;
-			this.reactionsEnabled = data.reactionsEnabled == true;
-			this.quickActions = data.quickActions || [];
 		},
 		addQuickAction():void {
 			this.quickActions.unshift({

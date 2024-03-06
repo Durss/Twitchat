@@ -6,6 +6,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import type { ITTSActions, ITTSGetters, ITTSState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import type { JsonObject } from 'type-fest';
 
 export const storeTTS = defineStore('tts', {
 	state: () => ({
@@ -90,6 +91,16 @@ export const storeTTS = defineStore('tts', {
 
 
 	actions: {
+
+		populateData():void {
+			//Init TTS actions
+			const tts = DataStore.get(DataStore.TTS_PARAMS);
+			if (tts) {
+				Utils.mergeRemoteObject(JSON.parse(tts), (this.params as unknown) as JsonObject);
+				// sTTS.params = JSON.parse(tts);
+				TTSUtils.instance.enabled = this.params.enabled;
+			}
+		},
 
 		ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			TTSUtils.instance.readNow(message);

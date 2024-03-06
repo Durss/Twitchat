@@ -847,178 +847,36 @@ export const storeMain = defineStore("main", {
 			 * CAREFUL THIS METHOD CAN BE CALLED MULTIPLE TIMES
 			 * Don't do anything that could break if called multiple times!
 			 */
-			const sOBS = StoreProxy.obs;
-			const sTTS = StoreProxy.tts;
-			const sPoll = StoreProxy.poll;
-			const sChat = StoreProxy.chat;
-			const sHeat = StoreProxy.heat;
-			const sKofi = StoreProxy.kofi;
-			const sVoice = StoreProxy.voice;
-			const sMusic = StoreProxy.music;
-			const sUsers = StoreProxy.users;
-			const sStream = StoreProxy.stream;
-			const sParams = StoreProxy.params;
-			const sValues = StoreProxy.values;
-			const sDiscord = StoreProxy.discord;
-			const sAutomod = StoreProxy.automod;
-			const sTriggers = StoreProxy.triggers;
-			const sCounters = StoreProxy.counters;
-			const sEmergency = StoreProxy.emergency;
-			const sStreamlabs = StoreProxy.streamlabs;
-			const sPrediction = StoreProxy.prediction;
 
-			sKofi.populateData();
+			StoreProxy.obs.populateData();
+			StoreProxy.tts.populateData();
+			StoreProxy.poll.populateData();
+			StoreProxy.chat.populateData();
+			StoreProxy.heat.populateData();
+			StoreProxy.kofi.populateData();
+			StoreProxy.voice.populateData();
+			StoreProxy.music.populateData();
+			StoreProxy.users.populateData();
+			StoreProxy.stream.populateData();
+			StoreProxy.params.populateData();
+			StoreProxy.values.populateData();
+			StoreProxy.discord.populateData();
+			StoreProxy.automod.populateData();
+			StoreProxy.triggers.populateData();
+			StoreProxy.counters.populateData();
+			StoreProxy.emergency.populateData();
+			StoreProxy.streamlabs.populateData();
+			StoreProxy.prediction.populateData();
 
-			//Loading parameters from local storage and pushing them to current store
-			const props = DataStore.getAll();
-			for (const cat in sParams.$state) {
-				const c = cat as TwitchatDataTypes.ParameterCategory;
-				for (const key in props) {
-					const k = key.replace(/^p:/gi, "");
-					if(props[key] == null) continue;
-					const t = typeof sParams.$state[c];
-					if(t == "object" && /^p:/gi.test(key) && k in sParams.$state[c]) {
-						const v:string = props[key] as string;
-						/* eslint-disable-next-line */
-						const pointer = sParams.$state[c][k as TwitchatDataTypes.ParameterCategory];
-						if(typeof pointer.value === 'boolean') {
-							pointer.value = (v == "true");
-						}else
-						if(typeof pointer.value === 'string') {
-							pointer.value = v;
-						}else
-						if(typeof pointer.value === 'number') {
-							pointer.value = parseFloat(v);
-						}else{
-							pointer.value = JSON.parse(v);
-						}
-					}
-				}
-			}
 			const theme = DataStore.get(DataStore.THEME);
 			if(theme) {
 				this.theme = theme as "light" | "dark";
-			}
-
-			//Init OBS scenes params
-			const obsSceneCommands = DataStore.get(DataStore.OBS_CONF_SCENES);
-			if(obsSceneCommands) {
-				sOBS.sceneCommands = JSON.parse(obsSceneCommands);
-			}
-			
-			//Init OBS command params
-			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
-			if(obsMuteUnmuteCommands) {
-				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (sOBS.muteUnmuteCommands as unknown) as JsonObject);
-				// sOBS.muteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
-			}
-			
-			//Init OBS permissions
-			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
-			if(obsCommandsPermissions) {
-				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (sOBS.commandsPermissions as unknown) as JsonObject);
-				// sOBS.commandsPermissions = JSON.parse(obsCommandsPermissions);
-			}
-
-			//Init TTS actions
-			const tts = DataStore.get(DataStore.TTS_PARAMS);
-			if (tts) {
-				Utils.mergeRemoteObject(JSON.parse(tts), (sTTS.params as unknown) as JsonObject);
-				// sTTS.params = JSON.parse(tts);
-				TTSUtils.instance.enabled = sTTS.params.enabled;
-			}
-			
-			//Init emergency actions
-			const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
-			if(emergency) {
-				Utils.mergeRemoteObject(JSON.parse(emergency), (sEmergency.params as unknown) as JsonObject);
-				// sEmergency.params = JSON.parse(emergency);
 			}
 			
 			//Init alert actions
 			const alert = DataStore.get(DataStore.ALERT_PARAMS);
 			if(alert) {
 				Utils.mergeRemoteObject(JSON.parse(alert), (this.chatAlertParams as unknown) as JsonObject);
-				// this.chatAlertParams = JSON.parse(alert);
-			}
-			
-			//Init spoiler param
-			const spoiler = DataStore.get(DataStore.SPOILER_PARAMS);
-			if(spoiler) {
-				Utils.mergeRemoteObject(JSON.parse(spoiler), (sChat.spoilerParams as unknown) as JsonObject);
-				// sChat.spoilerParams = JSON.parse(spoiler);
-			}
-			
-			//Init chat highlight params
-			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
-			if(chatHighlight) {
-				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (sChat.chatHighlightOverlayParams as unknown) as JsonObject);
-				// sChat.chatHighlightOverlayParams = JSON.parse(chatHighlight);
-			}
-			
-			//Init triggers
-			const triggers = DataStore.get(DataStore.TRIGGERS);
-			if(triggers && triggers != "undefined") {//Dunno how some users ended up having "undefined" as JSON T_T...
-				Utils.mergeRemoteObject(JSON.parse(triggers), (sTriggers.triggerList as unknown) as JsonObject);
-				// sTriggers.triggerList = JSON.parse(triggers);
-				TriggerActionHandler.instance.populate(sTriggers.triggerList);
-			}
-
-			//Init triggers tree structure
-			const triggerTree = DataStore.get(DataStore.TRIGGERS_TREE);
-			if(triggerTree) {
-				Utils.mergeRemoteObject(JSON.parse(triggerTree), (sTriggers.triggerTree as unknown) as JsonObject);
-				sTriggers.computeTriggerTreeEnabledStates();
-			}
-				
-			//Init stream info presets
-			const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);
-			if(presets) {
-				sStream.streamInfoPreset = JSON.parse(presets);
-			}
-
-			//Init emergency followers
-			const emergencyFollows = DataStore.get(DataStore.EMERGENCY_FOLLOWERS);
-			if(emergencyFollows) {
-				sEmergency.reloadFollowbotList(JSON.parse(emergencyFollows));
-			}
-
-			//Init music player params
-			const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
-			if(musicPlayerParams) {
-				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (sMusic.musicPlayerParams as unknown) as JsonObject);
-				// sMusic.musicPlayerParams = JSON.parse(musicPlayerParams);
-			}
-			
-			//Init Voice control actions
-			const voiceActions = DataStore.get("voiceActions");
-			if(voiceActions) {
-				sVoice.voiceActions = JSON.parse(voiceActions);
-			}
-			
-			//Init Voice control language
-			const voiceLang = DataStore.get("voiceLang");
-			if(voiceLang) {
-				sVoice.voiceLang = voiceLang;
-				VoiceController.instance.lang = voiceLang;
-			}
-			
-			//Init bot messages
-			const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
-			if(botMessages) {
-				//Merge remote and local to avoid losing potential new
-				//default values on local data
-				Utils.mergeRemoteObject(JSON.parse(botMessages), (sChat.botMessages as unknown) as JsonObject, false);
-				// sChat.botMessages = JSON.parse(botMessages);
-			}
-
-			//Init voicemod
-			const voicemodParams = DataStore.get(DataStore.VOICEMOD_PARAMS);
-			if(voicemodParams) {
-				sVoice.setVoicemodParams(JSON.parse(voicemodParams));
-				if(sVoice.voicemodParams.enabled) {
-					VoicemodWebSocket.instance.connect().then(()=>{}).catch(()=> {});
-				}
 			}
 
 			//Init trigger websocket
@@ -1032,108 +890,6 @@ export const storeMain = defineStore("main", {
 				WebsocketTrigger.instance.connect(url).then(()=>{}).catch(()=> {});
 			}
 
-			//Init automod
-			const automodParams = DataStore.get(DataStore.AUTOMOD_PARAMS);
-			if(automodParams) {
-				Utils.mergeRemoteObject(JSON.parse(automodParams), (sAutomod.params as unknown) as JsonObject);
-				// sAutomod.params = JSON.parse(automodParams);
-				sAutomod.setAutomodParams(sAutomod.params);
-			}
-
-			//Init chat cols
-			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
-			if(chatColConfs) {
-				sParams.chatColumnsConfig = JSON.parse(chatColConfs);
-				for (let i = 0; i < sParams.chatColumnsConfig.length; i++) {
-					sParams.chatColumnsConfig[i].id = Utils.getUUID();
-				}
-				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
-			}
-
-			//Init counters
-			const countersParams = DataStore.get(DataStore.COUNTERS);
-			if(countersParams) {
-				Utils.mergeRemoteObject(JSON.parse(countersParams), (sCounters.counterList as unknown) as JsonObject);
-			}
-
-			//Init values
-			const valuesParams = DataStore.get(DataStore.VALUES);
-			if(valuesParams) {
-				Utils.mergeRemoteObject(JSON.parse(valuesParams), (sValues.valueList as unknown) as JsonObject);
-			}
-
-			//Init heat screens
-			const heatScreensParams = DataStore.get(DataStore.HEAT_SCREENS);
-			if(heatScreensParams) {
-				Utils.mergeRemoteObject(JSON.parse(heatScreensParams), (sHeat.screenList as unknown) as JsonObject);
-				DataStore.set(DataStore.CHAT_COLUMNS_CONF, sParams.chatColumnsConfig);
-			}
-
-			//Init custom user display names
-			const customUsernamesParams = DataStore.get(DataStore.CUSTOM_USERNAMES);
-			if(customUsernamesParams) {
-				sUsers.customUsernames = JSON.parse(customUsernamesParams);
-			}
-
-			//Init custom user badges links (associations between user IDs and badge indices)
-			const customUserbadgesParams = DataStore.get(DataStore.CUSTOM_USER_BADGES);
-			if(customUserbadgesParams) {
-				sUsers.customUserBadges = JSON.parse(customUserbadgesParams);
-			}
-
-			//Init custom user badge list
-			const customBadgeListParams = DataStore.get(DataStore.CUSTOM_BADGE_LIST);
-			if(customBadgeListParams) {
-				sUsers.customBadgeList = JSON.parse(customBadgeListParams);
-			}
-
-			//Init goxlr params
-			const goXLRParams = DataStore.get(DataStore.GOXLR_CONFIG);
-			if(goXLRParams) {
-				sParams.goxlrConfig = JSON.parse(goXLRParams);
-				const ip = sParams.goxlrConfig.ip;
-				const port = sParams.goxlrConfig.port;
-				if(ip && port && sParams.goxlrConfig.enabled) {
-					GoXLRSocket.instance.connect(ip, port).catch(error=>{});
-				}
-			}
-
-			//Init raid history
-			const raidHistoryParams = DataStore.get(DataStore.RAID_HISTORY);
-			if(raidHistoryParams) {
-				sStream.raidHistory = JSON.parse(raidHistoryParams);
-			}
-
-			//Init heat distortions
-			const heatDistortionParams = DataStore.get(DataStore.OVERLAY_DISTORTIONS);
-			if(heatDistortionParams) {
-				sHeat.distortionList = JSON.parse(heatDistortionParams);
-			}
-
-			//Init discord params
-			const discordParams = DataStore.get(DataStore.DISCORD_PARAMS);
-			if(discordParams) {
-				sDiscord.populateData(JSON.parse(discordParams));
-			}
-
-			//Init streamlabs params
-			const streamlabsParams = DataStore.get(DataStore.STREAMLABS);
-			if(streamlabsParams) {
-				sStreamlabs.populateData(JSON.parse(streamlabsParams));
-			}
-
-			//Init prediction overlay params
-			const predictionParams = DataStore.get(DataStore.PREDICTION_OVERLAY_PARAMS);
-			if(predictionParams) {
-				sPrediction.populateData(JSON.parse(predictionParams));
-			}
-
-			//Init poll overlay params
-			const pollParams = DataStore.get(DataStore.POLL_OVERLAY_PARAMS);
-			if(pollParams) {
-				sPoll.populateData(JSON.parse(pollParams));
-			}
-
 			Database.instance.connect().then(async ()=> {
 				await StoreProxy.chat.preloadMessageHistory();
 				
@@ -1142,31 +898,6 @@ export const storeMain = defineStore("main", {
 			});
 
 			SchedulerHelper.instance.start();
-			
-			//Initialise the new toggle param for OBS connection.
-			//If any OBS param exists, set it to true because the
-			//user probably configured it. Otherwise set it to false
-			if(DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === null) {
-				if(DataStore.get(DataStore.OBS_PASS) || DataStore.get(DataStore.OBS_PORT) || sOBS.muteUnmuteCommands || sOBS.sceneCommands.length > 0) {
-					sOBS.connectionEnabled = true;
-				}else{
-					sOBS.connectionEnabled = false;
-				}
-				DataStore.set(DataStore.OBS_CONNECTION_ENABLED, sOBS.connectionEnabled);
-			}else{
-				sOBS.connectionEnabled = DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === "true";
-			}
-			
-			//Init OBS connection
-			//If params are specified on URL, use them (used by overlays)
-			const port = DataStore.get(DataStore.OBS_PORT);
-			const pass = DataStore.get(DataStore.OBS_PASS);
-			const ip = DataStore.get(DataStore.OBS_IP);
-			//If OBS params are on URL or if connection is enabled, connect
-			if(sOBS.connectionEnabled && (port != null || pass != null || ip != null)) {
-				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
-			}
 
 			/**
 			 * Connect to Youtube (won't do anything if no credentials are available)

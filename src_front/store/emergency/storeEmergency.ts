@@ -10,6 +10,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { UnwrapRef } from 'vue';
 import type { IEmergencyActions, IEmergencyGetters, IEmergencyState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import type {JsonObject} from 'type-fest';
 
 const userToPrevModState:{[key:string]:{[key:string]:boolean}} = {}
 
@@ -62,6 +63,22 @@ export const storeEmergency = defineStore('emergency', {
 
 
 	actions: {
+		populateData() {
+			//Init emergency actions
+			const emergency = DataStore.get(DataStore.EMERGENCY_PARAMS);
+			if(emergency) {
+				Utils.mergeRemoteObject(JSON.parse(emergency), (this.params as unknown) as JsonObject);
+				// sEmergency.params = JSON.parse(emergency);
+			}
+
+			//Init emergency followers
+			const emergencyFollows = DataStore.get(DataStore.EMERGENCY_FOLLOWERS);
+			if(emergencyFollows) {
+				this.reloadFollowbotList(JSON.parse(emergencyFollows));
+			}
+			
+		},
+
 		setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData) {
 			this.params = params;
 			DataStore.set(DataStore.EMERGENCY_PARAMS, params);

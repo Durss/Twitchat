@@ -5,6 +5,7 @@ import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IOBSActions, IOBSGetters, IOBSState } from '../StoreProxy';
+import type { JsonObject } from 'type-fest';
 
 export const storeOBS = defineStore('obs', {
 	state: () => ({
@@ -34,6 +35,53 @@ export const storeOBS = defineStore('obs', {
 
 
 	actions: {
+		populateData() {
+			//Init OBS scenes params
+			const obsSceneCommands = DataStore.get(DataStore.OBS_CONF_SCENES);
+			if(obsSceneCommands) {
+				this.sceneCommands = JSON.parse(obsSceneCommands);
+			}
+			
+			//Init OBS command params
+			const obsMuteUnmuteCommands = DataStore.get(DataStore.OBS_CONF_MUTE_UNMUTE);
+			if(obsMuteUnmuteCommands) {
+				Utils.mergeRemoteObject(JSON.parse(obsMuteUnmuteCommands), (this.muteUnmuteCommands as unknown) as JsonObject);
+				// this.muteUnmuteCommands = JSON.parse(obsMuteUnmuteCommands);
+			}
+			
+			//Init OBS permissions
+			const obsCommandsPermissions = DataStore.get(DataStore.OBS_CONF_PERMISSIONS);
+			if(obsCommandsPermissions) {
+				Utils.mergeRemoteObject(JSON.parse(obsCommandsPermissions), (this.commandsPermissions as unknown) as JsonObject);
+				// this.commandsPermissions = JSON.parse(obsCommandsPermissions);
+			}
+			
+			//Initialise the new toggle param for OBS connection.
+			//If any OBS param exists, set it to true because the
+			//user probably configured it. Otherwise set it to false
+			if(DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === null) {
+				if(DataStore.get(DataStore.OBS_PASS) || DataStore.get(DataStore.OBS_PORT) || this.muteUnmuteCommands || this.sceneCommands.length > 0) {
+					this.connectionEnabled = true;
+				}else{
+					this.connectionEnabled = false;
+				}
+				DataStore.set(DataStore.OBS_CONNECTION_ENABLED, this.connectionEnabled);
+			}else{
+				this.connectionEnabled = DataStore.get(DataStore.OBS_CONNECTION_ENABLED) === "true";
+			}
+			
+			//Init OBS connection
+			//If params are specified on URL, use them (used by overlays)
+			const port = DataStore.get(DataStore.OBS_PORT);
+			const pass = DataStore.get(DataStore.OBS_PASS);
+			const ip = DataStore.get(DataStore.OBS_IP);
+			//If OBS params are on URL or if connection is enabled, connect
+			if(this.connectionEnabled && (port != null || pass != null || ip != null)) {
+				this.connectionEnabled = true;
+				OBSWebsocket.instance.connect(port || "4455", pass || "", true, ip || "127.0.0.1");
+			}
+
+		},
 		setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]) {
 			this.sceneCommands = value;
 			DataStore.set(DataStore.OBS_CONF_SCENES, value);

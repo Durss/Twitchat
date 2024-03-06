@@ -379,6 +379,10 @@ export interface IAutomodGetters {
 
 export interface IAutomodActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Update automod parameters
 	 * @param payload 
 	 */
@@ -486,6 +490,10 @@ export interface IChatGetters {
 }
 
 export interface IChatActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Preload message history from IndexedDB
 	 */
@@ -685,6 +693,10 @@ export interface IEmergencyGetters {
 
 export interface IEmergencyActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Sets the emergency mode aprams
 	 * @param params 
 	 */
@@ -753,6 +765,10 @@ export interface IMusicGetters {
 
 export interface IMusicActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Sets the spotify OAuth result after going through
 	 * the OAuth process
 	 * @param value 
@@ -786,6 +802,10 @@ export interface IOBSGetters {
 }
 
 export interface IOBSActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Set OBS scenes chat commands params
 	 * @param value 
@@ -856,12 +876,20 @@ export interface IParamsState {
 	 * GoXLR configurations
 	 */
 	goxlrConfig: TwitchatDataTypes.GoXLRParams;
+	/**
+	 * Defines the elements pinned at the bottom of Twitchat
+	 */
+	pinnedMenuItems:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"][];
 }
 
 export interface IParamsGetters {
 }
 
 export interface IParamsActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Call when a chat features or chat appearance parameter is updated
 	 * Triggers a data save
@@ -944,6 +972,11 @@ export interface IParamsActions {
 	 * @param encoderPath 
 	 */
 	setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
+	/**
+	 * Toggle the pin state of chat menu item
+	 * @param pinId 
+	 */
+	toggleChatMenuPin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void;
 }
 
 
@@ -965,15 +998,15 @@ export interface IPollGetters {
 
 export interface IPollActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData(params?:PollOverlayParamStoreData):void;
+	/**
 	 * Set current poll data
 	 * @param data 
 	 * @param postOnChat 
 	 */
 	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
-	/**
-	 * Populates data from data store value
-	 */
-	populateData(params:PollOverlayParamStoreData):void;
 	/**
 	 * Updates overlay params
 	 * @param params 
@@ -1005,13 +1038,13 @@ export interface IPredictionGetters {
 
 export interface IPredictionActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData(params?:PredictionOverlayParamStoreData):void;
+	/**
 	 * Set current prediction data
 	 */
 	setPrediction(payload:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean):void;
-	/**
-	 * Populates data from data store value
-	 */
-	populateData(params:PredictionOverlayParamStoreData):void;
 	/**
 	 * Updates overlay params
 	 * @param params 
@@ -1117,6 +1150,10 @@ export interface IStreamGetters {
 }
 
 export interface IStreamActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Preload the current stream info of the connected channel
 	 */
@@ -1341,6 +1378,10 @@ export interface ITriggersGetters {
 
 export interface ITriggersActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Defines the trigger data to be editted
 	 * @param data 
 	 */
@@ -1441,6 +1482,10 @@ export interface ITTSGetters {
 
 export interface ITTSActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Read a message via TTS
 	 * @param message 
 	 */
@@ -1521,6 +1566,10 @@ export interface IUsersGetters {
 }
 
 export interface IUsersActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Set a bots hashmap for the speified platforms
 	 * @param platform 
@@ -1766,6 +1815,10 @@ export interface IVoiceGetters {
 
 export interface IVoiceActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData():void;
+	/**
 	 * Set speech to text language
 	 * @param value 
 	 */
@@ -1845,6 +1898,10 @@ export interface ICountersGetters {
 }
 
 export interface ICountersActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Create a new counter
 	 * @param data 
@@ -1926,6 +1983,10 @@ export interface IHeatGetters {
 
 export interface IHeatActions {
 	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
 	 * Create a new screen.
 	 */
 	createScreen():string;
@@ -1996,6 +2057,10 @@ export interface IValuesGetters {
 }
 
 export interface IValuesActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
 	/**
 	 * Create a new value
 	 * @param data 
@@ -2140,6 +2205,10 @@ export interface IDiscordGetters {
 
 export interface IDiscordActions {
 	/**
+	 * Populates data from data store value
+	 */
+	populateData():void;
+	/**
 	 * Init the discord link state
 	 */
 	initialize():Promise<void>;
@@ -2157,11 +2226,6 @@ export interface IDiscordActions {
 	 * Remove the lmink with discord
 	 */
 	unlinkDiscord():Promise<true|string>;
-	/**
-	 * Populates the store from user's data
-	 * @param data 
-	 */
-	populateData(data:DiscordStoreData):void;
 	/**
 	 * Create a new quick action
 	 */
@@ -2195,7 +2259,7 @@ export interface IStreamlabsActions {
 	 * Populates the store from user's data
 	 * @param data 
 	 */
-	populateData(data:SreamlabsStoreData):void;
+	populateData():void;
 	/**
 	 * Connect to WS with given token
 	 */

@@ -34,6 +34,19 @@ export const storeHeat = defineStore('heat', {
 
 
 	actions: {
+		populateData():void {
+			//Init heat screens
+			const heatScreensParams = DataStore.get(DataStore.HEAT_SCREENS);
+			if(heatScreensParams) {
+				Utils.mergeRemoteObject(JSON.parse(heatScreensParams), (this.screenList as unknown) as JsonObject);
+			}
+
+			//Init heat distortions
+			const heatDistortionParams = DataStore.get(DataStore.OVERLAY_DISTORTIONS);
+			if(heatDistortionParams) {
+				this.distortionList = JSON.parse(heatDistortionParams);
+			}
+		},
 
 		createScreen():string {
 			const screen:HeatScreen = {

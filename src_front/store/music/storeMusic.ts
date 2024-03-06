@@ -2,6 +2,9 @@ import type { SpotifyAuthResult } from '@/types/spotify/SpotifyDataTypes';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { IMusicActions, IMusicGetters, IMusicState } from '../StoreProxy';
+import DataStore from '../DataStore';
+import Utils from '@/utils/Utils';
+import type { JsonObject } from "type-fest";
 
 export const storeMusic = defineStore('music', {
 	state: () => ({
@@ -32,6 +35,14 @@ export const storeMusic = defineStore('music', {
 
 
 	actions: {
+		populateData():void {
+			//Init music player params
+			const musicPlayerParams = DataStore.get(DataStore.MUSIC_PLAYER_PARAMS);
+			if(musicPlayerParams) {
+				Utils.mergeRemoteObject(JSON.parse(musicPlayerParams), (this.musicPlayerParams as unknown) as JsonObject);
+			}
+		},
+
 		setSpotifyAuthResult(value:SpotifyAuthResult|null) { this.spotifyAuthParams = value; },
 
 	} as IMusicActions

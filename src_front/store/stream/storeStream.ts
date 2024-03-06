@@ -69,6 +69,20 @@ export const storeStream = defineStore('stream', {
 
 
 	actions: {
+		populateData():void {
+			//Init stream info presets
+			const presets = DataStore.get(DataStore.STREAM_INFO_PRESETS);
+			if(presets) {
+				this.streamInfoPreset = JSON.parse(presets);
+			}
+
+			//Init raid history
+			const raidHistoryParams = DataStore.get(DataStore.RAID_HISTORY);
+			if(raidHistoryParams) {
+				this.raidHistory = JSON.parse(raidHistoryParams);
+			}
+		},
+
 		async loadStreamInfo(platform:TwitchatDataTypes.ChatPlatform, channelId:string):Promise<void> {
 			const infos:TwitchatDataTypes.StreamInfo = this.currentStreamInfo[channelId] || {
 				title:"",

@@ -24,6 +24,7 @@ export const storeParams = defineStore('params', {
 		currentModal:"",
 		donationReminderEnabled:false,
 		greetThemAutoDelete: 600,
+		pinnedMenuItems:["chatters", "rewards"],
 		features: {
 			spoilersEnabled: 			{save:true, type:"boolean", value:true, labelKey:"params.spoilersEnabled", id:216, icon:"show", storage:{vnew:{date:1693519200000, id:'params_chatspoiler'}}},
 			alertMode: 					{save:true, type:"boolean", value:true, labelKey:"params.alertMode", id:217, icon:"alert"},
@@ -248,6 +249,63 @@ export const storeParams = defineStore('params', {
 
 
 	actions: {
+		populateData() {
+			//Loading parameters from local storage and pushing them to current store
+			const props = DataStore.getAll();
+			for (const cat in this.$state) {
+				const c = cat as TwitchatDataTypes.ParameterCategory;
+				for (const key in props) {
+					const k = key.replace(/^p:/gi, "");
+					if(props[key] == null) continue;
+					const t = typeof this.$state[c];
+					if(t == "object" && /^p:/gi.test(key) && k in this.$state[c]) {
+						const v:string = props[key] as string;
+						/* eslint-disable-next-line */
+						const pointer = this.$state[c][k as TwitchatDataTypes.ParameterCategory];
+						if(typeof pointer.value === 'boolean') {
+							pointer.value = (v == "true");
+						}else
+						if(typeof pointer.value === 'string') {
+							pointer.value = v;
+						}else
+						if(typeof pointer.value === 'number') {
+							pointer.value = parseFloat(v);
+						}else{
+							pointer.value = JSON.parse(v);
+						}
+					}
+				}
+			}
+
+			//Init chat cols
+			const chatColConfs = DataStore.get(DataStore.CHAT_COLUMNS_CONF);
+			if(chatColConfs) {
+				this.chatColumnsConfig = JSON.parse(chatColConfs);
+				for (let i = 0; i < this.chatColumnsConfig.length; i++) {
+					this.chatColumnsConfig[i].id = Utils.getUUID();
+				}
+				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
+			}
+
+			//Init goxlr params
+			const goXLRParams = DataStore.get(DataStore.GOXLR_CONFIG);
+			if(goXLRParams) {
+				this.goxlrConfig = JSON.parse(goXLRParams);
+				const ip = this.goxlrConfig.ip;
+				const port = this.goxlrConfig.port;
+				if(ip && port && this.goxlrConfig.enabled) {
+					GoXLRSocket.instance.connect(ip, port).catch(error=>{});
+				}
+			}
+
+			//Init pinned menu items
+			const pinnedMenuConfs = DataStore.get(DataStore.PINNED_CHAT_MENU_ITEM);
+			console.log("LOADED", pinnedMenuConfs);
+			if(pinnedMenuConfs) {
+				this.pinnedMenuItems = JSON.parse(pinnedMenuConfs);
+			}
+
+		},
 		updateParams() {
 			for (const cat in this.$state) {
 				const c = cat as TwitchatDataTypes.ParameterCategory;
@@ -473,6 +531,14 @@ export const storeParams = defineStore('params', {
 			this.goxlrConfig.port = port;
 			DataStore.set(DataStore.GOXLR_CONFIG, this.goxlrConfig);
 		},
+
+		toggleChatMenuPin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void {
+			const index = this.pinnedMenuItems.findIndex(v=>v == pinId);
+			if(index > -1) this.pinnedMenuItems.splice(index, 1);
+			else this.pinnedMenuItems.push(pinId);
+	
+			DataStore.set(DataStore.PINNED_CHAT_MENU_ITEM, this.pinnedMenuItems);
+		}
 	} as IParamsActions
 	& ThisType<IParamsActions
 		& UnwrapRef<IParamsState>
