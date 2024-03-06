@@ -308,7 +308,7 @@ export const storeHeat = defineStore('heat', {
 
 			// Parse all available OBS sources
 			const distortionRerouted:{[key:string]:boolean} = {};
-			for (let i = 0; i < rects.sources.length; i++) {
+			mainloop:for (let i = 0; i < rects.sources.length; i++) {
 				const rect = rects.sources[i];
 				const x = rects.canvas.width * px;
 				const y = rects.canvas.height * py;
@@ -356,10 +356,14 @@ export const storeHeat = defineStore('heat', {
 				for (let j = 0; j < this.distortionList.length; j++) {
 					const d = this.distortionList[j];
 					//If distortion has already been triggered, avoid potential other triggers
-					if(distortionRerouted[d.id] === true) continue;
+					if(distortionRerouted[d.id] === true) {
+						continue mainloop;
+					}
 
 					//Ignore disabled and trigger-only distortions
-					if(!d.enabled || d.triggerOnly) continue;
+					if(!d.enabled || d.triggerOnly) {
+						continue mainloop;
+					}
 
 					//Only check for group and source targets. Scene target are parsed before
 					const name = d.obsItemPath.source.name || d.obsItemPath.groupName;
