@@ -13,18 +13,15 @@ import type { VoicemodTypes } from "@/utils/voice/VoicemodTypes";
 import type { YoutubeScopesString } from "@/utils/youtube/YoutubeScopes";
 import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
-import type { DiscordStoreData } from "./discord/storeDiscord";
-import type { SreamlabsStoreData } from "./streamlabs/storeStreamlabs";
-import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
-import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
+import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
+import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
 
 /**
 * Created : 23/09/2022 
 * This class only exists to solve the circular imports hell
 */
 export default class StoreProxy {
-	
 	public static account:IAccountState & IAccountGetters & IAccountActions & {$state:IAccountState, $reset:()=>void};
 	public static auth:IAuthState & IAuthGetters & IAuthActions & {$state:IAuthState, $reset:()=>void};
 	public static automod:IAutomodState & IAutomodGetters & IAutomodActions & {$state:IAutomodState, $reset:()=>void};
@@ -60,11 +57,15 @@ export default class StoreProxy {
 	public static streamlabs:IStreamlabsState & IStreamlabsGetters & IStreamlabsActions & {$state:IStreamlabsState, $reset:()=>void};
 	public static streamelements:IStreamelementsState & IStreamelementsGetters & IStreamelementsActions & {$state:IStreamelementsState, $reset:()=>void};
 	public static kofi:IKofiState & IKofiGetters & IKofiActions & {$state:IKofiState, $reset:()=>void};
+	public static lumia:ILumiaState & ILumiaGetters & ILumiaActions & {$state:ILumiaState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
-	
 }
+
+export type IStore = {
+    [Key in keyof typeof StoreProxy]: typeof StoreProxy[Key];
+};
 
 export interface IMainState {
 	/**
@@ -2360,4 +2361,16 @@ export interface IKofiActions {
 	 * @param data 
 	 */
 	onEvent(data:any):void
+}
+
+
+
+
+export interface ILumiaState {
+}
+
+export interface ILumiaGetters {
+}
+
+export interface ILumiaActions {
 }

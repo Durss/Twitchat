@@ -1,45 +1,8 @@
-import type { IAccessibilityActions, IAccessibilityGetters, IAccessibilityState, IAccountActions, IAccountGetters, IAccountState, IAdminActions, IAdminGetters, IAdminState, IAuthActions, IAuthGetters, IAuthState, IAutomodActions, IAutomodGetters, IAutomodState, IBingoActions, IBingoGetters, IBingoState, IChatActions, IChatGetters, IChatState, IChatSuggestionActions, IChatSuggestionGetters, IChatSuggestionState, ICountersActions, ICountersGetters, ICountersState, IDebugActions, IDebugGetters, IDebugState, IDiscordActions, IDiscordGetters, IDiscordState, IEmergencyActions, IEmergencyGetters, IEmergencyState, IExtensionActions, IExtensionGetters, IExtensionState, IHeatActions, IHeatGetters, IHeatState, IKofiActions, IKofiGetters, IKofiState, IMainActions, IMainGetters, IMainState, IMusicActions, IMusicGetters, IMusicState, IOBSActions, IOBSGetters, IOBSState, IParamsActions, IParamsGetters, IParamsState, IPatreonActions, IPatreonGetters, IPatreonState, IPollActions, IPollGetters, IPollState, IPredictionActions, IPredictionGetters, IPredictionState, IQnaActions, IQnaGetters, IQnaState, IRaffleActions, IRaffleGetters, IRaffleState, IRewardsActions, IRewardsGetters, IRewardsState, IStreamActions, IStreamelementsActions, IStreamelementsGetters, IStreamelementsState, IStreamGetters, IStreamlabsActions, IStreamlabsGetters, IStreamlabsState, IStreamState, ITimerActions, ITimerGetters, ITimerState, ITriggersActions, ITriggersGetters, ITriggersState, ITTSActions, ITTSState, IUsersActions, IUsersGetters, IUsersState, IValuesActions, IValuesGetters, IValuesState, IVoiceActions, IVoiceGetters, IVoiceState, IYoutubeActions, IYoutubeGetters, IYoutubeState } from "./store/StoreProxy";
+import type { IStore } from "./store/StoreProxy";
 import type { TwitchatDataTypes } from "./types/TwitchatDataTypes";
 import type Config from "./utils/Config";
 
 declare module '@vue/runtime-core' {
-	interface IStore {
-		account:(IAccountState & IAccountGetters & IAccountActions) & {$state:IAccountState; $reset:()=>void};
-		auth:(IAuthState & IAuthGetters & IAuthActions) & {$state:IAuthState; $reset:()=>void};
-		automod:(IAutomodState & IAutomodGetters & IAutomodActions) & {$state:IAutomodState; $reset:()=>void};
-		bingo:(IBingoState & IBingoGetters & IBingoActions) & {$state:IBingoState; $reset:()=>void};
-		chat:(IChatState & IChatGetters & IChatActions) & {$state:IChatState; $reset:()=>void};
-		chatSuggestion:(IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions) & {$state:IChatSuggestionState; $reset:()=>void};
-		emergency:(IEmergencyState & IEmergencyGetters & IEmergencyActions) & {$state:IEmergencyState; $reset:()=>void};
-		music:(IMusicState & IMusicGetters & IMusicActions) & {$state:IMusicState; $reset:()=>void};
-		obs:(IOBSState & IOBSGetters & IOBSActions) & {$state:IOBSState ; $reset:()=>void};
-		params:(IParamsState & IParamsGetters & IParamsActions) & {$state:IParamsState; $reset:()=>void};
-		poll:(IPollState & IPollGetters & IPollActions) & {$state:IPollState; $reset:()=>void};
-		prediction:(IPredictionState & IPredictionGetters & IPredictionActions) & {$state:IPredictionState; $reset:()=>void};
-		raffle:(IRaffleState & IRaffleGetters & IRaffleActions) & {$state:IRaffleState; $reset:()=>void};
-		stream:(IStreamState & IStreamGetters & IStreamActions) & {$state:IStreamState; $reset:()=>void};
-		timer:(ITimerState & ITimerGetters & ITimerActions) & {$state:ITimerState; $reset:()=>void};
-		triggers:(ITriggersState & ITriggersGetters & ITriggersActions) & {$state:ITriggersState; $reset:()=>void};
-		tts:(ITTSState & ITTSGetters & ITTSActions) & {$state:ITTSState ; $reset:()=>void};
-		users:(IUsersState & IUsersGetters & IUsersActions) & {$state:IUsersState; $reset:()=>void};
-		voice:(IVoiceState & IVoiceGetters & IVoiceActions) & {$state:IVoiceState; $reset:()=>void};
-		debug:(IDebugState & IDebugGetters & IDebugActions) & {$state:IDebugState; $reset:()=>void};
-		main:(IMainState & IMainGetters & IMainActions) & {$state:IMainState; $reset:()=>void};
-		accessibility:(IAccessibilityState & IAccessibilityGetters & IAccessibilityActions) & {$state:IAccessibilityState; $reset:()=>void};
-		admin:(IAdminState & IAdminGetters & IAdminActions) & {$state:IAdminState; $reset:()=>void};
-		counters:(ICountersState & ICountersGetters & ICountersActions) & {$state:ICountersState; $reset:()=>void};
-		values:(IValuesState & IValuesGetters & IValuesActions) & {$state:IValuesState; $reset:()=>void};
-		rewards:(IRewardsState & IRewardsGetters & IRewardsActions) & {$state:IRewardsState; $reset:()=>void};
-		heat:(IHeatState & IHeatGetters & IHeatActions) & {$state:IHeatState; $reset:()=>void};
-		patreon:(IPatreonState & IPatreonGetters & IPatreonActions) & {$state:IPatreonState; $reset:()=>void};
-		youtube:(IYoutubeState & IYoutubeGetters & IYoutubeActions) & {$state:IYoutubeState; $reset:()=>void};
-		extension:(IExtensionState & IExtensionGetters & IExtensionActions) & {$state:IExtensionState; $reset:()=>void};
-		qna:(IQnaState & IQnaGetters & IQnaActions) & {$state:IQnaState; $reset:()=>void};
-		discord:(IDiscordState & IDiscordGetters & IDiscordActions) & {$state:IDiscordState; $reset:()=>void};
-		streamlabs:(IStreamlabsState & IStreamlabsGetters & IStreamlabsActions) & {$state:IStreamlabsState; $reset:()=>void};
-		streamelements:(IStreamelementsState & IStreamelementsGetters & IStreamelementsActions) & {$state:IStreamelementsState; $reset:()=>void};
-		kofi:(IKofiState & IKofiGetters & IKofiActions) & {$state:IKofiState, $reset:()=>void}
-	}
 
 	interface ComponentCustomProperties {
 		$store: IStore,

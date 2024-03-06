@@ -8,7 +8,7 @@ import { ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
-import { createApp, type DirectiveBinding, type IStore, type VNode } from "vue";
+import { createApp, type DirectiveBinding, type VNode } from "vue";
 import CountryFlag from 'vue-country-flag-next';
 import { createI18n } from 'vue-i18n';
 import type { NavigationGuardNext, RouteLocation } from 'vue-router';
@@ -34,30 +34,31 @@ import { storeDiscord } from './store/discord/storeDiscord';
 import { storeEmergency } from './store/emergency/storeEmergency';
 import { storeExtension } from './store/extension/storeExtension';
 import { storeHeat } from './store/heat/storeHeat';
+import { storeKofi } from './store/kofi/storeKofi';
 import { storeMusic } from './store/music/storeMusic';
 import { storeOBS } from './store/obs/storeOBS';
 import { storeParams } from './store/params/storeParams';
 import { storePatreon } from './store/patreon/storePatreon';
 import { storePoll } from './store/poll/storePoll';
 import { storePrediction } from './store/prediction/storePrediction';
+import { storeQna } from './store/qna/storeQna';
 import { storeRaffle } from './store/raffle/storeRaffle';
 import { storeRewards } from './store/rewards/storeRewards';
 import { storeMain } from './store/storeMain';
-import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState, type IChatActions, type IChatGetters, type IChatState, type IDiscordActions, type IDiscordGetters, type IDiscordState, type IMainActions, type IMainGetters, type IMainState, type ITriggersActions, type ITriggersGetters, type ITriggersState, type IUsersActions, type IUsersGetters, type IUsersState } from './store/StoreProxy';
-import { storeQna } from './store/qna/storeQna';
-import { storeStreamlabs } from './store/streamlabs/storeStreamlabs';
-import { storeValues } from './store/values/storeValues';
+import * as StoreProxy from './store/StoreProxy';
 import { storeStream } from './store/stream/storeStream';
+import { storeStreamelements } from './store/streamelements/storeStreamelements';
+import { storeStreamlabs } from './store/streamlabs/storeStreamlabs';
 import { storeTimer } from './store/timer/storeTimer';
 import { storeTriggers } from './store/triggers/storeTriggers';
 import { storeTTS } from './store/tts/storeTTS';
 import { storeUsers } from './store/users/storeUsers';
+import { storeValues } from './store/values/storeValues';
 import { storeVoice } from './store/voice/storeVoice';
 import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
-import { storeStreamelements } from './store/streamelements/storeStreamelements';
-import { storeKofi } from './store/kofi/storeKofi';
+import { storeLumia } from './store/lumia/storeLumia';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -112,8 +113,8 @@ function buildApp() {
 	 * Add route guards for login
 	 */
 	router.beforeEach(async (to: RouteLocation, from: RouteLocation, next: NavigationGuardNext) => {
-		const sMain = StoreProxy.main;
-		const sAuth = StoreProxy.auth;
+		const sMain = StoreProxy.default.main;
+		const sAuth = StoreProxy.default.auth;
 		const needAuth = to.meta.needAuth !== false;
 		const needAdmin = to.meta.needAdmin === true;
 		const transparent = to.meta.noBG;
@@ -145,7 +146,7 @@ function buildApp() {
 		}
 	
 		//Not admin, reroute to login
-		if(needAdmin && !StoreProxy.auth.isAdmin) {
+		if(needAdmin && !StoreProxy.default.auth.isAdmin) {
 			next({name: 'home'});
 			return;
 		}
@@ -169,7 +170,7 @@ function buildApp() {
 		yesLabel?:string,
 		noLabel?:string,
 		STTOrigin?:boolean): Promise<T|undefined> => {
-		return StoreProxy.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
+		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
 	}
 	
 	/**
@@ -209,89 +210,59 @@ function buildApp() {
 	
 	//Init stores before instanciating the router because the
 	//router needs to access some stores
-	StoreProxy.i18n = i18n.global;
-	StoreProxy.image = image;
+	StoreProxy.default.router = router;
+	StoreProxy.default.i18n = i18n.global;
+	StoreProxy.default.image = image;
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.main = (storeMain() as unknown) as IMainState & IMainGetters & IMainActions & { $state: IMainState; $reset:()=>void };
+	StoreProxy.default.main = (storeMain() as unknown) as StoreProxy.IMainState & StoreProxy.IMainGetters & StoreProxy.IMainActions & { $state: StoreProxy.IMainState; $reset:()=>void };
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.auth = (storeAuth() as unknown) as IAuthState & IAuthGetters & IAuthActions & { $state: IAuthState; $reset:()=>void };
-	StoreProxy.automod = storeAutomod();
-	StoreProxy.bingo = storeBingo();
+	StoreProxy.default.auth = (storeAuth() as unknown) as StoreProxy.IAuthState & StoreProxy.IAuthGetters & StoreProxy.IAuthActions & { $state: StoreProxy.IAuthState; $reset:()=>void };
+	StoreProxy.default.automod = storeAutomod();
+	StoreProxy.default.bingo = storeBingo();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.chat = (storeChat() as unknown) as IChatState & IChatGetters & IChatActions & { $state: IChatState; $reset:()=>void };
-	StoreProxy.chatSuggestion = storeChatSuggestion();
-	StoreProxy.emergency = storeEmergency();
-	StoreProxy.music = storeMusic();
-	StoreProxy.obs = storeOBS();
-	StoreProxy.params = storeParams();
-	StoreProxy.poll = storePoll();
-	StoreProxy.prediction = storePrediction();
-	StoreProxy.raffle = storeRaffle();
-	StoreProxy.rewards = storeRewards();
-	StoreProxy.stream = storeStream();
-	StoreProxy.timer = storeTimer();
+	StoreProxy.default.chat = (storeChat() as unknown) as StoreProxy.IChatState & StoreProxy.IChatGetters & StoreProxy.IChatActions & { $state: StoreProxy.IChatState; $reset:()=>void };
+	StoreProxy.default.chatSuggestion = storeChatSuggestion();
+	StoreProxy.default.emergency = storeEmergency();
+	StoreProxy.default.music = storeMusic();
+	StoreProxy.default.obs = storeOBS();
+	StoreProxy.default.params = storeParams();
+	StoreProxy.default.poll = storePoll();
+	StoreProxy.default.prediction = storePrediction();
+	StoreProxy.default.raffle = storeRaffle();
+	StoreProxy.default.rewards = storeRewards();
+	StoreProxy.default.stream = storeStream();
+	StoreProxy.default.timer = storeTimer();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.triggers = (storeTriggers() as unknown) as ITriggersState & ITriggersGetters & ITriggersActions & { $state: ITriggersState; $reset:()=>void };
-	StoreProxy.tts = storeTTS();
+	StoreProxy.default.triggers = (storeTriggers() as unknown) as StoreProxy.ITriggersState & StoreProxy.ITriggersGetters & StoreProxy.ITriggersActions & { $state: StoreProxy.ITriggersState; $reset:()=>void };
+	StoreProxy.default.tts = storeTTS();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.users = (storeUsers() as unknown) as IUsersState & IUsersGetters & IUsersActions & { $state: IUsersState; $reset:()=>void };
-	StoreProxy.voice = storeVoice();
-	StoreProxy.debug = storeDebug();
-	StoreProxy.accessibility = storeAccessibility();
-	StoreProxy.admin = storeAdmin();
-	StoreProxy.counters = storeCounters();
-	StoreProxy.heat = storeHeat();
-	StoreProxy.patreon = storePatreon();
-	StoreProxy.youtube = storeYoutube();
-	StoreProxy.values = storeValues();
-	StoreProxy.account = storeAccount();
-	StoreProxy.extension = storeExtension();
-	StoreProxy.qna = storeQna();
+	StoreProxy.default.users = (storeUsers() as unknown) as StoreProxy.IUsersState & StoreProxy.IUsersGetters & StoreProxy.IUsersActions & { $state: StoreProxy.IUsersState; $reset:()=>void };
+	StoreProxy.default.voice = storeVoice();
+	StoreProxy.default.debug = storeDebug();
+	StoreProxy.default.accessibility = storeAccessibility();
+	StoreProxy.default.admin = storeAdmin();
+	StoreProxy.default.counters = storeCounters();
+	StoreProxy.default.heat = storeHeat();
+	StoreProxy.default.patreon = storePatreon();
+	StoreProxy.default.youtube = storeYoutube();
+	StoreProxy.default.values = storeValues();
+	StoreProxy.default.account = storeAccount();
+	StoreProxy.default.extension = storeExtension();
+	StoreProxy.default.qna = storeQna();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
-	StoreProxy.discord = (storeDiscord() as unknown) as IDiscordState & IDiscordGetters & IDiscordActions & { $state: IDiscordState; $reset:()=>void };
-	StoreProxy.streamlabs = storeStreamlabs();
-	StoreProxy.streamelements = storeStreamelements();
-	StoreProxy.kofi = storeKofi();
-	StoreProxy.router = router;
+	StoreProxy.default.discord = (storeDiscord() as unknown) as StoreProxy.IDiscordState & StoreProxy.IDiscordGetters & StoreProxy.IDiscordActions & { $state: StoreProxy.IDiscordState; $reset:()=>void };
+	StoreProxy.default.streamlabs = storeStreamlabs();
+	StoreProxy.default.streamelements = storeStreamelements();
+	StoreProxy.default.kofi = storeKofi();
+	StoreProxy.default.lumia = storeLumia();
 
-	const storeAccess:IStore = {
-		account:			StoreProxy.account,
-		main:				StoreProxy.main,
-		auth:				StoreProxy.auth,
-		automod:			StoreProxy.automod,
-		bingo:				StoreProxy.bingo,
-		chat:				StoreProxy.chat,
-		chatSuggestion:		StoreProxy.chatSuggestion,
-		emergency:			StoreProxy.emergency,
-		music:				StoreProxy.music,
-		obs:				StoreProxy.obs,
-		params:				StoreProxy.params,
-		poll:				StoreProxy.poll,
-		prediction:			StoreProxy.prediction,
-		raffle:				StoreProxy.raffle,
-		stream:				StoreProxy.stream,
-		timer:				StoreProxy.timer,
-		triggers:			StoreProxy.triggers,
-		tts:				StoreProxy.tts,
-		users:				StoreProxy.users,
-		voice:				StoreProxy.voice,
-		debug:				StoreProxy.debug,
-		accessibility:		StoreProxy.accessibility,
-		admin:				StoreProxy.admin,
-		counters:			StoreProxy.counters,
-		rewards:			StoreProxy.rewards,
-		heat:				StoreProxy.heat,
-		patreon:			StoreProxy.patreon,
-		youtube:			StoreProxy.youtube,
-		values:				StoreProxy.values,
-		extension:			StoreProxy.extension,
-		qna:				StoreProxy.qna,
-		discord:			StoreProxy.discord,
-		streamlabs:			StoreProxy.streamlabs,
-		streamelements:		StoreProxy.streamelements,
-		kofi:				StoreProxy.kofi,
-	}
-	
+	const keys = Object.keys(StoreProxy.default);
+	keys.forEach(k => {
+		if(!StoreProxy.default[k as keyof typeof StoreProxy.default]) {
+			console.error("ERROR !! StoreProxy \""+k+"\" not initialized !");
+		}
+	})
+
 	app.use(router)
 	.use(i18n)
 	.use(ContextMenu)
@@ -304,7 +275,7 @@ function buildApp() {
 	.component("Icon", Icon)
 	.provide("$config", Config.instance)
 	.provide("$image", image)
-	.provide("$store", storeAccess)
+	.provide("$store", StoreProxy.default)
 	.provide("$confirm", confirm)
 	.provide("$overlayURL", overlayURL)
 	.provide("$placeDropdown", placeDropdown)
@@ -370,11 +341,11 @@ function buildApp() {
 	app.config.globalProperties.$confirm = confirm;
 	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
-	app.config.globalProperties.$store = storeAccess;
+	app.config.globalProperties.$store = StoreProxy.default;
 	
 	window.addEventListener("beforeinstallprompt", (e:Event)=> {
 		e.preventDefault();
-		StoreProxy.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
+		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
 	});
 
 	const currentABVersion = 2;
@@ -429,13 +400,13 @@ function buildApp() {
 
 		//Reload labels on CTRL+Shift+L
 		if(e.key.toLowerCase() == "l" && e.ctrlKey && e.altKey) {
-			StoreProxy.main.reloadLabels();
+			StoreProxy.default.main.reloadLabels();
 			e.preventDefault();
 		}
 		
 		//Toggle light/dark mode on CTRL+Shift+K
 		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.altKey) {
-			StoreProxy.main.toggleTheme();
+			StoreProxy.default.main.toggleTheme();
 			e.preventDefault();
 		}
 
