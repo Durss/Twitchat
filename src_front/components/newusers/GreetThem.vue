@@ -34,7 +34,7 @@
 		
 		<div class="messageList" v-if="showList" ref="messageList">
 			<template v-for="(m,index) in messagesFiltered" :key="m.id">
-				<MessageItem class="message"
+				<MessageItem class="messageListItem"
 					ref="message"
 					:messageData="m"
 					:data-index="index"
@@ -84,9 +84,7 @@ import Config from '@/utils/Config';
 	private maxItems = 50;
 	private disposed = false;
 	private resizing = false;
-	private streakMode = true;
 	private mouseY = 0;
-	private highlightState:{[key:string]:boolean} = {};
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
@@ -155,10 +153,11 @@ import Config from '@/utils/Config';
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		// if(!Config.instance.IS_PROD) {
-		// 	const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-		// 	this.messages = this.messages.concat(history).splice(0,50);
-		// }
+		if(!Config.instance.IS_PROD) {
+
+			const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+			this.messages = this.messages.concat(history);
+		}
 
 		// watch(()=>this.localMessages, (v)=>{
 		// 	console.log("update");
@@ -262,7 +261,7 @@ import Config from '@/utils/Config';
 	 * Either removes a streak of messages or one single message
 	 */
 	public deleteMessage(m:TwitchatDataTypes.GreetableMessage, index:number, singleMode = false):void {
-		if(!this.streakMode || singleMode) {
+		if(singleMode) {
 			let el = (this.$refs["message"] as Vue[])[index];
 			this.indexOffset = parseInt((el.$el as HTMLElement).dataset.index as string);
 			this.messages.splice(index, 1);
@@ -301,27 +300,17 @@ import Config from '@/utils/Config';
 		if(this.resizing) return;
 		
 		this.overIndex = index;
-		let items = this.$refs.message as Vue[];
-		if(this.streakMode) {
-			for (let i = 0; i <= index; i++) {
-				const item = this.messages[i];
-				if(!item) continue;
-				if(!this.highlightState[item.id]) {
-					this.highlightState[item.id] = true;
-					//Why the hell do I use inline styles this way instead of
-					//doing it the Vue way by simply updating a prop set
-					//to the component so it automatically updates when updating
-					//that prop ?
-					//Because it's drastically faster this way. There's a huge
-					//rendering pipeline performance issue i couldn't solve
-					//by any other method.
-					(items[i].$el as HTMLDivElement).style.opacity = ".3";
-				}
-				
-			}
-		}else{
-			this.highlightState[this.messages[index].id as string] = true;
-			(items[index].$el as HTMLDivElement).style.opacity = ".3";
+		let items = (this.$refs.messageList as HTMLElement).querySelectorAll<HTMLElement>(".messageListItem");
+		for (let i = 0; i <= index; i++) {
+			//Why the hell do I use inline styles this way instead of
+			//doing it the Vue way by simply updating a prop set
+			//to the component so it automatically updates when updating
+			//that prop ?
+			//Because it's drastically faster this way. There's a huge
+			//rendering pipeline performance issue i couldn't solve
+			//by any other method.
+			items[i].style.opacity = ".3";
+			
 		}
 	}
 
@@ -342,13 +331,8 @@ import Config from '@/utils/Config';
 	public onMouseOut():void {
 		this.overIndex = -1;
 		let items = this.$refs.message as Vue[];
-		for (let i = 0; i < this.messages.length; i++) {
-			const id = this.messages[i].id;
-			if(this.highlightState[id] === true) {
-				this.highlightState[id] = false;
-				// (items[i].$el as HTMLDivElement).removeAttribute("style");
-				(items[i].$el as HTMLDivElement).style.opacity = "1";
-			}
+		for (let i = 0; i < items.length; i++) {
+			(items[i].$el as HTMLDivElement).removeAttribute("style");
 		}
 	}
 
@@ -471,7 +455,7 @@ export default toNative(NewUsers);
 		border-bottom-left-radius: var(--border-radius);
 		border-bottom-right-radius: var(--border-radius);
 		box-shadow: 0 2px 2px 0 rgba(0,0,0,0.5);
-		.message {
+		.messageListItem {
 			cursor: pointer;
 			overflow: hidden;
 			font-family: var(--font-inter);
