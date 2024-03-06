@@ -3,8 +3,7 @@ import TwitchatEvent from "@/events/TwitchatEvent";
 import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type * as CMTypes from "@imengyu/vue3-context-menu";
-import ContextMenu from "@imengyu/vue3-context-menu";
+import ContextMenu, {type MenuItem} from "@imengyu/vue3-context-menu";
 import { h, reactive, type RendererElement, type RendererNode, type VNode } from "vue";
 import PublicAPI from "./PublicAPI";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
@@ -56,7 +55,7 @@ export default class ContextMenuHelper {
 	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, canModerateMessage:boolean=false, canModerateUser:boolean=false, htmlNode:HTMLElement):void {
 		const t		= StoreProxy.i18n.t;
 		const me	= message.platform == "youtube"? StoreProxy.auth.youtube.user : StoreProxy.auth.twitch.user;
-		const options:CMTypes.MenuItem[]= [];
+		const options:MenuItem[]= [];
 		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
 		const menu	= reactive({
@@ -377,7 +376,7 @@ export default class ContextMenuHelper {
 				if(options.length > 0) options[options.length-1].divided = true;
 
 				const list = StoreProxy.discord.quickActions;
-				const children:CMTypes.MenuItem[] = [];
+				const children:MenuItem[] = [];
 				list.forEach(action=> {
 					if(!action.message || !action.channelId) return;
 					children.push({
@@ -397,7 +396,7 @@ export default class ContextMenuHelper {
 		
 			//Update "highlight message" state according to overlay presence
 			this.getHighlightOverPresence().then(res => {
-				const item = menu.items[highlightIndex] as CMTypes.MenuItem;
+				const item = menu.items[highlightIndex] as MenuItem;
 				item.label = t("chat.context_menu.highlight");
 				item.disabled = false;
 				if(!res) item.customClass = "no_overlay";//Dirty way of knowing if overlay exists on the click handler of the item
@@ -636,21 +635,31 @@ export default class ContextMenuHelper {
 	 * @param options 
 	 * @param message 
 	 */
-	private addCustomTriggerEntries(options:CMTypes.MenuItem[], message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
+	private addCustomTriggerEntries(options:MenuItem[], message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
 		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true);
+		if(items.length === 0) return;
+		const children:MenuItem[] = [];
 		for (let i = 0; i < items.length; i++) {
 			const trigger = items[i];
 			if(i===0) {
 				options[options.length-1].divided = true;
 			}
-			options.push({ 
-				label: trigger.chatCommand,
+			children.push({ 
+				label: trigger.name || trigger.chatCommand,
 				icon: this.getIcon("icons/commands.svg"),
 				onClick: () => {
 					TriggerActionHandler.instance.executeTrigger(trigger, message, false, trigger.chatCommand);
 				},
 			});
 		}
+		if(options.length > 0) {
+			options[options.length-1].divided = true;
+		}
+		options.push({ 
+			label: "Triggers",
+			icon: this.getIcon("icons/commands.svg"),
+			children,
+		});
 	}
 
 	/**
