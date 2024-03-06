@@ -53,6 +53,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRewardData
 								| TriggerActionExtensionData
 								| TriggerActionDiscordData
+								| TriggerActionLumiaData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -720,7 +721,7 @@ export interface TriggerActionExtensionData extends TriggerActionData{
 	type:"extension";
 	extension: {
 		/**
-		 * Extnesion ID
+		 * Extension ID
 		 */
 		id:string;
 		/**
@@ -735,6 +736,40 @@ export interface TriggerActionExtensionData extends TriggerActionData{
 		 * Extension slot index target
 		 */
 		slotType:Exclude<TwitchDataTypes.Extension["type"][number], "mobile">;
+	}
+}
+
+export interface TriggerActionLumiaData extends TriggerActionData {
+	type:"lumia";
+	lumia: {
+		/**
+		 * Action type to perform
+		 */
+		action:"color"|"tts";
+		/**
+		 * Color of the lights for "color" action
+		 */
+		color?:string;
+		/**
+		 * Message to read for "tts" action
+		 */
+		message?:string;
+		/**
+		 * Voice to read the message with for "tts" action
+		 */
+		voice?:string;
+		/**
+		 * Color transition duration in milliseconds
+		 */
+		colorTransition_s?:number;
+		/**
+		 * Duration to keep color in milliseconds
+		 */
+		colorDuration_s?:number;
+		/**
+		 * Brightness of the lights
+		 */
+		colorBrightness?:number;
 	}
 }
 

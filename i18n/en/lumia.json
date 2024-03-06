@@ -1,0 +1,8 @@
+{
+	"lumia": {
+		"header":"Control {LINK} from Twitchat",
+		"param_token":"API token",
+		"param_token_help":"You can find it under Settings => API",
+		"info":"Once connected with Lumia you'll be able to control your lights from the {TRIGGERS}."
+	}
+}

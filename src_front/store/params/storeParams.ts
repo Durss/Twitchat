@@ -300,7 +300,6 @@ export const storeParams = defineStore('params', {
 
 			//Init pinned menu items
 			const pinnedMenuConfs = DataStore.get(DataStore.PINNED_CHAT_MENU_ITEM);
-			console.log("LOADED", pinnedMenuConfs);
 			if(pinnedMenuConfs) {
 				this.pinnedMenuItems = JSON.parse(pinnedMenuConfs);
 			}

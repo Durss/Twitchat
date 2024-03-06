@@ -21,18 +21,19 @@ export namespace TwitchatDataTypes {
 		HEAT: "heat",
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
+		LUMIA: "lumia",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		PREMIUM: "premium",
 		YOUTUBE: "youtube",
 		DISCORD: "discord",
 		VOICEMOD: "voicemod",
-		HIGHLIGHT: "chathighlight",
 		WEBSOCKET: "websocket",
-		STREAMLABS: "streamlabs",
-		STREAMELEMENTS: "streamelements",
-		STREAMDECK: "streamdeck",
 		HEAT_AREAS: "heatAreas",
+		STREAMLABS: "streamlabs",
+		STREAMDECK: "streamdeck",
+		HIGHLIGHT: "chathighlight",
+		STREAMELEMENTS: "streamelements",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
 	
@@ -451,6 +452,10 @@ export namespace TwitchatDataTypes {
 		 * with "multiple" enabled
 		 */
 		maxLength?:number;
+		/**
+		 * Allow milliseconds? for "duration" type
+		 */
+		allowMs?:boolean;
 		/**
 		 * Wether it's a long text or not from "string" type
 		 * if true a textarea will be displayed instead of an input

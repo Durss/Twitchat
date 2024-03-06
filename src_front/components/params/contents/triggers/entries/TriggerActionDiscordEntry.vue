@@ -1,7 +1,7 @@
 <template>
 	<div class="triggeractiondiscordentry triggerActionForm">
-		<ParamItem :paramData="param_message" v-model="action.discordAction.message" forceChildDisplay/>
-		<ParamItem :paramData="param_channel" v-model="action.discordAction.channelId" forceChildDisplay/>
+		<ParamItem :paramData="param_message" v-model="action.discordAction.message"/>
+		<ParamItem :paramData="param_channel" v-model="action.discordAction.channelId"/>
 	</div>
 </template>
 

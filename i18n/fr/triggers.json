@@ -161,7 +161,9 @@
 				"action_customBadges": "Badges personnalisés",
 				"action_customUsername": "Pseudo personnalisé",
 				"action_heat_click": "Cliquer une distorsion",
-				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action"
+				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action",
+				"action_lumia": "Contrôler Lumia Stream",
+				"action_lumia_tt": "Vous devez connecter Lumia Stream"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -486,6 +488,12 @@
 				"param_id":"Extension à modifier",
 				"param_enable":"Nouvel état",
 				"param_slot":"Nouvel emplacement"
+			},
+			"lumia":{
+				"param_color":"Couleur des lumières",
+				"param_brightness":"Luminosité",
+				"param_duration":"Durée durant laquelle conserver cette couleur",
+				"param_transition":"Durée de la transition"
 			}
 		},
 		"categories": {

@@ -2362,7 +2362,7 @@ export default class TriggerActionHandler {
 					}
 				}else
 
-				//Handle discord action
+				//Handle Discord action
 				if(step.type == "discord") {
 					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
 					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent);
@@ -2376,6 +2376,17 @@ export default class TriggerActionHandler {
 						}
 					}catch(error) {
 						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+					}
+				}else
+
+				//Handle Lumia Stream action
+				if(step.type == "lumia") {
+					logStep.messages.push({date:Date.now(), value:"Execute lumia action \""+step.lumia.action+"\""});
+					switch(step.lumia.action) {
+						case "color": {
+							logStep.messages.push({date:Date.now(), value:`Set color to "#${step.lumia.color}", brigtness:${step.lumia.colorBrightness}%, duration:${step.lumia.colorDuration_s}s, transition:${step.lumia.colorTransition_s}s`});
+							StoreProxy.lumia.setColor(step.lumia.color!, step.lumia.colorBrightness!, step.lumia.colorDuration_s! * 1000, step.lumia.colorTransition_s! * 1000);
+						}
 					}
 				}
 				

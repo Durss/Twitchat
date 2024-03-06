@@ -95,6 +95,7 @@
 				<DurationForm ref="input" v-if="!paramData.noInput"
 					:id="'duration'+key"
 					v-model="paramData.value"
+					:allowMs="paramData.allowMs"
 					:autofocus="autofocus"
 					:tabindex="tabindex"
 					:name="paramData.fieldName"
@@ -457,7 +458,7 @@ export class ParamItem extends Vue {
 			v = count.toString();
 		}else
 		if(this.paramData.type == "time" || this.paramData.type == "duration") {
-			v = Utils.formatDuration(parseInt(v.toString()) * 1000);
+			v = Utils.formatDuration(parseFloat(v.toString()) * 1000);
 		}
 		if(this.paramData.labelKey) {
 			txt += this.$tc(this.paramData.labelKey, count, {VALUE:v});

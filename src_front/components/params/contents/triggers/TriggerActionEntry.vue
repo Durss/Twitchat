@@ -127,15 +127,23 @@
 				
 				<TTButton class="button" @click.capture="selectActionType('discord')"
 					icon="discord"
+					premium
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_triggerAction_discord'}"
 					:disabled="!discordEnabled"
 					v-tooltip="discordEnabled? '' : $t('triggers.actions.common.action_discord_tt')">{{ $t('triggers.actions.common.action_discord') }}</TTButton>
 				
 				<TTButton class="button" @click.capture="selectActionType('goxlr')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
-					icon="goxlr" premium
+					icon="goxlr"
+					premium
 					:disabled="!goxlrEnabled"
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</TTButton>
+				
+				<TTButton class="button" @click.capture="selectActionType('lumia')"
+					icon="lumia"
+					premium
+					:disabled="!lumiaConnected"
+					v-tooltip="lumiaConnected? '' : $t('triggers.actions.common.action_lumia_tt')">{{ $t('triggers.actions.common.action_lumia') }}</TTButton>
 				
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 				 	v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
@@ -192,6 +200,7 @@
 		<TriggerActionRewardEntry v-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
 		<TriggerActionExtensionEntry v-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
 		<TriggerActionDiscordEntry v-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
+		<TriggerActionLumiaEntry v-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
 		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
 		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
 		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
@@ -247,6 +256,7 @@ import TriggerActionWSEntry from './entries/TriggerActionWSEntry.vue';
 import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
 import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
+import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 
 @Component({
 	components:{
@@ -263,6 +273,7 @@ import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 		TriggerActionTTSEntry,
 		TriggerActionHTTPCall,
 		TriggerActionChatEntry,
+		TriggerActionLumiaEntry,
 		TriggerActionDelayEntry,
 		TriggerActionValueEntry,
 		TriggerActionCountEntry,
@@ -306,6 +317,7 @@ import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 
 	public opened = false;
 	
+	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get voicemodEnabled():boolean { return VoicemodWebSocket.instance.connected; }

@@ -16,6 +16,7 @@ import type { Router } from "vue-router";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
 import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
+import type { LumiaVoiceList } from "./lumia/storeLumia";
 
 /**
 * Created : 23/09/2022 
@@ -2367,10 +2368,43 @@ export interface IKofiActions {
 
 
 export interface ILumiaState {
+	connected:boolean;
+	socketToken:string;
 }
 
 export interface ILumiaGetters {
 }
 
 export interface ILumiaActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():void;
+	/**
+	 * Connects to Lumia Stream websocket
+	 * @param token 
+	 * @param isReconnect 
+	 */
+	connect(token:string, isReconnect?:boolean):Promise<boolean>
+	/**
+	 * Disconnects from Lumia Stream websocket
+	 */
+	disconnect():void;
+	/**
+	 * Set lights color
+	 * @param rgb 
+	 * @param duration 
+	 * @param transition 
+	 */
+	setColor(rgb:number|string, brightness:number, duration:number, transition:number):void;
+	/**
+	 * Reads given text with given voice
+	 * @param message 
+	 * @param voice 
+	 */
+	sendTTS(message:string, voice:typeof LumiaVoiceList[number]):void;
+	/**
+	 * Saves data
+	 */
+	saveData():void;
 }

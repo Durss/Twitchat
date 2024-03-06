@@ -20,6 +20,11 @@
 				<p>Streamlabs</p>
 			</button>
 	
+			<button class="card-item premium" @click="subContent='lumia'">
+				<Icon name="lumia" />
+				<p>Lumia Stream</p>
+			</button>
+	
 			<button class="card-item premium" @click="subContent='kofi'">
 				<Icon name="kofi" />
 				<p>Ko-fi</p>
@@ -72,6 +77,7 @@
 	<ConnectWebsocket v-else-if="subContent == 'websocket'" />
 	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
 	<ConnectKofi v-else-if="subContent == 'kofi'" />
+	<ConnectLumia v-else-if="subContent == 'lumia'" />
 </template>
 
 <script lang="ts">
@@ -91,6 +97,7 @@ import ConnectHeat from './connexions/ConnectHeat.vue';
 import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
 import ConnectKofi from './connexions/ConnectKofi.vue';
+import ConnectLumia from './connexions/ConnectLumia.vue';
 
 @Component({
 	components:{
@@ -98,6 +105,7 @@ import ConnectKofi from './connexions/ConnectKofi.vue';
 		ConnectKofi,
 		ConnectHeat,
 		ConnectGoXLR,
+		ConnectLumia,
 		ConnectDiscord,
 		ConnectSpotify,
 		ConnectYoutube,
@@ -113,12 +121,6 @@ import ConnectKofi from './connexions/ConnectKofi.vue';
 	public allowHighlight:boolean = true;
 	public subContent:TwitchatDataTypes.ParamDeepSectionsStringType|"" = "";
 
-	public onNavigateBack(): boolean {
-		if(this.subContent == "") return false;
-		this.subContent = "";
-		return true;
-	}
-
 	public get youtubeEnabled() { return Config.instance.YOUTUBE_CLIENT_ID; }
 
 	public async beforeMount():Promise<void> {
@@ -128,6 +130,16 @@ import ConnectKofi from './connexions/ConnectKofi.vue';
 		// 	const holder = (this.$refs[this.subContent] as Vue)?.$el;
 		// 	if(holder) holder.scrollIntoView();
 		// }
+	}
+
+	public onNavigateBack(): boolean {
+		if(this.subContent == "") return false;
+		this.subContent = "";
+		return true;
+	}
+
+	public reload(): boolean {
+		return this.onNavigateBack();
 	}
 }
 export default toNative(ParamsConnections);

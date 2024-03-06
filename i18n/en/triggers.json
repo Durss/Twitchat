@@ -161,7 +161,9 @@
 				"action_customBadges": "Custom user badges",
 				"action_customUsername": "Custom username",
 				"action_heat_click": "Click a distortion",
-				"action_heat_click_tt": "You first need to create a distortion to use this action"
+				"action_heat_click_tt": "You first need to create a distortion to use this action",
+				"action_lumia": "Control Lumia Stream",
+				"action_lumia_tt": "You first need to connect with Lumia Stream"
 			},
 			"chat": {
 				"loop": "The message starts with the actual command name, this will lead to infinite message loop!",
@@ -486,6 +488,12 @@
 				"param_id":"Extension to update",
 				"param_enable":"New extension state",
 				"param_slot":"New extension location"
+			},
+			"lumia":{
+				"param_color":"Lights color",
+				"param_brightness":"Brightness",
+				"param_duration":"Duration to keep color for",
+				"param_transition":"Transition duration"
 			}
 		},
 		"categories": {

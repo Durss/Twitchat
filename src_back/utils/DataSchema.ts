@@ -612,6 +612,20 @@ import Ajv from "ajv";
 										channelId: {type:"string", maxLength:100},
 									}
 								},
+								lumia: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										action: {enum: ["color", "tts"]},
+										color: {type:"string", maxLength:7},
+										colorTransition_s: {type:"number", minimum:0, maximum:1000000000},
+										colorDuration_s: {type:"number", minimum:0, maximum:1000000000},
+										colorBrightness: {type:"number", minimum:0, maximum:100},
+										max_per_stream: {type:"number", minimum:0, maximum:1000000000},
+										message: {type:"string", maxLength:500},
+										voice: {type:"string", maxLength:100},
+									}
+								},
 							}
 						},
 					}
@@ -1504,6 +1518,13 @@ import Ajv from "ajv";
 			minItems:0,
 			maxItems:100,
 			items: {type:"string", maxLength:20},
+		},
+		lumia: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				token: {type:"string" , maxLength:40},
+			}
 		},
 	}
 }
