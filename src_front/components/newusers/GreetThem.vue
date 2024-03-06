@@ -153,11 +153,10 @@ import Config from '@/utils/Config';
 		//Debug to add all the current messages to the list
 		//Uncomment it if you want messages to be added to the list after
 		//a hot reload during development
-		if(!Config.instance.IS_PROD) {
-
-			const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
-			this.messages = this.messages.concat(history);
-		}
+		// if(!Config.instance.IS_PROD) {
+		// 	const history = this.$store.chat.messages.filter(m => m.type == "message") as TwitchatDataTypes.GreetableMessage[];
+		// 	this.messages = this.messages.concat(history);
+		// }
 
 		// watch(()=>this.localMessages, (v)=>{
 		// 	console.log("update");
