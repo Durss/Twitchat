@@ -768,7 +768,7 @@ import gsap from 'gsap';
 		if(item.slotType == "text" && !item.text) res.push("noText");
 		if(item.slotType == "rewards" && item.showRewardUsers === true) res.push("largeSpace");
 		if(!item.label) res.push("noLabel");
-		if(this.data.params.stickyTitle === true) res.push("sticky");
+		if(this.data?.params?.stickyTitle === true) res.push("sticky");
 		return res;
 	}
 
