@@ -44,13 +44,14 @@ class Changelog3rdPartyAnim extends Vue {
 							{label:"Discord",icon:"discord"},
 							{label:"Streamlabs",icon:"streamlabs"},
 							{label:"Ko-fi",icon:"kofi"},
+							{label:"Lumia Stream",icon:"lumia"},
 						];
 
 	public mounted():void {
 		const items = (this.$refs.item as Vue[]).map( i => i.$el as HTMLElement);
 		const target = (this.$refs.target as Vue).$el as HTMLElement;
 
-		gsap.from(target, {duration:.5, scale:0, ease:"back.out", delay:.5});
+		gsap.from(target, {duration:.5, scale:0, ease:"back.out", delay:.1});
 
 		//If i set opacity as an inlined value of the item as I do with the other
 		//styles, it gets reset any time "childIndex" value is updated which
@@ -87,7 +88,7 @@ class Changelog3rdPartyAnim extends Vue {
 					gsap.fromTo(target, {scaleY:2}, {scaleY:1, ease:"elastic.out", duration:.75, delay:.1});
 				});
 			}
-		}, 500);
+		}, 50);
 	}
 }
 export default toNative(Changelog3rdPartyAnim);

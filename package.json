@@ -5,10 +5,10 @@
 	"author": "Durss",
 	"description": "Full featured alternative Twitch chat",
 	"scripts": {
-		"dev": "concurrently --kill-others \"npm run front/serve\" \"npm run server/watch\"",
+		"dev": "concurrently --kill-others \"npm run front/watch\" \"npm run server/watch\"",
 		"build": "npm run i18n && npm run front/build && npm run server/build",
-		"front/serve": "vite --host",
-		"front/serve-force": "vite --host --force",
+		"front/watch": "vite --host",
+		"front/watch-force": "vite --host --force",
 		"front/build": "vue-tsc --noEmit && vite build",
 		"server/watch": "tsc -w -p ./tsconfig_server.json",
 		"server/build": "tsc -p ./tsconfig_server.json",

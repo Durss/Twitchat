@@ -7,12 +7,10 @@
 	@touchmove="onTouchMove">
 		<MessageListFilter class="filters"
 			ref="listFilter"
-			:open="hovered || forceConfig"
-			:forceConfig="forceConfig"
+			:open="hovered"
 			:config="config"
 			@add="$emit('addColumn', config)"
-			@change="fullListRefresh()"
-			@submit="forceConfig = false"/>
+			@change="fullListRefresh()"/>
 		
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id" :id="'message_' + m.id + '_' + config.order">
@@ -153,7 +151,6 @@ import { Linear } from 'gsap/all';
 	public lockedLiveMessages: TwitchatDataTypes.ChatMessageTypes[] = [];
 	public conversation: TwitchatDataTypes.MessageChatData[] = [];
 	public hovered = false;
-	public forceConfig = false;
 	public lockScroll = false;
 	public customActivitiesDisplayed = false;
 	public showLoadingGradient = false;
@@ -269,15 +266,6 @@ import { Linear } from 'gsap/all';
 		PublicAPI.instance.addEventListener(TwitchatEvent.CHAT_FEED_SELECT_ACTION_SHOUTOUT, this.publicApiEventHandler);
 
 		this.fullListRefresh();
-
-		let noConfig = true;
-		for (const key in this.config.filters) {
-			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"]] === true) {
-				noConfig = false;
-				break;
-			}
-		}
-		this.forceConfig = noConfig;
 
 		this.prevTs = Date.now() - 1000 / 60;
 		this.renderFrame(Date.now());

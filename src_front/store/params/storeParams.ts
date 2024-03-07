@@ -102,6 +102,7 @@ export const storeParams = defineStore('params', {
 				size: 0.6,
 				liveLockCount: 3,
 				showPanelsHere:false,
+				showGreetHere:false,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:{
@@ -169,6 +170,7 @@ export const storeParams = defineStore('params', {
 				size: 0.4,
 				liveLockCount: 3,
 				showPanelsHere:true,
+				showGreetHere:true,
 				commandsBlockList: [],
 				userBlockList: [],
 				whispersPermissions:{
@@ -287,6 +289,16 @@ export const storeParams = defineStore('params', {
 				DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig);
 			}
 
+			//If no col is defined to receive the "greet them" section, force it
+			if(this.chatColumnsConfig.findIndex(v=>v.showGreetHere === true) == -1) {
+				let col = this.chatColumnsConfig.find(v=>v.showPanelsHere === true);
+				if(!col) {
+					col = this.chatColumnsConfig[0];
+					col.showPanelsHere = true;
+				}
+				col.showGreetHere = true;
+			}
+
 			//Init goxlr params
 			const goXLRParams = DataStore.get(DataStore.GOXLR_CONFIG);
 			if(goXLRParams) {
@@ -348,6 +360,7 @@ export const storeParams = defineStore('params', {
 				size:1/2,
 				liveLockCount:3,
 				showPanelsHere:false,
+				showGreetHere:false,
 				commandsBlockList:[],
 				userBlockList:[],
 				whispersPermissions:{

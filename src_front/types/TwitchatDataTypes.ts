@@ -170,9 +170,13 @@ export namespace TwitchatDataTypes {
 		 */
 		liveLockCount:number;
 		/**
-		 * true if the "greet them", polls, predictions, bingos,.. and forms should show up on this col
+		 * true if polls, predictions, bingos,.. and other forms should show up on this col
 		 */
 		showPanelsHere:boolean;
+		/**
+		 * true if the "greet them" should show up on this col
+		 */
+		showGreetHere:boolean;
 		/**
 		 * Filter params of the col
 		 */

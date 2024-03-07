@@ -7,7 +7,7 @@
 				:key="c.id"
 				:style="getColStyles(c)">
 					<div class="subHolder" v-if="buildIndex >= index">
-						<GreetThem class="greetThem" v-if="panelsColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
+						<GreetThem class="greetThem" v-if="greetColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
 	
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store.params.openModal(v)"
@@ -263,6 +263,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;
+	public greetColIndexTarget = 0;
 	public panelsColIndexTarget = 0;
 	public forceEmergencyFollowClose = false;
 	public panelsColumnTarget:HTMLDivElement|null = null;

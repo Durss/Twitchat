@@ -71,7 +71,8 @@
 			"hide_users_placeholder": "entrez un pseudo...",
 			"scope_missing": "Requiert une permission manquante. Cliquez pour accorder.",
 			"whispers_permissions": "Filtrer les personnes autorisées",
-			"show_panels_here": "Afficher \" @:greet.title \" dans cette colonne",
+			"show_panels_here": "Afficher les formulaires dans cette colonne",
+			"show_greet_here": "Afficher \" @:greet.title \" dans cette colonne",
 			"select_all": "Tout",
 			"message_types": {
 				"twitchat_ad": "Astuces Twitchat",

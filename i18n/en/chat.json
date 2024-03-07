@@ -71,7 +71,8 @@
 			"hide_users_placeholder": "type username...",
 			"scope_missing": "Needs missing authorization. Click to grant permission.",
 			"whispers_permissions": "Filter allowed users",
-			"show_panels_here":"Show \" @:greet.title \" on this column",
+			"show_panels_here":"Show forms on this column",
+			"show_greet_here":"Show \" @:greet.title \" on this column",
 			"select_all":"All",
 			"message_types": {
 				"twitchat_ad": "Twitchat tips & tricks",

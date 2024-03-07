@@ -8,7 +8,7 @@
 			{
 				"i": "offline",
 				"l": "3rd party Connections",
-				"d": "Just so you're not lost.\nFollowing menu entries are now inside the \"Connections\""
+				"d": "Just so youdon't get lost, following menu entries can now be found inside the \"Connections\""
 			},
 			{
 				"p":true,
@@ -52,6 +52,17 @@
 				"a": {
 					"l": "Try",
 					"param": "overlays"
+				}
+			},
+			{
+				"p":true,
+				"i": "lumia",
+				"l": "Lumia Stream",
+				"d": "Connect Twitchat with <a href='https://lumiastream.com' target='_blank'>Lumia Stream</a> and control your lights from the Triggers",
+				"a": {
+					"l": "Try",
+					"param": "connexions",
+					"subparam": "lumia"
 				}
 			},
 			{

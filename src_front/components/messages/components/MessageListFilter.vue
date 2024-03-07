@@ -27,14 +27,14 @@
 			</button>
 		</div>
 
-		<div class="holder blured-background-window" v-if="expand || forceConfig" @click="clickPreview($event)">
+		<div class="holder blured-background-window" v-if="expand" @click="clickPreview($event)">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
-					<ClearButton @click="closeFilters()" v-if="!forceConfig" />
+					<ClearButton @click="closeFilters()" />
 				</div>
 				
-				<div class="info" v-if="expand || forceConfig">{{ $t('chat.filters.header') }}</div>
+				<div class="info" v-if="expand">{{ $t('chat.filters.header') }}</div>
 				
 				<div class="paramsList">
 					
@@ -108,16 +108,18 @@
 
 				<div class="card-item alert error" v-if="error" @click="error=false">{{ $t('chat.filters.no_selection') }}</div>
 
-				<div class="ctas">
-					<Button small icon="cross" alert v-if="forceConfig" @click="deleteColumn()" >{{ $t('global.cancel') }}</Button>
-					<Button small icon="add" v-if="forceConfig" @click="submitForm()" >{{ $t('global.create') }}</Button>
-				</div>
-
 				<ParamItem class="showPanelsHere"
 					:paramData="param_showPanelsHere"
 					clearToggle
 					@change="saveData()"
 					v-model="config.showPanelsHere"
+					v-if="$store.params.chatColumnsConfig.length > 1" />
+
+				<ParamItem class="showGreetHere"
+					:paramData="param_showGreetHere"
+					clearToggle
+					@change="saveData()"
+					v-model="config.showGreetHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
 
 				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
@@ -174,24 +176,23 @@ export class MessageListFilter extends Vue {
 	
 	@Prop({type:Boolean, default: false})
 	public open!:boolean;
-	@Prop({type:Boolean, default: false})
-	public forceConfig!:boolean;
 	@Prop
 	public config!:TwitchatDataTypes.ChatColumnsConfig;
 	
+	public previewIndex:number = 0;
 	public error:boolean = false;
 	public expand:boolean = false;
 	public showCTA:boolean = false;
+	public missingScope:boolean = false;
+	public loadingPreview:boolean = false;
+	public mouseOverToggle:boolean = false;
+	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
 	public filters:TwitchatDataTypes.ParameterData<boolean, undefined, undefined, typeof TwitchatDataTypes.MessageListFilterTypes[number]>[] = [];
 	public messageFilters:TwitchatDataTypes.ParameterData<boolean, unknown, boolean, typeof TwitchatDataTypes.MessageListChatMessageFilterTypes[number]>[] = [];
-	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
-	public mouseOverToggle:boolean = false;
-	public loadingPreview:boolean = false;
-	public missingScope:boolean = false;
-	public previewIndex:number = 0;
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_hideUsers:TwitchatDataTypes.ParameterData<string, string> = {type:"editablelist", value:"", labelKey:"chat.filters.hide_users", placeholderKey:"chat.filters.hide_users_placeholder", icon:"hide", maxLength:1000000};
 	public param_showPanelsHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_panels_here"};
+	public param_showGreetHere:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.show_greet_here"};
 	public messageKeyToScope:{[key in keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters]:TwitchScopesString[]}|null = null;
 	
 	private mouseY = 0;
@@ -208,8 +209,8 @@ export class MessageListFilter extends Vue {
 	public get classes():string[] {
 		const res = ["messagelistfilter"];
 		if(this.$store.params.appearance.splitViewVertical.value === true) res.push("verticalSplitMode");
-		if(this.expand || this.forceConfig) res.push("expand");
-		if(this.forceConfig) res.push("fullSize");
+		if(this.expand) res.push("expand");
+		// if(this.forceConfig) res.push("fullSize");
 		if(this.showCTA) res.push("ctaMode");
 		return res;
 	}
@@ -219,7 +220,15 @@ export class MessageListFilter extends Vue {
 	}
 
 	public beforeMount(): void {
-		type messageFilterTypes = keyof TwitchatDataTypes.ChatColumnsConfigMessageFilters;
+
+		let noConfig = true;
+		for (const key in this.config.filters) {
+			if(this.config.filters[key as typeof TwitchatDataTypes.MessageListFilterTypes[number]["type"]] === true) {
+				noConfig = false;
+				break;
+			}
+		}
+		this.expand = noConfig;
 
 		this.showCTA = DataStore.get(DataStore.CHAT_COL_CTA) !== "true" && this.config.order == 0;
 
@@ -333,6 +342,17 @@ export class MessageListFilter extends Vue {
 				cols.forEach(v=> {
 					if(v.showPanelsHere && v.id != this.config.id) {
 						v.showPanelsHere = false;
+					}
+				})
+			}
+		});
+
+		watch(()=>this.config.showGreetHere, ()=> {
+			const cols = this.$store.params.chatColumnsConfig;
+			if(this.config.showGreetHere) {
+				cols.forEach(v=> {
+					if(v.showGreetHere && v.id != this.config.id) {
+						v.showGreetHere = false;
 					}
 				})
 			}
@@ -594,15 +614,18 @@ export class MessageListFilter extends Vue {
 		//Make sure the "show panels here" option is enabled in at
 		//least 1 column
 		this.$nextTick(()=> {
-			let selectedIndex = -1;
+			let selectedPanelIndex = -1;
+			let selectedGreetIndex = -1;
 			const cols = this.$store.params.chatColumnsConfig;
 			for (let i = 0; i < cols.length; i++) {
 				const col = cols[i];
-				if(col.showPanelsHere === true) selectedIndex = i;
+				if(col.showPanelsHere === true) selectedPanelIndex = i;
+				if(col.showGreetHere === true) selectedGreetIndex = i;
 			}
-			if(selectedIndex == -1) {
-				selectedIndex = (this.config.order == cols.length-1)? 0 : cols.length-1;
-				cols[selectedIndex].showPanelsHere = true;
+			if(selectedPanelIndex == -1) {
+				selectedPanelIndex = (this.config.order == cols.length-1)? 0 : cols.length-1;
+				cols[selectedPanelIndex].showPanelsHere = true;
+				cols[selectedGreetIndex].showGreetHere = true;
 			}
 		});
 
@@ -766,7 +789,8 @@ export class MessageListFilter extends Vue {
 	 * Called when opening filters
 	 */
 	public closeFilters(viaButton:boolean = false):void {
-		this.expand = false
+		this.expand = false;
+		console.log("EXPAND FALSE")
 		this.checkForMissingScopes();
 	}
 
@@ -870,7 +894,7 @@ export class MessageListFilter extends Vue {
 		}
 
 		//Send a message on this column to warn for missing scopes
-		if(!this.forceConfig && missingScopes.length > 0) {
+		if(missingScopes.length > 0) {
 			const dedupeDict:{[key:string]:boolean} = {};
 			this.$store.chat.addMessage({
 				type:TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST,
@@ -1097,7 +1121,7 @@ export default toNative(MessageListFilter);
 			.info {
 				text-align: center;
 			}
-			.showPanelsHere {
+			.showPanelsHere, .showGreetHere {
 				font-size: .9em;
 			}
 
