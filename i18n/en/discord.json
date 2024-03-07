@@ -18,6 +18,9 @@
 		"quick_actions_message":"Message to send",
 		"quick_actions_channel":"Discord chan to send message to",
 		"quick_delete":"Delete action?",
+		"ticket":"Create a Discord thread from a Twitch message and send its link to the viewer.",
+		"ticket_chan":"Discord chan to created the thread to:",
+		"ticket_chan_info":"{ICON} To use this feature, right click a chat message => \"{ACTION}\".",
 		"public_triggers":"Create custom Discord /commands to let your mods act on Twitchat.\n\n{ICON} Create a \"{SLASH_CMD}\" {TRIGGER_LINK} and tick the \"{OPTION}\" option",
 		"log_pattern":{
 			"intro":"`{USER}` *(#{UID})* got banned",

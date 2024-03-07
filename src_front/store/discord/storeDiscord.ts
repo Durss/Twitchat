@@ -15,6 +15,7 @@ export const storeDiscord = defineStore('discord', {
 		banLogThread:true,
 		chatCmdTarget:"",
 		logChanTarget:"",
+		ticketChanTarget:"",
 		linkedToGuild:"",
 		reactionsEnabled:true,
 		quickActions:[],
@@ -39,6 +40,7 @@ export const storeDiscord = defineStore('discord', {
 				this.banLogTarget = data.banLogTarget || "";
 				this.chatCmdTarget = data.chatCmdTarget || "";
 				this.logChanTarget = data.logChanTarget || "";
+				this.ticketChanTarget = data.ticketChanTarget || "";
 				this.banLogThread = data.banLogThread == true;
 				this.reactionsEnabled = data.reactionsEnabled == true;
 				this.quickActions = data.quickActions || [];
@@ -120,6 +122,7 @@ export const storeDiscord = defineStore('discord', {
 				banLogThread:this.banLogThread,
 				chatCmdTarget:this.chatCmdTarget,
 				logChanTarget:this.logChanTarget,
+				ticketChanTarget:this.ticketChanTarget,
 				reactionsEnabled:this.reactionsEnabled,
 				quickActions:this.quickActions,
 			};
@@ -140,6 +143,7 @@ export interface DiscordStoreData {
 	banLogTarget:string;
 	chatCmdTarget:string;
 	logChanTarget:string;
+	ticketChanTarget:string;
 	reactionsEnabled:boolean;
 	quickActions:TwitchatDataTypes.DiscordQuickActionData[];
 }

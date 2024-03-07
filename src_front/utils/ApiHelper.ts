@@ -421,6 +421,14 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"discord/ticket": {
+		POST: {
+			success:boolean;
+			error?:string;
+			errorCode?:string;
+			messageLink?:string;
+		}
+	};
 	"streamlabs/auth": {
 		POST: {
 			success:boolean;

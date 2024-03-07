@@ -359,7 +359,8 @@
 			"export_clipboard":"Copier une capture dans le presse-papier",
 			"translate":"Traduire le message",
 			"export_discord":"Envoyer dans Discord",
-			"discord_quick_actions":"Actions Discord"
+			"discord_quick_actions":"Actions Discord",
+			"discord_ticket":"Créer un ticket"
 		},
 		"custom_badge": {
 			"label": {

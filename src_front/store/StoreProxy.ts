@@ -2193,6 +2193,7 @@ export interface IDiscordState {
 	banLogTarget:string;
 	chatCmdTarget:string;
 	logChanTarget:string;
+	ticketChanTarget:string;
 	linkedToGuild:string;
 	reactionsEnabled:boolean;
 	quickActions:TwitchatDataTypes.DiscordQuickActionData[];

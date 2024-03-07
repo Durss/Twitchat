@@ -18,6 +18,7 @@ import Database from "@/store/Database";
 import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import YoutubeHelper from "./youtube/YoutubeHelper";
 import { YoutubeScopes } from "./youtube/YoutubeScopes";
+import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
 * Created : 07/04/2023 
@@ -445,13 +446,16 @@ export default class ContextMenuHelper {
 			const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 			const entryCount = options.length; 
 			let optionAdded = false;
-			if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
+			
+			if(StoreProxy.discord.discordLinked === true
+			&& StoreProxy.discord.ticketChanTarget
+			&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				optionAdded = true;
 				options.push({ 
-					label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
-					icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
-					onClick: () => this.exportMessage(message, htmlNode),
-				});
+							label: t("chat.context_menu.discord_ticket"),
+							icon: this.getIcon("icons/discord.svg"),
+							onClick: () => this.createDiscordTicket(message),
+						});
 			}
 			if(StoreProxy.discord.discordLinked === true && StoreProxy.discord.logChanTarget) {
 				optionAdded = true;
@@ -460,6 +464,14 @@ export default class ContextMenuHelper {
 							icon: this.getIcon("icons/discord.svg"),
 							onClick: () => this.exportMessage(message, htmlNode, true),
 						});
+			}
+			if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
+				optionAdded = true;
+				options.push({ 
+					label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
+					icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
+					onClick: () => this.exportMessage(message, htmlNode),
+				});
 			}
 			if(optionAdded) {
 				//Add splitter after previous item if any
@@ -886,5 +898,23 @@ export default class ContextMenuHelper {
 		const text = await Utils.parseGlobalPlaceholders(action.message || "", false, message);
 		const channelId = action.channelId;
 		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
+	}
+
+	/**
+	 * Creates a discord ticket
+	 */
+	private async createDiscordTicket(message:TwitchatDataTypes.MessageChatData):Promise<void> {
+		const threadName = message.user.login+" (#"+message.user.id+")";
+		const text = `**${message.user.login}** *(#${message.user.id})*:
+> ${message.message}`;
+		try {
+			const channelId = StoreProxy.discord.ticketChanTarget;
+			const result = await ApiHelper.call("discord/ticket", "POST", {message:text, channelId, threadName});
+			if(result.json.success && result.json.messageLink) {
+				MessengerProxy.instance.sendMessage("@"+message.user.login+" "+result.json.messageLink!, [message.platform], message.channel_id)
+			}
+		}catch(error) {
+
+		}
 	}
 }

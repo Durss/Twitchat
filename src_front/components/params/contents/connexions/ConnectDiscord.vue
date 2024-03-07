@@ -80,6 +80,19 @@
 						<template #ICON><Icon name="info" /></template>
 					</i18n-t>
 				</section>
+	
+				<section class="card-item helpDesk">
+					<Icon name="helpDesk" />
+					<span>{{ $t("discord.ticket") }}</span>
+					<span>{{ $t("discord.ticket_chan") }}</span>
+					<select v-model="$store.discord.ticketChanTarget" @change="saveParams()">
+						<option v-for="chan in channelList" :key="chan.id" :value="chan.id">{{ chan.name }}</option>
+					</select>
+					<i18n-t scope="global" tag="span" keypath="discord.ticket_chan_info">
+						<template #ACTION><strong>{{ $t("chat.context_menu.discord_ticket") }}</strong></template>
+						<template #ICON><Icon name="info" /></template>
+					</i18n-t>
+				</section>
 			</template>
 			
 			<section class="card-item confirm" v-else-if="askLinkConfirmation">
@@ -400,7 +413,7 @@ export default toNative(ConnectDiscord);
 					background-color: var(--background-color-primary);
 				}
 			}
-			&.slashCmd {
+			&.slashCmd, &.helpDesk {
 				font-size: .9em;
 				span .icon {
 					height: 1em;

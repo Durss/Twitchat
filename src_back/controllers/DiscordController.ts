@@ -49,6 +49,7 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/message', async (request, response) => await this.postMessage(request, response));
 		this.server.post('/api/discord/thread', async (request, response) => await this.postThread(request, response));
 		this.server.post('/api/discord/commands', async (request, response) => await this.postCommands(request, response));
+		this.server.post('/api/discord/ticket', async (request, response) => await this.postTicket(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
 		
 		this.initDatabase();
@@ -179,7 +180,9 @@ export default class DiscordController extends AbstractController {
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
+			if(!message.id) throw(new Error("Failed posting message"));
 			const thread = (await this._rest.post(Routes.threads(params.channelId, message.id), {body})) as {id:string};
+			if(!thread.id) throw(new Error("Failed creating thread"));
 			//merge histories together until it reaches max chars count for 1 message
 			let merge = "";
 			let mergeHistory:string[] = [params.history[0]];//First message contains user info
@@ -198,8 +201,6 @@ export default class DiscordController extends AbstractController {
 			mergeHistory.slice(0,10).forEach(async entry=> {
 				(await this._rest.post(Routes.channelMessages(thread.id), {body:{content:entry}})) as {id:string};
 			})
-			
-			if(!message.id) throw(new Error("Failed posting message"));
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
@@ -221,7 +222,6 @@ export default class DiscordController extends AbstractController {
 		const res = await this.guildGuard(request, response);
 		if(res == false) return;
 		const {user, guild} = res;
-
 
 		try {
 			const perms = PermissionsBitField.Flags.Administrator
@@ -260,7 +260,43 @@ export default class DiscordController extends AbstractController {
 			.send(JSON.stringify({message:"Failed creating Discord guild command", errorCode:"GUILD_COMMAND_CREATE_FAILED", success:false}));
 			return;
 		}
+	}
 
+	/**
+	 * Create discord thread on the given chan and returns ots link
+	 */
+	private async postTicket(request:FastifyRequest, response:FastifyReply):Promise<void> {
+		const auth = await this.guildGuard(request, response);
+		if(auth == false) return;
+
+		const params = request.body as {message:string, channelId:string, threadName:string};
+
+		const body = {
+			name:params.threadName,
+			autoArchiveDuration: 60,
+			content:params.message
+		}
+		
+		//Send to discord
+		try {
+			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
+			if(!message.id) throw(new Error("Failed posting message"));
+			const thread = (await this._rest.post(Routes.threads(params.channelId, message.id), {body})) as {id:string};
+			if(!thread.id) throw(new Error("Failed creating thread"));
+
+			const messageLink = "https://discord.com/channels/"+auth.guild.guildID+"/"+thread.id;
+
+			response.header('Content-Type', 'application/json')
+			.status(200)
+			.send(JSON.stringify({success:true, messageLink}));
+
+		}catch(error) {
+			console.log(error);
+			response.header('Content-Type', 'application/json')
+			.status(401)
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			return;
+		}
 	}
 
 	/**

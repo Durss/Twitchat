@@ -1095,6 +1095,7 @@ import Ajv from "ajv";
 					size: {type:"number", minimum:0, maximum:10},
 					whispersPermissions: { $ref: "defs.json#/definitions/permissions" },
 					showPanelsHere: { type:"boolean" },
+					showGreetHere: { type:"boolean" },
 					filters:{
 						type:"object",
 						additionalProperties: true,
@@ -1453,6 +1454,7 @@ import Ajv from "ajv";
 				banLogTarget: {type:"string", maxLength:40},
 				chatCmdTarget: {type:"string", maxLength:40},
 				logChanTarget: {type:"string", maxLength:40},
+				ticketChanTarget: {type:"string", maxLength:40},
 				quickActions: {
 					type:"array",
 					minItems:0,
