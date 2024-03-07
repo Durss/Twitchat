@@ -228,6 +228,7 @@ export class MessageListFilter extends Vue {
 				break;
 			}
 		}
+		if(this.config.showGreetHere || this.config.showPanelsHere) noConfig = false;
 		this.expand = noConfig;
 
 		this.showCTA = DataStore.get(DataStore.CHAT_COL_CTA) !== "true" && this.config.order == 0;

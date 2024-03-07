@@ -919,12 +919,16 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		const cols = this.$store.params.chatColumnsConfig;
 		cols.sort((a,b)=> a.order - b.order);
 		let colId = "";
-		let index = 0;
+		let indexPanels = 0;
+		let indexGreet = 0;
 		for (let i = 0; i < cols.length; i++) {
 			const c = cols[i];
 			if(c.showPanelsHere == true) {
 				colId = c.id;
-				index = i;
+				indexPanels = i;
+			}
+			if(c.showGreetHere == true) {
+				indexGreet = i;
 			}
 		}
 		
@@ -933,10 +937,12 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 
 		if(!selectedCol) {
 			//Fallback to last col if none is selected
-			index = cols.length-1;
-			selectedCol = (this.$refs["column_"+cols[index].id] as HTMLDivElement[])[0];
+			indexPanels = cols.length-1;
+			indexGreet = cols.length-1;
+			selectedCol = (this.$refs["column_"+cols[indexPanels].id] as HTMLDivElement[])[0];
 		}
-		this.panelsColIndexTarget = index;
+		this.greetColIndexTarget = indexGreet;
+		this.panelsColIndexTarget = indexPanels;
 		this.panelsColumnTarget = selectedCol.getElementsByClassName("subHolder")[0] as HTMLDivElement;
 	}
 }
