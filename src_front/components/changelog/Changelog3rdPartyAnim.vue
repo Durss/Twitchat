@@ -3,7 +3,7 @@
 		<Teleport to="body">
 			<TTButton primary big ref="item"
 				v-for="item in categories"
-				style="z-index:100; position:fixed; top:0px; left:0px"
+				style="z-index:100; position:fixed; top:0px; left:0px; pointer-events:none"
 				:icon="item.icon">{{ item.label }}</TTButton>
 		</Teleport>
 		<TTButton primary ref="target" big icon="offline">{{ $t("params.categories.connexions") }}</TTButton>
