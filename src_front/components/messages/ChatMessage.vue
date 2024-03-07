@@ -10,6 +10,7 @@
 				<Button :aria-label="$t('chat.message.automod_acceptBt_aria')"
 					v-tooltip="$t('chat.message.automod_acceptBt_aria')"
 					icon="checkmark"
+					light
 					@click.stop="modMessage(true)"
 					:loading="automodInProgress" />
 
