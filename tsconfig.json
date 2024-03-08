@@ -1,5 +1,5 @@
 {
-	"extends": "@vue/tsconfig/tsconfig.web.json",
+	"extends": "@vue/tsconfig/tsconfig.dom.json",
 	"compilerOptions": {
 		"target": "esnext",
 		"module": "esnext",
@@ -19,7 +19,7 @@
 		"types": [
 			"webpack-env",
 			"vite/client",
-			"dom-screen-wake-lock",
+			"@types/dom-screen-wake-lock",
 			"vue3-marquee/dist/vue3-marquee.d.ts"
 		],
 		"paths": {
