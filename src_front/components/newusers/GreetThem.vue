@@ -23,12 +23,12 @@
 			</div>
 	
 			<div class="topForm" v-if="showList" @click.stop>
-				<div class="row">
-					<label><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
-					<select v-model.number="$store.params.greetThemAutoDelete">
+				<form class="row">
+					<label for="greetThem_duration"><img src="@/assets/icons/timeout.svg" alt="timer">{{ $t("greet.auto_delete") }}</label>
+					<select id="greetThem_duration" v-model.number="$store.params.greetThemAutoDelete">
 						<option v-for="v in autoDeleteOptions" :value="v.seconds">{{v.label}}</option>
 					</select>
-				</div>
+				</form>
 			</div>
 		</div>
 		

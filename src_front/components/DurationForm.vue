@@ -30,6 +30,7 @@
 			:contenteditable="true"
 			:no-nl="true"
 			:no-html="true"
+			:id="id"
 			maxLength="9"
 			@keydown="onKeyDown($event, 's')"
 			@focus="onFocus($event)"
@@ -52,6 +53,9 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 	emits:["update:modelValue", "change"],
 })
  class DurationForm extends Vue {
+
+	@Prop({default:"", type:String})
+	public id!:string;
 
 	@Prop({default:0, type:Number})
 	public modelValue!:number;

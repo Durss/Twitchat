@@ -14,7 +14,7 @@
 			</div>
 
 			
-			<form @submit.prevent="" class="inputForm">
+			<form @submit.prevent="" class="inputForm" name="messageform">
 				<Icon class="loader" name="loader" v-if="loading" />
 				
 				<div class="inputHolder" v-if="!error && !$store.chat.spamingFakeMessages">

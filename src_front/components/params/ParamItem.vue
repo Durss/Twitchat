@@ -128,7 +128,7 @@
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
 
-				<label :for="'slider'+key" v-html="label" v-tooltip="tooltip"></label>
+				<label v-html="label" v-tooltip="tooltip"></label>
 				<Slider :min="paramData.min" :max="paramData.max" :step="paramData.step" v-model="paramData.value"
 				:secondary="secondary"
 				:premium="premiumOnlyLocal"
