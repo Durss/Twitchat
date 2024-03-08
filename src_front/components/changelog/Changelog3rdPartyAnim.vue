@@ -43,6 +43,7 @@ class Changelog3rdPartyAnim extends Vue {
 							{label:"Spotify",icon:"spotify"},
 							{label:"Discord",icon:"discord"},
 							{label:"Streamlabs",icon:"streamlabs"},
+							{label:"Streamelements",icon:"streamelements"},
 							{label:"Ko-fi",icon:"kofi"},
 							{label:"Lumia Stream",icon:"lumia"},
 						];
@@ -59,14 +60,14 @@ class Changelog3rdPartyAnim extends Vue {
 		items.forEach(item => item.style.opacity = "0");
 
 		setTimeout(async ()=> {
-			const bounds = target.getBoundingClientRect();
-			const tX = bounds.x + bounds.width / 2;
-			const tY = bounds.y + bounds.height / 2;
-			
 			for (let i = 0; i < items.length; i++) {
 				const el = items[i];
 				await Utils.promisedTimeout(200);
-
+				
+				const boundsParent = target.getBoundingClientRect();
+				const tX = boundsParent.x + boundsParent.width / 2;
+				const tY = boundsParent.y + boundsParent.height / 2;
+				
 				let bounds = el.getBoundingClientRect();
 				const dist = 300;
 				let angle = Math.random() * Math.PI/2 + Math.PI/4;

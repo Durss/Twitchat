@@ -65,6 +65,8 @@
 								</i18n-t>
 							</div>
 							
+							<TTButton v-if="item.i=='emote' && !hasEmoteScope" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
+							
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 
 							<TTButton v-if="item.a" icon="test"
@@ -108,6 +110,8 @@ import ToggleBlock from '../ToggleBlock.vue';
 import OverlayCounter from '../overlays/OverlayCounter.vue';
 import SponsorTable from '../premium/SponsorTable.vue';
 import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
@@ -168,6 +172,7 @@ import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
 
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
+	public get hasEmoteScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]); }
 
 	public mounted(): void {
 		this.openedAt = Date.now();
@@ -258,6 +263,13 @@ import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
 		str = str.replace(/\{HEAT\}/gi, `<a href="${this.$config.HEAT_EXTENSION}" target="_blank">Heat</a>`);
 		str = str.replace(/\{SHADERTASTIC\}/gi, `<a href="https://shadertastic.com" target="_blank">Shadertastic</a>`);
 		return str;
+	}
+
+	/**
+	 * Requests for emote scope
+	 */
+	public grantEmoteScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
 	}
 
 	/**
@@ -642,6 +654,11 @@ export default toNative(Changelog);
 		&:hover {
 			background-color: #ee0000;
 		}
+	}
+}
+@media only screen and (max-width: 600px) {
+	.changelog {
+		font-size: .9em;
 	}
 }
 </style>

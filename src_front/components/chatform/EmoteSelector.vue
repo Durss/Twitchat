@@ -128,13 +128,6 @@ import TTButton from '../TTButton.vue';
 			//Load all users details to get their names
 			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
-
-			for (let i = 0; i < users.length; i++) {
-				const u = users[i];
-				if(tmpList.findIndex(v=>v.id == u.owner?.id) == -1) {
-					console.log("Not found", u.owner?.login);
-				}
-			}
 			
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
@@ -357,7 +350,6 @@ import TTButton from '../TTButton.vue';
 		if(this.buildOffset >= this.users.length) return;
 
 		const u = this.users[this.buildOffset];
-		console.log("BUILD", this.buildOffset, u);
 		this.buildTimeout = setTimeout(()=>{
 			this.buildOffset ++;
 			this.buildNextUser();

@@ -563,7 +563,6 @@ export default class TwitchUtils {
 			}else{
 				if(channelId == StoreProxy.auth.twitch.user.id) {
 					let userEmotes = await this.getUserEmotes(channelId);
-					console.log(userEmotes);
 					if(userEmotes) {
 						emotesTwitch = emotesTwitch.concat(userEmotes);
 					}

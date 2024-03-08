@@ -6,130 +6,94 @@
 		"heat_details_link": "Heat",
 		"highlights": [
 			{
+				"i": "offline",
+				"l": "Connexions tièrces",
+				"d": "Just so you don't get lost, following menu entries can now be found inside the \"Connections\""
+			},
+			{
+				"i": "streamlabs",
+				"l": "Alertes Streamlabs",
+				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\nSoyez notifiée=·e lorsq ue vous recevez un don, lorsque quelqu'un achète du merch ou lorsqu'une personne s'abonne à votre Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs).\n\nAutomitsez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
 				"p": true,
-				"i": "youtube",
-				"l": "Tchat Youtube",
-				"d": "Vos tchats Twitch et Youtube réunis en un même endroit !\n\nL'API Youtube étant catastrophique et absurdement limitée, cette fonctionné est hélas réservée aux membres premium pour l'instant afin de garantir un service minimum.",
 				"a": {
-					"l": "Essayer",
-					"param": "youtube"
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "streamlabs"
 				}
 			},
 			{
-				"i": "credits",
-				"l": "Générique de fin",
-				"d": "Affichez un générique en fin de stream.\n\nLivré avec des kilotonnes d'options exclusives que vous ne trouverez nulle part ailleurs !",
-				"v": "update_images/credits.mp4",
-				"y": "https://www.youtube.com/watch?v=0S9SgAi8IOI",
-				"a": {
-					"l": "Essayer",
-					"param": "overlays",
-					"subparam": "credits"
-				}
-			},
-			{
-				"i": "bits",
-				"l": "Bits wall",
-				"d": "Faîtes pleuvoir les bits reçus sur votre stream  !\n\nPossèdes 2 fonctionnalités jamais vues :\n<ul><li>Permettez aux viewers de \"casser\" les bits en cliquant dessus grâce à l'extension {HEAT}</li><li>Activez un rendu avancé déformant l'image du stream derrière les cristaux grâce au plugin OBS {SHADERTASTIC}</li></ul>",
-				"v": "update_images/bitswall.mp4",
-				"y": "https://www.youtube.com/watch?v=7rC4MAqAQR0",
-				"a": {
-					"l": "Essayer",
-					"param": "overlays",
-					"subparam": "bitswall"
-				}
-			},
-			{
-				"i": "distort",
-				"l": "Distorsions intéractives",
-				"d": "Permettez à vos viewers de déformer temporairement votre stream en cliquant dessus via l'extension {HEAT} grâce au nouvel overlay de distorsions intéractives.\n\nNécéssite le plusgin OBS {SHADERTASTIC}\n\nCet overlay peut être contrôlé depuis les triggers pour plus de possibilités.",
-				"v": "update_images/distortion.mp4",
-				"y": "https://www.youtube.com/watch?v=yD3BmZXWph4&list=PLJsQIzUbrDiFEaYkIgqPNw3Iwdp4ui1KD",
-				"a": {
-					"l": "Essayer",
-					"param": "overlays",
-					"subparam": "distort"
-				}
-			},
-			{
-				"i": "ad",
-				"l": "Pause pub",
-				"d": "Soyez alerté·e lorsqu'une pub approche ou est en cours.\n\n<ul><li>Reportez la pub avec le bouton snooze.</li><li>Automatisez des actions lorsqu'une pub approche, débute ou termine grâce aux Triggers.</li><li>Indiquez l'approche d'une pub ou la durée restante d'une pub en cours avec le nouvel overlay dédié.</li></ul>",
-				"v": "update_images/adbreak.mp4",
-				"y": "https://www.youtube.com/watch?v=p_DYIjclLCM",
-				"a": {
-					"l": "Essayer",
-					"param": "overlays",
-					"subparam": "adbreak"
-				}
-			},
-			{
+				"i": "streamelements",
+				"l": "Alertes Streamelements",
+				"d": "Recevez vos alertes Streamelements dans Twitchat.\n\nSoyez notifié·e quand vous recevez un don et automatisez des actions en réaction grâce au trigger dédié.",
 				"p": true,
-				"i": "translate",
-				"l": "Traduction automatique",
-				"d": "Traduisez automatiquement le 1er message d'une personne sur votre chaîne si il n'est pas écrit dans votre langue.\n\nUne nouvelle option au clique droit d'un message permet également de le traduire.\n\nCette option me coûtant de l'argent, elle est limitée aux membres premium.",
-				"g": "update_images/translate.png",
 				"a": {
-					"l": "Essayer",
-					"param": "features",
-					"subparam": "229"
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "streamelements"
 				}
 			},
 			{
-				"i": "qna",
-				"l": "Questions/Réponses",
-				"d": "Créez des sessions de questions / réponses avec vos viewers.\n\nRetrouvez toutes les questions dans des listes dédiées et mettez-les en avant en 1 click!",
-				"y": "https://youtu.be/0V8r0yrcees"
+				"i": "kofi",
+				"l": "Alertes Ko-fi",
+				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\nSoyez notifé·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsque quelqu'un prend un abonnement mensuel.\n\nAutomatisez des actions en réponses à ces évènements grâce aux triggers dédiés.",
+				"p": true,
+				"a": {
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "kofi"
+				}
 			},
 			{
-				"i": "channelPoints",
-				"l": "Gérez vos récompenses",
-				"d": "Gérez vos récompenses de points de chaîne directement depuis Twitchat !\nChangez leur prix, activez/désactivez-les, masquez-les ou renommez-les en un click.\n\nAutomatisez leur création ou modification depuis les triggers pour encore plus de possibilités !",
-				"v": "update_images/manage_rewards.mp4"
+				"i": "lumia",
+				"l": "Lumia Stream",
+				"d": "Connectez Twitchat à <a href='https://lumiastream.com' target='_blank'>Lumia Stream</a> et contrôlez vos lumières depuis les Triggers",
+				"p": true,
+				"a": {
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "lumia"
+				}
 			},
 			{
-				"i": "extension",
-				"l": "Gérez vos extensions Twitch",
-				"d": "Gérez vos extensions Twitch directement depuis Twitchat !\n\nActivez-les ou désactivez-les manuellement depuis le nouveau menu dédié, ou automatiquement depuis les triggers.\n\nActivez par exemple une extension selon votre scène OBS courante, votre catégorie de stream, suite à une récompense de points de chaîne, des subs, ou tout ce que vous pouvez imaginer !"
+				"i": "discord",
+				"l": "Connexion Discord",
+				"d": "Link Twitchat with Discord to make communication with your mods easier.\n\n<ul><li>Permettez à vos modos de vous contacter depuis Discord</li><li>Contactez vos modos sur Discord depuis Twitchat</li><li>Sauvegarder l'historique récent des activités d'une personne bannie</li><li>Enregistrez n'importe quel message sur Discord en un click droit</li><li>Créez des actions rapides personnalisées</li><li>Envoyez des messages sur Discord depuis les triggers</li><li>Créez des /commandes Discord depuis les triggers</li><li>Envoyez un message sur Discord lorsque vous lancez un live</li></ul>",
+				"y": "https://www.youtube.com/playlist?list=PLJsQIzUbrDiE5u6g3PlD20K_eyYX3Z3y-",
+				"a": {
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "discord"
+				}
 			},
 			{
-				"i": "mod",
-				"l": "Modération",
-				"d": "Consultez l'historique d'un viewer sur toutes les chaînes que vous modérez en quelques clicks.\n\nLa fenêtre de profil utilisateur peut désormais vous proposer un bouton pour chacune des chaînes sur lesquelles vous êtes modo afin de facilement consulter son historique sur ces chaînes.",
-				"g": "update_images/moderate.jpg"
+				"i": "overlay",
+				"l": "Overlays de sondage & prédiction",
+				"d": "Affichez la progression de vos sondages et prédictions sur votre stream grâce aux nouveaux overlays dédiés",
+				"v": "update_images/poll_pred.mp4",
+				"y": "https://www.youtube.com/watch?v=IcX-KnYJuCA",
+				"a": {
+					"l": "Tester",
+					"param": "overlays"
+				}
 			},
 			{
-				"i": "spotify",
-				"l": "Notifications Song request",
-				"d": "Deux nouvelles notifications de tchat vous diront lorsqu'un morceau est ajouté à votre liste de lecture Spotify ou si un ajout échoue avec la raison de l'echec.\n\nUne personne troll votre song request? Empêchez-la d'ajouter d'autres morceaux en 1 click.\n\nUne nouvelle option permet également de n'accepter que des morceaux durant moins d'un certain temps.",
-				"g": "update_images/sr.png"
+				"i": "emote",
+				"l": "Emote de train de la hype",
+				"d": "Vos emotes de train de la hype sont enfin listés dans Twitchat 🥳"
 			},
 			{
-				"i": "notification",
-				"l": "Notifications personnalisées",
-				"d": "Affichez des messages que vous seul·e pouvez voir.\n\nIdéal pour vous envoyer des rappels ou vous notifier de toutes sortes d'évènements personnalisés sans poluer le tchat.\n\nEnvoyez-en depuis les Triggers ou via l'API Twitchat dédiée.",
-				"g": "update_images/notification.png"
+				"i": "layout",
+				"l": "Personnalisations",
+				"d": "Vous pouvez afficher la section \"Dîtes bonjour\" dans une colonne différente des formulaires (sondage, prédiction, bingo, ...)\n\nVous pouvez épingler des entrées du menu [/] dans la barre du bas."
 			},
 			{
-				"i": "params",
-				"l": "Menu personnalisé",
-				"d": "Ne soyez plus submergé·e par toutes les options Twitchat en personnalisant le menu de paramètres pour n'afficher que les section de votre choix, dans l'ordre de votre choix.",
-				"v": "update_images/custom_menu.mp4"
-			},
-			{
-				"i": "ticket",
-				"l": "Tirages au sort dynamiques",
-				"d": "Lancez des tirages au sort depuis les entrées d'une Valeur.\n\nCeci peut vous permettre de créer plusieurs listes de tirage au sort en parallèle grâce au système de Triggers, puis d'effectuer un tirage au sort parmis leurs entrées à tout moment.",
-				"y": "https://www.youtube.com/watch?v=9FK9sk-kZTM"
-			},
-			{
-				"i": "broadcast",
-				"l": "Triggers",
-				"d": "<ul><li>Organisez vos triggers dans des dossiers et sous-dossiers</li><li>9 nouveaux évènements de trigger :<ul><li>Approche d'une pub</li><li>Début d'une pub</li><li>Fin d'une pub</li><li>Echec d'ajout d'un morceau à spotify</li><li>Achat de n'importe quelle récompense de points de chaînes</li><li>Click heat n'importe où dans l'écran</li><li>Session de Question/réponses ouverte</li><li>Session de Question/réponses fermée</li><li>Session de Question/réponses supprimée</li></ul></li><li>4 nouvelles actions de trigger :<ul><li>Créer/désactiver/activer/supprimer/modifier une récompense de points de chaîne</li><li>Activer/désactiver une extension Twitch</li><li>Afficher une notification personnalisée</li><li>Simuler un click sur un overlay de distorsion</li></ul></li><li>3 nouvelles actions OBS :<ul><li>Arrêter un media</li><li>Media suivant</li><li>Media précédent</li></ul></li><li>1 nouvelle action de Compteur & Valeur :<ul><li>Editez la valeur pour toutes les personnes présentes dans le tchat</li></ul></li><li>21 nouveaux placeholders :<ul><li>{NOW} date courante</li><li>{MY_STREAM_DURATION}</li><li>{MY_STREAM_DURATION_MS}</li><li>{MY_STREAM_LIVE}</li><li>{SPOTIFY_IS_PLAYING}</li><li>{CURRENT_PLAYLIST_URL}</li><li>{CURRENT_PLAYLIST_TITLE}</li><li>{CURRENT_PLAYLIST_COVER}</li><li>{TWITCH_LAST_SUB}</li><li>{TWITCH_LAST_SUB_ID}</li><li>{TWITCH_LAST_SUBGIFTER}</li><li>{TWITCH_LAST_SUBGIFTER_ID}</li><li>{TWITCH_TOTAL_SUBS_ACTIVE}</li><li>{TWITCH_LAST_FOLLOW}</li><li>{TWITCH_LAST_FOLLOW_ID}</li><li>{TWITCH_TOTAL_FOLLOWERS}</li><li>{TWITCH_LAST_CHEER}</li><li>{TWITCH_LAST_CHEER_ID}</li><li>{TWITCH_LAST_CHEER_AMOUNT}</li><li>{FAIL_REASON} pour l'action Spotify</li><li>{SEARCH_QUERY} pour l'action Spotify</li></ul></li></ul>"
+				"l": "Mais aussi",
+				"d": "<ul><li>La fenêtre de train de la hype peut être minimisée</li><li>9 nouveaux triggers:<ul><li>Début de sondage</li><li>Début de prédiction</li><li>Don Streamlabs reçu</li><li>Merch Streamlabs acheté</li><li>Nouvel·le abonné·es Patreon via Streamlas</li><li>Don Ko-fi reçu</li><li>Merch Ko-fi acheté</li><li>Abonnement mensuel Ko-fi reçu</li><li>Don Streamelements reçu</li></ul><li>2 nouveaux placeholders globaux pour triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 nouvea placeholder de Sub:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Correctif important de la fenêtre  demandant de désactiver des triggers si vous arrêtiez votre abonnement premium. Les triggers se retrouvaient potentiellement dupliqué plusieurs fois.</li></ul>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️"
+				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️",
+				"l": ""
 			}
 		],
 		"forceRead": {
@@ -138,9 +102,6 @@
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt": "ui pardon je lis 🥺",
 			"fuBt": "menfou 🤪"
-		},
-		"major": [],
-		"minor": [],
-		"fixes": []
+		}
 	}
 }
