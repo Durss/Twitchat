@@ -26,8 +26,6 @@
 		<section class="examples">
 			<h2><Icon name="whispers"/>{{$t("streamelements.examples")}}</h2>
 			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
-			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
-			<MessageItem v-if="fakePatreon" :messageData="fakePatreon" />
 		</section>
 	</div>
 </template>
@@ -52,9 +50,7 @@ class ConnectStreamelements extends Vue {
 	public error = false;
 	public loading = false;
 	public oAuthURL = "";
-	public fakeDonation:TwitchatDataTypes.StreamlabsDonationData|undefined = undefined;
-	public fakeMerch:TwitchatDataTypes.StreamlabsMerchData|undefined = undefined;
-	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
+	public fakeDonation:TwitchatDataTypes.StreamelementsDonationData|undefined = undefined;
 
 	public beforeMount():void {
 		if(!this.$store.streamelements.connected) {
@@ -72,18 +68,9 @@ class ConnectStreamelements extends Vue {
 				this.loadAuthURL();
 			}
 		}
-		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
+		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamelementsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS, (mess) => {
 			mess.eventType = "donation";
 			this.fakeDonation = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
-			mess.eventType = "merch";
-			mess.product = "T-shirt";
-			this.fakeMerch = mess;
-		}, false);
-		this.$store.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (mess) => {
-			mess.eventType = "patreon_pledge";
-			this.fakePatreon = mess;
 		}, false);
 	}
 

@@ -1,5 +1,6 @@
 {
 	"streamelements": {
-		"header":"Receive {LINK} alerts on Twitchat"
+		"header":"Receive {LINK} alerts on Twitchat",
+		"examples":"Message example"
 	}
 }

@@ -1311,6 +1311,27 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessageStreamelementsData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						amount:13,
+						amountFormatted:"$13",
+						currency:"EUR",
+						eventType:"donation",
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						userName:user.displayNameOriginal,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageKofiData = {
