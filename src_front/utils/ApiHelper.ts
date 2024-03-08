@@ -450,7 +450,16 @@ type ApiEndpoints =  {
 		POST: {
 			success:boolean;
 			accessToken?:string;
-			socketToken?:string;
+			refreshToken?:string;
+			error?:string;
+			errorCode?:string;
+		}
+	};
+	"streamelements/token/refresh": {
+		POST: {
+			success:boolean;
+			accessToken?:string;
+			refreshToken?:string;
 			error?:string;
 			errorCode?:string;
 		}

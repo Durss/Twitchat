@@ -231,7 +231,7 @@ const routes: Array<RouteRecordRaw> = [
 				sStreamelements.setAuthResult(params.code, params.csrf);
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.streamlabs_denied") );
+				sMain.alert( StoreProxy.i18n.t("error.streamelements_denied") );
 			}
 			return {name:"chat", query:{}};
 		},

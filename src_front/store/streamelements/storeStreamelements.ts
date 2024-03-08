@@ -1,14 +1,15 @@
-import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import Config from '@/utils/Config';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
-import Utils from '@/utils/Utils';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IStreamelementsActions, IStreamelementsGetters, IStreamelementsState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import { rebuildPlaceholdersCache } from '@/types/TriggerActionDataTypes';
 
 
 let socket:WebSocket|undefined = undefined;
@@ -21,9 +22,52 @@ let autoReconnect:boolean = false;
 export const storeStreamelements = defineStore('streamelements', {
 	state: () => ({
 		accessToken:"",
-		socketToken:"",
+		refreshToken:"",
 		connected:false,
 		authResult:{code:"", csrf:""},
+		tipLatest:{
+			amount:0,
+			message:"",
+			username:"",
+		},
+		tipSession:0,
+		tipTotal:0,
+		tipCount:0,
+		tipWeek:0,
+		tipMonth:0,
+		tipGoal:0,
+		tipSessionTopDonation:{
+			amount:0,
+			username:"",
+		},
+		tipSessionTopDonator:{
+			amount:0,
+			username:"",
+		},
+		tipWeeklyTopDonation:{
+			amount:0,
+			username:"",
+		},
+		tipWeeklyTopDonator:{
+			amount:0,
+			username:"",
+		},
+		tipMonthlyTopDonation:{
+			amount:0,
+			username:"",
+		},
+		tipMonthlyTopDonator:{
+			amount:0,
+			username:"",
+		},
+		tipAlltimeTopDonation:{
+			amount:0,
+			username:"",
+		},
+		tipAlltimeTopDonator:{
+			amount:0,
+			username:"",
+		},
 	} as IStreamelementsState),
 
 
@@ -44,17 +88,18 @@ export const storeStreamelements = defineStore('streamelements', {
 				this.accessToken = json.accessToken;
 				if(this.accessToken) {
 					isAutoInit = true;
+					this.connect(this.accessToken);
 				}
 			}
 		},
 
 		async getOAuthURL():Promise<string> {
 			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
-			const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"streamelements/auth"}).href;
+			const redirectURI = "https://twitchat.fr" + StoreProxy.router.resolve({name:"streamelements/auth"}).href;
 			const url = new URL("https://api.streamelements.com/oauth2/authorize");
 			url.searchParams.set("client_id",Config.instance.STREAMELEMENTS_CLIENT_ID);
 			url.searchParams.set("redirect_uri",redirectURI);
-			url.searchParams.set("scope","socket.token");
+			url.searchParams.set("scope","tips:read activities:read channel:read loyalty:read");
 			url.searchParams.set("response_type","code");
 			url.searchParams.set("state", csrfToken.json.token);
 			return url.href;
@@ -70,8 +115,8 @@ export const storeStreamelements = defineStore('streamelements', {
 				const result = await ApiHelper.call("streamelements/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
-					this.socketToken = "";
-					return await this.connect(result.json.socketToken!);
+					this.refreshToken = result.json.refreshToken!;
+					return await this.connect(result.json.accessToken!);
 				}
 				return false;
 			}catch(error){
@@ -83,131 +128,247 @@ export const storeStreamelements = defineStore('streamelements', {
 			if(!StoreProxy.auth.isPremium) return Promise.resolve(false);
 
 			//Token changed
-			if(isReconnect && token != this.socketToken) return Promise.resolve(false);
+			if(isReconnect && token != this.accessToken) return Promise.resolve(false);
 			
 			this.disconnect();
 
 			if(!isReconnect) {
-				this.socketToken = token;
+				this.accessToken = token;
 				this.saveData();
 			}
 
 			autoReconnect = true;
+			let tokenValid = false;
+			try {
+				let opts = {
+					headers: { "Authorization":"OAuth "+token },
+					method:"GET",
+				}
+				let validateResult = await fetch("https://api.streamelements.com/oauth2/validate", opts);
+				if(validateResult.status == 200) {
+					const json = (await validateResult.json()) as StreamelementsTokenValidate;
+					//If token expires in more than a day (default 30days) accept it
+					if(json.expires_in > 24*60*60) {
+						tokenValid = true
+					}
+				}
+			}catch(error) {}
 
+			//Token expired or will expire soon?
+			//Refresh it
+			if(!tokenValid) {
+				try {
+					const result = await ApiHelper.call("streamelements/token/refresh", "POST", {}, false)
+					if(result.json.success) {
+						this.accessToken = result.json.accessToken!;
+						this.refreshToken = result.json.refreshToken!;
+					}else{
+						return false;
+					}
+				}catch(error){
+					return false;
+				}
+			}
+			
+			//Connect to websocket
 			return new Promise<boolean>((resolve, reject)=> {
 	
-				socket = new WebSocket(`wss://sockets.Streamelements.com/socket.io/?EIO=3&transport=websocket&token=${this.socketToken}`);
+				socket = new WebSocket(`wss://realtime.streamelements.com/socket.io/?EIO=3&transport=websocket`);
 	
 				socket.onopen = async () => {
 					reconnectAttempts = 0;
 					clearTimeout(reconnectTimeout);
+					socket!.send("42[\"authenticate\","+JSON.stringify( {method:"oauth2", token:token})+"]");
 				};
 				
 				socket.onmessage = (event:MessageEvent<string>) => {
-					//PONG messages
-					if(event.data == "3") return;
-					//Connection acknwoledgment
-					if(event.data == "40") {
-						this.connected = true;
-						resolve(true);
-						return;
-					}
 					try {
 						let codeLength = 0;
 						for (; codeLength < event.data.length; codeLength++) {
 							if(!/[0-9]/.test(event.data[codeLength])) break;
 						}
 						const code = event.data.substring(0, codeLength);
-						const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
 						//Welcome message
 						if(code == "0") {
+							const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
 							const message = json as StreamelementsWelcomeData;
 							//Send PING command regularly
 							if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 							pingInterval = SetIntervalWorker.instance.create(()=>{
 								socket?.send("2");
 							}, message.pingInterval || 10000);
-						}else
+						}
+						
+						//PONG messages
+						else if(code == "3") return;
 
-						//Authentication failed
-						if(code == "44") {
-							//Show error on top of page
-							if(isAutoInit) {
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.Streamelements_connect_failed"));
-							}
-							this.disconnect();
-							resolve(false);
+						//Connection acknowledgment
+						else if(code == "40") return;
 
-						}else{
-							if(Array.isArray(json)) {
-								const me = StoreProxy.auth.twitch.user;
-								json.forEach(entry=>{
-									if(typeof entry == "string") return;
-									const message = entry as StreamelementsDonationData | StreamelementsYoutubeSponsorData | StreamelementsYoutubeSuperchatData | StreamelementsMerchData | StreamelementsPatreonPledgeData;
-									switch(message.type) {
-										case "donation": {
-											message.message.forEach(message=> {
-												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
-												const data:TwitchatDataTypes.StreamelementsDonationData = {
-													id:Utils.getUUID(),
-													eventType:"donation",
-													platform:"twitchat",
-													channel_id:me.id,
-													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
-													date:Date.now(),
-													amount:message.amount,
-													amountFormatted:message.formatted_amount,
-													currency:message.currency,
-													message:message.message,
-													message_chunks:chunks,
-													message_html:TwitchUtils.messageChunksToHTML(chunks),
-													userName:message.from,
-												}
-												StoreProxy.chat.addMessage(data);
-												resolve(true);
-											});
-											break;
-										}
-										case "merch": {
-											message.message.forEach(message=> {
-												const chunks = TwitchUtils.parseMessageToChunks(message.message, undefined, true);
-												const data:TwitchatDataTypes.StreamelementsMerchData = {
-													id:Utils.getUUID(),
-													eventType:"merch",
-													platform:"twitchat",
-													channel_id:me.id,
-													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
-													date:Date.now(),
-													product:message.product,
-													message:message.message,
-													message_chunks:chunks,
-													message_html:TwitchUtils.messageChunksToHTML(chunks),
-													userName:message.from,
-												}
-												StoreProxy.chat.addMessage(data);
-											});
-											break;
-										}
-										case "pledge": {
-											message.message.forEach(message=> {
-												const data:TwitchatDataTypes.StreamelementsPatreonPledgeData = {
-													id:Utils.getUUID(),
-													eventType:"patreon_pledge",
-													platform:"twitchat",
-													channel_id:me.id,
-													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
-													date:Date.now(),
-													userName:message.from,
-													amount:message.amount,
-													amountFormatted:message.formatted_amount,
-													currency:message.currency,
-												}
-												StoreProxy.chat.addMessage(data);
-											});
-											break;
-										}
+						//All other messages
+						else if(code == "42") {
+							const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
+							const values = (json as any[]);
+							const action = values.shift();
+							switch(action) {
+								case "unauthorized": {
+									//Show error on top of page
+									if(isAutoInit) {
+										StoreProxy.main.alert(StoreProxy.i18n.t("error.Streamelements_connect_failed"));
 									}
-								})
+									this.disconnect();
+									resolve(false);
+									break;
+								}
+
+								case "authenticated": {
+									this.connected = true;
+									rebuildPlaceholdersCache();
+									resolve(true);
+									break;
+								}
+
+								case "event": {
+									values.forEach((value:EventTypes) => {
+										switch(value.type) {
+											case "tip": {
+												const chunks = TwitchUtils.parseMessageToChunks(value.data.message, undefined, true, "twitch");
+												const message:TwitchatDataTypes.StreamelementsDonationData = {
+													id:Utils.getUUID(),
+													date:Date.now(),
+													eventType:"donation",
+													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
+													amount:value.data.amount,
+													amountFormatted:value.data.currency+" "+value.data.amount,
+													channel_id:StoreProxy.auth.twitch.user.id,
+													currency:value.data.currency,
+													message:value.data.message,
+													message_chunks:chunks,
+													message_html:TwitchUtils.messageChunksToHTML(chunks),
+													platform:"twitchat",
+													userName:value.data.username,
+												}
+												StoreProxy.chat.addMessage(message);
+												break;
+											}
+										}
+									})
+									break;
+								}
+
+								case "event:update": {
+									values.forEach((value:UpdateEventTypes) => {
+										switch(value.name) {
+											//All tips for current session
+											case "tip-session":{
+												//console.log(value.name, value.data.amount)
+												this.tipSession = value.data.amount;
+												break;
+											}
+											//Latest tip received
+											case "tip-latest":{
+												//console.log(value.name, value.data.name, value.data.message, value.data.amount)
+												this.tipLatest = {
+													amount:value.data.amount,
+													message:value.data.message,
+													username:value.data.name,
+												}
+												break;
+											}
+											//Sum amount of all time tips received
+											case "tip-total":{
+												//console.log(value.name, value.data.amount)
+												this.tipTotal = value.data.amount;
+												break;
+											}
+											//Number of tips received
+											case "tip-count":{
+												//console.log(value.name, value.data.count)
+												this.tipCount = value.data.count;
+												break;
+											}
+											//Sum amount of tips rreceived this week
+											case "tip-week":{
+												//console.log(value.name, value.data.amount)
+												this.tipWeek = value.data.amount;
+												break;
+											}
+											//Sum amount of tips rreceived this month
+											case "tip-month":{
+												//console.log(value.name, value.data.amount)
+												this.tipMonth = value.data.amount;
+												break;
+											}
+											//Donation goal(?!)
+											case "tip-goal":{
+												//console.log(value.name, value.data.amount)
+												this.tipGoal = value.data.amount;
+												break;
+											}
+											//Top donation this session
+											case "tip-session-top-donation":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												this.tipSessionTopDonation = {
+													amount:value.data.amount,
+													username:value.data.name,
+												}
+												break;
+											}
+											//Top donator this session
+											case "tip-session-top-donator":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												//Ignore, kinda the same as previous event
+												break;
+											}
+											//Top donation this week
+											case "tip-weekly-top-donation":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												this.tipWeeklyTopDonation = {
+													amount:value.data.amount,
+													username:value.data.name,
+												}
+												break;
+											}
+											//Top donator this week
+											case "tip-weekly-top-donator":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												//Ignore, kinda the same as previous event
+												break;
+											}
+											//Top donation this month
+											case "tip-monthly-top-donation":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												this.tipMonthlyTopDonation = {
+													amount:value.data.amount,
+													username:value.data.name,
+												}
+												break;
+											}
+											//Top donator this month
+											case "tip-monthly-top-donator":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												//Ignore, kinda the same as previous event
+												break;
+											}
+											//Top donation all time
+											case "tip-alltime-top-donation":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												this.tipAlltimeTopDonation = {
+													amount:value.data.amount,
+													username:value.data.name,
+												}
+												break;
+											}
+											//Top donator all time
+											case "tip-alltime-top-donator":{
+												//console.log(value.name, value.data.name, value.data.amount)
+												//Ignore, kinda the same as previous event
+												break;
+											}
+										}
+									})
+									break;
+								}
 							}
 						}
 					}catch(error){
@@ -220,10 +381,11 @@ export const storeStreamelements = defineStore('streamelements', {
 			
 				socket.onclose = (event) => {
 					//Do not reconnect if token changed
-					if(token != this.socketToken) return;
+					if(token != this.accessToken) return;
 					if(!autoReconnect) return;
 	
 					this.connected = false;
+					rebuildPlaceholdersCache();
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
@@ -236,6 +398,7 @@ export const storeStreamelements = defineStore('streamelements', {
 				socket.onerror = (error) => {
 					resolve(false);
 					this.connected = false;
+					rebuildPlaceholdersCache();
 					if(!autoReconnect) return;
 					reconnectAttempts ++;
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
@@ -251,7 +414,6 @@ export const storeStreamelements = defineStore('streamelements', {
 		disconnect():void {
 			autoReconnect = false;
 			this.connected = false;
-			this.socketToken = "";
 			this.accessToken = "";
 			this.saveData();
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
@@ -262,7 +424,6 @@ export const storeStreamelements = defineStore('streamelements', {
 		saveData():void {
 			const data:StreamelementsStoreData = {
 				accessToken:this.accessToken,
-				socketToken:this.socketToken,
 			}
 			DataStore.set(DataStore.STREAMELEMENTS, data);
 		}
@@ -278,8 +439,31 @@ export const storeStreamelements = defineStore('streamelements', {
 
 export interface StreamelementsStoreData {
 	accessToken:string;
-	socketToken:string;
 }
+
+type EventTypes = StreamelementsTipData;
+type UpdateEventTypes = StreamelementsTipSessionData
+				| StreamelementsTipLatestData
+				| StreamelementsTipTotalData
+				| StreamelementsTipCountData
+				| StreamelementsTipMonthData
+				| StreamelementsTipWeekData
+				| StreamelementsTipGoalData
+				| StreamelementsTipSessionTopDonationData
+				| StreamelementsTipSessionTopDonatorData
+				| StreamelementsTipWeeklyTopDonationData
+				| StreamelementsTipWeeklyTopDonatorData
+				| StreamelementsTipMonthlyTopDonationData
+				| StreamelementsTipMonthlyTopDonatorData
+				| StreamelementsTipAllTimeTopDonationData
+				| StreamelementsTipAllTimeTopDonatorData;
+
+interface StreamelementsTokenValidate {
+	channel_id: string;
+	client_id: string;
+	expires_in: number;
+	scopes: string[];
+  }
 
 interface StreamelementsWelcomeData {
     sid:string;
@@ -289,97 +473,166 @@ interface StreamelementsWelcomeData {
     maxPayload: number;
 }
 
-interface StreamelementsDonationData {
-	type: "donation";
-	message:{
-		priority: number;
-		isTest: boolean;
-		name:string;
-		amount:number;
-		formatted_amount:string;
-		message:string;
-		currency:string;
-		emotes:string;
-		iconClassName:string;
-		to:{
-			name:string;
-		};
-		from:string;
-		from_user_id:string;
-		_id:string;
-	}[];
-	for:"Streamelements";
-    event_id: string;
-}
-
-interface StreamelementsMerchData {
-    type: "merch";
-    message: {
-		name: string;
-		isTest: boolean,
+interface StreamelementsTipData {
+	type: "tip";
+	provider: string;
+	channel: string;
+	createdAt: string;
+	data: {
+		amount: number;
+		currency: string;
+		username: string;
+		tipId: string;
 		message: string;
-		to: {
-			name: string;
-		};
-		from: string;
-		product: string;
-		imageHref: string;
-		condition: string;
-		_id: string;
-		priority: 10;
-	}[];
-	for:"Streamelements";
-    event_id: string;
+		avatar: string;
+	};
+	_id: string;
+	updatedAt: string;
+	activityId: string;
+	sessionEventsCount: number;
 }
 
-interface StreamelementsPatreonPledgeData {
-    type: "pledge";
-    message: {
-		name:string;
-		isTest: boolean;
-		formatted_amount:string;
-		amount: 22;
-		currency:string;
-		to: {
-			name:string;
-		},
-		from:string;
-		_id:string;
-		priority:string;
-	}[];
-	for:"patreon";
-    event_id:string;
+interface StreamelementsTipSessionData {
+	name: "tip-session";
+	data: {
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
 }
 
-interface StreamelementsYoutubeSponsorData {
-	type: "subscription";
-	message: {
-		sponsorSince:string;
-		id:string;
+interface StreamelementsTipLatestData {
+	name: "tip-latest";
+	data: {
 		name:string;
-		channelUrl:string;
-		months:number;
-		_id:string;
-    }[];
-	for: "youtube_account";
-    event_id: string;
+		amount: number;
+		message:string;
+		activityId:string;
+	};
+	provider: string;
 }
 
-interface StreamelementsYoutubeSuperchatData {
-	type: "superchat";
-	message: {
-		id:string;
-		channelId:string;
-		channelUrl:string;
+interface StreamelementsTipTotalData {
+	name: "tip-total";
+	data: {
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipCountData {
+	name: "tip-count";
+	data: {
+		count: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipMonthData {
+	name: "tip-month";
+	data: {
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipWeekData {
+	name: "tip-week";
+	data: {
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipGoalData {
+	name: "tip-goal";
+	data: {
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipSessionTopDonationData {
+	name: "tip-session-top-donation";
+	data: {
 		name:string;
-		comment:string;
-		amount:string;
-		currency:string;
-		displayString:string;
-		messageType: number,
-		createdAt:string;
-		_id:string;
-	}[];
-	for: "youtube_account";
-    event_id: string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipSessionTopDonatorData {
+	name: "tip-session-top-donator";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipWeeklyTopDonationData {
+	name: "tip-weekly-top-donation";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipWeeklyTopDonatorData {
+	name: "tip-weekly-top-donator";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipMonthlyTopDonationData {
+	name: "tip-monthly-top-donation";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipMonthlyTopDonatorData {
+	name: "tip-monthly-top-donator";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipAllTimeTopDonationData {
+	name: "tip-alltime-top-donation";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
+}
+
+interface StreamelementsTipAllTimeTopDonatorData {
+	name: "tip-alltime-top-donator";
+	data: {
+		name:string;
+		amount: number;
+		activityId:string;
+	};
+	provider: string;
 }

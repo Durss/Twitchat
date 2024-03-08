@@ -20,6 +20,11 @@
 				<p>Streamlabs</p>
 			</button>
 	
+			<button class="card-item premium" @click="subContent='streamelements'">
+				<Icon name="streamelements" />
+				<p>Streamelements</p>
+			</button>
+	
 			<button class="card-item premium" @click="subContent='lumia'">
 				<Icon name="lumia" />
 				<p>Lumia Stream</p>
@@ -78,6 +83,7 @@
 	<ConnectStreamlabs v-else-if="subContent == 'streamlabs'" />
 	<ConnectKofi v-else-if="subContent == 'kofi'" />
 	<ConnectLumia v-else-if="subContent == 'lumia'" />
+	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
 </template>
 
 <script lang="ts">
@@ -98,6 +104,7 @@ import ConnectWebsocket from './connexions/ConnectWebsocket.vue';
 import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
 import ConnectKofi from './connexions/ConnectKofi.vue';
 import ConnectLumia from './connexions/ConnectLumia.vue';
+import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 
 @Component({
 	components:{
@@ -113,6 +120,7 @@ import ConnectLumia from './connexions/ConnectLumia.vue';
 		ConnectWebsocket,
 		ConnectStreamdeck,
 		ConnectStreamlabs,
+		ConnectStreamelements,
 	},
 	emits:[],
 })

@@ -2294,9 +2294,67 @@ export interface IStreamlabsActions {
 
 export interface IStreamelementsState {
 	accessToken:string;
-	socketToken:string;
+	refreshToken:string;
 	connected:boolean;
 	authResult:{code:string, csrf:string};
+	//All tips for current session
+	tipSession:number;
+	//Latest tip received
+	tipLatest:{
+		amount:number;
+		message:string;
+		username:string;
+	};
+	//Sum amount of all time tips received
+	tipTotal:number;
+	//Number of tips received
+	tipCount:number;
+	//Sum amount of tips rreceived this week
+	tipWeek:number;
+	//Sum amount of tips rreceived this month
+	tipMonth:number;
+	//Donation goal(?!)
+	tipGoal:number;
+	//Top donation this session
+	tipSessionTopDonation:{
+		amount:number;
+		username:string;
+	};
+	//Top donator this session
+	tipSessionTopDonator:{
+		amount:number;
+		username:string;
+	};
+	//Top donation this week
+	tipWeeklyTopDonation:{
+		amount:number;
+		username:string;
+	};
+	//Top donator this week
+	tipWeeklyTopDonator:{
+		amount:number;
+		username:string;
+	};
+	//Top donation this month
+	tipMonthlyTopDonation:{
+		amount:number;
+		username:string;
+	};
+	//Top donator this month
+	tipMonthlyTopDonator:{
+		amount:number;
+		username:string;
+	};
+	//Top donation all time
+	tipAlltimeTopDonation:{
+		amount:number;
+		username:string;
+	};
+	//Top donator all time
+	tipAlltimeTopDonator:{
+		amount:number;
+		username:string;
+	};
 }
 
 export interface IStreamelementsGetters {
@@ -2305,9 +2363,8 @@ export interface IStreamelementsGetters {
 export interface IStreamelementsActions {
 	/**
 	 * Populates the store from user's data
-	 * @param data 
 	 */
-	populateData(data:StreamelementsStoreData):void;
+	populateData():void;
 	/**
 	 * Connect to WS with given token
 	 */

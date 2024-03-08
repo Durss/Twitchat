@@ -155,6 +155,10 @@
 		v-else-if="messageData.type == 'streamlabs'"
 		:messageData="messageData" />
 
+	<ChatStreamelementsEvent class="message"
+		v-else-if="messageData.type == 'streamelements'"
+		:messageData="messageData" />
+
 	<ChatKofiEvent class="message"
 		v-else-if="messageData.type == 'kofi'"
 		:messageData="messageData" />
@@ -203,6 +207,7 @@ import ChatAdBreakStarted from './ChatAdBreakStarted.vue';
 import ChatCustomMessage from './ChatCustomMessage.vue';
 import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
 import ChatKofiEvent from './ChatKofiEvent.vue';
+import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
 
 @Component({
 	components:{
@@ -245,6 +250,7 @@ import ChatKofiEvent from './ChatKofiEvent.vue';
 		ChatHypeTrainCooldown,
 		ChatLowTrustTreatment,
 		ChatMessageClipPending,
+		ChatStreamelementsEvent,
 		ChatCommunityChallengeContribution,
 	},
 	emits:[],

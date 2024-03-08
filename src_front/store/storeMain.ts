@@ -866,6 +866,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.emergency.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
+			StoreProxy.streamelements.populateData();
 
 			const theme = DataStore.get(DataStore.THEME);
 			if(theme) {

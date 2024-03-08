@@ -525,6 +525,15 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS:{
+				const eventType:{[key in TwitchatDataTypes.MessageStreamelementsData["eventType"]]:TriggerTypesValue} = {
+						"donation":TriggerTypes.STREAMELEMENTS_DONATION,
+					} as const;
+				if(await this.executeTriggersByType(eventType[message.eventType], message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.KOFI:{
 				const eventType:{[key in TwitchatDataTypes.MessageKofiData["eventType"]]:TriggerTypesValue} = {
 						"donation":TriggerTypes.KOFI_DONATION,

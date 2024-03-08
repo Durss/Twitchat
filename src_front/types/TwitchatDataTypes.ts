@@ -180,7 +180,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Filter params of the col
 		 */
-		filters:Partial<{[key in typeof MessageListFilterTypes[number]["type"]]:boolean}>;
+		filters:{[key in typeof MessageListFilterTypes[number]["type"]]:boolean};
 		/**
 		 * Filter params of the "messages" sub section
 		 */
@@ -793,7 +793,7 @@ export namespace TwitchatDataTypes {
 		descReplacedValues?:{[key:string]:string};
 		example?:string;
 		globalTag?:boolean;
-		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch";
+		category?:"stream"|"counter"|"value"|"timer"|"music"|"goxlr"|"twitch"|"streamlabs";
 		/**
 		 * Is placeholder private
 		 * Used for a deprecated placeholder that i don't want to simply break
@@ -2115,7 +2115,38 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the possible chat filters
 	 */
-	export const MessageListFilterTypes:{type:TwitchatMessageStringType, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
+	type AllowFilterTypes = typeof TwitchatMessageType.FOLLOWING
+							| typeof TwitchatMessageType.SUBSCRIPTION
+							| typeof TwitchatMessageType.CHEER
+							| typeof TwitchatMessageType.RAID
+							| typeof TwitchatMessageType.PINNED
+							| typeof TwitchatMessageType.SHOUTOUT
+							| typeof TwitchatMessageType.BAN
+							| typeof TwitchatMessageType.UNBAN
+							| typeof TwitchatMessageType.REWARD
+							| typeof TwitchatMessageType.POLL
+							| typeof TwitchatMessageType.PREDICTION
+							| typeof TwitchatMessageType.HYPE_TRAIN_SUMMARY
+							| typeof TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN
+							| typeof TwitchatMessageType.COMMUNITY_BOOST_COMPLETE
+							| typeof TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION
+							| typeof TwitchatMessageType.BINGO
+							| typeof TwitchatMessageType.RAFFLE
+							| typeof TwitchatMessageType.KOFI
+							| typeof TwitchatMessageType.STREAMLABS
+							| typeof TwitchatMessageType.STREAMELEMENTS
+							| typeof TwitchatMessageType.COUNTDOWN
+							| typeof TwitchatMessageType.STREAM_ONLINE
+							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
+							| typeof TwitchatMessageType.AD_BREAK_START_CHAT
+							| typeof TwitchatMessageType.JOIN
+							| typeof TwitchatMessageType.LEAVE
+							| typeof TwitchatMessageType.NOTICE
+							| typeof TwitchatMessageType.USER_WATCH_STREAK
+							| typeof TwitchatMessageType.TWITCHAT_AD
+							| typeof TwitchatMessageType.WHISPER
+							| typeof TwitchatMessageType.MESSAGE;
+	export const MessageListFilterTypes:{type:AllowFilterTypes, labelKey:string, icon:string, scopes:TwitchScopesString[], newFlag:number}[] = [
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
@@ -2133,9 +2164,9 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION,		labelKey:"chat.filters.message_types.community_challenge_contribution",		icon:"channelPoints",	scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BINGO,								labelKey:"chat.filters.message_types.bingo",								icon:"bingo",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.RAFFLE,								labelKey:"chat.filters.message_types.raffle",								icon:"ticket",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",									icon:"kofi",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
-		// {type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -4077,15 +4108,15 @@ export namespace TwitchatDataTypes {
 		}
 	
 	/**
-	 * Represents a streamlabs event
+	 * Represents a streamelements event
 	 */
-	export type MessageStreamelementsData = StreamelementsDonationData | StreamelementsMerchData | StreamelementsPatreonPledgeData;
+	export type MessageStreamelementsData = StreamelementsDonationData;
 		interface StreamelementsDonationBaseData extends AbstractTwitchatMessage{
 			type:"streamelements";
-			eventType:"donation" | "merch" | "patreon_pledge";
+			eventType:"donation";
 		}
 		/**
-		 * Represents a streamlabs donation event
+		 * Represents a streamelements donation event
 		 */
 		export interface StreamelementsDonationData extends StreamelementsDonationBaseData{
 			eventType:"donation";
@@ -4094,29 +4125,6 @@ export namespace TwitchatDataTypes {
 			message:string;
 			message_chunks:ParseMessageChunk[];
 			message_html:string;
-			userName:string;
-			currency:string;
-		}
-		
-		/**
-		 * Represents a streamlabs merch event
-		 */
-		export interface StreamelementsMerchData extends StreamelementsDonationBaseData {
-			eventType:"merch";
-			message:string;
-			message_chunks:ParseMessageChunk[];
-			message_html:string;
-			userName:string;
-			product:string;
-		}
-		
-		/**
-		 * Represents a streamlabs event
-		 */
-		export interface StreamelementsPatreonPledgeData extends StreamelementsDonationBaseData {
-			eventType:"patreon_pledge";
-			amount:number;
-			amountFormatted:string;
 			userName:string;
 			currency:string;
 		}

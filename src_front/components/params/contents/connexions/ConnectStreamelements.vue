@@ -1,11 +1,11 @@
-C<template>
-	<div class="connectstreamlabs parameterContent">
-		<Icon name="streamlabs" class="icon" />
+<template>
+	<div class="connectstreamelements parameterContent">
+		<Icon name="streamelements" class="icon" />
 		
 		<div class="head">
-			<i18n-t scope="global" tag="span" keypath="streamlabs.header">
+			<i18n-t scope="global" tag="span" keypath="streamelements.header">
 				<template #LINK>
-					<a href="https://streamlabs.com/" target="_blank">Streamlabs</a>
+					<a href="https://streamelements.com/" target="_blank">Streamelements</a>
 				</template>
 			</i18n-t>
 		</div>
@@ -14,9 +14,9 @@ C<template>
 			<TTButton icon="premium" @click="openPremium()" premium big>{{ $t('premium.become_premiumBt')  }}</TTButton>
 		</section>
 
-		<section v-else-if="!$store.streamlabs.connected">
+		<section v-else-if="!$store.streamelements.connected">
 			<TTButton type="link" :href="oAuthURL" target="_self" :loading="loading">{{ $t("global.connect") }}</TTButton>
-			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamlabs_connect_failed") }}</div>
+			<div class="card-item alert error" v-if="error" @click="error = false">{{ $t("error.streamelements_connect_failed") }}</div>
 		</section>
 
 		<section v-else>
@@ -24,7 +24,7 @@ C<template>
 		</section>
 
 		<section class="examples">
-			<h2><Icon name="whispers"/>{{$t("streamlabs.examples")}}</h2>
+			<h2><Icon name="whispers"/>{{$t("streamelements.examples")}}</h2>
 			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
 			<MessageItem v-if="fakeMerch" :messageData="fakeMerch" />
 			<MessageItem v-if="fakePatreon" :messageData="fakePatreon" />
@@ -33,19 +33,21 @@ C<template>
 </template>
 
 <script lang="ts">
-import { TTButton } from '@/components/TTButton.vue';
+import Icon from '@/components/Icon.vue';
+import TTButton from '@/components/TTButton.vue';
 import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
+		Icon,
 		TTButton,
 		MessageItem,
 	},
 	emits:[],
 })
-class ConnectStreamlabs extends Vue {
+class ConnectStreamelements extends Vue {
 
 	public error = false;
 	public loading = false;
@@ -55,11 +57,11 @@ class ConnectStreamlabs extends Vue {
 	public fakePatreon:TwitchatDataTypes.StreamlabsPatreonPledgeData|undefined = undefined;
 
 	public beforeMount():void {
-		if(!this.$store.streamlabs.connected) {
-			if(this.$store.streamlabs.authResult.code) {
+		if(!this.$store.streamelements.connected) {
+			if(this.$store.streamelements.authResult.code) {
 				//Complete oauth process
 				this.loading = true
-				this.$store.streamlabs.getAccessToken()
+				this.$store.streamelements.getAccessToken()
 				.then(success => {
 					this.error = !success;
 					this.loading = false;
@@ -89,7 +91,7 @@ class ConnectStreamlabs extends Vue {
 	 * Disconnects from streamlabs
 	 */
 	public disconnect():void{
-		this.$store.streamlabs.disconnect();
+		this.$store.streamelements.disconnect();
 		this.loadAuthURL();
 	}
 
@@ -105,18 +107,18 @@ class ConnectStreamlabs extends Vue {
 	 */
 	private loadAuthURL():void{
 		this.loading = true;
-		this.$store.streamlabs.getOAuthURL().then(res => {
+		this.$store.streamelements.getOAuthURL().then(res => {
 			this.oAuthURL = res;
 			this.loading = false;
 		});
 	}
 
 }
-export default toNative(ConnectStreamlabs);
+export default toNative(ConnectStreamelements);
 </script>
 
 <style scoped lang="less">
-.connectstreamlabs{
+.connectstreamelements{
 	.error {
 		cursor: pointer;
 		line-height: 1.2em;

@@ -1479,13 +1479,6 @@ import Ajv from "ajv";
 				},
 			}
 		},
-		streamlabs: {
-			type:"object",
-			additionalProperties: false,
-			properties: {
-				token: {type:"string", maxLength:1000},
-			}
-		},
 		predictionOverlayParams: {
 			type:"object",
 			additionalProperties: false,

@@ -511,7 +511,8 @@
 			"count_and_values": "Counters & Values",
 			"goxlr": "GoXLR",
 			"kofi": "Ko-fi",
-			"streamlabs": "Streamlabs"
+			"streamlabs": "Streamlabs",
+			"streamelements": "Streamelements"
 		},
 		"placeholders": {
 			"trigger_name":"Current trigger name",
@@ -701,7 +702,24 @@
 			"kofi_tier":"Tier name (might be empty)",
 			"kofi_product_names":"Product names (might be empty)",
 			"kofi_product_ids":"Product IDs",
-			"kofi_first_time_sub":"Is a first-time subscriber?"
+			"kofi_first_time_sub":"Is a first-time subscriber?",
+			"sl_tipLatest_amount":"Latest tip amount",
+			"sl_tipLatest_message":"Latest tip message",
+			"sl_tipLatest_username":"Latest tip username",
+			"sl_tipSession":"Total amount tips received during this stream",
+			"sl_tipTotal":"Total amount of tip received all time",
+			"sl_tipCount":"Number of tips received all time",
+			"sl_tipWeek":"Total amount of tip received this week",
+			"sl_tipMonth":"Total amount of tip received this month",
+			"sl_tipGoal":"Donation goal",
+			"sl_tipSessionTopDonation_amount":"Top donation amount this stream",
+			"sl_tipSessionTopDonation_username":"Name of top donation this stream",
+			"sl_tipWeeklyTopDonation_amount":"Top donation amount this week",
+			"sl_tipWeeklyTopDonation_username":"Name of top donation this week",
+			"sl_tipMonthlyTopDonation_amount":"Top donation amount this month",
+			"sl_tipMonthlyTopDonation_username":"Name of top donation this month",
+			"sl_tipAlltimeTopDonation_amount":"Top donation amount all time",
+			"sl_tipAlltimeTopDonation_username":"Name of top donation all time"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1170,6 +1188,10 @@
 			"KOFI_SUBSCRIPTION": {
 				"label": "Someone subscribed on Ko-fi",
 				"description": "Actions to execute when a someone subscribes (monthly) on Ko-fi"
+			},
+			"STREAMELEMENTS_DONATION": {
+				"label": "Received a donation on Streamelements",
+				"description": "Actions to execute when receiving a donation on Streamelements"
 			}
 		},
 		"musicEvents": {
