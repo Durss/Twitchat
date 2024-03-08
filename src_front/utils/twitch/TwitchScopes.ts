@@ -35,6 +35,7 @@ export const TwitchScopes = {
 	ADS_READ: "channel:read:ads",
 	ADS_SNOOZE: "channel:manage:ads",
 	EXTENSIONS: "user:edit:broadcast",
+	READ_EMOTES: "user:read:emotes",
 } as const;
 export type TwitchScopesString = typeof TwitchScopes[keyof typeof TwitchScopes];
 
@@ -74,3 +75,4 @@ TwitchScope2Icon[TwitchScopes.SHIELD_MODE]				= "shield";
 TwitchScope2Icon[TwitchScopes.CLIPS]					= "clip";
 TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
 TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
+TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";

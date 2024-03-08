@@ -30,9 +30,7 @@
 					<div class="title">{{u.user.displayName}}</div>
 				</div>
 				
-				<div v-if="u.user.id=='477339272'" class="hypetrain">{{ $t("global.hypetrain_emotes") }}</div>
-				
-				<template class="item" v-else-if="buildOffset >= index">
+				<template class="item" v-if="buildOffset >= index">
 					<div class="emotes">
 						<img
 							class="emote"
@@ -49,17 +47,19 @@
 				</template>
 			</div>
 		</div>
-
+ 
 		<div class="card-item userList" v-if="users.length > 0 && !filter">
 			<template v-for="u, index in users" :key="u.user.id">
-				<Button class="user"
+				<TTButton class="user"
 				v-tooltip="u.user.displayName"
 				@click="scrollTo(u.user)"
 				:loading="buildOffset < index">
 					<img :src="u.user.avatarPath" alt="profile pic" class="avatar">
-				</Button>
+				</TTButton>
 			</template>
 		</div>
+
+		<TTButton v-if="!canListUserEmotes" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
 
 		<input v-if="users.length > 0" type="text" v-autofocus v-model="filter" :placeholder="$t('global.search_placeholder')" class="dark">
 	</div>
@@ -75,13 +75,14 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import gsap from 'gsap';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
-import TTButton from '../TTButton.vue';
 import Icon from '../Icon.vue';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
 		Icon,
-		Button: TTButton,
+		TTButton,
 	},
 	emits:["close", "select"]
 })
@@ -94,6 +95,10 @@ import Icon from '../Icon.vue';
 	private buildTimeout = -1;
 	private tooltipCreated:{[key:string]:boolean} = {};
 	private clickHandler!:(e:MouseEvent) => void;
+
+	public get canListUserEmotes():boolean {
+		return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]);
+	}
 
 	public get filteredEmotes():TwitchatDataTypes.Emote[] {
 		let res:TwitchatDataTypes.Emote[] = [];
@@ -123,6 +128,13 @@ import Icon from '../Icon.vue';
 			//Load all users details to get their names
 			const tmpList = await TwitchUtils.loadUserInfo(users.map(v => v.owner!.id));
 			const userList:TwitchatDataTypes.TwitchatUser[] = [];
+
+			for (let i = 0; i < users.length; i++) {
+				const u = users[i];
+				if(tmpList.findIndex(v=>v.id == u.owner?.id) == -1) {
+					console.log("Not found", u.owner?.login);
+				}
+			}
 			
 			for (let i = 0; i < tmpList.length; i++) {
 				const u = tmpList[i];
@@ -144,27 +156,6 @@ import Icon from '../Icon.vue';
 					userList[i].displayName = "Unlocked";
 				}
 			}
-	
-			//Add hype trains emotes
-			uidToIndex["477339272"] = userList.length;
-			userList.push({
-				platform:"twitch",
-				login:"twitchhypetrain",
-				displayName:"TwitchHypeTrain",
-				displayNameOriginal:"TwitchHypeTrain",
-				avatarPath:this.$image("img/hypetrain_avatar.png"),
-				id:"477339272",
-				is_affiliate:false,
-				is_partner:false,
-				is_tracked:false,
-				is_blocked:false,
-				pronouns:false,
-				pronounsLabel:false,
-				pronounsTooltip:false,
-				channelInfo:{},
-				donor:{state:false, level:0, upgrade:false, noAd:false, earlyDonor:false, isPremiumDonor:false},
-				is_bot:false,
-			});
 	
 			//Add global emotes
 			uidToIndex["0"] = userList.length;
@@ -200,11 +191,6 @@ import Icon from '../Icon.vue';
 				}
 				sets[ index ].emotes.push(e);
 			}
-
-			sets[ uidToIndex["477339272"] ] = {
-				user:userList.find(v => v.id == "477339272")!,
-				emotes: [],
-			};
 	
 			if(this.$store.params.appearance.bttvEmotes.value === true) {
 				//Add BTTV emotes
@@ -286,6 +272,7 @@ import Icon from '../Icon.vue';
 			this.users = sets;
 		}
 
+		this.buildOffset = 0;
 		await this.$nextTick();
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
@@ -321,6 +308,13 @@ import Icon from '../Icon.vue';
 	public scrollTo(user:TwitchatDataTypes.TwitchatUser):void {
 		const [holder] = this.$refs["user_"+user.id] as  HTMLDivElement[];
 		holder.scrollIntoView();
+	}
+
+	/**
+	 * Requests for emote scope
+	 */
+	public grantEmoteScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
 	}
 
 	private open():void {
@@ -363,6 +357,7 @@ import Icon from '../Icon.vue';
 		if(this.buildOffset >= this.users.length) return;
 
 		const u = this.users[this.buildOffset];
+		console.log("BUILD", this.buildOffset, u);
 		this.buildTimeout = setTimeout(()=>{
 			this.buildOffset ++;
 			this.buildNextUser();
@@ -490,6 +485,7 @@ export default toNative(EmoteSelector);
 			font-size: .9em;
 			text-align: center;
 			line-height: 1.3em;
+			padding-top: 1em;
 		}
 
 		&.search {

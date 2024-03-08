@@ -542,23 +542,33 @@ export default class TwitchUtils {
 		let emotes:TwitchatDataTypes.Emote[] = [];
 		let emotesTwitch:TwitchDataTypes.Emote[] = [];
 		if(!staticEmotes) {
-			const options = {
-				method:"GET",
-				headers: this.headers,
-			}
-			do {
-				const url = new URL(Config.instance.TWITCH_API_PATH+"chat/emotes/set");
-				sets.splice(0,25).forEach(set => {
-					url.searchParams.append("emote_set_id", set);
-				});
-				const res = await this.callApi(url, options);
-				const json = await res.json();
-				if(res.status == 200) {
-					emotesTwitch = emotesTwitch.concat(json.data);
-				}else{
-					throw(json);
+			if(!this.hasScopes([TwitchScopes.READ_EMOTES])) {
+				const options = {
+					method:"GET",
+					headers: this.headers,
 				}
-			}while(sets.length > 0);
+				do {
+					const url = new URL(Config.instance.TWITCH_API_PATH+"chat/emotes/set");
+					sets.splice(0,25).forEach(set => {
+						url.searchParams.append("emote_set_id", set);
+					});
+					const res = await this.callApi(url, options);
+					const json = await res.json();
+					if(res.status == 200) {
+						emotesTwitch = emotesTwitch.concat(json.data);
+					}else{
+						throw(json);
+					}
+				}while(sets.length > 0);
+			}else{
+				if(channelId == StoreProxy.auth.twitch.user.id) {
+					let userEmotes = await this.getUserEmotes(channelId);
+					console.log(userEmotes);
+					if(userEmotes) {
+						emotesTwitch = emotesTwitch.concat(userEmotes);
+					}
+				}
+			}
 		}else{
 			emotesTwitch.push(...staticEmotes);
 		}
@@ -2621,6 +2631,58 @@ export default class TwitchUtils {
 			return this.updateExtension(extensionId, extensionVersion, enabled, slotIndex, slotType);
 		}
 		return false;
+	}
+
+	/**
+	 * List user's extensions
+	 */
+	public static async getUserEmotes(uid:string):Promise<TwitchDataTypes.Emote[]> {
+		if(!this.hasScopes([TwitchScopes.READ_EMOTES])) return [];
+
+		let cursor:string|null = null;
+		let list:TwitchDataTypes.Emote[] = [];
+		const options = {
+			method:"GET",
+			headers: this.headers,
+		}
+		
+		do {
+			const url = new URL(Config.instance.TWITCH_API_PATH+"chat/emotes/user");
+			url.searchParams.append("user_id", uid)
+			if(cursor) {
+				url.searchParams.append("after", cursor)
+			}
+			const res = await this.callApi(url, options);
+			if(res.status == 200 || res.status == 204) {
+				const json:{data:Omit<TwitchDataTypes.Emote, "images">[], template:string, pagination?:{cursor?:string}} = await res.json();
+				list = list.concat(json.data.map(v=> {
+					let format = v.format[v.format.length-1];
+					let theme = v.theme_mode.indexOf(StoreProxy.main.theme) > -1? StoreProxy.main.theme : v.theme_mode[0];
+					return {
+						emote_set_id:v.emote_set_id,
+						emote_type:v.emote_type,
+						format:v.format,
+						id:v.id, 
+						name:v.name,
+						owner_id:v.owner_id,
+						scale:v.scale,
+						theme_mode:v.theme_mode,
+						images: {
+							url_1x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[0]),
+							url_2x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[1]),
+							url_4x: json.template.replace("{{id}}", v.id).replace("{{format}}", format).replace("{{theme_mode}}", theme).replace("{{scale}}", v.scale[2]),
+						},
+					}
+				}));
+				cursor = null;
+				if(json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			}else if(res.status == 500) break;
+			else if(res.status != 200) continue;
+			else return [];
+		}while(cursor != null)
+		return list;
 	}
 
 
