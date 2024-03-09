@@ -5,7 +5,7 @@
 			<Icon v-if="loading === true" name="loader" class="loading" />
 		</div>
 		<Icon name="cross" class="cross" />
-		<input :id="id" type="checkbox" v-model="localValue" class="input">
+		<input :id="inputId" type="checkbox" v-model="localValue" class="input">
 	</div>
 </template>
 
@@ -20,7 +20,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
  class ToggleButton extends Vue {
 
 	@Prop({default:"", type:String})
-	public id!:string;
+	public inputId!:string;
 
 	@Prop({type:Boolean, default: false})
 	public big!:boolean;

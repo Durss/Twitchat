@@ -17,15 +17,14 @@
 				<label :for="'toggle'+key"
 					v-if="label"
 					v-html="label"
-					v-tooltip="{content:tooltip, followCursor:'horizontal'}"
-					@click="if(!paramData.noInput && ($event.target as HTMLElement).nodeName != 'A') paramData.value = !paramData.value;"></label>
+					v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
 					:alert="alert || errorLocal"
-					:id="'toggle'+key"
+					:inputId="'toggle'+key"
 					:disabled="disabled !== false || paramData.disabled === true" />
 			</div>
 			
