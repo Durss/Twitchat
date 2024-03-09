@@ -59,8 +59,6 @@ export default class StreamelementsController extends AbstractController {
 			const slRes = await fetch("https://api.streamelements.com/oauth2/token?"+params, {method:"POST", headers});
 			const json = await slRes.json();
 
-			console.log(json);
-
 			response.header('Content-Type', 'application/json')
 			.status(200)
 			.send(JSON.stringify({success:json.access_token !== undefined, accessToken:json.access_token, refreshToken:json.refresh_token}));
