@@ -92,10 +92,9 @@ class OverlayPredictions extends Vue {
 
 	public getWinClasses(c:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		let res:string[] = [];
-		if(this.showWinner) {
-			let max = 0;
-			this.prediction?.outcomes.forEach(v=> max = Math.max(max, v.votes));
-			if(c.votes >= max) res.push("win");
+		if(this.prediction?.winner
+		&& this.prediction?.winner.id == c.id) {
+			res.push("win");
 		}
 		return res;
 	}
