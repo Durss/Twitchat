@@ -1,9 +1,9 @@
 <template>
-	<div :class="classes" id="holder" v-if="prediction && parameters">
+	<div :class="classes" id="holder" v-if="show && prediction && parameters">
 		<div id="progress" class="progress" ref="progress" v-show="parameters.showTimer"></div>
 		<h1 id="title" v-if="parameters.showTitle">{{ prediction?.title }}</h1>
 		<div id="list" class="list" v-if="listMode">
-			<div id="list_choice" class="choice" v-for="(c, index) in prediction.outcomes" ref="bar">
+			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in prediction.outcomes" ref="bar">
 				<h2 id="list_choice_label" v-if="parameters.showLabels">{{c.label}}</h2>
 				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
 					<div class="details" id="list_choice_bar_details">
@@ -16,12 +16,16 @@
 		</div>
 		<div id="line" class="battle" v-else ref="holder">
 			<div id="line_labelList" class="labels" v-if="parameters.showLabels">
-				<h2 id="line_labelList_label" class="outcomeTitle" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
+				<h2 id="line_labelList_label" class="outcomeTitle"
+				:class="getWinClasses(c)"
+				v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
 					{{ c.label }}
 				</h2>
 			</div>
 			<div class="chunks" id="line_bar" ref="bar">
-				<div id="line_bar_item" class="chunk" v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
+				<div id="line_bar_item" class="chunk"
+				:class="getWinClasses(c)"
+				v-for="(c, index) in prediction.outcomes" :style="{flexBasis:getPercent(c)+'%'}">
 					<div class="details" id="line_bar_item_details">
 						<span id="line_bar_item_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
 						<span id="line_bar_item_details_votes" class="votes" v-if="parameters.showVoters"><Icon name="user" class="icon" />{{c.voters}}</span>
@@ -51,6 +55,8 @@ import gsap, { Linear } from 'gsap';
 })
 class OverlayPredictions extends Vue {
 
+	public show:boolean = false;
+	public showWinner:boolean = false;
 	public prediction:TwitchatDataTypes.MessagePredictionData | null = null;
 	public parameters:PredictionOverlayParamStoreData = {
 		showTitle:true,
@@ -61,6 +67,8 @@ class OverlayPredictions extends Vue {
 		showVoters:false,
 		showVotes:false,
 		showTimer:true,
+		showOnlyResult:false,
+		resultDuration_s:5,
 		placement:"bl",
 	};
 	
@@ -74,10 +82,22 @@ class OverlayPredictions extends Vue {
 	}
 
 	public get classes():string[] {
-		return [
+		let res:string[] = [
 			"overlaypredictions",
 			"position-"+this.parameters.placement
 		];
+		if(this.showWinner) res.push("win");
+		return res;
+	}
+
+	public getWinClasses(c:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
+		let res:string[] = [];
+		if(this.showWinner) {
+			let max = 0;
+			this.prediction?.outcomes.forEach(v=> max = Math.max(max, v.votes));
+			if(c.votes >= max) res.push("win");
+		}
+		return res;
 	}
 
 	public getAnswerStyles(c:TwitchatDataTypes.MessagePredictionDataOutcome):StyleValue {
@@ -86,7 +106,7 @@ class OverlayPredictions extends Vue {
 		}
 	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome, barSize:boolean = false):number {
+	public getPercent(c:TwitchatDataTypes.MessagePredictionDataOutcome, barSizeTarget:boolean = false):number {
 		let maxVotes = 0;
 		let totalVotes = 0;
 		if(this.prediction) {
@@ -99,7 +119,7 @@ class OverlayPredictions extends Vue {
 				return 100/this.prediction.outcomes.length;
 			}
 		}
-		if(this.listMode && barSize) totalVotes = maxVotes;	
+		if(this.listMode && barSizeTarget) totalVotes = maxVotes;	
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
@@ -127,19 +147,22 @@ class OverlayPredictions extends Vue {
 		if(!prediction) {
 			if(this.prediction) this.close();
 		}else{
-			const opening = this.prediction == null || this.prediction.id != prediction.id;
-			this.prediction = prediction;
-			await this.$nextTick();
-			if(opening) this.open();
-	
-			const progressBar = this.$refs.progress as HTMLElement;
-			if(progressBar) {
-				const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
-				const percentDone = timeSpent / (prediction.duration_s * 1000);
-				const percentRemaining = 1 - percentDone;
-				const duration = prediction.duration_s * percentRemaining;
-				gsap.killTweensOf(progressBar);
-				gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+			const opening	= this.prediction == null || this.prediction.id != prediction.id;
+			this.show		= this.parameters.showOnlyResult !== true;
+			this.showWinner	= false;
+			this.prediction	= prediction;
+			if(this.show) {
+				if(opening) await this.open();
+		
+				const progressBar = this.$refs.progress as HTMLElement;
+				if(progressBar) {
+					const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
+					const percentDone = timeSpent / (prediction.duration_s * 1000);
+					const percentRemaining = 1 - percentDone;
+					const duration = prediction.duration_s * percentRemaining;
+					gsap.killTweensOf(progressBar);
+					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+				}
 			}
 		}
 	}
@@ -149,18 +172,30 @@ class OverlayPredictions extends Vue {
 	}
 	
 	public async close():Promise<void> {
-		gsap.to(this.$el, {scale:0, duration:.5, ease:"back.in", onComplete:()=>{
+		this.showWinner = true;
+		if(this.parameters.showOnlyResult === true) {
+			this.show = true;
+			await this.open();
+		}
+		const delay = this.parameters.resultDuration_s || 5;
+		if(delay > 0) {
+			const progressBar = this.$refs.progress as HTMLElement;
+			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
+		}
+		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
+			this.show = false;
 			this.prediction = null;
 		}});
 	}
 	
 	private async open():Promise<void> {
+		await this.$nextTick();
+
 		let labels = this.$refs.labels as HTMLElement
 		let items = this.$refs.bar as HTMLElement[] || HTMLElement;
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "300");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
-
 		
 		gsap.killTweensOf(this.$el);
 		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});
@@ -403,6 +438,52 @@ export default toNative(OverlayPredictions);
 	&.position-br {
 		bottom: 2em;
 		right: 2em;
+	}
+
+	&.win {
+		.list {
+			.choice {
+				transition: opacity .25s;
+				opacity: .5;
+				.bar {
+					background-color: fade(#387aff, 20%);
+				}
+				&.win {
+					opacity: 1;
+					position: relative;
+					overflow: visible;
+					&::before {
+						content: "✔";
+						position: absolute;
+						transform: translate(-120%, 0%);
+					}
+				}
+			}
+		}
+
+		
+
+		.battle {
+			.labels {
+				.outcomeTitle {
+					transition: opacity .25s;
+					opacity: .5;
+					&.win {
+						opacity: 1;
+					}
+				}
+			}
+
+			.chunks {
+				.chunk {
+					transition: opacity .25s;
+					opacity: .5;
+					&.win {
+						opacity: 1;
+					}
+				}
+			}
+		}
 	}
 }
 </style>

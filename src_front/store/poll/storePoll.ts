@@ -50,6 +50,8 @@ export const storePoll = defineStore('poll', {
 			this.overlayParams.showVotes =			params.showVotes !== false;
 			this.overlayParams.showPercent =		params.showPercent !== false;
 			this.overlayParams.showTimer =			params.showTimer !== false;
+			this.overlayParams.showOnlyResult =		params.showOnlyResult !== false;
+			this.overlayParams.resultDuration_s =	params.resultDuration_s || 5;
 			this.overlayParams.placement =			params.placement || "bl";
 		},
 
@@ -103,5 +105,7 @@ export interface PollOverlayParamStoreData {
 	showVotes:boolean;
 	showPercent:boolean;
 	showTimer:boolean;
+	showOnlyResult:boolean;
+	resultDuration_s:number;
 	placement:TwitchatDataTypes.ScreenPosition;
 }

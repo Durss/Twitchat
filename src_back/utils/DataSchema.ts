@@ -1491,6 +1491,8 @@ import Ajv from "ajv";
 				showVoters: {type:"boolean"},
 				showPercent: {type:"boolean"},
 				showTimer: {type:"boolean"},
+				showOnlyResult: {type:"boolean"},
+				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
 				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
 		},
@@ -1505,6 +1507,8 @@ import Ajv from "ajv";
 				showVotes: {type:"boolean"},
 				showPercent: {type:"boolean"},
 				showTimer: {type:"boolean"},
+				showOnlyResult: {type:"boolean"},
+				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
 				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
 		},

@@ -1,6 +1,6 @@
 <template>
 	<div class="durationform input-field">
-		<contenteditable class="input" tag="span" ref="inputH"
+		<contenteditable class="input" v-if="showHours" tag="span" ref="inputH"
 			v-model="hours"
 			:contenteditable="true"
 			:no-nl="true"
@@ -10,9 +10,9 @@
 			@focus="onFocus($event)"
 			@blur="clamp('h'); onChange()" />
 		
-		<p class="split">h</p>
+		<p class="split" v-if="showHours">h</p>
 
-		<contenteditable class="input" tag="span" ref="inputM"
+		<contenteditable class="input" v-if="showMinutes" tag="span" ref="inputM"
 			v-model="minutes"
 			:contenteditable="true"
 			:no-nl="true"
@@ -22,7 +22,7 @@
 			@focus="onFocus($event)"
 			@blur="clamp('m'); onChange()" />
 
-		<p class="split">m</p>
+		<p class="split" v-if="showMinutes">m</p>
 
 		<contenteditable class="input" tag="span" ref="inputS"
 			v-model="seconds"
@@ -75,6 +75,14 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 	public hours:string = "0";
 	public minutes:string = "0";
 	public seconds:string = "0";
+
+	public get showHours():boolean {
+		return this.max > 60*60;
+	}
+
+	public get showMinutes():boolean {
+		return this.max > 60;
+	}
 
 	public beforeMount():void {
 		this.initValue(this.modelValue)

@@ -276,28 +276,32 @@
 			"css": "Changez l'apparence de la prédiction via ces sélecteurs CSS",
 			"testBt":"Tester",
 			"param_listMode":"Afficher sous forme de liste",
-			"param_listModeOnlyMore2":"Unniquement s'il y a plus de 2 items",
+			"param_listModeOnlyMore2":"Uniquement s'il y a plus de 2 items",
 			"param_showTitle":"Afficher le titre de la prédiction",
 			"param_showLabels":"Afficher le titre des entrées",
 			"param_showVotes":"Afficher le nombre de votes",
 			"param_showVoters":"Afficher le nombre participant·es",
 			"param_showPercent":"Afficher les pourcentages",
 			"param_showProgress":"Afficher le temps restant",
-			"param_placement":"Position dans l'écran"
+			"param_placement":"Position dans l'écran",
+			"param_showOnlyResult":"Afficher uniquement le résultat",
+			"param_resultDuration":"Durée d'affichage du résultat"
 		},
 		"polls":{
 			"title":"Sondage",
-			"head":"Afficher le sondate en cours sur votre stream",
+			"head":"Afficher le sondage en cours sur votre stream",
 			"css": "Changez l'apparence du sondage via ces sélecteurs CSS",
 			"testBt":"Tester",
 			"param_listMode":"Afficher sous forme de liste",
-			"param_listModeOnlyMore2":"Unniquement s'il y a plus de 2 choix",
+			"param_listModeOnlyMore2":"Uniquement s'il y a plus de 2 choix",
 			"param_showTitle":"Afficher le titre du sondage",
 			"param_showLabels":"Afficher le titre des choix",
 			"param_showVotes":"Afficher le nombre de votes",
 			"param_showPercent":"Afficher les pourcentages",
 			"param_showProgress":"Afficher le temps restant",
-			"param_placement":"Position dans l'écran"
+			"param_placement":"Position dans l'écran",
+			"param_showOnlyResult":"Afficher uniquement le résultat",
+			"param_resultDuration":"Durée d'affichage du résultat"
 		}
 	}
 }

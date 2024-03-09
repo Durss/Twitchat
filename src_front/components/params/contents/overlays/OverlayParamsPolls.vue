@@ -81,6 +81,9 @@
 				<ParamItem :paramData="param_showVotes" v-model="params.showVotes" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
+				<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
+				<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
+				
 				<div class="card-item placement">
 					<p>{{ $t("overlay.polls.param_placement") }}</p>
 					<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
@@ -124,13 +127,15 @@ class OverlayParamsPolls extends Vue {
 	public checkingOverlayPresence:boolean = true;
 
 	public params!:PollOverlayParamStoreData;
-	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"list", labelKey:"overlay.polls.param_listMode"}
-	public param_listModeOnlyMore2:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.polls.param_listModeOnlyMore2"}
-	public param_showTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showTitle"}
-	public param_showLabels:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showLabels"}
-	public param_showVotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"channelPoints", labelKey:"overlay.polls.param_showVotes"}
-	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.polls.param_showPercent"}
-	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.polls.param_showProgress"}
+	public param_listMode:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"list", labelKey:"overlay.polls.param_listMode"};
+	public param_listModeOnlyMore2:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"overlay.polls.param_listModeOnlyMore2"};
+	public param_showTitle:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showTitle"};
+	public param_showLabels:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"font", labelKey:"overlay.polls.param_showLabels"};
+	public param_showVotes:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"channelPoints", labelKey:"overlay.polls.param_showVotes"};
+	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.polls.param_showPercent"};
+	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.polls.param_showProgress"};
+	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"poll", labelKey:"overlay.polls.param_showOnlyResult"};
+	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.polls.param_resultDuration"};
 
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
@@ -148,6 +153,8 @@ class OverlayParamsPolls extends Vue {
 			showPercent: this.$store.poll.overlayParams.showPercent,
 			showTimer: this.$store.poll.overlayParams.showTimer,
 			placement: this.$store.poll.overlayParams.placement,
+			showOnlyResult: this.$store.poll.overlayParams.showOnlyResult,
+			resultDuration_s: this.$store.poll.overlayParams.resultDuration_s,
 		}
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -190,7 +197,7 @@ class OverlayParamsPolls extends Vue {
 		poll.choices.forEach(v=> {
 			v.votes = 0;
 		});
-		poll.duration_s = 30;
+		poll.duration_s = 5;
 		poll.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		this.simulateInterval = SetIntervalWorker.instance.create(()=>{
@@ -206,7 +213,7 @@ class OverlayParamsPolls extends Vue {
 		this.simulateEndTimeout = setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
 			this.$store.poll.setCurrentPoll(null);
-		}, poll.duration_s * 1000);
+		}, poll.duration_s * 1010);
 
 		this.$store.poll.setCurrentPoll(poll);
 	}

@@ -1,26 +1,30 @@
 <template>
-	<div :class="classes" id="holder" v-if="poll && parameters">
+	<div :class="classes" id="holder" v-if="show && poll && parameters">
 		<div id="progress" class="progress" ref="progress" v-show="parameters.showTimer"></div>
 		<h1 id="title" v-if="parameters.showTitle">{{ poll?.title }}</h1>
 		<div id="list" class="list" v-if="listMode">
-			<div id="list_choice" class="choice" v-for="(c, index) in poll.choices" ref="bar">
+			<div id="list_choice" class="choice" :class="getWinClasses(c)" v-for="(c, index) in poll.choices" ref="bar">
 				<h2 id="list_choice_label" v-if="parameters.showLabels">{{c.label}}</h2>
 				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
 					<div class="details" id="list_choice_bar_details">
 						<span id="list_choice_bar_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
 					</div>
+						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
 				</div>
 			</div>
 		</div>
 		<div id="line" class="battle" v-else ref="holder">
 			<div id="line_labelList" class="labels" v-if="parameters.showLabels">
-				<h2 id="line_labelList_label" class="outcomeTitle" v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
+				<h2 id="line_labelList_label" class="outcomeTitle"
+				:class="getWinClasses(c)"
+				v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
 					{{ c.label }}
 				</h2>
 			</div>
 			<div class="chunks" id="line_bar" ref="bar">
-				<div id="line_bar_item" class="chunk" v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
+				<div id="line_bar_item" class="chunk"
+				:class="getWinClasses(c)"
+				v-for="(c, index) in poll.choices" :style="{flexBasis:getPercent(c)+'%'}">
 					<div class="details" id="line_bar_item_details">
 						<span id="line_bar_item_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
 						<span id="line_bar_item_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
@@ -49,6 +53,8 @@ import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 })
 class OverlayPoll extends Vue {
 
+	public show:boolean = false;
+	public showWinner:boolean = false;
 	public poll:TwitchatDataTypes.MessagePollData | null = null;
 	public parameters:PollOverlayParamStoreData = {
 		showTitle:true,
@@ -58,6 +64,8 @@ class OverlayPoll extends Vue {
 		showPercent:false,
 		showVotes:false,
 		showTimer:true,
+		showOnlyResult:false,
+		resultDuration_s:5,
 		placement:"bl",
 	};
 	
@@ -71,10 +79,22 @@ class OverlayPoll extends Vue {
 	}
 
 	public get classes():string[] {
-		return [
+		let res:string[] = [
 			"overlaypoll",
 			"position-"+this.parameters.placement
 		];
+		if(this.showWinner) res.push("win");
+		return res;
+	}
+
+	public getWinClasses(c:TwitchatDataTypes.MessagePollDataChoice):string[] {
+		let res:string[] = [];
+		if(this.showWinner) {
+			let max = 0;
+			this.poll?.choices.forEach(v=> max = Math.max(max, v.votes));
+			if(c.votes >= max) res.push("win");
+		}
+		return res;
 	}
 
 	public getAnswerStyles(c:TwitchatDataTypes.MessagePollDataChoice):StyleValue {
@@ -83,7 +103,7 @@ class OverlayPoll extends Vue {
 		}
 	}
 
-	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice, barSize:boolean = false):number {
+	public getPercent(c:TwitchatDataTypes.MessagePollDataChoice, barSizeTarget:boolean = false):number {
 		let maxVotes = 0;
 		let totalVotes = 0;
 		if(this.poll) {
@@ -96,7 +116,7 @@ class OverlayPoll extends Vue {
 				return 100/this.poll.choices.length;
 			}
 		}
-		if(this.listMode && barSize) totalVotes = maxVotes;	
+		if(this.listMode && barSizeTarget) totalVotes = maxVotes;	
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
@@ -124,19 +144,22 @@ class OverlayPoll extends Vue {
 		if(!poll) {
 			if(this.poll) this.close();
 		}else{
-			const opening = this.poll == null || this.poll.id != poll.id;
-			this.poll = poll;
-			await this.$nextTick();
-			if(opening) this.open();
-	
-			const progressBar = this.$refs.progress as HTMLElement;
-			if(progressBar) {
-				const timeSpent = Math.min(poll.duration_s * 1000, Date.now() - poll.started_at);
-				const percentDone = timeSpent / (poll.duration_s * 1000);
-				const percentRemaining = 1 - percentDone;
-				const duration = poll.duration_s * percentRemaining;
-				gsap.killTweensOf(progressBar);
-				gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+			const opening	= this.poll == null || this.poll.id != poll.id;
+			this.show		= this.parameters.showOnlyResult !== true;
+			this.showWinner	= false;
+			this.poll		= poll;
+			if(this.show) {
+				if(opening) await this.open();
+		
+				const progressBar = this.$refs.progress as HTMLElement;
+				if(progressBar) {
+					const timeSpent = Math.min(poll.duration_s * 1000, Date.now() - poll.started_at);
+					const percentDone = timeSpent / (poll.duration_s * 1000);
+					const percentRemaining = 1 - percentDone;
+					const duration = poll.duration_s * percentRemaining;
+					gsap.killTweensOf(progressBar);
+					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+				}
 			}
 		}
 	}
@@ -146,12 +169,25 @@ class OverlayPoll extends Vue {
 	}
 	
 	public async close():Promise<void> {
-		gsap.to(this.$el, {scale:0, duration:.5, ease:"back.in", onComplete:()=>{
+		this.showWinner = true;
+		if(this.parameters.showOnlyResult === true && !this.show) {
+			this.show = true;
+			await this.open();
+		}
+		const delay = this.parameters.resultDuration_s || 5;
+		if(delay > 0) {
+			const progressBar = this.$refs.progress as HTMLElement;
+			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
+		}
+		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
 			this.poll = null;
+			this.show = false;
 		}});
 	}
 	
 	private async open():Promise<void> {
+		await this.$nextTick();
+
 		let labels = this.$refs.labels as HTMLElement
 		let items = this.$refs.bar as HTMLElement[] || HTMLElement;
 		if(!Array.isArray(items)) items = [items];
@@ -399,6 +435,52 @@ export default toNative(OverlayPoll);
 	&.position-br {
 		bottom: 2em;
 		right: 2em;
+	}
+
+	&.win {
+		.list {
+			.choice {
+				transition: opacity .25s;
+				opacity: .5;
+				.bar {
+					background-color: fade(#387aff, 20%);
+				}
+				&.win {
+					opacity: 1;
+					position: relative;
+					overflow: visible;
+					&::before {
+						content: "✔";
+						position: absolute;
+						transform: translate(-120%, 0%);
+					}
+				}
+			}
+		}
+
+		
+
+		.battle {
+			.labels {
+				.outcomeTitle {
+					transition: opacity .25s;
+					opacity: .5;
+					&.win {
+						opacity: 1;
+					}
+				}
+			}
+
+			.chunks {
+				.chunk {
+					transition: opacity .25s;
+					opacity: .5;
+					&.win {
+						opacity: 1;
+					}
+				}
+			}
+		}
 	}
 }
 </style>

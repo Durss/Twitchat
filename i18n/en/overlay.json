@@ -283,7 +283,9 @@
 			"param_showVoters":"Show voter count",
 			"param_showPercent":"Show percentages",
 			"param_showProgress":"Show timer",
-			"param_placement":"Position on screen"
+			"param_placement":"Position on screen",
+			"param_showOnlyResult":"Only show poll result",
+			"param_resultDuration":"Show result duration"
 		},
 		"polls":{
 			"title":"Polls",
@@ -297,7 +299,9 @@
 			"param_showVotes":"Show vote count",
 			"param_showPercent":"Show percentages",
 			"param_showProgress":"Show timer",
-			"param_placement":"Position on screen"
+			"param_placement":"Position on screen",
+			"param_showOnlyResult":"Only show poll result",
+			"param_resultDuration":"Show result duration"
 		}
 	}
 }
