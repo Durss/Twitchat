@@ -228,8 +228,30 @@ const routes: Array<RouteRecordRaw> = [
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
 				}
-				sStreamelements.setAuthResult(params.code, params.csrf);
-				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
+				//Following redirects are here because streamelements has a TEEERRRIIIIBLLLEEEE app creation process
+				//We must request credentials by some sort of mail (lol), and we can only provide
+				//1 redirect URI. They refuse to add more than one (W.T.actual.F?!?!).
+				//They also refuse to grant multiple credentials so we can at least have a way to
+				//to redirect to the proper URL.
+				//In other words, the only possible redirect URI is twitchat.fr/streamelements/auth.
+				//This means that when authenticated from local or beta envs, we get redirected to
+				//production anyway. Following lines check if the "state" params has a en prefix and
+				//redirect to the corresponding URL.
+				//But this means that if user refuses to grant access to their SE profile during
+				//auth process, they'll be redirected to prod without "state" params wich means we
+				//have no way to redirect them the proper env.
+				//Thanks Streamelements! Very good work! (even more considering API is also pretty F** up...)
+				if(/beta-/gi.test(params.csrf)) {
+					params.csrf = params.csrf.replace(/^.*?-/, "");
+					document.location.href = "https://beta.twitchat.fr/streamelements/auth?" + new URLSearchParams(params);
+				}else
+				if(/local-/gi.test(params.csrf)) {
+					params.csrf = params.csrf.replace(/^.*?-/, "");
+					document.location.href = "http://127.0.0.1:8080/streamelements/auth?" + new URLSearchParams(params);
+				}else{
+					sStreamelements.setAuthResult(params.code, params.csrf);
+					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
+				}
 			}else{
 				sMain.alert( StoreProxy.i18n.t("error.streamelements_denied") );
 			}

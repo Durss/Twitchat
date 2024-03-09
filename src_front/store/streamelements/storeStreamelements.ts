@@ -96,12 +96,18 @@ export const storeStreamelements = defineStore('streamelements', {
 		async getOAuthURL():Promise<string> {
 			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
 			const redirectURI = "https://twitchat.fr" + StoreProxy.router.resolve({name:"streamelements/auth"}).href;
+
+			//To understand that prefix reason, please check the "streamelements/auth" route definition
+			let statePrefix = "";
+			if(/^localhost|127\.0\.0\.1/gi.test(document.location.host)) statePrefix = "local-";
+			if(/^beta/gi.test(document.location.host)) statePrefix = "beta-";
+
 			const url = new URL("https://api.streamelements.com/oauth2/authorize");
 			url.searchParams.set("client_id",Config.instance.STREAMELEMENTS_CLIENT_ID);
 			url.searchParams.set("redirect_uri",redirectURI);
 			url.searchParams.set("scope","tips:read activities:read channel:read loyalty:read");
 			url.searchParams.set("response_type","code");
-			url.searchParams.set("state", csrfToken.json.token);
+			url.searchParams.set("state", statePrefix + csrfToken.json.token);
 			return url.href;
 		},
 		
