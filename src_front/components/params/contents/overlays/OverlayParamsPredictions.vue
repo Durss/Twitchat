@@ -138,7 +138,7 @@ class OverlayParamsPredictions extends Vue {
 	public param_showVoters:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"user", labelKey:"overlay.predictions.param_showVoters"};
 	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.predictions.param_showPercent"};
 	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.predictions.param_showProgress"};
-	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"poll", labelKey:"overlay.polls.param_showOnlyResult"};
+	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"prediction", labelKey:"overlay.polls.param_showOnlyResult"};
 	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.polls.param_resultDuration"};
 
 	private checkInterval:number = -1;
@@ -203,10 +203,10 @@ class OverlayParamsPredictions extends Vue {
 			v.voters = 0;
 			v.votes = 0;
 		});
-		predi.duration_s = 5;
+		predi.duration_s = 15;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
-		this.simulateInterval = SetIntervalWorker.instance.create(()=>{
+		const fakeVotes = ()=>{
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
 				const outcome =  Utils.pickRand(predi.outcomes);
@@ -214,7 +214,14 @@ class OverlayParamsPredictions extends Vue {
 				outcome.votes += Math.round(Math.random() * 100);
 			}
 			this.$store.prediction.setPrediction(predi);
-		}, 1000);
+		};
+		
+		if(this.param_showOnlyResult.value == true) {
+			fakeVotes();
+			predi.duration_s = 0;
+		}else{
+			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
+		}
 
 		clearTimeout(this.simulateEndTimeout);
 		this.simulateEndTimeout = setTimeout(() => {

@@ -197,17 +197,23 @@ class OverlayParamsPolls extends Vue {
 		poll.choices.forEach(v=> {
 			v.votes = 0;
 		});
-		poll.duration_s = 5;
+		poll.duration_s = 15;
 		poll.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
-		this.simulateInterval = SetIntervalWorker.instance.create(()=>{
+		const fakeVotes = ()=>{
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
 				const choice =  Utils.pickRand(poll.choices);
 				choice.votes += Math.round(Math.random() * 100);
 			}
 			this.$store.poll.setCurrentPoll(poll);
-		}, 1000);
+		}
+		if(this.param_showOnlyResult.value == true) {
+			fakeVotes();
+			poll.duration_s = 0;
+		}else{
+			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
+		}
 
 		clearTimeout(this.simulateEndTimeout);
 		this.simulateEndTimeout = setTimeout(() => {
