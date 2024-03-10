@@ -84,7 +84,8 @@
 			{
 				"i": "layout",
 				"l": "Customize interface",
-				"d": "You can now display the \"Greet them\" in a different column than the forms (poll, prediction, raffle, ...)\n\nYou can pin items from the [/] menu to the bottom bar."
+				"d": "You can now display the \"Greet them\" in a different column than the forms (poll, prediction, raffle, ...)\n\nYou can pin items from the [/] menu to the bottom bar.",
+				"g":"/update_images/pins.gif"
 			},
 			{
 				"l": "And more",

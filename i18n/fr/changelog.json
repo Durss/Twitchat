@@ -84,7 +84,8 @@
 			{
 				"i": "layout",
 				"l": "Personnalisations",
-				"d": "Vous pouvez afficher la section \"Dîtes bonjour\" dans une colonne différente des formulaires (sondage, prédiction, bingo, ...)\n\nVous pouvez épingler des entrées du menu [/] dans la barre du bas."
+				"d": "Vous pouvez afficher la section \"Dîtes bonjour\" dans une colonne différente des formulaires (sondage, prédiction, bingo, ...)\n\nVous pouvez épingler des entrées du menu [/] dans la barre du bas.",
+				"g":"/update_images/pins.gif"
 			},
 			{
 				"l": "Mais aussi",
