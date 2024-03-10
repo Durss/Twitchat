@@ -8,12 +8,12 @@
 			{
 				"i": "offline",
 				"l": "Connexions tièrces",
-				"d": "Just so you don't get lost, following menu entries can now be found inside the \"Connections\""
+				"d": "Les paramètres suivants se trouvent désormais dans la section \"Connections\" des paramètres."
 			},
 			{
 				"i": "streamlabs",
 				"l": "Alertes Streamlabs",
-				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\nSoyez notifiée=·e lorsq ue vous recevez un don, lorsque quelqu'un achète du merch ou lorsqu'une personne s'abonne à votre Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs).\n\nAutomitsez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
+				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\nSoyez notifiée·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsqu'une personne s'abonne à votre Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs).\n\nAutomatisez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
 				"p": true,
 				"a": {
 					"l": "Tester",
@@ -35,7 +35,7 @@
 			{
 				"i": "kofi",
 				"l": "Alertes Ko-fi",
-				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\nSoyez notifé·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsque quelqu'un prend un abonnement mensuel.\n\nAutomatisez des actions en réponses à ces évènements grâce aux triggers dédiés.",
+				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\nSoyez notifé·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsque quelqu'un prend un abonnement mensuel.\n\nAutomatisez des actions en réponse à ces évènements grâce aux triggers dédiés.",
 				"p": true,
 				"a": {
 					"l": "Tester",
@@ -88,11 +88,11 @@
 			},
 			{
 				"l": "Mais aussi",
-				"d": "<ul><li>La fenêtre de train de la hype peut être minimisée</li><li>9 nouveaux triggers:<ul><li>Début de sondage</li><li>Début de prédiction</li><li>Don Streamlabs reçu</li><li>Merch Streamlabs acheté</li><li>Nouvel·le abonné·es Patreon via Streamlas</li><li>Don Ko-fi reçu</li><li>Merch Ko-fi acheté</li><li>Abonnement mensuel Ko-fi reçu</li><li>Don Streamelements reçu</li></ul><li>2 nouveaux placeholders globaux pour triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 nouvea placeholder de Sub:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Correctif important de la fenêtre  demandant de désactiver des triggers si vous arrêtiez votre abonnement premium. Les triggers se retrouvaient potentiellement dupliqué plusieurs fois.</li></ul>"
+				"d": "<ul><li>La fenêtre de train de la hype peut être minimisée</li><li>9 nouveaux triggers:<ul><li>Début de sondage</li><li>Début de prédiction</li><li>Don Streamlabs reçu</li><li>Merch Streamlabs acheté</li><li>Nouvel·le abonné·es Patreon via Streamlas</li><li>Don Ko-fi reçu</li><li>Merch Ko-fi acheté</li><li>Abonnement mensuel Ko-fi reçu</li><li>Don Streamelements reçu</li></ul><li>2 nouveaux placeholders globaux pour triggers:<ul><li>{MY_ID}</li><li>{MY_LOGIN}</li></ul></li><li>5 nouvea placeholder de Sub:<ul><li>{IS_RESUB}</li><li>{IS_PRIME_UPGRADE}</li><li>{IS_GIFT_UPGRADE}</li><li>{GIFT_UPGRADTE_GIFTER_ID}</li><li>{GIFT_UPGRADE_SENDER_NAME}</li></ul></li><li>Correctif important de la fenêtre  demandant de désactiver des triggers si vous arrêtiez votre abonnement premium. Les triggers se retrouvaient potentiellement dupliqués plusieurs fois.</li></ul>"
 			},
 			{
 				"i": "donate",
-				"d": "Twitchat est mon activité principale depuis maintenant plus d'un an et demi <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️",
+				"d": "Twitchat est mon activité principale depuis maintenant presque 2 ans <b>sans aucune autre source de revenus</b>.\n\nCe que me rapporte Twitchat est hélas encore très loin de me permettre d'éventuellement en vivre convenablement.\n\nSi vous pouvez vous le permettre, un don libre ou un soutient mensuel sur Patreon m'aiderait énormément ❤️",
 				"l": ""
 			}
 		],
