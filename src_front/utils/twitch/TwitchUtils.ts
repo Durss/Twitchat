@@ -24,6 +24,7 @@ export default class TwitchUtils {
 	private static fakeUsersCache:TwitchatDataTypes.TwitchatUser[] = [];
 	private static emotesCacheHashmap:{[key:string]:TwitchatDataTypes.Emote} = {};
 	private static adblockAlertSent:boolean = false;
+	private static callHistory:{date:number, path:string, params:URLSearchParams}[] = [];
 
 	public static get headers():{[key:string]:string} {
 		return {
@@ -204,7 +205,7 @@ export default class TwitchUtils {
 				users = users.concat(json.data);
 			}else if(result.status == 429){
 				//Rate limit reached, try again after it's reset to fulle
-				await this.onRateLimit(result.headers, 1);
+				await this.onRateLimit(result.headers, url.pathname, 1);
 				return await this.loadUserInfo(ids, logins)
 			}else if(result.status == 500) break;
 		}
@@ -693,7 +694,7 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			return true;
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.createReward(reward);
 		}else if(res.status === 400) {
 			//TODO handle error cases
@@ -733,7 +734,7 @@ export default class TwitchUtils {
 			if(manageableIndex > -1) this.rewardsManageableCache.splice(manageableIndex, 1);
 			return true;
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.deleteReward(rewardId);
 		}
 		return false;
@@ -1250,7 +1251,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.searchLiveChannels(search);
 		}
 		const json = await res.json();
@@ -1277,7 +1278,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.searchCategory(search);
 		}
 		const json = await res.json();
@@ -1313,7 +1314,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.getCategoryByID(id);
 		}
 		const json = await res.json();
@@ -1348,7 +1349,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.setStreamInfos(channelId, title, categoryID, tags);
 		}else if(res.status == 400){
 			const json = await res.json();
@@ -1405,7 +1406,7 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.banUser(user, channelId, duration, reason);
 		}
 		if(res.status == 200) {
@@ -1442,7 +1443,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.unbanUser(user, channelId);
 		}else {
 			const json = await res.json();
@@ -1474,7 +1475,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.blockUser(user, reason);
 		}else {
 			const json = await res.json();
@@ -1505,7 +1506,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.unblockUser(user);
 		} else {
 			const json = await res.json();
@@ -1589,7 +1590,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.raidCancel();
 		}else {
 			message.error = true;
@@ -1621,7 +1622,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.getClipById(clipId);
 		} else {
 			return null;
@@ -1681,7 +1682,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.sendAnnouncement(channelId, message, color);
 		}else{
 			return false;
@@ -1709,7 +1710,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.deleteMessages(channelId, messageId);
 		}else{
 			return false;
@@ -1738,7 +1739,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.setShieldMode(channelId, enabled);
 		}else {
 			return false;
@@ -1762,7 +1763,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.setColor(color);
 		}else {
 			return false;
@@ -1807,7 +1808,7 @@ export default class TwitchUtils {
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
 			if(retry) {
-				await this.onRateLimit(res.headers);
+				await this.onRateLimit(res.headers, url.pathname);
 				return await this.getRoomSettings(channelId);
 			}
 			return null;
@@ -1862,7 +1863,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.setRoomSettings(channelId, settings);
 		}else {
 			return false;
@@ -1913,7 +1914,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.addRemoveModerator(removeMod, channelId, user);
 		}else {
 			return false;
@@ -1972,7 +1973,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.addRemoveVIP(removeVip, channelId, user);
 		}else {
 			return false;
@@ -2011,7 +2012,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.raidChannel(channel);
 		}else {
 			let message = "Unable to raid "+channel+"."
@@ -2040,7 +2041,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.raidCancel();
 		}else {
 			return false;
@@ -2078,7 +2079,7 @@ export default class TwitchUtils {
 		}else
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.whisper(message, toLogin, toId);
 		}else {
 			try {
@@ -2118,7 +2119,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.getChatters(channelId, channelName);
 		}
 		return false;
@@ -2161,7 +2162,7 @@ export default class TwitchUtils {
 		}else 
 		if(res.status == 429){
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers, attemptCount);
+			await this.onRateLimit(res.headers, url.pathname, attemptCount);
 			if(attemptCount<8) {
 				attemptCount++;
 				return await this.eventsubSubscribe(channelId, userId, session_id, topic, version, additionalCondition, attemptCount);
@@ -2299,7 +2300,7 @@ export default class TwitchUtils {
 				return false;
 			}
 			//Rate limit reached, try again after it's reset to full
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return await this.sendShoutout(channelId, user);
 		}else {
 			try {
@@ -2331,7 +2332,7 @@ export default class TwitchUtils {
 			const json:{data:[], total:number} = await res.json();
 			return {total:json.total, followers:json.data};
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.getLastFollowers(channelId);
 		}
 		return {total:0, followers:[]};
@@ -2436,7 +2437,7 @@ export default class TwitchUtils {
 			StoreProxy.chat.addMessage(message);
 			return true;
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.createStreamMarker(comment);
 		}
 		StoreProxy.main.alert(StoreProxy.i18n.t("error.marker_creation"));
@@ -2502,7 +2503,7 @@ export default class TwitchUtils {
 			}
 
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.getAdSchedule();
 
 		}else if (res.status == 400) {
@@ -2573,7 +2574,7 @@ export default class TwitchUtils {
 				return data;
 			}
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.snoozeNextAd();
 		}
 		return null;
@@ -2597,7 +2598,7 @@ export default class TwitchUtils {
 			const json = await res.json();
 			return json.data as ExtensionReturnType<T>;
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.listExtensions(onlyActive);
 		}
 		return null;
@@ -2626,7 +2627,7 @@ export default class TwitchUtils {
 		if(res.status == 200) {
 			return true;
 		}else if(res.status == 429) {
-			await this.onRateLimit(res.headers);
+			await this.onRateLimit(res.headers, url.pathname);
 			return this.updateExtension(extensionId, extensionVersion, enabled, slotIndex, slotType);
 		}
 		return false;
@@ -3216,8 +3217,8 @@ export default class TwitchUtils {
 	 * @param headers 
 	 * @param attemptCount 
 	 */
-	private static async onRateLimit(headers:Headers, attemptCount:number = 0):Promise<void> {
-		Sentry.captureMessage("User "+StoreProxy.auth.twitch.user.id+" exceeded their Twitch API quota", "warning");
+	private static async onRateLimit(headers:Headers, url:string, attemptCount:number = 0):Promise<void> {
+		Sentry.captureException("Twitch API quota exceeded", {attachments:[{filename:"logs_history", data:JSON.stringify({uid:StoreProxy.auth.twitch.user.id, history:this.callHistory})}]});
 		let resetDate = parseInt(headers.get("ratelimit-reset") as string ?? Math.round(Date.now()/1000).toString()) * 1000 + 1000;
 		if(attemptCount > 0) resetDate += 1000 * Math.pow(2, attemptCount);//Scale up the time frame 
 		console.log("Rate limit", attemptCount, 1000 * Math.pow(2, attemptCount));
@@ -3230,6 +3231,8 @@ export default class TwitchUtils {
 	 */
 	private static async callApi(input: URL, init?: RequestInit | undefined):Promise<Response> {
 		try {
+			this.callHistory.push({date:Date.now(), path:input.pathname, params:input.searchParams});
+			if(this.callHistory.length >= 1000) this.callHistory.splice(0,1);
 			const result = await fetch(input, init);
 			
 			//Session still valid, return result
