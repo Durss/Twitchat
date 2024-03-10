@@ -555,6 +555,10 @@ export const storeParams = defineStore('params', {
 			if(index > -1) this.pinnedMenuItems.splice(index, 1);
 			else this.pinnedMenuItems.push(pinId);
 	
+			this.saveChatMenuPins();
+		},
+
+		saveChatMenuPins():void {
 			DataStore.set(DataStore.PINNED_CHAT_MENU_ITEM, this.pinnedMenuItems);
 		}
 	} as IParamsActions

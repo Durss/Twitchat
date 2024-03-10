@@ -979,6 +979,10 @@ export interface IParamsActions {
 	 * @param pinId 
 	 */
 	toggleChatMenuPin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void;
+	/**
+	 * Saves current pins
+	 */
+	saveChatMenuPins():void;
 }
 
 

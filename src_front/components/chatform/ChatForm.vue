@@ -1,17 +1,27 @@
 <template>
 	<div :class="classes">
 		<div class="holder" @click="debug">
-			<div class="leftForm">
-				<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'chatform_params_1'}" />
-				<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_cmds'}" />
-
-				<ButtonNotification v-for="item in pinnedMenuItems" :key="item"
-					@mouseover="item.id == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
-					v-tooltip="item.id == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(item.labelKey)"
-					:aria-label="$t(item.labelKey)" 
-					:icon="item.icon"
-					@click="onClickMenuItem(item)" />
-			</div>
+			<draggable tag="div"
+			class="leftForm"
+			:animation="250"
+			group="items"
+			ghostClass="ghost"
+			item-key="id"
+			@change="$store.params.saveChatMenuPins()"
+			v-model="$store.params.pinnedMenuItems">
+			<template #header>
+					<ButtonNotification :aria-label="$t('chat.form.paramsBt_aria')" icon="params" @click="toggleParams()" :newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'chatform_params_1'}" />
+					<ButtonNotification :aria-label="$t('chat.form.cmdsBt_aria')" icon="commands" @click="$emit('update:showCommands', true)" :newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'chatform_cmds'}" />
+				</template>
+				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
+					<ButtonNotification :key="element"
+						@mouseover="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
+						v-tooltip="element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)"
+						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)" 
+						:icon="getPinnedMenuItemFromid(element).icon"
+						@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
+				</template>
+			</draggable>
 
 			
 			<form @submit.prevent="" class="inputForm" name="messageform">
@@ -292,6 +302,7 @@
 <script lang="ts">
 import EventBus from '@/events/EventBus';
 import GlobalEvent from '@/events/GlobalEvent';
+import TwitchatEvent from '@/events/TwitchatEvent';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import DataStore from '@/store/DataStore';
 import StoreProxy from '@/store/StoreProxy';
@@ -299,20 +310,24 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import TwitchCypherPlugin from '@/utils/ChatCypherPlugin';
 import Config from '@/utils/Config';
+import Logger from '@/utils/Logger';
+import PublicAPI from '@/utils/PublicAPI';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
 import PatreonHelper from '@/utils/patreon/PatreonHelper';
 import HeatSocket from '@/utils/twitch/HeatSocket';
+import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import draggable from 'vuedraggable';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 import ChatMessageChunksParser from '../messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '../params/ParamItem.vue';
 import AutocompleteChatForm from './AutocompleteChatForm.vue';
@@ -320,16 +335,12 @@ import CommercialTimer from './CommercialTimer.vue';
 import CommunityBoostInfo from './CommunityBoostInfo.vue';
 import MessageExportIndicator from './MessageExportIndicator.vue';
 import TimerCountDownInfo from './TimerCountDownInfo.vue';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import Logger from '@/utils/Logger';
-import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 
 @Component({
 	components:{
 		Button: TTButton,
 		ParamItem,
+		draggable,
 		CommercialTimer,
 		ButtonNotification,
 		TimerCountDownInfo,
@@ -389,10 +400,8 @@ export class ChatForm extends Vue {
 		}
 	}
 
-	public get pinnedMenuItems():typeof TwitchatDataTypes.PinnableMenuItems[number][] {
-		return this.$store.params.pinnedMenuItems.map(v => {
-			return TwitchatDataTypes.PinnableMenuItems.find(u=>u.id == v)!;
-		});
+	public getPinnedMenuItemFromid(id:string):typeof TwitchatDataTypes.PinnableMenuItems[number] {
+		return TwitchatDataTypes.PinnableMenuItems.find(v=>v.id == id)!;
 	}
 
 	public get emergencyButtonEnabled():boolean {
