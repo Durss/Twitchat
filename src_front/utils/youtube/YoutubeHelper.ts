@@ -17,25 +17,22 @@ export default class YoutubeHelper {
 	public connected:boolean = false;
 	public liveFound:boolean = false;
 	public channelId:string = "";
-	public tokenSavingEnabled:boolean = false;
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 	
 	private static _instance:YoutubeHelper;
 	private _token:YoutubeAuthToken|null = null;
 	private _currentLiveId:string = "";
 	private _lastMessagePage:string = "";
+	private _lastMessageDate:number = -1;
+	private _lastMessageDelay:number = -1;
 	private _pollMessageTimeout:number = -1;
 	private _pollFollowersTimeout:number = -1;
 	private _pollSubscribersTimeout:number = -1;
-	private _tokenSavingLogDebounce:number =  -1;
-	private _tokenSavingLogDebounceMessageCount:number =  0;
 	private _refreshTimeout:number = -1;
 	private _creditsUsed:number = 0;
 	private _emotes:{[key:string]:string} = {};
 	private _uidToBanID:{[key:string]:string} = {};
 	private _lastFollowerList:{[key:string]:boolean} = {};
-	private _lastChatActivityTimeout:number = -1;
-	private _chatInactivityDisconnect:number =  20 * 60 * 1000;
 	
 	constructor() {
 	
@@ -80,7 +77,7 @@ export default class YoutubeHelper {
 				await this.loadUserInfoAndEmotes();
 				//Wait 5s so messages have time to load from DB to avoid duplicates
 				//after loading history from youtube.
-				//Yeah... extremely dirty way of dealing with async stuff... but I haven't slep for 26h T_T
+				//Yeah... extremely dirty way of dealing with async stuff... but I haven't slept for 26h T_T
 				setTimeout(()=> {
 					//This will start automatic polling session
 					this.getCurrentLiveBroadcast();
@@ -204,8 +201,6 @@ export default class YoutubeHelper {
 	 */
 	public async getCurrentLiveBroadcast():Promise<YoutubeLiveBroadcast|null> {
 		clearTimeout(this._pollMessageTimeout);
-		clearTimeout(this._tokenSavingLogDebounce);
-		clearTimeout(this._lastChatActivityTimeout);
 		
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading current live broadcast", credits: this._creditsUsed, liveID:this._currentLiveId});
@@ -250,11 +245,10 @@ export default class YoutubeHelper {
 				this.channelId = item.snippet.channelId;
 				this._currentLiveId = item.snippet.liveChatId;
 				this.availableLiveBroadcasts = items;
-				this.tokenSavingEnabled = false;
+				this._lastMessageDate = Date.now();
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveId});
 				//Start polling messages
 				this.getMessages();
-				this.scheduleTokenSaver();
 			}else{
 				Logger.instance.log("youtube", {log:"No live found matching required criterias", credits: this._creditsUsed, liveID:this._currentLiveId});
 				this.liveFound = false;
@@ -293,18 +287,6 @@ export default class YoutubeHelper {
 			}
 		}
 		return null;
-	}
-
-	/**
-	 * Restart automatic message polling
-	 */
-	public restartMessagePoll():void {
-		Logger.instance.log("youtube", {log:"Restart polling chat messages after manual click.", credits: this._creditsUsed, liveID:this._currentLiveId})
-
-		this.tokenSavingEnabled = false;
-		clearTimeout(this._lastChatActivityTimeout);
-		this.getMessages();
-		this.scheduleTokenSaver();
 	}
 
 	/**
@@ -403,15 +385,33 @@ export default class YoutubeHelper {
 	
 					StoreProxy.chat.addMessage(data);
 	
-					this._tokenSavingLogDebounceMessageCount ++;
-					this.scheduleTokenSaver();
+					this._lastMessageDate = Date.now();
 				}
 	
 				this._lastMessagePage = json.nextPageToken;
 	
-				if(!this.tokenSavingEnabled)  {
-					this._pollMessageTimeout = setTimeout(()=>this.getMessages(), Math.min(5000, json.pollingIntervalMillis * 2));
+				//Expand next message check depending on the last chat activity
+				//The more time with no new message, the more time we wait before
+				//checking for new messages to reduce credits usage
+				const delays = [
+					{delay:0, add:0},
+					{delay:60*1, add:2},
+					{delay:60*5, add:10},
+					{delay:60*10, add:30},
+					{delay:60*20, add:60},
+					{delay:60*60, add:60*2},
+				];
+				const elapsedTime = Math.round((Date.now() - this._lastMessageDate)/1000);
+				const closestDelayEntry = delays.find(({ delay }) => delay >= elapsedTime) || delays[delays.length - 1];
+				const additionalDelay = delays[Math.max(delays.indexOf(closestDelayEntry) - 1, 0)].add;
+
+				//Log any delay change
+				if(additionalDelay != this._lastMessageDelay) {
+					Logger.instance.log("youtube", {log:"Message polling delayed by "+additionalDelay+"s after "+elapsedTime+"s with no message", credits: this._creditsUsed, liveID:this._currentLiveId})
 				}
+				this._lastMessageDelay = additionalDelay;
+
+				this._pollMessageTimeout = setTimeout(()=>this.getMessages(), json.pollingIntervalMillis + additionalDelay*1000);
 				
 				return json;
 			}else {
@@ -748,25 +748,5 @@ export default class YoutubeHelper {
 			const json = await emotesQuery.json();
 			this._emotes = json;
 		}
-	}
-
-	/**
-	 * Schedules the token saving mode
-	 */
-	private scheduleTokenSaver():void {
-		this.tokenSavingEnabled = false;
-
-		clearTimeout(this._tokenSavingLogDebounce);
-		const halfway = this._chatInactivityDisconnect / 2;
-		this._tokenSavingLogDebounce = setTimeout(()=>{
-			Logger.instance.log("youtube", {log:"No activity for the last "+Utils.formatDuration(halfway)+"s. Received "+this._tokenSavingLogDebounceMessageCount+" messages before that.", credits: this._creditsUsed, liveID:this._currentLiveId})
-			this._tokenSavingLogDebounceMessageCount = 0;
-		}, halfway);
-
-		clearTimeout(this._lastChatActivityTimeout);
-		this._lastChatActivityTimeout = setTimeout(()=>{
-			this.tokenSavingEnabled = true;
-			Logger.instance.log("youtube", {log:"Enabling token saving after "+Utils.formatDuration(this._chatInactivityDisconnect)+"s chat inactivity. Received "+this._tokenSavingLogDebounceMessageCount+" messages.", credits: this._creditsUsed, liveID:this._currentLiveId})
-		}, this._chatInactivityDisconnect);
 	}
 }

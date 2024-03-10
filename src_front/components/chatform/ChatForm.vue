@@ -220,15 +220,6 @@
 					<Icon class="error" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
 					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
 				</transition>
-
-				<transition name="blink">
-					<ButtonNotification class="error"
-						:aria-label="$t('chat.form.youtube_saving_token_aria')"
-						v-tooltip="{content:$t('chat.form.youtube_saving_token_aria'), showOnCreate:true, hideOnClick: 'toggle'}"
-						icon="youtube"
-						@click="reconnectYoutubeChat()"
-						v-if="youtubeTokenSavingEnabled" />
-				</transition>
 	
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
@@ -425,8 +416,6 @@ export class ChatForm extends Vue {
 		return TwitchUtils.parseMessageToChunks(text, undefined, true);
 	}
 
-	public get youtubeTokenSavingEnabled():boolean { return YoutubeHelper.instance.tokenSavingEnabled; }
-	
 	public get qnaSessionActive():boolean { return this.$store.qna.activeSessions.length > 0; }
 
 	public get voiceBotStarted():boolean { return VoiceController.instance.started; }
@@ -659,13 +648,6 @@ export class ChatForm extends Vue {
 		}
 		if(values[key] < 2) values[key] ++;
 		DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
-	}
-
-	/**
-	 * Reconnect youtube tchat
-	 */
-	public reconnectYoutubeChat():void {
-		YoutubeHelper.instance.restartMessagePoll();
 	}
 	
 	/**
