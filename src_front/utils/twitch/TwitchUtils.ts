@@ -2640,6 +2640,7 @@ export default class TwitchUtils {
 
 		let cursor:string|null = null;
 		let list:TwitchDataTypes.Emote[] = [];
+		let emotesParsed:{[key:string]:boolean} = {};
 		const options = {
 			method:"GET",
 			headers: this.headers,
@@ -2654,9 +2655,12 @@ export default class TwitchUtils {
 			const res = await this.callApi(url, options);
 			if(res.status == 200 || res.status == 204) {
 				const json:{data:Omit<TwitchDataTypes.Emote, "images">[], template:string, pagination?:{cursor?:string}} = await res.json();
-				list = list.concat(json.data.map(v=> {
+				//Dedupe emotes. Current API has a bug that returns broadcaster's emotes twice
+				list = list.filter(v=>emotesParsed[v.id] !== true)
+				.concat(json.data.map(v=> {
 					let format = v.format[v.format.length-1];
 					let theme = v.theme_mode.indexOf(StoreProxy.main.theme) > -1? StoreProxy.main.theme : v.theme_mode[0];
+					emotesParsed[v.id] = true;
 					return {
 						emote_set_id:v.emote_set_id,
 						emote_type:v.emote_type,

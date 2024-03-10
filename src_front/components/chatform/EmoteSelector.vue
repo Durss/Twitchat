@@ -403,12 +403,12 @@ export default toNative(EmoteSelector);
 	.loader {
 		margin: auto;
 		text-align: center;
-		img {
+		color: var(--color-light);
+		.icon {
 			width: 30px;
 			height: 30px;
 		}
 		p {
-			color: var(--color-light);
 			font-style: italic;
 			font-size: 16px;
 		}
