@@ -67,6 +67,11 @@
 							
 							<TTButton v-if="item.i=='emote' && !hasEmoteScope" secondary icon="lock_fit" @click="grantEmoteScope()">{{ $t("global.emote_scope") }}</TTButton>
 							
+							<template v-if="item.i=='unbanRequest'">
+								<TTButton v-if="!hasUnbanRequestScope" secondary icon="lock_fit" @click="grantUnbanRequestScope()">{{ $t("global.grant_scope") }}</TTButton>
+								<MessageItem class="messagePreview" v-for="message in unbanRequestPreview" :messageData="message" lightMode></MessageItem>
+							</template>
+							
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 
 							<TTButton v-if="item.a" icon="test"
@@ -112,12 +117,14 @@ import SponsorTable from '../premium/SponsorTable.vue';
 import Changelog3rdPartyAnim from './Changelog3rdPartyAnim.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
+import MessageItem from '../messages/MessageItem.vue';
 
 @Component({
 	components:{
 		Slide,
 		TTButton,
 		Carousel,
+		MessageItem,
 		ToggleBlock,
 		ClearButton,
 		SponsorTable,
@@ -137,7 +144,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	public readAtSpeedOfLight:boolean = false;
 	public currentSlide:number = 0;
 	public buildIndex:number = 0;
-
+	public unbanRequestPreview:TwitchatDataTypes.MessageUnbanRequestData[] = [];
 	
 	private openedAt = 0;
 	private closing:boolean = false;
@@ -173,6 +180,7 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	public get contentDonate():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.DONATE }
 	public get contentPremium():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.PREMIUM }
 	public get hasEmoteScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.READ_EMOTES]); }
+	public get hasUnbanRequestScope():boolean { return TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS]); }
 
 	public mounted(): void {
 		this.openedAt = Date.now();
@@ -198,6 +206,22 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 				clearInterval(interval);
 			}
 		}, 200);
+
+		//Create unban request previews	
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+			data.isResolve = false;
+			this.unbanRequestPreview.push(data);
+		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+			data.isResolve = true;
+			data.accepted = false;
+			this.unbanRequestPreview.push(data);
+		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+			data.isResolve = true;
+			data.accepted = true;
+			this.unbanRequestPreview.push(data);
+		}, false);
 	}
 	
 	public beforeUnmount():void {
@@ -270,6 +294,13 @@ import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 	 */
 	public grantEmoteScope():void {
 		TwitchUtils.requestScopes([TwitchScopes.READ_EMOTES]);
+	}
+
+	/**
+	 * Requests for unban requests scope
+	 */
+	public grantUnbanRequestScope():void {
+		TwitchUtils.requestScopes([TwitchScopes.UNBAN_REQUESTS]);
 	}
 
 	/**
@@ -420,6 +451,12 @@ export default toNative(Changelog);
 					font-size: 1em;
 					line-height: 1.5em;
 					white-space: pre-line;
+				}
+
+				.messagePreview {
+					width: 100%;
+					text-align: left;
+					pointer-events: none;
 				}
 
 				.demo {

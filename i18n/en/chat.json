@@ -78,6 +78,7 @@
 				"twitchat_ad": "Twitchat tips & tricks",
 				"ban": "Bans",
 				"unban": "Unbans",
+				"unban_request": "Unban requests",
 				"raid": "Raids",
 				"poll": "Polls",
 				"join": "Users join",
@@ -433,6 +434,11 @@
 			"merch": "{USER} bought {PRODUCT} for {AMOUNT} on Ko-Fi",
 			"subscription": "{USER} subscribed for {AMOUNT} on Ko-fi",
 			"subscription_tier": "{USER} subscribed to tier {TIER} for {AMOUNT} on Ko-fi"
+		},
+		"unban_request": {
+			"request": "{USER} sent following unban request",
+			"accepted": "{MODERATOR} accepted {USER} unban request",
+			"refused": "{MODERATOR} refused {USER} unban request"
 		}
 	}
 }

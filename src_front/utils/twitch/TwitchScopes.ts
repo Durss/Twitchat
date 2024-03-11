@@ -31,6 +31,7 @@ export const TwitchScopes = {
 	EDIT_BANNED: "moderator:manage:banned_users",
 	AUTOMOD: "moderator:manage:automod",
 	SHIELD_MODE: "moderator:manage:shield_mode",
+	UNBAN_REQUESTS: "moderator:manage:unban_requests",
 	CLIPS: "clips:edit",
 	ADS_READ: "channel:read:ads",
 	ADS_SNOOZE: "channel:manage:ads",
@@ -76,3 +77,4 @@ TwitchScope2Icon[TwitchScopes.CLIPS]					= "clip";
 TwitchScope2Icon[TwitchScopes.ADS_READ]					= "ad";
 TwitchScope2Icon[TwitchScopes.ADS_SNOOZE]				= "ad";
 TwitchScope2Icon[TwitchScopes.READ_EMOTES]				= "emote";
+TwitchScope2Icon[TwitchScopes.UNBAN_REQUESTS]			= "unbanRequest";

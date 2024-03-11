@@ -1869,6 +1869,7 @@ export namespace TwitchatDataTypes {
 		RAID_STARTED:"raid_started",
 		SUBSCRIPTION:"subscription",
 		AUTOBAN_JOIN:"autoban_join",
+		UNBAN_REQUEST:"unban_request",
 		SCOPE_REQUEST:"scope_request",
 		ROOM_SETTINGS:"room_settings",
 		STREAM_ONLINE:"stream_online",
@@ -1952,6 +1953,7 @@ export namespace TwitchatDataTypes {
 		subscription:true,
 		autoban_join:true,
 		value_update:false,
+		unban_request:true,
 		goxlr_button:false,
 		raid_started:false,
 		room_settings:true,
@@ -2102,6 +2104,7 @@ export namespace TwitchatDataTypes {
 									| MessageStreamlabsData
 									| MessageStreamelementsData
 									| MessageKofiData
+									| MessageUnbanRequestData
 	;
 	
 	/**
@@ -2123,6 +2126,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.SHOUTOUT
 							| typeof TwitchatMessageType.BAN
 							| typeof TwitchatMessageType.UNBAN
+							| typeof TwitchatMessageType.UNBAN_REQUEST
 							| typeof TwitchatMessageType.REWARD
 							| typeof TwitchatMessageType.POLL
 							| typeof TwitchatMessageType.PREDICTION
@@ -2155,6 +2159,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"enter",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
+		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
 		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"raid",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
@@ -4183,5 +4188,34 @@ export namespace TwitchatDataTypes {
 			firstTimeSub:boolean;
 		}
 
-
+	/**
+	 * Represents an unban request event.
+	 * Either a new unban request received or an aexisting one resolved
+	 */
+	export interface MessageUnbanRequestData extends AbstractTwitchatMessage {
+		type:"unban_request";
+		/**
+		 * Define if it's an unban request resolve (true) or creation (false)
+		 */
+		isResolve:boolean;
+		/**
+		 * Define if unban request has been accepted (true) or refused (false)
+		 */
+		accepted?:boolean;
+		/**
+		 * User that requested to be unbaned
+		 */
+		user:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * Moderator that resolved the request (if isResolve is true)
+		 */
+		moderator?:TwitchatDataTypes.TwitchatUser;
+		/**
+		 * if isResolve is true, contains the answer given to the
+		 * unban request by the moderator.
+		 * Otherwise it contains the message sent by the user when
+		 * requesting to be unbaned
+		 */
+		message:string;
+	}
 }

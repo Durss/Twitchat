@@ -886,7 +886,7 @@ export const storeChat = defineStore('chat', {
 					&& StoreProxy.params.appearance.highlightMentions.value === true) {
 						const login = StoreProxy.auth.twitch.user.login;
 						message.hasMention = login != null
-											&& new RegExp("(^| |@)("+login+")($|\\s)", "gim")
+											&& new RegExp("(^|\b|@)("+login+")($|\b)", "gim")
 											.test(message.message ?? "");
 					}
 	

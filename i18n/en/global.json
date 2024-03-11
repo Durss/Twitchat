@@ -193,6 +193,7 @@
 			"moderator:read:chatters": "List users on your chatroom",
 			"moderator:manage:shield_mode": "Enable/disable shield mode",
 			"moderator:manage:shoutouts": "Send shoutouts",
+			"moderator:manage:unban_requests": "Read/Edit unban requests",
 			"clips:edit": "Create clips",
 			"channel:read:ads":"Read ad break info",
 			"channel:manage:ads":"Snooze an incoming ad break"

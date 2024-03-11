@@ -162,6 +162,10 @@
 	<ChatKofiEvent class="message"
 		v-else-if="messageData.type == 'kofi'"
 		:messageData="messageData" />
+
+	<ChatUnbanRequest class="message"
+		v-else-if="messageData.type == 'unban_request'"
+		:messageData="messageData" />
 </template>
 
 <script lang="ts">
@@ -208,6 +212,7 @@ import ChatCustomMessage from './ChatCustomMessage.vue';
 import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
 import ChatKofiEvent from './ChatKofiEvent.vue';
 import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
+import ChatUnbanRequest from './ChatUnbanRequest.vue';
 
 @Component({
 	components:{
@@ -232,6 +237,7 @@ import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
 		ChatWatchStreak,
 		ChatTimerResult,
 		ChatAutobanJoin,
+		ChatUnbanRequest,
 		ChatRoomSettings,
 		ChatRaffleResult,
 		ChatSubscription,

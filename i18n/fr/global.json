@@ -193,6 +193,7 @@
 			"moderator:read:chatters": "Lister les personnes présentes dans votre tchat",
 			"moderator:manage:shield_mode": "Activer/désactiver le mode bouclier",
 			"moderator:manage:shoutouts": "Envoyer des shoutouts",
+			"moderator:manage:unban_requests": "Lire/éditer les demandes d'unban",
 			"clips:edit": "Créer des clips",
 			"channel:read:ads":"Savoir quand une publicité va être lancée",
 			"channel:manage:ads":"Reporter une publicité en appproche"

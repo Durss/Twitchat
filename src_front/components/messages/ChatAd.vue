@@ -106,7 +106,7 @@
 					</i18n-t>
 				</div>
 				<div class="ctas">
-					<TTButton @click="openModal('updates')" icon="firstTime" primary light>{{ $t('chat.updateReminder.updatesBt') }}</TTButton>
+					<TTButton @click="openModal('updates')" icon="firstTime" primary light>/updates</TTButton>
 				</div>
 			</div>
 	

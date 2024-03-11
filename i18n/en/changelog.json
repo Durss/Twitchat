@@ -77,9 +77,14 @@
 				}
 			},
 			{
+				"i": "unbanRequest",
+				"l": "Unban request alerts",
+				"d": "Get unban request alerts directly on Twitchat.\n\nGet an alert when someone requests to be unbaned or when an unban requests is accepted or refused."
+			},
+			{
 				"i": "emote",
 				"l": "Hype train emotes",
-				"d": "hype train emotes are finally listed on your emote list!"
+				"d": "Hype train emotes are finally listed on your emote list!"
 			},
 			{
 				"i": "layout",

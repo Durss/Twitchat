@@ -78,6 +78,7 @@
 				"twitchat_ad": "Astuces Twitchat",
 				"ban": "Bans",
 				"unban": "Unbans",
+				"unban_request": "Unban requests",
 				"raid": "Raids",
 				"poll": "Sondages",
 				"join": "Entrées",
@@ -433,6 +434,11 @@
 			"merch": "{USER} a acheté {PRODUCT} pour {AMOUNT} sur Ko-fi",
 			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
 			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi"
+		},
+		"unban_request": {
+			"request": "{USER} a envoyé cette demande d'unban",
+			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",
+			"refused": "{MODERATOR} a refusé la demande d'unban de {USER}"
 		}
 	}
 }

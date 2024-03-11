@@ -100,11 +100,11 @@ export default toNative(ChatPollResult);
 			font-style: italic;
 		}
 		.choices {
-			margin-top: .5em;
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
 			width: 100%;
+			margin-bottom: .5em;
 			.choice {
 				display: flex;
 				flex-direction: row;

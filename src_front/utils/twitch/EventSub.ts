@@ -234,6 +234,10 @@ export default class EventSub {
 				if(TwitchUtils.hasScopes([TwitchScopes.ADS_READ])) {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 				}
+				if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "beta");
+				}
 				
 				//Don't need to listen for this event for anyone else but the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
@@ -363,6 +367,12 @@ export default class EventSub {
 			
 			case TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN: {
 				this.adBreakEvent(topic, payload.event as TwitchEventSubDataTypes.AdBreakEvent);
+				break;
+			}
+			
+			case TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW: 
+			case TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED: {
+				this.unbanRequestEvent(topic, payload.event as TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent);
 				break;
 			}
 
@@ -868,4 +878,33 @@ export default class EventSub {
 		}, infos.currentAdDuration_ms + 60000);
 	}
 	
+	/**
+	 * Called when receiving a new unban request or when resolving an existing one
+	 * @param topic 
+	 * @param event 
+	 */
+	public async unbanRequestEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent):Promise<void> {
+		let message:TwitchatDataTypes.MessageUnbanRequestData = {
+			channel_id:event.broadcaster_user_id,
+			date:Date.now(),
+			id:Utils.getUUID(),
+			platform:"twitch",
+			type:TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, 
+			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
+			isResolve:false,
+			message:"",
+		}
+		if(topic == TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW) {
+			event = event as TwitchEventSubDataTypes.UnbanRequestEvent;
+			message.message = event.text;
+			
+		}else if(topic == TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED) {
+			event = event as TwitchEventSubDataTypes.UnbanRequestResolveEvent;
+			message.isResolve	= true;
+			message.moderator	= await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			message.message		= event.resolution_text;
+			message.accepted	= event.status != "denied";
+		}
+		StoreProxy.chat.addMessage(message);
+	}
 }

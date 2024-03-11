@@ -44,6 +44,8 @@ export namespace TwitchEventSubDataTypes {
 		SHOUTOUT_OUT: "channel.shoutout.create",
 		SHOUTOUT_IN: "channel.shoutout.receive",
 		AD_BREAK_BEGIN: "channel.ad_break.begin",
+		UNBAN_REQUEST_NEW: "channel.unban_request.create",
+		UNBAN_REQUEST_RESOLVED: "channel.unban_request.resolve",
 	} as const;
 	export type SubscriptionStringTypes = typeof SubscriptionTypes[keyof typeof SubscriptionTypes];
 
@@ -523,5 +525,32 @@ export namespace TwitchEventSubDataTypes {
 		duration_seconds:number;
 		is_automatic:boolean;
 		started_at:string
+	}
+	
+	export interface UnbanRequestResolveEvent {
+		id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		moderator_user_id: string;
+		moderator_user_login: string;
+		moderator_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		resolution_text: string;
+		status: string;
+	}
+
+	export interface UnbanRequestEvent {
+		id: string;
+		broadcaster_user_id: string;
+		broadcaster_user_login: string;
+		broadcaster_user_name: string;
+		user_id: string;
+		user_login: string;
+		user_name: string;
+		text: string;
+		created_at: string;
 	}
 }

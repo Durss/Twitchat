@@ -27,7 +27,7 @@
 			</button>
 		</div>
 
-		<div class="holder blured-background-window" v-if="expand" @click="clickPreview($event)">
+		<div class="holder blured-background-window" v-if="expand">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
@@ -78,7 +78,6 @@
 											v-if="config.filters.message === true"
 											key="subfilter_blockUsers"
 											:paramData="param_hideUsers"
-											@click.stop
 											@change="saveData()"
 											v-model="config.userBlockList" />
 									</div>
@@ -94,7 +93,6 @@
 											v-if="config.filters.message === true"
 											:key="'subfilter_'+f.storage"
 											:paramData="f"
-											@click.stop
 											@change="saveData()"
 											v-model="config.messageFilters[f.storage!.type]" />
 									</div>
@@ -256,7 +254,7 @@ export class MessageListFilter extends Vue {
 								value:this.config.filters[f.type] || true,
 								labelKey:f.labelKey,
 								icon:f.icon,
-								twitch_scopes:f.scopes.length > 0? undefined : f.scopes.concat(),
+								twitch_scopes:f.scopes,
 								storage:f,
 							};
 
@@ -399,31 +397,31 @@ export class MessageListFilter extends Vue {
 
 		this.messagesCache[filter.type] = [];
 		if(filter.type == TwitchatDataTypes.TwitchatMessageType.NOTICE) {
-			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatNoticeType.EMERGENCY_MODE, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatNoticeType.SHIELD_MODE, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateNotice(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateNotice<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatMessageType.CONNECT, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageNoticeData>(TwitchatDataTypes.TwitchatMessageType.LOW_TRUST_TREATMENT, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
@@ -433,47 +431,68 @@ export class MessageListFilter extends Vue {
 
 		}else
 		if(filter.type == TwitchatDataTypes.TwitchatMessageType.SHOUTOUT) {
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
-				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-				dataCast.received = false;
+				data.received = false;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageShoutoutData>(TwitchatDataTypes.TwitchatMessageType.SHOUTOUT, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
-				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-				dataCast.received = true;
+				data.received = true;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
-				this.previewData.push(dataCast);
+				this.previewData.push(data);
 			}, false);
 			this.loadingPreview = false;
 
 		}else
 		if(filter.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE) {
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageStreamOnlineData>(TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
-				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-				dataCast.received = false;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
 				this.previewData.push(data);
 			}, false);
-			this.$store.debug.simulateMessage(TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageStreamOfflineData>(TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE, (data)=> {
 				if(!data || !this.mouseOverToggle) return;
-				const dataCast = data as TwitchatDataTypes.MessageShoutoutData;
-				dataCast.received = true;
 				this.messagesCache[filter.type]?.push(data);
 				if(previewIndexLoc != this.previewIndex) return;
-				this.previewData.push(dataCast);
+				this.previewData.push(data);
+			}, false);
+			this.loadingPreview = false;
+
+		}else
+		if(filter.type == TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST) {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.isResolve = false;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.isResolve = true;
+				data.accepted = false;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
+			}, false);
+			this.$store.debug.simulateMessage<TwitchatDataTypes.MessageUnbanRequestData>(TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, (data)=> {
+				if(!data || !this.mouseOverToggle) return;
+				data.isResolve = true;
+				data.accepted = true;
+				this.messagesCache[filter.type]?.push(data);
+				if(previewIndexLoc != this.previewIndex) return;
+				this.previewData.push(data);
 			}, false);
 			this.loadingPreview = false;
 
 		}else{
 
-			this.$store.debug.simulateMessage(filter.type, (data:TwitchatDataTypes.ChatMessageTypes)=> {
+			this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(filter.type, (data)=> {
 				this.loadingPreview = false;
 	
 				if(!data || !this.mouseOverToggle) return;
@@ -680,6 +699,7 @@ export class MessageListFilter extends Vue {
 			case "moderation": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.NOTICE );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SHOUTOUT );
@@ -701,6 +721,7 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.RAID );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.POLL );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.BINGO );
@@ -713,8 +734,11 @@ export class MessageListFilter extends Vue {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.FOLLOWING );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COUNTDOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.PREDICTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT );
@@ -736,7 +760,10 @@ export class MessageListFilter extends Vue {
 			case "revenues": {
 				ids.push( TwitchatDataTypes.TwitchatMessageType.CHEER );
 				// ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.KOFI );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMLABS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION );
+				ids.push( TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN );
 				ids.push( TwitchatDataTypes.TwitchatMessageType.COMMUNITY_BOOST_COMPLETE );
@@ -791,7 +818,6 @@ export class MessageListFilter extends Vue {
 	 */
 	public closeFilters(viaButton:boolean = false):void {
 		this.expand = false;
-		console.log("EXPAND FALSE")
 		this.checkForMissingScopes();
 	}
 

@@ -603,6 +603,10 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.unban === true;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST: {
+				return this.config.filters.unban_request !== false;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.PINNED:
 			case TwitchatDataTypes.TwitchatMessageType.UNPINNED: {
 				return this.config.filters.pinned === true;

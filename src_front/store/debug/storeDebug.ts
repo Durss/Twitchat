@@ -1094,6 +1094,27 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
+				case TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST: {
+					if(fakeUser.temporary) {
+						await new Promise((resolve)=> {
+							watch(()=>fakeUser.temporary, ()=> resolve(fakeUser));
+						})
+					}
+					const m:TwitchatDataTypes.MessageUnbanRequestData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						user:fakeUser,
+						channel_id:uid,
+						moderator:user,
+						isResolve:false,
+						message,
+					};
+					data = m;
+					break;
+				}
+
 				case TwitchatDataTypes.TwitchatMessageType.RAID_STARTED: {
 					if(fakeUser.temporary) {
 						await new Promise((resolve)=> {

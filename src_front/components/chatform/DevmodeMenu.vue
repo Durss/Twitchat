@@ -20,6 +20,8 @@
 			<Button small @click="simulateEvent($event, 'leave')" icon="leave">Leave</Button>
 			<Button small @click="simulateEvent($event, 'ban')" icon="ban">Ban</Button>
 			<Button small @click="simulateEvent($event, 'unban')" icon="unban">Unban</Button>
+			<Button small @click="simulateEvent($event, 'unban_request')" icon="unbanRequest">Unban Request</Button>
+			<Button small @click="simulateEvent($event, 'unban_request', 'unban_request_solve')" icon="unbanRequest">Unban Request solve</Button>
 			<Button small @click="simulateEvent($event, 'message', 'first')" icon="firstTime">First message</Button>
 			<!-- <Button small @click="simulateEvent($event, 'message', 'hypeChat')" icon="hypeChat">Hype chat message</Button> -->
 			<Button small @click="simulateEvent($event, 'message', 'returning')" icon="returning">Returning user</Button>
@@ -168,6 +170,11 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "sl_donation":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "donation"; break;
 				case "sl_merch":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "merch"; break;
 				case "sl_patreon":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "patreon_pledge"; break;
+				case "unban_request_solve":	{
+					(message as TwitchatDataTypes.MessageUnbanRequestData).isResolve = true;
+					(message as TwitchatDataTypes.MessageUnbanRequestData).accepted = Math.random() > .5;
+					break;
+				}
 				case "my_stream_online":
 				case "my_stream_offline":{
 					(message as TwitchatDataTypes.MessageStreamOfflineData).info.user = me;
@@ -470,7 +477,8 @@ type Subaction = "first"
 				| "sl_merch"
 				| "sl_patreon"
 				| "my_stream_online"
-				| "my_stream_offline";
+				| "my_stream_offline"
+				| "unban_request_solve";
 
 export default toNative(DevmodeMenu);
 </script>
