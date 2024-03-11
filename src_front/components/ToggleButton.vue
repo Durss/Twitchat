@@ -1,11 +1,11 @@
 <template>
-	<div :class="classes" @click.stop="toggle()">
+	<div :class="classes" @click="onClick">
 		<Icon name="checkmark" class="checkmark" />
 		<div class="circle">
 			<Icon v-if="loading === true" name="loader" class="loading" />
 		</div>
 		<Icon name="cross" class="cross" />
-		<input :id="inputId" type="checkbox" v-model="localValue" class="input">
+		<input :id="inputId" type="checkbox" v-model="localValue" class="input" @change="onChange()">
 	</div>
 </template>
 
@@ -73,10 +73,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		})
 	}
 
-	public toggle():void {
-		if(this.disabled !== false) return;
+	public onClick(event:MouseEvent):void {
+		if(this.disabled !== false) {
+			event.preventDefault();
+			event.stopPropagation();
+		}
+	}
 
-		this.localValue = !this.localValue;
+	public onChange():void {
 		this.$emit('update:modelValue', this.localValue);
 		this.$emit('change');
 	}
