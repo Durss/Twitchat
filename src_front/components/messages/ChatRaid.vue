@@ -90,7 +90,7 @@ import AbstractChatMessage from './AbstractChatMessage';
 	public async shoutout():Promise<void> {
 		this.shoutoutLoading = true;
 		try {
-			await this.$store.users.shoutout(this.$store.auth.twitch.user.id, this.messageData.user);
+			await this.$store.users.shoutout(this.messageData.channel_id, this.messageData.user);
 		}catch(error) {
 			this.$store.main.alert(this.$t("error.shoutout"));
 			console.log(error);
