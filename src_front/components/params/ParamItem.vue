@@ -320,14 +320,13 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import CountryFlag from 'vue-country-flag-next';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import DurationForm from '../DurationForm.vue';
 import PremiumLockLayer from '../PremiumLockLayer.vue';
 import Slider from '../Slider.vue';
 import TTButton from '../TTButton.vue';
 import ToggleButton from '../ToggleButton.vue';
 import PlaceholderSelector from './PlaceholderSelector.vue';
-import DurationForm from '../DurationForm.vue';
-import { reactive } from 'vue';
 
 @Component({
 	name:"ParamItem",//This is needed so recursion works properly
@@ -854,14 +853,13 @@ export default toNative(ParamItem);
 	
 	&.error {
 		cursor: not-allowed;
-		background-color: var(--color-alert-fadest) !important;
+		background-color: var(--color-alert-fader) !important;
 		.errorMessage {
 			font-size: .9em;
 			margin-top: .5em;
 			text-align: center;
 		}
 		label {
-			opacity: .5;
 			cursor: unset !important;
 		}
 	}
