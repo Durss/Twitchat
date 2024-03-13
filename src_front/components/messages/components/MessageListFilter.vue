@@ -5,7 +5,8 @@
 			<img src="@/assets/icons/right.svg">
 		</div>
 
-		<div class="hoverActions" v-if="!expand">
+		<transition name="fade">
+		<div class="content hoverActions" v-if="!expand">
 			<button class="openBt" @click="openFilters(true)" v-tooltip="{content:$t('global.tooltips.column_edit'), placement:'left' }"
 			v-newflag="{id:'messagefilters_'+Math.max(...filters.map(v=>v.storage!.newFlag)), date:Math.max(...filters.map(v=>v.storage!.newFlag))}">
 				<img src="@/assets/icons/filters.svg" alt="open filters" class="icon">
@@ -26,8 +27,10 @@
 				<img src="@/assets/icons/trash.svg" alt="delete column" class="icon">
 			</button>
 		</div>
+		</transition>
 
-		<div class="holder blured-background-window" v-if="expand">
+		<transition name="fade">
+		<div class="content holder blured-background-window" v-if="expand">
 			<div class="content">
 				<div class="head">
 					<h1 class="title">{{ $t('chat.filters.title') }}</h1>
@@ -134,6 +137,7 @@
 				</div>
 			</div>
 		</div>
+		</transition>
 	</div>
 </template>
 
@@ -946,11 +950,22 @@ export default toNative(MessageListFilter);
 	flex-direction: row;
 	border-bottom-left-radius: .5em;
 	transform: translateX(100%);
-	transition: transform .25s;
+	transition: transform .25s, opacity .25s;
 	position: relative;
 	pointer-events: none;
 	max-width: 400px;
 	backdrop-filter: blur(5px);
+
+
+	.content {
+		opacity: 1;
+		transition: opacity .25s;
+
+		&.fade-enter-from,
+		&.fade-leave-to {
+			opacity: 0;
+		}
+	}
 
 	&.expand {
 		transform: translateX(0);
@@ -1233,7 +1248,7 @@ export default toNative(MessageListFilter);
 			transform: translateX(-50%);
 			left: 50%;
 			top: 99999px;
-			z-index: 1;
+			z-index: 100;
 			background-color: var(--background-color-primary);
 			.preview {
 				background-color: var(--background-color-primary);

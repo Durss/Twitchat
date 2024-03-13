@@ -15,9 +15,10 @@
 				<p>GoXLR</p>
 			</button>
 	
-			<button class="card-item premium" @click="subContent='streamlabs'">
+			<button class="card-item premium soon" @click="subContent='streamlabs'">
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
+				<div class="soon">coming soon</div>
 			</button>
 	
 			<button class="card-item premium" @click="subContent='streamelements'">
@@ -189,6 +190,23 @@ export default toNative(ParamsConnections);
 				background-color: var(--color-text-fadest);
 				&.premium {
 					background-color: var(--color-premium-fader);
+				}
+			}
+
+			&.soon{
+				position: relative;
+				overflow: hidden;
+				pointer-events: none;
+				filter: contrast(.5);
+				.soon {
+					position: absolute;
+					top: 19px;
+					right: -35px;
+					transform: rotate(40deg);
+					color: var(--color-dark);
+					background-color: var(--color-light);
+					width: 150px;
+					padding: .25em;
 				}
 			}
 		}

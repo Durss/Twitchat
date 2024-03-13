@@ -8,12 +8,23 @@
 			{
 				"i": "offline",
 				"l": "Connexions tièrces",
-				"d": "Les paramètres suivants se trouvent désormais dans la section \"Connections\" des paramètres."
+				"d": "Les paramètres suivants se trouvent désormais dans la section \"Connexions\" des paramètres."
+			},
+			{
+				"i": "kofi",
+				"l": "Alertes Ko-fi",
+				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\n<ul><li>Alertes de dons</li><li>Alertes d'achat de merch</li><li>Alertes d'abonnement mensuel</li></ul>Automatisez des actions en réponse à ces évènements grâce aux triggers dédiés.",
+				"p": true,
+				"a": {
+					"l": "Tester",
+					"param": "connexions",
+					"subparam": "kofi"
+				}
 			},
 			{
 				"i": "streamlabs",
 				"l": "Alertes Streamlabs",
-				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\nSoyez notifiée·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsqu'une personne s'abonne à votre Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs).\n\nAutomatisez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
+				"d": "Recevez vos alertes Streamlabs dans Twitchat\n\n<ul><li>Alertes de dons</li><li>Alertes d'achat de merch</li><li>Alertes d'abonnement à Patreon (nécessite de lier votre compte Patreon dans le dashboard Streamlabs)</li></ul>Automatisez des actions en réponse à n'importe quel évènement Streamlabs depuis les Triggers.",
 				"p": true,
 				"a": {
 					"l": "Tester",
@@ -30,17 +41,6 @@
 					"l": "Tester",
 					"param": "connexions",
 					"subparam": "streamelements"
-				}
-			},
-			{
-				"i": "kofi",
-				"l": "Alertes Ko-fi",
-				"d": "Recevez vos alertes Ko-fi dans Twitchat.\n\nSoyez notifé·e lorsque vous recevez un don, lorsque quelqu'un achète du merch ou lorsque quelqu'un prend un abonnement mensuel.\n\nAutomatisez des actions en réponse à ces évènements grâce aux triggers dédiés.",
-				"p": true,
-				"a": {
-					"l": "Tester",
-					"param": "connexions",
-					"subparam": "kofi"
 				}
 			},
 			{
@@ -84,10 +84,10 @@
 			{
 				"i": "emote",
 				"l": "Emote de train de la hype",
-				"d": "Vos emotes de train de la hype sont enfin listés dans Twitchat 🥳"
+				"d": "Vos emotes de train de la hype sont enfin listées dans Twitchat 🥳"
 			},
 			{
-				"i": "layout",
+				"i": "pin",
 				"l": "Personnalisations",
 				"d": "Vous pouvez afficher la section \"Dîtes bonjour\" dans une colonne différente des formulaires (sondage, prédiction, bingo, ...)\n\nVous pouvez épingler des entrées du menu [/] dans la barre du bas.",
 				"g":"/update_images/pins.gif"
@@ -104,7 +104,7 @@
 		],
 		"forceRead": {
 			"title": "EH OH TU LIS!",
-			"description": "J'ai bossé +5 mois sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes pour les lire sitoplé 🙏",
+			"description": "J'ai bossé fort sur ces mises à jour, je trouverais ça stylé que tu prennes 2 minutes pour les lire sitoplé 🙏",
 			"readAtSpeedOfLight": "Essaie pas de me faire croire que tu lis à la vitesse de la lumière 😏",
 			"sorryBt": "ui pardon je lis 🥺",
 			"fuBt": "menfou 🤪"

@@ -75,13 +75,14 @@
 							<Changelog3rdPartyAnim v-if="item.i=='offline' && currentSlide == index" />
 
 							<TTButton v-if="item.a" icon="test"
+							:light="item.p === true"
 							:premium="item.p === true"
 							@click="$store.params.openParamsPage(item.a.param as TwitchatDataTypes.ParameterPagesStringType, item.a.subparam)">{{ item.a.l }}</TTButton>
 							
 							<template v-if="item.p === true || item.i == 'donate'">
 								<TTButton secondary icon="coin" @click="$store.params.openParamsPage(contentDonate)" v-if="item.i == 'donate'">{{ $t("params.categories.donate") }}</TTButton>
-								<TTButton premium icon="premium" @click="$store.params.openParamsPage(contentPremium)">{{ $t("premium.become_premiumBt") }}</TTButton>
-								<TTButton primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures">{{ $t("premium.features_title") }}</TTButton>
+								<TTButton premium icon="premium" @click="$store.params.openParamsPage(contentPremium)" v-if="!isPremium">{{ $t("premium.become_premiumBt") }}</TTButton>
+								<TTButton primary icon="sub" @click="showPremiumFeatures = true" v-if="!showPremiumFeatures && !isPremium">{{ $t("premium.features_title") }}</TTButton>
 								<SponsorTable class="premiumTable" v-if="showPremiumFeatures" expand />
 							</template>
 							
@@ -153,6 +154,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	private mouseMoveHandler!:(e:MouseEvent)=>void;
 	
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
+	public get isPremium():boolean { return this.$store.auth.isPremium; }
 	
 	public get classes():string[] {
 		const res:string[] = ["changelog", "modal"];
@@ -337,7 +339,7 @@ import MessageItem from '../messages/MessageItem.vue';
 	 * Apply css to pagination items
 	 */
 	private skinPagination():void {
-		//Define premium style to necessary page items.
+		//Define premium class to necessary page items.
 		//Dirty way of doing it but <Pagination> component doesn't seem
 		//to expose anything to do that in a cleaner way
 		this.$nextTick().then(()=> {
@@ -369,6 +371,10 @@ export default toNative(Changelog);
 			*::-webkit-scrollbar-thumb {
 				background: transparent;
 				background-color: var(--color-premium-light);
+			}
+
+			:deep(a) {
+				color: var(--color-secondary-extralight);
 			}
 		}
 	}

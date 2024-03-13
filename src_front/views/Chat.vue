@@ -132,7 +132,7 @@
 
 		<Gngngn v-if="$store.params.currentModal == 'gngngn'" @close="$store.params.closeModal()" />
 		
-		<Login v-if="$store.params.currentModal == 'login'" @close="$store.params.closeModal()" scopeOnly />
+		<Login v-if="$store.auth.newScopesToRequest.length > 0" scopeOnly />
 
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
 		
@@ -369,12 +369,6 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		//Watch for columns changes
 		watch(() => this.$store.params.chatColumnsConfig, () => {
 			this.computeWindowsSizes();
-		}, {deep:true});
-
-		//Watch for columns changes
-		watch(() => this.$store.auth.newScopesToRequest, () => {
-			if(this.$store.auth.newScopesToRequest.length === 0) return null;
-			this.$store.params.openModal("login");
 		}, {deep:true});
 
 		//Watch for current modal to be displayed

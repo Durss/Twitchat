@@ -109,6 +109,13 @@ import ToggleButton from '../ToggleButton.vue';
 				});
 			}
 		}
+
+		//Move non-granted scopes tot he top
+		this.param_items.sort((a,b)=> {
+			if(a.value && !b.value) return 1;
+			if(!a.value && b.value) return -1;
+			return 0
+		})
 		this.params_all.value = allSelected;
 	}
 

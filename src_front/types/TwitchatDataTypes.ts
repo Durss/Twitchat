@@ -8,7 +8,7 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 	
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "login" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
 	
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train";
 	
@@ -2168,14 +2168,14 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.FOLLOWING,							labelKey:"chat.filters.message_types.following",							icon:"follow",			scopes:[TwitchScopes.LIST_FOLLOWERS],	newFlag:0},
 		{type:TwitchatMessageType.SUBSCRIPTION,							labelKey:"chat.filters.message_types.subscription",							icon:"sub",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.CHEER,								labelKey:"chat.filters.message_types.cheer",								icon:"bits",			scopes:[],	newFlag:0},
-		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"unban",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.RAID,									labelKey:"chat.filters.message_types.raid",									icon:"raid",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.PINNED,								labelKey:"chat.filters.message_types.pinned",								icon:"pin",				scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.SHOUTOUT,								labelKey:"chat.filters.message_types.shoutout",								icon:"shoutout",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.BAN,									labelKey:"chat.filters.message_types.ban",									icon:"ban",				scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
-		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"enter",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
+		{type:TwitchatMessageType.UNBAN,								labelKey:"chat.filters.message_types.unban",								icon:"unban",			scopes:[TwitchScopes.MODERATION_EVENTS],	newFlag:0},
 		{type:TwitchatMessageType.UNBAN_REQUEST,						labelKey:"chat.filters.message_types.unban_request",						icon:"unbanRequest",	scopes:[TwitchScopes.UNBAN_REQUESTS],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.REWARD,								labelKey:"chat.filters.message_types.reward",								icon:"channelPoints",	scopes:[TwitchScopes.LIST_REWARDS],	newFlag:0},
-		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"raid",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
+		{type:TwitchatMessageType.POLL,									labelKey:"chat.filters.message_types.poll",									icon:"poll",			scopes:[TwitchScopes.MANAGE_POLLS],	newFlag:0},
 		{type:TwitchatMessageType.PREDICTION,							labelKey:"chat.filters.message_types.prediction",							icon:"prediction",		scopes:[TwitchScopes.MANAGE_PREDICTIONS],	newFlag:0},
 		{type:TwitchatMessageType.HYPE_TRAIN_SUMMARY,					labelKey:"chat.filters.message_types.hype_train_summary",					icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
 		{type:TwitchatMessageType.HYPE_TRAIN_COOLED_DOWN,				labelKey:"chat.filters.message_types.hype_train_cooled_down",				icon:"train",			scopes:[TwitchScopes.READ_HYPE_TRAIN],	newFlag:0},
@@ -2190,7 +2190,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.AD_BREAK_START_CHAT,					labelKey:"chat.filters.message_types.ad_break_start_chat",					icon:"ad",				scopes:[TwitchScopes.ADS_READ],	newFlag:0},
-		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"poll",			scopes:[],	newFlag:0},
+		{type:TwitchatMessageType.JOIN,									labelKey:"chat.filters.message_types.join",									icon:"enter",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.LEAVE,								labelKey:"chat.filters.message_types.leave",								icon:"leave",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.NOTICE,								labelKey:"chat.filters.message_types.notice",								icon:"info",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.USER_WATCH_STREAK,					labelKey:"chat.filters.message_types.user_watch_streak",					icon:"watchStreak",		scopes:[],	newFlag:0},

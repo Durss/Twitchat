@@ -114,6 +114,8 @@ export default class PatreonController extends AbstractController {
 		const json = await result.json();
 
 		if(json.error) {
+			Logger.error("Patreon refresh token failed");
+			console.log(json);
 			response.header('Content-Type', 'application/json');
 			response.status(500);
 			response.send({success:false, message:json.error});
