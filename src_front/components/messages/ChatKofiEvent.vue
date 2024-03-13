@@ -1,5 +1,6 @@
 <template>
-	<div class="chatkofievent chatMessage highlight">
+	<div class="chatkofievent chatMessage highlight"
+	@contextmenu="onContextMenu($event, messageData, $el)">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
 		<Icon name="kofi" alt="kofi" class="icon"/>
@@ -12,7 +13,7 @@
 				</template>
 				
 				<template #AMOUNT>
-					<strong>{{ messageData.currency }} {{ messageData.amountFormatted }}</strong>
+					<strong>{{ messageData.amountFormatted }}</strong>
 				</template>
 
 				<template #TIER v-if="messageData.eventType == 'subscription'">

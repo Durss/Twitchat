@@ -1,17 +1,17 @@
 <template>
 	<div class="chatscoperequester chatMessage highlight error">
-		<ClearButton @click="deleteMessage()" theme="light" />
+		<ClearButton @click="deleteMessage()" />
 
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
-		<img src="@/assets/icons/lock_fit.svg" alt="alert" class="icon">
+		<Icon  name="lock_fit" />
 
 		<div class="info">
 			<p class="title">{{ $tc("chat.scope_request.title", messageData.twitch_scopes.length) }}</p>
 
 			<ul class="scopes">
 				<li v-for="s in messageData.twitch_scopes" :key="s">
-					<Icon v-if="getScopeImage(s)" :name="getScopeImage(s)" theme="light" />
+					<Icon v-if="getScopeImage(s)" :name="getScopeImage(s)" />
 					<span>{{ $t("global.twitch_scopes."+s) }}</span>
 				</li>
 			</ul>
@@ -82,11 +82,11 @@ export default toNative(ChatScopeRequester);
 			gap: .25em;
 			list-style-position: inside;
 			li {
+				font-size: .9em;
 				.icon {
 					height: 1em;
 					width: 1em;
 					margin-right: .5em;
-					vertical-align: middle;
 				}
 			}
 		}

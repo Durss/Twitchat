@@ -442,6 +442,10 @@ export default class ContextMenuHelper {
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.USER_WATCH_STREAK
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.KOFI
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS
+		|| message.type == TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 			const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 			const entryCount = options.length; 
@@ -692,6 +696,10 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageStreamOfflineData
 								| TwitchatDataTypes.MessageMusicAddedToQueueData
 								| TwitchatDataTypes.MessageWatchStreakData
+								| TwitchatDataTypes.MessageKofiData
+								| TwitchatDataTypes.MessageStreamlabsData
+								| TwitchatDataTypes.MessageStreamelementsData
+								| TwitchatDataTypes.MessageUnbanRequestData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement, discord:boolean = false):Promise<void> {
 
 		StoreProxy.main.messageExportState = "progress";
@@ -702,12 +710,22 @@ export default class ContextMenuHelper {
 		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
 		let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 		let chanId:string = "";
+		let userName:string = "";
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT){
 			user = message.message.user;
 			chanId = message.message.channel_id;
 		}else if(message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE || message.type == TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE){
 			user = message.info.user;
 			chanId = StoreProxy.auth.twitch.user.id;
+		}else
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS) {
+			userName = message.userName;
+		}else
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.STREAMLABS) {
+			userName = message.userName;
+		}else
+		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI) {
+			userName = message.userName;
 		}else
 		if(message.type != TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE){
 			user = message.user;
@@ -735,6 +753,9 @@ export default class ContextMenuHelper {
 		if(user) {
 			html += `<div><strong>User login:</strong> ${user.login}</div>
 			<div><strong>User ID:</strong> ${user.id}</div>`;
+		}
+		if(userName) {
+			html += `<div><strong>User name:</strong> ${userName}</div>`;
 		}
 		if(chanId) {
 			html += `<div><strong>Channel ID:</strong> ${chanId}</div>`;

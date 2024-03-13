@@ -15,10 +15,10 @@
 				<p>GoXLR</p>
 			</button>
 	
-			<button class="card-item premium soon" @click="subContent='streamlabs'">
+			<button class="card-item premium" @click="subContent='streamlabs'">
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
-				<div class="soon">coming soon</div>
+				<!-- <div class="soon">coming soon</div> -->
 			</button>
 	
 			<button class="card-item premium" @click="subContent='streamelements'">
