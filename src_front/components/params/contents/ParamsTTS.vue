@@ -23,27 +23,34 @@
 			<Splitter class="splitter">{{ $t("tts.messages.title") }}</Splitter>
 
 			<section>
-				<ParamItem class="card-item" :paramData="param_readMessages" />
-				<ParamItem class="card-item" :paramData="param_readWhispers" />
-				<ParamItem class="card-item" :paramData="param_readFollow" />
-				<ParamItem class="card-item" :paramData="param_readSubs" />
-				<ParamItem class="card-item" :paramData="param_readSubgifts" />
-				<ParamItem class="card-item" :paramData="param_readBits" />
-				<ParamItem class="card-item" :paramData="param_readRaids" />
-				<ParamItem class="card-item" :paramData="param_readRewards" />
-				<ParamItem class="card-item" :paramData="param_readPolls" />
-				<ParamItem class="card-item" :paramData="param_readPredictions" />
-				<ParamItem class="card-item" :paramData="param_readBingos" />
-				<ParamItem class="card-item" :paramData="param_readRaffle" />
-				<ParamItem class="card-item" :paramData="param_readTimeouts" />
-				<ParamItem class="card-item" :paramData="param_readBans" />
-				<ParamItem class="card-item" :paramData="param_readUnbans" />
-				<ParamItem class="card-item" :paramData="param_readNotices" />
-				<ParamItem class="card-item" :paramData="param_read1stMessageToday" />
-				<ParamItem class="card-item" :paramData="param_read1stTimeChatters" />
-				<ParamItem class="card-item" :paramData="param_readMonitored" />
-				<ParamItem class="card-item" :paramData="param_readRestricted" />
-				<ParamItem class="card-item" :paramData="param_readAutomod" />
+				<ParamItem :paramData="param_readMessages" />
+				<ParamItem :paramData="param_readWhispers" />
+				<ParamItem :paramData="param_readFollow" />
+				<ParamItem :paramData="param_readSubs" />
+				<ParamItem :paramData="param_readSubgifts" />
+				<ParamItem :paramData="param_readBits" />
+				<ParamItem :paramData="param_readRaids" />
+				<ParamItem :paramData="param_readRewards" />
+				<ParamItem :paramData="param_readPolls" />
+				<ParamItem :paramData="param_readPredictions" />
+				<ParamItem :paramData="param_readBingos" />
+				<ParamItem :paramData="param_readRaffle" />
+				<ParamItem :paramData="param_readKofiTip" />
+				<ParamItem :paramData="param_readKofiMerch" />
+				<ParamItem :paramData="param_readKofiSub" />
+				<ParamItem :paramData="param_readStreamlabsTip" />
+				<ParamItem :paramData="param_readStreamlabsMerch" />
+				<ParamItem :paramData="param_readStreamlabsPatreon" />
+				<ParamItem :paramData="param_readStreamelementsTip" />
+				<ParamItem :paramData="param_readTimeouts" />
+				<ParamItem :paramData="param_readBans" />
+				<ParamItem :paramData="param_readUnbans" />
+				<ParamItem :paramData="param_readNotices" />
+				<ParamItem :paramData="param_read1stMessageToday" />
+				<ParamItem :paramData="param_read1stTimeChatters" />
+				<ParamItem :paramData="param_readMonitored" />
+				<ParamItem :paramData="param_readRestricted" />
+				<ParamItem :paramData="param_readAutomod" />
 			</section>
 			
 			<Splitter class="splitter">{{ $t("tts.params.title") }}</Splitter>
@@ -62,12 +69,12 @@
 			<Splitter class="splitter">{{ $t("tts.filters.title") }}</Splitter>
 
 			<section>
-				<ParamItem class="card-item" :paramData="param_removeEmotes" />
-				<ParamItem class="card-item shrinkInput" :paramData="param_removeURL" />
-				<ParamItem class="card-item" :paramData="param_maxDurationToggle" />
-				<ParamItem class="card-item" :paramData="param_maxLengthToggle" />
-				<ParamItem class="card-item" :paramData="param_timeoutToggle" />
-				<ParamItem class="card-item" :paramData="param_inactivityPeriodToggle" />
+				<ParamItem :paramData="param_removeEmotes" />
+				<ParamItem class="shrinkInput" :paramData="param_removeURL" />
+				<ParamItem :paramData="param_maxDurationToggle" />
+				<ParamItem :paramData="param_maxLengthToggle" />
+				<ParamItem :paramData="param_timeoutToggle" />
+				<ParamItem :paramData="param_inactivityPeriodToggle" />
 			</section>
 		</div>
 
@@ -166,6 +173,22 @@ import Icon from '@/components/Icon.vue';
 	public param_readMonitoredPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
 	public param_readRestricted:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"shield" };
 	public param_readRestrictedPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderAutomod, maxLength:300};
+
+	public param_readKofiTip:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"kofi" };
+	public param_readKofiTipPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderKofiTip, maxLength:300};
+	public param_readKofiMerch:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"kofi" };
+	public param_readKofiMerchPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderKofiMerch, maxLength:300};
+	public param_readKofiSub:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"kofi" };
+	public param_readKofiSubPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderKofiSub, maxLength:300};
+	public param_readStreamlabsTip:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"streamlabs" };
+	public param_readStreamlabsTipPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderStreamlabsTip, maxLength:300};
+	public param_readStreamlabsMerch:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"streamlabs" };
+	public param_readStreamlabsMerchPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderStreamlabsMerch, maxLength:300};
+	public param_readStreamlabsPatreon:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"streamlabs" };
+	public param_readStreamlabsPatreonPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderStreamlabsPatreon, maxLength:300};
+	public param_readStreamelementsTip:TwitchatDataTypes.ParameterData<boolean, unknown, string> = {type:"boolean", value:false, label:"", icon:"streamelements" };
+	public param_readStreamelementsTipPattern:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, label:"", placeholderList:TTSUtils.placeholderStreamelementsTip, maxLength:300};
+
 	public param_ttsPerms:TwitchatDataTypes.PermissionsData = {
 		broadcaster:true,
 		mods:true,
@@ -243,6 +266,20 @@ import Icon from '@/components/Icon.vue';
 			readBansPattern:this.param_readBansPattern.value,
 			readUnbans:this.param_readUnbans.value,
 			readUnbansPattern:this.param_readUnbansPattern.value,
+			readKofiTip:this.param_readKofiTip.value,
+			readKofiTipPattern:this.param_readKofiTipPattern.value,
+			readKofiMerch:this.param_readKofiMerch.value,
+			readKofiMerchPattern:this.param_readKofiMerchPattern.value,
+			readKofiSub:this.param_readKofiSub.value,
+			readKofiSubPattern:this.param_readKofiSubPattern.value,
+			readStreamlabsTip:this.param_readStreamlabsTip.value,
+			readStreamlabsTipPattern:this.param_readStreamlabsTipPattern.value,
+			readStreamlabsMerch:this.param_readStreamlabsMerch.value,
+			readStreamlabsMerchPattern:this.param_readStreamlabsMerchPattern.value,
+			readStreamlabsPatreon:this.param_readStreamlabsPatreon.value,
+			readStreamlabsPatreonPattern:this.param_readStreamlabsPatreonPattern.value,
+			readStreamelementsTip:this.param_readStreamelementsTip.value,
+			readStreamelementsTipPattern:this.param_readStreamelementsTipPattern.value,
 		};
 	}
 
@@ -268,27 +305,41 @@ import Icon from '@/components/Icon.vue';
 		this.param_voice.labelKey					= "tts.params.param_voice";
 		this.param_removeEmotes.labelKey			= "tts.params.param_removeEmotes";
 
-		this.param_readMessages.labelKey			= "tts.messages.param_readMessages";
-		this.param_readWhispers.labelKey			= "tts.messages.param_readWhispers";
-		this.param_readNotices.labelKey				= "tts.messages.param_readNotices";
-		this.param_readRewards.labelKey				= "tts.messages.param_readRewards";
-		this.param_readSubs.labelKey				= "tts.messages.param_readSubs";
-		this.param_readSubgifts.labelKey			= "tts.messages.param_readSubgifts";
-		this.param_readBits.labelKey				= "tts.messages.param_readBits";
-		this.param_readRaids.labelKey				= "tts.messages.param_readRaids";
-		this.param_readFollow.labelKey				= "tts.messages.param_readFollow";
-		this.param_readPolls.labelKey				= "tts.messages.param_readPolls";
-		this.param_readPredictions.labelKey			= "tts.messages.param_readPredictions";
-		this.param_readBingos.labelKey				= "tts.messages.param_readBingos";
-		this.param_readRaffle.labelKey				= "tts.messages.param_readRaffle";
-		this.param_read1stMessageToday.labelKey		= "tts.messages.param_read1stMessageToday";
-		this.param_read1stTimeChatters.labelKey		= "tts.messages.param_read1stTimeChatters";
-		this.param_readAutomod.labelKey				= "tts.messages.param_readAutomod";
-		this.param_readMonitored.labelKey			= "tts.messages.param_readMonitored";
-		this.param_readRestricted.labelKey			= "tts.messages.param_readRestricted";
-		this.param_readTimeouts.labelKey			= "tts.messages.param_readTimeouts";
-		this.param_readBans.labelKey				= "tts.messages.param_readBans";
-		this.param_readUnbans.labelKey				= "tts.messages.param_readUnbans";
+		this.param_readMessages.labelKey					= "tts.messages.param_readMessages";
+		this.param_readWhispers.labelKey					= "tts.messages.param_readWhispers";
+		this.param_readNotices.labelKey						= "tts.messages.param_readNotices";
+		this.param_readRewards.labelKey						= "tts.messages.param_readRewards";
+		this.param_readSubs.labelKey						= "tts.messages.param_readSubs";
+		this.param_readSubgifts.labelKey					= "tts.messages.param_readSubgifts";
+		this.param_readBits.labelKey						= "tts.messages.param_readBits";
+		this.param_readRaids.labelKey						= "tts.messages.param_readRaids";
+		this.param_readFollow.labelKey						= "tts.messages.param_readFollow";
+		this.param_readPolls.labelKey						= "tts.messages.param_readPolls";
+		this.param_readPredictions.labelKey					= "tts.messages.param_readPredictions";
+		this.param_readBingos.labelKey						= "tts.messages.param_readBingos";
+		this.param_readRaffle.labelKey						= "tts.messages.param_readRaffle";
+		this.param_read1stMessageToday.labelKey				= "tts.messages.param_read1stMessageToday";
+		this.param_read1stTimeChatters.labelKey				= "tts.messages.param_read1stTimeChatters";
+		this.param_readAutomod.labelKey						= "tts.messages.param_readAutomod";
+		this.param_readMonitored.labelKey					= "tts.messages.param_readMonitored";
+		this.param_readRestricted.labelKey					= "tts.messages.param_readRestricted";
+		this.param_readTimeouts.labelKey					= "tts.messages.param_readTimeouts";
+		this.param_readBans.labelKey						= "tts.messages.param_readBans";
+		this.param_readUnbans.labelKey						= "tts.messages.param_readUnbans";
+		this.param_readKofiTip.labelKey						= "tts.messages.param_readKofiTip";
+		this.param_readKofiTipPattern.labelKey				= "tts.messages.param_readKofiTipPattern";
+		this.param_readKofiMerch.labelKey					= "tts.messages.param_readKofiMerch";
+		this.param_readKofiMerchPattern.labelKey			= "tts.messages.param_readKofiMerchPattern";
+		this.param_readKofiSub.labelKey						= "tts.messages.param_readKofiSub";
+		this.param_readKofiSubPattern.labelKey				= "tts.messages.param_readKofiSubPattern";
+		this.param_readStreamlabsTip.labelKey				= "tts.messages.param_readStreamlabsTip";
+		this.param_readStreamlabsTipPattern.labelKey		= "tts.messages.param_readStreamlabsTipPattern";
+		this.param_readStreamlabsMerch.labelKey				= "tts.messages.param_readStreamlabsMerch";
+		this.param_readStreamlabsMerchPattern.labelKey		= "tts.messages.param_readStreamlabsMerchPattern";
+		this.param_readStreamlabsPatreon.labelKey			= "tts.messages.param_readStreamlabsPatreon";
+		this.param_readStreamlabsPatreonPattern.labelKey	= "tts.messages.param_readStreamlabsPatreonPattern";
+		this.param_readStreamelementsTip.labelKey			= "tts.messages.param_readStreamelementsTip";
+		this.param_readStreamelementsTipPattern.labelKey	= "tts.messages.param_readStreamelementsTipPattern";
 
 		this.param_maxLengthToggle.labelKey			= "tts.filters.param_maxLengthToggle";
 		this.param_maxLength.labelKey				= "tts.filters.param_maxLength";
@@ -320,8 +371,15 @@ import Icon from '@/components/Icon.vue';
 		this.param_readTimeoutsPattern.labelKey		= 
 		this.param_readBansPattern.labelKey			= 
 		this.param_readUnbansPattern.labelKey		= 
-		this.param_read1stMessageTodayPattern.labelKey	= 
-		this.param_read1stTimeChattersPattern.labelKey	= "tts.messages.param_format";
+		this.param_read1stMessageTodayPattern.labelKey		= 
+		this.param_read1stTimeChattersPattern.labelKey		= 
+		this.param_readKofiTipPattern.labelKey				=
+		this.param_readKofiMerchPattern.labelKey			=
+		this.param_readKofiSubPattern.labelKey				=
+		this.param_readStreamlabsTipPattern.labelKey		=
+		this.param_readStreamlabsMerchPattern.labelKey		=
+		this.param_readStreamlabsPatreonPattern.labelKey	=
+		this.param_readStreamelementsTipPattern.labelKey	= "tts.messages.param_format";
 
 		this.param_enabled.value = params.enabled;
 		this.param_volume.value = params.volume;
@@ -386,6 +444,21 @@ import Icon from '@/components/Icon.vue';
 		this.param_readBansPattern.value			= label(params.readBansPattern, this.$t("tts.patterns.readBansPattern"));
 		this.param_readUnbans.value					= params.readUnbans === true;
 		this.param_readUnbansPattern.value			= label(params.readUnbansPattern, this.$t("tts.patterns.readUnbansPattern"));
+
+		this.param_readKofiTip.value					= params.readKofiTip === true;
+		this.param_readKofiTipPattern.value				= label(params.readKofiTipPattern, this.$t("tts.patterns.readKofiTipPattern"));
+		this.param_readKofiMerch.value					= params.readKofiMerch === true;
+		this.param_readKofiMerchPattern.value			= label(params.readKofiMerchPattern, this.$t("tts.patterns.readKofiMerchPattern"));
+		this.param_readKofiSub.value					= params.readKofiSub === true;
+		this.param_readKofiSubPattern.value				= label(params.readKofiSubPattern, this.$t("tts.patterns.readKofiSubPattern"));
+		this.param_readStreamlabsTip.value				= params.readStreamlabsTip === true;
+		this.param_readStreamlabsTipPattern.value		= label(params.readStreamlabsTipPattern, this.$t("tts.patterns.readStreamlabsTipPattern"));
+		this.param_readStreamlabsMerch.value			= params.readStreamlabsMerch === true;
+		this.param_readStreamlabsMerchPattern.value		= label(params.readStreamlabsMerchPattern, this.$t("tts.patterns.readStreamlabsMerchPattern"));
+		this.param_readStreamlabsPatreon.value			= params.readStreamlabsPatreon === true;
+		this.param_readStreamlabsPatreonPattern.value	= label(params.readStreamlabsPatreonPattern, this.$t("tts.patterns.readStreamlabsPatreonPattern"));
+		this.param_readStreamelementsTip.value			= params.readStreamelementsTip === true;
+		this.param_readStreamelementsTipPattern.value	= label(params.readStreamelementsTipPattern, this.$t("tts.patterns.readStreamelementsTipPattern"));
 		
 		this.param_readMessages.children			= [this.param_readMessagesPattern];
 		this.param_readWhispers.children			= [this.param_readWhispersPattern];
@@ -408,6 +481,13 @@ import Icon from '@/components/Icon.vue';
 		this.param_readTimeouts.children			= [this.param_readTimeoutsPattern];
 		this.param_readBans.children				= [this.param_readBansPattern];
 		this.param_readUnbans.children				= [this.param_readUnbansPattern];
+		this.param_readKofiTip.children				= [this.param_readKofiTipPattern];
+		this.param_readKofiMerch.children			= [this.param_readKofiMerchPattern];
+		this.param_readKofiSub.children				= [this.param_readKofiSubPattern];
+		this.param_readStreamlabsTip.children		= [this.param_readStreamlabsTipPattern];
+		this.param_readStreamlabsMerch.children		= [this.param_readStreamlabsMerchPattern];
+		this.param_readStreamlabsPatreon.children	= [this.param_readStreamlabsPatreonPattern];
+		this.param_readStreamelementsTip.children	= [this.param_readStreamelementsTipPattern];
 
 		this.param_removeURL.children				= [this.param_replaceURL];
 		this.param_maxLengthToggle.children			= [this.param_maxLength];

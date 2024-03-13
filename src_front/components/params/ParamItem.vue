@@ -2,7 +2,7 @@
 	<div :class="classes"
 	@mouseenter="$emit('mouseenter', $event, paramData)"
 	@mouseleave="$emit('mouseleave', $event, paramData)"
-	@click.capture="clickItem($event)">
+	@click="clickItem($event)">
 		<div class="content">
 			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="paramIcon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
@@ -20,6 +20,7 @@
 					v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
 				
 				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
+					@click.capture.stop
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"

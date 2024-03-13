@@ -35,7 +35,14 @@
 			"param_read1stTimeChatters": "1er message sur la chaîne",
 			"param_readAutomod": "Messages retenus par l'automod",
 			"param_readMonitored": "Utilisateur·ices suspect·es",
-			"param_readRestricted": "Utilisateur·ices restreint·es"
+			"param_readRestricted": "Utilisateur·ices restreint·es",
+			"param_readKofiTip": "Don Ko-fi",
+			"param_readKofiMerch": "Merch Ko-fi",
+			"param_readKofiSub": "Sub Ko-fi",
+			"param_readStreamlabsTip": "Don Streamlabs",
+			"param_readStreamlabsMerch": "Merch Streamlabs",
+			"param_readStreamlabsPatreon": "Sub Patreon (via Streamlabs)",
+			"param_readStreamelementsTip": "Don Streamelements"
 		},
 		"params": {
 			"title": "Paramètres de la voix",
@@ -76,7 +83,13 @@
 			"prediction_title": "@:triggers.placeholders.prediction_title",
 			"winning_choice": "Entrée gagnante",
 			"winning_user": "@:triggers.placeholders.winner",
-			"viewers_count": "@:triggers.placeholders.viewers"
+			"viewers_count": "@:triggers.placeholders.viewers",
+			"donation_amount": "@:triggers.placeholders.donation_amount",
+			"merch_amount": "@:triggers.placeholders.donation_amount",
+			"merch_product": "@:triggers.placeholders.merch_product",
+			"subscription_amount": "@:triggers.placeholders.subscription_amount",
+			"kofi_tier": "@:triggers.placeholders.kofi_tier",
+			"kofi_product_names": "@:triggers.placeholders.kofi_product_names"
 		},
 		"patterns": {
 			"readMessagePatern": "{'{'}USER{'}'} dit : {'{'}MESSAGE{'}'}",
@@ -99,7 +112,14 @@
 			"readAutomodPattern": "Message de {'{'}USER{'}'} retenu par l'automod : {'{'}MESSAGE{'}'}",
 			"readTimeoutsPattern": "{'{'}USER{'}'} banni pour {'{'}DURATION{'}'} secondes",
 			"readBansPattern": "{'{'}USER{'}'} a été banni",
-			"readUnbansPattern": "{'{'}USER{'}'} a été débanni"
+			"readUnbansPattern": "{'{'}USER{'}'} a été débanni",
+			"readKofiTipPattern": "{'{'}USER{'}'} a donné {'{'}AMOUNT{'}'} sur Ko-fi: {'{'}MESSAGE{'}'}",
+			"readKofiMerchPattern": "{'{'}USER{'}'} a acheté {'{'}PRODUCT{'}'} sur Ko-fi: {'{'}MESSAGE{'}'}",
+			"readStreamlabsTipPattern": "{'{'}USER{'}'} a donné {'{'}AMOUNT{'}'} sur Streamlabs: {'{'}MESSAGE{'}'}",
+			"readKofiSubPattern": "{'{'}USER{'}'} a pris l'abonnement {'{'}TIER{'}'} sur Ko-fi: {'{'}MESSAGE{'}'}",
+			"readStreamlabsMerchPattern": "{'{'}USER{'}'} a acheté {'{'}PRODUCT{'}'} sur Streamlabs: {'{'}MESSAGE{'}'}",
+			"readStreamlabsPatreonPattern": "{'{'}USER{'}'} s'est abonné·e pour {'{'}AMOUNT{'}'} sur Patreon",
+			"readStreamelementsTipPattern": "{'{'}USER{'}'} a donné {'{'}AMOUNT{'}'} sur Streamelements: {'{'}MESSAGE{'}'}"
 		}
 	}
 }

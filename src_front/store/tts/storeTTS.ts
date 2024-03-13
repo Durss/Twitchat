@@ -67,6 +67,20 @@ export const storeTTS = defineStore('tts', {
 			readBansPattern:"",
 			readUnbans:false,
 			readUnbansPattern:"",
+			readKofiTip:false,
+			readKofiTipPattern:"",
+			readKofiMerch:false,
+			readKofiMerchPattern:"",
+			readKofiSub:false,
+			readKofiSubPattern:"",
+			readStreamlabsTip:false,
+			readStreamlabsTipPattern:"",
+			readStreamlabsMerch:false,
+			readStreamlabsMerchPattern:"",
+			readStreamlabsPatreon:false,
+			readStreamlabsPatreonPattern:"",
+			readStreamelementsTip:false,
+			readStreamelementsTipPattern:"",
 			ttsPerms:{
 				broadcaster:true,
 				mods:true,
@@ -97,7 +111,6 @@ export const storeTTS = defineStore('tts', {
 			const tts = DataStore.get(DataStore.TTS_PARAMS);
 			if (tts) {
 				Utils.mergeRemoteObject(JSON.parse(tts), (this.params as unknown) as JsonObject);
-				// sTTS.params = JSON.parse(tts);
 				TTSUtils.instance.enabled = this.params.enabled;
 			}
 		},

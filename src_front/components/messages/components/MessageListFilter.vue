@@ -51,8 +51,7 @@
 					<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" v-model="param_toggleAll.value" @change="toggleAll()" />
 
 					<div class="item" v-for="f in filters"
-					:key="'filter_'+f.storage"
-					v-newflag="f.storage!.newFlag > 0? {date:f.storage!.newFlag, id:'messagefilters_'+f.storage!.type} : undefined">
+					:key="'filter_'+f.storage">
 						<Icon name="show" class="preview"
 							v-if="f.storage!.type != 'message'"
 							@mouseleave="mouseLeaveItem()"
@@ -60,7 +59,8 @@
 
 						<ParamItem :paramData="f" autoFade
 						@change="saveData()"
-						v-model="config.filters[f.storage!.type as 'message']">
+						v-model="config.filters[f.storage!.type as 'message']"
+						v-newflag="f.storage!.newFlag > 0? {date:f.storage!.newFlag, id:'messagefilters_'+f.storage!.type} : undefined">
 							<template #child v-if="f.storage?.type == whisperType && config.filters.whisper === true">
 								<ToggleBlock class="whispersPermissions"
 								:title="$t('chat.filters.whispers_permissions')"
@@ -120,12 +120,7 @@
 					v-model="config.showGreetHere"
 					v-if="$store.params.chatColumnsConfig.length > 1" />
 
-				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0 || missingScope">
-					<div class="card-item alert missingScope" v-if="missingScope">
-						<img src="@/assets/icons/unlock.svg" class="lockicon">
-						<p>{{ $t("chat.filters.scope_missing") }}</p>
-					</div>
-
+				<div class="previewList" ref="previewList" v-if="loadingPreview || previewData.length > 0">
 					<div class="preview" v-if="loadingPreview">
 						<Icon name="loader" class="loader" />
 					</div>
@@ -181,7 +176,6 @@ export class MessageListFilter extends Vue {
 	public error:boolean = false;
 	public expand:boolean = false;
 	public showCTA:boolean = false;
-	public missingScope:boolean = false;
 	public loadingPreview:boolean = false;
 	public mouseOverToggle:boolean = false;
 	public previewData:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -376,14 +370,12 @@ export class MessageListFilter extends Vue {
 	public mouseLeaveItem():void {
 		if(this.touchMode) return;
 		this.mouseOverToggle = false;
-		this.missingScope = false;
 		this.previewData = [];
 	}
 
 	public async previewMessage(filter:typeof TwitchatDataTypes.MessageListFilterTypes[number]):Promise<void> {
 		this.previewData = [];
 		this.loadingPreview = true;
-		this.missingScope = filter.scopes.length > 0  && !TwitchUtils.hasScopes(filter.scopes);
 		this.previewIndex ++;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.messagesCache[filter.type];
@@ -524,7 +516,6 @@ export class MessageListFilter extends Vue {
 		this.previewData = [];
 		this.loadingPreview = true;
 		this.previewIndex ++;
-		this.missingScope = this.messageKeyToScope != null && this.messageKeyToScope[entry.type] && !TwitchUtils.hasScopes(this.messageKeyToScope[entry.type]);
 		this.mouseOverToggle = true;
 		const previewIndexLoc = this.previewIndex;
 		const cached = this.subMessagesCache[entry.type];

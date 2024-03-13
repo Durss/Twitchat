@@ -1008,6 +1008,20 @@ export namespace TwitchatDataTypes {
 		readBansPattern:string;
 		readUnbans: boolean;
 		readUnbansPattern:string;
+		readKofiTip:boolean;
+		readKofiTipPattern:string;
+		readKofiMerch:boolean;
+		readKofiMerchPattern:string;
+		readKofiSub:boolean;
+		readKofiSubPattern:string;
+		readStreamlabsTip:boolean;
+		readStreamlabsTipPattern:string;
+		readStreamlabsMerch:boolean;
+		readStreamlabsMerchPattern:string;
+		readStreamlabsPatreon:boolean;
+		readStreamlabsPatreonPattern:string;
+		readStreamelementsTip:boolean;
+		readStreamelementsTipPattern:string;
 		ttsPerms:PermissionsData;
 		/**
 		 * @deprecated was a kind of duplicate of what "ttsPerms" allows

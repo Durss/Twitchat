@@ -148,6 +148,7 @@ export default toNative(ToggleButton);
 		max-height: @size;
 		top: 0;
 		left: 0;
+		margin: 0;
 		width: 100%;
 		height: 100%;
 		opacity: 0.001;

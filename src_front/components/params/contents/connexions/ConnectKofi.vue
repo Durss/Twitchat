@@ -6,7 +6,7 @@
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="kofi.header">
 				<template #LINK>
-					<a href="https://ko-fi.com/" target="_blank">Kofi</a>
+					<a href="https://ko-fi.com/" target="_blank">Ko-fi</a>
 				</template>
 			</i18n-t>
 		</div>

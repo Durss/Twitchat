@@ -56,9 +56,13 @@
 			<Button small @click="simulateEvent($event, 'pinned')" icon="pin">Pin message</Button>
 			<Button small @click="simulateEvent($event, 'unpinned')" icon="unpin">Upin message</Button>
 			<Button small @click="simulateEvent($event, 'clear_chat')" icon="delete">Clear chat</Button>
+			<Button small @click="simulateEvent($event, 'streamelements', 'se_donation')" icon="streamelements">Streamelements donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_donation')" icon="streamlabs">Streamlabs donation</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_merch')" icon="streamlabs">Streamlabs merch</Button>
 			<Button small @click="simulateEvent($event, 'streamlabs', 'sl_patreon')" icon="streamlabs">Streamlabs Patreon</Button>
+			<Button small @click="simulateEvent($event, 'kofi', 'kofi_donation')" icon="kofi">Kofi donation</Button>
+			<Button small @click="simulateEvent($event, 'kofi', 'kofi_merch')" icon="kofi">Kofi merch</Button>
+			<Button small @click="simulateEvent($event, 'kofi', 'kofi_sub')" icon="kofi">Kofi Sub</Button>
 			<Button small @click="simulateBlockedUser()" icon="block">Blocked user</Button>
 			<Button small @click="simulateSuspicious()" icon="shield">Suspicious user</Button>
 			<Button small @click="simulateRestricted()" icon="shield">Restricted user</Button>
@@ -167,9 +171,25 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				case "recent":				(message as TwitchatDataTypes.MessageChatData).user.created_at_ms = Date.now() - 7 * 24 * 60 * 6000; break;
 				case "resub":				(message as TwitchatDataTypes.MessageSubscriptionData).is_resub = true; break;
 				case "giftpaidupgrade":		(message as TwitchatDataTypes.MessageSubscriptionData).is_giftUpgrade = true; break;
-				case "sl_donation":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "donation"; break;
-				case "sl_merch":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "merch"; break;
-				case "sl_patreon":			(message as TwitchatDataTypes.MessageStreamlabsData).eventType = "patreon_pledge"; break;
+				case "sl_donation":			(message as TwitchatDataTypes.StreamlabsDonationData).eventType = "donation"; break;
+				case "sl_merch": {
+					(message as TwitchatDataTypes.StreamlabsMerchData).eventType = "merch";
+					(message as TwitchatDataTypes.StreamlabsMerchData).product = "T-shirt"; break;
+				}
+				case "sl_patreon":{
+					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge"; 
+					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "patreon_pledge"; break;
+				}
+				case "kofi_donation":			(message as TwitchatDataTypes.KofiDonationData).eventType = "donation"; break;
+				case "kofi_merch": {
+					(message as TwitchatDataTypes.KofiMerchData).eventType = "merch";
+					(message as TwitchatDataTypes.KofiMerchData).products = [{name:"T-shirt", quantity:1, id:"123456"}]; break;
+				}
+				case "kofi_sub":{
+					(message as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription"; 
+					(message as TwitchatDataTypes.KofiSubscriptionData).tier = "My amazing subscription"; break;
+				}
+				case "se_donation":			(message as TwitchatDataTypes.StreamelementsDonationData).eventType = "donation"; break;
 				case "unban_request_solve":	{
 					(message as TwitchatDataTypes.MessageUnbanRequestData).isResolve = true;
 					(message as TwitchatDataTypes.MessageUnbanRequestData).accepted = Math.random() > .5;
@@ -476,6 +496,10 @@ type Subaction = "first"
 				| "sl_donation"
 				| "sl_merch"
 				| "sl_patreon"
+				| "kofi_donation"
+				| "kofi_merch"
+				| "kofi_sub"
+				| "se_donation"
 				| "my_stream_online"
 				| "my_stream_offline"
 				| "unban_request_solve";

@@ -35,7 +35,14 @@
 			"param_read1stTimeChatters": "First-time chatters",
 			"param_readAutomod": "Automoded messages",
 			"param_readMonitored": "Monitored users",
-			"param_readRestricted": "Restricted users"
+			"param_readRestricted": "Restricted users",
+			"param_readKofiTip":"Ko-fi tip",
+			"param_readKofiMerch":"Ko-fi merch",
+			"param_readKofiSub":"Ko-fi subscription",
+			"param_readStreamlabsTip":"Streamlabs tip",
+			"param_readStreamlabsMerch":"Streamlabs merch",
+			"param_readStreamlabsPatreon":"Patreon sub (via Streamlabs)",
+			"param_readStreamelementsTip":"Streamelements tip"
 		},
 		"params": {
 			"title": "Voice parameters",
@@ -76,7 +83,13 @@
 			"prediction_title": "@:triggers.placeholders.prediction_title",
 			"winning_choice": "Winning choice",
 			"winning_user": "@:triggers.placeholders.winner",
-			"viewers_count": "@:triggers.placeholders.viewers"
+			"viewers_count": "@:triggers.placeholders.viewers",
+			"donation_amount": "@:triggers.placeholders.donation_amount",
+			"merch_amount": "@:triggers.placeholders.donation_amount",
+			"merch_product": "@:triggers.placeholders.merch_product",
+			"subscription_amount": "@:triggers.placeholders.subscription_amount",
+			"kofi_tier": "@:triggers.placeholders.kofi_tier",
+			"kofi_product_names": "@:triggers.placeholders.kofi_product_names"
 		},
 		"patterns": {
 			"readMessagePatern": "{'{'}USER{'}'} says: {'{'}MESSAGE{'}'}",
@@ -99,7 +112,14 @@
 			"readAutomodPattern": "{'{'}USER{'}'} message held by automod: {'{'}MESSAGE{'}'}",
 			"readTimeoutsPattern": "{'{'}USER{'}'} banned for {'{'}DURATION{'}'} secondes",
 			"readBansPattern": "{'{'}USER{'}'} has been banned",
-			"readUnbansPattern": "{'{'}USER{'}'} has been unbanned"
+			"readUnbansPattern": "{'{'}USER{'}'} has been unbanned",
+			"readKofiTipPattern": "{'{'}USER{'}'} sent a {'{'}AMOUNT{'}'} tip on ko-fi: {'{'}MESSAGE{'}'}",
+			"readKofiMerchPattern": "{'{'}USER{'}'} bought {'{'}PRODUCT{'}'} on ko-fi: {'{'}MESSAGE{'}'}",
+			"readKofiSubPattern": "{'{'}USER{'}'} subscribed at {'{'}TIER{'}'} on ko-fi: {'{'}MESSAGE{'}'}",
+			"readStreamlabsTipPattern": "{'{'}USER{'}'} sent a {'{'}AMOUNT{'}'} tip on Streamlabs: {'{'}MESSAGE{'}'}",
+			"readStreamlabsMerchPattern": "{'{'}USER{'}'} bought {'{'}PRODUCT{'}'} on Streamlabs: {'{'}MESSAGE{'}'}",
+			"readStreamlabsPatreonPattern": "{'{'}USER{'}'} subscribed for {'{'}AMOUNT{'}'} on Patreon",
+			"readStreamelementsTipPattern": "{'{'}USER{'}'} sent a {'{'}AMOUNT{'}'} tip on Streamelements: {'{'}MESSAGE{'}'}"
 		}
 	}
 }

@@ -35,6 +35,13 @@ export default class TTSUtils {
 	public static placeholderMonitored:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderRestricted:TwitchatDataTypes.PlaceholderEntry[];
 	public static placeholderAutomod:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderKofiTip:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderKofiMerch:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderKofiSub:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderStreamlabsTip:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderStreamlabsMerch:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderStreamlabsPatreon:TwitchatDataTypes.PlaceholderEntry[];
+	public static placeholderStreamelementsTip:TwitchatDataTypes.PlaceholderEntry[];
 
 	private static _instance:TTSUtils;
 
@@ -310,6 +317,49 @@ export default class TTSUtils {
 		TTSUtils.placeholderRestricted = [
 			{ tag:"USER", descKey:"tts.placeholders.user" },
 		];
+
+		TTSUtils.placeholderKofiTip = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+		]
+
+		TTSUtils.placeholderKofiMerch = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.merch_amount" },
+			{ tag:"PRODUCT", descKey:"tts.placeholders.merch_product" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+		]
+
+		TTSUtils.placeholderKofiSub = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+			{ tag:"TIER", descKey:"tts.placeholders.kofi_tier" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.merch_amount" },
+		]
+
+		TTSUtils.placeholderStreamlabsTip = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+		]
+
+		TTSUtils.placeholderStreamlabsMerch = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"PRODUCT", descKey:"tts.placeholders.merch_product" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+		]
+		
+		TTSUtils.placeholderStreamlabsPatreon = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
+		]
+
+		TTSUtils.placeholderStreamelementsTip = [
+			{ tag:"USER", descKey:"tts.placeholders.user" },
+			{ tag:"AMOUNT", descKey:"tts.placeholders.donation_amount" },
+			{ tag:"MESSAGE", descKey:"tts.placeholders.message" },
+		]
 	}
 
 	/**
@@ -572,6 +622,88 @@ export default class TTSUtils {
 				if(!paramsTTS.readUnbans && force!==true) return "";
 				let txt = paramsTTS.readUnbansPattern.replace(/\{USER\}/gi, message.user.displayName);
 				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.UNBAN: {
+				//Stop if didn't ask to read this kind of message
+				if(!paramsTTS.readUnbans && force!==true) return "";
+				let txt = paramsTTS.readUnbansPattern.replace(/\{USER\}/gi, message.user.displayName);
+				return txt;
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+				switch(message.eventType) {
+					case "donation": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readStreamlabsTip && force!==true) return "";
+						let txt = paramsTTS.readStreamlabsTipPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+						return txt;
+					}
+					case "merch": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readStreamlabsMerch && force!==true) return "";
+						let txt = paramsTTS.readStreamlabsMerchPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{PRODUCT\}/gi, message.product);
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+
+						console.log("MERCH SL");
+						console.log(txt);
+						return txt;
+					}
+					case "patreon_pledge": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readStreamlabsPatreon && force!==true) return "";
+						let txt = paramsTTS.readStreamlabsPatreonPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						return txt;
+					}
+				}
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+				switch(message.eventType) {
+					case "donation": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readStreamelementsTip && force!==true) return "";
+						let txt = paramsTTS.readStreamelementsTipPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+						return txt;
+					}
+				}
+			}
+
+			case TwitchatDataTypes.TwitchatMessageType.KOFI: {
+				switch(message.eventType) {
+					case "donation": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readKofiTip && force!==true) return "";
+						let txt = paramsTTS.readKofiTipPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+						return txt;
+					}
+					case "merch": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readKofiMerch && force!==true) return "";
+						let txt = paramsTTS.readKofiMerchPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						txt = txt.replace(/\{PRODUCT\}/gi, message.products.map(v=>v.name).join(","));
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+						return txt;
+					}
+					case "subscription": {
+						//Stop if didn't ask to read this kind of message
+						if(!paramsTTS.readKofiSub && force!==true) return "";
+						let txt = paramsTTS.readKofiSubPattern.replace(/\{USER\}/gi, message.userName);
+						txt = txt.replace(/\{MESSAGE\}/gi, message.message);
+						txt = txt.replace(/\{TIER\}/gi, message.tier || "");
+						txt = txt.replace(/\{AMOUNT\}/gi, message.amountFormatted);
+						return txt;
+					}
+				}
 			}
 		}
 		

@@ -1,10 +1,10 @@
 <template>
-	<div class="chatscoperequester chatMessage highlight alert">
+	<div class="chatscoperequester chatMessage highlight error">
 		<ClearButton @click="deleteMessage()" theme="light" />
 
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
 
-		<img src="@/assets/icons/alert.svg" alt="alert" class="icon">
+		<img src="@/assets/icons/lock_fit.svg" alt="alert" class="icon">
 
 		<div class="info">
 			<p class="title">{{ $tc("chat.scope_request.title", messageData.twitch_scopes.length) }}</p>
@@ -68,6 +68,7 @@ export default toNative(ChatScopeRequester);
 
 <style scoped lang="less">
 .chatscoperequester{
+	// background-color: var(--color-alert-fader) !important;
 	.info {
 		width: 100%;
 		.title {
