@@ -87,6 +87,13 @@ export default class Config {
 			prod: path.join(this.DATA_ROOT, "/userData/"),
 		});
 	}
+	public static get USER_DATA_BACKUP_PATH(): string {
+		return this.getEnvData({
+			dev: path.join(this.DATA_ROOT, "/userData_backup/"),
+			beta: path.join(this.DATA_ROOT, "/userData_backup/"),
+			prod: path.join(this.DATA_ROOT, "/userData_backup/"),
+		});
+	}
 
 	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
 		return this.getEnvData({

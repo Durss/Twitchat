@@ -448,6 +448,18 @@ export default class DataStore {
 	}
 
 	/**
+	 * Emergency backup
+	 */
+	public static async emergencyBackupStorage():Promise<void> {
+		try {
+			const data = JSON.parse(JSON.stringify(this.rawStore));
+			await ApiHelper.call("user/data/backup", "POST", data);
+		}catch(error) {
+			console.error(error);
+		}
+	}
+
+	/**
 	 * Migrates data on the LocalStorage
 	 */
 	public static async migrateLocalStorage():Promise<void> {

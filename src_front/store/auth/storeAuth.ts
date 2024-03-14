@@ -179,6 +179,7 @@ export const storeAuth = defineStore('auth', {
 				
 				try {
 					window.setInitMessage("migrating local parameter data");
+					await DataStore.emergencyBackupStorage();
 					await DataStore.migrateLocalStorage();
 
 					//If asked to sync data with server, load them

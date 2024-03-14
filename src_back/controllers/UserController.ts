@@ -31,6 +31,7 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
+		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
 		super.preloadEarlyDonors();
@@ -122,6 +123,24 @@ export default class UserController extends AbstractController {
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:JSON.parse(data)}));
 		}
+	}
+
+	/**
+	 * Saves an emergency backup after a massive fail of mine...
+	 */
+	private async postUserDataBackup(request:FastifyRequest, response:FastifyReply) {
+		const userInfo = await super.twitchUserGuard(request, response);
+		if(userInfo == false) return;
+		const body:any = request.body;
+
+		//Get users' data
+		const userFilePath = Config.USER_DATA_BACKUP_PATH + userInfo.user_id+".json";
+		if(!fs.existsSync(userFilePath)) {
+			fs.writeFileSync(userFilePath, JSON.stringify(body), "utf8");
+		}
+		response.header('Content-Type', 'application/json');
+		response.status(200);
+		response.send(JSON.stringify({success:true}));
 	}
 
 	/**

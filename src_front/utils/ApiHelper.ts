@@ -247,6 +247,19 @@ type ApiEndpoints =  {
 			success:boolean;
 		};
 	};
+	"user/data/backup": {
+		GET: {
+			success:boolean;
+			data:any;
+		};
+		POST: {
+			success:boolean;
+			message?:string;
+		};
+		DELETE: {
+			success:boolean;
+		};
+	};
 	"patreon/authenticate": {
 		POST: {
 			success:boolean;
