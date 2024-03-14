@@ -2601,6 +2601,10 @@ export namespace TwitchatDataTypes {
 		 * which means it's just been started
 		 */
 		isStart?:boolean;
+		/**
+		 * Set to true when simulating a poll for the overlay
+		 */
+		isFake?:boolean;
 	}
 	export interface MessagePollDataChoice {
 		id: string;
@@ -2665,6 +2669,10 @@ export namespace TwitchatDataTypes {
 		 * which means it's just been started
 		 */
 		isStart?:boolean;
+		/**
+		 * Set to true when simulating a poll for the overlay
+		 */
+		isFake?:boolean;
 	}
 	export interface MessagePredictionDataOutcome {
 		id: string;

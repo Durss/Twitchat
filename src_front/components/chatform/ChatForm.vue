@@ -93,7 +93,7 @@
 						icon="poll"
 						v-tooltip="{content:$t('chat.form.pollBt_aria'), showOnCreate:shouldShowTooltip('poll'), onHidden:()=>onHideTooltip('poll')}"
 						@click="openNotifications('poll')"
-						v-if="$store.poll.data?.id" />
+						v-if="$store.poll.data?.id && $store.poll.data?.isFake != true" />
 				</transition>
 	
 				<transition name="blink">
@@ -101,7 +101,7 @@
 						icon="prediction"
 						v-tooltip="{content:$t('chat.form.predictionBt_aria'), showOnCreate:shouldShowTooltip('prediction'), onHidden:()=>onHideTooltip('prediction')}"
 						@click="openNotifications('prediction')"
-						v-if="$store.prediction.data?.id" />
+						v-if="$store.prediction.data?.id && $store.prediction.data?.isFake != true" />
 				</transition>
 	
 				<transition name="blink">

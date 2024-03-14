@@ -197,6 +197,7 @@ class OverlayParamsPolls extends Vue {
 		poll.choices.forEach(v=> {
 			v.votes = 0;
 		});
+		poll.isFake = true;
 		poll.duration_s = 15;
 		poll.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);

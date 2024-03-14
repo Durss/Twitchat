@@ -453,6 +453,23 @@ export default class DataStore {
 	public static async emergencyBackupStorage():Promise<void> {
 		try {
 			const data = JSON.parse(JSON.stringify(this.rawStore));
+
+			//Do not save sensitive and useless data to server
+			for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
+				delete data[ this.UNSYNCED_DATA[i] ];
+			}
+			
+			//Remove automod items the user asked not to sync to server
+			const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
+			if(automod) {
+				for (let i = 0; i < automod.keywordsFilters.length; i++) {
+					if(!automod.keywordsFilters[i].serverSync) {
+						automod.keywordsFilters.splice(i,1);
+						i--;
+					}
+				}
+			}
+			
 			await ApiHelper.call("user/data/backup", "POST", data);
 		}catch(error) {
 			console.error(error);

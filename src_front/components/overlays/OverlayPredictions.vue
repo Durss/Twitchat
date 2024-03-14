@@ -168,6 +168,7 @@ class OverlayPredictions extends Vue {
 	
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
 		this.parameters = ((e.data as unknown) as {parameters:PredictionOverlayParamStoreData}).parameters;
+		console.log("update params");
 	}
 	
 	public async close():Promise<void> {

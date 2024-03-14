@@ -88,7 +88,7 @@ class ConnectKofi extends Vue {
 	public fakeSubscription:TwitchatDataTypes.KofiSubscriptionData|undefined = undefined;
 
 	public get webhookURL():string {
-		return this.$config.API_PATH+"kofi/webhook";
+		return this.$config.API_PATH+"/kofi/webhook";
 	}
 
 	public beforeMount():void {

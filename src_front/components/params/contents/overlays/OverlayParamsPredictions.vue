@@ -203,6 +203,7 @@ class OverlayParamsPredictions extends Vue {
 			v.voters = 0;
 			v.votes = 0;
 		});
+		predi.isFake = true;
 		predi.duration_s = 15;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);

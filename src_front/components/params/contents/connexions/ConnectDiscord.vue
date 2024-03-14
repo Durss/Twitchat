@@ -364,7 +364,9 @@ export default toNative(ConnectDiscord);
 
 		section {
 			margin: unset;
-			max-width: 320px;
+			&:not(.codeForm) {
+				max-width: 320px;
+			}
 			&>.icon {
 				height: 2em;
 				vertical-align: middle;
