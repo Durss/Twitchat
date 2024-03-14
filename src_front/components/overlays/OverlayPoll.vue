@@ -8,8 +8,8 @@
 				<div class="bar" id="list_choice_bar" :style="getAnswerStyles(c)">
 					<div class="details" id="list_choice_bar_details">
 						<span id="list_choice_bar_details_percent" class="percent" v-if="parameters.showPercent">{{getPercent(c).toFixed(0)}}%</span>
-					</div>
 						<span id="list_choice_bar_details_votes" class="votes" v-if="parameters.showVotes"><Icon name="user" class="icon"/>{{c.votes}}</span>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -186,6 +186,7 @@ class OverlayPoll extends Vue {
 	}
 	
 	private async open():Promise<void> {
+		this.show = true;
 		await this.$nextTick();
 
 		let labels = this.$refs.labels as HTMLElement

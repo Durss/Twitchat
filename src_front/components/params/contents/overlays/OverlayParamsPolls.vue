@@ -210,8 +210,8 @@ class OverlayParamsPolls extends Vue {
 			this.$store.poll.setCurrentPoll(poll);
 		}
 		if(this.param_showOnlyResult.value == true) {
-			fakeVotes();
 			poll.duration_s = 0;
+			fakeVotes();
 		}else{
 			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
 		}

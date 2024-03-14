@@ -189,6 +189,7 @@ class OverlayPredictions extends Vue {
 	}
 	
 	private async open():Promise<void> {
+		this.show = true;
 		await this.$nextTick();
 
 		let labels = this.$refs.labels as HTMLElement
