@@ -543,31 +543,44 @@ export default class TwitchUtils {
 		let emotes:TwitchatDataTypes.Emote[] = [];
 		let emotesTwitch:TwitchDataTypes.Emote[] = [];
 		if(!staticEmotes) {
-			if(!this.hasScopes([TwitchScopes.READ_EMOTES])) {
-				const options = {
-					method:"GET",
-					headers: this.headers,
+			const options = {
+				method:"GET",
+				headers: this.headers,
+			}
+			// do {
+				const url = new URL(Config.instance.TWITCH_API_PATH+"chat/emotes/set");
+				// sets.splice(0,25).forEach(set => {
+				// 	url.searchParams.append("emote_set_id", set);
+				// });
+				//Twitch global emotes
+				url.searchParams.append("emote_set_id", "0");
+				const res = await this.callApi(url, options);
+				const json = await res.json();
+				if(res.status == 200) {
+					emotesTwitch = emotesTwitch.concat(json.data);
+				}else{
+					throw(json);
 				}
-				do {
-					const url = new URL(Config.instance.TWITCH_API_PATH+"chat/emotes/set");
-					sets.splice(0,25).forEach(set => {
-						url.searchParams.append("emote_set_id", set);
-					});
-					const res = await this.callApi(url, options);
-					const json = await res.json();
-					if(res.status == 200) {
-						emotesTwitch = emotesTwitch.concat(json.data);
-					}else{
-						throw(json);
-					}
-				}while(sets.length > 0);
-			}else{
+			// }while(sets.length > 0);
+
+			if(this.hasScopes([TwitchScopes.READ_EMOTES])) {
 				if(channelId == StoreProxy.auth.twitch.user.id) {
 					let userEmotes = await this.getUserEmotes(channelId);
 					if(userEmotes) {
 						emotesTwitch = emotesTwitch.concat(userEmotes);
 					}
 				}
+			}
+
+			//Dedupe emotes. Current API has a bug that returns broadcaster's emotes twice
+			let emotesParsed:{[key:string]:boolean} = {};
+			for (let i = 0; i < emotesTwitch.length; i++) {
+				const emote = emotesTwitch[i];
+				if(emotesParsed[emote.id] === true) {
+					emotesTwitch.splice(i, 1);
+					i--;
+				}
+				emotesParsed[emote.id] = true;
 			}
 		}else{
 			emotesTwitch.push(...staticEmotes);
@@ -2684,16 +2697,6 @@ export default class TwitchUtils {
 			else return [];
 		}while(cursor != null)
 
-		//Dedupe emotes. Current API has a bug that returns broadcaster's emotes twice
-		let emotesParsed:{[key:string]:boolean} = {};
-		for (let i = 0; i < list.length; i++) {
-			const emote = list[i];
-			if(emotesParsed[emote.id] === true) {
-				list.splice(i, 1);
-				i--;
-			}
-			emotesParsed[emote.id] = true;
-		}
 		return list;
 	}
 
