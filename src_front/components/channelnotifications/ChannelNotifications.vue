@@ -56,8 +56,8 @@ import RaidState from './RaidState.vue';
 
 	public get showRaid():boolean { return this.$store.stream.currentRaid != null; }
 	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
-	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && !this.$store.poll.data?.isFake != true; }
-	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && !this.$store.prediction.data?.isFake != true; }
+	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && this.$store.poll.data?.isFake != true; }
+	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
 	public get showRaffle():boolean { return this.currentContent == 'raffle' && this.$store.raffle.data != null && this.$store.raffle.data!.mode == "chat"; }
 	public get showBingo():boolean { return this.currentContent == 'bingo' && this.$store.bingo.data != null; }
 
