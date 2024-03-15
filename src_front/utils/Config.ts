@@ -19,7 +19,7 @@ export default class Config {
 	/**
 	 * Is Twitchat running on a production server ?
 	 */
-	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "192.168.1.10";
+	public IS_PROD:boolean = document.location.hostname != "localhost" && document.location.hostname != "127.0.0.1" && document.location.hostname != "192.168.1.10";
 	/**
 	 * Heat extension URL
 	 */

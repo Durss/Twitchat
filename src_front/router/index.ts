@@ -247,7 +247,7 @@ const routes: Array<RouteRecordRaw> = [
 				}else
 				if(/local-/gi.test(params.csrf)) {
 					params.csrf = params.csrf.replace(/^.*?-/, "");
-					document.location.href = "http://127.0.0.1:8080/streamelements/auth?" + new URLSearchParams(params);
+					document.location.href = "http://localhost:8080/streamelements/auth?" + new URLSearchParams(params);
 				}else{
 					sStreamelements.setAuthResult(params.code, params.csrf);
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);

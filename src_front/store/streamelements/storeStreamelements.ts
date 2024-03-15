@@ -86,6 +86,7 @@ export const storeStreamelements = defineStore('streamelements', {
 			if(data) {
 				const json = JSON.parse(data) as StreamelementsStoreData;
 				this.accessToken = json.accessToken;
+				this.refreshToken = json.refreshToken;
 				if(this.accessToken) {
 					isAutoInit = true;
 					this.connect(this.accessToken);
@@ -134,9 +135,12 @@ export const storeStreamelements = defineStore('streamelements', {
 			if(!StoreProxy.auth.isPremium) return Promise.resolve(false);
 
 			//Token changed
-			if(isReconnect && token != this.accessToken) return Promise.resolve(false);
+			if(isReconnect && token != this.accessToken) {
+				console.log("STREAMELEMENTS: do not reconnect because token changed",token, this.accessToken)
+				return Promise.resolve(false);
+			}
 			
-			this.disconnect();
+			if(!this.connected && !isReconnect) this.disconnect();
 
 			if(!isReconnect) {
 				this.accessToken = token;
@@ -150,25 +154,35 @@ export const storeStreamelements = defineStore('streamelements', {
 					headers: { "Authorization":"OAuth "+token },
 					method:"GET",
 				}
+				console.log("STREAMELEMENTS: checking token validity...")
 				let validateResult = await fetch("https://api.streamelements.com/oauth2/validate", opts);
 				if(validateResult.status == 200) {
 					const json = (await validateResult.json()) as StreamelementsTokenValidate;
 					//If token expires in more than a day (default 30days) accept it
 					if(json.expires_in > 24*60*60) {
-						tokenValid = true
+						tokenValid = true;
 					}
 				}
+				//Streamelements API returns random 520 errors.
+				//In this case, just consider the token is valid is it will most probably be the case
+				if(validateResult.status == 520) tokenValid = true;
+				console.log("STREAMELEMENTS: checking token valid? ", tokenValid);
 			}catch(error) {}
 
 			//Token expired or will expire soon?
 			//Refresh it
 			if(!tokenValid) {
+				if(!this.refreshToken) return false;
 				try {
-					const result = await ApiHelper.call("streamelements/token/refresh", "POST", {}, false)
+					console.log("STREAMELEMENTS: token not valid, get fresh new one");
+					const result = await ApiHelper.call("streamelements/token/refresh", "POST", {refreshToken:this.refreshToken}, false)
 					if(result.json.success) {
 						this.accessToken = result.json.accessToken!;
 						this.refreshToken = result.json.refreshToken!;
+						this.saveData();
+						console.log("STREAMELEMENTS: got new token", this.accessToken);
 					}else{
+						console.log("STREAMELEMENTS: failed getting a new token");
 						return false;
 					}
 				}catch(error){
@@ -201,7 +215,11 @@ export const storeStreamelements = defineStore('streamelements', {
 							//Send PING command regularly
 							if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 							pingInterval = SetIntervalWorker.instance.create(()=>{
-								socket?.send("2");
+								if(socket?.readyState == socket?.CLOSING || socket?.readyState == socket?.CLOSED) {
+									console.log("SOCKET STATE", socket?.readyState);
+								}else{
+									socket?.send("2");
+								}
 							}, message.pingInterval || 10000);
 						}
 						
@@ -386,6 +404,10 @@ export const storeStreamelements = defineStore('streamelements', {
 				};
 			
 				socket.onclose = (event) => {
+					console.log("STREAMELEMENTS: onclose:");
+					console.log(token, this.accessToken);
+					console.log(autoReconnect);
+					console.log(event);
 					//Do not reconnect if token changed
 					if(token != this.accessToken) return;
 					if(!autoReconnect) return;
@@ -400,9 +422,11 @@ export const storeStreamelements = defineStore('streamelements', {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
+					console.log("STREAMELEMENTS: reconnect in",500 * reconnectAttempts)
 				};
 				
 				socket.onerror = (error) => {
+					console.log("STREAMELEMENTS: onerror:", error);
 					resolve(false);
 					this.connected = false;
 					rebuildPlaceholdersCache();
@@ -433,6 +457,7 @@ export const storeStreamelements = defineStore('streamelements', {
 		saveData():void {
 			const data:StreamelementsStoreData = {
 				accessToken:this.accessToken,
+				refreshToken:this.refreshToken,
 			}
 			DataStore.set(DataStore.STREAMELEMENTS, data);
 		}
@@ -448,6 +473,7 @@ export const storeStreamelements = defineStore('streamelements', {
 
 export interface StreamelementsStoreData {
 	accessToken:string;
+	refreshToken:string;
 }
 
 type EventTypes = StreamelementsTipData;

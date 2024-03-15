@@ -293,7 +293,7 @@ export const storeHeat = defineStore('heat', {
 				//Ignore distortions not linked to a scene
 				if(d.obsItemPath.source.name || d.obsItemPath.groupName) continue;
 				//Ignore distortions not linked to a scene
-				if(d.obsItemPath.sceneName != StoreProxy.main.currentOBSScene) continue;
+				// if(d.obsItemPath.sceneName != StoreProxy.main.currentOBSScene) continue;
 
 				OBSWebsocket.instance.log("Reroute click from scene \""+d.obsItemPath.sceneName+"\" to overlay ID \""+d.id+"\"");
 				const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventDataTemplate;

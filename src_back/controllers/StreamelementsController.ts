@@ -3,6 +3,7 @@ import AbstractController from "./AbstractController";
 import Config from "../utils/Config";
 import * as fetch from "node-fetch";
 import { URLSearchParams } from "url";
+import Logger from "../utils/Logger";
 
 /**
 * Created : 01/03/2024 
@@ -53,7 +54,7 @@ export default class StreamelementsController extends AbstractController {
 			code:			(request.body as any).code,
 		};
 
-		const params = new URLSearchParams(body)
+		const params = new URLSearchParams(body);
 
 		try {
 			const slRes = await fetch("https://api.streamelements.com/oauth2/token?"+params, {method:"POST", headers});
@@ -84,22 +85,35 @@ export default class StreamelementsController extends AbstractController {
 			"Content-Type": "application/x-www-form-urlencoded",
 		};
 		const body = {
-			grant_type:		'refresh_token',
-			client_id:		Config.credentials.streamlabs_client_id,
-			client_secret:	Config.credentials.streamlabs_client_secret,
+			grant_type:		"refresh_token",
+			client_id:		Config.credentials.streamelements_client_id,
+			client_secret:	Config.credentials.streamelements_client_secret,
 			refresh_token:	(request.body as any).refreshToken,
 		};
 
+		const params = new URLSearchParams(body);
+
+		let text = "";
 		try {
-			const slRes = await fetch("https://api.streamelements.com/oauth2/token", {method:"POST", headers, body:JSON.stringify(body)});
-			const json = await slRes.json();
+			const slRes = await fetch("https://api.streamelements.com/oauth2/token?"+params, {method:"POST", headers});
+			text = await slRes.text();
+			const json = JSON.parse(text);
 
-			console.log(json);
+			if(!json.access_token) {
+				Logger.error("Unable to refresh streamelements token");
+				console.log(text);
+				response.header('Content-Type', 'application/json')
+				.status(500)
+				.send(JSON.stringify({success:false, errorCode:"UNNKOWN", error:json.error_description || "unknown error"}));
+			}else{
+				response.header('Content-Type', 'application/json')
+				.status(200)
+				.send(JSON.stringify({success:true, accessToken:json.access_token, refreshToken:json.refresh_token}));
+			}
 
-			response.header('Content-Type', 'application/json')
-			.status(200)
-			.send(JSON.stringify({success:json.access_token !== undefined, accessToken:json.access_token, refreshToken:json.refresh_token}));
 		}catch(error) {
+			Logger.error("Unable to refresh streamelements token");
+			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(500)
 			.send(JSON.stringify({success:false, errorCode:"JSON_PARSING_FAILED", error:"json parsing failed"}));
