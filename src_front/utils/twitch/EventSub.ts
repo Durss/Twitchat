@@ -89,6 +89,7 @@ export default class EventSub {
 				}
 
 				case "session_keepalive": {
+					this.scheduleReconnect();
 					break;
 				}
 
@@ -98,12 +99,8 @@ export default class EventSub {
 				}
 
 				case "notification": {
+					this.scheduleReconnect();
 					this.parseEvent(message.metadata.subscription_type, message.payload);
-					clearTimeout(this.reconnectTimeout);
-					this.reconnectTimeout = setTimeout(()=>{
-						// console.log("EVENTSUB : Session keep alive not received");
-						this.connect();
-					}, (this.keepalive_timeout_seconds + 5) * 1000);
 					break;
 				}
 				
@@ -188,6 +185,17 @@ export default class EventSub {
 		socket.onclose = null;
 		socket.onopen = null;
 		socket.close();
+	}
+
+	/**
+	 * Schedules a reconnect after requested duration of inactivity
+	 */
+	private scheduleReconnect():void {
+		clearTimeout(this.reconnectTimeout);
+		this.reconnectTimeout = setTimeout(()=>{
+			console.log("EVENTSUB : Session keep alive not received within the expected timeframe");
+			this.connect();
+		}, (this.keepalive_timeout_seconds + 5) * 1000);
 	}
 
 	/**
@@ -538,7 +546,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public subscriptionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent):void {
+	private subscriptionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent):void {
 		const sub = event as TwitchEventSubDataTypes.SubEvent;
 		const renew = event as TwitchEventSubDataTypes.SubRenewEvent;
 
@@ -580,7 +588,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public async bitsEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsEvent):Promise<void> {
+	private async bitsEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsEvent):Promise<void> {
 
 		//THIS IS AN UNTESTED DRAFT THAT IS NOT USED AT THE MOMENT
 
@@ -613,7 +621,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public async raidEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RaidEvent):Promise<void> {
+	private async raidEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RaidEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
 		if(event.from_broadcaster_user_id == me.id) {
 			//Raid complete
@@ -664,7 +672,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
+	private async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageBanData = {
@@ -687,7 +695,7 @@ export default class EventSub {
 		StoreProxy.chat.addMessage(m);
 	}
 	
-	public unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
+	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
 		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
 		const m:TwitchatDataTypes.MessageUnbanData = {
@@ -704,7 +712,7 @@ export default class EventSub {
 		StoreProxy.chat.addMessage(m);
 	}
 	
-	public modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
+	private modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
 		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const m:TwitchatDataTypes.MessageModerationAction = {
@@ -721,7 +729,7 @@ export default class EventSub {
 		StoreProxy.chat.addMessage(m);
 	}
 	
-	public modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
+	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
 		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
 		const m:TwitchatDataTypes.MessageModerationAction = {
@@ -856,7 +864,7 @@ export default class EventSub {
 	 * Called when an Ad break is started.
 	 * Either manually or automatically.
 	 */
-	public adBreakEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AdBreakEvent):void {
+	private adBreakEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.AdBreakEvent):void {
 		const infos = StoreProxy.stream.getCommercialInfo(event.broadcaster_user_id);
 		//Thank you twitch for writing a completely wrong documentation...
 		//don't know if they'll change the doc or the service, so i handle both cases
@@ -883,7 +891,7 @@ export default class EventSub {
 	 * @param topic 
 	 * @param event 
 	 */
-	public async unbanRequestEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent):Promise<void> {
+	private async unbanRequestEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent):Promise<void> {
 		let message:TwitchatDataTypes.MessageUnbanRequestData = {
 			channel_id:event.broadcaster_user_id,
 			date:Date.now(),
