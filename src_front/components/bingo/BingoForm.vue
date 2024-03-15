@@ -125,14 +125,18 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 	public async beforeMount():Promise<void> {
 		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.form.winner_placeholder", example:this.$store.auth.twitch.user.displayName}];
-		if(this.triggerMode && this.action.bingoData) {
-			if(this.action.bingoData.guessNumber) this.mode = "num";
-			if(this.action.bingoData.guessEmote) this.mode = "emote";
-			if(this.action.bingoData.guessCustom) this.mode = "custom";
-			this.minValue.value = this.action.bingoData.min;
-			this.maxValue.value = this.action.bingoData.max;
-			this.customValue.value = this.action.bingoData.customValue;
-			this.customValueTolerance.value = this.action.bingoData.customValueTolerance ?? 0;
+		if(this.triggerMode) {
+			if(this.action.bingoData) {
+				if(this.action.bingoData.guessNumber) this.mode = "num";
+				if(this.action.bingoData.guessEmote) this.mode = "emote";
+				if(this.action.bingoData.guessCustom) this.mode = "custom";
+				this.minValue.value = this.action.bingoData.min;
+				this.maxValue.value = this.action.bingoData.max;
+				this.customValue.value = this.action.bingoData.customValue;
+				this.customValueTolerance.value = this.action.bingoData.customValueTolerance ?? 0;
+			}else{
+				this.onValueChange();
+			}
 		}
 
 		this.customValueTolerance.listValues = [

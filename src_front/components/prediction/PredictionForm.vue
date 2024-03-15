@@ -153,11 +153,15 @@ import DataStore from '@/store/DataStore';
 			this.param_duration.value = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
 		}
 
-		if(this.triggerMode && this.action.predictionData) {
-			this.param_duration.value = this.action.predictionData.voteDuration;
-			this.title = this.action.predictionData.title;
-			for (let i = 0; i < this.action.predictionData.answers.length; i++) {
-				this.answers[i] = this.action.predictionData.answers[i];
+		if(this.triggerMode) {
+			if(this.action.predictionData) {
+				this.param_duration.value = this.action.predictionData.voteDuration;
+				this.title = this.action.predictionData.title;
+				for (let i = 0; i < this.action.predictionData.answers.length; i++) {
+					this.answers[i] = this.action.predictionData.answers[i];
+				}
+			}else{
+				this.onValueChange();
 			}
 		}
 

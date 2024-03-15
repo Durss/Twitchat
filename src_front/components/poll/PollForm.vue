@@ -121,13 +121,17 @@ import DataStore from '@/store/DataStore';
 			this.param_duration.value = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
 		}
 
-		if(this.triggerMode && this.action.pollData) {
-			this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
-			this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
-			this.param_duration.value = this.action.pollData.voteDuration;
-			this.title = this.action.pollData.title;
-			for (let i = 0; i < this.action.pollData.answers.length; i++) {
-				this.answers[i] = this.action.pollData.answers[i];
+		if(this.triggerMode) {
+			if(this.action.pollData) {
+				this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
+				this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
+				this.param_duration.value = this.action.pollData.voteDuration;
+				this.title = this.action.pollData.title;
+				for (let i = 0; i < this.action.pollData.answers.length; i++) {
+					this.answers[i] = this.action.pollData.answers[i];
+				}
+			}else{
+				this.onValueChange();
 			}
 		}
 
