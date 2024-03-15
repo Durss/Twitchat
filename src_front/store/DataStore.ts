@@ -111,6 +111,7 @@ export default class DataStore {
 	 * These values won't be saved to the server
 	 */
 	private static UNSYNCED_DATA:string[] = [
+		"syncToserver",
 		this.AB_SENTRY,
 		this.OBS_PASS,
 		this.TWITCH_AUTH_TOKEN,
@@ -371,6 +372,9 @@ export default class DataStore {
 
 		try {
 			const res = await ApiHelper.call("user/data");
+			//Do not import remote data under ver specific data version combo as a
+			//hot fix for a massive mistake losing all users data
+			if(res.json.data["v"] < 53 && parseInt(this.get(DataStore.DATA_VERSION)) == 52) return true;
 			if(importToLS) {
 				// console.log("Import to local storage...");
 				//Import data to local storage.
@@ -1645,7 +1649,6 @@ export default class DataStore {
 	 */
 	public static dedupeTriggerTree(data:any):void {
 		
-		//Migrate durations on triggers
 		const tree:TriggerActionDataTypes.TriggerTreeItemData[] = data[DataStore.TRIGGERS_TREE];
 		if(tree && Array.isArray(tree)) {
 			const isInFolder:{[key:string]:boolean} = {};

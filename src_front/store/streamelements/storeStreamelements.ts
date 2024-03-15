@@ -393,6 +393,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					this.connected = false;
 					rebuildPlaceholdersCache();
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+					pingInterval = "";
 					clearTimeout(reconnectTimeout);
 					reconnectAttempts ++;
 					reconnectTimeout = setTimeout(()=> {
@@ -408,6 +409,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					if(!autoReconnect) return;
 					reconnectAttempts ++;
 					if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+					pingInterval = "";
 					clearTimeout(reconnectTimeout);
 					reconnectTimeout = setTimeout(()=> {
 						socket = undefined;
@@ -423,6 +425,7 @@ export const storeStreamelements = defineStore('streamelements', {
 			this.accessToken = "";
 			this.saveData();
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+			pingInterval = "";
 			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();
 		},

@@ -4,6 +4,7 @@
 		"unkinkBt":"Délier de {GUILD}",
 		"install_bt":"Installez Twitchat sur votre Discord",
 		"install_code":"Utilisez la commande {CMD} sur Discord, puis entrez le code reçu ci-dessous",
+		"install_warn":"Assurez vous que le bot Twitchat ait les droits d'écriture dans le salon dans lequel vous utilisez la commande {CMD} et tout autre salon dans lequel vous comptez l'utiliser.",
 		"install_confirm":"Souhaitez-vous lier Twitchat avec le serveur Discord suivant?",
 		"reactions":"Permettre d'ajouter une réaction aux messages reçus",
 		"channel_logs":"Salon Discord dans lequel enregistrer des messages de tchat",

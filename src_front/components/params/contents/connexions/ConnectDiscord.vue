@@ -117,11 +117,18 @@
 						v-click2Select
 						ref="codeInput">
 				</div>
+				
+				<div class="info">
+					<Icon name="alert" />
+					<i18n-t scope="global" keypath="discord.install_warn">
+						<template #CMD><mark>/link</mark></template>
+					</i18n-t>
+				</div>
 				<Icon class="loader" name="loader" v-if="linkLoading" />
 			</section>
 			
 		</div>
-		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">{{ $t("error.discord."+errorCode) }}</div>
+		<div @click="errorCode = ''" v-if="errorCode" class="card-item alert error">{{ $t("error.discord."+errorCode, {CHANNEL:errorChan}) }}</div>
 
 	</div>
 </template>
@@ -158,6 +165,7 @@ class ConnectDiscord extends Vue implements IParameterContent {
 	public linkLoading:boolean = false;
 	public askLinkConfirmation:boolean = false;
 	public errorCode:string = "";
+	public errorChan:string = "";
 	public param_reactions:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.reactions"};
 	public param_banLogThread:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"discord.channel_ban_log_thread"};
 	public messagePreview:TwitchatDataTypes.MessageCustomData = {
@@ -271,7 +279,10 @@ class ConnectDiscord extends Vue implements IParameterContent {
 		this.submitting = true;
 
 		const res = await this.$store.discord.submitCode(this.code);
-		if(res !== true) this.errorCode = res;
+		if(res !== true) {
+			this.errorCode = res.code;
+			this.errorChan = res.channelName || "???";
+		}
 		this.askLinkConfirmation = false;
 
 		this.submitting = false;

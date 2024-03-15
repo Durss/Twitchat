@@ -90,7 +90,7 @@ export interface IMainState {
 	 * When right cliking a message we can export it as an
 	 * image. This object contains the export state.
 	 */
-	messageExportState:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"discord"|"error"|null;
+	messageExportState:{id:"progress"|"complete"|"complete_downloadOnly"|"complete_copyOnly"|"discord"|"error"|"error_discord_access", params?:any}|null;
 	/**
 	 * Method to call to trigger install of twitchat on the device
 	 */
@@ -2228,7 +2228,7 @@ export interface IDiscordActions {
 	 * Submit the given code to confirm discord link
 	 * @param code 
 	 */
-	submitCode(code:string):Promise<true|string>;
+	submitCode(code:string):Promise<true|{code:string, channelName?:string}>;
 	/**
 	 * Remove the lmink with discord
 	 */

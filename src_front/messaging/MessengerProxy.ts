@@ -600,7 +600,16 @@ export default class MessengerProxy {
 			const discordChan = StoreProxy.discord.chatCmdTarget;
 			if(discordChan) {
 				const res = await ApiHelper.call("discord/message", "POST", {message:params.join(" "), channelId:discordChan});
-				console.log(res);
+				if(res.status != 200) {
+					switch(res.json.errorCode) {
+						case "POST_FAILED":
+							StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName}));
+							break;
+						default:
+							StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+							break;
+					}
+				}
 				return true;
 			}
 		}else

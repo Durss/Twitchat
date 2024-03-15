@@ -69,19 +69,19 @@ export const storeDiscord = defineStore('discord', {
 			}catch(error){};
 			return {success:false, errorCode:"UNKNOWN"};
 		},
-		async submitCode(code:string):Promise<true|string> {
+		async submitCode(code:string):Promise<true|{code:string, channelName?:string}> {
 			try {
 				const result = await ApiHelper.call("discord/code", "POST", {code}, false);
 				if(result.json.success === true) {
 					await this.initialize();
 					return true;
 				}else if(result.status == 401){
-					return result.json.errorCode || "UNAUTHORIZED";
+					return {code:result.json.errorCode || "UNAUTHORIZED", channelName:result.json.channelName};
 				}else{
-					return result.json.errorCode || "UNKNOWN";
+					return {code:result.json.errorCode || "UNKNOWN", channelName:result.json.channelName};
 				}
 			}catch(error){};
-			return "UNKNOWN";
+			return {code:"UNKNOWN"};
 		},
 		async unlinkDiscord():Promise<true|string> {
 			try {

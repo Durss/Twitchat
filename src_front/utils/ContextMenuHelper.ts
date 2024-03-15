@@ -702,9 +702,9 @@ export default class ContextMenuHelper {
 								| TwitchatDataTypes.MessageUnbanRequestData
 								| TwitchatDataTypes.MessageRaidData, htmlNode:HTMLElement, discord:boolean = false):Promise<void> {
 
-		StoreProxy.main.messageExportState = "progress";
+		StoreProxy.main.messageExportState = {id:"progress"};
 		const errorTimeout = setTimeout(()=> {
-			StoreProxy.main.messageExportState = "error";
+			StoreProxy.main.messageExportState = {id:"error"};
 		}, 10000)
 		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
 		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
@@ -865,13 +865,17 @@ export default class ContextMenuHelper {
 								ApiHelper.call("discord/image", "POST", formData, false, 0, {"Content-Rype": "multipart/form-data"})
 								.then(result=> {
 									if(result.status == 200) {
-										StoreProxy.main.messageExportState = "discord";
+										StoreProxy.main.messageExportState = {id:"discord"};
 									}else{
-										StoreProxy.main.messageExportState = "error";
+										if(result.json.channelName) {
+											StoreProxy.main.messageExportState = {id:"error_discord_access", params:{CHANNEL:result.json.channelName}};
+										}else{
+											StoreProxy.main.messageExportState = {id:"error"};
+										}
 									}
 									clearTimeout(errorTimeout);
 								}).catch(error =>{
-									StoreProxy.main.messageExportState = "error";
+									StoreProxy.main.messageExportState = {id:"error"};
 									clearTimeout(errorTimeout);
 								});
 							});
@@ -885,11 +889,11 @@ export default class ContextMenuHelper {
 								navigator.clipboard.write([
 									new ClipboardItem({ 'image/png': blob!}),
 								]).then(()=>{
-									StoreProxy.main.messageExportState = downloaded? "complete" : "complete_copyOnly";
+									StoreProxy.main.messageExportState = {id:downloaded? "complete" : "complete_copyOnly"};
 									clearTimeout(errorTimeout);
 								}).catch((error)=> {
 									console.log(error);
-									StoreProxy.main.messageExportState = downloaded? "complete_downloadOnly" : "error";
+									StoreProxy.main.messageExportState = {id:downloaded? "complete_downloadOnly" : "error"};
 									clearTimeout(errorTimeout);
 								});
 							}, "image/png");
@@ -899,7 +903,7 @@ export default class ContextMenuHelper {
 				})
 				.catch((error:any) => {
 					console.error('DOM node export failed', error);
-					StoreProxy.main.messageExportState = "error";
+					StoreProxy.main.messageExportState = {id:"error"};
 					clearTimeout(errorTimeout);
 				});
 			});
@@ -907,7 +911,7 @@ export default class ContextMenuHelper {
 		})
 		.catch((error:any) => {
 			console.error('DOM node export failed', error);
-			StoreProxy.main.messageExportState = "error";
+			StoreProxy.main.messageExportState = {id:"error"};
 			clearTimeout(errorTimeout);
 		});
 	}
@@ -933,6 +937,14 @@ export default class ContextMenuHelper {
 			const result = await ApiHelper.call("discord/ticket", "POST", {message:text, channelId, threadName});
 			if(result.json.success && result.json.messageLink) {
 				MessengerProxy.instance.sendMessage("@"+message.user.login+" "+result.json.messageLink!, [message.platform], message.channel_id)
+			}else if(!result.json.success) {
+				if(result.json.errorCode == "POST_FAILED") {
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+					return;
+				}else{
+					StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+					return;
+				}
 			}
 		}catch(error) {
 

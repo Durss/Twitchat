@@ -67,6 +67,7 @@ export default class DiscordController extends AbstractController {
 				}
 			}
 		}, 5000);
+
 		return this;
 	}
 
@@ -155,9 +156,11 @@ export default class DiscordController extends AbstractController {
 			.send(JSON.stringify({success:true, messageId:message.id}));
 
 		}catch(error) {
+			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
+			const channel = channels.find(v=>v.id == params.channelId);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -166,8 +169,8 @@ export default class DiscordController extends AbstractController {
 	 * Create a new thread and post the given message in it
 	 */
 	private async postThread(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const res = await this.guildGuard(request, response);
-		if(res == false) return;
+		const guard = await this.guildGuard(request, response);
+		if(guard == false) return;
 
 		const params = request.body as {message:string, channelId:string, threadName:string, history:string[]};
 
@@ -207,10 +210,12 @@ export default class DiscordController extends AbstractController {
 			.send(JSON.stringify({success:true, messageId:message.id}));
 
 		}catch(error) {
+			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
+			const channel = channels.find(v=>v.id == params.channelId);
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -266,8 +271,8 @@ export default class DiscordController extends AbstractController {
 	 * Create discord thread on the given chan and returns ots link
 	 */
 	private async postTicket(request:FastifyRequest, response:FastifyReply):Promise<void> {
-		const auth = await this.guildGuard(request, response);
-		if(auth == false) return;
+		const guard = await this.guildGuard(request, response);
+		if(guard == false) return;
 
 		const params = request.body as {message:string, channelId:string, threadName:string};
 
@@ -284,17 +289,19 @@ export default class DiscordController extends AbstractController {
 			const thread = (await this._rest.post(Routes.threads(params.channelId, message.id), {body})) as {id:string};
 			if(!thread.id) throw(new Error("Failed creating thread"));
 
-			const messageLink = "https://discord.com/channels/"+auth.guild.guildID+"/"+thread.id;
+			const messageLink = "https://discord.com/channels/"+guard.guild.guildID+"/"+thread.id;
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
 			.send(JSON.stringify({success:true, messageLink}));
 
 		}catch(error) {
+			const channels = await this._rest.get(Routes.guildChannels(guard.guild.guildID)) as {id:string, name:string}[];
+			const channel = channels.find(v=>v.id == params.channelId);
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(401)
-			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", success:false}));
+			.send(JSON.stringify({message:"Failed posting message to Discord", errorCode:"POST_FAILED", channelName:channel? channel.name : "", success:false}));
 			return;
 		}
 	}
@@ -383,11 +390,22 @@ export default class DiscordController extends AbstractController {
 			
 			//Send to discord
 			await this._rest.post(Routes.channelMessages(guild.logChanTarget), {body,files:[upload]});
-		}catch(error) {
-			console.log(error);
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({message:"Invalid file", success:false}));
+		}catch(error:unknown) {
+			const typedError = error as {code:number, message:string};
+			Logger.error("Unable to send message image to discord")
+			console.log(typedError.message);
+			if(typedError.code == 50001) {
+				const channels = await this._rest.get(Routes.guildChannels(guild.guildID)) as {id:string, name:string}[];
+				const channel = channels.find(v=>v.id == guild.logChanTarget);
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({error:"Missing permission", errorCode:"MISSING_ACCESS", channelName:channel? channel.name : "", success:false}));
+
+			}else{
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({error:"Invalid file", success:false}));
+			}
 			return;
 		}
 
@@ -441,8 +459,8 @@ export default class DiscordController extends AbstractController {
 				fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 				this.buildTwitchHashmap();
 			}catch(error:any) {
-				const result:{status:number} = error;
-				status = result.status;
+				const errorObj:{status:number} = error;
+				status = errorObj.status;
 				if(status == 403) {
 					errorCode = "MISSING_ACCESS";
 					token.expires_at += 5 * 60000;

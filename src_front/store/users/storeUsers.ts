@@ -584,12 +584,14 @@ export const storeUsers = defineStore('users', {
 			}else{
 				//Send logs to discord if requested
 				const sDiscord = StoreProxy.discord;
-				//Get creation date of the user if not already existing
 				if(sDiscord.discordLinked && sDiscord.banLogTarget && bannedUser) {
+					//Get creation date of the user if not already existing
 					if(!bannedUser.created_at_ms && platform == "twitch") {
 						const res = await TwitchUtils.loadUserInfo([uid]);
 						if(res.length > 0) bannedUser.created_at_ms = new Date(res[0].created_at).getTime();
 					}
+
+					//Get history of the user to be logged to discord
 					let history = [];
 					const t = StoreProxy.i18n.t;
 					const messages = StoreProxy.chat.messages;
@@ -655,6 +657,7 @@ export const storeUsers = defineStore('users', {
 					if(message) {
 						history.unshift(message);
 					}
+					//Format first message sent
 					const followDate = bannedUser.channelInfo[channelId].following_date_ms;
 					const followDateStr = followDate? Utils.formatDate(new Date(followDate), true) : t('discord.log_pattern.not_following');
 					const createDateStr = bannedUser.created_at_ms? Utils.formatDate(new Date(bannedUser.created_at_ms!)) : "-";
@@ -668,18 +671,37 @@ export const storeUsers = defineStore('users', {
 
 					if(sDiscord.banLogThread == true) {
 						//Send in a thread
-						ApiHelper.call("discord/thread", "POST", {
+						const result = await ApiHelper.call("discord/thread", "POST", {
 							message:messageStr,
 							channelId:sDiscord.banLogTarget,
 							threadName:bannedUser.login+" #"+bannedUser.id,
 							history,
 						});
+						
+						if(!result.json.success) {
+							if(result.json.errorCode == "POST_FAILED") {
+								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+								return;
+							}else{
+								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+								return;
+							}
+						}
 					}else{
 						//Send as normal messages
-						await ApiHelper.call("discord/message", "POST", {
+						const result = await ApiHelper.call("discord/message", "POST", {
 							message:messageStr,
 							channelId:sDiscord.banLogTarget,
 						});
+						if(!result.json.success) {
+							if(result.json.errorCode == "POST_FAILED") {
+								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+								return;
+							}else{
+								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+								return;
+							}
+						}
 						
 						history.forEach(async message=> {
 							await ApiHelper.call("discord/message", "POST", {

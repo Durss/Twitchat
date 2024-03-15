@@ -1,17 +1,19 @@
 <template>
 	<div class="messageexportindicator blured-background-window"
+	:class="classes"
 	@click="close()">
-		<Icon class="loader" name="loader" v-if="state == 'progress'" v-tooltip="$t('global.messageExport.tooltip')" />
-		<div class="message error" v-else-if="state == 'error'">{{ $t("global.messageExport.error") }}</div>
+		<Icon class="loader" name="loader" v-if="state.id == 'progress'" v-tooltip="$t('global.messageExport.tooltip')" />
+		<div class="message error" v-else-if="state.id == 'error'">{{ $t("global.messageExport.error", state.params) }}</div>
+		<div class="message error" v-else-if="state.id == 'error_discord_access'">{{ $t("error.discord.MISSING_ACCESS", state.params) }}</div>
 		<div class="message" v-else>
-			<div v-if="state == 'complete_downloadOnly' || state == 'complete'">
-				<Icon name="checkmark" />{{ $t("global.messageExport.complete_downloaded") }}
+			<div v-if="state.id == 'complete_downloadOnly' || state.id == 'complete'">
+				<Icon name="checkmark" />{{ $t("global.messageExport.complete_downloaded", state.params) }}
 			</div>
-			<div v-if="state == 'complete_downloadOnly' || state == 'discord'">
-				<Icon name="checkmark" />{{ $t("global.messageExport.complete_discord") }}
+			<div v-if="state.id == 'complete_downloadOnly' || state.id == 'discord'">
+				<Icon name="checkmark" />{{ $t("global.messageExport.complete_discord", state.params) }}
 			</div>
-			<div v-if="state == 'complete_copyOnly' || state == 'complete'">
-				<Icon name="checkmark" />{{ $t("global.messageExport.complete_copied") }}
+			<div v-if="state.id == 'complete_copyOnly' || state.id == 'complete'">
+				<Icon name="checkmark" />{{ $t("global.messageExport.complete_copied", state.params) }}
 			</div>
 		</div>
 	</div>
@@ -33,21 +35,28 @@ import { watch } from 'vue';
 	private closeTimeout:number = -1;
 
 	public get state() {
-		return this.$store.main.messageExportState;
+		return this.$store.main.messageExportState!;
+	}
+
+	public get classes():string[] {
+		const res:string[] = [];
+		if(this.state.id == "error"
+		|| this.state.id == "error_discord_access") res.push("error");
+		return res;
 	}
 
 	public close() {
-		if(this.state == "progress") return;
+		if(this.state.id == "progress") return;
 		this.$store.main.messageExportState = null;
 	}
 
 	public mounted():void {
 		watch(() => this.state, () => {
 			//Auto close after success
-			if(this.state == "complete"
-			|| this.state == "discord"
-			|| this.state == "complete_copyOnly"
-			|| this.state == "complete_downloadOnly") {
+			if(this.state.id == "complete"
+			|| this.state.id == "discord"
+			|| this.state.id == "complete_copyOnly"
+			|| this.state.id == "complete_downloadOnly") {
 				this.closeTimeout = setTimeout(() => {
 					this.$store.main.messageExportState = null;
 				}, 7000);
@@ -86,6 +95,10 @@ export default toNative(MessageExportIndicator);
 			height: 1em;
 			margin-right: .5em;
 		}
+	}
+
+	&.error {
+		background-color: red;
 	}
 }
 </style>

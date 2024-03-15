@@ -386,6 +386,9 @@ type ApiEndpoints =  {
 	"discord/image": {
 		POST: {
 			success:boolean;
+			error?:string;
+			errorCode?:string;
+			channelName?:string;
 		}
 	};
 	"discord/link": {
@@ -419,12 +422,18 @@ type ApiEndpoints =  {
 		POST: {
 			success:boolean;
 			messageId:string;
+			error?:string;
+			errorCode?:string;
+			channelName?:string;
 		}
 	};
 	"discord/thread": {
 		POST: {
 			success:boolean;
 			messageId:string;
+			error?:string;
+			errorCode?:string;
+			channelName?:string;
 		}
 	};
 	"discord/commands": {
@@ -440,6 +449,7 @@ type ApiEndpoints =  {
 			error?:string;
 			errorCode?:string;
 			messageLink?:string;
+			channelName?:string;
 		}
 	};
 	"streamlabs/auth": {
