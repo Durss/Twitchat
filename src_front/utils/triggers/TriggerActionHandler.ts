@@ -2374,7 +2374,7 @@ export default class TriggerActionHandler {
 				//Handle Discord action
 				if(step.type == "discord") {
 					logStep.messages.push({date:Date.now(), value:"Execute discord action \""+step.discordAction.action+"\""});
-					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent);
+					const messageText = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.discordAction.message, subEvent, false, false, false);
 					logStep.messages.push({date:Date.now(), value:"Sending message: "+messageText});
 					try {
 						const res = await ApiHelper.call("discord/message", "POST", {message:messageText, channelId:step.discordAction.channelId});
