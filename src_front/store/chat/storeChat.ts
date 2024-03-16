@@ -995,7 +995,7 @@ export const storeChat = defineStore('chat', {
 						}
 	
 						//Flag as spoiler
-						if(message.message.indexOf("||") == 0 || /^@[0-9a-z]+ \|\|/gi.test(message.message)) message.spoiler = true;
+						if(message.message.indexOf("||") == 0 || (message.answersTo && /^@[0-9a-z]+ \|\|/gi.test(message.message))) message.spoiler = true;
 	
 						//check if it's a chat alert command
 						if(sParams.features.alertMode.value === true && 
