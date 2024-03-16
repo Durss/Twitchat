@@ -127,7 +127,6 @@
 				
 				<TTButton class="button" @click.capture="selectActionType('discord')"
 					icon="discord"
-					premium
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_triggerAction_discord'}"
 					:disabled="!discordEnabled"
 					v-tooltip="discordEnabled? '' : $t('triggers.actions.common.action_discord_tt')">{{ $t('triggers.actions.common.action_discord') }}</TTButton>
