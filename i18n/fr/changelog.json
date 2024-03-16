@@ -57,7 +57,7 @@
 			{
 				"i": "discord",
 				"l": "Connexion Discord",
-				"d": "Link Twitchat with Discord to make communication with your mods easier.\n\n<ul><li>Permettez à vos modos de vous contacter depuis Discord</li><li>Contactez vos modos sur Discord depuis Twitchat</li><li>Sauvegarder l'historique récent des activités d'une personne bannie</li><li>Enregistrez n'importe quel message sur Discord en un click droit</li><li>Créez des actions rapides personnalisées</li><li>Envoyez des messages sur Discord depuis les triggers</li><li>Créez des /commandes Discord depuis les triggers</li><li>Envoyez un message sur Discord lorsque vous lancez un live</li></ul>",
+				"d": "Liez Twitchat à Discord pour rendre la communication avec vos modos plus fluide.\n\n<ul><li>Permettez à vos modos de vous contacter depuis Discord</li><li>Contactez vos modos sur Discord depuis Twitchat</li><li>Sauvegarder l'historique récent des activités d'une personne bannie</li><li>Enregistrez n'importe quel message sur Discord en un click droit</li><li>Créez des actions rapides personnalisées</li><li>Envoyez des messages sur Discord depuis les triggers</li><li>Créez des /commandes Discord depuis les triggers</li><li>Envoyez un message sur Discord lorsque vous lancez un live</li></ul>",
 				"y": "https://www.youtube.com/playlist?list=PLJsQIzUbrDiE5u6g3PlD20K_eyYX3Z3y-",
 				"a": {
 					"l": "Tester",
