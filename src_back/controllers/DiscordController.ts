@@ -811,7 +811,7 @@ export default class DiscordController extends AbstractController {
 				response.status(200).send({
 					type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 					data: {
-						content: "**:white_check_mark:** `/"+command.data.name+"` `"+params.map(v=>v.value).join("` `")+"`",
+						content: "**:white_check_mark:** `/"+command.data.name+"`"+ (params.length > 0? "`"+params.map(v=>v.value).join("` `")+"`" : ""),
 					},
 				});
 
