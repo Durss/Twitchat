@@ -2762,8 +2762,34 @@ export default class TriggerActionHandler {
 								break chunks;
 							}
 						}
-						if(typeof root === "number") root = root.toString();
-						value = root as string;
+
+						//Spacial case for followage placeholders.
+						//Dynamically request for follow date if necessary
+						if(message.platform == "twitch" &&
+						(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE
+						|| placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS)) {
+							let user = root as TwitchatDataTypes.TwitchatUser;
+							let chanInfos = user.channelInfo[message.channel_id] as TwitchatDataTypes.UserChannelInfo;
+							//Follow date not loaded yet for this user, asynchronously load it
+							if(chanInfos.following_date_ms == 0)  {
+								let res = await TwitchUtils.getFollowerState(user.id);
+								if(res) {
+									chanInfos.following_date_ms = new Date(res.followed_at).getTime();
+								}else{
+									chanInfos.following_date_ms = -1;
+								}
+							}
+							
+							if(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE) {
+								value = chanInfos.following_date_ms == 0? "" : Utils.formatDate(new Date(chanInfos.following_date_ms), true);
+							}
+							if(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS) {
+								value = chanInfos.following_date_ms == 0? "0" : chanInfos.following_date_ms.toString();
+							}
+						}else{
+							if(typeof root === "number") root = root.toString();
+							value = root as string;
+						}
 					}catch(error) {
 						console.warn("Unable to find pointer for helper", placeholder);
 						value = "";

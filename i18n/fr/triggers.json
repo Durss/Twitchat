@@ -537,6 +537,8 @@
 			"prediction_points": "Total de points chaîne misés",
 			"prediction_users": "Nombre de participants",
 			"prediction_users_win": "Nombre de votant pour l'entrée gagnante",
+			"followage": "Date de follow",
+			"followage_ms": "Date de follow en millisecondes",
 			"winner": "Pseudo de la personne",
 			"sub_tier": "Niveau de l'abonnement: prime, 1, 2 ou 3",
 			"subgift_tier": "Niveau de l'abonnement: 1, 2 ou 3",

@@ -537,6 +537,8 @@
 			"prediction_points":"Total channel points bet",
 			"prediction_users":"Total users that participated",
 			"prediction_users_win":"Users that voted for winning outcome",
+			"followage": "Following date",
+			"followage_ms": "Gollowing date in milliseconds",
 			"winner": "Winner name",
 			"sub_tier": "Sub tier: prime, 1, 2 or 3",
 			"subgift_tier": "Sub tier: 1, 2 or 3",

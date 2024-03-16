@@ -1365,7 +1365,7 @@ export namespace TwitchatDataTypes {
 		is_gifter:boolean;
 		/**
 		 * Date at which the user followed the channel
-		 * Value = 0 if not checked yet
+		 * Value = 0 if not checked yet, -1 not following
 		 */
 		following_date_ms:number;
 		/**
