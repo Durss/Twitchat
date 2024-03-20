@@ -2426,7 +2426,6 @@ export default class TriggerActionHandler {
 	 * Replaces placeholders by their values on the message
 	 */
 	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true):Promise<string> {
-		src = src.toString();//Make sure it's a string
 		let res = src.toString();
 		if(!res) return "";
 		let subEvent_regSafe = "";
