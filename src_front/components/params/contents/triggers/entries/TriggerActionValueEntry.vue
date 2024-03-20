@@ -106,6 +106,7 @@ import { watch } from 'vue';
 		
 		//Init value's list if necessary
 		if(!this.action.values) this.action.values = [];
+		if(!this.action.newValue) this.action.newValue = "";
 
 		//Check if selected values still exists
 		for (let i = 0; i < this.action.values.length; i++) {

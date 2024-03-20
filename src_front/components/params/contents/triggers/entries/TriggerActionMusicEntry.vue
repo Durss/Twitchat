@@ -80,6 +80,10 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		this.param_selection.value		= this.action.musicSelectionType? this.action.musicSelectionType : selections[0].value;
 		this.param_selection.listValues	= selections;
 
+		if(!this.action.track) this.action.track = "";
+		if(!this.action.failMessage) this.action.failMessage = "";
+		if(!this.action.confirmMessage) this.action.confirmMessage = "";
+
 	}
 
 	/**

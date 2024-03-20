@@ -22,6 +22,7 @@
 		</div>
 
 		<div class="card-item params" data-noselect>
+			<ParamItem noBackground :paramData="param_enabled" v-model="triggerData.enabled" />
 			<ParamItem noBackground :paramData="param_name" v-model="triggerData.name" />
 
 			<TriggerActionChatCommandParams
@@ -195,6 +196,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	public selectStyles:{[key:string]:string} = {};
 	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
+	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
 	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
 	

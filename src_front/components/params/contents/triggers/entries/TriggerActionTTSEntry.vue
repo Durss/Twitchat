@@ -45,6 +45,7 @@ import type { ITriggerPlaceholder, TriggerActionChatData, TriggerData } from '@/
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
 		this.message_conf.placeholderList = list;
+		if(!this.action.text) this.action.text = "";
 	}
 
 }

@@ -65,6 +65,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	}
 
 	public beforeMount():void {
+		if(!this.action.text) this.action.text = "";
 	}
 
 	/**

@@ -109,6 +109,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		if(!this.action.action) this.action.action = "ADD";
 		//Init counter's list if necessary
 		if(!this.action.counters) this.action.counters = [];
+		if(!this.action.addValue) this.action.addValue = "";
 
 		//Check if selected counter still exists
 		for (let i = 0; i < this.action.counters.length; i++) {

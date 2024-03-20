@@ -74,6 +74,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		
 		async getAccessToken():Promise<boolean> {
 			try {
+				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {token:this.authResult.csrf});
+				if(!csrfResult.json.success) return false;
 				const result = await ApiHelper.call("streamlabs/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
@@ -171,7 +173,6 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													userName:message.from,
 												}
 												StoreProxy.chat.addMessage(data);
-												resolve(true);
 											});
 											break;
 										}

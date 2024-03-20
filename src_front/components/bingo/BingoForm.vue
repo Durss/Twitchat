@@ -7,11 +7,12 @@
 			
 			<div class="description">{{ $t("bingo.form.description") }}</div>
 		</div>
-	
+		
 		<TabMenu class="menu" v-model="mode"
 			:values="['num','emote','custom']"
 			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
-			:icons="['number', 'emote', 'edit']" />
+			:icons="['number', 'emote', 'edit']"
+			@change="onValueChange()" />
 
 		<div class="content">
 			<form @submit.prevent="onSubmit()">
@@ -126,10 +127,11 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	public async beforeMount():Promise<void> {
 		this.winnerPlaceholders = [{tag:"USER", descKey:"bingo.form.winner_placeholder", example:this.$store.auth.twitch.user.displayName}];
 		if(this.triggerMode) {
+			console.log(this.action.bingoData);
 			if(this.action.bingoData) {
 				if(this.action.bingoData.guessNumber) this.mode = "num";
-				if(this.action.bingoData.guessEmote) this.mode = "emote";
-				if(this.action.bingoData.guessCustom) this.mode = "custom";
+				else if(this.action.bingoData.guessEmote) this.mode = "emote";
+				else if(this.action.bingoData.guessCustom) this.mode = "custom";
 				this.minValue.value = this.action.bingoData.min;
 				this.maxValue.value = this.action.bingoData.max;
 				this.customValue.value = this.action.bingoData.customValue;

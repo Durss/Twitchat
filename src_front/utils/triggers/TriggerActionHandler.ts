@@ -1518,8 +1518,15 @@ export default class TriggerActionHandler {
 					try {
 						logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
 						const res = await fetch(url, options);
-						if(step.outputPlaceholder && res.status >= 200 && res.status <= 208) {
-							dynamicPlaceholders[step.outputPlaceholder] = await res.text();
+						if(res.status >= 200 && res.status <= 208) {
+							if(step.outputPlaceholder) {
+								logStep.messages.push({date:Date.now(), value:"Store result to placeholder: "+step.outputPlaceholder});
+								dynamicPlaceholders[step.outputPlaceholder] = await res.text();
+							}
+						}else{
+							log.error = true;
+							logStep.error = true;
+							logStep.messages.push({date:Date.now(), value:"HTTP call failed with status "+res.status+": "+await res.text()});
 						}
 					}catch(error) {
 						console.error(error);
@@ -2426,7 +2433,6 @@ export default class TriggerActionHandler {
 	 * Replaces placeholders by their values on the message
 	 */
 	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true):Promise<string> {
-		src = src.toString();//Make sure it's a string
 		let res = src.toString();
 		if(!res) return "";
 		let subEvent_regSafe = "";
