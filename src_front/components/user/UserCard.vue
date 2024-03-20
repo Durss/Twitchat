@@ -22,7 +22,9 @@
 				<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 			</template>
 
+			
 			<template v-else-if="!loading && !error">
+				__{{ channelId }}__
 				<ClearButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
@@ -339,6 +341,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 	public mounted():void {
 		watch(() => this.$store.users.userCard, () => {
 			const card = this.$store.users.userCard;
+			console.log(card)
 			if(card && card.user) {
 				this.user = this.$store.users.getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
 				this.channelId = card.channelId ?? StoreProxy.auth.twitch.user.id;
@@ -380,7 +383,6 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 		this.createDate = "";
 		this.followDate = "";
 		this.userDescription = "";
-		this.channelId = "";
 		this.followersCount = -1;
 		this.badges = [];
 		this.messageHistory = [];
