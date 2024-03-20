@@ -284,7 +284,8 @@
 			"param_showPercent":"Show percentages",
 			"param_showProgress":"Show timer",
 			"param_placement":"Position on screen",
-			"param_showOnlyResult":"<strong><u>ONLY</u></strong> show poll result",
+			"param_hideUntilResolved":"Hide once votes are closed\n(Prediction will show again once resolved)",
+			"param_showOnlyResult":"<strong><u>ONLY</u></strong> show prediction result",
 			"param_resultDuration":"Show result duration"
 		},
 		"polls":{

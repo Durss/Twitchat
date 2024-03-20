@@ -68,10 +68,12 @@ class OverlayPredictions extends Vue {
 		showVotes:false,
 		showTimer:true,
 		showOnlyResult:false,
+		hideUntilResolved:true,
 		resultDuration_s:5,
 		placement:"bl",
 	};
 	
+	private updateDebounce:number = -1;
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
 	private updateParametersHandler!:(e:TwitchatEvent)=>void;
 	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
@@ -143,27 +145,33 @@ class OverlayPredictions extends Vue {
 
 	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
 		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-		if(!prediction) {
-			if(this.prediction) this.close();
-		}else{
-			const opening	= this.prediction == null || this.prediction.id != prediction.id;
-			this.show		= this.parameters.showOnlyResult !== true;
-			this.showWinner	= false;
-			this.prediction	= prediction;
-			if(this.show) {
-				if(opening) await this.open();
-		
-				const progressBar = this.$refs.progress as HTMLElement;
-				if(progressBar) {
-					const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
-					const percentDone = timeSpent / (prediction.duration_s * 1000);
-					const percentRemaining = 1 - percentDone;
-					const duration = prediction.duration_s * percentRemaining;
-					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+		//Debounce updates as twitch is a little spammy whenr esolving a prediction
+		clearTimeout(this.updateDebounce);
+		this.updateDebounce = setTimeout(async ()=>{
+			if(!prediction) {
+				if(this.prediction) this.close();
+			}else{
+				const opening	= this.prediction == null || this.prediction.id != prediction.id;
+				this.show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || this.parameters.hideUntilResolved === false) && !prediction.winner;
+				this.showWinner	= false;
+				this.prediction	= prediction;
+				if(this.show) {
+					if(opening) await this.open();
+			
+					const progressBar = this.$refs.progress as HTMLElement;
+					if(progressBar) {
+						const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
+						const percentDone = timeSpent / (prediction.duration_s * 1000);
+						const percentRemaining = 1 - percentDone;
+						const duration = prediction.duration_s * percentRemaining;
+						gsap.killTweensOf(progressBar);
+						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%", onComplete:()=>{
+							if(this.parameters.hideUntilResolved !== false) this.close(true);
+						}});
+					}
 				}
 			}
-		}
+		}, 500);
 	}
 	
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
@@ -171,13 +179,18 @@ class OverlayPredictions extends Vue {
 		console.log("update params");
 	}
 	
-	public async close():Promise<void> {
-		this.showWinner = true;
-		if(this.parameters.showOnlyResult === true) {
-			this.show = true;
-			await this.open();
+	public async close(isTemporaryClose:boolean = false):Promise<void> {
+		console.log("CLOSE", isTemporaryClose);
+		let delay = this.parameters.resultDuration_s || 5;
+		if(!isTemporaryClose) {
+			this.showWinner = true;
+			if(this.show === false) {
+				this.show = true;
+				await this.open();
+			}
+		}else{
+			delay = 0;
 		}
-		const delay = this.parameters.resultDuration_s || 5;
 		if(delay > 0) {
 			const progressBar = this.$refs.progress as HTMLElement;
 			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
@@ -189,6 +202,7 @@ class OverlayPredictions extends Vue {
 	}
 	
 	private async open():Promise<void> {
+		console.log("OPEN");
 		this.show = true;
 		await this.$nextTick();
 
