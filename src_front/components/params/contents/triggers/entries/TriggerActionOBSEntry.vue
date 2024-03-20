@@ -21,8 +21,11 @@
 		<ParamItem :paramData="height_conf" v-model="action.height" v-if="action.action == 'resize'" />
 		<ParamItem :paramData="angle_conf" v-model="action.angle" v-if="action.action == 'rotate'" />
 		<ParamItem :paramData="transformRelative_conf" v-model="action.relativeTransform" v-if="action.action == 'rotate' || action.action == 'resize' || action.action == 'move'" />
-		<ParamItem :paramData="transformAnimate_conf" v-model="action.animate" v-if="action.action == 'rotate' || action.action == 'resize' || action.action == 'move'" />
-		
+		<ParamItem :paramData="transformAnimate_conf" v-model="action.animate" v-if="action.action == 'rotate' || action.action == 'resize' || action.action == 'move'">
+			<ParamItem :paramData="transformEasing_conf" v-model="action.animateEasing" noBackground class="child" />
+			<ParamItem :paramData="transformDuration_conf" v-model="action.animateDuration" noBackground class="child" />
+		</ParamItem>
+
 		<ParamItem class="file"
 			v-if="canSetMediaPath"
 			:paramData="media_conf"
@@ -90,7 +93,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public height_conf:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"number", maxLength:500, labelKey:"triggers.actions.obs.param_height" };
 	public transformRelative_conf:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:false, icon:"number" };
 	public transformAnimate_conf:TwitchatDataTypes.ParameterData<boolean, unknown, any> = { type:"boolean", value:false, icon:"animate", labelKey:"triggers.actions.obs.param_transform_animate" };
-	public transformEasing_conf:TwitchatDataTypes.ParameterData<string> = { type:"list", value:"linear.none", icon:"easing", labelKey:"triggers.actions.obs.param_transform_animate_easing" };
+	public transformEasing_conf:TwitchatDataTypes.ParameterData<TriggerActionObsData["animateEasing"]> = { type:"list", value:"linear.none", icon:"easing", labelKey:"triggers.actions.obs.param_transform_animate_easing" };
 	public transformDuration_conf:TwitchatDataTypes.ParameterData<number> = { type:"number", value:500, min:0, max:3600000, icon:"timer", labelKey:"triggers.actions.obs.param_transform_animate_duration" };
 	
 	public selectedSourceName:string = "";
@@ -111,7 +114,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Get if the selected source is a text source
 	 */
 	public get isTextSource():boolean {
-		return /text_/gi.test(this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind || "")
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
@@ -120,7 +123,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Get if the selected source is a browwer source
 	 */
 	public get isBrowserSource():boolean {
-		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind == 'browser_source'
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
@@ -163,7 +166,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		const sourceNameBackup = this.action.sourceName;
 		const actionBackup = this.action.action;
 
-		this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
+		// this.transformAnimate_conf.children = [this.transformEasing_conf, this.transformDuration_conf];
 
 		const easing = this.$tm("triggers.actions.obs.param_transform_animate_easing_list") as {[key:string]:string};
 		const easingList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
@@ -172,10 +175,10 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		}
 		this.transformEasing_conf.listValues = easingList;
 
-		this.transformEasing_conf.editCallback = (param) => this.action.animateEasing = param.value;
-		this.transformDuration_conf.editCallback = (param) => this.action.animateDuration = param.value;
-		if(this.action.animateEasing) this.transformEasing_conf.value = this.action.animateEasing;
-		if(this.action.animateDuration) this.transformDuration_conf.value = this.action.animateDuration;
+		// this.transformEasing_conf.editCallback = (param) => this.action.animateEasing = param.value;
+		// this.transformDuration_conf.editCallback = (param) => this.action.animateDuration = param.value;
+		// this.transformEasing_conf.value = this.action.animateEasing ?? "sine.out";
+		// this.transformDuration_conf.value = this.action.animateDuration ?? 0;
 
 		//Prefill forms
 		await this.prefillForm(false);
@@ -387,12 +390,18 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			delete this.action.url;
 		}
 
-		if(this.action.action == "move") {
-			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_move";
-		}else if(this.action.action == "resize") {
-			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_resize";
-		}else if(this.action.action == "rotate") {
-			this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_rotate";
+		if(this.action.action == "move" || this.action.action == "resize" || this.action.action == "rotate") {
+			if(!this.action.animateEasing) this.action.animateEasing = "linear.none";
+			if(!this.action.animateDuration) this.action.animateDuration = 500;
+			if(!this.action.relativeTransform) this.action.relativeTransform = false;
+
+			if(this.action.action == "move") {
+				this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_move";
+			}else if(this.action.action == "resize") {
+				this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_resize";
+			}else if(this.action.action == "rotate") {
+				this.transformRelative_conf.labelKey = "triggers.actions.obs.param_relative_transform_rotate";
+			}
 		}else{
 			delete this.action.animateEasing;
 			delete this.action.animateDuration;
