@@ -28,7 +28,7 @@ import TTButton from './TTButton.vue';
 	components:{
 		Button: TTButton,
 	},
-	emits:["update:modelValue"],
+	emits:["update:modelValue", "change"],
 })
  class TabMenu extends Vue {
 
@@ -89,12 +89,14 @@ import TTButton from './TTButton.vue';
 		if(this.value === undefined) this.value = this.values[0];
 		if(this.modelValue != this.value) {
 			this.$emit("update:modelValue", this.value);
+			this.$emit("change", this.value);
 		}
 	}
 
 	public setValue(value:unknown):void{
 		this.value = value;
 		this.$emit("update:modelValue", value);
+		this.$emit("change", value);
 	}
 
 }

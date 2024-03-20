@@ -146,14 +146,11 @@ import DataStore from '@/store/DataStore';
 			if(titlePrefill) this.title = titlePrefill;
 			this.$store.main.tempStoreValue = null;
 		}
-		if(this.triggerMode !== false) {
+
+		if(this.triggerMode != false) {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
-		}else{
-			this.param_duration.value = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
-		}
 
-		if(this.triggerMode) {
 			if(this.action.predictionData) {
 				this.param_duration.value = this.action.predictionData.voteDuration;
 				this.title = this.action.predictionData.title;
@@ -163,18 +160,20 @@ import DataStore from '@/store/DataStore';
 			}else{
 				this.onValueChange();
 			}
-		}
+		}else{
+			this.param_duration.value = parseInt(DataStore.get(DataStore.PREDICTION_DEFAULT_DURATION)) || 10*60;
 
-		TwitchUtils.getPredictions().then(pred=>{
-			const done:{[key:string]:boolean} = {};
-			this.predictionHistory = pred.map(v => {
-				const options = v.outcomes.map(c=>c.title);
-				let key = v.title+v.prediction_window+options.join(",");
-				if(done[key]) return null;
-				done[key] = true;
-				return {title:v.title, duration:v.prediction_window, options};
-			}).filter(v=> v != null) as typeof this.predictionHistory;
-		});
+			TwitchUtils.getPredictions().then(pred=>{
+				const done:{[key:string]:boolean} = {};
+				this.predictionHistory = pred.map(v => {
+					const options = v.outcomes.map(c=>c.title);
+					let key = v.title+v.prediction_window+options.join(",");
+					if(done[key]) return null;
+					done[key] = true;
+					return {title:v.title, duration:v.prediction_window, options};
+				}).filter(v=> v != null) as typeof this.predictionHistory;
+			});
+		}
 	}
 
 	public async mounted():Promise<void> {

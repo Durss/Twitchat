@@ -117,11 +117,6 @@ import DataStore from '@/store/DataStore';
 		if(this.triggerMode !== false) {
 			this.placeholderList = 
 			this.param_title.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
-		}else{
-			this.param_duration.value = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
-		}
-
-		if(this.triggerMode) {
 			if(this.action.pollData) {
 				this.param_extraVotes.value = this.action.pollData.pointsPerVote > 0;
 				this.param_points.value = this.action.pollData.pointsPerVote ?? 1;
@@ -133,19 +128,21 @@ import DataStore from '@/store/DataStore';
 			}else{
 				this.onValueChange();
 			}
+		}else{
+			this.param_duration.value = parseInt(DataStore.get(DataStore.POLL_DEFAULT_DURATION)) || 2*60;
+			TwitchUtils.getPolls().then(polls=>{
+				const done:{[key:string]:boolean} = {};
+				this.pollHistory = polls.map(v => {
+					const options = v.choices.map(c=>c.title);
+					const channelPoints = v.channel_points_voting_enabled? v.channel_points_per_vote : 0;
+					let key = v.title+v.duration+channelPoints+options.join(",");
+					if(done[key]) return null;
+					done[key] = true;
+					return {title:v.title, duration:v.duration, channelPoints, options};
+				}).filter(v=> v != null) as typeof this.pollHistory;
+			});
 		}
 
-		TwitchUtils.getPolls().then(polls=>{
-			const done:{[key:string]:boolean} = {};
-			this.pollHistory = polls.map(v => {
-				const options = v.choices.map(c=>c.title);
-				const channelPoints = v.channel_points_voting_enabled? v.channel_points_per_vote : 0;
-				let key = v.title+v.duration+channelPoints+options.join(",");
-				if(done[key]) return null;
-				done[key] = true;
-				return {title:v.title, duration:v.duration, channelPoints, options};
-			}).filter(v=> v != null) as typeof this.pollHistory;
-		});
 	}
 
 	public async mounted():Promise<void> {
