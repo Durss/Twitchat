@@ -36,6 +36,11 @@
 				<p>Ko-fi</p>
 			</button>
 	
+			<button class="card-item premium" @click="subContent='tipeee'">
+				<Icon name="tipeee" />
+				<p>Tipeee Stream</p>
+			</button>
+	
 			<button class="card-item" @click="subContent='voicemod'">
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
@@ -85,6 +90,7 @@
 	<ConnectKofi v-else-if="subContent == 'kofi'" />
 	<ConnectLumia v-else-if="subContent == 'lumia'" />
 	<ConnectStreamelements v-else-if="subContent == 'streamelements'" />
+	<ConnectTipeee v-else-if="subContent == 'tipeee'" />
 </template>
 
 <script lang="ts">
@@ -106,6 +112,7 @@ import ConnectStreamlabs from './connexions/ConnectStreamlabs.vue';
 import ConnectKofi from './connexions/ConnectKofi.vue';
 import ConnectLumia from './connexions/ConnectLumia.vue';
 import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
+import ConnectTipeee from './connexions/ConnectTipeee.vue';
 
 @Component({
 	components:{
@@ -114,6 +121,7 @@ import ConnectStreamelements from './connexions/ConnectStreamelements.vue';
 		ConnectHeat,
 		ConnectGoXLR,
 		ConnectLumia,
+		ConnectTipeee,
 		ConnectDiscord,
 		ConnectSpotify,
 		ConnectYoutube,

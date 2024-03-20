@@ -22,6 +22,7 @@ export namespace TwitchatDataTypes {
 		KO_FI: "kofi",
 		GOXLR: "goxlr",
 		LUMIA: "lumia",
+		TIPEEE: "tipeee",
 		SPOTIFY: "spotify",
 		PATREON: "patreon",
 		PREMIUM: "premium",
@@ -1857,6 +1858,7 @@ export namespace TwitchatDataTypes {
 		RAFFLE:"raffle",
 		REWARD:"reward",
 		NOTICE:"notice",
+		TIPEEE:"tipeee",
 		MESSAGE:"message",
 		WHISPER:"whisper",
 		CONNECT:"connect",
@@ -1938,6 +1940,7 @@ export namespace TwitchatDataTypes {
 		cheer:true,
 		timer:true,
 		bingo:true,
+		tipeee:true,
 		custom:true,
 		raffle:true,
 		reward:true,
@@ -2119,6 +2122,7 @@ export namespace TwitchatDataTypes {
 									| MessageStreamelementsData
 									| MessageKofiData
 									| MessageUnbanRequestData
+									| TipeeeDonationData
 	;
 	
 	/**
@@ -2153,6 +2157,7 @@ export namespace TwitchatDataTypes {
 							| typeof TwitchatMessageType.KOFI
 							| typeof TwitchatMessageType.STREAMLABS
 							| typeof TwitchatMessageType.STREAMELEMENTS
+							| typeof TwitchatMessageType.TIPEEE
 							| typeof TwitchatMessageType.COUNTDOWN
 							| typeof TwitchatMessageType.STREAM_ONLINE
 							| typeof TwitchatMessageType.MUSIC_ADDED_TO_QUEUE
@@ -2186,6 +2191,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.KOFI,									labelKey:"chat.filters.message_types.kofi",									icon:"kofi",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMLABS,							labelKey:"chat.filters.message_types.streamlabs",							icon:"streamlabs",		scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.STREAMELEMENTS,						labelKey:"chat.filters.message_types.streamelements",						icon:"streamelements",	scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
+		{type:TwitchatMessageType.TIPEEE,								labelKey:"chat.filters.message_types.tipeee",								icon:"tipeee",			scopes:[],	newFlag:Config.instance.NEW_FLAGS_DATE_V12},
 		{type:TwitchatMessageType.COUNTDOWN,							labelKey:"chat.filters.message_types.countdown",							icon:"countdown",		scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.STREAM_ONLINE,						labelKey:"chat.filters.message_types.stream_online",						icon:"online",			scopes:[],	newFlag:0},
 		{type:TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,					labelKey:"chat.filters.message_types.music_added_to_queue",					icon:"music",			scopes:[],	newFlag:0},
@@ -4239,5 +4245,20 @@ export namespace TwitchatDataTypes {
 		 * requesting to be unbaned
 		 */
 		message:string;
+	}
+	
+	/**
+	 * Represents a tipeee donation event
+	 */
+	export interface TipeeeDonationData extends AbstractTwitchatMessage {
+		type:"tipeee";
+		eventType:"donation";
+		amount:number;
+		amountFormatted:string;
+		message:string;
+		message_chunks:ParseMessageChunk[];
+		message_html:string;
+		userName:string;
+		currency:string;
 	}
 }

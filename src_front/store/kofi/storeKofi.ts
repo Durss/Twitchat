@@ -27,7 +27,6 @@ export const storeKofi = defineStore('kofi', {
 
 	actions: {
 		async populateData():Promise<void> {
-			const data = DataStore.get(DataStore.KOFI);
 			ApiHelper.call("kofi/token", "GET", undefined, false).then(result =>{
 				if(result.json.token) {
 					this.webhooktoken = result.json.token;

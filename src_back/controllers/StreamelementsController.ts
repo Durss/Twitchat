@@ -46,18 +46,16 @@ export default class StreamelementsController extends AbstractController {
 		const headers = {
 			"Content-Type": "application/x-www-form-urlencoded",
 		};
-		const body = {
-			grant_type:		'authorization_code',
-			client_id:		Config.credentials.streamelements_client_id,
-			client_secret:	Config.credentials.streamelements_client_secret,
-			redirect_uri:	Config.credentials.streamelements_redirect_uri,
-			code:			(request.body as any).code,
-		};
 
-		const params = new URLSearchParams(body);
+		const url = new URL("https://api.streamelements.com/oauth2/token");
+		url.searchParams.set("grant_type", "authorization_code");
+		url.searchParams.set("client_id", Config.credentials.streamelements_client_id);
+		url.searchParams.set("client_secret", Config.credentials.streamelements_client_secret);
+		url.searchParams.set("redirect_uri", Config.credentials.streamelements_redirect_uri);
+		url.searchParams.set("code", (request.body as any).code);
 
 		try {
-			const slRes = await fetch("https://api.streamelements.com/oauth2/token?"+params, {method:"POST", headers});
+			const slRes = await fetch(url, {method:"POST", headers});
 			const json = await slRes.json();
 
 			response.header('Content-Type', 'application/json')

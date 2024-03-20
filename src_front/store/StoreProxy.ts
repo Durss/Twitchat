@@ -59,6 +59,7 @@ export default class StoreProxy {
 	public static streamelements:IStreamelementsState & IStreamelementsGetters & IStreamelementsActions & {$state:IStreamelementsState, $reset:()=>void};
 	public static kofi:IKofiState & IKofiGetters & IKofiActions & {$state:IKofiState, $reset:()=>void};
 	public static lumia:ILumiaState & ILumiaGetters & ILumiaActions & {$state:ILumiaState, $reset:()=>void};
+	public static tipeee:ITipeeeState & ITipeeeGetters & ITipeeeActions & {$state:ITipeeeState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -2290,7 +2291,7 @@ export interface IStreamlabsActions {
 	/**
 	 * Authenticate to streamlabs after getting oAuth code
 	 */
-	getAccessToken():Promise<boolean>
+	getAccessToken():Promise<boolean>;
 }
 
 
@@ -2465,6 +2466,54 @@ export interface ILumiaActions {
 	 * @param voice 
 	 */
 	sendTTS(message:string, voice:typeof LumiaVoiceList[number]):void;
+	/**
+	 * Saves data
+	 */
+	saveData():void;
+}
+
+
+
+
+export interface ITipeeeState {
+	accessToken:string;
+	refreshToken:string;
+	connected:boolean;
+	authResult:{code:string, csrf:string};
+}
+
+export interface ITipeeeGetters {
+}
+
+export interface ITipeeeActions {
+	/**
+	 * Populates the store
+	 */
+	populateData():void;
+	/**
+	 * Connects to tipeee
+	 */
+	connect(token:string, isReconnect?:boolean):Promise<boolean>;
+	/**
+	 * Refresh tipeee access token
+	 */
+	doRefreshToken():Promise<void>;
+	/**
+	 * Disconnects from tipeee
+	 */
+	disconnect():void;
+	/**
+	 * Get the oAuth URL for streamlabs
+	 */
+	getOAuthURL():Promise<string>;
+	/**
+	 * Called after authenticating with tipeee
+	 */
+	setAuthResult(code:string, csrf:string):void;
+	/**
+	 * Authenticate to tipeee after getting oAuth code
+	 */
+	completeOAuthProcess():Promise<boolean>;
 	/**
 	 * Saves data
 	 */

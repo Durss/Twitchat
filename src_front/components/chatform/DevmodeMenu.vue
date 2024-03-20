@@ -178,7 +178,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 				}
 				case "sl_patreon":{
 					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge"; 
-					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "patreon_pledge"; break;
+					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$13"; break;
 				}
 				case "kofi_donation":			(message as TwitchatDataTypes.KofiDonationData).eventType = "donation"; break;
 				case "kofi_merch": {

@@ -97,7 +97,7 @@ export default class DataStore {
 	public static STREAMELEMENTS:string = "streamelements";
 	public static PREDICTION_OVERLAY_PARAMS:string = "predictionOverlayParams";
 	public static POLL_OVERLAY_PARAMS:string = "pollOverlayParams";
-	public static KOFI:string = "kofi";
+	public static TIPEEE:string = "tipeee";
 	public static PINNED_CHAT_MENU_ITEM:string = "pinnedChatMenuItem";
 	public static LUMIA:string = "lumia";
 	
@@ -170,6 +170,8 @@ export default class DataStore {
 	public static async migrateData(data:any):Promise<any> {
 		let v = parseInt(data[this.DATA_VERSION]) || 12;
 		const latestVersion = 53;
+
+		this.cleanupPreV7Data(data);
 		
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};

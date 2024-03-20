@@ -174,7 +174,7 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			// {platform:"twitch", login:"mewstelle"},
+			{platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"tainalo2"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},
@@ -251,6 +251,10 @@ export default class Config {
 	 * Streamelements client ID
 	 */
 	public get STREAMELEMENTS_CLIENT_ID():string { return this._serverConfig.streamelements_client_id; }
+	/**
+	 * Tipeee client ID
+	 */
+	public get TIPEEE_CLIENT_ID():string { return this._serverConfig.tipeee_client_id; }
 
 	/**
 	 * Fake Twitch "highlight my message" reward
@@ -375,4 +379,6 @@ export interface ServerConfig {
 	streamlabs_client_id:string;
 	streamlabs_redirect_uri:string;
 	streamelements_client_id:string;
+	tipeee_client_id:string;
+	tipeee_redirect_uri:string;
 }

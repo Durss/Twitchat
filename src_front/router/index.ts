@@ -217,6 +217,29 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		path: '/tipeee/auth',
+		name: 'tipeee/auth',
+		redirect:() => {
+			const sMain = StoreProxy.main;
+			const sParams = StoreProxy.params;
+			const sTipeee = StoreProxy.tipeee;
+			if(Utils.getQueryParameterByName("code")) {
+				const params = {
+					code:Utils.getQueryParameterByName("code") as string,
+					csrf:Utils.getQueryParameterByName("state") as string,
+				}
+				sTipeee.setAuthResult(params.code, params.csrf);
+				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TIPEEE);
+			}else{
+				sMain.alert( StoreProxy.i18n.t("error.tipeee_denied") );
+			}
+			return {name:"chat", query:{}};
+		},
+		meta: {
+			needAuth:true,
+		}
+	},
+	{
 		path: '/streamelements/auth',
 		name: 'streamelements/auth',
 		redirect:() => {
@@ -227,7 +250,9 @@ const routes: Array<RouteRecordRaw> = [
 				const params = {
 					code:Utils.getQueryParameterByName("code") as string,
 					csrf:Utils.getQueryParameterByName("state") as string,
-				}
+				};
+				const csrf = Utils.getQueryParameterByName("csrf") as string;
+				if(csrf) params.csrf = csrf;
 				//Following redirects are here because streamelements has a TEEERRRIIIIBLLLEEEE app creation process
 				//We must request credentials by some sort of mail (lol), and we can only provide
 				//1 redirect URI. They refuse to add more than one (W.T.actual.F?!?!).

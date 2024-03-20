@@ -2,7 +2,6 @@
 	<div class="connectkofi parameterContent">
 		<Icon name="kofi" class="icon" />
 		
-		
 		<div class="head">
 			<i18n-t scope="global" tag="span" keypath="kofi.header">
 				<template #LINK>

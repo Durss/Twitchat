@@ -28,15 +28,8 @@ export default class AuthController extends AbstractController {
 	public async initialize():Promise<void> {
 		this.server.get('/api/auth/twitch', async (request, response) => await this.twitchAuth(request, response));
 		this.server.get('/api/auth/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
-		this.server.post('/api/auth/CSRFToken', async (request, response) => await this.setCSRFToken(request, response));
+		this.server.post('/api/auth/CSRFToken', async (request, response) => await this.validateCSRFToken(request, response));
 		this.server.get('/api/auth/twitch/refreshtoken', async (request, response) => await this.refreshToken(request, response));
-		
-		//Old endpoint URL.
-		//It's just here to make sure people running on the old version won't have issues
-		//while they're streaming.
-		//Remove this after a few days once nobody else runs on the old frontend
-		this.server.get('/api/refreshtoken', async (request, response) => await this.refreshToken(request, response, true));
-		this.server.get('/api/CSRFToken', async (request, response) => await this.getCSRFToken(request, response));
 	}
 	
 	
@@ -85,7 +78,7 @@ export default class AuthController extends AbstractController {
 	 * @param {*} request 
 	 * @param {*} response 
 	 */
-	private async setCSRFToken(request:FastifyRequest, response:FastifyReply) {
+	private async validateCSRFToken(request:FastifyRequest, response:FastifyReply) {
 		//Verifies a CSRF token
 		const params:any = request.body;
 		const result = jwt.verify(params.token, Config.credentials.csrf_key);

@@ -346,4 +346,8 @@ interface Credentials {
 	streamelements_client_id:string;
 	streamelements_client_secret:string;
 	streamelements_redirect_uri:string;
+	
+	tipeee_client_id:string;
+	tipeee_client_secret:string;
+	tipeee_redirect_uri:string;
 }

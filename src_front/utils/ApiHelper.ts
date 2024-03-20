@@ -505,4 +505,24 @@ type ApiEndpoints =  {
 			errorCode?:string;
 		}
 	};
+	"tipeee/auth": {
+		POST: {
+			success:boolean;
+			accessToken?:string;
+			refreshToken?:string;
+			expiresIn?:number;
+			error?:string;
+			errorCode?:string;
+		}
+	};
+	"tipeee/refreshToken": {
+		POST: {
+			success:boolean;
+			accessToken?:string;
+			refreshToken?:string;
+			expiresIn?:number;
+			error?:string;
+			errorCode?:string;
+		}
+	};
 }

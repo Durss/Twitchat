@@ -121,6 +121,9 @@ export default class FileServeController extends AbstractController {
 
 				streamelements_client_id:Config.credentials.streamelements_client_id,
 				streamelements_redirect_uri:Config.credentials.streamelements_redirect_uri,
+
+				tipeee_client_id:Config.credentials.tipeee_client_id,
+				tipeee_redirect_uri:Config.credentials.tipeee_redirect_uri,
 			};
 				
 			const youtubeCredentials = Config.YOUTUBE_CREDENTIALS;

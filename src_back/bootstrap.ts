@@ -21,6 +21,7 @@ import ApiController from './controllers/ApiController';
 import StreamlabsController from './controllers/StreamlabsController';
 import KofiController from './controllers/KofiController';
 import StreamelementsController from './controllers/StreamelementsController';
+import TipeeeController from './controllers/TipeeeController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -80,6 +81,7 @@ server.register(import("fastify-sse-v2"))
 	new StreamlabsController(server).initialize();
 	new StreamelementsController(server).initialize();
 	new KofiController(server).initialize();
+	new TipeeeController(server).initialize();
 	
 	//Start server
 	start();
