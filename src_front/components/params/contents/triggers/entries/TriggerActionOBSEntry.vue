@@ -111,7 +111,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Get if the selected source is a text source
 	 */
 	public get isTextSource():boolean {
-		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'text_gdiplus_v2'
+		return /text_/gi.test(this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind || "")
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
@@ -120,7 +120,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	 * Get if the selected source is a browwer source
 	 */
 	public get isBrowserSource():boolean {
-		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind === 'browser_source'
+		return this.obsSources.find(v=> "source_"+v.sourceName == this.source_conf.value)?.inputKind == 'browser_source'
 				&& this.filter_conf.value == ""
 				&& this.action_conf.value == "show";
 	}
