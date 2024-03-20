@@ -909,7 +909,12 @@ export default class EventSub {
 		}else if(topic == TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED) {
 			event = event as TwitchEventSubDataTypes.UnbanRequestResolveEvent;
 			message.isResolve	= true;
-			message.moderator	= await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name),
+			message.moderator	= await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id,
+																		//Falling back to broadcaster info if moderator info are missing
+																		//(Until Twitch fixes it, "accept" event is broken for now and misses moderator info.)
+																		event.moderator_user_id || event.broadcaster_user_id,
+																		event.moderator_user_login || event.broadcaster_user_login,
+																		event.moderator_user_name || event.broadcaster_user_name),
 			message.message		= event.resolution_text;
 			message.accepted	= event.status != "denied";
 		}
