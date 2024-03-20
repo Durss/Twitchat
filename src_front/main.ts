@@ -59,6 +59,7 @@ import { storeYoutube } from './store/youtube/storeYoutube';
 import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
 import { storeLumia } from './store/lumia/storeLumia';
+import { storeTipeee } from './store/tipeee/storeTipeee';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -255,6 +256,7 @@ function buildApp() {
 	StoreProxy.default.streamelements = storeStreamelements();
 	StoreProxy.default.kofi = storeKofi();
 	StoreProxy.default.lumia = storeLumia();
+	StoreProxy.default.tipeee = storeTipeee();
 
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
@@ -370,7 +372,7 @@ function buildApp() {
 			}
 		}catch(error) { }
 	}
-	if(Config.instance.BETA_MODE || sentryParam.enabled) {
+	if((Config.instance.BETA_MODE || sentryParam.enabled) && document.location.hostname != "localhost") {
 		Sentry.init({
 			app,
 			debug:false,
@@ -380,9 +382,10 @@ function buildApp() {
 				dedupeIntegration()
 			],
 			//@ts-ignore
-			environment:{"localhost":"local", "beta.twitchat.fr":"beta", "twitchat.fr":"prod"}[document.location.hostname] || document.location.hostname,
+			environment:{"beta.twitchat.fr":"beta", "twitchat.fr":"prod"}[document.location.hostname] || document.location.hostname,
 			tracesSampleRate: 1.0,
-			ignoreErrors: ["reading 'innerText'",//When emptying a content-editable field
+			ignoreErrors: [
+							"reading 'innerText'",//When emptying a content-editable field
 							"venmo",//When opening paypal popup
 							"Detected popup close",//When closing paypal popup
 							"OBS is not ready",//If trying to connect to OBS when OBS-ws is booting
