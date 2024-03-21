@@ -2,6 +2,7 @@ import { InteractionResponseType, InteractionType, verifyKey } from "discord-int
 import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder, UserFlags } from "discord.js";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
+import * as path from "path";
 import Config from "../utils/Config";
 import I18n from "../utils/I18n";
 import Logger from "../utils/Logger";
@@ -229,16 +230,13 @@ export default class DiscordController extends AbstractController {
 		const {user, guild} = res;
 
 		try {
-			const perms = PermissionsBitField.Flags.Administrator
-						& PermissionsBitField.Flags.ManageGuild
-						& PermissionsBitField.Flags.ModerateMembers;
 			const body = request.body as  {commands:{name:string, params:{name:string}[]}[]}
 			let commandList:SlashCommandBuilder[] = [];
 			body.commands.forEach(cmdDef => {
 				const cmd = new SlashCommandBuilder()
 				.setName(cmdDef.name.toLowerCase())
 				.setDescription(cmdDef.name)
-				.setDefaultMemberPermissions(perms);
+				.setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers);
 
 				cmdDef.params.forEach(p => {
 					cmd.addStringOption(option => {
@@ -590,15 +588,13 @@ export default class DiscordController extends AbstractController {
 	 * Creates bot commands
 	 */
 	private async createCommands():Promise<void> {
-		const debugGuildID:string = "960695714483167252";
-
-		const perms = PermissionsBitField.Flags.Administrator
-					& PermissionsBitField.Flags.ManageGuild
-					& PermissionsBitField.Flags.ModerateMembers;
+		const debugGuildID:string = "1214126659779960882";
+		//Define if commands should be created at the application or guild level
+		const appCommandMode = true;//TODO set to true
 
 		const languages = I18n.instance.discordLanguages;
 
-		let cmd:COMMAND_NAME = "link";
+		let cmd:COMMAND_NAME | `${string}_guild` = (appCommandMode? 'link' : 'link_guild');
 		const LINK_CMD = new SlashCommandBuilder()
 		.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.link.description"))
@@ -611,14 +607,14 @@ export default class DiscordController extends AbstractController {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.link.option_channel"));
 			})
 			return option;
-		}
-		).setDefaultMemberPermissions(perms);
+		}).setDefaultMemberPermissions(PermissionsBitField.Flags.Administrator)
+		.setDMPermission(false);
 		languages.forEach(lang=> {
 			LINK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.link.description"));
 		})
 		
 		
-		cmd = "say";
+		cmd = (appCommandMode? 'say' : 'say_guild');;
 		const SAY_CMD = new SlashCommandBuilder()
 		.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.say.description"))
@@ -644,14 +640,14 @@ export default class DiscordController extends AbstractController {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_style"));
 			})
 			return option;
-		})
-		.setDefaultMemberPermissions(perms);
+		}).setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers)
+		.setDMPermission(false);
 		languages.forEach(lang=> {
 			SAY_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.description"));
 		})
 		
 		
-		cmd = "ask";
+		cmd = (appCommandMode? 'ask' : 'ask_guild');
 		const ASK_CMD = new SlashCommandBuilder()
 		.setName(cmd)
 		.setDescription(I18n.instance.get("en", "server.discord.commands.ask.description"))
@@ -677,18 +673,23 @@ export default class DiscordController extends AbstractController {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_style"));
 			})
 			return option;
-		}
-		).setDefaultMemberPermissions(perms);
+		}).setDefaultMemberPermissions(PermissionsBitField.Flags.BanMembers)
+		.setDMPermission(false);
 		languages.forEach(lang=> {
 			ASK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.ask.description"));
 		})
 
-		const commandList:SlashCommandBuilder[] = [LINK_CMD, SAY_CMD, ASK_CMD];
+		const commandList:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [LINK_CMD, SAY_CMD, ASK_CMD];
+
 
 		this._rest = new REST().setToken(Config.credentials.discord_bot_token);
-		// const existingCmds:SlashCommandDefinition[] = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
-		const existingCmds:SlashCommandDefinition[] = await this._rest.get(Routes.applicationCommands(Config.credentials.discord_client_id)) as SlashCommandDefinition[];
-		const missingCmds:SlashCommandBuilder[] = [];
+		let existingCmds:SlashCommandDefinition[] = []
+		if(appCommandMode) {
+			existingCmds = await this._rest.get(Routes.applicationCommands(Config.credentials.discord_client_id)) as SlashCommandDefinition[];
+		}else{
+			existingCmds = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
+		}
+		const missingCmds:Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">[] = [];
 		const removedCmds:SlashCommandDefinition[] = [];
 		//Check which commands should be removed
 		for (let i = 0; i < existingCmds.length; i++) {
@@ -709,20 +710,31 @@ export default class DiscordController extends AbstractController {
 			Logger.warn("Removing commands "+removedCmds.map(v=>v.name).join(", "));
 			for (let i = 0; i < removedCmds.length; i++) {
 				const cmd = removedCmds[i];
-				// await this._rest.delete(Routes.applicationGuildCommand(Config.credentials.discord_client_id, debugGuildID, cmd.id));
-				await this._rest.delete(Routes.applicationCommand(Config.credentials.discord_client_id, cmd.id));
+				if(appCommandMode) {
+					await this._rest.delete(Routes.applicationCommand(Config.credentials.discord_client_id, cmd.id));
+				}else{
+					await this._rest.delete(Routes.applicationGuildCommand(Config.credentials.discord_client_id, debugGuildID, cmd.id));
+				}
 			}
 		}
 
 		//Create missing commands
 		// if(missingCmds.length > 0) {
 		// 	Logger.warn("Creating commands "+missingCmds.map(v=>v.name).join(", "));
-			// await this._rest.put(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID), {body:commandList});
-			await this._rest.put(Routes.applicationCommands(Config.credentials.discord_client_id), {body:commandList});
+			if(appCommandMode) {
+				const res = await this._rest.put(Routes.applicationCommands(Config.credentials.discord_client_id), {body:commandList});
+			}else{
+				const res = await this._rest.put(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID), {body:commandList});
+			}
 		// }
 
 		//Reload a fresh command list to get the ID of the register command
-		const freshCommandList:SlashCommandDefinition[] = await this._rest.get(Routes.applicationCommands(Config.credentials.discord_client_id)) as SlashCommandDefinition[];
+		let freshCommandList:SlashCommandDefinition[] = [];
+		if(appCommandMode) {
+			freshCommandList = await this._rest.get(Routes.applicationCommands(Config.credentials.discord_client_id)) as SlashCommandDefinition[];
+		}else{
+			freshCommandList = await this._rest.get(Routes.applicationGuildCommands(Config.credentials.discord_client_id, debugGuildID)) as SlashCommandDefinition[];
+		}
 		this._commandSay = freshCommandList.find(v=>v.name == SAY_CMD.name);
 		this._commandAsk = freshCommandList.find(v=>v.name == ASK_CMD.name);
 		this._commandLink = freshCommandList.find(v=>v.name == LINK_CMD.name);
@@ -758,10 +770,10 @@ export default class DiscordController extends AbstractController {
 				});
 				return;
 			}
-
+			
 			let code = Utils.generateCode(4);
 			this._pendingTokens.push({
-										code,
+										code,	
 										locale:command.locale,
 										expires_at:Date.now() + this._tokenValidityDuration,
 										guildName:guildDetails.name,
@@ -774,6 +786,12 @@ export default class DiscordController extends AbstractController {
 				type: InteractionResponseType.CHANNEL_MESSAGE_WITH_SOURCE,
 				data: {
 					content: I18n.instance.get(command.locale, "server.discord.code", {CODE:code}),
+					embeds: [{
+						title: I18n.instance.get(command.locale, "server.discord.commands_permissions"),
+						image: {
+							url: "https://twitchat.fr/discord/command_permissions.gif",
+						}
+					}]
 				},
 			});
 		}
