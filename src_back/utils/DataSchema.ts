@@ -129,6 +129,7 @@ import Ajv from "ajv";
 						properties:{
 							sceneIndex:{type:"integer"},
 							sceneName:{type:"string", maxLength:100},
+							sceneUuid:{type:"string", maxLength:100},
 						}
 					},
 					command:{type:"string", maxLength:100},
