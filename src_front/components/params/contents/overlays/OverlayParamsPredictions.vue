@@ -210,6 +210,8 @@ class OverlayParamsPredictions extends Vue {
 		predi.duration_s = 15;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
+		const winnerBackup = predi.winner;
+		predi.winner = undefined;
 		const fakeVotes = ()=>{
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
@@ -220,8 +222,10 @@ class OverlayParamsPredictions extends Vue {
 			this.$store.prediction.setPrediction(predi);
 		};
 		
+		let pendingDuration = 2000;
 		if(this.param_showOnlyResult.value == true) {
 			fakeVotes();
+			pendingDuration = 0;
 			predi.duration_s = 0;
 		}else{
 			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
@@ -230,7 +234,16 @@ class OverlayParamsPredictions extends Vue {
 		clearTimeout(this.simulateEndTimeout);
 		this.simulateEndTimeout = setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
-			this.$store.prediction.setPrediction(null);
+			predi.pendingAnswer = true;
+			this.$store.prediction.setPrediction(predi);
+			
+			this.simulateEndTimeout = setTimeout(()=>{
+				predi.winner = winnerBackup;
+				this.$store.prediction.setPrediction(predi);
+				this.simulateEndTimeout = setTimeout(()=>{
+					this.$store.prediction.setPrediction(null);
+				}, this.param_resultDuration.value * 1000);
+			}, pendingDuration)
 		}, predi.duration_s * 1000);
 
 		this.$store.prediction.setPrediction(predi);
