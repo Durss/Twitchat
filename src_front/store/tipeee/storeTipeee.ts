@@ -91,6 +91,7 @@ export const storeTipeee = defineStore('tipeee', {
 					this.accessToken = result.json.accessToken!;
 					this.refreshToken = result.json.refreshToken!;
 					this.saveData();
+					this.authResult = {code:"", csrf:""};
 					return await this.connect(this.accessToken);
 				}
 				return false;
