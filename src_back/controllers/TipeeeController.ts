@@ -2,6 +2,7 @@ import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController";
 import Config from "../utils/Config";
 import * as fetch from "node-fetch";
+import Logger from "../utils/Logger";
 
 /**
 * Created : 18/03/2024 
@@ -62,12 +63,11 @@ export default class TipeeeController extends AbstractController {
 			const refreshToken = json.refresh_token;
 			const expiresIn = json.expires_in;
 
-			console.log(json);
-
 			response.header('Content-Type', 'application/json')
 			.status(200)
 			.send(JSON.stringify({success:accessToken !== undefined, accessToken, refreshToken, expiresIn}));
 		}catch(error) {
+			Logger.error("Tipeee: oauth failed")
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(500)
@@ -109,6 +109,7 @@ export default class TipeeeController extends AbstractController {
 			.status(200)
 			.send(JSON.stringify({success:accessToken !== undefined, accessToken, refreshToken}));
 		}catch(error) {
+			Logger.error("Tipeee: refreshing token failed")
 			console.log(error);
 			response.header('Content-Type', 'application/json')
 			.status(500)

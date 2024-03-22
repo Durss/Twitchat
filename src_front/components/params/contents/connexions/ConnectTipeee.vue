@@ -61,7 +61,6 @@ class ConnectTipeee extends Vue {
 				this.loading = true
 				this.$store.tipeee.completeOAuthProcess()
 				.then(success => {
-					console.log(success)
 					this.error = !success;
 					this.loading = false;
 					this.loadAuthURL();

@@ -142,7 +142,6 @@ export const storeTipeee = defineStore('tipeee', {
 					if(event.data == "3") return;
 					//Connection acknwoledgment
 					if(event.data == "5") {
-						this.connected = true;
 						resolve(true);
 
 						if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
@@ -175,6 +174,8 @@ export const storeTipeee = defineStore('tipeee', {
 									socket?.send("2");
 								}
 							}, message.pingInterval || 10000);
+							this.connected = true;
+							resolve(true);
 						}
 
 						//Connection acknowledgment
@@ -279,7 +280,6 @@ export const storeTipeee = defineStore('tipeee', {
 				accessToken:this.accessToken,
 				refreshToken:this.refreshToken,
 			};
-			console.log("SAVE::",data);
 			DataStore.set(DataStore.TIPEEE, data);
 		},
 
