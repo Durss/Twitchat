@@ -265,7 +265,7 @@
 			"install_instructions":"<ul><li>Définissez la largeur à 2 fois celle de votre scène (ex: 3840px pour une scène de 1920px).</li><li>Définissez la hauteur à celle de votre scène (ex: 1080px).</li><li>Placez la source hors écran</li><li>Débit d'images: 60fps</li><li>Ajoutez un filtre Shadertastic à votre scène<ul><li><strong>Effect</strong>: Displacement map (Source)</li><li><strong>Displace</strong>: mode: Displace + Overlay</li><li><strong>Color Space</strong>: RGB</li><li><strong>Strength X/Y</strong>: 0.050</li><li><strong>Displacement Map</strong>: the browser source you just created</li></ul></li></ul>",
 			"param_size":"Taille Maximum des cheermotes {VALUE}%\n(un cheer épinglé lâche des cheermotes plus grosses selon le niveau de pin)",
 			"param_break":"Permettre aux viewers de casser les cheermotes\n(Nécessite d'installer <a href='https://dashboard.twitch.tv/extensions/cr20njfkgll4okyrhag7xxph270sqk' target='_blank'>l'extension Heat</a> sur votre chaîne)",
-			"param_break_senderOnly":"Autoriser les viewers à casser uniquement leurs propres cheermotes",
+			"param_break_senderOnly":"Autoriser les viewers à casser <strong><u>UNIQUEMENT</u></strong> leurs propres cheermotes",
 			"param_textureAlpha":"Opacité des cheermotes ({VALUE}%)",
 			"param_cristalEffect":"Activer l'effet cristal (Nécessite le plugin OBS <a href='https://www.shadertastic.com' target='_blank'>Shadertastic</a>)",
 			"param_durations":"Durées avant destruction des cheermotes"
@@ -284,7 +284,8 @@
 			"param_showPercent":"Pourcentages",
 			"param_showProgress":"Temps restant",
 			"param_placement":"Position dans l'écran",
-			"param_showOnlyResult":"Afficher uniquement le résultat",
+			"param_hideUntilResolved":"Masquer une fois que les votes sont clos\n(La prédiction s'affichera de nouveau une fois résolue)",
+			"param_showOnlyResult":"Afficher <strong><u>UNIQUEMENT</u></strong> le résultat",
 			"param_resultDuration":"Durée d'affichage du résultat"
 		},
 		"polls":{
@@ -300,7 +301,7 @@
 			"param_showPercent":"Pourcentages",
 			"param_showProgress":"Temps restant",
 			"param_placement":"Position dans l'écran",
-			"param_showOnlyResult":"Afficher uniquement le résultat",
+			"param_showOnlyResult":"Afficher <strong><u>UNIQUEMENT</u></strong> le résultat",
 			"param_resultDuration":"Durée d'affichage du résultat"
 		}
 	}

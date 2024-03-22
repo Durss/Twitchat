@@ -20,8 +20,9 @@
 			"features": [
 				["Disable automatic chat message", "-", 1, 1],
 				["GoXLR support", "-", "-", 1],
-				["Streamlabs tip/merch alerts", "-", "-", 1],
 				["Ko-fi tip/merch alerts", "-", "-", 1],
+				["Streamlabs tip/merch alerts", "-", "-", 1],
+				["Streamelements tip alerts", "-", "-", 1],
 				["Lumia Stream connection", "-", "-", 1],
 				["Youtube connection", "-", "-", 1],
 				["Automatic translations", "-", "-", 1],

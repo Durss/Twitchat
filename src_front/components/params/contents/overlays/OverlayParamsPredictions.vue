@@ -84,6 +84,7 @@
 				<ParamItem :paramData="param_showVoters" v-model="params.showVoters" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showPercent" v-model="params.showPercent" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
+				<ParamItem :paramData="param_hideUntilResolved" v-model="params.hideUntilResolved" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
 				<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
 
@@ -138,8 +139,9 @@ class OverlayParamsPredictions extends Vue {
 	public param_showVoters:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"user", labelKey:"overlay.predictions.param_showVoters"};
 	public param_showPercent:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"percent", labelKey:"overlay.predictions.param_showPercent"};
 	public param_showProgress:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"timer", labelKey:"overlay.predictions.param_showProgress"};
-	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"prediction", labelKey:"overlay.polls.param_showOnlyResult"};
-	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.polls.param_resultDuration"};
+	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"prediction", labelKey:"overlay.predictions.param_showOnlyResult"};
+	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.predictions.param_resultDuration"};
+	public param_hideUntilResolved:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, icon:"hide", labelKey:"overlay.predictions.param_hideUntilResolved"};
 
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
@@ -158,8 +160,9 @@ class OverlayParamsPredictions extends Vue {
 			showPercent: this.$store.prediction.overlayParams.showPercent,
 			showTimer: this.$store.prediction.overlayParams.showTimer,
 			placement: this.$store.prediction.overlayParams.placement,
-			showOnlyResult: this.$store.poll.overlayParams.showOnlyResult,
-			resultDuration_s: this.$store.poll.overlayParams.resultDuration_s,
+			showOnlyResult: this.$store.prediction.overlayParams.showOnlyResult,
+			hideUntilResolved: this.$store.prediction.overlayParams.hideUntilResolved,
+			resultDuration_s: this.$store.prediction.overlayParams.resultDuration_s,
 		}
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
@@ -207,6 +210,8 @@ class OverlayParamsPredictions extends Vue {
 		predi.duration_s = 15;
 		predi.started_at = Date.now();
 		SetIntervalWorker.instance.delete(this.simulateInterval);
+		const winnerBackup = predi.winner;
+		predi.winner = undefined;
 		const fakeVotes = ()=>{
 			const fakeUpdates = Math.ceil(Math.random() * 5);
 			for (let i = 0; i < fakeUpdates; i++) {
@@ -217,8 +222,10 @@ class OverlayParamsPredictions extends Vue {
 			this.$store.prediction.setPrediction(predi);
 		};
 		
+		let pendingDuration = 2000;
 		if(this.param_showOnlyResult.value == true) {
 			fakeVotes();
+			pendingDuration = 0;
 			predi.duration_s = 0;
 		}else{
 			this.simulateInterval = SetIntervalWorker.instance.create(fakeVotes, 1000);
@@ -227,7 +234,16 @@ class OverlayParamsPredictions extends Vue {
 		clearTimeout(this.simulateEndTimeout);
 		this.simulateEndTimeout = setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
-			this.$store.prediction.setPrediction(null);
+			predi.pendingAnswer = true;
+			this.$store.prediction.setPrediction(predi);
+			
+			this.simulateEndTimeout = setTimeout(()=>{
+				predi.winner = winnerBackup;
+				this.$store.prediction.setPrediction(predi);
+				this.simulateEndTimeout = setTimeout(()=>{
+					this.$store.prediction.setPrediction(null);
+				}, this.param_resultDuration.value * 1000);
+			}, pendingDuration)
 		}, predi.duration_s * 1000);
 
 		this.$store.prediction.setPrediction(predi);

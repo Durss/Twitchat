@@ -101,24 +101,9 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		StoreProxy.main.currentOBSScene = await this.getCurrentScene();
 
-		// console.log(await this.obs.call("GetInputList"));
 
-		/* LIST ALL INPUT KINDS
-		const sources = await this.getSources();
-		const inputKinds:{[key:string]:boolean} = {}
-		const sourceKinds:{[key:string]:boolean} = {}
-		for (let i = 0; i < sources.length; i++) {
-			const e = sources[i];
-			if(inputKinds[e.inputKind] !== true) {
-				inputKinds[e.inputKind] = true;
-			}
-			if(sourceKinds[e.sourceType] !== true) {
-				sourceKinds[e.sourceType] = true;
-			}
-		}
-		console.log(inputKinds);
-		console.log(sourceKinds);
-		//*/
+		// LIST ALL INPUT KINDS
+		//console.log(await this.obs.call("GetInputKindList"));
 
 		/* GET A SOURCE SETTINGS
 		const settings = await this.obs.call("GetInputSettings", {inputName: "TTBrowerSourceTest"});
@@ -1251,7 +1236,7 @@ export default class OBSWebsocket extends EventDispatcher {
 	}
 }
 
-export type OBSInputKind = "window_capture" | "streamfx-source-mirror" | "browser_source" | "color_source_v3" | "dshow_input" | "image_source" | "null" | "monitor_capture" | "ffmpeg_source" | "wasapi_input_capture" | "text_gdiplus_v2" | "vlc_source" | "slideshow" | null;
+export type OBSInputKind = "image_source" | "color_source_v3" | "slideshow" | "browser_source" | "ffmpeg_source" | "text_gdiplus_v2" | "text_ft2_source_v2" | "vlc_source" | "monitor_capture" | "window_capture" | "game_capture" | "dshow_input" | "wasapi_input_capture" | "wasapi_output_capture" | "wasapi_process_output_capture" | null;
 export type OBSSourceType = "OBS_SOURCE_TYPE_INPUT" | "OBS_SOURCE_TYPE_SCENE";
 
 export interface OBSAudioSource {inputKind:OBSInputKind, inputName:string, unversionedInputKind:string}

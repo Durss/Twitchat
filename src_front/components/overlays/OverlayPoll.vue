@@ -168,23 +168,6 @@ class OverlayPoll extends Vue {
 		this.parameters = ((e.data as unknown) as {parameters:PollOverlayParamStoreData}).parameters;
 	}
 	
-	public async close():Promise<void> {
-		this.showWinner = true;
-		if(this.parameters.showOnlyResult === true && !this.show) {
-			this.show = true;
-			await this.open();
-		}
-		const delay = this.parameters.resultDuration_s || 5;
-		if(delay > 0) {
-			const progressBar = this.$refs.progress as HTMLElement;
-			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
-		}
-		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
-			this.poll = null;
-			this.show = false;
-		}});
-	}
-	
 	private async open():Promise<void> {
 		this.show = true;
 		await this.$nextTick();
@@ -221,6 +204,23 @@ class OverlayPoll extends Vue {
 			const holder = this.$refs.holder as HTMLElement;
 			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
 		}
+	}
+	
+	public async close():Promise<void> {
+		this.showWinner = true;
+		if(this.parameters.showOnlyResult === true && !this.show) {
+			this.show = true;
+			await this.open();
+		}
+		const delay = this.parameters.resultDuration_s || 5;
+		if(delay > 0) {
+			const progressBar = this.$refs.progress as HTMLElement;
+			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
+		}
+		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
+			this.poll = null;
+			this.show = false;
+		}});
 	}
 }
 export default toNative(OverlayPoll);

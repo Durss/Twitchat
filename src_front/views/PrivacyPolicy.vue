@@ -489,7 +489,7 @@
 					>{{ $t('home.loginBt') }}</Button>
 				</div>
 				<div class="content" v-else>
-					<p>Twitchat only keeps your parameters on its server. You cand download or delete them.</p>
+					<p>Twitchat only keeps your parameters on its server. You can download or delete them.</p>
 					<div class="ctas">
 						<Button @click="downloadData()" icon="download" :loading="downloadingData">Download your personnal data</Button>
 						<Button v-if="!showDeleteInput" @click="showDeleteInput=true" icon="trash" alert>Delete your personnal data</Button>
@@ -557,7 +557,7 @@ import Config from '@/utils/Config';
 		this.auhtenticating = true;
 		this.$store.auth.twitch_tokenRefresh(false)
 		.then(result => {
-			this.auhtenticated = result != undefined;
+			this.auhtenticated = result !== false;
 			this.auhtenticating = false;
 			DataStore.set("redirect", this.$route.name, false);
 		}).catch(() => {

@@ -119,6 +119,8 @@ export const storeStreamelements = defineStore('streamelements', {
 		
 		async getAccessToken():Promise<boolean> {
 			try {
+				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {token:this.authResult.csrf});
+				if(!csrfResult.json.success) return false;
 				const result = await ApiHelper.call("streamelements/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
@@ -263,9 +265,9 @@ export const storeStreamelements = defineStore('streamelements', {
 													eventType:"donation",
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
 													amount:value.data.amount,
-													amountFormatted:value.data.currency+" "+value.data.amount,
+													amountFormatted:(value.data.currency || "")+" "+value.data.amount,
 													channel_id:StoreProxy.auth.twitch.user.id,
-													currency:value.data.currency,
+													currency:(value.data.currency || ""),
 													message:value.data.message,
 													message_chunks:chunks,
 													message_html:TwitchUtils.messageChunksToHTML(chunks),

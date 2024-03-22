@@ -22,6 +22,7 @@
 				<div class="card-item alert errorMessage">{{ $t("error.user_profile") }}</div>
 			</template>
 
+			
 			<template v-else-if="!loading && !error">
 				<ClearButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
@@ -380,7 +381,6 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 		this.createDate = "";
 		this.followDate = "";
 		this.userDescription = "";
-		this.channelId = "";
 		this.followersCount = -1;
 		this.badges = [];
 		this.messageHistory = [];

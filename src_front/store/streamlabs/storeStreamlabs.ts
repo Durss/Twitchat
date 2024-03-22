@@ -74,6 +74,8 @@ export const storeStreamlabs = defineStore('streamlabs', {
 		
 		async getAccessToken():Promise<boolean> {
 			try {
+				const csrfResult = await ApiHelper.call("auth/CSRFToken", "POST", {token:this.authResult.csrf});
+				if(!csrfResult.json.success) return false;
 				const result = await ApiHelper.call("streamlabs/auth", "POST", this.authResult, false)
 				if(result.json.success) {
 					this.accessToken = result.json.accessToken!;
@@ -164,14 +166,13 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													date:Date.now(),
 													amount:message.amount,
 													amountFormatted:message.formatted_amount,
-													currency:message.currency,
+													currency:message.currency ?? "",
 													message:message.message,
 													message_chunks:chunks,
 													message_html:TwitchUtils.messageChunksToHTML(chunks),
 													userName:message.from,
 												}
 												StoreProxy.chat.addMessage(data);
-												resolve(true);
 											});
 											break;
 										}
@@ -207,7 +208,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													userName:message.from,
 													amount:message.amount,
 													amountFormatted:message.formatted_amount,
-													currency:message.currency,
+													currency:message.currency ?? "",
 												}
 												StoreProxy.chat.addMessage(data);
 											});

@@ -15,7 +15,7 @@
 				</template>
 			</i18n-t>
 	
-			<div class="quote">{{ messageData.message }}</div>
+			<div class="quote" v-if="messageData.message">{{ messageData.message }}</div>
 		</div>
 	</div>
 </template>

@@ -46,6 +46,7 @@ import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import gsap, { Linear } from 'gsap';
+import Utils from '@/utils/Utils';
 
 @Component({
 	components:{
@@ -68,10 +69,12 @@ class OverlayPredictions extends Vue {
 		showVotes:false,
 		showTimer:true,
 		showOnlyResult:false,
+		hideUntilResolved:true,
 		resultDuration_s:5,
 		placement:"bl",
 	};
 	
+	private updateDebounce:number = -1;
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
 	private updateParametersHandler!:(e:TwitchatEvent)=>void;
 	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
@@ -93,7 +96,7 @@ class OverlayPredictions extends Vue {
 	public getWinClasses(c:TwitchatDataTypes.MessagePredictionDataOutcome):string[] {
 		let res:string[] = [];
 		if(this.prediction?.winner
-		&& this.prediction?.winner.id == c.id) {
+		&& this.prediction.winner.id == c.id) {
 			res.push("win");
 		}
 		return res;
@@ -143,49 +146,51 @@ class OverlayPredictions extends Vue {
 
 	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
 		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
-		if(!prediction) {
-			if(this.prediction) this.close();
-		}else{
-			const opening	= this.prediction == null || this.prediction.id != prediction.id;
-			this.show		= this.parameters.showOnlyResult !== true;
-			this.showWinner	= false;
-			this.prediction	= prediction;
-			if(this.show) {
-				if(opening) await this.open();
-		
+		//Debounce updates as twitch is a little spammy whenr esolving a prediction
+		if(!prediction) return;
+		clearTimeout(this.updateDebounce);
+
+		this.updateDebounce = setTimeout(async ()=>{
+			if(prediction.winner){
+				this.prediction = prediction;
+				this.showWinner = true;
+				if(!this.show) await this.open();
 				const progressBar = this.$refs.progress as HTMLElement;
 				if(progressBar) {
-					const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
-					const percentDone = timeSpent / (prediction.duration_s * 1000);
-					const percentRemaining = 1 - percentDone;
-					const duration = prediction.duration_s * percentRemaining;
 					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%"});
+					gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:Linear.easeNone, width:"0%", onComplete:()=>{
+						this.close();
+					}});
+				}
+			}else{
+				const opening	= this.prediction == null || this.prediction.id != prediction.id;
+				this.show		= this.parameters.showOnlyResult !== true && (!prediction.pendingAnswer || (prediction.pendingAnswer && this.parameters.hideUntilResolved === false));
+				this.showWinner	= false;
+				this.prediction	= prediction;
+				if(this.show) {
+					if(opening) {
+						this.open();
+						await this.$nextTick();
+					}
+			
+					const progressBar = this.$refs.progress as HTMLElement;
+					if(progressBar) {
+						const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
+						const percentDone = timeSpent / (prediction.duration_s * 1000);
+						const percentRemaining = 1 - percentDone;
+						const duration = prediction.duration_s * percentRemaining;
+						gsap.killTweensOf(progressBar);
+						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%", onComplete:()=>{
+							if(this.parameters.hideUntilResolved !== false) this.close(true);
+						}});
+					}
 				}
 			}
-		}
+		}, 500);
 	}
 	
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
 		this.parameters = ((e.data as unknown) as {parameters:PredictionOverlayParamStoreData}).parameters;
-		console.log("update params");
-	}
-	
-	public async close():Promise<void> {
-		this.showWinner = true;
-		if(this.parameters.showOnlyResult === true) {
-			this.show = true;
-			await this.open();
-		}
-		const delay = this.parameters.resultDuration_s || 5;
-		if(delay > 0) {
-			const progressBar = this.$refs.progress as HTMLElement;
-			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
-		}
-		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{
-			this.show = false;
-			this.prediction = null;
-		}});
 	}
 	
 	private async open():Promise<void> {
@@ -193,18 +198,19 @@ class OverlayPredictions extends Vue {
 		await this.$nextTick();
 
 		let labels = this.$refs.labels as HTMLElement
-		let items = this.$refs.bar as HTMLElement[] || HTMLElement;
+		let items = this.$refs.bar as HTMLElement[] | HTMLElement;
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "300");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
-		
+		const duration = .5;
+
 		gsap.killTweensOf(this.$el);
-		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});
+		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration, ease:"back.out", clearProps:true});
 		
 		if(labels) {
 			labels.removeAttribute("style");
 			gsap.killTweensOf(labels);
-			gsap.fromTo(labels, {width:0}, {ease:"back.out", duration:.5, width, clearProps:true});
+			gsap.fromTo(labels, {width:0}, {ease:"back.out", duration, width, clearProps:true});
 		}
 
 		if(this.listMode) {
@@ -213,7 +219,7 @@ class OverlayPredictions extends Vue {
 			});
 			gsap.killTweensOf(items);
 			// gsap.from(items, {y:"-50px", scaleY:0, ease:"back.out", delay:.1, duration:.5, stagger:.1, clearProps:true});
-			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration:.5, width, stagger:.05,
+			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration, width, stagger:.05,
 						onComplete:(item)=>{
 							items.forEach(item=>{
 								item.style.width = width+"px";
@@ -222,8 +228,27 @@ class OverlayPredictions extends Vue {
 						}});
 		}else{
 			const holder = this.$refs.holder as HTMLElement;
-			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
+			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration, clearProps:true});
 		}
+		await Utils.promisedTimeout((duration + .25 * items.length) * 1000)
+	}
+	
+	public async close(isTemporaryClose:boolean = false):Promise<void> {
+		if(!isTemporaryClose) {
+			if(this.show === false) {
+				this.show = true;
+				await this.open();
+			}
+		}
+		const progressBar = this.$refs.progress as HTMLElement;
+		gsap.killTweensOf(progressBar);
+		if(progressBar) progressBar.style.width = "0%";
+
+		gsap.killTweensOf(this.$el);
+		gsap.to(this.$el, {scale:0, duration:.5, ease:"back.in", onComplete:()=>{
+			this.show = false;
+			this.prediction = null;
+		}});
 	}
 }
 export default toNative(OverlayPredictions);
@@ -272,8 +297,8 @@ export default toNative(OverlayPredictions);
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				transition: flex-basis .3s;
 				min-width: 2px;
+				transition: flex-basis .3s, opacity .5s;
 			}
 			.outcomeTitle:first-child:nth-last-child(2),
 			.outcomeTitle:first-child:nth-last-child(2) ~ .outcomeTitle {
@@ -297,7 +322,7 @@ export default toNative(OverlayPredictions);
 			transform-origin: top center;
 			.chunk {
 				flex: 1;
-				transition: flex-basis .3s;
+				transition: flex-basis .3s, opacity .5s;
 				display: flex;
 				flex-direction: row;
 				align-items: center;
@@ -324,6 +349,7 @@ export default toNative(OverlayPredictions);
 			overflow: hidden;
 			transform-origin: top center;
 			margin: auto;
+			transition: opacity .5s;
 			&:not(:last-child) {
 				margin-bottom: .75em;
 			}
@@ -444,7 +470,6 @@ export default toNative(OverlayPredictions);
 	&.win {
 		.list {
 			.choice {
-				transition: opacity .25s;
 				opacity: .5;
 				.bar {
 					background-color: fade(#387aff, 20%);
@@ -467,7 +492,6 @@ export default toNative(OverlayPredictions);
 		.battle {
 			.labels {
 				.outcomeTitle {
-					transition: opacity .25s;
 					opacity: .5;
 					&.win {
 						opacity: 1;
@@ -477,7 +501,6 @@ export default toNative(OverlayPredictions);
 
 			.chunks {
 				.chunk {
-					transition: opacity .25s;
 					opacity: .5;
 					&.win {
 						opacity: 1;

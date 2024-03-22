@@ -390,7 +390,19 @@ export interface TriggerActionObsData extends TriggerActionData{
 	/**
 	 * Animation easing type if "animate" is true
 	 */
-	animateEasing?:string;
+	animateEasing?:"sine.out"
+	| "sine.in"
+	| "sine.inOut"
+	| "back.out"
+	| "back.in"
+	| "back.inOut"
+	| "bounce.out"
+	| "bounce.in"
+	| "bounce.inOut"
+	| "elastic.out"
+	| "elastic.in"
+	| "elastic.inOut"
+	| "linear.none";
 	/**
 	 * Animation duration if "animate" is true
 	 */

@@ -129,6 +129,7 @@ import Ajv from "ajv";
 						properties:{
 							sceneIndex:{type:"integer"},
 							sceneName:{type:"string", maxLength:100},
+							sceneUuid:{type:"string", maxLength:100},
 						}
 					},
 					command:{type:"string", maxLength:100},
@@ -1506,6 +1507,7 @@ import Ajv from "ajv";
 				showPercent: {type:"boolean"},
 				showTimer: {type:"boolean"},
 				showOnlyResult: {type:"boolean"},
+				hideUntilResolved: {type:"boolean"},
 				resultDuration_s: {type:"number", minimum:1, maximum:10*60},
 				placement: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
