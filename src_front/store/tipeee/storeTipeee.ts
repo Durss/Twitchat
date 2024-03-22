@@ -39,12 +39,10 @@ export const storeTipeee = defineStore('tipeee', {
 		async populateData():Promise<void> {
 			const data = DataStore.get(DataStore.TIPEEE);
 			if(data) {
-				console.log("TIPEEE", data);
 				const json = JSON.parse(data) as TipeeStoreData;
 				this.accessToken = json.accessToken;
 				this.refreshToken = json.refreshToken;
 				if(this.refreshToken) {
-					console.log("REFRESH !");
 					isAutoInit = true;
 					await this.doRefreshToken();
 				}
