@@ -48,7 +48,7 @@ export default class HeatSocket extends EventDispatcher {
 		const localSocketIndex = this.socketIndex;
 
         const url = `wss://heat-api.j38.net/channel/${channelId}`;
-        console.log(`Connecting to ${url}.`);
+        // console.log(`Connecting to ${url}.`);
 		return new Promise((resolve)=> {
 			this.ws = new WebSocket(url);
 	
@@ -90,8 +90,8 @@ export default class HeatSocket extends EventDispatcher {
 	
 			// Handle close and reconnect.
 			this.ws.addEventListener('close', (event) => {
-				console.log("Connection closed:");
-				console.log(event);
+				// console.log("Connection closed:");
+				// console.log(event);
 	
 				if(localSocketIndex != this.socketIndex) {console.log("IGNORE CLOSE"); return;}
 	

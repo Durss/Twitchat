@@ -512,7 +512,8 @@
 			"goxlr": "GoXLR",
 			"kofi": "Ko-fi",
 			"streamlabs": "Streamlabs",
-			"streamelements": "Streamelements"
+			"streamelements": "Streamelements",
+			"tipeee": "Tipeee"
 		},
 		"placeholders": {
 			"trigger_name":"Current trigger name",
@@ -721,7 +722,8 @@
 			"sl_tipMonthlyTopDonation_amount":"Top donation amount this month",
 			"sl_tipMonthlyTopDonation_username":"Name of top donation this month",
 			"sl_tipAlltimeTopDonation_amount":"Top donation amount all time",
-			"sl_tipAlltimeTopDonation_username":"Name of top donation all time"
+			"sl_tipAlltimeTopDonation_username":"Name of top donation all time",
+			"tipeee_resub_months":"Number of months"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1194,6 +1196,18 @@
 			"STREAMELEMENTS_DONATION": {
 				"label": "Received a donation on Streamelements",
 				"description": "Actions to execute when receiving a donation on Streamelements"
+			},
+			"TIPEEE_DONATION": {
+				"label": "Received a donation on Tipeee",
+				"description": "Actions to execute when receiving a donation on Tipeee"
+			},
+			"TIPEEE_SUB": {
+				"label": "Received a monthly subscription on Tipeee",
+				"description": "Actions to execute when someones subscribes monthly on Tipeee"
+			},
+			"TIPEEE_RESUB": {
+				"label": "Received a resub on Tipeee",
+				"description": "Actions to execute when someones resubscribes on Tipeee"
 			}
 		},
 		"musicEvents": {

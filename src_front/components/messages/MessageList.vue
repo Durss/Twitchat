@@ -672,6 +672,10 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.kofi !== false;
 			}
 			
+			case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
+				return this.config.filters.tipeee !== false;
+			}
+			
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
 				return true;
 			}

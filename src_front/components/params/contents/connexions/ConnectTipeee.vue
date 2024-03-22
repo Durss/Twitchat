@@ -22,17 +22,26 @@
 		<section v-else>
 			<TTButton alert @click="disconnect()">{{ $t("global.disconnect") }}</TTButton>
 		</section>
+
+		<section class="examples">
+			<h2><Icon name="whispers"/>{{$t("tipeee.examples")}}</h2>
+			<MessageItem v-if="fakeDonation" :messageData="fakeDonation" />
+			<MessageItem v-if="fakeSub" :messageData="fakeSub" />
+			<MessageItem v-if="fakeResub" :messageData="fakeResub" />
+		</section>
 	</div>
 </template>
 
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
+import MessageItem from '@/components/messages/MessageItem.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{
 		TTButton,
+		MessageItem,
 	},
 	emits:[],
 })
@@ -41,6 +50,9 @@ class ConnectTipeee extends Vue {
 	public error = false;
 	public loading = false;
 	public oAuthURL = "";
+	public fakeDonation:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
+	public fakeSub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
+	public fakeResub:TwitchatDataTypes.MessageTipeeeDonationData|undefined = undefined;
 
 	public beforeMount():void {
 		if(!this.$store.tipeee.connected) {
@@ -49,6 +61,7 @@ class ConnectTipeee extends Vue {
 				this.loading = true
 				this.$store.tipeee.completeOAuthProcess()
 				.then(success => {
+					console.log(success)
 					this.error = !success;
 					this.loading = false;
 					this.loadAuthURL();
@@ -58,6 +71,19 @@ class ConnectTipeee extends Vue {
 				this.loadAuthURL();
 			}
 		}
+
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
+			this.fakeDonation = mess;
+		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
+			mess.recurring = true;
+			this.fakeSub = mess;
+		}, false);
+		this.$store.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, (mess) => {
+			mess.recurring = true;
+			mess.recurringCount = Math.round(Math.random() *10)
+			this.fakeResub = mess;
+		}, false);
 	}
 
 	/**
@@ -98,6 +124,17 @@ export default toNative(ConnectTipeee);
 		text-align: center;
 		white-space: pre-line;
 	}
-	
+
+	.examples {
+		margin-top: 2em;
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+			vertical-align: middle;
+		}
+		.chatMessage  {
+			font-size: 1em;
+		}
+	}
 }
 </style>

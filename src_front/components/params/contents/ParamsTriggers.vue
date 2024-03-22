@@ -579,6 +579,13 @@ import TriggerList from './triggers/TriggerList.vue';
 						(m as TwitchatDataTypes.KofiSubscriptionData).amount = 123;
 						(m as TwitchatDataTypes.KofiSubscriptionData).amountFormatted = "123";
 						(m as TwitchatDataTypes.KofiSubscriptionData).tier = Utils.pickRand(["Gold", "Bronze", "Silver", "Poop"]);
+					}else
+
+					if(triggerEvent.value == TriggerTypes.TIPEEE_SUB) {
+						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
+					} else if(triggerEvent.value == TriggerTypes.TIPEEE_RESUB) {
+						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurring = true;
+						(m as TwitchatDataTypes.MessageTipeeeDonationData).recurringCount = Math.round(Math.random() * 10);
 					}
 
 					TriggerActionHandler.instance.execute(m, true, trigger.id);

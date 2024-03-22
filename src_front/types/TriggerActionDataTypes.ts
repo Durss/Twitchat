@@ -279,6 +279,7 @@ export const TriggerEventTypeCategories = {
 	STREAMLABS:		{id:14, labelKey:"triggers.categories.streamlabs", icons:["streamlabs"]} as TriggerEventTypeCategory,
 	KOFI:			{id:15, labelKey:"triggers.categories.kofi", icons:["kofi"]} as TriggerEventTypeCategory,
 	STREAMELEMENTS:	{id:16, labelKey:"triggers.categories.streamelements", icons:["streamelements"]} as TriggerEventTypeCategory,
+	TIPEEE:			{id:17, labelKey:"triggers.categories.tipeee", icons:["tipeee"]} as TriggerEventTypeCategory,
 };
 export type TriggerEventTypeCategoryID = typeof TriggerEventTypeCategories[keyof typeof TriggerEventTypeCategories]['id'];
 
@@ -1138,6 +1139,9 @@ export const TriggerTypes = {
 	PREDICTION_START:"110",
 	STREAMELEMENTS_DONATION:"111",
 	STREAMELEMENTS_MERCH:"112",
+	TIPEEE_DONATION:"113",
+	TIPEEE_SUB:"114",
+	TIPEEE_RESUB:"115",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1699,6 +1703,20 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.StreamelementsDonationData>,
 	];
+	
+	map[TriggerTypes.TIPEEE_DONATION] = 
+	map[TriggerTypes.TIPEEE_SUB] = [
+		{tag:"USER_NAME", descKey:'triggers.placeholders.user', pointer:"userName", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"AMOUNT", descKey:'triggers.placeholders.donation_amount', pointer:"amount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"CURRENCY", descKey:'triggers.placeholders.currency', pointer:"currency", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"MESSAGE", descKey:'triggers.placeholders.message', pointer:"message", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"MESSAGE_JSON", descKey:'triggers.placeholders.message_json', pointer:"message_chunks", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+		{tag:"MESSAGE_HTML", descKey:'triggers.placeholders.message_html', pointer:"message_html", numberParsable:false, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+	];
+	
+	map[TriggerTypes.TIPEEE_RESUB] = [...map[TriggerTypes.TIPEEE_DONATION]!,
+		{tag:"RESUB_MONTHS", descKey:'triggers.placeholders.tipeee_resub_months', pointer:"recurringCount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
+	];
 
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
@@ -1978,6 +1996,9 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_MERCH.label", value:TriggerTypes.KOFI_MERCH, descriptionKey:"triggers.events.KOFI_MERCH.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.KOFI, icon:"kofi", labelKey:"triggers.events.KOFI_SUBSCRIPTION.label", value:TriggerTypes.KOFI_SUBSCRIPTION, descriptionKey:"triggers.events.KOFI_SUBSCRIPTION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.KOFI},
 		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.STREAMELEMENTS, icon:"streamelements", labelKey:"triggers.events.STREAMELEMENTS_DONATION.label", value:TriggerTypes.STREAMELEMENTS_DONATION, descriptionKey:"triggers.events.STREAMELEMENTS_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_DONATION.label", value:TriggerTypes.TIPEEE_DONATION, descriptionKey:"triggers.events.TIPEEE_DONATION.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_SUB.label", value:TriggerTypes.TIPEEE_SUB, descriptionKey:"triggers.events.TIPEEE_SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V12, premium:true, category:TriggerEventTypeCategories.TIPEEE, icon:"tipeee", labelKey:"triggers.events.TIPEEE_RESUB.label", value:TriggerTypes.TIPEEE_RESUB, descriptionKey:"triggers.events.TIPEEE_RESUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.TIPEEE},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_ENABLED.label", value:TriggerTypes.GOXLR_FX_ENABLED, descriptionKey:"triggers.events.GOXLR_FX_ENABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"goxlr_fx", labelKey:"triggers.events.GOXLR_FX_DISABLED.label", value:TriggerTypes.GOXLR_FX_DISABLED, descriptionKey:"triggers.events.GOXLR_FX_DISABLED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_FX_STATE, goxlrMiniCompatible:false},
 		{premium:true, category:TriggerEventTypeCategories.GOXLR, icon:"press", labelKey:"triggers.events.GOXLR_BUTTON_PRESSED.label", value:TriggerTypes.GOXLR_BUTTON_PRESSED, descriptionKey:"triggers.events.GOXLR_BUTTON_PRESSED.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.GOXLR_BUTTON, goxlrMiniCompatible:true},

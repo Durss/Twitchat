@@ -89,7 +89,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			this._socket = new WebSocket(`ws://${ip}:${port}/v1/`);
 
 			this._socket.onopen = () => {
-				console.log('🎤 Voicemod connection succeed');
+				// console.log('🎤 Voicemod connection succeed');
 				this._connecting = false;
 				this.connected = true;
 				this._autoReconnect = true;
@@ -100,7 +100,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 			this._socket.onclose = (e) => {
 				if(this.connected) {
-					console.log('🎤 Voicemod connection lost');
+					// console.log('🎤 Voicemod connection lost');
 				}
 				this._connecting = false;
 				this.connected = false;
@@ -150,7 +150,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 */
 	public async enableVoiceEffect(name?:string, id?:string, autoRemoveDelay:number = -1):Promise<void> {
 		if(!this._voicesList || !this._voicesList.length) {
-			console.log("🎤 VoicemodWebSocket not connected");
+			// console.log("🎤 VoicemodWebSocket not connected");
 			return;
 		}
 

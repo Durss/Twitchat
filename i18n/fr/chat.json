@@ -436,6 +436,11 @@
 			"subscription": "{USER} s'est abonné pour {AMOUNT} sur Ko-fi",
 			"subscription_tier": "{USER} a pris l'abonnement {TIER} pour {AMOUNT} sur Ko-fi"
 		},
+		"tipeee": {
+			"donation": "{USER} a fait un don de {AMOUNT} sur Tipeee",
+			"donation_recurring": "{USER} a fait un don de {AMOUNT} pour {MONTHS} mois sur Tipeee",
+			"monthly": "{USER} s'est abonné pour {AMOUNT} par mois sur Tipeee"
+		},
 		"unban_request": {
 			"request": "{USER} a envoyé cette demande d'unban",
 			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",

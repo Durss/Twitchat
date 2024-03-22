@@ -163,6 +163,10 @@
 		v-else-if="messageData.type == 'kofi'"
 		:messageData="messageData" />
 
+	<ChatTipeeeEvent class="message"
+		v-else-if="messageData.type == 'tipeee'"
+		:messageData="messageData" />
+
 	<ChatUnbanRequest class="message"
 		v-else-if="messageData.type == 'unban_request'"
 		:messageData="messageData" />
@@ -213,6 +217,7 @@ import ChatStreamlabsEvent from './ChatStreamlabsEvent.vue';
 import ChatKofiEvent from './ChatKofiEvent.vue';
 import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
 import ChatUnbanRequest from './ChatUnbanRequest.vue';
+import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 
 @Component({
 	components:{
@@ -232,6 +237,7 @@ import ChatUnbanRequest from './ChatUnbanRequest.vue';
 		ChatPinNotice,
 		ChatJoinLeave,
 		ChatPollResult,
+		ChatTipeeeEvent,
 		ChatStreamOnOff,
 		ChatBingoResult,
 		ChatWatchStreak,

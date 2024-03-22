@@ -545,6 +545,15 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.TIPEEE:{
+				let eventType:TriggerTypesValue = TriggerTypes.TIPEEE_DONATION;
+				if(message.recurring && message.recurringCount > 1) eventType = TriggerTypes.TIPEEE_RESUB;
+				else if(message.recurring) eventType = TriggerTypes.TIPEEE_SUB;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{

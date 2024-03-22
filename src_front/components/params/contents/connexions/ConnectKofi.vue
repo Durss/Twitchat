@@ -91,8 +91,6 @@ class ConnectKofi extends Vue {
 	}
 
 	public beforeMount():void {
-		if(!this.$store.kofi.connected) {
-		}
 		this.$store.debug.simulateMessage<TwitchatDataTypes.KofiDonationData>(TwitchatDataTypes.TwitchatMessageType.KOFI, (mess) => {
 			mess.eventType = "donation";
 			this.fakeDonation = mess;

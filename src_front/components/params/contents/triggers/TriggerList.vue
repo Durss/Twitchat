@@ -22,20 +22,17 @@
 </template>
 
 <script lang="ts">
+import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
-import { TriggerTypesDefinitionList, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
+import { TriggerTypesDefinitionList, type TriggerData, type TriggerTreeItemData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import TriggerListItem from './TriggerListItem.vue';
-import { gsap } from 'gsap/all';
-import { RoughEase } from 'gsap/all';
-import { Linear } from 'gsap/all';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import TriggerListFolderItem from './TriggerListFolderItem.vue';
-import TTButton from '@/components/TTButton.vue';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import TriggerListItem from './TriggerListItem.vue';
 
 @Component({
 	components:{

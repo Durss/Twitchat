@@ -2122,7 +2122,7 @@ export namespace TwitchatDataTypes {
 									| MessageStreamelementsData
 									| MessageKofiData
 									| MessageUnbanRequestData
-									| TipeeeDonationData
+									| MessageTipeeeDonationData
 	;
 	
 	/**
@@ -4250,7 +4250,7 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Represents a tipeee donation event
 	 */
-	export interface TipeeeDonationData extends AbstractTwitchatMessage {
+	export interface MessageTipeeeDonationData extends AbstractTwitchatMessage {
 		type:"tipeee";
 		eventType:"donation";
 		amount:number;
@@ -4260,5 +4260,7 @@ export namespace TwitchatDataTypes {
 		message_html:string;
 		userName:string;
 		currency:string;
+		recurring:boolean;
+		recurringCount:number;
 	}
 }

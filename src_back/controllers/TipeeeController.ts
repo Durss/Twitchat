@@ -31,6 +31,7 @@ export default class TipeeeController extends AbstractController {
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
+
 	/**
 	 * Authenticate user to complete oAuth flow
 	 * @param request 
@@ -45,14 +46,7 @@ export default class TipeeeController extends AbstractController {
 			"Content-Type": "application/json",
 		};
 
-		// const headers = {
-		// 	"Content-Type": "application/x-www-form-urlencoded",
-		// };
-
 		const params = request.body as {code:string};
-
-		const url = new URL("https://api.tipeeestream.com/oauth/v2/token");
-
 		const body = JSON.stringify({
 			client_id: Config.credentials.tipeee_client_id,
 			client_secret: Config.credentials.tipeee_client_secret,
@@ -61,11 +55,9 @@ export default class TipeeeController extends AbstractController {
 			redirect_uri: Config.credentials.tipeee_redirect_uri,
 		});
 
-		console.log(body);
-
 		try {
-			const slRes = await fetch(url, {method:"POST", headers, body});
-			const json = await slRes.json();
+			const query = await fetch("https://api.tipeeestream.com/oauth/v2/token", {method:"POST", headers, body});
+			const json = await query.json();
 			const accessToken = json.access_token;
 			const refreshToken = json.refresh_token;
 			const expiresIn = json.expires_in;
@@ -84,7 +76,7 @@ export default class TipeeeController extends AbstractController {
 	}
 	
 	/**
-	 * Authenticate user to complete oAuth flow
+	 * Refresh access token
 	 * @param request 
 	 * @param response 
 	 * @returns 
@@ -97,12 +89,7 @@ export default class TipeeeController extends AbstractController {
 			"Content-Type": "application/json",
 		};
 
-		// const headers = {
-		// 	"Content-Type": "application/x-www-form-urlencoded",
-		// };
-
 		const params = request.body as {refreshToken:string};
-
 		const url = new URL("https://api.tipeeestream.com/oauth/v2/refresh-token");
 
 		const body = JSON.stringify({
@@ -113,17 +100,14 @@ export default class TipeeeController extends AbstractController {
 
 
 		try {
-			const slRes = await fetch(url, {method:"POST", headers, body});
-			const json = await slRes.json();
+			const query = await fetch(url, {method:"POST", headers, body});
+			const json = await query.json();
 			const accessToken = json.access_token;
 			const refreshToken = json.refresh_token;
-			const expiresIn = json.expires_in;//TODO make sure we actually get this info, it's not documented
-
-			console.log(json);
 
 			response.header('Content-Type', 'application/json')
 			.status(200)
-			.send(JSON.stringify({success:accessToken !== undefined, accessToken, refreshToken, expiresIn}));
+			.send(JSON.stringify({success:accessToken !== undefined, accessToken, refreshToken}));
 		}catch(error) {
 			console.log(error);
 			response.header('Content-Type', 'application/json')

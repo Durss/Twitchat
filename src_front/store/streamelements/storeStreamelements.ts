@@ -138,7 +138,7 @@ export const storeStreamelements = defineStore('streamelements', {
 
 			//Token changed
 			if(isReconnect && token != this.accessToken) {
-				console.log("STREAMELEMENTS: do not reconnect because token changed",token, this.accessToken)
+				// console.log("STREAMELEMENTS: do not reconnect because token changed",token, this.accessToken)
 				return Promise.resolve(false);
 			}
 			
@@ -156,7 +156,7 @@ export const storeStreamelements = defineStore('streamelements', {
 					headers: { "Authorization":"OAuth "+token },
 					method:"GET",
 				}
-				console.log("STREAMELEMENTS: checking token validity...")
+				// console.log("STREAMELEMENTS: checking token validity...")
 				let validateResult = await fetch("https://api.streamelements.com/oauth2/validate", opts);
 				if(validateResult.status == 200) {
 					const json = (await validateResult.json()) as StreamelementsTokenValidate;
@@ -168,7 +168,7 @@ export const storeStreamelements = defineStore('streamelements', {
 				//Streamelements API returns random 520 errors.
 				//In this case, just consider the token is valid is it will most probably be the case
 				if(validateResult.status == 520) tokenValid = true;
-				console.log("STREAMELEMENTS: checking token valid? ", tokenValid);
+				// console.log("STREAMELEMENTS: checking token valid? ", tokenValid);
 			}catch(error) {}
 
 			//Token expired or will expire soon?
@@ -176,15 +176,15 @@ export const storeStreamelements = defineStore('streamelements', {
 			if(!tokenValid) {
 				if(!this.refreshToken) return false;
 				try {
-					console.log("STREAMELEMENTS: token not valid, get fresh new one");
+					// console.log("STREAMELEMENTS: token not valid, get fresh new one");
 					const result = await ApiHelper.call("streamelements/token/refresh", "POST", {refreshToken:this.refreshToken}, false)
 					if(result.json.success) {
 						this.accessToken = result.json.accessToken!;
 						this.refreshToken = result.json.refreshToken!;
 						this.saveData();
-						console.log("STREAMELEMENTS: got new token", this.accessToken);
+						// console.log("STREAMELEMENTS: got new token", this.accessToken);
 					}else{
-						console.log("STREAMELEMENTS: failed getting a new token");
+						// console.log("STREAMELEMENTS: failed getting a new token");
 						return false;
 					}
 				}catch(error){
@@ -218,7 +218,7 @@ export const storeStreamelements = defineStore('streamelements', {
 							if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 							pingInterval = SetIntervalWorker.instance.create(()=>{
 								if(socket?.readyState == socket?.CLOSING || socket?.readyState == socket?.CLOSED) {
-									console.log("SOCKET STATE", socket?.readyState);
+									// console.log("SOCKET STATE", socket?.readyState);
 								}else{
 									socket?.send("2");
 								}
@@ -265,7 +265,7 @@ export const storeStreamelements = defineStore('streamelements', {
 													eventType:"donation",
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS,
 													amount:value.data.amount,
-													amountFormatted:(value.data.currency || "")+" "+value.data.amount,
+													amountFormatted:value.data.amount+(value.data.currency || ""),
 													channel_id:StoreProxy.auth.twitch.user.id,
 													currency:(value.data.currency || ""),
 													message:value.data.message,
@@ -406,10 +406,10 @@ export const storeStreamelements = defineStore('streamelements', {
 				};
 			
 				socket.onclose = (event) => {
-					console.log("STREAMELEMENTS: onclose:");
-					console.log(token, this.accessToken);
-					console.log(autoReconnect);
-					console.log(event);
+					// console.log("STREAMELEMENTS: onclose:");
+					// console.log(token, this.accessToken);
+					// console.log(autoReconnect);
+					// console.log(event);
 					//Do not reconnect if token changed
 					if(token != this.accessToken) return;
 					if(!autoReconnect) return;
@@ -424,11 +424,11 @@ export const storeStreamelements = defineStore('streamelements', {
 						socket = undefined;
 						this.connect(token, true);
 					}, 500 * reconnectAttempts);
-					console.log("STREAMELEMENTS: reconnect in",500 * reconnectAttempts)
+					// console.log("STREAMELEMENTS: reconnect in",500 * reconnectAttempts)
 				};
 				
 				socket.onerror = (error) => {
-					console.log("STREAMELEMENTS: onerror:", error);
+					// console.log("STREAMELEMENTS: onerror:", error);
 					resolve(false);
 					this.connected = false;
 					rebuildPlaceholdersCache();

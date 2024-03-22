@@ -39,9 +39,12 @@ export const storeTipeee = defineStore('tipeee', {
 		async populateData():Promise<void> {
 			const data = DataStore.get(DataStore.TIPEEE);
 			if(data) {
+				console.log("TIPEEE", data);
 				const json = JSON.parse(data) as TipeeStoreData;
 				this.accessToken = json.accessToken;
+				this.refreshToken = json.refreshToken;
 				if(this.refreshToken) {
+					console.log("REFRESH !");
 					isAutoInit = true;
 					await this.doRefreshToken();
 				}
@@ -54,11 +57,10 @@ export const storeTipeee = defineStore('tipeee', {
 				this.accessToken = result.json.accessToken!;
 				this.refreshToken = result.json.refreshToken!;
 				this.saveData();
-				if(result.json.expiresIn) {
-					setTimeout(() => {
-						this.doRefreshToken();
-					}, result.json.expiresIn * 1000);
-				}
+				setTimeout(() => {
+					this.doRefreshToken();
+				}, 3600 * 1000);
+				//Tipeee do not returns expireas at for refresh token. Refresh every hour :/
 				this.connect(this.accessToken, false);
 			}else{
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
@@ -67,8 +69,8 @@ export const storeTipeee = defineStore('tipeee', {
 
 		async getOAuthURL():Promise<string> {
 			const csrfToken = await ApiHelper.call("auth/CSRFToken", "GET");
-			const redirectURI = "https://twitchat.fr" + StoreProxy.router.resolve({name:"tipeee/auth"}).href;
-			// const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"tipeee/auth"}).href;
+			const origin = Config.instance.IS_PROD?  document.location.origin : "https://twitchat.fr";
+			const redirectURI = origin + StoreProxy.router.resolve({name:"tipeee/auth"}).href;
 			const url = new URL("https://api.tipeeestream.com/oauth/v2/auth");
 			url.searchParams.set("client_id",Config.instance.TIPEEE_CLIENT_ID);
 			url.searchParams.set("redirect_uri",redirectURI);
@@ -105,13 +107,32 @@ export const storeTipeee = defineStore('tipeee', {
 			//Token changed
 			if(isReconnect && token != this.accessToken) return Promise.resolve(false);
 			
-			this.disconnect();
+			this.disconnect(false);
 
 			autoReconnect = true;
 
-			return new Promise<boolean>((resolve, reject)=> {
-	
-				socket = new WebSocket(`wss://sockets.tipeee.com/socket.io/?EIO=3&transport=websocket&token=${this.accessToken}`);
+			return new Promise<boolean>(async (resolve, reject)=> {
+				//Get user's details
+				//This query is probably unnecessary as the username can apparently be anything on "join-room" event
+				const meUrl = new URL("https://api.tipeeestream.com/v1.0/me.json");
+				meUrl.searchParams.set("access_token", this.accessToken);
+				const meQuery = await fetch(meUrl, {method:"GET"});
+				const meJSON = await meQuery.json() as {username:string};
+
+				//Get user's API key
+				const accessTokenUrl = new URL("https://api.tipeeestream.com/v1.0/me/api.json");
+				accessTokenUrl.searchParams.set("access_token", this.accessToken);
+				const accessTokenQuery = await fetch(accessTokenUrl, {method:"GET"});
+				const accessTokenJSON = await accessTokenQuery.json() as {apiKey:string};
+
+				//Get socket path
+				const socketPropsQuery = await fetch("https://api.tipeeestream.com/v2.0/site/socket", {method:"GET"});
+				const socketProps = await socketPropsQuery.json() as {code:number, datas:{port:string, host:string}};
+
+				let socketPath = socketProps.datas.host.replace(/https?:\/\//, "");
+				if(socketProps.datas.port && socketProps.datas.port != "443") socketPath += ":"+socketProps.datas.port;
+
+				socket = new WebSocket(`wss://${socketPath}/socket.io/?EIO=3&transport=websocket&access_token=${accessTokenJSON.apiKey}`);
 	
 				socket.onopen = async () => {
 					reconnectAttempts = 0;
@@ -139,19 +160,35 @@ export const storeTipeee = defineStore('tipeee', {
 							if(!/[0-9]/.test(event.data[codeLength])) break;
 						}
 						const code = event.data.substring(0, codeLength);
-						const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
+						const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), "") || "{}");
 						//Welcome message
 						if(code == "0") {
-							//Do we get it ?
-						}else
+							//Join room to get events
+							socket?.send(`42["join-room",{"room":"${accessTokenJSON.apiKey}","username":"${meJSON.username}"}]`);
+
+							const json = JSON.parse(event.data.replace(new RegExp("^"+code, ""), ""));
+							const message = json as TipeeeWelcomeData;
+							//Send PING command regularly
+							if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
+							pingInterval = SetIntervalWorker.instance.create(()=>{
+								if(socket?.readyState == socket?.CLOSING || socket?.readyState == socket?.CLOSED) {
+									// console.log("SOCKET STATE", socket?.readyState);
+								}else{
+									socket?.send("2");
+								}
+							}, message.pingInterval || 10000);
+						}
+
+						//Connection acknowledgment
+						else if(code == "40") return;
 
 						//Authentication failed
-						if(code == "44") {
+						else if(code == "44") {
 							//Show error on top of page
 							if(isAutoInit) {
 								StoreProxy.main.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
 							}
-							this.disconnect();
+							this.disconnect(false);
 							resolve(false);
 
 						}else{
@@ -163,7 +200,7 @@ export const storeTipeee = defineStore('tipeee', {
 									switch(message.type) {
 										case "donation": {
 											const chunks = TwitchUtils.parseMessageToChunks(message.parameters.message, undefined, true);
-											const data:TwitchatDataTypes.TipeeeDonationData = {
+											const data:TwitchatDataTypes.MessageTipeeeDonationData = {
 												id:Utils.getUUID(),
 												eventType:"donation",
 												platform:"twitchat",
@@ -171,13 +208,15 @@ export const storeTipeee = defineStore('tipeee', {
 												type:TwitchatDataTypes.TwitchatMessageType.TIPEEE,
 												date:Date.now(),
 												amount:message.parameters.amount,
-												amountFormatted:message.parameters.currency + message.parameters.amount,
+												amountFormatted:message.parameters.amount+message.parameters.currency,
 												currency:message.parameters.currency,
 												message:message.parameters.message,
 												message_chunks:chunks,
 												message_html:TwitchUtils.messageChunksToHTML(chunks),
-												userName:message.user.username
-											}
+												userName:message.user.username,
+												recurring:message.parameters.recurring == 1,
+												recurringCount:message.parameters.recurring_counter || 0,
+											};
 											StoreProxy.chat.addMessage(data);
 											break;
 										}
@@ -209,6 +248,7 @@ export const storeTipeee = defineStore('tipeee', {
 				};
 				
 				socket.onerror = (error) => {
+					console.log("ERROR", error);
 					resolve(false);
 					this.connected = false;
 					if(!autoReconnect) return;
@@ -223,12 +263,14 @@ export const storeTipeee = defineStore('tipeee', {
 			});
 		},
 
-		disconnect():void {
+		disconnect(resetToken:boolean = true):void {
 			autoReconnect = false;
 			this.connected = false;
-			this.accessToken = "";
-			this.refreshToken = "";
-			this.saveData();
+			if(resetToken) {
+				this.accessToken = "";
+				this.refreshToken = "";
+				this.saveData();
+			}
 			if(pingInterval) SetIntervalWorker.instance.delete(pingInterval);
 			clearTimeout(reconnectTimeout);
 			if(socket && !this.connected) socket.close();
@@ -238,7 +280,8 @@ export const storeTipeee = defineStore('tipeee', {
 			const data:TipeeStoreData = {
 				accessToken:this.accessToken,
 				refreshToken:this.refreshToken,
-			}
+			};
+			console.log("SAVE::",data);
 			DataStore.set(DataStore.TIPEEE, data);
 		},
 
@@ -255,6 +298,12 @@ export const storeTipeee = defineStore('tipeee', {
 interface TipeeStoreData {
 	accessToken:string;
 	refreshToken:string;
+}
+
+interface TipeeeWelcomeData {
+	pingInterval:number;
+	pingTimeout:number;
+	sid:string;
 }
 
 interface TipeeeEventData {

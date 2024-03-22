@@ -37,11 +37,11 @@
 </template>
 
 <script lang="ts">
-import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import AbstractChatMessage from './AbstractChatMessage';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{

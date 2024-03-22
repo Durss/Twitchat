@@ -221,7 +221,7 @@ class OverlayPredictions extends Vue {
 			// gsap.from(items, {y:"-50px", scaleY:0, ease:"back.out", delay:.1, duration:.5, stagger:.1, clearProps:true});
 			gsap.fromTo(items, {width:0}, {ease:"back.out", delay:.25, duration, width, stagger:.05,
 						onComplete:(item)=>{
-							items.forEach(item=>{
+							(items as HTMLElement[]).forEach(item=>{
 								item.style.width = width+"px";
 								item.style.minWidth = width+"px";
 							});

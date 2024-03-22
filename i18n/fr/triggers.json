@@ -512,7 +512,8 @@
 			"goxlr": "GoXLR",
 			"kofi": "Ko-fi",
 			"streamlabs": "Streamlabs",
-			"streamelements": "Streamelements"
+			"streamelements": "Streamelements",
+			"tipeee": "Tipeee"
 		},
 		"placeholders": {
 			"trigger_name": "Nom du trigger actuel",
@@ -721,7 +722,8 @@
 			"sl_tipMonthlyTopDonation_amount":"Top don ce mois",
 			"sl_tipMonthlyTopDonation_username":"Pseudo du top don ce mois",
 			"sl_tipAlltimeTopDonation_amount":"Top don depuis toujours",
-			"sl_tipAlltimeTopDonation_username":"Pseudo du top don depuis toujours"
+			"sl_tipAlltimeTopDonation_username":"Pseudo du top don depuis toujours",
+			"tipeee_resub_months":"Nombre de mois"
 		},
 		"events": {
 			"CHAT_COMMAND": {

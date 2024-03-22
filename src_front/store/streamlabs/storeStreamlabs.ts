@@ -165,7 +165,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													type:TwitchatDataTypes.TwitchatMessageType.STREAMLABS,
 													date:Date.now(),
 													amount:message.amount,
-													amountFormatted:message.formatted_amount,
+													amountFormatted:message.formatted_amount+(message.currency ?? ""),
 													currency:message.currency ?? "",
 													message:message.message,
 													message_chunks:chunks,
@@ -207,7 +207,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 													date:Date.now(),
 													userName:message.from,
 													amount:message.amount,
-													amountFormatted:message.formatted_amount,
+													amountFormatted:message.formatted_amount+(message.currency ?? ""),
 													currency:message.currency ?? "",
 												}
 												StoreProxy.chat.addMessage(data);

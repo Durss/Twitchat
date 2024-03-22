@@ -520,7 +520,6 @@ type ApiEndpoints =  {
 			success:boolean;
 			accessToken?:string;
 			refreshToken?:string;
-			expiresIn?:number;
 			error?:string;
 			errorCode?:string;
 		}

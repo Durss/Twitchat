@@ -2501,7 +2501,7 @@ export interface ITipeeeActions {
 	/**
 	 * Disconnects from tipeee
 	 */
-	disconnect():void;
+	disconnect(resetToken?:boolean):void;
 	/**
 	 * Get the oAuth URL for streamlabs
 	 */

@@ -132,6 +132,7 @@ export default class DataStore {
 		this.YOUTUBE_AUTH_TOKEN,
 		this.STREAMLABS,
 		this.STREAMELEMENTS,
+		this.TIPEEE,
 	];
 	
 	

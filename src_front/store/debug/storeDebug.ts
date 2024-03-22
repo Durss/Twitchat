@@ -1374,6 +1374,29 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
+
+				case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
+					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const m:TwitchatDataTypes.MessageTipeeeDonationData = {
+						platform:"twitch",
+						type,
+						date:Date.now(),
+						id:Utils.getUUID(),
+						channel_id:uid,
+						amount:13,
+						amountFormatted:"$13",
+						currency:"EUR",
+						eventType:"donation",
+						message,
+						message_html:TwitchUtils.messageChunksToHTML(chunks),
+						message_chunks:chunks,
+						userName:user.displayNameOriginal,
+						recurring:false,
+						recurringCount:0,
+					};
+					data = m;
+					break;
+				}
 			}
 
 			data.fake = true;
