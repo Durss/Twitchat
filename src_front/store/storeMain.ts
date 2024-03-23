@@ -492,31 +492,72 @@ export const storeMain = defineStore("main", {
 			/**
 			 * Called when music player is clicked on the unified overlay
 			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, (e:TwitchatEvent)=> {
-				const data = e.data as {x:number, y:number, uid:string, shift:boolean, alt:boolean, ctrl:boolean, testMode:boolean, login:string, page:string};
+			PublicAPI.instance.addEventListener(TwitchatEvent.MUSIC_PLAYER_HEAT_CLICK, async (e:TwitchatEvent)=> {
+				const data = e.data as TwitchatDataTypes.HeatClickData;
 				//Init trigger data
-				const action:TriggerActionChatData = {
-					id:Utils.getUUID(),
-					text:"",
-					type:'chat',
-				}
-				const trigger:TriggerData = {
-					id:Utils.getUUID(),
-					type:TriggerTypes.TWITCHAT_MESSAGE,
-					enabled:true,
-					actions:[action],
+				const action: TriggerActionChatData = {
+					id: Utils.getUUID(),
+					text: StoreProxy.chat.botMessages.heatSpotify.message,
+					type: 'chat',
+				};
+				const trigger: TriggerData = {
+					id: "heat_spotify_click",
+					type: TriggerTypes.TWITCHAT_MESSAGE,
+					enabled: true,
+					actions: [action],
 					cooldown: {
 						user: 0,
-						global: 0,
-						alert:false,
+						global: StoreProxy.chat.botMessages.heatSpotify.cooldown!,
+						alert: false,
 					}
+				};
+				let user!: Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo" | "anonymous">;
+				const channelId = StoreProxy.auth.twitch.user.id;
+				if (!data.anonymous) {
+					//Load user data
+					user = await new Promise((resolve) => {
+						StoreProxy.users.getUserFrom("twitch", channelId, data.uid, undefined, undefined, (user) => {
+							resolve(user);
+						});
+					});
+				} else {
+					//Create a fake partial user with only ID set so the trigger's cooldowns
+					//can properly be applied later.
+					const channelInfo: { [key: string]: TwitchatDataTypes.UserChannelInfo; } = {};
+					channelInfo[channelId] = {
+						badges: [],
+						following_date_ms: -1,
+						is_banned: false,
+						is_broadcaster: false,
+						is_following: false,
+						is_gifter: false,
+						is_moderator: false,
+						is_new: false,
+						is_raider: false,
+						is_subscriber: false,
+						is_vip: false,
+						online: true,
+					};
+					user = { id: data.uid || "anon", login: "anon", channelInfo, anonymous: true };
 				}
-								
-				const fakeMessage:TwitchatDataTypes.MessageNoticeData = { id:"fake_schedule_message", date:Date.now(), type:"notice", noticeId:"generic", message:"", platform:"twitchat", channel_id:"" };
-				trigger.id = Utils.getUUID();
-				action.text = StoreProxy.chat.botMessages.heatSpotify.message;
-				trigger.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
-				TriggerActionHandler.instance.executeTrigger(trigger, fakeMessage, data.testMode == true);
+				const message: TwitchatDataTypes.MessageHeatClickData = {
+					date: Date.now(),
+					id: Utils.getUUID(),
+					platform: "twitch",
+					type: TwitchatDataTypes.TwitchatMessageType.HEAT_CLICK,
+					user,
+					anonymous: data.anonymous,
+					channel_id: channelId,
+					alt: data.alt === true,
+					ctrl: data.ctrl === true,
+					shift: data.shift === true,
+					coords: {
+						x: data.x * 100,
+						y: data.y * 100,
+					}
+				};
+
+				TriggerActionHandler.instance.executeTrigger(trigger, message, data.testMode == true);
 			});
 
 			/**
