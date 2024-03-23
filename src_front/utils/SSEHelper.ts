@@ -1,11 +1,10 @@
 import StoreProxy from "@/store/StoreProxy";
-import Config from "./Config";
 import { TriggerTypes } from "@/types/TriggerActionDataTypes";
-import MessengerProxy from "@/messaging/MessengerProxy";
-import TwitchUtils from "./twitch/TwitchUtils";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import Config from "./Config";
 import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
+import TwitchUtils from "./twitch/TwitchUtils";
 
 /**
 * Created : 29/02/2024 

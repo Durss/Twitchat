@@ -8,7 +8,7 @@ import AbstractController from "./AbstractController";
 */
 export default class SSEController extends AbstractController {
 
-	private static uidToRequest:{[key:string]:FastifyReply} = {};
+	private static uidToResponse:{[key:string]:FastifyReply[]} = {};
 
 	
 	constructor(public server:FastifyInstance) {
@@ -35,9 +35,11 @@ export default class SSEController extends AbstractController {
 	 * @returns 
 	 */
 	public static sendToUser(uid:string, code:keyof typeof SSECode, data:unknown):boolean {
-		const request = this.uidToRequest[uid];
-		if(!request) return false;
-		request.sse({id:Utils.getUUID(), data:JSON.stringify({success:true, code, data})})
+		const responses = this.uidToResponse[uid];
+		if(!responses) return false;
+		responses.forEach(response => {
+			response.sse({id:Utils.getUUID(), data:JSON.stringify({success:true, code, data})})
+		})
 		return true;
 	}
 	
@@ -62,9 +64,21 @@ export default class SSEController extends AbstractController {
 			return;
 		}
 
-		SSEController.uidToRequest[userInfo.user_id] = response;
-
+		if(!SSEController.uidToResponse[userInfo.user_id]) SSEController.uidToResponse[userInfo.user_id] = [];
+		SSEController.uidToResponse[userInfo.user_id].push(response);
 		response.sse({id:"connect", data:JSON.stringify({"success":true, code:SSECode.CONNECTED})});
+
+		request.socket.on('close', ()=>{
+			const connexions = SSEController.uidToResponse[userInfo.user_id];
+			if(!connexions) return;
+			for (let i = 0; i < connexions.length; i++) {
+				const c = connexions[i];
+				if(c == response) {
+					connexions.splice(i, 1);
+					i--;
+				}
+			}
+		});
 	}
 }
 
