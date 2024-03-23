@@ -1,11 +1,11 @@
 <template>
-	<div :class="classes" @click="onClick">
+	<div :class="classes">
 		<Icon name="checkmark" class="checkmark" />
 		<div class="circle">
 			<Icon v-if="loading === true" name="loader" class="loading" />
 		</div>
 		<Icon name="cross" class="cross" />
-		<input :id="inputId" type="checkbox" v-model="localValue" class="input" @change="onChange()">
+		<input :id="inputId" type="checkbox" v-model="localValue" class="input" @change="onChange()" :disabled="disabled !== false">
 	</div>
 </template>
 
@@ -62,6 +62,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		if(this.alert !== false) res.push("alert");
 		if(this.premium !== false) res.push("premium");
 		if(this.noCheckmark !== false) res.push("noCheckmark");
+		if(this.disabled !== false) res.push("disabled");
 		if((this.inverseState === false && this.localValue) || (this.inverseState !== false && !this.localValue)) res.push("selected");
 		return res;
 	}
@@ -73,14 +74,8 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		})
 	}
 
-	public onClick(event:MouseEvent):void {
-		if(this.disabled !== false) {
-			event.preventDefault();
-			event.stopPropagation();
-		}
-	}
-
 	public onChange():void {
+		if(this.disabled) return;
 		this.$emit('update:modelValue', this.localValue);
 		this.$emit('change');
 	}
@@ -97,11 +92,17 @@ export default toNative(ToggleButton);
 	height: @size;
 	border-radius: @size;
 	position: relative;
-	cursor: pointer;
 	transition: background-color .35s;
 	background-color: var(--background-color-fader);
 	.bevel();
 	overflow: hidden;
+
+	&:not(.disabled) {
+		cursor: pointer;
+		.input {
+			cursor: pointer;
+		}
+	}
 
 	.circle {
 		transition: left .35s, background-color .35s;
@@ -153,10 +154,9 @@ export default toNative(ToggleButton);
 		height: 100%;
 		opacity: 0.001;
 		z-index: 1;
-		cursor: pointer;
 	}
 
-	&:hover {
+	&:not(.disabled):hover {
 		background-color: var(--background-color-fader);
 	}
 
@@ -182,7 +182,7 @@ export default toNative(ToggleButton);
 			right: -50%;
 		}
 
-		&:hover {
+		&:not(.disabled):hover {
 			background-color: var(--color-primary-extralight);
 		}
 	}
