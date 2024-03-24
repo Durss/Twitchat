@@ -5,6 +5,9 @@
 	],
 	"compilerOptions": {
 		"composite": true,
+		"target": "esnext",
+		"module": "esnext",
+		"moduleResolution": "node",
 		"types": [
 			"node"
 		]
