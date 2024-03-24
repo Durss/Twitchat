@@ -15,7 +15,7 @@
 				</template>
 				<template #item="{element, index}:{element:typeof TwitchatDataTypes.PinnableMenuItems[number]['id'], index:number}">
 					<ButtonNotification :key="element"
-						@mouseover="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
+						@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
 						v-tooltip="element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)"
 						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)" 
 						:icon="getPinnedMenuItemFromid(element).icon"
@@ -694,11 +694,12 @@ export class ChatForm extends Vue {
 				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
 			}
 		}
-		let res = "<img src='"+this.$image('icons/user.svg')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
+		console.log(this.$image('icons/user.svg'));
+		let res = "<img src='"+this.$image('icons/user.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
 		if(this.$store.params.appearance.highlightNonFollowers.value === true) {
-			res += " / <img src='"+this.$image('icons/follow.svg')+"' height='15px' style='vertical-align:middle'> "+followCount;
-			res += " / <img src='"+this.$image('icons/unfollow.svg')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
+			res += " / <img src='"+this.$image('icons/follow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+followCount;
+			res += " / <img src='"+this.$image('icons/unfollow.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+(onlineCount - followCount);
 		}
 		this.onlineUsersTooltip = res;
 	}
