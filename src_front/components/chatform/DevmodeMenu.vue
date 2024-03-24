@@ -5,7 +5,7 @@
 			<!-- <Button small title="Commercial" @click="simulateEvent($event, 'commercial')" icon="coin" /> -->
 			<!-- <Button small @click="simulateEvent($event, 'ad_break_start')" icon="ad">Commercial break</Button>
 			<Button small @click="simulateEvent($event, 'ad_break_approaching')" icon="ad">Commercial approach</Button> -->
-			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequeence</Button>
+			<Button small @click="simulateCommercialSequence()" icon="ad">Commercial sequence</Button>
 			<Button small @click="simulateCustomMessage()" icon="edit">Custom message</Button>
 			<Button small @click="simulateEvent($event, 'message', 'clip')" icon="clip">Clip link</Button>
 			<Button small @click="simulateEvent($event, 'clip_pending_publication')" icon="clip">Clip creation</Button>
