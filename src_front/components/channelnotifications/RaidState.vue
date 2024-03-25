@@ -17,7 +17,7 @@
 				</template>
 				<template #TIMER><span class="timer">{{timeLeft}}s</span></template>
 			</i18n-t>
-	
+
 			<div class="roomSettings" v-if="roomSettings">
 				<mark v-if="roomSettings.subOnly == true">{{ $t("raid.sub_only") }}</mark>
 				<mark v-if="roomSettings.followOnly !== false">{{ $t("raid.follower_only") }}</mark>
@@ -59,9 +59,9 @@
 					@click="copybannedUsers()">{{ $t('raid.copy_logins') }}</Button>
 			</div>
 		</ToggleBlock>
-		
+
 		<div class="ctas">
-			<Button light @click="spamLink()" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
+			<Button light @click="spamLink()" :loading="coolingDownSpam" v-newflag="{date:1693519200000, id:'raid_spam'}">{{ $t('raid.spam_linkBt') }}</Button>
 			<Button light @click="openSummary()" v-newflag="{date:1693519200000, id:'raid_summary'}">{{ $t('raid.stream_summaryBt') }}</Button>
 		</div>
 
@@ -90,6 +90,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 
 	public timeLeft = "";
 	public censorCount = false;
+	public coolingDownSpam = false;
 	public targetChannelOffline = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
@@ -122,7 +123,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		}, 250);
 
 		this.censorCount = this.$store.params.appearance.showViewersCount.value !== true;
-		
+
 		const raid = this.$store.stream.currentRaid;
 		if(raid) {
 			this.user = raid.user;
@@ -151,7 +152,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 				}
 			}
 			//*/
-			
+
 			//User online?
 			if(u.platform === "twitch") {
 				if(u.channelInfo[me.id]?.is_banned === true) {
@@ -186,10 +187,14 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 		TwitchUtils.raidCancel();
 	}
 
-	public spamLink():void {
+	public async spamLink():Promise<void> {
+		this.coolingDownSpam = true;
 		for (let i = 0; i < 10; i++) {
 			MessengerProxy.instance.sendMessage("https://twitch.tv/"+this.raidInfo.user.login, ["twitch"]);
+			await Utils.promisedTimeout(50);
 		}
+		await Utils.promisedTimeout(1000);
+		this.coolingDownSpam = false;
 	}
 
 	public openSummary():void {
@@ -245,7 +250,7 @@ export default toNative(RaidState);
 			}
 		}
 	}
-	
+
 	.icon {
 		height: 25px;
 		vertical-align: middle;
