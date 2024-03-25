@@ -14,7 +14,7 @@
 				<div class="search">
 					<input type="text" :placeholder="$t('params.search')" v-model="$store.params.currentParamSearch" v-autofocus ref="searchField">
 				</div>
-				
+
 				<div class="editBtHolder">
 					<TTButton class="editModeBt" primary
 						v-newflag="showNewFlagOnPin? {date:$config.NEW_FLAGS_DATE_V12, id:'menu_pin_0'} : undefined"
@@ -28,11 +28,11 @@
 					</div>
 				</div>
 			</div>
-		
+
 			<div class="scrollable">
 
 				<draggable :class="editPins? 'buttonList edit' : 'buttonList'"
-				v-model="menuEntries" 
+				v-model="menuEntries"
 				direction="vertical"
 				group="menu_sections"
 				item-key="page"
@@ -51,7 +51,7 @@
 								:premium="element.theme == 'premium'">{{$t(element.labelKey)}}</TTButton>
 							<TTButton class="pinBt" icon="pin"
 							v-if="editPins && element.fixed !== true"
-							@click="element.pinned = !element.pinned;  onEditMenu();" 
+							@click="element.pinned = !element.pinned;  onEditMenu();"
 							:primary="element.pinned" />
 						</div>
 					</template>
@@ -68,7 +68,7 @@
 				<TTButton :href="$config.DISCORD_URL" type="link" target="_blank" class="discordBt" transparent big icon="discord" />
 			</div>
 		</div>
-			
+
 		<div class="contentHolder" id="paramContentHolder">
 			<div class="head">
 				<ClearButton class="backBt" icon="back" @click="back()" v-if="content != contentMain || search.length > 0" />
@@ -191,12 +191,12 @@ import Config from '@/utils/Config';
 		{pinned:false, icon:"emergency", page:TwitchatDataTypes.ParameterPages.EMERGENCY, labelKey:'params.categories.emergency'},
 		{pinned:false, icon:"mod", page:TwitchatDataTypes.ParameterPages.AUTOMOD, labelKey:'params.categories.automod'},
 		{pinned:false, icon:"voice", page:TwitchatDataTypes.ParameterPages.VOICE, labelKey:'params.categories.voice'},
-		{pinned:false, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
+		{pinned:true, icon:"user", page:TwitchatDataTypes.ParameterPages.ACCOUNT, labelKey:'params.categories.account'},
 		{pinned:false, icon:"info", page:TwitchatDataTypes.ParameterPages.ABOUT, labelKey:'params.categories.about', newflag:{date:1693519200000, id:'params_about'}},
 		{pinned:true, icon:"coin", page:TwitchatDataTypes.ParameterPages.DONATE, labelKey:'params.categories.donate', newflag:{date:1693519200000, id:'params_donate'}, theme:"secondary", fixed:true},
 		{pinned:true, icon:"premium", page:TwitchatDataTypes.ParameterPages.PREMIUM, labelKey:'params.categories.premium', newflag:{date:1693519200000, id:'params_premium'}, theme:"premium", fixed:true},
 	];
-	
+
 	private closing:boolean = false;
 	private keydownCaptureTarget:Element|null = null;
 	private history:TwitchatDataTypes.ParameterPagesStringType[] = [];
@@ -224,7 +224,7 @@ import Config from '@/utils/Config';
 
 	private keyDownHandler!:(e:KeyboardEvent) => void;
 	private keyDownCaptureHandler!:(e:KeyboardEvent) => void;
-	
+
 	/**
 	 * If true, will display a search field at the top of the view to
 	 * search params by their labels
@@ -238,7 +238,7 @@ import Config from '@/utils/Config';
 	public get appVersion():string { return import.meta.env.PACKAGE_VERSION; }
 
 	public get content():TwitchatDataTypes.ParameterPagesStringType { return this.$store.params.currentPage; }
-	
+
 	public get search():string { return this.$store.params.currentParamSearch; }
 
 	public get classes():string[] {
@@ -288,7 +288,7 @@ import Config from '@/utils/Config';
 			 && value != TwitchatDataTypes.ParameterPages.MAIN_MENU) {
 				this.history.push(value);
 			 }
-			
+
 			if(value == TwitchatDataTypes.ParameterPages.CLOSE) this.close();
 			else this.open();
 
@@ -317,7 +317,7 @@ import Config from '@/utils/Config';
 		if(!this.closed) return;
 		this.history = [];
 		await this.$nextTick();
-		
+
 		const ref = this.$el as HTMLDivElement;
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"115%", delay:.2, ease:"sine.out", onComplete:()=>{
@@ -353,7 +353,7 @@ import Config from '@/utils/Config';
 	public back():void {
 		const content = this.$refs.currentContent as IParameterContent;
 		this.$store.params.currentParamSearch = "";
-		
+
 		//Check if current content wants to override the navigation
 		if(content && content.onNavigateBack && content.onNavigateBack() === true) return;
 
@@ -363,7 +363,7 @@ import Config from '@/utils/Config';
 
 	/**
 	 * Called when searching for a parameter
-	 * @param search 
+	 * @param search
 	 */
 	public async filterParams(search:string):Promise<void> {
 		this.filteredParams = [];
@@ -373,7 +373,7 @@ import Config from '@/utils/Config';
 			const category = this.$store.params.$state[categoryID as TwitchatDataTypes.ParameterCategory] as {[ley:string]:TwitchatDataTypes.ParameterData<unknown>};
 			for (const prop in category) {
 				const data:TwitchatDataTypes.ParameterData<unknown> = category[prop];
-				
+
 				//Already done (via its parent probably), ignore it
 				if(IDsDone[data.id as number] === true) continue;
 
@@ -410,7 +410,7 @@ import Config from '@/utils/Config';
 
 		this.$store.params.openParamsPage(page);
 	}
-	
+
 	/**
 	 * Called when menu items are sorted
 	 */
@@ -434,7 +434,7 @@ import Config from '@/utils/Config';
 	 * The "keydownCaptureTarget" is here to store the currently focused
 	 * element with "capture" flag so it's called before the browser
 	 * natively removes focus from the field.
-	 * 
+	 *
 	 * This avoids a tricky situation when user is writing on a field
 	 * and presses escape key. If we were listening to the keydown event
 	 * without the capture flag, the browser would first remove the focus
@@ -449,12 +449,12 @@ import Config from '@/utils/Config';
 	 * The heat editor allows to drag areas and unselect them with the
 	 * escape key. This cannot generically be handle here, the event
 	 * needs to be stoped from the editor itself.
-	 * 
+	 *
 	 * This is why we only register the focused element on capture and
 	 * use it on a non-capture event. This fixes both above situations.
-	 * 
-	 * @param e 
-	 * @param isCapture 
+	 *
+	 * @param e
+	 * @param isCapture
 	 */
 	private onKeyDown(e:KeyboardEvent, isCapture:boolean = false):void {
 		if(this.closed) return;
@@ -658,7 +658,7 @@ export default toNative(Parameters);
 						&.pinBt {
 							transform-origin: center left;
 						}
-		
+
 						&.premiumIndicator {
 							:deep(.background) {
 								border-left: 3px solid var(--color-premium);
@@ -687,13 +687,13 @@ export default toNative(Parameters);
 					}
 				}
 			}
-	
+
 			.themeSelector {
 				display: block;
 				margin: 0 auto;
 				flex-shrink: 0;
 			}
-	
+
 			.version {
 				display: block;
 				margin: 0 auto;
