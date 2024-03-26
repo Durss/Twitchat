@@ -69,16 +69,17 @@ export default class UnicodeUtils {
 				u.push(a);
 				continue
 			}
-			let i = false;
-			for (const key in charTable)
+			let found = false;
+			for (const key in charTable) {
 				if (charTable[key].indexOf(a) != -1) {
 					u.push(key);
-					i = true;
+					found = true;
 					break
 				}
-			i || u.push(a)
+			}
+			if(!found) u.push(a)
 		}
-		return u.join("")
+		return u.join("");
 	}
 
 	public getUnicodeLetters():{[key:string]:string} {
