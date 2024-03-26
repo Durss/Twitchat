@@ -17,16 +17,16 @@
 					<ButtonNotification :key="element"
 						@mouseenter="element == 'chatters'? updateOnlineUsersTooltip($event) : ()=>{}"
 						v-tooltip="element == 'chatters' && $store.params.appearance.showViewersCount.value === true? onlineUsersTooltip : $t(getPinnedMenuItemFromid(element).labelKey)"
-						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)" 
+						:aria-label="$t(getPinnedMenuItemFromid(element).labelKey)"
 						:icon="getPinnedMenuItemFromid(element).icon"
 						@click="onClickMenuItem(getPinnedMenuItemFromid(element))" />
 				</template>
 			</draggable>
 
-			
+
 			<form @submit.prevent="" class="inputForm" name="messageform">
 				<Icon class="loader" name="loader" v-if="loading" />
-				
+
 				<div class="inputHolder" v-if="!error && !$store.chat.spamingFakeMessages">
 
 					<div class="replyTo" v-if="$store.chat.replyTo">
@@ -70,15 +70,15 @@
 					v-if="$store.chat.spamingFakeMessages"
 					icon="cross"
 					@click="stopSpam()">{{ $t('chat.form.stop_spamBt') }}</Button>
-				
+
 				<span @click="error=false" v-if="error" class="error">{{ $t('error.message_send') }}</span>
 			</form>
-			
+
 			<div class="rightForm">
 				<ButtonNotification :aria-label="$t('chat.form.emoteBt_aria')"
 					icon="emote"
 					@click="$emit('update:showEmotes',true);" />
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.shoutoutBt_aria')"
 						icon="shoutout"
@@ -87,7 +87,7 @@
 						v-if="pendingShoutoutCount > 0"
 						@click="$emit('update:showShoutout',true);" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pollBt_aria')"
 						icon="poll"
@@ -95,7 +95,7 @@
 						@click="openNotifications('poll')"
 						v-if="$store.poll.data?.id && $store.poll.data?.isFake != true" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.predictionBt_aria')"
 						icon="prediction"
@@ -103,7 +103,7 @@
 						@click="openNotifications('prediction')"
 						v-if="$store.prediction.data?.id && $store.prediction.data?.isFake != true" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.trainBt_aria')"
 						icon="train"
@@ -111,7 +111,7 @@
 						@click="openNotifications('train')"
 						v-if="$store.stream.hypeTrain" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.trackedBt_aria')"
 						icon="magnet"
@@ -119,7 +119,7 @@
 						v-tooltip="{content:$t('chat.form.trackedBt_aria'), showOnCreate:shouldShowTooltip('tracked'), onHidden:()=>onHideTooltip('tracked')}"
 						@click="openModal('tracked')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.raffleBt_aria')"
 						v-if="$store.raffle.data && $store.raffle.data!.mode == 'chat'"
@@ -128,7 +128,7 @@
 						v-tooltip="{content:$t('chat.form.raffleBt_aria'), showOnCreate:shouldShowTooltip('raffle'), onHidden:()=>onHideTooltip('raffle')}"
 						@click="openNotifications('raffle')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.bingoBt_aria')"
 						icon="bingo"
@@ -136,7 +136,7 @@
 						v-tooltip="{content:$t('chat.form.bingoBt_aria'), showOnCreate:shouldShowTooltip('bingo'), onHidden:()=>onHideTooltip('bingo')}"
 						@click="openNotifications('bingo')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.suggBt_aria')"
 						icon="chatPoll"
@@ -144,7 +144,7 @@
 						@click="openModal('chatsuggState')"
 						v-if="$store.chatSuggestion.data != null" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.whispersBt_aria')"
 						icon="whispers"
@@ -153,7 +153,7 @@
 						v-tooltip="$t('chat.form.whispersBt_aria')"
 						@click="openModal('whispers')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pinsBt_aria')"
 						icon="save"
@@ -162,7 +162,7 @@
 						v-tooltip="{content:$t('chat.form.saveBt_aria'), showOnCreate:shouldShowTooltip('save'), onHidden:()=>onHideTooltip('save')}"
 						@click="openModal('pins')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification aria-label="Toggle messages encryption"
 						:icon="$store.main.cypherEnabled? 'lock' : 'unlock'"
@@ -170,7 +170,7 @@
 						v-if="cypherConfigured"
 						v-tooltip="'Send encrypted<br>messages'" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.highlightBt_aria')"
 						v-if="chatHighlightEnabled"
@@ -179,13 +179,13 @@
 						v-tooltip="{content:$t('chat.form.highlightBt_aria'), showOnCreate:shouldShowTooltip('highlight'), onHidden:()=>onHideTooltip('highlight')}"
 						@click="removeChatHighlight()" />
 				</transition>
-	
+
 				<CommunityBoostInfo v-if="$store.stream.communityBoostState" />
-	
+
 				<TimerCountDownInfo v-if="$store.timer.countdown || $store.timer.timer" />
-	
+
 				<CommercialTimer />
-	
+
 				<div v-if="$store.params.appearance.showViewersCount.value === true
 					&& streamInfo && streamInfo.viewers > 0"
 					v-tooltip="$t('chat.form.viewer_count')"
@@ -196,7 +196,7 @@
 					<p v-if="!censoredViewCount">{{streamInfo.viewers}}</p>
 					<Icon class="icon" name="user"/>
 				</div>
-				
+
 				<transition name="blink">
 					<ButtonNotification class="qna"
 						icon="qna"
@@ -206,7 +206,7 @@
 						v-tooltip="$t('chat.form.qnaBt_aria')"
 						@click="openModal('qna')" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification class="credits"
 						icon="credits"
@@ -216,7 +216,7 @@
 						v-tooltip="$t('chat.form.creditsBt_aria')"
 						@click="$emit('update:showCredits', true)" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
@@ -230,14 +230,14 @@
 					<Icon class="error" name="spotify" v-if="$store.music.spotifyConsecutiveErrors > 5"
 					v-tooltip="{content:$t('chat.form.spotify_down'), showOnCreate:true, hideOnClick: 'toggle'}" />
 				</transition>
-	
+
 				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.devmodeBt_aria')"
 						icon="debug"
 						@click="$emit('update:showDevMenu',true);"
 						v-if="$store.main.devmode" />
 				</transition>
-	
+
 				<transition name="blink">
 					<Button class="emergency"
 						v-if="emergencyButtonEnabled"
@@ -295,7 +295,7 @@
 			:commands="autoCompleteCommands"
 			@close="autoCompleteSearch = ''"
 			@selectItem="onSelectItem" />
-			
+
 	</div>
 </template>
 
@@ -391,7 +391,7 @@ export class ChatForm extends Vue {
 	private overlayPresenceHandlerTimoute:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
-	
+
 	public get maxLength():number {
 		if(this.message.indexOf("/raw") === 0) {
 			return 500000;
@@ -513,7 +513,7 @@ export class ChatForm extends Vue {
 
 			const carretPos = input.selectionStart as number | 0;
 			const isCmd = /^\s*(\/|!)/.test(newVal);
-			
+
 			for (let i = carretPos; i >= 0; i--) {
 				const currentChar = newVal.charAt(i);
 				const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
@@ -522,9 +522,9 @@ export class ChatForm extends Vue {
 					break;
 				}
 
-				if(currentChar == ":" || 
-				currentChar == "@" || 
-				((currentChar == "/" || currentChar == "!") && carretPos == 1) || 
+				if(currentChar == ":" ||
+				currentChar == "@" ||
+				((currentChar == "/" || currentChar == "!") && carretPos == 1) ||
 				(i == 0 && this.autoCompleteSearch)) {
 					this.autoCompleteUsers = currentChar == "@";
 					this.autoCompleteEmotes = currentChar == ":" && !isCmd;//Avoid autocompleting emotes in /countdown cmd
@@ -542,7 +542,7 @@ export class ChatForm extends Vue {
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
-		
+
 		// console.log(lande("joyeux anniversaire !"));
 		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
 		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
@@ -658,7 +658,7 @@ export class ChatForm extends Vue {
 		if(values[key] < 2) values[key] ++;
 		DataStore.set(DataStore.TOOLTIP_AUTO_OPEN, values);
 	}
-	
+
 	/**
 	 * Toggle parameters display
 	 */
@@ -681,20 +681,20 @@ export class ChatForm extends Vue {
 	 */
 	public updateOnlineUsersTooltip(e:MouseEvent):void {
 		if(this.$store.params.appearance.showViewersCount.value !== true) return;
-		
+
 		let followCount = 0;
 		let onlineCount = 0;
 		const users = this.$store.users.users;
 		for (let i = 0; i < users.length; i++) {
 			const u = users[i];
-			
+
 			if(!u.channelInfo[this.channelId]) continue;
 			if(u.channelInfo[this.channelId].online === true) {
 				onlineCount ++;
 				if(u.channelInfo[this.channelId].is_following === true) followCount ++;
 			}
 		}
-		console.log(this.$image('icons/user.svg'));
+
 		let res = "<img src='"+this.$image('icons/user.svg').replace(/"/g, '\\\'')+"' height='15px' style='vertical-align:middle'> "+onlineCount;
 
 		if(this.$store.params.appearance.highlightNonFollowers.value === true) {
@@ -703,7 +703,7 @@ export class ChatForm extends Vue {
 		}
 		this.onlineUsersTooltip = res;
 	}
-	
+
 	public async sendMessage(event?:Event):Promise<void> {
 		if(this.message.length == 0) return;
 		if(this.openAutoComplete) return;
@@ -744,35 +744,35 @@ export class ChatForm extends Vue {
 			noticeMessage = "Cypher key removed successfully.";
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/dataversion") {
 			//App version
 			noticeId = TwitchatDataTypes.TwitchatNoticeType.APP_VERSION;
 			noticeMessage = "Twitchat data version "+DataStore.get(DataStore.DATA_VERSION);
 			this.message = "";
 		}else
-		
+
 		if(isAdmin && cmd == "/tenorgifload") {
 			console.log(this.$store.chat.messages);
 			console.log(await ApiHelper.call("tenor/search", "GET", {search:"test"+Math.round(Math.random()*5412)}));
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/adslogs") {
 			Logger.instance.download("ads");
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/heatlogs") {
 			StoreProxy.params.openModal("heatLogs");
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/irclogs") {
 			Logger.instance.download("irc");
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/youtubelogs") {
 			Logger.instance.download("youtube");
 			this.message = "";
@@ -782,7 +782,7 @@ export class ChatForm extends Vue {
 			StoreProxy.params.openModal("triggersLogs");
 			this.message = "";
 		}else
-		
+
 		if(cmd == "/__sentry_on__" || cmd == "/__sentry_off__") {
 			let sentryParamSrc = DataStore.get(DataStore.AB_SENTRY);
 			let sentryParam = sentryParamSrc? JSON.parse(sentryParamSrc) : {v:1, date:Date.now(), enabled:true};
@@ -809,7 +809,7 @@ export class ChatForm extends Vue {
 			}
 			sChat.addMessage(message);
 		}else
-		
+
 		if(isAdmin && cmd == "/raw") {
 			//Allows to display a message on chat from its raw JSON
 			try {
@@ -921,7 +921,7 @@ export class ChatForm extends Vue {
 		if(this.autoCompleteSearch) {
 			for (let i = caretPos; i >= 0; i--) {
 				const currentChar = localMessage.charAt(i);
-				if(currentChar == ":" || 
+				if(currentChar == ":" ||
 				currentChar == "@" ||
 				/\s/gi.test(currentChar) || i == 0) {
 					const offset = currentChar == ":" || currentChar == "@"? 1 : 0;
@@ -941,14 +941,14 @@ export class ChatForm extends Vue {
 			localMessage = localMessage.substring(0, caretPos+1) + code + localMessage.substring(caretPos+1);
 			caretPos += code.length+1;
 		}
-		
+
 		if(/\{.*?\}/gi.test(item)) {
 			localMessage = localMessage.replace(/{(.*?)\}/gi, "$1");
 		}
 		this.message = localMessage;
 
 		await this.$nextTick();
-		
+
 		//Pre select commands placeholder
 		if(/\{.*?\}/gi.test(item)) {
 			input.setSelectionRange(item.indexOf("{"), item.indexOf("}"), "forward");
@@ -1137,16 +1137,16 @@ export default toNative(ChatForm);
 			justify-content: center;
 			flex-wrap: wrap;
 			flex-grow: 1;
-			
+
 			.loader {
 				height: 1em;
 			}
-			
+
 			.inputHolder {
 				position: relative;
 				flex-grow: 1;
 				flex-basis: 150px;
-				
+
 				.replyTo, .announcement {
 					top: -.25em;
 					width:100%;
@@ -1254,15 +1254,15 @@ export default toNative(ChatForm);
 				padding: .35em;
 				margin-left: .5em;
 			}
-	
+
 			.blink-enter-active {
 				transition: all 1s;
 			}
-	
+
 			.blink-leave-active {
 				transition: all .25s;
 			}
-			
+
 			.blink-enter-from {
 				opacity: 1;
 				background: #ffffff !important;
@@ -1271,7 +1271,7 @@ export default toNative(ChatForm);
 			.blink-leave-to {
 				opacity: 0;
 			}
-	
+
 			.viewCount {
 				cursor: pointer;
 				gap: .25em;
@@ -1281,7 +1281,7 @@ export default toNative(ChatForm);
 				white-space: nowrap;
 				color: var(--color-text);
 				background-color: var(--background-color-fader);
-				
+
 				border-radius: .5em;
 				font-size: .9em;
 				font-family: var(--font-roboto);
