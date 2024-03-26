@@ -1,18 +1,18 @@
 import GraphemeSplitter from "grapheme-splitter";
 
 /**
-* Created : 25/08/2022 
+* Created : 25/08/2022
 */
 export default class UnicodeUtils {
 
 	private static _instance:UnicodeUtils;
-	
+
 	private gSplitter = new GraphemeSplitter();
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -22,9 +22,9 @@ export default class UnicodeUtils {
 		}
 		return UnicodeUtils._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -34,6 +34,8 @@ export default class UnicodeUtils {
 		n = this.getUnicodeNumbers();
 		src = this.normalizeText(src, n, exceptions);
 		n = this.getUnicodeFlags();
+		src = this.normalizeText(src, n, exceptions);
+		n = this.getLeetCode();
 		src = this.normalizeText(src, n, exceptions);
 		return src;
 	}
@@ -52,9 +54,9 @@ export default class UnicodeUtils {
 		const n = this.getUnicodeMarks();
 		return this.normalizeText(src, n, exceptions)
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -67,11 +69,11 @@ export default class UnicodeUtils {
 				u.push(a);
 				continue
 			}
-			let i = !1;
+			let i = false;
 			for (const key in charTable)
 				if (charTable[key].indexOf(a) != -1) {
 					u.push(key);
-					let i = !0;
+					i = true;
 					break
 				}
 			i || u.push(a)
@@ -739,5 +741,33 @@ export default class UnicodeUtils {
 			"zm": "🇿🇲",
 			"zw": "🇿🇼"
 		}
+	}
+
+	public getLeetCode():{[key:string]:string} {
+		return {
+			"a": "4",
+			"b": "8",
+			"c": "(",
+			"d": "[)",
+			"e": "3",
+			"f": "|=",
+			"g": "6",
+			"h": "#",
+			"i": "1",
+			"j": "]",
+			"k": "|<",
+			"l": "1",
+			"m": "|v|",
+			"n": "||",
+			"o": "0",
+			"p": "|°",
+			"q": "9",
+			"r": "2",
+			"s": "5",
+			"t": "7",
+			"w": "vv",
+			"x": "%",
+			"z": "2",
+		};
 	}
 }
