@@ -7,11 +7,11 @@ import Config from "@/utils/Config";
 export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
-	
+
 	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
-	
+
 	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train";
-	
+
 	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls";
 
 	export const ParamDeepSections = {
@@ -37,7 +37,7 @@ export namespace TwitchatDataTypes {
 		STREAMELEMENTS: "streamelements",
 	} as const;
 	export type ParamDeepSectionsStringType = typeof ParamDeepSections[keyof typeof ParamDeepSections] | OverlayTypes;
-	
+
 	/**
 	 * Parameters menue categories
 	 */
@@ -118,7 +118,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
-		 * premium and have more than the maximum counters allowed 
+		 * premium and have more than the maximum counters allowed
 		 */
 		enabled?:boolean
 	}
@@ -148,7 +148,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Is the counter disabled ?
 		 * It can be disabled if the user has to disable counters they're not
-		 * premium and have more than the maximum counters allowed 
+		 * premium and have more than the maximum counters allowed
 		 */
 		enabled?:boolean
 	}
@@ -200,7 +200,7 @@ export namespace TwitchatDataTypes {
 		 */
 		whispersPermissions:PermissionsData;
 	}
-	
+
 	/**
 	 * Contains chat message sub filters
 	 */
@@ -247,7 +247,7 @@ export namespace TwitchatDataTypes {
 		allowAnon?:boolean;
 	}
 	export type BotMessageField = keyof IBotMessage;
-	
+
 	/**
 	 * Details about a message chunk.
 	 * Chat messages are converted to arrays of chunks. Each chunks
@@ -684,7 +684,7 @@ export namespace TwitchatDataTypes {
 			platform:ChatPlatform;
 		}
 	}
-	
+
 	/**
 	 * Config for a "chat suggestion" session
 	 */
@@ -776,7 +776,7 @@ export namespace TwitchatDataTypes {
 		all:boolean;
 		usersAllowed:string[];
 		usersRefused:string[];
-		
+
 		/**
 		 * @deprecated Only here for typings on data migration. Removed in favor of the new "usersAllowed" prop
 		 */
@@ -1067,7 +1067,7 @@ export namespace TwitchatDataTypes {
 		permissions:PermissionsData;
 		autoSpoilNewUsers:boolean;
 	}
-	
+
 	/**
 	 * Represents chat alert params
 	 */
@@ -1240,7 +1240,7 @@ export namespace TwitchatDataTypes {
 		is_blocked:boolean;
 		/**
 		 * When a user is blocked, their messages are censored until we click
-		 * on of them in which case messages stop being censored until next 
+		 * on of them in which case messages stop being censored until next
 		 * app start.
 		 * This flag is here for this, stopping censor to ignore "is_blocked" state
 		 */
@@ -1399,7 +1399,7 @@ export namespace TwitchatDataTypes {
 		 */
 		autoRemod?:boolean;
 	}
-	
+
 	/**
 	 * Represents the info about a user's badge
 	 */
@@ -1414,7 +1414,7 @@ export namespace TwitchatDataTypes {
 	 * Available user badge types
 	 */
 	export type TwitchatUserBadgeType = "predictions" | "subscriber" | "vip" | "premium" | "moderator" | "staff" | "broadcaster" | "partner" | "founder" | "ambassador";
-	
+
 	/**
 	 * Represents the info about a a custom user's badge
 	 */
@@ -1616,7 +1616,7 @@ export namespace TwitchatDataTypes {
 		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
 		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
 	}
-	
+
 	/**
 	 * Represents an Heat Distortion overlay parameters
 	 */
@@ -1632,7 +1632,7 @@ export namespace TwitchatDataTypes {
 		enabled:boolean;
 		triggerOnly:boolean;
 	}
-	
+
 	/**
 	 * Represents a click event sent to the browser sources when
 	 * a click occurs on heat
@@ -1681,7 +1681,7 @@ export namespace TwitchatDataTypes {
 		 */
 		messages:TranslatableMessage[];
 	}
-	
+
 	/**
 	 * Contains only the Array props from the StreamSummaryData
 	 */
@@ -1708,7 +1708,7 @@ export namespace TwitchatDataTypes {
 		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
-	
+
 	export interface EndingCreditsSlotDefinition {
 		id:EndingCreditsSlotStringTypes,
 		icon:string,
@@ -1719,7 +1719,7 @@ export namespace TwitchatDataTypes {
 		canMerge:boolean,
 		amountLabel?:string,
 	}
-	
+
 	export interface EndingCreditsSlotParams {
 		id:string;
 		slotType:EndingCreditsSlotStringTypes;
@@ -1840,7 +1840,7 @@ export namespace TwitchatDataTypes {
 
 
 	/**
-	 * Available message types 
+	 * Available message types
 	 */
 	export const TwitchatMessageType = {
 		BAN:"ban",
@@ -1928,7 +1928,7 @@ export namespace TwitchatDataTypes {
 
 	//Dynamically type TwitchatMessageStringType from TwitchatMessageType values
 	export type TwitchatMessageStringType = typeof TwitchatMessageType[keyof typeof TwitchatMessageType];
-	
+
 	export const DisplayableMessageTypes:{[key in TwitchatMessageStringType]:boolean} = {
 		ban:true,
 		raid:true,
@@ -2042,7 +2042,7 @@ export namespace TwitchatDataTypes {
 	export type TwitchatNoticeStringType = typeof TwitchatNoticeType[keyof typeof TwitchatNoticeType]|null;
 
 	/**
-	 * Message types 
+	 * Message types
 	 */
 	export type ChatMessageTypes = MessageChatData
 									| MessageWhisperData
@@ -2124,7 +2124,7 @@ export namespace TwitchatDataTypes {
 									| MessageUnbanRequestData
 									| MessageTipeeeDonationData
 	;
-	
+
 	/**
 	 * Defines any message that could be deleted.
 	 * Used by TTS to check if the message still exists before reading it
@@ -2132,7 +2132,7 @@ export namespace TwitchatDataTypes {
 	export const DeletableMessageTypes:TwitchatMessageStringType[] = [
 		TwitchatMessageType.MESSAGE,
 	];
-	
+
 	/**
 	 * Defines the possible chat filters
 	 */
@@ -2205,7 +2205,7 @@ export namespace TwitchatDataTypes {
 		{type:TwitchatMessageType.MESSAGE,								labelKey:"chat.filters.message_types.message",								icon:"user",			scopes:[],	newFlag:0},
 		// {type:TwitchatMessageType.HYPE_CHAT, },
 	] as const;
-	
+
 	/**
 	 * Defines the possible chat message filters
 	 */
@@ -2260,7 +2260,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	export type MergeableMessageTypes = Extract<ChatMessageTypes, {message_size?:number}>["type"];
-	
+
 	//Ensure the object contains all requested keys
 	export const MergeableMessageTypesString:Record<MergeableMessageTypes, boolean> = {
 		message:true,
@@ -2312,7 +2312,7 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatUser;
 	}
-	
+
 
 	export type TranslatableMessageTypes = Extract<ChatMessageTypes, {translation?:TranslatableMessage["translation"]}>["type"];
 	//Ensure the object contains all requested keys
@@ -2420,7 +2420,7 @@ export namespace TwitchatDataTypes {
 		 * True if message has been pinned on chat
 		 */
 		is_pinned?: boolean;
-		
+
 		/**
 		 * Twitchat's automod info
 		 */
@@ -2463,7 +2463,7 @@ export namespace TwitchatDataTypes {
 		 * anyways as long as this prop is set to true
 		 */
 		bypassBotFilter?: boolean;
-		
+
 		/**
 		 * CIs defined if user paied for their message
 		 */
@@ -2516,7 +2516,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Whisper message 
+	 * Whisper message
 	 */
 	export interface MessageWhisperData extends AbstractTwitchatMessage, TranslatableMessage {
 		type:"whisper";
@@ -3025,7 +3025,7 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatUser;
 	}
-	
+
 	/**
 	 * Represents a "chat connection lost" message
 	 */
@@ -3057,7 +3057,7 @@ export namespace TwitchatDataTypes {
 		 */
 		users:TwitchatUser[];
 	}
-	
+
 	/**
 	 * Represents a chat user leaving message
 	 * Leave events are batch into one single message for all the users
@@ -3076,7 +3076,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a chat clear 
+	 * Represents a chat clear
 	 */
 	export interface MessageClearChatData extends AbstractTwitchatMessage {
 		/**
@@ -3199,9 +3199,13 @@ export namespace TwitchatDataTypes {
 	export interface MessageClipCreate extends AbstractTwitchatMessage {
 		type:"clip_pending_publication" | "clip_creation_complete";
 		/**
-		 * Path to clip
+		 * Path to clip edition
 		 */
 		clipUrl:string;
+		/**
+		 * Path to public clip video
+		 */
+		clipPublicUrl:string;
 		/**
 		 * ID of the clip
 		 */
@@ -3221,7 +3225,7 @@ export namespace TwitchatDataTypes {
 	}
 
 	/**
-	 * Represents a stream info update message 
+	 * Represents a stream info update message
 	 */
 	export interface MessageStreamInfoUpdate extends MessageNoticeData {
 		noticeId:"stream_info_update";
@@ -3244,7 +3248,7 @@ export namespace TwitchatDataTypes {
 		 */
 		user:TwitchatUser;
 	}
-	
+
 	/**
 	 * Represents a status change of the shield mode
 	 */
@@ -3623,7 +3627,7 @@ export namespace TwitchatDataTypes {
 		 */
 		updatedAt_ms: number;
 		/**
-		 * Timestamp when the message got unpinned 
+		 * Timestamp when the message got unpinned
 		 */
 		unpinAt_ms: number;
 		/**
@@ -4066,7 +4070,7 @@ export namespace TwitchatDataTypes {
 		 */
 		qnaSession:QnaSession;
 	}
-	
+
 	/**
 	 * Represents a Q&A session i stopped.
 	 * Stopping is when we chose to stop accepting entries
@@ -4078,7 +4082,7 @@ export namespace TwitchatDataTypes {
 		 */
 		qnaSession:QnaSession;
 	}
-	
+
 	/**
 	 * Represents a Q&A session deletion.
 	 * When destroying a Q&A session
@@ -4090,14 +4094,14 @@ export namespace TwitchatDataTypes {
 		 */
 		qnaSession:QnaSession;
 	}
-	
+
 	/**
 	 * Represents a ending credits that completed
 	 */
 	export interface MessageCreditsCompleteData extends AbstractTwitchatMessage {
 		type:"credits_complete";
 	}
-	
+
 	/**
 	 * Represents a streamlabs event
 	 */
@@ -4116,7 +4120,7 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			currency:string;
 		}
-		
+
 		/**
 		 * Represents a streamlabs event
 		 */
@@ -4128,7 +4132,7 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			product:string;
 		}
-		
+
 		/**
 		 * Represents a streamlabs event
 		 */
@@ -4139,7 +4143,7 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			currency:string;
 		}
-	
+
 	/**
 	 * Represents a streamelements event
 	 */
@@ -4184,7 +4188,7 @@ export namespace TwitchatDataTypes {
 			userName:string;
 			currency:string;
 		}
-		
+
 		/**
 		 * Represents a kofi merch event
 		 */
@@ -4199,7 +4203,7 @@ export namespace TwitchatDataTypes {
 			amountFormatted:string;
 			currency:string;
 		}
-		
+
 		/**
 		 * Represents a kofi subscription event
 		 */
@@ -4246,7 +4250,7 @@ export namespace TwitchatDataTypes {
 		 */
 		message:string;
 	}
-	
+
 	/**
 	 * Represents a tipeee donation event
 	 */
