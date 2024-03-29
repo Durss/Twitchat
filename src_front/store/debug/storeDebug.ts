@@ -35,7 +35,7 @@ export const storeDebug = defineStore('debug', {
 
 			const user:TwitchatDataTypes.TwitchatUser = StoreProxy.users.getUserFrom("twitch", uid, uid, undefined, undefined, undefined, true, false);
 			const fakeUser:TwitchatDataTypes.TwitchatUser = Utils.pickRand(fakeUsers);
-			
+
 			const lorem = new LoremIpsum({
 				sentencesPerParagraph: { max: 8, min: 4 },
 				wordsPerSentence: { max: 8, min: 2 }
@@ -53,7 +53,7 @@ export const storeDebug = defineStore('debug', {
 			if(Math.random() > .92) {
 				message += " this-is-a-link.test";
 			}
-			
+
 			switch(type) {
 				case TwitchatDataTypes.TwitchatMessageType.WHISPER: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
@@ -112,7 +112,7 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-				
+
 				case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
 					const m:TwitchatDataTypes.MessageSubscriptionData = {
@@ -148,7 +148,7 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-				
+
 				case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 					let bits = 0;
 					const cheerList:string[] = [];
@@ -188,7 +188,7 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-				
+
 				case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 					const m:TwitchatDataTypes.MessageFollowingData = {
 						id:Utils.getUUID(),
@@ -202,7 +202,7 @@ export const storeDebug = defineStore('debug', {
 					data = m;
 					break;
 				}
-					
+
 				case TwitchatDataTypes.TwitchatMessageType.JOIN:
 				case TwitchatDataTypes.TwitchatMessageType.LEAVE: {
 					const count = Math.min(fakeUsers.length, Math.round(Math.random() * 50) + 1);
@@ -309,9 +309,9 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL: 
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START: 
-				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS: 
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_CANCEL:
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_START:
+				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_PROGRESS:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_COMPLETE:
 				case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_APPROACHING: {
 					const value = Math.ceil(Math.random()*20+10)*1000;
@@ -365,6 +365,7 @@ export const storeDebug = defineStore('debug', {
 						platform:"twitch",
 						type,
 						clipID:"",
+						clipPublicUrl:"",
 						clipUrl:"",
 						loading:true,
 						error:false,
@@ -384,7 +385,7 @@ export const storeDebug = defineStore('debug', {
 							fillClipInfo(m);
 						}, 2000);
 					}
-					
+
 					data = m;
 					break;
 				}
@@ -438,8 +439,8 @@ export const storeDebug = defineStore('debug', {
 						const profile = await TwitchUtils.loadUserInfo([conductor_bits.id]);
 						conductor_bits.avatarPath = profile[0].profile_image_url;
 					}
-					
-					
+
+
 					const m:TwitchatDataTypes.MessageHypeTrainSummaryData = {
 						id:Utils.getUUID(),
 						platform:"twitch",
@@ -1244,7 +1245,7 @@ export const storeDebug = defineStore('debug', {
 					break;
 				}
 
-				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: 
+				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START:
 				case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START_CHAT: {
 					const m:TwitchatDataTypes.MessageAdBreakStartData = {
 						platform:"twitch",
@@ -1402,7 +1403,7 @@ export const storeDebug = defineStore('debug', {
 			data.fake = true;
 
 			data = reactive(data);
-			
+
 			if(hook) {
 				if(hook(data) === false) return data;
 			}
@@ -1607,7 +1608,7 @@ export const storeDebug = defineStore('debug', {
 			if(postOnChat) StoreProxy.chat.addMessage(data);
 			return data;
 		},
-		
+
 		async sendRandomFakeMessage(postOnChat:boolean, forcedMessage?:string, hook?:(message:TwitchatDataTypes.ChatMessageTypes)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<TwitchatDataTypes.ChatMessageTypes> {
 			if(ponderatedRandomList.length === 0) {
 				const spamTypes:{type:TwitchatDataTypes.TwitchatMessageStringType, probability:number}[]=[
@@ -1633,7 +1634,7 @@ export const storeDebug = defineStore('debug', {
 					{type:TwitchatDataTypes.TwitchatMessageType.AUTOBAN_JOIN, probability:1},
 					{type:TwitchatDataTypes.TwitchatMessageType.COMMUNITY_CHALLENGE_CONTRIBUTION, probability:1},
 				];
-	
+
 				for (let i = 0; i < spamTypes.length; i++) {
 					for (let j = 0; j < spamTypes[i].probability; j++) {
 						ponderatedRandomList.push(spamTypes[i].type);
