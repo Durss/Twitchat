@@ -7,6 +7,7 @@
 			"link_success":"## :white_check_mark: Liaison terminée\nCe serveur Discord a bien été lié au compte Twitchat de `{LOGIN}`.\nUtilisez la commande </{CMD_SAY}:{CMD_SAY_ID}> pour envoyer un message sur Twitchat ou la commande </{CMD_ASK}:{CMD_ASK_ID}> pour envoyer un message invitant à répondre par Oui ou Non.",
 			"guild_loading_failed":":no_entry: Une erreur est survenue lors de la récupération des infos du serveur Discord d'ID `{GUILD}`",
 			"twitch_user_not_found":":no_entry: Aucun compte Twitch n'existe pour le nom `{CHANNEL}`",
+			"missing_history_access":"⚠️ Les réponses rapides ne sont pas possibles car le bot Discord Twitchat n'a pas accès àà l'historique du salon Discord \"{CHANNEL}\". Accordez la permission \"Voir les anciens messages\" sur Discord.",
 			"commands":{
 				"link":{
 					"description":"Lier un compte Twitch avec ce Discord",

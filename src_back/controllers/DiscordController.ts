@@ -1,5 +1,5 @@
 import { InteractionResponseType, InteractionType, verifyKey } from "discord-interactions";
-import { ChannelType, Guild, GuildChannel, PermissionsBitField, REST, Routes, SlashCommandBuilder, UserFlags } from "discord.js";
+import { ChannelType, Guild, GuildChannel, PermissionFlagsBits, PermissionOverwrites, PermissionsBitField, REST, Routes, SlashCommandBuilder, UserFlags } from "discord.js";
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import * as fs from "fs";
 import * as path from "path";
@@ -12,13 +12,13 @@ import AbstractController from "./AbstractController";
 import SSEController, { SSECode } from "./SSEController";
 
 /**
-* Created : 23/02/2024 
+* Created : 23/02/2024
 */
 export default class DiscordController extends AbstractController {
 
 	private static _guildId2TwitchId:{[key:string]:TwitchatGuild2Twitch} = {};
 	private static _twitchId2GuildId:{[key:string]:TwitchatGuild2Twitch} = {};
-	
+
 	private _rest!:REST;
 	private _pendingTokens:PendingToken[] = [];
 	private _tokenValidityDuration = 60*1000;
@@ -29,13 +29,13 @@ export default class DiscordController extends AbstractController {
 	constructor(public server:FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -52,7 +52,7 @@ export default class DiscordController extends AbstractController {
 		this.server.post('/api/discord/commands', async (request, response) => await this.postCommands(request, response));
 		this.server.post('/api/discord/ticket', async (request, response) => await this.postTicket(request, response));
 		this.server.delete('/api/discord/link', async (request, response) => await this.deleteLinkState(request, response));
-		
+
 		this.initDatabase();
 		this.createCommands();
 		this.buildTwitchHashmap();
@@ -74,8 +74,8 @@ export default class DiscordController extends AbstractController {
 
 	/**
 	 * Check if given user has linked their Twitchat account to a Discord server
-	 * @param twitchUid 
-	 * @returns 
+	 * @param twitchUid
+	 * @returns
 	 */
 	public static isDiscordLinked(twitchUid:string):boolean {
 		return DiscordController._twitchId2GuildId[twitchUid] != undefined;
@@ -88,7 +88,7 @@ export default class DiscordController extends AbstractController {
 	public updateParams(uid:string, data:any):void {
 		const guild = DiscordController._twitchId2GuildId[uid];
 		if(!guild) return;
-		
+
 		guild.chatCols			= data.chatCols;
 		guild.logChanTarget		= data.logChanTarget;
 		guild.reactionsEnabled	= data.reactionsEnabled;
@@ -96,9 +96,9 @@ export default class DiscordController extends AbstractController {
 		fs.writeFileSync(Config.discord2Twitch, JSON.stringify(DiscordController._guildId2TwitchId), "utf-8");
 		this.buildTwitchHashmap();
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -145,11 +145,11 @@ export default class DiscordController extends AbstractController {
 
 		const params = request.body as {message:string, channelId:string};
 		const body = { content:"**from "+guard.user.login+"**:\n"+params.message }
-		
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body})) as {id:string};
-			
+
 			if(!message.id) throw(new Error("Failed posting message"));
 
 			response.header('Content-Type', 'application/json')
@@ -180,7 +180,7 @@ export default class DiscordController extends AbstractController {
 			autoArchiveDuration: 60,
 			content:params.message
 		}
-		
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
@@ -279,7 +279,7 @@ export default class DiscordController extends AbstractController {
 			autoArchiveDuration: 60,
 			content:params.message
 		}
-		
+
 		//Send to discord
 		try {
 			const message = (await this._rest.post(Routes.channelMessages(params.channelId), {body:{content:params.message}})) as {id:string};
@@ -344,8 +344,8 @@ export default class DiscordController extends AbstractController {
 								});
 		response.header('Content-Type', 'application/json')
 		.status(200)
-		.send(JSON.stringify({success:true, channelList, test:res}));
-		
+		.send(JSON.stringify({success:true, channelList}));
+
 	}
 
 	/**
@@ -374,7 +374,7 @@ export default class DiscordController extends AbstractController {
 				name: json.fileName+".png" || "message.png",
 				contentType: "image/png",
 			}
-			
+
 			body.content = `
 * **__User ID__**: ${json.userId}
 * **__User name__**: ${json.userName}
@@ -385,7 +385,7 @@ export default class DiscordController extends AbstractController {
 				body.content += "\n**__Message__**:";
 				body.content += "```"+json.message.replace('`', '\`')+"```";
 			}
-			
+
 			//Send to discord
 			await this._rest.post(Routes.channelMessages(guild.logChanTarget), {body,files:[upload]});
 		}catch(error:unknown) {
@@ -422,7 +422,7 @@ export default class DiscordController extends AbstractController {
 		const params = request.method === "POST"? request.body as any : request.query as any;
 		const code = params.code as string;
 		const token = this._pendingTokens.find(v => v.code.toUpperCase() === code.toUpperCase());
-		
+
 		//Check if code and user match the expected ones
 		if(!token || !code || token.userId != user.user_id) {
 			response.header('Content-Type', 'application/json')
@@ -430,7 +430,7 @@ export default class DiscordController extends AbstractController {
 			.send(JSON.stringify({error:"Invalid token", errorCode:"INVALID_TOKEN", success:false}));
 			return;
 		}
-		
+
 		//Associate twitch to given discord guild
 		let status = 200;
 		let errorCode = "";
@@ -483,15 +483,15 @@ export default class DiscordController extends AbstractController {
 
 	/**
 	 * Called when streamer answers to a custom message by clicking one of the available CTAs
-	 * 
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 *
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async postAnswer(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const auth = await this.guildGuard(request, response);
 		if(auth == false) return;
-		
+
 		const params = request.body as any;
 		const data:ActionPayload = params.data;
 		const body:any = {content:params.message};
@@ -502,7 +502,7 @@ export default class DiscordController extends AbstractController {
 				fail_if_not_exists:false,
 			}
 		}
-		
+
 		if(data.reaction) {
 			await this._rest.put(Routes.channelMessageOwnReaction(data.channelId, data.messageId, encodeURIComponent(data.reaction)));
 		}else{
@@ -516,10 +516,10 @@ export default class DiscordController extends AbstractController {
 
 	/**
 	 * Init an SSE connection
-	 * 
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 *
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async postInteraction(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const json = request.body as DiscordBotInstallPayload | SlashCommandPayload;
@@ -528,7 +528,7 @@ export default class DiscordController extends AbstractController {
 		const timestamp = request.headers["x-signature-timestamp"] as string;
 		//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
 		const body = request.rawBody as string;
-		
+
 		const verified = verifyKey(body, signature, timestamp, Config.credentials.discord_public_key);
 		if (!verified) {
 			return response.status(401).send('Bad request signature');
@@ -602,7 +602,7 @@ export default class DiscordController extends AbstractController {
 			option.setName("twitch_login")
 			option.setDescription(I18n.instance.get("en", "server.discord.commands.link.option_channel"))
 			.setRequired(true);
-			
+
 			languages.forEach(lang=> {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.link.option_channel"));
 			})
@@ -612,8 +612,8 @@ export default class DiscordController extends AbstractController {
 		languages.forEach(lang=> {
 			LINK_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.link.description"));
 		})
-		
-		
+
+
 		cmd = (appCommandMode? 'say' : 'say_guild');;
 		const SAY_CMD = new SlashCommandBuilder()
 		.setName(cmd)
@@ -622,7 +622,7 @@ export default class DiscordController extends AbstractController {
 			option.setName("message")
 			.setDescription(I18n.instance.get("en", "server.discord.commands.say.option_message"))
 			.setRequired(true);
-			
+
 			languages.forEach(lang=> {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_message"));
 			})
@@ -635,7 +635,7 @@ export default class DiscordController extends AbstractController {
 			.addChoices({name:"highlight", value:"highlight"})
 			.addChoices({name:"normal", value:"message"})
 			.setRequired(false);
-			
+
 			languages.forEach(lang=> {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_style"));
 			})
@@ -645,8 +645,8 @@ export default class DiscordController extends AbstractController {
 		languages.forEach(lang=> {
 			SAY_CMD.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.description"));
 		})
-		
-		
+
+
 		cmd = (appCommandMode? 'ask' : 'ask_guild');
 		const ASK_CMD = new SlashCommandBuilder()
 		.setName(cmd)
@@ -655,7 +655,7 @@ export default class DiscordController extends AbstractController {
 			option.setName("message")
 			.setDescription(I18n.instance.get("en", "server.discord.commands.say.option_message"))
 			.setRequired(true);
-			
+
 			languages.forEach(lang=> {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_message"));
 			})
@@ -668,7 +668,7 @@ export default class DiscordController extends AbstractController {
 			.addChoices({name:"highlight", value:"highlight"})
 			.addChoices({name:"normal", value:"message"})
 			.setRequired(false);
-			
+
 			languages.forEach(lang=> {
 				option.setDescriptionLocalization(lang.discord, I18n.instance.get(lang.labels, "server.discord.commands.say.option_style"));
 			})
@@ -742,9 +742,9 @@ export default class DiscordController extends AbstractController {
 
 	/**
 	 * Called when someone uses the /twitch command on discord to associate a discord to a twitch channel
-	 * @param request 
-	 * @param response 
-	 * @param command 
+	 * @param request
+	 * @param response
+	 * @param command
 	 */
 	private async configureTwitchChannel(request:FastifyRequest, response:FastifyReply, command:SlashCommandPayload):Promise<void> {
 		const channel = (command.data.options.find(v=>v.name == "twitch_login")?.value || "").trim();
@@ -770,10 +770,10 @@ export default class DiscordController extends AbstractController {
 				});
 				return;
 			}
-			
+
 			let code = Utils.generateCode(4);
 			this._pendingTokens.push({
-										code,	
+										code,
 										locale:command.locale,
 										expires_at:Date.now() + this._tokenValidityDuration,
 										guildName:guildDetails.name,
@@ -799,9 +799,9 @@ export default class DiscordController extends AbstractController {
 
 	/**
 	 * Send a message to the configured twitch user
-	 * @param request 
-	 * @param response 
-	 * @param command 
+	 * @param request
+	 * @param response
+	 * @param command
 	 */
 	private async sendMessageToTwitchat(request:FastifyRequest, response:FastifyReply, command:SlashCommandPayload):Promise<void> {
 		const uid = DiscordController._guildId2TwitchId[command.guild_id]?.twitchUID;
@@ -846,75 +846,78 @@ export default class DiscordController extends AbstractController {
 
 				//Executing a app command
 				let attempts = 0;
+				let originalMessage:any;
 				do {
 					try {
 						//There must be a cleaner way to get the message initiating the interaction
-						//than polling the message list until we get a message containing the 
+						//than polling the message list until we get a message containing the
 						//interaction ID, but I couldn't find a any :/
 						const params = new URLSearchParams();
 						params.set("limit", "10");
 						let messages = await this._rest.get(Routes.channelMessages(command.channel_id), {query:params}) as any[];
-						const originalMessage = messages.find(mess => mess.interaction && mess.interaction.id == command.id);
-						if(originalMessage) {
-	
-							const style = command.data.options.find(v=>v.name == "style")?.value || "message";
-							const confirm = command.data.name == "ask"
-							const guild = DiscordController._twitchId2GuildId[uid];
-	
-							let highlightColor = "";
-							if(style == "highlight") {
-								highlightColor = "#5865f2";
-							}
-							const actions:{icon?:string,label:string,actionType?:"discord",data?:ActionPayload,quote?:string,message?:string, theme?:"default"|"primary"|"secondary"|"alert"}[] = [];
-							if(confirm) {
-								actions.push({
-									actionType:"discord",
-									label:I18n.instance.get(guild.locale, "global.yes"),
-									message:":white_check_mark: "+I18n.instance.get(guild.locale, "global.yes"),
-									icon:"checkmark",
-									theme:"primary",
-									data:{messageId:originalMessage.id, channelId:command.channel_id},
-								})
-								actions.push({
-									actionType:"discord",
-									label:I18n.instance.get(guild.locale, "global.no"),
-									message:":no_entry: "+I18n.instance.get(guild.locale, "global.no"),
-									icon:"cross",
-									theme:"alert",
-									data:{messageId:originalMessage.id, channelId:command.channel_id},
-								})
-							}else if(guild.reactionsEnabled !== false){
-								["👌","❤️","😂","😟","⛔"].forEach(reaction => {
-									actions.push({
-										actionType:"discord",
-										label:reaction,
-										message:reaction,
-										data:{messageId:originalMessage.id, channelId:command.channel_id, reaction},
-									})
-								})
-							}
-	
-							
-							let cols:number[] = [];
-							if(guild.chatCols.length > 0) cols = guild.chatCols;
-	
-							SSEController.sendToUser(uid, SSECode.NOTIFICATION, {messageId:originalMessage.id, col:cols, message, highlightColor, style, username:command.member.user.username, actions});
-							break;
-						}
+						originalMessage = messages.find(mess => mess.interaction && mess.interaction.id == command.id);
+						if(originalMessage) break;
 					}catch(error) {
 						console.error(error);
 					}
-					await Utils.promisedTimeout(250);
-				}while(++attempts < 10)
+					await Utils.promisedTimeout(200);
+				}while(++attempts < 5);
+
+				const style = command.data.options.find(v=>v.name == "style")?.value || "message";
+				const confirm = command.data.name == "ask"
+				const guild = DiscordController._twitchId2GuildId[uid];
+
+				let quote = "";
+				let highlightColor = "";
+				if(style == "highlight") {
+					highlightColor = "#5865f2";
+				}
+				const actions:{icon?:string,label:string,actionType?:"discord",data?:ActionPayload,quote?:string,message?:string, theme?:"default"|"primary"|"secondary"|"alert"}[] = [];
+				if(originalMessage) {
+					if(confirm) {
+						actions.push({
+							actionType:"discord",
+							label:I18n.instance.get(guild.locale, "global.yes"),
+							message:":white_check_mark: "+I18n.instance.get(guild.locale, "global.yes"),
+							icon:"checkmark",
+							theme:"primary",
+							data:{messageId:originalMessage.id, channelId:command.channel_id},
+						})
+						actions.push({
+							actionType:"discord",
+							label:I18n.instance.get(guild.locale, "global.no"),
+							message:":no_entry: "+I18n.instance.get(guild.locale, "global.no"),
+							icon:"cross",
+							theme:"alert",
+							data:{messageId:originalMessage.id, channelId:command.channel_id},
+						})
+					}else if(guild.reactionsEnabled !== false){
+						["👌","❤️","😂","😟","⛔"].forEach(reaction => {
+							actions.push({
+								actionType:"discord",
+								label:reaction,
+								message:reaction,
+								data:{messageId:originalMessage.id, channelId:command.channel_id, reaction},
+							})
+						})
+					}
+				}else if(confirm || guild.reactionsEnabled !== false) {
+					quote = I18n.instance.get(command.locale, "server.discord.missing_history_access", {CHANNEL:command.channel.name});
+				}
+
+				let cols:number[] = [];
+				if(guild.chatCols.length > 0) cols = guild.chatCols;
+
+				SSEController.sendToUser(uid, SSECode.NOTIFICATION, {messageId:originalMessage?.id, col:cols, message, quote, highlightColor, style, username:command.member.user.username, actions});
 			}
 		}
 	}
 
 	/**
 	 * Check if user is authenticated and linked their discord
-	 * @param request 
-	 * @param response 
-	 * @returns 
+	 * @param request
+	 * @param response
+	 * @returns
 	 */
 	private async guildGuard(request:FastifyRequest, response:FastifyReply):Promise<false|{user:TwitchToken, guild:TwitchatGuild2Twitch}> {
 		const user = await super.twitchUserGuard(request, response);

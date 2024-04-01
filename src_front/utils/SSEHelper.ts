@@ -7,17 +7,17 @@ import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import TwitchUtils from "./twitch/TwitchUtils";
 
 /**
-* Created : 29/02/2024 
+* Created : 29/02/2024
 */
 export default class SSEHelper {
 
 	private static _instance:SSEHelper;
 	private _sse!:EventSource;
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -27,18 +27,18 @@ export default class SSEHelper {
 		}
 		return SSEHelper._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	public initialize():void {
 		this.connect();
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -65,11 +65,11 @@ export default class SSEHelper {
 			if(json.code == "TRIGGER_SLASH_COMMAND") {
 				this.onTriggerSlashCommand(json.data);
 			}else
-			
+
 			if(json.code == "NOTIFICATION") {
 				this.onNotification(json.data);
 			}else
-			
+
 			if(json.code == "KO_FI_EVENT") {
 				this.onKofiEvent(json.data);
 			}
@@ -80,12 +80,12 @@ export default class SSEHelper {
 
 	/**
 	 * Called when someone used a Twitchat /command from Discord
-	 * @param data 
-	 * @returns 
+	 * @param data
+	 * @returns
 	 */
 	private onTriggerSlashCommand(data:{command:string, params:{name:string, value:string}[]}):void {
-		
-		//Search for the matchin trigger
+
+		//Search for the matching trigger
 		const trigger = StoreProxy.triggers.triggerList.find(v=>{
 			return v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand == "/"+data.command;
 		});
@@ -125,8 +125,8 @@ export default class SSEHelper {
 
 	/**
 	 * Called when someone used /say or /ask commands on Discord
-	 * @param data 
-	 * @returns 
+	 * @param data
+	 * @returns
 	 */
 	private onNotification(data:{messageId:string, col:number[], message:string, quote:string, highlightColor:string, style:TwitchatDataTypes.MessageCustomData["style"], username:string, actions:TwitchatDataTypes.MessageCustomData["actions"]}):void {
 		const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
@@ -157,8 +157,8 @@ export default class SSEHelper {
 
 	/**
 	 * Called when receiving an event from Ko-fi
-	 * @param data 
-	 * @returns 
+	 * @param data
+	 * @returns
 	 */
 	private onKofiEvent(data:any):void {
 		StoreProxy.kofi.onEvent(data);

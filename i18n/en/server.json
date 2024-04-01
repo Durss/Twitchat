@@ -7,6 +7,7 @@
 			"link_success":"## :white_check_mark: Link complete\nThis discord is now linked with `{LOGIN}` Twitchat account.\nUse </{CMD_SAY}:{CMD_SAY_ID}> command to send a message on Twitchat or </{CMD_ASK}:{CMD_ASK_ID}> command to send a message asking the streamer to answer by Yes or No.",
 			"guild_loading_failed":":no_entry: Cannot get guild details for guild ID `{GUILD}`",
 			"twitch_user_not_found":":no_entry: No twitch user found with name `{CHANNEL}`",
+			"missing_history_access":"⚠️ Quick answers disabled because Twitchat bot does not have access to \"{CHANNEL}\" channel history. Please enable \"Read message history\" Discord permisison.",
 			"commands":{
 				"link":{
 					"description":"Link a Twitch account with this Discord server",
