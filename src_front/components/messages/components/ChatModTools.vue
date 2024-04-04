@@ -37,16 +37,16 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
  * TODO replace <Button> to simplement native <button> elements
  */
  class ChatModTools extends Vue {
-	
+
 	@Prop
 	public canDelete!:boolean;
 
 	@Prop({type:Boolean,default:false,})
 	public canBlock!:boolean;
-	
+
 	@Prop
 	public messageData!:TwitchatDataTypes.MessageChatData;
-	
+
 	public showToOptions = false;
 
 	private closeTimeout = 0;
@@ -66,7 +66,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 						break;
 					}
 					case "youtube": {
-						YoutubeHelper.instance.banUser(this.messageData.user.id);
+						YoutubeHelper.instance.banUser(this.messageData.user.id, (this.messageData as TwitchatDataTypes.MessageChatData).youtube_liveId!);
 						break;
 					}
 				}
@@ -101,7 +101,7 @@ import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 					break;
 				}
 				case "youtube": {
-					YoutubeHelper.instance.banUser(this.messageData.user.id, duration);
+					YoutubeHelper.instance.banUser(this.messageData.user.id, (this.messageData as TwitchatDataTypes.MessageChatData).youtube_liveId!, duration);
 					break;
 				}
 			}
