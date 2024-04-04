@@ -107,7 +107,7 @@ import TriggerListItem from './TriggerListItem.vue';
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyupHandler);
 	}
-	
+
 	public beforeUnmount():void {
 		clearInterval(this.buildInterval);
 		document.removeEventListener("keyup", this.keyupHandler);
@@ -143,7 +143,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 		let triggerBuildIndex = 0;
 		let flatList:TriggerListEntry[] = [];
-		
+
 		for (let i = 0; i < triggerList.length; i++) {
 			const trigger = triggerList[i];
 
@@ -203,7 +203,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	/**
 	 * Delete a trigger
-	 * @param entry 
+	 * @param entry
 	 */
 	public deleteTrigger(entry:TriggerListEntry):void {
 		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(()=>{
@@ -214,7 +214,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	/**
 	 * Duplicate a trigger
-	 * @param entry 
+	 * @param entry
 	 */
 	public duplicateTrigger(entry:TriggerListEntry):void {
 		this.$store.triggers.duplicateTrigger(entry.trigger.id);
@@ -223,31 +223,17 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	/**
 	 * Called when enabling/disabling a trigger
-	 * @param item 
+	 * @param item
 	 */
 	public onToggleTrigger(item:TriggerListEntry):void {
-		// if(!this.$store.auth.isPremium
-		// && this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
-		// 	console.log(item);
-		// 	setTimeout(()=>{
-		// 		item.trigger.enabled = false;
-		// 	}, 350);
-			// setTimeout(()=>{
-			// 	const divs = this.$refs["item_"+item.trigger.id] as HTMLElement[];
-			// 	for (let i = 0; i < divs.length; i++) {
-			// 		gsap.fromTo(divs[i], {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
-			// 		gsap.fromTo(divs[i], {x:-5}, {duration:.2, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
-			// 	}
-			// }, 150);
-		// }else{
+
 			this.$store.triggers.saveTriggers();
-		// }
 	}
 
 	/**
 	 * Called when sorting triggers, creating a folder, renaming a folder, changing its color,...
 	 * Saves data to store
-	 * @param tree 
+	 * @param tree
 	 */
 	public onUpdateList():void {
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
@@ -268,13 +254,14 @@ import TriggerListItem from './TriggerListItem.vue';
 				}
 			}
 		}
+
 		const tree = this.folderTriggerList.map(v => buildItem(v));
 		this.$store.triggers.updateTriggerTree(tree);
 	}
 
 	/**
 	 * Show a debug field on CTRL+ALT+D
-	 * @param e 
+	 * @param e
 	 */
 	public onKeyUp(e:KeyboardEvent):void {
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {

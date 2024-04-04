@@ -12,10 +12,9 @@
 		</button>
 
 		<div class="toggle"
-		v-if="noEdit === false || forceDisableOption !== false"
-		@click="entryData.trigger.enabled = !entryData.trigger.enabled; $emit('changeState')">
+		v-if="noEdit === false || forceDisableOption !== false">
 			<ToggleButton v-model="entryData.trigger.enabled"
-			@change="onToggle()"
+			@change="$emit('changeState', $el)"
 			:aria-label="entryData.trigger.enabled? 'trigger enabled' : 'trigger disabled'"/>
 		</div>
 
@@ -43,10 +42,8 @@
 <script lang="ts">
 import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerTypesDefinitionList } from '@/types/TriggerActionDataTypes';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import type { TriggerListEntry } from "./TriggerList.vue";
-import gsap, { Linear } from 'gsap';
-import { RoughEase } from 'gsap/all';
 
 @Component({
 	components:{
@@ -74,22 +71,6 @@ import { RoughEase } from 'gsap/all';
 		return this.$t(event?.labelKey);
 	}
 
-	public onToggle():void {
-		// if(this.entryData.trigger.enabled
-		// && !this.$store.auth.isPremium
-		// && this.$store.triggers.triggerList.filter(v=>v.enabled !== false && this.$store.triggers.triggerIdToFolderEnabled[v.id] !== false).length > this.$config.MAX_TRIGGERS) {
-		// 	setTimeout(()=>{
-		// 		this.entryData.trigger.enabled = false;
-		// 	}, 350);
-		// 	setTimeout(()=>{
-		// 		gsap.fromTo(this.$el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
-		// 		gsap.fromTo(this.$el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
-		// 	}, 150);
-		// }else{
-			this.$emit('changeState', this.$el);
-		// }
-	}
-
 }
 export default toNative(TriggerListItem);
 </script>
@@ -115,7 +96,7 @@ export default toNative(TriggerListItem);
 		align-items: flex-start;
 		flex-direction: column;
 	}
-	
+
 	.button {
 		display: flex;
 		flex-direction: row;
@@ -137,7 +118,6 @@ export default toNative(TriggerListItem);
 		display: flex;
 		align-items: center;
 		padding: 0 .5em;
-		cursor: pointer;
 		border-left: 1px solid var(--color-dark-light);
 	}
 	.deleteBt, .testBt, .duplicateBt {
@@ -147,7 +127,7 @@ export default toNative(TriggerListItem);
 			height: .9em;
 			padding: 0 .5em;
 		}
-		
+
 		&:disabled,
 		&[disabled] {
 			pointer-events: none;

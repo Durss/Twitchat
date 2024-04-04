@@ -59,10 +59,10 @@
 						@duplicate="$emit('duplicate', $event)"
 						@testTrigger="$emit('testTrigger',$event)"
 						@select="$emit('select', $event)" />
-	
+
 					<div v-if="!element.items || element.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
 				</div>
-				
+
 			</ToggleBlock>
 
 			<TriggerListItem v-else
@@ -126,7 +126,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	@Prop({default:null})
 	public items!:(TriggerListEntry|TriggerListFolderEntry)[];
-	
+
 	@Prop({default:0})
 	public level!:number;
 
@@ -147,7 +147,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	/**
 	 * Called when dragging over
-	 * @param ref 
+	 * @param ref
 	 */
 	public onRollover(ref:string):void {
 		if(this.lastHovered != ref) {
@@ -157,7 +157,7 @@ import TriggerListItem from './TriggerListItem.vue';
 				const block = this.$refs[ref] as ToggleBlockClass;
 				if(block) block.localOpen = true;
 				else console.warn("REF not found", ref);
-				
+
 			}, 500);
 		}
 	}
@@ -169,7 +169,7 @@ import TriggerListItem from './TriggerListItem.vue';
 
 	/**
 	 * Called when clicking delete button on a folder
-	 * @param id 
+	 * @param id
 	 */
 	public async deleteFolder(folder:TriggerListFolderEntry):Promise<void> {
 		if(folder.items.length > 0) {
@@ -198,6 +198,7 @@ import TriggerListItem from './TriggerListItem.vue';
 			this.vibrate(el);
 		}else{
 			this.$emit('change');
+			this.$emit('changeState');
 		}
 	}
 
@@ -224,7 +225,7 @@ import TriggerListItem from './TriggerListItem.vue';
 			gsap.fromTo(el, {backgroundColor:"rgba(255,0,0,1)"}, {duration:.5, backgroundColor:"rgba(255,0,0,0)" , clearProps:"background-color"})
 			gsap.fromTo(el, {x:-5}, {duration:.25, x:5, ease:RoughEase.ease.config({strength:8, points:20, template:Linear.easeNone, randomize:false}) , clearProps:"x"})
 		}, 150);
-		
+
 	}
 
 }

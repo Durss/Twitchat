@@ -10,6 +10,7 @@ import StoreProxy from '../StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import type { JsonObject } from "type-fest";
+import type { TriggerListEntry } from '@/components/params/contents/triggers/TriggerList.vue';
 
 let discordCmdUpdateDebounce:number = -1;
 
@@ -25,7 +26,7 @@ export const storeTriggers = defineStore('triggers', {
 
 
 	getters: {
-		
+
 		queues():string[] {
 			const done:{[key:string]:boolean} = {};
 			const res = [];
@@ -60,12 +61,12 @@ export const storeTriggers = defineStore('triggers', {
 				this.computeTriggerTreeEnabledStates();
 			}
 		},
-		
+
 		openTriggerEdition(data:TriggerData) {
 			this.currentEditTriggerData = data;
 			StoreProxy.params.openParamsPage(TwitchatDataTypes.ParameterPages.TRIGGERS);
 		},
-		
+
 		openTriggerList() {
 			this.currentEditTriggerData = null;
 		},
@@ -75,7 +76,7 @@ export const storeTriggers = defineStore('triggers', {
 			if(data.type === TriggerTypes.SCHEDULE) {
 				SchedulerHelper.instance.scheduleTrigger(data);
 			}
-			
+
 			this.triggerList.push(data);
 			this.saveTriggers();
 		},
@@ -140,12 +141,12 @@ export const storeTriggers = defineStore('triggers', {
 				// })
 
 			}
-			
+
 			const list = JSON.parse(JSON.stringify(this.triggerList));
 			list.forEach((data:TriggerData)=> {
 				data.actions = cleanEmptyActions(data.actions);
 			})
-			
+
 			//Create discord commands if requested by some slash commands
 			//and discord is linked
 			if(StoreProxy.discord.discordLinked) {
@@ -229,7 +230,7 @@ export const storeTriggers = defineStore('triggers', {
 			for (let i = 0; i < this.triggerList.length; i++) {
 				const t = this.triggerList[i];
 				let json = JSON.stringify(t);
-				
+
 				//Is the old placeholder somewhere on the trigger data ?
 				if(json.toLowerCase().indexOf((COUNTER_VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
 
@@ -239,7 +240,7 @@ export const storeTriggers = defineStore('triggers', {
 				//Make it regex safe
 				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				
+
 				//Nuclear way to replace placeholders on trigger data
 				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
 				this.triggerList[i] = JSON.parse(json);
@@ -253,7 +254,7 @@ export const storeTriggers = defineStore('triggers', {
 			for (let i = 0; i < this.triggerList.length; i++) {
 				const t = this.triggerList[i];
 				let json = JSON.stringify(t);
-				
+
 				//Is the old placeholder somewhere on the trigger data ?
 				if(json.toLowerCase().indexOf((VALUE_PLACEHOLDER_PREFIX + oldPlaceholder).toLowerCase()) == -1 ) continue;
 
@@ -263,7 +264,7 @@ export const storeTriggers = defineStore('triggers', {
 				//Make it regex safe
 				newPlaceholderLoc = newPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
 				oldPlaceholderLoc = oldPlaceholderLoc.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
-				
+
 				//Nuclear way to replace placeholders on trigger data
 				json = json.replace(new RegExp("\\{"+oldPlaceholderLoc+"\\}", "g"), "{"+newPlaceholderLoc.toUpperCase()+"}");
 				this.triggerList[i] = JSON.parse(json);
@@ -282,8 +283,8 @@ export const storeTriggers = defineStore('triggers', {
 
 			/**
 			 * Defines if a a trigger is enabled depending on its parent folder/s
-			 * @param root 
-			 * @param enabled 
+			 * @param root
+			 * @param enabled
 			 */
 			const parseItem = (root:TriggerTreeItemData[], enabled:boolean = true) => {
 				root.forEach(v=> {
