@@ -12,7 +12,7 @@
 			"usage_connected_triggers":"triggers",
 			"success":"Spotify est maintenant connecté"
 		},
-		
+
 		"triggerSocket":{
 			"ip":"IP",
 			"port":"Port",
@@ -20,11 +20,11 @@
 			"success":"Connexion au serveur socket établie",
 			"usage":"Connectez-vous à un serveur websocket (ex: Chataigne) puis envoyez-lui des données depuis les Triggers."
 		},
-		
+
 		"youtube":{
 			"header":"Affichez votre tchat Youtube directement dans Twitchat.",
 			"success":"Youtube est maintenant connecté",
-			"current_live_title":"Sélectionnez le live auquel se connecter",
+			"current_live_title":"Sélectionnez le ou les lives auxquels se connecter",
 			"no_live":"Aucune diffusion live trouvée.\nCréez une diffusion live dans votre interface Youtube puis cliquez sur recharger ci-dessous.",
 			"scopes_title":"Autorisations",
 			"scope_read":"Lire les messages de tchat\n(obligatoire)",

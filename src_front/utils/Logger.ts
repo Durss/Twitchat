@@ -5,7 +5,7 @@ import type { TwitchEventSubDataTypes } from "@/types/twitch/TwitchEventSubDataT
 import { reactive } from "vue";
 
 /**
-* Created : 30/11/2023 
+* Created : 30/11/2023
 */
 export default class Logger {
 
@@ -26,11 +26,11 @@ export default class Logger {
         "youtube": [],
         "triggers": [],
     });
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -41,9 +41,9 @@ export default class Logger {
 		}
 		return Logger._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -119,15 +119,15 @@ export default class Logger {
 	public download(type:"triggers"):void;
 	public download(...args:any[]):void{
 		const key = args[0] as keyof typeof this.logs;
-		
+
 		const data = JSON.stringify(this.logs[key]);
 		const blob = new Blob([data], { type: 'application/json' });
 		const url = window.URL.createObjectURL(blob);
 		window.open(url, "_blank");
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -150,7 +150,7 @@ interface LogAds extends AbstractLog {
 interface LogYoutube extends AbstractLog {
 	log?:string;
 	credits?:number;
-	liveID?:string;
+	liveID?:string[];
 	error?:unknown;
 }
 

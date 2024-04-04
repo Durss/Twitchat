@@ -21,16 +21,16 @@ import { YoutubeScopes } from "./youtube/YoutubeScopes";
 import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
-* Created : 07/04/2023 
+* Created : 07/04/2023
 */
 export default class ContextMenuHelper {
 
 	private static _instance:ContextMenuHelper;
 
 	constructor() {
-		
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -41,17 +41,17 @@ export default class ContextMenuHelper {
 		}
 		return ContextMenuHelper._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 
 	/**
 	 * Open the context menu on right click on desktop or long press on mobile
-	 * 
-	 * @param e 
+	 *
+	 * @param e
 	 */
 	public messageContextMenu(e:MouseEvent|TouchEvent, message:TwitchatDataTypes.ChatMessageTypes, canModerateMessage:boolean=false, canModerateUser:boolean=false, htmlNode:HTMLElement):void {
 		const t		= StoreProxy.i18n.t;
@@ -68,37 +68,37 @@ export default class ContextMenuHelper {
 			closeWhenScroll:false,
 			updownButtonSpaceholder:false,
 		})
-		
+
 		if(!DataStore.get(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT)) {
 			//Make sure the hint message is not sent anymore
 			DataStore.set(DataStore.TWITCHAT_RIGHT_CLICK_HINT_PROMPT, true);
 		}
-		
+
 
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			const user			= message.user;
 			const channelInfo	= user.channelInfo[message.channel_id];
-	
+
 			//Header
 			options.push({
 						label:user.displayName,
 						disabled:true,
 						customClass:"header"
 					});
-			
+
 			//Shoutout
 			if(canModerateUser) {
-				options.push({ 
+				options.push({
 					label: t("chat.context_menu.shoutout"),
 					icon: this.getIcon("icons/shoutout.svg"),
 					onClick: () => StoreProxy.users.shoutout(message.channel_id, user),
 				});
 			}
-	
+
 			//Reply
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.answer"),
 							icon: this.getIcon("icons/reply.svg"),
 							onClick: () => {
@@ -106,25 +106,25 @@ export default class ContextMenuHelper {
 							}
 						});
 			}
-	
+
 			//Track/untrack user
 			if(user.is_tracked) {
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.untrack"),
 							icon: this.getIcon("icons/magnet.svg"),
 							onClick: () => StoreProxy.users.untrackUser(user),
 						});
 			}else{
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.track"),
 							icon: this.getIcon("icons/magnet.svg"),
 							onClick: () => StoreProxy.users.trackUser(user),
 						});
 			}
-	
+
 			//Chat highlight
 			const highlightIndex = options.length;
-			options.push({ 
+			options.push({
 				label: t("chat.context_menu.highlight_loading"),
 				icon: this.getIcon("icons/highlight.svg"),
 				disabled:true,
@@ -140,7 +140,7 @@ export default class ContextMenuHelper {
 
 			//Pin / Unpin message
 			if(message.platform == "twitch" && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
-				options.push({ 
+				options.push({
 							label: message.is_pinned === true? t("chat.context_menu.unpin_twitch") : t("chat.context_menu.pin_twitch"),
 							icon: message.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
 							customClass:"disabled",
@@ -149,69 +149,69 @@ export default class ContextMenuHelper {
 							},
 						});
 			}
-			
+
 			//Save/unsave
 			if(message.is_saved) {
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.unsave"),
 							icon: this.getIcon("icons/save.svg"),
 							onClick: () => StoreProxy.chat.unsaveMessage(message),
 						});
-	
+
 			}else{
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.save"),
 							icon: this.getIcon("icons/save.svg"),
 							onClick: () => StoreProxy.chat.saveMessage(message),
 						});
 			}
-			
+
 			//TTS actions
 			if(StoreProxy.tts.params.enabled) {
 				//Read message
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.tts"),
 							icon: this.getIcon("icons/tts.svg"),
 							onClick: () => StoreProxy.tts.ttsReadMessage(message),
 						});
-	
+
 				//Start/stop reading all this user's messages
 				const username = user.login.toLowerCase();
 				const permissions: TwitchatDataTypes.PermissionsData = StoreProxy.tts.params.ttsPerms;
 				if (permissions.usersAllowed.findIndex(v => v.toLowerCase() === username) == -1) {
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.tts_all_start"),
 								icon: this.getIcon("icons/tts.svg"),
 								onClick: () => StoreProxy.tts.ttsReadUser(user, true),
 							});
 				} else {
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.tts_all_stop"),
 								icon: this.getIcon("icons/tts.svg"),
 								onClick: () => StoreProxy.tts.ttsReadUser(user, false),
 							});
 				}
 			}
-	
+
 			//Open profile
-			options.push({ 
+			options.push({
 						label: t("chat.context_menu.profile"),
 						icon: this.getIcon("icons/user.svg"),
 						onClick: () => StoreProxy.users.openUserCard(user, message.channel_id, user.platform),
 					});
-	
+
 			//Moderation actions
 			if(canModerateMessage) {
 				//Add splitter after previous item
 				options[options.length-1].divided = true;
 				const m:TwitchatDataTypes.MessageChatData = message as TwitchatDataTypes.MessageChatData;
-						
+
 				//Delete message
 				let classes = "alert";
 				if(m.deleted!== true) {
 					if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.DELETE_MESSAGES])) classes += " disabled";
 					if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classes += " disabled";
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.delete"),
 								icon: this.getIcon("icons/trash.svg"),
 								customClass:classes,
@@ -223,21 +223,21 @@ export default class ContextMenuHelper {
 							});
 				}
 			}
-	
+
 			//User moderation actions
 			if(canModerateUser) {
 				let classesMod = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BANNED])) classesMod += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
-				
+
 				const classesBlock = "alert";
 				if(message.platform == "twitch" && !TwitchUtils.hasScopes([TwitchScopes.EDIT_BLOCKED])) classesMod += " disabled";
 				if(message.platform == "youtube" && !YoutubeHelper.instance.hasScopes([YoutubeScopes.CHAT_MODERATE])) classesMod += " disabled";
 				if(!canModerateMessage) options[options.length-1].divided = true;
-	
+
 				//Timeout
 				options.push(
-						{ 
+						{
 							label: t("chat.context_menu.to"),
 							customClass:classesMod,
 							icon: this.getIcon("icons/timeout.svg"),
@@ -301,10 +301,10 @@ export default class ContextMenuHelper {
 								},
 							]
 						});
-					
+
 				//Ban/unban user
 				if(channelInfo.is_banned) {
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.unban"),
 								icon: this.getIcon("icons/unban.svg"),
 								customClass:classesMod,
@@ -315,18 +315,18 @@ export default class ContextMenuHelper {
 								},
 							});
 				}else{
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.ban"),
 								icon: this.getIcon("icons/ban.svg"),
 								customClass:classesMod,
 								onClick: () => this.banUser(message, message.channel_id),
 							});
 				}
-	
+
 				//Message not posted on our own channel, add a button to ban on our own channel.
 				if(message.channel_id != me.id) {
 					if(message.user.channelInfo[me.id]?.is_banned) {
-						options.push({ 
+						options.push({
 								label: t("chat.context_menu.unban_myRoom"),
 								icon: this.getIcon("icons/unban.svg"),
 								customClass:classesMod,
@@ -337,7 +337,7 @@ export default class ContextMenuHelper {
 								},
 							});
 					}else{
-						options.push({ 
+						options.push({
 								label: t("chat.context_menu.ban_myRoom"),
 								icon: this.getIcon("icons/ban.svg"),
 								customClass:classesMod,
@@ -345,11 +345,11 @@ export default class ContextMenuHelper {
 							});
 					}
 				}
-	
+
 				//Block/unblock user
 				if(message.platform == "twitch") {
 					if(message.user.is_blocked) {
-						options.push({ 
+						options.push({
 									label: t("chat.context_menu.unblock"),
 									icon: this.getIcon("icons/unblock.svg"),
 									customClass:classesBlock,
@@ -360,7 +360,7 @@ export default class ContextMenuHelper {
 									},
 								});
 					}else{
-						options.push({ 
+						options.push({
 									label: t("chat.context_menu.block"),
 									icon: this.getIcon("icons/block.svg"),
 									customClass:classesBlock,
@@ -386,7 +386,7 @@ export default class ContextMenuHelper {
 						onClick: () => this.discordQuickAction(message, action),
 					});
 				});
-				options.push({ 
+				options.push({
 					label: t("chat.context_menu.discord_quick_actions"),
 					icon: this.getIcon("icons/discord.svg"),
 					children,
@@ -394,7 +394,7 @@ export default class ContextMenuHelper {
 			}
 
 			this.addCustomTriggerEntries(options, message);
-		
+
 			//Update "highlight message" state according to overlay presence
 			this.getHighlightOverPresence().then(res => {
 				const item = menu.items[highlightIndex] as MenuItem;
@@ -423,7 +423,7 @@ export default class ContextMenuHelper {
 				//It detects most inglish messages as Afrikaan.
 				const lang = (res[0][1] < .6 || (res[0][0] == "afr" && res[1][0] == "eng"))? TranslatableLanguagesMap["eng"] : TranslatableLanguagesMap[iso3];
 				if(lang && !spokenLanguages.includes(lang.iso1)) {
-					options.push({ 
+					options.push({
 								label: t("chat.context_menu.translate"),
 								icon: this.getIcon("icons/translate.svg"),
 								onClick: () => this.translate(translatable, lang, text),
@@ -448,14 +448,14 @@ export default class ContextMenuHelper {
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST
 		|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 			const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-			const entryCount = options.length; 
+			const entryCount = options.length;
 			let optionAdded = false;
-			
+
 			if(StoreProxy.discord.discordLinked === true
 			&& StoreProxy.discord.ticketChanTarget
 			&& message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				optionAdded = true;
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.discord_ticket"),
 							icon: this.getIcon("icons/discord.svg"),
 							onClick: () => this.createDiscordTicket(message),
@@ -463,7 +463,7 @@ export default class ContextMenuHelper {
 			}
 			if(StoreProxy.discord.discordLinked === true && StoreProxy.discord.logChanTarget) {
 				optionAdded = true;
-				options.push({ 
+				options.push({
 							label: t("chat.context_menu.export_discord"),
 							icon: this.getIcon("icons/discord.svg"),
 							onClick: () => this.exportMessage(message, htmlNode, true),
@@ -471,7 +471,7 @@ export default class ContextMenuHelper {
 			}
 			if(!isSafari && !Config.instance.OBS_DOCK_CONTEXT) {
 				optionAdded = true;
-				options.push({ 
+				options.push({
 					label: Config.instance.OBS_DOCK_CONTEXT? t("chat.context_menu.export_clipboard") : t("chat.context_menu.export"),
 					icon: Config.instance.OBS_DOCK_CONTEXT? this.getIcon("icons/copy.svg") : this.getIcon("icons/download.svg"),
 					onClick: () => this.exportMessage(message, htmlNode),
@@ -482,7 +482,7 @@ export default class ContextMenuHelper {
 				if(entryCount > 0) options[entryCount-1].divided = true;
 			}
 		}
-			
+
 		menu.items = options as never;
 		if(options.length > 0) {
 			options.forEach(v=> {
@@ -492,9 +492,9 @@ export default class ContextMenuHelper {
 			e.preventDefault();
 		}
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -514,7 +514,7 @@ export default class ContextMenuHelper {
 
 	/**
 	 * Timeouts a user
-	 * 
+	 *
 	 * @param duration ban duration. Don't specify to perma ban
 	 */
 	private timeoutUser(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData, duration:number):void {
@@ -529,7 +529,7 @@ export default class ContextMenuHelper {
 					TwitchUtils.banUser(message.user, message.channel_id, duration);
 					break;
 				case "youtube":
-					YoutubeHelper.instance.banUser(message.user.id, duration);
+					YoutubeHelper.instance.banUser(message.user.id, (message as TwitchatDataTypes.MessageChatData).youtube_liveId!, duration);
 					break;
 			}
 		}
@@ -554,7 +554,7 @@ export default class ContextMenuHelper {
 						TwitchUtils.banUser(message.user, channelId, undefined, t("global.moderation_action.ban_reason"));
 						break;
 					case "youtube":
-						YoutubeHelper.instance.banUser(message.user.id);
+						YoutubeHelper.instance.banUser(message.user.id, (message as TwitchatDataTypes.MessageChatData).youtube_liveId!);
 						break;
 				}
 			}
@@ -648,8 +648,8 @@ export default class ContextMenuHelper {
 
 	/**
 	 * Add custom slash commands created on the triggers
-	 * @param options 
-	 * @param message 
+	 * @param options
+	 * @param message
 	 */
 	private addCustomTriggerEntries(options:MenuItem[], message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):void {
 		const items = StoreProxy.triggers.triggerList.filter(v=> v.addToContextMenu === true);
@@ -660,7 +660,7 @@ export default class ContextMenuHelper {
 			if(i===0) {
 				options[options.length-1].divided = true;
 			}
-			children.push({ 
+			children.push({
 				label: trigger.name || trigger.chatCommand,
 				icon: this.getIcon("icons/commands.svg"),
 				onClick: () => {
@@ -675,7 +675,7 @@ export default class ContextMenuHelper {
 		if(options.length > 0) {
 			options[options.length-1].divided = true;
 		}
-		options.push({ 
+		options.push({
 			label: "Triggers",
 			icon: this.getIcon("icons/commands.svg"),
 			children,
@@ -684,7 +684,7 @@ export default class ContextMenuHelper {
 
 	/**
 	 * Exports a screenshot + data of the message
-	 * @param message 
+	 * @param message
 	 */
 	private async exportMessage(message:TwitchatDataTypes.MessageChatData
 								| TwitchatDataTypes.MessageWhisperData
@@ -769,7 +769,7 @@ export default class ContextMenuHelper {
 		document.body.appendChild(infosDiv);
 		await Utils.promisedTimeout(0);//Leave time for the html node to render
 		const bounds = infosDiv.getBoundingClientRect();
-		
+
 		//Generate image from virtual infos node
 		domtoimage
 		.toPng(infosDiv, {width:bounds.width, height:bounds.height})
@@ -805,7 +805,7 @@ export default class ContextMenuHelper {
 							//CORS bypass for cheermotes
 							v.src = Config.instance.API_PATH+"/download?image="+encodeURIComponent(v.src);
 						}
-						
+
 						v.removeAttribute("loading");
 						v.addEventListener("load", ()=>{
 							if(++loaded == imgs.length) {
@@ -821,12 +821,12 @@ export default class ContextMenuHelper {
 						});
 					});
 				})
-				
+
 				const bounds = clone.getBoundingClientRect();
 				//Add margin to make sure borders are not cut out (necessary on firefox...)
 				bounds.width = Math.ceil(bounds.width + 5);
 				bounds.height = Math.ceil(bounds.height + 5);
-				
+
 				domtoimage
 				.toPng(clone, {width:bounds.width, height:bounds.height})
 				.then((dataUrl:string) => {
@@ -884,7 +884,7 @@ export default class ContextMenuHelper {
 							Utils.downloadFile(fileName+".png", undefined, canvas.toDataURL(), "image/png");
 							clone.remove();
 							const downloaded = !Config.instance.OBS_DOCK_CONTEXT;
-							
+
 							canvas.toBlob((blob)=> {
 								navigator.clipboard.write([
 									new ClipboardItem({ 'image/png': blob!}),

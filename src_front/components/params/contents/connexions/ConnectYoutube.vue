@@ -13,8 +13,10 @@
 				<template v-if="broadcastList.length > 0">
 					<div v-if="broadcastList.length > 1">{{ $t("connexions.youtube.current_live_title") }}</div>
 					<div class="liveList">
-						<div :class="getLiveClasses(live)" v-for="live in broadcastList" :key="live.snippet.liveChatId">
-							<Icon name="checkmark" v-if="live.snippet.liveChatId == selectedLiveId" />
+						<div :class="getLiveClasses(live)"
+						v-for="live in broadcastList" :key="live.snippet.liveChatId"
+						@click="toggleLiveId(live.snippet.liveChatId)">
+							<Icon name="checkmark" v-if="selectedLiveIds.includes(live.snippet.liveChatId)" />
 							<Icon :name="live.status.recordingStatus == 'recording'? 'online' : 'offline'"
 								:theme="live.status.recordingStatus == 'recording'? 'primary' : 'alert'"
 								v-tooltip="live.status.recordingStatus == 'recording'? 'stream online' : 'stream offline'" />
@@ -26,7 +28,7 @@
 				<template v-else-if="!refreshing">
 					<div class="card-item secondary noLive">{{ $t("connexions.youtube.no_live") }}</div>
 				</template>
-				
+
 				<TTButton icon="refresh" :loading="refreshing" @click="refreshLiveInfo()">{{ $t("global.refresh") }}</TTButton>
 			</div>
 
@@ -39,7 +41,7 @@
 				<TTButton class="connectBt" icon="youtube" @click="oauth()" :loading="loading" :disabled="!$store.auth.isPremium">{{ $t("global.connect") }}</TTButton>
 			</template>
 			<TTButton icon="cross" @click="disconnect()" :loading="loading" alert v-else>{{ $t("global.disconnect") }}</TTButton>
-			
+
 			<div class="card-item alert" v-if="error" @click="error=''">{{error}}</div>
 
 			<div class="legal">
@@ -103,7 +105,7 @@ import { Sine } from 'gsap';
 	public param_scope_moderate:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", icon:"mod", value:false, labelKey:"connexions.youtube.scope_moderate"};
 
 	public get connected():boolean { return YoutubeHelper.instance.connected && !this.requestNewScopes; }
-	public get selectedLiveId() { return YoutubeHelper.instance.currentLiveId; }
+	public get selectedLiveIds() { return YoutubeHelper.instance.currentLiveIds; }
 	public get broadcastList() { return YoutubeHelper.instance.availableLiveBroadcasts; }
 
 	public getFormatedDate(date:string):string {
@@ -112,7 +114,7 @@ import { Sine } from 'gsap';
 
 	public getLiveClasses(live:YoutubeLiveBroadcast["items"][0]):string[] {
 		const classes:string[] = ["card-item", "live"];
-		if(live.snippet.liveChatId == this.selectedLiveId) classes.push("selected");
+		if(this.selectedLiveIds.includes(live.snippet.liveChatId)) classes.push("selected");
 		// if(live.status.recordingStatus == "recording") classes.push("primary");
 		// else classes.push("secondary");
 		return classes;
@@ -121,7 +123,7 @@ import { Sine } from 'gsap';
 	public async beforeMount():Promise<void> {
 		const youtubeAuthParams = this.$store.youtube.youtubeAuthParams;
 		if(youtubeAuthParams) {
-			this.open = true;	
+			this.open = true;
 			this.loading = true;
 
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:youtubeAuthParams.csrf});
@@ -168,8 +170,15 @@ import { Sine } from 'gsap';
 		YoutubeHelper.instance.disconnect()
 	}
 
-	public selectLiveId(id:string):void {
-		YoutubeHelper.instance.currentLiveId = id;
+	public toggleLiveId(id:string):void {
+		if(YoutubeHelper.instance.currentLiveIds.includes(id)) {
+			YoutubeHelper.instance.currentLiveIds = YoutubeHelper.instance.currentLiveIds.filter(v => v !== id);
+		}else{
+			YoutubeHelper.instance.currentLiveIds.push(id);
+			if(YoutubeHelper.instance.currentLiveIds.length > 3) {
+				YoutubeHelper.instance.currentLiveIds.shift();
+			}
+		}
 	}
 
 	public async refreshLiveInfo():Promise<void> {

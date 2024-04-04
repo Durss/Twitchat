@@ -2510,6 +2510,10 @@ export namespace TwitchatDataTypes {
 		 */
 		twitch_announcementColor?: "primary" | "purple" | "blue" | "green" | "orange";
 		/**
+		 * Get youtube live chat ID this message has been sent to
+		 */
+		youtube_liveId?: string;
+		/**
 		 * Raw IRC data of t he message
 		 */
 		raw_data?:any;
