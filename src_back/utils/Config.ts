@@ -11,7 +11,7 @@ export default class Config {
 	private static envName: EnvName;
 	private static confPath: string = "env.conf";
 	private static credentialsCache:Credentials;
-	
+
 	public static get maxTranslationsPerDay():number{ return 70; }
 	public static get lifetimeDonorStep():number{ return 89; }
 	public static get donorsList(): string { return this.DONORS_DATA_FOLDER + "donors.json"; }
@@ -98,8 +98,8 @@ export default class Config {
 	public static get PRODUCTION_USER_DATA_PATH_FROM_BETA(): string {
 		return this.getEnvData({
 			dev: path.join(__dirname, "/../../userData_fake_production/"),
-			beta: path.join(__dirname, "../../twitchat/userData/"),
-			prod: path.join(__dirname, "../../twitchat/userData/"),
+			beta: path.join(__dirname, "../../twitchat/data/userData/"),
+			prod: path.join(__dirname, "../../twitchat/data/userData/"),
 		});
 	}
 
@@ -156,7 +156,7 @@ export default class Config {
 			prod: path.join(this.DATA_ROOT, "/beta/"),
 		});
 	}
-	
+
 	/**
 	 * Folder containing donors infos
 	 */
@@ -175,7 +175,7 @@ export default class Config {
 			prod: path.join(this.DATA_ROOT, "/donors/"),
 		});
 	}
-	
+
 	/**
 	 * Folder containing patreon infos
 	 */
@@ -186,7 +186,7 @@ export default class Config {
 			prod: path.join(this.DATA_ROOT, "/patreon/"),
 		});
 	}
-	
+
 	/**
 	 * Folder containing discord data
 	 */
@@ -208,7 +208,7 @@ export default class Config {
 			prod: path.join(this.DATA_ROOT, "/kofi/"),
 		});
 	}
-	
+
 	/**
 	 * Paypal API endpoint
 	 */
@@ -219,7 +219,7 @@ export default class Config {
 			prod: "https://api-m.paypal.com",
 		});
 	}
-	
+
 	/**
 	 * External endpoint that manages donors through google sheet (not part of this repository)
 	 */
@@ -271,7 +271,7 @@ export default class Config {
 				console.log(LogStyle.Bright + LogStyle.BgGreen + LogStyle.FgWhite + str + LogStyle.Reset);
 				console.log(LogStyle.BgGreen + head + LogStyle.Reset);
 				console.log("\n");
-				
+
 			} else {
 				this.envName = "dev";
 				fs.writeFileSync(this.confPath, this.envName);
@@ -306,17 +306,17 @@ interface Credentials {
 	twitch_client_secret: string;
 	twitch_redirect_uri: string;
 	twitch_scopes: string[];
-	
+
 	spotify_client_id: string;
 	spotify_client_secret: string;
 	spotify_scopes: string;
 	spotify_redirect_uri: string;
-	
+
 	patreon_client_id:string;
 	patreon_client_secret:string;
 	patreon_scopes:string;
 	patreon_redirect_uri:string;
-	
+
 	patreon_my_uid:string;
 	patreon_client_id_server:string;
 	patreon_client_secret_server:string;
@@ -346,7 +346,7 @@ interface Credentials {
 	streamelements_client_id:string;
 	streamelements_client_secret:string;
 	streamelements_redirect_uri:string;
-	
+
 	tipeee_client_id:string;
 	tipeee_client_secret:string;
 	tipeee_redirect_uri:string;
