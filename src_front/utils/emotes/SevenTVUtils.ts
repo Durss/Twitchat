@@ -1,7 +1,7 @@
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
-* Created : 25/01/2022 
+* Created : 25/01/2022
 */
 export default class SevenTVUtils {
 
@@ -12,11 +12,11 @@ export default class SevenTVUtils {
 	private channelList:string[] = [];
 	private globalEmotesHashmaps:{[key:string]:SevenTVEmote} = {};
 	private channelEmotesHashmaps:{[key:string]:{[key:string]:SevenTVEmote}} = {};
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -76,9 +76,9 @@ export default class SevenTVUtils {
 		}
 		return res;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -94,8 +94,8 @@ export default class SevenTVUtils {
 
 	/**
 	 * Generates a fake IRC emote tag for future emotes parsing.
-	 * 
-	 * @param message 
+	 *
+	 * @param message
 	 * @returns string
 	 */
 	public generateEmoteTag(message:string, protectedRanges:boolean[]):string {
@@ -131,7 +131,7 @@ export default class SevenTVUtils {
 			if(!e.name) continue;//apparently some emotes have no name...
 			const name = e.name.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");//Escape regexp specific chars
 			const matches = [...message.matchAll(new RegExp(name, "gi"))];
-			
+
 			if(matches && matches.length > 0) {
 				//Current emote has been found
 				//Generate fake emotes data in the expected format:
@@ -167,8 +167,8 @@ export default class SevenTVUtils {
 
 	/**
 	 * Get a SevenTV emote data from its code
-	 * @param code 
-	 * @returns 
+	 * @param code
+	 * @returns
 	 */
 	public getEmoteFromCode(code:string):SevenTVEmote|null {
 		if(this.globalEmotesHashmaps[code]) {
@@ -202,8 +202,8 @@ export default class SevenTVUtils {
 	public async disable():Promise<void> {
 		this.enabled = false;
 	}
-	
-	
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -213,20 +213,23 @@ export default class SevenTVUtils {
 			const res = await fetch("https://7tv.io/v3/emote-sets/global");
 			const json = (await res.json()) as SevenTVEmoteSet;
 			json.emotes.forEach(e => {
-				this.globalEmotesHashmaps[e.data.name] = e.data;
+				e.data.name = e.name;
+				this.globalEmotesHashmaps[e.name] = e.data;
 			});
 		}catch(error) {
 			//
 		}
 	}
-	
+
 	private async loadChannelEmotes(channelId:string):Promise<void> {
+		channelId = "521255929";
 		try {
 			const res = await fetch("https://7tv.io/v3/users/twitch/"+channelId);
 			const json = (await res.json()) as SevenTVResult;
 			this.channelEmotesHashmaps[channelId] = {};
 			json.emote_set.emotes.forEach(e => {
-				this.channelEmotesHashmaps[channelId][e.data.name] = e.data;
+				e.data.name = e.name;
+				this.channelEmotesHashmaps[channelId][e.name] = e.data;
 			});
 		}catch(error) {
 			//
@@ -307,9 +310,6 @@ interface SevenTVEmoteSet {
 	privileged: boolean;
 	emotes: {
 		id: string;
-		/**
-		 * @deprecated don't use this ! Use data.name instead. This value contains invalid emote names
-		 */
 		name: string;
 		flags: number;
 		timestamp: number;

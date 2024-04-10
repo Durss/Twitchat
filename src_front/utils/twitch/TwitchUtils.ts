@@ -3019,7 +3019,6 @@ export default class TwitchUtils {
 					}
 					result.splice(i+subIndex, 0, node);
 					subIndex++;
-					i++
 				})
 			}
 		}

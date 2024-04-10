@@ -150,13 +150,13 @@ export default class Config {
 	 * Maxium number of distortion overlays for premium
 	 */
 	public MAX_DISTORTION_OVERLAYS_PREMIUM = 20;
-	
+
 	private _serverConfig!:ServerConfig;
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -174,7 +174,7 @@ export default class Config {
 	public get debugChans():{platform:TwitchatDataTypes.ChatPlatform, login:string}[] {
 		if(this.IS_PROD) return [];
 		return [
-			{platform:"twitch", login:"mewstelle"},
+			// {platform:"twitch", login:"mewstelle"},
 			// {platform:"twitch", login:"tainalo2"},
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},
@@ -299,7 +299,7 @@ export default class Config {
 			should_redemptions_skip_request_queue: false,
 		}
 	}
-	
+
 	/**
 	 * Fake Twitch "highlight my message" reward
 	 */
@@ -343,9 +343,9 @@ export default class Config {
 			should_redemptions_skip_request_queue: false,
 		}
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -356,9 +356,9 @@ export default class Config {
 	public getParamByKey(key:string):unknown {
 		return this[key as keyof typeof Config.instance];
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
