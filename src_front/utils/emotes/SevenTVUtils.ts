@@ -222,7 +222,6 @@ export default class SevenTVUtils {
 	}
 
 	private async loadChannelEmotes(channelId:string):Promise<void> {
-		channelId = "521255929";
 		try {
 			const res = await fetch("https://7tv.io/v3/users/twitch/"+channelId);
 			const json = (await res.json()) as SevenTVResult;
