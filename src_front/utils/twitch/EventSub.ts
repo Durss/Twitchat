@@ -9,7 +9,7 @@ import TwitchUtils from "./TwitchUtils";
 import Logger from "../Logger";
 
 /**
-* Created : 02/12/2022 
+* Created : 02/12/2022
 */
 export default class EventSub {
 
@@ -20,11 +20,11 @@ export default class EventSub {
 	private keepalive_timeout_seconds!:number;
 	private lastRecentFollowers:TwitchatDataTypes.MessageFollowingData[] = [];
 	private connectURL:string = "";
-	
+
 	constructor() {
 		this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -34,9 +34,9 @@ export default class EventSub {
 		}
 		return EventSub._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -50,7 +50,7 @@ export default class EventSub {
 		if(disconnectPrevious && this.socket) {
 			this.cleanupSocket(this.socket);
 		}
-		
+
 		//Delete all previous event sub subscriptions
 		/*
 		try {
@@ -73,7 +73,7 @@ export default class EventSub {
 		this.socket = new WebSocket(this.connectURL);
 
 		this.socket.onopen = async () => { };
-		
+
 		this.socket.onmessage = (event:unknown) => {
 			const e = event as {data:string};
 			const message = JSON.parse(e.data);
@@ -103,22 +103,22 @@ export default class EventSub {
 					this.parseEvent(message.metadata.subscription_type, message.payload);
 					break;
 				}
-				
+
 				default: {
 					console.warn(`Unknown eventsub message type: ${message.metadata.message_type}`);
 				}
 			}
 		};
-		
+
 		this.socket.onclose = (event) => {
 			//Twitch asked us to reconnect socket at a new URL, which we did
 			//but deconnection of the old socket (current one) wasn't done.
 			if(event.code == 4004) return;
-			
+
 			//Connection was created but we subscribed to no topic, twitch
 			//closed the connection
 			if(event.code == 4003) return;
-			
+
 			this.connectURL = Config.instance.TWITCH_EVENTSUB_PATH;
 
 			// console.log("EVENTSUB : Closed");
@@ -127,7 +127,7 @@ export default class EventSub {
 				this.connect();
 			}, 1000);
 		};
-		
+
 		this.socket.onerror = (error) => {
 			console.log(error);
 		};
@@ -157,27 +157,27 @@ export default class EventSub {
 			}
 		}
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	/**
 	 * Reconnects the socket without recreating all subscriptions
 	 * when twitch sends a "session_reconnect" frame
-	 * @param url 
+	 * @param url
 	 */
 	private reconnect(url:string):void {
 		this.oldSocket = this.socket;
 		this.connectURL = url;
 		this.connect(false);
 	}
-	
+
 	/**
 	 * Cleanups a socket connection
-	 * 
-	 * @param socket 
+	 *
+	 * @param socket
 	 */
 	private cleanupSocket(socket:WebSocket):void {
 		socket.onmessage = null;
@@ -243,13 +243,13 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN, "1");
 				}
 				if(TwitchUtils.hasScopes([TwitchScopes.UNBAN_REQUESTS])) {
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "beta");
-					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "beta");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW, "1");
+					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED, "1");
 				}
-				
+
 				//Don't need to listen for this event for anyone else but the broadcaster
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.RAID, "1", {from_broadcaster_user_id:uid});
-				
+
 				//Used by online/offline triggers
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON, "1");
 				TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.STREAM_OFF, "1");
@@ -276,7 +276,7 @@ export default class EventSub {
 					TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.HYPE_TRAIN_END, "1");
 				}
 				//*/
-				
+
 				//Not using those as IRC does it better
 				// if(TwitchUtils.hasScope(TwitchScopes.LIST_SUBS)) {
 					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.SUB, "1");
@@ -289,7 +289,7 @@ export default class EventSub {
 				// if(TwitchUtils.hasScope(TwitchScopes.READ_CHEER)) {
 					// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.BITS, "1");
 				// }
-				
+
 				//Don't need it
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_CREATE, "1");
 				// TwitchUtils.eventsubSubscribe(uid, myUID, sessionId, TwitchEventSubDataTypes.SubscriptionTypes.REWARD_UPDATE, "1");
@@ -334,7 +334,7 @@ export default class EventSub {
 				this.raidEvent(topic, payload.event as TwitchEventSubDataTypes.RaidEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.BAN: {
 				this.banEvent(topic, payload.event as TwitchEventSubDataTypes.BanEvent);
 				break;
@@ -360,25 +360,25 @@ export default class EventSub {
 				this.streamStartStopEvent(topic, payload.event as TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_STOP:
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START: {
 				this.shieldModeEvent(topic, payload.event as TwitchEventSubDataTypes.ShieldModeStartEvent | TwitchEventSubDataTypes.ShieldModeStopEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN:
 			case TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_OUT: {
 				this.shoutoutEvent(topic, payload.event as TwitchEventSubDataTypes.ShoutoutInEvent | TwitchEventSubDataTypes.ShoutoutOutEvent);
 				break;
 			}
-			
+
 			case TwitchEventSubDataTypes.SubscriptionTypes.AD_BREAK_BEGIN: {
 				this.adBreakEvent(topic, payload.event as TwitchEventSubDataTypes.AdBreakEvent);
 				break;
 			}
-			
-			case TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW: 
+
+			case TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW:
 			case TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED: {
 				this.unbanRequestEvent(topic, payload.event as TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent);
 				break;
@@ -389,12 +389,12 @@ export default class EventSub {
 
 	/**
 	 * Called when enabling or disabling shield mode
-	 * @param topic 
-	 * @param payload 
+	 * @param topic
+	 * @param payload
 	 */
 	private shieldModeEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ShieldModeStartEvent | TwitchEventSubDataTypes.ShieldModeStopEvent):void {
 		const enabled	= topic === TwitchEventSubDataTypes.SubscriptionTypes.SHIELD_MODE_START;
-				
+
 		if(StoreProxy.stream.shieldModeEnabled == enabled) return;
 
 		const message = StoreProxy.i18n.t("global.moderation_action.shield_"+(enabled?"on":"off"), {MODERATOR:event.moderator_user_name});
@@ -421,8 +421,8 @@ export default class EventSub {
 
 	/**
 	 * Called when updating stream infos
-	 * @param topic 
-	 * @param payload 
+	 * @param topic
+	 * @param payload
 	 */
 	private async updateStreamInfosEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ChannelUpdateEvent):Promise<void> {
 		const title:string = event.title;
@@ -481,12 +481,12 @@ export default class EventSub {
 
 	/**
 	 * Called when someone follows
-	 * @param topic 
-	 * @param payload 
+	 * @param topic
+	 * @param payload
 	 */
 	private followEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.FollowEvent):void {
 		if(StoreProxy.users.isAFollower("twitch", event.user_id)) return;
-		
+
 		const channelId = StoreProxy.auth.twitch.user.id;
 
 		const message:TwitchatDataTypes.MessageFollowingData = {
@@ -499,7 +499,7 @@ export default class EventSub {
 			followed_at: Date.now(),
 		};
 		// message.user.channelInfo[channelId].online = true;
-		
+
 		this.lastRecentFollowers.push( message );
 		if(this.lastRecentFollowers.length > 1) {
 			//duration between 2 follow events to consider them as a follow streak
@@ -542,9 +542,9 @@ export default class EventSub {
 	 * Called when subscribing to the channel.
 	 * A subgift will appear as a normal gift with "is_gift" flag set to true but there's apparently no way
 	 * to know who subgifted the user.
-	 * 
-	 * @param topic 
-	 * @param event 
+	 *
+	 * @param topic
+	 * @param event
 	 */
 	private subscriptionEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.SubEvent | TwitchEventSubDataTypes.SubRenewEvent):void {
 		const sub = event as TwitchEventSubDataTypes.SubEvent;
@@ -584,9 +584,9 @@ export default class EventSub {
 
 	/**
 	 * Called when receiving bits
-	 * 
-	 * @param topic 
-	 * @param event 
+	 *
+	 * @param topic
+	 * @param event
 	 */
 	private async bitsEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BitsEvent):Promise<void> {
 
@@ -617,9 +617,9 @@ export default class EventSub {
 
 	/**
 	 * Called when receiving or doing a raid
-	 * 
-	 * @param topic 
-	 * @param event 
+	 *
+	 * @param topic
+	 * @param event
 	 */
 	private async raidEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.RaidEvent):Promise<void> {
 		const me = StoreProxy.auth.twitch.user;
@@ -669,8 +669,8 @@ export default class EventSub {
 
 	/**
 	 * Called when banning a user either permanently or temporarilly
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async banEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.BanEvent):Promise<void> {
 		const bannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name)
@@ -684,17 +684,17 @@ export default class EventSub {
 			user:bannedUser,
 			moderator,
 		};
-		
+
 		if(!event.is_permanent) {
 			m.duration_s = Math.round((new Date(event.ends_at).getTime() - new Date(event.banned_at).getTime()) / 1000);
 		}
-		
+
 		//Flag as banned. This also populates the ban reason of the user
 		await StoreProxy.users.flagBanned("twitch", event.broadcaster_user_id, event.user_id, m.duration_s);
 		m.reason = bannedUser.channelInfo[event.broadcaster_user_id].banReason;
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	private unbanEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanEvent):void {
 		const unbannedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.moderator_user_id, event.moderator_user_login, event.moderator_user_name);
@@ -707,11 +707,11 @@ export default class EventSub {
 			user:unbannedUser,
 			moderator,
 		};
-		
+
 		StoreProxy.users.flagUnbanned("twitch", event.broadcaster_user_id, event.user_id);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	private modAddEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorAddEvent):void {
 		const modedUser	= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
@@ -728,7 +728,7 @@ export default class EventSub {
 		StoreProxy.users.flagMod("twitch", event.broadcaster_user_id, modedUser.id);
 		StoreProxy.chat.addMessage(m);
 	}
-	
+
 	private modRemoveEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ModeratorRemoveEvent):void {
 		const modedUser		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name);
 		const moderator		= StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.broadcaster_user_id, event.broadcaster_user_login, event.broadcaster_user_name);
@@ -748,8 +748,8 @@ export default class EventSub {
 
 	/**
 	 * Called when stream starts or stops
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async streamStartStopEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.StreamOnlineEvent | TwitchEventSubDataTypes.StreamOfflineEvent):Promise<void> {
 		const streamInfo = StoreProxy.stream.currentStreamInfo[event.broadcaster_user_id]!;
@@ -768,7 +768,7 @@ export default class EventSub {
 			StoreProxy.stream.setPlaybackState(event.broadcaster_user_id, undefined);
 			StoreProxy.stream.setStreamStop(event.broadcaster_user_id);
 			((message as unknown) as TwitchatDataTypes.MessageStreamOfflineData).type = TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE;
-			
+
 		//Stream online
 		}else if(topic === TwitchEventSubDataTypes.SubscriptionTypes.STREAM_ON) {
 			//Load stream info
@@ -794,13 +794,13 @@ export default class EventSub {
 
 	/**
 	 * Called when stream starts or stops
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async shoutoutEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.ShoutoutInEvent | TwitchEventSubDataTypes.ShoutoutOutEvent):Promise<void> {
 		const so_in		= event as TwitchEventSubDataTypes.ShoutoutInEvent;
 		const so_out	= event as TwitchEventSubDataTypes.ShoutoutOutEvent;
-		
+
 		const received = topic == TwitchEventSubDataTypes.SubscriptionTypes.SHOUTOUT_IN;
 		let user!:TwitchatDataTypes.TwitchatUser;
 		let moderator = user;
@@ -810,7 +810,7 @@ export default class EventSub {
 			user		= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.to_broadcaster_user_id, so_out.to_broadcaster_user_login, so_out.to_broadcaster_user_name);
 			moderator	= StoreProxy.users.getUserFrom("twitch", so_out.broadcaster_user_id, so_out.moderator_user_id, so_out.moderator_user_login, so_out.moderator_user_name);
 		}
-		
+
 		let title:string = "";
 		let category:string = "";
 		const [stream] = await TwitchUtils.loadCurrentStreamInfo([user.id]);
@@ -822,7 +822,7 @@ export default class EventSub {
 			title = stream.title;
 			category = stream.game_name;
 		}
-		
+
 		const channel_id = event.broadcaster_user_id;
 		const message:TwitchatDataTypes.MessageShoutoutData = {
 			id:Utils.getUUID(),
@@ -859,7 +859,7 @@ export default class EventSub {
 			StoreProxy.users.pendingShoutouts[channel_id] = list;
 		}
 	}
-	
+
 	/**
 	 * Called when an Ad break is started.
 	 * Either manually or automatically.
@@ -885,11 +885,11 @@ export default class EventSub {
 			TwitchUtils.getAdSchedule()
 		}, infos.currentAdDuration_ms + 60000);
 	}
-	
+
 	/**
 	 * Called when receiving a new unban request or when resolving an existing one
-	 * @param topic 
-	 * @param event 
+	 * @param topic
+	 * @param event
 	 */
 	private async unbanRequestEvent(topic:TwitchEventSubDataTypes.SubscriptionStringTypes, event:TwitchEventSubDataTypes.UnbanRequestEvent | TwitchEventSubDataTypes.UnbanRequestResolveEvent):Promise<void> {
 		let message:TwitchatDataTypes.MessageUnbanRequestData = {
@@ -897,7 +897,7 @@ export default class EventSub {
 			date:Date.now(),
 			id:Utils.getUUID(),
 			platform:"twitch",
-			type:TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST, 
+			type:TwitchatDataTypes.TwitchatMessageType.UNBAN_REQUEST,
 			user:await StoreProxy.users.getUserFrom("twitch", event.broadcaster_user_id, event.user_id, event.user_login, event.user_name),
 			isResolve:false,
 			message:"",
@@ -905,7 +905,7 @@ export default class EventSub {
 		if(topic == TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_NEW) {
 			event = event as TwitchEventSubDataTypes.UnbanRequestEvent;
 			message.message = event.text;
-			
+
 		}else if(topic == TwitchEventSubDataTypes.SubscriptionTypes.UNBAN_REQUEST_RESOLVED) {
 			event = event as TwitchEventSubDataTypes.UnbanRequestResolveEvent;
 			message.isResolve	= true;
