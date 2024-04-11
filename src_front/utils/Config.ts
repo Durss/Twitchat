@@ -179,6 +179,9 @@ export default class Config {
 			// {platform:"twitch", login:"xurei"},
 			// {platform:"twitch", login:"shakawah"},
 			// {platform:"twitch", login:"durssbot"},
+			{platform:"twitch", login:"devgirl_"},
+			{platform:"twitch", login:"bubuchenbois"},
+			{platform:"twitch", login:"codemiko"},
 		];
 	}
 

@@ -3013,13 +3013,21 @@ export default class TwitchUtils {
 						type:islink? "url" : "text",
 						value:v,
 					};
+
+					result.splice(i+subIndex, 0, node);
+					subIndex++;
+
 					if(islink) {
 						const href = !/^https?/gi.test(v)? "https://"+v : v;
 						node.href = href;
+					}else{
+						i ++;
 					}
-					result.splice(i+subIndex, 0, node);
-					subIndex++;
 				})
+			}
+			if(result.length > 1000) {
+				console.log("INIFINITE LOOP DETECTED !", result)
+				break;
 			}
 		}
 
