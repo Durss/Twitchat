@@ -588,8 +588,8 @@ export default class MessengerProxy {
 					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}
-				if(parseInt(params[1]).toString() === params[1]) {
-					payload.customValueTolerance = Math.min(5, Math.max(0, parseInt(params[1]))) || 3;
+				if(params.length > 2 && parseInt(params[1]).toString() === params[1]) {
+					payload.customValueTolerance = Math.min(5, Math.max(0, parseInt(params[1]))) ?? 3;
 					payload.customValue = params.slice(2).join(" ");
 				}else{
 					payload.customValueTolerance = 3;
@@ -597,6 +597,7 @@ export default class MessengerProxy {
 				}
 				payload.guessCustom = true;
 			}else {
+				StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 				return false;
 			}
 

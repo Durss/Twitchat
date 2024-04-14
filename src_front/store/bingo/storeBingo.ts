@@ -41,7 +41,7 @@ export const storeBingo = defineStore('bingo', {
 				data.numberValue = Math.round(Math.random() * (data.max-data.min) + data.min);
 			}
 			this.data = data;
-			
+
 			if(sChat.botMessages.bingoStart.enabled) {
 				let message = sChat.botMessages.bingoStart.message;
 				let goal = "";
@@ -56,26 +56,33 @@ export const storeBingo = defineStore('bingo', {
 		},
 
 		stopBingo() { this.data = null; },
-		
+
 		checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void {
 			if(!this.data) return;
 			if(this.data.winners && this.data.winners.length > 0) return;
 
 			const sChat = StoreProxy.chat;
 			const bingo = this.data;
-			const num = bingo.numberValue;
-			const emote = bingo.emoteValue && bingo.emoteValue[message.user.platform];
-			const custom = (bingo.customValue || "").trim().toLowerCase();
+			let win = false;
 			const cleanMess = (message.message || "").trim().toLowerCase();
-			let win = parseInt((message.message || "")) == num;
-			win ||= emote != undefined && cleanMess.indexOf(emote.code.toLowerCase()) === 0;
-			const tolerancePercent = (bingo.customValueTolerance ?? 0)/5;//divide by 5 because there are 6 tolerance levels (0 -> 5)
-			//Allow to fail, at most, half of the expected word
-			const tolerance = tolerancePercent * custom.length / 2;
-			if(tolerance > 0) {
-				win ||= Utils.levenshtein(cleanMess, custom) <= tolerance;
-			}else{
-				win ||= cleanMess == custom;
+			if(bingo.guessNumber) {
+				const num = bingo.numberValue;
+				win = parseInt((message.message || "")) == num;
+			}else
+			if(bingo.guessEmote && bingo.emoteValue) {
+				const emote = bingo.emoteValue[message.user.platform];
+				win = emote != undefined && cleanMess.indexOf(emote.code.toLowerCase()) === 0;
+			}else
+			if(bingo.guessCustom) {
+				const custom = (bingo.customValue || "").trim().toLowerCase();
+				const tolerancePercent = (bingo.customValueTolerance ?? 0)/5;//divide by 5 because there are 6 tolerance levels (0 -> 5)
+				//Allow to fail, at most, half of the expected word
+				const tolerance = tolerancePercent * custom.length / 2;
+				if(tolerance > 0) {
+					win ||= Utils.levenshtein(cleanMess, custom) <= tolerance;
+				}else{
+					win ||= cleanMess == custom;
+				}
 			}
 			if(win) {
 				//Someone won
