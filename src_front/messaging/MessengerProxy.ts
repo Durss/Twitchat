@@ -14,10 +14,10 @@ import { LoremIpsum } from "lorem-ipsum";
 import MessengerClientEvent from "./MessengerClientEvent";
 import TwitchMessengerClient from "./TwitchMessengerClient";
 /**
-* Created : 26/09/2022 
+* Created : 26/09/2022
 */
 export default class MessengerProxy {
-	
+
 	private static _instance:MessengerProxy;
 
 	private joinSpool:{channelId:string, user:TwitchatDataTypes.TwitchatUser}[] = [];
@@ -25,11 +25,11 @@ export default class MessengerProxy {
 	private joinSpoolTimeout:number = -1;
 	private leaveSpoolTimeout:number = -1;
 	private spamInterval:number = -1;
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -40,18 +40,18 @@ export default class MessengerProxy {
 		}
 		return MessengerProxy._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	/**
 	 * Sends a message
-	 * 
-	 * @param message 
-	 * @param targetPlatforms 
-	 * @param channelId 
+	 *
+	 * @param message
+	 * @param targetPlatforms
+	 * @param channelId
 	 * @return if the message has been sent properly (chat field is cleared if this returns true)
 	 */
 	public async sendMessage(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string, replyTo?:TwitchatDataTypes.MessageChatData, noConfirm:boolean = false):Promise<boolean> {
@@ -92,9 +92,9 @@ export default class MessengerProxy {
 		clearInterval(this.spamInterval);
 		StoreProxy.chat.spamingFakeMessages = false;
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -119,7 +119,7 @@ export default class MessengerProxy {
 
 	/**
 	 * Called when a new message is received
-	 * @param e 
+	 * @param e
 	 */
 	private onMessage(e:MessengerClientEvent):void {
 		if(e.data && typeof e.data != "string") {//Typeof check only here for linting
@@ -139,7 +139,7 @@ export default class MessengerProxy {
 	/**
 	 * Called when users join/leave.
 	 * This merges multiple sequential join/leave events in one single message
-	 * @param e 
+	 * @param e
 	 */
 	private onJoinLeave(e:MessengerClientEvent):void {
 		const d = e.data as TwitchatDataTypes.MessageJoinData | TwitchatDataTypes.MessageLeaveData;
@@ -147,11 +147,11 @@ export default class MessengerProxy {
 			for (let i = 0; i < d.users.length; i++) {
 				this.joinSpool.push({user:d.users[i], channelId:d.channel_id});
 			}
-			
+
 			clearTimeout(this.joinSpoolTimeout);
 			this.joinSpoolTimeout = setTimeout(()=> {
 				const d = e.data! as TwitchatDataTypes.MessageJoinData;
-				
+
 				//Split join events by channels
 				const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
 				for (let i = 0; i < this.joinSpool.length; i++) {
@@ -159,7 +159,7 @@ export default class MessengerProxy {
 					if(!channels[entry.channelId]) channels[entry.channelId] = [];
 					channels[entry.channelId].push(entry.user);
 				}
-				
+
 				//Send one message per channel
 				for (const channel in channels) {
 					this.onMessage(new MessengerClientEvent("JOIN", {
@@ -172,19 +172,19 @@ export default class MessengerProxy {
 					}));
 					StoreProxy.users.flagOnlineUsers(channels[channel], channel);
 				}
-				
+
 				this.joinSpool = [];
 			}, 1000);
 		}
-		
+
 		if(e.type === MessengerClientEvent.LEAVE) {
 			this.leaveSpool.push({user:d.users[0], channelId:d.channel_id});
-			
+
 			clearTimeout(this.leaveSpoolTimeout);
 			this.leaveSpoolTimeout = setTimeout(()=> {
 				try {
 					const d = e.data! as TwitchatDataTypes.MessageJoinData;
-					
+
 					//Split leave events by channels
 					const channels:{[key:string]:TwitchatDataTypes.TwitchatUser[]} = {}
 					for (let i = 0; i < this.leaveSpool.length; i++) {
@@ -192,7 +192,7 @@ export default class MessengerProxy {
 						if(!channels[entry.channelId]) channels[entry.channelId] = [];
 						channels[entry.channelId].push(entry.user);
 					}
-					
+
 					//Send one message per channel
 					for (const channel in channels) {
 						this.onMessage(new MessengerClientEvent("LEAVE", {
@@ -205,7 +205,7 @@ export default class MessengerProxy {
 						}));
 						StoreProxy.users.flagOfflineUsers(channels[channel], channel);
 					}
-					
+
 					this.leaveSpool = [];
 				}catch(error) {
 					console.error(error);
@@ -225,7 +225,7 @@ export default class MessengerProxy {
 	}
 
 	private async handleTwitchatCommands(message:string, targetPlatforms?:TwitchatDataTypes.ChatPlatform[], channelId?:string):Promise<boolean> {
-		
+
 		const params = message.split(/\s/gi).filter(v => v != "");
 		const cmd = params.shift()?.toLowerCase();
 		params.forEach((v, i) => { params[i] = v.trim() });
@@ -234,7 +234,7 @@ export default class MessengerProxy {
 		const hasChannelPoints = StoreProxy.auth.twitch.user.is_affiliate || StoreProxy.auth.twitch.user.is_partner;
 		const me = StoreProxy.auth.twitch.user;
 		const chunks = TwitchUtils.parseMessageToChunks(message);
-		
+
 		//Check if the command matches one of the custom slash commands
 		//created on the triggers
 		const triggerCommands = StoreProxy.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand);
@@ -308,7 +308,7 @@ export default class MessengerProxy {
 			StoreProxy.timer.timerAdd(duration * 1000);
 			return true;
 		}else
-		
+
 		if(cmd == "/timerremove") {
 			const duration = this.paramsToDuration(params[0]);
 			StoreProxy.timer.timerRemove(duration * 1000);
@@ -462,7 +462,7 @@ export default class MessengerProxy {
 			}
 			return true;
 		}
-				
+
 		if(cmd == "/logself") {
 			console.log(me);
 			return true;
@@ -551,7 +551,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/setstreamtags") {
-			const tags = params.map(v=> 
+			const tags = params.map(v=>
 				Utils.replaceDiacritics(v).replace(/[^a-z0-9]/gi, "").substring(0, 25).trim()
 			)
 			.filter(v => v.length > 0);
@@ -572,7 +572,7 @@ export default class MessengerProxy {
 				if(params.length < 3
 				|| parseInt(params[1]).toString() != params[1]
 				|| parseInt(params[2]).toString() != params[2]){
-					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo')+params);
+					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}else{
 					payload.guessNumber = true;
@@ -585,13 +585,21 @@ export default class MessengerProxy {
 
 			}else if(params[0] == "custom") {
 				if(params.length < 2) {
-					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo')+params);
+					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}
+				if(parseInt(params[1]).toString() === params[1]) {
+					payload.customValueTolerance = Math.min(5, Math.max(0, parseInt(params[1]))) || 3;
+					payload.customValue = params.slice(2).join(" ");
+				}else{
+					payload.customValueTolerance = 3;
+					payload.customValue = params.slice(1).join(" ");
+				}
 				payload.guessCustom = true;
-				payload.customValue = params[1];
+			}else {
+				return false;
 			}
-			
+
 			StoreProxy.bingo.startBingo(payload);
 			return true;
 		}else
@@ -613,7 +621,7 @@ export default class MessengerProxy {
 				return true;
 			}
 		}else
-		
+
 		if(isAdmin && cmd == "/fakeso" || cmd == "/fakeshoutout") {
 			const fakeUsers = await TwitchUtils.getFakeUsers();
 			let user = Utils.pickRand(fakeUsers);
@@ -669,9 +677,9 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/simulatechat" || cmd == "/spam" || cmd == "/megaspam") {
-			
+
 			clearInterval(this.spamInterval);
-			
+
 			const incMode = params[0] == "inc";
 			let count = parseInt(params[0]);
 			const countMode = count.toString() == params[0];
@@ -695,7 +703,7 @@ export default class MessengerProxy {
 			}
 			let inc = 0;
 			StoreProxy.chat.spamingFakeMessages = !countMode;
-			
+
 			this.spamInterval = window.setInterval(()=> {
 				if(incMode) {
 					StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageChatData>(TwitchatDataTypes.TwitchatMessageType.MESSAGE, (m)=>{
@@ -732,7 +740,7 @@ export default class MessengerProxy {
 										sd: reward.image!.url_1x,
 										hd: reward.image!.url_4x,
 									},
-									id: rewardId, 
+									id: rewardId,
 									title: reward.title
 								}
 							}
@@ -795,7 +803,7 @@ export default class MessengerProxy {
 			}
 			return true;
 		}
-		
+
 		return false;
 	}
 

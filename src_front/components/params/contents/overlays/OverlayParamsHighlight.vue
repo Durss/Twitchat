@@ -5,15 +5,15 @@
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
 			<Icon name="newtab" theme="light" />
 		</a>
-		
+
 		<div class="header">{{ $t("overlay.highlight.instruction") }}</div>
-		
+
 		<section class="card-item">
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
 			<OverlayInstaller type="chathighlight" @obsSourceCreated="getOverlayPresence(true)" />
-	
+
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.highlight.css") }}</div>
 				<ul class="cssStructure">
@@ -79,21 +79,21 @@
 			</div>
 
 			<div class="center" v-if="overlayExists">
-				<Button @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</Button>
+				<TTButton @click="testOverlay()" icon="test">{{ $t('overlay.highlight.testBt') }}</TTButton>
 			</div>
 
 			<Icon class="center loader card-item" name="loader" v-else-if="checkingOverlayPresence" />
-			
+
 			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
-		
-		<div class="card-item footer">
+
+		<!-- <div class="card-item footer">
 			<i18n-t scope="global" tag="div" keypath="overlay.highlight.alternative_tool">
 				<template #URL>
 					<a href="https://featured.chat" target="_blank">featured.chat</a>
 				</template>
 			</i18n-t>
-		</div>
+		</div> -->
 	</div>
 </template>
 
@@ -111,17 +111,19 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import OverlayInstaller from './OverlayInstaller.vue';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ToggleBlock,
 		OverlayInstaller,
 		PlacementSelector,
 	}
 })
  class OverlayParamsHighlight extends Vue {
-	
+
 	public overlayExists = false;
 	public checkingOverlayPresence = false;
 	public placement:TwitchatDataTypes.ScreenPosition = "bl";
@@ -129,7 +131,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
-	
+
 	public beforeMount(): void {
 		this.placement = this.$store.chat.chatHighlightOverlayParams.position;
 
@@ -176,7 +178,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			sentencesPerParagraph: { max: 3, min: 1 },
 			wordsPerSentence: { max: 16, min: 4 }
 		});
-		
+
 		const uid = StoreProxy.auth.twitch.user.id;
 		const text = lorem.generateParagraphs(1)+" TakeNRG";
 		const chunks = TwitchUtils.parseMessageToChunks(text, undefined, true);

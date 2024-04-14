@@ -45,7 +45,7 @@
 		"prediction_outcome": "Une erreur a eu lieu lors de la sélection de l'entrée gagnante",
 		"prediction_delete": "Une erreur a eu lieu lors de la suppression de la prédiction",
 		"prediction_error": "Unable to create prediction: {MESSAGE}",
-		"invalid_bingo": "Paramètres de bingo invalides: ",
+		"invalid_bingo": "Paramètres de bingo invalides.",
 		"shoutout_cooldown": "Vous devez attendre avant de pouvoir effectuer un autre shoutout",
 		"user_not_found": "L'utilisateur demandé n'existe pas",
 		"clip_creation": "La création du clip a échoué",
