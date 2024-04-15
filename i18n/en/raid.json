@@ -10,10 +10,11 @@
 		"follower_only": "Follower only",
 		"last_raided_user": "Your last raid",
 		"last_raid_date": "Raided {DATE} ago",
-		"spam_linkBt": "Spam link to channel",
+		"spam_linkBt": "Spam link to channel 10x",
 		"stream_summaryBt": "Stream summary",
 		"raid_liveBt": "Live channels",
 		"raid_historyBt": "Raid history",
+		"target_channel_previous_raid": "Your last raid was on this same channel.",
 		"target_channel_offline": "The channel you're raiding is offline!"
 	}
 }

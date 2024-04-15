@@ -155,6 +155,14 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification :aria-label="$t('chat.form.raidBt_aria')"
+						icon="raid"
+						v-if="$store.stream.currentRaid != null"
+						v-tooltip="$t('chat.form.raidBt_aria')"
+						@click="openNotifications('raid')" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification :aria-label="$t('chat.form.pinsBt_aria')"
 						icon="save"
 						v-if="$store.chat.pinedMessages.length > 0"

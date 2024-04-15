@@ -8,14 +8,14 @@
 				:style="getColStyles(c)">
 					<div class="subHolder" v-if="buildIndex >= index">
 						<GreetThem class="greetThem" v-if="greetColIndexTarget == c.order && $store.params.features.firstMessage.value === true" />
-	
+
 						<MessageList ref="messages" class="messages"
 							@showModal="(v:TwitchatDataTypes.ModalTypes) => $store.params.openModal(v)"
 							@addColumn="addColumn"
 							:config="c"
 							filterId="chat"/>
 					</div>
-		
+
 					<div class="dragBt"
 						v-if="$store.params.chatColumnsConfig.length > 1
 						&& (c.order == 0 || $store.params.chatColumnsConfig.length > 2)"
@@ -121,9 +121,9 @@
 		<EndingCreditsControls class="contentWindows credits"
 			v-if="showCredits"
 			@close="showCredits = false" />
-		
+
 		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
-		
+
 		<EmergencyFollowsListModal v-if="showEmergencyFollows && !forceEmergencyFollowClose" @close="forceEmergencyFollowClose=true" />
 
 		<DonorBadge ref="donor" class="donorState" v-if="showDonorBadge" @click="closeDonorCard()" />
@@ -131,11 +131,11 @@
 		<Changelog v-if="$store.params.currentModal == 'updates'" @close="$store.params.closeModal()" />
 
 		<Gngngn v-if="$store.params.currentModal == 'gngngn'" @close="$store.params.closeModal()" />
-		
+
 		<Login v-if="$store.auth.newScopesToRequest.length > 0" scopeOnly />
 
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
-		
+
 		<Accessibility />
 
 		<div class="blinkLayer" ref="blinkLayer" v-if="showBlinkLayer" @click="showBlinkLayer=false"></div>
@@ -269,7 +269,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	public panelsColumnTarget:HTMLDivElement|null = null;
 	public currentNotificationContent:TwitchatDataTypes.NotificationTypes = "";
 	public mustDisableItems_precalc:boolean = false;
-	
+
 	private disposed = false;
 	private mouseX = 0;
 	private mouseY = 0;
@@ -278,11 +278,11 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	private resizing = false;
 	private closingDonorState = false;
 	private draggedCol:TwitchatDataTypes.ChatColumnsConfig|null = null;
-	
+
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
-	
+
 	public get splitViewVertical():boolean { return this.$store.params.appearance.splitViewVertical.value as boolean; }
 	public get showEmergencyFollows():boolean { return this.$store.emergency.follows.length > 0 && !this.$store.emergency.emergencyStarted; }
 	public get mustDisableItems():boolean { return this.mustDisableItems_precalc && !this.$store.auth.isPremium; }
@@ -324,7 +324,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		this.showDonorBadge = StoreProxy.auth.twitch.user.donor.state && StoreProxy.auth.twitch.user.donor.upgrade===true;
 
 		this.mustDisableItems_precalc = this.$store.main.nonPremiumLimitExceeded;
-		
+
 		// Function that attempts to request a screen wake lock.
 		const requestWakeLock = async () => {
 			try {
@@ -340,6 +340,11 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 			let prediction = this.$store.prediction.data;
 			const isNew = !prevValue || (newValue && prevValue.id != newValue.id);
 			if(prediction && prediction.pendingAnswer || isNew) this.setCurrentNotification("prediction", false);
+		});
+
+		//Auto opens the raid status
+		watch(() => this.$store.stream.currentRaid, (newValue, prevValue) => {
+			if(newValue && !prevValue) this.setCurrentNotification("raid", false);
 		});
 
 		//Auto opens the poll status if terminated
@@ -388,7 +393,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		watch(() => this.$store.main.chatAlert, async () => {
 			if(this.$store.main.chatAlert != null) {
 				if(this.$store.params.features.alertMode.value !== true) return;
-				
+
 				const params = this.$store.main.chatAlertParams;
 				gsap.killTweensOf(this.$el);
 				if(params.shake) {
@@ -533,7 +538,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	private async onPublicApiEvent(e:TwitchatEvent):Promise<void> {
 		let notif:TwitchatDataTypes.NotificationTypes = "";
 		let modal:TwitchatDataTypes.ModalTypes = "";
-		
+
 		switch(e.type) {
 			case TwitchatEvent.POLL_TOGGLE: notif = 'poll'; break;
 			case TwitchatEvent.PREDICTION_TOGGLE: notif = 'prediction'; break;
@@ -709,7 +714,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 				}
 				break;
 			}
-			
+
 			case TwitchatEvent.TIMER_ADD: {
 				const durationStr = (e.data as JsonObject).timeAdd as string ?? "1";
 				const durationMs = isNaN(parseInt(durationStr))? 1000 : parseInt(durationStr) * 1000;
@@ -780,7 +785,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 
 	/**
 	 * Expand the selected col
-	 * @param col 
+	 * @param col
 	 */
 	public expandCol(col:TwitchatDataTypes.ChatColumnsConfig):void{
 		const colList = this.$store.params.chatColumnsConfig;
@@ -814,13 +819,13 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		if(totalSize < 1) {
 			col.size += 1 - totalSize;
 		}
-		
+
 		const holder = this.$refs.scrollable as HTMLDivElement;
 		this.$nextTick().then(()=>{
 			//Scroll to to the new col
 			let colHolder = this.$refs["column_"+col.id] as HTMLDivElement[];
 			let bounds = colHolder[0].getBoundingClientRect();
-			
+
 			let scrollTo = this.splitViewVertical? {y:bounds.top + bounds.height - holder.offsetHeight} : {x:bounds.left + bounds.width - holder.offsetWidth};
 			gsap.to(holder, {duration:.75, ease:"sine.inOut", scrollTo});
 			this.computeWindowsSizes();
@@ -853,7 +858,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	private async renderFrame():Promise<void> {
 		if(this.disposed) return;
 		requestAnimationFrame(()=>this.renderFrame());
-		
+
 		if(this.$refs.chatForm && (this.frameIndex++)%60 == 0) {
 			//Compute chat form height every 60 frames
 			const chatForm = (this.$refs.chatForm as Vue).$el as HTMLDivElement;
@@ -865,7 +870,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		}
 
 		if(!this.resizing) return;
-		
+
 		const cols = this.$store.params.chatColumnsConfig;
 		const holder = this.$refs.scrollable as HTMLDivElement;
 		const holderBounds = holder.getBoundingClientRect();
@@ -896,7 +901,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		cols.forEach(v=> {
 			v.size = Math.max(0, Math.min(10, v.size));
 		})
-		
+
 		this.$store.params.saveChatColumnConfs();
 
 		this.computeWindowsSizes();
@@ -925,7 +930,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 				indexGreet = i;
 			}
 		}
-		
+
 		const colHolders = this.$refs["column_"+colId] as HTMLDivElement[];
 		let selectedCol = colHolders? colHolders[0] : null;
 
@@ -973,7 +978,7 @@ export default toNative(Chat);
 				overflow-y: auto;
 				.column {
 					flex-direction: column;
-					
+
 					.subHolder {
 						height: calc(100% - 14px);//14px => dragbar height
 						overflow: hidden;
@@ -1026,7 +1031,7 @@ export default toNative(Chat);
 		flex-direction: row;
 		overflow: hidden;
 		width: 100%;
-		
+
 		.scrollable {
 			display: flex;
 			flex-grow: 1;
@@ -1039,7 +1044,7 @@ export default toNative(Chat);
 				position: relative;
 				display: flex;
 				flex-direction: row;
-	
+
 				.subHolder {
 					display: flex;
 					flex-direction: column;
@@ -1050,7 +1055,7 @@ export default toNative(Chat);
 						overflow: hidden;
 					}
 				}
-	
+
 				.dragBt {
 					padding: 0 3px;
 					cursor: ew-resize;

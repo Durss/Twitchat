@@ -25,9 +25,9 @@
 			</div>
 		</div>
 
-		<div class="card-item alert infos" v-if="targetChannelOffline"><Icon name="alert" />{{ $t("raid.target_channel_offline") }}</div>
+		<div class="card-item secondary infos" v-if="raidingLatestRaid"><Icon name="info" />{{ $t("raid.target_channel_previous_raid") }}</div>
 
-		<div class="card-item secondary infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+		<div class="card-item alert infos" v-if="targetChannelOffline"><Icon name="alert" />{{ $t("raid.target_channel_offline") }}</div>
 
 		<ToggleBlock class="bannedAlert" v-if="bannedOnline.length > 0 || timedoutOnline.length > 0"
 		alert medium :open="false"
@@ -67,6 +67,8 @@
 
 		<Button icon="cross" alert @click="cancelRaid()" v-if="canCancel">{{ $t('global.cancel') }}</Button>
 
+		<div class="card-item infos">{{ $t("raid.cant_force", {TIMER:timeLeft}) }}</div>
+
 	</div>
 </template>
 
@@ -91,6 +93,7 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 	public timeLeft = "";
 	public censorCount = false;
 	public coolingDownSpam = false;
+	public raidingLatestRaid = false;
 	public targetChannelOffline = false;
 	public user:TwitchatDataTypes.TwitchatUser|null = null;
 	public bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
@@ -130,13 +133,17 @@ import MessengerProxy from '@/messaging/MessengerProxy';
 			this.roomSettings = await TwitchUtils.getRoomSettings(this.user.id);
 			const liveInfos = await TwitchUtils.loadCurrentStreamInfo([this.user.id]);
 			this.targetChannelOffline = liveInfos.length == 0;
+
+
+			const latestRaid = (this.$store.stream.raidHistory || []).slice(-1)[0];
+			this.raidingLatestRaid = latestRaid && latestRaid.uid === raid.user.id;
 		}
 
 		const userlist = this.$store.users.users;
 		const me = this.$store.auth.twitch.user;
 		const bannedOnline:TwitchatDataTypes.TwitchatUser[] = [];
 		const timedoutOnline:TwitchatDataTypes.TwitchatUser[] = [];
-		//Check for banned and timedout users stille connected to the chat
+		//Check for banned and timedout users still connected to the chat
 		for (let i = 0; i < userlist.length; i++) {
 			const u = userlist[i];
 			/*
@@ -270,6 +277,13 @@ export default toNative(RaidState);
 		font-size: .9em;
 		flex-shrink: 0;
 		text-align: center;
+		.icon {
+			height: 1em;
+		}
+
+		&:not(.alert) {
+			font-style: italic;
+		}
 	}
 
 	.roomSettings {

@@ -7,10 +7,7 @@
 				<RaffleState class="content" v-else-if="showRaffle" />
 				<BingoState class="content" v-else-if="showBingo" />
 				<HypeTrainState class="content" v-else-if="showHypeTrain" />
-			</transition>
-
-			<transition name="slide">
-				<RaidState class="content" v-if="showRaid" />
+				<RaidState class="content" v-else-if="showRaid" />
 			</transition>
 
 			<ClearButton class="closeBt clearButton" v-if="showClose"
@@ -22,10 +19,8 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import { watch } from '@vue/runtime-core';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import BingoState from './BingoState.vue';
 import HypeTrainState from './HypeTrainState.vue';
@@ -36,7 +31,6 @@ import RaidState from './RaidState.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
 		PollState,
 		RaidState,
 		BingoState,
@@ -45,16 +39,14 @@ import RaidState from './RaidState.vue';
 		HypeTrainState,
 		PredictionState,
 	},
-	emits:['close','showDimmer', 'hideDimmer'],
+	emits:['close'],
 })
  class ChannelNotifications extends AbstractSidePanel {
 
 	@Prop
 	public currentContent!:TwitchatDataTypes.NotificationTypes;
-	
-	// private clickHandler!:(e:MouseEvent) => void;
 
-	public get showRaid():boolean { return this.$store.stream.currentRaid != null; }
+	public get showRaid():boolean { return this.currentContent == 'raid' && this.$store.stream.currentRaid != undefined; }
 	public get showHypeTrain():boolean { return this.currentContent == 'train' && this.$store.stream.hypeTrain != undefined; }
 	public get showPoll():boolean { return this.currentContent == 'poll' && this.$store.poll.data?.id != null && this.$store.poll.data?.isFake != true; }
 	public get showPrediction():boolean { return this.currentContent == 'prediction' && this.$store.prediction.data?.id != null && this.$store.prediction.data?.isFake != true; }
@@ -66,6 +58,7 @@ import RaidState from './RaidState.vue';
 			|| this.showPrediction
 			|| this.showBingo
 			|| this.showRaffle
+			|| this.showRaid
 			|| this.showHypeTrain
 			|| this.$store.chat.searchMessages != "")
 		;
@@ -78,31 +71,9 @@ import RaidState from './RaidState.vue';
 		}
 		return false;
 	}
-	
+
 	public mounted():void {
-		// this.clickHandler = (e:MouseEvent) => this.onClick(e);
-		// document.addEventListener("mousedown", this.clickHandler);
-
-		watch(()=>this.showClose, ()=> {
-			if(this.showClose) this.$emit("showDimmer");
-			else this.$emit("hideDimmer");
-		})
 	}
-
-	public beforeUnmount():void {
-		// document.removeEventListener("mousedown", this.clickHandler);
-	}
-
-	// private onClick(e:MouseEvent):void {
-	// 	let target = e.target as HTMLDivElement;
-	// 	const ref = this.$refs.content as HTMLDivElement;
-	// 	while(target != document.body && target != ref && target) {
-	// 		target = target.parentElement as HTMLDivElement;
-	// 	}
-	// 	if(target != ref) {
-	// 		this.$emit("close");
-	// 	}
-	// }
 }
 export default toNative(ChannelNotifications);
 </script>
@@ -111,7 +82,7 @@ export default toNative(ChannelNotifications);
 .channelnotifications{
 	width: 100%;
 	pointer-events:none;
-	
+
 	.holder {
 		position: relative;
 		pointer-events:all;
