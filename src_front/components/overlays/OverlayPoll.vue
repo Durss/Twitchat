@@ -68,8 +68,10 @@ class OverlayPoll extends Vue {
 		resultDuration_s:5,
 		placement:"bl",
 	};
-	
-	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
+
+	private parametersReceived:boolean = false;
+	private pendingData:TwitchatEvent|null = null;
+	private updatePollHandler!:(e:TwitchatEvent)=>void;
 	private updateParametersHandler!:(e:TwitchatEvent)=>void;
 	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
 
@@ -116,30 +118,38 @@ class OverlayPoll extends Vue {
 				return 100/this.poll.choices.length;
 			}
 		}
-		if(this.listMode && barSizeTarget) totalVotes = maxVotes;	
+		if(this.listMode && barSizeTarget) totalVotes = maxVotes;
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
 	public async mounted():Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
-		
+
 		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
-		this.updatePredictionHandler = (e:TwitchatEvent)=>this.onUpdatePrediction(e);
+		this.updatePollHandler = (e:TwitchatEvent)=>this.onUpdatePoll(e);
 		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE); }
 
-		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePredictionHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
 	}
 
 	public beforeUnmount():void {
-		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePredictionHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
 	}
 
-	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
+	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
+		if(!this.parametersReceived) {
+			//overlay's parameters not received yet, put data aside
+			//onUpdatePoll() will be called by onUpdateParams() afterwards
+			this.pendingData = e;
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
+			return;
+		}
+
 		const poll = ((e.data as unknown) as {poll:TwitchatDataTypes.MessagePollData}).poll;
 		if(!poll) {
 			if(this.poll) this.close();
@@ -150,7 +160,7 @@ class OverlayPoll extends Vue {
 			this.poll		= poll;
 			if(this.show) {
 				if(opening) await this.open();
-		
+
 				const progressBar = this.$refs.progress as HTMLElement;
 				if(progressBar) {
 					const timeSpent = Math.min(poll.duration_s * 1000, Date.now() - poll.started_at);
@@ -163,11 +173,16 @@ class OverlayPoll extends Vue {
 			}
 		}
 	}
-	
+
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
 		this.parameters = ((e.data as unknown) as {parameters:PollOverlayParamStoreData}).parameters;
+		this.parametersReceived = true;
+		if(this.pendingData) {
+			this.onUpdatePoll(this.pendingData);
+			this.pendingData = null;
+		}
 	}
-	
+
 	private async open():Promise<void> {
 		this.show = true;
 		await this.$nextTick();
@@ -177,10 +192,10 @@ class OverlayPoll extends Vue {
 		if(!Array.isArray(items)) items = [items];
 		const minWidth = parseInt(this.$el.minWidth || "300");
 		const width = Math.max(minWidth, items[0].getBoundingClientRect().width);
-		
+
 		gsap.killTweensOf(this.$el);
 		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration:.5, ease:"back.out", clearProps:true});
-		
+
 		if(labels) {
 			labels.removeAttribute("style");
 			gsap.killTweensOf(labels);
@@ -205,7 +220,7 @@ class OverlayPoll extends Vue {
 			gsap.from(holder, {scaleX:0, ease:"back.out", delay:.1, duration:.5, clearProps:true});
 		}
 	}
-	
+
 	public async close():Promise<void> {
 		this.showWinner = true;
 		if(this.parameters.showOnlyResult === true && !this.show) {
@@ -364,7 +379,7 @@ export default toNative(OverlayPoll);
 		flex-direction: row;
 		color:var(--color-light);
 		justify-content: center;
-		
+
 		.percent, .votes {
 			display: flex;
 			flex-direction: row;
@@ -386,7 +401,7 @@ export default toNative(OverlayPoll);
 			}
 		}
 	}
-	
+
 	// transition: transform .25s, top .25s, right .25s, bottom .25s, left .25s;
 	&.position-tl {
 		top: 2em;
@@ -459,7 +474,7 @@ export default toNative(OverlayPoll);
 			}
 		}
 
-		
+
 
 		.battle {
 			.labels {

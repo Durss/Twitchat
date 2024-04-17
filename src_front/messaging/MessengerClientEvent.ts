@@ -35,7 +35,7 @@ export default class MessengerClientEvent extends Event {
 					TwitchatDataTypes.MessageWatchStreakData |
 					string
 					;
-	
+
 	constructor(type:"MESSAGE", data:TwitchatDataTypes.MessageChatData);
 	constructor(type:"DELETE_MESSAGE", data:string);
 	constructor(type:"WHISPER", data:TwitchatDataTypes.MessageWhisperData);
@@ -51,10 +51,10 @@ export default class MessengerClientEvent extends Event {
 	constructor(type:"NOTICE", data:TwitchatDataTypes.MessageNoticeData);
 	constructor(type:"WATCH_STREAK", data:TwitchatDataTypes.MessageWatchStreakData);
 	constructor(type:"REFRESH_TOKEN");
-	
+
 	constructor(...params:any[]) {
 		super(params[0]);
 		this.data = params[1];
 	}
-	
+
 }

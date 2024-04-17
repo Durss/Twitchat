@@ -27,7 +27,7 @@ import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 
 /**
-* Created : 22/04/2022 
+* Created : 22/04/2022
 */
 export default class TriggerActionHandler {
 
@@ -40,15 +40,15 @@ export default class TriggerActionHandler {
 	private globalCooldowns:{[key:string]:number} = {};
 	private lastAnyMessageSent:string = "";
 	private obsSourceNameToQueue:{[key:string]:Promise<void>} = {};
-	private triggerTypeToQueue:{[key:string]:{promise:Promise<void>, resolver:()=>void}[]} = {};
+	private triggerTypeToQueue:{[key:string]:{promise:Promise<void>, resolver:()=>void, name:string}[]} = {};
 	private liveChannelCache:{[key:string]:TwitchatDataTypes.StreamInfo}|null = null;
 	private triggerType2Triggers:{[key:string]:TriggerData[]} = {};
 	private HASHMAP_KEY_SPLITTER:string = "_";
-	
+
 	constructor() {
-	
+
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -59,9 +59,9 @@ export default class TriggerActionHandler {
 		}
 		return TriggerActionHandler._instance;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -72,9 +72,9 @@ export default class TriggerActionHandler {
 
 	/**
 	 * Executes trigger(s) related to the specified message
-	 * 
-	 * @param message 
-	 * @param testMode 
+	 *
+	 * @param message
+	 * @param testMode
 	 */
 	public async execute(message:TwitchatDataTypes.ChatMessageTypes, testMode = false, forcedTriggerId?:string):Promise<void> {
 
@@ -114,7 +114,7 @@ export default class TriggerActionHandler {
 						await this.executeTriggersByType(TriggerTypes.CHAT_COMMAND, message, testMode, cmdall, undefined, forcedTriggerId);
 					}
 				}
-				
+
 				if(message.user.id != StoreProxy.auth.twitch.user.id
 				|| this.lastAnyMessageSent != message.message) {
 					//Only parse this trigger if the message receive isn't sent by us
@@ -123,7 +123,7 @@ export default class TriggerActionHandler {
 				}
 				break;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
 
@@ -131,10 +131,10 @@ export default class TriggerActionHandler {
 					return;
 				}break;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
-				
+
 				if(message.is_gift) {
 					if(await this.executeTriggersByType(TriggerTypes.SUBGIFT, message, testMode, undefined, undefined, forcedTriggerId)) {
 						return;
@@ -144,15 +144,15 @@ export default class TriggerActionHandler {
 					return;
 				}break;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.RAID: {
 				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
-				
+
 				if(await this.executeTriggersByType(TriggerTypes.RAID, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 				const id = message.reward.id;
 				await this.executeTriggersByType(TriggerTypes.REWARD_REDEEM, message, testMode, "*", undefined, forcedTriggerId)
@@ -171,7 +171,7 @@ export default class TriggerActionHandler {
 
 			case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 				if(this.emergencyMode && StoreProxy.emergency.params.noTriggers === true) return;
-				
+
 				if(await this.executeTriggersByType(TriggerTypes.CHEER, message, testMode, undefined, undefined, forcedTriggerId)) {
 					return;
 				}break;
@@ -609,8 +609,8 @@ export default class TriggerActionHandler {
 		return await this.executeTrigger(trigger, fakeMessage, testMode, undefined, "schedule");
 	}
 
-	
-	
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -618,7 +618,7 @@ export default class TriggerActionHandler {
 		this.checkLiveFollowings(false);
 		this.buildHashmap(StoreProxy.triggers.triggerList);
 	}
-	
+
 	/**
 	 * Builds a hashmap to access trigger types faster
 	 * This is probably not a very necessary optimisation unless a user
@@ -627,7 +627,7 @@ export default class TriggerActionHandler {
 	 */
 	private buildHashmap(triggers:TriggerData[]):void {
 		this.triggerType2Triggers = {};
-		
+
 		if(!triggers || !Array.isArray(triggers)) return;
 
 		for (let i = 0; i < triggers.length; i++) {
@@ -672,9 +672,9 @@ export default class TriggerActionHandler {
 				case TriggerTypes.COUNTER_LOOPED:
 				case TriggerTypes.COUNTER_MAXED:
 				case TriggerTypes.COUNTER_MINED: keys[0] += this.HASHMAP_KEY_SPLITTER + t.counterId; break;
-				
+
 				case TriggerTypes.VALUE_UPDATE: keys[0] += this.HASHMAP_KEY_SPLITTER + t.valueId; break;
-				
+
 				case TriggerTypes.HEAT_CLICK: {
 					if((!t.heatClickSource || t.heatClickSource == "obs") && t.heatObsSource) {
 						keys[0] += this.HASHMAP_KEY_SPLITTER + t.heatObsSource;
@@ -686,7 +686,7 @@ export default class TriggerActionHandler {
 					}
 					break;
 				}
-				
+
 				case TriggerTypes.GOXLR_BUTTON_PRESSED:
 				case TriggerTypes.GOXLR_BUTTON_RELEASED: {
 					if(t.goxlrButtons) {
@@ -710,7 +710,7 @@ export default class TriggerActionHandler {
 
 	/**
 	 * Cleans up the triggers
-	 * @param triggers 
+	 * @param triggers
 	 */
 	private cleanupTriggers(triggers:TriggerData[]):void {
 		for (let i = 0; i < triggers.length; i++) {
@@ -730,17 +730,17 @@ export default class TriggerActionHandler {
 			}
 		}
 	}
-	
+
 
 	/**
 	 * Executes triggers by their type
-	 * 
+	 *
 	 * @param triggerType	type of triggers to execute
 	 * @param message 		message at the origin of the execution
 	 * @param testMode 		is it a test execution ?
 	 * @param subEvent 		sub event value (reward ID, counter ID, )
-	 * @param ttsID 
-	 * 
+	 * @param ttsID
+	 *
 	 * @returns true if the trigger was executed
 	 */
 	private async executeTriggersByType(triggerType:TriggerTypesValue, message:TwitchatDataTypes.ChatMessageTypes, testMode:boolean, subEvent?:string, ttsID?:string, forcedTriggerId?:string):Promise<boolean> {
@@ -751,7 +751,7 @@ export default class TriggerActionHandler {
 
 		const triggers = this.triggerType2Triggers[ key ];
 		if(!triggers || triggers.length == 0) return false;
-		
+
 		//Execute all triggers related to the current trigger event type
 		for (const trigger of triggers) {
 			if(forcedTriggerId && trigger.id != forcedTriggerId) continue;
@@ -790,7 +790,7 @@ export default class TriggerActionHandler {
 			Logger.instance.log("triggers", log);
 			return false;
 		}
-		
+
 		//Do not execute triggers for ko-fi events if users made their donation private
 		if(message.type == TwitchatDataTypes.TwitchatMessageType.KOFI && message.isPublic !== true) {
 			log.entries.push({date:Date.now(), type:"message", value:"❌ User made their Ko-fi transaction private. Don't execute the related triggers to respect their choice."});
@@ -804,19 +804,19 @@ export default class TriggerActionHandler {
 		//Avoid polluting trigger execution history for Twitchat internal triggers
 		const noLogs:TriggerTypesValue[] = [TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE,TriggerTypes.TWITCHAT_AD,TriggerTypes.TWITCHAT_LIVE_FRIENDS,TriggerTypes.TWITCHAT_MESSAGE]
 		if(!noLogs.includes(trigger.type))	Logger.instance.log("triggers", log);
-	
+
 		//Special case for friends stream start/stop notifications
 		if(trigger.type == TriggerTypes.TWITCHAT_LIVE_FRIENDS) {
 			this.checkLiveFollowings().catch(()=>{});
 			return true;
 		}
-	
+
 		//Special case for pending shoutouts
 		if(trigger.type == TriggerTypes.TWITCHAT_SHOUTOUT_QUEUE) {
 			StoreProxy.users.executePendingShoutouts();
 			return true;
 		}
-		
+
 		//Special case for twitchat's ad
 		if(trigger.type == TriggerTypes.TWITCHAT_AD) {
 			let text:string = StoreProxy.chat.botMessages.twitchatAd.message;
@@ -827,27 +827,28 @@ export default class TriggerActionHandler {
 			MessengerProxy.instance.sendMessage(text);
 			return true;
 		}
-			
+
 		//Wait for potential previous trigger of the exact same type to finish their execution
 		const queueKey = trigger.queue;// || trigger.id;
 		let queue:typeof this.triggerTypeToQueue[string] = [];
-		
+
 		if(queueKey) {
 			log.entries.push({date:Date.now(), type:"message", value:"Execute trigger in queue \""+queueKey+"\""});
-			
+
 			if(!this.triggerTypeToQueue[queueKey]) this.triggerTypeToQueue[queueKey] = [];
 			queue = this.triggerTypeToQueue[queueKey];
 			const eventBusy = queue.length > 0;
 
 			let resolver!: ()=>void;
 			const promise = new Promise<void>(async (resolve, reject)=> { resolver = resolve });
-			queue.push( {promise, resolver} );
+			queue.push( {promise, resolver, name:Utils.getTriggerDisplayInfo(trigger).label} );
 
 			if(eventBusy) {
-				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete"});
-				const prom = queue[queue.length-2]?.promise;
+				const queueItem = queue[queue.length-2];
+				const prom = queueItem?.promise;
+				log.entries.push({date:Date.now(), type:"message", value:"A trigger is already executing in this queue, wait for it to complete: "+ queueItem.name});
 				if(prom) await prom;
-				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process"});
+				log.entries.push({date:Date.now(), type:"message", value:"Pending trigger complete, continue process: "+ queueItem.name});
 			}
 		}
 
@@ -895,7 +896,7 @@ export default class TriggerActionHandler {
 					}
 					else if(canExecute && trigger.cooldown.user > 0) this.userCooldowns[key] = now + trigger.cooldown.user * 1000;
 				}
-		
+
 				//Global cooldown
 				if(canExecute && trigger.cooldown && this.globalCooldowns[triggerId] > 0 && this.globalCooldowns[triggerId] > now) {
 					canExecute = false;
@@ -940,9 +941,9 @@ export default class TriggerActionHandler {
 				}
 			}
 		}
-		
+
 		let actions = trigger.actions;
-		
+
 		let passesCondition = true;
 		//If trigger has conditions, check if the condition passes or not
 		if(trigger.conditions && trigger.conditions.conditions.length > 0) {
@@ -956,7 +957,7 @@ export default class TriggerActionHandler {
 			}else{
 				log.entries.push({date:Date.now(), type:"message", value:"✔ Conditions fulfilled"});
 			}
-	
+
 			//Filter actions to execute based on whether the condition is matched or not
 			actions = trigger.actions.filter(t=> {
 				return t.condition == passesCondition || (t.condition !== false && passesCondition);
@@ -968,7 +969,7 @@ export default class TriggerActionHandler {
 			log.entries.push({date:Date.now(), type:"message", value:"Trigger has no child actions"});
 			if(!passesCondition) log.error = true;
 		}
-		
+
 		log.skipped = !canExecute;
 
 		//Stop there if previous conditions (permissions, cooldown, conditions) aren't matched
@@ -997,7 +998,7 @@ export default class TriggerActionHandler {
 			log.entries.push(logStep);
 
 			const actionPlaceholders = TriggerActionPlaceholders(step.type);
-				
+
 			logStep.messages.push({date:Date.now(), value:"Start step execution"});
 
 			try {
@@ -1010,12 +1011,12 @@ export default class TriggerActionHandler {
 						const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.delay, subEvent);
 						delay = parseFloat(text) || 0;
 					}else{
-						delay = step.delay;	
+						delay = step.delay;
 					}
 					logStep.messages.push({date:Date.now(), value:"Wait for "+ delay+"s..."});
 					await Utils.promisedTimeout(delay * 1000);
 				}else
-				
+
 				//Handle OBS action
 				if(step.type == "obs") {
 					//Wait for potential OBS action in progress for the exact same source
@@ -1031,9 +1032,9 @@ export default class TriggerActionHandler {
 					if(sourceBusy) {
 						logStep.messages.push({date:Date.now(), value:"OBS source \""+step.sourceName+"\" has been released, continue process"});
 					}
-					
+
 					logStep.messages.push({date:Date.now(), value:"Execute OBS action \""+step.action+"\" on source \""+step.sourceName+"\""});
-					
+
 					if(!OBSWebsocket.instance.connected) {
 						logStep.messages.push({date:Date.now(), value:"❌ OBS-Websocket NOT CONNECTED! Cannot execute requested action."});
 						log.error = true;
@@ -1067,7 +1068,7 @@ export default class TriggerActionHandler {
 								console.error(error);
 							}
 						}
-			
+
 						if(step.filterName) {
 							try {
 								logStep.messages.push({date:Date.now(), value:"Set filter \""+step.filterName+"\" visibility to \""+(step.action == 'show'? "visible" : "hidden")+"\""});
@@ -1095,8 +1096,8 @@ export default class TriggerActionHandler {
 									case "prev": await OBSWebsocket.instance.prevMedia(step.sourceName); break;
 									case "unmute": await OBSWebsocket.instance.setMuteState(step.sourceName, false); break;
 									case "switch_to": await OBSWebsocket.instance.setCurrentScene(step.sourceName); break;
-									case "move": 
-									case "rotate": 
+									case "move":
+									case "rotate":
 									case "resize": {
 										const items = await OBSWebsocket.instance.getSourceOnCurrentScene(step.sourceName);
 										if(!items || items.length == 0) {
@@ -1139,7 +1140,7 @@ export default class TriggerActionHandler {
 														text = text.replace(/,/gi, ".");
 														result.rotation = MathJS.evaluate(text);
 												}
-		
+
 												//Handle relative transform mode
 												if(step.relativeTransform === true) {
 													if(result.positionX) result.positionX += transform.positionX;
@@ -1148,7 +1149,7 @@ export default class TriggerActionHandler {
 													if(result.height) result.height += transform.height;
 													if(result.rotation) result.rotation += transform.rotation;
 												}
-												
+
 												//OBS-WS does not allow to change the source's sizes.
 												//Instead we compute the equivalent scale values.
 												if(result.width) {
@@ -1160,7 +1161,7 @@ export default class TriggerActionHandler {
 													delete result.height;
 												}
 												logStep.messages.push({date:Date.now(), value:"Set source transform to "+JSON.stringify(result)});
-		
+
 												if(step.animate === true) {
 													logStep.messages.push({date:Date.now(), value:"Animate transformation. Duration: "+step.animateDuration+". Easing: "+step.animateEasing});
 													const params:{[key:string]:number|string|(()=>void)} = {};
@@ -1209,14 +1210,14 @@ export default class TriggerActionHandler {
 								logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] OBS step execution thrown an error: "+(error.message || JSON.stringify(error))});
 							}
 						}
-						
+
 						logStep.messages.push({date:Date.now(), value:"OBS action executed on source \""+step.sourceName+"\""});
 					}
 
 					resolverOBS();
 					delete this.obsSourceNameToQueue[step.sourceName];
 				}else
-				
+
 				//Handle Chat action
 				if(step.type == "chat") {
 					// console.log("CHAT ACTION");
@@ -1230,7 +1231,7 @@ export default class TriggerActionHandler {
 						this.lastAnyMessageSent = text;
 					}
 				}else
-				
+
 				//Handle highlight action
 				if(step.type == "highlight") {
 					if(step.show) {
@@ -1279,7 +1280,7 @@ export default class TriggerActionHandler {
 						}
 						if(clipId) {
 							const clip = await TwitchUtils.getClipById(clipId);
-						
+
 							const data:TwitchatDataTypes.ChatHighlightInfo = {
 								clip:{
 									url: clip!.embed_url+"&autoplay=true&parent=twitchat.fr&parent=localhost",
@@ -1307,14 +1308,14 @@ export default class TriggerActionHandler {
 						StoreProxy.chat.isChatMessageHighlighted = false;
 					}
 				}else
-				
+
 				//Handle TTS action
 				if(step.type == "tts" && message) {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.text, subEvent);
 					logStep.messages.push({date:Date.now(), value:"TTS read message \""+text+"\""});
 					TTSUtils.instance.readNext(text, ttsID ?? trigger.id);
 				}else
-				
+
 				//Handle poll action
 				if(step.type == "poll") {
 					try {
@@ -1338,7 +1339,7 @@ export default class TriggerActionHandler {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.poll_error", {MESSAGE:message}))
 					}
 				}else
-				
+
 				//Handle poll action
 				if(step.type == "prediction") {
 					try {
@@ -1361,7 +1362,7 @@ export default class TriggerActionHandler {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.prediction_error", {MESSAGE:message}))
 					}
 				}else
-				
+
 				//Handle raffle action
 				if(step.type == "raffle") {
 					const data:TwitchatDataTypes.RaffleData = JSON.parse(JSON.stringify(step.raffleData));
@@ -1372,7 +1373,7 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"✔ Starting \""+data.mode+"\" raffle"});
 					StoreProxy.raffle.startRaffle(data);
 				}else
-				
+
 				//Handle raffle enter action
 				if(step.type == "raffle_enter") {
 					if(Object.prototype.hasOwnProperty.call(TwitchatDataTypes.TranslatableMessageTypesString, message.type) && StoreProxy.raffle.checkRaffleJoin(message as TwitchatDataTypes.TranslatableMessage)) {
@@ -1383,7 +1384,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:"✔ User joined the raffle"});
 					}
 				}else
-				
+
 				//Handle bingo action
 				if(step.type == "bingo") {
 					const data:TwitchatDataTypes.BingoConfig = JSON.parse(JSON.stringify(step.bingoData));
@@ -1392,7 +1393,7 @@ export default class TriggerActionHandler {
 					}
 					StoreProxy.bingo.startBingo(data);
 				}else
-				
+
 				//Handle chat suggesiton action
 				if(step.type == "chatSugg") {
 					const data:TwitchatDataTypes.ChatSuggestionData = JSON.parse(JSON.stringify(step.suggData));
@@ -1401,7 +1402,7 @@ export default class TriggerActionHandler {
 					data.winners = [];
 					StoreProxy.chatSuggestion.setChatSuggestion(data);
 				}else
-				
+
 				//Handle voicemod action
 				if(step.type == "voicemod") {
 					switch(step.action) {
@@ -1447,7 +1448,7 @@ export default class TriggerActionHandler {
 						}
 					}
 				}else
-				
+
 				//Handle sub trigger action
 				if(step.type == "trigger") {
 					if(step.triggerId) {
@@ -1471,7 +1472,7 @@ export default class TriggerActionHandler {
 						logStep.error = true;
 					}
 				}else
-				
+
 				//Handle sub trigger toggle action
 				if(step.type == "triggerToggle") {
 					if(step.triggerId) {
@@ -1496,7 +1497,7 @@ export default class TriggerActionHandler {
 						}
 					}
 				}else
-				
+
 				//Handle http call trigger action
 				if(step.type == "http") {
 					const options:RequestInit = {method:step.method};
@@ -1541,7 +1542,7 @@ export default class TriggerActionHandler {
 						console.error(error);
 					}
 				}else
-				
+
 				//Handle WS message trigger action
 				if(step.type == "ws") {
 					const json:{[key:string]:number|string|boolean} = {};
@@ -1565,7 +1566,7 @@ export default class TriggerActionHandler {
 						console.error(error);
 					}
 				}else
-				
+
 				//Handle counter update trigger action
 				if(step.type == "count") {
 					let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.addValue as string, subEvent);
@@ -1579,7 +1580,7 @@ export default class TriggerActionHandler {
 						logStep.messages.push({date:Date.now(), value:logMessage});
 						log.error = true;
 						logStep.error = true;
-						
+
 					}
 					if(!step.action) step.action = "ADD";
 
@@ -1603,7 +1604,7 @@ export default class TriggerActionHandler {
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_EVERYONE
 								&& step.counterUserSources[c.id] != TriggerActionDataTypes.COUNTER_EDIT_SOURCE_CHATTERS) {
 									logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.counterUserSources[c.id].toUpperCase()+"}\"..."})
-									
+
 									const users = await this.extractUserFromPlaceholder(channel_id, step.counterUserSources[c.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 									for (let i = 0; i < users.length; i++) {
 										const user = users[i];
@@ -1644,7 +1645,7 @@ export default class TriggerActionHandler {
 									for (let i = 0; i < list.length; i++) {
 										const user = list[i];
 										if(user.channelInfo[channel_id]
-										//If user is online or their last acitivity on chat was less than 10min ago 
+										//If user is online or their last acitivity on chat was less than 10min ago
 										&& (user.channelInfo[channel_id].online || Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
 											StoreProxy.counters.increment(c.id, step.action, value, undefined, user.id);
 										}
@@ -1679,7 +1680,7 @@ export default class TriggerActionHandler {
 						log.error = true;
 					}
 				}else
-				
+
 				//Handle Value update trigger action
 				if(step.type == "value") {
 					const text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.newValue as string, subEvent);
@@ -1701,7 +1702,7 @@ export default class TriggerActionHandler {
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_EVERYONE
 							&& step.valueUserSources[v.id] != TriggerActionDataTypes.VALUE_EDIT_SOURCE_CHATTERS) {
 								logStep.messages.push({date:Date.now(), value:"Load custom user from placeholder \"{"+step.valueUserSources[v.id].toUpperCase()+"}\"..."})
-								
+
 								const users = await this.extractUserFromPlaceholder(channel_id, step.valueUserSources[v.id], dynamicPlaceholders, actionPlaceholders, trigger, message, log);
 								for (let i = 0; i < users.length; i++) {
 									const user = users[i];
@@ -1742,7 +1743,7 @@ export default class TriggerActionHandler {
 								for (let i = 0; i < list.length; i++) {
 									const user = list[i];
 									if(user.channelInfo[channel_id]
-									//If user is online or their last acitivity on chat was less than 10min ago 
+									//If user is online or their last acitivity on chat was less than 10min ago
 									&& (user.channelInfo[channel_id].online
 									|| Date.now() - (user.channelInfo[channel_id].lastActivityDate || 0) < 10 * 60000)) {
 										StoreProxy.values.updateValue(v.id, text, undefined, user.id);
@@ -1782,13 +1783,13 @@ export default class TriggerActionHandler {
 						}
 						dynamicPlaceholders[step.placeholder] = value;
 						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
-						
+
 					}else if(step.mode == "list" && step.placeholder) {
 						//Pick an item from a custom list
 						const value = Utils.pickRand(step.list);
 						dynamicPlaceholders[step.placeholder] = value;
 						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
-					
+
 					}else if(step.mode == "trigger") {
 						//Pick an item from a custom list
 						const triggerList = sTriggers.triggerList;
@@ -1913,7 +1914,7 @@ export default class TriggerActionHandler {
 							logStep.error = true;
 							failCode = "spotify_not_connected";
 						}
-						
+
 						//Adding a track to the queue
 						if(step.musicAction == TriggerMusicTypes.ADD_TRACK_TO_QUEUE) {
 							const maxDuration = (step.maxDuration || 0)*1000;
@@ -2031,7 +2032,7 @@ export default class TriggerActionHandler {
 
 							}
 						}else
-						
+
 						if(step.musicAction == TriggerMusicTypes.NEXT_TRACK) {
 							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.nextTrack().then(res=>{
@@ -2039,7 +2040,7 @@ export default class TriggerActionHandler {
 								});
 							}
 						}else
-						
+
 						if(step.musicAction == TriggerMusicTypes.PAUSE_PLAYBACK) {
 							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.pause().then(res=> {
@@ -2047,7 +2048,7 @@ export default class TriggerActionHandler {
 								});
 							}
 						}else
-						
+
 						if(step.musicAction == TriggerMusicTypes.RESUME_PLAYBACK) {
 							if(SpotifyHelper.instance.connected) {
 								SpotifyHelper.instance.resume().then(res=> {
@@ -2055,7 +2056,7 @@ export default class TriggerActionHandler {
 								});
 							}
 						}else
-						
+
 						if(step.musicAction == TriggerMusicTypes.START_PLAYLIST) {
 							let m:string = step.playlist;
 							if(message.type == "message") {
@@ -2087,7 +2088,7 @@ export default class TriggerActionHandler {
 				//Handle custom badges
 				if(step.type == "customBadges") {
 					let users:TwitchatDataTypes.TwitchatUser[] = [];
-					
+
 					//if requested to update badges of the user executing the trigger
 					if(step.customBadgeUserSource == TriggerActionDataTypes.COUNTER_EDIT_SOURCE_SENDER) {
 						const user = this.extractUserFromTrigger(trigger, message);
@@ -2098,7 +2099,7 @@ export default class TriggerActionHandler {
 					if(users) {
 						for (let i = 0; i < users.length; i++) {
 							const user = users[i];
-							
+
 							step.customBadgeAdd.forEach(v=> {
 								if(StoreProxy.users.giveCustomBadge(user, v, channel_id)) {
 									logStep.messages.push({date:Date.now(), value:"➕ Badge \""+v+"\" given to "+user.login});
@@ -2179,7 +2180,7 @@ export default class TriggerActionHandler {
 					};
 
 					logStep.messages.push({date:Date.now(), value:"Send message type \""+customMessage.style+"\": \""+text+"\""});
-			
+
 					StoreProxy.chat.addMessage(customMessage);
 				}else
 
@@ -2414,7 +2415,7 @@ export default class TriggerActionHandler {
 						}
 					}
 				}
-				
+
 			}catch(error:any) {
 				console.error(error);
 				logStep.messages.push({date:Date.now(), value:"❌ [EXCEPTION] step execution thrown an error: "+error.message+" "+error.stack});
@@ -2423,7 +2424,7 @@ export default class TriggerActionHandler {
 			}
 			logStep.messages.push({date:Date.now(), value:"✔ Step execution complete"});
 		}
-		
+
 		if(queue) {
 			const item = queue.shift();
 			if(item) {
@@ -2452,7 +2453,7 @@ export default class TriggerActionHandler {
 		const channelId = StoreProxy.auth.twitch.user.id;
 		const me = StoreProxy.auth.twitch.user;
 		// const channelId = message.hasOwnProperty("channel_id")? message.channel_id : StoreProxy.auth.twitch.user.id;
-			
+
 		//Replace dynamic placeholders. These are user defined placeholders.
 		//Ex: to read a counter value, user must define a placeholder name that
 		//will be populated with the counter's value so this value can be used
@@ -2532,7 +2533,7 @@ export default class TriggerActionHandler {
 								break;
 							}
 						}
-	
+
 					/**
 					 * If the placeholder requests for trigger's info
 					 */
@@ -2549,7 +2550,7 @@ export default class TriggerActionHandler {
 								break;
 							}
 						}
-	
+
 					/**
 					 * If the placeholder requests for the current OBS scene
 					 */
@@ -2558,14 +2559,14 @@ export default class TriggerActionHandler {
 						switch(pointerLocal) {
 							case "scene": value = StoreProxy.main.currentOBSScene || "-none-"; break;
 						}
-	
+
 					/**
 					 * If the placeholder requests for the current command
 					 */
 					}else if(pointer === "__command__") {
 						value = subEvent || "-none-";
 						cleanSubevent = false;
-						
+
 					/**
 					 * If the placeholder requests for the current timer value
 					 */
@@ -2667,7 +2668,7 @@ export default class TriggerActionHandler {
 								case "d": value = GoXLRSocket.instance.getIsToggleButtonActive("Fader4Mute")===true? "true" : "false"; break;
 							}
 						}
-	
+
 					/**
 					 * If the placeholder requests for a counter's value
 					 */
@@ -2691,7 +2692,7 @@ export default class TriggerActionHandler {
 								value = counter.value.toString();
 							}
 						}
-	
+
 					/**
 					 * If the placeholder requests for a value's value
 					 */
@@ -2714,7 +2715,7 @@ export default class TriggerActionHandler {
 								value = valueEntry.value.toString();
 							}
 						}
-	
+
 					/**
 					 * If the placeholder requests for currently playing music track
 					 */
@@ -2731,7 +2732,7 @@ export default class TriggerActionHandler {
 							case "playlist.url": value = SpotifyHelper.instance.currentPlaylist?.external_urls.spotify || ""; break;
 							case "playlist.cover": value = SpotifyHelper.instance.currentPlaylist?.images[0].url || ""; break;
 						}
-	
+
 					/**
 					 * If the placeholder requests for date
 					 */
@@ -2740,7 +2741,7 @@ export default class TriggerActionHandler {
 						switch(pointerLocal) {
 							case "now": value = Date.now().toString(); break;
 						}
-	
+
 					/**
 					 * If the placeholder requests for a twitch global data
 					 */
@@ -2794,7 +2795,7 @@ export default class TriggerActionHandler {
 									chanInfos.following_date_ms = -1;
 								}
 							}
-							
+
 							if(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE) {
 								value = chanInfos.following_date_ms == 0? "" : Utils.formatDate(new Date(chanInfos.following_date_ms), true);
 							}
@@ -2818,13 +2819,13 @@ export default class TriggerActionHandler {
 				&& (trigger.type == TriggerActionDataTypes.TriggerTypes.CHAT_COMMAND || trigger.type == TriggerActionDataTypes.TriggerTypes.SLASH_COMMAND)) {
 					value = value.replace(new RegExp(subEvent_regSafe, "i"), "").trim();
 				}
-			
+
 				if(typeof value == "string" && removeFolderNavigation) {
 					value = value.replace(/(\.\.|\/|\\)/gi, "");//Avoid folders navigation
 				}
 
 				if(typeof value != "string") value = JSON.stringify(value);
-				
+
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}
 
@@ -2834,7 +2835,7 @@ export default class TriggerActionHandler {
 
 			// console.log("RESULT = ",res);
 			return removeHTMLtags? Utils.stripHTMLTags(res) : res;
-			
+
 		}catch(error) {
 			console.error(error);
 			return res;
@@ -2870,7 +2871,7 @@ export default class TriggerActionHandler {
 	 */
 	private async extractUserFromPlaceholder(channel_id:string, placeholder:string, dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholders:TriggerActionDataTypes.ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">):Promise<TwitchatDataTypes.TwitchatUser[]> {
 		const displayName = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, "{"+placeholder.toUpperCase()+"}");
-		
+
 		//Not ideal but if there are multiple users they're concatenated in
 		//a single coma seperated string (placeholder parsing is made for display :/).
 		//Here we split it on comas just in case there are multiple user names
@@ -2929,7 +2930,7 @@ export default class TriggerActionHandler {
 					lastSoDoneDate:0,
 				}
 			}
-	
+
 			if(notify && this.liveChannelCache) {
 				//This makes sure messages have a different date.
 				//Bit dirty workaround an issue with the way i handle the "read mark" that is based
@@ -2940,7 +2941,7 @@ export default class TriggerActionHandler {
 				//But if multiple messages have the exact same date, clicking one may mark another one
 				//as read.
 				let dateOffset = 0;
-	
+
 				//Check if any user went offline
 				for (const uid in this.liveChannelCache) {
 					if(!liveChannels[uid]) {
@@ -2959,7 +2960,7 @@ export default class TriggerActionHandler {
 						dateOffset ++;
 					}
 				}
-		
+
 				//Check if any user went online
 				for (const uid in liveChannels) {
 					if(!this.liveChannelCache[uid]) {
@@ -2977,7 +2978,7 @@ export default class TriggerActionHandler {
 					}
 				}
 			}
-	
+
 			this.liveChannelCache = liveChannels;
 		}catch(error) {}
 		return true;
@@ -2985,13 +2986,13 @@ export default class TriggerActionHandler {
 
 	/**
 	 * Checks if message matches given execution conditions
-	 * 
-	 * @param conditions 
-	 * @param trigger 
-	 * @param message 
-	 * @param src 
-	 * @param log 
-	 * @param subEvent 
+	 *
+	 * @param conditions
+	 * @param trigger
+	 * @param message
+	 * @param src
+	 * @param log
+	 * @param subEvent
 	 */
 	public async checkConditions(operator:"AND"|"OR", conditions:(TriggerActionDataTypes.TriggerConditionGroup|TriggerActionDataTypes.TriggerCondition)[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, log:Omit<LogTrigger, "date">, dynamicPlaceholders:{[key:string]:string|number}, subEvent?:string|null):Promise<boolean> {
 		//If there are no conditions consider it passes check
@@ -3034,7 +3035,7 @@ export default class TriggerActionHandler {
 				}
 				log.entries.push({date:Date.now(), type:"message", value:"Executing operator \""+c.operator+"\" between \""+value+"\" and \""+expectation+"\" => "+localRes.toString()});
 			}
-			
+
 			if(index == 0) res = localRes;
 			else if(operator == "AND") res &&= localRes;
 			else if(operator == "OR") res ||= localRes;

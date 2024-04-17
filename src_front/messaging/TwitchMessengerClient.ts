@@ -15,7 +15,7 @@ import * as Sentry from "@sentry/vue";
 import Logger from '@/utils/Logger';
 
 /**
-* Created : 25/09/2022 
+* Created : 25/09/2022
 */
 export default class TwitchMessengerClient extends EventDispatcher {
 
@@ -28,11 +28,11 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private _connectedChannelCount:number = 0;
 	private _channelIdToLogin:{[key:string]:string} = {};
 	private _channelLoginToId:{[key:string]:string} = {};
-	
+
 	constructor() {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -43,14 +43,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return TwitchMessengerClient._instance;
 	}
 
-	
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	/**
 	 * Connect to a channel
-	 * @param channel 
-	 * @param anonymous 
+	 * @param channel
+	 * @param anonymous
 	 */
 	public connectToChannel(channel:string):void {
 		//Already connected to IRC, just add the channel
@@ -62,7 +62,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		}
 
 		this._channelList.push(channel);
-		
+
 		//Debounce connection calls if calling it for multiple channels at once
 		clearTimeout(this._connectTimeout);
 		this._connectTimeout = setTimeout(async ()=>{
@@ -73,9 +73,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
-			
+
 			const meObj = StoreProxy.auth.twitch.user;
-			
+
 			chans.forEach(async v=> {
 				//Skip it if already connected
 				if(this._connectedChans[v.id] === true) return;
@@ -97,7 +97,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				const u = StoreProxy.users.getUserFrom("twitch", v.id, v.id, v.login, v.display_name);//Preload user to storage
 				u.channelInfo[v.id].online = true;
 				u.channelInfo[v.id].is_broadcaster = true;
-				
+
 				//Init stream info
 				if(!StoreProxy.stream.currentStreamInfo[v.id]) {
 					//Don't init if already existing. Authenticated user's stream info
@@ -113,7 +113,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 						lastSoDoneDate:0,
 					}
 				}
-				
+
 				TwitchUtils.loadUserBadges(v.id);
 				TwitchUtils.loadCheermoteList(v.id);
 				TwitchUtils.getRoomSettings(v.id, true).then(settings=> {
@@ -148,7 +148,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				FFZUtils.instance.addChannel(v.id);
 				SevenTVUtils.instance.addChannel(v.id);
 			});
-			
+
 			Logger.instance.log("irc", {info:"Create IRC client"});
 			//Not yet connected to IRC, create client and connect to specified
 			//channels with specified credentials
@@ -163,7 +163,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			};
 			this._client = new tmi.Client(options);
 			this._client.connect();
-			
+
 			this.initialize();
 		}, 100);
 	}
@@ -177,7 +177,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Disconnect from a specific channel
-	 * @param channel 
+	 * @param channel
 	 */
 	public async disconnectFromChannel(channel:string):Promise<void> {
 		Logger.instance.log("irc", {info:"Disconnect from channel "+channel});
@@ -193,7 +193,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	/**
 	 * Refresh IRC token
 	 * Disconnects from all chans and connects back to it
-	 * @param token 
+	 * @param token
 	 */
 	public async refreshToken(token:string):Promise<void> {
 		if(!this._client) return;
@@ -210,7 +210,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		params.identity.password = token;
 		await this.reconnect();
 	}
-	
+
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
@@ -219,7 +219,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			this._client.disconnect();
 		}
 	}
-	
+
 	/**
 	 * Disconnect from all channels and cut IRC connection
 	 */
@@ -442,9 +442,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		return true
 	}
 
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -499,8 +499,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Gets a user object from IRC tags
-	 * @param tags 
-	 * @returns 
+	 * @param tags
+	 * @returns
 	 */
 	private getUserFromTags(tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, channelId:string):TwitchatDataTypes.TwitchatUser {
 		const login			= tags.login ?? tags.username ?? tags["display-name"];
@@ -514,7 +514,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 		// user.channelInfo[channelId].online	= true;
 		delete user.temporary;//Avoids useless server call
-		
+
 		if(tags.color)		user.color = tags.color;
 		if(isMod)			user.channelInfo[channelId].is_moderator = true;
 		if(isVip)			user.channelInfo[channelId].is_vip = true;
@@ -542,10 +542,10 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Gets a user's state object from its login
-	 * 
-	 * @param login 
-	 * @param channelId 
-	 * @returns 
+	 *
+	 * @param login
+	 * @param channelId
+	 * @returns
 	 */
 	private getUserStateFromLogin(login:string, channelId:string):{user:TwitchatDataTypes.TwitchatUser, wasOnline:boolean} {
 		//Search if a user with this name and source exists on store
@@ -556,15 +556,15 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		// user.channelInfo[channelId].online = true;
 		return {user, wasOnline};
 	}
-	
+
 	/**
 	 * Gets a sub object from data
-	 * 
-	 * @param channel 
-	 * @param tags 
-	 * @param methods 
-	 * @param message 
-	 * @returns 
+	 *
+	 * @param channel
+	 * @param tags
+	 * @param methods
+	 * @param message
+	 * @returns
 	 */
 	private getCommonSubObject(channel:string, tags:tmi.ChatUserstate|tmi.SubUserstate|tmi.SubGiftUpgradeUserstate|tmi.SubGiftUserstate|tmi.AnonSubGiftUserstate|tmi.AnonSubGiftUpgradeUserstate|tmi.PrimeUpgradeUserstate, methods?:tmi.SubMethods, message?:string):TwitchatDataTypes.MessageSubscriptionData {
 		const channel_id = this.getChannelID(channel);
@@ -598,7 +598,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	}
 
 	private async onMessage(channel:string, tags:tmi.ChatUserstate, message:string, self:boolean):Promise<void> {
-		
+
 		//Ignore anything that's not a message or a /me
 		if(tags["message-type"] != "chat" && tags["message-type"] != "action" && (tags["message-type"] as string) != "announcement") return;
 
@@ -628,7 +628,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.message_html = TwitchUtils.messageChunksToHTML(data.message_chunks);
 		data.message_size = TwitchUtils.computeMessageSize(data.message_chunks);
 		data.is_short = Utils.stripHTMLTags(data.message_html).length / data.message.length < .6 || data.message.length < 4;
-				
+
 		// If message is an answer, set original message's ref to the answer
 		// Called when using the "answer feature" on twitch chat
 		if(tags["reply-parent-msg-id"]) {
@@ -646,7 +646,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				}
 			}
 		}
-		
+
 		data.twitch_isSlashMe		= tags["message-type"] === "action";
 		data.twitch_isReturning		= tags["returning-chatter"] === true;
 		data.twitch_isFirstMessage	= tags['first-msg'] === true && tags["msg-id"] != "user-intro";
@@ -808,7 +808,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
-	
+
 	private anonsubgift(channel: string, streakMonths: number, recipient: string, methods: tmi.SubMethods, tags: tmi.AnonSubGiftUserstate):void {
 		const data = this.getCommonSubObject(channel, tags, methods);
 		data.is_gift = true;
@@ -822,14 +822,14 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		data.gift_count = 1;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
-	
+
 	private giftpaidupgrade(channel: string, username: string, sender: string, tags: tmi.SubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
 		data.gift_upgradeSender = this.getUserStateFromLogin(sender, data.channel_id).user;
 		this.dispatchEvent(new MessengerClientEvent("SUB", data));
 	}
-	
+
 	private anongiftpaidupgrade(channel: string, username: string, tags: tmi.AnonSubGiftUpgradeUserstate):void {
 		const data = this.getCommonSubObject(channel, tags);
 		data.is_giftUpgrade = true;
@@ -862,7 +862,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 		this.dispatchEvent(new MessengerClientEvent("RAID", message));
 		//*/
 	}
-	
+
 	private disconnected(reason:string):void {
 		const channel_id = StoreProxy.auth.twitch.user.id;
 
@@ -890,7 +890,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 	private clearchat(channel:string):void {
 		const channel_id = this.getChannelID(channel);
 		const me = StoreProxy.auth.twitch.user;
-		
+
 		//If we're the broadcaster we get clear details from pubsub
 		if(channel_id == me.id) return;
 
@@ -903,8 +903,8 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			fromAutomod:false,
 		}));
 	}
-	
-	
+
+
 	private onDeleteMessage(channel: string, username: string, deletedMessage: string, tags:tmi.DeleteUserstate):void {
 		const msgID = tags["target-msg-id"];
 		if(!msgID) return;
@@ -937,7 +937,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			|| (user.channelInfo[channel_id].banEndDate && !isTO)
 			//if user is perma banned and it's a TO
 			|| (!user.channelInfo[channel_id].banEndDate && isTO)) {
-				
+
 				const m:TwitchatDataTypes.MessageBanData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -946,9 +946,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					type:TwitchatDataTypes.TwitchatMessageType.BAN,
 					user,
 				};
-				
+
 				if(isTO) m.duration_s = duration as number;
-				
+
 				//Flag as banned. This also populates the ban reason of the user
 				await StoreProxy.users.flagBanned("twitch", channel_id, user.id, isTO? duration as number : undefined);
 				m.reason = user.channelInfo[channel_id].banReason;
@@ -978,7 +978,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 					const tags = parsed.tags as tmi.ChatUserstate;
 					const channelId = tags["room-id"] as string;
 					const user = this.getUserFromTags(tags, channelId);
-					
+
 					const params = parsed.params as string[];
 					const message = params[1];
 					const message_chunks = TwitchUtils.parseMessageToChunks(message, tags["emotes-raw"], tags.sentLocally == true);
@@ -1076,9 +1076,9 @@ export default class TwitchMessengerClient extends EventDispatcher {
 
 	/**
 	 * Get a number value for an IRC tag
-	 * @param val 
-	 * @param defaultValue 
-	 * @returns 
+	 * @param val
+	 * @param defaultValue
+	 * @returns
 	 */
 	private getNumValueFromTag(val:string|number, defaultValue:number):number {
 		if(typeof val == "string") return parseInt(val);

@@ -73,8 +73,10 @@ class OverlayPredictions extends Vue {
 		resultDuration_s:5,
 		placement:"bl",
 	};
-	
+
 	private updateDebounce:number = -1;
+	private parametersReceived:boolean = false;
+	private pendingData:TwitchatEvent|null = null;
 	private updatePredictionHandler!:(e:TwitchatEvent)=>void;
 	private updateParametersHandler!:(e:TwitchatEvent)=>void;
 	private requestPresenceHandler!:(e:TwitchatEvent)=>void;
@@ -121,14 +123,14 @@ class OverlayPredictions extends Vue {
 				return 100/this.prediction.outcomes.length;
 			}
 		}
-		if(this.listMode && barSizeTarget) totalVotes = maxVotes;	
+		if(this.listMode && barSizeTarget) totalVotes = maxVotes;
 		return Math.round(c.votes/Math.max(1,totalVotes) * 100);
 	}
 
 	public async mounted():Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE);
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
-		
+
 		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
 		this.updatePredictionHandler = (e:TwitchatEvent)=>this.onUpdatePrediction(e);
 		this.requestPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE); }
@@ -145,6 +147,14 @@ class OverlayPredictions extends Vue {
 	}
 
 	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
+		if(!this.parametersReceived) {
+			//overlay's parameters not received yet, put data aside
+			//onUpdatePrediction() will be called by onUpdateParams() afterwards
+			this.pendingData = e;
+			PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
+			return;
+		}
+
 		const prediction = ((e.data as unknown) as {prediction:TwitchatDataTypes.MessagePredictionData}).prediction;
 		//Debounce updates as twitch is a little spammy whenr esolving a prediction
 		if(!prediction) return;
@@ -172,7 +182,7 @@ class OverlayPredictions extends Vue {
 						this.open();
 						await this.$nextTick();
 					}
-			
+
 					const progressBar = this.$refs.progress as HTMLElement;
 					if(progressBar) {
 						const timeSpent = Math.min(prediction.duration_s * 1000, Date.now() - prediction.started_at);
@@ -188,11 +198,16 @@ class OverlayPredictions extends Vue {
 			}
 		}, 500);
 	}
-	
+
 	public async onUpdateParams(e:TwitchatEvent):Promise<void> {
 		this.parameters = ((e.data as unknown) as {parameters:PredictionOverlayParamStoreData}).parameters;
+		this.parametersReceived = true;
+		if(this.pendingData) {
+			this.onUpdatePrediction(this.pendingData);
+			this.pendingData = null;
+		}
 	}
-	
+
 	private async open():Promise<void> {
 		this.show = true;
 		await this.$nextTick();
@@ -206,7 +221,7 @@ class OverlayPredictions extends Vue {
 
 		gsap.killTweensOf(this.$el);
 		gsap.fromTo(this.$el, {scale:0}, {scale:1, duration, ease:"back.out", clearProps:true});
-		
+
 		if(labels) {
 			labels.removeAttribute("style");
 			gsap.killTweensOf(labels);
@@ -232,7 +247,7 @@ class OverlayPredictions extends Vue {
 		}
 		await Utils.promisedTimeout((duration + .25 * items.length) * 1000)
 	}
-	
+
 	public async close(isTemporaryClose:boolean = false):Promise<void> {
 		if(!isTemporaryClose) {
 			if(this.show === false) {
@@ -393,7 +408,7 @@ export default toNative(OverlayPredictions);
 		flex-direction: row;
 		color:var(--color-light);
 		justify-content: center;
-		
+
 		.percent, .votes, .points {
 			display: flex;
 			flex-direction: row;
@@ -415,7 +430,7 @@ export default toNative(OverlayPredictions);
 			}
 		}
 	}
-	
+
 	// transition: transform .25s, top .25s, right .25s, bottom .25s, left .25s;
 	&.position-tl {
 		top: 2em;
@@ -487,7 +502,7 @@ export default toNative(OverlayPredictions);
 			}
 		}
 
-		
+
 
 		.battle {
 			.labels {
