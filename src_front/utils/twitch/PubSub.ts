@@ -13,7 +13,7 @@ import * as Sentry from "@sentry/vue";
 import SetIntervalWorker from '../SetIntervalWorker';
 
 /**
-* Created : 13/01/2022 
+* Created : 13/01/2022
 */
 export default class PubSub extends EventDispatcher {
 
@@ -25,11 +25,11 @@ export default class PubSub extends EventDispatcher {
 	private hypeTrainProgressTimer!:number;
 	private history:{date:string, message:PubSubDataTypes.SocketMessage}[] = [];
 	private rewardsParsed:{[key:string]:boolean} = {};
-	
+
 	constructor() {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -41,9 +41,9 @@ export default class PubSub extends EventDispatcher {
 	}
 
 	public get eventsHistory() { return this.history; }
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -109,7 +109,7 @@ export default class PubSub extends EventDispatcher {
 				// subscriptions.push("channel-chat-highlights."+myUID+"."+myUID);//Needs a twitch scope T_T. This is what allows to get "raider" message highlight
 			}
 
-			
+
 			if(Config.instance.debugChans.length > 0) {
 				//Subscribe to someone else's channel pointevents
 				const users = await TwitchUtils.loadUserInfo(undefined, Config.instance.debugChans.filter(v=>v.platform=="twitch").map(v=>v.login));
@@ -140,7 +140,7 @@ export default class PubSub extends EventDispatcher {
 			}
 			this.subscribe(subscriptions);
 		};
-		
+
 		this.socket.onmessage = (event:unknown) => {
 			// alert(`[message] Data received from server: ${event.data}`);
 			const e = event as {data:string};
@@ -162,7 +162,7 @@ export default class PubSub extends EventDispatcher {
 			// 	console.log(event);
 			}
 		};
-		
+
 		this.socket.onclose = (event) => {
 			if(this.pingInterval) SetIntervalWorker.instance.delete(this.pingInterval);
 			// if (event.wasClean) {
@@ -175,7 +175,7 @@ export default class PubSub extends EventDispatcher {
 				this.connect();
 			}, 1000);
 		};
-		
+
 		this.socket.onerror = (error) => {
 			console.log(error);
 		};
@@ -195,7 +195,7 @@ export default class PubSub extends EventDispatcher {
 				this.parseEvent( json );
 			})
 		}
-		
+
 		this.parseEvent(PubsubJSON.HypeTrainComplete);
 	}
 
@@ -260,8 +260,8 @@ export default class PubSub extends EventDispatcher {
 		};
 		StoreProxy.chat.addMessage(message);
 	}
-	
-	
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -386,7 +386,7 @@ export default class PubSub extends EventDispatcher {
 			//{"type":"chat_rich_embed","data":{"message_id":"1fda6833-d53c-44d2-958b-389dd2289ff8","request_url":"https://clips.twitch.tv/","thumbnail_url":"https://clips-media-assets2.twitch.tv/-preview-86x45.jpg","twitch_metadata":{"clip_metadata":{"game":"","channel_display_name":"","slug":"","id":"0","broadcaster_id":"","curator_id":""}}}}
 
 
-		
+
 		//Sent when a whisper is read
 		}else if(data.type == "thread") {
 			data.data = JSON.parse(data.data as string);//for this event it's a string..thanks twitch for your consistency
@@ -511,7 +511,7 @@ export default class PubSub extends EventDispatcher {
 			const isComplete = data.type == "POLL_COMPLETE" || data.type == "POLL_TERMINATE";
 			this.pollEvent(localObj, isComplete);
 
-			
+
 
 		}else if(data.type == "POLL_ARCHIVE" || data.type == "POLL_MODERATE" || data.type == "POLL_INVALID") {
 			// const localObj = data.data as PubSubDataTypes.PollData;
@@ -556,7 +556,7 @@ export default class PubSub extends EventDispatcher {
 				progress,
 			};
 			StoreProxy.stream.setCommunityBoost(m);
-			
+
 			if(data.type == "community-boost-end") {
 				setTimeout(()=> {
 					//Automatically hide the boost after a few seconds
@@ -572,9 +572,9 @@ export default class PubSub extends EventDispatcher {
 				};
 				StoreProxy.chat.addMessage(m);
 			}
-			
 
-			
+
+
 		}else if(data.type == "moderation_action") {
 			//Manage moderation actions
 			const localObj = data.data as PubSubDataTypes.ModerationData;
@@ -631,7 +631,7 @@ export default class PubSub extends EventDispatcher {
 						startedAt:Date.now(),
 						timerDuration_s:90,
 					};
-					
+
 					//Load user's avatar if not already available
 					if(!infos.user.avatarPath) {
 						const user = (await TwitchUtils.loadUserInfo([infos.user.id]))[0];
@@ -645,7 +645,7 @@ export default class PubSub extends EventDispatcher {
 					StoreProxy.stream.setRaiding();
 					break;
 				}
-				
+
 				case "delete": {
 					const [login, message, messageId] = localObj.args!;
 					const deleter = StoreProxy.users.getUserFrom("twitch", channelId, localObj.created_by_user_id, localObj.created_by);
@@ -683,7 +683,7 @@ export default class PubSub extends EventDispatcher {
 					if(reasons.indexOf(key) == -1) reasons.push(key);
 				}
 			}
-			
+
 			//Build usable emotes set
 			const chunks:TwitchatDataTypes.ParseMessageChunk[] = [];
 			const words:string[] = [];
@@ -734,7 +734,7 @@ export default class PubSub extends EventDispatcher {
 			m.message_size = TwitchUtils.computeMessageSize(m.message_chunks);
 			StoreProxy.chat.addMessage(m);
 
-		}else 
+		}else
 		if(localObj.status == "DENIED" || localObj.status == "ALLOWED") {
 			//Search message by its ID
 			const list = StoreProxy.chat.messages.concat();
@@ -749,7 +749,7 @@ export default class PubSub extends EventDispatcher {
 
 	/**
 	 * Called when a low trust user is detected
-	 * 
+	 *
 	 * @param localObj
 	 */
 	private async lowTrustUserUpdate(localObj:PubSubDataTypes.LowTrustTreatmentUpdate):Promise<void> {
@@ -769,7 +769,7 @@ export default class PubSub extends EventDispatcher {
 
 	/**
 	 * Called when a low trust user is detected
-	 * 
+	 *
 	 * @param localObj
 	 */
 	private async lowTrustMessage(localObj:PubSubDataTypes.LowTrustMessage):Promise<void> {
@@ -862,12 +862,12 @@ export default class PubSub extends EventDispatcher {
 			m.message_html	= TwitchUtils.messageChunksToHTML(chunks);
 			m.message_size	= TwitchUtils.computeMessageSize(chunks);
 		}
-		
+
 		StoreProxy.chat.addMessage(m);
 	}
 
 	/**
-	 * Community challenge contribution 
+	 * Community challenge contribution
 	 */
 	private communityChallengeContributionEvent(localObj:PubSubDataTypes.ChannelPointChallengeContribution):void {
 		const img = localObj.goal.image ?? localObj.goal.default_image;
@@ -914,7 +914,7 @@ export default class PubSub extends EventDispatcher {
 			}
 			choices.push(entry);
 		}
-		
+
 		const me = StoreProxy.auth.twitch.user;
 		const poll:TwitchatDataTypes.MessagePollData = {
 			date:Date.now(),
@@ -928,7 +928,7 @@ export default class PubSub extends EventDispatcher {
 			duration_s: localObj.poll.duration_seconds,
 			started_at: new Date(localObj.poll.started_at).getTime(),
 			ended_at: localObj.poll.ended_at? new Date(localObj.poll.ended_at).getTime() : undefined,
-			winner, 
+			winner,
 		};
 
 		StoreProxy.poll.setCurrentPoll(poll, isComplete);
@@ -995,7 +995,7 @@ export default class PubSub extends EventDispatcher {
 
 	/**
 	 * Called when a hype train approaches
-	 * @param data 
+	 * @param data
 	 */
 	private hypeTrainApproaching(data:PubSubDataTypes.HypeTrainApproaching):void {
 		const key = Object.keys(data.events_remaining_durations)[0];
@@ -1037,7 +1037,7 @@ export default class PubSub extends EventDispatcher {
 
 	/**
 	 * Called when a hype train starts
-	 * @param data 
+	 * @param data
 	 */
 	private hypeTrainStart(data:PubSubDataTypes.HypeTrainStart):void {
 		clearTimeout(this.hypeTrainApproachingTimer);
@@ -1057,11 +1057,11 @@ export default class PubSub extends EventDispatcher {
 			conductor_bits:storeTrain?.conductor_bits,
 			conductor_subs:storeTrain?.conductor_subs,
 		};
-		
+
 		//This line makes debug easier if I wanna start the train at any
 		//point of its timeline
 		if(!train.approached_at) train.approached_at = Date.now();
-		
+
 		StoreProxy.stream.setHypeTrain(train);
 		const message:TwitchatDataTypes.MessageHypeTrainEventData = {
 			channel_id:data.channel_id,
@@ -1075,10 +1075,10 @@ export default class PubSub extends EventDispatcher {
 		}
 		StoreProxy.chat.addMessage(message);
 	}
-	
+
 	/**
 	 * Called when a hype train is progressing (new sub/bits)
-	 * @param data 
+	 * @param data
 	 */
 	private hypeTrainProgress(data:PubSubDataTypes.HypeTrainProgress, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
@@ -1111,12 +1111,12 @@ export default class PubSub extends EventDispatcher {
 				conductor_bits:storeTrain?.conductor_bits,
 				conductor_subs:storeTrain?.conductor_subs,
 			};
-			
+
 			//This line makes debug easier if I wanna start the train at any
 			//point of its timeline
 			if(!train.approached_at)	train.approached_at = Date.now();
 			if(!train.started_at)		train.started_at = Date.now();
-			
+
 			StoreProxy.stream.setHypeTrain(train);
 			const message:TwitchatDataTypes.MessageHypeTrainEventData = {
 				channel_id:channelId ?? storeTrain?.channel_id ?? StoreProxy.auth.twitch.user.id,
@@ -1131,10 +1131,10 @@ export default class PubSub extends EventDispatcher {
 			StoreProxy.chat.addMessage(message);
 		}, 1000)
 	}
-	
+
 	/**
 	 * Called when a hype train levels up
-	 * @param data 
+	 * @param data
 	 */
 	private hypeTrainLevelUp(data:PubSubDataTypes.HypeTrainLevelUp, channelId:string):void {
 		clearTimeout(this.hypeTrainApproachingTimer);//Shouldn't be necessary, kind of a failsafe
@@ -1174,10 +1174,10 @@ export default class PubSub extends EventDispatcher {
 		}
 		StoreProxy.chat.addMessage(message);
 	}
-	
+
 	/**
 	 * Called when a hype train conductor changes
-	 * @param data 
+	 * @param data
 	 */
 	private async hypeTrainConductorUpdate(data:PubSubDataTypes.HypeTrainConductorUpdate, channelId:string):Promise<void> {
 		const storeTrain = StoreProxy.stream.hypeTrain!;
@@ -1214,14 +1214,14 @@ export default class PubSub extends EventDispatcher {
 			}
 		}
 	}
-	
+
 	/**
 	 * Called when a hype train completes or expires
-	 * @param data 
+	 * @param data
 	 */
 	private hypeTrainEnd(data:PubSubDataTypes.HypeTrainEnd, channelId:string):void {
 		const storeTrain = StoreProxy.stream.hypeTrain!;
-		
+
 		if(!storeTrain) return;
 		const train:TwitchatDataTypes.HypeTrainStateData = {
 			channel_id:channelId ?? storeTrain?.channel_id ?? StoreProxy.auth.twitch.user.id,
@@ -1239,8 +1239,8 @@ export default class PubSub extends EventDispatcher {
 			conductor_subs:storeTrain.conductor_subs,
 		};
 		StoreProxy.stream.setHypeTrain(train);
-		
-		
+
+
 		setTimeout(()=> {
 			//Hide hype train popin
 			StoreProxy.stream.setHypeTrain(undefined);
@@ -1264,7 +1264,7 @@ export default class PubSub extends EventDispatcher {
 		}
 		StoreProxy.chat.addMessage(message);
 	}
-	
+
 	/**
 	 * Called when whispers are read
 	 */
@@ -1272,10 +1272,10 @@ export default class PubSub extends EventDispatcher {
 		data;//
 		// StoreProxy.store.dispatch("closeWhispers", data.id.split("_")[1]);
 	}
-	
+
 	/**
 	 * Called when room settings are updated
-	 * @param data 
+	 * @param data
 	 */
 	private roomSettingsUpdate(data:PubSubDataTypes.RoomSettingsUpdate):void {
 		const settings:TwitchatDataTypes.IRoomSettings = {}
@@ -1286,14 +1286,14 @@ export default class PubSub extends EventDispatcher {
 		settings.slowMode = modes.slow_mode_duration_seconds ?? false;
 		StoreProxy.stream.setRoomSettings(data.room.channel_id, settings);
 	}
-	
+
 	/**
 	 * Called when a message is pinned
 	 */
 	private async pinMessageEvent(data:PubSubDataTypes.PinMessage, channel_id:string):Promise<void> {
 		let message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
 		let attempts = 10;
-		
+
 		do {
 			message = StoreProxy.chat.messages.find(v=>v.id == data.message.id) as TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageCheerData|undefined;
 			if(!message) {
@@ -1314,7 +1314,8 @@ export default class PubSub extends EventDispatcher {
 				//Update DB message with new data
 				Database.instance.updateMessage(cheer);
 				//Forces triggers to execute
-				TriggerActionHandler.instance.execute(cheer);
+				//[EDIT] don't, storeChat() delays cheers trigger exec by 1s to wait for this pin event
+				// TriggerActionHandler.instance.execute(cheer);
 
 			}else if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 				//Simple pinned message
@@ -1337,7 +1338,7 @@ export default class PubSub extends EventDispatcher {
 					timeoutRef = setTimeout(()=> {
 						this.unpinMessageEvent(m, channel_id);
 					}, data.message.ends_at*1000 - Date.now());
-	
+
 					m.timeoutRef = timeoutRef;
 				}
 				StoreProxy.chat.addMessage(m);
@@ -1374,7 +1375,7 @@ export default class PubSub extends EventDispatcher {
 	 */
 	private unpinMessageEvent(data:PubSubDataTypes.UnpinMessage|PubSubDataTypes.PinUpdateMessage|TwitchatDataTypes.MessagePinData, channel_id:string):void {
 		const pinMessage = StoreProxy.chat.messages.find(v=>v.id == "pin_"+data.id) as TwitchatDataTypes.MessagePinData|undefined;
-		
+
 		if(pinMessage) {
 			pinMessage.chatMessage.is_pinned = false;
 			let moderator:TwitchatDataTypes.TwitchatUser|undefined;
