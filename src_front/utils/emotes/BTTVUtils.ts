@@ -238,8 +238,15 @@ export default class BTTVUtils {
 }
 
 interface BTTVEmote {
-	code:string;
 	id:string;
+	code:string;
+	userId?:string;
+	animated:boolean;
 	imageType:string;
-	userId:string;
+	user?: {
+		id:string;
+		name:string;
+		displayName:string;
+		providerId:string;
+	}
 }
