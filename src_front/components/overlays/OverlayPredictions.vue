@@ -47,7 +47,7 @@ import type { StyleValue } from 'vue';
 import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import gsap, { Linear } from 'gsap';
 import Utils from '@/utils/Utils';
-
+//TODO extend AbstractOverlay for better/simpler init
 @Component({
 	components:{
 		Icon,

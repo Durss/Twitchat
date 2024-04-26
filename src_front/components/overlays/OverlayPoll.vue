@@ -44,7 +44,7 @@ import Icon from '../Icon.vue';
 import type { StyleValue } from 'vue';
 import gsap, { Linear } from 'gsap';
 import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
-
+//TODO extend AbstractOverlay for better/simpler init
 @Component({
 	components:{
 		Icon,
