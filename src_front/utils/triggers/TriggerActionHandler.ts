@@ -1501,7 +1501,20 @@ export default class TriggerActionHandler {
 				//Handle http call trigger action
 				if(step.type == "http") {
 					const options:RequestInit = {method:step.method};
-					const body:{[key:string]:string} = {};
+					let body:{[key:string]:string} = {};
+					let customBody:string = "";
+					if(step.customBody) {
+						customBody = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.customBody, subEvent, false, false, false, true);
+						if(step.sendAsBody) {
+							try {
+								body = JSON.parse(customBody);
+							}catch(error) {
+								log.error = true;
+								logStep.error = true;
+								logStep.messages.push({date:Date.now(), value:"Failed parsing custom body as JSON: "+customBody});
+							}
+						}
+					}
 					const headers:{[key:string]:string} = {};
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
@@ -1514,8 +1527,12 @@ export default class TriggerActionHandler {
 							url.searchParams.append(tag.toLowerCase(), text);
 						}
 					}
-					if(step.method == "POST" && step.sendAsBody == true) {
-						options.body = JSON.stringify(body);
+					if(step.method == "POST") {
+						if(step.sendAsBody == true) {
+							options.body = JSON.stringify(body);
+						}else if(customBody) {
+							options.body = customBody;
+						}
 					}
 					if(step.customHeaders === true) {
 						for (let i = 0; i < (step.headers || []).length; i++) {
@@ -2442,7 +2459,7 @@ export default class TriggerActionHandler {
 	/**
 	 * Replaces placeholders by their values on the message
 	 */
-	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true):Promise<string> {
+	public async parsePlaceholders(dynamicPlaceholders:{[key:string]:string|number}, actionPlaceholder:ITriggerPlaceholder<any>[], trigger:TriggerData, message:TwitchatDataTypes.ChatMessageTypes, src:string, subEvent?:string|null, removeRemainingTags:boolean = true, removeFolderNavigation:boolean = false, removeHTMLtags:boolean = true, escapeDoubleQuotes:boolean = false):Promise<string> {
 		let res = src.toString();
 		if(!res) return "";
 		let subEvent_regSafe = "";
@@ -2825,6 +2842,8 @@ export default class TriggerActionHandler {
 				}
 
 				if(typeof value != "string") value = JSON.stringify(value);
+
+				if(escapeDoubleQuotes) value = value.replace(/\"/g, "\\\"");
 
 				res = res.replace(new RegExp("\\{"+placeholder.tag+"\\}", "gi"), value ?? "");
 			}

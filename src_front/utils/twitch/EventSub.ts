@@ -111,6 +111,7 @@ export default class EventSub {
 		};
 
 		this.socket.onclose = (event) => {
+			console.log("EVENTSUB : OnClose");
 			//Twitch asked us to reconnect socket at a new URL, which we did
 			//but deconnection of the old socket (current one) wasn't done.
 			if(event.code == 4004) return;

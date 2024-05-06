@@ -122,7 +122,7 @@ import Ajv from "ajv";
 				type:"object",
 				additionalProperties: false,
 				properties:{
-					scene: 
+					scene:
 					{
 						type:"object",
 						additionalProperties: false,
@@ -315,6 +315,7 @@ import Ajv from "ajv";
 								},
 								placeholder:{type:"string", maxLength:50},
 								outputPlaceholder:{type:"string", maxLength:20},
+								customBody:{type:"string", maxLength:5000},
 								min: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								max: {type:"integer", minimum:Number.MIN_SAFE_INTEGER, maximum:Number.MAX_SAFE_INTEGER},
 								float: {type:"boolean"},
@@ -1008,7 +1009,7 @@ import Ajv from "ajv";
 				position: {enum: ["tl", "t", "tr", "l", "m", "r", "bl", "b", "br"]},
 			}
 		},
-		
+
 		chatAlertParams: {
 			type:"object",
 			additionalProperties: false,
@@ -1022,7 +1023,7 @@ import Ajv from "ajv";
 				permissions:{ $ref: "defs.json#/definitions/permissions" },
 			}
 		},
-		
+
 		musicPlayerParams: {
 			type:"object",
 			additionalProperties: false,

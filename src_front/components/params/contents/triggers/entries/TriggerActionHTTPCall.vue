@@ -3,9 +3,10 @@
 		<ParamItem :paramData="param_url" v-model="action.url"
 			:error="securityError"
 			:errorMessage="$t('triggers.actions.http_ws.protocol_error')" />
-		
+
 		<ParamItem class="row item" :paramData="param_method" v-model="action.method">
 			<ParamItem class="row child item" :paramData="param_sendAsBody" v-model="action.sendAsBody" v-if="action.method == 'POST'" noBackground />
+			<ParamItem class="row child item" :paramData="param_custom_body" v-model="action.customBody" v-if="action.method == 'POST'" noBackground />
 		</ParamItem>
 
 		<ParamItem class="row item" :paramData="param_customHeaders" v-model="action.customHeaders">
@@ -25,9 +26,9 @@
 
 		<div class="card-item tags">
 			<p class="title" v-if="parameters.length > 0">{{ $t("triggers.actions.http_ws.select_param") }}</p>
-			
+
 			<div class="params">
-				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @change="toggleAll()" v-if="parameters.length > 3" />
+				<ParamItem class="toggleAll" noBackground :paramData="param_toggleAll" @click.native="toggleAll()" v-if="parameters.length > 3" />
 
 				<div class="card-item" v-for="p in parameters" :key="p.placeholder.tag" @click="p.enabled = !p.enabled; onToggleParam()">
 					<div class="taginfo">
@@ -73,7 +74,7 @@ import TTButton from '@/components/TTButton.vue';
 
 	@Prop
 	declare action:TriggerActionHTTPCallData;
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -83,6 +84,7 @@ import TTButton from '@/components/TTButton.vue';
 	public param_url:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", placeholder:"https://...", labelKey:"triggers.actions.http_ws.url"};
 	public param_method:TwitchatDataTypes.ParameterData<TriggerActionHTTPCallDataAction, TriggerActionHTTPCallDataAction> = {type:"list", value:"GET", listValues:[], labelKey:"triggers.actions.http_ws.method"};
 	public param_outputPlaceholder:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", labelKey:"triggers.actions.http_ws.output_placeholder", maxLength:30, allowedCharsRegex:"A-z0-9_"};
+	public param_custom_body:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, labelKey:"triggers.actions.http_ws.custom_body", placeholderKey:"triggers.actions.http_ws.custom_body_placeholder", maxLength:5000};
 	public param_toggleAll:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"chat.filters.select_all" };
 	public param_sendAsBody:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, labelKey:"triggers.actions.http_ws.send_as_body" };
 	public param_customHeaders:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"triggers.actions.http_ws.custom_headers" };
@@ -111,13 +113,24 @@ import TTButton from '@/components/TTButton.vue';
 	public onToggleParam():void {
 		const params:string[] = this.parameters.filter(v=>v.enabled).map(v=> v.placeholder.tag);
 		this.action.queryParams = params;
+
+		let allSelected = true;
+		this.parameters.forEach(v=> allSelected &&= v.enabled);
+		this.param_toggleAll.value = allSelected
 	}
 
 	/**
 	 * Called when clicking "all" toggle
 	 */
 	public toggleAll():void {
-		this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+		//Leave it time for the model value to update.
+		//Not usign @change because the value is changed on onToggleParam() based
+		//on currently enabled parameters which would conflict with this handler
+		//if it was using @change.
+		setTimeout(() => {
+			this.parameters.forEach(v=> v.enabled = this.param_toggleAll.value);
+			this.onToggleParam();
+		}, 0);
 	}
 
 	/**
@@ -131,6 +144,8 @@ import TTButton from '@/components/TTButton.vue';
 				enabled:!this.action.queryParams || this.action.queryParams.includes(v.tag),
 			}
 		});
+
+		this.param_custom_body.placeholderList = list;
 	}
 
 	/**

@@ -61,6 +61,7 @@ export default toNative(PremiumLockLayer);
 		height: 1.75em;
 		width: 1.75em;
 		transition: opacity .25s;
+		filter: drop-shadow(0 0 10px #000000);
 	}
 	&:hover {
 		.button {

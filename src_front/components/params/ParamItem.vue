@@ -13,14 +13,13 @@
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
-				
+
 				<label :for="'toggle'+key"
 					v-if="label"
 					v-html="label"
 					v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
-				
+
 				<ToggleButton v-if="!paramData.noInput" class="ToggleButton.vue"
-					@click.capture.stop
 					v-model="paramData.value"
 					:secondary="secondary"
 					:premium="premiumOnlyLocal"
@@ -28,7 +27,7 @@
 					:inputId="'toggle'+key"
 					:disabled="disabled !== false || paramData.disabled === true" />
 			</div>
-			
+
 			<div v-if="paramData.type == 'number'" class="holder number">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -48,7 +47,7 @@
 					@blur="clampValue()"
 					@input="$emit('input')">
 			</div>
-			
+
 			<div v-if="paramData.type == 'string' || paramData.type == 'password' || paramData.type == 'date' || paramData.type == 'datetime' || paramData.type == 'time'"
 			:class="paramData.type == 'time'? 'holder text time' : 'holder text'">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
@@ -85,7 +84,7 @@
 					<div class="maxlength" v-if="paramData.maxLength">{{(paramData.value as string).length}}/{{paramData.maxLength}}</div>
 				</div>
 			</div>
-			
+
 			<div v-if="paramData.type == 'duration'" class="holder text duration">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -104,7 +103,7 @@
 					:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 					@change="$emit('input')" />
 			</div>
-			
+
 			<div v-if="paramData.type == 'color'" class="holder color">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -122,7 +121,7 @@
 						type="color">
 				</div>
 			</div>
-			
+
 			<div v-if="paramData.type == 'slider'" class="holder slider">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -135,7 +134,7 @@
 				:disabled="premiumLocked || disabled !== false || paramData.disabled === true"
 				:alert="alert || errorLocal" />
 			</div>
-			
+
 			<div v-if="paramData.type == 'list' && paramData.multiple !== true" class="holder list">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -152,7 +151,7 @@
 						:disabled="a.disabled === true">{{a.label != undefined? a.label : $t(a.labelKey!)}}</option>
 				</select>
 			</div>
-			
+
 			<div v-if="paramData.type == 'list' && paramData.multiple === true" class="holder list">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -190,7 +189,7 @@
 					</template>
 				</vue-select>
 			</div>
-			
+
 			<div v-if="paramData.type == 'imagelist'" class="holder list">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -220,7 +219,7 @@
 					</template>
 				</vue-select>
 			</div>
-			
+
 			<div v-if="paramData.type == 'editablelist'" class="holder list editable">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
@@ -249,12 +248,12 @@
 					</template>
 				</vue-select>
 			</div>
-			
+
 			<div v-if="paramData.type == 'browse'" class="holder browse">
 				<Icon theme="secondary" class="helpIcon" name="help" v-if="paramData.example"
 					v-tooltip="{content:'<img src='+$image('img/param_examples/'+paramData.example)+'>', maxWidth:'none'}"
 				/>
-				
+
 				<label :for="'browse'+key" v-if="label" v-tooltip="tooltip" v-html="label"></label>
 				<input v-if="!paramData.noInput" type="text"
 					class="filePath"
@@ -274,7 +273,7 @@
 				/>
 			</div>
 		</div>
-		
+
 		<PlaceholderSelector class="placeholders" v-if="paramData.placeholderList"
 			:target="placeholderTarget"
 			:placeholders="paramData.placeholderList"
@@ -343,7 +342,7 @@ import PlaceholderSelector from './PlaceholderSelector.vue';
 	emits: ["change", "update:modelValue", "mouseenter", "mouseleave", "input"]
 })
 export class ParamItem extends Vue {
-	
+
 	@Prop
 	public paramData!:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>;
 
@@ -406,7 +405,7 @@ export class ParamItem extends Vue {
 	private childrenExpanded:boolean = false;
 
 	public get longText():boolean { return this.paramData?.longText === true || this.textValue?.length > 40; }
-	
+
 	public get showChildren():boolean {
 		if(this.forceChildDisplay !== false) return true;
 		let state = (this.paramData.type == 'boolean' && this.paramData.value === true)
@@ -448,7 +447,7 @@ export class ParamItem extends Vue {
 	public get label():string {
 		if(!this.paramData) return "";
 		let txt = this.paramData.label ?? "";
-		
+
 		let count = 0;
 		let v = this.paramData.value as number | string;
 		if(this.paramData.type == "number" || this.paramData.type == "slider") {
@@ -525,11 +524,11 @@ export class ParamItem extends Vue {
 			this.paramData.value = (h * 3600 + m * 60 + s) || 0;
 		}else{
 			this.paramData.value = value;
-			
+
 			const input = this.$refs.input as HTMLInputElement;
 			let selectStart = input.selectionStart || value.length;
 			let selectEnd = input.selectionEnd;
-			
+
 			this.$nextTick().then(()=> {
 				const newInput = this.$refs.input as HTMLInputElement;
 				if(newInput == input) return;
@@ -549,7 +548,7 @@ export class ParamItem extends Vue {
 		this.autofocusLocal = this.autofocus;
 		this.premiumOnlyLocal = this.premium !== false || this.paramData.premiumOnly === true;
 		this.setErrorState(this.error || this.paramData.error === true);
-		
+
 		if(this.modelValue !== null
 		&& this.modelValue !== undefined) {
 			this.paramData.value = this.modelValue;
@@ -572,19 +571,19 @@ export class ParamItem extends Vue {
 				this.paramData.value = value;
 			}
 		});
-		
+
 		watch(() => this.paramData.value, () => this.onEdit());
-		
+
 		watch(() => this.paramData.error, ()=> this.setErrorState(this.paramData.error === true));
-		
+
 		watch(() => this.paramData.listValues, ()=> this.updateSelectedListValue());
-		
+
 		watch(() => this.paramData.children, () => this.buildChildren() );
-		
+
 		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
-		
+
 		this.buildChildren();
-		
+
 		if(this.paramData.listValues && this.paramData.listValues.length > 0 && this.paramData.multiple !== true) {
 			//Check if the value is on the listValues.
 			//If not, fallback to the first value.
@@ -606,7 +605,7 @@ export class ParamItem extends Vue {
 		//between <input> and <textarea> depending on the text length
 		//This won't affect first rendering, only subsequent ones
 		this.autofocusLocal = true;
-		
+
 		//Force a model value update.
 		//This is necessary for default values to be applied to the
 		//v-model value on first render.
@@ -617,7 +616,7 @@ export class ParamItem extends Vue {
 	 * Called when item is clicked.
 	 * If parameter requires a specific scope that's not granted, the
 	 * clicke event is blocked and user is asked to grant permission.
-	 * @param event 
+	 * @param event
 	 */
 	public clickItem(event:MouseEvent):void {
 		if(this.paramData.twitch_scopes) {
@@ -636,9 +635,9 @@ export class ParamItem extends Vue {
 		if(this.premiumLocked) return;
 
 		this.updateSelectedListValue();
-		
+
 		if(this.isLocalUpdate) return;
-		
+
 		this.isLocalUpdate = true;
 		if(Array.isArray(this.paramData.value) && this.paramData.type == "editablelist") {
 			//Limit number of items of the editablelist
@@ -660,7 +659,7 @@ export class ParamItem extends Vue {
 					list.pushedTags.splice(i, 1);
 				}
 			}
-			
+
 			if(list.dropdownOpen) {
 				list.closeSearchOptions();
 			}
@@ -725,9 +724,9 @@ export class ParamItem extends Vue {
 		if(this.paramData.children) {
 			children = children.concat(this.paramData.children);
 		}
-		
+
 		if(this.children == children) return;
-		
+
 		this.children = children;
 		await this.$nextTick();
 
@@ -772,13 +771,13 @@ export class ParamItem extends Vue {
 			done();
 		}});
 	}
-	
+
 	public onHideItem(el:Element, done:()=>void):void {
 		gsap.to(el, {overflow:"hidden", height:0, duration:.2, marginTop:0, ease:"sine.out", onComplete:()=>{
 			done();
 		}});
 	}
-	
+
 	private updateSelectedListValue():void {
 		if((this.paramData.type == "list" || this.paramData.type == "imagelist") && this.paramData.listValues) {
 			this.paramData.selectedListValue = this.paramData.listValues.find(v=>v.value == this.paramData.value);
@@ -798,7 +797,7 @@ export default toNative(ParamItem);
 	label {
 		white-space: pre-line;
 	}
-	
+
 	&:not(.disabled)>.content:hover::before {
 		opacity: 1;
 	}
@@ -851,7 +850,7 @@ export default toNative(ParamItem);
 			pointer-events: none;
 		}
 	}
-	
+
 	&.error {
 		cursor: not-allowed;
 		background-color: var(--color-alert-fader) !important;
@@ -880,7 +879,7 @@ export default toNative(ParamItem);
 			}
 		}
 	}
-	
+
 	.content {
 		display: flex;
 		flex-direction: row;
@@ -910,7 +909,7 @@ export default toNative(ParamItem);
 			margin-right: .5em;
 			flex-shrink: 0;
 		}
-		
+
 
 		.helpIcon {
 			width: 20px;
@@ -920,7 +919,7 @@ export default toNative(ParamItem);
 		.toggleButton {
 			align-self: flex-start;
 		}
-		
+
 		.toggle, .number, .text, .list, .browse, .color{
 			flex-grow: 1;
 			display: flex;
@@ -1076,7 +1075,7 @@ export default toNative(ParamItem);
 					}
 				}
 			}
-			
+
 			&.editable {
 				flex-direction: column;
 				label {

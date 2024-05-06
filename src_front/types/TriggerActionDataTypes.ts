@@ -631,6 +631,10 @@ export interface TriggerActionHTTPCallData extends TriggerActionData{
 	 * Placeholder containing the request result
 	 */
 	outputPlaceholder?:string;
+	/**
+	 * Custom body value
+	 */
+	customBody?:string;
 }
 
 export interface TriggerActionWSData extends TriggerActionData{

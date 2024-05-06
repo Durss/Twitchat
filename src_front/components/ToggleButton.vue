@@ -157,7 +157,7 @@ export default toNative(ToggleButton);
 	}
 
 	&:not(.disabled):hover {
-		background-color: var(--background-color-fader);
+		background-color: var(--background-color-fade);
 	}
 
 	&.noCheckmark {
@@ -185,13 +185,25 @@ export default toNative(ToggleButton);
 		&:not(.disabled):hover {
 			background-color: var(--color-primary-extralight);
 		}
+
+		&.secondary:not(.disabled):hover {
+			background-color: var(--color-secondary-extralight);
+		}
+
+		&.alert:not(.disabled):hover {
+			background-color: var(--color-alert-extralight);
+		}
+
+		&.premium:not(.disabled):hover {
+			background-color: var(--color-premium-extralight);
+		}
 	}
 
-	
+
 	&.big {
 		font-size: 1.2em;
 	}
-	
+
 	&.small {
 		font-size: .8em;
 	}
