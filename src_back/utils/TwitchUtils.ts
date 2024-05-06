@@ -183,6 +183,62 @@ export default class TwitchUtils {
 		return false;
 	}
 
+	/**
+	 * Loads 1 or many steam by their IDs or logins
+	 * @param logins 
+	 * @param ids 
+	 * @param failSafe 
+	 * @returns 
+	 */
+	public static async loadStreams(logins?:string[], ids?:string[], failSafe:boolean = true):Promise<TwitchUSteamInfos[]|false> {
+		await this.getClientCredentialToken();//This will refresh the token if necessary
+
+		const url = new URL("https://api.twitch.tv/helix/streams");
+		if((logins || []).length > 100 || (ids || []).length > 100) {
+			Logger.warn("You cannot load more than 100 streams at once !");
+			throw("You cannot load more than 100 streams at once !");
+		}
+
+		if(ids) {
+			ids = ids.filter(v => v != null && v != undefined);
+			ids = ids.map(v => v.trim());
+		}
+		if(logins) {
+			logins = logins.filter(v => v != null && v != undefined);
+			logins = logins.map(v => v.trim());
+		}
+		
+		if(logins) {
+			logins.forEach(login => {
+				url.searchParams.append("user_login", login);
+			})
+		}else 
+		if(ids) {
+			ids.forEach(id => {
+				url.searchParams.append("user_id", id);
+			})
+		}
+		let result = await fetch(url, {
+			headers:{
+				"Client-ID": Config.credentials.twitch_client_id,
+				"Authorization": "Bearer "+this._token,
+				"Content-Type": "application/json",
+			}
+		});
+		//Token seem to expire before it's actual EOL date.
+		//Make sure here the next request will work.
+		if(result.status == 401) {
+			this.getClientCredentialToken(true);
+			if(failSafe) {
+				return await this.loadStreams(logins, ids, false);
+			}
+		}
+		if(result.status == 200) {
+			return (await result.json()).data;
+		}
+		return false;
+	}
+
 	
 	
 	
@@ -210,4 +266,20 @@ export interface TwitchUserInfos {
 	offline_image_url:string;
 	view_count:string;
 	created_at:string;
+}
+export interface TwitchUSteamInfos {
+	id: string;
+	user_id: string;
+	user_login: string;
+	user_name: string;
+	game_id: string;
+	game_name: string;
+	type: string;
+	title: string;
+	viewer_count: number;
+	started_at: string;
+	language: string;
+	thumbnail_url: string;
+	tags: string[];
+	is_mature: boolean;
 }

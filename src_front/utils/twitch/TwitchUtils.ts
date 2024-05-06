@@ -3028,7 +3028,7 @@ export default class TwitchUtils {
 				})
 			}
 			if (result.length > 1000) {
-				console.log("INIFINITE LOOP DETECTED !", result)
+				console.log("INFINITE LOOP DETECTED !", result)
 				break;
 			}
 		}
