@@ -6,6 +6,7 @@ import type { UnwrapRef } from 'vue'
 import type { IVoiceActions, IVoiceGetters, IVoiceState } from '../StoreProxy'
 import VoiceController from '@/utils/voice/VoiceController'
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket'
+import Utils from '@/utils/Utils'
 
 export const storeVoice = defineStore('voice', {
 	state: () => ({
@@ -16,7 +17,7 @@ export const storeVoice = defineStore('voice', {
 			rawTempText:"",
 			finalText:"",
 		},
-		
+
 		voicemodCurrentVoice:{
 			id:"nofx",
 			friendlyName: "clean",
@@ -61,7 +62,7 @@ export const storeVoice = defineStore('voice', {
 			if(voiceActions) {
 				this.voiceActions = JSON.parse(voiceActions);
 			}
-			
+
 			//Init Voice control language
 			const voiceLang = DataStore.get("voiceLang");
 			if(voiceLang) {
@@ -87,10 +88,19 @@ export const storeVoice = defineStore('voice', {
 			this.voiceActions = value;
 			DataStore.set(DataStore.VOICE_BOT_ACTIONS, value);
 		},
-		
+
 		setVoicemodParams(payload:TwitchatDataTypes.VoicemodParamsData) {
 			this.voicemodParams = payload;
 			DataStore.set(DataStore.VOICEMOD_PARAMS, payload);
+		},
+
+		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>{
+			//Check if it's a voicemod command
+			if(this.voicemodParams.enabled
+			&& this.voicemodParams.commandToVoiceID[cmd]
+			&& await Utils.checkPermissions(this.voicemodParams.chatCmdPerms, message.user, message.channel_id)) {
+				VoicemodWebSocket.instance.enableVoiceEffect(this.voicemodParams.commandToVoiceID[cmd]);
+			}
 		},
 	} as IVoiceActions
 	& ThisType<IVoiceActions

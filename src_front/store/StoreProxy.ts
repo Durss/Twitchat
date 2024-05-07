@@ -19,7 +19,7 @@ import type { StreamelementsStoreData } from "./streamelements/storeStreamelemen
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 
 /**
-* Created : 23/09/2022 
+* Created : 23/09/2022
 * This class only exists to solve the circular imports hell
 */
 export default class StoreProxy {
@@ -168,7 +168,7 @@ export interface IMainActions {
 	/**
 	 * Starts  the app
 	 * @param authenticate whether we want to authenticate (ex:chat) or not (ex:home)
-	 * @param callback 
+	 * @param callback
 	 */
 	startApp(authenticate:boolean, callback:(value:unknown)=>void):Promise<void>;
 	/**
@@ -181,18 +181,18 @@ export interface IMainActions {
 	loadDataFromStorage():void;
 	/**
 	 * Opens up an alert at the top of the app on red bar
-	 * @param message 
+	 * @param message
 	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
 	 * @param showContact defines if contact info should be displayed (discord link)
 	 */
 	alert(message:string, isCritical?:boolean, showContact?:boolean):void;
 	/**
 	 * Opens up a confirm window requesting the user to confirm or cancel
-	 * @param title 
-	 * @param description 
-	 * @param data 
-	 * @param yesLabel 
-	 * @param noLabel 
+	 * @param title
+	 * @param description
+	 * @param data
+	 * @param yesLabel
+	 * @param noLabel
 	 * @param STTOrigin is open from speech recognition ? If so, voice commands are displayed
 	 */
 	confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined>;
@@ -202,7 +202,7 @@ export interface IMainActions {
 	closeConfirm():void;
 	/**
 	 * Open a tooltip
-	 * @param text 
+	 * @param text
 	 */
 	openTooltip(text:string):void;
 	/**
@@ -225,17 +225,17 @@ export interface IMainActions {
 	/**
 	 * Sets the callback function to call in order to trigger
 	 * the Twitchat installation process on the device
-	 * @param value 
+	 * @param value
 	 */
 	setAhsInstaller(value:TwitchatDataTypes.InstallHandler):void;
 	/**
 	 * Sets chat alert feature params
-	 * @param params 
+	 * @param params
 	 */
 	setChatAlertParams(params:TwitchatDataTypes.AlertParamsData):void;
 	/**
 	 * Opens the chat alert witht the specified message
-	 * @param message 
+	 * @param message
 	 */
 	executeChatAlert(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null):Promise<void>;
 }
@@ -342,14 +342,14 @@ export interface IAuthGetters {
 export interface IAuthActions {
 	/**
 	 * Request a twitch token refresh
-	 * @param reconnectIRC 
-	 * @param callback 
+	 * @param reconnectIRC
+	 * @param callback
 	 */
 	twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void):Promise<TwitchDataTypes.AuthTokenResult|false>;
 	/**
 	 * Authenticate with twitch
-	 * @param code 
-	 * @param cb 
+	 * @param code
+	 * @param cb
 	 */
 	twitch_autenticate(code?:string, cb?:(success:boolean, betaRefused?:boolean)=>void):Promise<void>;
 	/**
@@ -358,7 +358,7 @@ export interface IAuthActions {
 	logout():void;
 	/**
 	 * Request for new twitch scopes
-	 * @param scopes 
+	 * @param scopes
 	 */
 	requestTwitchScopes(scopes:TwitchScopesString[]):void;
 	/**
@@ -387,7 +387,7 @@ export interface IAutomodActions {
 	populateData():void;
 	/**
 	 * Update automod parameters
-	 * @param payload 
+	 * @param payload
 	 */
 	setAutomodParams(payload:TwitchatDataTypes.AutomodParamsData):void;
 }
@@ -408,7 +408,7 @@ export interface IBingoGetters {
 export interface IBingoActions {
 	/**
 	 * Start a bingo session
-	 * @param payload 
+	 * @param payload
 	 */
 	startBingo(payload:TwitchatDataTypes.BingoConfig):void;
 	/**
@@ -417,7 +417,7 @@ export interface IBingoActions {
 	stopBingo():void;
 	/**
 	 * Check if the given user message matches the bingo answer
-	 * @param message 
+	 * @param message
 	 */
 	checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void;
 }
@@ -515,26 +515,26 @@ export interface IChatActions {
 	sendRightClickHint():void;
 	/**
 	 * Add a message to the chat history
-	 * @param message 
+	 * @param message
 	 */
 	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
 	/**
 	 * Delete a message
-	 * @param message 
-	 * @param deleterData 
-	 * @param callEndpoint 
+	 * @param message
+	 * @param deleterData
+	 * @param callEndpoint
 	 */
 	deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete a message by its ID
-	 * @param messageID 
-	 * @param deleterData 
-	 * @param callEndpoint 
+	 * @param messageID
+	 * @param deleterData
+	 * @param callEndpoint
 	 */
 	deleteMessageByID(messageID:string, deleterData?:TwitchatDataTypes.TwitchatUser, callEndpoint?:boolean):void;
 	/**
 	 * Delete all messages of a channel
-	 * @param channelId 
+	 * @param channelId
 	 */
 	delChannelMessages(channelId:string):void;
 	/**
@@ -543,48 +543,48 @@ export interface IChatActions {
 	delUserMessages(uid:string, channelId:string):void;
 	/**
 	 * Sets the emote cache for the emote selector for faster init
-	 * @param payload 
+	 * @param payload
 	 */
 	setEmoteSelectorCache(payload:{user:TwitchatDataTypes.TwitchatUser, emotes:TwitchatDataTypes.Emote[]}[]):void;
 	/**
 	 * Close whispers window
-	 * @param userID 
+	 * @param userID
 	 */
 	closeWhispers( userID:string):void;
 	/**
 	 * Search for messages
-	 * @param value 
+	 * @param value
 	 */
 	doSearchMessages(value:string):void;
 	/**
 	 * Update one of the message templates
-	 * @param value 
+	 * @param value
 	 */
 	updateBotMessage(value:{key:TwitchatDataTypes.BotMessageField, enabled:boolean, message:string}):void;
 	/**
 	 * Update the chat highlight overlay params
-	 * @param params 
+	 * @param params
 	 */
 	setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams):void;
 	/**
 	 * Update spoiler feature params
-	 * @param params 
+	 * @param params
 	 */
 	setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData):void;
 	/**
 	 * Save a message.
 	 * Saved messages are displayed on a dedicated window to avoid loosing them
-	 * @param message 
+	 * @param message
 	 */
 	saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
 	/**
 	 * Remove a message from the saved ones
-	 * @param message 
+	 * @param message
 	 */
 	unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData):void;
 	/**
 	 * Show a message on the chat highlight overlay
-	 * @param message 
+	 * @param message
 	 */
 	highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage):Promise<void>;
 	/**
@@ -592,14 +592,14 @@ export interface IChatActions {
 	 * Called by pubsub (or eventsub if i could migrate there since then) to
 	 * flag a message. We first receive the message from IRC then pubsub sends
 	 * a message to tell us that the user is suspicious and we need to flag their message
-	 * @param data 
-	 * @param retryCount 
+	 * @param data
+	 * @param retryCount
 	 */
 	flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void>;
 	/**
 	 * Flags a message as their first one today
-	 * @param message 
-	 * @param user 
+	 * @param message
+	 * @param user
 	 */
 	flagMessageAsFirstToday(message:TwitchatDataTypes.GreetableMessage):void;
 	/**
@@ -628,12 +628,12 @@ export interface IChatSuggestionGetters {
 export interface IChatSuggestionActions {
 	/**
 	 * Start a chat suggestion session
-	 * @param payload 
+	 * @param payload
 	 */
 	setChatSuggestion(payload:TwitchatDataTypes.ChatSuggestionData|null):void;
 	/**
 	 * Add a message to the suggestions if it matches the params
-	 * @param message 
+	 * @param message
 	 */
 	addChatSuggestion(message:TwitchatDataTypes.TranslatableMessage):void;
 }
@@ -650,25 +650,25 @@ export interface IDebugGetters {
 export interface IDebugActions {
 	/**
 	 * Sends a fake message of the specified type on chat
-	 * @param type 
-	 * @param hook 
-	 * @param postOnChat 
-	 * @param allowConversations 
+	 * @param type
+	 * @param hook
+	 * @param postOnChat
+	 * @param allowConversations
 	 */
 	simulateMessage<T=TwitchatDataTypes.ChatMessageTypes>(type:TwitchatDataTypes.TwitchatMessageStringType, hook?:(message:T)=>void, postOnChat?:boolean, allowConversations?:boolean):Promise<T>;
 	/**
 	 * Sends a fake notice of the specified type on chat
-	 * @param type 
-	 * @param hook 
-	 * @param postOnChat 
-	 * @param allowConversations 
+	 * @param type
+	 * @param hook
+	 * @param postOnChat
+	 * @param allowConversations
 	 */
 	simulateNotice<T=TwitchatDataTypes.ChatMessageTypes>(noticeType?:TwitchatDataTypes.TwitchatNoticeStringType, hook?:(message:T)=>void, postOnChat?:boolean):Promise<T>;
 	/**
 	 * Sends a random fake message of any type
-	 * @param postOnChat 
-	 * @param forcedMessage 
-	 * @param hook 
+	 * @param postOnChat
+	 * @param forcedMessage
+	 * @param hook
 	 */
 	sendRandomFakeMessage<T=TwitchatDataTypes.ChatMessageTypes>(postOnChat:boolean, forcedMessage?:string, hook?:(message:T)=>void, forcedType?:TwitchatDataTypes.TwitchatMessageStringType):Promise<T>;
 }
@@ -701,23 +701,23 @@ export interface IEmergencyActions {
 	populateData():void;
 	/**
 	 * Sets the emergency mode aprams
-	 * @param params 
+	 * @param params
 	 */
 	setEmergencyParams(params:TwitchatDataTypes.EmergencyParamsData):void;
 	/**
 	 * Enable/disable the emergency mode
-	 * @param enable 
+	 * @param enable
 	 */
 	setEmergencyMode(enable:boolean):Promise<void>;
 	/**
 	 * Add a follower event to the list of users that followed
 	 * during an emergency
-	 * @param payload 
+	 * @param payload
 	 */
 	addEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
 	/**
 	 * Removes a follower from the emergency follow
-	 * @param payload 
+	 * @param payload
 	 */
 	ignoreEmergencyFollower(payload:TwitchatDataTypes.MessageFollowingData):void;
 	/**
@@ -727,8 +727,8 @@ export interface IEmergencyActions {
 	/**
 	 * Check if the specified message contains the chat command
 	 * that can start the emergency mode.
-	 * @param message 
-	 * @param cmd 
+	 * @param message
+	 * @param cmd
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 	/**
@@ -774,7 +774,7 @@ export interface IMusicActions {
 	/**
 	 * Sets the spotify OAuth result after going through
 	 * the OAuth process
-	 * @param value 
+	 * @param value
 	 */
 	setSpotifyAuthResult(value:SpotifyAuthResult|null):void;
 }
@@ -811,23 +811,23 @@ export interface IOBSActions {
 	populateData():void;
 	/**
 	 * Set OBS scenes chat commands params
-	 * @param value 
+	 * @param value
 	 */
 	setOBSSceneCommands(value:TwitchatDataTypes.OBSSceneCommand[]):void;
 	/**
 	 * Set OBS mute/unmute chat commands params
-	 * @param value 
+	 * @param value
 	 */
 	setOBSMuteUnmuteCommands(value:TwitchatDataTypes.OBSMuteUnmuteCommands):void;
 	/**
 	 * Set OBS chat commands permissions
-	 * @param value 
+	 * @param value
 	 */
 	setObsCommandsPermissions(value:TwitchatDataTypes.PermissionsData):void;
 	/**
 	 * Check if the specified message matches any of the OBS chat commands
-	 * @param message 
-	 * @param cmd 
+	 * @param message
+	 * @param cmd
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd?:string):Promise<void>;
 }
@@ -900,17 +900,17 @@ export interface IParamsActions {
 	updateParams():void;
 	/**
 	 * Create a new chat colum
-	 * @param after 
+	 * @param after
 	 */
 	addChatColumn(after?:TwitchatDataTypes.ChatColumnsConfig):TwitchatDataTypes.ChatColumnsConfig;
 	/**
 	 * Delete a chat columns
-	 * @param column 
+	 * @param column
 	 */
 	delChatColumn(column:TwitchatDataTypes.ChatColumnsConfig):void;
 	/**
 	 * Move a chat column
-	 * @param column 
+	 * @param column
 	 * @param direction -1=left/top; 1=right/bottom
 	 */
 	moveChatColumn(column:TwitchatDataTypes.ChatColumnsConfig, direction:-1|1):void;
@@ -921,12 +921,12 @@ export interface IParamsActions {
 	/**
 	 * Update the duration after which a 1st user message of the day is removed
 	 * from the greet them feed
-	 * @param value 
+	 * @param value
 	 */
 	setGreetThemAutoDelete(value:number):void;
 	/**
 	 * Open a specific parameters page
-	 * @param value 
+	 * @param value
 	 */
 	openParamsPage(value:TwitchatDataTypes.ParameterPagesStringType, subContent?:TwitchatDataTypes.ParamDeepSectionsStringType):void;
 	/**
@@ -935,17 +935,17 @@ export interface IParamsActions {
 	closeParameters():void;
 	/**
 	 * Search for a specific param
-	 * @param search 
+	 * @param search
 	 */
 	searchParam(search:string):void;
 	/**
 	 * Search for a specific param by its data path (ex: features.markAsRead)
-	 * @param search 
+	 * @param search
 	 */
 	searchParamByPath(search:string):void;
 	/**
 	 * Open the specified modal
-	 * @param modal 
+	 * @param modal
 	 */
 	openModal(modal:TwitchatDataTypes.ModalTypes, noToggle?:boolean):void;
 	/**
@@ -954,30 +954,30 @@ export interface IParamsActions {
 	closeModal():void;
 	/**
 	 * Set if Tiwtchat should automatically connect to GoXLR on startup
-	 * @param enabled 
+	 * @param enabled
 	 */
 	setGoXLREnabled(enabled:boolean):void;
 	/**
 	 * Set GoXLR connection params
-	 * @param ip 
-	 * @param port 
+	 * @param ip
+	 * @param port
 	 */
 	setGoXLRConnectParams(ip:string, port:number):void;
 	/**
 	 * Sets the encoder that should control the given chat column
-	 * @param colIndex 
-	 * @param encoderPath 
+	 * @param colIndex
+	 * @param encoderPath
 	 */
 	setGoXLRChatColScrollParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
 	/**
 	 * Sets the encoder that should move the read mark on the given chat column
-	 * @param colIndex 
-	 * @param encoderPath 
+	 * @param colIndex
+	 * @param encoderPath
 	 */
 	setGoXLRChatColReadMarkParams(colIndex:number, encoderPath:GoXLRTypes.ButtonTypesData[]):void;
 	/**
 	 * Toggle the pin state of chat menu item
-	 * @param pinId 
+	 * @param pinId
 	 */
 	toggleChatMenuPin(pinId:typeof TwitchatDataTypes.PinnableMenuItems[number]["id"]):void;
 	/**
@@ -1010,13 +1010,13 @@ export interface IPollActions {
 	populateData(params?:PollOverlayParamStoreData):void;
 	/**
 	 * Set current poll data
-	 * @param data 
-	 * @param postOnChat 
+	 * @param data
+	 * @param postOnChat
 	 */
 	setCurrentPoll(data:TwitchatDataTypes.MessagePollData|null, postOnChat?:boolean):void;
 	/**
 	 * Updates overlay params
-	 * @param params 
+	 * @param params
 	 */
 	setOverlayParams(params:PollOverlayParamStoreData):void;
 	/**
@@ -1054,7 +1054,7 @@ export interface IPredictionActions {
 	setPrediction(payload:TwitchatDataTypes.MessagePredictionData|null, postOnChat?:boolean):void;
 	/**
 	 * Updates overlay params
-	 * @param params 
+	 * @param params
 	 */
 	setOverlayParams(params:PredictionOverlayParamStoreData):void;
 	/**
@@ -1080,7 +1080,7 @@ export interface IRaffleGetters {
 export interface IRaffleActions {
 	/**
 	 * Start a raffle
-	 * @param payload 
+	 * @param payload
 	 */
 	startRaffle(payload:TwitchatDataTypes.RaffleData):Promise<void>;
 	/**
@@ -1089,20 +1089,20 @@ export interface IRaffleActions {
 	stopRaffle():void;
 	/**
 	 * Set a raffle's winner
-	 * @param winner 
-	 * @param publish 
+	 * @param winner
+	 * @param publish
 	 */
 	onRaffleComplete(winner:TwitchatDataTypes.RaffleEntry, publish?:boolean):void;
 	/**
 	 * Check if the specified message contains the commande to join
 	 * any currently opened raffle
-	 * @param message 
+	 * @param message
 	 */
 	checkRaffleJoin(message:TwitchatDataTypes.TranslatableMessage):boolean;
 	/**
 	 * Pick a random winner amongst the users that joined the raffmle
-	 * @param forcedData 
-	 * @param forcedWinner 
+	 * @param forcedData
+	 * @param forcedWinner
 	 */
 	pickWinner(forcedData?:TwitchatDataTypes.RaffleData, forcedWinner?:TwitchatDataTypes.RaffleEntry):Promise<void>;
 }
@@ -1168,16 +1168,16 @@ export interface IStreamActions {
 
 	/**
 	 * Set current stream info
-	 * @param platform 
-	 * @param title 
-	 * @param categoryID 
-	 * @param channelId 
-	 * @param tags 
+	 * @param platform
+	 * @param title
+	 * @param categoryID
+	 * @param channelId
+	 * @param tags
 	 */
 	updateStreamInfos(platform:TwitchatDataTypes.ChatPlatform, channelId:string, title?:string, categoryID?:string, tags?:string[], branded?:boolean, labels?:{id:string, enabled:boolean}[]):Promise<boolean>
 	/**
 	 * Set outgoing raid info
-	 * @param infos 
+	 * @param infos
 	 */
 	setRaiding(infos?:TwitchatDataTypes.RaidInfo):void;
 	/**
@@ -1186,63 +1186,63 @@ export interface IStreamActions {
 	onRaidComplete():void;
 	/**
 	 * Update room settings
-	 * @param channelId 
-	 * @param settings 
+	 * @param channelId
+	 * @param settings
 	 */
 	setRoomSettings(channelId:string, settings:TwitchatDataTypes.IRoomSettings):void;
 	/**
 	 * Set current hyper train info
-	 * @param data 
+	 * @param data
 	 */
 	setHypeTrain(data:TwitchatDataTypes.HypeTrainStateData|undefined):void;
 	/**
 	 * Set playback state (viewer count)
-	 * @param channelId 
-	 * @param value 
+	 * @param channelId
+	 * @param value
 	 */
 	setPlaybackState(channelId:string, value:PubSubDataTypes.PlaybackInfo|undefined):void;
 	/**
 	 * Called when stream starts.
 	 * Disable emote-only if requested
-	 * @param channelId 
+	 * @param channelId
 	 */
 	setStreamStart(channelId:string):void;
 	/**
 	 * Called when stream ends.
 	 * Enable emote-only if requested
-	 * @param channelId 
+	 * @param channelId
 	 */
 	setStreamStop(channelId:string):void;
 	/**
 	 * Set current community boost info
-	 * @param value 
+	 * @param value
 	 */
 	setCommunityBoost(value:TwitchatDataTypes.CommunityBoost|undefined):void;
 	/**
 	 * Save a new stream info preset
-	 * @param preset 
+	 * @param preset
 	 */
 	saveStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	/**
 	 * Delete a stream info preset
-	 * @param preset 
+	 * @param preset
 	 */
 	deleteStreamInfoPreset(preset:TwitchatDataTypes.StreamInfoPreset):void;
 	/**
 	 * Get the commercial info for the given channel
-	 * @param channelId 
+	 * @param channelId
 	 */
 	getCommercialInfo(channelId:string):TwitchatDataTypes.CommercialData;
 	/**
 	 * Set current and incoming commercial data
-	 * @param channelId 
-	 * @param data 
+	 * @param channelId
+	 * @param data
 	 * @param adStarter if set, sends a message on tchat to say who started the ad break
 	 */
 	setCommercialInfo(channelId:string, data:TwitchatDataTypes.CommercialData, adStarter?:TwitchatDataTypes.TwitchatUser, isStart?:boolean):void;
 	/**
 	 * Starts a commercial break
-	 * @param duration 
+	 * @param duration
 	 */
 	startCommercial(channelId:string, duration:number, noConfirm?:boolean):Promise<void>;
 	/**
@@ -1296,12 +1296,12 @@ export interface ITimerActions {
 	timerStart():void;
 	/**
 	 * Add a duration to the timer
-	 * @param duration_ms 
+	 * @param duration_ms
 	 */
 	timerAdd(duration_ms:number):void;
 	/**
 	 * Remove a duration from the timer
-	 * @param duration_ms 
+	 * @param duration_ms
 	 */
 	timerRemove(duration_ms:number):void;
 	/**
@@ -1318,17 +1318,17 @@ export interface ITimerActions {
 	timerStop():void;
 	/**
 	 * Start the countdown
-	 * @param durEation_ms 
+	 * @param durEation_ms
 	 */
 	countdownStart(durEation_ms:number):void;
 	/**
 	 * Add a duration to the countdown
-	 * @param duration_ms 
+	 * @param duration_ms
 	 */
 	countdownAdd(duration_ms:number):void;
 	/**
 	 * Remove a duration from the countdown
-	 * @param duration_ms 
+	 * @param duration_ms
 	 */
 	countdownRemove(duration_ms:number):void;
 	/**
@@ -1390,7 +1390,7 @@ export interface ITriggersActions {
 	populateData():void;
 	/**
 	 * Defines the trigger data to be editted
-	 * @param data 
+	 * @param data
 	 */
 	openTriggerEdition(data:TriggerData):void;
 	/**
@@ -1399,7 +1399,7 @@ export interface ITriggersActions {
 	openTriggerList():void;
 	/**
 	 * Add a new trigger
-	 * @param data 
+	 * @param data
 	 */
 	addTrigger(data:TriggerData):void;
 	/**
@@ -1420,45 +1420,45 @@ export interface ITriggersActions {
 	 * Called when an OBS source is renamed.
 	 * Parses all triggers that have a reference to that source
 	 * and rename it everywhere
-	 * @param oldName 
-	 * @param newName 
+	 * @param oldName
+	 * @param newName
 	 */
 	renameOBSSource(oldName:string, newName:string):void;
 	/**
 	 * Called when an OBS scene is renamed.
 	 * Parses all triggers that have a reference to that scene
 	 * and rename it everywhere
-	 * @param oldName 
-	 * @param newName 
+	 * @param oldName
+	 * @param newName
 	 */
 	renameOBSScene(oldSceneName:string, sceneName:string):void;
 	/**
 	 * Called when an OBS filter is renamed.
 	 * Parses all triggers that have a reference to that filter
 	 * and rename it everywhere
-	 * @param oldName 
-	 * @param newName 
+	 * @param oldName
+	 * @param newName
 	 */
 	renameOBSFilter(sourceName:string, oldFilterName:string, filterName:string):void;
 	/**
 	 * Called when a counter placeholder is renamed.
 	 * Parses all triggers that have a reference to that placeholder
 	 * and rename it everywhere
-	 * @param oldName 
-	 * @param newName 
+	 * @param oldName
+	 * @param newName
 	 */
 	renameCounterPlaceholder(oldName:string, newName:string):void;
 	/**
 	 * Called when a value placeholder is renamed.
 	 * Parses all triggers that have a reference to that placeholder
 	 * and rename it everywhere
-	 * @param oldName 
-	 * @param newName 
+	 * @param oldName
+	 * @param newName
 	 */
 	renameValuePlaceholder(oldName:string, newName:string):void;
 	/**
 	 * Sets a new trigger tree
-	 * @param data 
+	 * @param data
 	 */
 	updateTriggerTree(data:TriggerTreeItemData[]):void;
 	/**
@@ -1494,13 +1494,13 @@ export interface ITTSActions {
 	populateData():void;
 	/**
 	 * Read a message via TTS
-	 * @param message 
+	 * @param message
 	 */
 	ttsReadMessage(message:TwitchatDataTypes.ChatMessageTypes):void
 	/**
 	 * Start/stop reading any incoming message of a user
-	 * @param user 
-	 * @param read 
+	 * @param user
+	 * @param read
 	 */
 	ttsReadUser(user:TwitchatDataTypes.TwitchatUser, read:boolean):void
 	/**
@@ -1579,34 +1579,34 @@ export interface IUsersActions {
 	populateData():void;
 	/**
 	 * Set a bots hashmap for the speified platforms
-	 * @param platform 
-	 * @param hashmap 
+	 * @param platform
+	 * @param hashmap
 	 */
 	setBotsMap(platform:TwitchatDataTypes.ChatPlatform, hashmap:{[key:string]:boolean}):void;
 	/**
 	 * Check if the specified user is following
-	 * @param platform 
-	 * @param login 
+	 * @param platform
+	 * @param login
 	 */
 	isAFollower(platform:TwitchatDataTypes.ChatPlatform, login:string):boolean;
 	/**
 	 * Loads channel's moderators
-	 * @param channelId 
+	 * @param channelId
 	 */
 	preloadTwitchModerators(channelId:string):Promise<void>;
 	/**
 	 * Get a user from their id nor login.
 	 * Asynchronously load any missing data if necessary.
 	 * Async loading are batched if the function is called sequentially for many users
-	 * 
-	 * @param platform 
-	 * @param channelId 
-	 * @param id 
-	 * @param login 
-	 * @param displayName 
-	 * @param loadCallback 
-	 * @param forcedFollowState 
-	 * @param getPronouns 
+	 *
+	 * @param platform
+	 * @param channelId
+	 * @param id
+	 * @param login
+	 * @param displayName
+	 * @param loadCallback
+	 * @param forcedFollowState
+	 * @param getPronouns
 	 */
 	getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState?:boolean, getPronouns?:boolean, forcedSubscriberState?:boolean):TwitchatDataTypes.TwitchatUser;
 	/**
@@ -1615,93 +1615,93 @@ export interface IUsersActions {
 	initBlockedUsers():Promise<void>;
 	/**
 	 * Flag a user as moderator
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
 	 */
 	flagMod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	/**
 	 * Flag a user as not a moderator
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
 	 */
 	flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	/**
 	 * Flag a user as a VIP
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
 	 */
 	flagVip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	/**
 	 * Flag a user as not a VIP
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
 	 */
 	flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	/**
 	 * Flag a user as blocked
-	 * @param platform 
-	 * @param uid 
+	 * @param platform
+	 * @param uid
 	 */
 	flagBlocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	/**
 	 * Flag a user as not blocked
-	 * @param platform 
-	 * @param uid 
+	 * @param platform
+	 * @param uid
 	 */
 	flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void;
 	/**
 	 * Flag a user as banned
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
-	 * @param duration_s 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
+	 * @param duration_s
 	 */
 	flagBanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string, duration_s?:number):Promise<void>;
 	/**
 	 * Flag a user as not banned
-	 * @param platform 
-	 * @param channelId 
-	 * @param uid 
+	 * @param platform
+	 * @param channelId
+	 * @param uid
 	 */
 	flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void;
 	/**
 	 * Flag users as online
-	 * @param platform 
-	 * @param channelId 
+	 * @param platform
+	 * @param channelId
 	 */
 	flagOnlineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void;
 	/**
 	 * Flag users as offline
-	 * @param platform 
-	 * @param channelId 
+	 * @param platform
+	 * @param channelId
 	 */
 	flagOfflineUsers(users:TwitchatDataTypes.TwitchatUser[], channelId:string):void;
 	/**
 	 * Check if a user is a follower
-	 * @param user 
-	 * @param channelId 
+	 * @param user
+	 * @param channelId
 	 */
 	checkFollowerState(user:Pick<TwitchatDataTypes.TwitchatUser, "channelInfo" | "id">, channelId:string):Promise<boolean>;
 	/**
 	 * Load pronouns of a user
-	 * @param user 
+	 * @param user
 	 */
 	loadUserPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void>;
 	/**
 	 * Flag a user as a follower
-	 * @param user 
-	 * @param channelId 
+	 * @param user
+	 * @param channelId
 	 */
 	flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void;
 	/**
 	 * Open the user card of the specified user
 	 * Close the window if user is set to null
-	 * @param user 
-	 * @param channelId 
+	 * @param user
+	 * @param channelId
 	 */
 	openUserCard(user:TwitchatDataTypes.TwitchatUser|null, channelId?:string, platform?:TwitchatDataTypes.ChatPlatform):void;
 	/**
@@ -1715,18 +1715,18 @@ export interface IUsersActions {
 	/**
 	 * Start track a user's messages
 	 * All their messages will be highlighted on chat
-	 * @param user 
+	 * @param user
 	 */
 	trackUser(user:TwitchatDataTypes.TwitchatUser):void;
 	/**
 	 * Stop tracking a user's message
-	 * @param user 
+	 * @param user
 	 */
 	untrackUser(user:TwitchatDataTypes.TwitchatUser):void;
 	/**
 	 * Sends a shoutout to a user
-	 * @param channelId 
-	 * @param user 
+	 * @param channelId
+	 * @param user
 	 * @returns if SO has been done or not
 	 */
 	shoutout(channelId:string, user:TwitchatDataTypes.TwitchatUser, fromQueue?:boolean):Promise<boolean>;
@@ -1736,13 +1736,13 @@ export interface IUsersActions {
 	executePendingShoutouts():void;
 	/**
 	 * Deletes a custom user name
-	 * @param uid 
+	 * @param uid
 	 */
 	removeCustomUsername(uid:string):void;
 	/**
 	 * Defines a custom username to the given user
-	 * @param user 
-	 * @param name 
+	 * @param user
+	 * @param name
 	 * @returns false if user has used all the non premium slots
 	 */
 	setCustomUsername(user:TwitchatDataTypes.TwitchatUser, name:string, channelId:string):boolean;
@@ -1753,14 +1753,14 @@ export interface IUsersActions {
 	createCustomBadge(img:string):boolean|string;
 	/**
 	 * Update the image of the given custom badge
-	 * @param badgeId 
-	 * @param img 
+	 * @param badgeId
+	 * @param img
 	 */
 	updateCustomBadgeImage(badgeId:string, img:string):void;
 	/**
 	 * Update the name of a custom badge
-	 * @param badgeId 
-	 * @param name 
+	 * @param badgeId
+	 * @param name
 	 */
 	updateCustomBadgeName(badgeId:string, name:string):void;
 	/**
@@ -1827,7 +1827,7 @@ export interface IVoiceActions {
 	populateData():void;
 	/**
 	 * Set speech to text language
-	 * @param value 
+	 * @param value
 	 */
 	setVoiceLang(value:string):void;
 	/**
@@ -1838,6 +1838,12 @@ export interface IVoiceActions {
 	 * Set current voicemode voice
 	 */
 	setVoicemodParams(payload:TwitchatDataTypes.VoicemodParamsData):void;
+	/**
+	 * Handles a chat command to check if a voice effect should be enabled
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 }
 
 
@@ -1856,7 +1862,7 @@ export interface IAccessibilityGetters {
 export interface IAccessibilityActions {
 	/**
 	 * Set current accessibility text message
-	 * @param value 
+	 * @param value
 	 */
 	setAriaPolite(value:string):void;
 }
@@ -1873,12 +1879,12 @@ export interface IAdminGetters {
 export interface IAdminActions {
 	/**
 	 * Add a user the beta testers
-	 * @param login 
+	 * @param login
 	 */
 	addBetaUser(login:string):Promise<void>;
 	/**
 	 * Remove a user from the beta testers
-	 * @param login 
+	 * @param login
 	 */
 	removeBetaUser(login:string):Promise<void>;
 	/**
@@ -1911,22 +1917,22 @@ export interface ICountersActions {
 	populateData():void;
 	/**
 	 * Create a new counter
-	 * @param data 
+	 * @param data
 	 */
 	addCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
 	 * Update a counter's parameters
-	 * @param data 
+	 * @param data
 	 */
 	updateCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
 	 * Broadcast a counter's value on public API
-	 * @param id 
+	 * @param id
 	 */
 	broadcastCounterValue(id:string):void;
 	/**
 	 * Delete a counter
-	 * @param data 
+	 * @param data
 	 */
 	delCounter(data:TwitchatDataTypes.CounterData):void;
 	/**
@@ -1936,12 +1942,12 @@ export interface ICountersActions {
 	 * will be executed.
 	 * If updating LOTS of users at once, it's preferable to only give the userId to
 	 * in which case triggers won't be executed
-	 * @param id 
-	 * @param action 
-	 * @param value 
-	 * @param user 
-	 * @param userId 
-	 * 
+	 * @param id
+	 * @param action
+	 * @param value
+	 * @param user
+	 * @param userId
+	 *
 	 * @returns new value
 	 */
 	increment(id:string, action:TriggerActionCountDataAction, value:number, user?:TwitchatDataTypes.TwitchatUser, userId?:string):number;
@@ -2015,12 +2021,12 @@ export interface IHeatActions {
 	saveScreens():void;
 	/**
 	 * Handles a heat click event
-	 * @param event 
+	 * @param event
 	 */
 	handleClickEvent(event:HeatEvent):Promise<void>;
 	/**
 	 * Deletes a distorsion data
-	 * @param data 
+	 * @param data
 	 */
 	deleteDistorsion(data:TwitchatDataTypes.HeatDistortionData):Promise<void>;
 	/**
@@ -2070,31 +2076,31 @@ export interface IValuesActions {
 	populateData():void;
 	/**
 	 * Create a new value
-	 * @param data 
+	 * @param data
 	 */
 	addValue(data:TwitchatDataTypes.ValueData):void;
 	/**
 	 * Update a value's params
 	 * @param id
-	 * @param data 
+	 * @param data
 	 */
 	editValueParams(id:string, data:Partial<TwitchatDataTypes.ValueData>):void;
 	/**
 	 * Update a value
 	 * @param id
 	 * @param valuee
-	 * @param user 
-	 * @param userId  
+	 * @param user
+	 * @param userId
 	 */
 	updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void;
 	/**
 	 * Delete a value
-	 * @param data 
+	 * @param data
 	 */
 	delValue(data:TwitchatDataTypes.ValueData):void;
 	/**
 	 * Save values to server
-	 * @param  
+	 * @param
 	 */
 	saveValues():void;
 }
@@ -2177,10 +2183,10 @@ export interface IQnaActions {
 	/**
 	 * Handles a chat command to check if the message should be added
 	 * to an existing session
-	 * @param message 
-	 * @param cmd 
+	 * @param message
+	 * @param cmd
 	 */
-	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void;
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 	/**
 	 * Deletes the given message from the sessions
 	 * @param messageID id of the message
@@ -2222,12 +2228,12 @@ export interface IDiscordActions {
 	initialize():Promise<void>;
 	/**
 	 * Checks if the given code is valid for the current user
-	 * @param code 
+	 * @param code
 	 */
 	validateCode(code:string):Promise<{success:boolean, errorCode?:string, guildName?:string}>;
 	/**
 	 * Submit the given code to confirm discord link
-	 * @param code 
+	 * @param code
 	 */
 	submitCode(code:string):Promise<true|{code:string, channelName?:string}>;
 	/**
@@ -2240,7 +2246,7 @@ export interface IDiscordActions {
 	addQuickAction():void;
 	/**
 	 * Delete the given quick action
-	 * @param action 
+	 * @param action
 	 */
 	delQuickAction(action:TwitchatDataTypes.DiscordQuickActionData):void;
 	/**
@@ -2265,7 +2271,7 @@ export interface IStreamlabsGetters {
 export interface IStreamlabsActions {
 	/**
 	 * Populates the store from user's data
-	 * @param data 
+	 * @param data
 	 */
 	populateData():void;
 	/**
@@ -2422,7 +2428,7 @@ export interface IKofiActions {
 	disconnect():Promise<boolean>;
 	/**
 	 * Called when receiving a ko-fi event
-	 * @param data 
+	 * @param data
 	 */
 	onEvent(data:any):void
 }
@@ -2445,8 +2451,8 @@ export interface ILumiaActions {
 	populateData():void;
 	/**
 	 * Connects to Lumia Stream websocket
-	 * @param token 
-	 * @param isReconnect 
+	 * @param token
+	 * @param isReconnect
 	 */
 	connect(token:string, isReconnect?:boolean):Promise<boolean>
 	/**
@@ -2455,15 +2461,15 @@ export interface ILumiaActions {
 	disconnect():void;
 	/**
 	 * Set lights color
-	 * @param rgb 
-	 * @param duration 
-	 * @param transition 
+	 * @param rgb
+	 * @param duration
+	 * @param transition
 	 */
 	setColor(rgb:number|string, brightness:number, duration:number, transition:number):void;
 	/**
 	 * Reads given text with given voice
-	 * @param message 
-	 * @param voice 
+	 * @param message
+	 * @param voice
 	 */
 	sendTTS(message:string, voice:typeof LumiaVoiceList[number]):void;
 	/**

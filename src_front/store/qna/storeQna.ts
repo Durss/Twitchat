@@ -58,7 +58,7 @@ export const storeQna = defineStore('qna', {
 			}
 			return session;
 		},
-		
+
 		stopSession(id:string):void{
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
@@ -75,7 +75,7 @@ export const storeQna = defineStore('qna', {
 			};
 			StoreProxy.chat.addMessage(m);
 		},
-		
+
 		deleteSession(id:string):void{
 			const index = this.activeSessions.findIndex(v=>v.id == id);
 			if(index == -1) return;
@@ -92,8 +92,8 @@ export const storeQna = defineStore('qna', {
 			};
 			StoreProxy.chat.addMessage(m);
 		},
-		
-		handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):void{
+
+		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>{
 			cmd = cmd.toLowerCase();
 			const session = this.activeSessions.find(v=>v.command.toLowerCase() == cmd);
 			//Ignore channel point rewards that are "highlight my message" as they are also

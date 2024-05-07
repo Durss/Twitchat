@@ -14,14 +14,13 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
+import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 import lande from 'lande';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive, watch, type UnwrapRef } from 'vue';
 import Database from '../Database';
 import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } from '../StoreProxy';
-import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
 
 //Don't make this reactive, it kills performances on the long run
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
@@ -38,7 +37,7 @@ export const storeChat = defineStore('chat', {
 		emoteSelectorCache: [],
 		replyTo: null,
 		spamingFakeMessages: false,
-		
+
 		botMessages: {
 			raffleStart: {
 				enabled:true,
@@ -626,13 +625,13 @@ export const storeChat = defineStore('chat', {
 			if(spoiler) {
 				Utils.mergeRemoteObject(JSON.parse(spoiler), (this.spoilerParams as unknown) as JsonObject);
 			}
-			
+
 			//Init chat highlight params
 			const chatHighlight = DataStore.get(DataStore.CHAT_HIGHLIGHT_PARAMS);
 			if(chatHighlight) {
 				Utils.mergeRemoteObject(JSON.parse(chatHighlight), (this.chatHighlightOverlayParams as unknown) as JsonObject);
 			}
-			
+
 			//Init bot messages
 			const botMessages = DataStore.get(DataStore.BOT_MESSAGES);
 			if(botMessages) {
@@ -659,7 +658,7 @@ export const storeChat = defineStore('chat', {
 				let lastSub!:TwitchatDataTypes.MessageSubscriptionData;
 				let lastSubgift!:TwitchatDataTypes.MessageSubscriptionData;
 				const uid = StoreProxy.auth.twitch.user.id;
-				
+
 				//Force reactivity so merging feature works on old messages
 				for (let i = res.length-1; i >= 0; i--) {
 					const m = res[i];
@@ -679,7 +678,7 @@ export const storeChat = defineStore('chat', {
 					}
 					messageList.unshift(reactive(m));
 				}
-				
+
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.RELOAD_MESSAGES));
 			}).catch(error=>{
 				console.log("DATABASE ERROR");
@@ -722,7 +721,7 @@ export const storeChat = defineStore('chat', {
 					const len = 10 * possibleAds.length;
 					for (let i = 0; i < len; i++) possibleAds.push(TwitchatDataTypes.TwitchatAdTypes.NONE);
 				// }
-		
+
 				adType = Utils.pickRand(possibleAds);
 				// adType = TwitchatDataTypes.TwitchatAdTypes.SPONSOR;//TODO comment this line
 				if(adType == TwitchatDataTypes.TwitchatAdTypes.NONE) return;
@@ -762,7 +761,7 @@ export const storeChat = defineStore('chat', {
 			});
 		},
 
-		
+
 		async addMessage(message:TwitchatDataTypes.ChatMessageTypes) {
 			const sParams = StoreProxy.params;
 			const sStream = StoreProxy.stream;
@@ -804,7 +803,7 @@ export const storeChat = defineStore('chat', {
 				this.flagMessageAsFirstToday(greetable);
 				isTodaysFirst = greetable.todayFirst === true;
 			}
-			
+
 			//Live translation if first message ever on the channel
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			&& message.twitch_isFirstMessage
@@ -857,7 +856,7 @@ export const storeChat = defineStore('chat', {
 							displayName:message.user.displayNameOriginal,
 						};
 						PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_WHISPER, {unreadCount:this.whispersUnreadCount, user:wsUser, message:"<not set for privacy reasons>"});
-						
+
 					}else {
 
 						//Check if it's an "ad" message
@@ -880,7 +879,7 @@ export const storeChat = defineStore('chat', {
 							this.addMessage(hypeChatMessage);
 						}
 					}
-					
+
 					//Check if the message contains a mention
 					if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 					&& StoreProxy.params.appearance.highlightMentions.value === true) {
@@ -889,7 +888,7 @@ export const storeChat = defineStore('chat', {
 											&& new RegExp("\\b"+login+"\\b", "gim")
 											.test(message.message ?? "");
 					}
-	
+
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
 					if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
 						const original = message.message;
@@ -953,7 +952,7 @@ export const storeChat = defineStore('chat', {
 						if(/(^|\s|https?:\/\/)twitchat\.fr($|\s)/gi.test(message.message)) {
 							SchedulerHelper.instance.resetAdSchedule(message);
 						}
-	
+
 						const wsMessage = {
 							channel:message.channel_id,
 							message:message.message,
@@ -963,29 +962,29 @@ export const storeChat = defineStore('chat', {
 								displayName:message.user.displayNameOriginal,
 							}
 						}
-	
+
 						//If it's a text message and user isn't a follower, broadcast to WS
 						if(message.user.channelInfo[message.channel_id].is_following === false) {
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_NON_FOLLOWER, wsMessage);
 						}
-			
+
 						//Check if the message contains a mention
 						if(message.hasMention) {
 							PublicAPI.instance.broadcast(TwitchatEvent.MENTION, wsMessage);
 						}
-			
+
 						//If it's the first message today for this user
 						if(message.todayFirst === true) {
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST, wsMessage);
 						}
-			
+
 						//If it's the first message all time of the user
 						if(message.twitch_isFirstMessage) {
 							//Flag user as new chatter
 							message.user.channelInfo[message.channel_id].is_new = true;
 							PublicAPI.instance.broadcast(TwitchatEvent.MESSAGE_FIRST_ALL_TIME, wsMessage);
 						}
-						
+
 						//Handle spoiler command
 						if(message.answersTo && await Utils.checkPermissions(this.spoilerParams.permissions, message.user, message.channel_id)) {
 							const cmd = message.message.replace(/@[^\s]+\s?/, "").trim().toLowerCase();
@@ -993,12 +992,12 @@ export const storeChat = defineStore('chat', {
 								message.answersTo.spoiler = true;
 							}
 						}
-	
+
 						//Flag as spoiler
 						if(message.message.indexOf("||") == 0 || (message.answersTo && /^@[0-9a-z]+ \|\|/gi.test(message.message))) message.spoiler = true;
-	
+
 						//check if it's a chat alert command
-						if(sParams.features.alertMode.value === true && 
+						if(sParams.features.alertMode.value === true &&
 						await Utils.checkPermissions(sMain.chatAlertParams.permissions, message.user, message.channel_id)) {
 							if(message.message.trim().toLowerCase().indexOf(sMain.chatAlertParams.chatCmd.trim().toLowerCase()) === 0) {
 								//Execute alert
@@ -1016,7 +1015,7 @@ export const storeChat = defineStore('chat', {
 								TriggerActionHandler.instance.execute(trigger);
 							}
 						}
-							
+
 						//If there's a mention, search for last messages within
 						//a max timeframe to find if the message may be a reply to
 						//a message that was sent by the mentionned user
@@ -1072,7 +1071,7 @@ export const storeChat = defineStore('chat', {
 
 				//Reward redeem
 				case TwitchatDataTypes.TwitchatMessageType.REWARD: {
-	
+
 					//If a raffle is in progress, check if the user can enter
 					const raffle = sRaffle.data;
 					if(raffle
@@ -1081,7 +1080,7 @@ export const storeChat = defineStore('chat', {
 					&& message.reward.id === raffle.reward_id) {
 						sRaffle.checkRaffleJoin(message);
 					}
-	
+
 					const wsMessage = {
 						channel:message.channel_id,
 						message:message.message,
@@ -1232,7 +1231,7 @@ export const storeChat = defineStore('chat', {
 						const prevFollowbots:TwitchatDataTypes.MessageFollowingData[] = [];
 						const deletedMessages:(TwitchatDataTypes.MessageFollowingData|TwitchatDataTypes.MessageFollowbotData)[] = [];
 						let bulkMessage!:TwitchatDataTypes.MessageFollowbotData;
-						
+
 						//Search for any existing followbot event, delete them and group
 						//them into a single followbot alert with all the users in it
 						//Only search within the last 100 messages
@@ -1307,12 +1306,12 @@ export const storeChat = defineStore('chat', {
 					break;
 				}
 			}
-			
+
 
 			if(TwitchatDataTypes.TranslatableMessageTypesString.hasOwnProperty(message.type)) {
 				const typedMessage = message as TwitchatDataTypes.TranslatableMessage;
 				const cmd = (typedMessage.message || "").trim().split(" ")[0].toLowerCase();
-	
+
 				//If a raffle is in progress, check if the user can enter
 				const raffle = sRaffle.data;
 				if(raffle
@@ -1321,31 +1320,27 @@ export const storeChat = defineStore('chat', {
 				&& cmd == raffle.command.trim().toLowerCase()) {
 					sRaffle.checkRaffleJoin(typedMessage);
 				}
-	
+
 				//If there's a suggestion poll and the timer isn't over
 				const suggestionPoll = sChatSuggestion.data;
 				if(suggestionPoll && cmd == suggestionPoll.command.toLowerCase().trim()) {
 					sChatSuggestion.addChatSuggestion(typedMessage);
 				}
-	
+
 				//Check if it's the winning choice of a bingo
 				await sBingo.checkBingoWinner(typedMessage);
-	
+
 				//Handle OBS commands
 				await sOBS.handleChatCommand(typedMessage, cmd);
-				
+
 				//Handle Emergency commands
 				await sEmergency.handleChatCommand(typedMessage, cmd);
-				
+
 				//Handle Emergency commands
 				await sQna.handleChatCommand(typedMessage, cmd);
-				
-				//Check if it's a voicemod command
-				if(sVoice.voicemodParams.enabled
-				&& sVoice.voicemodParams.commandToVoiceID[cmd]
-				&& await Utils.checkPermissions(sVoice.voicemodParams.chatCmdPerms, typedMessage.user, message.channel_id)) {
-					VoicemodWebSocket.instance.enableVoiceEffect(sVoice.voicemodParams.commandToVoiceID[cmd]);
-				}
+
+				//Handle Voicemod commands
+				await sVoice.handleChatCommand(typedMessage, cmd);
 			}
 
 
@@ -1390,7 +1385,7 @@ export const storeChat = defineStore('chat', {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								//If rule does not requests to be applied only to first time chatters
 								//or if it's a first time chatter
-								if(rule.firstTimeChatters !== true || 
+								if(rule.firstTimeChatters !== true ||
 									(rule.firstTimeChatters === true &&
 										(
 										message.twitch_isFirstMessage ||
@@ -1436,19 +1431,19 @@ export const storeChat = defineStore('chat', {
 						}
 					}
 				}
-			
+
 				//Limit history size
 				while(messageList.length >= this.realHistorySize) {
 					messageList.shift();
 				}
-	
+
 				EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.ADD_MESSAGE, message));
 			}
 
 			const e = Date.now();
 			// console.log(messageList.length, e-s);
 			if(e-s > 50) console.log("Message #"+ message.id, "took more than 50ms ("+(e-s)+") to be processed! - Type:\""+message.type+"\"", " - Sent at:"+message.date, message);
-			
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION && message.is_gift) {
 				//If it's a subgift, wait a little before proceeding as subgifts do not
 				//come all at once but sequentially.
@@ -1460,7 +1455,7 @@ export const storeChat = defineStore('chat', {
 					await Utils.promisedTimeout(1000);
 				}
 			}
-			
+
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {
 				//If it's a cheer, wait a little before proceeding as PubSub may send a "pinned" event after
 				//if user sent a "pinned cheer".
@@ -1480,12 +1475,12 @@ export const storeChat = defineStore('chat', {
 				} as JsonObject;
 				PublicAPI.instance.broadcast(TwitchatEvent.BITS, wsMessage);
 			}
-			
+
 			TriggerActionHandler.instance.execute(message);
 			TTSUtils.instance.addMessageToQueue(message);
 		},
-		
-		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) { 
+
+		deleteMessageByID(messageID:string, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint:boolean = true) {
 			//Start from most recent messages to find it faster
 			for (let i = messageList.length-1; i > -1; i--) {
 				const m = messageList[i];
@@ -1495,11 +1490,11 @@ export const storeChat = defineStore('chat', {
 				}
 			}
 		},
-		
+
 		deleteMessage(message:TwitchatDataTypes.ChatMessageTypes, deleter?:TwitchatDataTypes.TwitchatUser, callEndpoint = true) {
 			message.deleted = true;
 			const i = messageList.findIndex(v=>v.id === message.id);
-			
+
 			//If message doesn't exist, stop there
 			if(i == -1) return;
 
@@ -1533,7 +1528,7 @@ export const storeChat = defineStore('chat', {
 					message.deletedData = { deleter };
 					shouldUpdateDB = true;
 				}
-				
+
 				if(callEndpoint && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 					switch(message.platform) {
 						case "twitch":{
@@ -1555,7 +1550,7 @@ export const storeChat = defineStore('chat', {
 				messageList.splice(i, 1);
 				Database.instance.deleteMessage(message);
 			}
-			
+
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.DELETE_MESSAGE, {message:message, force:false}));
 		},
 
@@ -1565,7 +1560,7 @@ export const storeChat = defineStore('chat', {
 				//If we reached messages older than 2h, stop there, there's no much point in
 				//spending process for that old messages
 				if(Date.now() - m.date > 2 * 60000) break;
-				
+
 				if(!TwitchatDataTypes.GreetableMessageTypesString.hasOwnProperty(m.type)) continue;
 				const mTyped = m as TwitchatDataTypes.GreetableMessage;
 				if(mTyped.user.id == uid
@@ -1633,23 +1628,23 @@ export const storeChat = defineStore('chat', {
 			this.botMessages[value.key].message = value.message;
 			DataStore.set(DataStore.BOT_MESSAGES, this.botMessages);
 		},
-		
+
 		setChatHighlightOverlayParams(params:TwitchatDataTypes.ChatHighlightParams) {
 			this.chatHighlightOverlayParams = params;
 			DataStore.set(DataStore.CHAT_HIGHLIGHT_PARAMS, params);
 		},
-		
+
 		setSpoilerParams(params:TwitchatDataTypes.SpoilerParamsData) {
 			this.spoilerParams = params;
 			DataStore.set(DataStore.SPOILER_PARAMS, params);
 		},
-		
+
 		saveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			message.is_saved = true;
 			this.pinedMessages.push(message);
 			EventBus.instance.dispatchEvent(new GlobalEvent(GlobalEvent.PIN_MESSAGE, message));
 		},
-		
+
 		unsaveMessage(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData) {
 			this.pinedMessages.forEach((v, index)=> {
 				if(v.id == message.id) {
@@ -1659,7 +1654,7 @@ export const storeChat = defineStore('chat', {
 				}
 			})
 		},
-		
+
 		async highlightChatMessageOverlay(message?:TwitchatDataTypes.TranslatableMessage) {
 			if(message && message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE && message.user.id) {
 				if(message.platform == "twitch"
@@ -1693,7 +1688,7 @@ export const storeChat = defineStore('chat', {
 				this.isChatMessageHighlighted = false;
 				PublicAPI.instance.broadcast(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE);
 			}
-			
+
 		},
 
 		async flagSuspiciousMessage(data:PubSubDataTypes.LowTrustMessage, retryCount?:number):Promise<void> {
@@ -1741,7 +1736,7 @@ export const storeChat = defineStore('chat', {
 
 			//Don't greet a user already greeted
 			if(greetedUsersExpire_at[user.id] && greetedUsersExpire_at[user.id] > Date.now()) return;
-			
+
 			//Ignore bots
 			if(StoreProxy.users.knownBots[message.platform][user.login.toLowerCase()] === true) return;
 
