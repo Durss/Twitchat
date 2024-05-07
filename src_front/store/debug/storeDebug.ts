@@ -330,6 +330,7 @@ export const storeDebug = defineStore('debug', {
 						timeLeft_s:Math.ceil(Math.random()*5*60),
 						state: "START",
 						is_boost_train:false,
+						is_golden_kappa:false,
 						is_new_record:false,
 					};
 					const m:TwitchatDataTypes.MessageHypeTrainEventData = {
@@ -459,6 +460,7 @@ export const storeDebug = defineStore('debug', {
 							level:Math.round(sum/8000),
 							is_new_record:Math.random() > .5,
 							is_boost_train:false,
+							is_golden_kappa:false,
 							state:'COMPLETED',
 							conductor_subs:{
 								type:"SUBS",
