@@ -717,6 +717,7 @@ export namespace TwitchatDataTypes {
 		timeLeft_s:number;
 		state:"APPROACHING" | "START" | "PROGRESSING" | "LEVEL_UP" | "COMPLETED" | "EXPIRE";
 		is_boost_train:boolean;
+		is_golden_kappa:boolean;
 		is_new_record:boolean;
 		conductor_subs?:HypeTrainConductorData;
 		conductor_bits?:HypeTrainConductorData;

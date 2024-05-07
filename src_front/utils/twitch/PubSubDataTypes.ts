@@ -341,6 +341,7 @@ export namespace PubSubDataTypes {
 		updated_at: number;
 		ended_at?: number;
 		ending_reason?: string;
+		isGoldenKappaTrain?: boolean;
 		config: {
 			channel_id: string;
 			is_enabled: boolean;

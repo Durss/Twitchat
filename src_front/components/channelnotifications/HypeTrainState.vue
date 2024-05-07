@@ -1,26 +1,27 @@
 
 <template>
-	<div :class="classes" :style="styles">
-		
+	<div :class="classes">
+
 		<div class="content" v-if="trainData.state == 'APPROACHING'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1 v-if="!boostMode">{{ $t("train.hype_approaching") }}</h1>
+			<h1 v-if="!goldenKappaMode">{{ $t("train.golden_approaching") }}</h1>
 			<h1 v-else>{{ $t("train.boost_approaching") }}</h1>
 		</div>
-		
+
 		<div class="content" v-if="trainProgress">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<i18n-t scope="global" tag="h1"
-			:keypath="boostMode?'train.boost_progress':'train.hype_progress'">
+			:keypath="boostMode?'train.boost_progress': goldenKappaMode?'train.golden_progress':'train.hype_progress'">
 				<template #LEVEL>{{ trainData.level }}</template>
 				<template #PERCENT><span class="percent">{{roundProgressPercent}}%</span></template>
 			</i18n-t>
 		</div>
-		
+
 		<div class="content" v-if="trainData.state == 'COMPLETED'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1>
 				<span v-if="!boostMode">{{ $t("train.hype_complete") }}</span>
@@ -32,9 +33,9 @@
 				</i18n-t>
 			</h1>
 		</div>
-		
+
 		<div class="content" v-if="trainData.state == 'EXPIRE'">
-			<img src="@/assets/icons/train.svg" alt="train" class="icon" v-if="!boostMode">
+			<Icon name="train" alt="train" class="icon" v-if="!boostMode" />
 			<img src="@/assets/icons/train_boost.svg" alt="boost" class="icon" v-if="boostMode">
 			<h1 v-if="!boostMode">{{ $t("train.boost_cancel") }}</h1>
 			<h1 v-else>{{ $t("train.boost_cancel") }}</h1>
@@ -82,7 +83,7 @@
 					</template>
 				</i18n-t>
 			</div>
-			
+
 		</div>
 	</div>
 </template>
@@ -95,6 +96,7 @@ import gsap from 'gsap';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';
+import Icon from '../Icon.vue';
 
 @Component({
 	components:{
@@ -111,9 +113,8 @@ import ProgressBar from '../ProgressBar.vue';
 
 	private disposed:boolean = false;
 
-	public get boostMode():boolean {
-		return this.trainData.is_boost_train;
-	}
+	public get boostMode():boolean { return this.trainData.is_boost_train; }
+	public get goldenKappaMode():boolean { return this.trainData.is_golden_kappa; }
 
 	public get completeLevel():number {
 		let level = this.trainData.level;
@@ -138,18 +139,10 @@ import ProgressBar from '../ProgressBar.vue';
 		return Math.round(this.progressPercent);
 	}
 
-	public get styles():StyleValue {
-		if(this.trainProgress) {
-			return {
-				backgroundSize: this.progressPercent+" 100%",
-			}
-		}
-		return {};
-	}
-
 	public get classes():string[] {
 		const res = ["hypetrainstate", "gameStateWindow"];
 		if(this.boostMode) res.push("boost");
+		if(this.goldenKappaMode) res.push("golden");
 		return res;
 	}
 
@@ -189,10 +182,10 @@ import ProgressBar from '../ProgressBar.vue';
 
 		watch(() => this.trainData, () => {
 			if(!this.trainData) return;
-			
+
 			try {
 				if(this.conductor_subs && this.trainData.conductor_subs && JSON.stringify(this.conductor_subs) == JSON.stringify(this.trainData.conductor_subs)) return;
-	
+
 				if(this.conductor_subs) {
 					gsap.killTweensOf(this.$refs.conductor_subs_holder as HTMLDivElement);
 					gsap.to(this.$refs.conductor_subs_holder as HTMLDivElement, {
@@ -293,6 +286,17 @@ export default toNative(HypeTrainState);
 		background-color: @c !important;
 	}
 
+	&.golden {
+		@c: #f2b027;
+		h1, .icon {
+			color: black;
+		}
+		.content .percent {
+			text-shadow: unset;
+		}
+		background-image: linear-gradient(250deg, @c 0%, #ffe64c 100%);
+	}
+
 	.content {
 		display: flex;
 		flex-direction: row;
@@ -307,7 +311,7 @@ export default toNative(HypeTrainState);
 				font-weight: normal;
 			}
 		}
-		
+
 		&>.icon {
 			height: 25px;
 			margin-right: 10px;
@@ -331,7 +335,7 @@ export default toNative(HypeTrainState);
 			flex-direction: row;
 			gap: 1em;
 			font-size: .8em;
-			
+
 			.conductor {
 				display: flex;
 				align-items: center;
@@ -341,7 +345,7 @@ export default toNative(HypeTrainState);
 				border-radius: var(--border-radius);
 				padding: .5em;
 				min-width: 6em;
-				
+
 				.head {
 					position: absolute;
 					display: flex;
@@ -367,6 +371,7 @@ export default toNative(HypeTrainState);
 					border-radius: 50%;
 					margin: auto;
 					display: block;
+					margin-bottom: .5em;
 				}
 				.userlink {
 					font-size: .9em;

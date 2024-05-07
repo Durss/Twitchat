@@ -42,6 +42,7 @@
 			<Button small @click="simulateEvent($event, 'reward')" icon="channelPoints">Reward redeem</Button>
 			<Button small @click="simulateEvent($event, 'community_challenge_contribution')" icon="channelPoints">Challenge contribution</Button>
 			<Button small @click="simulateHypeTrain()" icon="train">Hype train</Button>
+			<Button small @click="simulateHypeTrain(true)" icon="train">Golden kappa train</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_cooled_down')" icon="train">Hype train cooldown</Button>
 			<Button small @click="simulateEvent($event, 'hype_train_summary')" icon="train">Hype train summary</Button>
 			<Button small @click="simulateComunityBoost()" icon="boost">Community boost</Button>
@@ -113,7 +114,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	private commercialTO:number = -1;
 
 	private clickHandler!:(e:MouseEvent) => void;
-	
+
 	public async mounted():Promise<void> {
 		await this.$nextTick();
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
@@ -177,7 +178,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 					(message as TwitchatDataTypes.StreamlabsMerchData).product = "T-shirt"; break;
 				}
 				case "sl_patreon":{
-					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge"; 
+					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).eventType = "patreon_pledge";
 					(message as TwitchatDataTypes.StreamlabsPatreonPledgeData).amountFormatted = "$13"; break;
 				}
 				case "kofi_donation":			(message as TwitchatDataTypes.KofiDonationData).eventType = "donation"; break;
@@ -186,7 +187,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 					(message as TwitchatDataTypes.KofiMerchData).products = [{name:"T-shirt", quantity:1, id:"123456"}]; break;
 				}
 				case "kofi_sub":{
-					(message as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription"; 
+					(message as TwitchatDataTypes.KofiSubscriptionData).eventType = "subscription";
 					(message as TwitchatDataTypes.KofiSubscriptionData).tier = "My amazing subscription"; break;
 				}
 				case "se_donation":			(message as TwitchatDataTypes.StreamelementsDonationData).eventType = "donation"; break;
@@ -262,7 +263,7 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 					this.simulateEvent(event, TwitchatDataTypes.TwitchatMessageType.CLIP_CREATION_COMPLETE);
 				}, 2000);
 			}
-			
+
 			//Pressing CTRL while clicking a button will force the user to self
 			if(event.ctrlKey && message.hasOwnProperty("user")) {
 				// (message as TwitchatDataTypes.MessageChatData).user = StoreProxy.auth.twitch.user;
@@ -297,9 +298,9 @@ import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 	public simulateFollowbotItem():void {
 		PubSub.instance.simulateFollowbotItem();
 	}
-	
-	public simulateHypeTrain():void {
-		PubSub.instance.simulateHypeTrain();
+
+	public simulateHypeTrain(goldenKappa:boolean = false):void {
+		PubSub.instance.simulateHypeTrain(goldenKappa);
 	}
 
 	public simulateComunityBoost():void {
