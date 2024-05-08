@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes">
 		<div class="header">{{ $t("overlay.credits.head") }}</div>
-		
+
 		<a href="https://www.youtube.com/watch?v=0S9SgAi8IOI" target="_blank" class="youtubeTutorialBt">
 			<Icon name="youtube" theme="light" />
 			<span>{{ $t('overlay.youtube_demo_tt') }}</span>
@@ -14,7 +14,7 @@
 			</div>
 			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
 		</section>
-		
+
 		<section class="card-item expand">
 			<div class="header">
 				<div class="title"><Icon name="credits" /> {{ $t("overlay.credits.slot_list") }}</div>
@@ -41,11 +41,11 @@
 								<div class="icons">
 									<Icon name="dragZone" />
 									<Icon :name="getDefinitionFromSlot(element.slotType).icon" />
-									<ToggleButton v-model="element.enabled" />
+									<ToggleButton v-model="element.enabled" @click.native.stop />
 									<Icon name="premium" v-tooltip="$t('premium.premium_only_tt')" v-if="getDefinitionFromSlot(element.slotType).premium" />
 								</div>
 							</template>
-							
+
 							<template #right_actions>
 								<div class="rightActions">
 									<!-- <TTButton v-if="getDefinitionFromSlot(element.slotType).premium === true && !isPremium"
@@ -94,31 +94,46 @@
 									<ParamItem :paramData="param_showSubgifts[element.id]"		v-model="element.showSubgifts" />
 									<ParamItem :paramData="param_showResubs[element.id]"		v-model="element.showResubs" />
 									<ParamItem :paramData="param_showSubs[element.id]"			v-model="element.showSubs" />
-									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showBadges[element.id]"		v-model="element.showBadges" />
+									<ParamItem :paramData="param_sortByName[element.id]"		v-model="element.sortByNames" />
+									<ParamItem :paramData="param_sortBySubTypes[element.id]"	v-model="element.sortBySubTypes" />
 								</template>
-									
+
 								<template v-if="element.slotType == 'chatters'">
-									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs"		:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames"	:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
+									<ParamItem :paramData="param_showMods[element.id]"		v-model="element.showMods" />
+									<ParamItem :paramData="param_showVIPs[element.id]"		v-model="element.showVIPs" />
+									<ParamItem :paramData="param_showSubs[element.id]"		v-model="element.showSubs" />
+									<ParamItem :paramData="param_showChatters[element.id]"	v-model="element.showChatters" />
+									<ParamItem :paramData="param_showBadges[element.id]"	v-model="element.showBadges" />
+									<ParamItem :paramData="param_sortByRoles[element.id]"	v-model="element.sortByRoles" />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"	v-model="element.sortByAmounts" />
+									<ParamItem :paramData="param_sortByName[element.id]"	v-model="element.sortByNames" />
 								</template>
 
 								<template v-if="element.slotType == 'hypetrains'">
 									<ParamItem :paramData="param_showConductors[element.id]" v-model="element.showTrainConductors"	premium :noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
 								</template>
 
+								<template v-if="element.slotType == 'tips'">
+									<ParamItem :paramData="param_showTipsKofi[element.id]"				v-model="element.showTipsKofi" noPremiumLock />
+									<ParamItem :paramData="param_showTipsTipeee[element.id]"			v-model="element.showTipsTipeee" noPremiumLock />
+									<ParamItem :paramData="param_showTipsStreamlabs[element.id]"		v-model="element.showTipsStreamlabs" noPremiumLock />
+									<ParamItem :paramData="param_showTipsPatreon[element.id]"			v-model="element.showTipsPatreon" noPremiumLock />
+									<ParamItem :paramData="param_showTipsStreamelements[element.id]"	v-model="element.showTipsStreamelements" noPremiumLock />
+									<ParamItem :paramData="param_sortByName[element.id]"				v-model="element.sortByNames" noPremiumLock />
+									<ParamItem :paramData="param_sortByAmounts[element.id]"				v-model="element.sortByAmounts" noPremiumLock />
+								</template>
+
+								<template v-if="element.slotType == 'merch'">
+									<ParamItem :paramData="param_showMerchKofi[element.id]"				v-model="element.showMerchKofi" noPremiumLock />
+									<ParamItem :paramData="param_showMerchStreamlabs[element.id]"		v-model="element.showMerchStreamlabs" noPremiumLock />
+								</template>
+
 								<ParamItem v-if="param_uniqueUsers[element.id]"
 									v-model="element.uniqueUsers"
 									:paramData="param_uniqueUsers[element.id]"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-									
+
 								<ParamItem v-if="getDefinitionFromSlot(element.slotType).hasAmount"
 									class="amounts" :paramData="param_showAmounts[element.id]"
 									v-model="element.showAmounts"
@@ -135,7 +150,7 @@
 									:paramData="param_text[element.id]"
 									v-model="element.text"
 									:noPremiumLock="slotTypes.find(v => v.id == element.slotType)?.premium" />
-								
+
 								<!-- <ParamItem class="customHTML" :paramData="param_customHTML[index]" v-model="element.customHTML" premium>
 									<ParamItem class="customHTML" :paramData="param_htmlTemplate[index]" v-model="element.htmlTemplate" premium />
 								</ParamItem> -->
@@ -146,7 +161,7 @@
 			</div>
 
 			<TTButton class="center" icon="add" v-if="!showSlotOptions" @click="showSlotOptions = true">{{ $t("overlay.credits.add_slotBt") }}</TTButton>
-			
+
 			<div class="slotSelector" v-else>
 				<ClearButton @click="showSlotOptions = false" />
 				<TTButton class="slotBt"
@@ -165,8 +180,8 @@
 		</section>
 
 		<!-- <ToggleBlock :title="$t('overlay.credits.parameters')" secondary :open="false" :icons="['params']"> -->
-		
-		
+
+
 		<section class="card-item expand parameters">
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
@@ -283,6 +298,13 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public param_normalCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_pinnedCheers:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_showConductors:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showMerchKofi:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showMerchStreamlabs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTipsKofi:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTipsTipeee:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTipsPatreon:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTipsStreamlabs:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_showTipsStreamelements:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public slotTypes = TwitchatDataTypes.EndingCreditsSlotDefinitions;
 	public overlayExists = false;
 	public sendingSummaryData = false;
@@ -347,7 +369,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 
 			this.fontsReady = true;
 		});
-		
+
 		if(this.data.slots.length == 0) {
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "follows")!, undefined, true);
 			this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == "subs")!, undefined, true);
@@ -376,7 +398,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 					if(slot.enabled === undefined) slot.enabled = true;
 				}
 			}
-		
+
 			for (let i = 0; i < this.data.slots.length; i++) {
 				const slot = this.data.slots[i];
 				this.addSlot(TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slot.slotType)!, slot);
@@ -389,7 +411,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		]
 
 		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
-		
+
 		this.overlayPresenceHandler = ()=> {
 			this.overlayExists = true;
 			this.checkingOverlayPresence = false;
@@ -461,7 +483,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			layout:"col",
 			maxEntries:100,
 		};
-		
+
 		//Create parameters
 		this.param_customHTML[id]	= {type:"boolean", value:false, labelKey:"overlay.credits.param_customHTML"};
 		this.param_htmlTemplate[id]	= {type:"string", value:"", longText:true, maxLength:1000};
@@ -560,8 +582,32 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			this.param_showBadges[id]		= {type:'boolean', value:entry.showBadges, icon:"badge", labelKey:'overlay.credits.param_showSubBadges', premiumOnly:true};
 			this.param_sortByName[id]		= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
 			this.param_sortBySubTypes[id]	= {type:"boolean", value:entry.sortBySubTypes, icon:"filters", labelKey:"overlay.credits.param_sortBySubTypes", premiumOnly:true};
+		}else
+
+		if(slotDef.id == "tips") {
+			if(entry.sortByNames == undefined) 				entry.sortByNames = false;
+			if(entry.sortByAmounts == undefined) 			entry.sortByAmounts = false;
+			if(entry.showTipsKofi === undefined)			entry.showTipsKofi = true;
+			if(entry.showTipsTipeee === undefined)			entry.showTipsTipeee = true;
+			if(entry.showTipsPatreon === undefined)			entry.showTipsPatreon = true;
+			if(entry.showTipsStreamlabs === undefined)		entry.showTipsStreamlabs = true;
+			if(entry.showTipsStreamelements === undefined)	entry.showTipsStreamelements = true;
+			this.param_sortByName[id]				= {type:"boolean", value:entry.sortByNames, icon:"filters", labelKey:"overlay.credits.param_sortByNames", premiumOnly:true};
+			this.param_showTipsKofi[id]				= {type:'boolean', value:entry.showTipsKofi, icon:"kofi", labelKey:'overlay.credits.param_tip_kofi', premiumOnly:true};
+			this.param_showTipsTipeee[id]			= {type:'boolean', value:entry.showTipsTipeee, icon:"tipeee", labelKey:'overlay.credits.param_tip_tipeee', premiumOnly:true};
+			this.param_showTipsPatreon[id]			= {type:'boolean', value:entry.showTipsPatreon, icon:"patreon", labelKey:'overlay.credits.param_tip_patreon', premiumOnly:true};
+			this.param_showTipsStreamlabs[id]		= {type:'boolean', value:entry.showTipsStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_tip_streamlabs', premiumOnly:true};
+			this.param_showTipsStreamelements[id]	= {type:'boolean', value:entry.showTipsStreamelements, icon:"streamelements", labelKey:'overlay.credits.param_tip_streamelements', premiumOnly:true};
+			this.param_sortByAmounts[id]			= {type:"boolean", value:entry.sortByAmounts!, icon:"filters", labelKey:"overlay.credits.param_sortByTipAmounts", premiumOnly:true};
+		}else
+
+		if(slotDef.id == "merch") {
+			if(entry.showMerchKofi === undefined)			entry.showMerchKofi = true;
+			if(entry.showMerchStreamlabs === undefined)		entry.showMerchStreamlabs = true;
+			this.param_showMerchKofi[id]			= {type:'boolean', value:entry.showMerchKofi, icon:"kofi", labelKey:'overlay.credits.param_merch_kofi', premiumOnly:true};
+			this.param_showMerchStreamlabs[id]		= {type:'boolean', value:entry.showMerchStreamlabs, icon:"streamlabs", labelKey:'overlay.credits.param_merch_streamlabs', premiumOnly:true};
 		}
-		
+
 		if(slotDef.canMerge) {
 			if(entry.uniqueUsers === undefined || !this.isPremium) entry.uniqueUsers = false;
 			this.param_uniqueUsers[id]	= {type:"boolean", value:false, icon:"merge", labelKey:"overlay.credits.param_uniqueUsers", premiumOnly:true};
@@ -576,12 +622,13 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
+		console.log(summary);
 		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
 
 	/**
-	 * Scrolls to 
+	 * Scrolls to
 	 */
 	public async scrollTo(id:string):Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONTROL, {scrollTo:id});
@@ -621,7 +668,7 @@ export default toNative(OverlayParamsCredits);
 
 <style scoped lang="less">
 .overlayparamscredits{
-	
+
 	.parameters {
 		min-width: 100%;
 	}

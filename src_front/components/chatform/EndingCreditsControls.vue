@@ -34,7 +34,7 @@ import gsap from 'gsap';
 
 	public speed:number = 0;
 	public ignoreSpeedchange:boolean = false;
-	
+
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public async stop():Promise<void> {
@@ -53,6 +53,8 @@ import gsap from 'gsap';
 			polls:[],
 			predictions:[],
 			chatters:[],
+			merch:[],
+			tips:[],
 		}
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
 	}
@@ -66,7 +68,7 @@ import gsap from 'gsap';
 	public beforeUnmount():void {
 		document.removeEventListener("mousedown", this.clickHandler);
 	}
-	
+
 	public async start():Promise<void> {
 		const summary = await this.$store.stream.getSummary(undefined, true);
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);

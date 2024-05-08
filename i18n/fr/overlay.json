@@ -127,6 +127,7 @@
 			"param_sortByNames":"Trier par ordre alphabétique",
 			"param_sortByRoles":"Trier par rôles",
 			"param_sortByAmounts":"Trier par nombre de messages",
+			"param_sortByTipAmounts":"Trier par valeur des dons",
 			"param_layout":"Disposition des entrées",
 			"param_maxItems":"Maximum d'entrées à afficher",
 			"param_customHTML":"Template HTML personnalisé",
@@ -142,6 +143,13 @@
 			"param_ignoreBots":"Masquer les bots",
 			"param_ignoreCustomBots":"Masquer des comptes personnalisés",
 			"param_hideEmptySlots":"Masquer les sections ne contenant aucune entrée",
+			"param_tip_kofi":"Dons Ko-fi",
+			"param_tip_tipeee":"Dons Tipeee",
+			"param_tip_patreon":"Dons Patreon (via Streamlabs)",
+			"param_tip_streamlabs":"Dons Streamlabs",
+			"param_tip_streamelements":"Dons Streamelements",
+			"param_merch_kofi":"Merch Ko-fi",
+			"param_merch_streamlabs":"Merch Streamlabs",
 			"scroll_tt":"Défiler jusqu'à cette section",
 			"testBt":"Lancer un faux générique",
 			"moderators_label":"MODERATEUR·ICES",
@@ -161,7 +169,9 @@
 				"chatters":"Chatters",
 				"timeouts":"Bans temporaires",
 				"polls":"Sondages",
-				"predictions":"Prédictions"
+				"predictions":"Prédictions",
+				"tips":"Dons",
+				"merch":"Achat de merch"
 			},
 			"labels": {
 				"text":"",
@@ -178,7 +188,9 @@
 				"chatters":"CHATTERS",
 				"timeouts":"BANS TEMPORAIRES",
 				"polls":"SONDAGES",
-				"predictions":"PRÉDICTIONS"
+				"predictions":"PRÉDICTIONS",
+				"tips":"DONS",
+				"merch":"MERCH ACHETÉ"
 			},
 			"amounts": {
 				"cheers":"Afficher le nombre de bits",
@@ -192,7 +204,8 @@
 				"chatters":"Afficher le nombre de messages envoyés",
 				"timeouts":"Afficher la durée totale de timeout pour chaque personne",
 				"polls":"Afficher le nombre de votes",
-				"predictions":"Afficher le nombre de points de chaîne"
+				"predictions":"Afficher le nombre de points de chaîne",
+				"tips":"Afficher le montant des dons"
 			}
 		},
 		"heatDistort": {

@@ -9,68 +9,68 @@
 				<Icon name="youtube" />
 				<p>Youtube</p>
 			</button>
-	
+
 			<button class="card-item premium" @click="subContent='goxlr'">
 				<Icon name="goxlr" />
 				<p>GoXLR</p>
 			</button>
-	
+
 			<button class="card-item premium" @click="subContent='streamlabs'">
 				<Icon name="streamlabs" />
 				<p>Streamlabs</p>
 				<!-- <div class="soon">coming soon</div> -->
 			</button>
-	
+
 			<button class="card-item premium" @click="subContent='streamelements'">
 				<Icon name="streamelements" />
 				<p>Streamelements</p>
 			</button>
-	
-			<button class="card-item premium" @click="subContent='lumia'">
-				<Icon name="lumia" />
-				<p>Lumia Stream</p>
-			</button>
-	
+
 			<button class="card-item premium" @click="subContent='kofi'">
 				<Icon name="kofi" />
 				<p>Ko-fi</p>
 			</button>
-	
+
 			<button class="card-item premium" @click="subContent='tipeee'">
 				<Icon name="tipeee" />
 				<p>Tipeee Stream</p>
 			</button>
-	
+
+			<button class="card-item premium" @click="subContent='lumia'">
+				<Icon name="lumia" />
+				<p>Lumia Stream</p>
+			</button>
+
 			<button class="card-item" @click="subContent='voicemod'">
 				<Icon name="voicemod" />
 				<p>Voicemod</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='streamdeck'">
 				<Icon name="elgato" />
 				<p>Stream Deck</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='discord'">
 				<Icon name="discord" />
 				<p>Discord</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='spotify'">
 				<Icon name="spotify" />
 				<p>Spotify</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='obs'">
 				<Icon name="obs" />
 				<p>OBS</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='heat'">
 				<Icon name="heat" />
 				<p>Heat</p>
 			</button>
-	
+
 			<button class="card-item" @click="subContent='websocket'">
 				<Icon name="broadcast" />
 				<p>Websocket</p>

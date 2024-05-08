@@ -1317,20 +1317,21 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const amount = Math.round(Math.random()*50);
 					const m:TwitchatDataTypes.MessageStreamlabsData = {
 						platform:"twitch",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						channel_id:uid,
-						amount:13,
-						amountFormatted:"$13",
+						amount,
+						amountFormatted:amount+"€",
 						currency:"EUR",
 						eventType:"donation",
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
-						userName:user.displayNameOriginal,
+						userName:fakeUser.displayNameOriginal,
 					};
 					data = m;
 					break;
@@ -1338,20 +1339,21 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const amount = Math.round(Math.random()*50);
 					const m:TwitchatDataTypes.MessageStreamelementsData = {
 						platform:"twitch",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						channel_id:uid,
-						amount:13,
-						amountFormatted:"$13",
+						amount,
+						amountFormatted:amount+"€",
 						currency:"EUR",
 						eventType:"donation",
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
-						userName:user.displayNameOriginal,
+						userName:fakeUser.displayNameOriginal,
 					};
 					data = m;
 					break;
@@ -1359,21 +1361,22 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const amount = Math.round(Math.random()*50);
 					const m:TwitchatDataTypes.MessageKofiData = {
 						platform:"twitch",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						channel_id:uid,
-						amount:13,
-						amountFormatted:"$13",
+						amount,
+						amountFormatted:amount+"€",
 						currency:"EUR",
 						eventType:"donation",
 						isPublic:true,
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
-						userName:user.displayNameOriginal,
+						userName:fakeUser.displayNameOriginal,
 					};
 					data = m;
 					break;
@@ -1381,20 +1384,21 @@ export const storeDebug = defineStore('debug', {
 
 				case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
 					const chunks = TwitchUtils.parseMessageToChunks(message, undefined, true);
+					const amount = Math.round(Math.random()*50);
 					const m:TwitchatDataTypes.MessageTipeeeDonationData = {
 						platform:"twitch",
 						type,
 						date:Date.now(),
 						id:Utils.getUUID(),
 						channel_id:uid,
-						amount:13,
-						amountFormatted:"$13",
+						amount,
+						amountFormatted:amount+"€",
 						currency:"EUR",
 						eventType:"donation",
 						message,
 						message_html:TwitchUtils.messageChunksToHTML(chunks),
 						message_chunks:chunks,
-						userName:user.displayNameOriginal,
+						userName:fakeUser.displayNameOriginal,
 						recurring:false,
 						recurringCount:0,
 					};

@@ -1616,6 +1616,8 @@ export namespace TwitchatDataTypes {
 		polls:{title:string, votes:number, choices:{title:string, votes:number, win:boolean}[]}[];
 		predictions:{title:string, points:number, outcomes:{title:string, points:number, voters:number, win:boolean}[]}[];
 		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
+		tips:{login:string, amount:number, currency:string, platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon"}[];
+		merch:{login:string, products:string[], total:number, currency:string, platform:"kofi" | "streamlabs"}[];
 	}
 
 	/**
@@ -1691,7 +1693,7 @@ export namespace TwitchatDataTypes {
 	type ExcludeUndefined<T> = T extends undefined ? never : T;
 	export type StreamSummaryDataListItem = UnionFromArrayProps<StreamSummaryData>;
 
-	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions";
+	export type EndingCreditsSlotStringTypes = "text" | "bans" | "mods" | "subs" | "vips" | "raids" | "polls" | "so_in" | "so_out" | "cheers" | "follows" | "rewards" | "chatters" | "timeouts" | "hypechats" | "hypetrains" | "predictions" | "tips" | "shoutouts" | "merch";
 	export const EndingCreditsSlotDefinitions:EndingCreditsSlotDefinition[] = [
 		{id:"cheers",		premium:false,	hasAmount:true,		canMerge:true,		icon:"bits",			label:"overlay.credits.categories.cheers",			defaultLabel:"overlay.credits.labels.cheers",		amountLabel:"overlay.credits.amounts.cheers"},
 		{id:"subs",			premium:false,	hasAmount:true,		canMerge:true,		icon:"sub",				label:"overlay.credits.categories.subs",			defaultLabel:"overlay.credits.labels.subs",			amountLabel:"overlay.credits.amounts.subs"},
@@ -1707,6 +1709,8 @@ export namespace TwitchatDataTypes {
 		{id:"so_out",		premium:true,	hasAmount:true,		canMerge:false,		icon:"shoutout",		label:"overlay.credits.categories.so_out",			defaultLabel:"overlay.credits.labels.so_out",		amountLabel:"overlay.credits.amounts.so_out"},
 		{id:"polls",		premium:true,	hasAmount:true,		canMerge:false,		icon:"poll",			label:"overlay.credits.categories.polls",			defaultLabel:"overlay.credits.labels.polls",		amountLabel:"overlay.credits.amounts.polls"},
 		{id:"predictions",	premium:true,	hasAmount:true,		canMerge:false,		icon:"prediction",		label:"overlay.credits.categories.predictions",		defaultLabel:"overlay.credits.labels.predictions",	amountLabel:"overlay.credits.amounts.predictions"},
+		{id:"tips",			premium:true,	hasAmount:true,		canMerge:true,		icon:"coin",			label:"overlay.credits.categories.tips",			defaultLabel:"overlay.credits.labels.tips",			amountLabel:"overlay.credits.amounts.tips"},
+		{id:"merch",		premium:true,	hasAmount:false,	canMerge:false,		icon:"label",			label:"overlay.credits.categories.merch",			defaultLabel:"overlay.credits.labels.merch"},
 		{id:"text",			premium:true,	hasAmount:false,	canMerge:false,		icon:"font",			label:"overlay.credits.categories.text",			defaultLabel:"overlay.credits.labels.text"},
 	];
 
@@ -1737,6 +1741,13 @@ export namespace TwitchatDataTypes {
 		showSubs?:boolean;
 		showResubs?:boolean;
 		showSubgifts?:boolean;
+		showTipsKofi?:boolean;
+		showTipsTipeee?:boolean;
+		showTipsPatreon?:boolean;
+		showTipsStreamlabs?:boolean;
+		showTipsStreamelements?:boolean;
+		showMerchKofi?:boolean;
+		showMerchStreamlabs?:boolean;
 		sortByNames?:boolean;
 		sortByRoles?:boolean;
 		sortByAmounts?:boolean;

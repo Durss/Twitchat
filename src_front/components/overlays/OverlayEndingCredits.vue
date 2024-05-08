@@ -12,37 +12,37 @@
 							<span class="value">{{entry.amount}}</span>
 						</div>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'subs'" v-for="entry in getSortedSubs(item.params).splice(0, item.params.maxEntries)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges" :name="entry.type == 'subgift'? 'gift' : 'sub'" />
 						<span class="info">{{entry.value.login}}</span>
 						<span class="count" v-if="entry.type=='subgift' && item.params.showAmounts === true"><Icon name="gift" class="giftIcon" />{{ entry.value.total }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'cheers'" v-for="entry in getCheers(item.params).concat().splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="bits" class="bitsIcon" />{{ entry.bits }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'raids'" v-for="entry in makeUnique(item.params, data.raids || []).concat().splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.raiders }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'follows'" v-for="entry in (data.follows || []).concat().splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'so_in'" v-for="entry in (data.shoutouts || []).concat().filter(v=>v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'so_out'" v-for="entry in (data.shoutouts || []).concat().filter(v=>!v.received).sort((a,b)=>b.viewers-a.viewers).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="user" class="userIcon" />{{ entry.viewers }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.params.maxEntries)" class="item">
 						<i18n-t scope="global" keypath="train.ending_credits" tag="span">
 							<template #LEVEL>
@@ -63,17 +63,17 @@
 							</div>
 						</template>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'bans'" v-for="entry in (data.chatters || []).concat().filter(v=>v.bans > 0).sort((a,b)=> b.bans-a.bans).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{ entry.login }}</span>
 						<span class="count" v-if="item.params.showAmounts === true">{{ entry.bans }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'timeouts'" v-for="entry in (data.chatters || []).concat().filter(v=>v.tos > 0).sort((a,b)=> b.tosDuration-a.tosDuration).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{ entry.login }}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="timeout" class="timeout" />{{ formatDuration(entry.tosDuration) }}s</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'rewards'" v-for="entry in getRewards(item.params).concat().splice(0, item.params.maxEntries).sort((a,b)=>b.total-a.total)" class="item">
 						<img :src="entry.reward.icon" alt="reward redeem icon" class="rewardIcon">
 						<span class="info">{{ entry.reward.name }}</span>
@@ -85,14 +85,14 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'chatters'" v-for="entry in getSortedChatters(item.params)" class="item">
 						<Icon class="badge" v-if="item.params.showBadges && (entry.vip || entry.mod || entry.sub)"
 							:name="(entry.mod? 'mod' : (entry.vip? 'vip' : (entry.sub? 'sub' : 'min')))" />
 						<span class="info">{{ entry.login }}</span>
 						<span class="count" v-if="item.params.showAmounts === true"><Icon name="whispers" class="messageIcon" />{{ entry.count }}</span>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'polls'" v-for="entry in (data.polls || []).concat()" class="item">
 						<span class="info">{{ entry.title }}</span>
 						<div class="pollItems">
@@ -102,7 +102,7 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'predictions'" v-for="entry in (data.predictions || []).concat()" class="item">
 						<span class="info">{{ entry.title }}</span>
 						<div class="pollItems">
@@ -112,9 +112,22 @@
 							</div>
 						</div>
 					</div>
-					
+
 					<div v-if="item.params.slotType == 'text' && item.params.text" class="item">
 						<p class="textContent" v-html="safeHTML(item.params.text)"></p>
+					</div>
+
+					<div v-if="item.params.slotType == 'tips'" v-for="entry in getTips(item.params).splice(0, item.params.maxEntries)" class="item">
+						<!-- <Icon class="badge" v-if="item.params.showBadges" :name="{kofi:'kofi', tipeee:'tipeee', patreon:'patreon', streamlabs:'streamlabs', streamelements:'streamelements'}[entry.platform]" /> -->
+						<span class="info">{{entry.login}}</span>
+						<span class="count" v-if="item.params.showAmounts === true">{{ entry.amount +" "+entry.currency }}</span>
+					</div>
+
+					<div v-if="item.params.slotType == 'merch'" v-for="entry in getMerch(item.params).splice(0, item.params.maxEntries)" class="item">
+						<!-- <Icon class="badge" v-if="item.params.showBadges" :name="{kofi:'kofi', tipeee:'tipeee', patreon:'patreon', streamlabs:'streamlabs', streamelements:'streamelements'}[entry.platform]" /> -->
+						<span class="info">{{entry.login}}</span>
+						<span class="merch">{{entry.products.join(", ")}}</span>
+						<!-- <span class="count" v-if="entry.total > -1 && entry.currency">{{ entry.total +" "+entry.currency }}</span> -->
 					</div>
 				</div>
 			</div>
@@ -143,7 +156,7 @@ import gsap from 'gsap';
 	public noEntry:boolean = false;
 	public data:TwitchatDataTypes.StreamSummaryData|null = null;
 	public slotList:SlotItem[] = [];
-	
+
 	private posY:number = 0;
 	private animFrame:number = -1;
 	private speedScale:number = 0;
@@ -183,6 +196,39 @@ import gsap from 'gsap';
 		return DOMPurify.sanitize(html);
 	}
 
+	public getTips(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		const tips = this.makeUnique(item, (this.data?.tips || [])
+			.filter(tip =>
+				(tip.platform == "kofi" && item.showTipsKofi)
+				|| (tip.platform == "tipeee" && item.showTipsTipeee)
+				|| (tip.platform == "patreon" && item.showTipsPatreon)
+				|| (tip.platform == "streamlabs" && item.showTipsStreamlabs)
+				|| (tip.platform == "streamelements" && item.showTipsStreamelements)
+			)
+		);
+		return tips.sort((a, b)=> {
+			let scoreA = 0;
+			let scoreB = 0;
+			if(item.sortByAmounts){
+				scoreA += a.amount;
+				scoreB += b.amount;
+			}
+			if(item.sortByNames){
+				if(a.login.toLowerCase() > b.login.toLowerCase()) scoreB ++;
+				if(a.login.toLowerCase() < b.login.toLowerCase()) scoreA ++;
+			}
+
+			return scoreB - scoreA;
+		});
+	}
+
+	public getMerch(item:TwitchatDataTypes.EndingCreditsSlotParams) {
+		return (this.data?.merch || []).filter(v=>
+		(item.showMerchKofi && v.platform == "kofi")
+		||
+		(item.showMerchStreamlabs && v.platform == "streamlabs"));
+	}
+
 	public getSortedSubs(item:TwitchatDataTypes.EndingCreditsSlotParams) {
 		const subs = this.data?.subs || [];
 		const resubs = this.data?.resubs || [];
@@ -213,7 +259,7 @@ import gsap from 'gsap';
 				if(a.type === "subgift") scoreA += a.value.total;
 				if(b.type === "subgift") scoreB += b.value.total;
 			}
-			
+
 			return scoreB - scoreA;
 		});
 	}
@@ -269,7 +315,7 @@ import gsap from 'gsap';
 
 	public beforeMount(): void {
 		PublicAPI.instance.broadcast(TwitchatEvent.CREDITS_OVERLAY_PRESENCE);
-		
+
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyup(e);
 		this.controlHandler = (e:TwitchatEvent) => this.onControl(e);
 		this.summaryDataHandler = (e:TwitchatEvent) => this.onSummaryData(e);
@@ -303,7 +349,7 @@ import gsap from 'gsap';
 
 	/**
 	 * Get the number of entries to be displayed
-	 * @param item 
+	 * @param item
 	 */
 	public getEntryCountForSlot(item:TwitchatDataTypes.EndingCreditsSlotParams):number {
 		if(this.entryCountCache[item.id] != undefined) return this.entryCountCache[item.id];
@@ -326,6 +372,8 @@ import gsap from 'gsap';
 			case "mods": count = (this.data?.chatters || []).filter(v=>v.mod).length; break;
 			case "text": count = item.text || item.label? 1 : 0; break;
 			case "chatters": count = this.getSortedChatters(item).length; break;
+			case "tips": count = this.getTips(item).length; break;
+			case "merch": count = this.getMerch(item).length; break;
 		}
 		count = Math.min(count, item.maxEntries);
 		this.entryCountCache[item.id] = count;
@@ -351,7 +399,7 @@ import gsap from 'gsap';
 				if(a.mod) scoreA +=10;
 				else if(a.vip) scoreA +=5;
 				else if(a.sub) scoreA +=2;
-				
+
 				if(b.mod) scoreB +=10;
 				else if(b.vip) scoreB +=5;
 				else if(b.sub) scoreB +=2;
@@ -374,7 +422,7 @@ import gsap from 'gsap';
 
 	/**
 	 * Converts milliseconds to duration
-	 * @param seconds 
+	 * @param seconds
 	 */
 	public formatDuration(seconds:number):string {
 		return Utils.formatDuration(seconds * 1000);
@@ -391,9 +439,9 @@ import gsap from 'gsap';
 
 	/**
 	 * Merge entries so we get only unique entries if requested by the parameters
-	 * 
-	 * @param slot 
-	 * @param values 
+	 *
+	 * @param slot
+	 * @param values
 	 */
 	public makeUnique<T>(slot:TwitchatDataTypes.EndingCreditsSlotParams, values:T[]):T[] {
 		//Didn't request unique values, just return the array
@@ -430,7 +478,6 @@ import gsap from 'gsap';
 				let val:keyTypeNumber = "bits";
 				mergeKey = key as keyof T;
 				valueKey = val as keyof T;
-				console.log("Merge", mergeKey, valueKey);
 				break;
 			}
 			case "raids": {
@@ -438,6 +485,15 @@ import gsap from 'gsap';
 				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["raids"][0], number>;
 				let key:keyType = "login";
 				let val:keyTypeNumber = "raiders";
+				mergeKey = key as keyof T;
+				valueKey = val as keyof T;
+				break;
+			}
+			case "tips": {
+				type keyType = keyof TwitchatDataTypes.StreamSummaryData["tips"][0];
+				type keyTypeNumber = KeysMatching<TwitchatDataTypes.StreamSummaryData["tips"][0], number>;
+				let key:keyType = "login";
+				let val:keyTypeNumber = "amount";
 				mergeKey = key as keyof T;
 				valueKey = val as keyof T;
 				break;
@@ -494,7 +550,7 @@ import gsap from 'gsap';
 		}
 		if(data.next === true || data.prev === true) {
 			let targetYPos = window.innerHeight * .5;
-			
+
 			const lists = (this.$refs.listItem as HTMLDivElement[] | undefined) || [];
 			let closestPos = Number.MAX_VALUE;
 			let closestItemIndex:number = -1;
@@ -586,18 +642,18 @@ import gsap from 'gsap';
 	 */
 	private startScroll(resetScroll:boolean):void {
 		if(this.noEntry) return;
-		
+
 		this.$nextTick().then(async () => {
 			if(resetScroll && this.data?.params?.startDelay) {
 				await new Promise<void>((resolve) => {
 					this.startDelayTimeout = setTimeout(() => resolve(), this.data!.params!.startDelay * 1000);
 				})
 			}
-			
+
 			if(!this.data?.params) return;//No params?!
 			if(this.data.params.lang) this.$i18n.locale = this.data.params.lang;
 			this.display = true;
-			
+
 			if(resetScroll) {
 				this.posY = window.innerHeight;
 
@@ -614,7 +670,7 @@ import gsap from 'gsap';
 	 */
 	private renderFrame(ts:number):void {
 		this.animFrame = requestAnimationFrame((ts)=>this.renderFrame(ts));
-		
+
 		const fadeSize = this.data?.params?.fadeSize || 0;
 		const lists = this.$refs.listItem as HTMLDivElement[];
 		lists.forEach(item => {
@@ -643,7 +699,7 @@ import gsap from 'gsap';
 				//@ts-ignore
 				item.style["-webkit-mask-image"] = "none";
 			}
-			
+
 			if(fadeSize>1) {
 				document.body.style.maskImage = "linear-gradient(transparent 0, black "+fadeSize+"px, black "+(screenHeight - fadeSize*2)+"px, transparent "+screenHeight+"px)";
 				//@ts-ignore
@@ -654,7 +710,7 @@ import gsap from 'gsap';
 				document.body.style["-webkit-mask-image"] = "none";
 			}
 		})
-		
+
 		if(this.paused) return;
 		if(this.noEntry) return;
 		if(this.interpolating) return;
@@ -663,7 +719,7 @@ import gsap from 'gsap';
 			this.prevTs = ts;
 			return;
 		}
-		
+
 		const fps = Math.max(1000/100, Math.min(1000/30, (ts - this.prevTs))); //At least 30fps to cancel random lags i've seen
 		this.prevTs = ts;
 
@@ -731,7 +787,7 @@ import gsap from 'gsap';
 		this.entryCountCache = {};
 		let slots = this.data.params.slots;
 		let totalEntries = 0;
-		console.log(">>>", this.data!.params!.hideEmptySlots);
+
 		slots.forEach(slotParams => {
 			const slot = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == slotParams.slotType)!;
 			//Slot disabled, ignore it
@@ -822,7 +878,7 @@ export default toNative(OverlayEndingCredits);
 	color: #fff;
 	will-change: transform;
 	will-change: margin-top;
-	
+
 	.category {
 		font-family: "Inter";
 		display: flex;
@@ -859,6 +915,18 @@ export default toNative(OverlayEndingCredits);
 					height: 1em;
 				}
 				.count {
+					margin-left: .5em;
+					font-weight: bold;
+					display: flex;
+					flex-direction: raw;
+					align-items: center;
+					.icon {
+						margin-right: .25em;
+						height: 1em;
+						width: 1em;
+					}
+				}
+				.merch {
 					margin-left: .5em;
 					font-weight: bold;
 					display: flex;
@@ -1164,7 +1232,7 @@ export default toNative(OverlayEndingCredits);
 						overflow: hidden;
 						text-overflow: ellipsis;
 						line-height: 1.2em;
-					}	
+					}
 				}
 			}
 		}

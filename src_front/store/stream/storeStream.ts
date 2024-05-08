@@ -242,7 +242,7 @@ export const storeStream = defineStore('stream', {
 				TwitchUtils.getAdSchedule();
 			}, 60000);
 		},
-		
+
 		setStreamStop(channelId:string):void{
 			const emoteOnly = StoreProxy.params.features.offlineEmoteOnly.value;
 			const uid = StoreProxy.auth.twitch.user.id;
@@ -255,7 +255,7 @@ export const storeStream = defineStore('stream', {
 				StoreProxy.params.donationReminderEnabled = false;
 				StoreProxy.chat.sendTwitchatAd(TwitchatDataTypes.TwitchatAdTypes.DONATE_REMINDER);
 			}
-			
+
 			//Unschedul ad events
 			(commercialTimeouts[channelId] || []).forEach(to=> clearTimeout(to) );
 		},
@@ -401,12 +401,12 @@ export const storeStream = defineStore('stream', {
 					}, 10000);
 				}, startDate + data.currentAdDuration_ms - Date.now());
 				commercialTimeouts[channelId].push(to);
-				
+
 				Logger.instance.log("ads", {
 					log:"Schedule ad complete trigger in "+((startDate+data.currentAdDuration_ms - Date.now())/1000)+"s"
 				});
 			}
-			
+
 			PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (data as unknown) as JsonObject);
 		},
 
@@ -429,7 +429,7 @@ export const storeStream = defineStore('stream', {
 				}
 			}catch(error) {
 				const e = (error as unknown) as {error:string, message:string, status:number}
-				
+
 				const notice:TwitchatDataTypes.MessageNoticeData = {
 					id:Utils.getUUID(),
 					date:Date.now(),
@@ -462,6 +462,8 @@ export const storeStream = defineStore('stream', {
 				chatters:[],
 				polls:[],
 				predictions:[],
+				tips:[],
+				merch:[],
 			};
 
 			let dateOffset:number|undefined = offset;
@@ -537,6 +539,25 @@ export const storeStream = defineStore('stream', {
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessagePredictionData>(TwitchatDataTypes.TwitchatMessageType.PREDICTION, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageHypeTrainSummaryData>(TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY, undefined, false));
 					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageRaidData>(TwitchatDataTypes.TwitchatMessageType.RAID, undefined, false));
+
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.KofiDonationData>(TwitchatDataTypes.TwitchatMessageType.KOFI, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.MessageTipeeeDonationData>(TwitchatDataTypes.TwitchatMessageType.TIPEEE, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, undefined, false));
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsDonationData>(TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS, undefined, false));
+
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.KofiMerchData>(TwitchatDataTypes.TwitchatMessageType.KOFI, (message)=>{
+						message.eventType = "merch";
+						message.products = [{id:"123456", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}, {id:"234561", name:Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]), quantity:1}];
+					}, false));
+
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsMerchData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (message)=>{
+						message.eventType = "merch";
+						message.product = Utils.pickRand(["T-shirt", "Hoodie", "Hat", "Mug", "Stickers", "Pins"]);
+					}, false));
+
+					messages.push(await StoreProxy.debug.simulateMessage<TwitchatDataTypes.StreamlabsPatreonPledgeData>(TwitchatDataTypes.TwitchatMessageType.STREAMLABS, (message)=>{
+						message.eventType = "patreon_pledge";
+					}, false));
 				}
 			}else{
 				//Filter out messages based on the stream duration
@@ -553,10 +574,10 @@ export const storeStream = defineStore('stream', {
 					prevDate = m.date;
 				}
 			}
-			
+
 			for (let i = 0; i < messages.length; i++) {
 				const m = messages[i];
-				
+
 				switch(m.type) {
 					case TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION: {
 						if(m.user.channelInfo[channelId]?.is_banned) continue;
@@ -567,7 +588,7 @@ export const storeStream = defineStore('stream', {
 						else result.subs.push(sub);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.CHEER: {
 						if(m.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
@@ -575,7 +596,7 @@ export const storeStream = defineStore('stream', {
 						result.bits.push(cheer);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_CHAT: {
 						if(m.message.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.message.user.login.toLowerCase()] === true) continue;
@@ -583,7 +604,7 @@ export const storeStream = defineStore('stream', {
 						result.hypeChats.push(hypeChat);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.FOLLOWING: {
 						if(m.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
@@ -591,7 +612,7 @@ export const storeStream = defineStore('stream', {
 						result.follows.push(follow);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.RAID: {
 						if(m.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
@@ -599,7 +620,7 @@ export const storeStream = defineStore('stream', {
 						result.raids.push(raid);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.REWARD: {
 						if(m.user.channelInfo[channelId]?.is_banned) continue;
 						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
@@ -607,13 +628,13 @@ export const storeStream = defineStore('stream', {
 						result.rewards.push(reward);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.SHOUTOUT: {
 						const shoutout:TwitchatDataTypes.StreamSummaryData['shoutouts'][0] = {uid:m.user.id, login:m.user.displayNameOriginal, received:m.received, viewers:m.viewerCount};
 						result.shoutouts.push(shoutout);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.HYPE_TRAIN_SUMMARY: {
 						let bits = 0;
 						let subs = 0;
@@ -640,7 +661,7 @@ export const storeStream = defineStore('stream', {
 						result.hypeTrains.push(train);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.POLL: {
 						let totalVotes = 0;
 						m.choices.forEach(v => totalVotes += v.votes);
@@ -650,7 +671,7 @@ export const storeStream = defineStore('stream', {
 						result.polls.push(poll);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.PREDICTION: {
 						let totalVotes = 0;
 						m.outcomes.forEach(v => totalVotes += v.votes);
@@ -660,7 +681,7 @@ export const storeStream = defineStore('stream', {
 						result.predictions.push(pred);
 						break;
 					}
-					
+
 					case TwitchatDataTypes.TwitchatMessageType.BAN:
 					case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 						if(ignoredAccounts[m.user.login.toLowerCase()] === true) continue;
@@ -680,7 +701,7 @@ export const storeStream = defineStore('stream', {
 							};
 							result.chatters.push(chatters[m.user.id]);
 						}
-						
+
 						if(m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 							if(chanInfo.is_banned) continue;
 							chatters[m.user.id].count ++;
@@ -695,13 +716,57 @@ export const storeStream = defineStore('stream', {
 						}
 						break;
 					}
+
+					case TwitchatDataTypes.TwitchatMessageType.KOFI: {
+						if(m.eventType == "donation" || m.eventType == "subscription") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"kofi"};
+							result.tips.push(tip);
+						}
+						if(m.eventType == "merch") {
+							const merch:TwitchatDataTypes.StreamSummaryData['merch'][number] = {login:m.userName, products:m.products.map(v=>v.name!), total:m.amount, currency:m.currency, platform:"kofi"};
+							result.merch.push(merch);
+						}
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
+						if(m.eventType == "donation") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"streamlabs"};
+							result.tips.push(tip);
+						}
+						if(m.eventType == "patreon_pledge") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"patreon"};
+							result.tips.push(tip);
+						}
+						if(m.eventType == "merch") {
+							const merch:TwitchatDataTypes.StreamSummaryData['merch'][number] = {login:m.userName, products:[m.product], total:-1, currency:"", platform:"streamlabs"};
+							result.merch.push(merch);
+						}
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
+						if(m.eventType == "donation") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"streamelements"};
+							result.tips.push(tip);
+						}
+						break;
+					}
+
+					case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
+						if(m.eventType == "donation") {
+							const tip:TwitchatDataTypes.StreamSummaryData['tips'][number] = {login:m.userName, amount:m.amount, currency:m.currency, platform:"tipeee"};
+							result.tips.push(tip);
+						}
+						break;
+					}
 				}
 			}
 
 			if(includeParams && parameters!=null) {
 				result.params = parameters;
 				result.params.lang = StoreProxy.i18n.locale;
-				
+
 				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {
 					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
@@ -727,7 +792,7 @@ export const storeStream = defineStore('stream', {
 
 			return result;
 		},
-		
+
 	} as IStreamActions
 	& ThisType<IStreamActions
 		& UnwrapRef<IStreamState>
