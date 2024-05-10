@@ -1623,7 +1623,7 @@ export default class TwitchUtils {
 	/**
 	 * Get a clip by its ID
 	 */
-	public static async getClipById(clipId: string): Promise<TwitchDataTypes.ClipInfo | null> {
+	public static async getClipById(clipId: string, retries:number = 0): Promise<TwitchDataTypes.ClipInfo | null> {
 		const options = {
 			method: "GET",
 			headers: this.headers,
@@ -1635,13 +1635,17 @@ export default class TwitchUtils {
 			const json = await res.json();
 			return json.data[0] ?? null;
 		} else
-			if (res.status == 429) {
-				//Rate limit reached, try again after it's reset to full
-				await this.onRateLimit(res.headers, url.pathname);
-				return await this.getClipById(clipId);
-			} else {
-				return null;
+		if (res.status == 429) {
+			//Rate limit reached, try again after it's reset to full
+			await this.onRateLimit(res.headers, url.pathname);
+			return await this.getClipById(clipId);
+		} else {
+			if(retries > 0) {
+				await Utils.promisedTimeout(1000);
+				await this.getClipById(clipId, --retries);
 			}
+			return null;
+		}
 	}
 
 	/**
@@ -2930,7 +2934,7 @@ export default class TwitchUtils {
 				if (emotes.length > 0) seventvTag += "/";
 				emotes = seventvTag + emotes;
 			}
-			
+
 			//Parse raw emotes data
 			const chunks = (emotes as string).split("/");
 			if (chunks.length > 0) {

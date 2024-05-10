@@ -22,16 +22,16 @@
 					:loading="automodInProgress" />
 			</div>
 		</div>
-		
+
 		<div v-if="isAnnouncement" class="announcementHolder">
 			<Icon name="announcement" />
 			<div class="header"><strong>{{ $t('chat.message.announcement') }}</strong></div>
 		</div>
-		
+
 		<template v-if="messageData.user.is_blocked !== true || messageData.user.stop_block_censor === true">
 
 			<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-			
+
 			<ChatModTools :messageData="messageData" class="mod" v-if="showModTools" :canDelete="messageData.type != 'whisper'" />
 
 			<Icon v-if="!disableConversation && isConversation && $store.params.features.conversationsEnabled.value && !lightMode"
@@ -43,7 +43,7 @@
 			@click.stop="stopAutoSpoil()" alert small icon="show" v-tooltip="$t('chat.message.stop_autospoil')" />
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
-			
+
 			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.platform_youtube')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
@@ -51,7 +51,7 @@
 					<Icon v-if="b.icon.sd.indexOf('http') == -1" :name="b.icon.sd" class="badge" v-tooltip="b.title" />
 					<img v-else :src="b.icon.sd" class="badge" v-tooltip="b.title">
 				</template>
-	
+
 				<span class="badge mini" v-for="(b,index) in miniBadges"
 					:key="index"
 					:class="b.class"
@@ -59,7 +59,7 @@
 			</div>
 
 			<CustomUserBadges :user="messageData.user" />
-			
+
 			<Icon class="noFollowBadge" v-if="showNofollow"
 				name="unfollow"
 				:alt="$t('chat.message.no_follow')"
@@ -69,11 +69,11 @@
 				ref="occurrenceCount"
 				v-tooltip="$t('chat.message.occurrences')"
 				v-if="messageData.occurrenceCount != undefined && messageData.occurrenceCount > 0">x{{messageData.occurrenceCount+1}}</div>
-			
+
 			<span class="pronoun"
 				v-if="messageData.user.pronounsLabel && $store.params.features.showUserPronouns.value===true"
 				v-tooltip="messageData.user.pronounsTooltip || ''">{{messageData.user.pronounsLabel}}</span>
-			
+
 			<span v-if="messageData.user.displayName != messageData.user.displayNameOriginal">.</span>
 
 			<a :href="'https://twitch.tv/'+messageData.user.login" target="_blank"
@@ -89,7 +89,7 @@
 					:style="getLoginStyles(recipient)"
 					@click.stop.prevent="openUserCard(recipient!, messageData.channel_id, messageData.platform)">{{recipient.displayName}}</a>
 			</template>
-			
+
 			<span :class="getMessageClasses(messageData)">
 				<span class="text">
 					<ChatMessageChunksParser :chunks="localMessageChunks" :channel="messageData.channel_id" :platform="messageData.platform" />
@@ -97,7 +97,7 @@
 				<span class="deleted" v-if="getDeletedMessage(messageData)">{{getDeletedMessage(messageData)}}</span>
 				<MessageTranslation class="textTranslation" :messageData="messageData" />
 			</span>
-			
+
 			<span :class="getChildMessageClasses(m)"
 			v-if="childrenList"
 			v-for="m in childrenList"
@@ -108,7 +108,7 @@
 				</span>
 				<span class="deleted" v-if="getDeletedMessage(m)">{{getDeletedMessage(m)}}</span>
 			</span>
-			
+
 			<br v-if="clipInfo">
 			<div v-if="clipInfo" class="clip">
 				<img :src="clipInfo.thumbnail_url" alt="thumbnail" @click.stop="openClip()">
@@ -177,13 +177,13 @@ import ChatModTools from './components/ChatModTools.vue';
 
 	@Prop
 	declare messageData:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData;
-	
+
 	@Prop
 	declare childrenList:(TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData)[];
-	
+
 	@Prop({type:Boolean, default:false})
 	declare lightMode:boolean;
-	
+
 	@Prop({type:Boolean, default:false})
 	declare contextMenuOff:boolean;
 
@@ -195,7 +195,7 @@ import ChatModTools from './components/ChatModTools.vue';
 
 	@Prop({type:Number, default:0})
 	public colIndex!:number;
-	
+
 	public channelInfo!:TwitchatDataTypes.UserChannelInfo;
 	public recipient:TwitchatDataTypes.TwitchatUser|null = null;
 	public showTools:boolean = false;
@@ -214,8 +214,8 @@ import ChatModTools from './components/ChatModTools.vue';
 
 	private staticClasses:string[] = [];
 	private showModToolsPreCalc:boolean = false;
-	
-	
+
+
 	public get showNofollow():boolean{
 		return this.$store.params.appearance.highlightNonFollowers.value === true
 		&& this.channelInfo.is_following === false;
@@ -272,7 +272,7 @@ import ChatModTools from './components/ChatModTools.vue';
 	 */
 	public get filteredBadges():TwitchatDataTypes.TwitchatUserBadge[] {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
-		
+
 		if(this.$store.params.appearance.showBadges.value
 		&& this.$store.params.appearance.minimalistBadges.value !== true) {
 			return this.badges ?? [];
@@ -285,7 +285,7 @@ import ChatModTools from './components/ChatModTools.vue';
 	 */
 	public get miniBadges():{label:string, class?:string}[] {
 		if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) return [];
-		
+
 		let badges:{label:string, class?:string}[] = [];
 
 		if(this.$store.params.appearance.showBadges.value === true
@@ -344,7 +344,7 @@ import ChatModTools from './components/ChatModTools.vue';
 
 	/**
 	 * Get classes for a child message
-	 * @param message 
+	 * @param message
 	 */
 	public getChildMessageClasses(message:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData):string[] {
 		const res:string[] = ["messageChild"];
@@ -354,7 +354,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		if(spoilersEnabled && message.spoiler) res.push("spoiler");
 		return res;
 	}
-	
+
 	/**
 	 * Set login color
 	 */
@@ -418,14 +418,14 @@ import ChatModTools from './components/ChatModTools.vue';
 		if(mess.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
 			infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.WHISPER});
 			this.showModToolsPreCalc = false;
-			
+
 		}else if(this.messageData.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE){
 			this.isAd = this.messageData.is_ad === true;
 			//Add twitchat's automod badge
 			if(mess.automod) {
 				infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.AUTOMOD, tooltip:"<strong>"+this.$t("chat.message.automod_rule")+"</strong> "+mess.automod.label});
 			}
-			
+
 			//Add "first day on your chat" badge
 			if(this.channelInfo.is_new && !this.messageData.twitch_isFirstMessage
 			&& this.$store.params.appearance.firstUserBadge.value === true) {
@@ -440,7 +440,7 @@ import ChatModTools from './components/ChatModTools.vue';
 			if(mess.twitch_hypeChat) {
 				this.hypeChat = mess.twitch_hypeChat;
 			}
-			
+
 			//Precompute static flag
 			this.showModToolsPreCalc = !this.lightMode
 									&& this.canModerateMessage//if not sent by broadcaster
@@ -456,7 +456,7 @@ import ChatModTools from './components/ChatModTools.vue';
 			if(mess.twitch_isPresentation === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.PRESENTATION});
 			if(mess.twitch_isReturning === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RETURNING_CHATTER});
 			if(mess.twitch_isFirstMessage === true)		infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.FIRST_TIME_CHATTER});
-			
+
 			if(mess.todayFirst === true
 			&& mess.twitch_isFirstMessage !== true
 			&& mess.twitch_isPresentation !== true
@@ -502,7 +502,7 @@ import ChatModTools from './components/ChatModTools.vue';
 			const matches = text.match(/clips\.twitch\.[^/]{2,10}\/([^/?\s\\"<']+)/i);
 			clipId = matches? matches[1] : "";
 		}
-		
+
 		if(clipId != "") {
 			this.clipHighlightLoading = true;
 			super.getHighlightOverPresence().then(res => {
@@ -511,7 +511,7 @@ import ChatModTools from './components/ChatModTools.vue';
 			});
 			//Do it asynchronously to avoid blocking rendering
 			(async()=> {
-				let clip = await TwitchUtils.getClipById(clipId);
+				let clip = await TwitchUtils.getClipById(clipId, 5);
 				if(clip) {
 					this.clipInfo = clip;
 				}
@@ -527,7 +527,7 @@ import ChatModTools from './components/ChatModTools.vue';
 				gsap.fromTo(this.$refs.occurrenceCount as HTMLDivElement, {scale:1.5}, {scale:1, duration:0.2});
 			});
 		}
-		
+
 		this.infoBadges = infoBadges;
 		this.staticClasses = staticClasses;
 		this.$store.accessibility.setAriaPolite(this.messageData.message);
@@ -625,11 +625,11 @@ import ChatModTools from './components/ChatModTools.vue';
 		this.showTools = false;
 		this.$emit('onMouseOut', this.messageData)
 	}
-	
+
 	public onMouseEnter():void{
 		this.showTools = true;
 	}
-	
+
 	/**
 	 * Disable ad if a donor or redirect to ad params otherwise
 	 */
@@ -673,30 +673,30 @@ import ChatModTools from './components/ChatModTools.vue';
 		m.autospoiled = false;
 		m.user.noAutospoil = true;
 	}
-	
+
 	/**
 	 * Called when suspicious state of the user changes
 	 */
 	private updateSuspiciousState():void{
 		if(this.messageData.type === TwitchatDataTypes.TwitchatMessageType.WHISPER) return;
-		
+
 		let users = (this.messageData.twitch_sharedBanChannels?.map(v=>v.login) ?? []);
 		if(users.length > 0) {
 			this.userBannedOnChannels = users.join(", ").replace(/(.*),/, "$1 "+this.$t("global.and"));
 		}
-		
+
 		if(this.messageData.twitch_isSuspicious
 		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER) == -1) {
 			let tt = users.length > 0? this.$t("chat.message.banned_in", {CHANNELS:this.userBannedOnChannels}) : "";
 			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.SUSPICIOUS_USER, label:users.length > 1? "(x"+users.length+")" : "", tooltip:tt});
 		}
-		
+
 		if(this.messageData.twitch_isRestricted
 		&& this.infoBadges.findIndex(v=> v.type == TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER) == -1) {
 			this.infoBadges.push({type:TwitchatDataTypes.MessageBadgeDataType.RESTRICTED_USER});
 		}
 	}
-	
+
 	/**
 	 * Called when "saved" state is changed
 	 */
@@ -720,7 +720,7 @@ export default toNative(ChatMessage);
 
 <style scoped lang="less">
 .chatmessageholder {
-	&.highlighted { 
+	&.highlighted {
 		.message {
 			background-color: var(--color-primary);
 			color:#fff;
@@ -751,7 +751,7 @@ export default toNative(ChatMessage);
 	}
 
 	&.deleted:not(.censor) {
-		
+
 		opacity: .35;
 		transition: opacity .2s;
 		.message, &.messageChild.deleted {
@@ -827,7 +827,7 @@ export default toNative(ChatMessage);
 		height: 1em;
 		vertical-align: middle;
 		margin-right: .25em;
-		
+
 		&.mini {
 			display: inline-block;
 			width: .4em;
@@ -1017,7 +1017,7 @@ export default toNative(ChatMessage);
 	&.cyphered {
 		background-image: repeating-linear-gradient(-45deg, #ffffff10, #ffffff10 20px, #ffffff30 20px, #ffffff30 40px);
 	}
-	
+
 	&.whisper, &.cyphered {
 		background-color: var(--color-text-inverse);
 		@c1: rgba(0,0,0,0);
