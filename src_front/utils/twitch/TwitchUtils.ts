@@ -1633,6 +1633,12 @@ export default class TwitchUtils {
 		const res = await this.callApi(url, options);
 		if (res.status == 200 || res.status == 204) {
 			const json = await res.json();
+			if(json.data.length == 0) {
+				if(retries > 0) {
+					await Utils.promisedTimeout(1000);
+					return await this.getClipById(clipId, --retries);
+				}
+			}
 			return json.data[0] ?? null;
 		} else
 		if (res.status == 429) {
@@ -1642,7 +1648,7 @@ export default class TwitchUtils {
 		} else {
 			if(retries > 0) {
 				await Utils.promisedTimeout(1000);
-				await this.getClipById(clipId, --retries);
+				return await this.getClipById(clipId, --retries);
 			}
 			return null;
 		}
