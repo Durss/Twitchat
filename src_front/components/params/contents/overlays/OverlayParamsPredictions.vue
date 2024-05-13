@@ -8,11 +8,11 @@
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
 			<OverlayInstaller type="predictions" @obsSourceCreated="getOverlayPresence(true)" />
-			
+
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.predictions.css") }}</div>
 				<ul class="cssStructure">
-					
+
 					<li>#holder { ... }
 						<ul>
 							<li>#progress { ... }</li>
@@ -71,7 +71,7 @@
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
-		
+
 			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
 
 			<template v-else-if="overlayExists">
@@ -94,7 +94,7 @@
 				</div>
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.predictions.testBt') }}</TTButton>
 			</template>
-	
+
 			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 	</div>
@@ -143,12 +143,13 @@ class OverlayParamsPredictions extends Vue {
 	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.predictions.param_resultDuration"};
 	public param_hideUntilResolved:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:true, icon:"hide", labelKey:"overlay.predictions.param_hideUntilResolved"};
 
+	private testing:boolean = false;
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
 	private simulateInterval:string = "";
 	private simulateEndTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
-	
+
 	public beforeMount():void {
 		this.params = {
 			showTitle: this.$store.prediction.overlayParams.showTitle,
@@ -176,6 +177,7 @@ class OverlayParamsPredictions extends Vue {
 	}
 
 	public beforeUnmount():void {
+		if(this.testing) this.$store.prediction.setPrediction(null);
 		clearTimeout(this.simulateEndTimeout);
 		SetIntervalWorker.instance.delete(this.simulateInterval);
 		clearInterval(this.checkInterval);
@@ -201,6 +203,7 @@ class OverlayParamsPredictions extends Vue {
 	 * Send fake data to overlay
 	 */
 	public async testOverlay():Promise<void> {
+		this.testing = true;
 		const predi:TwitchatDataTypes.MessagePredictionData = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePredictionData>(TwitchatDataTypes.TwitchatMessageType.PREDICTION, undefined, false);
 		predi.outcomes.forEach(v=> {
 			v.voters = 0;
@@ -221,7 +224,7 @@ class OverlayParamsPredictions extends Vue {
 			}
 			this.$store.prediction.setPrediction(predi);
 		};
-		
+
 		let pendingDuration = 2000;
 		if(this.param_showOnlyResult.value == true) {
 			fakeVotes();
@@ -236,12 +239,13 @@ class OverlayParamsPredictions extends Vue {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
 			predi.pendingAnswer = true;
 			this.$store.prediction.setPrediction(predi);
-			
+
 			this.simulateEndTimeout = setTimeout(()=>{
 				predi.winner = winnerBackup;
 				this.$store.prediction.setPrediction(predi);
 				this.simulateEndTimeout = setTimeout(()=>{
 					this.$store.prediction.setPrediction(null);
+					this.testing = false;
 				}, this.param_resultDuration.value * 1000);
 			}, pendingDuration)
 		}, predi.duration_s * 1000);

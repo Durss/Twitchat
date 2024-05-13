@@ -39,22 +39,22 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
+import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import type { StyleValue } from 'vue';
-import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePrediction';
-import gsap, { Linear } from 'gsap';
 import Utils from '@/utils/Utils';
-//TODO extend AbstractOverlay for better/simpler init
+import gsap, { Linear } from 'gsap';
+import type { StyleValue } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
+import AbstractOverlay from './AbstractOverlay';
 @Component({
 	components:{
 		Icon,
 	},
 	emits:[],
 })
-class OverlayPredictions extends Vue {
+class OverlayPredictions extends AbstractOverlay {
 
 	public show:boolean = false;
 	public showWinner:boolean = false;
@@ -129,7 +129,6 @@ class OverlayPredictions extends Vue {
 
 	public async mounted():Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.PREDICTIONS_OVERLAY_PRESENCE);
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
 
 		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
 		this.updatePredictionHandler = (e:TwitchatEvent)=>this.onUpdatePrediction(e);
@@ -141,9 +140,14 @@ class OverlayPredictions extends Vue {
 	}
 
 	public beforeUnmount():void {
+		super.beforeUnmount();
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTION_PROGRESS, this.updatePredictionHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.PREDICTIONS_OVERLAY_PARAMETERS, this.updateParametersHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+	}
+
+	public requestInfo():void {
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
 	}
 
 	public async onUpdatePrediction(e:TwitchatEvent):Promise<void> {
@@ -151,7 +155,7 @@ class OverlayPredictions extends Vue {
 			//overlay's parameters not received yet, put data aside
 			//onUpdatePrediction() will be called by onUpdateParams() afterwards
 			this.pendingData = e;
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_PREDICTIONS_OVERLAY_PARAMETERS);
+			this.requestInfo();
 			return;
 		}
 

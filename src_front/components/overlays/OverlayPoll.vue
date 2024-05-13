@@ -37,21 +37,21 @@
 
 <script lang="ts">
 import TwitchatEvent from '@/events/TwitchatEvent';
+import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Icon from '../Icon.vue';
-import type { StyleValue } from 'vue';
 import gsap, { Linear } from 'gsap';
-import type { PollOverlayParamStoreData } from '@/store/poll/storePoll';
-//TODO extend AbstractOverlay for better/simpler init
+import type { StyleValue } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
+import Icon from '../Icon.vue';
+import AbstractOverlay from './AbstractOverlay';
 @Component({
 	components:{
 		Icon,
 	},
 	emits:[],
 })
-class OverlayPoll extends Vue {
+class OverlayPoll extends AbstractOverlay {
 
 	public show:boolean = false;
 	public showWinner:boolean = false;
@@ -124,7 +124,6 @@ class OverlayPoll extends Vue {
 
 	public async mounted():Promise<void> {
 		PublicAPI.instance.broadcast(TwitchatEvent.POLLS_OVERLAY_PRESENCE);
-		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
 
 		this.updateParametersHandler = (e:TwitchatEvent)=>this.onUpdateParams(e);
 		this.updatePollHandler = (e:TwitchatEvent)=>this.onUpdatePoll(e);
@@ -136,9 +135,14 @@ class OverlayPoll extends Vue {
 	}
 
 	public beforeUnmount():void {
+		super.beforeUnmount();
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLL_PROGRESS, this.updatePollHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PARAMETERS, this.updateParametersHandler);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.GET_POLLS_OVERLAY_PRESENCE, this.requestPresenceHandler);
+	}
+
+	public requestInfo():void {
+		PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
 	}
 
 	public async onUpdatePoll(e:TwitchatEvent):Promise<void> {
@@ -146,7 +150,7 @@ class OverlayPoll extends Vue {
 			//overlay's parameters not received yet, put data aside
 			//onUpdatePoll() will be called by onUpdateParams() afterwards
 			this.pendingData = e;
-			PublicAPI.instance.broadcast(TwitchatEvent.GET_POLLS_OVERLAY_PARAMETERS);
+			this.requestInfo();
 			return;
 		}
 
@@ -230,6 +234,7 @@ class OverlayPoll extends Vue {
 		const delay = this.parameters.resultDuration_s || 5;
 		if(delay > 0) {
 			const progressBar = this.$refs.progress as HTMLElement;
+			gsap.killTweensOf(progressBar);
 			gsap.fromTo(progressBar, {width:"100%"}, {duration:delay, ease:Linear.easeNone, width:"0%"});
 		}
 		gsap.to(this.$el, {scale:0, duration:.5, delay, ease:"back.in", onComplete:()=>{

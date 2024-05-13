@@ -8,11 +8,11 @@
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
 			<OverlayInstaller type="polls" @obsSourceCreated="getOverlayPresence(true)" />
-			
+
 			<ToggleBlock class="shrink" small :title="$t('overlay.css_customization')" :open="false">
 				<div class="cssHead">{{ $t("overlay.polls.css") }}</div>
 				<ul class="cssStructure">
-					
+
 					<li>#holder { ... }
 						<ul>
 							<li>#progress { ... }</li>
@@ -69,7 +69,7 @@
 			<div class="header">
 				<div class="title"><Icon name="params" /> {{ $t("overlay.title_settings") }}</div>
 			</div>
-		
+
 			<Icon class="center loader card-item" name="loader" v-if="checkingOverlayPresence" />
 
 			<template v-else-if="overlayExists">
@@ -83,14 +83,14 @@
 				<ParamItem :paramData="param_showProgress" v-model="params.showTimer" @change="onChangeParam()" />
 				<ParamItem :paramData="param_showOnlyResult" v-model="params.showOnlyResult" @change="onChangeParam()" />
 				<ParamItem :paramData="param_resultDuration" v-model="params.resultDuration_s" @change="onChangeParam()" />
-				
+
 				<div class="card-item placement">
 					<p>{{ $t("overlay.polls.param_placement") }}</p>
 					<PlacementSelector v-model="params.placement" @change="onChangeParam()" />
 				</div>
 				<TTButton class="center" :loading="loading" @click="testOverlay()" icon="test">{{ $t('overlay.polls.testBt') }}</TTButton>
 			</template>
-	
+
 			<div class="center card-item alert" v-else-if="!overlayExists">{{ $t("overlay.overlay_not_configured") }}</div>
 		</section>
 	</div>
@@ -137,12 +137,13 @@ class OverlayParamsPolls extends Vue {
 	public param_showOnlyResult:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, icon:"poll", labelKey:"overlay.polls.param_showOnlyResult"};
 	public param_resultDuration:TwitchatDataTypes.ParameterData<number> = {type:"duration", value:5, min:0, max:60*10, icon:"timer", labelKey:"overlay.polls.param_resultDuration"};
 
+	private testing:boolean = false;
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
 	private simulateInterval:string = "";
 	private simulateEndTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
-	
+
 	public beforeMount():void {
 		this.params = {
 			showTitle: this.$store.poll.overlayParams.showTitle,
@@ -168,8 +169,9 @@ class OverlayParamsPolls extends Vue {
 	}
 
 	public beforeUnmount():void {
-		clearTimeout(this.simulateEndTimeout);
+		if(this.testing) this.$store.poll.setCurrentPoll(null);
 		SetIntervalWorker.instance.delete(this.simulateInterval);
+		clearTimeout(this.simulateEndTimeout);
 		clearInterval(this.checkInterval);
 		clearTimeout(this.subcheckTimeout);
 		PublicAPI.instance.removeEventListener(TwitchatEvent.POLLS_OVERLAY_PRESENCE, this.overlayPresenceHandler);
@@ -193,6 +195,7 @@ class OverlayParamsPolls extends Vue {
 	 * Send fake data to overlay
 	 */
 	public async testOverlay():Promise<void> {
+		this.testing = true;
 		const poll:TwitchatDataTypes.MessagePollData = await this.$store.debug.simulateMessage<TwitchatDataTypes.MessagePollData>(TwitchatDataTypes.TwitchatMessageType.POLL, undefined, false);
 		poll.choices.forEach(v=> {
 			v.votes = 0;
@@ -220,7 +223,8 @@ class OverlayParamsPolls extends Vue {
 		this.simulateEndTimeout = setTimeout(() => {
 			SetIntervalWorker.instance.delete(this.simulateInterval);
 			this.$store.poll.setCurrentPoll(null);
-		}, poll.duration_s * 1010);
+			this.testing = false;
+		}, poll.duration_s * 1000);
 
 		this.$store.poll.setCurrentPoll(poll);
 	}
