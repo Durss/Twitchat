@@ -4,7 +4,7 @@
 			<h1 class="title"><Icon name="info" class="icon" />{{ $t("stream.form_title") }}</h1>
 			<ClearButton @click="close()" />
 		</div>
-		
+
 		<div class="content">
 			<transition name="scale">
 				<div class="success card-item primary" v-if="updateSuccess" @click="updateSuccess = false">{{$t("stream.update_done")}}</div>
@@ -15,7 +15,7 @@
 					<div v-for="p in presets" :key="p.id" class="preset">
 						<TTButton class="button" @click="applyPreset(p)"
 							v-tooltip="$t('stream.preset_setBt_tt')" :loading="saving">{{ p.name }}</TTButton>
-							
+
 						<TTButton class="button" @click="editPreset(p)"
 							icon="edit" secondary
 							v-tooltip="$t('stream.preset_editBt_tt')" />
@@ -26,14 +26,15 @@
 					</div>
 				</div>
 			</div>
-			
+
 			<Icon class="loader" name="loader" v-if="loading" />
 
 			<div v-else class="form">
+				{{ branded }}
 				<StreamInfoSubForm v-model:title="title" v-model:tags="tags" v-model:category="category" v-model:branded="branded" v-model:labels="labels" />
-				
+
 				<ParamItem class="card-item save" :paramData="param_savePreset" v-if="!presetEditing" />
-				
+
 				<div class="actions">
 					<TTButton class="submitBt" @click="cancelPresetEdit()" :loading="saving" alert v-if="presetEditing">{{$t('global.cancel')}}</TTButton>
 					<TTButton class="submitBt" @click="updateStreamInfo()" :loading="saving">{{ presetEditing? $t('global.update') : $t('global.submit') }}</TTButton>
@@ -99,10 +100,6 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 	public async mounted():Promise<void> {
 		this.param_savePreset.children = [this.param_namePreset];
 
-		this.open();
-
-		await Utils.promisedTimeout(250);
-
 		this.populate();
 	}
 
@@ -154,7 +151,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 	/**
 	 * Delete specified preset
-	 * @param p 
+	 * @param p
 	 */
 	public async deletePreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.$confirm(this.$t("stream.form_delete_confirm.title"), this.$t("stream.form_delete_confirm.description"))
@@ -165,13 +162,13 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 	/**
 	 * Edit a preset
-	 * @param p 
+	 * @param p
 	 */
 	public async editPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.loading = true;
 		this.forceOpenForm = true;
 		this.presetEditing = p;
-		
+
 		try {
 			this.title = p.title;
 			this.labels = p.labels || [];
@@ -193,7 +190,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 
 	/**
 	 * Applies a preset
-	 * @param p 
+	 * @param p
 	 */
 	public async applyPreset(p:TwitchatDataTypes.StreamInfoPreset):Promise<void> {
 		this.saving = true;

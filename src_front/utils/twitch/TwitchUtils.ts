@@ -1341,15 +1341,17 @@ export default class TwitchUtils {
 	/**
 	 * Update stream's title and game
 	 */
-	public static async setStreamInfos(channelId: string, title?: string, categoryID?: string, tags: string[] = [], branded: boolean = false, labels: { id: string, enabled: boolean }[] = []): Promise<boolean> {
+	public static async setStreamInfos(channelId: string, title?: string, categoryID?: string, tags: string[] = [], branded?: boolean, labels: { id: string, enabled: boolean }[] = []): Promise<boolean> {
 		if (!this.hasScopes([TwitchScopes.SET_STREAM_INFOS])) return false;
 
 		const body: { [key: string]: any } = {}
 
 		if (title) body.title = title;
 		if (categoryID) body.game_id = categoryID;
-		if (branded) body.is_branded_content = branded;
-		if (labels && labels.length > 0) body.content_classification_labels = labels;
+		if (branded != undefined) body.is_branded_content = branded;
+		if (labels && labels.length > 0) body.content_classification_labels = labels.map(v=> {
+			return {id:v.id, is_enabled:v.enabled};
+		});
 		if (tags && tags.length > 0) body.tags = tags.map(v => v.replace(/[!"#$%&''()*+,\-./:;<=>?@\\\]^_`{|}~ ¡£§©«»¿˂˃˄˅\s]/g, "").substring(0, 25).trim());
 
 		const options = {
