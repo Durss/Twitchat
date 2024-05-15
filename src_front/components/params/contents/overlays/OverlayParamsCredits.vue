@@ -12,7 +12,9 @@
 			<div class="header">
 				<div class="title"><Icon name="obs" /> {{ $t("overlay.title_install") }}</div>
 			</div>
-			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)" />
+			<OverlayInstaller class="installer" type="credits" @obsSourceCreated="getOverlayPresence(true)">
+				<Icon name="alert" class="alertIcon" />{{ $t("overlay.credits.manual_install_instructions") }}
+			</OverlayInstaller>
 		</section>
 
 		<section class="card-item expand">
@@ -859,6 +861,11 @@ export default toNative(OverlayParamsCredits);
 		justify-content: center;
 		flex-direction: row;
 		flex-wrap: wrap;
+	}
+
+	.installer .alertIcon {
+		height: 1em;
+		margin-right: .5em;
 	}
 
 	// &.notPremium {

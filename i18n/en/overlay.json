@@ -206,7 +206,8 @@
 				"polls":"Show votes count",
 				"predictions":"Show channel points used",
 				"tips":"Show tips amounts"
-			}
+			},
+			"manual_install_instructions": "Make sure you enable those option on OBS browser source: \"Shutdown source when not visible\" and \"Refresh browser when scene becomes active\""
 		},
 		"heatDistort": {
 			"title":"OBS source distortion",

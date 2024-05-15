@@ -206,7 +206,8 @@
 				"polls":"Afficher le nombre de votes",
 				"predictions":"Afficher le nombre de points de chaîne",
 				"tips":"Afficher le montant des dons"
-			}
+			},
+			"manual_install_instructions": "Pour un fonctionnement optimal, assurez-vous d'activer les options \"Désactiver la source quand elle n'est pas visible\" et \"Rafraîchir la source quand elle devient active\" sur la source navigateur OBS."
 		},
 		"heatDistort": {
 			"title":"Distorsion de source OBS",
