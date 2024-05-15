@@ -57,7 +57,7 @@ export const storeParams = defineStore('params', {
 			splitViewVertical: 			{save:true, type:"boolean", value:false, labelKey:"params.splitViewVertical", id:21, icon:"layout", example:"verticalLayout.png"},
 			censorDeletedMessages: 		{save:true, type:"boolean", value:true, labelKey:"params.censorDeletedMessages", id:25, icon:"hide"},
 			highlightusernames: 		{save:true, type:"boolean", value:true, labelKey:"params.highlightusernames", id:44, icon:"user", example:"clickable_mentions.png", storage:{vnew:{date:1693519200000, id:'params_chathighlightmentions'}}},
-			highlightMods: 				{save:true, type:"boolean", value:true, labelKey:"params.highlightMods", id:9, icon:"mod"},
+			highlightMods: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightMods", id:9, icon:"mod"},
 			highlightMods_color:		{save:true, type:"color", value:"#00a865", labelKey:"params.highlightColor", id:29, parent:9},
 			highlightVips: 				{save:true, type:"boolean", value:false, labelKey:"params.highlightVips", id:10, icon:"vip"},
 			highlightVips_color:		{save:true, type:"color", value:"#db00b3", labelKey:"params.highlightColor", id:30, parent:10},
@@ -73,7 +73,7 @@ export const storeParams = defineStore('params', {
 			raidHighlightUserTrack:		{save:true, type:"boolean", value:false, labelKey:"params.raidHighlightUserTrack", id:42, icon:"magnet", parent:34, example:"trackUser.png"},
 			highlight1stEver: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stEver", id:37, icon:"firstTime"},
 			highlight1stEver_color:		{save:true, type:"color", value:"#ff75e6", labelKey:"params.highlightColor", id:38, parent:37},
-			highlight1stToday: 			{save:true, type:"boolean", value:true, labelKey:"params.highlight1stToday", id:28, icon:"hand"},
+			highlight1stToday: 			{save:true, type:"boolean", value:false, labelKey:"params.highlight1stToday", id:28, icon:"hand"},
 			highlight1stToday_color:	{save:true, type:"color", value:"#82D408", labelKey:"params.highlightColor", id:39, parent:28},
 			highlightNonFollowers: 		{save:true, type:"boolean", value:false, labelKey:"params.highlightNonFollowers", id:16, icon:"unfollow", example:"nofollow.png", twitch_scopes:[TwitchScopes.LIST_FOLLOWERS]},
 			firstUserBadge: 			{save:true, type:"boolean", value:true, labelKey:"params.firstUserBadge", id:45, icon:"sub", example:"firstUserBadge.png"},
@@ -443,7 +443,7 @@ export const storeParams = defineStore('params', {
 				this.chatColumnsConfig.push(col);
 			}
 			DataStore.set(DataStore.CHAT_COLUMNS_CONF, this.chatColumnsConfig, true);
-			
+
 			PublicAPI.instance.broadcast(TwitchatEvent.SET_COLS_COUNT, {count:this.chatColumnsConfig.length});
 			return col;
 		},
@@ -560,7 +560,7 @@ export const storeParams = defineStore('params', {
 			const index = this.pinnedMenuItems.findIndex(v=>v == pinId);
 			if(index > -1) this.pinnedMenuItems.splice(index, 1);
 			else this.pinnedMenuItems.push(pinId);
-	
+
 			this.saveChatMenuPins();
 		},
 
