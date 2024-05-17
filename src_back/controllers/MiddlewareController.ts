@@ -43,7 +43,9 @@ export default class MiddlewareController extends AbstractController {
 			},
 			allowList: (request, key) => {
 				//Apply rate limit only to API endpoints except config and SSE
-				return !/\/api\//.test(request.url) && request.url != "/api/configs" && request.url != "/api/sse/register";
+				return !/\/api\//.test(request.url)
+						|| request.url == "/api/configs"
+						|| request.url == "/api/sse/register";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);
@@ -60,6 +62,11 @@ export default class MiddlewareController extends AbstractController {
 		//CORS headers
 		await this.server.register(require('@fastify/cors'), { 
 			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/, /127\.0\.0\.1/],
+			// origin:(origin, cb) => {
+			// 	console.log(origin);
+			// 	cb(null, true);
+			// 	return;
+			// },
 			methods:['GET', 'PUT', 'POST', 'DELETE'],
 			decorateReply: true,
 			exposedHeaders:["x-ratelimit-reset"]
@@ -82,8 +89,9 @@ export default class MiddlewareController extends AbstractController {
 		//A banned user rate limit duration is expanded as long as they keep
 		//trying to call any endpoint
 		this.server.addHook('onRequest', (request, response, done) => {
+			const ip = this.getIp(request);
+			// console.log(ip, request.headers.referer, request.url)
 			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
-				const ip = this.getIp(request);
 				//Check if user has a custom rate limit duration
 				if(Date.now() < this.customRateLimit[ip]) {
 					clearTimeout(this.customRateLimitTimeouts[ip]);

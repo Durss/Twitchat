@@ -124,6 +124,14 @@ export default class AuthController extends AbstractController {
 	 */
 	private async refreshToken(request:FastifyRequest, response:FastifyReply, logUser:boolean = false) {
 		const params = URL.parse(request.url, true).query;
+		//Someone's spamming endpoint with "undefined" token.
+		//I suspect them messing up with my API.
+		if(params.token === "undefined") {
+			response.header('Content-Type', 'application/json');
+			response.status(500);
+			response.send(JSON.stringify({message:'error', success:false}));
+			return;
+		}
 		
 		let url = "https://id.twitch.tv/oauth2/token";
 		url += "?client_id="+Config.credentials.twitch_client_id;
