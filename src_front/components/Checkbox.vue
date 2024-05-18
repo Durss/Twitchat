@@ -9,6 +9,7 @@
 </template>
 
 <script lang="ts">
+import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({
@@ -30,7 +31,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	@Prop({type:Array, default: [true, false]})
 	public values!:unknown[];
-	
+
+	public mounted():void {
+		this.checked = this.modelValue === true;
+		watch(()=>this.modelValue, ()=>{
+			this.checked = this.modelValue === true;
+		});
+	}
+
 	public onChange():void {
 		this.$emit("update:modelValue", this.checked? this.values[0] || true : this.values[1] || false);
 	}
@@ -48,14 +56,16 @@ export default toNative(Checkbox);
 	height: 100%;
 	align-items: center;
 	position: relative;
+	width: 1em;
+	height: 1em;
 
 	.checkmark {
 		color:var(--color-text);
 		border: 1px solid var(--color-text);
 		border-radius: .25em;
 		padding: 0;
-		width: 1em;
-		height: 1em;
+		width: 100%;
+		height: 100%;
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
@@ -75,7 +85,7 @@ export default toNative(Checkbox);
 		width: max-content;
 		color:var(--color-text);
 	}
-	
+
 	&:hover {
 		background: none;
 		.checkmark {
