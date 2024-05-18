@@ -164,7 +164,15 @@ export default toNative(OverlayInstaller);
 
 <style scoped lang="less">
 .overlayinstaller{
-	width: 100%;
+	gap: 1em;
+    row-gap: .5em;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+
 	.createBt {
 		display: flex;
 	}
