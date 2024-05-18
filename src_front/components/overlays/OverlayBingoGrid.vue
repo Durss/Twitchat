@@ -102,7 +102,7 @@ export default toNative(OverlayBingoGrid);
 			white-space: pre-line;
 			text-align: center;
 			position: relative;
-			border: 1px solid red;
+			// border: 1px solid red;
 			word-wrap: break-word;
 
 			.cross {
