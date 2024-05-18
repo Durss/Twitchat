@@ -3,23 +3,23 @@
 		<div class="header" @click.stop="toggle()">
 			<div class="customBg" v-if="customColor" :style="bgStyles"></div>
 			<slot name="left_actions"></slot>
-			
+
 			<Icon v-for="icon in localIcons" :key="icon" :alt="icon"
 				class="icon"
 				:name="icon"
 				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
-			
-							
-			<div class="title editableTitle" v-if="editableTitle !== false">
+
+
+			<div class="title editableTitle" v-if="editableTitle !== false" @mouseover="editingTitle=true;">
 				<contenteditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
-					:contenteditable="true"
 					v-model="localTitle"
+					:contenteditable="editingTitle"
 					:no-nl="true"
 					:no-html="true"
 					@click.stop
-					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle"
-					@blur="localTitle = (localTitle === '')? titleDefault : localTitle"
+					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle;"
+					@blur="localTitle = (localTitle === '')? titleDefault : localTitle; editingTitle=false;"
 					@input="limitLabelSize()" />
 				<Icon name="edit" />
 				<h3 v-if="subtitle">{{ subtitle }}</h3>
@@ -35,7 +35,7 @@
 
 			<div class="rightSlot">
 				<slot name="right_actions"></slot>
-	
+
 				<button class="arrowBt" v-if="noArrow === false"><Icon name="arrowRight" /></button>
 			</div>
 		</div>
@@ -73,10 +73,10 @@ export class ToggleBlock extends Vue {
 
 	@Prop({type:Array, default:[]})
 	public icons!:string[];
-	
+
 	@Prop()
 	public title!:string;
-	
+
 	@Prop()
 	public titleDefault!:string;
 
@@ -125,6 +125,13 @@ export class ToggleBlock extends Vue {
 	public closing = false;
 	public localOpen = false;
 	public localTitle = "";
+	//This flag i used as a workaround for a contenteditable issue.
+	//When an element is set as contenteditable, clicking anywhere "near"
+	//it gives it focus. Even if it's 1000px away, as long as it's the
+	//closest editable element, it'll get focus.
+	//To warkaround this, we enable the contenteditable only after
+	//rolling over the title.
+	public editingTitle = false;
 
 	public get classes():string[] {
 		let res = ["toggleblock"];
@@ -218,7 +225,7 @@ export class ToggleBlock extends Vue {
 	/**
 	 * Limit the size of the label.
 	 * Can't use maxLength because it's a content-editable tag.
-	 * @param item 
+	 * @param item
 	 */
 	public async limitLabelSize():Promise<void> {
 		const sel = window.getSelection();
@@ -245,7 +252,7 @@ export default toNative(ToggleBlock);
 .toggleblock{
 	border-radius: var(--border-radius);
 	background-color: var(--background-color-fadest);
-	
+
 	//Set emote sizes only for top-level icons
 	&:deep(.header) {
 		&>.icon, &>.rightSlot>.icon {
@@ -307,7 +314,7 @@ export default toNative(ToggleBlock);
 		}
 
 		.editableTitle {
-			display: flex;
+			display: inline-flex;
 			flex-direction: row;
 			align-items: center;
 			justify-content: center;
@@ -316,6 +323,7 @@ export default toNative(ToggleBlock);
 			.icon {
 				height: 1em;
 				vertical-align: middle;
+				pointer-events: none;
 			}
 			.label {
 				cursor: text;

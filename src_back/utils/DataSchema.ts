@@ -1562,6 +1562,7 @@ import Ajv from "ajv";
 						additionalProperties: false,
 						properties: {
 							id: {type:"string", maxLength:40},
+							enabled: {type:"boolean"},
 							title: {type:"string", maxLength:40},
 							cols:{type:"number", minimum:2, maximum:10},
 							rows:{type:"number", minimum:2, maximum:10},

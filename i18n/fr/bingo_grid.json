@@ -9,9 +9,9 @@
 			"add_bt":"Créer une nouvelle grille",
 			"lock_bt_tt":"Vérouiller cette case",
 			"shuffle_bt":"Mélanger les entrées",
+			"reset_bt":"Réinitialiser la grille",
 			"param_title":"Nom de la grille",
-			"param_cols":"Nombre de colonnes",
-			"param_rows":"Nombre de lignes",
+			"param_size":"Taille de la grille",
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."

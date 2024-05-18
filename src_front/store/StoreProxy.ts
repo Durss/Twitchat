@@ -450,9 +450,15 @@ export interface IBingoGridActions {
 	 */
 	removeGrid(id:string):void;
 	/**
-	 * Saves data to server
+	 * Duplicates given grid
+	 * @param id
 	 */
-	saveData():void;
+	duplicateGrid(id:string):void;
+	/**
+	 * Saves data to server
+	 * @param edited grid ID. This will broadcast update to overlay
+	 */
+	saveData(gridId:string):void;
 }
 
 

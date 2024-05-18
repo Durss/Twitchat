@@ -13,6 +13,7 @@
 		<OverlayBitsWall v-if="overlay=='bitswall'" />
 		<OverlayPredictions v-if="overlay=='predictions'" />
 		<OverlayPoll v-if="overlay=='polls'" />
+		<OverlayBingoGrid v-if="overlay=='bingogrid'" />
 	</div>
 </template>
 
@@ -44,6 +45,7 @@ const OverlayAdBreak = defineAsyncComponent({loader: () => import('@/components/
 const OverlayDistort = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayDistort.vue')});
 const OverlayPredictions = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPredictions.vue')});
 const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayPoll.vue')});
+const OverlayBingoGrid = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBingoGrid.vue')});
 
 @Component({
 	components:{
@@ -55,6 +57,7 @@ const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/ove
 		OverlayDistort,
 		OverlayBitsWall,
 		OverlayHeatDebug,
+		OverlayBingoGrid,
 		OverlayPredictions,
 		OverlayMusicPlayer,
 		OverlaysRaffleWheel,
@@ -85,7 +88,7 @@ const OverlayPoll = defineAsyncComponent({loader: () => import('@/components/ove
 			window.addEventListener("heat-click", this.heatEventHandler);
 		}
 	}
-	
+
 	public beforeUnmount():void {
 		//@ts-ignore
 		window.removeEventListener("heat-click", this.heatEventHandler);

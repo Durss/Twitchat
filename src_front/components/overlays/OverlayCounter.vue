@@ -92,9 +92,9 @@ import AbstractOverlay from './AbstractOverlay';
 		}else{
 			this.id = this.$route.query.cid as string ?? "";
 			if(this.id) {
-	
+
 				this.counterUpdateHandler = (e:TwitchatEvent) => this.onCounterUpdate(e);
-	
+
 				PublicAPI.instance.addEventListener(TwitchatEvent.COUNTER_UPDATE, this.counterUpdateHandler);
 			}
 		}
@@ -105,6 +105,7 @@ import AbstractOverlay from './AbstractOverlay';
 	}
 
 	public requestInfo():void {
+
 		PublicAPI.instance.broadcast(TwitchatEvent.COUNTER_GET, {cid:this.id});
 	}
 
@@ -129,7 +130,7 @@ import AbstractOverlay from './AbstractOverlay';
 	 */
 	private onValueUpdate():void {
 		if(!this.counter) return;
-		
+
 		// const duration = Math.min(5, Math.max(.25, Math.abs(this.counter.value - this.localValue) * .025));
 		const duration = 1;
 		gsap.to(this, {duration, localValue:this.counter?.value ||0, ease:"sine.inOut"});
@@ -171,7 +172,7 @@ import AbstractOverlay from './AbstractOverlay';
 			})
 		}
 	}
-	
+
 	// public onEnter(el:Element, done:()=>void):void {
 	// 	console.log("ENTER");
 	// 	gsap.fromTo(el, {opacity:0, x:-200}, {opacity:1, x:0, duration:1, ease:"elastic.out", onComplete:()=>done()});
@@ -249,7 +250,7 @@ export default toNative(OverlayCounter);
 			height: 100%;
 			transition: width 1s ease-in-out;
 		}
-	
+
 		.goal {
 			position: absolute;
 			width: 100%;
@@ -323,7 +324,7 @@ export default toNative(OverlayCounter);
 			}
 		}
 	}
-	
+
 	.list-move,
 	.list-enter-active,
 	.list-leave-active {

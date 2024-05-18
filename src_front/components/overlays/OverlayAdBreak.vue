@@ -49,13 +49,13 @@ import DOMPurify from 'isomorphic-dompurify';
 	public component:TwitchatDataTypes.AdBreakOverlayData["runningStyle"] = "bar";
 	public adData:TwitchatDataTypes.CommercialData|null = null;
 	public parameters:TwitchatDataTypes.AdBreakOverlayData|null = null;
-	
+
 	private disposed:boolean = false;
 	private hidding:boolean = false;
 	private progressPercent:number = 0;
 
-	private adBreakDataHandler!:(e:TwitchatEvent) => void;
-	private adBreakParamsHandler!:(e:TwitchatEvent) => void;
+	private adBreakDataHandler!:(e:TwitchatEvent<TwitchatDataTypes.CommercialData>) => void;
+	private adBreakParamsHandler!:(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>) => void;
 	private overlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
 	public get progressClasses():string[] {
@@ -81,7 +81,7 @@ import DOMPurify from 'isomorphic-dompurify';
 					res.height = thickness+"px";
 					break
 				}
-				// case "l": 
+				// case "l":
 				case "r": {
 					res.height = "100vh";
 					res.transform = "scaleY("+this.progressPercent+")";
@@ -134,8 +134,8 @@ import DOMPurify from 'isomorphic-dompurify';
 	}
 
 	public beforeMount(): void {
-		this.adBreakDataHandler = (e:TwitchatEvent) => this.onAdBreak(e);
-		this.adBreakParamsHandler = (e:TwitchatEvent) => this.onParameters(e);
+		this.adBreakDataHandler = (e) => this.onAdBreak(e);
+		this.adBreakParamsHandler = (e) => this.onParameters(e);
 		this.overlayPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PRESENCE); }
 		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_DATA, this.adBreakDataHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, this.adBreakParamsHandler);
@@ -181,19 +181,19 @@ import DOMPurify from 'isomorphic-dompurify';
 	/**
 	 * Called when API sends fresh overlay parameters
 	 */
-	private async onParameters(e:TwitchatEvent):Promise<void> {
+	private async onParameters(e:TwitchatEvent<TwitchatDataTypes.AdBreakOverlayData>):Promise<void> {
 		if(e.data) {
-			this.parameters = (e.data as unknown) as TwitchatDataTypes.AdBreakOverlayData;
+			this.parameters = e.data;
 		}
 	}
-	
+
 	/**
 	 * Called when API sends an ad break info
 	 */
-	private onAdBreak(e:TwitchatEvent):void {
+	private onAdBreak(e:TwitchatEvent<TwitchatDataTypes.CommercialData>):void {
 		if(e.data) {
 			this.show = false;
-			this.adData = (e.data as unknown) as TwitchatDataTypes.CommercialData;
+			this.adData = e.data;
 		}
 	}
 
@@ -245,17 +245,17 @@ import DOMPurify from 'isomorphic-dompurify';
 			this.doHide();
 			return;
 		}
-		
+
 		this.adType		= isAdRunning? "running" : "approaching";
 		this.component	= this.adType == 'approaching'? this.parameters!.approachingStyle : this.parameters!.runningStyle;
-		
+
 		if(this.progressPercent <= 0) {
 			this.doHide();
 			return;
 		}else{
 			this.doShow();
 		}
-		
+
 		let label = this.adType == "approaching"? this.parameters?.approachingLabel : this.parameters?.runningLabel;
 		this.label = DOMPurify.sanitize(label?.replace(/\{TIMER\}/gi, Utils.formatDuration(Math.round((startDate - Date.now())/1000)*1000)) || "");
 	}
@@ -441,12 +441,12 @@ export default toNative(OverlayAdBreak);
 		border-bottom-right-radius: @borderRadius;
 		// box-shadow: 0 0 .5em rgba(0, 0, 0, 1);
 		max-width: calc(60vw - @margin);
-	
+
 		&.position-tl {
 			top: @margin;
 			left: 0;
 		}
-	
+
 		&.position-t {
 			top: 0;
 			right: 50%;
@@ -455,7 +455,7 @@ export default toNative(OverlayAdBreak);
 			border-bottom-right-radius: @borderRadius;
 			border-bottom-left-radius: @borderRadius;
 		}
-	
+
 		&.position-tr {
 			top: .5em;
 			right: 0;
@@ -463,20 +463,20 @@ export default toNative(OverlayAdBreak);
 			border-top-left-radius: @borderRadius;
 			border-bottom-left-radius: @borderRadius;
 		}
-	
+
 		&.position-l {
 			top: 50%;
 			left: 0;
 			transform: translateY(-50%);
 		}
-	
+
 		&.position-m {
 			top: 50%;
 			left: 50%;
 			transform: translate(-50%, -50%);
 			border-radius: @borderRadius;
 		}
-	
+
 		&.position-r {
 			top: 50%;
 			right: 0;
@@ -485,12 +485,12 @@ export default toNative(OverlayAdBreak);
 			border-top-left-radius: @borderRadius;
 			border-bottom-left-radius: @borderRadius;
 		}
-	
+
 		&.position-bl {
 			bottom: @margin;
 			left: 0;
 		}
-	
+
 		&.position-b {
 			bottom: 0;
 			right: 50%;
@@ -499,7 +499,7 @@ export default toNative(OverlayAdBreak);
 			border-top-right-radius: @borderRadius;
 			border-top-left-radius: @borderRadius;
 		}
-	
+
 		&.position-br {
 			bottom: .5em;
 			right: 0;
@@ -508,6 +508,6 @@ export default toNative(OverlayAdBreak);
 			border-bottom-left-radius: @borderRadius;
 		}
 	}
-	
+
 }
 </style>

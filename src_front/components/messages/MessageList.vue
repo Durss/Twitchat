@@ -11,7 +11,7 @@
 			:config="config"
 			@add="$emit('addColumn', config)"
 			@change="fullListRefresh()"/>
-		
+
 		<div class="messageHolder" ref="chatMessageHolder">
 			<div v-for="m in filteredMessagesDeduped" :key="m.id" class="subHolder" data-message :ref="'message_' + m.id" :id="'message_' + m.id + '_' + config.order">
 				<div class="fake" v-if="m.fake === true && !$config.DEMO_MODE" v-tooltip="{content:$t('chat.fake_tag_tt'), placement:'right'}">{{$t("chat.fake_tag")}}</div>
@@ -180,7 +180,7 @@ import { Linear } from 'gsap/all';
 	private closeConvTimeout!: number;
 	private prevTouchMove!: TouchEvent;
 	private touchDragOffset: number = 0;
-	private publicApiEventHandler!: (e: TwitchatEvent) => void;
+	private publicApiEventHandler!: (e: TwitchatEvent<{ count?: number, scrollBy?: number, col?:number, duration?:number }>) => void;
 	private deleteMessageHandler!: (e: GlobalEvent) => void;
 	private addMessageHandler!: (e: GlobalEvent) => void;
 	private reloadListHandler!: (e: GlobalEvent) => void;
@@ -235,7 +235,7 @@ import { Linear } from 'gsap/all';
 		watch(()=>this.$store.params.features.mergeConsecutive_maxSizeTotal.value, async () => this.fullListRefresh());
 		watch(()=>this.$store.params.features.mergeConsecutive_minDuration.value, async () => this.fullListRefresh());
 
-		this.publicApiEventHandler = (e: TwitchatEvent) => this.onPublicApiEvent(e);
+		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
 		this.deleteMessageHandler = (e: GlobalEvent) => this.onDeleteMessage(e);
 		this.addMessageHandler = (e: GlobalEvent) => this.onAddMessage(e);
 		this.reloadListHandler = (e: GlobalEvent) => this.fullListRefresh(e.type == GlobalEvent.RELOAD_MESSAGES);
@@ -373,9 +373,9 @@ import { Linear } from 'gsap/all';
 			let index = messages.length - 1 - Math.max(0, this.scrollUpIndexOffset - this.maxMessages);
 			//Reset merged children references
 			this.messageIdToChildren = {};
-			
+
 			for (; index >= 0; index--) {
-				
+
 				const m = messages[index];
 				if (await this.shouldShowMessage(m)) {
 					//Merge messages if necessary
@@ -423,7 +423,7 @@ import { Linear } from 'gsap/all';
 
 	/**
 	 * Returns if a message should be displayed or not
-	 * @param m 
+	 * @param m
 	 */
 	private async shouldShowMessage(m: TwitchatDataTypes.ChatMessageTypes): Promise<boolean> {
 		if(this.lightMode) {
@@ -442,7 +442,7 @@ import { Linear } from 'gsap/all';
 		//Check if this message should be displayed on this column
 		const colValid = Array.isArray(m.col)? m.col.length == 0 || m.col.includes(this.config.order) : m.col == undefined || m.col == this.config.order;
 		if(!colValid) return false;
-		
+
 		//If message is deleted, keep it only if requested to show messages AND deleted messages
 		if (m.deleted) {
 			return this.config.messageFilters.deleted === true && this.config.filters.message === true;
@@ -451,17 +451,17 @@ import { Linear } from 'gsap/all';
 		switch (m.type) {
 			case TwitchatDataTypes.TwitchatMessageType.MESSAGE: {
 				if(this.config.filters.message === false) return false;
-				
+
 				//Force tracked users if requested
 				if (m.user.is_tracked && this.config.messageFilters.tracked) {
 					return true;
 				}
-				
+
 				//Force pinned messages if requested
 				if (m.is_saved && this.config.messageFilters.pinned) {
 					return true;
 				}
-				
+
 				//Ignore specific users
 				if (this.config.userBlockList && m.user.displayNameOriginal.length > 0 && this.config.userBlockList.map(v=>v.toLowerCase()).includes(m.user.login.toLowerCase())) {
 					return false;
@@ -619,7 +619,7 @@ import { Linear } from 'gsap/all';
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				return this.config.filters.notice === true;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_ONLINE:
 			case TwitchatDataTypes.TwitchatMessageType.STREAM_OFFLINE: {
 				return this.config.filters.stream_online === true;
@@ -651,31 +651,31 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.music_added_to_queue == true;
 			}
 
-			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST: 
+			case TwitchatDataTypes.TwitchatMessageType.SCOPE_REQUEST:
 			case TwitchatDataTypes.TwitchatMessageType.HISTORY_SPLITTER: {
 				return true;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.AD_BREAK_START: {
 				return this.config.filters.ad_break_start_chat === true;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.STREAMLABS: {
 				return this.config.filters.streamlabs !== false;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.STREAMELEMENTS: {
 				return this.config.filters.streamelements !== false;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.KOFI: {
 				return this.config.filters.kofi !== false;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.TIPEEE: {
 				return this.config.filters.tipeee !== false;
 			}
-			
+
 			case TwitchatDataTypes.TwitchatMessageType.CUSTOM: {
 				return true;
 			}
@@ -706,7 +706,7 @@ import { Linear } from 'gsap/all';
 				this.lockedLiveMessages.push(m);
 				this.lockedLiveMessages = this.lockedLiveMessages.slice(-(this.config.liveLockCount ?? 3));//Only keep last N messages
 			}
-			
+
 		} else {
 
 			this.lockedLiveMessages = [];
@@ -736,7 +736,7 @@ import { Linear } from 'gsap/all';
 				break;
 			}
 		}
-		
+
 		for (let i = this.lockedLiveMessages.length - 1; i >= 0; i--) {
 			const m = this.lockedLiveMessages[i];
 			if (m.id == data.message.id) {
@@ -750,8 +750,8 @@ import { Linear } from 'gsap/all';
 	/**
 	 * Called when requesting an action from the public API
 	 */
-	private async onPublicApiEvent(e: TwitchatEvent): Promise<void> {
-		const data = e.data as { count?: number, scrollBy?: number, col?:number, duration?:number };
+	private async onPublicApiEvent(e:TwitchatEvent<{ count?: number, scrollBy?: number, col?:number, duration?:number }>): Promise<void> {
+		const data = e.data!;
 		let count = (data?.count && !isNaN(data.count as number)) ? data.count : 0;
 		let scrollBy = (data?.scrollBy && !isNaN(data.scrollBy as number)) ? data.scrollBy : 100;
 		if(typeof scrollBy == "string") scrollBy = parseInt(scrollBy);
@@ -787,7 +787,7 @@ import { Linear } from 'gsap/all';
 								break;
 							}
 						}
-						
+
 					//Moving read mark downward
 					}else if(count > 0){
 						for (let i = currentMessageIndex; i < messageList.length; i++) {
@@ -804,7 +804,7 @@ import { Linear } from 'gsap/all';
 
 				break;
 			}
-			
+
 			case TwitchatEvent.CHAT_FEED_READ_ALL: {
 				//Read all case
 				if (count === 0 || count > this.filteredMessages.length - 1) {
@@ -908,7 +908,7 @@ import { Linear } from 'gsap/all';
 								break;
 							}
 						}
-						
+
 					//Moving selection downward
 					}else if(count > 0){
 						for (let i = currentMessageIndex; i < messageList.length; i++) {
@@ -1052,7 +1052,7 @@ import { Linear } from 'gsap/all';
 				await this.showNextPendingMessage();
 				return;
 			}
-			
+
 			const lastMessRef = messRefs[messRefs.length - 1];
 			//If scrolling down while last item visible on screen
 			if ((maxScroll - el.scrollTop) <= (lastMessRef as HTMLDivElement).offsetHeight) {
@@ -1116,7 +1116,7 @@ import { Linear } from 'gsap/all';
 		const hasResized	= this.prevHeight != holderHeight;
 		const maxScroll		= (messageHolder.scrollHeight - holderHeight);
 		const messageItems	= messageHolder.getElementsByClassName("subHolder");
-		
+
 		if (messageItems.length === 0) return;//No message yet, just stop here
 		const lastMessage	= messageItems[messageItems.length-1] as HTMLDivElement;
 		const bottom		= lastMessage.offsetTop + lastMessage.offsetHeight;
@@ -1163,13 +1163,13 @@ import { Linear } from 'gsap/all';
 			if (Math.abs(holderHeight - bottom - this.holderOffsetY) < 2) {
 				this.holderOffsetY = holderHeight - bottom;
 			}
-			
+
 			messageHolder.style.transform = "translateY(calc(" + this.holderOffsetY + "px - .25em))";
 		} else if (this.holderOffsetY != 0) {
 			this.holderOffsetY = 0;
 			messageHolder.style.transform = "translateY(0)";
 		}
-		
+
 		// messageHolder.style.paddingTop = (scrollPageOffset+10)+"px";
 
 		//Show next pending message if at the bottom and scroll isn't locked
@@ -1177,7 +1177,7 @@ import { Linear } from 'gsap/all';
 		&& this.pendingMessages.length > 0) {
 			gsap.killTweensOf(messageHolder);
 			await this.showNextPendingMessage();
-			
+
 		//Show older messages if near the top
 		}else if(messageHolder.scrollTop < scrollPageOffset) {
 			//Make sure we don't reach the top.
@@ -1214,13 +1214,13 @@ import { Linear } from 'gsap/all';
 				this.filteredMessages.push(message);
 			}
 		} while (this.pendingMessages.length > 0 && messageCountToAdd > 0)
-		
+
 		//Reset index so we can scroll upward again even if chat is still paused
 		this.scrollUpIndexOffset = -1;
-		
+
 		//No message added, stop there
 		if(messageCountToAdd == addCount) return;
-		
+
 		if (this.filteredMessages.length > this.maxMessages) {
 			this.filteredMessages = this.filteredMessages.slice(-this.maxMessages);
 		}
@@ -1232,10 +1232,10 @@ import { Linear } from 'gsap/all';
 	private async showPrevMessage():Promise<void> {
 		if(!this.lockScroll) return;
 		if(this.loadingOldMessage || this.filteredMessages.length === 0) return;
-		
+
 		const list = this.$store.chat.messages;
 		this.loadingOldMessage = true;
-		
+
 		const removed:TwitchatDataTypes.ChatMessageTypes[]	= [];
 		const lastId:string = this.filteredMessages[0].id;
 		if(this.scrollUpIndexOffset == -1) {
@@ -1248,7 +1248,7 @@ import { Linear } from 'gsap/all';
 		let addNext = false;
 		let messageAdded = false;
 		let i = list.length - this.scrollUpIndexOffset;
-		
+
 		for (; i > 0; i--) {
 			let m = list[i];
 			if(m.id == lastId) {
@@ -1304,7 +1304,7 @@ import { Linear } from 'gsap/all';
 
 		if (lastMessRef) {
 			if (wheelOrigin) {
-				//If scrolling down with mouse wheel while scrolling is locked, 
+				//If scrolling down with mouse wheel while scrolling is locked,
 				//scroll to bottom directly for faster scrolldown
 				this.virtualScrollY = messagesHolder.scrollTop = maxScroll;
 			} else {
@@ -1441,7 +1441,7 @@ import { Linear } from 'gsap/all';
 				target = target.parentElement as HTMLElement;
 			}while(target != document.body);
 		}
-		
+
 		//Do not mark as read if there's a text selection
 		if(window.getSelection()?.type === "Range") return;
 
@@ -1539,10 +1539,10 @@ import { Linear } from 'gsap/all';
 		this.selectedItem = null;
 		this.selectedMessage = null;
 		let toFindCount = 0;
-		
+
 		if(this.markedAsReadDate > 0) toFindCount++;
 		if(this.selectionDate > 0) toFindCount++;
-		
+
 		if(toFindCount == 0) return;
 
 		let foundCount = 0;
@@ -1553,7 +1553,7 @@ import { Linear } from 'gsap/all';
 				this.markedReadItem = div;
 				foundCount ++;
 			}
-			
+
 			if(!this.selectedItem && this.selectionDate > 0 && mLoc.date <= this.selectionDate) {
 				//Using element IDs instead of $refs so we can target sub elements.
 				//Merged messages are handled within a message, this list doesn't have any reference
@@ -1562,7 +1562,7 @@ import { Linear } from 'gsap/all';
 				this.selectedItem = div;
 				this.selectedMessage = mLoc as TwitchatDataTypes.MessageChatData;
 				foundCount ++;
-				
+
 				//Search on merged children if any
 				const children = this.messageIdToChildren[mLoc.id]
 				// const mergeable = mLoc as TwitchatDataTypes.MergeableMessage;
@@ -1601,7 +1601,7 @@ import { Linear } from 'gsap/all';
 				// messageHolder.scrollTop = this.virtualScrollY;
 				gsap.killTweensOf(messageHolder)
 				// gsap.to(messageHolder, {duration:.25, ease:Linear.easeNone, scrollTop:this.virtualScrollY});
-				
+
 				//If message is bellow 3/4 of the chat height, scroll down
 			}else if(messageBounds.top > thresholdBottom) {
 				this.virtualScrollY += messageBounds.top - thresholdBottom;
@@ -1611,11 +1611,11 @@ import { Linear } from 'gsap/all';
 				this.onScroll(messageBounds.height);
 			}
 		}
-	} 
-	
+	}
+
 	/**
 	 * Attempt to merge consecutive messages of the same type and user
-	 * 
+	 *
 	 * @returns true if the message has been merged
 	 */
 	private async mergeWithPrevious(newMessage:TwitchatDataTypes.ChatMessageTypes, indexOffset?:number, messageList?:TwitchatDataTypes.ChatMessageTypes[]):Promise<boolean> {
@@ -1653,14 +1653,14 @@ import { Linear } from 'gsap/all';
 		for (let i = indexOffset; i >= 0; i--) {
 			const prevMessage = messageList[i];
 			if(!await this.shouldShowMessage(prevMessage)) continue;
-			
+
 			//Prev displayable message isnt the same type, don't merge
 			if(prevMessage.type != newMessage.type) return false;
 
 			const prevCast = prevMessage as TwitchatDataTypes.MergeableMessage;
 			//Not the same user don't merge
 			if(prevCast.user.id !== newCast.user.id) return false;
-			
+
 			//Merging 2 chat messages from the same user...
 			if(prevMessage.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE
 			|| prevMessage.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) {
@@ -1673,7 +1673,7 @@ import { Linear } from 'gsap/all';
 				const prevDate = this.messageIdToChildren[prevMessage.id]?.length > 0? this.messageIdToChildren[prevMessage.id][this.messageIdToChildren[prevMessage.id].length-1].date : prevMessage.date;
 				//Too much time elapsed between the 2 messages
 				if(newMessage.date - prevDate > minDuration * 1000) return false;
-				
+
 				//If message is too big, don't merge
 				//Check forward for when doing a full chat refresh
 				let newSize = newCast.message_size;
@@ -1681,7 +1681,7 @@ import { Linear } from 'gsap/all';
 					this.messageIdToChildren[newMessage.id].forEach(v=> newSize += (v as TwitchatDataTypes.MessageChatData).message_size);
 				}
 				if(newSize + newCast.message_size > maxSizeTotal) return false;
-				
+
 				//Check backward for when adding a new message
 				let prevSize = prevMessage.message_size
 				if(this.messageIdToChildren[prevMessage.id]) {
@@ -1704,12 +1704,12 @@ import { Linear } from 'gsap/all';
 				//Dont merge rewards with prompts unless they're the same reward type
 				if(newMessage.pinned || prevMessage.pinned) return false;
 			}
-			
+
 			//Merge with previous message
 			if(!this.messageIdToChildren[prevMessage.id]) this.messageIdToChildren[prevMessage.id] = [];
 			this.messageIdToChildren[prevMessage.id].push(newMessage);
 			// prevCast.children.push(newMessage);
-			
+
 			//If added child had children extract them to their new parent
 			const newChildren = this.messageIdToChildren[newMessage.id];
 			const prevChildren = this.messageIdToChildren[prevMessage.id];
@@ -1762,7 +1762,7 @@ export default toNative(MessageList);
 				}
 			}
 		}
-	
+
 		&.alternateOdd {
 			.messageHolder {
 				.subHolder:nth-child(odd) {

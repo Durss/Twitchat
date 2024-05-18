@@ -18,15 +18,36 @@
 			:open="false"
 			:key="bingo.id">
 
+				<template #left_actions>
+					<div class="leftActions">
+						<ToggleButton v-model="bingo.enabled" @click.native.stop />
+					</div>
+				</template>
+
 				<template #right_actions>
 					<div class="rightActions">
+						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" />
 						<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
 					</div>
 				</template>
 
 				<div class="form">
-					<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo)" />
-					<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo)" />
+					<ToggleBlock :icons="['obs']" :title="$t('bingo_grid.form.install_title')" :open="false" primary>
+						<OverlayInstaller type="bingogrid" :id="bingo.id" :queryParams="{bid:bingo.id}" />
+					</ToggleBlock>
+
+					<div class="card-item sizes">
+						<label>
+							<Icon name="scale"/>
+							<span>{{ $t("bingo_grid.form.param_size") }}</span>
+						</label>
+						<div class="forms">
+							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo)" noBackground />
+							<Icon name="cross"/>
+							<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo)" noBackground />
+						</div>
+					</div>
+
 					<VueDraggable
 					class="card-item entryList"
 					v-model="bingo.entries"
@@ -55,21 +76,21 @@
 									:ref="'label_'+element.id"
 									@blur="save(bingo)"
 									@input="limitLabelSize(element)" />
+
 								<ClearButton class="lockBt"
 									v-tooltip="$t('bingo_grid.form.lock_bt_tt')"
 									:icon="element.lock? 'lock' : 'unlock'"
 									@click.stop="element.lock = !element.lock"></ClearButton>
+
+								<ClearButton class="moveBt" icon="move" v-if="!element.lock"></ClearButton>
 							</div>
 						</TransitionGroup>
 
-						<div class="footer">
+						<div class="ctas">
 							<TTButton @click="shuffleEntries(bingo)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
+							<TTButton @click="resetEntries(bingo)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
 						</div>
 					</VueDraggable>
-
-					<ToggleBlock :icons="['obs']" :title="$t('bingo_grid.form.install_title')" :open="false" noArrow>
-						<OverlayInstaller type="bingoGrid" :id="bingo.id" />
-					</ToggleBlock>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -90,6 +111,8 @@ import { VueDraggable } from 'vue-draggable-plus'
 import ClearButton from '../ClearButton.vue';
 import Utils from '@/utils/Utils';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import { watch } from 'vue';
+import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
@@ -98,6 +121,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 		ClearButton,
 		ToggleBlock,
 		VueDraggable,
+		ToggleButton,
 		PostOnChatParam,
 		contenteditable,
 		OverlayInstaller,
@@ -136,9 +160,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	}
 
 	public async beforeMount():Promise<void> {
-		this.$store.bingoGrid.gridList.forEach(v=> {
-			this.initParams(v.id);
-		})
+		this.initParams();
 	}
 
 	public mounted(): void {
@@ -151,25 +173,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	 * Save
 	 */
 	public save(grid:TwitchatDataTypes.BingoGridConfig):void {
-		const count = grid.cols*grid.rows;
-		grid.entries = grid.entries.splice(0, count);
-		while(grid.entries.length < count) {
-			grid.entries.push({
-				id:Utils.getUUID(),
-				label:"",
-				lock:false,
-			})
-		}
-		this.$store.bingoGrid.saveData();
-	}
-
-	/**
-	 * Called when any value is changed
-	 */
-	public onValueChange():void {
-		if(this.action) {
-			// this.action.bingoGridData = this.finalData;
-		}
+		this.$store.bingoGrid.saveData(grid.id);
 	}
 
 	/**
@@ -177,7 +181,15 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	 */
 	public addGrid():void {
 		const grid = this.$store.bingoGrid.addGrid();
-		this.initParams(grid.id);
+		this.initParams();
+	}
+
+	/**
+	 * Duplicate given grid ID
+	 */
+	public duplicateGrid(id:string):void {
+		this.$store.bingoGrid.duplicateGrid(id)
+		this.initParams();
 	}
 
 	/**
@@ -190,6 +202,19 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 			if(entries[i].lock || entries[j].lock) continue;
 			[entries[i], entries[j]] = [entries[j], entries[i]];
 		}
+		this.save(grid);
+	}
+
+	/**
+	 * Reset current entries
+	 */
+	public resetEntries(grid:TwitchatDataTypes.BingoGridConfig):void {
+		const entries = grid.entries;
+		for (let i = 0; i < entries.length; i++) {
+			if(entries[i].lock) continue;
+			entries[i].label = "";
+		}
+		this.save(grid);
 	}
 
 	/**
@@ -258,9 +283,13 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	 * Create parameters for a bingo entry
 	 * @param id
 	 */
-	private initParams(id:string):void {
-		this.param_cols[id] = {type:"number", icon:"cols", value:5, min:2, max:10, labelKey:"bingo_grid.form.param_cols"};
-		this.param_rows[id] = {type:"number", icon:"rows", value:5, min:2, max:10, labelKey:"bingo_grid.form.param_rows"};
+	private initParams():void {
+		this.$store.bingoGrid.gridList.forEach(entry=> {
+			const id = entry.id;
+			if(this.param_cols[id]) return;
+			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
+			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
+		});
 	}
 }
 export default toNative(BingoGridForm);
@@ -302,8 +331,20 @@ export default toNative(BingoGridForm);
 					border-bottom-left-radius: var(--border-radius);
 				}
 			}
+			.moveBt {
+				position: absolute;
+				top:0;
+				left:0;
+				right:auto;
+				padding: .25em;
+				display: none;
+				&:hover {
+					background-color: var(--background-color-fader);
+					border-bottom-right-radius: var(--border-radius);
+				}
+			}
 			&:hover {
-				.lockBt {
+				.lockBt, .moveBt {
 					display: block;
 				}
 			}
@@ -314,7 +355,31 @@ export default toNative(BingoGridForm);
 		}
 	}
 
-	.footer {
+	.sizes {
+		gap: .5em;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: space-between;
+		.icon {
+			height: 1em;
+		}
+		label {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+		.forms {
+			gap: .5em;
+			display: flex;
+			flex-direction: row;
+			align-items: center;
+		}
+	}
+
+	.ctas {
+		gap:.5em;
 		display: flex;
 		flex-direction: column;
 		margin-top: .5em;
@@ -327,7 +392,11 @@ export default toNative(BingoGridForm);
 		transition: transform .25s;
 	}
 
-	.rightActions {
+	.leftActions {
+		align-self: stretch;
+	}
+
+	.rightActions, .leftActions {
 		gap: .25em;
 		display: flex;
 		flex-direction: row;
@@ -338,7 +407,8 @@ export default toNative(BingoGridForm);
 			align-self: stretch;
 			border-radius: 0;
 			flex-shrink: 0;
+			padding: 0 .5em;
 		}
 	}
 }
-</style>, { ToggleBlock }
+</style>

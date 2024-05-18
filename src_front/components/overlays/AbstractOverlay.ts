@@ -1,5 +1,5 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
-import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
 import { ComponentBase, Vue } from 'vue-facing-decorator';
 
 @ComponentBase({
@@ -14,15 +14,15 @@ export default class AbstractOverlay extends Vue {
 		this.requestInfo();
 		this.publicAPIConnectedHandler = () => {
 			if(!this.initDone) this.requestInfo();
-			this.initDone = true;//Avoids poential double init. Once when BroadcastChannel is ready and once when OBS-websocket is ready
+			this.initDone = true;//Avoids potential double init. Once when BroadcastChannel is ready and once when OBS-websocket is ready
 		}
-		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.publicAPIConnectedHandler);
-		OBSWebsocket.instance.addEventListener(TwitchatEvent.TWITCHAT_READY, this.publicAPIConnectedHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.publicAPIConnectedHandler);
+		PublicAPI.instance.addEventListener(TwitchatEvent.TWITCHAT_READY, this.publicAPIConnectedHandler);
 	}
 
 	public beforeUnmount():void {
-		OBSWebsocket.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.publicAPIConnectedHandler);
-		OBSWebsocket.instance.removeEventListener(TwitchatEvent.TWITCHAT_READY, this.publicAPIConnectedHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.OBS_WEBSOCKET_CONNECTED, this.publicAPIConnectedHandler);
+		PublicAPI.instance.removeEventListener(TwitchatEvent.TWITCHAT_READY, this.publicAPIConnectedHandler);
 	}
 
 	/**

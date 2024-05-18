@@ -12,7 +12,7 @@ export namespace TwitchatDataTypes {
 
 	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
-	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls";
+	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls" | "bingogrid";
 
 	export const ParamDeepSections = {
 		AD: "ad",
@@ -646,10 +646,12 @@ export namespace TwitchatDataTypes {
 	export interface BingoGridConfig {
 		id:string;
 		title:string;
+		enabled:boolean;
 		entries:{
 			id:string;
 			label:string;
 			lock:boolean;
+			check:boolean;
 		}[];
 		cols:number;
 		rows:number;
