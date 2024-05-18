@@ -1500,7 +1500,8 @@ export default class TriggerActionHandler {
 
 				//Handle http call trigger action
 				if(step.type == "http") {
-					const options:RequestInit = {method:step.method};
+					const headers:{[key:string]:string} = {};
+					const options:RequestInit = {method:step.method, headers};
 					let body:{[key:string]:string} = {};
 					let customBody:string = "";
 					if(step.customBody) {
@@ -1515,7 +1516,7 @@ export default class TriggerActionHandler {
 							}
 						}
 					}
-					const headers:{[key:string]:string} = {};
+
 					let uri = step.url;
 					if(!/https?:\/\//gi.test(uri) && !/.*:\/\/.*/gi.test(uri)) uri = "https://"+uri;
 					const url = new URL(uri);
@@ -1529,6 +1530,7 @@ export default class TriggerActionHandler {
 					}
 					if(step.method == "POST") {
 						if(step.sendAsBody == true) {
+							headers["Content-Type"] = "application/json";
 							options.body = JSON.stringify(body);
 						}else if(customBody) {
 							options.body = customBody;
@@ -1540,7 +1542,6 @@ export default class TriggerActionHandler {
 							const value = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, h.value, subEvent);
 							headers[h.key] = value;
 						}
-						options.headers = headers;
 					}
 					try {
 						logStep.messages.push({date:Date.now(), value:"Calling HTTP: "+url});
