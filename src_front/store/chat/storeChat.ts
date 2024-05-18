@@ -890,7 +890,7 @@ export const storeChat = defineStore('chat', {
 					}
 
 					//Custom secret feature hehehe ( ͡~ ͜ʖ ͡°)
-					if(ChatCypherPlugin.instance.isCyperCandidate(message.message)) {
+					if(ChatCypherPlugin.instance.isCypherCandidate(message.message)) {
 						const original = message.message;
 						message.message = message.message_html = await ChatCypherPlugin.instance.decrypt(message.message);
 						message.message_chunks = TwitchUtils.parseMessageToChunks(message.message);

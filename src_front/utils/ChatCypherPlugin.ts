@@ -1,9 +1,9 @@
 /**
-* Created : 19/01/2022 
+* Created : 19/01/2022
 */
 export default class ChatCypherPlugin {
-	
-	
+
+
 	private static _instance:ChatCypherPlugin;
 	private _cypherKey = "";
 	private buff_to_base64 = (buff:number[]) => btoa(String.fromCharCode.apply(null, buff));
@@ -13,10 +13,10 @@ export default class ChatCypherPlugin {
 	private chars = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ+/=";
 	private charsReplacements = "‒–—―ꟷ‖⸗ⱶ⌠⌡─ꞁ│┌┐└┘├┤┬┴┼═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╨╧╩╪╫╬▬ɭƖſ∏¦|[]¯‗∟≡₸";
 	private regMatch!:RegExp;
-	
+
 	constructor() {
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -30,9 +30,9 @@ export default class ChatCypherPlugin {
 	public set cypherKey(value:string) {
 		this._cypherKey = value;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -51,11 +51,11 @@ export default class ChatCypherPlugin {
 
 	/**
 	 * Check if the specified message is an encrypted one
-	 * 
-	 * @param message 
-	 * @returns 
+	 *
+	 * @param message
+	 * @returns
 	 */
-	public isCyperCandidate(message:string):boolean {
+	public isCypherCandidate(message:string):boolean {
 		if(!this._cypherKey) return false;
 		this.regMatch.lastIndex = 0;
 		return this.regMatch.test(message);
@@ -63,9 +63,9 @@ export default class ChatCypherPlugin {
 
 	/**
 	 * Encrypts a message
-	 * 
-	 * @param data 
-	 * @returns 
+	 *
+	 * @param data
+	 * @returns
 	 */
 	public async encrypt(data:string):Promise<string> {
 		const encryptedData = await this.encryptData(data, this._cypherKey);
@@ -79,9 +79,9 @@ export default class ChatCypherPlugin {
 
 	/**
 	 * Decrypts a message
-	 * 
-	 * @param data 
-	 * @returns 
+	 *
+	 * @param data
+	 * @returns
 	 */
 	public async decrypt(encryptedData:string):Promise<string> {
 		if(!encryptedData) return "";
@@ -93,9 +93,9 @@ export default class ChatCypherPlugin {
 		const decryptedData = await this.decryptData(result, this._cypherKey);
 		return decryptedData || encryptedData;
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
