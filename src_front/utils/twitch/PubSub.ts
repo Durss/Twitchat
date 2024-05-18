@@ -617,7 +617,7 @@ export default class PubSub extends EventDispatcher {
 
 				case "vip": {
 					const username = localObj.args?.[0];
-					moderatedUser! = await new Promise((resolve)=> {
+					moderatedUser = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=> {
 						StoreProxy.users.getUserFrom("twitch", channelId, undefined, username, undefined, (u)=> resolve(u));
 					});
 					noticeId = TwitchatDataTypes.TwitchatNoticeType.VIP;
@@ -627,9 +627,12 @@ export default class PubSub extends EventDispatcher {
 				}
 
 				case "raid": {
+					const user = await new Promise<TwitchatDataTypes.TwitchatUser>((resolve)=> {
+						StoreProxy.users.getUserFrom("twitch", channelId, undefined, localObj.args![0] as string, undefined, (u)=> resolve(u));
+					});
 					const infos:TwitchatDataTypes.RaidInfo = {
 						channel_id: channelId,
-						user: StoreProxy.users.getUserFrom("twitch", channelId, undefined, localObj.args![0] as string),
+						user,
 						viewerCount: 0,
 						startedAt:Date.now(),
 						timerDuration_s:90,
