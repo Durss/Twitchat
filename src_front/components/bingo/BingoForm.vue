@@ -2,12 +2,12 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<ClearButton :aria-label="$t('global.close')" @click="close()" />
-			
+
 			<h1 class="title"><Icon name="bingo" class="icon" />{{ $t("bingo.form.title") }}</h1>
-			
+
 			<div class="description">{{ $t("bingo.form.description") }}</div>
 		</div>
-		
+
 		<TabMenu class="menu" v-model="mode"
 			:values="['num','emote','custom']"
 			:tooltips="[$t('bingo.form.title_number'), $t('bingo.form.title_emote'), $t('bingo.form.title_custom')]"
@@ -16,18 +16,18 @@
 
 		<div class="content">
 			<form @submit.prevent="onSubmit()">
-				
+
 				<div class="info" v-if="mode=='num'" v-html="$t('bingo.form.number_info')"></div>
 				<div class="info" v-if="mode=='emote'" v-html="$t('bingo.form.emote_info', {COUNT:globalEmotes.length})"></div>
 				<div class="info" v-if="mode =='custom'">{{ $t("bingo.form.custom_info") }}</div>
 
 				<ParamItem class="card-item" v-if="mode=='num'" :paramData="minValue" autofocus @change="onValueChange()" />
-				
+
 				<ParamItem class="card-item" v-if="mode=='num'" :paramData="maxValue" @change="onValueChange()" />
 
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValue" @change="onValueChange()" />
 				<ParamItem class="card-item custom" v-if="mode=='custom'" :paramData="customValueTolerance" @change="onValueChange()" />
-			
+
 				<ToggleBlock :icons="['params']" :title="$t('global.advanced_params')" class="configs" :open="false" v-if="triggerMode === false">
 					<PostOnChatParam botMessageKey="bingoStart"
 						:placeholderEnabled="false"
@@ -42,7 +42,7 @@
 					/>
 				</ToggleBlock>
 
-				<Button v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</Button>
+				<TTButton v-if="triggerMode === false" type="submit">{{ $t('bingo.form.startBt') }}</TTButton>
 			</form>
 		</div>
 	</div>
@@ -63,7 +63,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		TabMenu,
 		ParamItem,
 		ClearButton,
@@ -76,7 +76,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;
-	
+
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionBingoData;
@@ -149,7 +149,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 			{value:4, labelKey:"bingo.form.custom_value_tolerances.high"},
 			{value:5, labelKey:"bingo.form.custom_value_tolerances.very_high"},
 		];
-		
+
 		let emotes = await TwitchUtils.getEmotes();
 		emotes = emotes.filter(v => v.is_public === true);
 		this.globalEmotes = emotes;

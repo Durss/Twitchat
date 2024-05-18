@@ -13,12 +13,12 @@
 		</ParamItem>
 
 		<ParamItem :paramData="param_message" v-if="action.customMessage.user" v-model="action.customMessage.message" />
-		
+
 		<draggable
 		class="actions"
 		v-model="action.customMessage.actions"
 		itemKey="id"
-		group="ctas" 
+		group="ctas"
 		ghost-class="ghost"
 		direction="vertical"
 		handle=".header"
@@ -80,7 +80,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import Utils from '@/utils/Utils';
 
 @Component({
@@ -95,14 +95,14 @@ import Utils from '@/utils/Utils';
 	emits:[],
 })
  class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
-	
+
 	@Prop
 	declare action:TriggerActionCustomMessageData;
 	@Prop
 	declare triggerData:TriggerData;
 
 	public actionParams:Key2ParamMap[] = [];
-	
+
 	public param_col:TwitchatDataTypes.ParameterData<number> = {type:"list", value:-1, labelKey:"triggers.actions.customChat.param_col"};
 	public param_icon:TwitchatDataTypes.ParameterData<string> = {type:"imagelist", value:"", labelKey:"triggers.actions.customChat.param_icon"};
 	public param_style:TwitchatDataTypes.ParameterData<TwitchatDataTypes.MessageCustomData["style"] | "",TwitchatDataTypes.MessageCustomData["style"] | ""> = {type:"list", value:"", labelKey:"triggers.actions.customChat.param_style"};
@@ -110,7 +110,7 @@ import Utils from '@/utils/Utils';
 	public param_userColor:TwitchatDataTypes.ParameterData<string> = {type:"color", value:"", labelKey:"triggers.actions.customChat.param_user_color"};
 	public param_user:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", maxLength:25, labelKey:"triggers.actions.customChat.param_user"};
 	public param_message:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", longText:true, maxLength:1000, labelKey:"triggers.actions.customChat.param_message"};
-		
+
 	private iconList:TwitchatDataTypes.ParameterDataListValue<string>[] = [];
 	private buttonThemes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["theme"]>[] = [];
 	private actionTypes:TwitchatDataTypes.ParameterDataListValue<NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]["actionType"]>[] = [];
@@ -171,7 +171,7 @@ import Utils from '@/utils/Utils';
 		if(!this.action.customMessage.actions) {
 			this.action.customMessage.actions = [];
 		}
-		
+
 		let iconList = import.meta.glob("@/assets/icons/*.svg");
 		const validKeys = Object.keys(iconList).map(v=>v.replace(/.*\/(.*?).svg/, "$1"));
 		const keys = ["ad","add","alert","animate","announcement","anon","api","automod","badge","ban","bingo","bits","block","boost","bot","broadcast","broadcaster","change","channelPoints","chatCommand","chatPoll","checkmark","clearChat","click","clip","coffee","coin","color","commands","conversation","copy","count","countdown","credits","cross","date","debug","delete","dice","discord","donor","download","dragZone","easing","edit","elevated","elgato","emergency","emote","enter","filters","firstTime","fix","follow","follow_outline","font","fontSize","fullscreen","gift","github","goxlr","goxlr_bleep","goxlr_fx","hand","heat","help","hide","highlight","history","hypeChat","idea","info","internet","leave","list","live","loader","lock","loop","magnet","markRead","max","merge","microphone","microphone_mute","microphone_recording","min","minus","mod","move","music","mute","newtab","next","noMusic","notification","number","obs","offline","online","orderable","overlay","params","partner","patreon","pause","paypal","pin","pipette","placeholder","play","poll","polygon","prediction","premium","presentation","press","prev","prime","pros","qna","raid","read","refresh","reply","returning","reward_highlight","rightClick","rotate","save","scale","scroll","scrollDown","scrollUp","search","shadow","shield","shieldMode","shoutout","show","skip","slow","spotify","stars","stop","sub","test","thickness","ticket","tiktok","timeout","timer","train","train_boost","translate","trash","tts","twitch","twitchat","twitter","ulule","unban","unblock","unfollow","unlock","unmod","unmute","unpin","unvip","update","upload","url","user","vibrate","vip","voice","voicemod","volume","watchStreak","whispers","youtube","kofi","streamlabs","streamelements","tipeee"]
@@ -213,7 +213,7 @@ import Utils from '@/utils/Utils';
 
 	/**
 	 * Add a new action
-	 * @param source 
+	 * @param source
 	 */
 	public addAction(source?:NonNullable<TwitchatDataTypes.MessageCustomData["actions"]>[number]):void {
 		if(!source) {
@@ -245,7 +245,7 @@ import Utils from '@/utils/Utils';
 
 	/**
 	 * Delete an action by its index
-	 * @param index 
+	 * @param index
 	 */
 	public deleteAction(index:number):void {
 		this.action.customMessage.actions!.splice(index, 1);
@@ -273,7 +273,7 @@ export default toNative(TriggerActionCustomChatEntry);
 
 <style scoped lang="less">
 .triggeractioncustomchatentry{
-	
+
 	.message {
 		.bevel();
 		background-color: var(--grayout);

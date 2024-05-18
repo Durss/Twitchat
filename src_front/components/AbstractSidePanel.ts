@@ -35,6 +35,11 @@ export default class AbstractSidePanel extends Vue {
 	 * Close animation
 	 */
 	public async close():Promise<void> {
+		//contenteditable component crashes if it has focus when destroyed.
+		//The following makes sure nothing has focus when closing the form.
+		//This can also trigger some save process depending on the forms.
+		if(document.activeElement) (document.activeElement as HTMLElement).blur();
+
 		return new Promise((resolve)=>{
 			gsap.to(this.$el as HTMLElement, {duration:.25, translateY:"-100%", clearProps:"transform", ease:"back.in", onComplete:()=> {
 				this.$emit('close');
@@ -45,7 +50,7 @@ export default class AbstractSidePanel extends Vue {
 
 	/**
 	 * Close the window whan hitting escape key
-	 * @param e 
+	 * @param e
 	 */
 	private onKeyDown(e:KeyboardEvent):void {
 		if(this.closed) return;

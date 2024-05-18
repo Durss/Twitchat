@@ -2,8 +2,8 @@
 	"bingo": {
 		"goal_emote":"Trouver une emote globale de Twitch",
 		"goal_number":"Trouver un nombre compris entre {MIN} et {MAX}",
-		"goal_custom":"",
-		
+		"goal_custom":"Trouvez le ou les mots secrets",
+
 		"form": {
 			"title":"Créer un Bingo",
 			"closeBt_aria":"Fermer le formulaire",
@@ -25,16 +25,16 @@
 			},
 			"startBt":"Lancer le bingo",
 			"custom_placeholder":"message...",
-			
+
 			"winner_placeholder":"Pseudo",
 			"goal_placeholder":"Explique ce qu'il faut trouver",
-	
+
 			"number_info":"Vos viewers devront envoyer un nombre compris entre la valeur minimale et maximale <i>(incluses)</i>",
 			"emote_info":"Vos viewers devront envoyer l'une des <strong>{COUNT}</strong> emotes Twitch disponibles <i>(smileys exclus)</i>",
 			"custom_info":"Vos viewers devront envoyer le message suivant",
-	
+
 			"username_placeholder":"Pseudo",
-	
+
 			"announce_start":"Annoncer le début du Bingo dans le chat",
 			"announce_winner":"Annoncer gagnant·e dans le chat"
 		},

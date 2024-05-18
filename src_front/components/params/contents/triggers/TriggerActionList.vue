@@ -66,7 +66,7 @@
 				v-if="isAnyMessages"
 				:triggerData="triggerData"
 			/>
-			
+
 			<div class="queue">
 				<div class="info" v-tooltip="$t('triggers.trigger_queue_info')">
 					<Icon name="list" class="icon" />
@@ -77,7 +77,7 @@
 		</div>
 
 		<TriggerConditionList class="card-item conditions" :triggerData="triggerData" data-noselect />
-		
+
 		<div :class="listClasses">
 			<div v-if="hasCondition" class="conditionSelector" data-noselect>
 				<TTButton icon="cross" alert @click="matchingCondition = false" :selected="matchingCondition == false" />
@@ -97,8 +97,8 @@
 			</button>
 
 			<draggable
-			v-model="filteredActionList" 
-			group="actions" 
+			v-model="filteredActionList"
+			group="actions"
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
@@ -145,7 +145,7 @@ import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebso
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';
@@ -191,15 +191,15 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	public rewards!:TwitchDataTypes.Reward[];
 	@Prop({default:[]})
 	public extensions!:TwitchDataTypes.Extension[];
-	
+
 	public selecting:boolean = false;
 	public selectStyles:{[key:string]:string} = {};
 	public selectedActions:string[] = [];
 	public matchingCondition:boolean = true;
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = { type:"boolean", value:true, icon:"disable", labelKey:"global.enabled" };
-	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"date", placeholder:"...", labelKey:"triggers.trigger_name" };
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", placeholder:"...", labelKey:"triggers.trigger_name" };
 	public param_queue:TwitchatDataTypes.ParameterData<string> = {type:"editablelist", value:"", max:1, placeholderKey:"triggers.trigger_queue_input_placeholder"}
-	
+
 	private selectOffset = {x:0, y:0};
 	private scrollDir:number = 0;
 	private disposed:boolean = false;
@@ -235,7 +235,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 	 */
 	public set filteredActionList(value:TriggerActionTypes[]) {
 		if(this.hasCondition) {
-			
+
 			//Remove all sorted actions from the original trigger data
 			for (let i = 0; i < this.triggerData.actions.length; i++) {
 				const item = this.triggerData.actions[i];
@@ -381,7 +381,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 
 	/**
 	 * Adds an action after the specified trigger ID
-	 * @param id 
+	 * @param id
 	 */
 	public addActionAfter(id:string):void {
 		let index = this.triggerData.actions.findIndex(v=>v.id == id);
@@ -392,7 +392,7 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 
 	/**
 	 * Adds an action at a specific index
-	 * @param id 
+	 * @param id
 	 */
 	public addActionAt(index:number):void {
 		const action:TriggerActionEmptyData = {
@@ -427,12 +427,12 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 		this.selectOffset.y = e.clientY - offsetBounds.top;
 		this.onPointerMove(e);
 	}
-	
+
 	private onPointerMove(e:PointerEvent):void {
 		if(!this.selecting) return;
 
 		const offsetBounds = (this.$el as HTMLElement).getBoundingClientRect();
-		
+
 		const margin = 20;
 		const x1 = Math.min(offsetBounds.width + margin, Math.max(-margin, Math.min(this.selectOffset.x, e.clientX - offsetBounds.left)));
 		const y1 = Math.min(offsetBounds.height, Math.max(0, Math.min(this.selectOffset.y, e.clientY - offsetBounds.top)));
@@ -472,18 +472,18 @@ import TriggerActionAnyMessageParams from './TriggerActionAnyMessageParams.vue';
 			e.preventDefault();
 		}
 	}
-	
+
 	private onPointerUp(e:PointerEvent):void {
 		this.selecting = false;
 	}
-	
+
 	private onKeyDown(e:KeyboardEvent):void {
 		//Avoid closing parameters page if actions are selected
 		if(e.key == "Escape" && this.selectedActions.length > 0) {
 			e.stopPropagation();
 		}
 	}
-	
+
 	private onKeyUp(e:KeyboardEvent):void {
 		//Do not copy/past actions if focus is on a form input
 		const nodeName = (e.target as HTMLElement).nodeName;
@@ -595,7 +595,7 @@ export default toNative(TriggerActionList);
 		.action.selected {
 			outline: 2px dashed var(--color-text);
 		}
-	
+
 		.addBt {
 			display: block;
 			margin: auto;
@@ -613,7 +613,7 @@ export default toNative(TriggerActionList);
 				background-color: var(--color-primary-light);
 			}
 		}
-		
+
 		&.alert {
 			.addBt {
 				background-color: var(--color-alert);

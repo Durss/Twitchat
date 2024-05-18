@@ -1,7 +1,7 @@
 <template>
 	<div class="shoutoutlist blured-background-window">
 		<draggable class="list"
-		v-model="$store.users.pendingShoutouts[channelId]" 
+		v-model="$store.users.pendingShoutouts[channelId]"
 		direction="vertical"
 		group="users"
 		item-key="id"
@@ -28,7 +28,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { gsap } from 'gsap';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import TTButton from '../TTButton.vue';
 import { watch } from 'vue';
 
@@ -61,7 +61,7 @@ import { watch } from 'vue';
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
-		
+
 		//This interval updates a local timer used to keep updating
 		//times even if source data are not actually updated.
 		//The source data are updated, as of today, every 5s as defined
@@ -141,7 +141,7 @@ export default toNative(ShoutoutList);
 		display: flex;
 		flex-direction: column;
 		gap: 1em;
-	
+
 		.item {
 			display: flex;
 			flex-direction: row;
@@ -187,6 +187,6 @@ export default toNative(ShoutoutList);
 			}
 		}
 	}
-	
+
 }
 </style>

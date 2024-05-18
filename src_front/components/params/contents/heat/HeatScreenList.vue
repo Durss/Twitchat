@@ -8,8 +8,8 @@
 			</i18n-t>
 
 			<draggable class="areaList" v-if="!currentScreen"
-			v-model="$store.heat.screenList" 
-			group="actions" 
+			v-model="$store.heat.screenList"
+			group="actions"
 			item-key="id"
 			ghost-class="ghost"
 			direction="vertical"
@@ -24,11 +24,11 @@
 						:canDuplicate="canCreateScreens" />
 				</template>
 				<template #footer>
-					<Button class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></Button>
+					<TTButton class="item" icon="add" @click="createScreen()" v-if="canCreateScreens"></TTButton>
 					<div class="card-item secondary" v-else-if="$store.auth.isPremium">{{ $t("heat.max_screen_reached", {COUNT:maxScreens}) }}</div>
 					<template v-else>
 						<div class="card-item secondary">{{ $t("error.max_custom_heat_screen", {COUNT:maxScreens}) }}</div>
-						<Button class="item premiumBt" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
+						<TTButton class="item premiumBt" icon="premium" premium big @click="openPremium()">{{ $t("premium.become_premiumBt") }}</TTButton>
 					</template>
 				</template>
 			</draggable>
@@ -47,11 +47,11 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		draggable,
 		ToggleBlock,
 		HeatScreenEditor,
@@ -138,7 +138,7 @@ export default toNative(HeatScreenList);
 			flex-wrap: wrap;
 			align-items: center;
 			justify-content: center;
-			
+
 			.item:not(.premiumBt) {
 				width: 30%;
 				min-width: 100px;
@@ -154,6 +154,6 @@ export default toNative(HeatScreenList);
 			}
 		}
 	}
-	
+
 }
 </style>

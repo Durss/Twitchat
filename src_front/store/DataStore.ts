@@ -9,10 +9,10 @@ import StoreProxy from "./StoreProxy";
 
 /**
  * Fallback to sessionStorage if localStorage isn't available
- * Created : 18/10/2020 
+ * Created : 18/10/2020
  */
 export default class DataStore {
-	
+
 	public static syncToServer:boolean = true;
 
 	public static DATA_VERSION:string = "v";
@@ -100,7 +100,8 @@ export default class DataStore {
 	public static TIPEEE:string = "tipeee";
 	public static PINNED_CHAT_MENU_ITEM:string = "pinnedChatMenuItem";
 	public static LUMIA:string = "lumia";
-	
+	public static BINGO_GRIDS:string = "bingoGrids";
+
 	private static store:Storage;
 	private static dataPrefix:string = "twitchat_";
 	private static saveTO:number = -1;
@@ -134,14 +135,14 @@ export default class DataStore {
 		this.STREAMELEMENTS,
 		this.TIPEEE,
 	];
-	
-	
+
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -173,13 +174,13 @@ export default class DataStore {
 		const latestVersion = 53;
 
 		this.cleanupPreV7Data(data);
-		
+
 		if(v < 11) {
 			const res:{[key:string]:unknown} = {};
 			res[this.DATA_VERSION] = latestVersion;
 			return res;
 		}
-		
+
 		if(v<=12) {
 			this.fixTTSPlaceholders(data);
 			v = 13;
@@ -468,7 +469,7 @@ export default class DataStore {
 			for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
 				delete data[ this.UNSYNCED_DATA[i] ];
 			}
-			
+
 			//Remove automod items the user asked not to sync to server
 			const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
 			if(automod) {
@@ -479,7 +480,7 @@ export default class DataStore {
 					}
 				}
 			}
-			
+
 			await ApiHelper.call("user/data/backup", "POST", data);
 		}catch(error) {
 			console.error(error);
@@ -532,7 +533,7 @@ export default class DataStore {
 
 	/**
 	 * Save user's data server side
-	 * @returns 
+	 * @returns
 	 */
 	public static async save(force:boolean = false, delay:number = 1500):Promise<void> {
 		clearTimeout(this.saveTO);
@@ -541,7 +542,7 @@ export default class DataStore {
 			if(!this.dataImported) return;//Don't export anything before importing data first
 			if(!StoreProxy.auth.twitch.access_token) return;
 		}
-		
+
 		return new Promise((resolve) => {
 			this.saveTO = setTimeout(async () => {
 				const data = JSON.parse(JSON.stringify(this.rawStore));
@@ -550,7 +551,7 @@ export default class DataStore {
 				for (let i = 0; i < this.UNSYNCED_DATA.length; i++) {
 					delete data[ this.UNSYNCED_DATA[i] ];
 				}
-				
+
 				//Remove automod items the user asked not to sync to server
 				const automod = data.automodParams as TwitchatDataTypes.AutomodParamsData;
 				if(automod) {
@@ -561,9 +562,9 @@ export default class DataStore {
 						}
 					}
 				}
-	
+
 				await ApiHelper.call("user/data", "POST", data);
-				
+
 				//If we forced upload, consider data has been imported as they are
 				//the same on local and remote. This will allow later automatic saves
 				if(force) this.dataImported = true;
@@ -574,8 +575,8 @@ export default class DataStore {
 
 	/**
 	 * Get a value
-	 * @param key 
-	 * @returns 
+	 * @param key
+	 * @returns
 	 */
 	public static get<T = string|null>(key:string):T {
 		if(!this.store) this.init();
@@ -584,7 +585,7 @@ export default class DataStore {
 
 	/**
 	 * Get all values
-	 * @returns 
+	 * @returns
 	 */
 	public static getAll():{[key:string]:string|null} {
 		if(!this.store) this.init();
@@ -600,11 +601,11 @@ export default class DataStore {
 
 	/**
 	 * Set a value
-	 * 
-	 * @param key 
-	 * @param value 
+	 *
+	 * @param key
+	 * @param value
 	 * @param save 	schedule a save to the server
-	 * @returns 
+	 * @returns
 	 */
 	public static async set(key:string, value:JsonValue|unknown, save = true, saveDelay:number = 1500):Promise<void> {
 		if(key == this.SYNC_DATA_TO_SERVER) {
@@ -613,20 +614,20 @@ export default class DataStore {
 				await this.loadRemoteData();
 			}
 		}
-		
+
 		if(!this.store) this.init();
 		if(value == undefined) return;
 		this.rawStore[key] = value;
 		const str = typeof value == "string"? value : JSON.stringify(value);
 		this.store.setItem(this.dataPrefix + key, str);
-		
+
 		if(save) this.save(false, saveDelay);
 	}
 
 	/**
 	 * Remove a value
-	 * 
-	 * @param key 
+	 *
+	 * @param key
 	 */
 	public static remove(key:string):void {
 		if(!this.store) this.init();
@@ -654,9 +655,9 @@ export default class DataStore {
 		}
 		this.rawStore = {};
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -870,7 +871,7 @@ export default class DataStore {
 			}
 			data[DataStore.TRIGGERS] = triggers;
 		}
-		
+
 		//Migrate automod
 		const automod:TwitchatDataTypes.AutomodParamsData = data[DataStore.AUTOMOD_PARAMS];
 		if(automod) {
@@ -884,7 +885,7 @@ export default class DataStore {
 				data[DataStore.AUTOMOD_PARAMS] = automod;
 			}
 		}
-		
+
 		//Migrate TTS
 		const tts:TwitchatDataTypes.TTSParamsData = data[DataStore.TTS_PARAMS];
 		if(tts) {
@@ -909,7 +910,7 @@ export default class DataStore {
 			// console.log(confs);
 			data[DataStore.TTS_PARAMS] = tts;
 		}
-		
+
 		//Migrate OBS
 		const obs:TwitchatDataTypes.PermissionsData = data[DataStore.OBS_CONF_PERMISSIONS];
 		if(obs) {
@@ -923,7 +924,7 @@ export default class DataStore {
 				data[DataStore.OBS_CONF_PERMISSIONS] = obs;
 			}
 		}
-		
+
 		//Migrate emergency mode
 		const emergency:TwitchatDataTypes.EmergencyParamsData = data[DataStore.EMERGENCY_PARAMS];
 		if(emergency) {
@@ -937,7 +938,7 @@ export default class DataStore {
 				data[DataStore.EMERGENCY_PARAMS] = emergency;
 			}
 		}
-		
+
 		//Migrate spoiler
 		const spoiler:TwitchatDataTypes.SpoilerParamsData = data[DataStore.SPOILER_PARAMS];
 		if(spoiler) {
@@ -951,7 +952,7 @@ export default class DataStore {
 				data[DataStore.SPOILER_PARAMS] = spoiler;
 			}
 		}
-		
+
 		//Migrate chat alert
 		const alertSrc:TwitchatDataTypes.AlertParamsData = data[DataStore.ALERT_PARAMS];
 		if(alertSrc) {
@@ -965,7 +966,7 @@ export default class DataStore {
 				data[DataStore.ALERT_PARAMS] = alertSrc;
 			}
 		}
-		
+
 		//Migrate voicemod
 		const voicemod:TwitchatDataTypes.VoicemodParamsData = data[DataStore.VOICEMOD_PARAMS];
 		if(voicemod) {
@@ -1125,7 +1126,7 @@ export default class DataStore {
 	 * true => show source
 	 * false => hide source
 	 * "replay" => replay media source
-	 * 
+	 *
 	 * This prop is now named "action" and contains only string values.
 	 */
 	private static migrateOBSTriggerActions(data:any):void {
@@ -1147,7 +1148,7 @@ export default class DataStore {
 
 	/**
 	 * Migrates triggers data to the new triggers system
-	 * @param data 
+	 * @param data
 	 */
 	private static migrateTriggersData(data:any):void {
 		const triggers:{[key:string]:TriggerData} = data[DataStore.TRIGGERS];
@@ -1217,10 +1218,10 @@ export default class DataStore {
 					if(item) return item
 					break;
 				}
-				case TriggerTypes.COUNTER_LOOPED: 
-				case TriggerTypes.COUNTER_MAXED: 
-				case TriggerTypes.COUNTER_MINED: 
-				case TriggerTypes.COUNTER_ADD: 
+				case TriggerTypes.COUNTER_LOOPED:
+				case TriggerTypes.COUNTER_MAXED:
+				case TriggerTypes.COUNTER_MINED:
+				case TriggerTypes.COUNTER_ADD:
 				case TriggerTypes.COUNTER_DEL: {
 					const item = triggerList.find(v => v.type == type && v.rewardId?.toLowerCase() == subType );
 					if(item) return item
@@ -1237,7 +1238,7 @@ export default class DataStore {
 		//Migrate any trigger action using triggers
 		for (let j = 0; j < triggerList.length; j++) {
 			const t = triggerList[j];
-			
+
 			for (let i = 0; i < t.actions.length; i++) {
 				const a = t.actions[i];
 				//Migrate random entries
@@ -1259,7 +1260,7 @@ export default class DataStore {
 				}
 			}
 		}
-		
+
 
 		console.log(triggerList);
 
@@ -1267,7 +1268,7 @@ export default class DataStore {
 	}
 
 	/**
-	 * Adds the placeholder value to any existing counter and 
+	 * Adds the placeholder value to any existing counter and
 	 * update any trigger using the "read counter" action to remove it
 	 * and replace that placeholder by the counter's placeholder
 	 */
@@ -1280,7 +1281,7 @@ export default class DataStore {
 		const slugCount:{[key:string]:number} = {};
 		for (let i = 0; i < counters.length; i++) {
 			const c = counters[i];
-			
+
 			if(!c.placeholderKey)  {
 				let slug = Utils.slugify(c.name);
 				if(slug.length == 0) slug = "C";
@@ -1566,7 +1567,7 @@ export default class DataStore {
 				c.filters.music_added_to_queue = false;
 			});
 			chatCols[0].filters.music_added_to_queue = true;
-			
+
 			data[DataStore.CHAT_COLUMNS_CONF] = chatCols;
 		}
 
@@ -1608,7 +1609,7 @@ export default class DataStore {
 					if(count[name] === undefined) count[name] = 0;
 					if(count[name] > 0) name +="_"+count[name];
 					count[name] ++;
-					
+
 					t.queue = name;
 					console.log("Set queue to", name);
 				}
@@ -1616,10 +1617,10 @@ export default class DataStore {
 			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
-	
+
 	/**
 	 * Migrate polls and predictions durations to seconds instead of minutes
-	 * @param data 
+	 * @param data
 	 */
 	public static migratePollPredDurations(data:any):void {
 		//Migrate default poll duration
@@ -1629,7 +1630,7 @@ export default class DataStore {
 		//Migrate default prediction duration
 		d = parseInt(data[DataStore.PREDICTION_DEFAULT_DURATION]);
 		if(!isNaN(d)) data[DataStore.PREDICTION_DEFAULT_DURATION] = d * 60;
-		
+
 		//Migrate durations on triggers
 		const triggers:TriggerData[] = data[DataStore.TRIGGERS];
 		if(triggers && Array.isArray(triggers)) {
@@ -1646,15 +1647,15 @@ export default class DataStore {
 			data[DataStore.TRIGGERS] = triggers;
 		}
 	}
-	
+
 	/**
 	 * Remove duplicates from the trigger tree after a mistake on the
 	 * non-premium data cleanup that was duplicating everything on the
 	 * root of the tree
-	 * @param data 
+	 * @param data
 	 */
 	public static dedupeTriggerTree(data:any):void {
-		
+
 		const tree:TriggerActionDataTypes.TriggerTreeItemData[] = data[DataStore.TRIGGERS_TREE];
 		if(tree && Array.isArray(tree)) {
 			const isInFolder:{[key:string]:boolean} = {};

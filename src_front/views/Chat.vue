@@ -35,6 +35,7 @@
 			<RaffleForm				class="popin" v-if="$store.params.currentModal == 'raffle'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<PredictionForm			class="popin" v-if="$store.params.currentModal == 'pred'" @close="$store.params.closeModal()" :voiceControl="voiceControl" />
 			<BingoForm				class="popin" v-if="$store.params.currentModal == 'bingo'" @close="$store.params.closeModal()" />
+			<BingoGridForm			class="popin" v-if="$store.params.currentModal == 'bingo_grid'" @close="$store.params.closeModal()" />
 			<LiveFollowings			class="popin" v-if="$store.params.currentModal == 'liveStreams'" @close="$store.params.closeModal()" />
 			<StreamInfoForm			class="popin" v-if="$store.params.currentModal == 'streamInfo'" @close="$store.params.closeModal()" />
 			<TTUserList				class="popin" v-if="$store.params.currentModal == 'TTuserList'" @close="$store.params.closeModal()" />
@@ -144,6 +145,7 @@
 
 <script lang="ts">
 import BingoForm from '@/components/bingo/BingoForm.vue';
+import BingoGridForm from '@/components/bingo_grid/BingoGridForm.vue';
 import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
@@ -228,6 +230,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		ShoutoutList,
 		TriggersLogs,
 		TrackedUsers,
+		BingoGridForm,
 		MessageSearch,
 		StreamSummary,
 		WhispersState,

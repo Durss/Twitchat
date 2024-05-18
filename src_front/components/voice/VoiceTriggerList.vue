@@ -6,7 +6,7 @@
 				v-model="globalCommands"
 				v-model:complete="globalCommandsOK"
 			/>
-	
+
 			<Button icon="add" class="addBt"
 				@click="addAction()"
 				v-if="getActionIDs().length > 0 && globalCommandsOK">{{ $t('voice.addBt') }}</Button>
@@ -14,10 +14,10 @@
 		</div>
 
 
-		<draggable 
+		<draggable
 		v-if="actions"
-		v-model="actions" 
-		group="actions" 
+		v-model="actions"
+		group="actions"
 		item-key="id"
 		ghost-class="ghost"
 		direction="vertical"
@@ -48,7 +48,7 @@
 
 					<div class="content">
 						<label :for="'select'+index" v-t="'voice.select_action'"></label>
-						
+
 						<vue-select :id="'select'+index"
 							:placeholder="$t('voice.select_action_placeholder')"
 							v-model="element.id"
@@ -62,13 +62,13 @@
 								<span>{{ option.label }}</span>
 							</template>
 						</vue-select>
-	
+
 						<div class="form">
 							<label v-if="element.id" :for="'text'+index"><span>{{ $t("voice.sentences") }}</span> <i>{{ $t("voice.sentences_count") }}</i></label>
 							<textarea v-if="element.id" :id="'text'+index" v-model="element.sentences" rows="5" maxlength="1000"></textarea>
 						</div>
 					</div>
-					
+
 				</ToggleBlock>
 			</template>
 		</draggable>
@@ -81,7 +81,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
@@ -228,11 +228,11 @@ import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
 		type VAKeys = keyof typeof VoiceAction;
 		return VoiceAction[id+"_ICON" as VAKeys] as string;
 	}
-	
+
 	/**
 	 * When a voice action is triggerd, highlight it
-	 * 
-	 * @param e 
+	 *
+	 * @param e
 	 */
 	public onTrigger(e:TwitchatEvent):void {
 		const el = this.$refs[e.type] as Vue[] | undefined;
@@ -261,23 +261,23 @@ export default toNative(VoiceTriggerList);
 .voicetriggerlist{
 	//.listIcon style is on index.less.
 	//Couldn't make it work from the template even in a unscoped tag
-	
+
 	gap: .5em;
 	display: flex;
 	flex-direction: column;
 
-	
+
 	.form {
 		.addBt {
 			margin:auto;
 			display: flex;
 		}
-	
+
 		.global {
 			width: 100%;
 			margin-bottom: .5em;
 		}
-	
+
 		.error {
 			text-align: center;
 		}

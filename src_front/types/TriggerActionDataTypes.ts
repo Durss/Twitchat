@@ -52,6 +52,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRaffleData
 								| TriggerActionRaffleEnterData
 								| TriggerActionBingoData
+								| TriggerActionBingoGridData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
 								| TriggerActionTriggerData
@@ -464,6 +465,14 @@ export interface TriggerActionBingoData extends TriggerActionData{
 	 * Bingo params
 	 */
 	bingoData:TwitchatDataTypes.BingoConfig;
+}
+
+export interface TriggerActionBingoGridData extends TriggerActionData{
+	type:"bingoGrid";
+	/**
+	 * Bingo grid params
+	 */
+	bingoGridData:TwitchatDataTypes.BingoGridConfig;
 }
 
 export interface TriggerCustomBadgesData extends TriggerActionData{

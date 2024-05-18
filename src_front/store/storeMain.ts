@@ -76,7 +76,7 @@ export const storeMain = defineStore("main", {
 		},
 		chatAlert:null,
 	} as IMainState),
-	
+
 
 	getters: {
 		nonPremiumLimitExceeded: ()=> {
@@ -96,7 +96,7 @@ export const storeMain = defineStore("main", {
 		}
 	},
 
-	
+
 	actions: {
 
 		/**
@@ -165,7 +165,7 @@ export const storeMain = defineStore("main", {
 				return;
 			}
 			Config.instance.populateServerConfigs(jsonConfigs);
-			
+
 			//Makes sure all parameters have a unique ID !
 			let uniqueIdsCheck:{[key:number]:boolean} = {};
 			const pointers = [sParams.features, sParams.appearance];
@@ -180,7 +180,7 @@ export const storeMain = defineStore("main", {
 					uniqueIdsCheck[p.id as number] = true;
 				}
 			}
-			
+
 			//Make sure all triggers have a unique ID !
 			uniqueIdsCheck = {};
 			for (const key in TriggerTypes) {
@@ -220,27 +220,27 @@ export const storeMain = defineStore("main", {
 					callback(null);
 					return;
 				}
-				
+
 			}
 
 			//Listen for twitchat API event
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
 				sTimer.broadcastStates();
 			});
-			
+
 			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent)=> {
 				sChat.isChatMessageHighlighted = (e.data as {message:string}).message != undefined;
 			});
-			
+
 			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent)=> {
 				sVoice.voiceText.tempText = (e.data as {text:string}).text;
 				sVoice.voiceText.finalText = "";
 			});
-			
+
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent)=> {
 				sVoice.voiceText.rawTempText = (e.data as {text:string}).text;
 			});
-			
+
 			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent)=> {
 				sVoice.voiceText.finalText = (e.data as {text:string}).text;
 			});
@@ -251,9 +251,9 @@ export const storeMain = defineStore("main", {
 			PublicAPI.instance.addEventListener(TwitchatEvent.LABELS_UPDATE, (e:TwitchatEvent)=> {
 				this.reloadLabels(true);
 			});
-			
+
 			PublicAPI.instance.initialize(authenticate);
-			
+
 			//Init OBS connection
 			//If params are specified on URL, use them (used by overlays)
 			const port = Utils.getQueryParameterByName("obs_port");
@@ -264,11 +264,11 @@ export const storeMain = defineStore("main", {
 				sOBS.connectionEnabled = true;
 				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
-			
+
 			this.initComplete = true;
-			
+
 			window.setInitMessage("");
-			
+
 			callback(null);
 		},
 
@@ -377,7 +377,7 @@ export const storeMain = defineStore("main", {
 					}
 				}
 			});
-			
+
 			/**
 			 * Called when a raffle animation (the wheel) completes
 			 */
@@ -385,7 +385,7 @@ export const storeMain = defineStore("main", {
 				const data = (e.data as unknown) as {winner:TwitchatDataTypes.RaffleEntry};
 				StoreProxy.raffle.onRaffleComplete(data.winner);
 			});
-			
+
 			/**
 			 * Called when doing a shoutout to the latest raider
 			 */
@@ -398,7 +398,7 @@ export const storeMain = defineStore("main", {
 					this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
 				}
 			});
-			
+
 			/**
 			 * Called when emergency mode is started or stoped
 			 */
@@ -409,14 +409,14 @@ export const storeMain = defineStore("main", {
 				if(!e.data || enabled === undefined) enabled = !sEmergency.emergencyStarted;
 				sEmergency.setEmergencyMode(enabled)
 			});
-		
+
 			/**
 			 * Called when asking to pick a raffle winner
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.RAFFLE_PICK_WINNER, (e:TwitchatEvent)=> {
 				StoreProxy.raffle.pickWinner();
 			});
-		
+
 			/**
 			 * Called when requesting ad break overlay parameters
 			 */
@@ -427,7 +427,7 @@ export const storeMain = defineStore("main", {
 				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_OVERLAY_PARAMETERS, JSON.parse(data));
 				PublicAPI.instance.broadcast(TwitchatEvent.AD_BREAK_DATA, (ad as unknown) as JsonObject);
 			});
-		
+
 			/**
 			 * Called when requesting bits wall overlay parameters
 			 */
@@ -440,14 +440,14 @@ export const storeMain = defineStore("main", {
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.BITSWALL_OVERLAY_PARAMETERS, (json as unknown) as JsonObject);
 			});
-		
+
 			/**
 			 * Called when asking to toggle message merging
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.MERGE_TOGGLE, (e:TwitchatEvent)=> {
 				StoreProxy.params.features.mergeConsecutive.value = !StoreProxy.params.features.mergeConsecutive.value;
 			});
-		
+
 			/**
 			 * Called when asking to toggle message merging
 			 */
@@ -461,7 +461,7 @@ export const storeMain = defineStore("main", {
 				}
 				TriggerActionHandler.instance.execute(message);
 			});
-		
+
 			/**
 			 * Called when requesting stream summary data
 			 */
@@ -475,7 +475,7 @@ export const storeMain = defineStore("main", {
 					console.error(error);
 				}
 			});
-		
+
 			/**
 			 * Called when requesting a distortion overlay's data
 			 */
@@ -488,7 +488,7 @@ export const storeMain = defineStore("main", {
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.DISTORT_OVERLAY_PARAMETERS, json);
 			});
-		
+
 			/**
 			 * Called when music player is clicked on the unified overlay
 			 */
@@ -701,7 +701,7 @@ export const storeMain = defineStore("main", {
 
 			/**
 			 * Called when a playback event occurs on a media source
-			 * @param event 
+			 * @param event
 			 */
 			function onPlayBackStateChanged(event:TwitchatEvent):void {
 				const data = (event.data as unknown) as {inputName:string};
@@ -729,7 +729,7 @@ export const storeMain = defineStore("main", {
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
-			
+
 			/**
 			 * Called when an OBS source is renamed.
 			 * Rename it on all triggers
@@ -738,7 +738,7 @@ export const storeMain = defineStore("main", {
 				const data = event.data as {oldInputName:string, inputName:string};
 				StoreProxy.triggers.renameOBSSource(data.oldInputName, data.inputName);
 			});
-			
+
 			/**
 			 * Called when an OBS scene is renamed.
 			 * Rename it on all triggers
@@ -782,7 +782,7 @@ export const storeMain = defineStore("main", {
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_PRESSED, onGoXLRButton);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.BUTTON_RELEASED, onGoXLRButton);
-			
+
 			/**
 			 * Handle GoXLR FX state
 			 */
@@ -800,7 +800,7 @@ export const storeMain = defineStore("main", {
 			}
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_ENABLED, onGoXLRFx);
 			GoXLRSocket.instance.addEventListener(GoXLRSocketEvent.FX_DISABLED, onGoXLRFx);
-			
+
 			/**
 			 * Handle GoXLR mute state
 			 */
@@ -834,7 +834,7 @@ export const storeMain = defineStore("main", {
 				}
 				TriggerActionHandler.instance.execute(message);
 			});
-			
+
 			/**
 			 * Handle GoXLR encoder value change
 			 */
@@ -879,7 +879,7 @@ export const storeMain = defineStore("main", {
 				HeatSocket.instance.connect( StoreProxy.auth.twitch.user.id );
 			}
 		},
-		
+
 		loadDataFromStorage() {
 			window.setInitMessage("load user data to memory");
 			/**
@@ -905,6 +905,7 @@ export const storeMain = defineStore("main", {
 			StoreProxy.automod.populateData();
 			StoreProxy.triggers.populateData();
 			StoreProxy.counters.populateData();
+			StoreProxy.bingoGrid.populateData();
 			StoreProxy.emergency.populateData();
 			StoreProxy.streamlabs.populateData();
 			StoreProxy.prediction.populateData();
@@ -914,7 +915,7 @@ export const storeMain = defineStore("main", {
 			if(theme) {
 				this.theme = theme as "light" | "dark";
 			}
-			
+
 			//Init alert actions
 			const alert = DataStore.get(DataStore.ALERT_PARAMS);
 			if(alert) {
@@ -928,13 +929,13 @@ export const storeMain = defineStore("main", {
 				let url = params.secured === true? "wss://" : "ws://";
 				url += params.ip;
 				if(params.port) url += ":"+params.port;
-		
+
 				WebsocketTrigger.instance.connect(url).then(()=>{}).catch(()=> {});
 			}
 
 			Database.instance.connect().then(async ()=> {
 				await StoreProxy.chat.preloadMessageHistory();
-				
+
 				//Reload devmode state
 				this.toggleDevMode( DataStore.get(DataStore.DEVMODE) === "true" );
 			});
@@ -974,9 +975,9 @@ export const storeMain = defineStore("main", {
 		closeConfirm():void { this.confirmData = null; },
 
 		openTooltip(payload:string) { this.tooltip = payload; },
-		
+
 		closeTooltip() { this.tooltip = ""; },
-		
+
 		setCypherKey(payload:string) {
 			this.cypherKey = payload;
 			ChatCypherPlugin.instance.cypherKey = payload;
@@ -984,10 +985,10 @@ export const storeMain = defineStore("main", {
 		},
 
 		setCypherEnabled(payload:boolean) { this.cypherEnabled = payload; },
-		
+
 		toggleDevMode(forcedState?:boolean) {
 			if(forcedState == this.devmode) return;
-			
+
 			let notify = true;
 			if(forcedState !== undefined) {
 				this.devmode = forcedState;

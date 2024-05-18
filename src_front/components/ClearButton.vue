@@ -1,5 +1,5 @@
 <template>
-	<button :class="classes">
+	<button :class="classes" type="button">
 		<Icon class="icon" :name="icon" :theme="theme"/>
 	</button>
 </template>

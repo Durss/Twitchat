@@ -12,7 +12,7 @@ import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
 import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomUsernameData as TriggerCustomUsernameData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({

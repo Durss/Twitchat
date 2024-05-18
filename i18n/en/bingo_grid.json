@@ -1,0 +1,15 @@
+{
+	"bingo_grid": {
+		"form": {
+			"title":"Bingo grids",
+			"closeBt_aria":"Close bingo form",
+			"description":"Create grids of goals and tick them all. Perfect when doing reacts!",
+			"ad_bt":"Create a grid"
+		},
+		"state":{
+			"title":"Bingo",
+			"winner":"Winner",
+			"closeBt":"Close bingo"
+		}
+	}
+}

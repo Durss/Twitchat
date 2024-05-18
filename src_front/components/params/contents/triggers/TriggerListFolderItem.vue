@@ -90,7 +90,7 @@ import gsap, { Linear } from 'gsap';
 import { RoughEase } from 'gsap/all';
 import { watch } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from './TriggerList.vue';
 import TriggerListItem from './TriggerListItem.vue';

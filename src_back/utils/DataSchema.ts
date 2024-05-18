@@ -1549,6 +1549,41 @@ import Ajv from "ajv";
 				token: {type:"string" , maxLength:40},
 			}
 		},
+		bingoGrids: {
+			type:"object",
+			additionalProperties: false,
+			properties: {
+				gridList: {
+					type:"array",
+					minItems:0,
+					maxItems:20,
+					items:{
+						type:"object",
+						additionalProperties: false,
+						properties: {
+							id: {type:"string", maxLength:40},
+							title: {type:"string", maxLength:40},
+							cols:{type:"number", minimum:2, maximum:10},
+							rows:{type:"number", minimum:2, maximum:10},
+							entries: {
+								type:"array",
+								minItems:0,
+								maxItems:100,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:40},
+										lock: {type:"boolean"},
+										label: {type:"string", maxLength:60},
+									}
+								}
+							}
+						}
+					},
+				}
+			}
+		},
 	}
 }
 

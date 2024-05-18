@@ -77,12 +77,14 @@
 		"eslint-plugin-vue": "^8.0.3",
 		"grapheme-splitter": "^1.0.4",
 		"gsap": "^3.10.4",
+		"i": "^0.3.7",
 		"isomorphic-dompurify": "^1.9.0",
 		"lande": "^1.0.10",
 		"less-loader": "^8.0.0",
 		"lorem-ipsum": "^2.0.8",
 		"mathjs": "^12.2.0",
 		"matter-js": "^0.19.0",
+		"npm": "^10.8.0",
 		"obs-websocket-js": "^5.0.2",
 		"pinia": "^2.0.23",
 		"pixi.js": "^7.3.3",
@@ -95,6 +97,7 @@
 		"vue": "^3.3.9",
 		"vue-contenteditable": "^4.1.0",
 		"vue-country-flag-next": "^2.3.2",
+		"vue-draggable-plus": "^0.4.1",
 		"vue-facing-decorator": "^3.0.4",
 		"vue-i18n": "^9.2.2",
 		"vue-router": "^4.0.12",
@@ -103,7 +106,7 @@
 		"vue-tsc": "^2.0.5",
 		"vue3-carousel": "^0.2.9",
 		"vue3-marquee": "^4.1.0",
-		"vuedraggable": "^4.1.0",
-		"webpack-env": "^0.8.0"
+		"webpack-env": "^0.8.0",
+		"zhyswan-vuedraggable": "^4.1.3"
 	}
 }

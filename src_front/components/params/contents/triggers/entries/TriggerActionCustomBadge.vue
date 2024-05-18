@@ -1,13 +1,13 @@
 <template>
 	<div class="triggeractioncustombadge triggerActionForm">
 		<ParamItem :paramData="param_userSource" v-model="action.customBadgeUserSource" />
-		
+
 		<div class="card-item">
 			<div class="list" v-if="$store.users.customBadgeList.length > 0">
 				<CustomBadgeSelector noTooltip v-tooltip="$t('triggers.actions.customBadge.param_add_badgeBt')" />
 				<draggable
 				class="group"
-				v-model="$store.users.customBadgeList" 
+				v-model="$store.users.customBadgeList"
 				:group="{ name: 'badge', pull: 'clone', put: false }"
 				item-key="id"
 				ghost-class="ghost"
@@ -23,7 +23,7 @@
 			<div class="list" v-else>
 				<CustomBadgeSelector noTooltip v-tooltip="$t('triggers.actions.customBadge.param_add_badgeBt')" />
 			</div>
-		
+
 			<div class="targets">
 				<div class="col">
 					<div class="head">
@@ -47,7 +47,7 @@
 						</draggable>
 					</div>
 				</div>
-				
+
 				<div class="col">
 					<div class="head">
 						<Icon name="add" />
@@ -82,7 +82,7 @@ import CustomBadgeSelector from '@/components/user/CustomBadgeSelector.vue';
 import { COUNTER_EDIT_SOURCE_SENDER, COUNTER_VALUE_PLACEHOLDER_PREFIX, type ITriggerPlaceholder, type TriggerCustomBadgesData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
@@ -135,7 +135,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		if(!this.action.customBadgeAdd) this.action.customBadgeAdd = [];
 		if(!this.action.customBadgeDel) this.action.customBadgeDel = [];
 		if(!this.action.customBadgeUserSource) this.action.customBadgeUserSource = COUNTER_EDIT_SOURCE_SENDER;
-		
+
 		this.badgesAdd = this.action.customBadgeAdd.map(v=> {
 			return {id:v, img:this.$store.users.customBadgeList.find(w=>w.id === v)?.img || ""};
 		}).filter(v=>v.img != "");
@@ -152,7 +152,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			if(idDone[v.id] === true) list.splice(index, 1);
 			idDone[v.id] = true;
 		});
-		
+
 		//Avoid having a badge on both cols
 		let cleanup = this.badgesAdd;
 		if(list == this.badgesAdd) cleanup = this.badgesDel;

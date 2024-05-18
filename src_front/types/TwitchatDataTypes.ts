@@ -8,9 +8,9 @@ export namespace TwitchatDataTypes {
 
 	export type ChatPlatform = "twitchat"|"twitch"|"instagram"|"youtube"|"tiktok"|"facebook";
 
-	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
+	export type ModalTypes = "" | "search" | "gngngn" | "poll" | "chatsuggForm" | "chatsuggState" | "raffle" | "pred" | "bingo" | "bingo_grid" | "liveStreams" | "streamInfo" | "TTuserList" | "pins" | "timer" | "updates" | "triggersLogs" | "loginn" | "tracked" | "whispers" | "twitchatAnnouncement" | "streamSummary" | "obsHeatLogs" | "extensions" | "qnaForm" | "qna" | "credits" | "heatLogs";
 
-	export type NotificationTypes = "" | "raffle" | "bingo" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
+	export type NotificationTypes = "" | "raffle" | "bingo" | "bingo_grid" | "poll" | "prediction" | "save" | "highlight" | "shoutout" | "train" | "raid";
 
 	export type OverlayTypes = "timer" | "wheel" | "credits" | "chathighlight" | "music" | "counter" | "ulule" | "heatdebug" | "distort" | "unified" | "tts" | "adbreak" | "bitswall" | "predictions" | "polls";
 
@@ -638,6 +638,21 @@ export namespace TwitchatDataTypes {
 			image:TwitchatImage,
 		}|undefined};
 		winners?:TwitchatDataTypes.TwitchatUser[];
+	}
+
+	/**
+	 * Config for a bingo grid game
+	 */
+	export interface BingoGridConfig {
+		id:string;
+		title:string;
+		entries:{
+			id:string;
+			label:string;
+			lock:boolean;
+		}[];
+		cols:number;
+		rows:number;
 	}
 
 	/**
@@ -1833,18 +1848,19 @@ export namespace TwitchatDataTypes {
 	/**
 	 * Defines the pinnable menu items
 	 */
-	type PinId = "poll" | "prediction" | "raffle" | "bingo" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
+	type PinId = "poll" | "prediction" | "raffle" | "bingo" | "bingo_grid" | "qna" | "chatSugg" | "timer" | "streamInfo" | "extensions" | "clearChat" | "chatters" | "rewards";
 	export const PinnableMenuItems:{id:PinId, isModal:boolean, icon:string, modalId:TwitchatDataTypes.ModalTypes|"", modelValueName:string, labelKey:string}[] = [
-		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"", labelKey:"cmdmenu.poll"},
-		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"", labelKey:"cmdmenu.prediction"},
-		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"", labelKey:"cmdmenu.raffle"},
-		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"", labelKey:"cmdmenu.bingo"},
-		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"", labelKey:"cmdmenu.qna"},
-		{id:"chatSugg",		isModal:true,	icon:"chatPoll", 		modalId:"chatsuggForm",	modelValueName:"", labelKey:"cmdmenu.suggestions"},
-		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"", labelKey:"cmdmenu.timer"},
-		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"", labelKey:"cmdmenu.info"},
-		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"", labelKey:"cmdmenu.extensions"},
-		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"", labelKey:"cmdmenu.chat"},
+		{id:"poll",			isModal:true,	icon:"poll", 			modalId:"poll",			modelValueName:"",	 labelKey:"cmdmenu.poll"},
+		{id:"prediction",	isModal:true,	icon:"prediction", 		modalId:"pred",			modelValueName:"",	 labelKey:"cmdmenu.prediction"},
+		{id:"raffle",		isModal:true,	icon:"ticket", 			modalId:"raffle",		modelValueName:"",	 labelKey:"cmdmenu.raffle"},
+		{id:"bingo",		isModal:true,	icon:"bingo", 			modalId:"bingo",		modelValueName:"",	 labelKey:"cmdmenu.bingo"},
+		{id:"bingo_grid",	isModal:true,	icon:"bingo_grid", 		modalId:"bingo_grid",	modelValueName:"",	 labelKey:"cmdmenu.bingo_grid"},
+		{id:"qna",			isModal:true,	icon:"qna", 			modalId:"qnaForm",		modelValueName:"",	 labelKey:"cmdmenu.qna"},
+		{id:"chatSugg",		isModal:true,	icon:"chatPoll", 		modalId:"chatsuggForm",	modelValueName:"",	 labelKey:"cmdmenu.suggestions"},
+		{id:"timer",		isModal:true,	icon:"timer", 			modalId:"timer",		modelValueName:"",	 labelKey:"cmdmenu.timer"},
+		{id:"streamInfo",	isModal:true,	icon:"info", 			modalId:"streamInfo",	modelValueName:"",	 labelKey:"cmdmenu.info"},
+		{id:"extensions",	isModal:true,	icon:"extension", 		modalId:"extensions",	modelValueName:"",	 labelKey:"cmdmenu.extensions"},
+		{id:"clearChat",	isModal:false,	icon:"clearChat", 		modalId:"", 			modelValueName:"",	 labelKey:"cmdmenu.chat"},
 		{id:"chatters",		isModal:false,	icon:"user", 			modalId:"", 			modelValueName:"showChatUsers", labelKey:"cmdmenu.chatters"},
 		{id:"rewards",		isModal:false,	icon:"channelPoints", 	modalId:"", 			modelValueName:"showRewards", labelKey:"cmdmenu.rewards"},
 	];

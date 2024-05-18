@@ -7,10 +7,10 @@
 			:disabled="disabled">{{ $t("overlay.1click_install") }}</TTButton>
 
 			<span>{{$t("global.or")}}</span>
-			
+
 			<TTButton class="createBt" icon="edit" @click="showInput = true" small :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
 		</template>
-		
+
 		<template v-else-if="showSuccess">
 			<p class="card-item primary existing" v-if="isExistingSource" @click="isExistingSource=showSuccess=false">{{$t("overlay.install_success_exists")}}</p>
 			<p class="card-item primary success" v-else @click="showSuccess=false"><Icon name="checkmark" /> {{$t("overlay.install_success")}}</p>
@@ -164,13 +164,6 @@ export default toNative(OverlayInstaller);
 
 <style scoped lang="less">
 .overlayinstaller{
-	gap: 1em;
-	row-gap: .5em;
-	display: flex;
-	flex-direction: row;
-	align-items: center;
-	justify-content: center;
-	flex-wrap: wrap;
 	width: 100%;
 	.createBt {
 		display: flex;
@@ -239,6 +232,6 @@ export default toNative(OverlayInstaller);
 		user-select: none;
 		cursor: move;
 	}
-	
+
 }
 </style>

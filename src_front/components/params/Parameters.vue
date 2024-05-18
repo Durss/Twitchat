@@ -141,7 +141,7 @@ import ParamsTriggers from './contents/ParamsTriggers.vue';
 import ParamsTwitchatAd from './contents/ParamsTwitchatAd.vue';
 import ParamsValues from './contents/ParamsValues.vue';
 import ParamsVoiceBot from './contents/ParamsVoiceBot.vue';
-import draggable from 'vuedraggable';
+import draggable from 'zhyswan-vuedraggable';
 import DataStore from '@/store/DataStore';
 import Config from '@/utils/Config';
 

@@ -15,7 +15,6 @@ import type { Composer, VueI18n } from "vue-i18n";
 import type { Router } from "vue-router";
 import type { PollOverlayParamStoreData } from "./poll/storePoll";
 import type { PredictionOverlayParamStoreData } from "./prediction/storePrediction";
-import type { StreamelementsStoreData } from "./streamelements/storeStreamelements";
 import type { LumiaVoiceList } from "./lumia/storeLumia";
 
 /**
@@ -27,6 +26,7 @@ export default class StoreProxy {
 	public static auth:IAuthState & IAuthGetters & IAuthActions & {$state:IAuthState, $reset:()=>void};
 	public static automod:IAutomodState & IAutomodGetters & IAutomodActions & {$state:IAutomodState, $reset:()=>void};
 	public static bingo:IBingoState & IBingoGetters & IBingoActions & {$state:IBingoState, $reset:()=>void};
+	public static bingoGrid:IBingoGridState & IBingoGridGetters & IBingoGridActions & {$state:IBingoGridState, $reset:()=>void};
 	public static chat:IChatState & IChatGetters & IChatActions & {$state:IChatState, $reset:()=>void};
 	public static chatSuggestion:IChatSuggestionState & IChatSuggestionGetters & IChatSuggestionActions & {$state:IChatSuggestionState, $reset:()=>void};
 	public static emergency:IEmergencyState & IEmergencyGetters & IEmergencyActions & {$state:IEmergencyState, $reset:()=>void};
@@ -420,6 +420,39 @@ export interface IBingoActions {
 	 * @param message
 	 */
 	checkBingoWinner(message:TwitchatDataTypes.TranslatableMessage):void;
+}
+
+
+
+
+export interface IBingoGridState {
+	/**
+	 * Bingo grids created
+	 */
+	gridList:TwitchatDataTypes.BingoGridConfig[];
+}
+
+export interface IBingoGridGetters {
+}
+
+export interface IBingoGridActions {
+	/**
+	 * Populates store from DataStorage
+	 */
+	populateData():void;
+	/**
+	 * Create a new bingo grid
+	 * @param payload
+	 */
+	addGrid():TwitchatDataTypes.BingoGridConfig;
+	/**
+	 * Delete a bingo grid
+	 */
+	removeGrid(id:string):void;
+	/**
+	 * Saves data to server
+	 */
+	saveData():void;
 }
 
 

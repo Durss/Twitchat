@@ -1,0 +1,26 @@
+{
+	"bingo_grid": {
+		"form": {
+			"title":"Grilles de Bingo",
+			"closeBt_aria":"Fermer le formulaire",
+			"description":"Créez des grilles d'objectifs à réaliser. Parfait pour les streams react !",
+			"default_title":"Grille de bingo",
+			"install_title":"Installer l'overlay",
+			"add_bt":"Créer une nouvelle grille",
+			"lock_bt_tt":"Vérouiller cette case",
+			"shuffle_bt":"Mélanger les entrées",
+			"param_title":"Nom de la grille",
+			"param_cols":"Nombre de colonnes",
+			"param_rows":"Nombre de lignes",
+			"delete_confirm":{
+				"title":"Supprimer grille ?",
+				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
+			}
+		},
+		"state":{
+			"title":"Bingo",
+			"winner":"Winner",
+			"closeBt":"Close bingo"
+		}
+	}
+}

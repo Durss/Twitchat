@@ -60,6 +60,7 @@ import type { TwitchatDataTypes } from './types/TwitchatDataTypes';
 import Config from './utils/Config';
 import { storeLumia } from './store/lumia/storeLumia';
 import { storeTipeee } from './store/tipeee/storeTipeee';
+import { storeBingoGrid } from './store/bingo_grid/storeBingoGrid';
 
 setDefaultProps({
 	theme:"twitchat",
@@ -122,14 +123,14 @@ function buildApp() {
 		if(transparent) {
 			document.body.style.backgroundColor = "transparent";
 		}
-	
+
 		//If landing on homepage, redirect to chat if an auth token is available
 		const authToken = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 		if(authToken && to.name === "home") {
 			next({name:"chat"});
 			return;
 		}
-		
+
 		if (!sMain.initComplete) {
 			try {
 				await new Promise((resolve) => { sMain.startApp(needAuth, resolve); });
@@ -137,7 +138,7 @@ function buildApp() {
 				console.log(error);
 			}
 		}
-	
+
 		if (!sAuth.authenticated) {
 			//Not authenticated, reroute to login
 			if(needAuth && to.name != "login" && to.name != "logout" && to.name != "oauth") {
@@ -145,23 +146,23 @@ function buildApp() {
 				return;
 			}
 		}
-	
+
 		//Not admin, reroute to login
 		if(needAdmin && !StoreProxy.default.auth.isAdmin) {
 			next({name: 'home'});
 			return;
 		}
-	
+
 		next();
 	});
-	
+
 	/**
 	 * Include an image from the asset folder
 	 */
 	const image = (path:string):string => {
 		return new URL(`/src_front/assets/${path}`, import.meta.url).href;
 	}
-	
+
 	/**
 	 * Opens up a confirm window so the user can confirm or cancel an action.
 	 */
@@ -173,11 +174,11 @@ function buildApp() {
 		STTOrigin?:boolean): Promise<T|undefined> => {
 		return StoreProxy.default.main.confirm(title, description, data, yesLabel, noLabel, STTOrigin);
 	}
-	
+
 	/**
 	 * Gets an overlay's URL
 	 * @param id overlay ID
-	 * @returns 
+	 * @returns
 	 */
 	const overlayURL = (id:string, params?:{k:string, v:string}[]):string => {
 		const port = DataStore.get(DataStore.OBS_PORT);
@@ -196,7 +197,7 @@ function buildApp() {
 		if(suffix) suffix = "?" + suffix;
 		return document.location.origin + router.resolve({name:"overlay", params:{id}}).fullPath + suffix;
 	}
-	
+
 	/**
 	 * Global helper to place a dropdown list
 	 */
@@ -205,10 +206,10 @@ function buildApp() {
 		const popper = createPopper(component.$refs.toggle, dropdownList, { placement: "top" })
 		return () => popper.destroy()
 	}
-	
+
 	const app = createApp(App)
 	.use(pinia);
-	
+
 	//Init stores before instanciating the router because the
 	//router needs to access some stores
 	StoreProxy.default.router = router;
@@ -220,6 +221,7 @@ function buildApp() {
 	StoreProxy.default.auth = (storeAuth() as unknown) as StoreProxy.IAuthState & StoreProxy.IAuthGetters & StoreProxy.IAuthActions & { $state: StoreProxy.IAuthState; $reset:()=>void };
 	StoreProxy.default.automod = storeAutomod();
 	StoreProxy.default.bingo = storeBingo();
+	StoreProxy.default.bingoGrid = storeBingoGrid();
 	//Dirty typing. Couldn't figure out how to properly type pinia getters
 	StoreProxy.default.chat = (storeChat() as unknown) as StoreProxy.IChatState & StoreProxy.IChatGetters & StoreProxy.IChatActions & { $state: StoreProxy.IChatState; $reset:()=>void };
 	StoreProxy.default.chatSuggestion = storeChatSuggestion();
@@ -344,7 +346,7 @@ function buildApp() {
 	app.config.globalProperties.$overlayURL = overlayURL;
 	app.config.globalProperties.$placeDropdown = placeDropdown;
 	app.config.globalProperties.$store = StoreProxy.default;
-	
+
 	window.addEventListener("beforeinstallprompt", (e:Event)=> {
 		e.preventDefault();
 		StoreProxy.default.main.setAhsInstaller(e as TwitchatDataTypes.InstallHandler);
@@ -393,9 +395,9 @@ function buildApp() {
 						],
 		});
 	}
-	
+
 	app.mount('#app');
-	
+
 	document.addEventListener("keyup", (e:KeyboardEvent)=> {
 		//Given a Sentry error, a user apparently succeeded to have an
 		//"undefined" e.key value on an up to date Edge browser
@@ -406,7 +408,7 @@ function buildApp() {
 			StoreProxy.default.main.reloadLabels();
 			e.preventDefault();
 		}
-		
+
 		//Toggle light/dark mode on CTRL+Shift+K
 		if(e.key.toLowerCase() == "k" && e.ctrlKey && e.altKey) {
 			StoreProxy.default.main.toggleTheme();

@@ -25,6 +25,11 @@
 			<TTButton icon="pin" :primary="isPinned('bingo')" @click="onTogglePin('bingo')" />
 		</div>
 		<div class="menuItem">
+			<TTButton @click.capture="openModal('bingo_grid');"
+				icon="bingo_grid">{{$t('cmdmenu.bingo_grid')}}</TTButton>
+			<TTButton icon="pin" :primary="isPinned('bingo_grid')" @click="onTogglePin('bingo_grid')" />
+		</div>
+		<div class="menuItem">
 			<TTButton @click.capture="openModal('qnaForm');"
 				icon="qna"
 				v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'cmdhelper.qna'}">{{$t('cmdmenu.qna')}}</TTButton>
@@ -82,12 +87,12 @@
 			<TTButton aria-label="Start a 180s ad"	v-if="adCooldown == 0" small @click.capture="startAd(180);"	:disabled="!canStartCommercial">3'00</TTButton>
 			<div v-if="adCooldown > 0" class="card-item alert cooldown">{{$t('cmdmenu.commercial', {DURATION:adCooldownFormated})}}</div>
 		</div>
-		
+
 		<ParamItem class="roomParam" :paramData="param_followOnly"	@change="setFollowOnly()"	noBackground @click="requestRoomSettingsScopes()" />
 		<ParamItem class="roomParam" :paramData="param_subOnly"		@change="setSubOnly()"		noBackground @click="requestRoomSettingsScopes()" />
 		<ParamItem class="roomParam" :paramData="param_emotesOnly"	@change="setEmoteOnly()"	noBackground @click="requestRoomSettingsScopes()" />
 		<ParamItem class="roomParam" :paramData="param_slowMode"	@change="setSlowMode()"		noBackground @click="requestRoomSettingsScopes()" />
-		
+
 		<div class="card-item raid" v-if="$store.stream.currentRaid">
 			<div class="title">
 				<Icon name="raid" />
@@ -146,11 +151,11 @@ import DataStore from '@/store/DataStore';
 
 	@Prop()
 	public showRewards!:boolean;
-	
+
 	public raidUser:string = "";
 	public channelId:string = "";
 	public adCooldown:number = 0;
-	
+
 	public param_followOnly:TwitchatDataTypes.ParameterData<boolean>			= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 	public param_subOnly:TwitchatDataTypes.ParameterData<boolean|undefined>		= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
 	public param_emotesOnly:TwitchatDataTypes.ParameterData<boolean|undefined>	= { type:"boolean", value:false, twitch_scopes:[TwitchScopes.SET_ROOM_SETTINGS] };
@@ -166,7 +171,7 @@ import DataStore from '@/store/DataStore';
 	}
 
 	private clickHandler!:(e:MouseEvent) => void;
-	
+
 	public get adCooldownFormated():string { return Utils.formatDuration(this.adCooldown); }
 	public get hasChannelPoints():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get canEditStreamInfos():boolean { return TwitchUtils.hasScopes([TwitchScopes.SET_STREAM_INFOS]); }
@@ -304,7 +309,7 @@ import DataStore from '@/store/DataStore';
 		gsap.killTweensOf(ref);
 		gsap.from(ref, {duration:.1, translateX:"-115%", delay:.2, ease:"sine.out"});
 		gsap.fromTo(ref, {scaleX:1.1}, {duration:.5, delay:.3, scaleX:1, clearProps:"scaleX,translateX", ease:"elastic.out(1)"});
-		
+
 		// const elements = (this.$el as HTMLDivElement).childNodes;
 		// let delay = .2;
 		// elements.forEach(v=> {
@@ -357,7 +362,7 @@ import DataStore from '@/store/DataStore';
 		//This timeout avoids auto confirmation if submitting the form
 		//with enter key
 		await Utils.promisedTimeout(100);
-		
+
 		this.$confirm("Raid ?", "Are you sure you want to raid " + this.raidUser + " ?").then(async () => {
 			TwitchUtils.raidChannel(this.raidUser);
 			this.raidUser = "";
@@ -376,7 +381,7 @@ import DataStore from '@/store/DataStore';
 
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
-	
+
 	public setSubOnly():void {
 		if(this.ignoreUpdates) return;
 
@@ -385,7 +390,7 @@ import DataStore from '@/store/DataStore';
 
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
-	
+
 	public setEmoteOnly():void {
 		if(this.ignoreUpdates) return;
 
@@ -394,7 +399,7 @@ import DataStore from '@/store/DataStore';
 
 		TwitchUtils.setRoomSettings(StoreProxy.auth.twitch.user.id, settings);
 	}
-	
+
 	public setSlowMode():void {
 		if(this.ignoreUpdates) return;
 
