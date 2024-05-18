@@ -1,5 +1,5 @@
 <template>
-	<div class="checkbox">
+	<div :class="classes">
 		<div class="checkmark">
 			<Icon v-if="checked" class="icon" name="checkmark"/>
 		</div>
@@ -18,19 +18,22 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 })
  class Checkbox extends Vue {
 
-	public checked:boolean = false;
-
-	@Prop({type:Boolean, default: false})
-	public white!:boolean;
-
-	@Prop({type:Boolean, default: false})
-	public highlight!:boolean;
-
 	@Prop({default: false})
 	public modelValue!:unknown;
 
 	@Prop({type:Array, default: [true, false]})
 	public values!:unknown[];
+
+	@Prop({type:Boolean, default: false})
+	public secondary!:boolean;
+
+	public checked:boolean = false;
+
+	public get classes():string[] {
+		const res:string[] = ["checkbox"];
+		if(this.secondary !== false) res.push("secondary")
+		return res;
+	}
 
 	public mounted():void {
 		this.checked = this.modelValue === true;
@@ -70,7 +73,7 @@ export default toNative(Checkbox);
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		picture {
+		.icon {
 			width: 80%;
 			margin: 0;
 			padding: 0;
@@ -87,7 +90,6 @@ export default toNative(Checkbox);
 	}
 
 	&:hover {
-		background: none;
 		.checkmark {
 			background-color: var(--background-color-fader)
 		}
@@ -106,6 +108,21 @@ export default toNative(Checkbox);
 		top: -@gap;
 		z-index: 1000;
 		cursor: pointer;
+	}
+
+	&.secondary{
+		.checkmark {
+			border-color: var(--color-secondary);
+			.icon {
+				color: var(--color-secondary);
+			}
+		}
+
+		&:hover {
+			.checkmark {
+				background-color: var(--color-secondary-fader);
+			}
+		}
 	}
 }
 </style>
