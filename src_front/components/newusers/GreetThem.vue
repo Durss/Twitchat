@@ -88,7 +88,7 @@ import Config from '@/utils/Config';
 
 	private mouseUpHandler!:(e:MouseEvent|TouchEvent)=> void;
 	private mouseMoveHandler!:(e:MouseEvent|TouchEvent)=> void;
-	private publicApiEventHandler!:(e:TwitchatEvent)=> void;
+	private publicApiEventHandler!:(e:TwitchatEvent<{count?:number}>)=> void;
 	private deleteMessageHandler!:(e:GlobalEvent)=> void;
 	private addMessageHandler!:(e:GlobalEvent)=> void;
 
@@ -162,7 +162,7 @@ import Config from '@/utils/Config';
 		// 	console.log("update");
 		// }, {deep:true})
 
-		this.publicApiEventHandler = (e:TwitchatEvent) => this.onPublicApiEvent(e);
+		this.publicApiEventHandler = (e) => this.onPublicApiEvent(e);
 		this.mouseUpHandler = () => this.resizing = false;
 		this.mouseMoveHandler = (e:MouseEvent|TouchEvent) => this.onMouseMove(e);
 		this.deleteMessageHandler = (e:GlobalEvent) => this.onDeleteMessage(e);

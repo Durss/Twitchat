@@ -655,6 +655,8 @@ export namespace TwitchatDataTypes {
 		}[];
 		cols:number;
 		rows:number;
+		textColor:string;
+		textSize:number;
 	}
 
 	/**

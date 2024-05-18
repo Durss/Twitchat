@@ -606,10 +606,11 @@ export const storeMain = defineStore("main", {
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
 				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid) as unknown as JsonObject;
-				console.log("Request bingo", e);
-				console.log(bingo);
 				if(bingo) {
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, bingo);
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo});
+				}else{
+					//Tell the overlay requested bingo couldn't be found
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:null});
 				}
 			});
 

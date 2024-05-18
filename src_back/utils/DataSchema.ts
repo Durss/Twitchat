@@ -1564,6 +1564,8 @@ import Ajv from "ajv";
 							id: {type:"string", maxLength:40},
 							enabled: {type:"boolean"},
 							title: {type:"string", maxLength:40},
+							textColor: {type:"string", maxLength:10},
+							textSize: {type:"number", minimum:1, maximum:100},
 							cols:{type:"number", minimum:2, maximum:10},
 							rows:{type:"number", minimum:2, maximum:10},
 							entries: {
@@ -1576,6 +1578,7 @@ import Ajv from "ajv";
 									properties: {
 										id: {type:"string", maxLength:40},
 										lock: {type:"boolean"},
+										check: {type:"boolean"},
 										label: {type:"string", maxLength:60},
 									}
 								}

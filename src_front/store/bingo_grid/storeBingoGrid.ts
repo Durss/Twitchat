@@ -6,11 +6,13 @@ import Utils from '@/utils/Utils';
 import DataStore from '../DataStore';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import type { JsonObject } from 'type-fest';
+
+let overlayCheckInterval = -1;
 
 export const storeBingoGrid = defineStore('bingoGrid', {
 	state: () => ({
 		gridList: [] as TwitchatDataTypes.BingoGridConfig[],
+		availableOverlayList: [],
 	} as IBingoGridState),
 
 
@@ -32,13 +34,35 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const data = JSON.parse(json) as IStoreData;
 				this.gridList = data.gridList || [];
 			}
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, (event:TwitchatEvent<{bid:string}>)=>{
+				const id = event.data!.bid;
+				const ref = this.gridList.find(v => v.id == id);
+				//Check if bingo exists
+				if(!ref) return;
+
+				//Add overlay to the list if not already done
+				if(this.availableOverlayList.findIndex(v => v.id == id) === -1) {
+					this.availableOverlayList.push(ref);
+				}
+
+				//Schedule removal of the overlay.
+				//Will be reset before the timeout expires if the overlay
+				//still exists
+				clearTimeout(overlayCheckInterval);
+				overlayCheckInterval = setTimeout(()=>{
+					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != id);
+				}, 25000);
+			});
 		},
 
 		addGrid():TwitchatDataTypes.BingoGridConfig {
 			const data:TwitchatDataTypes.BingoGridConfig = {
 				id:Utils.getUUID(),
 				title:"",
+				textColor:"#000000",
 				enabled:true,
+				textSize:20,
 				cols:5,
 				rows:5,
 				entries:[],
@@ -65,8 +89,39 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}).catch(()=>{})
 		},
 
+		shuffleGrid(id:string):void {
+			const grid = this.gridList.find(g => g.id === id);
+			if(!grid) return;
+			const entries = grid.entries;
+			for (let i = entries.length - 1; i > 0; i--) {
+				const j = Math.floor(Math.random() * (i + 1));
+				if(entries[i].lock || entries[j].lock) continue;
+				[entries[i], entries[j]] = [entries[j], entries[i]];
+			}
+			this.saveData(id)
+		},
+
+		resetLabels(id:string):void {
+			const grid = this.gridList.find(g => g.id === id);
+			if(!grid) return;
+			const entries = grid.entries;
+			for (let i = 0; i < entries.length; i++) {
+				if(entries[i].lock) continue;
+				entries[i].label = "";
+			}
+			this.saveData(id)
+		},
+
+		resetCheckStates(id:string):void {
+			const grid = this.gridList.find(g => g.id === id);
+			if(!grid) return;
+			grid.entries.forEach(entry => entry.check = false);
+			this.saveData(id)
+		},
+
 		duplicateGrid(id:string):void {
-			const [source] = this.gridList.filter(g => g.id === id);
+			const source = this.gridList.find(g => g.id === id);
+			if(!source) return;
 			const target = this.addGrid();
 			target.title = source.title;
 			target.cols = source.cols;
@@ -82,7 +137,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		saveData(gridId:string):void {
+		async saveData(gridId:string):Promise<void> {
 			const data:IStoreData = {
 				gridList:this.gridList,
 			};
@@ -90,8 +145,17 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 			const [grid] = this.gridList.filter(g => g.id === gridId);
 			const count = grid.cols*grid.rows;
+			//TODO
+			// if(count < grid.entries.length) {
+			// 	try {
+			// 		await StoreProxy.main.confirm("Réduire?", "Vous allez perdre des entrées !");
+			// 	}catch(error){
+			// 		return;
+			// 	}
+			// }
 			//Remove useless items
 			grid.entries = grid.entries.splice(0, count);
+
 			//Add missing items
 			while(grid.entries.length < count) {
 				grid.entries.push({
@@ -101,7 +165,14 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					check:false,
 				})
 			}
-			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {bingo:grid} as unknown as JsonObject);
+
+			//Replace all spaces (but line breaks) with a normal space.
+			//Necessary because contenteditable sometimes adds non-breakable
+			//spaces in place of normal spaces.
+			grid.entries.forEach(entry => {
+				entry.label = entry.label.replace(/[^\S\r\n]/g, " ");
+			})
+			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid});
 		},
 	} as IBingoGridActions
 	& ThisType<IBingoGridActions

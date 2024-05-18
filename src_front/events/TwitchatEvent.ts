@@ -80,6 +80,7 @@ export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> exten
 	public static POLLS_OVERLAY_PRESENCE:TwitchatEventType = "POLLS_OVERLAY_PRESENCE";
 	public static POLLS_OVERLAY_PARAMETERS:TwitchatEventType = "POLLS_OVERLAY_PARAMETERS";
 	public static BINGO_GRID_PARAMETERS:TwitchatEventType = "BINGO_GRID_PARAMETERS";
+	public static BINGO_GRID_OVERLAY_PRESENCE:TwitchatEventType = "BINGO_GRID_OVERLAY_PRESENCE";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -235,6 +236,7 @@ export const TwitchatEventTypeList = [
 	"POLLS_OVERLAY_PRESENCE",
 	"POLLS_OVERLAY_PARAMETERS",
 	"BINGO_GRID_PARAMETERS",
+	"BINGO_GRID_OVERLAY_PRESENCE",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 

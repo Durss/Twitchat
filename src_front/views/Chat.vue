@@ -86,6 +86,7 @@
 				v-model:showShoutout="showShoutout" @update:showShoutout="(v:boolean) => showShoutout = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
+				v-model:showBingoGrid="showBingoGrid" @update:showBingoGrid="(v:boolean) => showBingoGrid = v"
 			/>
 		</div>
 
@@ -122,6 +123,10 @@
 		<EndingCreditsControls class="contentWindows credits"
 			v-if="showCredits"
 			@close="showCredits = false" />
+
+		<BingoGridControls class="contentWindows bingoGrid"
+			v-if="showBingoGrid"
+			@close="showBingoGrid = false" />
 
 		<Parameters v-if="buildIndex >= 5 + $store.params.chatColumnsConfig.length" />
 
@@ -201,6 +206,7 @@ import Login from './Login.vue';
 import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
+import BingoGridControls from '@/components/chatform/BingoGridControls.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 
 @Component({
@@ -244,6 +250,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		VoiceTranscript,
 		ChatAlertMessage,
 		NonPremiumCleanup,
+		BingoGridControls,
 		ChatSuggestionForm,
 		ChatSuggestionState,
 		TwitchatAnnouncement,
@@ -263,6 +270,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	public voiceControl = true;
 	public showCommands = false;
 	public showShoutout = false;
+	public showBingoGrid = false;
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;

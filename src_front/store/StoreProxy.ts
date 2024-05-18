@@ -430,6 +430,10 @@ export interface IBingoGridState {
 	 * Bingo grids created
 	 */
 	gridList:TwitchatDataTypes.BingoGridConfig[];
+	/**
+	 * List of bingo grid overlays available.
+	 */
+	availableOverlayList:TwitchatDataTypes.BingoGridConfig[];
 }
 
 export interface IBingoGridGetters {
@@ -450,6 +454,21 @@ export interface IBingoGridActions {
 	 */
 	removeGrid(id:string):void;
 	/**
+	 * Shuffle given grid entries
+	 * @param id
+	 */
+	shuffleGrid(id:string):void;
+	/**
+	 * Resets given grid entries label
+	 * @param id
+	 */
+	resetLabels(id:string):void;
+	/**
+	 * Resets given grid entries check states
+	 * @param id
+	 */
+	resetCheckStates(id:string):void;
+	/**
 	 * Duplicates given grid
 	 * @param id
 	 */
@@ -458,7 +477,7 @@ export interface IBingoGridActions {
 	 * Saves data to server
 	 * @param edited grid ID. This will broadcast update to overlay
 	 */
-	saveData(gridId:string):void;
+	saveData(gridId:string):Promise<void>
 }
 
 

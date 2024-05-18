@@ -42,22 +42,19 @@
 							<span>{{ $t("bingo_grid.form.param_size") }}</span>
 						</label>
 						<div class="forms">
-							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo)" noBackground />
-							<Icon name="cross"/>
 							<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo)" noBackground />
+							<Icon name="cross"/>
+							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo)" noBackground />
 						</div>
 					</div>
+
+					<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
+
+					<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
 
 					<VueDraggable
 					class="card-item entryList"
 					v-model="bingo.entries"
-					:group="'bingoGridEntries_'+bingo.id"
-					item-key="id"
-					tag="transition-group"
-					:component-data="{
-						tag: 'div',
-						name: !isDragging ? 'flip-list' : null
-					}"
 					filter=".locked"
 					@start="onSortStart(bingo)"
 					@end="onSortEnd(bingo)"
@@ -87,8 +84,8 @@
 						</TransitionGroup>
 
 						<div class="ctas">
-							<TTButton @click="shuffleEntries(bingo)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
-							<TTButton @click="resetEntries(bingo)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
+							<TTButton @click="$store.bingoGrid.shuffleGrid(bingo.id)" icon="dice">{{ $t("bingo_grid.form.shuffle_bt") }}</TTButton>
+							<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
 						</div>
 					</VueDraggable>
 				</div>
@@ -100,19 +97,17 @@
 <script lang="ts">
 import { type TriggerActionBingoGridData, type TriggerData } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
+import contenteditable from 'vue-contenteditable';
+import { VueDraggable } from 'vue-draggable-plus';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
+import ClearButton from '../ClearButton.vue';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
+import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
-import contenteditable from 'vue-contenteditable';
-import { VueDraggable } from 'vue-draggable-plus'
-import ClearButton from '../ClearButton.vue';
-import Utils from '@/utils/Utils';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import { watch } from 'vue';
-import ToggleButton from '../ToggleButton.vue';
 
 @Component({
 	components:{
@@ -143,6 +138,8 @@ import ToggleButton from '../ToggleButton.vue';
 
 	public param_cols:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_rows:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -193,31 +190,6 @@ import ToggleButton from '../ToggleButton.vue';
 	}
 
 	/**
-	 * Shuffle current entries
-	 */
-	public shuffleEntries(grid:TwitchatDataTypes.BingoGridConfig):void {
-		const entries = grid.entries;
-		for (let i = entries.length - 1; i > 0; i--) {
-			const j = Math.floor(Math.random() * (i + 1));
-			if(entries[i].lock || entries[j].lock) continue;
-			[entries[i], entries[j]] = [entries[j], entries[i]];
-		}
-		this.save(grid);
-	}
-
-	/**
-	 * Reset current entries
-	 */
-	public resetEntries(grid:TwitchatDataTypes.BingoGridConfig):void {
-		const entries = grid.entries;
-		for (let i = 0; i < entries.length; i++) {
-			if(entries[i].lock) continue;
-			entries[i].label = "";
-		}
-		this.save(grid);
-	}
-
-	/**
 	 * Limit the size of the label.
 	 * Can't use maxLength because it's a content-editable tag.
 	 * @param item
@@ -235,7 +207,10 @@ import ToggleButton from '../ToggleButton.vue';
 			await this.$nextTick();
 
 			//Reset caret to previous position
-			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(entry.label.length, caretIndex-1));
+			// if(range.endContainer instanceof HTMLElement) {
+			// 	range.endContainer.innerText
+			// }
+			if(caretIndex > 0 && range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(entry.label.length-1, caretIndex-1));
 		}else{
 			entry.label = entry.label.substring(0, maxLength);
 		}
@@ -289,6 +264,8 @@ import ToggleButton from '../ToggleButton.vue';
 			if(this.param_cols[id]) return;
 			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
 			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
+			this.param_textSize[id] = {type:"number", value:20, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
+			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
 		});
 	}
 }
@@ -386,7 +363,6 @@ export default toNative(BingoGridForm);
 		width: 100%;
 		align-items: center;
 	}
-
 
 	.flip-list-move {
 		transition: transform .25s;

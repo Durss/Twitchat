@@ -12,15 +12,18 @@
 			"reset_bt":"Réinitialiser la grille",
 			"param_title":"Nom de la grille",
 			"param_size":"Taille de la grille",
+			"param_text_color":"Couleur du texte",
+			"param_text_size":"Taille du texte",
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
 			}
 		},
 		"state":{
-			"title":"Bingo",
-			"winner":"Winner",
-			"closeBt":"Close bingo"
+			"reset_bt":"Tout décocher"
+		},
+		"overlay":{
+			"bingo_not_found":"La grille de bingo demandée n'existe pas."
 		}
 	}
 }

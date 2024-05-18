@@ -50,6 +50,7 @@
 			"reply_to": "Réponse à {USER} :",
 			"spotify_down": "L'API Spotify est cassée.\nL'overlay et les triggers Spotify ne pourront fonctionner tant qu'ils ne l'auront pas réparée.",
 			"creditsBt_aria": "Générique de fin",
+			"bingoGridBt_aria": "Grilles de bingo",
 			"qnaBt_aria": "FAQ",
 			"trainBt_aria": "Train de la hype",
 			"raidBt_aria": "Raiding",

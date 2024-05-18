@@ -226,6 +226,15 @@
 				</transition>
 
 				<transition name="blink">
+					<ButtonNotification class="bingoGrid"
+						icon="bingo_grid"
+						v-if="$store.bingoGrid.availableOverlayList.length > 0"
+						:aria-label="$t('chat.form.bingoGridBt_aria')"
+						v-tooltip="$t('chat.form.bingoGridBt_aria')"
+						@click="$emit('update:showBingoGrid', true)" />
+				</transition>
+
+				<transition name="blink">
 					<ButtonNotification class="voice"
 						:icon="voiceBotStarted? 'microphone_recording' : 'microphone_mute'"
 						v-if="voiceBotConfigured"
@@ -366,6 +375,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		"update:showShoutout",
 		"setCurrentNotification",
 		"update:showCredits",
+		"update:showBingoGrid",
 	],
 })
 export class ChatForm extends Vue {
@@ -396,7 +406,7 @@ export class ChatForm extends Vue {
 	public announcement:TwitchatDataTypes.TwitchatAnnouncementData | null = null;
 
 	private announcementInterval:number = -1;
-	private overlayPresenceHandlerTimoute:number = -1;
+	private creditsOverlayPresenceHandlerTimeout:number = -1;
 	private updateTrackedUserListHandler!:(e:GlobalEvent)=>void;
 	private creditsOverlayPresenceHandler!:(e:TwitchatEvent)=>void;
 
@@ -1061,12 +1071,12 @@ export class ChatForm extends Vue {
 	}
 
 	/**
-	 * Called when updating the tracking state of a user
+	 * Called when ending credits overlay is detected
 	 */
 	private onCreditsOverlayPresence():void {
 		this.creditsOverlayRunning = true;
-		clearTimeout(this.overlayPresenceHandlerTimoute);
-		this.overlayPresenceHandlerTimoute = setTimeout(()=>{
+		clearTimeout(this.creditsOverlayPresenceHandlerTimeout);
+		this.creditsOverlayPresenceHandlerTimeout = setTimeout(()=>{
 			this.creditsOverlayRunning = false;
 		}, 25000);
 	}
