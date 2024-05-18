@@ -2,9 +2,9 @@ import type { JsonObject, JsonArray, JsonValue } from 'type-fest';
 import { Event } from './EventDispatcher';
 
 /**
-* Created : 14/04/2022 
+* Created : 14/04/2022
 */
-export default class TwitchatEvent extends Event {
+export default class TwitchatEvent<T = JsonObject | JsonArray | JsonValue> extends Event {
 	public static TWITCHAT_READY:TwitchatEventType = "TWITCHAT_READY";
 	public static CUSTOM_OBS_WS_EVENT:TwitchatEventType = "CustomEvent";
 	public static OBS_WEBSOCKET_CONNECTED:TwitchatEventType = "OBS_WEBSOCKET_CONNECTED";
@@ -79,6 +79,7 @@ export default class TwitchatEvent extends Event {
 	public static PREDICTIONS_OVERLAY_PARAMETERS:TwitchatEventType = "PREDICTIONS_OVERLAY_PARAMETERS";
 	public static POLLS_OVERLAY_PRESENCE:TwitchatEventType = "POLLS_OVERLAY_PRESENCE";
 	public static POLLS_OVERLAY_PARAMETERS:TwitchatEventType = "POLLS_OVERLAY_PARAMETERS";
+	public static BINGO_GRID_PARAMETERS:TwitchatEventType = "BINGO_GRID_PARAMETERS";
 
 	//Actions
 	public static GREET_FEED_READ:TwitchatActionType = "GREET_FEED_READ";
@@ -144,7 +145,7 @@ export default class TwitchatEvent extends Event {
 	public static STOP_PREDICTION:TwitchatActionType = "STOP_PREDICTION";
 	public static CREATE_RAFFLE:TwitchatActionType = "CREATE_RAFFLE";
 	public static STOP_RAFFLE:TwitchatActionType = "STOP_RAFFLE";
-	public static GET_SUMMARY_DATA:TwitchatActionType = "GET_SUMMARY_DATA";	
+	public static GET_SUMMARY_DATA:TwitchatActionType = "GET_SUMMARY_DATA";
 	public static GET_AD_BREAK_OVERLAY_PRESENCE:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PRESENCE";
 	public static GET_AD_BREAK_OVERLAY_PARAMETERS:TwitchatActionType = "GET_AD_BREAK_OVERLAY_PARAMETERS";
 	public static GET_DISTORT_OVERLAY_PARAMETERS:TwitchatActionType = "GET_DISTORT_OVERLAY_PARAMETERS";
@@ -154,8 +155,9 @@ export default class TwitchatEvent extends Event {
 	public static GET_PREDICTIONS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_PREDICTIONS_OVERLAY_PARAMETERS";
 	public static GET_POLLS_OVERLAY_PRESENCE:TwitchatActionType = "GET_POLLS_OVERLAY_PRESENCE";
 	public static GET_POLLS_OVERLAY_PARAMETERS:TwitchatActionType = "GET_POLLS_OVERLAY_PARAMETERS";
+	public static GET_BINGO_GRID_PARAMETERS:TwitchatActionType = "GET_BINGO_GRID_PARAMETERS";
 
-	constructor(type:TwitchatActionType|TwitchatEventType, public data?:JsonObject | JsonArray | JsonValue) {
+	constructor(type:TwitchatActionType|TwitchatEventType, public data?:T) {
 		super(type);
 	}
 }
@@ -232,6 +234,7 @@ export const TwitchatEventTypeList = [
 	"PREDICTIONS_OVERLAY_PARAMETERS",
 	"POLLS_OVERLAY_PRESENCE",
 	"POLLS_OVERLAY_PARAMETERS",
+	"BINGO_GRID_PARAMETERS",
 ] as const;
 export type TwitchatEventType = typeof TwitchatEventTypeList[number];
 
@@ -309,5 +312,6 @@ export const TwitchatActionTypeList = [
 	"GET_PREDICTIONS_OVERLAY_PARAMETERS",
 	"GET_POLLS_OVERLAY_PRESENCE",
 	"GET_POLLS_OVERLAY_PARAMETERS",
+	"GET_BINGO_GRID_PARAMETERS",
 ] as const;
 export type TwitchatActionType = typeof TwitchatActionTypeList[number];

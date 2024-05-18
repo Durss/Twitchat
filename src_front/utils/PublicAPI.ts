@@ -6,7 +6,7 @@ import OBSWebsocket from "./OBSWebsocket";
 import Utils from "./Utils";
 
 /**
-* Created : 14/04/2022 
+* Created : 14/04/2022
 */
 export default class PublicAPI extends EventDispatcher {
 
@@ -14,11 +14,11 @@ export default class PublicAPI extends EventDispatcher {
 
 	private _bc!:BroadcastChannel;
 	private _idsDone:{[key:string]:boolean} = {};
-	
+
 	constructor() {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -33,8 +33,8 @@ export default class PublicAPI extends EventDispatcher {
 		return PublicAPI._instance;
 	}
 
-	
-	
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -42,44 +42,41 @@ export default class PublicAPI extends EventDispatcher {
 	 * Initializes the public API
 	 */
 	public async initialize(isMainApp:boolean):Promise<void> {
-		
+
 		if(typeof BroadcastChannel != "undefined") {
 			this._bc = new BroadcastChannel("twitchat");
-	
+
 			//If receiving data from another browser tab, broadcast it
-			this._bc.onmessage = (e: MessageEvent<unknown>):void => {
+			this._bc.onmessage = (e: MessageEvent<IEnvelope>):void => {
 				this.onMessage(e.data);
 			}
 		}
-		
+
 		//Broadcast twitchat ready state
 		if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
-		
+
 		await this.listenOBS(isMainApp);
 	}
 
 	/**
 	 * Broadcast a message
-	 * 
-	 * @param type 
-	 * @param data 
+	 *
+	 * @param type
+	 * @param data
 	 */
-	public async broadcast(type:TwitchatEventType|TwitchatActionType, data?:JsonObject, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
+	public async broadcast<T extends JsonObject>(type:TwitchatEventType|TwitchatActionType, data?:T, broadcastToSelf:boolean = false, onlyLocal:boolean = false):Promise<void> {
 		// console.log("Broadcasting", type, data);
-		if(!data) data = {};
-		data = JSON.parse(JSON.stringify(data)) as JsonObject;
-		data.id = Utils.getUUID();
-		if(!broadcastToSelf) this._idsDone[data.id] = true;//Avoid receiving self-broadcast events
+		const eventId = Utils.getUUID();
+		if(!broadcastToSelf) this._idsDone[eventId] = true;//Avoid receiving self-broadcast events
+
+		let dataClone:JsonObject | undefined = undefined;
+		if(data) dataClone = JSON.parse(JSON.stringify(data));
 
 		//Broadcast to other browser's tabs
 		try {
-			if(data) {
-				data = JSON.parse(JSON.stringify(data)) as JsonObject;
-				if(!data.id) data.id = Utils.getUUID();
-				if(!broadcastToSelf) this._idsDone[data.id as string] = true;//Avoid receiving self-broadcast events
+			if(this._bc) {
+				this._bc.postMessage({type, id:eventId, data:dataClone});
 			}
-
-			if(this._bc) this._bc.postMessage({type, data});
 		}catch(error) {
 			console.error(error);
 		}
@@ -87,15 +84,15 @@ export default class PublicAPI extends EventDispatcher {
 		if(!OBSWebsocket.instance.connected || onlyLocal) {
 			//OBS not connected and asked to broadcast to self, just
 			//broadcast to self right away
-			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, data));
+			if(broadcastToSelf) this.dispatchEvent(new TwitchatEvent(type, dataClone));
 		}else{
 			//Broadcast to any OBS Websocket connected client
-			OBSWebsocket.instance.broadcast(type, data);
+			OBSWebsocket.instance.broadcast(type, eventId, dataClone);
 		}
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -113,8 +110,10 @@ export default class PublicAPI extends EventDispatcher {
 				resolve();
 			}
 
-			OBSWebsocket.instance.addEventListener("CustomEvent", (event:TwitchatEvent) => {
-				this.onMessage(event.data, true);
+			OBSWebsocket.instance.addEventListener("CustomEvent", (event:TwitchatEvent<IEnvelope>) => {
+				if(event.data) {
+					this.onMessage(event.data, true);
+				}
 			});
 		});
 	}
@@ -122,20 +121,24 @@ export default class PublicAPI extends EventDispatcher {
 	/**
 	 * Called when receiving a message either from OBS os BroadcastChannel
 	 * @param event
-	 * @param checkOrigin 
-	 * @returns 
+	 * @param checkOrigin
+	 * @returns
 	 */
-	private onMessage(event:unknown, checkOrigin:boolean = false):void {
-		const typedEvent = event as {origin:"twitchat", type:TwitchatActionType, data:JsonObject | JsonArray | JsonValue}
+	private onMessage(event:IEnvelope, checkOrigin:boolean = false):void {
+		if(checkOrigin && event.origin != "twitchat") return;
+		if(event.type == undefined) return;
 
-		if(checkOrigin && typedEvent.origin != "twitchat") return;
-		if(typedEvent.type == undefined) return;
-
-		const data = typedEvent.data as {id:string};
-		if(data.id){
-			if(this._idsDone[data.id] === true) return;
-			this._idsDone[data.id] = true;
+		if(event.id){
+			if(this._idsDone[event.id] === true) return;
+			this._idsDone[event.id] = true;
 		}
-		this.dispatchEvent(new TwitchatEvent(typedEvent.type, typedEvent.data));
+		this.dispatchEvent(new TwitchatEvent(event.type, event.data));
 	}
+}
+
+interface IEnvelope<T extends JsonObject | undefined = undefined> {
+	origin:"twitchat";
+	id:string;
+	type:TwitchatActionType;
+	data?:T
 }
