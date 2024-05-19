@@ -125,6 +125,7 @@ export default class PublicAPI extends EventDispatcher {
 	 * @returns
 	 */
 	private onMessage(event:IEnvelope, checkOrigin:boolean = false):void {
+		// console.log("On message", event);
 		if(checkOrigin && event.origin != "twitchat") return;
 		if(event.type == undefined) return;
 

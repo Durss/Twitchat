@@ -104,7 +104,7 @@
 									</template>
 								</i18n-t>
 							</div>
-							<ToggleBlock :icons="['lock']" :title="$t('global.allowed_users')" small :open="false">
+							<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
 								<PermissionsForm v-model="bingo.chatCmdPermissions"></PermissionsForm>
 							</ToggleBlock>
 						</div>
@@ -116,7 +116,10 @@
 								<Icon name="info" />
 								<span>{{ $t("bingo_grid.form.heat_usage") }}</span>
 							</div>
-							<ToggleBlock :icons="['lock']" :title="$t('global.allowed_users')" small :open="false">
+
+							<TTButton class="heatButton" icon="heat" @click="openHeatParams()" secondary small>{{ $t("overlay.heatDistort.install_heat_link") }}</TTButton>
+
+							<ToggleBlock :icons="['lock_fit']" :title="$t('global.allowed_users')" small :open="false">
 								<PermissionsForm v-model="bingo.heatClickPermissions"></PermissionsForm>
 							</ToggleBlock>
 						</div>
@@ -129,7 +132,7 @@
 
 <script lang="ts">
 import { type TriggerActionBingoGridData, type TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import contenteditable from 'vue-contenteditable';
 import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
@@ -297,6 +300,13 @@ import PermissionsForm from '../PermissionsForm.vue';
 	}
 
 	/**
+	 * Open heat params
+	 */
+	public openHeatParams():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.HEAT);
+	}
+
+	/**
 	 * Create parameters for a bingo entry
 	 * @param id
 	 */
@@ -457,6 +467,10 @@ export default toNative(BingoGridForm);
 		:deep(.inputHolder) {
 			flex-basis: 200px;
 		}
+	}
+
+	.heatButton {
+		margin: auto;
 	}
 }
 </style>

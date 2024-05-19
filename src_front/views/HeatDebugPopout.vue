@@ -3,11 +3,13 @@
 		<div ref="area" class="area" @click="onClickArea" @contextmenu="onClickArea" @mousemove="mouseMoveHandler">
 			<div class="cursor" ref="cursor"></div>
 		</div>
+
 		<div v-for="click in clicks" class="click" :style="getClickStyles(click)" :key="click.id"></div>
-			<div class="ctas">
-				<button class="fsBt" @click="goFullscreen()" v-tooltip="$t('heat.debug.popout')" v-if="!isPopout"><img src="@/assets/icons/newtab.svg" alt=""></button>
-				<button class="cacheBt" @click="clearOBSCache()" v-tooltip="$t('heat.debug.obs')" v-if="obsConnected"><img src="@/assets/icons/obs.svg" alt=""></button>
-			</div>
+
+		<div class="ctas">
+			<button class="fsBt" @click="goFullscreen()" v-tooltip="$t('heat.debug.popout')" v-if="!isPopout"><img src="@/assets/icons/newtab.svg" alt=""></button>
+			<button class="cacheBt" @click="clearOBSCache()" v-tooltip="$t('heat.debug.obs')" v-if="obsConnected"><img src="@/assets/icons/obs.svg" alt=""></button>
+		</div>
 	</div>
 </template>
 
@@ -99,7 +101,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public goFullscreen():void {
 		let params = `scrollbars=no,resizable=yes,status=no,location=no,toolbar=no,directories=no,menubar=no,width=1080,height=800,left=600,top=100`;
 		const url = new URL(document.location.origin + this.$router.resolve({name:"heatDebug"}).href);
-		
+
 		const port = DataStore.get(DataStore.OBS_PORT);
 		const pass = DataStore.get(DataStore.OBS_PASS);
 		const ip = DataStore.get(DataStore.OBS_IP);
@@ -119,7 +121,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 	/**
 	 * Show a debug field on CTRL+ALT+D
-	 * @param e 
+	 * @param e
 	 */
 	private onKeyUp(e:KeyboardEvent):void {
 		clearInterval(this.debugInterval);
@@ -171,7 +173,7 @@ export default toNative(HeatDebugPopout);
 	width: 100%;
 	aspect-ratio: 16/9;
 	background-color: var(--color-text-inverse);
-	
+
 	.area {
 		cursor: none;
 		position: absolute;

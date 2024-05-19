@@ -6,6 +6,7 @@
 				<div v-for="entry in bingo.entries"
 					class="entry"
 					ref="cell"
+					:data-gridid="entry.id"
 					:key="entry.id"
 					:style="{width:(1/bingo.cols*100)+'%'}">
 					<span class="label">{{ entry.label }}</span>
@@ -32,7 +33,7 @@ import SetIntervalWorker from '@/utils/SetIntervalWorker';
 	},
 	emits:[],
 })
-class OverlayBingoGrid extends AbstractOverlay {
+export class OverlayBingoGrid extends AbstractOverlay {
 
 
 	public ready:boolean = false;
@@ -63,13 +64,35 @@ class OverlayBingoGrid extends AbstractOverlay {
 		PublicAPI.instance.removeEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
 	}
 
+	/**
+	 * Ask bingo info from Twitchat
+	 */
 	override requestInfo():void {
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, {bid:this.id});
 	}
 
+	/**
+	 * Tell Twitchat overlay exists
+	 */
 	public broadcastPresence():void {
 		if(!this.bingo) return;
 		PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, {bid:this.id});
+	}
+
+	/**
+	 * Called when clicking overlay via heat
+	 */
+	public onHeatClick(event:TwitchatDataTypes.HeatClickData, x:number, y:number):void {
+		let element = document.elementFromPoint(x, y) as HTMLElement;
+		if(element) {
+			while(!element.dataset["gridid"] && element != document.body) {
+				element = element.parentElement as HTMLElement;
+			}
+			if(element != document.body) {
+				const id = element.dataset["gridid"] || "";
+				PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_HEAT_CLICK, {gridId:this.bingo!.id, entryId:id, click:event});
+			}
+		}
 	}
 
 	/**
@@ -123,6 +146,7 @@ export default toNative(OverlayBingoGrid);
 				width: 80%;
 				transform: translate(-50%, -50%);
 				color: #cc0000;
+				pointer-events: none;
 			}
 
 			.label {

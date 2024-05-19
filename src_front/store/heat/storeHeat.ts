@@ -81,7 +81,7 @@ export const storeHeat = defineStore('heat', {
 
 			this.saveScreens();
 		},
-		
+
 		updateScreen(data:HeatScreen):void {
 			const index = this.screenList.findIndex(v=>v.id == data.id);
 			if(index == -1) {
@@ -128,7 +128,7 @@ export const storeHeat = defineStore('heat', {
 			const isTrigger = StoreProxy.triggers.triggerList.find(v=>v.type == TriggerTypes.HEAT_CLICK) != undefined;
 			const isOverlay = StoreProxy.chat.botMessages.heatSpotify.enabled || StoreProxy.chat.botMessages.heatUlule.enabled;
 			const isDistortion = this.distortionList.filter(v=>v.enabled).length > 0
-			
+
 			//If nothing requests for heat click events, ignore it
 			if(!isTrigger && !isOverlay && !isDistortion) {
 				log.info = "Ignoring click because nothing needs it.";
@@ -168,7 +168,7 @@ export const storeHeat = defineStore('heat', {
 				}
 				user = { id:event.uid || "anon", login:"anon", channelInfo, anonymous:true };
 			}
-			
+
 			//If user is banned, ignore its click
 			if(user.channelInfo![channelId]?.is_banned) {
 				log.info = "User \""+user.login+"\" is banned from your channel. Ingore their click.";
@@ -216,7 +216,7 @@ export const storeHeat = defineStore('heat', {
 					}
 				}
 			}
-			
+
 			//If OBS websocket is not connected, stop there
 			if(!OBSWebsocket.instance.connected) {
 				Logger.instance.log("heat", log);
@@ -224,7 +224,7 @@ export const storeHeat = defineStore('heat', {
 			}
 
 			OBSWebsocket.instance.log("Heat click");
-			
+
 			//OBS websocket is connected, check which sources are under pointer.
 			//Checks for clickable overlays (spotify, ulule) as well as triggers related to sources
 			const rects = await OBSWebsocket.instance.getSourcesDisplayRects();
@@ -329,7 +329,7 @@ export const storeHeat = defineStore('heat', {
 				const clone = JSON.parse(JSON.stringify(message)) as typeof message;
 				clone.obsSource = rect.source.sourceName;
 				TriggerActionHandler.instance.execute(clone, event.testMode);
-					
+
 				//Compute click position relative to the browser source
 				const rotatedClick = Utils.rotatePointAround({x, y},
 														{x:rect.transform.globalCenterX!, y:rect.transform.globalCenterY!},
@@ -362,7 +362,7 @@ export const storeHeat = defineStore('heat', {
 
 					//Ignore disabled and trigger-only distortions
 					if(!d.enabled || d.triggerOnly) {
-						continue mainloop;
+						continue;
 					}
 
 					//Only check for group and source targets. Scene target are parsed before
@@ -417,7 +417,7 @@ export const storeHeat = defineStore('heat', {
 						a.text = StoreProxy.chat.botMessages.heatSpotify.message;
 						t.cooldown!.global = StoreProxy.chat.botMessages.heatSpotify.cooldown!;
 						t.actions.push(a);
-						
+
 						TriggerActionHandler.instance.executeTrigger(t, message, event.testMode == true);
 						log.targets.push({spotify: true, x:percentX, y:percentY});
 					}
@@ -482,7 +482,7 @@ export const storeHeat = defineStore('heat', {
 			if(data.obsItemPath.source.name) sourceName = data.obsItemPath.source.name;
 			else if(data.obsItemPath.groupName) sourceName = data.obsItemPath.groupName;
 			else if(data.obsItemPath.sceneName) sourceName = data.obsItemPath.sceneName;
-			
+
 			//Attempt to cleanup OBS from related filter and sources.
 			//Won't work if user changed the filter's name or browser source's name
 			//Won't work if user created filter and brower source manually instead of
@@ -524,7 +524,7 @@ export const storeHeat = defineStore('heat', {
 
 		async saveDistorsions():Promise<void> {
 			DataStore.set(DataStore.OVERLAY_DISTORTIONS, this.distortionList);
-		
+
 			for (let i = 0; i < this.distortionList.length; i++) {
 				const data = {
 					params:(this.distortionList[i] as unknown) as JsonObject,

@@ -65,6 +65,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				})
 			}
 
+			/**
+			 * Get notified when a grid overlay exists
+			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, (event:TwitchatEvent<{bid:string}>)=>{
 				const id = event.data!.bid;
 				const ref = this.gridList.find(v => v.id == id);
@@ -83,6 +86,28 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				overlayCheckInterval[id] = setTimeout(()=>{
 					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != id);
 				}, 25000);
+			});
+
+			/**
+			 * Get notified when clicking on a grid via heat
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_HEAT_CLICK, async (event:TwitchatEvent<{gridId:string, entryId:string, click:TwitchatDataTypes.HeatClickData}>)=>{
+				if(!event.data) return;
+				const data = event.data;
+				const grid = this.gridList.find(g => g.id === (data.gridId || ""));
+				//Ignore heat click if grid is disabled or heat interaction is disabled
+				if(!grid || !grid.enabled || !grid.heatClick) return;
+
+				const user = await StoreProxy.users.getUserFrom("twitch", data.click.channelId, data.click.uid, data.click.login);
+				const allowed = await Utils.checkPermissions(grid.heatClickPermissions, user, data.click.channelId);
+				if(!allowed) {
+					console.log("User not allowed to click !");
+				}else{
+					const entry = grid.entries.find(e => e.id === (event.data?.entryId || ""));
+					if(!entry) return;
+					entry.check = !entry.check;
+					this.saveData(grid.id);
+				}
 			});
 		},
 
