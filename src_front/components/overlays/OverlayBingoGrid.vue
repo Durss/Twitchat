@@ -1,14 +1,14 @@
 <template>
-	<div class="overlaybingogrid" v-if="ready">
+	<div :class="classes" v-if="ready">
 		<div class="grid" v-if="bingo"
-		:style="{aspectRatio: bingo.cols/bingo.rows, fontSize:bingo.textSize+'px'}">
+		:style="{aspectRatio: bingo.cols/bingo.rows, fontSize:bingo.textSize+'px', color:bingo.textColor}">
 			<TransitionGroup name="flip-list">
 				<div v-for="entry in bingo.entries"
 					class="entry"
 					ref="cell"
 					:key="entry.id"
-					:style="{width:'calc('+(1/bingo.cols*100)+'% - 3px)'}">
-					<span class="label" :style="{color:bingo.textColor}">{{ entry.label }}</span>
+					:style="{width:(1/bingo.cols*100)+'%'}">
+					<span class="label">{{ entry.label }}</span>
 					<Icon class="cross" name="cross" v-if="entry.check" />
 				</div>
 			</TransitionGroup>
@@ -41,6 +41,12 @@ class OverlayBingoGrid extends AbstractOverlay {
 	private id:string = "";
 	private broadcastPresenceInterval:string = "";
 	private bingoUpdateHandler!:(e:TwitchatEvent<{id:string, bingo:TwitchatDataTypes.BingoGridConfig}>) => void;
+
+	public get classes():string[] {
+		let res:string[] = ["overlaybingogrid"];
+		if(this.bingo?.showGrid === true) res.push("border");
+		return res;
+	}
 
 	public beforeMount(): void {
 		this.id = this.$route.query.bid as string ?? "";
@@ -84,14 +90,18 @@ export default toNative(OverlayBingoGrid);
 
 <style scoped lang="less">
 .overlaybingogrid{
+	@borderSize: 1px;
 	.grid {
-		gap: 3px;
+		// gap: 3px;
+		gap: -@borderSize;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
 		max-height: 100vh;
 
 		.entry {
+			box-sizing: border-box;
+			padding: 5px;
 			aspect-ratio: 1;
 			display: flex;
 			align-items: center;
@@ -102,7 +112,6 @@ export default toNative(OverlayBingoGrid);
 			white-space: pre-line;
 			text-align: center;
 			position: relative;
-			// border: 1px solid red;
 			word-wrap: break-word;
 
 			.cross {
@@ -131,6 +140,15 @@ export default toNative(OverlayBingoGrid);
 		font-size: 2em;
 		text-align: center;
 		width: 80vw;
+	}
+
+	&.border {
+		.grid {
+			border: @borderSize solid;
+			.entry {
+				border: @borderSize solid;
+			}
+		}
 	}
 }
 </style>

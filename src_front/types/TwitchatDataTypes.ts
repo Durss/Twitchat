@@ -647,6 +647,7 @@ export namespace TwitchatDataTypes {
 		id:string;
 		title:string;
 		enabled:boolean;
+		showGrid:boolean;
 		entries:{
 			id:string;
 			label:string;

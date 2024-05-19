@@ -1563,6 +1563,7 @@ import Ajv from "ajv";
 						properties: {
 							id: {type:"string", maxLength:40},
 							enabled: {type:"boolean"},
+							showGrid: {type:"boolean"},
 							title: {type:"string", maxLength:40},
 							textColor: {type:"string", maxLength:10},
 							textSize: {type:"number", minimum:1, maximum:100},

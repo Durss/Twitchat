@@ -11,7 +11,7 @@
 		<div class="content">
 			<TTButton @click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
 
-			<ToggleBlock v-for="bingo in $store.bingoGrid.gridList" :title="bingo.title"
+			<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
 			editableTitle
 			v-model:title="bingo.title"
 			:titleDefault="$t('bingo_grid.form.default_title')"
@@ -51,6 +51,8 @@
 					<ParamItem :paramData="param_textColor[bingo.id]" v-model="bingo.textColor" @change="save(bingo)" />
 
 					<ParamItem :paramData="param_textSize[bingo.id]" v-model="bingo.textSize" @change="save(bingo)" />
+
+					<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
 
 					<VueDraggable
 					class="card-item entryList"
@@ -140,6 +142,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	public param_rows:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_showGrid:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -266,6 +269,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
 			this.param_textSize[id] = {type:"number", value:20, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
+			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
 		});
 	}
 }

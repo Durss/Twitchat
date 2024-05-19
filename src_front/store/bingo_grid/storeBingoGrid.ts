@@ -62,6 +62,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				title:"",
 				textColor:"#000000",
 				enabled:true,
+				showGrid:true,
 				textSize:20,
 				cols:5,
 				rows:5,
