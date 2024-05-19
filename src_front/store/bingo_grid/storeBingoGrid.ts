@@ -7,7 +7,7 @@ import DataStore from '../DataStore';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 
-let overlayCheckInterval = -1;
+let overlayCheckInterval:{[key:string]:number} = {};
 
 export const storeBingoGrid = defineStore('bingoGrid', {
 	state: () => ({
@@ -49,8 +49,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				//Schedule removal of the overlay.
 				//Will be reset before the timeout expires if the overlay
 				//still exists
-				clearTimeout(overlayCheckInterval);
-				overlayCheckInterval = setTimeout(()=>{
+				clearTimeout(overlayCheckInterval[id]);
+				overlayCheckInterval[id] = setTimeout(()=>{
 					this.availableOverlayList = this.availableOverlayList.filter(v => v.id != id);
 				}, 25000);
 			});

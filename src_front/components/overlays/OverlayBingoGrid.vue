@@ -93,11 +93,13 @@ export default toNative(OverlayBingoGrid);
 	@borderSize: 1px;
 	.grid {
 		// gap: 3px;
-		gap: -@borderSize;
 		display: flex;
 		flex-direction: row;
 		flex-wrap: wrap;
-		max-height: 100vh;
+		max-height: 50vh;
+		// overflow: hidden;
+		// border-radius: 20px;
+		// margin: var(--border-radius);
 
 		.entry {
 			box-sizing: border-box;
