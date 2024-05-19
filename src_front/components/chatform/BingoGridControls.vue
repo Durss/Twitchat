@@ -90,7 +90,7 @@ class BingoGridControls extends Vue {
 			target = target.parentElement as HTMLDivElement;
 		}
 		if(target != ref) {
-			//Close if clicking out of the holder
+			//Close if clicking outside of the holder
 			this.close();
 		}
 	}
@@ -114,6 +114,8 @@ export default toNative(BingoGridControls);
 		h2 {
 			text-align: center;
 			margin-bottom: .5em;
+			max-width: min(100vw, 300px);
+			word-wrap: break-word;
 		}
 		.grid {
 			gap:5px;

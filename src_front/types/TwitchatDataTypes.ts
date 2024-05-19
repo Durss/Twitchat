@@ -658,6 +658,10 @@ export namespace TwitchatDataTypes {
 		rows:number;
 		textColor:string;
 		textSize:number;
+		chatCmd?:string;
+		chatCmdPermissions:PermissionsData;
+		heatClick:boolean;
+		heatClickPermissions:PermissionsData;
 	}
 
 	/**

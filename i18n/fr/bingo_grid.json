@@ -15,6 +15,11 @@
 			"param_text_color":"Couleur du texte",
 			"param_text_size":"Taille du texte",
 			"param_show_grid":"Afficher les bordures",
+			"param_chat_cmd":"Commande",
+			"param_chat_cmd_enabled":"Cocher des cases depuis le tchat",
+			"param_heat_enabled":"Cocher des cases via l'extension Heat",
+			"chat_cmd_usage":"Utilisez la commande {CMD}",
+			"heat_usage":"@:heat.header",
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."

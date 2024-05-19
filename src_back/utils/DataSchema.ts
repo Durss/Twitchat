@@ -1569,6 +1569,9 @@ import Ajv from "ajv";
 							textSize: {type:"number", minimum:1, maximum:100},
 							cols:{type:"number", minimum:2, maximum:10},
 							rows:{type:"number", minimum:2, maximum:10},
+							chatCmd: {type:"string", maxLength:20},
+							chatCmdPermissions: { $ref: "defs.json#/definitions/permissions" },
+							heatClickPermissions: { $ref: "defs.json#/definitions/permissions" },
 							entries: {
 								type:"array",
 								minItems:0,

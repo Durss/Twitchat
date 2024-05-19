@@ -33,6 +33,36 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			if(json) {
 				const data = JSON.parse(json) as IStoreData;
 				this.gridList = data.gridList || [];
+
+				this.gridList.forEach(grid => {
+					//Adding new prop. Can be removed after beta ends
+					if(!grid.chatCmdPermissions) {
+						grid.chatCmdPermissions = {
+							all:false,
+							broadcaster:true,
+							follower:false,
+							follower_duration_ms:0,
+							mods:true,
+							subs:false,
+							vips:false,
+							usersAllowed:[],
+							usersRefused:[],
+						};
+					}
+					if(!grid.heatClickPermissions) {
+						grid.heatClickPermissions = {
+							all:false,
+							broadcaster:true,
+							follower:false,
+							follower_duration_ms:0,
+							mods:true,
+							subs:false,
+							vips:false,
+							usersAllowed:[],
+							usersRefused:[],
+						};
+					}
+				})
 			}
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_OVERLAY_PRESENCE, (event:TwitchatEvent<{bid:string}>)=>{
@@ -63,10 +93,33 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				textColor:"#000000",
 				enabled:true,
 				showGrid:true,
+				heatClick:false,
 				textSize:20,
 				cols:5,
 				rows:5,
 				entries:[],
+				chatCmdPermissions:{
+					all:false,
+					broadcaster:true,
+					follower:false,
+					follower_duration_ms:0,
+					mods:true,
+					subs:false,
+					vips:false,
+					usersAllowed:[],
+					usersRefused:[],
+				},
+				heatClickPermissions:{
+					all:false,
+					broadcaster:true,
+					follower:false,
+					follower_duration_ms:0,
+					mods:true,
+					subs:false,
+					vips:false,
+					usersAllowed:[],
+					usersRefused:[],
+				},
 			}
 			const len = data.cols*data.rows;
 			for (let i = 0; i < len; i++) {
@@ -175,6 +228,31 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			})
 			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid});
 		},
+
+		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
+			for (let i = 0; i < this.gridList.length; i++) {
+				const grid = this.gridList[i];
+				//Check if it's a grid's command
+				if(grid.enabled
+				&& grid.chatCmd
+				&& grid.chatCmd.toLowerCase() == cmd) {
+					const allowed = await Utils.checkPermissions(grid.chatCmdPermissions, message.user, message.channel_id);
+					console.log("User allowed? ", allowed);
+					if(!allowed) continue;
+
+					const [xStrt, yStrt] = (message.message || "").toLowerCase().replace(cmd, "").trim().split(":");
+					const x = parseInt(xStrt)-1;
+					const y = parseInt(yStrt)-1;
+					console.log("Tick", x+1, y+1);
+					if(x >= 0 && x < grid.cols
+					&& y >= 0 && y < grid.rows){
+						const cell = grid.entries[x+y*grid.cols];
+						cell.check = !cell.check;
+						this.saveData(grid.id);
+					}
+				}
+			}
+		}
 	} as IBingoGridActions
 	& ThisType<IBingoGridActions
 		& UnwrapRef<IBingoGridState>

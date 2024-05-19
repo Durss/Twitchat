@@ -1,6 +1,5 @@
 <template>
 	<div class="voicetranscript">
-		<!-- <img src="@/assets/icons/microphone.svg" alt="microphone"> -->
 		<div class="holder" ref="holder" v-if="show" @click="hide(true)">
 			<div class="padder">
 				<img src="@/assets/icons/microphone.svg" alt="mic" class="icon">
@@ -48,7 +47,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 	public hide(force:boolean = false):void {
 		if(!this.show) return;
-		
+
 		const holder = this.$refs.holder as HTMLDivElement;
 		gsap.killTweensOf(holder);
 		let len = this.$store.voice.voiceText.finalText.length;

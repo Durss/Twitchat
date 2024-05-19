@@ -1,15 +1,35 @@
 {
 	"bingo_grid": {
 		"form": {
-			"title":"Bingo grids",
-			"closeBt_aria":"Close bingo form",
-			"description":"Create grids of goals and tick them all. Perfect when doing reacts!",
-			"ad_bt":"Create a grid"
+			"title": "Bingo grids",
+			"closeBt_aria": "Close bingo form",
+			"description": "Create grids of goals and tick them all. Perfect when doing reacts!",
+			"default_title": "Bingo grid",
+			"install_title": "Install overlay",
+			"add_bt": "Create new grid",
+			"lock_bt_tt": "Lock cell",
+			"shuffle_bt": "Shuffle cells",
+			"reset_bt": "Reset grid",
+			"param_title": "Grid name",
+			"param_size": "Grid sizes",
+			"param_text_color": "Text color",
+			"param_text_size": "Text size",
+			"param_show_grid": "Show borders",
+			"param_chat_cmd": "Command",
+			"param_chat_cmd_enabled": "Tick cells from chat command",
+			"param_heat_enabled": "Tick cells from Heat extension",
+			"chat_cmd_usage": "Use command {CMD}",
+			"heat_usage": "@:heat.header",
+			"delete_confirm": {
+				"description": "Bingo grid will be deleted\nThis cannot be undone.",
+				"title": "Delete grid?"
+			}
 		},
-		"state":{
-			"title":"Bingo",
-			"winner":"Winner",
-			"closeBt":"Close bingo"
+		"state": {
+			"reset_bt": "Untick all"
+		},
+		"overlay": {
+			"bingo_not_found": "Requested bingo grid does not exist."
 		}
 	}
 }

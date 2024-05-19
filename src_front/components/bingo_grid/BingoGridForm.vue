@@ -15,6 +15,7 @@
 			editableTitle
 			v-model:title="bingo.title"
 			:titleDefault="$t('bingo_grid.form.default_title')"
+			:titleMaxLengh="30"
 			:open="false"
 			:key="bingo.id">
 
@@ -32,9 +33,10 @@
 				</template>
 
 				<div class="form">
-					<ToggleBlock :icons="['obs']" :title="$t('bingo_grid.form.install_title')" :open="false" primary>
+					<div class="card-item install">
+						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
 						<OverlayInstaller type="bingogrid" :id="bingo.id" :queryParams="{bid:bingo.id}" />
-					</ToggleBlock>
+					</div>
 
 					<div class="card-item sizes">
 						<label>
@@ -90,6 +92,35 @@
 							<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
 						</div>
 					</VueDraggable>
+
+					<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
+						<div class="parameter-child">
+							<ParamItem class="cmdField" :paramData="param_chatCmd[bingo.id]" v-model="bingo.chatCmd" @change="save(bingo)" noBackground />
+							<div class="instructions">
+								<Icon name="info" />
+								<i18n-t scope="global" keypath="bingo_grid.form.chat_cmd_usage">
+									<template #CMD>
+										<mark>{{ bingo.chatCmd }} X:Y</mark>
+									</template>
+								</i18n-t>
+							</div>
+							<ToggleBlock :icons="['lock']" :title="$t('global.allowed_users')" small :open="false">
+								<PermissionsForm v-model="bingo.chatCmdPermissions"></PermissionsForm>
+							</ToggleBlock>
+						</div>
+					</ParamItem>
+
+					<ParamItem :paramData="param_heat_toggle[bingo.id]" v-model="bingo.heatClick" @change="save(bingo)">
+						<div class="parameter-child">
+							<div class="instructions">
+								<Icon name="info" />
+								<span>{{ $t("bingo_grid.form.heat_usage") }}</span>
+							</div>
+							<ToggleBlock :icons="['lock']" :title="$t('global.allowed_users')" small :open="false">
+								<PermissionsForm v-model="bingo.heatClickPermissions"></PermissionsForm>
+							</ToggleBlock>
+						</div>
+					</ParamItem>
 				</div>
 			</ToggleBlock>
 		</div>
@@ -110,6 +141,7 @@ import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
+import PermissionsForm from '../PermissionsForm.vue';
 
 @Component({
 	components:{
@@ -119,6 +151,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 		ToggleBlock,
 		VueDraggable,
 		ToggleButton,
+		PermissionsForm,
 		PostOnChatParam,
 		contenteditable,
 		OverlayInstaller,
@@ -143,6 +176,9 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_showGrid:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_chatCmd:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_chatCmd_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_heat_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -173,6 +209,9 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	 * Save
 	 */
 	public save(grid:TwitchatDataTypes.BingoGridConfig):void {
+		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
+			grid.chatCmd = "!bingo";
+		}
 		this.$store.bingoGrid.saveData(grid.id);
 	}
 
@@ -270,6 +309,9 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 			this.param_textSize[id] = {type:"number", value:20, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
 			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
+			this.param_chatCmd[id] = {type:"string", value:"", maxLength:20, labelKey:"bingo_grid.form.param_chat_cmd", icon:"chatCommand"};
+			this.param_chatCmd_toggle[id] = {type:"boolean", value:entry.chatCmd != undefined, labelKey:"bingo_grid.form.param_chat_cmd_enabled", icon:"show"};
+			this.param_heat_toggle[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_heat_enabled", icon:"heat"};
 		});
 	}
 }
@@ -278,6 +320,12 @@ export default toNative(BingoGridForm);
 
 <style scoped lang="less">
 .bingoform{
+	min-width: 330px !important;
+
+	.form {
+		gap: .5em;
+	}
+
 	.entryList {
 		width: 100%;
 		display: flex;
@@ -294,6 +342,7 @@ export default toNative(BingoGridForm);
 			background-color: var(--grayout-fader);
 			border-radius: var(--border-radius);
 			position: relative;
+			cursor: text;
 			&.highlight {
 				border: 2px solid red;
 			}
@@ -336,7 +385,7 @@ export default toNative(BingoGridForm);
 		}
 	}
 
-	.sizes {
+	.sizes, .install {
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
@@ -356,6 +405,9 @@ export default toNative(BingoGridForm);
 			display: flex;
 			flex-direction: row;
 			align-items: center;
+		}
+		&.install {
+			flex-direction: column;
 		}
 	}
 
@@ -388,6 +440,22 @@ export default toNative(BingoGridForm);
 			border-radius: 0;
 			flex-shrink: 0;
 			padding: 0 .5em;
+		}
+	}
+
+	.parameter-child {
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+		}
+	}
+
+	.cmdField {
+		:deep(.inputHolder) {
+			flex-basis: 200px;
 		}
 	}
 }

@@ -478,6 +478,12 @@ export interface IBingoGridActions {
 	 * @param edited grid ID. This will broadcast update to overlay
 	 */
 	saveData(gridId:string):Promise<void>
+	/**
+	 * Handles a chat command to check if it is linked to a grid
+	 * @param message
+	 * @param cmd
+	 */
+	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
 }
 
 

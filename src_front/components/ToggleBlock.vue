@@ -119,6 +119,9 @@ export class ToggleBlock extends Vue {
 	@Prop({type:Boolean, default: false})
 	public editableTitle!:boolean;
 
+	@Prop({type:Number, default: 100})
+	public titleMaxLengh!:number;
+
 	@Prop({type:String, default: ""})
 	public customColor!:string;
 
@@ -235,12 +238,12 @@ export class ToggleBlock extends Vue {
 			let caretIndex = range.startOffset;
 			await this.$nextTick();
 			//Limit label's size
-			this.localTitle = this.localTitle.substring(0, 100);
+			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 			await this.$nextTick();
 			//Reset caret to previous position
 			if(range.startContainer.firstChild) range.setStart(range.startContainer.firstChild, Math.min(this.localTitle.length, caretIndex-1));
 		}else{
-			this.localTitle = this.localTitle.substring(0, 100);
+			this.localTitle = this.localTitle.substring(0, this.titleMaxLengh);
 		}
 	}
 

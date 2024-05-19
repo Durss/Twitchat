@@ -209,7 +209,6 @@ export default toNative(OverlayInstaller);
 			color: var(--color-text);
 		}
 		input {
-			flex-grow: 1;
 			padding-right: 1.5em;
 		}
 	}

@@ -10,7 +10,7 @@
 				:class="getProgressClasses(key)"
 				@click="onSelectSection(key)">{{ key }}</TTButton>
 			</div>
-	
+
 			<!-- <TTButton @click="exportZIP()" secondary icon="download">Export ZIP</TTButton>
 			<TTButton @click="downloadSection()" secondary icon="download" v-if="selectedSection">Download current section</TTButton> -->
 			<form class="searchForm" @submit.prevent="doSearch()">
@@ -23,7 +23,7 @@
 		<template v-if="selectedSectionLabels">
 			<div class="card-item progress"
 			:class="getProgressClasses(selectedSectionKey)">Translations done: {{ progresses[selectedSectionKey].done }}/{{ progresses[selectedSectionKey].total }} ({{ (progresses[selectedSectionKey].done/progresses[selectedSectionKey].total * 100).toFixed(0) }}%)</div>
-	
+
 			<div class="labels card-item">
 				<div class="header">
 					<h2 class="title">{{ selectedSectionKey }}</h2>
@@ -96,7 +96,7 @@ import type { JsonObject } from "type-fest";
 	public labelsCurrent:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public labelsRef:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public progresses:{[key:string]:{total:number, done:number}} = {};
-	public langRef = "en";
+	public langRef = "fr";
 	public search = "";
 	public searchKeys:string[][] = [];
 	public pathToSelect:string[] = [];
@@ -330,7 +330,7 @@ export default toNative(LabelsEditor);
 		display: flex;
 		flex-direction: column;
 		align-items: center;
-		
+
 		.sectionList {
 			gap: .5em;
 			display: flex;
@@ -362,7 +362,7 @@ export default toNative(LabelsEditor);
 			}
 		}
 	}
-	
+
 	.floatingActions {
 		position: fixed;
 		bottom: 1em;
@@ -374,7 +374,7 @@ export default toNative(LabelsEditor);
 		display: flex;
 		flex-direction: row;
 		align-self: stretch;
-		
+
 		&>* {
 			border-radius: 0;
 		}

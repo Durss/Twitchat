@@ -775,6 +775,7 @@ export const storeChat = defineStore('chat', {
 			const sEmergency = StoreProxy.emergency;
 			const sMain = StoreProxy.main;
 			const sVoice = StoreProxy.voice;
+			const sBingoGrid = StoreProxy.bingoGrid;
 			const sAuth = StoreProxy.auth;
 			const s = Date.now();
 
@@ -1341,6 +1342,9 @@ export const storeChat = defineStore('chat', {
 
 				//Handle Voicemod commands
 				await sVoice.handleChatCommand(typedMessage, cmd);
+
+				//Handle bingo grid commands
+				await sBingoGrid.handleChatCommand(typedMessage, cmd);
 			}
 
 
