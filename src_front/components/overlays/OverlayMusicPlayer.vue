@@ -5,10 +5,11 @@
 				<div class="cover" id="music_cover" v-if="params?.showCover !== false">
 					<img :src="cover">
 				</div>
-				
+
 				<div class="infos" id="music_content">
 					<div id="music_infos" class="trackHolder">
 						<Vue3Marquee :duration="duration"
+						:animateOnOverflowOnly="true"
 						:clone="noScroll === false"
 						v-if="noScroll !== true && !resetScrolling">
 							<div class="track">
@@ -52,7 +53,7 @@ import DOMPurify from 'isomorphic-dompurify';
 	emits:["seek"]
 })
  class OverlayMusicPlayer extends AbstractOverlay {
-	
+
 	@Prop({
 			type: Boolean,
 			default: false,
@@ -67,7 +68,7 @@ import DOMPurify from 'isomorphic-dompurify';
 	public playbackPos!:number;
 	@Prop
 	public staticTrackData!:TwitchatDataTypes.MusicTrackData;
-	
+
 	public artist = "";
 	public title = "";
 	public cover = "";
@@ -117,7 +118,7 @@ import DOMPurify from 'isomorphic-dompurify';
 			if((e.data as {trackName?:string}).trackName) {
 				const prevArtist = this.artist;
 				const prevTitle = this.title;
-				const obj = (e.data as unknown) as 
+				const obj = (e.data as unknown) as
 							{
 								trackName:string,
 								artistName:string,
@@ -163,7 +164,7 @@ import DOMPurify from 'isomorphic-dompurify';
 				}
 			}
 		};
-		
+
 		if(!this.staticTrackData) {
 			PublicAPI.instance.addEventListener(TwitchatEvent.CURRENT_TRACK, this.onTrackHandler);
 			//Wait a little to give it time to OBS websocket to establish connexion
@@ -226,7 +227,7 @@ export default toNative(OverlayMusicPlayer);
 <style scoped lang="less">
 .overlaymusicplayer{
 
-	
+
 	&.embed {
 		width: 100%;
 		aspect-ratio: 300 / 54;
@@ -253,7 +254,7 @@ export default toNative(OverlayMusicPlayer);
 			.slide-enter-active {
 				transition: unset;
 			}
-	
+
 			.slide-leave-active {
 				transition: unset;
 			}
@@ -294,7 +295,7 @@ export default toNative(OverlayMusicPlayer);
 				height: 100%;
 			}
 		}
-		
+
 		.infos {
 			color: var(--color-light);
 			@minFontSize: calc(@maxHeight/3);
@@ -323,11 +324,11 @@ export default toNative(OverlayMusicPlayer);
 					flex-direction: column-reverse;
 
 					.custom {
-						padding-right: 10vw;
+						padding-right: 1rem;
 					}
 
 					.artist, .title {
-						padding-right: 10vw;
+						padding-right: 1rem;
 						display: flex;
 						line-height: 1.2em;
 					}
@@ -375,7 +376,7 @@ export default toNative(OverlayMusicPlayer);
 	.slide-leave-active {
 		transition: all 0.5s ease-out;
 	}
-	
+
 	.slide-enter-from,
 	.slide-leave-to {
 		transform: translateX(100%);
