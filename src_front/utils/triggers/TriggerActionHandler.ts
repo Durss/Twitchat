@@ -554,6 +554,16 @@ export default class TriggerActionHandler {
 				}break;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.BINGO_GRID:{
+				let eventType:TriggerTypesValue = TriggerTypes.BINGO_GRID_CELL;
+				if(message.reset) eventType = TriggerTypes.BINGO_GRID_RESET;
+				if(message.complete) eventType = TriggerTypes.BINGO_GRID_ALL;
+				if(message.col > -1 || message.row > -1 || message.diagonal > -1) eventType = TriggerTypes.BINGO_GRID_LINE;
+				if(await this.executeTriggersByType(eventType, message, testMode, undefined, undefined, forcedTriggerId)) {
+					return;
+				}break;
+			}
+
 			case TwitchatDataTypes.TwitchatMessageType.NOTICE: {
 				switch(message.noticeId) {
 					case TwitchatDataTypes.TwitchatNoticeType.STREAM_INFO_UPDATE:{
@@ -2766,18 +2776,20 @@ export default class TriggerActionHandler {
 					}else if(pointer.indexOf("__twitch__") == 0) {
 						const pointerLocal = pointer.replace('__twitch__.', '');
 						switch(pointerLocal) {
-							case "lastsub_login": value = StoreProxy.auth.lastSubscriber[channelId].login; break;
-							case "lastsub_id": value = StoreProxy.auth.lastSubscriber[channelId].id; break;
-							case "lastsubgifter_login": value = StoreProxy.auth.lastSubgifter[channelId].user.login; break;
-							case "lastsubgifter_id": value = StoreProxy.auth.lastSubgifter[channelId].user.id; break;
+							case "lastsub_login": value = StoreProxy.auth.lastSubscriber[channelId]?.user.login || ""; break;
+							case "lastsub_id": value = StoreProxy.auth.lastSubscriber[channelId]?.user.id || ""; break;
+							case "lastsub_tier": value = StoreProxy.auth.lastSubscriber[channelId]?.tier.toString() || ""; break;
+							case "lastsubgifter_login": value = StoreProxy.auth.lastSubgifter[channelId]?.user.login || ""; break;
+							case "lastsubgifter_id": value = StoreProxy.auth.lastSubgifter[channelId]?.user.id || ""; break;
+							case "lastsubgifter_tier": value = StoreProxy.auth.lastSubgifter[channelId]?.tier.toString() || ""; break;
 							case "totalsubs": value = (StoreProxy.auth.totalSubscribers[channelId] || 0).toString(); break;
 							case "partnerpluspoints": value = (StoreProxy.auth.partnerPoints[channelId] || 0).toString(); break;
-							case "lastfollow_login": value = StoreProxy.auth.lastFollower[channelId].login; break;
-							case "lastfollow_id": value = StoreProxy.auth.lastFollower[channelId].id; break;
+							case "lastfollow_login": value = StoreProxy.auth.lastFollower[channelId]?.login || ""; break;
+							case "lastfollow_id": value = StoreProxy.auth.lastFollower[channelId]?.id || ""; break;
 							case "totalfollowers": value = (StoreProxy.auth.totalFollowers[channelId] || 0).toString(); break;
-							case "lastcheer_login": value = StoreProxy.auth.lastCheer[channelId].user.login; break;
-							case "lastcheer_id": value = StoreProxy.auth.lastCheer[channelId].user.id; break;
-							case "lastcheer_amount": value = (StoreProxy.auth.lastCheer[channelId].bits || 0).toString(); break;
+							case "lastcheer_login": value = StoreProxy.auth.lastCheer[channelId]?.user.login || ""; break;
+							case "lastcheer_id": value = StoreProxy.auth.lastCheer[channelId]?.user.id || ""; break;
+							case "lastcheer_amount": value = (StoreProxy.auth.lastCheer[channelId]?.bits || 0).toString(); break;
 						}
 					}
 				}else{

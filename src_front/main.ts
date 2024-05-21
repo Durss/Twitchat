@@ -4,7 +4,7 @@ import { createPopper } from '@popperjs/core';
 import { dedupeIntegration } from "@sentry/integrations";
 import * as Sentry from "@sentry/vue";
 import gsap from 'gsap';
-import { ScrollToPlugin } from 'gsap/all';
+import { CustomEase, ScrollToPlugin } from 'gsap/all';
 import { createPinia } from 'pinia';
 import 'tippy.js/animations/scale.css';
 import 'tippy.js/dist/tippy.css';
@@ -71,7 +71,7 @@ setDefaultProps({
 });
 
 const pinia = createPinia();
-gsap.registerPlugin(ScrollToPlugin);
+gsap.registerPlugin(ScrollToPlugin, CustomEase);
 DataStore.init();
 
 let lang: string = navigator.language || (<any>navigator)['userLanguage'];

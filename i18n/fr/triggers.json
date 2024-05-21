@@ -687,8 +687,10 @@
 			"now": "Date en millisecondes",
 			"last_sub": "Nom du dernier sub",
 			"last_sub_id": "ID du dernier sub",
+			"last_sub_tier": "Tier du dernier sub",
 			"last_subgifter": "Nom du dernier subgifter",
 			"last_subgifter_id": "ID du dernier subgifter",
+			"last_subgifter_tier": "Tier du dernier subgifter",
 			"total_sub": "Nombre total d'abonné·es actifs·ves",
 			"partner_plus_points": "Nombre de points Partner Plus",
 			"last_follow": "Nom du dernier follower",
@@ -725,7 +727,14 @@
 			"sl_tipMonthlyTopDonation_username": "Pseudo du top don ce mois",
 			"sl_tipAlltimeTopDonation_amount": "Top don depuis toujours",
 			"sl_tipAlltimeTopDonation_username": "Pseudo du top don depuis toujours",
-			"tipeee_resub_months": "Nombre de mois"
+			"tipeee_resub_months": "Nombre de mois",
+			"bingo_grid_id":"ID de la grille",
+			"bingo_grid_name":"Nom de la grille",
+			"bingo_grid_cell_x":"Coordonnée X de la case cochée",
+			"bingo_grid_cell_y":"Coordonnée Y de la case cochée",
+			"bingo_grid_col":"Index de la colonne remplie",
+			"bingo_grid_row":"Index de la ligne remplie",
+			"bingo_grid_diag":"Diagonale remplie (0=↘ 1=↙)"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -1210,6 +1219,22 @@
 			"TIPEEE_RESUB": {
 				"label": "Renouvellement d'abonnement Tipeee",
 				"description": "Actions à exécuter lorsque quelqu'un renouvelle son abonnement sur Tipeee"
+			},
+			"BINGO_GRID_LINE": {
+				"label": "Ligne d'une grille de bingo cochée",
+				"description": "Actions à exécuter lorsque quelqu'une ligne/colonne/diagonale d'une grille de bingo est entièrement cochée"
+			},
+			"BINGO_GRID_ALL": {
+				"label": "Grille de bingo entièrement cochée",
+				"description": "Actions à exécuter lorsque quelqu'une grille de bingo est entièrement cochée"
+			},
+			"BINGO_GRID_CELL": {
+				"label": "Case d'une grille de bingo cochée",
+				"description": "Actions à exécuter lorsque quelqu'une case est cochée dans une grille de bingo"
+			},
+			"BINGO_GRID_RESET": {
+				"label": "Grille de bingo réinitialisée",
+				"description": "Actions à exécuter lorsque quelqu'une grille de bingo est réinitialisée"
 			}
 		},
 		"musicEvents": {

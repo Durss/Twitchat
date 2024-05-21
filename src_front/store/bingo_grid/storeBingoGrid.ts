@@ -8,6 +8,8 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 
 let overlayCheckInterval:{[key:string]:number} = {};
+//Keeps old check stats of gridd to be able to diff on save
+let prevGridStates:{[key:string]:boolean[]} = {};
 
 export const storeBingoGrid = defineStore('bingoGrid', {
 	state: () => ({
@@ -62,6 +64,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 							usersRefused:[],
 						};
 					}
+
+					prevGridStates[grid.id] = grid.entries.map(v=>v.check);
 				})
 			}
 
@@ -105,8 +109,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				}else{
 					const entry = grid.entries.find(e => e.id === (event.data?.entryId || ""));
 					if(!entry) return;
-					entry.check = !entry.check;
-					this.saveData(grid.id);
+					this.toggleCell(grid.id, entry.id);
 				}
 			});
 		},
@@ -123,6 +126,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				cols:5,
 				rows:5,
 				entries:[],
+				backgroundAlpha:0,
+				backgroundColor:"#000000",
 				chatCmdPermissions:{
 					all:false,
 					broadcaster:true,
@@ -195,7 +200,24 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 			grid.entries.forEach(entry => entry.check = false);
-			this.saveData(id)
+			this.saveData(id);
+
+			const message:TwitchatDataTypes.MessageBingoGridData = {
+				id:Utils.getUUID(),
+				date:Date.now(),
+				type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+				platform:"twitchat",
+				bingoGridId:grid.id,
+				bingoGridName:grid.title,
+				channel_id:StoreProxy.auth.twitch.user.id,
+				col:-1,
+				row:-1,
+				diagonal:-1,
+				coords:{x:-1,y:-1},
+				complete:false,
+				reset:true,
+			}
+			StoreProxy.chat.addMessage(message);
 		},
 
 		duplicateGrid(id:string):void {
@@ -216,18 +238,15 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		async saveData(gridId:string):Promise<void> {
-			const data:IStoreData = {
-				gridList:this.gridList,
-			};
-			DataStore.set(DataStore.BINGO_GRIDS, data);
+		async saveData(gridId:string, cellId?:string):Promise<void> {
+			const grid = this.gridList.find(g => g.id === gridId);
+			if(!grid) return;
 
-			const [grid] = this.gridList.filter(g => g.id === gridId);
 			const count = grid.cols*grid.rows;
 			//TODO
 			// if(count < grid.entries.length) {
 			// 	try {
-			// 		await StoreProxy.main.confirm("Réduire?", "Vous allez perdre des entrées !");
+			// 		await StoreProxy.main.confirm("Reduce?", "You'll lose entries!");
 			// 	}catch(error){
 			// 		return;
 			// 	}
@@ -250,8 +269,168 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			//spaces in place of normal spaces.
 			grid.entries.forEach(entry => {
 				entry.label = entry.label.replace(/[^\S\r\n]/g, " ");
-			})
-			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid});
+			});
+
+			//Check for new bingos
+			const newStates = grid.entries.map(v=>v.check);
+			const prevStates = prevGridStates[grid.id];
+			let newVerticalBingos:number[] = [];
+			let newHorizontalBingos:number[] = [];
+			let newDiagonalBingos:number[] = [];
+			let prevVerticalBingos:number[] = [];
+			let prevHorizontalBingos:number[] = [];
+			let prevDiagonalBingos:number[] = [];
+			//Checking for vertical bingos
+			for (let x = 0; x < grid.cols; x++) {
+				let allTicked = true;
+				for (let y = 0; y < grid.rows; y++) {
+					allTicked &&= newStates[x + y*grid.cols];
+				}
+				if(allTicked) newVerticalBingos.push(x);
+			}
+			for (let x = 0; x < grid.cols; x++) {
+				let allTicked = true;
+				for (let y = 0; y < grid.rows; y++) {
+					allTicked &&= prevStates[x + y*grid.cols];
+				}
+				if(allTicked) prevVerticalBingos.push(x);
+			}
+			//Checking for horizontal bingos
+			for (let y = 0; y < grid.rows; y++) {
+				let allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= newStates[x + y*grid.cols];
+				}
+				if(allTicked) newHorizontalBingos.push(y);
+			}
+			for (let y = 0; y < grid.rows; y++) {
+				let allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= prevStates[x + y*grid.cols];
+				}
+				if(allTicked) prevHorizontalBingos.push(y);
+			}
+
+			//Checking for diagonal bingos
+			if(grid.cols == grid.rows) {
+				//Top left to bottom right
+				let allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= newStates[x + x*grid.cols];
+				}
+				if(allTicked) newDiagonalBingos.push(0);
+				allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
+				}
+				if(allTicked) newDiagonalBingos.push(1);
+
+				//Bottom left to top right
+				allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= prevStates[x + x*grid.cols];
+				}
+				if(allTicked) prevDiagonalBingos.push(0);
+				allTicked = true;
+				for (let x = 0; x < grid.cols; x++) {
+					allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
+				}
+				if(allTicked) prevDiagonalBingos.push(1);
+			}
+
+			newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
+			newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
+			newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
+
+			prevGridStates[grid.id] = newStates;
+
+			const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
+				let x = -1;
+				let y = -1;
+				if(cellId) {
+					const index = grid.entries.findIndex(e => e.id == cellId);
+					x = index%grid.cols;
+					y = Math.floor(index/grid.cols);
+				}
+				return {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+					platform:"twitchat",
+					bingoGridId:grid.id,
+					bingoGridName:grid.title,
+					channel_id:StoreProxy.auth.twitch.user.id,
+					col:-1,
+					row:-1,
+					diagonal:-1,
+					coords:{x,y},
+					complete:false,
+					reset:false,
+				}
+			}
+			newVerticalBingos.forEach(index => {
+				const message = buildMessage();
+				message.col = index;
+				StoreProxy.chat.addMessage(message);
+			});
+			newHorizontalBingos.forEach(index => {
+				const message = buildMessage();
+				message.row = index;
+				StoreProxy.chat.addMessage(message);
+			});
+			newDiagonalBingos.forEach(index => {
+				const message = buildMessage();
+				message.diagonal = index;
+				StoreProxy.chat.addMessage(message);
+			});
+
+			//All cells ticked?
+			if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
+				const message = buildMessage();
+				message.complete = true;
+				StoreProxy.chat.addMessage(message);
+			}
+
+			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
+
+			const data:IStoreData = {
+				gridList:this.gridList,
+			};
+			DataStore.set(DataStore.BINGO_GRIDS, data);
+		},
+
+		toggleCell(gridId:string, cellId:string):void {
+			const grid = this.gridList.find(g => g.id === gridId);
+			if(!grid) return;
+			const cell = grid.entries.find(e => e.id === cellId);
+			if(!cell) return;
+			cell.check = !cell.check;
+			if(cell.check) {
+				let x = -1;
+				let y = -1;
+				if(cellId) {
+					const index = grid.entries.findIndex(e => e.id == cellId);
+					x = index%grid.cols;
+					y = Math.floor(index/grid.cols);
+				}
+				const message:TwitchatDataTypes.MessageBingoGridData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+					platform:"twitchat",
+					bingoGridId:grid.id,
+					bingoGridName:grid.title,
+					channel_id:StoreProxy.auth.twitch.user.id,
+					col:-1,
+					row:-1,
+					diagonal:-1,
+					coords:{x,y},
+					complete:false,
+					reset:false,
+				}
+				StoreProxy.chat.addMessage(message);
+			}
+			this.saveData(gridId, cellId);
 		},
 
 		async handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void> {
@@ -262,18 +441,17 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				&& grid.chatCmd
 				&& grid.chatCmd.toLowerCase() == cmd) {
 					const allowed = await Utils.checkPermissions(grid.chatCmdPermissions, message.user, message.channel_id);
-					console.log("User allowed? ", allowed);
+					// console.log("User allowed? ", allowed);
 					if(!allowed) continue;
 
 					const [xStrt, yStrt] = (message.message || "").toLowerCase().replace(cmd, "").trim().split(":");
-					const x = parseInt(xStrt)-1;
-					const y = parseInt(yStrt)-1;
-					console.log("Tick", x+1, y+1);
+					const x = (parseInt(xStrt) || 0)-1;
+					const y = (parseInt(yStrt) || 0)-1;
+					// console.log("Tick", x+1, y+1);
 					if(x >= 0 && x < grid.cols
 					&& y >= 0 && y < grid.rows){
 						const cell = grid.entries[x+y*grid.cols];
-						cell.check = !cell.check;
-						this.saveData(grid.id);
+						this.toggleCell(grid.id, cell.id);
 					}
 				}
 			}

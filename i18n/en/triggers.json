@@ -10,7 +10,7 @@
 		"header_select_obs_input": "Select the OBS input to monitor",
 		"header_select_obs_filter": "Select the OBS filter to monitor",
 		"usage": "Triggers allow you to execute many sort of actions in response to many kind of events. You can create simple things like chat commands, or more complex ones like a song request system if you connected Spotify.",
-		"trigger_name":"Custom name",
+		"trigger_name": "Custom name",
 		"add_triggerBt": "Create a trigger",
 		"testBt": "Test trigger",
 		"deleteBt": "Delete trigger",
@@ -31,7 +31,7 @@
 		"triggers_list_cat": "Categories",
 		"create_folder": "Create folder",
 		"create_counterBt": "Create counters",
-		"trigger_queue":"Execution queue",
+		"trigger_queue": "Execution queue",
 		"trigger_queue_info": "To make sure some triggers execute one after another, associate them to the same execution queue.",
 		"trigger_queue_input_placeholder": "execution queue...",
 		"missing_trigger": "DELETED TRIGGER",
@@ -40,15 +40,15 @@
 		"missing_reward_scope": "CANNOT LOAD REWARD INFO",
 		"random_placeholder": "Random value placeholder {NAME}",
 		"premium_limit": "You created the maximum number of {MAX} triggers. Become premium to create up to {MAX_PREMIUM} triggers. Or disable / delete some triggers to create new ones.",
-		"delete_folder_confirm":{
-			"title":"Delete folder?",
-			"desc":"Triggers inside the folder will be moved to its parent."
+		"delete_folder_confirm": {
+			"title": "Delete folder?",
+			"desc": "Triggers inside the folder will be moved to its parent."
 		},
-		"logs":{
-			"cmd_info":"Tip: Use {CMD} command to get execution logs",
-			"title":"Trigger logs",
-			"subtitle":"Get details about your triggers execution",
-			"empty":"- no history -"
+		"logs": {
+			"cmd_info": "Tip: Use {CMD} command to get execution logs",
+			"title": "Trigger logs",
+			"subtitle": "Get details about your triggers execution",
+			"empty": "- no history -"
 		},
 		"music": {
 			"require": "This trigger need you to connect with Spotify under the {URL}",
@@ -80,31 +80,31 @@
 			"param_repeatMessageCondition": "Message based repeat",
 			"param_repeatMessageValue": "Must receive at least {VALUE} message | Must receive at least {VALUE} messages"
 		},
-		"condition":{
-			"title":"Execution conditions",
-			"createBt":"Create a condition",
-			"add_tt":"Add condition",
-			"group_tt":"Create a sub group and add a condition",
-			"placeholder_cmd_param":"Command param {NAME}",
-			"operators":{
-				">":">",
-				"<":"<",
-				">=":">=",
-				"<=":"<=",
-				"=":"=",
-				"!=":"!=",
-				"contains":"Contains",
-				"not_contains":"Not containing",
-				"starts_with":"Starts with",
-				"not_starts_with":"Not starting with",
-				"ends_with":"Ends with",
-				"not_ends_with":"Not ending with",
-				"AND":"AND",
-				"OR":"OR"
+		"condition": {
+			"title": "Execution conditions",
+			"createBt": "Create a condition",
+			"add_tt": "Add condition",
+			"group_tt": "Create a sub group and add a condition",
+			"placeholder_cmd_param": "Command param {NAME}",
+			"operators": {
+				">": ">",
+				"<": "<",
+				">=": ">=",
+				"<=": "<=",
+				"=": "=",
+				"!=": "!=",
+				"contains": "Contains",
+				"not_contains": "Not containing",
+				"starts_with": "Starts with",
+				"not_starts_with": "Not starting with",
+				"ends_with": "Ends with",
+				"not_ends_with": "Not ending with",
+				"AND": "AND",
+				"OR": "OR"
 			},
 			"custom_value": "Custom value..."
 		},
-		"slash_cmd":{
+		"slash_cmd": {
 			"param_cmd": "Command",
 			"param_cmd_placeholder": "/command...",
 			"param_ctx_menu": "Add to moderation actions (right click a message)",
@@ -118,11 +118,11 @@
 		},
 		"actions": {
 			"common": {
-				"select_action":"Select the action type to execute",
+				"select_action": "Select the action type to execute",
 				"duplicate_tt": "Duplicate",
 				"next_delay": "Delay before next step (seconds)",
 				"delete": "Delete",
-				"dynamic_placeholder_info":"This action allows you to create a custom placeholder that you can use on subsequent actions.",
+				"dynamic_placeholder_info": "This action allows you to create a custom placeholder that you can use on subsequent actions.",
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
 				"action_customChat": "Custom notification",
@@ -155,7 +155,7 @@
 				"action_stream_infos": "Set stream infos",
 				"action_stream_infos_tt": "You need to allow Twitchat to update your stream info",
 				"action_vibrate": "Vibrate phone",
-				"custom_placeholder_example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
+				"custom_placeholder_example": "Use {PLACEHOLDER} key in any field of the actions after this one to get the placeholder's value.",
 				"action_goxlr": "Control GoXLR",
 				"action_goxlr_tt": "You need to connect your GoXLR",
 				"action_customBadges": "Custom user badges",
@@ -177,7 +177,7 @@
 				"param_globalCD": "Global cooldown ({VALUE}s)",
 				"param_userCD": "User cooldown ({VALUE}s)",
 				"param_alertCD": "Tell users if they're cooled down",
-				"commands_list":"Chat commands",
+				"commands_list": "Chat commands",
 				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command"
 			},
 			"discord": {
@@ -198,32 +198,32 @@
 				"param_track": "Track to add (name or URL)",
 				"param_confirmSongRequest": "Confirmation message (optional)",
 				"param_failSongRequest": "Send a message if song request failed (optional)",
-				"param_limit_duration":"Limit allowed track duration",
-				"param_max_duration":"Only allow tracks shorter than {VALUE}s",
+				"param_limit_duration": "Limit allowed track duration",
+				"param_max_duration": "Only allow tracks shorter than {VALUE}s",
 				"param_playlist": "Playlist (name, link or ID)",
 				"param_selection": "Track result to select\n(for textual searches)",
 				"param_selection_options": {
-					"1":"Most relevant",
-					"2":"2nd most relevant",
-					"3":"3rd most relevant",
-					"top3":"Random track among the first 3 results",
-					"top5":"Random track among the first 5 results",
-					"top10":"Random track among the first 10 results",
-					"top15":"Random track among the first 15 results",
-					"top20":"Random track among the first 20 results",
-					"top25":"Random track among the first 25 results",
-					"top30":"Random track among the first 30 results",
-					"top40":"Random track among the first 40 results",
-					"top50":"Random track among the first 50 results"
+					"1": "Most relevant",
+					"2": "2nd most relevant",
+					"3": "3rd most relevant",
+					"top3": "Random track among the first 3 results",
+					"top5": "Random track among the first 5 results",
+					"top10": "Random track among the first 10 results",
+					"top15": "Random track among the first 15 results",
+					"top20": "Random track among the first 20 results",
+					"top25": "Random track among the first 25 results",
+					"top30": "Random track among the first 30 results",
+					"top40": "Random track among the first 40 results",
+					"top50": "Random track among the first 50 results"
 				},
 				"spotify_only": "Only works with Spotify",
 				"fail_reasons": {
-					"spotify_not_connected":"Twitchat is not connected with Spotify",
-					"wrong_url":"The given URL isn't a valid Spotify URL",
-					"max_duration":"The given track is longer than the {DURATION} maximum allowed",
-					"api":"Something went wrong when requesting Spotify to add the track to queue.",
-					"no_active_device":"Start playback manually in Spotify first to enable control via the API.",
-					"no_result":"No track found for given search \"{SEARCH}\"."
+					"spotify_not_connected": "Twitchat is not connected with Spotify",
+					"wrong_url": "The given URL isn't a valid Spotify URL",
+					"max_duration": "The given track is longer than the {DURATION} maximum allowed",
+					"api": "Something went wrong when requesting Spotify to add the track to queue.",
+					"no_active_device": "Start playback manually in Spotify first to enable control via the API.",
+					"no_result": "No track found for given search \"{SEARCH}\"."
 				}
 			},
 			"obs": {
@@ -323,9 +323,9 @@
 			"http_ws": {
 				"url": "URL to call",
 				"method": "Method",
-				"topic_placeholder":"custom value...",
-				"output_placeholder":"Store query result on this placeholder",
-				"output_placeholder_placeholder":"placeholder...",
+				"topic_placeholder": "custom value...",
+				"output_placeholder": "Store query result on this placeholder",
+				"output_placeholder_placeholder": "placeholder...",
 				"custom_body": "Custom body",
 				"custom_body_placeholder": "{'{'}\n...\n{'}'}",
 				"select_param": "Select parameters to send:",
@@ -338,62 +338,62 @@
 				"topic_description": "Custom value"
 			},
 			"count": {
-				"value_label":"Value",
-				"select_label":"Counters to update",
-				"select_placeholder":"Select a counter...",
-				"select_action":"Action",
-				"select_action_placeholder":"Select action...",
-				"action_add":"Add value",
-				"action_del":"Substract value",
-				"action_set":"Set value",
-				"user_source_title":"Select the user to update for this counter: | Select the user to update for those counters:",
-				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All entries",
-				"user_source_chatters":"All users on chat",
-				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"value_label": "Value",
+				"select_label": "Counters to update",
+				"select_placeholder": "Select a counter...",
+				"select_action": "Action",
+				"select_action_placeholder": "Select action...",
+				"action_add": "Add value",
+				"action_del": "Substract value",
+				"action_set": "Set value",
+				"user_source_title": "Select the user to update for this counter: | Select the user to update for those counters:",
+				"user_source_sender": "User calling the trigger",
+				"user_source_everyone": "All entries",
+				"user_source_chatters": "All users on chat",
+				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
 			"value": {
-				"value_label":"Value",
-				"select_label":"Values to update",
-				"select_placeholder":"Select a value...",
-				"user_source_title":"Select the user to update for this value: | Select the user to update for those values:",
-				"user_source_sender":"User calling the trigger",
-				"user_source_everyone":"All entries",
-				"user_source_chatters":"All users on chat",
-				"user_source_placeholder":"Placeholder {'{'}{PLACEHOLDER}{'}'}"
+				"value_label": "Value",
+				"select_label": "Values to update",
+				"select_placeholder": "Select a value...",
+				"user_source_title": "Select the user to update for this value: | Select the user to update for those values:",
+				"user_source_sender": "User calling the trigger",
+				"user_source_everyone": "All entries",
+				"user_source_chatters": "All users on chat",
+				"user_source_placeholder": "Placeholder {'{'}{PLACEHOLDER}{'}'}"
 			},
-			"random":{
-				"min_label":"Min value (included)",
-				"max_label":"Max value (included)",
-				"float_label":"Allow for float numbers",
-				"example":"Use {PLACEHOLDER} key in any field of the actions after this one to get the random value.",
-				"number":"Number",
-				"list":"List",
-				"trigger":"Triggers",
-				"trigger_info":"Execute a random trigger amgonst the selected ones",
-				"trigger_select":"Select one or more triggers",
-				"trigger_skipDisabled":"Ignore disabled triggers during random selection",
-				"trigger_disableAfterExec":"Disable selected trigger after executing it",
-				"list_label":"Pick a random entry amongst these ones:",
-				"list_entry_placeholder":"add entry...",
-				"placeholder_label":"Placeholder name"
+			"random": {
+				"min_label": "Min value (included)",
+				"max_label": "Max value (included)",
+				"float_label": "Allow for float numbers",
+				"example": "Use {PLACEHOLDER} key in any field of the actions after this one to get the random value.",
+				"number": "Number",
+				"list": "List",
+				"trigger": "Triggers",
+				"trigger_info": "Execute a random trigger amgonst the selected ones",
+				"trigger_select": "Select one or more triggers",
+				"trigger_skipDisabled": "Ignore disabled triggers during random selection",
+				"trigger_disableAfterExec": "Disable selected trigger after executing it",
+				"list_label": "Pick a random entry amongst these ones:",
+				"list_entry_placeholder": "add entry...",
+				"placeholder_label": "Placeholder name"
 			},
-			"raffle_enter":{
-				"info":"The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
+			"raffle_enter": {
+				"info": "The user triggering the current event will enter any currently running raffle. It will do nothing if no raffle has been created first."
 			},
-			"vibrate":{
-				"info":"This action only works when using Twitchat on a mobile device.",
-				"pattern":"Vibration pattern"
+			"vibrate": {
+				"info": "This action only works when using Twitchat on a mobile device.",
+				"pattern": "Vibration pattern"
 			},
-			"heat":{
-				"select_area":"Select one or multiple areas to be clicked to execute this trigger",
-				"no_area":"You created no clickable area",
-				"create_areaBt":"Create clickable areas"
+			"heat": {
+				"select_area": "Select one or multiple areas to be clicked to execute this trigger",
+				"no_area": "You created no clickable area",
+				"create_areaBt": "Create clickable areas"
 			},
 			"goxlr": {
-				"select_button":"Select which buttons should execute that trigger in the interface bellow",
-				"param_action":"Action type",
-				"param_fxPreset":"FX preset to enable",
+				"select_button": "Select which buttons should execute that trigger in the interface bellow",
+				"param_action": "Action type",
+				"param_fxPreset": "FX preset to enable",
 				"param_fxPreset_keep": "Keep current",
 				"param_fxPreset1": "Preset 1",
 				"param_fxPreset2": "Preset 2",
@@ -402,16 +402,16 @@
 				"param_fxPreset5": "Preset 5",
 				"param_fxPreset6": "Preset 6",
 				"param_faderIndex": "Audio channel to update",
-				"param_fader_mic":"Mic",
-				"param_fader_chat":"Voice chat",
-				"param_fader_music":"Music",
-				"param_fader_game":"Game",
-				"param_fader_console":"Console",
-				"param_fader_linein":"Line In",
-				"param_fader_system":"System",
-				"param_fader_sample":"Sample",
+				"param_fader_mic": "Mic",
+				"param_fader_chat": "Voice chat",
+				"param_fader_music": "Music",
+				"param_fader_game": "Game",
+				"param_fader_console": "Console",
+				"param_fader_linein": "Line In",
+				"param_fader_system": "System",
+				"param_fader_sample": "Sample",
 				"param_faderValue": "Volume (0 => 253)",
-				"param_profile":"Profile",
+				"param_profile": "Profile",
 				"action_fx_on": "Enable FX",
 				"action_fx_off": "Disable FX",
 				"action_sample_play": "Play sample",
@@ -456,46 +456,46 @@
 				"param_action_label": "Button label",
 				"param_action_icon": "Button icon",
 				"param_action_theme": "Button style",
-				"param_action_theme_default":"Default",
-				"param_action_theme_primary":"Green",
-				"param_action_theme_secondary":"Orange",
-				"param_action_theme_alert":"Red",
-				"param_action_theme_light":"White",
+				"param_action_theme_default": "Default",
+				"param_action_theme_primary": "Green",
+				"param_action_theme_secondary": "Orange",
+				"param_action_theme_alert": "Red",
+				"param_action_theme_light": "White",
 				"add_actionBt": "Add an action"
 			},
 			"heat_click": {
-				"param_overlay":"Overlay to send the click to",
-				"param_forward":"Forward current click data to overlay",
-				"param_x":"X coordinate (in %: 0 => 100)",
-				"param_y":"Y coordinate (in %: 0 => 100)",
-				"param_ctrl":"Ctrl key pressed",
-				"param_shift":"Shift key pressed",
-				"param_alt":"Alt key pressed"
+				"param_overlay": "Overlay to send the click to",
+				"param_forward": "Forward current click data to overlay",
+				"param_x": "X coordinate (in %: 0 => 100)",
+				"param_y": "Y coordinate (in %: 0 => 100)",
+				"param_ctrl": "Ctrl key pressed",
+				"param_shift": "Shift key pressed",
+				"param_alt": "Alt key pressed"
 			},
-			"reward":{
-				"param_action":"Action to perform",
-				"param_action_toggle":"Enable/Disable a reward",
-				"param_action_edit":"Update a reward",
-				"param_action_create":"Create a reward",
-				"param_action_delete":"Delete a reward",
-				"param_action_refund":"Refund redeem",
-				"param_reward":"Reward to change",
-				"param_state":"New reward state",
-				"param_state_enable":"Enable",
-				"param_state_disable":"Disable",
-				"param_state_toggle":"Toggle state",
-				"no_manageable_reward":"You have no manageable reward. Please first create a reward from Twitchat or transfer any of your existing rewards to Twitchat.\nClick the {ICON} button at the bottom left."
+			"reward": {
+				"param_action": "Action to perform",
+				"param_action_toggle": "Enable/Disable a reward",
+				"param_action_edit": "Update a reward",
+				"param_action_create": "Create a reward",
+				"param_action_delete": "Delete a reward",
+				"param_action_refund": "Refund redeem",
+				"param_reward": "Reward to change",
+				"param_state": "New reward state",
+				"param_state_enable": "Enable",
+				"param_state_disable": "Disable",
+				"param_state_toggle": "Toggle state",
+				"no_manageable_reward": "You have no manageable reward. Please first create a reward from Twitchat or transfer any of your existing rewards to Twitchat.\nClick the {ICON} button at the bottom left."
 			},
-			"extension":{
-				"param_id":"Extension to update",
-				"param_enable":"New extension state",
-				"param_slot":"New extension location"
+			"extension": {
+				"param_id": "Extension to update",
+				"param_enable": "New extension state",
+				"param_slot": "New extension location"
 			},
-			"lumia":{
-				"param_color":"Lights color",
-				"param_brightness":"Brightness",
-				"param_duration":"Duration to keep color for",
-				"param_transition":"Transition duration"
+			"lumia": {
+				"param_color": "Lights color",
+				"param_brightness": "Brightness",
+				"param_duration": "Duration to keep color for",
+				"param_transition": "Transition duration"
 			}
 		},
 		"categories": {
@@ -518,7 +518,7 @@
 			"tipeee": "Tipeee"
 		},
 		"placeholders": {
-			"trigger_name":"Current trigger name",
+			"trigger_name": "Current trigger name",
 			"trigger_id": "Current trigger ID",
 			"user": "User name",
 			"user_id": "User ID",
@@ -537,9 +537,9 @@
 			"poll_win": "Winning choice title",
 			"prediction_title": "Prediction title",
 			"prediction_win": "Winning choice title",
-			"prediction_points":"Total channel points bet",
-			"prediction_users":"Total users that participated",
-			"prediction_users_win":"Users that voted for winning outcome",
+			"prediction_points": "Total channel points bet",
+			"prediction_users": "Total users that participated",
+			"prediction_users_win": "Users that voted for winning outcome",
 			"followage": "Following date",
 			"followage_ms": "Following date in milliseconds",
 			"winner": "Winner name",
@@ -622,9 +622,9 @@
 			"counter_userid": "User ID (for user specific counters)",
 			"counter_global_value": "{NAME} counter value",
 			"value_global_value": "Value {NAME}",
-			"value_name":"Name of the Value",
-			"new_value":"New value",
-			"old_value":"Old value",
+			"value_name": "Name of the Value",
+			"new_value": "New value",
+			"old_value": "Old value",
 			"watch_streak": "Watch streak streams count",
 			"points_earned": "Watch streak channel points earned",
 			"obs_scene": "Current OBS scene name",
@@ -646,86 +646,95 @@
 			"heat_key_shift": "Is SHIFT key pressed?",
 			"heat_key_ctrl": "Is CTRL key pressed?",
 			"clip_url": "Clip URL",
-			"timer_value":"Timer's value in seconds",
-			"timer_value_formated":"Formated timer's value",
-			"countdown_value":"Countdown's remaining time in seconds",
-			"countdown_value_formated":"Formated countdown's remaining time",
-			"countdown_duration":"Countdown's duration in seconds",
-			"countdown_duration_ms":"Countdown's duration in milliseconds",
+			"timer_value": "Timer's value in seconds",
+			"timer_value_formated": "Formated timer's value",
+			"countdown_value": "Countdown's remaining time in seconds",
+			"countdown_value_formated": "Formated countdown's remaining time",
+			"countdown_duration": "Countdown's duration in seconds",
+			"countdown_duration_ms": "Countdown's duration in milliseconds",
 			"countdown_duration_formated": "Formated countdown's duration",
-			"goxlr_button_id":"Id of the button",
-			"goxlr_fader_index":"Fader index (1 -> 4)",
-			"goxlr_preset_index":"Preset index (1 -> 6)",
-			"goxlr_fxenabled":"FX enabled",
-			"goxlr_cough":"Cough button active",
-			"goxlr_profile":"Current GoXLR profile",
-			"goxlr_input_mic":"Mic input volume",
-			"goxlr_input_chat":"Chat input volume",
-			"goxlr_input_music":"Music input volume",
-			"goxlr_input_game":"Game input volume",
-			"goxlr_input_console":"Console input volume",
-			"goxlr_input_linein":"Line In input volume",
-			"goxlr_input_system":"System input volume",
-			"goxlr_input_sample":"Sample input volume",
-			"goxlr_fx_state":"FX enabled state",
-			"goxlr_fx_preset":"Current FX preset index (1 -> 6)",
-			"goxlr_megaphone":"Megaphone active",
-			"goxlr_robot":"Robot active",
-			"goxlr_hardtune":"Hardtune active",
-			"goxlr_reverb":"Reverb encoder value",
-			"goxlr_pitch":"Pitch encoder value",
-			"goxlr_echo":"Echo encoder value",
-			"goxlr_gender":"Gender encoder value",
-			"goxlr_fader_1_mute":"Fader 1 muted",
-			"goxlr_fader_2_mute":"Fader 2 muted",
-			"goxlr_fader_3_mute":"Fader 3 muted",
-			"goxlr_fader_4_mute":"Fader 4 muted",
-			"ad_break_duration":"Ad break duration in seconds",
-			"ad_break_user":"Name of the moderator that started the ad break (empty if automatically started)",
-			"announcement_color":"Couleur de l'annonce",
-			"track_add_fail_reason":"Track add fail reason",
-			"now":"Date in milliseconds",
-			"last_sub":"Last subscriber",
-			"last_sub_id":"Last subscriber ID",
-			"last_subgifter":"Last subgifter",
-			"last_subgifter_id":"Last subgifter ID",
-			"total_sub":"Active subscriber count",
-			"partner_plus_points":"Total Partner Plus points",
-			"last_follow":"Last follower",
-			"last_follow_id":"Last follower ID",
-			"total_follow":"Total followers",
-			"last_cheer":"Last cheer",
-			"last_cheer_id":"Last cheer ID",
-			"last_cheer_amount":"Last cheer amount",
-			"qna_command":"Command to submit a Q&A entry",
-			"merch_product":"Product name",
-			"currency":"Currency",
-			"donation_amount":"Donation amount",
-			"donation_amount_formatted":"Donation amount formatted",
-			"merch_amount":"Amount paid",
-			"subscription_amount":"Subscription amount",
-			"kofi_tier":"Tier name (might be empty)",
-			"kofi_product_names":"Product names (might be empty)",
-			"kofi_product_ids":"Product IDs",
-			"kofi_first_time_sub":"Is a first-time subscriber?",
-			"sl_tipLatest_amount":"Latest tip amount",
-			"sl_tipLatest_message":"Latest tip message",
-			"sl_tipLatest_username":"Latest tip username",
-			"sl_tipSession":"Total amount tips received during this stream",
-			"sl_tipTotal":"Total amount of tip received all time",
-			"sl_tipCount":"Number of tips received all time",
-			"sl_tipWeek":"Total amount of tip received this week",
-			"sl_tipMonth":"Total amount of tip received this month",
-			"sl_tipGoal":"Donation goal",
-			"sl_tipSessionTopDonation_amount":"Top donation amount this stream",
-			"sl_tipSessionTopDonation_username":"Name of top donation this stream",
-			"sl_tipWeeklyTopDonation_amount":"Top donation amount this week",
-			"sl_tipWeeklyTopDonation_username":"Name of top donation this week",
-			"sl_tipMonthlyTopDonation_amount":"Top donation amount this month",
-			"sl_tipMonthlyTopDonation_username":"Name of top donation this month",
-			"sl_tipAlltimeTopDonation_amount":"Top donation amount all time",
-			"sl_tipAlltimeTopDonation_username":"Name of top donation all time",
-			"tipeee_resub_months":"Number of months"
+			"goxlr_button_id": "Id of the button",
+			"goxlr_fader_index": "Fader index (1 -> 4)",
+			"goxlr_preset_index": "Preset index (1 -> 6)",
+			"goxlr_fxenabled": "FX enabled",
+			"goxlr_cough": "Cough button active",
+			"goxlr_profile": "Current GoXLR profile",
+			"goxlr_input_mic": "Mic input volume",
+			"goxlr_input_chat": "Chat input volume",
+			"goxlr_input_music": "Music input volume",
+			"goxlr_input_game": "Game input volume",
+			"goxlr_input_console": "Console input volume",
+			"goxlr_input_linein": "Line In input volume",
+			"goxlr_input_system": "System input volume",
+			"goxlr_input_sample": "Sample input volume",
+			"goxlr_fx_state": "FX enabled state",
+			"goxlr_fx_preset": "Current FX preset index (1 -> 6)",
+			"goxlr_megaphone": "Megaphone active",
+			"goxlr_robot": "Robot active",
+			"goxlr_hardtune": "Hardtune active",
+			"goxlr_reverb": "Reverb encoder value",
+			"goxlr_pitch": "Pitch encoder value",
+			"goxlr_echo": "Echo encoder value",
+			"goxlr_gender": "Gender encoder value",
+			"goxlr_fader_1_mute": "Fader 1 muted",
+			"goxlr_fader_2_mute": "Fader 2 muted",
+			"goxlr_fader_3_mute": "Fader 3 muted",
+			"goxlr_fader_4_mute": "Fader 4 muted",
+			"ad_break_duration": "Ad break duration in seconds",
+			"ad_break_user": "Name of the moderator that started the ad break (empty if automatically started)",
+			"announcement_color": "Couleur de l'annonce",
+			"track_add_fail_reason": "Track add fail reason",
+			"now": "Date in milliseconds",
+			"last_sub": "Last subscriber",
+			"last_sub_id": "Last subscriber ID",
+			"last_subgifter": "Last subgifter",
+			"last_subgifter_id": "Last subgifter ID",
+			"total_sub": "Active subscriber count",
+			"partner_plus_points": "Total Partner Plus points",
+			"last_follow": "Last follower",
+			"last_follow_id": "Last follower ID",
+			"total_follow": "Total followers",
+			"last_cheer": "Last cheer",
+			"last_cheer_id": "Last cheer ID",
+			"last_cheer_amount": "Last cheer amount",
+			"qna_command": "Command to submit a Q&A entry",
+			"merch_product": "Product name",
+			"currency": "Currency",
+			"donation_amount": "Donation amount",
+			"donation_amount_formatted": "Donation amount formatted",
+			"merch_amount": "Amount paid",
+			"subscription_amount": "Subscription amount",
+			"kofi_tier": "Tier name (might be empty)",
+			"kofi_product_names": "Product names (might be empty)",
+			"kofi_product_ids": "Product IDs",
+			"kofi_first_time_sub": "Is a first-time subscriber?",
+			"sl_tipLatest_amount": "Latest tip amount",
+			"sl_tipLatest_message": "Latest tip message",
+			"sl_tipLatest_username": "Latest tip username",
+			"sl_tipSession": "Total amount tips received during this stream",
+			"sl_tipTotal": "Total amount of tip received all time",
+			"sl_tipCount": "Number of tips received all time",
+			"sl_tipWeek": "Total amount of tip received this week",
+			"sl_tipMonth": "Total amount of tip received this month",
+			"sl_tipGoal": "Donation goal",
+			"sl_tipSessionTopDonation_amount": "Top donation amount this stream",
+			"sl_tipSessionTopDonation_username": "Name of top donation this stream",
+			"sl_tipWeeklyTopDonation_amount": "Top donation amount this week",
+			"sl_tipWeeklyTopDonation_username": "Name of top donation this week",
+			"sl_tipMonthlyTopDonation_amount": "Top donation amount this month",
+			"sl_tipMonthlyTopDonation_username": "Name of top donation this month",
+			"sl_tipAlltimeTopDonation_amount": "Top donation amount all time",
+			"sl_tipAlltimeTopDonation_username": "Name of top donation all time",
+			"tipeee_resub_months": "Number of months",
+			"last_sub_tier": "Last subscription tier",
+			"last_subgifter_tier": "Last subgifted tier",
+			"bingo_grid_id": "Grid ID",
+			"bingo_grid_name": "Grid name",
+			"bingo_grid_cell_x": "X coordinates of the ticked cell",
+			"bingo_grid_cell_y": "Y coordinates of the ticked cell",
+			"bingo_grid_col": "Index of the filled column",
+			"bingo_grid_row": "Index of the filled row",
+			"bingo_grid_diag": "Index of the filled diagonal"
 		},
 		"events": {
 			"CHAT_COMMAND": {
@@ -763,8 +772,8 @@
 			"RETURNING_USER": {
 				"label": "Returning user",
 				"description": "Actions to execute when a user comes back after chatting at least twice in the last 30 days. {INFO}",
-				"description_info":"(ceci n'existe peut-être plus sur Twitch)",
-				"disabled_reason":"Twitch restricted access to this information. Twitchat cannot use it anymore :("
+				"description_info": "(ceci n'existe peut-être plus sur Twitch)",
+				"disabled_reason": "Twitch restricted access to this information. Twitchat cannot use it anymore :("
 			},
 			"PRESENTATION": {
 				"label": "User presentation",
@@ -868,8 +877,8 @@
 			"UNVIP": {
 				"label": "User /unvip",
 				"description": "Actions to execute when a user is removed from your VIPs {INFO}",
-				"description_info":"(only works when using {CMD} command from twitchat)",
-				"description_info_cmd":"/unvip"
+				"description_info": "(only works when using {CMD} command from twitchat)",
+				"description_info_cmd": "/unvip"
 			},
 			"MOD": {
 				"label": "User /mod",
@@ -878,8 +887,8 @@
 			"UNMOD": {
 				"label": "User /unmod",
 				"description": "Actions to execute when a user is removed from your mods {INFO}",
-				"description_info":"(only works when using {CMD} command from twitchat)",
-				"description_info_cmd":"/unmod"
+				"description_info": "(only works when using {CMD} command from twitchat)",
+				"description_info_cmd": "/unmod"
 			},
 			"SHIELD_MODE_ON": {
 				"label": "Shield mode enabled",
@@ -958,7 +967,7 @@
 			"CHAT_ALERT": {
 				"label": "Chat alert",
 				"description": "Actions to execute when the Chat Alert feature is triggered {INFO}",
-				"description_info":"(Parameters => @:params.categories.features => @:params.alertMode )"
+				"description_info": "(Parameters => @:params.categories.features => @:params.alertMode )"
 			},
 			"VOICEMOD": {
 				"label": "Voicemod - voice changed",
@@ -1027,24 +1036,24 @@
 			"STREAM_ONLINE": {
 				"label": "Stream start",
 				"description": "Actions to execute when stream starts {INFO}",
-				"description_info":"(you might have to wait +1min before receiving that info)"
+				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"STREAM_OFFLINE": {
 				"label": "Stream stop",
 				"description": "Actions to execute when stream stops {INFO}",
-				"description_info":"(you might have to wait +1min before receiving that info)"
+				"description_info": "(you might have to wait +1min before receiving that info)"
 			},
 			"FOLLOWED_STREAM_ONLINE": {
 				"label": "Followed stream start",
 				"description": "Actions to execute when one of your following starts a stream {INFO}",
-				"description_info":"(you might have to wait up to 5min before receiving that info)",
-				"disabled_reason":"You must allow Twitchat to list your followings"
+				"description_info": "(you might have to wait up to 5min before receiving that info)",
+				"disabled_reason": "You must allow Twitchat to list your followings"
 			},
 			"FOLLOWED_STREAM_OFFLINE": {
 				"label": "Followed stream stop",
 				"description": "Actions to execute when one of your following stops a stream {INFO}",
-				"description_info":"(you might have to wait up to 5min before receiving that info)",
-				"disabled_reason":"You must allow Twitchat to list your followings"
+				"description_info": "(you might have to wait up to 5min before receiving that info)",
+				"disabled_reason": "You must allow Twitchat to list your followings"
 			},
 			"COUNTER_EDIT": {
 				"label": "A counter is modified",
@@ -1069,7 +1078,7 @@
 			"COUNTER_LOOPED": {
 				"label": "Counter value looped",
 				"description": "Actions to execute when the {SUB_ITEM_NAME} counter value is looped {INFO}",
-				"description_info":"(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
+				"description_info": "(if \"loop\" option is enabled and value reaches max, value will switch to min and vice versa)"
 			},
 			"RAID_STARTED": {
 				"label": "Started a raid",
@@ -1210,6 +1219,22 @@
 			"TIPEEE_RESUB": {
 				"label": "Received a resub on Tipeee",
 				"description": "Actions to execute when someones resubscribes on Tipeee"
+			},
+			"BINGO_GRID_LINE": {
+				"label": "Bingo grid line complete",
+				"description": "Actions to execute when a line is complete on a bingo grid"
+			},
+			"BINGO_GRID_ALL": {
+				"label": "Bingo grid complete",
+				"description": "Actions to execute when all cells of the grid are ticked"
+			},
+			"BINGO_GRID_CELL": {
+				"label": "Bingo grid cell ticked",
+				"description": "Actions to execute when a bingo grid cell is ticked"
+			},
+			"BINGO_GRID_RESET": {
+				"label": "Bingo grid is reset",
+				"description": "Actions to execute when a bingo grid is reset (all cells unticked)"
 			}
 		},
 		"musicEvents": {

@@ -654,28 +654,29 @@ export const storeChat = defineStore('chat', {
 				}
 				messageList.unshift(splitter);
 
-				let lastCheer!:TwitchatDataTypes.MessageCheerData;
-				let lastSub!:TwitchatDataTypes.MessageSubscriptionData;
-				let lastSubgift!:TwitchatDataTypes.MessageSubscriptionData;
 				const uid = StoreProxy.auth.twitch.user.id;
+				let lastCheer = undefined;
+				let lastSub = StoreProxy.auth.lastSubscriber[uid];
+				let lastSubgift = StoreProxy.auth.lastSubgifter[uid];
 
-				//Force reactivity so merging feature works on old messages
+				//Parse all history
 				for (let i = res.length-1; i >= 0; i--) {
 					const m = res[i];
 					if(!lastCheer && m.type === TwitchatDataTypes.TwitchatMessageType.CHEER) {
-						lastCheer = m;
-						StoreProxy.auth.lastCheer[uid] = {user:m.user, bits:m.bits};
+						lastCheer = {user:m.user, bits:m.bits};
+						StoreProxy.auth.lastCheer[m.channel_id] = lastCheer;
 					}
 					if(m.type === TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 						if(!lastSub && !m.is_gift) {
-							lastSub = m;
-							StoreProxy.auth.lastSubscriber[uid] = m.user;
+							lastSub = {user:m.user, tier:m.tier};
+							StoreProxy.auth.lastSubscriber[m.channel_id] = lastSub;
 						}
 						if(!lastSubgift && m.is_gift) {
-							lastSubgift = m;
-							StoreProxy.auth.lastSubgifter[uid] = {user:m.user, giftCount:m.gift_count || 1};
+							lastSubgift = {user:m.user, giftCount:m.gift_count || 1, tier:m.tier};
+							StoreProxy.auth.lastSubgifter[m.channel_id] = lastSubgift;
 						}
 					}
+					//Force reactivity so merging feature works on old messages
 					messageList.unshift(reactive(m));
 				}
 
@@ -1151,7 +1152,6 @@ export const storeChat = defineStore('chat', {
 					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 					//If it's a subgift, merge it with potential previous ones
 					if(message.is_gift) {
-						StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:1};
 						// console.log("Merge attempt");
 						const len = Math.max(0, messageList.length-30);//Only check within the last 30 messages
 						for (let i = messageList.length-1; i > len; i--) {
@@ -1191,7 +1191,8 @@ export const storeChat = defineStore('chat', {
 							console.log("[SUBSCRIPTION MERGE] Don't merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
 						}
 					}else{
-						StoreProxy.auth.lastSubscriber[message.channel_id] = message.user;
+						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
+						StoreProxy.auth.lastSubscriber[message.channel_id] = {user:message.user, tier:message.tier};
 					}
 					break;
 				}
@@ -1458,6 +1459,8 @@ export const storeChat = defineStore('chat', {
 					recipientCount = message.gift_recipients!.length;
 					await Utils.promisedTimeout(1000);
 				}
+				StoreProxy.auth.totalSubscribers[message.channel_id] += message.gift_count || 1;
+				StoreProxy.auth.lastSubgifter[message.channel_id] = {user:message.user, giftCount:message.gift_count || 1, tier:message.tier};
 			}
 
 			if(message.type == TwitchatDataTypes.TwitchatMessageType.CHEER) {

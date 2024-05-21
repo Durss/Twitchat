@@ -1155,6 +1155,10 @@ export const TriggerTypes = {
 	TIPEEE_DONATION:"113",
 	TIPEEE_SUB:"114",
 	TIPEEE_RESUB:"115",
+	BINGO_GRID_LINE:"116",
+	BINGO_GRID_CELL:"117",
+	BINGO_GRID_ALL:"118",
+	BINGO_GRID_RESET:"119",
 
 	TWITCHAT_AD:"ad",
 	TWITCHAT_LIVE_FRIENDS:"live_friends",
@@ -1731,6 +1735,22 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		{tag:"RESUB_MONTHS", descKey:'triggers.placeholders.tipeee_resub_months', pointer:"recurringCount", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageTipeeeDonationData>,
 	];
 
+	map[TriggerTypes.BINGO_GRID_LINE] =
+	map[TriggerTypes.BINGO_GRID_CELL] =
+	map[TriggerTypes.BINGO_GRID_ALL] = [
+		{tag:"GRID_ID", descKey:'triggers.placeholders.bingo_grid_id', pointer:"bingoGridId", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"GRID_NAME", descKey:'triggers.placeholders.bingo_grid_name', pointer:"bingoGridName", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"CELL_X", descKey:'triggers.placeholders.bingo_grid_cell_x', pointer:"coords.x", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"CELL_Y", descKey:'triggers.placeholders.bingo_grid_cell_y', pointer:"coords.y", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"COL_INDEX", descKey:'triggers.placeholders.bingo_grid_col', pointer:"col", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"ROW_INDEX", descKey:'triggers.placeholders.bingo_grid_row', pointer:"row", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"DIAG_INDEX", descKey:'triggers.placeholders.bingo_grid_diag', pointer:"diagonal", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+	];
+	map[TriggerTypes.BINGO_GRID_RESET] = [
+		{tag:"GRID_ID", descKey:'triggers.placeholders.bingo_grid_id', pointer:"bingoGridId", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+		{tag:"GRID_NAME", descKey:'triggers.placeholders.bingo_grid_name', pointer:"bingoGridName", numberParsable:true, isUserID:false} as ITriggerPlaceholder<TwitchatDataTypes.MessageBingoGridData>,
+	];
+
 	const counters = StoreProxy.counters.counterList;
 	const counterPlaceholders:ITriggerPlaceholder<any>[] = [];
 	for (let i = 0; i < counters.length; i++) {
@@ -1802,8 +1822,10 @@ export function TriggerEventPlaceholders(key:TriggerTypesValue):ITriggerPlacehol
 		if(entry.findIndex(v=>v.tag == "TWITCH_LAST_SUB") == -1 && TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB", descKey:"triggers.placeholders.last_sub", pointer:"__twitch__.lastsub_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB_ID", descKey:"triggers.placeholders.last_sub_id", pointer:"__twitch__.lastsub_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUB_TIER", descKey:"triggers.placeholders.last_sub_tier", pointer:"__twitch__.lastsub_tier", numberParsable:false, isUserID:true, globalTag:true, example:"1"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER", descKey:"triggers.placeholders.last_subgifter", pointer:"__twitch__.lastsubgifter_login", numberParsable:false, isUserID:false, globalTag:true, example:"Durss"});
 			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_ID", descKey:"triggers.placeholders.last_subgifter_id", pointer:"__twitch__.lastsubgifter_id", numberParsable:false, isUserID:true, globalTag:true, example:"29961813"});
+			entry.push({category:"twitch", tag:"TWITCH_LAST_SUBGIFTER_TIER", descKey:"triggers.placeholders.last_subgifter_tier", pointer:"__twitch__.lastsubgifter_tier", numberParsable:false, isUserID:true, globalTag:true, example:"1"});
 			entry.push({category:"twitch", tag:"TWITCH_TOTAL_SUBS_ACTIVE", descKey:"triggers.placeholders.total_sub", pointer:"__twitch__.totalsubs", numberParsable:true, isUserID:false, globalTag:true, example:"1312"});
 			entry.push({category:"twitch", tag:"TWITCH_PARTNER_PLUS_POINTS", descKey:"triggers.placeholders.partner_plus_points", pointer:"__twitch__.partnerpluspoints", numberParsable:true, isUserID:false, globalTag:true, example:"1312", private:true});
 		}
@@ -1928,6 +1950,12 @@ export function TriggerTypesDefinitionList():TriggerTypeDefinition[] {
 		{category:TriggerEventTypeCategories.GAMES, icon:"prediction", labelKey:"triggers.events.PREDICTION_RESULT.label", value:TriggerTypes.PREDICTION_RESULT, descriptionKey:"triggers.events.PREDICTION_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.PREDICTION},
 		{category:TriggerEventTypeCategories.GAMES, icon:"ticket", labelKey:"triggers.events.RAFFLE_RESULT.label", value:TriggerTypes.RAFFLE_RESULT, descriptionKey:"triggers.events.RAFFLE_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.RAFFLE},
 		{category:TriggerEventTypeCategories.GAMES, icon:"bingo", labelKey:"triggers.events.BINGO_RESULT.label", value:TriggerTypes.BINGO_RESULT, descriptionKey:"triggers.events.BINGO_RESULT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO},
+
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_LINE.label", value:TriggerTypes.BINGO_GRID_LINE, descriptionKey:"triggers.events.BINGO_GRID_LINE.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_ALL.label", value:TriggerTypes.BINGO_GRID_ALL, descriptionKey:"triggers.events.BINGO_GRID_ALL.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_CELL.label", value:TriggerTypes.BINGO_GRID_CELL, descriptionKey:"triggers.events.BINGO_GRID_CELL.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
+		{newDate:Config.instance.NEW_FLAGS_DATE_V13, category:TriggerEventTypeCategories.GAMES, icon:"bingo_grid", labelKey:"triggers.events.BINGO_GRID_RESET.label", value:TriggerTypes.BINGO_GRID_RESET, descriptionKey:"triggers.events.BINGO_GRID_RESET.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID},
+
 		{category:TriggerEventTypeCategories.SUBITS, icon:"sub", labelKey:"triggers.events.SUB.label", value:TriggerTypes.SUB, descriptionKey:"triggers.events.SUB.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"gift", labelKey:"triggers.events.SUBGIFT.label", value:TriggerTypes.SUBGIFT, descriptionKey:"triggers.events.SUBGIFT.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION},
 		{category:TriggerEventTypeCategories.SUBITS, icon:"bits", labelKey:"triggers.events.CHEER.label", value:TriggerTypes.CHEER, descriptionKey:"triggers.events.CHEER.description", testMessageType:TwitchatDataTypes.TwitchatMessageType.CHEER},

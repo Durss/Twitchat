@@ -141,12 +141,12 @@ export const storeUsers = defineStore('users', {
 		 * It registers the user on the local DB to get them back later.
 		 * If only the login is given, the user's data are loaded asynchronously from
 		 * remote API then added to the local DB while returning a temporary user object.
-		 * 
-		 * @param platform 
-		 * @param id 
-		 * @param login 
-		 * @param displayName 
-		 * @returns 
+		 *
+		 * @param platform
+		 * @param id
+		 * @param login
+		 * @param displayName
+		 * @returns
 		 */
 		getUserFrom(platform:TwitchatDataTypes.ChatPlatform, channelId?:string, id?:string, login?:string, displayName?:string, loadCallback?:(user:TwitchatDataTypes.TwitchatUser)=>void, forcedFollowState:boolean = false, getPronouns:boolean = false, forcedSubscriberState:boolean = false):TwitchatDataTypes.TwitchatUser {
 			// const s = Date.now();
@@ -165,12 +165,12 @@ export const storeUsers = defineStore('users', {
 			//Cleanup any "@" here so we don't have to do that for every commands
 			if(login && login != this.tmpDisplayName)				login = login.replace("@", "").toLowerCase().trim();
 			if(displayName && displayName != this.tmpDisplayName)	displayName = displayName.replace("@", "").trim();
-			
+
 			//Search user on hashmaps
 			if(id && hashmaps.idToUser[id])									user = hashmaps.idToUser[id];
 			else if(login && hashmaps.loginToUser[login])					user = hashmaps.loginToUser[login];
 			else if(displayName && hashmaps.displayNameToUser[displayName])	user = hashmaps.displayNameToUser[displayName];
-			
+
 			const userExisted = user != undefined;
 
 			if(!user) {
@@ -215,14 +215,14 @@ export const storeUsers = defineStore('users', {
 						is_bot:this.knownBots[platform][login ?? ""] === true,
 						channelInfo:{},
 					};
-					
+
 					user = reactive(userData);
 				}
 
 				// user = reactive(user!);
 			}
 
-			//Override "displayName" property by a getter that returns either the 
+			//Override "displayName" property by a getter that returns either the
 			//"displayNameOriginal" value or the "customUsername" if any is defined
 			//This is to avoid updating "displayName" accessors everywhere on the app.
 			Object.defineProperty(user, 'displayName', {
@@ -234,7 +234,7 @@ export const storeUsers = defineStore('users', {
 					return StoreProxy.users.customUsernames[ref.id]?.name || ref.displayNameOriginal || ref.login
 				}}
 			);
-			
+
 			//This just makes the rest of the code know that the user
 			//actually exists as it cannot be undefined anymore once
 			//we're here.
@@ -268,17 +268,17 @@ export const storeUsers = defineStore('users', {
 						badges:[],
 					};
 				}
-	
+
 				if(this.blockedUsers[platform][user.id] === true) {
 					user.is_blocked = true;
 				}
 			}
-			
+
 			if(!user.temporary && user.platform == "twitch") {
 				if(getPronouns && user.id && user.login && user.pronouns == null) this.loadUserPronouns(user);
 				if(channelId && user.id && user.channelInfo[channelId].is_following == null) this.checkFollowerState(user, channelId);
 			}
-				
+
 			if(!user.displayName) user.displayName = this.tmpDisplayName;
 			if(!user.login) user.login = this.tmpDisplayName;
 
@@ -298,9 +298,9 @@ export const storeUsers = defineStore('users', {
 				//other fields from IRC tags which avoids the need to get the users
 				//details via an API call.
 				const to = setTimeout((batchType:"id"|"login")=> {
-					
+
 					const batch:BatchItem[] = batchType == "login"? twitchUserBatchLoginToLoad.splice(0) : twitchUserBatchIdToLoad.splice(0);
-					
+
 					//Remove items that might have been fullfilled externally
 					for (let i = 0; i < batch.length; i++) {
 						const item = batch[i];
@@ -317,7 +317,7 @@ export const storeUsers = defineStore('users', {
 					if((ids?.length == 0 || ids == undefined) && (logins?.length == 0 || logins == undefined)) return;
 
 					// console.log("LOAD BATCH", batchType, batchType=="id"? ids : logins);
-					
+
 					TwitchUtils.loadUserInfo(ids, logins)
 					.then(async (res) => {
 						// console.log("Batch loaded", batchType);
@@ -340,9 +340,9 @@ export const storeUsers = defineStore('users', {
 								userLocal.displayName = " error(#"+(user!.displayName || user!.login || user!.id)+")";
 								userLocal.login = " error(#"+(user!.login || user!.displayName || user!.id)+")";
 								userLocal.errored = true;
-								
+
 							}else{
-								
+
 								//User sent back by API
 								//Update user info with the API data
 								// console.log("User found", apiUser.login, apiUser.id);
@@ -356,7 +356,7 @@ export const storeUsers = defineStore('users', {
 								if(userLocal.id)			hashmaps!.idToUser[userLocal.id] = userLocal;
 								if(userLocal.login)			hashmaps!.loginToUser[userLocal.login] = userLocal;
 								if(userLocal.displayNameOriginal)	hashmaps!.displayNameToUser[userLocal.displayNameOriginal] = userLocal;
-								
+
 								//Load pronouns if requested
 								if(getPronouns && userLocal.id && userLocal.login) this.loadUserPronouns(userLocal);
 
@@ -392,11 +392,11 @@ export const storeUsers = defineStore('users', {
 						twitchUserBatchLoginTimeout = to;
 					}
 				}
-			}else 
+			}else
 			if(platform != "twitch" && user.temporary) {
 				user.temporary = false;//Avoid blocking promise execution on caller
 			}
-			
+
 			//Attribute a random color to the user (overwrite that externally if necessary)
 			user.color = Utils.pickRand(["#ff0000","#0000ff","#008000","#b22222","#ff7f50","#9acd32","#ff4500","#2e8b57","#daa520","#d2691e","#5f9ea0","#1e90ff","#ff69b4","#8a2be2","#00ff7f"]);
 
@@ -435,7 +435,7 @@ export const storeUsers = defineStore('users', {
 				}
 			}
 		},
-		
+
 		flagUnmod(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
@@ -455,7 +455,7 @@ export const storeUsers = defineStore('users', {
 				}
 			}
 		},
-		
+
 		flagUnvip(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
@@ -491,7 +491,7 @@ export const storeUsers = defineStore('users', {
 			}
 			StoreProxy.chat.addMessage(m);
 		},
-		
+
 		flagUnblocked(platform:TwitchatDataTypes.ChatPlatform, uid:string):void {
 			let user!:TwitchatDataTypes.TwitchatUser;
 			this.blockedUsers[platform][uid] = true;
@@ -561,7 +561,7 @@ export const storeUsers = defineStore('users', {
 			if(unbanFlagTimeouts[uid]) {
 				clearTimeout(unbanFlagTimeouts[uid]);
 			}
-			
+
 			if(duration_s != undefined) {
 				//Auto unflag the user once timeout expires
 				unbanFlagTimeouts[uid] = setTimeout(()=> {
@@ -600,7 +600,7 @@ export const storeUsers = defineStore('users', {
 						const m = messages[i];
 						let labelCode = "";
 						let params:{[key:string]:string} = {DATE:Utils.formatDate(new Date(m.date))};
-						if((m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER) 
+						if((m.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE || m.type == TwitchatDataTypes.TwitchatMessageType.WHISPER)
 						&& m.user.id == uid) {
 							params.MESSAGE = m.message;
 							labelCode = m.deleted? "message_deleted" : "message";
@@ -677,7 +677,7 @@ export const storeUsers = defineStore('users', {
 							threadName:bannedUser.login+" #"+bannedUser.id,
 							history,
 						});
-						
+
 						if(!result.json.success) {
 							if(result.json.errorCode == "POST_FAILED") {
 								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
@@ -702,7 +702,7 @@ export const storeUsers = defineStore('users', {
 								return;
 							}
 						}
-						
+
 						history.forEach(async message=> {
 							await ApiHelper.call("discord/message", "POST", {
 								message,
@@ -714,7 +714,7 @@ export const storeUsers = defineStore('users', {
 			}
 			StoreProxy.chat.delUserMessages(uid, channelId);
 		},
-		
+
 		flagUnbanned(platform:TwitchatDataTypes.ChatPlatform, channelId:string, uid:string):void {
 			for (let i = 0; i < userList.length; i++) {
 				const u = userList[i];
@@ -794,7 +794,7 @@ export const storeUsers = defineStore('users', {
 					resolve();
 				});
 			});
-			
+
 		},
 
 		flagAsFollower(user:TwitchatDataTypes.TwitchatUser, channelId:string):void {
@@ -812,7 +812,7 @@ export const storeUsers = defineStore('users', {
 
 		async loadMyFollowings():Promise<void> {
 			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_FOLLOWINGS])) return;
-			
+
 			const followings = await TwitchUtils.getFollowings(StoreProxy.auth.twitch.user.id);
 			const hashmap:{[key:string]:boolean} = {};
 			followings.forEach(v => { hashmap[v.broadcaster_id] = true; });
@@ -824,6 +824,7 @@ export const storeUsers = defineStore('users', {
 
 			let parseOffset = 0;
 			const hashmap:{[key:string]:number} = {};
+			const uid:string = StoreProxy.auth.twitch.user.id;
 			try {
 				await TwitchUtils.getFollowers(null, 70000, async(list)=> {
 					for (let i = parseOffset; i < list.length; i++) {
@@ -831,6 +832,9 @@ export const storeUsers = defineStore('users', {
 					}
 					parseOffset = list.length;
 					this.myFollowers["twitch"] = hashmap;
+					if(!StoreProxy.auth.lastFollower[uid]) {
+						StoreProxy.auth.lastFollower[uid] = this.getUserFrom("twitch", uid, list[0].user_id, list[0].user_login, list[0].user_name, undefined, true)
+					}
 				})
 			}catch(error) {}
 		},
@@ -861,7 +865,7 @@ export const storeUsers = defineStore('users', {
 				canExecute = false;
 				sendChatSO = false;
 			}
-			
+
 			//Check if we're live
 			if(!StoreProxy.stream.currentStreamInfo[channelId]
 			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
@@ -869,7 +873,7 @@ export const storeUsers = defineStore('users', {
 				canExecute = false;
 				sendChatSO = false;
 			}
-			
+
 			if(user.platform == "twitch" && canExecute) {
 				//Has necessary authorization been granted?
 				if(!TwitchUtils.hasScopes([TwitchScopes.SHOUTOUT])) {
@@ -911,7 +915,7 @@ export const storeUsers = defineStore('users', {
 							//Set the last SO date offset for this channel to now
 							StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate = Date.now();
 						}
-	
+
 						//Shoutout not executed, add it to the pending queue
 						if(addToQueue) {
 							//Add pending SO
@@ -960,7 +964,7 @@ export const storeUsers = defineStore('users', {
 			for (const channelId in this.pendingShoutouts) {
 				const list = this.pendingShoutouts[channelId];
 				if(!list || list.length == 0) continue;
-				
+
 				const elapsed = Date.now() - StoreProxy.stream.currentStreamInfo[channelId]!.lastSoDoneDate;
 				let cooldown = -elapsed;
 				//Compute cooldowns for every pending shoutouts
@@ -971,9 +975,9 @@ export const storeUsers = defineStore('users', {
 
 					//Compute minimum cooldown to wait for this SO
 					cooldown += Math.max(Config.instance.TWITCH_SHOUTOUT_COOLDOWN_SAME_USER - virtualElapsed, Config.instance.TWITCH_SHOUTOUT_COOLDOWN);
-					
+
 					so.executeIn = cooldown;
-					
+
 					//If cooldown has fully elapsed, execute SO
 					if(so.executeIn <= 0) {
 						//Remove it from list
@@ -1017,7 +1021,7 @@ export const storeUsers = defineStore('users', {
 				}
 				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
 			}
-			
+
 			this.saveCustomUsername();
 			return true;
 		},
@@ -1108,12 +1112,12 @@ export const storeUsers = defineStore('users', {
 
 			this.saveCustomBadges();
 		},
-		
+
 		saveCustomBadges():void {
 			DataStore.set(DataStore.CUSTOM_BADGE_LIST, this.customBadgeList);
 			DataStore.set(DataStore.CUSTOM_USER_BADGES, this.customUserBadges);
 		},
-		
+
 		saveCustomUsername():void {
 			DataStore.set(DataStore.CUSTOM_USERNAMES, this.customUsernames);
 		}

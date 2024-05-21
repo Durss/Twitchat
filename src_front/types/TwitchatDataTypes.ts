@@ -1909,6 +1909,7 @@ export namespace TwitchatDataTypes {
 		HYPE_CHAT:"hype_chat",
 		FOLLOWING:"following",
 		COUNTDOWN:"countdown",
+		BINGO_GRID:"bingo_grid",
 		QNA_DELETE:"qna_delete",
 		CLEAR_CHAT:"clear_chat",
 		CHAT_ALERT:"chat_alert",
@@ -2001,6 +2002,7 @@ export namespace TwitchatDataTypes {
 		clear_chat:true,
 		disconnect:true,
 		prediction:true,
+		bingo_grid:false,
 		heat_click:false,
 		chat_alert:false,
 		music_stop:false,
@@ -2162,6 +2164,7 @@ export namespace TwitchatDataTypes {
 									| MessageKofiData
 									| MessageUnbanRequestData
 									| MessageTipeeeDonationData
+									| MessageBingoGridData
 	;
 
 	/**
@@ -4309,5 +4312,52 @@ export namespace TwitchatDataTypes {
 		currency:string;
 		recurring:boolean;
 		recurringCount:number;
+	}
+
+	/**
+	 * Represents a bingo grid event
+	 */
+	export interface MessageBingoGridData extends AbstractTwitchatMessage {
+		type:"bingo_grid";
+		/**
+		 * ID of the related bingo grid
+		 */
+		bingoGridId:string;
+		/**
+		 * Name of the bingo grid
+		 */
+		bingoGridName:string;
+		/**
+		 * Coordinates of the ticked cell
+		 */
+		coords:{
+			x:number;
+			y:number;
+		};
+		/**
+		 * Col index that's been filled
+		 * -1 = none
+		 */
+		col:number;
+		/**
+		 * Row index that's been filled
+		 * -1 = none
+		 */
+		row:number;
+		/**
+		 * Diagonal that's been filled:
+		 * 1 = top left to bottom right
+		 * 2 = top right to bottom left
+		 * -1 = none
+		 */
+		diagonal:number;
+		/**
+		 * All cells ticked ?
+		 */
+		complete:boolean;
+		/**
+		 * Grid has just been reset?
+		 */
+		reset:boolean;
 	}
 }

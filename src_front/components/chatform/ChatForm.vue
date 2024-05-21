@@ -369,13 +369,12 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 	emits: [
 		"update:showEmotes",
 		"update:showCommands",
-		"update:showChatUsers",
 		"update:showRewards",
 		"update:showDevMenu",
 		"update:showShoutout",
-		"setCurrentNotification",
 		"update:showCredits",
 		"update:showBingoGrid",
+		"setCurrentNotification",
 	],
 })
 export class ChatForm extends Vue {

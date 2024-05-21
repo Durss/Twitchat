@@ -37,21 +37,21 @@ export const storeAuth = defineStore('auth', {
 		totalSubscribers: {},//channelId => infos
 		partnerPoints: {},//channelId => infos
 	} as IAuthState),
-	
-	
-	
+
+
+
 	getters: {
 		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor; },
-		
+
 		isRealPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.isPremiumDonor; },
 
 		isDonor():boolean { return this.twitch.user.donor.state || this.isPremium; },
-		
+
 		isAdmin():boolean { return this.twitch.user.is_admin === true; },
 	},
-	
-	
-	
+
+
+
 	actions: {
 		async twitch_tokenRefresh(reconnectIRC:boolean, callback?:(success:boolean)=>void) {
 			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStore.get(DataStore.TWITCH_AUTH_TOKEN));
@@ -83,7 +83,7 @@ export const storeAuth = defineStore('auth', {
 					//Refresh in 1 minute if something failed when refreshing
 					delay = 60*1000;
 				}
-			
+
 				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
@@ -100,7 +100,7 @@ export const storeAuth = defineStore('auth', {
 			window.setInitMessage("twitch authentication");
 
 			try {
-	
+
 				const storeValue = DataStore.get(DataStore.TWITCH_AUTH_TOKEN);
 				let twitchAuthResult:TwitchDataTypes.AuthTokenResult = storeValue? JSON.parse(storeValue) : undefined;
 				if(code) {
@@ -169,7 +169,7 @@ export const storeAuth = defineStore('auth', {
 				}
 
 				this.authenticated = true;
-	
+
 				const sMain = StoreProxy.main;
 				const sUsers = StoreProxy.users;
 				const sStream = StoreProxy.stream;
@@ -177,7 +177,7 @@ export const storeAuth = defineStore('auth', {
 				const sExtension = StoreProxy.extension;
 
 				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
-				
+
 				try {
 					window.setInitMessage("migrating local parameter data");
 					await DataStore.emergencyBackupStorage();
@@ -238,11 +238,13 @@ export const storeAuth = defineStore('auth', {
 						this.totalFollowers[uid] = res.total;
 						if(res.followers.length > 0) {
 							const last = res.followers[0];
-							this.lastFollower[uid] = StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name);
+							StoreProxy.users.getUserFrom("twitch", uid, last.user_id, last.user_login, last.user_name, (user)=>{
+								this.lastFollower[uid] = user;
+							});
 						}
 					};
 					loadFollowers();
-					const id = SetIntervalWorker.instance.create(()=>loadFollowers(), 5 * 60000);
+					SetIntervalWorker.instance.create(()=>loadFollowers(), 5 * 60000);
 				}
 
 				if(TwitchUtils.hasScopes([TwitchScopes.LIST_SUBSCRIBERS])) {
@@ -253,7 +255,7 @@ export const storeAuth = defineStore('auth', {
 						this.totalSubscribers[uid] = res.subs;
 					};
 					loadSubscribers();
-					const id = SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
+					SetIntervalWorker.instance.create(()=>loadSubscribers(), 5 * 60000);
 				}
 
 				//Preload moderators of the channel and flag them accordingly
@@ -268,11 +270,11 @@ export const storeAuth = defineStore('auth', {
 				TwitchUtils.getModeratedChannels().then(async res=> {
 					this.twitchModeratedChannels = res;
 				});
-				
+
 				sMain.onAuthenticated();
 
 				if(cb) cb(true);
-				
+
 			}catch(error) {
 				console.log(error);
 				this.authenticated = false;
@@ -282,7 +284,7 @@ export const storeAuth = defineStore('auth', {
 				router.push({name: 'login'});//Redirect to login if connection failed
 			}
 		},
-	
+
 		logout() {
 			this.authenticated = false;
 			if(DataStore.get(DataStore.SYNC_DATA_TO_SERVER) !== "false") {
@@ -290,7 +292,7 @@ export const storeAuth = defineStore('auth', {
 			}
 			MessengerProxy.instance.disconnect();
 		},
-	
+
 		requestTwitchScopes(scopes:TwitchScopesString[]) {
 			this.newScopesToRequest = scopes;
 		},
@@ -311,7 +313,7 @@ export const storeAuth = defineStore('auth', {
 
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;
-			
+
 			this.twitch.user						= user as Required<TwitchatDataTypes.TwitchatUser>;
 			this.twitch.user.donor.state			= res.json.data.isDonor === true;
 			this.twitch.user.donor.level			= res.json.data.level;
@@ -321,7 +323,7 @@ export const storeAuth = defineStore('auth', {
 			StoreProxy.discord.discordLinked		= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {
-			// 	this.twitch.user.donor.earlyDonor = 
+			// 	this.twitch.user.donor.earlyDonor =
 			// 	this.twitch.user.donor.isPremiumDonor = false
 			// }
 			if(res.json.data.isAdmin === true) this.twitch.user.is_admin = true;

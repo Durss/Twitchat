@@ -286,11 +286,11 @@ export type IAuthState = {
 	/**
 	 * Last subscriber for each platforms
 	 */
-	lastSubscriber:{[key in string]:TwitchatDataTypes.TwitchatUser};
+	lastSubscriber:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, tier:TwitchatDataTypes.MessageSubscriptionData["tier"]}};
 	/**
 	 * Last subsgifter for each platforms
 	 */
-	lastSubgifter:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, giftCount:number}};
+	lastSubgifter:{[key in string]:{user:TwitchatDataTypes.TwitchatUser, tier:TwitchatDataTypes.MessageSubscriptionData["tier"], giftCount:number}};
 	/**
 	 * Total subscriber for each platforms
 	 */
@@ -475,9 +475,16 @@ export interface IBingoGridActions {
 	duplicateGrid(id:string):void;
 	/**
 	 * Saves data to server
-	 * @param edited grid ID. This will broadcast update to overlay
+	 * @param gridId grid ID. This will broadcast update to overlay
+	 * @param cellId [optional] cell ID that's been clicked
 	 */
-	saveData(gridId:string):Promise<void>
+	saveData(gridId:string, cellId?:string):Promise<void>
+	/**
+	 * Inverse the check state of the given cell ID.
+	 * @param gridId
+	 * @param cellId
+	 */
+	toggleCell(gridId:string, cellId:string):void;
 	/**
 	 * Handles a chat command to check if it is linked to a grid
 	 * @param message

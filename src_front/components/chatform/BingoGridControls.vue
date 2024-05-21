@@ -14,7 +14,7 @@
 						:key="entry.id"
 						v-model="entry.check"
 						v-tooltip="entry.label"
-						@change="onChange(grid.id)" />
+						@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)" />
 				</TransitionGroup>
 			</div>
 			<div class="ctas">
@@ -48,14 +48,6 @@ class BingoGridControls extends Vue {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
-	}
-
-	/**
-	 * Called when a cell is un/ticked
-	 * @param gridId
-	 */
-	public onChange(gridId:string):void {
-		this.$store.bingoGrid.saveData(gridId);
 	}
 
 	/**
