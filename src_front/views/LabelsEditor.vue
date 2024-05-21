@@ -1,7 +1,8 @@
 <template>
 	<div class="labelseditor">
 		<div class="head">
-			<AppLangSelector class="langSelector" allLocales />
+			<AppLangSelector class="langSelector" allLocales v-model:langRef="langRef" />
+
 			<div class="sectionList">
 				<TTButton v-for="(value, key) in labelsRef" :key="key"
 				:selected="selectedSectionKey == key"
@@ -115,7 +116,15 @@ import type { JsonObject } from "type-fest";
 	}
 
 	public beforeMount() {
-		this.labelsRef = StoreProxy.i18n.getLocaleMessage(this.langRef);
+		const reloadLabels = ()=>{
+			this.labelsRef = StoreProxy.i18n.getLocaleMessage(this.langRef);
+			this.computeProgresses(true);
+			if(this.selectedSectionKey) {
+				this.onSelectSection(this.selectedSectionKey, [] , true);
+			}
+		}
+		reloadLabels();
+		watch(()=>this.langRef, ()=>reloadLabels())
 		watch(()=>this.$i18n.locale, ()=>{
 			this.computeProgresses(true);
 			if(this.selectedSectionKey) {
@@ -125,7 +134,14 @@ import type { JsonObject } from "type-fest";
 		this.computeProgresses();
 	}
 
-	public onSelectSection(key:string, pathToSelect:string[] = [], force:boolean = false):void {
+	public onSelectSection(key:string, pathToSelect:string[] = [], force:boolean = false, event?:MouseEvent):void {
+		console.log(event);
+		if(event && event.ctrlKey) {
+			console.log("OKOOK");
+			this.langRef = key;
+			this.computeProgresses();
+			return;
+		}
 		if(this.selectedSectionKey === key && !force) return;
 		let labelsRef = this.labelsRef[key as keyof typeof this.labelsRef];
 		let labelsCurrent = this.labelsCurrent[key as keyof typeof this.labelsCurrent] as JsonObject;

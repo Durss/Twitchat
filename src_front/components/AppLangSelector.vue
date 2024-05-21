@@ -1,6 +1,6 @@
 <template>
 	<form class="applangselector">
-		<div class="row" v-for="lang in enabledLocales">
+		<div class="row" v-for="lang in enabledLocales" @click.ctrl.stop.prevent="onCtrlClick(lang)">
 			<input type="radio" name="language" :id="'lang_'+lang" :value="lang" v-model="$i18n.locale">
 			<label :for="'lang_'+lang">
 				<CountryFlag :country="$t('global.lang_flag', lang)" class="flag" /><span class="text">{{ $t('global.lang_label', lang)}}</span>
@@ -19,16 +19,20 @@ import StoreProxy from '@/store/StoreProxy';
 @Component({
 	components:{
 		CountryFlag,
-	}
+	},
+	emits:["update:langRef"],
 })
  class AppLangSelector extends Vue {
 
 	@Prop({default:false, type:Boolean})
 	public allLocales!:boolean;
 
+	@Prop({default:"en", type:String})
+	public langRef!:string;
+
 	public get enabledLocales():string[] {
 		if(this.allLocales !== false) return this.$i18n.availableLocales;
-		
+
 		return this.$i18n.availableLocales.filter(v=> {
 			let root:any = StoreProxy.i18n.getLocaleMessage(v);
 			if(!root.global) return false;
@@ -40,6 +44,10 @@ import StoreProxy from '@/store/StoreProxy';
 		watch(()=>this.$i18n.locale, ()=> {
 			DataStore.set(DataStore.LANGUAGE, this.$i18n.locale);
 		});
+	}
+
+	public onCtrlClick(lang:string):void {
+		this.$emit("update:langRef", lang);
 	}
 
 }
@@ -56,7 +64,7 @@ export default toNative(AppLangSelector);
 		display: flex;
 		position: relative;
 		justify-content: center;
-		
+
 		label {
 			text-align: center;
 			flex-grow: 1;
