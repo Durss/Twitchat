@@ -12,6 +12,8 @@
 			"reset_bt":"Réinitialiser la grille",
 			"param_title":"Nom de la grille",
 			"param_size":"Taille de la grille",
+			"param_background_color":"Couleur de fond",
+			"param_background_alpha":"Opacité du fond",
 			"param_text_color":"Couleur du texte",
 			"param_text_size":"Taille du texte",
 			"param_show_grid":"Afficher les bordures",

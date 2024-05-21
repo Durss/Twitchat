@@ -1,19 +1,31 @@
 <template>
 	<div :class="classes" v-if="ready">
-		<div class="grid" v-if="bingo"
-		:style="{aspectRatio: bingo.cols/bingo.rows, fontSize:bingo.textSize+'px', color:bingo.textColor}">
-			<TransitionGroup name="flip-list">
-				<div v-for="entry in bingo.entries"
-					class="entry"
-					ref="cell"
-					:data-gridid="entry.id"
-					:key="entry.id"
-					:style="{width:(1/bingo.cols*100)+'%'}">
-					<span class="label">{{ entry.label }}</span>
-					<Icon class="cross" name="cross" v-if="entry.check" />
-				</div>
-			</TransitionGroup>
-		</div>
+		<template v-if="bingo">
+			<div class="cells"
+			:style="{aspectRatio: bingo.cols/bingo.rows,
+				fontSize:bingo.textSize+'px',
+				color:bingo.textColor,
+				backgroundColor:backgroundColor,
+				gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
+				<TransitionGroup name="flip-list">
+					<div v-for="entry in bingo.entries"
+						class="cell"
+						ref="cell"
+						:data-gridid="entry.id"
+						:key="entry.id"
+						:style="{width:'100%'}">
+						<span class="label">{{ entry.label }}</span>
+						<Icon class="cross" name="cross" v-if="entry.check" />
+					</div>
+				</TransitionGroup>
+			</div>
+			<div class="grid"
+			:style="{aspectRatio: bingo.cols/bingo.rows,
+				color:bingo.textColor,
+				gridTemplateColumns: 'repeat('+bingo.cols+', 1fr)'}">
+				<div v-for="entry in bingo.entries" class="cell"></div>
+			</div>
+		</template>
 		<div v-else class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
 	</div>
 </template>
@@ -26,6 +38,11 @@ import AbstractOverlay from './AbstractOverlay';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Icon from '../Icon.vue';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
+import gsap from 'gsap';
+import { Back } from 'gsap';
+import { Bounce } from 'gsap';
+import { Elastic } from 'gsap';
+import { Sine } from 'gsap';
 
 @Component({
 	components:{
@@ -47,6 +64,12 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		let res:string[] = ["overlaybingogrid"];
 		if(this.bingo?.showGrid === true) res.push("border");
 		return res;
+	}
+
+	public get backgroundColor():string {
+		const base = this.bingo!.backgroundColor || '#000000';
+		const alpha = this.bingo!.backgroundAlpha || 0;
+		return base+Math.round(alpha/100*0xff).toString(16).padStart(2, "0")
 	}
 
 	public beforeMount(): void {
@@ -102,9 +125,27 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		if(e.data) {
 			const data = e.data;
 			if(data.id != this.id) return;
+			const animate = !this.ready;
 			this.ready = true;
 			if(data.bingo) this.bingo = data.bingo;
+
 			this.broadcastPresence();
+			if(animate) {
+				await this.$nextTick();
+				const cells = this.$refs.cell as HTMLElement[];
+				gsap.from(this.$el, {scale:0, ease:Sine.easeOut, duration:.35});
+				let stagger = 0;
+				//Animate items from center
+				cells.forEach((cell, index) => {
+					stagger += .05;
+					const x = index % this.bingo!.cols;
+					const y = Math.floor(index / this.bingo!.cols);
+					const centerRow = (this.bingo!.rows - 1) / 2;
+					const centerCol = (this.bingo!.cols - 1) / 2;
+					const distance = Math.sqrt(Math.pow(y - centerRow, 2) + Math.pow(x - centerCol, 2));
+					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .25 + distance*.1});
+				})
+			}
 		}
 	}
 }
@@ -113,31 +154,29 @@ export default toNative(OverlayBingoGrid);
 
 <style scoped lang="less">
 .overlaybingogrid{
-	@borderSize: 1px;
-	.grid {
-		// gap: 3px;
-		display: flex;
-		flex-direction: row;
-		flex-wrap: wrap;
-		max-height: 50vh;
-		// overflow: hidden;
-		// border-radius: 20px;
-		// margin: var(--border-radius);
+	@borderSize: 3px;
+	padding: @borderSize;
+	.cells, .grid {
+		gap: @borderSize;
+		display: grid;
+		grid-template-columns: repeat(3, 1fr);
+		max-width: 100vw;
+		max-height: calc(100vh - @borderSize * 2);
+		border-radius: calc(min(100vw, 100vh) / 50);
+		overflow: hidden;
 
-		.entry {
-			box-sizing: border-box;
+		.cell {
 			padding: 5px;
-			aspect-ratio: 1;
 			display: flex;
 			align-items: center;
 			justify-content: center;
 			overflow: hidden;
-			position: relative;
 			font-weight: bold;
 			white-space: pre-line;
 			text-align: center;
-			position: relative;
 			word-wrap: break-word;
+			position: relative;
+			aspect-ratio: 1;
 
 			.cross {
 				position: absolute;
@@ -156,6 +195,15 @@ export default toNative(OverlayBingoGrid);
 		}
 	}
 
+	.grid {
+		display: none;
+		transform: translateY(-100%);
+		box-shadow:0 0 0 @borderSize;
+		.cell {
+			box-shadow:0 0 0 @borderSize;
+		}
+	}
+
 	.flip-list-move {
 		transition: transform .25s;
 	}
@@ -170,11 +218,14 @@ export default toNative(OverlayBingoGrid);
 
 	&.border {
 		.grid {
-			border: @borderSize solid;
-			.entry {
-				border: @borderSize solid;
-			}
+			display: grid;
 		}
+		// .cells {
+		// 	box-shadow:0 0 0 @borderSize;
+		// 	.entry {
+		// 		box-shadow:0 0 0 @borderSize;
+		// 	}
+		// }
 	}
 }
 </style>

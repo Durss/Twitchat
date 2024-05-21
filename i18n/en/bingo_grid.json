@@ -12,6 +12,8 @@
 			"reset_bt": "Reset grid",
 			"param_title": "Grid name",
 			"param_size": "Grid sizes",
+			"param_background_color":"Background color",
+			"param_background_alpha":"Background opacity",
 			"param_text_color": "Text color",
 			"param_text_size": "Text size",
 			"param_show_grid": "Show borders",

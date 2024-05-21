@@ -657,6 +657,8 @@ export namespace TwitchatDataTypes {
 		cols:number;
 		rows:number;
 		textColor:string;
+		backgroundColor:string;
+		backgroundAlpha:number;
 		textSize:number;
 		chatCmd?:string;
 		chatCmdPermissions:PermissionsData;

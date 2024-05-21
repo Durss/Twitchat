@@ -56,6 +56,10 @@
 
 					<ParamItem :paramData="param_showGrid[bingo.id]" v-model="bingo.showGrid" @change="save(bingo)" />
 
+					<ParamItem :paramData="param_backgroundColor[bingo.id]" v-model="bingo.backgroundColor" @change="save(bingo)" />
+
+					<ParamItem :paramData="param_backgroundAlpha[bingo.id]" v-model="bingo.backgroundAlpha" @change="save(bingo)" />
+
 					<VueDraggable
 					class="card-item entryList"
 					v-model="bingo.entries"
@@ -176,6 +180,8 @@ import PermissionsForm from '../PermissionsForm.vue';
 
 	public param_cols:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_rows:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
+	public param_backgroundColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
+	public param_backgroundAlpha:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_textColor:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_textSize:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_showGrid:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
@@ -316,6 +322,8 @@ import PermissionsForm from '../PermissionsForm.vue';
 			if(this.param_cols[id]) return;
 			this.param_cols[id] = {type:"number", value:5, min:2, max:10};
 			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
+			this.param_backgroundColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_background_color", icon:"color"};
+			this.param_backgroundAlpha[id] = {type:"slider", value:0, min:0, max:100, labelKey:"bingo_grid.form.param_background_alpha", icon:"color"};
 			this.param_textSize[id] = {type:"number", value:20, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
 			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};

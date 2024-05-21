@@ -1565,6 +1565,8 @@ import Ajv from "ajv";
 							enabled: {type:"boolean"},
 							showGrid: {type:"boolean"},
 							title: {type:"string", maxLength:40},
+							backgroundColor: {type:"string", maxLength:10},
+							backgroundAlpha: {type:"number", minimum:1, maximum:100},
 							textColor: {type:"string", maxLength:10},
 							textSize: {type:"number", minimum:1, maximum:100},
 							cols:{type:"number", minimum:2, maximum:10},
