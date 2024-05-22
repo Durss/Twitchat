@@ -182,7 +182,8 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(entries[i].lock || entries[j].lock) continue;
 				[entries[i], entries[j]] = [entries[j], entries[i]];
 			}
-			this.saveData(id)
+			prevGridStates[grid.id] = [];
+			this.saveData(id);
 		},
 
 		resetLabels(id:string):void {
@@ -193,12 +194,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				if(entries[i].lock) continue;
 				entries[i].label = "";
 			}
-			this.saveData(id)
+			this.saveData(id);
 		},
 
 		resetCheckStates(id:string):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
+			prevGridStates[grid.id] = [];
 			grid.entries.forEach(entry => entry.check = false);
 			this.saveData(id);
 
@@ -277,121 +279,123 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			let newVerticalBingos:number[] = [];
 			let newHorizontalBingos:number[] = [];
 			let newDiagonalBingos:number[] = [];
-			let prevVerticalBingos:number[] = [];
-			let prevHorizontalBingos:number[] = [];
-			let prevDiagonalBingos:number[] = [];
-			//Checking for vertical bingos
-			for (let x = 0; x < grid.cols; x++) {
-				let allTicked = true;
+			if(prevStates) {
+				let prevVerticalBingos:number[] = [];
+				let prevHorizontalBingos:number[] = [];
+				let prevDiagonalBingos:number[] = [];
+				//Checking for vertical bingos
+				for (let x = 0; x < grid.cols; x++) {
+					let allTicked = true;
+					for (let y = 0; y < grid.rows; y++) {
+						allTicked &&= newStates[x + y*grid.cols];
+					}
+					if(allTicked) newVerticalBingos.push(x);
+				}
+				for (let x = 0; x < grid.cols; x++) {
+					let allTicked = true;
+					for (let y = 0; y < grid.rows; y++) {
+						allTicked &&= prevStates[x + y*grid.cols];
+					}
+					if(allTicked) prevVerticalBingos.push(x);
+				}
+				//Checking for horizontal bingos
 				for (let y = 0; y < grid.rows; y++) {
-					allTicked &&= newStates[x + y*grid.cols];
+					let allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= newStates[x + y*grid.cols];
+					}
+					if(allTicked) newHorizontalBingos.push(y);
 				}
-				if(allTicked) newVerticalBingos.push(x);
-			}
-			for (let x = 0; x < grid.cols; x++) {
-				let allTicked = true;
 				for (let y = 0; y < grid.rows; y++) {
-					allTicked &&= prevStates[x + y*grid.cols];
+					let allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= prevStates[x + y*grid.cols];
+					}
+					if(allTicked) prevHorizontalBingos.push(y);
 				}
-				if(allTicked) prevVerticalBingos.push(x);
-			}
-			//Checking for horizontal bingos
-			for (let y = 0; y < grid.rows; y++) {
-				let allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= newStates[x + y*grid.cols];
-				}
-				if(allTicked) newHorizontalBingos.push(y);
-			}
-			for (let y = 0; y < grid.rows; y++) {
-				let allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= prevStates[x + y*grid.cols];
-				}
-				if(allTicked) prevHorizontalBingos.push(y);
-			}
 
-			//Checking for diagonal bingos
-			if(grid.cols == grid.rows) {
-				//Top left to bottom right
-				let allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= newStates[x + x*grid.cols];
-				}
-				if(allTicked) newDiagonalBingos.push(0);
-				allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
-				}
-				if(allTicked) newDiagonalBingos.push(1);
+				//Checking for diagonal bingos
+				if(grid.cols == grid.rows) {
+					//Top left to bottom right
+					let allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= newStates[x + x*grid.cols];
+					}
+					if(allTicked) newDiagonalBingos.push(0);
+					allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= newStates[x + (grid.cols - 1 - x)*grid.cols];
+					}
+					if(allTicked) newDiagonalBingos.push(1);
 
-				//Bottom left to top right
-				allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= prevStates[x + x*grid.cols];
+					//Bottom left to top right
+					allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= prevStates[x + x*grid.cols];
+					}
+					if(allTicked) prevDiagonalBingos.push(0);
+					allTicked = true;
+					for (let x = 0; x < grid.cols; x++) {
+						allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
+					}
+					if(allTicked) prevDiagonalBingos.push(1);
 				}
-				if(allTicked) prevDiagonalBingos.push(0);
-				allTicked = true;
-				for (let x = 0; x < grid.cols; x++) {
-					allTicked &&= prevStates[x + (grid.cols - 1 - x)*grid.cols];
+
+				newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
+				newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
+				newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
+
+				const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
+					let x = -1;
+					let y = -1;
+					if(cellId) {
+						const index = grid.entries.findIndex(e => e.id == cellId);
+						x = index%grid.cols;
+						y = Math.floor(index/grid.cols);
+					}
+					return {
+						id:Utils.getUUID(),
+						date:Date.now(),
+						type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
+						platform:"twitchat",
+						bingoGridId:grid.id,
+						bingoGridName:grid.title,
+						channel_id:StoreProxy.auth.twitch.user.id,
+						col:-1,
+						row:-1,
+						diagonal:-1,
+						coords:{x,y},
+						complete:false,
+						reset:false,
+					}
 				}
-				if(allTicked) prevDiagonalBingos.push(1);
+				newVerticalBingos.forEach(index => {
+					const message = buildMessage();
+					message.col = index;
+					StoreProxy.chat.addMessage(message);
+				});
+				newHorizontalBingos.forEach(index => {
+					const message = buildMessage();
+					message.row = index;
+					StoreProxy.chat.addMessage(message);
+				});
+				newDiagonalBingos.forEach(index => {
+					const message = buildMessage();
+					message.diagonal = index;
+					StoreProxy.chat.addMessage(message);
+				});
+
+				//All cells ticked?
+				if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
+					const message = buildMessage();
+					message.complete = true;
+					StoreProxy.chat.addMessage(message);
+				}
+				PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 			}
-
-			newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
-			newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
-			newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
 
 			prevGridStates[grid.id] = newStates;
 
-			const buildMessage = ():TwitchatDataTypes.MessageBingoGridData => {
-				let x = -1;
-				let y = -1;
-				if(cellId) {
-					const index = grid.entries.findIndex(e => e.id == cellId);
-					x = index%grid.cols;
-					y = Math.floor(index/grid.cols);
-				}
-				return {
-					id:Utils.getUUID(),
-					date:Date.now(),
-					type:TwitchatDataTypes.TwitchatMessageType.BINGO_GRID,
-					platform:"twitchat",
-					bingoGridId:grid.id,
-					bingoGridName:grid.title,
-					channel_id:StoreProxy.auth.twitch.user.id,
-					col:-1,
-					row:-1,
-					diagonal:-1,
-					coords:{x,y},
-					complete:false,
-					reset:false,
-				}
-			}
-			newVerticalBingos.forEach(index => {
-				const message = buildMessage();
-				message.col = index;
-				StoreProxy.chat.addMessage(message);
-			});
-			newHorizontalBingos.forEach(index => {
-				const message = buildMessage();
-				message.row = index;
-				StoreProxy.chat.addMessage(message);
-			});
-			newDiagonalBingos.forEach(index => {
-				const message = buildMessage();
-				message.diagonal = index;
-				StoreProxy.chat.addMessage(message);
-			});
-
-			//All cells ticked?
-			if(grid.entries.filter(v=>v.check === true).length === grid.entries.length) {
-				const message = buildMessage();
-				message.complete = true;
-				StoreProxy.chat.addMessage(message);
-			}
-
-			PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:gridId, bingo:grid, newVerticalBingos, newHorizontalBingos,  newDiagonalBingos});
 
 			const data:IStoreData = {
 				gridList:this.gridList,

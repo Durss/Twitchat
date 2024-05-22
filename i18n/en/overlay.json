@@ -317,6 +317,9 @@
 			"param_placement":"Position on screen",
 			"param_showOnlyResult":"<strong><u>ONLY</u></strong> show poll result",
 			"param_resultDuration":"Show result duration"
+		},
+		"bingo_grid":{
+			"head": "Show interactive bingo grids"
 		}
 	}
 }

@@ -34,6 +34,7 @@
 		</div> -->
 
 		<div class="list" v-if="subContent == null">
+			<button class="item" @click="subContent = 'bingogrid'" v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'params_overlays_bingogrid'}"><img src="@/assets/img/overlays/bingo_grids.jpg"></button>
 			<button class="item" @click="subContent = 'polls'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_poll'}"><img src="@/assets/img/overlays/polls.jpg"></button>
 			<button class="item" @click="subContent = 'predictions'" v-if="isAffiliate" v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_overlays_prediction'}"><img src="@/assets/img/overlays/predictions.jpg"></button>
 			<button class="item" @click="subContent = 'wheel'"><img src="@/assets/img/overlays/raffle.jpg"></button>
@@ -47,7 +48,7 @@
 			<button class="item" @click="subContent = 'timer'"><img src="@/assets/img/overlays/timer.jpg"></button>
 			<button class="item" @click="subContent = 'ulule'"><img src="@/assets/img/overlays/ulule.jpg"></button>
 		</div>
-		
+
 		<div class="form">
 			<OverlayParamsCredits class="block"		:open="subContent == 'credits'"			v-if="subContent == 'credits'" />
 			<OverlayParamsBitswall class="block"	:open="subContent == 'bitswall'"		v-if="subContent == 'bitswall'" />
@@ -62,6 +63,7 @@
 			<OverlayParamsUlule class="block"		:open="subContent == 'ulule'"			v-if="subContent == 'ulule'" />
 			<OverlayParamsPredictions class="block"	:open="subContent == 'predictions'"		v-if="subContent == 'predictions'" />
 			<OverlayParamsPolls class="block"		:open="subContent == 'polls'"			v-if="subContent == 'polls'" />
+			<OverlayParamsBingoGrid class="block"	:open="subContent == 'bingogrid'"		v-if="subContent == 'bingogrid'" />
 		</div>
 	</div>
 </template>
@@ -87,6 +89,7 @@ import OverlayParamsAdBreak from './overlays/OverlayParamsAdBreak.vue';
 import OverlayParamsBitswall from './overlays/OverlayParamsBitswall.vue';
 import OverlayParamsPredictions from './overlays/OverlayParamsPredictions.vue';
 import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
+import OverlayParamsBingoGrid from './overlays/OverlayParamsBingoGrid.vue';
 
 @Component({
 	components:{
@@ -101,6 +104,7 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 		OverlayParamsCounter,
 		OverlayParamsCredits,
 		OverlayParamsBitswall,
+		OverlayParamsBingoGrid,
 		OverlayParamsHighlight,
 		OverlayParamsPredictions,
 		OverlayParamsHeatDistort,
@@ -112,9 +116,9 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 	public debugMode:boolean = false;
 	public showDockTutorial:boolean = false;
 	public subContent:TwitchatDataTypes.OverlayTypes|null = null;
-	
+
 	private keyupHandler!:(e:KeyboardEvent) => void;
-	
+
 	public get isAffiliate():boolean { return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get localConnectionAvailable():boolean { return Config.instance.OBS_DOCK_CONTEXT; }
@@ -138,7 +142,7 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyupHandler);
 	}
-	
+
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyupHandler);
 	}
@@ -146,7 +150,7 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 	public reload():void {
 		this.subContent = null;
 	}
-	
+
 	public onNavigateBack():boolean {
 		if(this.subContent != null) {
 			this.subContent = null;
@@ -157,7 +161,7 @@ import OverlayParamsPolls from './overlays/OverlayParamsPolls.vue';
 
 	/**
 	 * Show a debug field on CTRL+ALT+D
-	 * @param e 
+	 * @param e
 	 */
 	public onKeyUp(e:KeyboardEvent):void {
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
@@ -175,7 +179,7 @@ export default toNative(ParamsOverlays);
 	&:not(.contentOpened) {
 		max-width: 1200px !important;
 	}
-	
+
 	.connectObs {
 		display: flex;
 		flex-direction: column;

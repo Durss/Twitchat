@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes">
-		<div class="head" v-if="triggerMode === false">
+		<div class="head" v-if="embedMode === false">
 			<ClearButton :aria-label="$t('global.close')" @click="close()" />
 
 			<h1 class="title"><Icon name="bingo_grid" class="icon" />{{ $t("bingo_grid.form.title") }}</h1>
@@ -9,7 +9,7 @@
 		</div>
 
 		<div class="content">
-			<TTButton @click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
+			<TTButton class="addBt center" @click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
 
 			<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
 			editableTitle
@@ -35,7 +35,7 @@
 				<div class="form">
 					<div class="card-item install">
 						<label><Icon name="obs" />{{$t('bingo_grid.form.install_title')}}</label>
-						<OverlayInstaller type="bingogrid" :id="bingo.id" :queryParams="{bid:bingo.id}" />
+						<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
 					</div>
 
 					<div class="card-item sizes">
@@ -167,16 +167,15 @@ import PermissionsForm from '../PermissionsForm.vue';
 })
  class BingoGridForm extends AbstractSidePanel {
 
-
-	@Prop({type: Boolean, default: false})
-	public triggerMode!:boolean;
-
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
 	public action!:TriggerActionBingoGridData;
 
 	@Prop
 	public triggerData!:TriggerData;
+
+	@Prop({type:Boolean, default:false})
+	public embedMode!:boolean;
 
 	public param_cols:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
 	public param_rows:{[key:string]:TwitchatDataTypes.ParameterData<number>} = {};
@@ -200,7 +199,7 @@ import PermissionsForm from '../PermissionsForm.vue';
 
 	public get classes():string[] {
 		const res = ["bingoform", "sidePanel"];
-		if(this.triggerMode !== false) res.push("embedMode");
+		if(this.embedMode !== false) res.push("embedMode");
 		return res;
 	}
 
@@ -209,7 +208,7 @@ import PermissionsForm from '../PermissionsForm.vue';
 	}
 
 	public mounted(): void {
-		if(!this.triggerMode) {
+		if(this.embedMode == false) {
 			super.open();
 		}
 	}
@@ -324,7 +323,7 @@ import PermissionsForm from '../PermissionsForm.vue';
 			this.param_rows[id] = {type:"number", value:5, min:2, max:10};
 			this.param_backgroundColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_background_color", icon:"color"};
 			this.param_backgroundAlpha[id] = {type:"slider", value:0, min:0, max:100, labelKey:"bingo_grid.form.param_background_alpha", icon:"color"};
-			this.param_textSize[id] = {type:"number", value:20, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
+			this.param_textSize[id] = {type:"number", value:30, min:2, max:100, labelKey:"bingo_grid.form.param_text_size", icon:"fontSize"};
 			this.param_textColor[id] = {type:"color", value:"#000000", labelKey:"bingo_grid.form.param_text_color", icon:"color"};
 			this.param_showGrid[id] = {type:"boolean", value:true, labelKey:"bingo_grid.form.param_show_grid", icon:"show"};
 			this.param_chatCmd[id] = {type:"string", value:"", maxLength:20, labelKey:"bingo_grid.form.param_chat_cmd", icon:"chatCommand"};
@@ -342,6 +341,9 @@ export default toNative(BingoGridForm);
 
 	.form {
 		gap: .5em;
+	}
+	.addBt {
+		margin-bottom: 1em;
 	}
 
 	.entryList {
