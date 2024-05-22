@@ -331,8 +331,6 @@ export class OverlayBingoGrid extends AbstractOverlay {
 	 * @param ref
 	 */
 	private async popStars(ref:HTMLElement):Promise<void> {
-		this.currentCell = ref;
-		await this.$nextTick();
 		const stars = this.$refs.stars as SVGElement[];
 		const bounds = ref.getBoundingClientRect();
 		for (let i = 0; i < 10; i++) {
@@ -429,12 +427,13 @@ export default toNative(OverlayBingoGrid);
 
 	.stars {
 		color: #eeeeee;
+		pointer-events: none;
 		svg {
 			transform-origin: center center;
 			transform: translate(-50%, -50%);
 			position: absolute;
-			top: 0;
-			left: 0;
+			top: 200vw;
+			left: 200vh;
 		}
 	}
 

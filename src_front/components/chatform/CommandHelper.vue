@@ -26,7 +26,8 @@
 		</div>
 		<div class="menuItem">
 			<TTButton @click.capture="openModal('bingo_grid');"
-				icon="bingo_grid">{{$t('cmdmenu.bingo_grid')}}</TTButton>
+				icon="bingo_grid"
+				v-newflag="{date:$config.NEW_FLAGS_DATE_V13, id:'cmdhelper.bingo_grid'}">{{$t('cmdmenu.bingo_grid')}}</TTButton>
 			<TTButton icon="pin" :primary="isPinned('bingo_grid')" @click="onTogglePin('bingo_grid')" />
 		</div>
 		<div class="menuItem">
