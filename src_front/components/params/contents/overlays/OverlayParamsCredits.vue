@@ -357,7 +357,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		return TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id == id)!;
 	}
 
-	public async beforeMount():Promise<void> {
+	public beforeMount():void {
 		const json = DataStore.get(DataStore.ENDING_CREDITS_PARAMS);
 		if(json) {
 			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
@@ -366,13 +366,14 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		if ("queryLocalFonts" in window) {
 			this.askForSystemFontAccess = false;
 			try {
-				const granted = await navigator.permissions.query(
+				navigator.permissions.query(
 					//@ts-ignore
 					{ name: "local-fonts" }
-				);
-				if(granted.state == "prompt") {
-					this.askForSystemFontAccess = true;
-				}
+				).then(granted => {
+					if(granted.state == "prompt") {
+						this.askForSystemFontAccess = true;
+					}
+				});
 			}catch(error) {}
 		}
 

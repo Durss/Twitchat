@@ -622,8 +622,6 @@ import gsap from 'gsap';
 
 			this.prevParams = this.data.params;
 
-			console.log(this.data.params.fontTitle);
-
 			this.buildSlots();
 			this.reset(resetScroll);
 		}
@@ -789,7 +787,6 @@ import gsap from 'gsap';
 	 */
 	private buildSlots():void {
 		if(!this.data || !this.data.params) return;
-			console.log(this.data.params.fontTitle);
 		this.slotList = [];
 		this.entryCountCache = {};
 		let slots = this.data.params.slots;
@@ -843,7 +840,6 @@ import gsap from 'gsap';
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 			marginBottom: this.data?.params?.paddingTitle+"px",
 		}
-		console.log(">", this.data?.params?.fontTitle, res);
 		return res;
 	}
 
