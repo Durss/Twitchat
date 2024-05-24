@@ -106,6 +106,7 @@
 		"vue-tsc": "^2.0.5",
 		"vue3-carousel": "^0.2.9",
 		"vue3-marquee": "^4.2.0",
+		"vuedraggable": "^4.1.0",
 		"webpack-env": "^0.8.0",
 		"zhyswan-vuedraggable": "^4.1.3"
 	}
