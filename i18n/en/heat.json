@@ -19,6 +19,7 @@
 		"need_OBS":"This feature needs you to connect with OBS.",
 		"need_OBS_connectBt":"Connect with OBS",
 		"max_screen_reached":"You reached the maximum of {COUNT} screen you can create",
+		"anonymous_info":"IMPORTANT: By default, clicks sent by Heat are anonymous. For them to not be anonymous, viewers must grant access to their ID by clicking Heat icon on your stream as bellow:",
 		"logs":{
 			"title":"Heat logs",
 			"subtitle":"Get details about heat clicks",
