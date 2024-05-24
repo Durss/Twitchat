@@ -769,7 +769,7 @@ export const storeStream = defineStore('stream', {
 
 				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {
-					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 1 * 3600000 + 23 * 60000 + 45 * 1000);
+					StoreProxy.stream.currentStreamInfo[channelId]!.started_at = dateOffset || (Date.now() - 45 * 60000);
 				}
 
 				//Parse "text" slots placeholders and remove premium-only slots
@@ -778,8 +778,9 @@ export const storeStream = defineStore('stream', {
 					//Remove premium-only slots if not premium
 					if(!isPremium && !simulate
 					&& TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true) {
-						result.params.slots.splice(i, 1);
-						i--;
+						// result.params.slots.splice(i, 1);
+						slot.showPremiumWarning = true;
+						// i--;
 					}
 					//Parse placeholders on text slots
 					if(slot.slotType !== "text") continue;

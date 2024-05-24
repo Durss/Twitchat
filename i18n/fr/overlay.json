@@ -154,6 +154,8 @@
 			"testBt":"Lancer un faux générique",
 			"moderators_label":"MODERATEUR·ICES",
 			"empty_slot":"Aucune entrée ☹️",
+			"premium_only":"Vous devez être membre premium pour afficher le contenu de cette section",
+			"grant_fonts_access":"Accorder l'accès aux polices système",
 			"categories": {
 				"text":"Texte libre",
 				"cheers":"Bits",

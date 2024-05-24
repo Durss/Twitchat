@@ -131,8 +131,8 @@ export default class Utils {
 
 	/**
 	 * Turns text url into &lt;a&gt; tags
-	 * @param text 
-	 * @returns 
+	 * @param text
+	 * @returns
 	 */
 	public static parseURLs(text:string, target:string = "_blank", replaceBy:string = ""):string {
 		const replace = replaceBy.length > 0? replaceBy :"<a href='$1' target='"+target+"'>$1</a>";
@@ -145,9 +145,9 @@ export default class Utils {
 
 	/**
 	 * Format a duration
-	 * 
-	 * @param millis 
-	 * @returns 
+	 *
+	 * @param millis
+	 * @returns
 	 */
 	public static formatDuration(millis: number, forceMinutes:boolean = false): string {
 		const d_ms = 24 * 3600 * 1000;
@@ -166,10 +166,10 @@ export default class Utils {
 
 	/**
 	 * Formats a date
-	 * 
-	 * @param date 
-	 * @param addTime 
-	 * @returns 
+	 *
+	 * @param date
+	 * @param addTime
+	 * @returns
 	 */
 	public static formatDate(date:Date, addTime:boolean = true, noDate:boolean = false):string {
 		let res = "";
@@ -194,10 +194,10 @@ export default class Utils {
 	public static elapsedDuration(date:number, step?:number) {
 		let elapsed = Date.now() - date;
 		const duration = step? step : elapsed < 60000? 1000 : elapsed < 60000*5? 5000 : elapsed < 60000*10? 10000 : 60000;
-		
+
 		//Round value to nearest update step to avoid having durations with random offsets
 		elapsed = Math.floor(elapsed/duration) * duration;
-		
+
 		let time = "";
 		if(elapsed < 60000) {
 			time = "00:"+Utils.toDigits( Math.round(elapsed/1000) );
@@ -226,8 +226,8 @@ export default class Utils {
 		const r:number = (color >> 16 & 0xff) / 0xff;
 		const g:number = (color >> 8 & 0xff) / 0xff;
 		const b:number = (color & 0xff) / 0xff;
-		const v = Math.max(r,g,b), c=v-Math.min(r,g,b), f=(1-Math.abs(v+v-c-1)); 
-		const h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+		const v = Math.max(r,g,b), c=v-Math.min(r,g,b), f=(1-Math.abs(v+v-c-1));
+		const h = c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c));
 		return {h:60*(h<0?h+6:h), s:f ? c/f : 0, l:(v+v-c)/2};
 	}
 
@@ -236,7 +236,7 @@ export default class Utils {
 	 * @param h 0-360
 	 * @param s 0-1
 	 * @param l 0-1
-	 * @returns 
+	 * @returns
 	 */
 	public static hsl2rgb(h:number,s:number,l:number):number {
 		const a = s*Math.min(l,1-l);
@@ -253,7 +253,7 @@ export default class Utils {
 		const g:number = (color >> 8 & 0xff) / 0xff;
 		const b:number = (color & 0xff) / 0xff;
 		const v=Math.max(r,g,b), c=v-Math.min(r,g,b);
-		const h= c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c)); 
+		const h= c && ((v==r) ? (g-b)/c : ((v==g) ? 2+(b-r)/c : 4+(r-g)/c));
 		return {h:60*(h<0?h+6:h), s:v&&c/v, v};
 	}
 
@@ -262,23 +262,23 @@ export default class Utils {
 	 * @param h 0-360
 	 * @param s 0-1
 	 * @param l 0-1
-	 * @returns 
+	 * @returns
 	 */
-	public static hsv2rgb(h:number,s:number,v:number):number {                              
+	public static hsv2rgb(h:number,s:number,v:number):number {
 		const f= (n:number,k=(n+h/60)%6) => v - v*s*Math.max( Math.min(k,4-k,1), 0);
 		return f(5)<<16 | f(3)<<8 | f(1);
-	}  
+	}
 
 	/**
 	 * Check if a user matches a permission criterias
 	 */
 	public static async checkPermissions(permissions:TwitchatDataTypes.PermissionsData, user:Pick<TwitchatDataTypes.TwitchatUser, "id" | "login" | "channelInfo">, channelId:string):Promise<boolean> {
 		const chanInfo = user.channelInfo[channelId];
-		
+
 		if(permissions.usersAllowed && permissions.usersAllowed.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return true;
 		}
-		
+
 		if(permissions.usersRefused && permissions.usersRefused.findIndex(v=>v.toLowerCase() === user.login.toLowerCase()) > -1) {
 			return false;
 		}
@@ -287,7 +287,7 @@ export default class Utils {
 		if(chanInfo.is_moderator && permissions.mods !== false && !chanInfo.is_broadcaster) return true;
 		if(chanInfo.is_vip && permissions.vips !== false) return true;
 		if(chanInfo.is_subscriber && permissions.subs !== false && !chanInfo.is_broadcaster) return true;
-		
+
 		if(permissions.follower === true && !chanInfo.is_broadcaster) {
 			//Follower state not loaded yet, force its loading
 			try {
@@ -317,7 +317,7 @@ export default class Utils {
 		if(chanInfo.is_vip)			flags |= 1<<2;
 		if(chanInfo.is_moderator)	flags |= 1<<3;
 		if(chanInfo.is_broadcaster)	flags |= 1<<4;
-		
+
 		if(flags >> 4 == 1 && permissions.broadcaster === false)	return false;
 		//Refuse access if EXCLUSIVELY matching a refused role
 		if(flags == 0b01000 && permissions.mods === false)			return false;
@@ -332,7 +332,7 @@ export default class Utils {
 
 		return permissions.all || flags > 0;
 		//*/
-		
+
 		//Old behavior
 		/*
 		const allowed = (permissions.mods && user.channelInfo[channelId].is_moderator) ||
@@ -598,8 +598,8 @@ export default class Utils {
 
 	/**
 	 * Merges a remote data object into the local data object.
-	 * 
-	 * @param data 
+	 *
+	 * @param data
 	 */
 	public static mergeRemoteObject(remote:JsonObject, local:JsonObject, log:boolean = false):void {
 		if(!local || !remote) return;
@@ -631,9 +631,9 @@ export default class Utils {
 
 	/**
 	 * Check if a message is automoded by a rule
-	 * @param mess 
-	 * @param tags 
-	 * @returns 
+	 * @param mess
+	 * @param tags
+	 * @returns
 	 */
 	public static isAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser, channelId:string):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
 		if(StoreProxy.automod.params.enabled
@@ -642,7 +642,7 @@ export default class Utils {
 			for (let i = 0; i < rules.length; i++) {
 				const r = rules[i];
 				if(!r.enabled || !r.regex || r.regex.length < 2) continue;//Rule disabled, skip it
-				
+
 				//Check if reg is valid
 				let reg!:RegExp, valid=true;
 				try{ reg = new RegExp(r.regex, "gi"); }
@@ -659,7 +659,7 @@ export default class Utils {
 
 	/**
 	 * Gets the label of a trigger
-	 * @param trigger 
+	 * @param trigger
 	 */
 	public static getTriggerDisplayInfo(trigger:TriggerData):{label:string, icon:string, iconURL?:string, iconBgColor?:string, event?:TriggerTypeDefinition} {
 		const ref = TriggerTypesDefinitionList().find(v => v.value == trigger.type);
@@ -741,14 +741,14 @@ export default class Utils {
 
 		if(!result.label) result.label = StoreProxy.i18n.t(ref.labelKey);
 		if(!result.label) result.label = "-unknown trigger type-";
-		
+
 		return result;
 	}
 
 	/**
 	 * Slugifies a string.
 	 * Replace
-	 * @param text 
+	 * @param text
 	 */
 	public static slugify(text:string) {
 		text = this.replaceDiacritics(text);
@@ -761,10 +761,10 @@ export default class Utils {
 	}
 
 	/**
-	 * Test if given point coordinates is inside 
-	 * @param polygon 
-	 * @param px 
-	 * @param py 
+	 * Test if given point coordinates is inside
+	 * @param polygon
+	 * @param px
+	 * @param py
 	 */
 	public static isPointInsidePolygon(point:{x:number, y:number}, polygon:{x:number,y:number}[]) {
 		let intersections = 0;
@@ -790,28 +790,28 @@ export default class Utils {
 
 	/**
 	 * Rotates a point around another arbitrary point
-	 * @param point 
-	 * @param center 
-	 * @param angle_deg 
+	 * @param point
+	 * @param center
+	 * @param angle_deg
 	 */
 	public static rotatePointAround(point:{x:number, y:number}, center:{x:number, y:number}, angle_deg:number):{x:number, y:number} {
 		const angle_rad = angle_deg * Math.PI / 180;
 		const { x, y } = point;
 		const { x:cx, y:cy } = center;
-		
+
 		const cosTheta = Math.cos(angle_rad);
 		const sinTheta = Math.sin(angle_rad);
-		
+
 		// Calculate the new coordinates
 		const newX = cosTheta * (x - cx) - sinTheta * (y - cy) + cx;
 		const newY = sinTheta * (x - cx) + cosTheta * (y - cy) + cy;
-		
+
 		return { x: newX, y: newY };
 	}
 
 	/**
 	 * Computes SHA-256 hash of given input
-	 * @param input 
+	 * @param input
 	 */
 	public static async sha256(input:string):Promise<string> {
 		const encoder = new TextEncoder();
@@ -824,7 +824,7 @@ export default class Utils {
 
 	/**
 	 * Converts a file input to a base64 image
-	 * @param input 
+	 * @param input
 	 */
 	public static async fileToBase64Img(input:File):Promise<string> {
 		return new Promise<string>((resolve, reject)=> {
@@ -849,8 +849,8 @@ export default class Utils {
 
 	/**
 	 * Compare 2 semantic version number like "1.23.456"
-	 * @param v1 
-	 * @param v2 
+	 * @param v1
+	 * @param v2
 	 * @returns true if v1 is greater than v2
 	 */
 	public static compareSementicVersion(v1:string, v2:string):boolean {
@@ -864,7 +864,7 @@ export default class Utils {
 
 	/**
 	 * Get a readable user's color
-	 * @param user 
+	 * @param user
 	 */
 	public static getUserColor(user:TwitchatDataTypes.TwitchatUser):string {
 		let colorStr = user.color ?? "#ffffff";
@@ -895,9 +895,9 @@ export default class Utils {
 
 	/**
 	 * Starts a download session of a file
-	 * @param data 
-	 * @param filename 
-	 * @param mimeType 
+	 * @param data
+	 * @param filename
+	 * @param mimeType
 	 */
 	public static downloadFile(filename:string, data?:string, rawData?:string, mimeType:string = "application/json"):void {
 		let url = rawData || "";
@@ -930,38 +930,50 @@ export default class Utils {
 	 */
 	public static async listAvailableFonts():Promise<string[]> {
 		if(this.fontsCache.length > 0) return this.fontsCache;
-		const fontCheck = new Set([
-			// Windows 10
-			'Arial', 'Arial Black', 'Bahnschrift', 'Calibri', 'Cambria', 'Cambria Math', 'Candara', 'Comic Sans MS', 'Consolas', 'Constantia', 'Corbel', 'Courier New', 'Ebrima', 'Franklin Gothic Medium', 'Gabriola', 'Gadugi', 'Georgia', 'HoloLens MDL2 Assets', 'Impact', 'Ink Free', 'Javanese Text', 'Leelawadee UI', 'Lucida Console', 'Lucida Sans Unicode', 'Malgun Gothic', 'Marlett', 'Microsoft Himalaya', 'Microsoft JhengHei', 'Microsoft New Tai Lue', 'Microsoft PhagsPa', 'Microsoft Sans Serif', 'Microsoft Tai Le', 'Microsoft YaHei', 'Microsoft Yi Baiti', 'MingLiU-ExtB', 'Mongolian Baiti', 'MS Gothic', 'MV Boli', 'Myanmar Text', 'Nirmala UI', 'Palatino Linotype', 'Segoe MDL2 Assets', 'Segoe Print', 'Segoe Script', 'Segoe UI', 'Segoe UI Historic', 'Segoe UI Emoji', 'Segoe UI Symbol', 'SimSun', 'Sitka', 'Sylfaen', 'Symbol', 'Tahoma', 'Times New Roman', 'Trebuchet MS', 'Verdana', 'Webdings', 'Wingdings', 'Yu Gothic',
-			// macOS
-			'American Typewriter', 'Andale Mono', 'Arial', 'Arial Black', 'Arial Narrow', 'Arial Rounded MT Bold', 'Arial Unicode MS', 'Avenir', 'Avenir Next', 'Avenir Next Condensed', 'Baskerville', 'Big Caslon', 'Bodoni 72', 'Bodoni 72 Oldstyle', 'Bodoni 72 Smallcaps', 'Bradley Hand', 'Brush Script MT', 'Chalkboard', 'Chalkboard SE', 'Chalkduster', 'Charter', 'Cochin', 'Comic Sans MS', 'Copperplate', 'Courier', 'Courier New', 'Didot', 'DIN Alternate', 'DIN Condensed', 'Futura', 'Geneva', 'Georgia', 'Gill Sans', 'Helvetica', 'Helvetica Neue', 'Herculanum', 'Hoefler Text', 'Impact', 'Lucida Grande', 'Luminari', 'Marker Felt', 'Menlo', 'Microsoft Sans Serif', 'Monaco', 'Noteworthy', 'Optima', 'Palatino', 'Papyrus', 'Phosphate', 'Rockwell', 'Savoye LET', 'SignPainter', 'Skia', 'Snell Roundhand', 'Tahoma', 'Times', 'Times New Roman', 'Trattatello', 'Trebuchet MS', 'Verdana', 'Zapfino',
-		  ].sort());
-		
+
 		await document.fonts.ready;
-		
+
 		const fontAvailable = new Set<string>();
-		
-		for (const font of fontCheck.values()) {
-			if (document.fonts.check(`12px "${font}"`)) {
-				fontAvailable.add(font);
+
+		try {
+			const granted = await navigator.permissions.query(
+				//@ts-ignore
+				{ name: "local-fonts" }
+			);
+			if(granted.state == "granted") {
+				(await window.queryLocalFonts!()).forEach(font=>{
+					fontAvailable.add(font.family);
+				})
+			}
+		}catch(error) {}
+
+		if(fontAvailable.size === 0) {
+			//Add standard fonts
+			const fontCheck = new Set(['Arial', 'Arial Black', 'Comic Sans MS', 'Courier New', 'Impact', 'Times New Roman', 'Verdana'].sort());
+			for (const font of fontCheck.values()) {
+				if (document.fonts.check(`12px "${font}"`)) {
+					fontAvailable.add(font);
+				}else{
+					console.log("Ignore", font);
+				}
 			}
 		}
-		
+
+		//Add fonts loaded by the current page
 		try {
-			const twitchatFonts = new Set([...document.fonts.values()].map(v=>v.family));
-			this.fontsCache = [...fontAvailable.values()].concat([...twitchatFonts]);
+			[...document.fonts.values()].forEach(f=> fontAvailable.add(f.family));
 		}catch(error) {
 			//old firefox browser version have issue with document.fonts not being an iterable
-			this.fontsCache = [...fontAvailable.values()];
 		}
+		this.fontsCache = [...fontAvailable.values()];
 		return this.fontsCache;
 	}
 
 	/**
 	 * Parses global placeholders only
-	 * 
-	 * @param src 
-	 * @returns 
+	 *
+	 * @param src
+	 * @returns
 	 */
 	public static async parseGlobalPlaceholders(src:string, stripHTMLTags:boolean = true, message?:TwitchatDataTypes.ChatMessageTypes):Promise<string> {
 		let placeholders:ITriggerPlaceholder<any>[] = [];
