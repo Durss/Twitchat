@@ -4,13 +4,14 @@
 
 		<div class="head">
 			<p>{{ $t("heat.header") }}</p>
-			<Button class="installBt" :href="$config.HEAT_EXTENSION"
+			<TTButton class="installBt" :href="$config.HEAT_EXTENSION"
 				type="link" primary
 				icon="newtab"
-				target="_blank">{{ $t("heat.install") }}</Button>
+				target="_blank">{{ $t("heat.install") }}</TTButton>
 		</div>
-		
+
 		<ParamItem class="item enableBt" :paramData="param_enabled" @change="toggleState()" />
+
 		<Icon name="loader" v-if="connecting" />
 		<ParamItem :paramData="param_debugChan" v-if="debugMode" @change="changeChannel" />
 
@@ -19,7 +20,14 @@
 			<HeatScreenList :open="subContent == 'heatAreas'" :class="subContent == 'heatAreas'? 'selected' : ''" />
 			<HeatDebug />
 		</div>
-		
+
+		<div class="card-item infos">
+			<Icon name="info"/>
+			<span>{{ $t("heat.anonymous_info") }}</span>
+			<img v-if="$i18n.locale == 'fr'" src="@/assets/img/heat_anonymous_fr.gif" alt="anonymous heat tutorial">
+			<img v-else src="@/assets/img/heat_anonymous_en.gif" alt="anonymous heat tutorial">
+		</div>
+
 		<div class="youtubeLinks">
 			<a href="https://www.youtube.com/watch?v=TR_uUFjXrvc" target="_blank">
 				<img src="@/assets/img/youtube_heat1.jpg" alt="youtube example" class="youtubeBt">
@@ -44,10 +52,12 @@ import ParamItem from '../../ParamItem.vue';
 import HeatDebug from './../heat/HeatDebug.vue';
 import HeatOverlayClick from './../heat/HeatOverlayClick.vue';
 import HeatScreenList from './../heat/HeatScreenList.vue';
+import Icon from '@/components/Icon.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		Icon,
+		TTButton,
 		ParamItem,
 		HeatDebug,
 		HeatScreenList,
@@ -56,7 +66,7 @@ import HeatScreenList from './../heat/HeatScreenList.vue';
 	emits:[],
 })
  class ConnectHeat extends Vue {
-	
+
 	public param_debugChan:TwitchatDataTypes.ParameterData<string> = {type:"string", value:"", label:"Channel ID", icon:"debug"};
 	public param_enabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", value:false, labelKey:"global.enable"};
 	public debugMode:boolean = false;
@@ -64,7 +74,7 @@ import HeatScreenList from './../heat/HeatScreenList.vue';
 
 	private debouncer:number = -1;
 	private keyupHandler!:(e:KeyboardEvent) => void;
-		
+
 	public get subContent() { return this.$store.params.currentPageSubContent; }
 
 	public get holderStyles():StyleValue {
@@ -83,7 +93,7 @@ import HeatScreenList from './../heat/HeatScreenList.vue';
 		this.keyupHandler = (e:KeyboardEvent) => this.onKeyUp(e);
 		document.addEventListener("keyup", this.keyupHandler);
 	}
-	
+
 	public beforeUnmount():void {
 		document.removeEventListener("keyup", this.keyupHandler);
 	}
@@ -116,7 +126,7 @@ import HeatScreenList from './../heat/HeatScreenList.vue';
 
 	/**
 	 * Show a debug field on CTRL+ALT+D
-	 * @param e 
+	 * @param e
 	 */
 	public onKeyUp(e:KeyboardEvent):void {
 		if(e.key.toUpperCase() == "D" && e.ctrlKey && e.altKey) {
@@ -152,7 +162,7 @@ export default toNative(ConnectHeat);
 		gap: 1em;
 		display: flex;
 		flex-direction: column;
-		
+
 
 		.selected {
 			border: 5px solid transparent;
@@ -178,5 +188,19 @@ export default toNative(ConnectHeat);
 		font-style: italic;
 		text-decoration: none;
 	}
+
+	.infos {
+		background-color: var(--color-secondary-fader);
+		.icon {
+			height: 1em;
+			margin-right: .5em;
+		}
+		img {
+			display: block;
+			margin: auto;
+			margin-top: 1em
+		}
+	}
 }
-</style>
+</style>import type { help } from 'mathjs';
+

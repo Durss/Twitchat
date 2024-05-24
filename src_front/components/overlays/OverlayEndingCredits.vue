@@ -3,7 +3,11 @@
 		<template v-for="item in slotList">
 			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem" :id="'item_'+item.params.id">
 				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
-				<div v-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ $t("overlay.credits.empty_slot") }}</div>
+
+				<div v-if="item.params.showPremiumWarning === true" data-list class="list premium" :style="item.entryStyles"><Icon name="premium" />{{ $t("overlay.credits.premium_only") }}</div>
+
+				<div v-else-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ $t("overlay.credits.empty_slot") }}</div>
+
 				<div v-else data-list class="list" :style="item.entryStyles">
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
 						<span class="info">{{entry.login}}</span>
@@ -808,6 +812,7 @@ import gsap from 'gsap';
 				categoryStyles:this.getCategoryStyles(slotParams),
 			})
 		});
+
 		this.noEntry = totalEntries == 0 && this.data!.params!.hideEmptySlots !== false;
 	}
 
@@ -831,7 +836,7 @@ import gsap from 'gsap';
 	private getTitleStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
 		const res:StyleValue = {
 			color: this.data?.params?.colorTitle,
-			fontFamily: this.data?.params?.fontTitle+", Inter",
+			fontFamily: "\""+this.data?.params?.fontTitle+"\", \"Inter\"",
 			filter: "drop-shadow(2px 2px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 			marginBottom: this.data?.params?.paddingTitle+"px",
 		}
@@ -841,7 +846,7 @@ import gsap from 'gsap';
 	private getEntryStyles(item:TwitchatDataTypes.EndingCreditsSlotParams):StyleValue {
 		const res:StyleValue = {
 			color: this.data?.params?.colorEntry,
-			fontFamily: this.data?.params?.fontEntry+", Inter",
+			fontFamily: "\""+this.data?.params?.fontEntry+"\", \"Inter\"",
 			filter: "drop-shadow(1px 1px 0 rgba(0, 0, 0, "+((this.data?.params?.textShadow || 0)/100)+"))",
 			// marginBottom: ((this.data?.params?.padding||0)/100*7)+"em",
 		}
@@ -966,6 +971,21 @@ export default toNative(OverlayEndingCredits);
 			&.empty {
 				text-align: center;
 				justify-content: center;
+			}
+
+			&.premium {
+				text-align: center;
+				justify-content: center;
+				padding: .5em;
+				border-radius: var(--border-radius);
+				color: var(--color-light) !important;
+				background-color: var(--color-premium);
+				flex-direction: row;
+				gap: .5em;
+				.icon {
+					height:2em;
+					flex-shrink: 0;
+				}
 			}
 		}
 

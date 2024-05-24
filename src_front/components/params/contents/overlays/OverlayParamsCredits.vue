@@ -194,9 +194,13 @@
 			<ParamItem :paramData="param_fadeSize" v-model="data.fadeSize" />
 			<ParamItem :paramData="param_stickyTitle" v-model="data.stickyTitle" />
 			<ParamItem :paramData="param_titleColor" v-model="data.colorTitle" />
-			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady" />
+			<ParamItem :paramData="param_fontTitle" v-model="data.fontTitle" v-if="fontsReady">
+				<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
+			</ParamItem>
 			<ParamItem :paramData="param_entryColor" v-model="data.colorEntry" />
-			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady" />
+			<ParamItem :paramData="param_fontEntry" v-model="data.fontEntry" v-if="fontsReady">
+				<TTButton class="moreFontsBt" icon="lock_fit" v-if="askForSystemFontAccess" @click="grantSystemFontRead()">{{$t("overlay.credits.grant_fonts_access")}}</TTButton>
+			</ParamItem>
 			<ParamItem :paramData="param_textShadow" v-model="data.textShadow" />
 			<ParamItem :paramData="param_ignoreBots" v-model="data.ignoreBots">
 				<ParamItem :paramData="param_ignoreCustomBots" v-model="data.ignoreCustomBots" noBackground class="child" />
@@ -311,6 +315,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public overlayExists = false;
 	public sendingSummaryData = false;
 	public fontsReady:boolean = false;
+	public askForSystemFontAccess:boolean = false;
 	public showSlotOptions:boolean = false;
 	public checkingOverlayPresence:boolean = true;
 	public data:TwitchatDataTypes.EndingCreditsParams = {
@@ -339,7 +344,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	private checkInterval:number = -1;
 	private subcheckTimeout:number = -1;
 	private overlayPresenceHandler!:()=>void;
-	private broadcastDebounce:number = -1;
 
 	public get isPremium():boolean { return this.$store.auth.isPremium; }
 
@@ -359,15 +363,31 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			Utils.mergeRemoteObject(JSON.parse(json), (this.data as unknown) as JsonObject);
 		}
 
+		if ("queryLocalFonts" in window) {
+			this.askForSystemFontAccess = false;
+			try {
+				navigator.permissions.query(
+					//@ts-ignore
+					{ name: "local-fonts" }
+				).then(granted => {
+					if(granted.state == "prompt") {
+						this.askForSystemFontAccess = true;
+					}
+				});
+			}catch(error) {}
+		}
+
 		Utils.listAvailableFonts().then(fonts => {
 			this.param_fontTitle.options = fonts.concat();
 			this.param_fontEntry.options = fonts.concat();
-			if(this.param_fontEntry.options.indexOf(this.data.fontEntry)) {
-				this.param_fontEntry.options.push(this.data.fontEntry)
+			if(this.param_fontEntry.options.indexOf(this.data.fontEntry) == -1) {
+				this.param_fontEntry.options.push(this.data.fontEntry);
 			}
-			if(this.param_fontTitle.options.indexOf(this.data.fontTitle)) {
-				this.param_fontTitle.options.push(this.data.fontTitle)
+			if(this.param_fontTitle.options.indexOf(this.data.fontTitle) == -1) {
+				this.param_fontTitle.options.push(this.data.fontTitle);
 			}
+			this.param_fontTitle.options = this.param_fontTitle.options.sort();
+			this.param_fontEntry.options = this.param_fontEntry.options.sort();
 
 			this.fontsReady = true;
 		});
@@ -410,7 +430,11 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		this.param_timing.listValues = [
 			{value:"speed", labelKey:"overlay.credits.param_timing_speed"},
 			{value:"duration", labelKey:"overlay.credits.param_timing_duration"},
-		]
+		];
+
+		if(!this.isPremium) {
+			this.data.loop = true;
+		}
 
 		watch(()=>this.data, ()=>this.saveParams(), {deep:true});
 
@@ -484,6 +508,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			label:this.$t(slotDef.defaultLabel),
 			layout:"col",
 			maxEntries:100,
+			showPremiumWarning:false,
 		};
 
 		//Create parameters
@@ -624,7 +649,6 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	public async testCredits():Promise<void> {
 		this.sendingSummaryData = true;
 		const summary = await this.$store.stream.getSummary(undefined, true, true);
-		console.log(summary);
 		PublicAPI.instance.broadcast(TwitchatEvent.SUMMARY_DATA, (summary as unknown) as JsonObject);
 		this.sendingSummaryData = false;
 	}
@@ -637,6 +661,35 @@ import OverlayInstaller from './OverlayInstaller.vue';
 	}
 
 	/**
+	 * Grant access to system fonts
+	 */
+	public async grantSystemFontRead():Promise<void>{
+		let f = window.queryLocalFonts!;
+		let fontList:Awaited<ReturnType<typeof f>> = [];
+		let granted = true;
+		try {
+			fontList = await window.queryLocalFonts!();
+			granted = fontList.length > 0;
+		}catch(error){
+			//Refused fonts access. Not actually called apparently...
+			granted = false;
+		}
+
+		if(granted) {
+			const fontNames:string[] = ["Inter"];
+			const done:{[key:string]:boolean} = {"Inter":true};
+			fontList.forEach(f => {
+				if(done[f.family]) return;
+				done[f.family] = true;
+				fontNames.push(f.family);
+			});
+			this.param_fontEntry.options = fontNames;
+			this.param_fontTitle.options = fontNames;
+			this.askForSystemFontAccess = false;
+		}
+	}
+
+	/**
 	 * Saves current parameters
 	 */
 	private async saveParams():Promise<void> {
@@ -645,17 +698,16 @@ import OverlayInstaller from './OverlayInstaller.vue';
 
 		DataStore.set(DataStore.ENDING_CREDITS_PARAMS, this.data);
 
-		clearTimeout(this.broadcastDebounce);
-
 		//Parse "text" slots placholders
 		const result = JSON.parse(JSON.stringify(this.data)) as TwitchatDataTypes.EndingCreditsParams;
 		const channelId = this.$store.auth.twitch.user.id
 		let fakeStartDate = this.$store.stream.currentStreamInfo[channelId]?.started_at;
-		if(!fakeStartDate) fakeStartDate = Date.now() - (1 * 3600000 + 23 * 60000 + 45 * 1000);
+		if(!fakeStartDate) fakeStartDate = Date.now() - (60 * 60000);
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];
+			slot.showPremiumWarning = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true;
 			if(slot.slotType !== "text") continue;
-			slot.text = (slot.text ||"").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
+			slot.text = (slot.text || "").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
 			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());
 			if(slot.text) {
 				slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
@@ -673,6 +725,10 @@ export default toNative(OverlayParamsCredits);
 
 	.parameters {
 		min-width: 100%;
+		.moreFontsBt {
+			display: flex;
+			margin: .5em auto 0 auto;
+		}
 	}
 
 	section.expand {

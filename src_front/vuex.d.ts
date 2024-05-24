@@ -21,6 +21,7 @@ declare module '@vue/runtime-core' {
 declare global {
 	interface Window {
 		obsstudio?: any;
+		queryLocalFonts?(options?:{postscriptNames?:string[]}):Promise<{family:string, fullName:string, postscriptName:string, style:""}[]>;
 		setInitMessage(message:string):void;
 	}
 	interface Array<T> {
@@ -77,7 +78,7 @@ declare global {
 		paymentSource: "paypal",
 	}
 	type PAYPAL_ORDER_TYPE = typeof PAYPAL_ORDER;
-	
+
 	type PAYPAL_ORDER_ACTION = {
 		resolved: boolean;
 		rejected: boolean;

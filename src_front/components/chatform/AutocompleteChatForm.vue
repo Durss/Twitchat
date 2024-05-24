@@ -9,12 +9,12 @@
 		v-tooltip="{content:i.type=='cmdS'? i.tooltipKey : ''}">
 			<img
 				class="image emote"
-				loading="lazy" 
+				loading="lazy"
 				:src="i.emote"
 				:alt="i.label"
 				v-tooltip="i.label"
 				v-if="i.type=='emote'">
-			
+
 			<Icon v-else-if="i.type == 'user'" class="image" name="user" />
 			<Icon v-else-if="i.type == 'cmdS'" class="image" name="commands" alt="cmd" />
 			<Icon v-else-if="i.type == 'cmdC'" class="image" name="chatCommand" alt="cmd" />
@@ -49,7 +49,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
  * message field.
  */
  class AutocompleteChatForm extends Vue {
-	
+
 	@Prop
 	public search!:string;
 	@Prop
@@ -80,9 +80,9 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	public mounted():void {
 		this.selectedIndex = 0;
-		
+
 		this.triggerCommands = this.$store.triggers.triggerList.filter(v=> v.type == TriggerTypes.SLASH_COMMAND || v.type == TriggerTypes.CHAT_COMMAND);
-		
+
 		this.keyUpHandler = (e:KeyboardEvent)=> this.onkeyUp(e);
 		this.keyDownHandler = (e:KeyboardEvent)=> this.onkeyDown(e);
 		document.addEventListener("keyup", this.keyUpHandler);
@@ -101,7 +101,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	/**
 	 * Select an item via click or enter key
-	 * @param item 
+	 * @param item
 	 */
 	public selectItem(item:ListItem):void {
 		if(item.type == "cmdS") {
@@ -159,10 +159,10 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 				break;
 			default: return;
 		}
-		
+
 		const len = this.filteredItems.length;
 		if(len === 0) return;
-		
+
 		this.selectedIndex = this.selectedIndex%len;
 		if(this.selectedIndex < 0) this.selectedIndex = len-1;
 		let el = this.$refs["item_"+this.filteredItems[this.selectedIndex].id] as HTMLElement[];
@@ -205,11 +205,11 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 				if(this.$store.params.appearance.bttvEmotes.value === true) {
 					emotes = emotes.concat(BTTVUtils.instance.emotes);
 				}
-				
+
 				if(this.$store.params.appearance.sevenTVEmotes.value === true) {
 					emotes = emotes.concat(SevenTVUtils.instance.emotes);
 				}
-				
+
 				if(this.$store.params.appearance.ffzEmotes.value === true) {
 					emotes = emotes.concat(FFZUtils.instance.emotes);
 				}
@@ -237,7 +237,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 				const hasDiscordCmd = sDiscord.discordLinked && sDiscord.chatCmdTarget;
 				const isAdmin = sAuth.twitch.user.is_admin === true;
 				const isMod = true;
-				
+
 				//Search in global slash commands
 				for (let j = 0; j < cmds.length; j++) {
 					const e = cmds[j] as TwitchatDataTypes.CommandData;
@@ -246,19 +246,19 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 						//Remove TTS related commands if TTS isn't enabled
 						if(e.needTTS === true && !sTTS.params.enabled) continue;
-						
+
 						//Remove admin specific commands if we're not an admin
 						if(e.needAdmin === true && !isAdmin) continue;
 
 						//Remove moderator specific commands if we're not a mod
 						if(e.needModerator === true && !isMod) continue;
-						
+
 						//Remove channel point related commands if user isn't affiliate or partner
 						if(e.needChannelPoints === true && !hasChannelPoints) continue;
-						
+
 						//Remove discord related command if discord not configured
 						if(e.needDiscordChan === true && !hasDiscordCmd) continue;
-						
+
 						res.push({
 							type:"cmdS",
 							label:e.cmd.replace(/{(.*?)\}/gi, "$1"),
@@ -276,13 +276,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 				//Search on custom slash commands in the triggers
 				for (let i = 0; i < this.triggerCommands.length; i++) {
 					const t = this.triggerCommands[i];
+					if(!t.enabled) continue;
 					if(t.chatCommand && t.chatCommand.toLowerCase().indexOf(s) > -1) {
 						const params = t.chatCommandParams ?? [];
 						let paramsTxt = params.length > 0? " "+params.map(v=> "{"+v.tag+"}").join(" ") : "";
 						if(!t.enabled) {
 							paramsTxt += " "+this.$t("chat.form.trigger_cmd_disabled")
 						}
-						
+
 						res.push({
 							type:t.type == TriggerTypes.CHAT_COMMAND? "cmdC" : "cmdS",
 							label:t.chatCommand + paramsTxt,
@@ -332,7 +333,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 			this.filteredItems = res;
 		}
-		
+
 		if(this.filteredItems.length == 0) {
 			this.$emit("close");
 		}

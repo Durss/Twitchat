@@ -154,6 +154,8 @@
 			"testBt":"Start fake credits",
 			"moderators_label":"MODERATORS",
 			"empty_slot":"No entry ☹️",
+			"premium_only":"Become Premium to show this section content",
+			"grant_fonts_access":"Grant fonts access",
 			"categories": {
 				"cheers":"Bits",
 				"text":"Free text",
