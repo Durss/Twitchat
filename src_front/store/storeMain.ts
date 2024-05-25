@@ -228,8 +228,8 @@ export const storeMain = defineStore("main", {
 				sTimer.broadcastStates();
 			});
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}>)=> {
-				sChat.isChatMessageHighlighted = e.data!.message != undefined;
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
+				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
 			});
 
 			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
