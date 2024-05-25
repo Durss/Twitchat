@@ -22,6 +22,8 @@
 			"param_heat_enabled": "Tick cells from Heat extension",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
+			"premium_limit": "You reached the maximum bingo grid count you can create.",
+			"non_premium_limit": "@:bingo_grid.premium_limit.\nBecome a premium member to create up to {MAX} bingo grids.",
 			"delete_confirm": {
 				"description": "Bingo grid will be deleted\nThis cannot be undone.",
 				"title": "Delete grid?"

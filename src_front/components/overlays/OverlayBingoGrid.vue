@@ -1,6 +1,6 @@
 <template>
 	<div :class="classes" v-if="ready">
-		<template v-if="bingo">
+		<template v-if="bingo && bingo.enabled">
 			<div class="cells" ref="cellsHolder"
 			:style="{aspectRatio: bingo.cols/bingo.rows,
 				fontSize:bingo.textSize+'px',
@@ -45,7 +45,7 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		<div v-else class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
+		<div v-else-if="bingo.enabled" class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
 	</div>
 </template>
 

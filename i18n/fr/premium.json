@@ -34,6 +34,7 @@
 				["Groupes de zones personnalisées Heat", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS", "MAX_CUSTOM_HEAT_SCREENS_PREMIUM"],
 				["Triggers", "MAX_TRIGGERS", "MAX_TRIGGERS", "MAX_TRIGGERS_PREMIUM"],
 				["Compteurs", "MAX_COUNTERS", "MAX_COUNTERS", "MAX_COUNTERS_PREMIUM"],
+				["OVERLAY: Grilles de bingo", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS", "MAX_BINGO_GRIDS_PREMIUM"],
 				["OVERLAY: Distorsions intéractives", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS", "MAX_DISTORTION_OVERLAYS_PREMIUM"],
 				["OVERLAY: Générique de fin", "~", "~", 1],
 				["Support Spotify", 1, 1, 1],
@@ -90,6 +91,7 @@
 			"delete_distortion_description": "Souhaitez-vous supprimer cette distortion ?",
 			"delete_name_title": "Confirmer",
 			"delete_name_description": "Souhaitez-vous retirer le pseudo personnalisé de cette personne ?",
+			"bingo_grids": "Grilles de bingo",
 			"disable_more_items": "Désactivez ou supprimez des entrées dans les sections requises",
 			"completeBt": "Terminer"
 		}

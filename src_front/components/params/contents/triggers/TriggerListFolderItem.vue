@@ -39,7 +39,7 @@
 				</template>
 				<template #right_actions>
 					<div class="blockActions">
-						<ToggleButton class="triggerToggle" v-model="element.enabled" @change="onToggleFolder(element)" />
+						<ToggleButton class="triggerToggle" v-model="element.enabled" @click.stop @change="onToggleFolder(element)" />
 						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>

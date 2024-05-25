@@ -92,7 +92,8 @@ export const storeMain = defineStore("main", {
 				|| StoreProxy.users.customBadgeList.filter(v=>v.enabled != false).length > Config.instance.MAX_CUSTOM_BADGES
 				|| Object.keys(StoreProxy.users.customUserBadges).length > Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION
 				|| Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES
-				|| StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS;
+				|| StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS
+				|| StoreProxy.bingoGrid.gridList.filter(v=>v.enabled).length > Config.instance.MAX_BINGO_GRIDS;
 		}
 	},
 
@@ -605,9 +606,10 @@ export const storeMain = defineStore("main", {
 			 * Called when bingo grid overlay request for its configs
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
-				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid) as unknown as JsonObject;
+				const bingo = StoreProxy.bingoGrid.gridList.find(v=>v.id == e.data!.bid);
 				if(bingo) {
-					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
+					if(!bingo.enabled) return;
+					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:bingo as unknown as JsonObject, newVerticalBingos:[], newHorizontalBingos:[],  newDiagonalBingos:[]});
 				}else{
 					//Tell the overlay requested bingo couldn't be found
 					PublicAPI.instance.broadcast(TwitchatEvent.BINGO_GRID_PARAMETERS, {id:e.data!.bid, bingo:null});

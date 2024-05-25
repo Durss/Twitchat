@@ -9,7 +9,18 @@
 		</div>
 
 		<div class="content">
-			<TTButton class="addBt center" @click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
+			<div class="createForm">
+				<TTButton class="addBt"
+				v-if="$store.auth.isPremium || $store.bingoGrid.gridList.length < $config.MAX_BINGO_GRIDS"
+				@click="addGrid()" icon="add">{{ $t("bingo_grid.form.add_bt") }}</TTButton>
+
+				<div class="card-item secondary" v-else-if="$store.auth.isPremium && $store.bingoGrid.gridList.length > $config.MAX_BINGO_GRIDS_PREMIUM">{{ $t("bingo_grid.form.premium_limit") }}</div>
+
+				<div class="premium" v-else>
+					<div>{{ $t("bingo_grid.form.non_premium_limit", {MAX:$config.MAX_BINGO_GRIDS_PREMIUM}) }}</div>
+					<TTButton icon="premium" @click="openPremium()" light premium>{{$t('premium.become_premiumBt')}}</TTButton>
+				</div>
+			</div>
 
 			<ToggleBlock v-for="bingo in $store.bingoGrid.gridList"
 			editableTitle
@@ -21,13 +32,13 @@
 
 				<template #left_actions>
 					<div class="leftActions">
-						<ToggleButton v-model="bingo.enabled" @click.native.stop />
+						<ToggleButton v-model="bingo.enabled" @click.native.stop @change="save(bingo)" v-if="$store.auth.isPremium || bingo.enabled || $store.bingoGrid.gridList.filter(v=>v.enabled).length < $config.MAX_BINGO_GRIDS" />
 					</div>
 				</template>
 
 				<template #right_actions>
 					<div class="rightActions">
-						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" />
+						<TTButton @click.stop="duplicateGrid(bingo.id)" icon="copy" v-tooltip="$t('global.duplicate')" v-if="!maxGridReached" />
 						<TTButton @click.stop="$store.bingoGrid.removeGrid(bingo.id)" icon="trash" alert />
 					</div>
 				</template>
@@ -203,6 +214,14 @@ import PermissionsForm from '../PermissionsForm.vue';
 		return res;
 	}
 
+	public get maxGridReached():boolean {
+		if(this.$store.auth.isPremium) {
+			return this.$store.bingoGrid.gridList.length >= this.$config.MAX_BINGO_GRIDS_PREMIUM;
+		}else{
+			return this.$store.bingoGrid.gridList.length >= this.$config.MAX_BINGO_GRIDS;
+		}
+	}
+
 	public async beforeMount():Promise<void> {
 		this.initParams();
 	}
@@ -237,6 +256,13 @@ import PermissionsForm from '../PermissionsForm.vue';
 	public duplicateGrid(id:string):void {
 		this.$store.bingoGrid.duplicateGrid(id)
 		this.initParams();
+	}
+
+	/**
+	 * Opens the premium section
+	 */
+	public openPremium():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 	}
 
 	/**
@@ -344,6 +370,18 @@ export default toNative(BingoGridForm);
 	}
 	.addBt {
 		margin-bottom: 1em;
+	}
+
+	.createForm {
+		text-align: center;
+		.premium {
+			background-color: var(--color-premium);
+			border-radius: var(--border-radius);
+			padding: .5em;
+			.button {
+				margin-top: .5em;
+			}
+		}
 	}
 
 	.entryList {

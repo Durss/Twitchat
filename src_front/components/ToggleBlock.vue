@@ -10,8 +10,7 @@
 				:theme="(error !== false || alert !== false || primary !== false || secondary !== false || premium !== false) && small === false? 'light': small === true? 'secondary' : ''"
 				/>
 
-
-			<div class="title editableTitle" v-if="editableTitle !== false" @mouseover="editingTitle=true;">
+			<div class="title editableTitle" v-if="editableTitle !== false">
 				<contenteditable :class="localTitle == titleDefault? 'label default' : 'label'" tag="h2"
 					v-model="localTitle"
 					:contenteditable="editingTitle"
@@ -20,7 +19,8 @@
 					@click.stop
 					@focus="localTitle = (localTitle === titleDefault)? '' : localTitle;"
 					@blur="localTitle = (localTitle === '')? titleDefault : localTitle; editingTitle=false;"
-					@input="limitLabelSize()" />
+					@input="limitLabelSize()"
+					@mouseover="editingTitle=true" />
 				<Icon name="edit" />
 				<h3 v-if="subtitle">{{ subtitle }}</h3>
 			</div>

@@ -73,7 +73,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
+				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
 				v-if="$store.users.customBadgeList.length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesOK? 'checkmark' : 'alert')" />
@@ -89,7 +89,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
+				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
 				v-if="Object.keys($store.users.customUserBadges).length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesUserOK? 'checkmark' : 'alert')" />
@@ -111,7 +111,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['heat']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
+				<ToggleBlock :icons="['font']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
 				v-if="Object.keys($store.users.customUsernames).length > 0">
 					<template #right_actions>
 						<Icon :name="(usernamesOK? 'checkmark' : 'alert')" />
@@ -137,6 +137,22 @@
 							<span class="label">{{ item.name || [item.obsItemPath.sceneName, item.obsItemPath.groupName, item.obsItemPath.source?.name].filter(v=>v!='').join(" => ") }}</span>
 							<div class="toggle">
 								<ToggleButton v-model="item.enabled" @change="toggleDistortion()" />
+							</div>
+						</div>
+					</div>
+				</ToggleBlock>
+
+				<ToggleBlock :icons="['bingo_grid']" :title="$t('premium.cleanup.bingo_grids')" :alert="!bbingoGridsOK" :open="!bbingoGridsOK"
+				v-if="$store.bingoGrid.gridList.length > 0">
+					<template #right_actions>
+						<Icon :name="(bbingoGridsOK? 'checkmark' : 'alert')" />
+						<strong>{{$store.bingoGrid.gridList.filter(v=>v.enabled).length}}/{{ $config.MAX_BINGO_GRIDS }}</strong>
+					</template>
+					<div class="itemList">
+						<div class="rowItem" v-for="item in $store.bingoGrid.gridList">
+							<span class="label">{{ item.title }}</span>
+							<div class="toggle">
+								<ToggleButton v-model="item.enabled" @change="toggleBingoGrid(item)" />
 							</div>
 						</div>
 					</div>
@@ -177,7 +193,7 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 	},
 	emits:["close"],
 })
- class NonPremiumCleanup extends Vue {
+class NonPremiumCleanup extends Vue {
 
 	public get triggersOK():boolean { return this.triggerCount <= this.$config.MAX_TRIGGERS; }
 	public get countersOK():boolean { return this.$store.counters.counterList.filter(v=>v.enabled !== false).length <= this.$config.MAX_COUNTERS; }
@@ -187,6 +203,7 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 	public get badgesUserOK():boolean { return Object.keys(this.$store.users.customUserBadges).length <= this.$config.MAX_CUSTOM_BADGES_ATTRIBUTION; }
 	public get usernamesOK():boolean { return Object.keys(this.$store.users.customUsernames).length <= this.$config.MAX_CUSTOM_USERNAMES; }
 	public get distortionsOK():boolean { return this.$store.heat.distortionList.filter(v=>v.enabled).length <= this.$config.MAX_DISTORTION_OVERLAYS; }
+	public get bbingoGridsOK():boolean { return this.$store.bingoGrid.gridList.filter(v=>v.enabled).length <= this.$config.MAX_BINGO_GRIDS; }
 	public get allOK():boolean {
 		return this.triggersOK
 			&& this.countersOK
@@ -195,7 +212,8 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 			&& this.badgesOK
 			&& this.badgesUserOK
 			&& this.usernamesOK
-			&& this.distortionsOK;
+			&& this.distortionsOK
+			&& this.bbingoGridsOK;
 	}
 
 	public folderTriggerList:(TriggerListEntry|TriggerListFolderEntry)[] = [];
@@ -249,7 +267,7 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 		// console.log(Object.keys(StoreProxy.users.customUserBadges).length > Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION);
 		// console.log(Object.keys(StoreProxy.users.customUsernames).length > Config.instance.MAX_CUSTOM_USERNAMES);
 		// console.log(StoreProxy.heat.distortionList.filter(v=>v.enabled).length > Config.instance.MAX_DISTORTION_OVERLAYS);
-		
+
 		//Build folder structure
 		const triggerList = this.$store.triggers.triggerList;
 		const idToHasFolder:{[key:string]:boolean} = {};
@@ -258,7 +276,7 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 			const info = Utils.getTriggerDisplayInfo(v);
 			return { type:"trigger", index:0, label:info.label, id:v.id, trigger:v, icon:info.icon, iconURL:info.iconURL, canTest:false }
 		})
-		
+
 		function buildItem(items:TriggerTreeItemData[]):(TriggerListEntry|TriggerListFolderEntry)[] {
 			const res:(TriggerListEntry|TriggerListFolderEntry)[] = [];
 			for (let i = 0; i < items.length; i++) {
@@ -318,14 +336,14 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 			this.$store.users.saveCustomBadges();
 		}).catch(()=>{});
 	}
-	
+
 	public deleteUsername(user:TwitchatDataTypes.TwitchatUser):void {
 		this.$confirm( this.$t("premium.cleanup.delete_name_title"), this.$t("premium.cleanup.delete_name_description")).then(()=>{
 			delete this.$store.users.customUsernames[user.id];
 			this.$store.users.saveCustomUsername();
 		}).catch(()=>{});
 	}
-	
+
 	public deleteDistortion(data:TwitchatDataTypes.HeatDistortionData):void {
 		this.$confirm( this.$t("premium.cleanup.delete_distortion_title"), this.$t("premium.cleanup.delete_distortion_description")).then(()=>{
 			this.$store.heat.deleteDistorsion(data);
@@ -346,17 +364,20 @@ import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolder
 		if(item) item.enabled = !item.enabled;
 		this.$store.heat.saveScreens();
 	}
-	
+
 	public toggleBadge(item?:TwitchatDataTypes.TwitchatCustomUserBadge):void {
 		if(item) item.enabled = !item.enabled;
 		this.$store.users.saveCustomBadges();
 	}
-	
+
 	public toggleDistortion(item?:TwitchatDataTypes.HeatDistortionData):void {
-		if(item) item.enabled = !item.enabled;
 		this.$store.heat.saveDistorsions();
 	}
-	
+
+	public toggleBingoGrid(item:TwitchatDataTypes.BingoGridConfig):void {
+		this.$store.bingoGrid.saveData(item.id);
+	}
+
 	public onToggleTrigger():void {
 		function buildItem(root:TriggerListEntry|TriggerListFolderEntry):TriggerTreeItemData {
 			switch(root.type) {
@@ -502,7 +523,7 @@ export default toNative(NonPremiumCleanup);
 				max-width: fit-content;
 			}
 		}
-		
+
 		&.users {
 			.rowItem {
 				padding: .5em;

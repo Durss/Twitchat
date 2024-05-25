@@ -151,6 +151,14 @@ export default class Config {
 	 * Maxium number of distortion overlays for premium
 	 */
 	public MAX_DISTORTION_OVERLAYS_PREMIUM = 20;
+	/**
+	 * Maximum bingo grids
+	 */
+	public MAX_BINGO_GRIDS = 1;
+	/**
+	 * Maximum bingo grids for premium users
+	 */
+	public MAX_BINGO_GRIDS_PREMIUM = 50;
 
 	private _serverConfig!:ServerConfig;
 

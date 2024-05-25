@@ -76,7 +76,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				const id = event.data!.bid;
 				const ref = this.gridList.find(v => v.id == id);
 				//Check if bingo exists
-				if(!ref) return;
+				if(!ref || !ref.enabled) return;
 
 				//Add overlay to the list if not already done
 				if(this.availableOverlayList.findIndex(v => v.id == id) === -1) {
@@ -396,6 +396,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 			prevGridStates[grid.id] = newStates;
 
+			if(!grid.enabled) {
+				this.availableOverlayList = this.availableOverlayList.filter(v => v.id != grid.id);
+			}
 
 			const data:IStoreData = {
 				gridList:this.gridList,
@@ -405,7 +408,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 
 		toggleCell(gridId:string, cellId:string):void {
 			const grid = this.gridList.find(g => g.id === gridId);
-			if(!grid) return;
+			if(!grid || !grid.enabled) return;
 			const cell = grid.entries.find(e => e.id === cellId);
 			if(!cell) return;
 			cell.check = !cell.check;
