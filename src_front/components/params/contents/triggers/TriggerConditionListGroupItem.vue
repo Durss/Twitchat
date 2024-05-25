@@ -31,7 +31,7 @@ import TTButton from '@/components/TTButton.vue';
 import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerConditionListItem from './TriggerConditionListItem.vue';
 

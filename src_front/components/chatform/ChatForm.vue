@@ -341,7 +341,7 @@ import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import ButtonNotification from '../ButtonNotification.vue';
 import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';

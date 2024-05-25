@@ -47,7 +47,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import HeatScreenEditor from './areas/HeatScreenEditor.vue';
 import HeatScreenPreview from './areas/HeatScreenPreview.vue';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 
 @Component({
 	components:{

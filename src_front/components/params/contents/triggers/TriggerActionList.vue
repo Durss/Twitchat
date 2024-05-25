@@ -145,7 +145,7 @@ import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebso
 import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerActionChatCommandParams from './TriggerActionChatCommandParams.vue';
 import TriggerActionCommandArgumentParams from './TriggerActionCommandArgumentParams.vue';

@@ -80,7 +80,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 import ToggleBlock from '@/components/ToggleBlock.vue';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import Utils from '@/utils/Utils';
 
 @Component({

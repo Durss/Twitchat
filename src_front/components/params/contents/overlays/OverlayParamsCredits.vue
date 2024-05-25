@@ -241,7 +241,7 @@ import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
 import ParamItem from '../../ParamItem.vue';

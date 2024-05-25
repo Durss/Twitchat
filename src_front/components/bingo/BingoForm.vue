@@ -72,7 +72,7 @@ import PostOnChatParam from '../params/PostOnChatParam.vue';
 	},
 	emits:["close"]
 })
- class BingoForm extends AbstractSidePanel {
+class BingoForm extends AbstractSidePanel {
 
 	@Prop({type: Boolean, default: false})
 	public triggerMode!:boolean;

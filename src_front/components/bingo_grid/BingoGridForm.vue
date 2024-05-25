@@ -383,10 +383,7 @@ export default toNative(BingoGridForm);
 	.form {
 		gap: .5em;
 	}
-	.addBt {
-		margin-bottom: 1em;
-	}
-
+	
 	.createForm {
 		text-align: center;
 		.premium {

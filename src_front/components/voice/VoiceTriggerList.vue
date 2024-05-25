@@ -81,7 +81,7 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import VoiceAction from '@/utils/voice/VoiceAction';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import draggable from 'zhyswan-vuedraggable';
+import draggable from 'vuedraggable';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import VoiceGlobalCommands from './VoiceGlobalCommands.vue';
