@@ -4,6 +4,7 @@
 		<ParamItem :paramData="param_action" v-model="action.bingoGrid.action" />
 		<ParamItem :paramData="param_x" v-model="action.bingoGrid.x" v-if="isCellAction" />
 		<ParamItem :paramData="param_y" v-model="action.bingoGrid.y" v-if="isCellAction" />
+		<ParamItem :paramData="param_name" v-model="action.bingoGrid.label" v-if="action.bingoGrid.action == 'rename'" />
 	</div>
 </template>
 
@@ -26,6 +27,7 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 	public param_action:TwitchatDataTypes.ParameterData<TriggerActionBingoGridData["bingoGrid"]["action"]> = { type:"list", value:"tick", icon:"click", labelKey:"triggers.actions.bingoGrid.param_action" };
 	public param_x:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:1, max:10, icon:"coord_x", labelKey:"triggers.actions.bingoGrid.param_x" };
 	public param_y:TwitchatDataTypes.ParameterData<number> = { type:"number", value:0, min:1, max:10, icon:"coord_y", labelKey:"triggers.actions.bingoGrid.param_y" };
+	public param_name:TwitchatDataTypes.ParameterData<string> = { type:"string", value:"", icon:"label", labelKey:"triggers.actions.bingoGrid.param_name" };
 
 	@Prop
 	declare action:TriggerActionBingoGridData;
@@ -34,7 +36,10 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 	declare triggerData:TriggerData;
 
 	public get isCellAction():boolean {
-		return this.param_action.value != "tick_all" && this.param_action.value != "untick_all";
+		return this.action.bingoGrid.action == "tick"
+			|| this.action.bingoGrid.action == "untick"
+			|| this.action.bingoGrid.action == "toggle"
+			|| this.action.bingoGrid.action == "rename";
 	}
 
 	public beforeMount():void {
@@ -44,6 +49,7 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 				x:1,
 				y:1,
 				grid:"",
+				label:"",
 			}
 		}
 
@@ -61,6 +67,7 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 			{value:"toggle", labelKey:"triggers.actions.bingoGrid.param_action_toggle"},
 			{value:"tick_all", labelKey:"triggers.actions.bingoGrid.param_action_tick_all"},
 			{value:"untick_all", labelKey:"triggers.actions.bingoGrid.param_action_untick_all"},
+			{value:"rename", labelKey:"triggers.actions.bingoGrid.param_action_rename"},
 		]
 	}
 	
@@ -68,9 +75,9 @@ class TriggerActionBingoGridEntry extends AbstractTriggerActionEntry {
 	 * Called when the available placeholder list is updated
 	 */
 	public onPlaceholderUpdate(list:ITriggerPlaceholder<any>[]):void {
-		// this.message_conf.placeholderList = list;
 		this.param_x.placeholderList = list.filter(v => v.numberParsable === true);
 		this.param_y.placeholderList = list.filter(v => v.numberParsable === true);
+		this.param_name.placeholderList = list;
 	};
 	
 	/**

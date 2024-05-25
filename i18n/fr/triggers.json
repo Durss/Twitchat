@@ -502,12 +502,14 @@
 				"param_grid": "Grille",
 				"param_x": "Coordonnée X",
 				"param_y": "Coordonnée Y",
+				"param_name": "Titre",
 				"param_action": "Action",
-				"param_action_tick": "Cocher",
-				"param_action_untick": "Décocher",
-				"param_action_toggle": "Inverser",
+				"param_action_tick": "Cocher une case",
+				"param_action_untick": "Décocher une case",
+				"param_action_toggle": "Inverser une case",
 				"param_action_tick_all": "Tout cocher",
-				"param_action_untick_all": "Tout décocher"
+				"param_action_untick_all": "Tout décocher",
+				"param_action_rename":"Renommer une case"
 			}
 		},
 		"categories": {

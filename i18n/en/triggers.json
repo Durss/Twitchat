@@ -502,12 +502,14 @@
 				"param_grid":"Grid",
 				"param_x":"Cell X position",
 				"param_y":"Cell Y position",
+				"param_name":"Name",
 				"param_action":"Action",
 				"param_action_tick":"Tick cell",
 				"param_action_untick":"Untick cell",
 				"param_action_toggle":"toggle cell",
 				"param_action_tick_all":"Tick all cells",
-				"param_action_untick_all":"Untick all cells"
+				"param_action_untick_all":"Untick all cells",
+				"param_action_rename":"Rename cells"
 			}
 		},
 		"categories": {

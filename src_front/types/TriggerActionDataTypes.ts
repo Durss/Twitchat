@@ -476,7 +476,7 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 		/**
 		 * Action type to perform
 		 */
-		action:"tick"|"untick"|"toggle"|"tick_all"|"untick_all";
+		action:"tick"|"untick"|"toggle"|"tick_all"|"untick_all"|"rename";
 		/**
 		 * Grid ID to update
 		 */
@@ -489,6 +489,10 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 		 * Y coordinate of the cell
 		 */
 		y:number|string;
+		/**
+		 * New cell label
+		 */
+		label:string;
 	}
 }
 
