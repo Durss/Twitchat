@@ -6,29 +6,30 @@ import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
-* Created : 13/07/2023 
+* Created : 13/07/2023
 */
 export default class ApiHelper {
-	
+
 	constructor() {
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	/**
 	 * Call a twitchat api endpoint
-	 * @param endpoint 
-	 * @param data 
-	 * @param method 
+	 * @param endpoint
+	 * @param data
+	 * @param method
 	 */
 	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:FormData|any, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}):Promise<{status:number;json:ApiResponse<ApiEndpoints, U, M>}> {
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
@@ -83,9 +84,9 @@ export default class ApiHelper {
 		}
 		return {status, json};
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -225,10 +226,10 @@ type ApiEndpoints =  {
 	};
 	"user/all": {
 		GET: {
-			success:boolean; 
-			message:string; 
+			success:boolean;
+			message:string;
 			users:{
-				id:string; 
+				id:string;
 				date:number;
 				user:TwitchDataTypes.UserInfo
 			}[];
@@ -520,6 +521,19 @@ type ApiEndpoints =  {
 			success:boolean;
 			accessToken?:string;
 			refreshToken?:string;
+			error?:string;
+			errorCode?:string;
+		}
+	};
+	"user/bingogrid": {
+		GET: {
+			success:boolean;
+			data?:{
+				title:string;
+				cols:number;
+				rows:number;
+				entries:TwitchatDataTypes.BingoGridConfig["entries"];
+			};
 			error?:string;
 			errorCode?:string;
 		}

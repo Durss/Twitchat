@@ -45,7 +45,7 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		<div v-else-if="bingo.enabled" class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
+		<div v-else-if="!bingo" class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
 	</div>
 </template>
 
@@ -346,6 +346,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			star.style.opacity = "1";
 			const x = (Math.random()-Math.random()) * bounds.width;
 			const y = (Math.random()-Math.random()) * bounds.height;
+			gsap.killTweensOf(star);
 			gsap.to(star, {opacity:0, x:"-50%", y:"-50%", rotation:angle+"deg", left:left+x, top:top+y, duration:Math.random(), ease:"sine.out"});
 		}
 	}

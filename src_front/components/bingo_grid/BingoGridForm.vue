@@ -49,6 +49,14 @@
 						<OverlayInstaller type="bingogrid" :sourceSuffix="bingo.title" :id="bingo.id" :queryParams="{bid:bingo.id}" :sourceTransform="{width:960, height:540}" />
 					</div>
 
+					<div class="card-item share">
+						<label>
+							<Icon name="share"/>
+							<span>{{ $t("bingo_grid.form.share") }}</span>
+						</label>
+						<p class="url" v-click2Select>{{ getPublicURL(bingo.id) }}</p>
+					</div>
+
 					<div class="card-item sizes">
 						<label>
 							<Icon name="scale"/>
@@ -220,6 +228,12 @@ import PermissionsForm from '../PermissionsForm.vue';
 		}else{
 			return this.$store.bingoGrid.gridList.length >= this.$config.MAX_BINGO_GRIDS;
 		}
+	}
+
+	public getPublicURL(gridId:string):string {
+		const uid = this.$store.auth.twitch.user.id;
+
+		return document.location.origin + this.$router.resolve({name:"bingo_grid_public", params:{uid, gridId}}).fullPath;
 	}
 
 	public async beforeMount():Promise<void> {
@@ -443,7 +457,7 @@ export default toNative(BingoGridForm);
 		}
 	}
 
-	.sizes, .install {
+	.sizes, .install, .share {
 		gap: .5em;
 		display: flex;
 		flex-direction: row;
@@ -464,8 +478,14 @@ export default toNative(BingoGridForm);
 			flex-direction: row;
 			align-items: center;
 		}
-		&.install {
+		&.install, &.share {
 			flex-direction: column;
+		}
+
+		.url {
+			background-color: var(--grayout);
+			padding: .25em;
+			border-radius: var(--border-radius);
 		}
 	}
 

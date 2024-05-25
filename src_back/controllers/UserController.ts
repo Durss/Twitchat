@@ -4,25 +4,26 @@ import * as fs from "fs";
 import Config from '../utils/Config';
 import { schemaValidator } from '../utils/DataSchema';
 import Logger from '../utils/Logger';
-import TwitchUtils from '../utils/TwitchUtils';
 import AbstractController from "./AbstractController";
 import DiscordController from './DiscordController';
 
 /**
-* Created : 13/03/2022 
+* Created : 13/03/2022
 */
 export default class UserController extends AbstractController {
+
+	private cachedBingoGrids:{[key:string]:{date:number, data:any}} = {}
 
 	constructor(public server:FastifyInstance, private discordController:DiscordController) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -30,12 +31,13 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
+		this.server.get('/api/user/bingogrid', async (request, response) => await this.getUserBingoGridData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
 
 		super.preloadEarlyDonors();
-		
+
 		//Old endpoint URL.
 		//It's just here to make sure people running on the old version won't have issues
 		//while they're streaming.
@@ -43,9 +45,9 @@ export default class UserController extends AbstractController {
 		// this.server.post('/api/user', async (request, response) => await this.getUserData(request, response));
 		// this.server.get('/api/chatters', async (request, response) => await this.getChatters(request, response));
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -74,7 +76,7 @@ export default class UserController extends AbstractController {
 				level = Config.donorsLevels.findIndex(v=> v > json[userInfo.user_id]) - 1;
 			}
 		}
-		
+
 		//Update user's storage file to get a little idea on how many people use twitchat
 		const userFilePath = Config.USER_DATA_PATH + userInfo.user_id+".json";
 		if(!fs.existsSync(userFilePath)) {
@@ -126,6 +128,46 @@ export default class UserController extends AbstractController {
 	}
 
 	/**
+	 * Get a bingo grid definition
+	 */
+	private async getUserBingoGridData(request:FastifyRequest, response:FastifyReply) {
+		const uid:string = (request.query as any).uid;
+		const gridid:string = (request.query as any).gridid;
+
+		const cacheKey = uid+"/"+gridid;
+		const cache = this.cachedBingoGrids[cacheKey];
+		if(cache && Date.now() - cache.date < 5000) {
+			console.log("Return cache");
+			response.header('Content-Type', 'application/json');
+			response.status(200);
+			response.send(JSON.stringify({success:true, data:cache.data}));
+			return;
+		}
+
+		//Get users' data
+		const userFilePath = Config.USER_DATA_PATH + uid+".json";
+		let found = fs.existsSync(userFilePath);
+		if(found){
+			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
+			//TODO strongly type user data for safer read here
+			const grid = data.bingoGrids.gridList.find(v=>v.id == gridid);
+			found = grid != undefined;
+			if(found) {
+				const data = {title:grid.title, entries:grid.entries, rows:grid.rows, cols:grid.cols};
+				this.cachedBingoGrids[cacheKey] = {date:Date.now(), data};
+				response.header('Content-Type', 'application/json');
+				response.status(200);
+				response.send(JSON.stringify({success:true, data}));
+			}
+		}
+		if(!found) {
+			response.header('Content-Type', 'application/json');
+			response.status(404);
+			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
+		}
+	}
+
+	/**
 	 * Saves an emergency backup after a massive fail of mine...
 	 */
 	private async postUserDataBackup(request:FastifyRequest, response:FastifyReply) {
@@ -161,13 +203,13 @@ export default class UserController extends AbstractController {
 		//Do not save this to the server to avoid config to be erased
 		//on one of the instances
 		delete body["p:hideChat"];
-		
+
 		// body.data["p:slowMode"] = true;//Uncomment to test JSON diff
-	
+
 		//Test data format
 		try {
 			const clone = JSON.parse(JSON.stringify(body));
-			
+
 			const success = schemaValidator(body);
 			const errorsFilePath = Config.USER_DATA_PATH + userInfo.user_id+"_errors.json";
 			if(!success) {
@@ -177,7 +219,7 @@ export default class UserController extends AbstractController {
 			}else if(fs.existsSync(errorsFilePath)) {
 				fs.unlinkSync(errorsFilePath);
 			}
-	
+
 			//schemaValidator() is supposed to tell if the format is valid or not.
 			//Because we enabled "removeAdditional" option, no error will be thrown
 			//if a field is not in the schema. Instead it will simply remove it.
@@ -237,7 +279,7 @@ export default class UserController extends AbstractController {
 	 */
 	private async getAllUsers(request:FastifyRequest, response:FastifyReply) {
 		if(!await this.adminGuard(request, response)) return;
-	
+
 		const files = fs.readdirSync(Config.USER_DATA_PATH);
 		const list = files.filter(v => v.indexOf("_cleanup") == -1 && v.indexOf("_errors") == -1);
 		const users:{id:string, date:number}[] = []
@@ -247,7 +289,7 @@ export default class UserController extends AbstractController {
 				date:fs.statSync(Config.USER_DATA_PATH + v).mtime.getTime()
 			})
 		} );
-	
+
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, users}));

@@ -13,6 +13,7 @@ const Overlay = () => import('@/views/Overlay.vue');
 const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const LabelsEditor = () => import('@/views/LabelsEditor.vue');
+const BingoGridView = () => import('@/views/BingoGridView.vue');
 const PrivacyPolicy = () => import('@/views/PrivacyPolicy.vue');
 const PublicApiTest = () => import('@/views/PublicApiTest.vue');
 const ComponentList = () => import('@/views/ComponentList.vue');
@@ -325,6 +326,16 @@ const routes: Array<RouteRecordRaw> = [
 			public:true,
 			overflow:true,
 		}
+	},
+	{
+		path: '/public/bingo/:uid(.*)/:gridId(.*)',
+		name: 'bingo_grid_public',
+		component: BingoGridView,
+		meta: {
+			needAdmin:false,
+			overflow:false,
+			needAuth:false,
+		},
 	},
 	{
 		path: "/:path(.*)",

@@ -24,6 +24,7 @@
 			"heat_usage":"@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",
 			"non_premium_limit": "@:bingo_grid.premium_limit.\nDevenez membre premium pour créer jusqu'à {MAX} grilles de bingo.",
+			"share": "Partagez cette grille à vos viewers",
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
