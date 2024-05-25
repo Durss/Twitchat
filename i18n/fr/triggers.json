@@ -163,7 +163,8 @@
 				"action_heat_click": "Cliquer une distorsion",
 				"action_heat_click_tt": "Vous devez d'abord créer une distorsion pour pouvoir utiliser cette action",
 				"action_lumia": "Contrôler Lumia Stream",
-				"action_lumia_tt": "Vous devez connecter Lumia Stream"
+				"action_lumia_tt": "Vous devez connecter Lumia Stream",
+				"action_bingoGrid": "Grille de bingo"
 			},
 			"chat": {
 				"loop": "Le message commence avec le nom de la commande, ceci va provoquer une boucle infinie !",
@@ -496,6 +497,17 @@
 				"param_brightness": "Luminosité",
 				"param_duration": "Durée durant laquelle conserver cette couleur",
 				"param_transition": "Durée de la transition"
+			},
+			"bingoGrid": {
+				"param_grid": "Grille",
+				"param_x": "Coordonnée X",
+				"param_y": "Coordonnée Y",
+				"param_action": "Action",
+				"param_action_tick": "Cocher",
+				"param_action_untick": "Décocher",
+				"param_action_toggle": "Inverser",
+				"param_action_tick_all": "Tout cocher",
+				"param_action_untick_all": "Tout décocher"
 			}
 		},
 		"categories": {
@@ -728,13 +740,13 @@
 			"sl_tipAlltimeTopDonation_amount": "Top don depuis toujours",
 			"sl_tipAlltimeTopDonation_username": "Pseudo du top don depuis toujours",
 			"tipeee_resub_months": "Nombre de mois",
-			"bingo_grid_id":"ID de la grille",
-			"bingo_grid_name":"Nom de la grille",
-			"bingo_grid_cell_x":"Coordonnée X de la case cochée",
-			"bingo_grid_cell_y":"Coordonnée Y de la case cochée",
-			"bingo_grid_col":"Index de la colonne remplie",
-			"bingo_grid_row":"Index de la ligne remplie",
-			"bingo_grid_diag":"Diagonale remplie (0=↘ 1=↙)"
+			"bingo_grid_id": "ID de la grille",
+			"bingo_grid_name": "Nom de la grille",
+			"bingo_grid_cell_x": "Coordonnée X de la case cochée",
+			"bingo_grid_cell_y": "Coordonnée Y de la case cochée",
+			"bingo_grid_col": "Index de la colonne remplie",
+			"bingo_grid_row": "Index de la ligne remplie",
+			"bingo_grid_diag": "Diagonale remplie (0=↘ 1=↙)"
 		},
 		"events": {
 			"CHAT_COMMAND": {

@@ -97,7 +97,7 @@ import type { JsonObject } from "type-fest";
 	public labelsCurrent:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public labelsRef:RemoveIndexSignature<{[x: string]:LocaleMessageValue<VueMessageType>}> = {};
 	public progresses:{[key:string]:{total:number, done:number}} = {};
-	public langRef = "fr";
+	public langRef = "en";
 	public search = "";
 	public searchKeys:string[][] = [];
 	public pathToSelect:string[] = [];
