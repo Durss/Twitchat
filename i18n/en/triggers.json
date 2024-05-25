@@ -129,6 +129,7 @@
 				"action_reward": "Channel points reward",
 				"action_extension": "Twitch Extension",
 				"action_bingo": "Start a bingo",
+				"action_bingoGrid": "Bingo grid",
 				"action_chatSugg": "Chat suggestions",
 				"action_raffle": "Start a raffle",
 				"action_raffle_enter": "Enter raffle",
@@ -496,6 +497,17 @@
 				"param_brightness": "Brightness",
 				"param_duration": "Duration to keep color for",
 				"param_transition": "Transition duration"
+			},
+			"bingoGrid": {
+				"param_grid":"Grid",
+				"param_x":"Cell X position",
+				"param_y":"Cell Y position",
+				"param_action":"Action",
+				"param_action_tick":"Tick cell",
+				"param_action_untick":"Untick cell",
+				"param_action_toggle":"toggle cell",
+				"param_action_tick_all":"Tick all cells",
+				"param_action_untick_all":"Untick all cells"
 			}
 		},
 		"categories": {

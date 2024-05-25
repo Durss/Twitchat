@@ -458,6 +458,16 @@ import Ajv from "ajv";
 										customValueTolerance: {type:"number", minimum:0, maximum:10},
 									}
 								},
+								bingoGrid: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										grid: {type:"string", maxLength:40},
+										action: {enum: ["tick", "untick", "toggle", "tick_all", "untick_all"]},
+										x: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
+										y: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
+									}
+								},
 								pollData: {
 									type: "object",
 									additionalProperties: false,
@@ -1572,6 +1582,7 @@ import Ajv from "ajv";
 							cols:{type:"number", minimum:2, maximum:10},
 							rows:{type:"number", minimum:2, maximum:10},
 							chatCmd: {type:"string", maxLength:20},
+							heatClick: {type:"boolean"},
 							chatCmdPermissions: { $ref: "defs.json#/definitions/permissions" },
 							heatClickPermissions: { $ref: "defs.json#/definitions/permissions" },
 							entries: {
@@ -1605,6 +1616,7 @@ const ajv = new Ajv({
 	allErrors:true,
 	strictNumbers:true,
 	strict:true,
+	allowUnionTypes:true,
 });
 
 export const schemaValidator = ajv.compile( UserDataSchema );

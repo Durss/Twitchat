@@ -466,8 +466,9 @@ export interface IBingoGridActions {
 	/**
 	 * Resets given grid entries check states
 	 * @param id
+	 * @param forcedState
 	 */
-	resetCheckStates(id:string):void;
+	resetCheckStates(id:string, forcedState?:boolean):void;
 	/**
 	 * Duplicates given grid
 	 * @param id
@@ -483,8 +484,9 @@ export interface IBingoGridActions {
 	 * Inverse the check state of the given cell ID.
 	 * @param gridId
 	 * @param cellId
+	 * @param forcedState
 	 */
-	toggleCell(gridId:string, cellId:string):void;
+	toggleCell(gridId:string, cellId:string, forcedState?:boolean):void;
 	/**
 	 * Handles a chat command to check if it is linked to a grid
 	 * @param message

@@ -52,7 +52,6 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionRaffleData
 								| TriggerActionRaffleEnterData
 								| TriggerActionBingoData
-								| TriggerActionBingoGridData
 								| TriggerActionVoicemodData
 								| TriggerActionHighlightData
 								| TriggerActionTriggerData
@@ -76,6 +75,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionExtensionData
 								| TriggerActionDiscordData
 								| TriggerActionLumiaData
+								| TriggerActionBingoGridData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -472,7 +472,24 @@ export interface TriggerActionBingoGridData extends TriggerActionData{
 	/**
 	 * Bingo grid params
 	 */
-	bingoGridData:TwitchatDataTypes.BingoGridConfig;
+	bingoGrid: {
+		/**
+		 * Action type to perform
+		 */
+		action:"tick"|"untick"|"toggle"|"tick_all"|"untick_all";
+		/**
+		 * Grid ID to update
+		 */
+		grid:string;
+		/**
+		 * X coordinate of the cell
+		 */
+		x:number|string;
+		/**
+		 * Y coordinate of the cell
+		 */
+		y:number|string;
+	}
 }
 
 export interface TriggerCustomBadgesData extends TriggerActionData{

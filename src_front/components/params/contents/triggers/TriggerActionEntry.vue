@@ -76,6 +76,9 @@
 					
 				<TTButton class="button" @click="selectActionType('bingo')"
 					icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</TTButton>
+					
+				<TTButton class="button" @click="selectActionType('bingoGrid')"
+					icon="bingo_grid">{{ $t('triggers.actions.common.action_bingoGrid') }}</TTButton>
 				
 				<TTButton class="button" @click="selectActionType('raffle')"
 					icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</TTButton>
@@ -96,7 +99,7 @@
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</TTButton>
 				
 				<TTButton class="button" @click="selectActionType('value')"
-				 	v-newflag="{date:1693519200000, id:'params_triggerAction_value'}"
+					v-newflag="{date:1693519200000, id:'params_triggerAction_value'}"
 					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</TTButton>
 				
 				<TTButton class="button" @click="selectActionType('count')"
@@ -132,7 +135,7 @@
 					v-tooltip="discordEnabled? '' : $t('triggers.actions.common.action_discord_tt')">{{ $t('triggers.actions.common.action_discord') }}</TTButton>
 				
 				<TTButton class="button" @click.capture="selectActionType('goxlr')"
-				 	v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
+					v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
 					icon="goxlr"
 					premium
 					:disabled="!goxlrEnabled"
@@ -145,11 +148,11 @@
 					v-tooltip="lumiaConnected? '' : $t('triggers.actions.common.action_lumia_tt')">{{ $t('triggers.actions.common.action_lumia') }}</TTButton>
 				
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
-				 	v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
+					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
 				
 				<TTButton class="button" @click.capture="selectActionType('customUsername')"
-				 	v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
+					v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
 					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</TTButton>
 				
 				<TTButton class="button" @click="selectActionType('trigger')"
@@ -180,6 +183,7 @@
 		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
 		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
+		<TriggerActionBingoGridEntry v-if="action.type=='bingoGrid'" :action="action" :triggerData="triggerData" />
 		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
 		<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
 		<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
@@ -256,6 +260,7 @@ import TriggerActionRewardEntry from './entries/TriggerActionRewardEntry.vue';
 import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.vue';
 import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
+import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
 
 @Component({
 	components:{
@@ -284,6 +289,7 @@ import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 		TriggerActionTriggerEntry,
 		TriggerActionDiscordEntry,
 		TriggerActionVoicemodEntry,
+		TriggerActionBingoGridEntry,
 		TriggerActionClickHeatEntry,
 		TriggerActionExtensionEntry,
 		TriggerActionHighlightEntry,
@@ -434,6 +440,7 @@ import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 		if(this.action.type == "heat_click") icons.push( 'distort' );
 		if(this.action.type == "reward") icons.push( 'channelPoints' );
 		if(this.action.type == "extension") icons.push( 'extension' );
+		if(this.action.type == "bingoGrid") icons.push( 'bingo_grid' );
 		return icons;
 	}
 

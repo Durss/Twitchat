@@ -29,7 +29,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	},
 	emits:["update"]
 })
- class TriggerActionChatEntry extends AbstractTriggerActionEntry {
+class TriggerActionChatEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionChatData;

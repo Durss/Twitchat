@@ -1404,6 +1404,63 @@ export default class TriggerActionHandler {
 					StoreProxy.bingo.startBingo(data);
 				}else
 
+				//Handle bingo grid action
+				if(step.type == "bingoGrid") {
+					const grid = StoreProxy.bingoGrid.gridList.find(g => g.id === step.bingoGrid.grid);
+					if(!grid) {
+						logStep.messages.push({date:Date.now(), value:"❌ Requested bingo grid does not exist. "+step.bingoGrid.grid});
+						log.error = true;
+						logStep.error = true;
+					}else if(!grid.enabled){
+						logStep.messages.push({date:Date.now(), value:"❌ Bingo grid \""+grid.title+"\" is disabled, cannot update it."});
+						log.error = true;
+						logStep.error = true;
+					}else{
+						logStep.messages.push({date:Date.now(), value:"✔ Bingo grid loaded: \""+grid.title+"\""});
+						switch(step.bingoGrid.action) {
+							case "tick":
+							case "untick":
+							case "toggle": {
+								let px = step.bingoGrid.x;
+								let py = step.bingoGrid.y;
+								if(typeof px == "string") {
+									console.log(px);
+									px = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, px.toString());
+									console.log(">",px);
+								}
+								if(typeof py == "string") {
+									console.log(py);
+									py = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, py.toString());
+									console.log(">",py);
+								}
+								px = parseInt(px.toString()) - 1;
+								py = parseInt(py.toString()) - 1;
+								if(!isNaN(px) && !isNaN(py) && px >= 0 && py >= 0 && px < grid.cols && py < grid.rows) {
+									const cell = grid.entries[px + py*grid.cols];
+									const forced = {tick:true, untick:false, toggle:undefined}[step.bingoGrid.action];
+									StoreProxy.bingoGrid.toggleCell(grid.id, cell.id, forced);
+									logStep.messages.push({date:Date.now(), value:"✔ Updating cell \""+cell.label+"\" to \""+(cell.check? 'ticked' : 'unticked')+"\""});
+								}else{
+									logStep.messages.push({date:Date.now(), value:"❌ Unable to update cell. Invalid coordinates x=\""+px+"\" y=\""+py+"\""});
+									log.error = true;
+									logStep.error = true;
+								}
+								break;
+							}
+							case "tick_all": {
+								logStep.messages.push({date:Date.now(), value:"✔ Ticking all cells"});
+								StoreProxy.bingoGrid.resetCheckStates(grid.id, true);
+								break;
+							}
+							case "untick_all": {
+								logStep.messages.push({date:Date.now(), value:"✔ Unicking all cells"});
+								StoreProxy.bingoGrid.resetCheckStates(grid.id, false);
+								break;
+							}
+						}
+					}
+				}else
+
 				//Handle chat suggesiton action
 				if(step.type == "chatSugg") {
 					const data:TwitchatDataTypes.ChatSuggestionData = JSON.parse(JSON.stringify(step.suggData));

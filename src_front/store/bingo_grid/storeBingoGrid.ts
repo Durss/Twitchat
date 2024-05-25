@@ -197,11 +197,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		resetCheckStates(id:string):void {
+		resetCheckStates(id:string, forcedState?:boolean):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
 			prevGridStates[grid.id] = [];
-			grid.entries.forEach(entry => entry.check = false);
+			grid.entries.forEach(entry => entry.check = forcedState == undefined? false : forcedState);
 			this.saveData(id);
 
 			const message:TwitchatDataTypes.MessageBingoGridData = {
@@ -409,12 +409,12 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			DataStore.set(DataStore.BINGO_GRIDS, data);
 		},
 
-		toggleCell(gridId:string, cellId:string):void {
+		toggleCell(gridId:string, cellId:string, forcedState?:boolean):void {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid || !grid.enabled) return;
 			const cell = grid.entries.find(e => e.id === cellId);
 			if(!cell) return;
-			cell.check = !cell.check;
+			cell.check = forcedState == undefined? !cell.check : forcedState;
 			if(cell.check) {
 				let x = -1;
 				let y = -1;

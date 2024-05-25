@@ -34,7 +34,10 @@
 				/>
 
 				<label :for="'number'+key" v-if="label" v-html="label" v-tooltip="tooltip"></label>
-				<input v-if="!paramData.noInput" ref="input"
+
+				<TTButton v-if="typeof paramData.value == 'string'" @click="paramData.value = 0; clampValue();" icon="trash" secondary>{{ paramData.value }}</TTButton>
+				
+				<input v-else-if="!paramData.noInput" ref="input"
 					:tabindex="tabindex"
 					type="number"
 					v-model.number="paramData.value"
@@ -397,9 +400,9 @@ export class ParamItem extends Vue {
 	public key:string = Math.random().toString();
 	public children:TwitchatDataTypes.ParameterData<unknown, unknown, unknown>[] = [];
 	public placeholderTarget:HTMLTextAreaElement|HTMLInputElement|null = null;
-	public errorLocal:boolean = false
-	public premiumOnlyLocal:boolean = false
-	public autofocusLocal:boolean = false
+	public errorLocal:boolean = false;
+	public premiumOnlyLocal:boolean = false;
+	public autofocusLocal:boolean = false;
 
 	private isLocalUpdate:boolean = false;
 	private childrenExpanded:boolean = false;
@@ -560,7 +563,9 @@ export class ParamItem extends Vue {
 		//also if min/max values are changed this will make sure the value
 		//respects the new limits.
 		if(this.paramData.type == "number") {
-			this.clampValue();
+			if(typeof this.paramData.value == 'number') {
+				this.clampValue();
+			}
 		}
 	}
 
@@ -581,6 +586,12 @@ export class ParamItem extends Vue {
 		watch(() => this.paramData.children, () => this.buildChildren() );
 
 		watch(() => this.error, ()=> this.setErrorState(this.error === true) );
+
+		if(this.paramData.type == "number") {
+			watch(() => this.paramData.max, () => this.clampValue() );
+			
+			watch(() => this.paramData.min, () => this.clampValue() );
+		}
 
 		this.buildChildren();
 
@@ -755,6 +766,8 @@ export class ParamItem extends Vue {
 	public insertPlaceholder(tag:string):void {
 		if(this.paramData.type == "editablelist") {
 			(this.paramData.value as string[]).push(tag);
+		}else if(this.paramData.type == "number") {
+			this.paramData.value = tag;
 		}
 	}
 
