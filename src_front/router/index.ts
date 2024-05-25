@@ -333,7 +333,7 @@ const routes: Array<RouteRecordRaw> = [
 		component: BingoGridView,
 		meta: {
 			needAdmin:false,
-			overflow:false,
+			overflow:true,
 			needAuth:false,
 		},
 	},

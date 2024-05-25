@@ -12,11 +12,13 @@
 			</div>
 
 			<div class="cells"
+			ref="cellsHolder"
 			:style="{aspectRatio: cols/rows,
 			gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
 				<TransitionGroup name="flip-list">
 					<div class="cell"
 					v-for="entry in entries"
+					ref="cell"
 					:key="entry.id"
 					:data-cellid="entry.id"
 					@click="entry.check = !entry.check; checkBingos();">
@@ -69,22 +71,26 @@ class BingoGridView extends Vue {
 		this.loadGridInfo();
 	}
 
+	/**
+	 * Load bingo infos
+	 */
 	private async loadGridInfo():Promise<void> {
 		const uid = this.$route.params.uid;
 		const gridid = this.$route.params.gridId;
 		try {
 			const infos = await ApiHelper.call("user/bingogrid", "GET", {uid, gridid});
 			if(infos.json.data) {
-				this.cols = infos.json.data.cols;
-				this.rows =  infos.json.data.rows;
-				this.title =  infos.json.data.title;
-				this.entries =  infos.json.data.entries;
+				this.cols		= infos.json.data.cols;
+				this.rows		= infos.json.data.rows;
+				this.title		= infos.json.data.title;
+				this.entries	= infos.json.data.entries;
 				this.entries.forEach(v=>v.check = false);
 			}
 		}catch(error) {
 
 		}
 		this.loading = false;
+		this.animateOpen();
 	}
 
 	/**
@@ -97,7 +103,9 @@ class BingoGridView extends Vue {
 			[this.entries[i], this.entries[j]] = [this.entries[j], this.entries[i]];
 		}
 		this.prevGridStates = [];
-		this.checkBingos();
+		setTimeout(() => {
+			this.checkBingos();
+		}, 250);
 	}
 
 	/**
@@ -227,6 +235,52 @@ class BingoGridView extends Vue {
 	}
 
 	/**
+	 * Animate tiles
+	 */
+	private async animateOpen():Promise<void> {
+		await this.$nextTick();
+
+		const spiralOrder: number[] = [];
+
+		let x = 0;
+		let y = 0;
+		let delta = [0, -1];
+		const width = this.cols;
+		const height = this.rows;
+		const cx = Math.ceil(this.cols/2)-1;
+		const cy = Math.ceil(this.rows/2)-1;
+
+		//Spiral algorithm from:
+		//https://stackoverflow.com/a/13413224/3813220
+		for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
+			if ((-width/2 < x && x <= width/2) 
+			&& (-height/2 < y && y <= height/2)) {
+				let index = (x+cx) + (y+cy) * this.cols;
+				spiralOrder.push(index);
+			}	
+
+			if (x === y 
+			|| (x < 0 && x === -y) 
+			|| (x > 0 && x === 1-y)){
+				// change direction
+				delta = [-delta[1], delta[0]]            
+			}
+
+			x += delta[0];
+			y += delta[1];        
+		}
+
+		const cells = this.$refs.cell as HTMLElement[];
+		gsap.from(this.$refs.cellsHolder as HTMLElement, {scale:0, ease:"sine.out", duration:.35, clearProps:"transform"});
+		//Animate items from center
+		cells.forEach((cell, index) => {
+			let distance = spiralOrder.findIndex(v=>v===index);
+			gsap.killTweensOf(cell);
+			gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: .3 + distance*.05});
+		});
+	}
+
+	/**
 	 * Gets a cell's details from its index
 	 * @param index
 	 */
@@ -323,7 +377,7 @@ export default toNative(BingoGridView);
 				box-shadow:0 0 0 1px currentColor;
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
-				transition: all .25s;
+				// transition: background-color .25s,  box-shadow .25s, transform .25s;
 				&:hover {
 					background-color: var(--background-color-fader);
 					z-index: 1;

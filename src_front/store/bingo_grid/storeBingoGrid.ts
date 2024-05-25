@@ -244,6 +244,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid) return;
 
+			grid.cols = Math.min(10, Math.max(2, grid.cols))
+			grid.rows = Math.min(10, Math.max(2, grid.rows))
+
 			const count = grid.cols*grid.rows;
 			//TODO
 			// if(count < grid.entries.length) {

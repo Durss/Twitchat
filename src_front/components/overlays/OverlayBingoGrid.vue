@@ -160,46 +160,31 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			if(animate) {
 				const spiralOrder: number[] = [];
 
-				// (di, dj) is a vector - direction in which we move right now
-				let di = 1;
-				let dj = 0;
-				// length of current segment
-				let segment_length = 1;
-
-				// current position (i, j) and how much of current segment we passed
-				let i = 0;
-				let j = 0;
+				let x = 0;
+				let y = 0;
+				let delta = [0, -1];
+				const width = data.bingo.cols;
+				const height = data.bingo.rows;
 				const cx = Math.ceil(data.bingo.cols/2)-1;
 				const cy = Math.ceil(data.bingo.rows/2)-1;
-				let segment_passed = 0;
+				//Spiral algorithm from:
+				//https://stackoverflow.com/a/13413224/3813220
+				for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
+					if ((-width/2 < x && x <= width/2) 
+					&& (-height/2 < y && y <= height/2)) {
+						let index = (x+cx) + (y+cy) * data.bingo.cols;
+						spiralOrder.push(index);
+					}	
 
-				spiralOrder.push(cx + cy*data.bingo.cols);
-				//From https://stackoverflow.com/a/3706260/3813220
-				//TODO doesn't work well for rectangular grids
-				for (let k = 0; k < data.bingo.entries.length; ++k) {
-					// make a step, add 'direction' vector (di, dj) to current position (i, j)
-					i += di;
-					j += dj;
-					++segment_passed;
-					const index = (i+cx) + (j+cy) * data.bingo.cols;
-					// console.log(i, j, index);
-
-					if(index > -1 && index < data.bingo.entries.length) spiralOrder.push(index);
-
-					if (segment_passed == segment_length) {
-						// done with current segment
-						segment_passed = 0;
-
-						// 'rotate' directions
-
-						let buffer = di;
-
-						di = -dj;
-						dj = buffer;
-
-						// increase segment length if necessary
-						if (dj == 0) ++segment_length;
+					if (x === y 
+					|| (x < 0 && x === -y) 
+					|| (x > 0 && x === 1-y)){
+						// change direction
+						delta = [-delta[1], delta[0]]            
 					}
+
+					x += delta[0];
+					y += delta[1];        
 				}
 
 				const cells = this.$refs.cell as HTMLElement[];
