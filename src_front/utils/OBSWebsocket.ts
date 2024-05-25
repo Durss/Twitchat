@@ -892,7 +892,9 @@ export default class OBSWebsocket extends EventDispatcher {
 			//If source URL contains both expected path and hostname, consider it's what's we're searching for
 			if(urlParsed.pathname == pathToFind && urlParsed.hostname == hostToFind) {
 				//If a twitchat overlay ID is expected check if it exists
-				if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) continue;
+				if(idToFind && urlParsed.searchParams.get("twitchat_overlay_id") != idToFind) {
+					continue;
+				}
 				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
 				//Update OBS websocket params on URL if necessary
 				const port = DataStore.get(DataStore.OBS_PORT);

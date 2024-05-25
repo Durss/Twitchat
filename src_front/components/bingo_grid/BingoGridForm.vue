@@ -28,7 +28,8 @@
 			:titleDefault="$t('bingo_grid.form.default_title')"
 			:titleMaxLengh="30"
 			:open="false"
-			:key="bingo.id">
+			:key="bingo.id"
+			@update:title="save(bingo)">
 
 				<template #left_actions>
 					<div class="leftActions">
