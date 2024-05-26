@@ -463,6 +463,7 @@ import Ajv from "ajv";
 									additionalProperties: false,
 									properties: {
 										grid: {type:"string", maxLength:40},
+										label: {type:"string", maxLength:60},
 										action: {enum: ["tick", "untick", "toggle", "tick_all", "untick_all"]},
 										x: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
 										y: {type:["integer","string"], minimum:1, maximum:10, maxLength:100},
