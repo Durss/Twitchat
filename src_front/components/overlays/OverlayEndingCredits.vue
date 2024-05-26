@@ -978,12 +978,16 @@ export default toNative(OverlayEndingCredits);
 				justify-content: center;
 				padding: .5em;
 				border-radius: var(--border-radius);
-				color: var(--color-light) !important;
 				background-color: var(--color-premium);
-				flex-direction: row;
-				gap: .5em;
+				gap: .5em !important;
+				display: flex !important;
+				flex-direction: row !important;
+				font-family: var(--font-inter) !important;
+				color: var(--color-light) !important;
+				font-size: 1rem;
 				.icon {
 					height:2em;
+					width:2em;
 					flex-shrink: 0;
 				}
 			}

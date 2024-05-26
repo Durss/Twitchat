@@ -705,7 +705,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 		if(!fakeStartDate) fakeStartDate = Date.now() - (60 * 60000);
 		for (let i = 0; i < result.slots.length; i++) {
 			const slot = result.slots[i];
-			slot.showPremiumWarning = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true;
+			// slot.showPremiumWarning = TwitchatDataTypes.EndingCreditsSlotDefinitions.find(v=>v.id === slot.slotType)?.premium === true;
 			if(slot.slotType !== "text") continue;
 			slot.text = (slot.text || "").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
 			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());
