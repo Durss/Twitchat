@@ -9,6 +9,12 @@
 			<div class="content">
 				<p v-for="e in $tm('gaza.description')">{{ e }}</p>
 				<div class="ctas">
+					
+					<TTButton type="link"
+					icon="newtab"
+					:href="url"
+					target="_blank">{{ $t("gaza.open_bt") }}</TTButton>
+					
 					<TTButton icon="whispers"
 					:loading="sending"
 					v-if="!sent"
@@ -16,9 +22,9 @@
 					<div v-else class="card-item thanks">{{ $t("gaza.thanks") }}</div>
 					
 					<TTButton type="link"
-					icon="newtab"
+					icon="newtab" transparent secondary
 					href="https://docs.google.com/spreadsheets/d/1-DDMFyn-ttboPXrz1bB3MFk7BlzCwfugh4259Wh7U1s/htmlview"
-					target="_blank">{{ $t("gaza.open_bt") }}</TTButton>
+					target="_blank">{{ $t("gaza.allFunds_bt") }}</TTButton>
 				</div>
 			</div>
 		</div>
@@ -44,6 +50,7 @@ class HelpGenocideVictims extends Vue {
 
 	public sent:boolean = false;
 	public sending:boolean = false;
+	public url:string = "https://gazafunds.com";
 
 	public mounted():void {
 		gsap.set(this.$refs.holder as HTMLElement, {marginTop:0, opacity:1});
@@ -61,7 +68,7 @@ class HelpGenocideVictims extends Vue {
 
 	public async sendOnChat():Promise<void> {
 		this.sending = true;
-		MessengerProxy.instance.sendMessage("💖 🍉 => https://docs.google.com/spreadsheets/d/1-DDMFyn-ttboPXrz1bB3MFk7BlzCwfugh4259Wh7U1s/htmlview");
+		MessengerProxy.instance.sendMessage("💖 🍉 => "+this.url);
 		await Utils.promisedTimeout(500);
 		this.sending = false;
 		this.sent = true;
@@ -93,6 +100,7 @@ export default toNative(HelpGenocideVictims);
 			gap:.5em;
 			display: flex;
 			flex-direction: column;
+			align-items: center;
 		}
 
 		.thanks {
