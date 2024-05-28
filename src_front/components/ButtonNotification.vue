@@ -1,6 +1,7 @@
 <template>
 	<div class="buttonnotification" @click="onClick($event)" v-newflag="newflag">
-		<Icon :name="icon" class="icon" />
+		<Icon :name="icon" class="icon" v-if="icon" />
+		<slot></slot>
 		<span v-if="count > 0" class="count">{{ count }}</span>
 	</div>
 </template>
