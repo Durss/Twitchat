@@ -22,14 +22,12 @@
 <script lang="ts">
 import Config from '@/utils/Config';
 import gsap from 'gsap';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
-import TTButton from '../TTButton.vue';
-import ToggleBlock from '../ToggleBlock.vue';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
+import ToggleBlock from '../ToggleBlock.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
 		ClearButton,
 		ToggleBlock,
 	},

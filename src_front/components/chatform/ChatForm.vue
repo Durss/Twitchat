@@ -246,6 +246,11 @@
 						v-if="$store.main.devmode" />
 				</transition>
 
+				<ButtonNotification 
+				v-if="showGazaBtn"
+				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
+				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>
+
 				<transition name="blink">
 					<Button class="emergency"
 						v-if="emergencyButtonEnabled"
@@ -366,6 +371,7 @@ import TimerCountDownInfo from './TimerCountDownInfo.vue';
 		"update:showShoutout",
 		"setCurrentNotification",
 		"update:showCredits",
+		"update:showGazaFunds",
 	],
 })
 export class ChatForm extends Vue {
@@ -378,10 +384,13 @@ export class ChatForm extends Vue {
 	public showCommands!:boolean;
 	@Prop
 	public showRewards!:boolean;
+	@Prop
+	public showGazaFunds!:boolean;
 
 	public message = "";
 	public error = false;
 	public loading = false;
+	public showGazaBtn = false;
 	public censoredViewCount = false;
 	public autoCompleteSearch = "";
 	public autoCompleteEmotes = false;
@@ -500,6 +509,7 @@ export class ChatForm extends Vue {
 		//Leave some time to open transition to complete before showing announcements
 		setTimeout(()=> {
 			this.loadAnnouncements();
+			this.showGazaBtn = true;
 		}, 2000);
 		//Check for new announcements every 30min
 		this.announcementInterval = setInterval(()=> {
@@ -644,7 +654,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Gets if a button tooltip should be displayed by default
 	 */
-	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes):boolean {
+	public shouldShowTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):boolean {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};
@@ -655,7 +665,7 @@ export class ChatForm extends Vue {
 	/**
 	 * Called when a tooltip is closed
 	 */
-	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes):void {
+	public onHideTooltip(key:TwitchatDataTypes.NotificationTypes|TwitchatDataTypes.ModalTypes|"gaza"):void {
 		const json = DataStore.get(DataStore.TOOLTIP_AUTO_OPEN);
 		let values!:{[key:string]:number};
 		if(!json) values = {};

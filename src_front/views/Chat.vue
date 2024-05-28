@@ -85,6 +85,7 @@
 				v-model:showShoutout="showShoutout" @update:showShoutout="(v:boolean) => showShoutout = v"
 				v-model:showDevMenu="showDevMenu" @update:showDevMenu="(v:boolean) => showDevMenu = v"
 				v-model:showCredits="showCredits" @update:showCredits="(v:boolean) => showCredits = v"
+				v-model:showGazaFunds="showGazaFunds" @update:showGazaFunds="(v:boolean) => showGazaFunds = v"
 			/>
 		</div>
 
@@ -135,6 +136,8 @@
 		<Login v-if="$store.auth.newScopesToRequest.length > 0" scopeOnly />
 
 		<ChatAlertMessage v-if="buildIndex >= 4 + $store.params.chatColumnsConfig.length" />
+
+		<HelpGenocideVictims v-if="showGazaFunds" @close="showGazaFunds = false" />
 
 		<Accessibility />
 
@@ -200,6 +203,7 @@ import QnaForm from '@/components/chatform/QnaForm.vue';
 import QnaList from '@/components/chatform/QnaList.vue';
 import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
 import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
+import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 
 @Component({
 	components:{
@@ -243,6 +247,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 		NonPremiumCleanup,
 		ChatSuggestionForm,
 		ChatSuggestionState,
+		HelpGenocideVictims,
 		TwitchatAnnouncement,
 		ChannelNotifications,
 		EndingCreditsControls,
@@ -260,6 +265,7 @@ import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 	public voiceControl = true;
 	public showCommands = false;
 	public showShoutout = false;
+	public showGazaFunds = false;
 	public showChatUsers = false;
 	public showDonorBadge = true;
 	public showBlinkLayer = false;

@@ -1,0 +1,16 @@
+{
+	"gaza": {
+		"title":"Please help 🍉",
+		"tooltip":"Help victims",
+		"description":[
+			"This is not a political or religious question.",
+			"This is a human rights one.",
+			"Acting against a genocide happening live before our eyes at Gaza doesn't make us anti-Semitic or pro-hamas.",
+			"\n",
+			"If you can't afford giving money to one of the following funds, please share the link with your viewers 💖"
+		],
+		"send_bt":"Share link on chat",
+		"open_bt":"Open funds",
+		"thanks":"💖 Thank you 💖"
+	}
+}
