@@ -74,7 +74,6 @@
 				</ToggleBlock>
 
 				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
-				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
 				v-if="$store.users.customBadgeList.length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesOK? 'checkmark' : 'alert')" />
