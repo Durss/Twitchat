@@ -74,6 +74,7 @@
 				</ToggleBlock>
 
 				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
+				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges')" :alert="!badgesOK" :open="!badgesOK"
 				v-if="$store.users.customBadgeList.length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesOK? 'checkmark' : 'alert')" />
@@ -89,7 +90,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['badge']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
+				<ToggleBlock :icons="['badge','user']" :title="$t('premium.cleanup.custom_badges_attribution')" :alert="!badgesUserOK" :open="!badgesUserOK"
 				v-if="Object.keys($store.users.customUserBadges).length > 0">
 					<template #right_actions>
 						<Icon :name="(badgesUserOK? 'checkmark' : 'alert')" />
@@ -98,7 +99,7 @@
 					<div class="itemList">
 						<div class="rowItem" v-for="user in userBadges" v-tooltip="$t('premium.cleanup.custom_badges_attribution_remove')" @click="deleteUserBadges(user)">
 							<div class="label">
-								<span>{{ user.displayName }}</span>
+								<span class="username">{{ user.displayName }}</span>
 								<span class="small" v-if="user.displayName != user.displayNameOriginal">({{ user.displayNameOriginal }})</span>
 								<div class="badgeList">
 									<img class="badge card-item" :src="$store.users.customBadgeList.find(v=>v.id == badge.id)?.img" alt="custom badge" v-for="badge in $store.users.customUserBadges[user.id]">
@@ -111,7 +112,7 @@
 					</div>
 				</ToggleBlock>
 
-				<ToggleBlock :icons="['font']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
+				<ToggleBlock :icons="['user']" :title="$t('premium.cleanup.custom_usernames')" :alert="!usernamesOK" :open="!usernamesOK"
 				v-if="Object.keys($store.users.customUsernames).length > 0">
 					<template #right_actions>
 						<Icon :name="(usernamesOK? 'checkmark' : 'alert')" />
@@ -226,7 +227,9 @@ class NonPremiumCleanup extends Vue {
 		const res:TwitchatDataTypes.TwitchatUser[] = [];
 		const badges = this.$store.users.customUserBadges;
 		for (const uid in badges) {
-			res.push(this.$store.users.getUserFrom(badges[uid][0].platform, badges[uid][0].channel, uid as string));
+			if(badges[uid]?.length > 0) {
+				res.push(this.$store.users.getUserFrom(badges[uid][0].platform, badges[uid][0].channel, uid as string));
+			}
 		}
 		return res;
 	}
@@ -420,6 +423,7 @@ export default toNative(NonPremiumCleanup);
 		flex-direction: column;
 
 		.completeBt {
+			flex-shrink: 0;
 			margin: auto;
 		}
 	}
@@ -430,6 +434,7 @@ export default toNative(NonPremiumCleanup);
 	}
 
 	.warning {
+		flex-shrink: 0;
 		padding: .5em;
 		margin: 0 auto;
 		font-style: italic;
@@ -470,6 +475,10 @@ export default toNative(NonPremiumCleanup);
 					padding: 0.25em;
 					object-fit: fill;
 					margin-right: .5em;
+				}
+
+				.username {
+					padding-left: .5em;
 				}
 
 				.small {
