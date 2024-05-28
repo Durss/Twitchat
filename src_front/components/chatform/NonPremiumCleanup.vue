@@ -401,6 +401,7 @@ export default toNative(NonPremiumCleanup);
 		flex-direction: column;
 
 		.completeBt {
+			flex-shrink: 0;
 			margin: auto;
 		}
 	}
@@ -411,6 +412,7 @@ export default toNative(NonPremiumCleanup);
 	}
 
 	.warning {
+		flex-shrink: 0;
 		padding: .5em;
 		margin: 0 auto;
 		font-style: italic;
