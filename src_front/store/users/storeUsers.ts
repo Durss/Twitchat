@@ -325,7 +325,7 @@ export const storeUsers = defineStore('users', {
 						// console.log(JSON.parse(JSON.stringify(batch)));
 
 						do {
-							const batchItem:BatchItem = batch.splice(0, 1)[0];
+							const batchItem = batch.shift();
 							if(!batchItem) continue;
 							const userLocal = batchItem.user;
 							delete userLocal.temporary;
@@ -375,7 +375,7 @@ export const storeUsers = defineStore('users', {
 							if(batchItem.cb) batchItem.cb(userLocal);
 						}while(batch.length > 0);
 					});
-				}, 500, login? "login": "id");
+				}, 500, id? "id": "login");
 
 				//Batch requests by types.
 				//All items loaded by their IDs on one batch, by logins on another batch.
