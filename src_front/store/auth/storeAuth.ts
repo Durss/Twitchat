@@ -41,9 +41,9 @@ export const storeAuth = defineStore('auth', {
 
 
 	getters: {
-		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor; },
+		isPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.earlyDonor || this.twitch.user.donor.isPremiumDonor || this.twitch.user.donor.isPatreonMember; },
 
-		isRealPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.isPremiumDonor; },
+		isRealPremium():boolean { return PatreonHelper.instance.isMember || this.twitch.user.donor.isPremiumDonor || this.twitch.user.donor.isPatreonMember; },
 
 		isDonor():boolean { return this.twitch.user.donor.state || this.isPremium; },
 
@@ -176,7 +176,8 @@ export const storeAuth = defineStore('auth', {
 				const sRewards = StoreProxy.rewards;
 				const sExtension = StoreProxy.extension;
 
-				await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
+				//[EDIT] removed in favor of membership check on api/user endpoint
+				// await PatreonHelper.instance.connect();//Wait for result to make sure a patreon user doesn't get the TWITCHAT_AD_WARNED message
 
 				try {
 					window.setInitMessage("migrating local parameter data");
@@ -308,6 +309,7 @@ export const storeAuth = defineStore('auth', {
 				state:false,
 				upgrade:false,
 				isPremiumDonor:false,
+				isPatreonMember:false,
 			}
 			const res = await ApiHelper.call("user");
 
@@ -320,6 +322,7 @@ export const storeAuth = defineStore('auth', {
 			this.twitch.user.donor.upgrade			= res.json.data.level != prevLevel;
 			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
 			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
+			this.twitch.user.donor.isPatreonMember	= res.json.data.isPatreonMember === true;
 			StoreProxy.discord.discordLinked		= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {

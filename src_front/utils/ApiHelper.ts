@@ -218,6 +218,7 @@ type ApiEndpoints =  {
 				isDonor:boolean;
 				isEarlyDonor:boolean;
 				isPremiumDonor:boolean;
+				isPatreonMember:boolean;
 				discordLinked:boolean;
 				level:number;
 			}

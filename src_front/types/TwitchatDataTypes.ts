@@ -1304,6 +1304,10 @@ export namespace TwitchatDataTypes {
 			 * true if user donated enough to unlock lifetime premium
 			 */
 			isPremiumDonor:boolean,
+			/**
+			 * true if user is an active Patreon member
+			 */
+			isPatreonMember:boolean,
 		};
 		/**
 		 * undefined=no loaded yet; false=no pronouns found; string=pronouns code

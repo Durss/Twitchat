@@ -6,6 +6,7 @@ import { schemaValidator } from '../utils/DataSchema';
 import Logger from '../utils/Logger';
 import AbstractController from "./AbstractController";
 import DiscordController from './DiscordController';
+import { PatreonMember } from './PatreonController';
 
 /**
 * Created : 13/03/2022
@@ -85,7 +86,26 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		const data:{isDonor:boolean, level:number, isAdmin?:true, isEarlyDonor?:true, isPremiumDonor?:boolean, discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor:amount >= Config.lifetimeDonorStep};
+		let isPremiumDonor = amount >= Config.lifetimeDonorStep;
+		let isPatreonMember = false;
+		if(!isPremiumDonor) {
+			if(fs.existsSync(Config.patreon2Twitch)) {
+				const jsonP2T = JSON.parse(fs.readFileSync(Config.patreon2Twitch, "utf-8") || "{}");
+				const patreonID = jsonP2T[userInfo.user_id];
+				if(patreonID && fs.existsSync(Config.patreonMembers)) {
+					const jsonPMembers = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8") || "{}") as PatreonMember[];
+					isPatreonMember = jsonPMembers.findIndex(v=>v.id === patreonID) > -1;
+				}
+			}
+		}
+
+		const data:{isDonor:boolean,
+					level:number,
+					isAdmin?:true,
+					isEarlyDonor?:true,
+					isPremiumDonor?:boolean,
+					isPatreonMember?:boolean,
+					discordLinked?:boolean} = {isDonor:isDonor && level > -1, level, isPremiumDonor, isPatreonMember};
 		if(Config.credentials.admin_ids.includes(userInfo.user_id)) {
 			data.isAdmin = true;
 		}

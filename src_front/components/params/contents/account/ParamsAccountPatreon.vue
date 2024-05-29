@@ -27,13 +27,13 @@
 			</i18n-t>
 		</div>
 	
-		<template v-else-if="connected">
+		<template v-else-if="connected || isPatreonMember">
 			<span>{{ $t("patreon.connected") }}</span>
-			<template v-if="isMember==true">
+			<template v-if="isPatreonMember==true">
 				<span class="card-item premium large">{{ $t("patreon.is_member") }}</span>
 				<span class="details on">{{ $t("patreon.is_member_details") }}</span>
 			</template>
-			<template v-else-if="isMember==false && !authenticating">
+			<template v-else-if="isPatreonMember==false && !authenticating">
 				<span class="card-item secondary">{{ $t("patreon.is_not_member") }}</span>
 				<span class="details off">{{ $t("patreon.is_not_member_details") }}</span>
 			</template>
@@ -41,7 +41,7 @@
 			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
 		</template>
 
-		<template v-if="(!connected || (connected && !isMember)) && !isEarlyDonor">
+		<template v-if="(!connected || (connected && !isPatreonMember)) && !isEarlyDonor && !isPatreonMember">
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
 				<template #LINK>
 					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
@@ -84,7 +84,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
-	public get isMember():boolean { return PatreonHelper.instance.isMember; }
+	public get isPatreonMember():boolean { return PatreonHelper.instance.isMember || this.$store.auth.twitch.user.donor.isPatreonMember; }
 	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
