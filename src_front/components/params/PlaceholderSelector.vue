@@ -82,7 +82,7 @@ import Icon from '../Icon.vue';
 	},
 	emits:["update:modelValue", "insert"]
 })
- class PlaceholderSelector extends Vue {
+class PlaceholderSelector extends Vue {
 
 	@Prop
 	public placeholders!:TwitchatDataTypes.PlaceholderEntry[];

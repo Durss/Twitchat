@@ -1,13 +1,13 @@
 <template>
 	<div class="triggeractionrandomentry triggerActionForm">
-		
-		<TabMenu v-model="action.mode"
-		:values="['number', 'list', 'trigger']"
-		:icons="['dice', 'list', 'broadcast']"
-		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger')]" />
 
 		<div class="info" v-if="action.mode != 'trigger'">{{ $t("triggers.actions.common.dynamic_placeholder_info") }}</div>
 		<div class="info" v-else-if="action.mode == 'trigger'">{{ $t("triggers.actions.random.trigger_info") }}</div>
+
+		<TabMenu v-model="action.mode"
+		:values="['number', 'list', 'trigger', 'value', 'counter']"
+		:icons="['dice', 'list', 'broadcast', 'placeholder', 'count']"
+		:labels="[$t('triggers.actions.random.number'), $t('triggers.actions.random.list'), $t('triggers.actions.random.trigger'), $t('triggers.actions.random.value'), $t('triggers.actions.random.counter')]" />
 
 		<template v-if="action.mode == 'number'">
 			<ParamItem :paramData="param_max" v-model="action.max" />
@@ -21,7 +21,7 @@
 				<textarea rows="2" v-model="itemValue" ref="listinput" id="randomEntry_input"
 				:placeholder="$t('triggers.actions.random.list_entry_placeholder')"
 				@keyup.enter.ctrl="addListItem()"></textarea>
-				<Button icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
+				<TTButton icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
 			</div>
 			
 			<div class="listItem list">
@@ -80,12 +80,39 @@
 				</div>
 			</div>
 		</template>
+
+		<template v-if="action.mode == 'value'">
+			<template v-if="(param_value.listValues || []).length > 0">
+				<ParamItem :paramData="param_value" v-model="action.valueSource" />
+			</template>
+			<div class="card-item secondary info" v-else>
+				<p>{{ $t("triggers.actions.random.value_no_values") }}</p>
+				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
+			</div>
+		</template>
+		
+		<template v-if="action.mode == 'counter'">
+			<template v-if="(param_counter.listValues || []).length > 0">
+				<ParamItem :paramData="param_counter" v-model="action.counterSource" />
+			</template>
+			<div class="card-item secondary info" v-else>
+				<p>{{ $t("triggers.actions.random.counter_no_values") }}</p>
+				<TTButton secondary light small @click="createCounter()">{{ $t("counters.addBt") }}</TTButton>
+			</div>
+		</template>
+		
+		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
+			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
+			<ParamItem class="forsceWrap" :paramData="param_placeholderUserId" v-model="action.valueCounterPlaceholders!.userId" nobackground />
+			<ParamItem class="forcseWrap" :paramData="param_placeholderUserName" v-model="action.valueCounterPlaceholders!.userName" nobackground />
+			<ParamItem class="forcseWrap" :paramData="param_placeholderValue" v-model="action.valueCounterPlaceholders!.value" nobackground />
+		</div>
 	
-		<ParamItem v-if="action.mode != 'trigger'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
+		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
 
 		<i18n-t scope="global" class="card-item primary info" tag="div"
 		keypath="triggers.actions.common.custom_placeholder_example"
-		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger'">
+		v-if="param_placeholder.value.length > 0 && action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'">
 			<template #PLACEHOLDER>
 				<mark v-click2Select>{{"{"}}{{param_placeholder.value.toUpperCase()}}{{"}"}}</mark>
 			</template>
@@ -100,7 +127,7 @@ import ToggleBlock from '@/components/ToggleBlock.vue';
 import ChatMessageChunksParser from '@/components/messages/components/ChatMessageChunksParser.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import type { TriggerActionRandomData, TriggerData } from '@/types/TriggerActionDataTypes';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -112,7 +139,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		TabMenu,
 		ParamItem,
 		TriggerList,
@@ -139,12 +166,17 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public openTriggerList:boolean = false;
 	public indexToEditState:{[key:string]:boolean} = {};
 
-	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
-	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number",  labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
-	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
-	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string",  labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
-	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
-	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean",  labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
+	public param_min:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.min_label", value:0, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"min"};
+	public param_max:TwitchatDataTypes.ParameterData<number> = {type:"number", labelKey:"triggers.actions.random.max_label", value:10, min:Number.MIN_SAFE_INTEGER, max:Number.MAX_SAFE_INTEGER, icon:"max"};
+	public param_float:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.float_label", value:false, icon:"dice"};
+	public param_placeholder:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_label", value:"", maxLength:20, icon:"placeholder", allowedCharsRegex:"A-z0-9-_"};
+	public param_skipDisabled:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_skipDisabled", value:true, icon:"skip"};
+	public param_disableAfterExec:TwitchatDataTypes.ParameterData<boolean> = {type:"boolean", labelKey:"triggers.actions.random.trigger_disableAfterExec", value:false, icon:"disable"};
+	public param_value:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.value_id", value:"", icon:"placeholder"};
+	public param_counter:TwitchatDataTypes.ParameterData<string> = {type:"list", labelKey:"triggers.actions.random.counter_id", value:"", icon:"placeholder"};
+	public param_placeholderUserId:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_id", value:"", icon:"label"};
+	public param_placeholderUserName:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_user_name", value:"", icon:"user"};
+	public param_placeholderValue:TwitchatDataTypes.ParameterData<string> = {type:"string", labelKey:"triggers.actions.random.placeholder_value", value:"", icon:"number"};
 
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);
@@ -162,6 +194,20 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		if(!this.action.list) this.action.list = [];
 		this.buildIndex = 0;
 
+		this.param_value.listValues = this.$store.values.valueList.filter(v=>v.perUser === true).map(v=>{
+			return {
+				value:v.id,
+				label:v.name,
+			}
+		});
+
+		this.param_counter.listValues = this.$store.counters.counterList.filter(v=>v.perUser === true).map(v=>{
+			return {
+				value:v.id,
+				label:v.name,
+			}
+		});
+
 		//Remove deleted triggers
 		const triggers = this.$store.triggers.triggerList;
 		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
@@ -178,6 +224,17 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	}
 
 	public onSwitchMode():void {
+		if((this.action.mode == "value" || this.action.mode == "counter")) {
+			if(!this.action.valueCounterPlaceholders) {
+				this.action.valueCounterPlaceholders = {
+					userId:"EXTRACTED_USER_ID",
+					userName:"EXTRACTED_USERNAME",
+					value:"EXTRACTED_VALUE",
+				}
+			}
+		}else{
+			delete this.action.valueCounterPlaceholders;
+		}
 		this.buildNextListBatch();
 	}
 
@@ -206,6 +263,10 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		this.action.triggers.unshift(id);
 	}
 
+	/**
+	 * Build custom list entries by batch to avoid potential
+	 * huge lag on display if there are many entries
+	 */
 	public buildNextListBatch():void {
 		if(this.disposed) return;
 		if(this.action.mode != "list") return;
@@ -220,6 +281,20 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		setTimeout(()=> {
 			this.buildNextListBatch();
 		}, 30);
+	}
+
+	/**
+	 * Redirect to Values
+	 */
+	public createValue():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
+	}
+
+	/**
+	 * Redirect to Counters
+	 */
+	public createCounter():void {
+		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.COUNTERS);
 	}
 
 }
@@ -350,6 +425,15 @@ export default toNative(TriggerActionRandomEntry);
 		}
 		.list {
 			margin-top: .5em;
+		}
+	}
+
+	.forceWrap {
+		:deep(.holder) {
+			flex-direction: column;
+			.inputHolder{
+				width: 100%;
+			}
 		}
 	}
 }

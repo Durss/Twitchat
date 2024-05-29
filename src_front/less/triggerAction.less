@@ -22,8 +22,11 @@
 		.label {
 			display: inline;
 		}
-		&.warn {
+		&.warn, &.alert {
 			background-color: var(--color-alert);
+		}
+		&.secondary {
+			background-color: var(--color-secondary);
 		}
 		a {
 			color: var(--color-light);
@@ -31,6 +34,10 @@
 			&:hover {
 				text-decoration: none;
 			}
+		}
+		.button {
+			display: flex;
+			margin: auto;
 		}
 	}
 }

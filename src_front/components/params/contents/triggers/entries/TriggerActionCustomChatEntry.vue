@@ -94,7 +94,7 @@ import Utils from '@/utils/Utils';
 	},
 	emits:[],
 })
- class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
+class TriggerActionCustomChatEntry extends AbstractTriggerActionEntry {
 
 	@Prop
 	declare action:TriggerActionCustomMessageData;

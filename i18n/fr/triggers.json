@@ -377,7 +377,17 @@
 				"trigger_disableAfterExec": "Désactiver le trigger sélectionné après exécution",
 				"list_label": "Choisir une entrée aléatoirement parmi les suivantes:",
 				"list_entry_placeholder": "ajouter une entrée...",
-				"placeholder_label": "Nom du placeholder"
+				"value": "Valeur",
+				"value_id": "Valeur dans laquelle tirer une entrée",
+				"value_no_values": "Il n'est possible de tirer une entrée aléatoire d'une Valeur que pour les Valeur par utilisateur.\nCréez une Valeur avec l'option \" @:values.form.value_user \" activée.",
+				"counter": "Compteur",
+				"counter_id": "Compteur dans lequel tirer une entrée",
+				"counter_no_values": "Il n'est possible de tirer une entrée aléatoire d'un Compteur que pour les Compteurs par utilisateur.\nCréez un Compteur avec l'option \" @:counters.form.value_user \" activée.",
+				"placeholder_label": "Nom du placeholder",
+				"placeholder_tuto": "Définissez le nom des placeholders dans lesquels extraire les données correspondantes:",
+				"placeholder_user_id": "ID de la personne",
+				"placeholder_user_name": "Pseudo de la personne (Twitch only)",
+				"placeholder_value": "Valeur de la personne"
 			},
 			"raffle_enter": {
 				"info": "La personne déclenchant l'évènement actuel participera au tirage au sort en cours. Cette action n'aura aucun effet si aucun tirage au sort n'a été démarré avant ça."

@@ -75,25 +75,50 @@ export default class AbstractTriggerActionEntry extends Vue {
 			//If its anything but a "random" action, skip it (only this one creates custom placeholders for now)
 			if(a.type != "random") continue;
 			//If it's not a list or number random value mode, ignore it (onlye these have a custom placeholder)
-			if(a.mode != "list" && a.mode != "number") continue;
+			if(a.mode == "trigger") continue;
 			//If custom placeholder isn't defined, ignore it
-			if(!a.placeholder) continue;
+			if((a.mode == "number" || a.mode === "list") && a.placeholder) {
+				//If a static placeholder already exists with the same name, remove it.
+				//Dynamic placeholder have priority over them.
+				const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
+				if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
 
-			//If a staitc placeholder already exists with the same name, remove it.
-			//Dynamic placeholder have priority over them.
-			const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == a.placeholder.toLowerCase());
-			if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
+				placeholdersList.push({
+									tag:a.placeholder.toUpperCase(),
+									pointer:"",
+									isUserID:false,
+									customTag:true,
+									numberParsable:true,
+									descKey:'triggers.random_placeholder',
+									descReplacedValues:{NAME:"{"+a.placeholder.toUpperCase()+"}"},
+								});
+			}
+			if((a.mode == "counter" || a.mode === "value") && a.valueCounterPlaceholders) {
+				const placeholders = [
+					a.valueCounterPlaceholders!.userId,
+					a.valueCounterPlaceholders!.userName,
+					a.valueCounterPlaceholders!.value,
+				];
+				
+				for (let i = 0; i < placeholders.length; i++) {
+					const ph = placeholders[i];
+					//If a static placeholder already exists with the same name, remove it.
+					//Dynamic placeholder have priority over them.
+					const existingIndex = placeholdersList.findIndex(u=>u.tag.toLowerCase() == ph.toLowerCase());
+					if(existingIndex > -1) placeholdersList.splice(existingIndex, 1);
+	
+					placeholdersList.push({
+										tag:ph.toUpperCase(),
+										pointer:"",
+										isUserID:ph === a.valueCounterPlaceholders!.userId,
+										customTag:true,
+										numberParsable:ph === a.valueCounterPlaceholders!.value,
+										descKey:'triggers.random_placeholder',
+										descReplacedValues:{NAME:"{"+ph.toUpperCase()+"}"},
+									});
+				}
 
-			placeholdersList.push({
-								tag:a.placeholder,
-								pointer:"",
-								isUserID:false,
-								customTag:true,
-								numberParsable:true,
-								descKey:'triggers.random_placeholder',
-								descReplacedValues:{NAME:"{"+a.placeholder.toUpperCase()+"}"},
-							});
-			
+			}
 		}
 
 		const placeholderIds:string[] = placeholdersList.map(v=>v.tag.toLowerCase()).sort();

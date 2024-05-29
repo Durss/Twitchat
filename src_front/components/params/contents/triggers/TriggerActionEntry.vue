@@ -339,16 +339,16 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
 	}
 
-	/**
-	 * Checks if one of the placeholders has a user info in it
-	 */
-	public get hasUserInfo():boolean { return TriggerEventPlaceholders(this.triggerData.type).findIndex(v=> v.isUserID) > -1; }
-
 	public get classes():string[] {
 		const res = ["triggeractionentry"];
 		if(this.isError) res.push("error");
 		return res;
 	}
+
+	/**
+	 * Checks if one of the placeholders has a user info in it
+	 */
+	public get hasUserInfo():boolean { return TriggerEventPlaceholders(this.triggerData.type).findIndex(v=> v.isUserID) > -1; }
 
 	/**
 	 * Get block's title

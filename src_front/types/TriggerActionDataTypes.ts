@@ -928,7 +928,7 @@ export interface TriggerActionValueData extends TriggerActionData{
 	valueUserSources:{[key:string]:string};
 }
 
-export type TriggerActionRandomDataMode = "list"|"number"|"trigger";
+export type TriggerActionRandomDataMode = "list"|"number"|"trigger"|"value"|"counter";
 export interface TriggerActionRandomData extends TriggerActionData{
 	type:"random";
 	/**
@@ -969,6 +969,26 @@ export interface TriggerActionRandomData extends TriggerActionData{
 	 * its execution?
 	 */
 	disableAfterExec?:boolean;
+	/**
+	 * Value ID to randomly pick entry from.
+	 * Only for per-user values
+	 */
+	valueSource?:string;
+	/**
+	 * Counter ID to randomly pick entry from.
+	 * Only for per-user counters
+	 */
+	counterSource?:string;
+	/**
+	 * used for value and counter sources.
+	 * Placeholders to extract the user info and the actual value
+	 * of that user
+	 */
+	valueCounterPlaceholders?:{
+		userName:string;
+		userId:string;
+		value:string;
+	}
 }
 
 export interface TriggerActionStreamInfoData extends TriggerActionData {

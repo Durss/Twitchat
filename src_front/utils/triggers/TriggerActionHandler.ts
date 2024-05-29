@@ -1862,8 +1862,10 @@ export default class TriggerActionHandler {
 
 				//Handle random generator trigger action
 				if(step.type == "random") {
+					logStep.messages.push({date:Date.now(), value:"Generating random value from \""+step.mode+"\""});
+					
+					//Generate random number
 					if(step.mode == "number" && step.placeholder) {
-						//Generate random number
 						const min = Math.min(step.min, step.max);
 						const max = Math.max(step.min, step.max);
 						let value = Math.random() * (max-min) + min;
@@ -1873,14 +1875,14 @@ export default class TriggerActionHandler {
 						dynamicPlaceholders[step.placeholder] = value;
 						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
 
+					//Pick an item from a custom list
 					}else if(step.mode == "list" && step.placeholder) {
-						//Pick an item from a custom list
 						const value = Utils.pickRand(step.list);
 						dynamicPlaceholders[step.placeholder] = value;
 						logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.placeholder+"}\" with value \""+value+"\""});
 
+					//Pick a trrigger from a custom trigger list
 					}else if(step.mode == "trigger") {
-						//Pick an item from a custom list
 						const triggerList = sTriggers.triggerList;
 						const hashmap:{[key:string]:TriggerData} = {};
 						triggerList.forEach(t => hashmap[t.id] = t);
@@ -1908,6 +1910,61 @@ export default class TriggerActionHandler {
 									logStep.messages.push({date:Date.now(), value:"Random trigger not found for ID \""+triggerId+"\""});
 								}
 							}
+						}
+
+					//Pick a random entry from a value or a counter
+					}else if(step.mode == "counter" || step.mode == "value") {
+						let uid = "";
+						let login = "";
+						let value = "";
+						const sourceID = (step.mode == "counter")? step.counterSource : step.valueSource;
+						const source = (step.mode == "counter")?
+										StoreProxy.counters.counterList.find(v=>v.id == sourceID)
+										: StoreProxy.values.valueList.find(v=>v.id == sourceID);
+						if(source && source.users && step.valueCounterPlaceholders) {
+							uid = Utils.pickRand(Object.keys(source.users));
+							//Attempt to load user name.
+							//TODO due to data storage format this will fail for non-twitch platforms
+							await new Promise<void>((resolve, reject)=>{
+								let resolved = false;
+								StoreProxy.users.getUserFrom("twitch", channel_id, uid, undefined, undefined, (user)=>{
+									login = user.login;
+									resolved = true;
+									resolve();
+								});
+								//Timeout request to avoid blocking trigger
+								setTimeout(()=>{
+									if(!resolved) {
+										login = "USER_NOT_FOUND";
+										resolve();
+									}
+								}, 5000);
+							});
+							value = (source.users[uid] ?? 0).toString();
+							if(step.valueCounterPlaceholders.userId) {
+								dynamicPlaceholders[step.valueCounterPlaceholders.userId]	= uid;
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.userId+"}\" with value \""+uid+"\""});
+							}
+							if(step.valueCounterPlaceholders.userName) {
+								dynamicPlaceholders[step.valueCounterPlaceholders.userName]	= login;
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.userName+"}\" with value \""+login+"\""});
+							}
+							if(step.valueCounterPlaceholders.value) {
+								dynamicPlaceholders[step.valueCounterPlaceholders.value]	= value;
+								logStep.messages.push({date:Date.now(), value:"Add dynamic placeholder \"{"+step.valueCounterPlaceholders.value+"}\" with value \""+value+"\""});
+							}
+						}else{
+							let logMessage = "❌ Cannot pick random entry from given source \""+step.mode+"\".";
+							if(!source) {
+								logMessage += " Cannot find requested source from ID \""+sourceID+"\".";
+							}else if(!source.users) {
+								logMessage += " Requested source has no user entry.";
+							}else if(!step.valueCounterPlaceholders) {
+								logMessage += " Missing placeholder names.";
+							}
+							logStep.messages.push({date:Date.now(), value:logMessage});
+							log.error = true;
+							logStep.error = true;
 						}
 					}
 				}else

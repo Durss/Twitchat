@@ -327,6 +327,8 @@ import Ajv from "ajv";
 								categoryId: {type:"string", maxLength:30},
 								topic: {type:"string", maxLength:255},
 								pattern: {type:"string", maxLength:15},
+								counterSource: {type:"string", maxLength:40},
+								valueSource: {type:"string", maxLength:40},
 								branded:{type:"boolean"},
 								fxPresetIndex:{type:"integer", minimum:-1, maximum:5},
 								sampleIndex:{
@@ -405,6 +407,15 @@ import Ajv from "ajv";
 									minItems:0,
 									maxItems:100,
 									items:{type:"string", maxLength:50},
+								},
+								valueCounterPlaceholders: {
+									type: "object",
+									additionalProperties: false,
+									properties: {
+										userId: {type:"string", maxLength:100},
+										userName: {type:"string", maxLength:100},
+										value: {type:"string", maxLength:10000},
+									}
 								},
 								raffleData: {
 									type: "object",
