@@ -23,7 +23,7 @@
 		</div>
 
 		<div class="card-item noResult" v-if="search && eventCategories.length === 0">{{ $t("global.no_result") }}</div>
-				
+
 		<!-- Main menu -->
 		<div :class="search? 'list search' : 'list'" v-if="!selectedTriggerType">
 			<div class="category"
@@ -34,7 +34,7 @@
 					<Icon :name="icon" v-for="icon in c.category.icons" />
 					<span class="label">{{ $t(c.category.labelKey) }}</span>
 				</div>
-				
+
 				<i18n-t scope="global" tag="div" class="card-item alert require"
 				v-if="!musicServiceAvailable && isMusicCategory(c.category) && !search"
 				keypath="triggers.music.require">
@@ -127,6 +127,8 @@ import TriggerActionList from './TriggerActionList.vue';
 })
  class TriggerCreateForm extends Vue {
 
+	@Prop({default:""})
+	public folderTarget!:string;
 	@Prop({default:[]})
 	public obsScenes!:OBSSceneItem[];
 	@Prop({default:[]})
@@ -135,7 +137,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	public obsInputs!:OBSInputItem[];
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];
-	
+
 	public search = "";
 	public showLoading = false;
 	public needRewards = false;
@@ -143,7 +145,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	public selectedTriggerType:TriggerTypeDefinition|null = null;
 	public subtriggerList:TriggerEntry[] = [];
 	public eventCategories:TriggerCategory[] = [];
-	
+
 	private temporaryTrigger:TriggerData|null = null;
 
 	public get musicServiceAvailable():boolean { return SpotifyHelper.instance.connected; }
@@ -234,7 +236,7 @@ import TriggerActionList from './TriggerActionList.vue';
 			});
 		}
 		if(triggerTypeList.length === 0) return;
-		
+
 		//Remove affiliates-only triggers if not affiliate or partner
 		if(!this.$store.auth.twitch.user.is_affiliate && !this.$store.auth.twitch.user.is_partner) {
 			triggerTypeList = triggerTypeList.filter(v=> {
@@ -248,7 +250,7 @@ import TriggerActionList from './TriggerActionList.vue';
 		if(this.isGoxlrMini) {
 			triggerTypeList = triggerTypeList.filter(v=> v.trigger?.goxlrMiniCompatible === true || v.trigger?.goxlrMiniCompatible === undefined);
 		}
-		
+
 		//Extract available trigger categories
 		let currCat = triggerTypeList[0].trigger!.category;
 		let catEvents:TriggerTypeDefinition[] = [];
@@ -283,7 +285,7 @@ import TriggerActionList from './TriggerActionList.vue';
 	 */
 	public disabledEntry(e:TriggerTypeDefinition):boolean {
 		if(e.disabled === true) return true;
-		
+
 		if(e.value == TriggerTypes.REWARD_REDEEM && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS]))) return true;
 		if(e.value == TriggerTypes.POLL_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_POLLS]))) return true;
 		if(e.value == TriggerTypes.PREDICTION_RESULT && (!this.hasChannelPoints || !TwitchUtils.hasScopes([TwitchScopes.MANAGE_PREDICTIONS]))) return true;
@@ -349,7 +351,7 @@ import TriggerActionList from './TriggerActionList.vue';
 
 	/**
 	 * Called when selecting a main event type
-	 * @param e 
+	 * @param e
 	 */
 	public async selectTriggerType(e:TriggerTypeDefinition):Promise<void> {
 		this.selectedTriggerType = e;
@@ -462,9 +464,9 @@ import TriggerActionList from './TriggerActionList.vue';
 											isCategory:false,
 										};
 									})
-					
+
 				}
-				
+
 				this.showLoading = false;
 				this.subtriggerList = list;
 				this.$emit("updateHeader", "triggers.header_select_obs_filter");
@@ -508,7 +510,7 @@ import TriggerActionList from './TriggerActionList.vue';
 				this.$emit("updateHeader", "triggers.header_select_obs_input");
 			}
 		}else
-		
+
 		if(e.value == TriggerTypes.COUNTER_EDIT
 		|| e.value == TriggerTypes.COUNTER_ADD
 		|| e.value == TriggerTypes.COUNTER_DEL
@@ -518,7 +520,7 @@ import TriggerActionList from './TriggerActionList.vue';
 			this.listCounters();
 			this.$emit("updateHeader", "triggers.header_select_counter");
 		}
-		
+
 		if(e.value == TriggerTypes.VALUE_UPDATE) {
 			this.listValues();
 			this.$emit("updateHeader", "triggers.header_select_value");
@@ -534,7 +536,7 @@ import TriggerActionList from './TriggerActionList.vue';
 			};
 
 			if(this.subtriggerList.length == 0) {
-				this.$store.triggers.addTrigger(this.temporaryTrigger)
+				this.$store.triggers.addTrigger(this.temporaryTrigger, this.folderTarget)
 				this.$emit("selectTrigger", this.temporaryTrigger);
 			}
 		}
@@ -542,7 +544,7 @@ import TriggerActionList from './TriggerActionList.vue';
 
 	/**
 	 * Called when selecting a sub type (reward, counter, obs scene/source, ...)
-	 * @param entry 
+	 * @param entry
 	 */
 	public selectSubType(entry:TriggerEntry, parentItem?:TriggerEntry):void {
 		if(!this.selectedTriggerType) return;
@@ -568,7 +570,7 @@ import TriggerActionList from './TriggerActionList.vue';
 				this.temporaryTrigger.obsSource = parentItem!.value;
 				this.temporaryTrigger.obsFilter = entry.value;
 				break;
-				
+
 			case TriggerTypes.OBS_PLAYBACK_STARTED:
 			case TriggerTypes.OBS_PLAYBACK_ENDED:
 			case TriggerTypes.OBS_PLAYBACK_PAUSED:
@@ -584,14 +586,14 @@ import TriggerActionList from './TriggerActionList.vue';
 			case TriggerTypes.COUNTER_LOOPED:
 			case TriggerTypes.COUNTER_MAXED:
 			case TriggerTypes.COUNTER_MINED: this.temporaryTrigger.counterId = entry.value; break;
-			
+
 			case TriggerTypes.VALUE_UPDATE: this.temporaryTrigger.valueId = entry.value; break;
 		}
 
-		this.$store.triggers.addTrigger(this.temporaryTrigger);
+		this.$store.triggers.addTrigger(this.temporaryTrigger, this.folderTarget);
 		this.$emit("selectTrigger", this.temporaryTrigger);
 	}
-	
+
 	/**
 	 * Open connexions parameters
 	 */
@@ -788,7 +790,7 @@ export default toNative(TriggerCreateForm);
 				}
 			}
 		}
-		
+
 		.triggerBt {
 			width: 100%;
 			margin-bottom: 2px;

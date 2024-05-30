@@ -15,6 +15,7 @@
 			@delete="deleteTrigger"
 			@duplicate="duplicateTrigger"
 			@testTrigger="$emit('testTrigger',$event)"
+			@createTrigger="$emit('createTrigger',$event)"
 			@select="$emit('select', $event)" />
 		<!-- <pre class="debug">{{ debug }}</pre> -->
 		<!-- <pre>{{ $store.triggers.triggerIdToFolderEnabled }}</pre> -->
@@ -42,7 +43,7 @@ import TriggerListItem from './TriggerListItem.vue';
 		TriggerListItem,
 		TriggerListFolderItem,
 	},
-	emits:["select", "testTrigger"],
+	emits:["select", "testTrigger","createTrigger"],
 })
  class TriggerList extends Vue {
 

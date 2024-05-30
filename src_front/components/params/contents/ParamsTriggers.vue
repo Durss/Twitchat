@@ -40,14 +40,14 @@
 				v-if="canTestTrigger"
 				icon="test"
 				@click="testTrigger(currentTriggerData!)">{{ $t('triggers.testBt') }}</Button>
-		
+
 			<Button class="cta"
 				v-if="currentTriggerData"
 				alert small
 				icon="delete"
 				@click="deleteTrigger(currentTriggerData!.id)">{{ $t('triggers.deleteBt') }}</Button>
 		</div>
-		
+
 		<template v-if="showList && !showForm">
 			<Button class="createBt"
 				v-if="$store.auth.isPremium || $store.triggers.triggerList.filter(v=>v.enabled !== false).length < $config.MAX_TRIGGERS"
@@ -60,7 +60,7 @@
 				<Button icon="premium" premium @click="openPremium()">{{ $t("premium.become_premiumBt") }}</Button>
 			</div>
 		</template>
-		
+
 		<TriggerCreateForm
 			v-if="showForm"
 			@selectTrigger="onSelectTrigger($event)"
@@ -68,8 +68,9 @@
 			:obsScenes="obsScenes"
 			:obsSources="obsSources"
 			:obsInputs="obsInputs"
-			:rewards="rewards" />
-			
+			:rewards="rewards"
+			:folderTarget="createFolderTarget" />
+
 		<TriggerActionList
 			v-if="currentTriggerData"
 			:triggerData="currentTriggerData"
@@ -78,10 +79,11 @@
 			:obsInputs="obsInputs"
 			:rewards="rewards"
 			:extensions="extensions" />
-			
+
 		<TriggerList v-if="showList && !showForm"
 			@select="onSelectTrigger($event)"
 			@testTrigger="testTrigger($event)"
+			@createTrigger="createTriggerWithinFolder($event)"
 			:rewards="rewards" />
 	</div>
 </template>
@@ -123,6 +125,7 @@ import TriggerList from './triggers/TriggerList.vue';
 	public loadingExtension:boolean = false;
 	public loadingOBSElements:boolean = false;
 	public headerKey:string = "triggers.header";
+	public createFolderTarget:string = "";
 	public obsScenes:OBSSceneItem[] = [];
 	public obsSources:OBSSourceItem[] = [];
 	public obsInputs:OBSInputItem[] = [];
@@ -178,14 +181,14 @@ import TriggerList from './triggers/TriggerList.vue';
 			//For some reason we need to call OBS twice to get latest changes
 			await this.listOBSScenes();
 			await this.listOBSScenes();
-			
+
 			await this.listOBSSources();
 			await this.listOBSSources();
 		};
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_INPUT_NAME_CHANGED, this.renameOBSElementHandler);
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_NAME_CHANGED, this.renameOBSElementHandler);
 		OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_FILTER_NAME_CHANGED, this.renameOBSElementHandler);
-		
+
 
 		let debounceTimeout = -1;
 		//Watch for any change on the selected trigger
@@ -222,6 +225,7 @@ import TriggerList from './triggers/TriggerList.vue';
 	 * Called when back button is clicked on params header
 	 */
 	public onNavigateBack(): boolean {
+		this.createFolderTarget = "";
 		return this.reload();
 	}
 
@@ -231,6 +235,7 @@ import TriggerList from './triggers/TriggerList.vue';
 	public reload(): boolean {
 		if(!this.showList || this.showForm) {
 			this.showForm = false;
+			this.createFolderTarget = "";
 			this.$store.triggers.openTriggerList();
 			this.headerKey = "triggers.header";
 			return true;
@@ -260,6 +265,7 @@ import TriggerList from './triggers/TriggerList.vue';
 	public onSelectTrigger(triggerData:TriggerData):void {
 		this.$store.triggers.openTriggerEdition(triggerData);
 		this.showForm = false;
+		this.createFolderTarget = "";
 	}
 
 	/**
@@ -342,9 +348,17 @@ import TriggerList from './triggers/TriggerList.vue';
 	/**
 	 * Simulates a trigger's execution
 	 */
+	public createTriggerWithinFolder(folderId:string):void {
+		this.createFolderTarget = folderId;
+		this.openForm();
+	}
+
+	/**
+	 * Simulates a trigger's execution
+	 */
 	public testTrigger(trigger:TriggerData):void {
 		const triggerEvent = TriggerTypesDefinitionList().find(v=>v.value == trigger.type);
-		
+
 		if(triggerEvent?.testMessageType) {
 			//Special case for schedules
 			if(trigger.type === TriggerTypes.SCHEDULE) {
@@ -365,7 +379,7 @@ import TriggerList from './triggers/TriggerList.vue';
 					}
 					TriggerActionHandler.instance.execute(data, true);
 				}, false);
-				
+
 			//If it's any other message type
 			}else{
 				this.$store.debug.simulateMessage<TwitchatDataTypes.ChatMessageTypes>(triggerEvent.testMessageType, (data)=> {
@@ -395,8 +409,8 @@ import TriggerList from './triggers/TriggerList.vue';
 								m.twitch_isPresentation = true;
 								break;
 							}
-						} 
-					}else 
+						}
+					}else
 
 					//Reward redeem simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.REWARD) {
@@ -415,18 +429,18 @@ import TriggerList from './triggers/TriggerList.vue';
 								},
 							};
 						}
-					}else 
+					}else
 
 					//OBS scene change simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE) {
 						m.sceneName = trigger.obsScene!;
-					}else 
+					}else
 
 					//OBS source toggle simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_SOURCE_TOGGLE) {
 						m.sourceName = trigger.obsSource!;
 						m.visible = trigger.type == TriggerTypes.OBS_SOURCE_ON;
-					}else 
+					}else
 
 					//OBS source toggle simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.OBS_PLAYBACK_STATE_UPDATE) {
@@ -443,7 +457,7 @@ import TriggerList from './triggers/TriggerList.vue';
 						}else{
 							this.$store.main.alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
 						}
-					}else 
+					}else
 
 					//Counter update simulation
 					if(m.type == TwitchatDataTypes.TwitchatMessageType.COUNTER_UPDATE) {
@@ -596,11 +610,12 @@ import TriggerList from './triggers/TriggerList.vue';
 
 	/**
 	 * Delete a trigger
-	 * @param id 
+	 * @param id
 	 */
 	public deleteTrigger(id:string):void {
 		this.$store.main.confirm(this.$t("triggers.delete_confirm")).then(()=>{
 			this.showForm = false;
+			this.createFolderTarget = "";
 			this.$store.triggers.deleteTrigger(id);
 			this.$store.triggers.openTriggerList();
 		}).catch(error=>{});

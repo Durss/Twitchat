@@ -1474,7 +1474,7 @@ export interface ITriggersActions {
 	 * Add a new trigger
 	 * @param data
 	 */
-	addTrigger(data:TriggerData):void;
+	addTrigger(data:TriggerData, folderTarget?:string):void;
 	/**
 	 * Save all triggers params
 	 */

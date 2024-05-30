@@ -40,6 +40,7 @@
 				<template #right_actions>
 					<div class="blockActions">
 						<ToggleButton class="triggerToggle" v-model="element.enabled" @click.stop @change="onToggleFolder(element)" />
+						<TTButton class="deleteBt" icon="add" @click.stop="addTrigger(element)" v-tooltip="$t('triggers.add_triggerBt')" primary></TTButton>
 						<TTButton class="deleteBt" icon="trash" v-if="noEdit === false" @click.stop="deleteFolder(element)" alert></TTButton>
 					</div>
 				</template>
@@ -58,6 +59,7 @@
 						@delete="$emit('delete', $event)"
 						@duplicate="$emit('duplicate', $event)"
 						@testTrigger="$emit('testTrigger',$event)"
+						@createTrigger="$emit('createTrigger',$event)"
 						@select="$emit('select', $event)" />
 
 					<div v-if="!element.items || element.items.length == 0" class="emptyFolder">{{$t("global.empty")}}</div>
@@ -105,7 +107,7 @@ import TriggerListItem from './TriggerListItem.vue';
 		ToggleButton,
 		TriggerListItem,
 	},
-	emits:["update:items","change","changeState","delete","duplicate","testTrigger","select"],
+	emits:["update:items","change","changeState","createTrigger","delete","duplicate","testTrigger","select"],
 })
  class TriggerListFolderItem extends Vue {
 
@@ -202,6 +204,16 @@ import TriggerListItem from './TriggerListItem.vue';
 		}
 	}
 
+	/**
+	 * Adds a trigger within the folder
+	 */
+	public addTrigger(folder:TriggerListFolderEntry):void {
+			this.$emit('createTrigger', folder.id);
+	}
+
+	/**
+	 * Enable/disable a folder
+	 */
 	public onToggleFolder(folder:TriggerListFolderEntry):void {
 		//First emit to update storage
 		this.$emit('change');

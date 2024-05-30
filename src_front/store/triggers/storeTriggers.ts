@@ -71,13 +71,32 @@ export const storeTriggers = defineStore('triggers', {
 			this.currentEditTriggerData = null;
 		},
 
-		addTrigger(data:TriggerData) {
+		addTrigger(data:TriggerData, folderTarget?:string) {
 			//If it is a schedule trigger add it to the scheduler
 			if(data.type === TriggerTypes.SCHEDULE) {
 				SchedulerHelper.instance.scheduleTrigger(data);
 			}
 
-			this.triggerList.push(data);
+			//Add trigger to requested folder if ncessary
+			if(folderTarget) {
+				this.triggerList.push(data);
+				const addToTreeItem = (items:TriggerTreeItemData[])=>{
+					for (let i = 0; i < items.length; i++) {
+						const elem = items[i];
+						if(elem.id === folderTarget) {
+							if(!elem.children) elem.children = [];
+							elem.children.push({id:Utils.getUUID(), type:"trigger", triggerId:data.id});
+						}else if(elem.children) {
+							elem.children.forEach(v=> {
+								if(v.type == "folder") {
+									addToTreeItem(v.children!);
+								}
+							});
+						}
+					}
+				};
+				addToTreeItem(this.triggerTree);
+			}
 			this.saveTriggers();
 		},
 
