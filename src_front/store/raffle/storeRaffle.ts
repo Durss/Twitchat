@@ -31,9 +31,9 @@ export const storeRaffle = defineStore('raffle', {
 
 		async startRaffle(payload:TwitchatDataTypes.RaffleData) {
 			this.data = payload;
-			
+
 			payload.created_at = Date.now();
-			
+
 			switch(payload.mode) {
 				case "chat": {
 					//Start countdown if requested
@@ -75,7 +75,7 @@ export const storeRaffle = defineStore('raffle', {
 				const winnerLoc = data.entries.find(v=> v.id == winner.id);
 				if(winnerLoc) {
 					winner = winnerLoc;
-					
+
 					if(!data.winners) data.winners = [];
 					data.winners.push(winnerLoc);
 
@@ -112,7 +112,7 @@ export const storeRaffle = defineStore('raffle', {
 					showCountdownOverlay:false,
 				};
 			}
-			
+
 			//Execute triggers
 			const message:TwitchatDataTypes.MessageRaffleData = {
 				type:TwitchatDataTypes.TwitchatMessageType.RAFFLE,
@@ -138,7 +138,7 @@ export const storeRaffle = defineStore('raffle', {
 			}
 
 			if(data.resultCallback) data.resultCallback();
-			
+
 			currentRaffleData = null;
 		},
 
@@ -175,7 +175,7 @@ export const storeRaffle = defineStore('raffle', {
 						}
 					} );
 				}
-				
+
 				if(sChat.botMessages.raffleJoin.enabled) {
 					clearTimeout(debounceConfirm);
 					confirmSpool.push(user);
@@ -186,7 +186,7 @@ export const storeRaffle = defineStore('raffle', {
 						message = sChat.botMessages.raffleJoin.message;
 						message = message.replace(/\{USER\}/gi, confirmSpool.concat().splice(0, userCount).map(v=> v.displayNameOriginal).join(", @"));
 					}
-					
+
 					if(message.length >= 500) {
 						message = sChat.botMessages.raffleJoin.message;
 						message = message.replace(/\{USER\}/gi, confirmSpool.splice(0, userCount-1).map(v=> v.displayNameOriginal).join(", @"));
@@ -210,7 +210,7 @@ export const storeRaffle = defineStore('raffle', {
 				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
 			}
-			
+
 			const sUsers = StoreProxy.users;
 			//Compute entries scores for ponderation
 			const userList:{channel_id:string, user:TwitchatDataTypes.TwitchatUser, entry:TwitchatDataTypes.RaffleEntry}[] = [];
@@ -220,20 +220,20 @@ export const storeRaffle = defineStore('raffle', {
 				const user = sUsers.getUserFrom(v.user.platform, v.user.channel_id, v.user.id);
 				userList.push({user, channel_id:v.user.channel_id, entry:v});
 			});
-			
+
 			//Compute weighted scores if necessary
 			if(!forcedWinner && userList.length > 0) {
-				
+
 				//Requesting weigted values for T2 or T3 subscribers if necessary
 				if((data.subT2Ratio || data.subT3Ratio) && userList.length > 0) {
 					//load all subscribers states
 					const res = await TwitchUtils.getSubscriptionState(userList.map(v=>v.user.id));
 					res.forEach(v=> {
 						const userListEntry = userList.find(w => w.user.id == v.user_id);
-						
+
 						//User not found on the API results, user is not subscribed
 						if(!userListEntry) return;
-	
+
 						const user = userListEntry.user;
 						const entry = userListEntry.entry;
 						const channel_id = userListEntry.channel_id;
@@ -307,14 +307,14 @@ export const storeRaffle = defineStore('raffle', {
 					}
 					const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
 						return {
-							id:(id++).toString(),
+							id:Utils.getUUID(),
 							label:v,
 							score:1,
 							joinCount:1,
 						}
 					});
 					data.entries = items;
-	
+
 				//Pick from subs
 				}else if(data.mode == "sub") {
 					const idToExists:{[key:string]:boolean} = {};
@@ -335,7 +335,7 @@ export const storeRaffle = defineStore('raffle', {
 						StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_subs"));
 						return;
 					}
-					
+
 					const items:TwitchatDataTypes.RaffleEntry[] = subs.map(v=>{
 						return {
 							id:v.user_id,
@@ -345,7 +345,7 @@ export const storeRaffle = defineStore('raffle', {
 						}
 					});
 					data.entries = items;
-				
+
 				//Pick from Value
 				}else if(data.mode == "values") {
 					const val = StoreProxy.values.valueList.find(v=>v.id == data.value_id);
@@ -387,15 +387,21 @@ export const storeRaffle = defineStore('raffle', {
 										});
 					}
 				}
-				
-				const list = [];
+
+				if(!data.winners) {
+					data.winners = [];
+				}
+
+				let list = [];
 				//Ponderate votes by adding one user many times if their
 				//score is greater than 1
 				for (let i = 0; i < data.entries.length; i++) {
 					const u = data.entries[i];
+
+					//Remove entries that already won
+					if(data.winners?.findIndex(v => v.id === u.id) > -1) continue;
+
 					const joinCount = Math.max(1, u.score) * Math.max(1, u.joinCount);
-					//@ts-ignore
-					u.fakeScore = joinCount;
 					if(joinCount==1) list.push(u);
 					else {
 						for (let j = 0; j < joinCount; j++) {
@@ -403,21 +409,15 @@ export const storeRaffle = defineStore('raffle', {
 						}
 					}
 				}
-	
+
 				if(list.length === 0) {
 					StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
 					return;
 				}
 
-				if(!data.winners) {
-					data.winners = [];
-				}
-
-				do{
-					winner = Utils.pickRand(list);
-				}while(data.winners.find(w => w.id == winner.id));
+				winner = Utils.pickRand(list);
 			}
-			
+
 			//Ask if a wheel overlay exists
 			let wheelOverlayExists = false;
 
@@ -427,7 +427,7 @@ export const storeRaffle = defineStore('raffle', {
 			PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 			await Utils.promisedTimeout(500);//Give the overlay some time to answer
 			PublicAPI.instance.removeEventListener(TwitchatEvent.WHEEL_OVERLAY_PRESENCE, wheelOverlayPresenceHandler);
-	
+
 			//A wheel overlay exists, send it data and wait for it to complete
 			if(wheelOverlayExists){
 				const list:TwitchatDataTypes.EntryItem[] = data.entries.map((v:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.EntryItem=>{
@@ -441,13 +441,46 @@ export const storeRaffle = defineStore('raffle', {
 					winner:winner.id,
 				}
 				PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_START, (apiData as unknown) as JsonObject);
-	
+
 			}else{
-	
+
 				//no wheel overlay found, just announce the winner
 				this.onRaffleComplete(winner);
 			}
-	
+
+			//If requesting to automatically remove winning entry from source
+			if(data.removeWinningEntry === true) {
+				if(data.mode == "values") {
+					const val = StoreProxy.values.valueList.find(v=>v.id == data.value_id);
+					if(!val) return;
+					if(val.perUser) {
+						delete val.users![winner.user!.id];
+					}else{
+						const fallbackSplitter = val.value.split(/\r|\n/).length > 1? "\r|\n" : ",";
+						const splitterRaplacement = fallbackSplitter == ","? "," : "\n";
+						const splitter = data.value_splitter || new RegExp(fallbackSplitter);//Fallback to line break or coma if new value_splitter option is empty
+						val.value = val.value.split(splitter).filter((v)=> v !=  winner.label).join(data.value_splitter || splitterRaplacement);
+					}
+				}else if(data.mode == "manual") {
+						//Too complicated to do for triggers as it involves handling placeholders case.
+						//If the custom list contains placeholders they are replaced before starting the raffle
+						//wich makes it a nightmare to define which value should be removed from the original list.
+						//Also, we have no reference here to the original data so removing an entry from
+						//the list wouldn't remove it from the original trigger data
+
+						let customEntries:string[] = [];
+						const customEntriesStr = data.customEntries;
+						if(customEntriesStr?.length > 0) {
+							const splitter = customEntriesStr.split(/\r|\n/).length > 1? "\r|\n" : ",";
+							customEntries = customEntriesStr.split(new RegExp(splitter, ""));
+							customEntries = customEntries.filter(v=> v.trim() !== winner.label);
+							const splitterRaplacement = splitter == ","? "," : "\n";
+							data.customEntries = customEntries.join(splitterRaplacement);
+							console.log(data.customEntries);
+						}
+				}
+			}
+
 		}
 	} as IRaffleActions
 	& ThisType<IRaffleActions

@@ -2,7 +2,7 @@
 	<div :class="classes">
 		<div class="head" v-if="triggerMode === false">
 			<ClearButton :aria-label="$t('global.close')" @click="close()" />
-			
+
 			<h1 class="title"><Icon name="ticket" class="icon" />{{ $t("raffle.form_title") }}</h1>
 
 			<div class="description">{{ $t("raffle.description") }}</div>
@@ -12,7 +12,7 @@
 			:values="['chat','sub','manual','values']"
 			:labels="[$t('raffle.chat.title'), $t('raffle.subs.title'), $t('raffle.list.title'), $t('raffle.values.title')]"
 			:icons="['commands', 'sub', 'list', 'placeholder']" />
-			
+
 		<div class="content">
 			<ToggleBlock class="legal tips" v-if="triggerMode === false && mode!='manual' && mode!='values'" :icons="['info']" small :title="$t('raffle.legal.title')" :open="false">
 				<p v-for="l in $tm('raffle.legal.contents')">{{l}}</p>
@@ -30,7 +30,7 @@
 					<ParamItem noBackground :paramData="param_reward" :autofocus="true" @change="onValueChange()" v-if="param_rewardvalue.listValues!.length > 1" />
 					<div class="tips">
 						<img src="@/assets/icons/info.svg">
-	
+
 						<i18n-t scope="global" tag="span" keypath="raffle.chat.triggers">
 							<template #LINK>
 								<a @click="openParam('triggers')">{{ $t("raffle.chat.triggers_link") }}</a>
@@ -80,12 +80,12 @@
 					/>
 				</ToggleBlock>
 
-				<Button type="submit" 
+				<TTButton type="submit"
 					v-if="triggerMode === false"
 					:aria-label="$t('raffle.chat.startBt_aria')"
-					icon="ticket">{{ $t('global.start') }}</Button>
+					icon="ticket">{{ $t('global.start') }}</TTButton>
 			</form>
-				
+
 			<form class="form" v-else-if="mode=='sub' && canListSubs" @submit.prevent="submitForm()">
 				<div class="info">{{ $t("raffle.subs.description") }}</div>
 				<ParamItem :paramData="param_subs_includeGifters" @change="onValueChange()" />
@@ -97,7 +97,7 @@
 				<div class="card-item winner" v-if="winnerTmp">
 					<div class="user">{{winnerTmp}}</div>
 				</div>
-				<Button type="submit"
+				<TTButton type="submit"
 				:aria-label="$t('raffle.subs.startBt_aria')"
 				icon="sub"
 				v-if="triggerMode === false"
@@ -107,16 +107,16 @@
 							<i class="small">({{ subsFiltered.length }} subs)</i>
 						</template>
 					</i18n-t>
-				</Button>
+				</TTButton>
 			</form>
-				
+
 			<form class="card-item secondary form scope" v-else-if="mode=='sub' && !canListSubs" @submit.prevent="submitForm()">
 				<img src="@/assets/icons/lock_fit.svg">
 				<p class="label">{{ $t("params.scope_missing") }}</p>
-				<Button alert small
+				<TTButton alert small
 					class="grantBt"
 					icon="unlock"
-					@click="requestSubPermission()">{{ $t('global.grant_scope') }}</Button>
+					@click="requestSubPermission()">{{ $t('global.grant_scope') }}</TTButton>
 			</form>
 
 			<form class="form" v-else-if="mode=='manual'" @submit.prevent="submitForm()">
@@ -127,8 +127,11 @@
 					<span class="instructions">{{ $t("raffle.list.instructions") }}</span>
 				</div>
 
-				<Button type="submit"
+				<ParamItem :paramData="param_list_remove" @change="onValueChange()" v-if="!triggerMode" />
+
+				<TTButton type="submit"
 				v-if="triggerMode === false"
+				:loading="pickingEntry"
 				:aria-label="$t('raffle.list.startBt_aria')"
 				:disabled="customEntriesCount == 0"
 				icon="list">
@@ -136,8 +139,8 @@
 						<template #COUNT>
 							<i class="small">({{ customEntriesCount }})</i>
 						</template>
-					</i18n-t>	
-				</Button>
+					</i18n-t>
+				</TTButton>
 			</form>
 
 			<form class="form" v-else-if="mode=='values'" @submit.prevent="submitForm()">
@@ -149,10 +152,13 @@
 
 				<ParamItem :paramData="param_values" @change="onValueChange()" />
 
+				<ParamItem :paramData="param_values_remove" @change="onValueChange()" />
+
 				<ParamItem class="splitterField" :paramData="param_values_splitter" @change="onValueChange()" v-if="param_values.selectedListValue?.value.perUser !== true" />
 
-				<Button type="submit"
+				<TTButton type="submit"
 				v-if="triggerMode === false"
+				:loading="pickingEntry"
 				:aria-label="$t('raffle.list.startBt_aria')"
 				:disabled="valueCount == 0"
 				icon="list">
@@ -160,8 +166,8 @@
 						<template #COUNT>
 							<i class="small">({{ valueCount }})</i>
 						</template>
-					</i18n-t>	
-				</Button>
+					</i18n-t>
+				</TTButton>
 			</form>
 		</div>
 	</div>
@@ -190,7 +196,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 @Component({
 	components:{
-		Button: TTButton,
+		TTButton,
 		TabMenu,
 		ParamItem,
 		ToggleBlock,
@@ -201,7 +207,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	emits:["close"]
 })
  class RaffleForm extends AbstractSidePanel {
-	
+
 	@Prop({type: Boolean, default: false})
 	public voiceControl!:boolean;
 
@@ -220,7 +226,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	public winnerTmp:string|null = null;
 
 	public mode:TwitchatDataTypes.RaffleData["mode"] = "chat";
-		
+
 	public param_command:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:true, type:"boolean", labelKey:"raffle.params.command_join", icon:"commands"};
 	public param_commandValue:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", labelKey:"raffle.params.command", placeholderKey:"raffle.params.command_placeholder"};
 	public param_reward:TwitchatDataTypes.ParameterData<boolean, any, any>		= {value:false, type:"boolean", labelKey:"raffle.params.reward_join", icon:"channelPoints"};
@@ -242,10 +248,12 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	public param_customEntries:TwitchatDataTypes.ParameterData<string>			= {value:"", type:"string", longText:true, maxLength:10000, placeholderKey:"raffle.params.list_placeholder"};
 	public param_values:TwitchatDataTypes.ParameterData<TwitchatDataTypes.ValueData|null, TwitchatDataTypes.ValueData, undefined, TwitchatDataTypes.ValueData>	= {value:null, type:"list", labelKey:"raffle.params.value_placeholder", icon:"placeholder"};
 	public param_values_splitter:TwitchatDataTypes.ParameterData<string>		= {value:",", type:"string", maxLength:5, labelKey:"raffle.params.value_splitter", icon:"splitter"};
+	public param_values_remove:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.value_remove", icon:"trash"};
+	public param_list_remove:TwitchatDataTypes.ParameterData<boolean>			= {value:false, type:"boolean", labelKey:"raffle.params.list_remove", icon:"trash"};
 
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
 	public joinPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
-	
+
 	private subs:TwitchDataTypes.Subscriber[] = [];
 	private voiceController!:FormVoiceControllHelper;
 
@@ -317,6 +325,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 			customEntries: this.param_customEntries.value,
 			value_id: this.param_values.value?.id,
 			value_splitter: this.param_values_splitter.value,
+			removeWinningEntry: this.mode == "values"? this.param_values_remove.value : this.mode == "manual"? this.param_list_remove.value : false,
 		}
 	}
 
@@ -377,6 +386,8 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 				this.param_showCountdownOverlay.value = this.action.raffleData.showCountdownOverlay;
 				this.param_customEntries.value = this.action.raffleData.customEntries;
 				this.param_values.value = this.param_values.listValues.find(v => v.value.id === this.action.raffleData.value_id)?.value || this.param_values.listValues[0].value;
+				this.param_values_remove.value = this.action.raffleData.mode == "values"? this.action.raffleData.removeWinningEntry === true : false;
+				this.param_list_remove.value = this.action.raffleData.mode == "manual"? this.action.raffleData.removeWinningEntry === true : false;
 			}
 
 			this.param_customEntries.placeholderList = TriggerEventPlaceholders(this.triggerData.type);
@@ -409,10 +420,10 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 
 		watch(()=>this.param_showCountdownOverlay.value, ()=>{
 			if(this.triggerMode) return;
-			
+
 			DataStore.set(DataStore.RAFFLE_OVERLAY_COUNTDOWN, this.param_showCountdownOverlay.value)
 		})
-		
+
 		watch(()=>this.mode, () => this.onValueChange());
 		watch(()=>this.param_commandValue.value, () => this.onValueChange());
 		watch(()=>this.param_rewardvalue.value, () => this.onValueChange());
@@ -423,6 +434,8 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 		watch(()=>this.param_ponderateVotes_subT3.value, () => this.onValueChange());
 		watch(()=>this.param_ponderateVotes_subgift.value, () => this.onValueChange());
 		watch(()=>this.param_maxEntries.value, () => this.onValueChange());
+
+		this.onValueChange();
 
 		this.pickingEntry = true;
 		this.subs = await TwitchUtils.getSubsList(false);
@@ -460,16 +473,21 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 			}
 		}
 
-		this.$store.raffle.startRaffle(payload);
+		this.pickingEntry = true;
+		await this.$store.raffle.startRaffle(payload);
 		if(this.mode == "chat") {
 			this.close();
 		}else{
-			this.pickingEntry = true;
 			await Utils.promisedTimeout(500);
-			this.pickingEntry = false;
+		}
+		this.pickingEntry = false;
+
+
+		if(!this.triggerMode && this.finalData.mode == "manual") {
+			this.param_customEntries.value = payload.customEntries;
 		}
 	}
-	
+
 	public openParam(page:TwitchatDataTypes.ParameterPagesStringType):void {
 		if(this.triggerMode) {
 			this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.OVERLAYS);
@@ -492,7 +510,7 @@ import VoiceGlobalCommandsHelper from '../voice/VoiceGlobalCommandsHelper.vue';
 	public openValues():void {
 		this.$store.params.openParamsPage(TwitchatDataTypes.ParameterPages.VALUES);
 	}
-	
+
 }
 export default toNative(RaffleForm);
 </script>

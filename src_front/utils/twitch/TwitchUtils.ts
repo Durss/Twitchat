@@ -1029,6 +1029,34 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Gets followers count
+	 *
+	 * @param userUds user IDs to get followers count of
+	 */
+	public static async getFollowersCount(userIds: string[]): Promise<{[key:string]:number}> {
+		if (!this.hasScopes([TwitchScopes.LIST_FOLLOWERS])) return {};
+
+		let list:{[key:string]:number} = {};
+		do {
+			const uid = userIds.shift()!;
+			const url = new URL(Config.instance.TWITCH_API_PATH + "channels/followers");
+			url.searchParams.append("broadcaster_id", uid);
+			url.searchParams.append("first", "100");
+			const res = await this.callApi(url, {
+				method: "GET",
+				headers: this.headers,
+			});
+			if (res.status == 200) {
+				const json: { data: TwitchDataTypes.Follower[], total:number, pagination?: { cursor?: string } } = await res.json();
+				list[uid] = json.total;
+			} else {
+				break;
+			}
+		} while (userIds.length > 0);
+		return list;
+	}
+
+	/**
 	 * Check if user follows currently authenticated user
 	 *
 	 * @param userId channelId to get followings list

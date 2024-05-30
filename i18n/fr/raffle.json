@@ -70,9 +70,11 @@
 			"ponderate_include_gifter": "Inclure les sub gifters (a offert des abonnements sans forcément être abonné·e)",
 			"ponderate_exclude_gifted": "Exclure les gens ayant reçu un sub",
 			"list_placeholder": "entrée 1, entrée 2, entrée 3, ...",
+			"list_remove": "Supprimer l'entrée gagnante de la liste",
 			"value_placeholder": "Valeur source",
 			"username_placeholder": "Pseudo",
-			"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)"
+			"value_splitter": "Séparateur d'entrées\n(caractère séparant les entrées)",
+			"value_remove": "Supprimer l'entrée gagnante de la Valeur\n(L'entrée sera définitivement supprimée de la Valeur !)"
 		},
 		"state_title": "Tirage au sort",
 		"state_users": "0 entrée | 1 entrée | {COUNT} entrées",

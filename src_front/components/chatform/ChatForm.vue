@@ -255,7 +255,7 @@
 						v-if="$store.main.devmode" />
 				</transition>
 
-				<ButtonNotification 
+				<ButtonNotification
 				v-if="showGazaBtn"
 				v-tooltip="{content:$t('gaza.tooltip'), showOnCreate:shouldShowTooltip('gaza'), onHidden:()=>onHideTooltip('gaza')}"
 				@click="$emit('update:showGazaFunds', true)">🍉</ButtonNotification>

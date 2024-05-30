@@ -453,6 +453,7 @@ import Ajv from "ajv";
 										subMode_includeGifters: {type:"boolean"},
 										subMode_excludeGifted: {type:"boolean"},
 										showCountdownOverlay: {type:"boolean"},
+										removeWinningEntry: {type:"boolean"},
 										customEntries: {type:"string", maxLength:1000000},
 									},
 								},
