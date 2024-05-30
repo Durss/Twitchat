@@ -32,6 +32,12 @@
 		"ts": "they/she",
 		"tt": "they/them",
 
+		"he": "he/him",
+		"she": "she/her",
+		"it": "it/its",
+		"he/she": "he/she",
+		"she/he": "she/he",
+
 		"tooltip_any": "Any pronouns",
 		"tooltip_other": "Other pronouns",
 		"tooltip_ask": "Ask me my pronouns",

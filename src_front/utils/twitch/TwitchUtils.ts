@@ -1242,25 +1242,24 @@ export default class TwitchUtils {
 		};
 
 		const getPronounPronounDb = async (): Promise<TwitchatDataTypes.Pronoun | null> => {
-			const url = new URL("https://pronoundb.org/api/v1/lookup")
+			const url = new URL("https://pronoundb.org/api/v2/lookup")
 			url.searchParams.set("platform", "twitch");
-			url.searchParams.set("id", uid);
+			url.searchParams.set("ids", uid);
 			const res = await this.callApi(url);
 			const data = await res.json();
 
-			if (data.pronouns === "unspecified")
-				return null;
+			if (Object.keys(data).length === 0) return null;
 
 			return {
 				id: uid,
 				login: username,
-				pronoun_id: data.pronouns,
+				pronoun_id: data[uid].sets.en.join("/"),
 			};
 		}
 
 		let pronoun: TwitchatDataTypes.Pronoun | null = null;
 		try {
-			pronoun = await getPronounAlejo();
+			// pronoun = await getPronounAlejo();
 		} catch (error) {
 			/*ignore*/
 		}

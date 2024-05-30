@@ -20,6 +20,7 @@ export default class PatreonController extends AbstractController {
 	private smsWarned:boolean = false;
 	private patreonApiDown:boolean = false;
 	private webhookDebounce:NodeJS.Timeout|null = null;
+	private userAgent = "Twitchat.fr server service";
 
 	//If a user chooses to make a "custom pledge", they're not attributed to any
 	//actual tier. This represents the minimum amount (in cents) they should give
@@ -83,7 +84,7 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
 
-		const result = await fetch(url, {method:"POST"});
+		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
 		const json = await result.json();
 
 		if(json.error) {
@@ -110,7 +111,7 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_id", Config.credentials.patreon_client_id);
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret);
 
-		const result = await fetch(url, {method:"POST"});
+		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
 		const json = await result.json();
 
 		if(json.error) {
@@ -138,6 +139,7 @@ export default class PatreonController extends AbstractController {
 			method:"GET",
 			headers: {
 				"Authorization":"Bearer "+token,
+				"User-Agent":this.userAgent,
 			}
 		}
 
@@ -213,7 +215,7 @@ export default class PatreonController extends AbstractController {
 			url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
 			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 
-			const result = await fetch(url, {method:"POST"});
+			const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
 			const json = await result.json();
 
 			if(json.error) {
@@ -281,7 +283,7 @@ export default class PatreonController extends AbstractController {
 		url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
 		url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
 
-		const result = await fetch(url, {method:"POST"});
+		const result = await fetch(url, {method:"POST", headers:{"User-Agent":this.userAgent}});
 
 		if(result.status != 200) {
 			Logger.error("Patreon: Server auth failed: "+result.status);
@@ -391,7 +393,8 @@ export default class PatreonController extends AbstractController {
 		const options = {
 			method:"GET",
 			headers:{
-				authorization:"Bearer "+token.access_token
+				authorization:"Bearer "+token.access_token,
+				"User-Agent":this.userAgent,
 			}
 		};
 
@@ -456,6 +459,7 @@ export default class PatreonController extends AbstractController {
 			method:"GET",
 			headers: {
 				"Authorization":"Bearer "+token.access_token,
+				"User-Agent":this.userAgent,
 			}
 		};
 

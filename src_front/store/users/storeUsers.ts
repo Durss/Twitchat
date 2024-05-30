@@ -776,7 +776,10 @@ export const storeUsers = defineStore('users', {
 		//load user's pronouns
 		loadUserPronouns(user:TwitchatDataTypes.TwitchatUser):Promise<void> {
 			// console.log("Check pronouns?", user.login, user.id, user.pronouns, !user.id, !user.login, user.pronouns != undefined);
+
+			//Do not get user's pronouns if missing info or pronouns already loaded or not requesting to show pronoouns
 			if(!user.id || !user.login || user.pronouns != undefined || StoreProxy.params.features.showUserPronouns.value === false) return Promise.resolve();
+
 			// console.log("Load pronouns !", user.login);
 			return new Promise((resolve, reject)=> {
 				TwitchUtils.getPronouns(user.id, user.login).then((res: TwitchatDataTypes.Pronoun | null) => {

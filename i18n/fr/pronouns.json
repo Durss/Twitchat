@@ -32,6 +32,12 @@
 		"ts": "iel/elle",
 		"tt": "iel/ellui",
 
+		"he": "il/lui",
+		"she": "elle",
+		"it": "on",
+		"he/she": "il/elle",
+		"she/he": "elle/il",
+
 		"tooltip_any": "N'importe quel pronom",
 		"tooltip_other": "Autre pronom",
 		"tooltip_ask": "Demandez-moi mes pronoms",
