@@ -8,7 +8,7 @@ import TwitchUtils from "../utils/TwitchUtils";
 import AbstractController from "./AbstractController";
 
 /**
-* Created : 13/07/2023 
+* Created : 13/07/2023
 */
 export default class PatreonController extends AbstractController {
 
@@ -28,7 +28,7 @@ export default class PatreonController extends AbstractController {
 	//This tier is an exception for the "MIN_AMOUT".
 	//This tier is lower than the min amount but has a limited number of slots
 	private MIN_AMOUNT_TIER_ID_EXCEPTION:string = "10133573";
-	
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
@@ -45,9 +45,9 @@ export default class PatreonController extends AbstractController {
 		authUrl.searchParams.append("state", "");
 		return authUrl.href;
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -61,18 +61,18 @@ export default class PatreonController extends AbstractController {
 
 		await this.authenticateLocal();
 	}
-	
-	
-	
-	
+
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 
 	/**
 	 * Authenticate a patreon user with their oAuth token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async postAuthenticate(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const body:any = request.body;
@@ -99,8 +99,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Refreshes user's token
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async postRefreshToken(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const body:any = request.body;
@@ -128,8 +128,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Get current user's info
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async getIsMember(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const token:string = (request.query as any).token;
@@ -151,16 +151,11 @@ export default class PatreonController extends AbstractController {
 		}else{
 			const members:PatreonMember[] = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8"));
 			const memberships = json.data.relationships.memberships.data as {id:string, type:string}[];
-			
+
 			//Flag myself as donor from my ID as the campaign holder isn't flag as
 			//a donor of himself on patreon's data
 			let isMember = false;
 			let memberID = "";
-			if(Config.credentials.patreon_my_uid === json.data.id) {
-				isMember = true;
-				memberID = Config.credentials.patreon_my_uid;
-			}
-			
 			for (let i = 0; i < memberships.length; i++) {
 				const m = memberships[i];
 				if(members.findIndex(v=>v.id === m.id) > -1) {
@@ -181,7 +176,7 @@ export default class PatreonController extends AbstractController {
 					fs.writeFileSync(Config.patreon2Twitch, JSON.stringify(json), "utf-8")
 				}
 			}
-			
+
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:{isMember}}));
@@ -202,8 +197,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Refreshes the patrons list
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 * @returns success of request
 	 */
 	public async authenticateLocal():Promise<boolean> {
@@ -217,10 +212,10 @@ export default class PatreonController extends AbstractController {
 			url.searchParams.append("refresh_token", token.refresh_token);
 			url.searchParams.append("client_id", Config.credentials.patreon_client_id_server);
 			url.searchParams.append("client_secret", Config.credentials.patreon_client_secret_server);
-	
+
 			const result = await fetch(url, {method:"POST"});
 			const json = await result.json();
-	
+
 			if(json.error) {
 				Logger.error("Patreon: authentication failed [invalid refresh token]");
 				console.log(json.error);
@@ -247,12 +242,12 @@ export default class PatreonController extends AbstractController {
 				this.tokenRefresh = setTimeout(()=>{
 					this.authenticateLocal();
 				}, token.expires_in - 60000);
-				
+
 				return true;
 			}
 
 		}
-		
+
 		if(!token){
 			Logger.warn("Please connect to patreon !", this.authURL);
 			this.sendSMSAlert("Patreon authentication is down server-side! Click to auth "+this.authURL);
@@ -263,8 +258,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Gets if the patreon API is down
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async getApiDown(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		response.header('Content-Type', 'application/json');
@@ -274,8 +269,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Called when redirecting from patreon to authenticate server
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async getServerAuth(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const code:string = (request.query as any).code;
@@ -298,7 +293,7 @@ export default class PatreonController extends AbstractController {
 			this.patreonApiDown = true;
 			return;
 		}
-		
+
 		const json = await result.json();
 
 		if(json.error) {
@@ -327,18 +322,18 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Called by patreon when a there's a patron update
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async postWebhookTrigger(request:FastifyRequest, response:FastifyReply):Promise<void> {
 		const event = request.headers["x-patreon-event"];
 		const signature = request.headers["x-patreon-signature"];
-		
+
 		const hash = crypto.createHmac('md5', Config.credentials.patreon_webhook_secret)
 		//@ts-ignore no typings for "rowBody" that is added by fastify-raw-body
 		.update(request.rawBody)
 		.digest('hex');
-		
+
 		if(signature != hash) {
 			Logger.warn("Patreon: Invalid webhook signature");
 			response.status(401);
@@ -378,8 +373,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Refreshes the patrons list
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async refreshPatrons(verbose:boolean = true, offset?:string):Promise<void> {
 		if(!offset) this.members = [];
@@ -399,7 +394,7 @@ export default class PatreonController extends AbstractController {
 				authorization:"Bearer "+token.access_token
 			}
 		};
-		
+
 		const result = await fetch(url, options);
 		if(result.status != 200) {
 			Logger.error("Patreon: Refreshing member list failed");
@@ -435,7 +430,7 @@ export default class PatreonController extends AbstractController {
 				};
 				return member;
 			});
-			
+
 			this.members = this.members.concat(members);
 			if(verbose)Logger.info("Patreon: "+this.members.length+" active members");
 			// fs.writeFileSync(Config.patreonMembers.replace(".json", "_src.json"), JSON.stringify(json.data), "utf-8");
@@ -451,8 +446,8 @@ export default class PatreonController extends AbstractController {
 
 	/**
 	 * Get user's campaign
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	public async getCampaignID():Promise<void> {
 		const url = new URL("https://www.patreon.com/api/oauth2/v2/campaigns");

@@ -16,7 +16,7 @@
 	- <a href="https://twitchat.fr" target="_blank">twitchat.fr</a> -
 	<br>
 	- <a href="https://discord.gg/fmqD2xUYvP" target="_blank">Join discord</a> -
-	
+
 </div>
 <br>
 <br>
@@ -67,7 +67,7 @@ For developpers, **Twitchat exposes an API** to receive events and control some 
 - [x] Integrated activity feed to see subs/cheers/follows/raids/rewards history
 - [x] Create/Delete polls
 - [x] Create/Delete predictions
-- [x] Emote selector 
+- [x] Emote selector
 - [x] BTTV, FFZ and 7TV emotes supported
 - [x] Message autocomplete nickname via "@", emotes via ":", commands via "/" or all via TAB key
 - [x] Allow to search on all messages via command `/search`
@@ -135,18 +135,17 @@ Rename the `credentials.default.json` file within the `credentials` folder to `c
 		"channel:read:ads",
 		"channel:manage:ads"
 	],
-	
+
 	"spotify_client_id": "",
 	"spotify_client_secret": "",
 	"spotify_scopes": "user-read-currently-playing user-modify-playback-state playlist-read-private",
 	"spotify_redirect_uri": "http://localhost:8080/spotify/auth",
-	
+
 	"patreon_client_id": "",
 	"patreon_client_secret": "",
 	"patreon_scopes": "identity identity.memberships",
 	"patreon_redirect_uri": "http://localhost:8080/patreon/auth",
-	
-	"patreon_my_uid": "",
+
 	"patreon_client_id_server": "",
 	"patreon_client_secret_server": "",
 	"patreon_redirect_uri_server": "http://localhost:3018/api/patreon/serverauth",

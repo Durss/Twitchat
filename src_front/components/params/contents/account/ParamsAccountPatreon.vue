@@ -1,6 +1,6 @@
 <template>
 	<div class="paramsaccountpatreon">
-		
+
 		<Icon name="loader" v-if="authenticating" />
 
 		<div class="earlyDonor" v-else-if="isEarlyDonor">
@@ -15,7 +15,7 @@
 			</i18n-t>
 		</div>
 
-		<div class="premiumDonor" v-else-if="$store.auth.twitch.user.donor.isPremiumDonor === true">
+		<div class="premiumDonor" v-else-if="isPremiumDonor">
 			<div class="card-item premium large">
 				<Icon name="premium" theme="light" />
 				<div>{{ $t("premium.premium_donor1") }}</div>
@@ -26,7 +26,7 @@
 				</template>
 			</i18n-t>
 		</div>
-	
+
 		<template v-else-if="connected || isPatreonMember">
 			<span>{{ $t("patreon.connected") }}</span>
 			<template v-if="isPatreonMember==true">
@@ -41,19 +41,19 @@
 			<Button @click="disconnect()" alert icon="cross">{{ $t("global.disconnect") }}</Button>
 		</template>
 
-		<template v-if="(!connected || (connected && !isPatreonMember)) && !isEarlyDonor && !isPatreonMember">
+		<template v-else>
 			<i18n-t scope="global" tag="div" keypath="patreon.info">
 				<template #LINK>
 					<a href="https://www.patreon.com/join/durss" target="_blank">{{ $t("patreon.info_link") }}</a>
 				</template>
 			</i18n-t>
-			
+
 			<i18n-t scope="global" tag="div" keypath="patreon.alternative">
 				<template #LINK>
 					<a @click="openDonate()">{{ $t("patreon.alternative_link", {AMOUNT:$config.LIFETIME_DONOR_VALUE}) }}</a>
 				</template>
 			</i18n-t>
-			
+
 			<Button v-if="!connected" icon="patreon" @click="authenticate()" :loading="redirecting" premium>{{ $t("patreon.linkBt") }}</Button>
 
 			<div v-if="patreonDown" class="card-item alert apiDown"><Icon name="alert" theme="light"/>{{ $t("patreon.api_down") }}</div>
@@ -84,14 +84,15 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	private csrfToken:string = "";
 
 	public get connected():boolean { return PatreonHelper.instance.connected; }
+	public get isPremiumDonor():boolean { return this.$store.auth.twitch.user.donor.isPremiumDonor === true; }
 	public get isPatreonMember():boolean { return PatreonHelper.instance.isMember || this.$store.auth.twitch.user.donor.isPatreonMember; }
 	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
 		const {json} = await ApiHelper.call("patreon/isApiDown");
 		this.patreonDown = json.data.isDown === true;
-		
-		
+
+
 		// PatreonHelper.instance.connect();
 		const authParams = this.$store.patreon.patreonAuthParams;
 		if(authParams) {
@@ -121,7 +122,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 	public async authenticate():Promise<void> {
 		this.redirecting = true;
-		
+
 		const {json} = await ApiHelper.call("auth/CSRFToken");
 		this.csrfToken = json.token;
 		const url = new URL("https://www.patreon.com/oauth2/authorize");
@@ -171,7 +172,7 @@ export default toNative(ParamsAccountPatreon);
 		}
 	}
 
-	.earlyDonor {
+	.earlyDonor, .premiumDonor {
 		.info {
 			margin-top: .5em;
 			text-align: center;

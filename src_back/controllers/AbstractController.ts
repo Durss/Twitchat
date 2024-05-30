@@ -5,33 +5,33 @@ import TwitchUtils, { TwitchToken } from "../utils/TwitchUtils";
 import type { PatreonMember } from "./PatreonController";
 
 /**
-* Created : 14/12/2022 
+* Created : 14/12/2022
 */
 export default class AbstractController {
 
 	protected earlyDonors:{[key:string]:boolean} = {};
-	
+
 	/**
 	 * Twitch user ID to cache expiration date.
 	 * An entry exists only if user is part of premium members
 	 */
 	private premiumState_cache:{[key:string]:number} = {};
-	
+
 	constructor() {
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -49,8 +49,8 @@ export default class AbstractController {
 
 	/**
 	 * Returns true if it passes the user is authenticated
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	protected async twitchUserGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
 		//Missing auth token
@@ -60,7 +60,7 @@ export default class AbstractController {
 			.send(JSON.stringify({errorCode:"MISSING_ACCESS_TOKEN", error:"Missing Twitch access token", success:false}));
 			return false;
 		}
-		
+
 		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
 			response.header('Content-Type', 'application/json')
@@ -68,14 +68,14 @@ export default class AbstractController {
 			.send(JSON.stringify({errorCode:"INVALID_ACCESS_TOKEN", error:"Invalid Twitch access token", success:false}));
 			return false;
 		}
-	
+
 		return userInfo;
 	}
 
 	/**
 	 * Returns true if it passes the admin check
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	protected async adminGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
 		const userInfo = await this.twitchUserGuard(request, response)
@@ -94,8 +94,8 @@ export default class AbstractController {
 
 	/**
 	 * Returns true if it passes the admin check
-	 * @param request 
-	 * @param response 
+	 * @param request
+	 * @param response
 	 */
 	protected async premiumGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
 		const userInfo = await this.twitchUserGuard(request, response)
@@ -103,6 +103,16 @@ export default class AbstractController {
 
 		const cache = this.premiumState_cache[userInfo.user_id];
 		let isPremium = cache != undefined && cache < Date.now();
+
+		//Check if user is part of admins
+		if(!isPremium && Config.credentials.admin_ids.findIndex(v=>v === userInfo.user_id) > -1) {
+			isPremium = true;
+		}
+
+		//Check if user is part of early donors with offered premium
+		if(!isPremium && this.earlyDonors[userInfo.user_id] === true) {
+			isPremium = true;
+		}
 
 		//Check if user is part of early donors with offered premium
 		if(!isPremium && this.earlyDonors[userInfo.user_id] === true) {
@@ -116,7 +126,7 @@ export default class AbstractController {
 			const memberID = jsonMap[userInfo.user_id];
 			//Get if user is part of the active patreon members
 			const members = JSON.parse(fs.readFileSync(Config.patreonMembers, "utf-8")) as PatreonMember[];
-			isPremium = members.findIndex(v=>v.id === memberID) > -1 || memberID == Config.credentials.patreon_my_uid;
+			isPremium = members.findIndex(v=>v.id === memberID) > -1;
 		}
 
 		//Check if user donated for more than the lifetime premium amount
@@ -141,10 +151,10 @@ export default class AbstractController {
 		this.premiumState_cache[userInfo.user_id] = Date.now() + 6 * 60 * 1000;
 		return userInfo;
 	}
-	
+
 	/**
 	 * Add headers to disable cache on a query response
-	 * @param response 
+	 * @param response
 	 */
 	protected disableCache(response:FastifyReply | {setHeader:(key:string, value:string)=>void}):void {
 		if("header" in response) {

@@ -86,7 +86,8 @@ export default class UserController extends AbstractController {
 			fs.utimes(userFilePath, new Date(), new Date(), ()=>{/*don't care*/});
 		}
 
-		let isPremiumDonor = amount >= Config.lifetimeDonorStep;
+		let isPremiumDonor = amount >= Config.lifetimeDonorStep || Config.credentials.admin_ids.findIndex(v=>v === userInfo.user_id) > -1;
+
 		let isPatreonMember = false;
 		if(!isPremiumDonor) {
 			if(fs.existsSync(Config.patreon2Twitch)) {
