@@ -144,7 +144,7 @@ export default class DiscordController extends AbstractController {
 		if(guard == false) return;
 
 		const params = request.body as {message:string, channelId:string};
-		const body = { content:"**from "+guard.user.login+"**:\n"+params.message }
+		const body = { content:params.message }
 
 		//Send to discord
 		try {
