@@ -763,7 +763,7 @@ export const storeChat = defineStore('chat', {
 		},
 
 
-		async addMessage(message:TwitchatDataTypes.ChatMessageTypes) {
+		async addMessage(message:TwitchatDataTypes.ChatMessageTypes, saveToDB:boolean = true) {
 			const sParams = StoreProxy.params;
 			const sStream = StoreProxy.stream;
 			const sUsers = StoreProxy.users;
@@ -1418,7 +1418,7 @@ export const storeChat = defineStore('chat', {
 			//Only save messages to history if requested
 			if(TwitchatDataTypes.DisplayableMessageTypes[message.type] === true) {
 				messageList.push( message );
-				if(StoreProxy.params.features.saveHistory.value === true && message.fake !== true) {
+				if(saveToDB && StoreProxy.params.features.saveHistory.value === true && message.fake !== true) {
 					Database.instance.addMessage(message).catch((error)=>{
 						console.error("Database addMessage() error");
 						console.log(error);

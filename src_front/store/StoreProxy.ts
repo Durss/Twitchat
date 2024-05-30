@@ -590,7 +590,7 @@ export interface IChatActions {
 	 * Add a message to the chat history
 	 * @param message
 	 */
-	addMessage(message:TwitchatDataTypes.ChatMessageTypes):Promise<void>;
+	addMessage(message:TwitchatDataTypes.ChatMessageTypes, saveToDB?:boolean):Promise<void>;
 	/**
 	 * Delete a message
 	 * @param message

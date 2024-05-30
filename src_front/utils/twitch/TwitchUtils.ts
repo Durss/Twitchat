@@ -2585,7 +2585,7 @@ export default class TwitchUtils {
 					style: "error",
 					message: StoreProxy.i18n.t("error.ad_block"),
 				}
-				StoreProxy.chat.addMessage(message);
+				StoreProxy.chat.addMessage(message, false);
 				this.adblockAlertSent = true;
 			}
 		}
