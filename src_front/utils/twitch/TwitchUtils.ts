@@ -1259,7 +1259,7 @@ export default class TwitchUtils {
 
 		let pronoun: TwitchatDataTypes.Pronoun | null = null;
 		try {
-			// pronoun = await getPronounAlejo();
+			pronoun = await getPronounAlejo();
 		} catch (error) {
 			/*ignore*/
 		}
