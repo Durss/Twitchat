@@ -54,7 +54,7 @@ export const storeValues = defineStore('values', {
 					if(data.name) d.name = data.name;
 					if(data.placeholderKey) d.placeholderKey = data.placeholderKey;
 					if(data.perUser != undefined) d.perUser = data.perUser;
-					
+
 					//If placeholder has been updated, update it on all triggers
 					if(data.placeholderKey && data.placeholderKey.toLowerCase() != (d.placeholderKey ?? "").toLowerCase()) {
 						StoreProxy.triggers.renameValuePlaceholder(d.placeholderKey, data.placeholderKey);
@@ -81,8 +81,7 @@ export const storeValues = defineStore('values', {
 
 		updateValue(id:string, value:string, user?:TwitchatDataTypes.TwitchatUser, userId?:string):void {
 			let prevValue = "";
-			if(value != undefined) {
-				value = value.toString();
+			if(value != undefined && value.trim() != "e") {//Ignore euler notation
 				try {
 					const num = MathJS.evaluate(value);
 					if(!isNaN(num)) value = num.toString();
@@ -91,7 +90,7 @@ export const storeValues = defineStore('values', {
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == id) {
 					const d = this.valueList[i];
-			
+
 					if(d.perUser) {
 						if(!d.users) d.users = {};
 						const uid = (user? user.id : userId) || "";
@@ -123,7 +122,7 @@ export const storeValues = defineStore('values', {
 
 			this.saveValues();
 		},
-		
+
 		delValue(data:TwitchatDataTypes.ValueData):void {
 			for (let i = 0; i < this.valueList.length; i++) {
 				if(this.valueList[i].id == data.id) {
@@ -148,7 +147,7 @@ export const storeValues = defineStore('values', {
 			DataStore.set(DataStore.VALUES, this.valueList);
 		}
 
-		
+
 	} as IValuesActions
 	& ThisType<IValuesActions
 		& UnwrapRef<IValuesState>
