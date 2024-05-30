@@ -519,7 +519,8 @@
 				"param_action_toggle":"toggle cell",
 				"param_action_tick_all":"Tick all cells",
 				"param_action_untick_all":"Untick all cells",
-				"param_action_rename":"Rename cells"
+				"param_action_rename":"Rename cells",
+				"no_grid":"You must first create a bingo grid"
 			}
 		},
 		"categories": {

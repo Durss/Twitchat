@@ -32,6 +32,7 @@ export namespace TwitchatDataTypes {
 		WEBSOCKET: "websocket",
 		HEAT_AREAS: "heatAreas",
 		STREAMLABS: "streamlabs",
+		BINGO_GRID: "bingogrid",
 		STREAMDECK: "streamdeck",
 		HIGHLIGHT: "chathighlight",
 		STREAMELEMENTS: "streamelements",
