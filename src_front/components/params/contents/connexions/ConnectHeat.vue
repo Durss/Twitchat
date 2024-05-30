@@ -202,5 +202,5 @@ export default toNative(ConnectHeat);
 		}
 	}
 }
-</style>import type { help } from 'mathjs';
+</style>
 
