@@ -2,22 +2,21 @@
 	<div class="triggerconditionlistgroupitem card-item">
 		<template v-for="c in  condition " :key="c.id">
 			<div class="group" v-if="c.type == 'group'">
-				<Button class="operator" small secondary noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
-					$t('triggers.condition.operators.' + c.operator) }}</Button>
+				<TTButton class="operator" small secondary noBounce v-if="c.conditions.length > 1" @click="toggleOperator(c)">{{
+					$t('triggers.condition.operators.' + c.operator) }}</TTButton>
 
-				<draggable class="draggable" v-model="c.conditions" direction="vertical" group="condition" item-key="id"
-					:animation="250">
+				<VueDraggable
+				class="item"
+				v-model="c.conditions"
+				:animation="250"
+				group="triggerCondition">
+					<div class="item" v-for="element in c.conditions" :key="element.id">
+						<TriggerConditionListGroupItem :triggerData=" triggerData " :parentCondition=" c "
+							:condition=" [element] " />
+					</div>
+				</VueDraggable>
 
-					<template #item="{ element, index }: { element: TriggerConditionGroup | TriggerCondition, index: number }">
-						<div class="item">
-							<TriggerConditionListGroupItem :triggerData=" triggerData " :parentCondition=" c "
-								:condition=" [element] " />
-						</div>
-					</template>
-
-				</draggable>
-
-				<Button class="addBt" icon="add" @click="addItem(c)" v-tooltip=" $t('triggers.condition.add_tt') " />
+				<TTButton class="addBt" icon="add" @click="addItem(c)" v-tooltip=" $t('triggers.condition.add_tt') " />
 			</div>
 
 			<TriggerConditionListItem class="item" v-else-if=" c.type == 'condition' " :triggerData=" triggerData "
@@ -31,16 +30,16 @@ import TTButton from '@/components/TTButton.vue';
 import type { TriggerCondition, TriggerConditionGroup, TriggerData } from '@/types/TriggerActionDataTypes';
 import Utils from '@/utils/Utils';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';
 import TriggerConditionListItem from './TriggerConditionListItem.vue';
+import { VueDraggable } from 'vue-draggable-plus';
 
 @Component({
 	name: "TriggerConditionListGroupItem",
 	components: {
-		Button: TTButton,
-		draggable,
+		TTButton,
 		ParamItem,
+		VueDraggable,
 		TriggerConditionListItem,
 	},
 	emits: ["delete"],

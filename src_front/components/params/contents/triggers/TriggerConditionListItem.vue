@@ -40,7 +40,7 @@ import ParamItem from '../../ParamItem.vue';
 
 	@Prop
 	public triggerData!:TriggerData;
-	
+
 	@Prop
 	public condition!:TriggerCondition;
 
@@ -58,7 +58,7 @@ import ParamItem from '../../ParamItem.vue';
 
 	public beforeMount():void {
 		if(this.condition.placeholder) this.condition.placeholder = this.condition.placeholder.toUpperCase();
-		
+
 		this.buildSourceList();
 
 		//Watch for changes on the chat command params to rebuild source list
@@ -81,7 +81,7 @@ import ParamItem from '../../ParamItem.vue';
 				});
 			})
 		}
-			
+
 		//Add trigger's placeholders
 		let placeholders = TriggerEventPlaceholders(this.triggerData.type).concat();
 		placeholderList = placeholderList.concat(placeholders.map(v=> {
@@ -103,7 +103,7 @@ import ParamItem from '../../ParamItem.vue';
 				fixedValues:v.values,
 			}
 		}));
-		
+
 		//Fail safe, if the placeholder isn't found on the list, push it to avoid reseting it to another
 		//random one in case it's been deleted or I fuck up something in the futur
 		if(this.condition.placeholder != "" && placeholderList.findIndex(v=>v.value == this.condition.placeholder) == -1) {
@@ -143,7 +143,7 @@ import ParamItem from '../../ParamItem.vue';
 			}
 			return true;
 		});
-		
+
 		//If selected placeholder has fixed values
 		if(this.param_placeholder.selectedListValue && (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues) {
 			const list = (this.param_placeholder.selectedListValue as ConditionListValues<string>).fixedValues!.concat();
@@ -156,7 +156,7 @@ import ParamItem from '../../ParamItem.vue';
 			if(this.condition.value && !item) {
 				this.forceCustom = true;
 			}
-			
+
 			if(item) this.condition.value = item.value as string;
 		}else{
 			delete this.param_value_list.listValues;
