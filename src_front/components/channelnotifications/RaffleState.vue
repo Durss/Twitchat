@@ -52,16 +52,16 @@
 				@click="closeRaffle()">{{ $t('raffle.state_stopBt') }}</TTButton>
 			<TTButton icon="ticket"
 				@click="pickWinner()"
-				secondary
+				light
 				:loading="picking"
 				:disabled="!canPick">{{ $t('raffle.state_pickBt') }}</TTButton>
 		</div>
- 
+
 		<div class="card-item overlayStatus" v-if="obsConnected && !checkingOverlay && !overlayFound">
 			<div>{{ $t("raffle.state_overlay_not_found") }}</div>
-			<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" />
+			<OverlayInstaller type="wheel" @obsSourceCreated="checkOverlay()" light />
 		</div>
- 
+
 		<div class="card-item overlayStatus" v-else-if="obsConnected && !checkingOverlay && !sourceVisible">
 			<div>{{ $t("raffle.state_overlay_not_visible") }}</div>
 			<TTButton icon="show" @click="showOverlay()">{{$t("global.show")}}</TTButton>
@@ -98,11 +98,11 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 	public timerPercent:number = 0;
 	public raffleData!:TwitchatDataTypes.RaffleData;
 	public winnerPlaceholders!:TwitchatDataTypes.PlaceholderEntry[];
-	
+
 	private overlaySource:OBSSourceItem|null = null;
 
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
-	
+
 	public get canPick():boolean {
 		return (this.raffleData.entries && this.raffleData.entries.length > 0)
 			&& (this.raffleData.winners == undefined
@@ -116,7 +116,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 		})
 		return count;
 	}
-	
+
 	public getUserFromEntry(entry:TwitchatDataTypes.RaffleEntry):TwitchatDataTypes.TwitchatUser|null {
 		if(!entry.user) return null;
 		return this.$store.users.getUserFrom(entry.user.platform, entry.user.channel_id, entry.user.id);
@@ -129,12 +129,12 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 		//Check if wheel's overlay exists
 		PublicAPI.instance.broadcast(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE);
 	}
-	
+
 	public mounted():void {
 		this.renderFrame();
 		this.checkOverlay();
 	}
-	
+
 	public beforeUnmount():void {
 		this.disposed = true;
 	}
@@ -156,7 +156,7 @@ import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 
 	public async pickWinner():Promise<void> {
 		this.picking = true;
-		
+
 		await this.$store.raffle.pickWinner();
 
 		this.picking = false;

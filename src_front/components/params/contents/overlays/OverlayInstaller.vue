@@ -8,7 +8,7 @@
 
 			<span>{{$t("global.or")}}</span>
 
-			<TTButton class="createBt" icon="edit" @click="showInput = true" small :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
+			<TTButton class="createBt" icon="edit" @click="showInput = true" small :light="light === true" :disabled="disabled">{{ $t("overlay.manual_installBt") }}</TTButton>
 		</template>
 
 		<template v-else-if="showSuccess">
@@ -18,7 +18,7 @@
 
 		<div v-else class="field">
 			<button class="backBt" v-if="obsConnected" @click="showInput = false"><Icon name="back" /></button>
-			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
+			<TTButton class="draggable" draggable="true" type="link" :href="localURLOBS" :light="light === true" @click.prevent @dragstart="onDragButtonStart($event)">{{$t("overlay.drag_installBt")}}</TTButton>
 			<span>{{$t("global.or")}}</span>
 			<input class="primary" type="text" v-model="localURL" v-click2Select readonly :disabled="disabled">
 			<button class="copyBt" @click="copyUrl()" ref="copyButton"><Icon :name="confirmCopy? 'checkmark' : 'copy'" /></button>
@@ -78,6 +78,9 @@ import Utils from '@/utils/Utils';
 
 	@Prop({default:false, type:Boolean})
 	public orderToBottom!:boolean;
+
+	@Prop({default:false, type:Boolean})
+	public light!:boolean;
 
 	public error:string = "";
 	public showInput:boolean = false;
