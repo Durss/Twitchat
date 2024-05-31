@@ -12,14 +12,14 @@ import ApiHelper from "../ApiHelper";
 import type { PlaylistCachedIdItem, SearchPlaylistItem, SearchPlaylistResult, SearchTrackItem, SearchTrackResult, SpotifyAuthToken, SpotifyTrack } from "../../types/spotify/SpotifyDataTypes";
 
 /**
-* Created : 23/05/2022 
+* Created : 23/05/2022
 */
 export default class SpotifyHelper {
-	
+
 	public connected:boolean = false;
 	public currentTrack!:TwitchatDataTypes.MusicTrackData;
 	public currentPlaylist:PlaylistCachedIdItem|null = null;
-	
+
 	private static _instance:SpotifyHelper;
 	private _isPlaying = false;
 	private _token!:SpotifyAuthToken;
@@ -31,11 +31,12 @@ export default class SpotifyHelper {
 	private _clientSecret = "";
 	private _playlistsCache:SearchPlaylistItem[] = [];
 	private _playlistsIdCache:{[key:string]:PlaylistCachedIdItem} = {};
+	private _trackIdToUser:{[key:string]:TwitchatDataTypes.TwitchatUser} = {};
 
 	constructor() {
 		this.initialize();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
@@ -58,16 +59,16 @@ export default class SpotifyHelper {
 		// 	return Config.instance.SPOTIFY_CLIENT_ID;
 		// }
 	}
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
 	public connect():void {
 		const appParams	= DataStore.get(DataStore.SPOTIFY_APP_PARAMS);
 		const authToken	= DataStore.get(DataStore.SPOTIFY_AUTH_TOKEN);
-		
+
 		if(appParams) {
 			const credentials		= JSON.parse(appParams);
 			this._clientID		= credentials.client;
@@ -78,7 +79,7 @@ export default class SpotifyHelper {
 			if(appParams) this.refreshToken();
 		}
 	}
-	
+
 	public disconnect():void {
 		clearTimeout(this._refreshTimeout);
 		clearTimeout(this._getTrackTimeout);
@@ -87,12 +88,12 @@ export default class SpotifyHelper {
 		rebuildPlaceholdersCache();
 	}
 
-	
+
 	/**
 	 * Sets spotify app credentials
-	 * 
-	 * @param clientID 
-	 * @param clientSecret 
+	 *
+	 * @param clientID
+	 * @param clientSecret
 	 */
 	public setCredentials(clientId:string, clientSecret:string):void {
 		this._clientID		= clientId;
@@ -125,8 +126,8 @@ export default class SpotifyHelper {
 	/**
 	 * Authenticate the user after receiving the auth_code once
 	 * oauth flow completes.
-	 * 
-	 * @param authCode 
+	 *
+	 * @param authCode
 	 */
 	public async authenticate(authCode:string):Promise<void> {
 		let json:SpotifyAuthToken = {} as SpotifyAuthToken;
@@ -144,7 +145,7 @@ export default class SpotifyHelper {
 				'redirect_uri': redirectURI,
 			})
 		}
-		
+
 		try {
 			const res = await fetch("https://accounts.spotify.com/api/token", options);
 			if(res.status==200) {
@@ -172,9 +173,9 @@ export default class SpotifyHelper {
 	public async refreshToken(attempt:number = 0):Promise<void> {
 		clearTimeout(this._getTrackTimeout);
 		clearTimeout(this._refreshTimeout);
-		
+
 		if(!this._token) return;
-	
+
 		const options = {
 			method:"POST",
 			headers: {
@@ -220,7 +221,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Get a track by its ID
-	 * 
+	 *
 	 * @returns track info
 	 */
 	public async getTrackByID(id:string, isRetry:boolean = false):Promise<SearchTrackItem|null> {
@@ -246,7 +247,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Adds a track to the queue
-	 * 
+	 *
 	 * @returns if a track has been found or not
 	 */
 	public async searchTrack(name:string, isRetry:boolean = false):Promise<SearchTrackItem[]|null> {
@@ -281,7 +282,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Adds a track to the queue
-	 * 
+	 *
 	 * @returns if a track has been found or not
 	 */
 	public async searchPlaylist(name:string, isRetry:boolean = false):Promise<SearchPlaylistItem|null> {
@@ -312,24 +313,28 @@ export default class SpotifyHelper {
 
 	/**
 	 * Adds a track to the queue
-	 * 
-	 * @param uri Spotify URI of the track to add. Get one with "searchTrack()" method
+	 *
+	 * @param track Spotify URI of the track to add. Get one with "searchTrack()" method
+	 * @param user User that ads the track
 	 * @returns if a track has been added or not
 	 */
-	public async addToQueue(uri:string, isRetry:boolean = false):Promise<boolean|"NO_ACTIVE_DEVICE"> {
+	public async addToQueue(track:SearchTrackItem, isRetry:boolean = false, user?:TwitchatDataTypes.TwitchatUser):Promise<boolean|"NO_ACTIVE_DEVICE"> {
 		const options = {
 			headers:this._headers,
 			method:"POST",
 		}
-		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(uri), options);
+		const res = await fetch("https://api.spotify.com/v1/me/player/queue?uri="+encodeURIComponent(track.uri), options);
 		if(res.status == 204) {
+			if(user) {
+				this._trackIdToUser[track.id] = user;
+			}
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return true;
 		}else
 		if(res.status == 401) {
 			await this.refreshToken();
 			//Try again
-			if(!isRetry) return await this.addToQueue(uri, true);
+			if(!isRetry) return await this.addToQueue(track, true);
 			else return false;
 		}else
 		if(res.status == 409) {
@@ -361,7 +366,7 @@ export default class SpotifyHelper {
 	 */
 	public async getCurrentTrack():Promise<void> {
 		if(!this.connected) return;
-		
+
 		clearTimeout(this._getTrackTimeout);
 
 		const options = {
@@ -389,7 +394,7 @@ export default class SpotifyHelper {
 			StoreProxy.music.spotifyConsecutiveErrors = 0;
 			return;
 		}
-		
+
 		let json:SpotifyTrack|null = null;
 		try {
 			json = await res.json();
@@ -400,7 +405,7 @@ export default class SpotifyHelper {
 			}, 5000);
 			return;
 		}
-		
+
 		json = json!;
 		StoreProxy.music.spotifyConsecutiveErrors = 0;
 
@@ -427,15 +432,17 @@ export default class SpotifyHelper {
 				cover,
 				duration:json.item.duration_ms,
 				url:json.item.external_urls.spotify,
+				id:json.item.id,
 			};
 			this._isPlaying = json.is_playing && json.item != null;
-	
+
 			if(this._isPlaying) {
 				//Broadcast to the triggers
 				if(!this._lastTrackInfo
-				|| this._lastTrackInfo?.duration != this.currentTrack.duration 
+				|| this._lastTrackInfo?.duration != this.currentTrack.duration
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
+					const userOrigin = this._trackIdToUser[this.currentTrack.id];
 					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
@@ -443,10 +450,11 @@ export default class SpotifyHelper {
 						platform:"twitchat",
 						track:this.currentTrack,
 						channel_id:StoreProxy.auth.twitch.user.id,
+						userOrigin
 					};
 					StoreProxy.chat.addMessage(message);
 				}
-				
+
 				//Broadcast to the overlays
 				const apiData = {
 					trackName: this.currentTrack.title,
@@ -459,7 +467,7 @@ export default class SpotifyHelper {
 				PublicAPI.instance.broadcast(TwitchatEvent.CURRENT_TRACK, (apiData as unknown) as JsonObject);
 
 				this._lastTrackInfo = this.currentTrack;
-				
+
 				let delay = json.item.duration_ms - json.progress_ms;
 				if(isNaN(delay)) delay = 5000;
 				this._getTrackTimeout = setTimeout(()=> {
@@ -495,7 +503,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Gets a playlist by its name
-	 * 
+	 *
 	 * @returns track info
 	 */
 	public async getPlaylistById(id:string):Promise<PlaylistCachedIdItem|null> {
@@ -519,7 +527,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Gets a playlist by its name
-	 * 
+	 *
 	 * @returns track info
 	 */
 	public async getUserPlaylist(id:string|null, name?:string):Promise<SearchPlaylistItem|null> {
@@ -562,7 +570,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Plays next track in queue
-	 * @returns 
+	 * @returns
 	 */
 	public async nextTrack():Promise<boolean> {
 		return this.simpleAction("me/player/next", "POST");
@@ -570,7 +578,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Pause the playback
-	 * @returns 
+	 * @returns
 	 */
 	public async pause():Promise<boolean> {
 		return this.simpleAction("me/player/pause", "PUT");
@@ -578,7 +586,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Resume/starts the playback
-	 * @returns 
+	 * @returns
 	 */
 	public async resume():Promise<boolean> {
 		return this.simpleAction("me/player/play", "PUT");
@@ -586,7 +594,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Starts playing a playlist
-	 * @returns 
+	 * @returns
 	 */
 	public async startPlaylist(id:string|null, name?:string):Promise<boolean> {
 		let res = await this.getUserPlaylist(id, name);
@@ -599,25 +607,25 @@ export default class SpotifyHelper {
 		return false;
 	}
 
-	
-	
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
 	private initialize():void {
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TRACK, ()=>this.getCurrentTrack());
 	}
-	
+
 	/**
 	 * Set access token
-	 * @param value 
+	 * @param value
 	 */
 	private setToken(value:SpotifyAuthToken | null) {
 		if(value == null) {
 			this.disconnect();
 			return;
 		}
-		
+
 		//Backup refresh token from prev token as spotify does not send us back a refrehs
 		//token after refreshing a token.
 		if(this._token?.refresh_token && !value?.refresh_token) value.refresh_token = this._token.refresh_token;
@@ -625,7 +633,7 @@ export default class SpotifyHelper {
 		this._token = value;
 		this._token.expires_at =  Date.now() + this._token.expires_in * 1000;
 		DataStore.set(DataStore.SPOTIFY_AUTH_TOKEN, this._token);
-		
+
 		this._headers = {
 			"Accept":"application/json",
 			"Content-Type":"application/json",
@@ -633,7 +641,7 @@ export default class SpotifyHelper {
 		}
 		this.connected = this._token? this._token.expires_at > Date.now() : false;
 		rebuildPlaceholdersCache();
-		
+
 		if(Date.now() > this._token.expires_at - 10 * 60 * 1000) {
 			this.refreshToken();
 		}else{
@@ -643,7 +651,7 @@ export default class SpotifyHelper {
 
 	/**
 	 * Executes a simplea ction that requires no param
-	 * @param path 
+	 * @param path
 	 * @returns success or not
 	 */
 	public async simpleAction(path:string, method:"POST"|"PUT"|"GET", body?:JsonObject):Promise<boolean> {

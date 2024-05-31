@@ -420,6 +420,9 @@
 			"ban_user": "Retirer la possibilité à cette personne d'ajouter des morceaux",
 			"unban_user": "Accorder la possibilité à cette personne d'ajouter des morceaux à nouveau"
 		},
+		"now_playing": {
+			"title": "Lecture de {TRACK} ajouté par {USER}"
+		},
 		"ad_break_start": {
 			"label": "{USER} a lancé une publicité de {DURATION}s"
 		},

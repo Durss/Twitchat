@@ -6,9 +6,9 @@
 					$t('triggers.condition.operators.' + c.operator) }}</TTButton>
 
 				<VueDraggable
-				class="item"
 				v-model="c.conditions"
 				:animation="250"
+				:forceFallback="false"
 				group="triggerCondition">
 					<div class="item" v-for="element in c.conditions" :key="element.id">
 						<TriggerConditionListGroupItem :triggerData=" triggerData " :parentCondition=" c "
@@ -139,6 +139,17 @@ export default toNative(TriggerConditionListGroupItem);
 				letter-spacing: .3em;
 				margin-right: -.3em; //Removes space after last letter
 			}
+		}
+
+		.item {
+
+-webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+     -khtml-user-select: none; /* Konqueror */
+       -moz-user-select: none; /* Firefox */
+        -ms-user-select: none; /* Internet Explorer/Edge */
+            user-select: none; /* Non-prefixed version, currently
+                                  not supported by any browser */
 		}
 	}
 }

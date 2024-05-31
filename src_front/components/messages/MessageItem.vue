@@ -24,7 +24,7 @@
 		:messageData="messageData" />
 
 	<ChatNotice class="message"
-		v-else-if="messageData.type == 'notice'" 
+		v-else-if="messageData.type == 'notice'"
 		:messageData="messageData" />
 
 	<ChatPollResult class="message"
@@ -147,6 +147,10 @@
 		v-else-if="messageData.type == 'music_added_to_queue'"
 		:messageData="messageData" />
 
+	<ChatTrackStart class="message"
+		v-else-if="messageData.type == 'music_start'"
+		:messageData="messageData" />
+
 	<ChatCustomMessage class="message"
 		v-else-if="messageData.type == 'custom'"
 		:messageData="messageData" />
@@ -218,6 +222,7 @@ import ChatKofiEvent from './ChatKofiEvent.vue';
 import ChatStreamelementsEvent from './ChatStreamelementsEvent.vue';
 import ChatUnbanRequest from './ChatUnbanRequest.vue';
 import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
+import ChatTrackStart from './ChatTrackStart.vue';
 
 @Component({
 	components:{
@@ -236,6 +241,7 @@ import ChatTipeeeEvent from './ChatTipeeeEvent.vue';
 		ChatKofiEvent,
 		ChatPinNotice,
 		ChatJoinLeave,
+		ChatTrackStart,
 		ChatPollResult,
 		ChatTipeeeEvent,
 		ChatStreamOnOff,

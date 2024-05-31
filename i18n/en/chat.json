@@ -420,6 +420,9 @@
 			"ban_user": "Prevent this user from adding other tracks",
 			"unban_user": "Allow this user to add tracks again"
 		},
+		"now_playing": {
+			"title": "Now playing {TRACK} added by {USER}"
+		},
 		"ad_break_start": {
 			"label": "{USER} started a {DURATION}s ad break"
 		},

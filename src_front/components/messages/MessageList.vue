@@ -647,6 +647,7 @@ import { Linear } from 'gsap/all';
 				return this.config.filters.user_watch_streak !== false;
 			}
 
+			case TwitchatDataTypes.TwitchatMessageType.MUSIC_START: if(!m.userOrigin) return false;
 			case TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE: {
 				return this.config.filters.music_added_to_queue == true;
 			}

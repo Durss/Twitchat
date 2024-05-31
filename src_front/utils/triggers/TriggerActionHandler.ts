@@ -1863,7 +1863,7 @@ export default class TriggerActionHandler {
 				//Handle random generator trigger action
 				if(step.type == "random") {
 					logStep.messages.push({date:Date.now(), value:"Generating random value from \""+step.mode+"\""});
-					
+
 					//Generate random number
 					if(step.mode == "number" && step.placeholder) {
 						const min = Math.min(step.min, step.max);
@@ -2066,7 +2066,7 @@ export default class TriggerActionHandler {
 							const maxDuration = (step.maxDuration || 0)*1000;
 							//Convert placeholders if any
 							const m = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.track, subEvent);
-							let data:TwitchatDataTypes.MusicTrackData|undefined = undefined;
+							let trackData:TwitchatDataTypes.MusicTrackData|undefined = undefined;
 							if(SpotifyHelper.instance.connected) {
 								let track:SearchTrackItem|null = null;
 								if(/open\.spotify\.[a-z]{2,}\/.*track\/.*/gi.test(m)) {
@@ -2107,10 +2107,11 @@ export default class TriggerActionHandler {
 										logStep.messages.push({date:Date.now(), value:"❌ [SPOTIFY] Track is longer than the allowed "+Utils.formatDuration(maxDuration)+"s"});
 										failCode = "max_duration";
 									}else {
-										const success = await SpotifyHelper.instance.addToQueue(track.uri);
+										const success = await SpotifyHelper.instance.addToQueue(track, false, executingUser);
 										if(success === true) {
 											logStep.messages.push({date:Date.now(), value:"✔ [SPOTIFY] Add to queue success"});
-											data = {
+											trackData = {
+												id:track.id,
 												title:track.name,
 												artist:track.artists[0].name,
 												album:track.album.name,
@@ -2144,7 +2145,7 @@ export default class TriggerActionHandler {
 								date:Date.now(),
 								platform:"twitchat",
 								type:TwitchatDataTypes.TwitchatMessageType.MUSIC_ADDED_TO_QUEUE,
-								trackAdded:data,
+								trackAdded:trackData,
 								message:m,
 								user:executingUser,
 								triggerIdSource:trigger.id,
@@ -2157,8 +2158,8 @@ export default class TriggerActionHandler {
 							StoreProxy.chat.addMessage(trackAddedMesssageData);
 
 							//A track has been found and added
-							if(data) {
-								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (data as unknown) as JsonObject);
+							if(trackData) {
+								PublicAPI.instance.broadcast(TwitchatEvent.TRACK_ADDED_TO_QUEUE, (trackData as unknown) as JsonObject);
 
 								//The step is requesting to confirm on chat when a track has been added
 								if(step.confirmMessage) {
@@ -2929,13 +2930,13 @@ export default class TriggerActionHandler {
 
 						//Spacial case for followage placeholders.
 						//Dynamically request for follow date if necessary
-						if(message.platform == "twitch" &&
-						(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE
-						|| placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS)) {
+						if(placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE
+						|| placeholder.tag == TriggerActionDataTypes.USER_FOLLOWAGE_MS) {
 							let user = root as TwitchatDataTypes.TwitchatUser;
 							let chanInfos = user.channelInfo[message.channel_id] as TwitchatDataTypes.UserChannelInfo;
+							console.log(chanInfos.following_date_ms);
 							//Follow date not loaded yet for this user, asynchronously load it
-							if(chanInfos.following_date_ms == 0)  {
+							if(chanInfos.following_date_ms == 0 && message.platform == "twitch")  {
 								let res = await TwitchUtils.getFollowerState(user.id);
 								if(res) {
 									chanInfos.following_date_ms = new Date(res.followed_at).getTime();

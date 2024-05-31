@@ -1139,6 +1139,7 @@ export namespace TwitchatDataTypes {
 	 * Represents info about a music track
 	 */
 	export interface MusicTrackData {
+		id:string;
 		title:string;
 		artist:string;
 		album:string;
@@ -2014,7 +2015,7 @@ export namespace TwitchatDataTypes {
 		chat_alert:false,
 		music_stop:false,
 		twitchat_ad:true,
-		music_start:false,
+		music_start:true,
 		subscription:true,
 		autoban_join:true,
 		value_update:false,
@@ -3388,6 +3389,10 @@ export namespace TwitchatDataTypes {
 		 * Info about the track that started playing
 		 */
 		track:MusicTrackData;
+		/**
+		 * User that added the track to the queue
+		 */
+		userOrigin?:TwitchatUser;
 	}
 
 	/**

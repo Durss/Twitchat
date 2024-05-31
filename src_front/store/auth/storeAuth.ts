@@ -323,6 +323,7 @@ export const storeAuth = defineStore('auth', {
 			this.twitch.user.donor.earlyDonor		= res.json.data.isEarlyDonor === true;
 			this.twitch.user.donor.isPremiumDonor	= res.json.data.isPremiumDonor === true;
 			this.twitch.user.donor.isPatreonMember	= res.json.data.isPatreonMember === true;
+			this.twitch.user.channelInfo[user.id].following_date_ms = user.created_at_ms || 0;
 			StoreProxy.discord.discordLinked		= res.json.data.discordLinked === true;
 			//Uncomment to force non-premium for debugging
 			// if(!Config.instance.IS_PROD) {
