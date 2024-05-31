@@ -14,7 +14,7 @@
 				<span class="label">{{ item.label }}</span>
 			</div>
 		</InfiniteList>
-	
+
 		<div class="stars">
 			<div class="starHolder" v-for="s in stars" :style="getStarStyles(s)">
 				<svg version="1.1"
@@ -76,7 +76,7 @@ import type { StyleValue } from 'vue';
 			opacity:this.listDisplayed? 1 : 0,
 		}
 	}
-	
+
 	public getStarStyles(s:StarData):StyleValue {
 		return {
 			opacity: s.a.toString(),
@@ -98,20 +98,20 @@ import type { StyleValue } from 'vue';
 		window.addEventListener("resize", this.resizeHandler);
 
 		PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE);
-		
+
 		this.startWheelHandler = (e:TwitchatEvent)=>this.onStartWheel(e);
 		this.wheelPresenceHandler = ()=>{ PublicAPI.instance.broadcast(TwitchatEvent.WHEEL_OVERLAY_PRESENCE); }
 
 		PublicAPI.instance.addEventListener(TwitchatEvent.WHEEL_OVERLAY_START, this.startWheelHandler);
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
-		
+
 		//Populate with fake data
-		/*
+		//*
 		let list:TwitchatDataTypes.EntryItem[] = [];
 		for (let i = 0; i < 90000; i++) {
 			let id = i.toString();
 			// list.push({id, label:"Item "+i});
-			list.push({id, label:i+"wwwwwwwwd psqkfpdsoj, flsd,fsdk fsdmf,sd fsdfffsdflmflmksdslfm;w"});
+			list.push({id, label:i+"pouet"});
 		}
 		this.winnerData = Utils.pickRand(list);
 		this.itemList = list;
@@ -167,6 +167,7 @@ import type { StyleValue } from 'vue';
 
 			//Push winner item at the end
 			list.push(this.winnerData);
+
 			winnerIndex = list.length - 1;
 		}else{
 			//Search last index of winner
@@ -183,7 +184,7 @@ import type { StyleValue } from 'vue';
 		this.selectedItemIndex = winnerIndex;
 
 		gsap.killTweensOf(this);
-		
+
 		this.prevTs = Date.now();
 		this.renderFrame(this.prevTs, this.rafID);
 	}
@@ -242,7 +243,9 @@ import type { StyleValue } from 'vue';
 						const duration = 9;//Math.abs(this.endOffset - this.scrollOffset)*.001;
 						//Scroll down after last item has appeared
 						gsap.to(this, {scrollOffset: this.endOffset, duration, ease:"sine.inOut", onComplete:()=>{
-							this.onAnimationComplete();
+							setTimeout(()=>{
+								this.onAnimationComplete();
+							},500);
 						}});
 					});
 					//*/
@@ -312,7 +315,7 @@ import type { StyleValue } from 'vue';
 			const rectB = itemB.getBoundingClientRect();
 			return rectA.top - rectB.top;
 		});
-		
+
 		gsap.to(items, {left:"-110%", duration:.35, ease:"quad.in", stagger:.035, delay:3,
 						onComplete:()=>{
 							//Reset everything to free up memory
@@ -363,6 +366,7 @@ interface StarData {
 	va:number;
 	s:number;
 }
+
 export default toNative(OverlaysRaffleWheel);
 </script>
 
@@ -376,6 +380,7 @@ export default toNative(OverlaysRaffleWheel);
 		// border-top-right-radius: 50%;
 		// border-bottom-right-radius: 50%;
 		height: 100%;
+		width: 50%;
 		max-width: 700px;
 		// overflow: hidden !important;
 		:deep(.list-item) {
