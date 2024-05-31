@@ -3,6 +3,7 @@ import DataStore from "@/store/DataStore";
 import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import gsap from "gsap";
 import * as MathJS from 'mathjs';
 import type { JsonObject } from "type-fest";
@@ -17,6 +18,7 @@ import Logger from "../Logger";
 import OBSWebsocket, { type SourceTransform } from "../OBSWebsocket";
 import PublicAPI from "../PublicAPI";
 import TTSUtils from "../TTSUtils";
+import TriggerUtils from "../TriggerUtils";
 import Utils from "../Utils";
 import WebsocketTrigger from "../WebsocketTrigger";
 import GoXLRSocket from "../goxlr/GoXLRSocket";
@@ -24,7 +26,6 @@ import SpotifyHelper from "../music/SpotifyHelper";
 import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
-import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import YoutubeHelper from "../youtube/YoutubeHelper";
 
 /**
@@ -852,7 +853,7 @@ export default class TriggerActionHandler {
 
 			let resolver!: ()=>void;
 			const promise = new Promise<void>(async (resolve, reject)=> { resolver = resolve });
-			queue.push( {promise, resolver, name:Utils.getTriggerDisplayInfo(trigger).label} );
+			queue.push( {promise, resolver, name:TriggerUtils.getTriggerDisplayInfo(trigger).label} );
 
 			if(eventBusy) {
 				const queueItem = queue[queue.length-2];
@@ -1347,7 +1348,7 @@ export default class TriggerActionHandler {
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.poll_error", {MESSAGE:message}))
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.poll_error", {MESSAGE:message}))
 					}
 				}else
 
@@ -1370,7 +1371,7 @@ export default class TriggerActionHandler {
 						}
 					}catch(error:any) {
 						const message = error.message ?? error.toString()
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.prediction_error", {MESSAGE:message}))
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.prediction_error", {MESSAGE:message}))
 					}
 				}else
 
@@ -2726,7 +2727,7 @@ export default class TriggerActionHandler {
 						const pointerLocal = pointer.replace('__trigger__.', '');
 						switch(pointerLocal) {
 							case "name":{
-								value = trigger.name ?? Utils.getTriggerDisplayInfo(trigger).label;
+								value = trigger.name ?? TriggerUtils.getTriggerDisplayInfo(trigger).label;
 								if(!value) value = "-no name-";
 								break;
 							}
@@ -2742,7 +2743,7 @@ export default class TriggerActionHandler {
 					}else if(pointer.indexOf("__obs__") == 0) {
 						const pointerLocal = pointer.replace('__obs__.', '');
 						switch(pointerLocal) {
-							case "scene": value = StoreProxy.main.currentOBSScene || "-none-"; break;
+							case "scene": value = StoreProxy.common.currentOBSScene || "-none-"; break;
 						}
 
 					/**

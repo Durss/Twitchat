@@ -207,7 +207,7 @@ export const storeRaffle = defineStore('raffle', {
 			const data = forcedData ?? this.data;
 			currentRaffleData = data;
 			if(!data) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_raffle"));
 				return;
 			}
 
@@ -302,7 +302,7 @@ export const storeRaffle = defineStore('raffle', {
 						customEntries = customEntriesStr.split(new RegExp(splitter, ""));
 						customEntries = customEntries.map(v=> v.trim());
 					}else{
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
 						return;
 					}
 					const items:TwitchatDataTypes.RaffleEntry[] = customEntries.map(v=> {
@@ -332,7 +332,7 @@ export const storeRaffle = defineStore('raffle', {
 						return true;
 					});
 					if(subs.length === 0) {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_subs"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_subs"));
 						return;
 					}
 
@@ -411,7 +411,7 @@ export const storeRaffle = defineStore('raffle', {
 				}
 
 				if(list.length === 0) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.raffle.pick_winner_no_entry"));
 					return;
 				}
 

@@ -5,7 +5,7 @@
 		width="27.9px" height="27.9px" viewBox="0 0 27.9 27.9" style="enable-background:new 0 0 27.9 27.9;" xml:space="preserve">
 	<path style="fill:#CC0000;" d="M24.9,27.9H3.1c-1.7,0-3.1-1.4-3.1-3.1V3.1C0,1.4,1.4,0,3.1,0h21.8c1.7,0,3.1,1.4,3.1,3.1v21.8
 		C27.9,26.5,26.5,27.9,24.9,27.9z"/>
-	<polygon style="fill:#FFFFFF;" points="17.3,7.3 14,10.6 10.6,7.3 7.3,10.6 10.6,14 7.3,17.3 10.6,20.6 14,17.3 17.3,20.6 
+	<polygon style="fill:#FFFFFF;" points="17.3,7.3 14,10.6 10.6,7.3 7.3,10.6 10.6,14 7.3,17.3 10.6,20.6 14,17.3 17.3,20.6
 		20.6,17.3 17.3,14 20.6,10.6 "/>
 	</svg>
 
@@ -47,14 +47,15 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 		watch(()=>this.name, ()=>this.loadImage());
 	}
-	
+
 	private async loadImage():Promise<void> {
-		// this.$store.main.iconCache = {};//Disable cache for debug
-		let cache = this.$store.main.iconCache[this.name];
+		// this.$store.common.iconCache = {};//Disable cache for debug
+		let cache = this.$store.common.iconCache[this.name];
 		//Icon is pending for loading, wait for it
+
 		if(cache && typeof cache != "string") {
 			await cache;
-			cache = this.$store.main.iconCache[this.name];
+			cache = this.$store.common.iconCache[this.name];
 		}
 
 		//If icon is loaded, load it from cache
@@ -62,14 +63,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			this.svg = cache;
 			return;
 		}
-		
+
 		//Icon not yet loaded, load it
 		try {
 			const url = this.$image("icons/"+this.name+".svg");
 			if(/undefined$/.test(url)) {
 				throw("icon not found");
 			}
-			this.$store.main.iconCache[this.name] = fetch(url)
+			this.$store.common.iconCache[this.name] = fetch(url)
 			.then(async (imgRes) => {
 				if(imgRes.status <200 || imgRes.status > 204) {
 					this.error = true;
@@ -80,7 +81,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 					.replace(/<\?xml[^<]*>/g, "")//cleanup <xml> header
 					.replace(/\s+/g, ' ') // Replace multiple spaces with a single space
 					.replace(/>\s+</g, '><');//cleanup spaces between tags
-					this.$store.main.iconCache[this.name] = this.svg;
+					this.$store.common.iconCache[this.name] = this.svg;
 				}
 			});
 		}catch(error) {

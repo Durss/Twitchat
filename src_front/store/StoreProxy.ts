@@ -60,6 +60,7 @@ export default class StoreProxy {
 	public static kofi:IKofiState & IKofiGetters & IKofiActions & {$state:IKofiState, $reset:()=>void};
 	public static lumia:ILumiaState & ILumiaGetters & ILumiaActions & {$state:ILumiaState, $reset:()=>void};
 	public static tipeee:ITipeeeState & ITipeeeGetters & ITipeeeActions & {$state:ITipeeeState, $reset:()=>void};
+	public static common:ICommonState & ICommonGetters & ICommonActions & {$state:ICommonState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -97,23 +98,6 @@ export interface IMainState {
 	 */
 	ahsInstaller: TwitchatDataTypes.InstallHandler|null;
 	/**
-	 * Current alert data (user alert() to populate)
-	 */
-	alertData: {
-		/**
-		 * Message to display
-		 */
-		message:string;
-		/**
-		 * defines if it's a critical error. It will remain on screen and won't be replacable
-		 */
-		critical:boolean;
-		/**
-		 * Show contact button (discord link)
-		 */
-		showContact:boolean;
-	};
-	/**
 	 * Current tooltip data to display
 	 */
 	tooltip: string;
@@ -141,15 +125,6 @@ export interface IMainState {
 	 * Message to be displayed by the chat alert feature
 	 */
 	chatAlert:TwitchatDataTypes.MessageChatData|TwitchatDataTypes.MessageWhisperData|null;
-	/**
-	 * Contains the name of the current OBS scene (if OBS is connected)
-	 */
-	currentOBSScene:string;
-	/**
-	 * Hashmap linking an icon name to its SVG to avoid spamming useless
-	 * requests
-	 */
-	iconCache:{[key:string]:string|Promise<void>};
 }
 
 export interface IMainGetters {
@@ -179,13 +154,6 @@ export interface IMainActions {
 	 * Loads data from local storage
 	 */
 	loadDataFromStorage():void;
-	/**
-	 * Opens up an alert at the top of the app on red bar
-	 * @param message
-	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
-	 * @param showContact defines if contact info should be displayed (discord link)
-	 */
-	alert(message:string, isCritical?:boolean, showContact?:boolean):void;
 	/**
 	 * Opens up a confirm window requesting the user to confirm or cancel
 	 * @param title
@@ -2604,4 +2572,53 @@ export interface ITipeeeActions {
 	 * Saves data
 	 */
 	saveData():void;
+}
+
+
+
+
+export interface ICommonState {
+	/**
+	 * Hashmap linking an icon name to its SVG to avoid spamming useless
+	 * requests
+	 */
+	iconCache:{[key:string]:string|Promise<void>};
+	/**
+	 * Current alert data (user alert() to populate)
+	 */
+	alertData: {
+		/**
+		 * Message to display
+		 */
+		message:string;
+		/**
+		 * defines if it's a critical error. It will remain on screen and won't be replacable
+		 */
+		critical:boolean;
+		/**
+		 * Show contact button (discord link)
+		 */
+		showContact:boolean;
+	};
+	/**
+	 * Contains the name of the current OBS scene (if OBS is connected)
+	 */
+	currentOBSScene:string;
+}
+
+export interface ICommonGetters {
+}
+
+export interface ICommonActions {
+	/**
+	 * Initialize common processes
+	 */
+	initialize(authenticated:boolean):void;
+	/**
+	 * Opens up an alert at the top of the app on red bar
+	 * @param message
+	 * @param isCritical defines if it's a critical error. It will remain on screen and won't be replacable
+	 * @param showContact defines if contact info should be displayed (discord link)
+	 */
+	alert(message:string, isCritical?:boolean, showContact?:boolean):void;
 }

@@ -260,7 +260,7 @@ import ParamsDonorList from './ParamsDonorList.vue';
 				this.buildPaypalForm();
 			}else{
 				this.paypalError = true;
-				this.$store.main.alert(this.$t("error.paypal_sdk_init_failed"))
+				this.$store.common.alert(this.$t("error.paypal_sdk_init_failed"))
 			}
 		}else{
 			this.buildPaypalForm();

@@ -24,16 +24,8 @@ import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { defineAsyncComponent } from 'vue';
-import { OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
-// import OverlayBitsWall from '@/components/overlays/OverlayBitsWall.vue';
-// const OverlayBitsWall = () => import('@/components/overlays/OverlayBitsWall.vue');
-const OverlayBitsWall = defineAsyncComponent({
-  loader: () => import('@/components/overlays/OverlayBitsWall.vue'),
-//   loadingComponent: LoadingComponent /* shows while loading */,
-//   errorComponent: ErrorComponent /* shows if there's an error */,
-//   delay: 1000 /* delay in ms before showing loading component */,
-//   timeout: 3000 /* timeout after this many ms */,
-})
+import { type OverlayBingoGrid as OverlayBingoGridClass } from '@/components/overlays/OverlayBingoGrid.vue';
+const OverlayBitsWall = defineAsyncComponent({loader: () => import('@/components/overlays/OverlayBitsWall.vue')})
 const OverlayHeatDebug = defineAsyncComponent({loader: () => import('../components/overlays/OverlayHeatDebug.vue')});
 const OverlayEndingCredits = defineAsyncComponent({loader: () => import('../components/overlays/OverlayEndingCredits.vue')});
 const OverlayMusicPlayer = defineAsyncComponent({loader: () => import('../components/overlays/OverlayMusicPlayer.vue')});

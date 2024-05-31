@@ -158,22 +158,29 @@ import Changelog from '@/components/changelog/Changelog.vue';
 import ChannelNotifications from '@/components/channelnotifications/ChannelNotifications.vue';
 import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ChatSuggestionState from '@/components/chatSugg/ChatSuggestionState.vue';
-import ChatForm, {ChatForm as ChatFormClass} from '@/components/chatform/ChatForm.vue';
+import BingoGridControls from '@/components/chatform/BingoGridControls.vue';
+import ChatForm, { ChatForm as ChatFormClass } from '@/components/chatform/ChatForm.vue';
 import CommandHelper from '@/components/chatform/CommandHelper.vue';
 import DevmodeMenu from '@/components/chatform/DevmodeMenu.vue';
 import EmoteSelector from '@/components/chatform/EmoteSelector.vue';
+import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
+import Extensions from '@/components/chatform/Extensions.vue';
+import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 import LiveFollowings from '@/components/chatform/LiveFollowings.vue';
 import MessageSearch from '@/components/chatform/MessageSearch.vue';
 import NonPremiumCleanup from '@/components/chatform/NonPremiumCleanup.vue';
+import QnaForm from '@/components/chatform/QnaForm.vue';
+import QnaList from '@/components/chatform/QnaList.vue';
 import RewardsList from '@/components/chatform/RewardsList.vue';
 import ShoutoutList from '@/components/chatform/ShoutoutList.vue';
 import StreamSummary from '@/components/chatform/StreamSummary.vue';
-import Extensions from '@/components/chatform/Extensions.vue';
 import TTUserList from '@/components/chatform/TTUserList.vue';
 import TwitchatAnnouncement from '@/components/chatform/TwitchatAnnouncement.vue';
 import UserList from '@/components/chatform/UserList.vue';
+import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
 import MessageList from '@/components/messages/MessageList.vue';
 import GreetThem from '@/components/newusers/GreetThem.vue';
+import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import Parameters from '@/components/params/Parameters.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
@@ -181,7 +188,6 @@ import RaffleForm from '@/components/raffle/RaffleForm.vue';
 import StreamInfoForm from '@/components/streaminfo/StreamInfoForm.vue';
 import TrackedUsers from '@/components/tracked/TrackedUsers.vue';
 import TriggersLogs from '@/components/triggerslogs/TriggersLogs.vue';
-import ObsHeatLogs from '@/components/obs/ObsHeatLogs.vue';
 import DonorBadge from '@/components/user/DonorBadge.vue';
 import WhispersState from '@/components/whispers/WhispersState.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
@@ -190,13 +196,14 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TriggerActionCountDataAction } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
 import gsap from 'gsap';
 import type { JsonObject } from 'type-fest';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';
 import Gngngn from '../components/chatform/Gngngn.vue';
 import PinedMessages from '../components/chatform/PinedMessages.vue';
@@ -206,12 +213,6 @@ import UserCard from '../components/user/UserCard.vue';
 import VoiceTranscript from '../components/voice/VoiceTranscript.vue';
 import Accessibility from './Accessibility.vue';
 import Login from './Login.vue';
-import QnaForm from '@/components/chatform/QnaForm.vue';
-import QnaList from '@/components/chatform/QnaList.vue';
-import EndingCreditsControls from '@/components/chatform/EndingCreditsControls.vue';
-import BingoGridControls from '@/components/chatform/BingoGridControls.vue';
-import HeatLogs from '@/components/heatlogs/HeatLogs.vue';
-import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 
 @Component({
 	components:{
@@ -591,7 +592,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 				try {
 					await TwitchUtils.endPoll(poll.id, poll.channel_id);
 				}catch(error) {
-					this.$store.main.alert(this.$t("error.twitch_poll_delete"));
+					this.$store.common.alert(this.$t("error.twitch_poll_delete"));
 				}
 				break;
 			}
@@ -607,7 +608,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 				try {
 					await TwitchUtils.endPrediction(prediction.channel_id, prediction.id, prediction.outcomes[0].id, true);
 				}catch(error) {
-					this.$store.main.alert(this.$t("error.twitch_prediction_delete"))
+					this.$store.common.alert(this.$t("error.twitch_prediction_delete"))
 				}
 				break;
 			}
@@ -710,7 +711,7 @@ import HelpGenocideVictims from '@/components/chatform/HelpGenocideVictims.vue';
 				const triggers = this.$store.triggers.triggerList.map(v=> {
 					return {
 						id:v.id,
-						name:Utils.getTriggerDisplayInfo(v).label,
+						name:TriggerUtils.getTriggerDisplayInfo(v).label,
 					}
 				});
 				if(triggers) {

@@ -235,12 +235,13 @@ import { TriggerEventPlaceholders, TriggerTypes } from '@/types/TriggerActionDat
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import type { JsonObject } from "type-fest";
 import { watch } from 'vue';
-import {toNative,  Component, Vue } from 'vue-facing-decorator';
+import { Component, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import TTButton from '../../../TTButton.vue';
 import ToggleBlock from '../../../ToggleBlock.vue';
@@ -710,7 +711,7 @@ import OverlayInstaller from './OverlayInstaller.vue';
 			slot.text = (slot.text || "").replace(/\{MY_STREAM_DURATION\}/gi, Utils.formatDuration(Date.now() - fakeStartDate));
 			slot.text = slot.text.replace(/\{MY_STREAM_DURATION_MS\}/gi, (Date.now() - fakeStartDate).toString());
 			if(slot.text) {
-				slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
+				slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 			}
 		}
 		PublicAPI.instance.broadcast(TwitchatEvent.ENDING_CREDITS_CONFIGS, (result as unknown) as JsonObject);

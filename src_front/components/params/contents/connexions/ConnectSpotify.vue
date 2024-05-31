@@ -110,7 +110,7 @@ class ConnectSpotify extends Vue {
 
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:spotifyAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store.main.alert(csrf.message || "Spotify authentication failed");
+				this.$store.common.alert(csrf.message || "Spotify authentication failed");
 			}else{
 				try {
 					await SpotifyHelper.instance.authenticate(spotifyAuthParams.code);
@@ -120,7 +120,7 @@ class ConnectSpotify extends Vue {
 					this.error = castError.error ?? castError.error_description;
 					this.showSuccess = false;
 					console.log(e);
-					this.$store.main.alert("Oops... something went wrong");
+					this.$store.common.alert("Oops... something went wrong");
 				}
 			}
 

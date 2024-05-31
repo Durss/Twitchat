@@ -29,13 +29,13 @@ export const storeRewards = defineStore('rewards', {
 			if(!TwitchUtils.hasScopes([TwitchScopes.LIST_REWARDS])) return [];
 			//Not at least affiliate?
 			if(!StoreProxy.auth.twitch.user.is_affiliate && !StoreProxy.auth.twitch.user.is_partner) return [];
-			
+
 			try {
 				this.rewardList = await TwitchUtils.getRewards(true);
 			}catch(error) {
 				this.rewardList = [];
 				console.log(error);
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.rewards_loading"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.rewards_loading"));
 				return [];
 			}
 
@@ -50,13 +50,13 @@ export const storeRewards = defineStore('rewards', {
 
 			//Push "Highlight my message" reward as it's not given by the API...
 			this.rewardList.unshift(Config.instance.highlightMyMessageReward);
-			
+
 			//Push "All rewards" item for triggers. This needs to be filtered out where unnecessary
 			this.rewardList.unshift(Config.instance.allRewards);
 
 			return this.rewardList;
 		},
-	
+
 	} as IRewardsActions
 	& ThisType<IRewardsActions
 		& UnwrapRef<IRewardsState>

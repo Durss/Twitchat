@@ -51,11 +51,11 @@ export default class Database {
 			this._dbConnection = indexedDB.open("Twitchat", this.DB_VERSION);
 			this._dbConnection.onerror = (event) => {
 				console.log(event);
-				StoreProxy.main.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || (event.target as any)?.error?.message))
+				StoreProxy.common.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || (event.target as any)?.error?.message))
 			}
 			this._dbConnection.onsuccess = async (event) => {
 				if(event.type != "success") {
-					StoreProxy.main.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || event.type));
+					StoreProxy.common.alert("[IndexedDB] An error occurred when connecting to local database: "+((event.target as any)?.errorCode || event.type));
 					return;
 				}
 				this._db = (event.target as any)?.result;
@@ -166,7 +166,7 @@ export default class Database {
 				const error = (event.target as IDBRequest).error;
 				if (error && error.name == 'QuotaExceededError' && !this._quotaWarned) {
 					this._quotaWarned = true;
-					StoreProxy.main.alert("[IndexedDB] Storage quota reached, cannot save new message in history");
+					StoreProxy.common.alert("[IndexedDB] Storage quota reached, cannot save new message in history");
 					this.limitMessageCount();
 				}
 				resolve();

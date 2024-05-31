@@ -399,7 +399,7 @@ export default class MessengerProxy {
 		}else
 
 		if(cmd == "/pin") {
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.cmd_missing_api"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.cmd_missing_api"));
 			return true;
 		}else
 
@@ -454,7 +454,7 @@ export default class MessengerProxy {
 		if(cmd == "/userfromid") {
 			const res = await TwitchUtils.loadUserInfo([params[0]]);
 			if(res.length === 0) {
-				StoreProxy.main.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.user_param_not_found", {USER:"<mark>"+params[0]+"</mark>"}) );
 			}else{
 				const userInfo = res[0];
 				const user = StoreProxy.users.getUserFrom("twitch", me.id, userInfo.id, userInfo.login, userInfo.display_name);
@@ -572,7 +572,7 @@ export default class MessengerProxy {
 				if(params.length < 3
 				|| parseInt(params[1]).toString() != params[1]
 				|| parseInt(params[2]).toString() != params[2]){
-					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
+					StoreProxy.common.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}else{
 					payload.guessNumber = true;
@@ -585,7 +585,7 @@ export default class MessengerProxy {
 
 			}else if(params[0] == "custom") {
 				if(params.length < 2) {
-					StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
+					StoreProxy.common.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 					return false;
 				}
 				if(params.length > 2 && parseInt(params[1]).toString() === params[1]) {
@@ -597,7 +597,7 @@ export default class MessengerProxy {
 				}
 				payload.guessCustom = true;
 			}else {
-				StoreProxy.main.alert(StoreProxy.i18n.t('error.invalid_bingo'));
+				StoreProxy.common.alert(StoreProxy.i18n.t('error.invalid_bingo'));
 				return false;
 			}
 
@@ -612,10 +612,10 @@ export default class MessengerProxy {
 				if(res.status != 200) {
 					switch(res.json.errorCode) {
 						case "POST_FAILED":
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName}));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:res.json.channelName}));
 							break;
 						default:
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
 							break;
 					}
 				}
@@ -776,7 +776,7 @@ export default class MessengerProxy {
 
 		if(isAdmin && (cmd == "/userdata" || cmd == "/loaduserdata")) {
 			if(params.length == 0) {
-				StoreProxy.main.alert(StoreProxy.i18n.t('error.user_param_missing'));
+				StoreProxy.common.alert(StoreProxy.i18n.t('error.user_param_missing'));
 			}else{
 				let users:TwitchDataTypes.UserInfo[] = [];
 				try {
@@ -784,7 +784,7 @@ export default class MessengerProxy {
 				}catch(error) {}
 
 				if(users.length == 0) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:params[0]}));
 				}else{
 					const res = await ApiHelper.call("user/data", "GET", {uid:users[0].id}, false);
 					if(res.status === 200) {
@@ -798,7 +798,7 @@ export default class MessengerProxy {
 							window.open(url, "_blank");
 						}
 					}else{
-						StoreProxy.main.alert("Unable to load user data");
+						StoreProxy.common.alert("Unable to load user data");
 					}
 				}
 			}

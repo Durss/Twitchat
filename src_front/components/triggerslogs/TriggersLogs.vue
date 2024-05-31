@@ -5,18 +5,18 @@
 			<div class="subtitle">{{ $t("triggers.logs.subtitle") }}</div>
 			<ClearButton @click="close" />
 		</div>
-		
+
 		<div class="ctas">
 			<TTButton @click="refreshList()" icon="refresh" :loading="reloading">{{ $t("global.refresh") }}</TTButton>
 			<TTButton @click="clearList()" icon="trash" alert>{{ $t("global.clear") }}</TTButton>
 		</div>
-		
+
 		<div class="content empty" v-if="logs.length == 0 && !reloading">{{ $t("triggers.logs.empty") }}</div>
-		
+
 		<div class="content empty" v-else-if="reloading">
 			<Icon class="loader" name="loader" />
 		</div>
-		
+
 		<div class="content entries" v-else-if="!reloading">
 			<div v-for="item in logs" :key="item.id" :class="getTriggerClasses(item)">
 				<div class="head" @click="idToExpandState[item.id] = !idToExpandState[item.id]">
@@ -67,12 +67,13 @@
 <script lang="ts">
 import type { TriggerData } from '@/types/TriggerActionDataTypes';
 import Logger, { type LogTrigger, type LogTriggerStep } from '@/utils/Logger';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
-import {toNative,  Component } from 'vue-facing-decorator';
+import { Component, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
-import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
 
 @Component({
 	components:{
@@ -114,7 +115,7 @@ import Icon from '../Icon.vue';
 	}
 
 	public getTriggerInfo(trigger:TriggerData) {
-		return Utils.getTriggerDisplayInfo(trigger);
+		return TriggerUtils.getTriggerDisplayInfo(trigger);
 	}
 
 	public getFormatedDime(date:number):string {
@@ -200,7 +201,7 @@ export default toNative(TriggersLogs);
 						height: 100%;
 					}
 				}
-	
+
 				.subtitle {
 					font-size: .8em;
 					background: var(--color-light);
@@ -231,7 +232,7 @@ export default toNative(TriggersLogs);
 			display: flex;
 			flex-direction: column;
 			gap: .5em;
-			
+
 			li {
 				.date {
 					margin-right: .5em;

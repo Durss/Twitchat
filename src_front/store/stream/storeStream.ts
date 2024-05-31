@@ -5,6 +5,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Logger from '@/utils/Logger';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import type { PubSubDataTypes } from '@/utils/twitch/PubSubDataTypes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
@@ -785,7 +786,7 @@ export const storeStream = defineStore('stream', {
 					//Parse placeholders on text slots
 					if(slot.slotType !== "text") continue;
 					if(!slot.text) continue;
-					slot.text = await Utils.parseGlobalPlaceholders(slot.text, false);
+					slot.text = await TriggerUtils.parseGlobalPlaceholders(slot.text, false);
 				}
 
 				StoreProxy.stream.currentStreamInfo[channelId]!.started_at = startDateBackup;

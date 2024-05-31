@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<link rel="icon" type="image/png" sizes="32x32" href="/favicon.png?v=1">
+	<title>Twitchat Overlay</title>
+	<meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0' name='viewport' />
+	<meta name="description" content="Full featured Twitch chat alternative that tries to fill in gaps of the official Twitch chat" />
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+	<meta http-equiv="Cache-control" content="no-cache, no-store, must-revalidate">
+	<meta http-equiv="Pragma" content="no-cache">
+	<meta http-equiv="Expires" content="0">
+
+	<meta property="og:url" content="https://twitchat.fr" />
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="Twitchat" />
+	<meta property="og:description" content="Full featured Twitch chat alternative that tries to fill in gaps of the official Twitch chat" />
+	<meta property="og:image" content="https://twitchat.fr/share.png?v=1" />
+	<meta property="og:image" content="https://twitchat.fr/share_small.png?v=1" />
+	<meta property="og:image:type" content="image/png" />
+	<meta property="og:locale" content="fr_FR" />
+	<meta property="og:locale:alternate" content="en_GB" />
+	<meta name="revisit-after" content="30 days">
+	<meta name="robots" content="index, follow">
+	<link rel="author" href="https://www.durss.ninja" />
+	<link rel="canonical" href="https://twitchat.fr/">
+	<link rel="manifest" href="/manifest.json">
+	<style>
+		body {
+			background-color: transparent;
+			padding: 0;
+			width: 100vw;
+			height: 100vh;
+			overflow: hidden;
+		}
+	</style>
+</head>
+
+<body>
+	<script type="text/javascript">
+		try {
+			let theme = localStorage.getItem("twitchat_theme");
+			//Apply theme from storage
+			if(theme) {
+				document.body.classList.add(theme === "light"? "light" : "dark");
+			}else
+			//Apply theme from browser pref
+			if(matchMedia("(prefers-color-scheme: light)").matches){
+				document.body.classList.add("light");
+			}else{
+				document.body.classList.add("dark");
+			}
+		}catch(error){
+			console.log(error);
+		}
+	</script>
+
+	<noscript>
+		<strong>We're sorry but Twitchat cannot work without JavaScript enabled. Please enable it to continue.</strong>
+	</noscript>
+
+	<div id="app"></div>
+	<!-- built files will be auto injected -->
+
+	<div id="error" style="display: none;">
+		<div>Twitchat loading failed :(</div>
+		<div>Try refreshing and cleaning up your cache!</div>
+	</div>
+
+	<script type="module" src="/src_front/overlay.ts"></script>
+</body>
+
+</html>

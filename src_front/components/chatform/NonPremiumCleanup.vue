@@ -180,6 +180,7 @@ import ToggleButton from '../ToggleButton.vue';
 import HeatScreenPreview from '../params/contents/heat/areas/HeatScreenPreview.vue';
 import type { TriggerListEntry, TriggerListFolderEntry } from '../params/contents/triggers/TriggerList.vue';
 import TriggerListFolderItem from '../params/contents/triggers/TriggerListFolderItem.vue';
+import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -245,7 +246,7 @@ class NonPremiumCleanup extends Vue {
 	public get triggerList():TriggerListEntry[] {
 		const triggers = this.$store.triggers.triggerList;
 		const entries = triggers.map((trigger, index) => {
-			const info = Utils.getTriggerDisplayInfo(trigger);
+			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
 			const entry:TriggerListEntry = { type:"trigger", id:trigger.id, index, label:info.label, trigger, icon:info.icon, iconURL:info.iconURL, canTest:false };
 			return entry;
 		})
@@ -275,7 +276,7 @@ class NonPremiumCleanup extends Vue {
 		const idToHasFolder:{[key:string]:boolean} = {};
 
 		const flatList = triggerList.map<TriggerListEntry>(v=> {
-			const info = Utils.getTriggerDisplayInfo(v);
+			const info = TriggerUtils.getTriggerDisplayInfo(v);
 			return { type:"trigger", index:0, label:info.label, id:v.id, trigger:v, icon:info.icon, iconURL:info.iconURL, canTest:false }
 		})
 

@@ -574,7 +574,7 @@ import Config from '@/utils/Config';
 				Utils.downloadFile("twitchat_data.json", data);
 				await Utils.promisedTimeout(1000);
 			}else{
-				this.$store.main.alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
+				this.$store.common.alert("Something went wrong when downloading your data. Please try again or contact us at "+Config.instance.CONTACT_MAIL)
 			}
 			this.downloadingData = false;
 		});

@@ -274,14 +274,14 @@ export default class YoutubeHelper {
 					const reason = json.error.errors[0].reason;
 					Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:json, credits: this._creditsUsed, liveID:this._currentLiveIds});
 					if(reason === "liveStreamingNotEnabled") {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_broadcast"));
 						return null;
 					}
 					if(reason == "quotaExceeded") {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 						return null;
 					}
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
 				}catch(error){
 					Logger.instance.log("youtube", {log:"Failed loading current live broadcast (status: "+res.status+")", error:txt, credits: this._creditsUsed, liveID:this._currentLiveIds});
 				}
@@ -407,17 +407,17 @@ export default class YoutubeHelper {
 						errorCode = json.error.errors[0].reason;
 						if(errorCode == "liveChatEnded") {
 							//Live broadcast ended
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
 							return;
 						}
 						if(errorCode == "liveChatDisabled") {
 							//Chat not enabled for selected live broadcast
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_off"));
 							return;
 						}
 						if(errorCode == "quotaExceeded") {
 							//No more Youtube API credits :/
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 							return;
 						}
 					}catch(error) {
@@ -431,7 +431,7 @@ export default class YoutubeHelper {
 						//Refresh auth token, stop there if refreshing failed
 						if(!await this.refreshToken()) return;
 					}else {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_unknown"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_unknown"));
 						return;
 					}
 				}
@@ -509,7 +509,7 @@ export default class YoutubeHelper {
 				if(res.status == 401) {
 					if(!await this.refreshToken()) return [];
 				}else if(res.status == 403) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 					return [];
 				}
 			}
@@ -543,7 +543,7 @@ export default class YoutubeHelper {
 				if(res.status == 401) {
 					if(!await this.refreshToken()) return [];
 				}else if(res.status == 403) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_no_credits"));
 					return [];
 				}
 			}
@@ -640,7 +640,7 @@ export default class YoutubeHelper {
 			StoreProxy.users.flagUnbanned("youtube", this.channelId, userId);
 		}else{
 			Logger.instance.log("youtube", {log:"An error occured when trying to unban the user", error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_api_is_shit_unban"));
 		}
 	}
 
@@ -661,7 +661,7 @@ export default class YoutubeHelper {
 			return true;
 		}else{
 			Logger.instance.log("youtube", {log:"Cannot delete message #"+messageId, error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
 		}
 		return false;
 	}
@@ -711,7 +711,7 @@ export default class YoutubeHelper {
 			this._token = null;
 			DataStore.remove(DataStore.YOUTUBE_AUTH_TOKEN);
 			Logger.instance.log("youtube", {log:"An error occured when refreshing auth token", credits: this._creditsUsed, liveID:this._currentLiveIds});
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_connect_expired"));
 		}
 		this.connected = false;
 		return false;

@@ -196,7 +196,7 @@ export const storeHeat = defineStore('heat', {
 
 			//Parse all custom areas
 			const screens = StoreProxy.heat.screenList;
-			const obsScene = StoreProxy.main.currentOBSScene;
+			const obsScene = StoreProxy.common.currentOBSScene;
 			for (let i = 0; i < screens.length; i++) {
 				const s = screens[i];
 				//Screen disabled, ignore it
@@ -293,7 +293,7 @@ export const storeHeat = defineStore('heat', {
 				//Ignore distortions not linked to a scene
 				if(d.obsItemPath.source.name || d.obsItemPath.groupName) continue;
 				//Ignore distortions not linked to a scene
-				// if(d.obsItemPath.sceneName != StoreProxy.main.currentOBSScene) continue;
+				// if(d.obsItemPath.sceneName != StoreProxy.common.currentOBSScene) continue;
 
 				OBSWebsocket.instance.log("Reroute click from scene \""+d.obsItemPath.sceneName+"\" to overlay ID \""+d.id+"\"");
 				const clickClone = JSON.parse(JSON.stringify(clickEventDataTemplate)) as typeof clickEventDataTemplate;

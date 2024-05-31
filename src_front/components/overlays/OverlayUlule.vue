@@ -60,7 +60,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 				this.currentGoal = this.mainGoal;
 				// this.value = Utils.pickRand([27562,95545,130015,101258]);
 				this.value = projectData.amount_raised;
-		
+
 				if(goals) {
 					let customGoals = goals.split(/[^a-z0-9_]+/gi).map(v=> parseInt(v)).filter(v=> !isNaN(v)).sort((a,b)=>a-b);
 					for (let i = 1; i < customGoals.length; i++) {
@@ -72,11 +72,12 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 						}
 					}
 				}
-		
+
 				gsap.to(this, {percent:Math.round(this.value / this.currentGoal * 100), duration:.5, ease:"sine.out"});
 			}
 		}catch(error){
 			//ignore
+			console.log(error);
 		}
 
 		this.timeout = setTimeout(()=>{

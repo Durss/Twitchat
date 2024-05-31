@@ -70,7 +70,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 			const chans = await TwitchUtils.loadUserInfo(undefined, this._channelList);
 			if(chans.length === 0) {
 				Logger.instance.log("irc", {info:"Initial connect failed for channel "+channel+". Matching user not found on Twitch.", data:chans});
-				StoreProxy.main.alert("Unable to load user info: "+ this._channelList);
+				StoreProxy.common.alert("Unable to load user info: "+ this._channelList);
 				return;
 			}
 
@@ -247,7 +247,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				let color = cmd.replace("/announce", "");
 				if(color.length === 0) color = "primary";
 				if(["blue","green","orange","purple","primary"].indexOf(color) === -1) {
-					StoreProxy.main.alert("Invalid announcement color");
+					StoreProxy.common.alert("Invalid announcement color");
 					return false;
 				}
 				cmd = "/announce";
@@ -259,7 +259,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				return new Promise((resolve)=>{
 					StoreProxy.users.getUserFrom("twitch", channelId, undefined, login, undefined, (user)=> {
 						if(user.errored) {
-							StoreProxy.main.alert("User <strong>\""+login+"\"</strong> does not exists");
+							StoreProxy.common.alert("User <strong>\""+login+"\"</strong> does not exists");
 						}
 						resolve(user);
 					})
@@ -268,7 +268,7 @@ export default class TwitchMessengerClient extends EventDispatcher {
 				// try {
 				// 	res = await TwitchUtils.loadUserInfo(undefined, [login])
 				// }catch(error) {
-				// 	StoreProxy.main.alert("User @"+login+" not found on Twitch.");
+				// 	StoreProxy.common.alert("User @"+login+" not found on Twitch.");
 				// 	return null;
 				// }
 				// return res[0];

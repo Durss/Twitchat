@@ -23,7 +23,7 @@ export const storeAdmin = defineStore('Admin', {
 		async addBetaUser(login:string):Promise<void> {
 			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
-				StoreProxy.main.alert("User "+login+" not found");
+				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
 			const res = await ApiHelper.call("admin/beta/user", "POST", {uid:users[0].id});
@@ -57,7 +57,7 @@ export const storeAdmin = defineStore('Admin', {
 		async removeBetaUser(login:string):Promise<void> {
 			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
-				StoreProxy.main.alert("User "+login+" not found");
+				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
 			const res = await ApiHelper.call("admin/beta/user", "DELETE", {uid:users[0].id});
@@ -120,7 +120,7 @@ export const storeAdmin = defineStore('Admin', {
 		async migrateUserDataToProd(login:string):Promise<void> {
 			const users = await TwitchUtils.loadUserInfo(undefined, [login]);
 			if(users.length ===0 ) {
-				StoreProxy.main.alert("User "+login+" not found");
+				StoreProxy.common.alert("User "+login+" not found");
 				return;
 			}
 			const res = await ApiHelper.call("admin/beta/user/migrateToProduction", "POST", {uid:users[0].id});

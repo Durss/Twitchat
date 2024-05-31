@@ -23,11 +23,11 @@
 				@keyup.enter.ctrl="addListItem()"></textarea>
 				<TTButton icon="add" class="addBt" primary @click="addListItem()" :disabled="!itemValue" />
 			</div>
-			
+
 			<div class="listItem list">
 				<div v-for="item, index in action.list" :key="item" class="entry"
 				@click="indexToEditState[index] = true">
-						
+
 					<button class="action button"
 					v-tooltip="$t('global.delete')"
 					@click.capture.stop="deleteListItem(index)">
@@ -61,7 +61,7 @@
 				</div>
 				<SimpleTriggerList class="list" @select="onSelectTrigger" v-if="openTriggerList" />
 			</div>
-			
+
 			<div class="listItem trigger" v-if="action.triggers.length > 0">
 				<div v-for="(item, index) in action.triggers" :key="item" class="entry">
 					<button class="action button"
@@ -90,7 +90,7 @@
 				<TTButton secondary light small @click="createValue()">{{ $t("values.addBt") }}</TTButton>
 			</div>
 		</template>
-		
+
 		<template v-if="action.mode == 'counter'">
 			<template v-if="(param_counter.listValues || []).length > 0">
 				<ParamItem :paramData="param_counter" v-model="action.counterSource" />
@@ -100,14 +100,14 @@
 				<TTButton secondary light small @click="createCounter()">{{ $t("counters.addBt") }}</TTButton>
 			</div>
 		</template>
-		
+
 		<div v-if="(action.mode=='value' && (param_value.listValues || []).length > 0) || (action.mode=='counter' && (param_counter.listValues || []).length > 0)" class="card-item listItem">
 			<p>{{ $t("triggers.actions.random.placeholder_tuto") }}</p>
 			<ParamItem class="forsceWrap" :paramData="param_placeholderUserId" v-model="action.valueCounterPlaceholders!.userId" nobackground />
 			<ParamItem class="forcseWrap" :paramData="param_placeholderUserName" v-model="action.valueCounterPlaceholders!.userName" nobackground />
 			<ParamItem class="forcseWrap" :paramData="param_placeholderValue" v-model="action.valueCounterPlaceholders!.value" nobackground />
 		</div>
-	
+
 		<ParamItem v-if="action.mode != 'trigger' && action.mode != 'value' && action.mode != 'counter'" :paramData="param_placeholder" v-model="action.placeholder" :error="action.placeholder && action.placeholder.length === 0" />
 
 		<i18n-t scope="global" class="card-item primary info" tag="div"
@@ -136,6 +136,7 @@ import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
 import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
+import TriggerUtils from '@/utils/TriggerUtils';
 
 @Component({
 	components:{
@@ -152,10 +153,10 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 
 	@Prop
 	declare action:TriggerActionRandomData;
-	
+
 	@Prop
 	public rewards!:TwitchDataTypes.Reward[];
-	
+
 	@Prop
 	declare triggerData:TriggerData;
 
@@ -181,9 +182,9 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 	public getTriggerInfo(triggerId:string):{label:string, icon:string, iconURL?:string, iconBgColor?:string} {
 		const t = this.$store.triggers.triggerList.find(v=>v.id === triggerId);
 		if(!t) return {label:"TRIGGER NOT FOUND", icon:"alert"};
-		return Utils.getTriggerDisplayInfo(t);
+		return TriggerUtils.getTriggerDisplayInfo(t);
 	}
-	
+
 	public beforeMount():void {
 		if(this.action.mode == undefined) this.action.mode = "number";
 		if(this.action.max == undefined) this.action.max = this.param_max.value;
@@ -212,7 +213,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 		const triggers = this.$store.triggers.triggerList;
 		this.action.triggers = this.action.triggers.filter(v=> triggers.findIndex(w => v === w.id) > -1);
 		this.openTriggerList = this.action.triggers.length == 0;
-		
+
 		watch(()=>this.action.mode, ()=> {
 			this.onSwitchMode();
 		});
@@ -277,7 +278,7 @@ import AbstractTriggerActionEntry from './AbstractTriggerActionEntry';
 			this.itemChunks.push(TwitchUtils.parseMessageToChunks(item, undefined, true));
 		}
 		this.buildIndex += 10;
-		
+
 		setTimeout(()=> {
 			this.buildNextListBatch();
 		}, 30);

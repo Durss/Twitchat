@@ -49,7 +49,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						this.socketToken = result.json.socketToken || "";
 						this.connect(this.socketToken);
 					}else{
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
 					}
 				}
 			}
@@ -142,7 +142,7 @@ export const storeStreamlabs = defineStore('streamlabs', {
 						if(code == "44") {
 							//Show error on top of page
 							if(isAutoInit) {
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.streamlabs_connect_failed"));
 							}
 							this.disconnect();
 							resolve(false);

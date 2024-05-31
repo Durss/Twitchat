@@ -79,7 +79,7 @@ import ChatTipAndTrickAd from './ChatTipAndTrickAd.vue';
 			if(res) {
 				(this.$refs[prop] as HTMLDivElement).classList.add("disabled");
 			}else {
-				this.$store.main.alert(this.$t("error.room_settings_update"));
+				this.$store.common.alert(this.$t("error.room_settings_update"));
 			}
 		});
 	}

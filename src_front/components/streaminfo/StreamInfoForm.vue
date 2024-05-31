@@ -182,7 +182,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 				}
 			}
 		}catch(error) {
-			this.$store.main.alert( this.$t("stream.stream_info_preset_edit") );
+			this.$store.common.alert( this.$t("stream.stream_info_preset_edit") );
 		}
 
 		this.loading = false;
@@ -202,7 +202,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 					this.updateSuccess = false;
 				}, 5000);
 			}else{
-				this.$store.main.alert( this.$t("error.stream_info_updating") );
+				this.$store.common.alert( this.$t("error.stream_info_updating") );
 			}
 		}catch(error) {}
 		this.saving = false;
@@ -242,7 +242,7 @@ import StreamInfoSubForm from './StreamInfoSubForm.vue';
 			}
 		}catch(error) {
 			console.log(error);
-			this.$store.main.alert( this.$t("error.stream_info_loading") );
+			this.$store.common.alert( this.$t("error.stream_info_loading") );
 		}
 
 		this.loading = false;

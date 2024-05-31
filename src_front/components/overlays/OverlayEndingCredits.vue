@@ -149,9 +149,12 @@ import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
 import gsap from 'gsap';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:[],
 })
  class OverlayEndingCredits extends AbstractOverlay {

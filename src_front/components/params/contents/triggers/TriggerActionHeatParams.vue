@@ -154,7 +154,7 @@ import { watch } from 'vue';
 		}else if(this.triggerData.heatAreaIds.length < 100){
 			this.triggerData.heatAreaIds.push(id);
 		}else{
-			this.$store.main.alert("You reached the maximum of 100 clickable areas");
+			this.$store.common.alert("You reached the maximum of 100 clickable areas");
 		}
 	}
 

@@ -148,11 +148,11 @@ import Icon from '../Icon.vue';
 				this.userCount = this.users.length;
 				this.loadNextUsers();
 			}else{
-				this.$store.main.alert(json.message);
+				this.$store.common.alert(json.message);
 				this.$emit("close");
 			}
 		}catch(err:unknown) {
-			this.$store.main.alert("An error occured while loading users<br>");
+			this.$store.common.alert("An error occured while loading users<br>");
 		}
 		this.loading = false;
 	}

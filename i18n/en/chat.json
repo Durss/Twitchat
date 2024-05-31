@@ -245,7 +245,7 @@
 		},
 		"connect": {
 			"on": "Welcome to the {PLATFORM} chat room {ROOM}",
-			"off": "You have been disconnectd from the {PLATFORM} chat room {ROOM}"
+			"off": "You have been disconnected from the {PLATFORM} chat room {ROOM}"
 		},
 		"clear": {
 			"title": "Chat room {ROOM} cleared{USER}",

@@ -2,7 +2,7 @@
 	<div class="alertview" v-if="message && message.length > 0" @click="close()">
 		<ClearButton v-if="!locked" />
 		<div v-html="message" class="label"></div>
-		<div v-if="$store.main.alertData.showContact" class="contact">
+		<div v-if="$store.common.alertData.showContact" class="contact">
 			<Button :href="discordUrl" type="link" target="_blank" icon="discord" light alert>{{ $t("global.ask_supportBt") }}</Button>
 		</div>
 	</div>
@@ -29,10 +29,10 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public showContact:boolean = false;
 
 	public get discordUrl():string { return Config.instance.DISCORD_URL; }
-	
+
 	public mounted():void {
 		this.onWatchAlert();
-		watch(() => this.$store.main.alertData.message, () => {
+		watch(() => this.$store.common.alertData.message, () => {
 			this.onWatchAlert();
 		});
 	}
@@ -40,7 +40,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public async onWatchAlert():Promise<void> {
 		if(this.locked) return;
 
-		let mess = this.$store.main.alertData;
+		let mess = this.$store.common.alertData;
 		if(mess && mess.message.length > 0) {
 			this.message = mess.message;
 			await this.$nextTick();
@@ -48,7 +48,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 			gsap.killTweensOf(this.$el);
 			gsap.from(this.$el, {duration:.3, height:0, paddingTop:0, paddingBottom:0, ease:"back.out"});
 			clearTimeout(this.timeout);
-			
+
 			if(mess.critical) {
 				this.locked = true;
 			}else if(!this.showContact){
@@ -68,9 +68,9 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 	public close():void {
 		if(this.locked) return;
-		
+
 		clearTimeout(this.timeout);
-		this.$store.main.alertData.message = "";
+		this.$store.common.alertData.message = "";
 	}
 }
 export default toNative(AlertView);

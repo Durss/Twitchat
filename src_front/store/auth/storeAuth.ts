@@ -1,10 +1,11 @@
 import MessengerProxy from "@/messaging/MessengerProxy";
-import TwitchMessengerClient from "@/messaging/TwitchMessengerClient";
 import router from "@/router";
 import DataStore from "@/store/DataStore";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
 import Config from "@/utils/Config";
+import SetIntervalWorker from "@/utils/SetIntervalWorker";
 import Utils from "@/utils/Utils";
 import PatreonHelper from "@/utils/patreon/PatreonHelper";
 import EventSub from "@/utils/twitch/EventSub";
@@ -14,8 +15,6 @@ import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from "vue";
 import StoreProxy, { type IAuthActions, type IAuthGetters, type IAuthState } from "../StoreProxy";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import SetIntervalWorker from "@/utils/SetIntervalWorker";
 
 let refreshTokenTO:number = -1;
 
@@ -120,7 +119,7 @@ export const storeAuth = defineStore('auth', {
 					// if(twitchAuthResult && twitchAuthResult.expires_at < Date.now() - 60000*5) {
 						const res = await this.twitch_tokenRefresh(false);
 						if(!res) {
-							StoreProxy.main.alert("Unable to connect with Twitch API :(.", false, true);
+							StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
 							return;
 						}else{
 							twitchAuthResult = res;
@@ -191,7 +190,7 @@ export const storeAuth = defineStore('auth', {
 							//Force data sync popup to show up if remote
 							//data have been deleted
 							// DataStore.remove(DataStore.SYNC_DATA_TO_SERVER);
-							sMain.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
+							StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
 							return;
 						}
 					}
@@ -199,7 +198,7 @@ export const storeAuth = defineStore('auth', {
 					//Parse data from storage
 					await sMain.loadDataFromStorage();
 				}catch(error) {
-					sMain.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
+					StoreProxy.common.alert("An error occured when loading your parameters. Please try with another browser.", false, true);
 					console.log(error);
 					return;
 				}
@@ -288,7 +287,7 @@ export const storeAuth = defineStore('auth', {
 				console.log(error);
 				this.authenticated = false;
 				DataStore.remove("oAuthToken");
-				StoreProxy.main.alert("Authentication failed");
+				StoreProxy.common.alert("Authentication failed");
 				if(cb) cb(false);
 				router.push({name: 'login'});//Redirect to login if connection failed
 			}

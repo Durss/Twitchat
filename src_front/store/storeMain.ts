@@ -40,18 +40,11 @@ export const storeMain = defineStore("main", {
 		devmode: false,
 		messageExportState: null,
 		ahsInstaller: null,
-		alertData:{
-			message:"",
-			critical:false,
-			showContact:false,
-		},
 		tooltip: "",
 		cypherKey: "",
 		cypherEnabled: false,
 		tempStoreValue: null,
 		confirmData:null,
-		currentOBSScene:"",
-		iconCache:{},
 		accessibility:{
 			ariaPolite:"",
 		},
@@ -147,11 +140,8 @@ export const storeMain = defineStore("main", {
 
 		async startApp(authenticate:boolean, callback:(value:unknown)=>void) {
 			let jsonConfigs:ServerConfig;
-			const sOBS = StoreProxy.obs;
 			const sChat = StoreProxy.chat;
 			const sAuth = StoreProxy.auth;
-			const sTimer = StoreProxy.timer;
-			const sVoice = StoreProxy.voice;
 			const sParams = StoreProxy.params;
 
 			//Load app configs (cliend ID, scopes, ...)
@@ -160,7 +150,7 @@ export const storeMain = defineStore("main", {
 				const res = await ApiHelper.call("configs");
 				jsonConfigs = res.json;
 			}catch(error) {
-				this.alert("Unable to contact server :(", true, true);
+				StoreProxy.common.alert("Unable to contact server :(", true, true);
 				console.log(error);
 				this.initComplete = true;
 				return;
@@ -175,7 +165,7 @@ export const storeMain = defineStore("main", {
 				for (const key in values) {
 					const p = values[key] as TwitchatDataTypes.ParameterData<unknown>;
 					if(uniqueIdsCheck[p.id as number] === true) {
-						this.alert("Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"");
+						StoreProxy.common.alert("Duplicate parameter id (" + p.id + ") found for parameter \"" + key + "\"");
 						break;
 					}
 					uniqueIdsCheck[p.id as number] = true;
@@ -188,7 +178,7 @@ export const storeMain = defineStore("main", {
 				//@ts-ignore
 				const v = TriggerTypes[key];
 				if(uniqueIdsCheck[v] === true) {
-					this.alert("Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"");
+					StoreProxy.common.alert("Duplicate trigger type id (" + v + ") found for trigger \"" + key + "\"");
 					break;
 				}
 				uniqueIdsCheck[v] = true;
@@ -224,27 +214,9 @@ export const storeMain = defineStore("main", {
 
 			}
 
-			//Listen for twitchat API event
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				sTimer.broadcastStates();
-			});
+			this.initComplete = true;
 
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
-				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.tempText = e.data!.text;
-				sVoice.voiceText.finalText = "";
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.rawTempText = e.data!.text;
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.finalText = e.data!.text;
-			});
+			window.setInitMessage("");
 
 			/**
 			 * Called when labels editor updated labels
@@ -253,22 +225,14 @@ export const storeMain = defineStore("main", {
 				this.reloadLabels(true);
 			});
 
-			PublicAPI.instance.initialize(authenticate);
+			/**
+			 * Listen for highlighted message to show up the "close highlighted message" button
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
+				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
+			});
 
-			//Init OBS connection
-			//If params are specified on URL, use them (used by overlays)
-			const port = Utils.getQueryParameterByName("obs_port");
-			const pass = Utils.getQueryParameterByName("obs_pass");
-			const ip = Utils.getQueryParameterByName("obs_ip");
-			//If OBS params are on URL, connect
-			if(port != null && ip != null) {
-				sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
-			}
-
-			this.initComplete = true;
-
-			window.setInitMessage("");
+			StoreProxy.common.initialize(authenticate);
 
 			callback(null);
 		},
@@ -395,7 +359,7 @@ export const storeMain = defineStore("main", {
 					const me = StoreProxy.auth.twitch.user;
 					sUsers.shoutout(me.id, raider);
 				}else{
-					this.alert(StoreProxy.i18n.t("error.auto_shoutout"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.auto_shoutout"));
 				}
 			});
 
@@ -621,8 +585,8 @@ export const storeMain = defineStore("main", {
 			 */
 			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_SCENE_CHANGE, async (event:TwitchatEvent):Promise<void> => {
 				//If no scene whas stored, get the current one to use it as the "previousSceneName" on the trigge rmessage
-				if(!this.currentOBSScene) {
-					this.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
+				if(!StoreProxy.common.currentOBSScene) {
+					StoreProxy.common.currentOBSScene = await OBSWebsocket.instance.getCurrentScene();
 				}
 				const e = event.data as {sceneName:string};
 				const m:TwitchatDataTypes.MessageOBSSceneChangedData = {
@@ -631,10 +595,10 @@ export const storeMain = defineStore("main", {
 					platform: "twitchat",
 					type: TwitchatDataTypes.TwitchatMessageType.OBS_SCENE_CHANGE,
 					sceneName: e.sceneName,
-					previousSceneName: this.currentOBSScene,
+					previousSceneName: StoreProxy.common.currentOBSScene,
 					channel_id:StoreProxy.auth.twitch.user.id,
 				};
-				this.currentOBSScene = e.sceneName;
+				StoreProxy.common.currentOBSScene = e.sceneName;
 				TriggerActionHandler.instance.execute(m);
 				rebuildPlaceholdersCache();
 			});
@@ -959,12 +923,6 @@ export const storeMain = defineStore("main", {
 			 * Connect to Youtube (won't do anything if no credentials are available)
 			 */
 			YoutubeHelper.instance.connect();
-		},
-
-		alert(message:string, isCritical:boolean = false, showContact:boolean = false) {
-			this.alertData.message = message;
-			this.alertData.critical = isCritical;
-			this.alertData.showContact = showContact;
 		},
 
 		confirm<T>(title: string, description?: string, data?: T, yesLabel?:string, noLabel?:string, STTOrigin?:boolean): Promise<T|undefined> {

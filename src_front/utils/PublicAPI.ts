@@ -1,4 +1,4 @@
-import type { JsonArray, JsonObject, JsonValue } from "type-fest";
+import type { JsonObject } from "type-fest";
 import { EventDispatcher } from "../events/EventDispatcher";
 import type { TwitchatActionType, TwitchatEventType } from "../events/TwitchatEvent";
 import TwitchatEvent from "../events/TwitchatEvent";

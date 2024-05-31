@@ -2,6 +2,7 @@ import * as TriggerActionDataTypes from "@/types/TriggerActionDataTypes";
 import { TriggerTypes, TriggerTypesDefinitionList, type TriggerActionDelayData, type TriggerActionObsDataAction, type TriggerData, type TriggerTypeDefinition, type TriggerTypesValue } from "@/types/TriggerActionDataTypes";
 import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import ApiHelper from "@/utils/ApiHelper";
+import TriggerUtils from "@/utils/TriggerUtils";
 import Utils from "@/utils/Utils";
 import TwitchUtils from "@/utils/twitch/TwitchUtils";
 import type { JsonValue } from "type-fest";
@@ -1601,7 +1602,7 @@ export default class DataStore {
 		if(triggers && Array.isArray(triggers)) {
 			triggers.forEach(t => {
 				if(!t.queue) {
-					const infos = Utils.getTriggerDisplayInfo(t);
+					const infos = TriggerUtils.getTriggerDisplayInfo(t);
 					let name = Utils.slugify(infos.label || "automatic_queue");
 					if(t.type == TriggerTypes.REWARD_REDEEM) {
 						name = "channelpoints-reward";

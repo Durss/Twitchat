@@ -29,6 +29,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 import { TriggerTypesDefinitionList, type TriggerData, type TriggerTreeItemData, type TriggerTypeDefinition, type TriggerTypesValue } from '@/types/TriggerActionDataTypes';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import { watch } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
@@ -149,7 +150,7 @@ import TriggerListItem from './TriggerListItem.vue';
 			const trigger = triggerList[i];
 
 			//Parse trigger
-			const info = Utils.getTriggerDisplayInfo(trigger);
+			const info = TriggerUtils.getTriggerDisplayInfo(trigger);
 			const canTest = this.triggerTypeToInfo[trigger.type]!.testMessageType != undefined;
 			const buildIndex = Math.floor(++triggerBuildIndex/this.buildBatchSize);//Builditems by batch of 5
 			const entry:TriggerListEntry = { type:"trigger", index:buildIndex, label:info.label, id:trigger.id, trigger, icon:info.icon, iconURL:info.iconURL, canTest };

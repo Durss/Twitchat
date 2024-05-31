@@ -182,7 +182,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			if(code) {
 				const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
 				if(!res.json.success) {
-					if(res.json.message) this.$store.main.alert(res.json.message);
+					if(res.json.message) this.$store.common.alert(res.json.message);
 					this.authenticating = false;
 				}else{
 					this.$store.auth.twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
@@ -200,14 +200,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 								this.closedBeta = true;
 								this.checkIfCanMigrate();
 							}else{
-								this.$store.main.alert(this.$t("error.invalid_credentials"));
+								this.$store.common.alert(this.$t("error.invalid_credentials"));
 							}
 							this.authenticating = false;
 						}
 					});
 				}
 			}else{
-				this.$store.main.alert(this.$t("error.authorization_refused"));
+				this.$store.common.alert(this.$t("error.authorization_refused"));
 				this.authenticating = false;
 			}
 		}
@@ -253,7 +253,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			this.CSRFToken = json.token;
 			this.onScopesUpdate
 		}catch(e) {
-			this.$store.main.alert(this.$t("error.csrf_failed"));
+			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
 		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 		if(redirect) {
@@ -295,7 +295,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			if(res.status == 200) {
 				this.transferComplete = true;
 			}else{
-				this.$store.main.alert(this.$t("error.beta_transfer"))
+				this.$store.common.alert(this.$t("error.beta_transfer"))
 			}
 			this.transferingData = false;
 		}).catch(()=>{/*ignore*/})

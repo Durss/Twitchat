@@ -88,7 +88,7 @@ import TTButton from '../TTButton.vue';
 		try {
 			await this.$store.users.shoutout(this.messageData.channel_id, this.messageData.user);
 		}catch(error) {
-			this.$store.main.alert(this.$t("error.shoutout"));
+			this.$store.common.alert(this.$t("error.shoutout"));
 			console.log(error);
 		}
 		this.shoutoutLoading = false;

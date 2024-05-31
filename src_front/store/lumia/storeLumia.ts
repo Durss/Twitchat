@@ -33,7 +33,7 @@ export const storeLumia = defineStore('lumia', {
 				if(this.socketToken){
 					this.connect(this.socketToken).then(success=>{
 						if(!success) {
-							StoreProxy.main.alert(StoreProxy.i18n.t("error.lumia_connect_failed"));
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.lumia_connect_failed"));
 						}
 					});
 				}

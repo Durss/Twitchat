@@ -1,6 +1,6 @@
 <template>
 	<div class="triggeractiontriggerentry triggerActionForm">
-			
+
 		<i18n-t scope="global" class="info" tag="p" keypath="triggers.actions.trigger.beta">
 			<template #LINK>
 				<a :href="discordURL" target="_blank">{{ $t("triggers.actions.trigger.beta_link") }}</a>
@@ -10,7 +10,7 @@
 
 		<div class="card-item field col" v-if="!action.triggerId">
 			<div class="title" v-if="rewards.length > 0 && !action.triggerId">{{$t('triggers.actions.trigger.select')}}</div>
-	
+
 			<SimpleTriggerList class="list" @select="onSelectTrigger" />
 		</div>
 
@@ -28,7 +28,7 @@
 				<span v-html="$t('triggers.actions.trigger.warning_example')"></span>
 			</div>
 		</ToggleBlock>
-		
+
 		<div v-if="dependencyLoopInfos.length > 0" class="card-item alert dependencyLoop">
 			<div class="title">{{ $t("triggers.actions.trigger.loop") }}</div>
 			<div class="head">{{ $t("triggers.actions.trigger.loop_delails") }}</div>
@@ -48,9 +48,9 @@ import Icon from '@/components/Icon.vue';
 import type { TriggerActionTriggerData, TriggerData, TriggerTypeDefinition } from '@/types/TriggerActionDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import Config from '@/utils/Config';
-import Utils from '@/utils/Utils';
+import TriggerUtils from '@/utils/TriggerUtils';
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import ToggleBlock from '../../../../ToggleBlock.vue';
 import SimpleTriggerList from '../SimpleTriggerList.vue';
 import TriggerList from '../TriggerList.vue';
@@ -73,7 +73,7 @@ import TriggerList from '../TriggerList.vue';
 	public rewards!:TwitchDataTypes.Reward[];
 
 	public dependencyLoopInfos:{label: string, icon: string, iconURL?: string | undefined, iconBgColor?: string | undefined}[] = [];
-	
+
 	public get discordURL():string { return Config.instance.DISCORD_URL; }
 
 	/**
@@ -114,7 +114,7 @@ import TriggerList from '../TriggerList.vue';
 		if(links.length > 0) {
 			links.push(links[0]);
 			this.dependencyLoopInfos = links.map(v => {
-				return Utils.getTriggerDisplayInfo(v)
+				return TriggerUtils.getTriggerDisplayInfo(v)
 			});
 		}else{
 			this.dependencyLoopInfos = [];
@@ -134,7 +134,7 @@ import TriggerList from '../TriggerList.vue';
 			//This avoids showing a dependency loop an another action of
 			//the current trigger if it's not the source of the looped dependency
 			if(base == this.triggerData && a.id != this.action.id) continue;
-			
+
 			//If it's a trigger action
 			if(a.type == "trigger") {
 				//If the trigger to be called is the current one, a loop is detected
@@ -181,7 +181,7 @@ export default toNative(TriggerActionTriggerEntry);
 			height: 1em;
 			margin-top: -5px;
 		}
-		
+
 		.list {
 			flex-grow: 1;
 			max-height: 300px;
@@ -214,7 +214,7 @@ export default toNative(TriggerActionTriggerEntry);
 
 		.loopItem {
 			cursor: default;
-			
+
 			&:not(:last-child) {
 				&:after {
 					display: block;

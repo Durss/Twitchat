@@ -8,7 +8,7 @@ import type { VoicemodTypes } from "./VoicemodTypes";
 import StoreProxy from "@/store/StoreProxy";
 
 /**
-* Created : 25/07/2021 
+* Created : 25/07/2021
 */
 export default class VoicemodWebSocket extends EventDispatcher {
 
@@ -28,9 +28,9 @@ export default class VoicemodWebSocket extends EventDispatcher {
 
 
 	private static _instance:VoicemodWebSocket;
-	
+
 	public connected: boolean = false;
-	
+
 	private _initResolver!: (value: void | PromiseLike<void>) => void;
 	private _connecting!: boolean;
 	private _socket!: WebSocket;
@@ -115,7 +115,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 					}
 				}
 			}
-		
+
 			this._socket.onerror = (e) => {
 				this._connecting = false;
 				reject();
@@ -144,7 +144,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * There's a tolerence on the name matching.
 	 * If the actual voice effect name is "Game Over", you can activate
 	 * it with "gameover".
-	 * 
+	 *
 	 * @param name		the name of the voice effect to activate
 	 * @param id		(optional) The ID of the voice effect to activate
 	 */
@@ -204,7 +204,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 	 * There's a tolerence on the name matching.
 	 * If the actual meme name is "Game Over", you can activate
 	 * it with "gameover".
-	 * 
+	 *
 	 * @param name		the name of the meme sound to activate
 	 * @param id		(optional) The "FileName" of the meme to activate
 	 */
@@ -285,7 +285,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		if(payload) {
 			json.payload = payload;
 		}
-		
+
 		if(this._socket.readyState == WebSocket.OPEN) {
 			this._socket.send( JSON.stringify(json) );
 		}
@@ -308,7 +308,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 		//field instead of "actionType" like every other events -_-
 		if(json.action == VoicemodWebSocket.ACTION_REGISTER_CLIENT) {
 			if(json.payload.status.code != 200) {
-				StoreProxy.main.alert("[Voicemod] Connection failed with reason: "+json.payload.status.description)
+				StoreProxy.common.alert("[Voicemod] Connection failed with reason: "+json.payload.status.description)
 				return;
 			}
 			//Request all available voice effect list
@@ -317,7 +317,7 @@ export default class VoicemodWebSocket extends EventDispatcher {
 			// this.send(VoicemodWebSocket.ACTION_GET_BITMAP, {voiceID:"nofx"});
 			return;
 		}
-		
+
 		switch(json.actionType) {
 
 			case VoicemodWebSocket.ACTION_GET_VOICES:{
@@ -327,12 +327,12 @@ export default class VoicemodWebSocket extends EventDispatcher {
 				this.checkInitComplete();
 				break;
 			}
-			
+
 			case VoicemodWebSocket.ACTION_GET_CURRENT_VOICE:{
 				this._currentVoiceEffect = this._voicesList.find(v=> v.id === json.actionObject.voiceID)!;
 				break;
 			}
-			
+
 			case VoicemodWebSocket.ACTION_GET_SOUNDBOARDS:{
 				this._soundsboards = json.payload.soundboards as VoicemodTypes.Soundboard[];
 				this.checkInitComplete();

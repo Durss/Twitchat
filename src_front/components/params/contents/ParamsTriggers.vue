@@ -281,7 +281,7 @@ import TriggerList from './triggers/TriggerList.vue';
 			inputs = await OBSWebsocket.instance.getInputs();
 		}catch(error) {
 			this.obsSources = [];
-			this.$store.main.alert(this.$t('error.obs_sources_loading'));
+			this.$store.common.alert(this.$t('error.obs_sources_loading'));
 			this.loadingOBSElements = false;
 			return;
 		}
@@ -312,7 +312,7 @@ import TriggerList from './triggers/TriggerList.vue';
 			scenes = ((await OBSWebsocket.instance.getScenes()).scenes as unknown) as OBSSceneItem[];
 		}catch(error) {
 			this.obsScenes = [];
-			this.$store.main.alert(this.$t('error.obs_scenes_loading'));
+			this.$store.common.alert(this.$t('error.obs_scenes_loading'));
 			return;
 		}
 
@@ -455,7 +455,7 @@ import TriggerList from './triggers/TriggerList.vue';
 						if(typeToState[trigger.type]) {
 							m.state = typeToState[trigger.type]!;
 						}else{
-							this.$store.main.alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
+							this.$store.common.alert("Trigger type \""+trigger.type+"\" is missing associated state on ParamsTriggers.vue");
 						}
 					}else
 

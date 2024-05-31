@@ -128,7 +128,7 @@ import { Sine } from 'gsap';
 
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:youtubeAuthParams.csrf});
 			if(!csrf.success) {
-				this.$store.main.alert(csrf.message || "Youtube authentication failed");
+				this.$store.common.alert(csrf.message || "Youtube authentication failed");
 			}else{
 				try {
 					if(!await this.$store.youtube.authenticate()) {
@@ -140,7 +140,7 @@ import { Sine } from 'gsap';
 					this.error = castError.error ?? castError.error_description;
 					this.showSuccess = false;
 					console.log(e);
-					this.$store.main.alert("Oops... something went wrong");
+					this.$store.common.alert("Oops... something went wrong");
 				}
 			}
 

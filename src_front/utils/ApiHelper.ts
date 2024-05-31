@@ -37,7 +37,7 @@ export default class ApiHelper {
 			headers["Content-Type"] = "application/json";
 		}
 		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
-		if(StoreProxy.auth.twitch.access_token) {
+		if(StoreProxy.auth && StoreProxy.auth.twitch.access_token) {
 			headers["Authorization"] = "Bearer "+StoreProxy.auth.twitch.access_token;
 		}
 		const options:RequestInit = {
@@ -66,9 +66,9 @@ export default class ApiHelper {
 		const status = res? res.status : 500;
 		if(status == 429) {
 			if(json.errorCode == "RATE_LIMIT_BAN") {
-				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit_ban", {MAIL:Config.instance.CONTACT_MAIL}), true );
 			}else{
-				StoreProxy.main.alert( StoreProxy.i18n.t("error.rate_limit") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.rate_limit") );
 			}
 		}else
 		if(retryOnFail && status != 200 && status != 204 && status != 401 && attemptIndex < 5) {

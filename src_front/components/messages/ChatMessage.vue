@@ -579,7 +579,7 @@ import ChatModTools from './components/ChatModTools.vue';
 		this.automodInProgress = true;
 		let success = await TwitchUtils.modMessage(accept, this.messageData.id);
 		if(!success) {
-			this.$store.main.alert(this.$t("error.mod_message"));
+			this.$store.common.alert(this.$t("error.mod_message"));
 		}else {
 			//Delete the message.
 			//If the message was allowed, twitch will send it back, no need to keep it.

@@ -147,7 +147,7 @@ import Database from '@/store/Database';
 		}
 		if(!message || !message.redeemId) return;
 		if(!await TwitchUtils.refundRedemptions([message.redeemId], message.reward.id)) {
-			this.$store.main.alert(this.$t("error.rewards.refund_redemption"));
+			this.$store.common.alert(this.$t("error.rewards.refund_redemption"));
 		}
 		message.refund = true;
 		Database.instance.updateMessage(message);

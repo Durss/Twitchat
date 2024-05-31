@@ -680,10 +680,10 @@ export const storeUsers = defineStore('users', {
 
 						if(!result.json.success) {
 							if(result.json.errorCode == "POST_FAILED") {
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
 								return;
 							}else{
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
 								return;
 							}
 						}
@@ -695,10 +695,10 @@ export const storeUsers = defineStore('users', {
 						});
 						if(!result.json.success) {
 							if(result.json.errorCode == "POST_FAILED") {
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
 								return;
 							}else{
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
 								return;
 							}
 						}
@@ -864,7 +864,7 @@ export const storeUsers = defineStore('users', {
 
 			//If user is in an error state, stop there
 			if(user.errored) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.user_not_found"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.user_not_found"));
 				canExecute = false;
 				sendChatSO = false;
 			}
@@ -872,7 +872,7 @@ export const storeUsers = defineStore('users', {
 			//Check if we're live
 			if(!StoreProxy.stream.currentStreamInfo[channelId]
 			|| !StoreProxy.stream.currentStreamInfo[channelId]?.live) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_offline"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_offline"));
 				canExecute = false;
 				sendChatSO = false;
 			}
@@ -884,7 +884,7 @@ export const storeUsers = defineStore('users', {
 				}else{
 					//Check if user already has a pending shoutout (if current SO isn't executed by a pending one)
 					if(!fromQueue && this.pendingShoutouts[channelId]!.filter(v=>v.user.id == user.id).length > 0) {
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_pending"));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_pending"));
 
 					}else{
 
@@ -955,7 +955,7 @@ export const storeUsers = defineStore('users', {
 						await MessengerProxy.instance.sendMessage(message);
 					}else{
 						//Warn user doesn't exist
-						StoreProxy.main.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
+						StoreProxy.common.alert(StoreProxy.i18n.t("error.user_param_not_found", {USER:user}));
 					}
 				}
 			}
@@ -1019,7 +1019,7 @@ export const storeUsers = defineStore('users', {
 				if(!this.customUsernames[user.id]
 				&& !StoreProxy.auth.isPremium
 				&& Object.keys(this.customUsernames).length >= Config.instance.MAX_CUSTOM_USERNAMES) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_usernames", {COUNT:Config.instance.MAX_CUSTOM_USERNAMES}));
 					return false;
 				}
 				this.customUsernames[user.id] = {name, platform:user.platform, channel:channelId};
@@ -1036,7 +1036,7 @@ export const storeUsers = defineStore('users', {
 			if(existingIndex == -1) {
 				//User can create up to 3 custom badges if not premium
 				if(!StoreProxy.auth.isPremium && this.customBadgeList.length >= Config.instance.MAX_CUSTOM_BADGES) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges", {COUNT:Config.instance.MAX_CUSTOM_BADGES}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges", {COUNT:Config.instance.MAX_CUSTOM_BADGES}));
 					return false;
 				}
 				id = Utils.getUUID();
@@ -1095,7 +1095,7 @@ export const storeUsers = defineStore('users', {
 			if(this.customUserBadges[user.id].findIndex(v => v.id == badgeId) == -1) {
 				//User can give badges to 30 users max if not premium
 				if(!StoreProxy.auth.isPremium && Object.keys(this.customUserBadges).length >= Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.max_custom_badges_given", {COUNT:Config.instance.MAX_CUSTOM_BADGES_ATTRIBUTION}));
 					return false;
 				}
 				this.customUserBadges[user.id].push({id:badgeId, platform:user.platform, channel:channelId!});

@@ -4,6 +4,8 @@ import { createLogger, defineConfig } from 'vite';
 import loadVersion from 'vite-plugin-package-version';
 import VueI18nPlugin from '@intlify/unplugin-vue-i18n/vite';
 import { resolve, dirname } from 'node:path';
+import * as path from 'path';
+import *as fs from 'fs';
 
 /**
  * Plugin is not bundled properly.
@@ -14,7 +16,6 @@ import { resolve, dirname } from 'node:path';
  * @see https://github.com/vitejs/vite/issues/5694
 */
 const loadVersionPlugin = (loadVersion as any).default || loadVersion;
-
 // https://vitejs.dev/config/
 export default defineConfig({
 	publicDir: "static",
@@ -26,10 +27,33 @@ export default defineConfig({
 		vue(),
 		loadVersionPlugin(),
 		VueI18nPlugin({
-		  /* options */
-		  // locale messages resource pre-compile option
-		  include: resolve(dirname(fileURLToPath(import.meta.url)), './i18n/**'),
+			/* options */
+			// locale messages resource pre-compile option
+			include: resolve(dirname(fileURLToPath(import.meta.url)), './i18n/**'),
 		}),
+		{
+			/**
+			 * Middleware that properly redirect any /overlay/ requests to the
+			 * overlay/index.html page like production server does
+			 */
+			name: 'custom-html-middleware',
+			configureServer(server) {
+				server.middlewares.use((req, res, next) => {
+					const url = req.url;
+					if (url.startsWith('/overlay/')) {
+						const overlayHtmlPath = path.resolve(__dirname, 'overlay/index.html');
+
+						if (fs.existsSync(overlayHtmlPath)) {
+							res.setHeader('Content-Type', 'text/html');
+							res.end(fs.readFileSync(overlayHtmlPath));
+							return;
+						}
+					}
+
+					next();
+				});
+			},
+		},
 	],
 
 	optimizeDeps: {
@@ -44,8 +68,12 @@ export default defineConfig({
 		sourcemap: true,
 
 		rollupOptions: {
-			output:{
-				entryFileNames: "assets/[name]-[hash]-"+process.env.npm_package_version+".js",
+			input: {
+				// main: resolve(__dirname, 'index.html'),
+				overlay: resolve(__dirname, 'overlay/index.html')
+			},
+			output: {
+				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",
 			}
 		},
 	},
@@ -53,7 +81,7 @@ export default defineConfig({
 	resolve: {
 		alias: [
 			{
-				find:"@",
+				find: "@",
 				replacement: fileURLToPath(new URL('./src_front', import.meta.url)),
 			},
 			{

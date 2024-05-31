@@ -155,7 +155,7 @@ export default class SpotifyHelper {
 				throw(err || {error:"unknown spotify auth error"});
 			}
 		}catch(error) {
-			StoreProxy.main.alert("Spotify authentication failed");
+			StoreProxy.common.alert("Spotify authentication failed");
 			console.log(error);
 			this.connected = false;
 			rebuildPlaceholdersCache();
@@ -214,7 +214,7 @@ export default class SpotifyHelper {
 				}, 5000);
 			}else{
 				//Tried too many times, give up and show alert
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.spotify.token_refresh"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.spotify.token_refresh"));
 			}
 		}
 	}
@@ -338,22 +338,22 @@ export default class SpotifyHelper {
 			else return false;
 		}else
 		if(res.status == 409) {
-			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
+			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.no_device") );
+					StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.no_device") );
 					return "NO_ACTIVE_DEVICE";
 
 				}else if(json.error.message) {
-					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
+					StoreProxy.common.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error("unknown error"))
 				}
 			}catch(error) {
 				StoreProxy.music.spotifyConsecutiveErrors ++;
-				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
+				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when adding a track to the queue. Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;
@@ -674,26 +674,26 @@ export default class SpotifyHelper {
 			try {
 				const json = await res.json();
 				if(json.error?.reason == "NO_ACTIVE_DEVICE") {
-					StoreProxy.main.alert( StoreProxy.i18n.t("music.spotify_play") );
+					StoreProxy.common.alert( StoreProxy.i18n.t("music.spotify_play") );
 				}
 			}catch(error){
 				StoreProxy.music.spotifyConsecutiveErrors ++;
-				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
+				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}else
 		if(res.status == 409) {
-			StoreProxy.main.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
+			StoreProxy.common.alert( StoreProxy.i18n.t("error.spotify.api_rate") );
 		}else {
 			try {
 				const json = await res.json();
 				if(json.error.message) {
-					StoreProxy.main.alert( "[SPOTIFY] "+json.error.message );
+					StoreProxy.common.alert( "[SPOTIFY] "+json.error.message );
 				}else {
 					throw(new Error("Missing error details"))
 				}
 			}catch(error) {
 				StoreProxy.music.spotifyConsecutiveErrors ++;
-				StoreProxy.main.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
+				StoreProxy.common.alert( "[SPOTIFY] an unknown error occurred when calling endpoint "+path+"("+method+"). Server responded with HTTP status:"+res.status );
 			}
 		}
 		return false;

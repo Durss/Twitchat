@@ -77,7 +77,7 @@ export default class OBSWebsocket extends EventDispatcher {
 
 		clearTimeout(this.reconnectTimeout);
 		this.autoReconnect = autoReconnect;
-		if(!forceConnect && StoreProxy.obs.connectionEnabled !== true) return false;
+		if(!forceConnect && StoreProxy.obs && StoreProxy.obs.connectionEnabled !== true) return false;
 
 		try {
 			this.connectInfo.ip = (ip || "").trim();
@@ -99,7 +99,7 @@ export default class OBSWebsocket extends EventDispatcher {
 			return false;
 		}
 
-		StoreProxy.main.currentOBSScene = await this.getCurrentScene();
+		StoreProxy.common.currentOBSScene = await this.getCurrentScene();
 
 
 		// LIST ALL INPUT KINDS

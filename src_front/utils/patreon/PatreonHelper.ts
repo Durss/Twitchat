@@ -136,7 +136,7 @@ export default class PatreonHelper {
 			this._token = null;
 			this.connected = false;
 			DataStore.remove(DataStore.PATREON_AUTH_TOKEN);
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.patreon_disconected"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.patreon_disconected"));
 		}
 	}
 }

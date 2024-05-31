@@ -1,24 +1,25 @@
+import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import ContextMenuTimeoutDuration from "@/components/messages/components/ContextMenuTimeoutDuration.vue";
 import TwitchatEvent from "@/events/TwitchatEvent";
+import MessengerProxy from "@/messaging/MessengerProxy";
 import DataStore from "@/store/DataStore";
+import Database from "@/store/Database";
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import ContextMenu, {type MenuItem} from "@imengyu/vue3-context-menu";
+import ContextMenu, { type MenuItem } from "@imengyu/vue3-context-menu";
+import domtoimage from 'dom-to-image-more';
+import lande from "lande";
 import { h, reactive, type RendererElement, type RendererNode, type VNode } from "vue";
+import ApiHelper from "./ApiHelper";
+import Config from "./Config";
 import PublicAPI from "./PublicAPI";
+import TriggerUtils from "./TriggerUtils";
+import Utils from "./Utils";
 import TriggerActionHandler from "./triggers/TriggerActionHandler";
 import { TwitchScopes } from "./twitch/TwitchScopes";
 import TwitchUtils from "./twitch/TwitchUtils";
-import domtoimage from 'dom-to-image-more';
-import Utils from "./Utils";
-import Config from "./Config";
-import lande from "lande";
-import ApiHelper from "./ApiHelper";
-import Database from "@/store/Database";
-import { TranslatableLanguagesMap } from "@/TranslatableLanguages";
 import YoutubeHelper from "./youtube/YoutubeHelper";
 import { YoutubeScopes } from "./youtube/YoutubeScopes";
-import MessengerProxy from "@/messaging/MessengerProxy";
 
 /**
 * Created : 07/04/2023
@@ -145,7 +146,7 @@ export default class ContextMenuHelper {
 							icon: message.is_pinned === true? this.getIcon("icons/unpin.svg") : this.getIcon("icons/pin.svg"),
 							customClass:"disabled",
 							onClick: () => {
-								StoreProxy.main.alert(t("error.no_pin_api"));
+								StoreProxy.common.alert(t("error.no_pin_api"));
 							},
 						});
 			}
@@ -547,7 +548,7 @@ export default class ContextMenuHelper {
 			if(message.fake === true) {
 				//Avoid banning user for real if doing it from a fake message
 				StoreProxy.users.flagBanned(message.platform, channelId, message.user.id);
-				StoreProxy.main.alert("User is not banned for real because it's a fake message");
+				StoreProxy.common.alert("User is not banned for real because it's a fake message");
 			}else{
 				switch(message.platform) {
 					case "twitch":
@@ -606,10 +607,10 @@ export default class ContextMenuHelper {
 		ApiHelper.call("google/translate", "GET", {langSource:langSource.iso1, langTarget, text:text}, false)
 		.then(res=>{
 			if(res.status == 401) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("premium.restricted_access"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("premium.restricted_access"));
 			}else
 			if(res.status == 429) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.quota_translation"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.quota_translation"));
 			}else
 			if(res.json.data.translation) {
 				message.translation = {
@@ -623,7 +624,7 @@ export default class ContextMenuHelper {
 		}).catch((error)=>{
 			message.translation_failed = true;
 			Database.instance.updateMessage(message as TwitchatDataTypes.ChatMessageTypes);
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.no_translation"));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.no_translation"));
 		});
 	}
 
@@ -920,7 +921,7 @@ export default class ContextMenuHelper {
 	 * Executes a discord quick action
 	 */
 	private async discordQuickAction(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData, action:TwitchatDataTypes.DiscordQuickActionData):Promise<void> {
-		const text = await Utils.parseGlobalPlaceholders(action.message || "", false, message);
+		const text = await TriggerUtils.parseGlobalPlaceholders(action.message || "", false, message);
 		const channelId = action.channelId;
 		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
 	}
@@ -939,10 +940,10 @@ export default class ContextMenuHelper {
 				MessengerProxy.instance.sendMessage("@"+message.user.login+" "+result.json.messageLink!, [message.platform], message.channel_id)
 			}else if(!result.json.success) {
 				if(result.json.errorCode == "POST_FAILED") {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.MISSING_ACCESS", {CHANNEL:result.json.channelName}));
 					return;
 				}else{
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.discord.UNKNOWN"));
 					return;
 				}
 			}

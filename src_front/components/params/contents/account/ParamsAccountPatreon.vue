@@ -100,13 +100,13 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 			const {json:csrf} = await ApiHelper.call("auth/CSRFToken", "POST", {token:authParams.csrf});
 			if(!csrf.success) {
-				this.$store.main.alert(csrf.message || "Patreon authentication failed");
+				this.$store.common.alert(csrf.message || "Patreon authentication failed");
 			}else{
 				try {
 					await PatreonHelper.instance.authenticate(authParams.code);
 				}catch(e:unknown) {
 					console.log(e);
-					this.$store.main.alert("Oops... something went wrong");
+					this.$store.common.alert("Oops... something went wrong");
 				}
 			}
 

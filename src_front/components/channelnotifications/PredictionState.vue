@@ -116,7 +116,7 @@ import ProgressBar from '../ProgressBar.vue';
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, c.id);
 			}catch(error) {
 				this.loading = false;
-				this.$store.main.alert(this.$t('error.prediction_outcome'));
+				this.$store.common.alert(this.$t('error.prediction_outcome'));
 			}
 			this.loading = false;
 		}).catch(()=> {
@@ -132,7 +132,7 @@ import ProgressBar from '../ProgressBar.vue';
 				await TwitchUtils.endPrediction(this.prediction.channel_id, this.prediction.id, "", true);
 			}catch(error) {
 				this.loading = false;
-				this.$store.main.alert(this.$t('error.prediction_delete'));
+				this.$store.common.alert(this.$t('error.prediction_delete'));
 			}
 			this.loading = false;
 		}).catch(()=> {

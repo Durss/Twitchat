@@ -98,6 +98,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 
 	public beforeMount(): void {
 		this.id = this.$route.query.bid as string ?? "";
+
 		this.bingoUpdateHandler = (e) => this.onBingoUpdate(e);
 		PublicAPI.instance.addEventListener(TwitchatEvent.BINGO_GRID_PARAMETERS, this.bingoUpdateHandler);
 
@@ -152,6 +153,7 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			const animate = !this.ready;
 			this.ready = true;
 			if(data.bingo) this.bingo = data.bingo;
+			if(!this.bingo) return;
 
 			this.broadcastPresence();
 
@@ -170,21 +172,21 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				//Spiral algorithm from:
 				//https://stackoverflow.com/a/13413224/3813220
 				for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
-					if ((-width/2 < x && x <= width/2) 
+					if ((-width/2 < x && x <= width/2)
 					&& (-height/2 < y && y <= height/2)) {
 						let index = (x+cx) + (y+cy) * data.bingo.cols;
 						spiralOrder.push(index);
-					}	
+					}
 
-					if (x === y 
-					|| (x < 0 && x === -y) 
+					if (x === y
+					|| (x < 0 && x === -y)
 					|| (x > 0 && x === 1-y)){
 						// change direction
-						delta = [-delta[1], delta[0]]            
+						delta = [-delta[1], delta[0]]
 					}
 
 					x += delta[0];
-					y += delta[1];        
+					y += delta[1];
 				}
 
 				const cells = this.$refs.cell as HTMLElement[];

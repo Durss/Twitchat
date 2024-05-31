@@ -166,7 +166,7 @@ import ApiHelper from '@/utils/ApiHelper';
 			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
 		}catch(e) {
-			this.$store.main.alert(this.$t("error.csrf_failed"));
+			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
 		this.generatingCSRF = false;
 	}

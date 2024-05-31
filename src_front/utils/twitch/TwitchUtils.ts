@@ -172,7 +172,7 @@ export default class TwitchUtils {
 			}
 		}
 		if (fails.length > 0) {
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_info", { ERROR: fails }));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.load_user_info", { ERROR: fails }));
 		}
 		return channels;
 	}
@@ -963,7 +963,7 @@ export default class TwitchUtils {
 			}
 		}
 		if (fails.length > 0) {
-			StoreProxy.main.alert(StoreProxy.i18n.t("error.load_user_ban", { ERROR: fails }));
+			StoreProxy.common.alert(StoreProxy.i18n.t("error.load_user_ban", { ERROR: fails }));
 		}
 		return channels;
 	}
@@ -1428,7 +1428,7 @@ export default class TwitchUtils {
 		} else if (res.status == 400) {
 			const json = await res.json();
 			if (json.message) {
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.stream_info_updating", { MESSAGE: json.message }));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.stream_info_updating", { MESSAGE: json.message }));
 				throw (new Error(json.message));
 			}
 		}
@@ -1489,7 +1489,7 @@ export default class TwitchUtils {
 		} else {
 			const json = await res.json();
 			if (json.message) {
-				StoreProxy.main.alert(json.message);
+				StoreProxy.common.alert(json.message);
 			}
 			return false;
 		}
@@ -1522,7 +1522,7 @@ export default class TwitchUtils {
 			} else {
 				const json = await res.json();
 				if (json.message) {
-					StoreProxy.main.alert(json.message);
+					StoreProxy.common.alert(json.message);
 				}
 				return false;
 			}
@@ -1554,7 +1554,7 @@ export default class TwitchUtils {
 			} else {
 				const json = await res.json();
 				if (json.message) {
-					StoreProxy.main.alert(json.message);
+					StoreProxy.common.alert(json.message);
 				}
 				return false;
 			}
@@ -1585,7 +1585,7 @@ export default class TwitchUtils {
 			} else {
 				const json = await res.json();
 				if (json.message) {
-					StoreProxy.main.alert(json.message);
+					StoreProxy.common.alert(json.message);
 				}
 				return false;
 			}
@@ -1673,9 +1673,9 @@ export default class TwitchUtils {
 				message.loading = false;
 				try {
 					const json = await res.json();
-					if (json) StoreProxy.main.alert(json.message);
+					if (json) StoreProxy.common.alert(json.message);
 				} catch (error) {
-					StoreProxy.main.alert("Clip creation failed.");
+					StoreProxy.common.alert("Clip creation failed.");
 				}
 				return false;
 			}
@@ -1984,9 +1984,9 @@ export default class TwitchUtils {
 			if (res.status == 400) {
 				const json = await res.json();
 				if (/.*already.*mod.*/gi.test(json.message as string)) {
-					StoreProxy.main.alert("User " + user.login + " is already a moderator on this channel.");//TODO translate
+					StoreProxy.common.alert("User " + user.login + " is already a moderator on this channel.");//TODO translate
 				} else {
-					StoreProxy.main.alert(json.message);
+					StoreProxy.common.alert(json.message);
 				}
 				return false
 			} else
@@ -1994,9 +1994,9 @@ export default class TwitchUtils {
 					const json = await res.json();
 					const mess = json.message as string;
 					if (removeMod) {
-						StoreProxy.main.alert("User " + user.login + " is not a moderator of this channel");//TODO translate
+						StoreProxy.common.alert("User " + user.login + " is not a moderator of this channel");//TODO translate
 					} else if (/.*is.*vip.*/gi.test(mess)) {
-						StoreProxy.main.alert("User " + user.login + " is a VIP of this channel. You first need to remove them from your VIPs");//TODO translate
+						StoreProxy.common.alert("User " + user.login + " is a VIP of this channel. You first need to remove them from your VIPs");//TODO translate
 					}
 					return false
 				} else
@@ -2044,18 +2044,18 @@ export default class TwitchUtils {
 		} else
 			if (res.status == 400) {
 				const json = await res.json();
-				StoreProxy.main.alert(json.message);
+				StoreProxy.common.alert(json.message);
 				return false
 			} else
 				if (res.status == 422) {
 					const json = await res.json();
 					const mess = json.message as string;
 					if (removeVip) {
-						StoreProxy.main.alert("User " + user.login + " is not a VIP of this channel");//TODO translate
+						StoreProxy.common.alert("User " + user.login + " is not a VIP of this channel");//TODO translate
 					} else if (/.*is.*moderator.*/gi.test(mess)) {
-						StoreProxy.main.alert("User " + user.login + " is a moderator of this channel. You first need to remove them from your mods");//TODO translate
+						StoreProxy.common.alert("User " + user.login + " is a moderator of this channel. You first need to remove them from your mods");//TODO translate
 					} else if (/.*is.*vip.*/gi.test(mess)) {
-						StoreProxy.main.alert("User " + user.login + " is already a VIP on this channel.");//TODO translate
+						StoreProxy.common.alert("User " + user.login + " is already a VIP on this channel.");//TODO translate
 					}
 					return false
 				} else
@@ -2078,7 +2078,7 @@ export default class TwitchUtils {
 		try {
 			user = (await this.loadUserInfo(undefined, [channel]))[0];
 		} catch (error) {
-			StoreProxy.main.alert("User " + channel + " not found");
+			StoreProxy.common.alert("User " + channel + " not found");
 			return false;
 		}
 
@@ -2108,7 +2108,7 @@ export default class TwitchUtils {
 					const json = await res.json();
 					if (json.message) message = json.message;
 				} catch (error) { }
-				StoreProxy.main.alert(message);
+				StoreProxy.common.alert(message);
 				return false;
 			}
 	}
@@ -2146,7 +2146,7 @@ export default class TwitchUtils {
 			try {
 				toId = (await this.loadUserInfo(undefined, [toLogin]))[0].id;
 			} catch (error) {
-				StoreProxy.main.alert("User \"" + toLogin + "\" not found");
+				StoreProxy.common.alert("User \"" + toLogin + "\" not found");
 				return false;
 			}
 		}
@@ -2172,9 +2172,9 @@ export default class TwitchUtils {
 			} else {
 				try {
 					const json = await res.json();
-					if (json) StoreProxy.main.alert(json.message);
+					if (json) StoreProxy.common.alert(json.message);
 				} catch (error) {
-					StoreProxy.main.alert("You are not allowed to send whispers from Twitchat.");
+					StoreProxy.common.alert("You are not allowed to send whispers from Twitchat.");
 				}
 				return false;
 			}
@@ -2381,10 +2381,10 @@ export default class TwitchUtils {
 					const json = await res.json();
 					if (json) message = json.message;
 				} catch (error) {
-					StoreProxy.main.alert("Shoutout failed.");
+					StoreProxy.common.alert("Shoutout failed.");
 				}
 				if (message.indexOf("cooldown")) {
-					StoreProxy.main.alert(StoreProxy.i18n.t("error.shoutout_cooldown"));
+					StoreProxy.common.alert(StoreProxy.i18n.t("error.shoutout_cooldown"));
 					return false;
 				}
 				//Rate limit reached, try again after it's reset to full
@@ -2393,9 +2393,9 @@ export default class TwitchUtils {
 			} else {
 				try {
 					const json = await res.json();
-					if (json) StoreProxy.main.alert(json.message);
+					if (json) StoreProxy.common.alert(json.message);
 				} catch (error) {
-					StoreProxy.main.alert("Shoutout failed.");
+					StoreProxy.common.alert("Shoutout failed.");
 				}
 				return false;
 			}
@@ -2528,7 +2528,7 @@ export default class TwitchUtils {
 			await this.onRateLimit(res.headers, url.pathname);
 			return this.createStreamMarker(comment);
 		}
-		StoreProxy.main.alert(StoreProxy.i18n.t("error.marker_creation"));
+		StoreProxy.common.alert(StoreProxy.i18n.t("error.marker_creation"));
 		return false;
 	}
 

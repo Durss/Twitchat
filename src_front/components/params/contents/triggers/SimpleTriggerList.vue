@@ -22,8 +22,8 @@
 </template>
 
 <script lang="ts">
-import Utils from '@/utils/Utils';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import TriggerUtils from '@/utils/TriggerUtils';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
@@ -36,7 +36,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 	@Prop({type:Boolean, default:false})
 	public primary!:boolean;
-	
+
 	public triggerList:{id:string, label:string, icon?:string, iconURL?:string, iconBG?:string}[] = [];
 
 	public classes(selected:boolean):string[] {
@@ -45,16 +45,16 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		if(this.primary !== false) res.push("primary");
 		return res;
 	}
-	
+
 	public mounted():void {
 		//Remove deleted triggers
 		const triggers = this.$store.triggers.triggerList;
-		
+
 		triggers.forEach(t=> {
 			if(this.filteredItemId != "") {
 				if(t.id != this.filteredItemId) return;
 			}
-			let infos = Utils.getTriggerDisplayInfo(t);
+			let infos = TriggerUtils.getTriggerDisplayInfo(t);
 			this.triggerList.push({
 				id:t.id,
 				label: infos.label,

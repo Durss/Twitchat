@@ -17,7 +17,6 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Config from './utils/Config';
 import Alert from "./views/AlertView.vue";
 import Confirm from "./views/Confirm.vue";
-import SetIntervalWorker from './utils/SetIntervalWorker';
 
 
 @Component({
@@ -61,7 +60,7 @@ import SetIntervalWorker from './utils/SetIntervalWorker';
 		this.onWindowResize();
 		watch(()=> this.$store.main.initComplete, ()=> this.hideMainLoader())
 		this.hideMainLoader();
-		
+
 		if(this.demoMode) {
 			// document.addEventListener("keydown", (e)=>{
 			// 	if(e.ctrlKey) {
@@ -86,7 +85,7 @@ import SetIntervalWorker from './utils/SetIntervalWorker';
 			window.addEventListener("keydown", this.keyDownHandler);
 		}
 	}
-	
+
 	public beforeUnmount():void {
 		this.dispose = true;
 		window.removeEventListener("resize", this.resizeHandler);
@@ -236,7 +235,7 @@ export default toNative(App);
 		--font-roboto: "OpenDyslexic";
 		--font-azeret: "OpenDyslexic";
 	}
-	
+
 	&.overflow {
 		overflow: auto;
 	}

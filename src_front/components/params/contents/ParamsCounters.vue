@@ -570,7 +570,7 @@ import ToggleButton from '@/components/ToggleButton.vue';
 	 */
 	public toggleCounterState(counter:TwitchatDataTypes.CounterData):void {
 		if(!this.canCreateCounters) {
-			this.$store.main.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
+			this.$store.common.alert(this.$t("counters.premium_cannot_enable", {MAX:this.$config.MAX_COUNTERS, MAX_PREMIUM:this.$config.MAX_COUNTERS_PREMIUM}))
 		}else{
 			counter.enabled = true;
 			this.$store.counters.saveCounters();

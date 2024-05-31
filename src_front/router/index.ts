@@ -9,7 +9,6 @@ import Sponsor from '@/views/Sponsor.vue'
 import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 
-const Overlay = () => import('@/views/Overlay.vue');
 const TermsOfUse = () => import('@/views/TermsOfUse.vue');
 const GoXLRDebug = () => import('@/views/GoXLRDebug.vue');
 const LabelsEditor = () => import('@/views/LabelsEditor.vue');
@@ -140,7 +139,7 @@ const routes: Array<RouteRecordRaw> = [
 				}
 				sMusic.setSpotifyAuthResult(params);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("music.spotify_refused") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("music.spotify_refused") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -163,7 +162,7 @@ const routes: Array<RouteRecordRaw> = [
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.PREMIUM);
 				sPatreon.setPatreonAuthResult(params);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.patreon_denied") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.patreon_denied") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -186,7 +185,7 @@ const routes: Array<RouteRecordRaw> = [
 				sYoutube.setYoutubeAuthResult(params);
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.YOUTUBE);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.youtube_denied") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.youtube_denied") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -209,7 +208,7 @@ const routes: Array<RouteRecordRaw> = [
 				sStreamlabs.setAuthResult(params.code, params.csrf);
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMLABS);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.streamlabs_denied") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.streamlabs_denied") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -232,7 +231,7 @@ const routes: Array<RouteRecordRaw> = [
 				sTipeee.setAuthResult(params.code, params.csrf);
 				sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.TIPEEE);
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.tipeee_denied") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.tipeee_denied") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -279,7 +278,7 @@ const routes: Array<RouteRecordRaw> = [
 					sParams.openParamsPage(TwitchatDataTypes.ParameterPages.CONNEXIONS, TwitchatDataTypes.ParamDeepSections.STREAMELEMENTS);
 				}
 			}else{
-				sMain.alert( StoreProxy.i18n.t("error.streamelements_denied") );
+				StoreProxy.common.alert( StoreProxy.i18n.t("error.streamelements_denied") );
 			}
 			return {name:"chat", query:{}};
 		},
@@ -288,9 +287,14 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		//This route is not actually used.
+		//It's only here for route generation, but the actual /overlay
+		//route targets the overlay/index.html page
 		path: '/overlay/:id(.*)',
 		name: 'overlay',
-		component: Overlay,
+		redirect:()=>{
+			return {name:"chat"}
+		},
 		meta: {
 			needAuth:false,
 			public:true,

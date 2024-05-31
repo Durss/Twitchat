@@ -99,7 +99,7 @@ import ProgressBar from '../ProgressBar.vue';
 				await TwitchUtils.endPoll(this.poll.id, this.poll.channel_id);
 			}catch(error) {
 				this.loading = false;
-				this.$store.main.alert( "An error occurred while deleting the poll" );
+				this.$store.common.alert( "An error occurred while deleting the poll" );
 			}
 			this.loading = false;
 		}).catch(()=> {

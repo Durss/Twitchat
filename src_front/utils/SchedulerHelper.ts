@@ -227,10 +227,10 @@ export default class SchedulerHelper {
 
 		//Just a fail safe to avoid deploying fucked up data on production !
 		if(this._adSchedule.scheduleParams!.repeatDuration < 2 * 60 * 60) {
-			StoreProxy.main.alert("Ad schedule duration set to "+this._adSchedule.scheduleParams!.repeatDuration+" seconds instead of 7200 (2h)!");
+			StoreProxy.common.alert("Ad schedule duration set to "+this._adSchedule.scheduleParams!.repeatDuration+" seconds instead of 7200 (2h)!");
 		}else
 		if(this._adSchedule.scheduleParams!.repeatMinMessages < 100) {
-			StoreProxy.main.alert("Ad schedule min message count set to "+this._adSchedule.scheduleParams!.repeatMinMessages+" instead of 100!");
+			StoreProxy.common.alert("Ad schedule min message count set to "+this._adSchedule.scheduleParams!.repeatMinMessages+" instead of 100!");
 		}
 		this.scheduleTrigger(this._adSchedule);
 		this.scheduleTrigger(liveChannelsSchedule);

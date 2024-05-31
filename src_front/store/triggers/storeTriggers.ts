@@ -3,6 +3,7 @@ import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFI
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import SchedulerHelper from '@/utils/SchedulerHelper';
+import TriggerUtils from '@/utils/TriggerUtils';
 import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
@@ -109,7 +110,7 @@ export const storeTriggers = defineStore('triggers', {
 			if(trigger) {
 				const clone:TriggerData = JSON.parse(JSON.stringify(trigger));
 				clone.id = Utils.getUUID();
-				let name = clone.name || Utils.getTriggerDisplayInfo(clone).label;
+				let name = clone.name || TriggerUtils.getTriggerDisplayInfo(clone).label;
 				name += " (CLONE)";
 				clone.name = name;
 				this.triggerList.push(clone);

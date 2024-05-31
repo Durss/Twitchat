@@ -1,7 +1,7 @@
 <template>
 	<div :class="classes" :style="styles">
 		<span class="chatMessageTime" v-if="$store.params.appearance.displayTime.value">{{time}}</span>
-		
+
 		<div class="messageHolder">
 			<div class="content">
 				<Icon v-if="messageData.icon" :name="messageData.icon" />
@@ -9,7 +9,7 @@
 				<span class="message" v-if="messageData.message_chunks"><ChatMessageChunksParser :chunks="messageData.message_chunks" /></span>
 				<span class="message" v-else-if="messageData.message">{{messageData.message}}</span>
 			</div>
-			
+
 			<template v-if="messageData.actions">
 				<Button v-for="action in messageData.actions"
 				class="cta"
@@ -32,26 +32,26 @@
 				<span class="message" v-else-if="messageData.quote">{{messageData.message}}</span>
 			</div>
 		</div>
-		
+
 		<ClearButton class="closeBt" @click.stop="deleteMessage()" small />
 	</div>
 </template>
 
 <script lang="ts">
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import {toNative,  Component, Prop } from 'vue-facing-decorator';
-import AbstractChatMessage from './AbstractChatMessage';
-import Icon from '../Icon.vue';
-import type { StyleValue } from 'vue';
-import ClearButton from '../ClearButton.vue';
-import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
-import TTButton from '../TTButton.vue';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import Utils from '@/utils/Utils';
 import MessengerProxy from '@/messaging/MessengerProxy';
-import ApiHelper from '@/utils/ApiHelper';
 import Database from '@/store/Database';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import ApiHelper from '@/utils/ApiHelper';
+import TriggerUtils from '@/utils/TriggerUtils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import gsap from 'gsap';
+import type { StyleValue } from 'vue';
+import { Component, Prop, toNative } from 'vue-facing-decorator';
+import ClearButton from '../ClearButton.vue';
+import Icon from '../Icon.vue';
+import TTButton from '../TTButton.vue';
+import AbstractChatMessage from './AbstractChatMessage';
+import ChatMessageChunksParser from './components/ChatMessageChunksParser.vue';
 
 @Component({
 	components:{
@@ -117,13 +117,13 @@ import gsap from 'gsap';
 				break
 			}
 			case "message": {
-				const message = await Utils.parseGlobalPlaceholders(button.message || "");
+				const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
 				MessengerProxy.instance.sendMessage(message);
 				break
 			}
 			case "discord": {
 				this.loading = true;
-				const message = await Utils.parseGlobalPlaceholders(button.message || "");
+				const message = await TriggerUtils.parseGlobalPlaceholders(button.message || "");
 				try {
 					const res = await ApiHelper.call("discord/answer", "POST", {message:message, data:button.data}, false);
 					if(res.status == 200) {

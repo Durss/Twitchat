@@ -20,9 +20,12 @@ import Utils from '@/utils/Utils';
 import gsap from 'gsap';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
+import Icon from '../Icon.vue';
 
 @Component({
-	components:{}
+	components:{
+		Icon,
+	}
 })
  class OverlayTimer extends AbstractOverlay {
 
@@ -32,7 +35,7 @@ import AbstractOverlay from './AbstractOverlay';
 	private intervalUpdate:number = -1;
 	private timerData:TwitchatDataTypes.TimerData|null = null;
 	private countdownData:TwitchatDataTypes.CountdownData|null = null;
-	
+
 	private timerEventHandler!:(e:TwitchatEvent)=>void;
 	private countdownEventHandler!:(e:TwitchatEvent)=>void;
 	private timerPresenceHandler!:(e:TwitchatEvent)=>void;
@@ -135,7 +138,7 @@ export default toNative(OverlayTimer);
 	flex-direction: row;
 	justify-content: center;
 	align-items: flex-start;
-	
+
 	.timer, .countdown {
 		@margin: .5em;
 		display: inline-flex;

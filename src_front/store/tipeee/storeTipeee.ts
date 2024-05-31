@@ -61,7 +61,7 @@ export const storeTipeee = defineStore('tipeee', {
 				//Tipeee do not returns expireas at for refresh token. Refresh every hour :/
 				this.connect(this.accessToken, false);
 			}else{
-				StoreProxy.main.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
+				StoreProxy.common.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
 			}
 		},
 
@@ -186,7 +186,7 @@ export const storeTipeee = defineStore('tipeee', {
 						else if(code == "44") {
 							//Show error on top of page
 							if(isAutoInit) {
-								StoreProxy.main.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
+								StoreProxy.common.alert(StoreProxy.i18n.t("error.tipeee_connect_failed"));
 							}
 							this.disconnect(false);
 							resolve(false);

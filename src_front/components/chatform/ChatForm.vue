@@ -845,7 +845,7 @@ export class ChatForm extends Vue {
 				this.message = "";
 				return;
 			}catch(error) {
-				this.$store.main.alert("Invalid or missing JSON");
+				this.$store.common.alert("Invalid or missing JSON");
 			}
 		}else{
 

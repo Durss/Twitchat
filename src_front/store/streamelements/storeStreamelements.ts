@@ -240,7 +240,7 @@ export const storeStreamelements = defineStore('streamelements', {
 								case "unauthorized": {
 									//Show error on top of page
 									if(isAutoInit) {
-										StoreProxy.main.alert(StoreProxy.i18n.t("error.Streamelements_connect_failed"));
+										StoreProxy.common.alert(StoreProxy.i18n.t("error.Streamelements_connect_failed"));
 									}
 									this.disconnect();
 									resolve(false);

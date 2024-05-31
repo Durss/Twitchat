@@ -7,24 +7,24 @@ import * as path from "path";
 import * as mime from "mime-types";
 
 /**
-* Created : 22/02/2023 
+* Created : 22/02/2023
 */
 export default class MiddlewareController extends AbstractController {
 
 	private customRateLimit:{[key:string]:number} = {};
 	private customRateLimitAttempts:{[key:string]:number} = {};
 	private customRateLimitTimeouts:{[key:string]:NodeJS.Timeout} = {};
-	
+
 	constructor(public server:FastifyInstance) {
 		super();
 	}
-	
+
 	/********************
 	* GETTER / SETTERS *
 	********************/
-	
-	
-	
+
+
+
 	/******************
 	* PUBLIC METHODS *
 	******************/
@@ -58,9 +58,9 @@ export default class MiddlewareController extends AbstractController {
 				}
 			}
 		});
-		
+
 		//CORS headers
-		await this.server.register(require('@fastify/cors'), { 
+		await this.server.register(require('@fastify/cors'), {
 			origin:[/localhost/i, /twitchat\.fr/i, /192\.168\.1\.10/, /127\.0\.0\.1/],
 			// origin:(origin, cb) => {
 			// 	console.log(origin);
@@ -71,7 +71,7 @@ export default class MiddlewareController extends AbstractController {
 			decorateReply: true,
 			exposedHeaders:["x-ratelimit-reset"]
 		})
-		
+
 		//Static files
 		await this.server.register(require('@fastify/static'), {
 			root: Config.PUBLIC_ROOT,
@@ -90,6 +90,21 @@ export default class MiddlewareController extends AbstractController {
 		//trying to call any endpoint
 		this.server.addHook('onRequest', (request, response, done) => {
 			const ip = this.getIp(request);
+			if(/^\/overlay\//gi.test(request.url)) {
+				console.log("ok");
+				const file = path.join(Config.PUBLIC_ROOT, "overlay/index.html");
+				const stream = fs.createReadStream(file, 'utf8' );
+				const mimetype = mime.lookup(file);
+				if(mimetype == "text/html") {
+					response.header('Content-Type', mimetype+"; charset=utf-8");
+				}else{
+					response.header('Content-Type', mimetype);
+				}
+
+				response.send(stream);
+				return;
+			}
+
 			// console.log(ip, request.headers.referer, request.url)
 			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
 				//Check if user has a custom rate limit duration
@@ -112,15 +127,15 @@ export default class MiddlewareController extends AbstractController {
 			}
 			done();
 		})
-		
+
 		await this.server.setNotFoundHandler({
 		}, (request:FastifyRequest, response:FastifyReply) => {
 			this.notFound(request, response);
 		});
 	}
-	
-	
-	
+
+
+
 	/*******************
 	* PRIVATE METHODS *
 	*******************/
@@ -143,23 +158,23 @@ export default class MiddlewareController extends AbstractController {
 			this.disableCache(response);
 		}
 		const stream = fs.createReadStream(file, 'utf8' );
-	
+
 		const mimetype = mime.lookup(file);
 		//patch for firefox that refuses to execute script if it doesn't have this mime type -_-...
 		// if(/\.js$/.test(file)) mimetype = "application/javascript";
-	
+
 		if(mimetype == "text/html") {
 			response.header('Content-Type', mimetype+"; charset=utf-8");
 		}else{
 			response.header('Content-Type', mimetype);
 		}
-	
+
 		response.send(stream);
 	}
 
 	/**
 	 * Get user IP from request
-	 * @param request 
+	 * @param request
 	 */
 	private getIp(request:FastifyRequest):string {
 		return request.headers['x-real-ip'] as string // nginx
@@ -173,8 +188,8 @@ export default class MiddlewareController extends AbstractController {
 	 * After user exceeded their quota, this function is called to define a custom
 	 * rate limit duration. As long as the user keeps hitting 404 their ban
 	 * duration will be expanded.
-	 * 
-	 * @param request 
+	 *
+	 * @param request
 	 */
 	private expandCustomRateLimitDuration(request:FastifyRequest):number {
 		if(!this.customRateLimit[this.getIp(request)]) {
