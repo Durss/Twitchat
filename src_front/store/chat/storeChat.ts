@@ -26,6 +26,7 @@ import StoreProxy, { type IChatActions, type IChatGetters, type IChatState } fro
 let messageList:TwitchatDataTypes.ChatMessageTypes[] = [];
 let greetedUsersExpire_at:{[key:string]:number} = {};
 let greetedUsersInitialized:boolean = false;
+let subgiftHistory:TwitchatDataTypes.MessageSubscriptionData[] = [];
 
 export const storeChat = defineStore('chat', {
 	state: () => ({
@@ -1151,15 +1152,11 @@ export const storeChat = defineStore('chat', {
 					});
 					StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 					//If it's a subgift, merge it with potential previous ones
-					if(message.is_gift) {
+					if(message.is_gift && message.gift_recipients) {
 						// console.log("Merge attempt");
-						const len = Math.max(0, messageList.length-30);//Only check within the last 30 messages
-						for (let i = messageList.length-1; i > len; i--) {
-							const m = messageList[i];
-							if(m.type != TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION
-							|| !message.is_gift
-							|| !message.gift_recipients
-							|| message.channel_id != m.channel_id) {
+						for (let i = subgiftHistory.length-1; i >= 0; i--) {
+							const m = subgiftHistory[i];
+							if(message.channel_id != m.channel_id) {
 								if(m.type == TwitchatDataTypes.TwitchatMessageType.SUBSCRIPTION) {
 									const json = {
 										isGift1:message.is_gift,
@@ -1175,9 +1172,9 @@ export const storeChat = defineStore('chat', {
 							}
 							// console.log("Found sub ", m);
 							//If the message is a subgift from the same user with the same tier on
-							//the same channel and happened in the last 5s, merge it.
+							//the same channel and happened in the last 10s, merge it.
 							if(m.tier == message.tier && m.user.id == message.user.id
-							&& Math.abs(message.date - m.date) < 5000) {
+							&& Math.abs(message.date - m.date) < 10000) {
 								// console.log("MERGE IT !");
 								if(!m.gift_recipients) m.gift_recipients = [];
 								m.date = Date.now();//Update timestamp
@@ -1190,6 +1187,9 @@ export const storeChat = defineStore('chat', {
 							}
 							console.log("[SUBSCRIPTION MERGE] Don't merge", m.tier == message.tier, m.user.id == message.user.id, Date.now() - m.date < 5000);
 						}
+						//Message not merged, might be the first subgift of a series, save it
+						//for future subgift events
+						subgiftHistory.push(message);
 					}else{
 						StoreProxy.auth.totalSubscribers[message.channel_id] ++;
 						StoreProxy.auth.lastSubscriber[message.channel_id] = {user:message.user, tier:message.tier};
