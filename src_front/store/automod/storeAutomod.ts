@@ -5,6 +5,7 @@ import { defineStore, type PiniaCustomProperties, type _GettersTree, type _Store
 import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import type { IAutomodActions, IAutomodGetters, IAutomodState } from '../StoreProxy';
+import UnicodeUtils from '@/utils/UnicodeUtils';
 
 export const storeAutomod = defineStore('automod', {
 	state: () => ({
@@ -48,6 +49,46 @@ export const storeAutomod = defineStore('automod', {
 		setAutomodParams(payload:TwitchatDataTypes.AutomodParamsData) {
 			this.params = payload;
 			DataStore.set(DataStore.AUTOMOD_PARAMS, payload);
+		},
+
+		/**
+		 * Check if a message is automoded by a rule
+		 * @param mess
+		 * @param tags
+		 * @returns
+		 */
+		isMessageAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser, channelId:string):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
+			if(this.params.enabled
+			&& !Utils.checkPermissions(this.params.exludedUsers, user, channelId)) {
+				const rules = this.params.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
+
+				const messClean = UnicodeUtils.instance.normalizeAlphaNum(mess).toLowerCase().trim();
+				let messLeet = "";
+				for (let i = 0; i < rules.length; i++) {
+					const r = rules[i];
+					if(!r.enabled || !r.regex.trim() || r.regex.trim().length < 2) continue;//Rule disabled, skip it
+
+					//Check if reg is valid
+					let reg!:RegExp, valid=true;
+					try{ reg = new RegExp(r.regex.trim(), "gi"); }
+					catch(e){ valid = false; }
+
+					if(valid && reg.test(messClean)) {
+						//Reg matches
+						return r;
+					}else{
+						//Check leet encoding seperately to avoid conflicts
+						if(messLeet === "") {
+							messLeet = UnicodeUtils.instance.normalizeLeet(mess).toLowerCase().trim();
+						}
+						if(reg.test(messLeet)) {
+							//Reg matches
+							return r;
+						}
+					}
+				}
+			}
+			return null;
 		},
 	} as IAutomodActions
 	& ThisType<IAutomodActions

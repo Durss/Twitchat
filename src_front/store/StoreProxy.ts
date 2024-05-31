@@ -390,6 +390,13 @@ export interface IAutomodActions {
 	 * @param payload
 	 */
 	setAutomodParams(payload:TwitchatDataTypes.AutomodParamsData):void;
+	/**
+	 * Check if a message is automoded by a rule
+	 * @param mess
+	 * @param tags
+	 * @returns
+	 */
+	isMessageAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser, channelId:string):TwitchatDataTypes.AutomodParamsKeywordFilterData|null;
 }
 
 

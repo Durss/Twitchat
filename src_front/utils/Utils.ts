@@ -5,6 +5,7 @@ import type { JsonObject } from 'type-fest';
 import TriggerActionHandler from './triggers/TriggerActionHandler';
 import { TwitchScopes } from './twitch/TwitchScopes';
 import TwitchUtils from './twitch/TwitchUtils';
+import UnicodeUtils from './UnicodeUtils';
 
 /**
  * Created by Durss
@@ -627,34 +628,6 @@ export default class Utils {
 				local[key] = v;
 			}
 		}
-	}
-
-	/**
-	 * Check if a message is automoded by a rule
-	 * @param mess
-	 * @param tags
-	 * @returns
-	 */
-	public static isAutomoded(mess:string, user:TwitchatDataTypes.TwitchatUser, channelId:string):TwitchatDataTypes.AutomodParamsKeywordFilterData|null {
-		if(StoreProxy.automod.params.enabled
-		&& !Utils.checkPermissions(StoreProxy.automod.params.exludedUsers, user, channelId)) {
-			const rules = StoreProxy.automod.params.keywordsFilters as TwitchatDataTypes.AutomodParamsKeywordFilterData[];
-			for (let i = 0; i < rules.length; i++) {
-				const r = rules[i];
-				if(!r.enabled || !r.regex || r.regex.length < 2) continue;//Rule disabled, skip it
-
-				//Check if reg is valid
-				let reg!:RegExp, valid=true;
-				try{ reg = new RegExp(r.regex, "gi"); }
-				catch(e){ valid = false; }
-
-				if(valid && reg.test(mess)) {
-					//Reg matches
-					return r;
-				}
-			}
-		}
-		return null;
 	}
 
 	/**

@@ -35,7 +35,10 @@ export default class UnicodeUtils {
 		src = this.normalizeText(src, n, exceptions);
 		n = this.getUnicodeFlags();
 		src = this.normalizeText(src, n, exceptions);
-		n = this.getLeetCode();
+		return src;
+	}
+	public normalizeLeet(src:string, exceptions:string = ""):string {
+		let n = this.getLeetCode();
 		src = this.normalizeText(src, n, exceptions);
 		return src;
 	}

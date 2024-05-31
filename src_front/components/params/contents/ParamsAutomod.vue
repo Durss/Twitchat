@@ -1,11 +1,11 @@
 <template>
 	<div class="paramsautomod parameterContent">
 		<Icon name="mod" class="icon" />
-		
+
 		<div class="head">{{ $t("automod.header") }}</div>
-		
+
 		<ParamItem class="enableBt" :paramData="param_enabled" v-model="automodData.enabled" @change="save()" />
-	
+
 		<div class="card-item disclaimers">
 			<ToggleBlock class="infos first" :title="$t('automod.disclaimers.why.title')" small :open="false">
 				<p v-for="label in $tm('automod.disclaimers.why.contents')" v-html="label"></p>
@@ -14,9 +14,9 @@
 				<p v-for="label in $tm('automod.disclaimers.delete.contents')" v-html="label"></p>
 			</ToggleBlock>
 		</div>
-	
+
 		<div class="fadeHolder" :style="holderStyles">
-	
+
 			<Splitter class="splitter">{{ $t("automod.rule.title") }}</Splitter>
 
 			<section class="card-item">
@@ -46,7 +46,7 @@
 				</div>
 				<TTButton icon="add" class="addBt" @click="addRule()">{{ $t('automod.rule.add') }}</TTButton>
 			</section>
-			
+
 			<Splitter class="splitter">{{ $t("automod.test.title") }}</Splitter>
 
 			<section class="card-item testForm">
@@ -116,7 +116,7 @@ import Icon from '@/components/Icon.vue';
 	/**
 	 * Cleaned up test string with special chars replaced
 	 */
-	public get testClean():string { return UnicodeUtils.instance.normalizeAlphaNum(this.testStr).toLowerCase(); }
+	public get testClean():string { return UnicodeUtils.instance.normalizeAlphaNum(this.testStr).toLowerCase().trim(); }
 
 	/**
 	 * Check if the current test matches any of the rules
@@ -127,15 +127,18 @@ import Icon from '@/components/Icon.vue';
 		let matchingRules:TwitchatDataTypes.AutomodParamsKeywordFilterData[] = [];
 		for (let i = 0; i < this.automodData.keywordsFilters.length; i++) {
 			const f = this.automodData.keywordsFilters[i];
-			if(f.regex.length === 0) continue;
+			if(f.regex.trim().length === 0) continue;
 			let reg!:RegExp, valid:boolean = true;
 			try {
-				reg = new RegExp(f.regex, "gi");
+				reg = new RegExp(f.regex.trim(), "gi");
 			}catch(error){
 				valid = false;
 			}
 			if(valid) {
 				if(reg.test(this.testClean)) {
+					matchingRules.push(f);
+				}else
+				if(reg.test(UnicodeUtils.instance.normalizeLeet(this.testStr).toLowerCase().trim())) {
 					matchingRules.push(f);
 				}
 			}
@@ -264,7 +267,7 @@ export default toNative(ParamsAutomod);
 		transition: opacity .2s;
 
 		section {
-	
+
 			&.testForm {
 				display: flex;
 				flex-direction: column;
@@ -308,11 +311,11 @@ export default toNative(ParamsAutomod);
 					}
 				}
 			}
-	
+
 			.addBt {
 				margin: auto;
 			}
-	
+
 			.ruleList {
 				display: flex;
 				flex-direction: row;
@@ -341,7 +344,7 @@ export default toNative(ParamsAutomod);
 						gap: .5em;
 						display: flex;
 						flex-direction: column;
-		
+
 						.sync {
 							width: fit-content;
 							margin: auto;
@@ -351,6 +354,6 @@ export default toNative(ParamsAutomod);
 			}
 		}
 	}
-	
+
 }
 </style>

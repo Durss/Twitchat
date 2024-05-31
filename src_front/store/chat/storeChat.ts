@@ -1201,7 +1201,7 @@ export const storeChat = defineStore('chat', {
 				case TwitchatDataTypes.TwitchatMessageType.JOIN: {
 					for (let i = 0; i < message.users.length; i++) {
 						const user = message.users[i];
-						const rule = Utils.isAutomoded(user.displayNameOriginal, user, message.channel_id);
+						const rule = sAutomod.isMessageAutomoded(user.displayNameOriginal, user, message.channel_id);
 						if(rule != null) {
 							if(user.platform == "twitch") {
 								TwitchUtils.banUser(user, message.channel_id, undefined, `banned by Twitchat's automod because nickname matched an automod rule`);
@@ -1359,7 +1359,7 @@ export const storeChat = defineStore('chat', {
 				|| message.type == TwitchatDataTypes.TwitchatMessageType.RAID) {
 					if(sAutomod.params.banUserNames === true && !message.user.channelInfo[message.channel_id].is_banned) {
 						//Check if nickname passes the automod
-						const rule = Utils.isAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
+						const rule = sAutomod.isMessageAutomoded(message.user.displayNameOriginal, message.user, message.channel_id);
 						if(rule) {
 							//User blocked by automod
 							if(message.user.platform == "twitch") {
@@ -1385,7 +1385,7 @@ export const storeChat = defineStore('chat', {
 					if(message.type != TwitchatDataTypes.TwitchatMessageType.FOLLOWING
 					&& message.type != TwitchatDataTypes.TwitchatMessageType.RAID
 					&& message.message) {
-						const rule = Utils.isAutomoded(message.message, message.user, message.channel_id);
+						const rule = sAutomod.isMessageAutomoded(message.message, message.user, message.channel_id);
 						if(rule) {
 							if(message.type == TwitchatDataTypes.TwitchatMessageType.MESSAGE) {
 								//If rule does not requests to be applied only to first time chatters
