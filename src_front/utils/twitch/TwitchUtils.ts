@@ -871,6 +871,38 @@ export default class TwitchUtils {
 	}
 
 	/**
+	 * Get the VIPs list of a channel
+	 * Limited to our own channel
+	 */
+	public static async getVIPs(): Promise<TwitchDataTypes.VIPUser[]> {
+		if (!this.hasScopes([TwitchScopes.EDIT_VIPS])) return [];
+
+		let list: TwitchDataTypes.VIPUser[] = [];
+		let cursor: string | null = null;
+		const url = new URL(Config.instance.TWITCH_API_PATH + "channels/vips");
+		const user = StoreProxy.auth.twitch.user;
+		url.searchParams.append("broadcaster_id", user.id);
+		url.searchParams.append("first", "100");
+
+		do {
+			if (cursor) url.searchParams.set("after", cursor);
+			const res = await this.callApi(url, {
+				method: "GET",
+				headers: this.headers,
+			});
+			if (res.status == 200) {
+				const json: { data: TwitchDataTypes.VIPUser[], pagination?: { cursor?: string } } = await res.json();
+				list = list.concat(json.data);
+				cursor = null;
+				if (json.pagination?.cursor) {
+					cursor = json.pagination.cursor;
+				}
+			} else if (res.status == 500) break;
+		} while (cursor != null)
+		return list;
+	}
+
+	/**
 	 * Get a list of channels the user is a moderator on.
 	 */
 	public static async getModeratedChannels(): Promise<TwitchDataTypes.ModeratedUser[]> {

@@ -5,6 +5,9 @@ export namespace TwitchDataTypes {
 		user_name: string;
 	}
 
+	export interface VIPUser extends ModeratorUser {
+	}
+
 	export interface ModeratedUser {
 		broadcaster_id: string;
 		broadcaster_login: string;
@@ -365,7 +368,7 @@ export namespace TwitchDataTypes {
 		title: string
 		started_at: string
 	}
-	  
+
 
 	export interface StreamTag {
 		tag_id: string;

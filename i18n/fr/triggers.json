@@ -92,7 +92,7 @@
 				">=": ">=",
 				"<=": "<=",
 				"=": "=",
-				"!=": "!=",
+				"!=": "≠",
 				"contains": "Contient",
 				"not_contains": "Ne contient pas",
 				"starts_with": "Commence par",

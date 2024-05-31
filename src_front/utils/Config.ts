@@ -185,6 +185,7 @@ export default class Config {
 		return [
 			// {platform:"twitch", login:"durssbot"},
 			{platform:"twitch", login:"chezmarino"},
+			{platform:"twitch", login:"opcrotte"},
 		];
 	}
 
