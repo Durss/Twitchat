@@ -25,6 +25,7 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
+import YoutubeHelper from "../youtube/YoutubeHelper";
 
 /**
 * Created : 22/04/2022
@@ -2549,6 +2550,8 @@ export default class TriggerActionHandler {
 						}
 					}catch(error) {
 						logStep.messages.push({date:Date.now(), value:"❌ Posting message to Discord failed. Make sure Twitchat bot has permissions to write on the given channel"});
+						log.error = true;
+						logStep.error = true;
 					}
 				}else
 
@@ -2559,6 +2562,41 @@ export default class TriggerActionHandler {
 						case "color": {
 							logStep.messages.push({date:Date.now(), value:`Set color to "#${step.lumia.color}", brigtness:${step.lumia.colorBrightness}%, duration:${step.lumia.colorDuration_s}s, transition:${step.lumia.colorTransition_s}s`});
 							StoreProxy.lumia.setColor(step.lumia.color!, step.lumia.colorBrightness!, step.lumia.colorDuration_s! * 1000, step.lumia.colorTransition_s! * 1000);
+							break;
+						}
+					}
+				}else
+
+				//Handle Delete chat message action
+				if(step.type == "delete_message") {
+					logStep.messages.push({date:Date.now(), value:"Delete message \""+message.id+"\" from channel \""+message.channel_id+"\" on platform \""+message.platform+"\""});
+					switch(message.platform) {
+						case "twitch": {
+							const res = await TwitchUtils.deleteMessages(message.channel_id, message.id);
+							if(!res) {
+								logStep.messages.push({date:Date.now(), value:"❌ Could not delete Twitch the message"});
+								log.error = true;
+								logStep.error = true;
+							}else{
+								logStep.messages.push({date:Date.now(), value:"✔ Twitch message deleted successfuly"});
+							}
+							break;
+						}
+
+						case "youtube": {
+							const res = await YoutubeHelper.instance.deleteMessage(message.id);
+							if(!res) {
+								logStep.messages.push({date:Date.now(), value:"❌ Could not delete the youtube message"});
+								log.error = true;
+								logStep.error = true;
+							}else{
+								logStep.messages.push({date:Date.now(), value:"✔ Youtube message deleted successfuly"});
+							}
+						}
+						default:{
+							logStep.messages.push({date:Date.now(), value:"❌ Could not delete requested message. Platform "+message.platform+" not supported."});
+							log.error = true;
+							logStep.error = true;
 						}
 					}
 				}

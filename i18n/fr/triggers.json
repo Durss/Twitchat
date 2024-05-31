@@ -125,6 +125,7 @@
 				"delete": "Supprimer",
 				"action_delay": "Pause",
 				"action_chat": "Envoyer un message",
+				"action_delete": "Supprimer le message",
 				"action_customChat": "Notification personnalisée",
 				"action_reward": "Récompense de points de chaîne",
 				"action_extension": "Extension Twitch",
@@ -180,6 +181,9 @@
 				"param_alertCD": "Prévenir la personne si un cooldown est en cours",
 				"commands_list": "Commandes de tchat",
 				"use_slash_cmd": "Utilisez le trigger \" @:triggers.events.SLASH_COMMAND.label \" pour ce type de commande"
+			},
+			"delete_message": {
+				"info": "Supprimer le message de tchat ayant déclenché ce trigger"
 			},
 			"discord": {
 				"param_message": "Message à envoyer sur Discord",

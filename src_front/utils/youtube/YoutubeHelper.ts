@@ -649,7 +649,7 @@ export default class YoutubeHelper {
 	 * @param messageId
 	 * @returns
 	 */
-	public async deleteMessage(messageId:string):Promise<void> {
+	public async deleteMessage(messageId:string):Promise<boolean> {
 
 		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
 		url.searchParams.append("id", messageId);
@@ -658,10 +658,12 @@ export default class YoutubeHelper {
 		const res = await fetch(url, {method:"DELETE", headers:this.headers});
 		if(res.status == 200 || res.status == 204) {
 			Logger.instance.log("youtube", {log:"Deleted message #"+messageId, credits: this._creditsUsed, liveID:this._currentLiveIds});
+			return true;
 		}else{
 			Logger.instance.log("youtube", {log:"Cannot delete message #"+messageId, error:await res.text(), credits: this._creditsUsed, liveID:this._currentLiveIds});
 			StoreProxy.main.alert(StoreProxy.i18n.t("error.youtube_message_delete"));
 		}
+		return false;
 	}
 
 

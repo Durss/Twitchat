@@ -76,6 +76,7 @@ export type TriggerActionTypes =  TriggerActionEmptyData
 								| TriggerActionDiscordData
 								| TriggerActionLumiaData
 								| TriggerActionBingoGridData
+								| TriggerActionDeleteMessageData
 ;
 
 export type TriggerActionStringTypes = TriggerActionTypes["type"];
@@ -1034,6 +1035,13 @@ export interface TriggerActionDiscordData extends TriggerActionData {
 		 */
 		channelId:string;
 	}
+}
+
+/**
+ * Represents a discord action data
+ */
+export interface TriggerActionDeleteMessageData extends TriggerActionData {
+	type:"delete_message";
 }
 
 /**

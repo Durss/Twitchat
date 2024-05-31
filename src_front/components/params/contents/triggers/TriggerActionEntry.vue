@@ -4,6 +4,11 @@
 	:triggerData="triggerData"
 	@delete="$emit('delete')" />
 
+	<TriggerActionDeleteMessageEntry v-else-if="action.type=='delete_message'"
+	:action="action"
+	:triggerData="triggerData"
+	@delete="$emit('delete')" />
+
 	<ToggleBlock v-else
 	noArrow
 	:error="isError"
@@ -45,132 +50,136 @@
 			<div class="list">
 				<TTButton class="button" @click="selectActionType('delay')"
 					icon="timer">{{ $t('triggers.actions.common.action_delay') }}</TTButton>
-	
+
 				<TTButton class="button" @click="selectActionType('chat')"
 					icon="whispers">{{ $t('triggers.actions.common.action_chat') }}</TTButton>
-	
+
+				<TTButton class="button" @click="selectActionType('delete_message')"
+					v-if="isDeletableMessageTrigger"
+					icon="trash">{{ $t('triggers.actions.common.action_delete') }}</TTButton>
+
 				<TTButton class="button" @click="selectActionType('customChat')"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_ttnotif'}"
 					icon="info">{{ $t('triggers.actions.common.action_customChat') }}</TTButton>
-					
+
 				<TTButton class="button" @click.capture="selectActionType('reward')"
 					v-if="isAffiliate"
 					icon="channelPoints"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_rewards'}"
 					:disabled="!canManageRewards">{{ $t('triggers.actions.common.action_reward') }}</TTButton>
-					
+
 				<TTButton class="button" @click.capture="selectActionType('extension')"
 					icon="extension"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_extension'}"
 					:disabled="!canManageExtensions">{{ $t('triggers.actions.common.action_extension') }}</TTButton>
-					
+
 				<TTButton class="button" @click.capture="selectActionType('poll')"
 					v-if="isAffiliate"
 					icon="poll"
 					:disabled="!canCreatePoll">{{ $t('triggers.actions.common.action_poll') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('prediction')"
 					v-if="isAffiliate"
 					icon="prediction"
 					:disabled="!canCreatePrediction">{{ $t('triggers.actions.common.action_prediction') }}</TTButton>
-					
+
 				<TTButton class="button" @click="selectActionType('bingo')"
 					icon="bingo">{{ $t('triggers.actions.common.action_bingo') }}</TTButton>
-					
+
 				<TTButton class="button" @click="selectActionType('bingoGrid')"
 					icon="bingo_grid">{{ $t('triggers.actions.common.action_bingoGrid') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('raffle')"
 					icon="ticket">{{ $t('triggers.actions.common.action_raffle') }}</TTButton>
-	
+
 				<TTButton class="button" @click="selectActionType('raffle_enter')"
 					v-if="hasUserInfo"
 					icon="user">{{ $t('triggers.actions.common.action_raffle_enter') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('stream_infos')"
 					icon="info"
 					:disabled="!canEditStreamInfo"
 					v-tooltip="canEditStreamInfo? '' : $t('triggers.actions.common.action_stream_infos_tt')">{{ $t('triggers.actions.common.action_stream_infos') }}</TTButton>
-					
+
 				<TTButton class="button" @click="selectActionType('chatSugg')"
 					icon="chatPoll">{{ $t('triggers.actions.common.action_chatSugg') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('highlight')"
 					icon="highlight" >{{ $t('triggers.actions.common.action_highlight') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('value')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_value'}"
 					icon="placeholder">{{ $t('triggers.actions.common.action_value') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('count')"
 					icon="count">{{ $t('triggers.actions.common.action_count') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('random')"
 					icon="dice">{{ $t('triggers.actions.common.action_random') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('obs')"
 					icon="obs"
 					:disabled="!obsConnected"
 					v-tooltip="obsConnected? '' : $t('triggers.actions.common.action_obs_tt')">{{ $t('triggers.actions.common.action_obs') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('tts')"
 					icon="tts"
 					:disabled="!$store.tts.params.enabled"
 					v-tooltip="$store.tts.params.enabled? '' : $t('triggers.actions.common.action_tts_tt')">{{ $t('triggers.actions.common.action_tts') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('music')"
 					icon="spotify"
 					:disabled="!spotifyConnected"
 					v-tooltip="spotifyConnected? '' : $t('triggers.actions.common.action_music_tt')">{{ $t('triggers.actions.common.action_music') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('voicemod')"
 					icon="voicemod"
 					:disabled="!voicemodEnabled"
 					v-tooltip="voicemodEnabled? '' : $t('triggers.actions.common.action_voicemod_tt')">{{ $t('triggers.actions.common.action_voicemod') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('discord')"
 					icon="discord"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V12, id:'params_triggerAction_discord'}"
 					:disabled="!discordEnabled"
 					v-tooltip="discordEnabled? '' : $t('triggers.actions.common.action_discord_tt')">{{ $t('triggers.actions.common.action_discord') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('goxlr')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_goxlr'}"
 					icon="goxlr"
 					premium
 					:disabled="!goxlrEnabled"
 					v-tooltip="goxlrEnabled? '' : $t('triggers.actions.common.action_goxlr_tt')">{{ $t('triggers.actions.common.action_goxlr') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('lumia')"
 					icon="lumia"
 					premium
 					:disabled="!lumiaConnected"
 					v-tooltip="lumiaConnected? '' : $t('triggers.actions.common.action_lumia_tt')">{{ $t('triggers.actions.common.action_lumia') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('customBadges')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_custombadges'}"
 					icon="badge">{{ $t('triggers.actions.common.action_customBadges') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('customUsername')"
 					v-newflag="{date:1693519200000, id:'params_triggerAction_customusername'}"
 					icon="user">{{ $t('triggers.actions.common.action_customUsername') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('trigger')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_trigger') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('triggerToggle')"
 					icon="broadcast" >{{ $t('triggers.actions.common.action_triggerToggle') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('vibrate')"
 					icon="vibrate" >{{ $t('triggers.actions.common.action_vibrate') }}</TTButton>
-				
+
 				<TTButton class="button" @click="selectActionType('http')"
 					icon="url">{{ $t('triggers.actions.common.action_http') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('ws')"
 					:disabled="!wsConnected"
 					icon="url">{{ $t('triggers.actions.common.action_ws') }}</TTButton>
-				
+
 				<TTButton class="button" @click.capture="selectActionType('heat_click')"
 					:disabled="!heatClickEnabled"
 					v-newflag="{date:$config.NEW_FLAGS_DATE_V11, id:'params_triggerAction_clickHeat'}"
@@ -179,37 +188,37 @@
 			</div>
 		</div>
 
-		<TriggerActionChatEntry v-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
-		<TriggerActionOBSEntry v-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
-		<TriggerActionMusicEntry v-if="action.type=='music'" :action="action" :triggerData="triggerData" />
-		<TriggerActionTTSEntry v-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
-		<TriggerActionBingoGridEntry v-if="action.type=='bingoGrid'" :action="action" :triggerData="triggerData" />
-		<TriggerActionVoicemodEntry v-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
-		<TriggerActionHighlightEntry v-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
-		<TriggerActionTriggerEntry v-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-		<TriggerActionTriggerToggleEntry v-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-		<TriggerActionHTTPCall v-if="action.type=='http'" :action="action" :triggerData="triggerData" />
-		<TriggerActionWSEntry v-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
-		<TriggerActionValueEntry v-if="action.type=='value'" :action="action" :triggerData="triggerData" />
-		<TriggerActionCountEntry v-if="action.type=='count'" :action="action" :triggerData="triggerData" />
-		<TriggerActionRandomEntry v-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-		<TriggerActionStreamInfoEntry v-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
-		<TriggerActionVibratePhoneEntry v-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
-		<TriggerActionGoXLREntry v-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
-		<TriggerActionCustomBadge v-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
-		<TriggerActionCustomUsername v-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
-		<TriggerActionCustomChatEntry v-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
-		<TriggerActionClickHeatEntry v-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
-		<TriggerActionRewardEntry v-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
-		<TriggerActionExtensionEntry v-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
-		<TriggerActionDiscordEntry v-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
-		<TriggerActionLumiaEntry v-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
-		<RaffleForm v-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
-		<BingoForm v-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
-		<PollForm v-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
-		<PredictionForm v-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
-		<ChatSuggestionForm v-if="action.type=='chatSugg'" :action="action" :triggerData="triggerData" triggerMode />
-		<div v-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
+		<TriggerActionChatEntry v-else-if="action.type=='chat'" :action="action" :triggerData="triggerData" />
+		<TriggerActionOBSEntry v-else-if="action.type=='obs'" :action="action" :triggerData="triggerData" :obsSources="obsSources" :obsInputs="obsInputs" :obsScenes="obsScenes" />
+		<TriggerActionMusicEntry v-else-if="action.type=='music'" :action="action" :triggerData="triggerData" />
+		<TriggerActionTTSEntry v-else-if="action.type=='tts'" :action="action" :triggerData="triggerData" />
+		<TriggerActionBingoGridEntry v-else-if="action.type=='bingoGrid'" :action="action" :triggerData="triggerData" />
+		<TriggerActionVoicemodEntry v-else-if="action.type=='voicemod'" :action="action" :triggerData="triggerData" />
+		<TriggerActionHighlightEntry v-else-if="action.type=='highlight'" :action="action" :triggerData="triggerData" />
+		<TriggerActionTriggerEntry v-else-if="action.type=='trigger'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionTriggerToggleEntry v-else-if="action.type=='triggerToggle'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionHTTPCall v-else-if="action.type=='http'" :action="action" :triggerData="triggerData" />
+		<TriggerActionWSEntry v-else-if="action.type=='ws'" :action="action" :triggerData="triggerData" />
+		<TriggerActionValueEntry v-else-if="action.type=='value'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCountEntry v-else-if="action.type=='count'" :action="action" :triggerData="triggerData" />
+		<TriggerActionRandomEntry v-else-if="action.type=='random'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionStreamInfoEntry v-else-if="action.type=='stream_infos'" :action="action" :triggerData="triggerData" />
+		<TriggerActionVibratePhoneEntry v-else-if="action.type=='vibrate'" :action="action" :triggerData="triggerData" />
+		<TriggerActionGoXLREntry v-else-if="action.type=='goxlr'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomBadge v-else-if="action.type=='customBadges'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomUsername v-else-if="action.type=='customUsername'" :action="action" :triggerData="triggerData" />
+		<TriggerActionCustomChatEntry v-else-if="action.type=='customChat'" :action="action" :triggerData="triggerData" />
+		<TriggerActionClickHeatEntry v-else-if="action.type=='heat_click'" :action="action" :triggerData="triggerData" />
+		<TriggerActionRewardEntry v-else-if="action.type=='reward'" :action="action" :triggerData="triggerData" :rewards="rewards" />
+		<TriggerActionExtensionEntry v-else-if="action.type=='extension'" :action="action" :triggerData="triggerData" :extensions="extensions" />
+		<TriggerActionDiscordEntry v-else-if="action.type=='discord'" :action="action" :triggerData="triggerData" />
+		<TriggerActionLumiaEntry v-else-if="action.type=='lumia'" :action="action" :triggerData="triggerData" />
+		<RaffleForm v-else-if="action.type=='raffle'" :action="action" :triggerData="triggerData" triggerMode />
+		<BingoForm v-else-if="action.type=='bingo'" :action="action" :triggerData="triggerData" triggerMode />
+		<PollForm v-else-if="action.type=='poll'" :action="action" :triggerData="triggerData" triggerMode />
+		<PredictionForm v-else-if="action.type=='prediction'" :action="action" :triggerData="triggerData" triggerMode />
+		<ChatSuggestionForm v-else-if="action.type=='chatSugg'" :action="action" :triggerData="triggerData" triggerMode />
+		<div v-else-if="action.type=='raffle_enter'" class="raffleEnter">{{ $t("triggers.actions.raffle_enter.info") }}</div>
 
 	</ToggleBlock>
 </template>
@@ -221,7 +230,7 @@ import ChatSuggestionForm from '@/components/chatSugg/ChatSuggestionForm.vue';
 import ParamItem from '@/components/params/ParamItem.vue';
 import PollForm from '@/components/poll/PollForm.vue';
 import PredictionForm from '@/components/prediction/PredictionForm.vue';
-import { TriggerEventPlaceholders, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
+import { TriggerEventPlaceholders, TriggerTypes, type TriggerActionObsData, type TriggerActionObsDataAction, type TriggerActionStringTypes, type TriggerActionTypes, type TriggerData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
@@ -261,6 +270,7 @@ import TriggerActionExtensionEntry from './entries/TriggerActionExtensionEntry.v
 import TriggerActionDiscordEntry from './entries/TriggerActionDiscordEntry.vue';
 import TriggerActionLumiaEntry from './entries/TriggerActionLumiaEntry.vue';
 import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.vue';
+import TriggerActionDeleteMessageEntry from './entries/TriggerActionDeleteMessageEntry.vue';
 
 @Component({
 	components:{
@@ -297,6 +307,7 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 		TriggerActionCustomChatEntry,
 		TriggerActionStreamInfoEntry,
 		TriggerActionVibratePhoneEntry,
+		TriggerActionDeleteMessageEntry,
 		TriggerActionTriggerToggleEntry,
 	},
 	emits:["delete", "duplicate"]
@@ -321,7 +332,7 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 	public index!:number;
 
 	public opened = false;
-	
+
 	public get lumiaConnected():boolean { return this.$store.lumia.connected; }
 	public get obsConnected():boolean { return OBSWebsocket.instance.connected; }
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
@@ -337,6 +348,14 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 	public get heatClickEnabled():boolean { return (this.$store.heat.distortionList || []).length > 0; }
 	public get isAffiliate():boolean {
 		return this.$store.auth.twitch.user.is_affiliate || this.$store.auth.twitch.user.is_partner;
+	}
+	public get isDeletableMessageTrigger():boolean {
+		return this.triggerData.type == TriggerTypes.ANY_MESSAGE
+			|| this.triggerData.type == TriggerTypes.CHAT_COMMAND
+			|| this.triggerData.type == TriggerTypes.CHAT_ALERT
+			|| this.triggerData.type == TriggerTypes.PRESENTATION
+			|| this.triggerData.type == TriggerTypes.PIN_MESSAGE
+			|| this.triggerData.type == TriggerTypes.UNPIN_MESSAGE;
 	}
 
 	public get classes():string[] {
@@ -413,7 +432,7 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 			prev:"prev",
 			stop:"stop"
 		};
-		
+
 		if(this.action.type == "obs") icons.push( action2Icon[this.action.action]+"" );
 		if(this.action.type == "music") icons.push( 'spotify' );
 		if(this.action.type == "chat") icons.push( 'whispers' );
@@ -471,7 +490,7 @@ import TriggerActionBingoGridEntry from './entries/TriggerActionBingoGridEntry.v
 
 	/**
 	 * Called when choosing an action type
-	 * @param type 
+	 * @param type
 	 */
 	public selectActionType(type:TriggerActionStringTypes):void {
 		switch(type) {

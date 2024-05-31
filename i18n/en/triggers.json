@@ -125,6 +125,7 @@
 				"dynamic_placeholder_info": "This action allows you to create a custom placeholder that you can use on subsequent actions.",
 				"action_delay": "Delay",
 				"action_chat": "Send chat message",
+				"action_delete": "Delete chat message",
 				"action_customChat": "Custom notification",
 				"action_reward": "Channel points reward",
 				"action_extension": "Twitch Extension",
@@ -180,6 +181,9 @@
 				"param_alertCD": "Tell users if they're cooled down",
 				"commands_list": "Chat commands",
 				"use_slash_cmd": "Use trigger \" @:triggers.events.SLASH_COMMAND.label \" for this kind of command"
+			},
+			"delete_message": {
+				"info": "Delete the chat message that started this trigger."
 			},
 			"discord": {
 				"param_message": "Message to send to Discord",
