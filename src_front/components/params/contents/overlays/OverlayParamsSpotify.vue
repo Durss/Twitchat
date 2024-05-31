@@ -5,9 +5,9 @@
 				<div class="label">{{ $t("global.example") }}</div>
 				<OverlayMusicPlayer class="player" v-if="currentTrack" :staticTrackData="currentTrack" embed />
 			</div>
-	
+
 			<OverlayParamsMusic />
-	
+
 			<i18n-t class="card-item footer" scope="global" tag="div" keypath="overlay.music_common.infos">
 				<template #TRIGGERS>
 					<a @click="$store.params.openParamsPage(contentTriggers)">{{ $t("overlay.music_common.triggerBt") }}</a>
@@ -41,12 +41,12 @@ import OverlayParamsMusic from './OverlayParamsMusic.vue';
 	emits:[]
 })
  class OverlayParamsSpotify extends Vue {
-	
-	public currentTrack:TwitchatDataTypes.MusicTrackData = {title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
+
+	public currentTrack:TwitchatDataTypes.MusicTrackData = {id:"xxx",title:"Mitchiri Neko march",artist:"Mitchiri MitchiriNeko",album:"MitchiriNeko",cover:"https://i.scdn.co/image/ab67616d0000b2735b2419cbca2c5f1935743722",duration:1812,url:"https://open.spotify.com/track/1qZMyyaTyyJUjnfqtnmDdR?si=2b3eff5aba224d87"};
 
 	public get spotifyConnected():boolean { return SpotifyHelper.instance.connected; }
 	public get contentTriggers():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.TRIGGERS; }
-	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; } 
+	public get contentConnexions():TwitchatDataTypes.ParameterPagesStringType { return TwitchatDataTypes.ParameterPages.CONNEXIONS; }
 
 	public async mounted():Promise<void> {
 		this.currentTrack.cover = this.$image("img/musicExampleCover.jpg");
