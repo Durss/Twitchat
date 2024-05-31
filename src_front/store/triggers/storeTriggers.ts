@@ -1,16 +1,15 @@
 import DataStore from '@/store/DataStore';
-import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, type TriggerActionTypes, type TriggerTreeItemData, type TriggerData, VALUE_PLACEHOLDER_PREFIX } from '@/types/TriggerActionDataTypes';
-import SchedulerHelper from '@/utils/SchedulerHelper';
-import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
-import type { UnwrapRef } from 'vue';
-import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
-import Utils from '@/utils/Utils';
-import StoreProxy from '../StoreProxy';
+import { COUNTER_VALUE_PLACEHOLDER_PREFIX, TriggerTypes, VALUE_PLACEHOLDER_PREFIX, type TriggerActionTypes, type TriggerData, type TriggerTreeItemData } from '@/types/TriggerActionDataTypes';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
+import SchedulerHelper from '@/utils/SchedulerHelper';
+import Utils from '@/utils/Utils';
+import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
+import { defineStore, type PiniaCustomProperties, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { JsonObject } from "type-fest";
-import type { TriggerListEntry } from '@/components/params/contents/triggers/TriggerList.vue';
+import type { UnwrapRef } from 'vue';
+import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
+import StoreProxy from '../StoreProxy';
 
 let discordCmdUpdateDebounce:number = -1;
 
@@ -76,10 +75,10 @@ export const storeTriggers = defineStore('triggers', {
 			if(data.type === TriggerTypes.SCHEDULE) {
 				SchedulerHelper.instance.scheduleTrigger(data);
 			}
+			this.triggerList.push(data);
 
 			//Add trigger to requested folder if ncessary
 			if(folderTarget) {
-				this.triggerList.push(data);
 				const addToTreeItem = (items:TriggerTreeItemData[])=>{
 					for (let i = 0; i < items.length; i++) {
 						const elem = items[i];
