@@ -443,6 +443,7 @@ export default class SpotifyHelper {
 				|| this._lastTrackInfo?.title != this.currentTrack.title
 				|| this._lastTrackInfo?.artist != this.currentTrack.artist) {
 					const userOrigin = this._trackIdToUser[this.currentTrack.id];
+					delete this._trackIdToUser[this.currentTrack.id];
 					const message:TwitchatDataTypes.MessageMusicStartData = {
 						id:Utils.getUUID(),
 						date:Date.now(),
