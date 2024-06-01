@@ -4,7 +4,7 @@
 		
 		<Icon name="follow" alt="follow" class="icon" />
 
-		<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.platform_youtube')" />
+		<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
 
 		<i18n-t scope="global" tag="span" keypath="chat.follow">
 			<template #USER>

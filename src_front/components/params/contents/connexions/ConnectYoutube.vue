@@ -55,16 +55,16 @@
 <script lang="ts">
 import TTButton from '@/components/TTButton.vue';
 import ToggleBlock from '@/components/ToggleBlock.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
+import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import Utils from '@/utils/Utils';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';
-import type { YoutubeLiveBroadcast } from '@/types/youtube/YoutubeDataTypes';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import ParamItem from '../../ParamItem.vue';
 import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
-import { gsap } from 'gsap/gsap-core';
 import { Sine } from 'gsap';
+import { gsap } from 'gsap/gsap-core';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
+import ParamItem from '../../ParamItem.vue';
 
 @Component({
 	components:{
@@ -163,7 +163,12 @@ import { Sine } from 'gsap';
 
 	public async oauth():Promise<void> {
 		this.loading = true;
-		YoutubeHelper.instance.startAuthFlow(this.param_scope_moderate.value);
+		await Utils.promisedTimeout(350);//Makes sure loader is visible at least a little
+		const success = await YoutubeHelper.instance.startAuthFlow(this.param_scope_moderate.value);
+		if(!success) {
+			this.loading = false;
+			this.error = this.$t("error.youtube_connect");
+		}
 	}
 
 	public async disconnect():Promise<void> {

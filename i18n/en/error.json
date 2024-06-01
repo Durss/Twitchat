@@ -79,7 +79,9 @@
 		"youtube_no_credits": "All API credits allocated by Youtube have been used :(.\nYoutube will work again tomorrow.",
 		"youtube_chat_off": "Chat is not enabled on the selected youtube live broadcast",
 		"youtube_chat_ended": "Youtube broadcast has ended. Open parameters => youtube section to connect to a new live session.",
+		"youtube_chat_not_found": "Requested youtube broadcast does not exist anymore.",
 		"youtube_unknown": "An unexpected error occured when requesting data from Youtube :(",
+		"youtube_connect": "An unexpected error occured when connecting with Youtube :(",
 		"rewards": {
 			"create_unknown":"Something went wrong when creating the reward",
 			"edit_unknown":"Something went wrong when editing the reward",

@@ -16,7 +16,6 @@
 		"soBt": "Shoutout",
 		"right_click_hint_highlight": "clic droit",
 		"right_click_hint": "PogChamp PogChamp PogChamp Hey ? Essaie de faire un @:chat.right_click_hint_highlight sur ce message pour découvrir plein d'options ?",
-		"platform_youtube": "Message reçu\nsur Youtube",
 		"form": {
 			"paramsBt_aria": "Parameters",
 			"cmdsBt_aria": "Commandes",
@@ -450,6 +449,10 @@
 			"request": "{USER} a envoyé cette demande d'unban",
 			"accepted": "{MODERATOR} a accepté la demande d'unban de {USER}",
 			"refused": "{MODERATOR} a refusé la demande d'unban de {USER}"
+		},
+		"youtube":{
+			"platform_youtube": "Message reçu\nsur Youtube",
+			"connected_to": "Vous êtes maintenant connecté·e au tchat du live \"{TITLE}\""
 		}
 	}
 }

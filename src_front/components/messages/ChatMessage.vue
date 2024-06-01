@@ -44,7 +44,7 @@
 
 			<ChatMessageInfoBadges class="infoBadges" :infos="infoBadges" v-if="infoBadges.length > 0" />
 
-			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.platform_youtube')" />
+			<Icon name="youtube" v-if="messageData.platform == 'youtube'" v-tooltip="$t('chat.youtube.platform_youtube')" />
 
 			<div class="userBadges" v-if="filteredBadges.length > 0 || miniBadges.length > 0">
 				<template v-for="(b,index) in filteredBadges" :key="index">

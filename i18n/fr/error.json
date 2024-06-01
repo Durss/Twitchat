@@ -79,7 +79,9 @@
 		"youtube_no_credits": "Tous les crédits d'API alloués par Youtube ont été dépensés :(.\nLe chat Youtube fonctionnera à nouveau demain.",
 		"youtube_chat_off": "Le tchat n'est pas activé sur la session de live Youtube sélectionnée",
 		"youtube_chat_ended": "La session de live Youtube est terminée. Ouvrez la section paramètres => Youtube pour vous connecter à une nouvelle sessions live.",
-		"youtube_unknown": "Une erreur innatendu est survenue lors de la récupération d'informations chez Youtube :(",
+		"youtube_chat_not_found": "La session de live Youtube demandée n'existe plus.",
+		"youtube_unknown": "Une erreur innatendue est survenue lors de la récupération d'informations chez Youtube :(",
+		"youtube_connect": "Une erreur innatendue est survenue lors de la connexion à Youtube :(",
 		"rewards": {
 			"create_unknown":"Une erreur est survenue lors de la création de la récompense",
 			"edit_unknown":"Une erreur est survenue lors de l'édition de la récompense",

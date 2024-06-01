@@ -90,7 +90,7 @@ export default class GoogleController extends AbstractController {
 
 		if(!credentials) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({success:false, error:"youtube credentials are missing", errorCode:"MISSING_CREDENTIALS"}));
 			return;
 		}
@@ -98,15 +98,16 @@ export default class GoogleController extends AbstractController {
 		const redirectURI = (request.query as any).redirectURI;
 		const grantModerate = (request.query as any).grantModerate;
 		let scope = Config.credentials.youtube_scopes;
-		
+
 		if(grantModerate != "true") {
 			scope = scope.filter(v=>v != "https://www.googleapis.com/auth/youtube.force-ssl");
 		}
 
 		if(!credentials.redirect_uris.includes(redirectURI)) {
 			response.header('Content-Type', 'application/json');
-			response.status(500);
+			response.status(401);
 			response.send(JSON.stringify({success:false, error:"Given redirect URI is invalid", errorCode:"INVALID_REDIRECT_URI"}));
+			return;
 		}
 		
 		// Generate a url that asks permissions for the Drive activity scope
@@ -126,7 +127,7 @@ export default class GoogleController extends AbstractController {
 			client_id:credentials.client_id,
 			response_type:"code"
 		});
-		
+
 		response.header('Content-Type', 'application/json');
 		response.status(200);
 		response.send(JSON.stringify({success:true, data:{url:authorizationUrl}}));

@@ -20,8 +20,10 @@ export default class YoutubeHelper {
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 
 	private static _instance:YoutubeHelper;
-	
+
+	private API_PATH:string = "https://www.googleapis.com/youtube/v3/";
 	private _token:YoutubeAuthToken|null = null;
+	private _userData:YoutubeChannelInfo["items"][number]|null = null;
 	private _currentLiveIds:string[] = [];
 	private _lastMessagePage:{[key:string]:string} = {};
 	private _lastMessageDate:number = -1;
@@ -75,7 +77,7 @@ export default class YoutubeHelper {
 		if(token) {
 			this._token = JSON.parse(token);
 			this.refreshToken().then(async ()=> {
-				await this.loadUserInfoAndEmotes();
+				await this.loadEmotesAndUser();
 				//Wait 5s so messages have time to load from DB to avoid duplicates
 				//after loading history from youtube.
 				//Yeah... extremely dirty way of dealing with async stuff... but I haven't slept for 26h T_T
@@ -121,15 +123,17 @@ export default class YoutubeHelper {
 	/**
 	 * Starts youtube oAuth flow
 	 */
-	public async startAuthFlow(grantModerate:boolean):Promise<void> {
+	public async startAuthFlow(grantModerate:boolean):Promise<boolean> {
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"youtube/auth"}).href;
 		const oauth = await ApiHelper.call("youtube/oauthURL", "GET", {redirectURI, grantModerate});
 		if(oauth.status == 200 && oauth.json.data.url)  {
 			document.location.href = oauth.json.data.url;
+			return true;
 		}else{
 			console.log("Youtube authentication error !");
 			console.log(oauth);
 		}
+		return false;
 	}
 
 	/**
@@ -152,7 +156,7 @@ export default class YoutubeHelper {
 			}, refreshDelay);
 			this.connected = true;
 			//This will start automatic polling session
-			await this.loadUserInfoAndEmotes();
+			await this.loadEmotesAndUser();
 			await this.getCurrentLiveBroadcast();
 			await this.getLastestFollowers();
 			return token;
@@ -170,7 +174,7 @@ export default class YoutubeHelper {
 	public async getUserInfo():Promise<void> {
 		this._creditsUsed ++;
 		Logger.instance.log("youtube", {log:"Loading user infos...", credits: this._creditsUsed, liveID:this._currentLiveIds});
-		const url = new URL("https://www.googleapis.com/youtube/v3/channels");
+		const url = new URL(this.API_PATH+"channels");
 		url.searchParams.append("part", "id");
 		url.searchParams.append("part", "snippet");
 		url.searchParams.append("part", "status");
@@ -178,10 +182,10 @@ export default class YoutubeHelper {
 		const res = await fetch(url, {method:"GET", headers:this.headers});
 		if(res.status == 200) {
 			const json = await res.json() as YoutubeChannelInfo;
-			const userData = json.items[0];
-			const user = StoreProxy.users.getUserFrom("youtube", userData.id, userData.id, userData.snippet.title, userData.snippet.title);
-			user.avatarPath = userData.snippet.thumbnails.default.url || userData.snippet.thumbnails.medium.url;
-			const chanInfos = user.channelInfo[userData.id];
+			this._userData = json.items[0];
+			const user = StoreProxy.users.getUserFrom("youtube", this._userData.id, this._userData.id, this._userData.snippet.title, this._userData.snippet.title);
+			user.avatarPath = this._userData.snippet.thumbnails.default.url || this._userData.snippet.thumbnails.medium.url;
+			const chanInfos = user.channelInfo[this._userData.id];
 			chanInfos.is_broadcaster = true;
 			chanInfos.is_moderator = true;
 			Logger.instance.log("youtube", {log:"User infos loaded successfully. "+user.displayName+" (#"+user.id+")", credits: this._creditsUsed, liveID:this._currentLiveIds});
@@ -249,6 +253,18 @@ export default class YoutubeHelper {
 				this._currentLiveIds[0] = liveId;
 				this.availableLiveBroadcasts = items;
 				this._lastMessageDate = Date.now();
+				const messageNotification:TwitchatDataTypes.MessageCustomData = {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					channel_id:this._userData!.id,
+					platform:"youtube",
+					type:TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					icon:"youtube",
+					user:{name:"Youtube", color:"#ff0000"},
+					message:StoreProxy.i18n.t("chat.youtube.connected_to", {TITLE:item.snippet.title}),
+					col:0,
+				};
+				StoreProxy.chat.addMessage(messageNotification);
 				Logger.instance.log("youtube", {log:"Select live \""+item.snippet.title+"\"", credits: this._creditsUsed, liveID:this._currentLiveIds});
 				//Start polling messages
 				this.getMessages();
@@ -258,7 +274,7 @@ export default class YoutubeHelper {
 				this._currentLiveIds = [];
 				this.availableLiveBroadcasts = [];
 				//Search again in 1min
-				this._pollMessageTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 60000);
+				this._pollMessageTimeout = setTimeout(()=> this.getCurrentLiveBroadcast(), 5000);
 			}
 			return json;
 		}else{
@@ -306,7 +322,7 @@ export default class YoutubeHelper {
 				return;
 			}
 
-			const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
+			const url = new URL(this.API_PATH+"liveChat/messages");
 			url.searchParams.append("part", "id");
 			url.searchParams.append("part", "snippet");
 			url.searchParams.append("part", "authorDetails");
@@ -409,6 +425,11 @@ export default class YoutubeHelper {
 						if(errorCode == "liveChatEnded") {
 							//Live broadcast ended
 							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_ended"));
+							return;
+						}
+						if(errorCode == "liveChatNotFound") {
+							//Live broadcast deleted
+							StoreProxy.common.alert(StoreProxy.i18n.t("error.youtube_chat_not_found"));
 							return;
 						}
 						if(errorCode == "liveChatDisabled") {
@@ -595,7 +616,7 @@ export default class YoutubeHelper {
 			Logger.instance.log("youtube", {log:"Ban user #"+userId, credits: this._creditsUsed, liveID:this._currentLiveIds});
 		}
 
-		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/bans");
+		const url = new URL(this.API_PATH+"liveChat/bans");
 		url.searchParams.append("part", "snippet");
 		const body = JSON.stringify(params);
 
@@ -632,7 +653,7 @@ export default class YoutubeHelper {
 			return;
 		}
 
-		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/bans");
+		const url = new URL(this.API_PATH+"liveChat/bans");
 		url.searchParams.append("id", this._uidToBanID[userId]);
 
 		const res = await fetch(url, {method:"DELETE", headers:this.headers});
@@ -651,8 +672,7 @@ export default class YoutubeHelper {
 	 * @returns
 	 */
 	public async deleteMessage(messageId:string):Promise<boolean> {
-
-		const url = new URL("https://www.googleapis.com/youtube/v3/liveChat/messages");
+		const url = new URL(this.API_PATH+"liveChat/messages");
 		url.searchParams.append("id", messageId);
 
 		this._creditsUsed += 50;
@@ -747,7 +767,7 @@ export default class YoutubeHelper {
 	/**
 	 * Loads user and emotes
 	 */
-	private async loadUserInfoAndEmotes():Promise<void> {
+	private async loadEmotesAndUser():Promise<void> {
 		if(Object.keys(this._emotes).length == 0) {
 			await this.getUserInfo();
 			const emotesQuery = await fetch("/youtube/emote_list.json");
