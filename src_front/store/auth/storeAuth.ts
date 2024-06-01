@@ -67,6 +67,8 @@ export const storeAuth = defineStore('auth', {
 				this.twitch.access_token	= twitchAuthResult.access_token;
 				this.twitch.expires_in		= twitchAuthResult.expires_in;
 				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
+				this.twitch.scopes			= twitchAuthResult.scope || [];
+				ApiHelper.accessToken		= this.twitch.access_token
 				//Store auth data in cookies for later use
 				DataStore.set(DataStore.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
 				//This is not necessary
@@ -83,7 +85,6 @@ export const storeAuth = defineStore('auth', {
 					delay = 60*1000;
 				}
 
-				console.log("Refresh token in", Utils.formatDuration(delay));
 				clearTimeout(refreshTokenTO);
 				refreshTokenTO = setTimeout(()=>{
 					this.twitch_tokenRefresh(true);
@@ -144,8 +145,9 @@ export const storeAuth = defineStore('auth', {
 				userRes						= userRes as TwitchDataTypes.Token;//Just forcing typing for the rest of the code
 				this.twitch.client_id		= userRes.client_id;
 				this.twitch.access_token	= twitchAuthResult.access_token;
-				this.twitch.scopes			= (userRes as TwitchDataTypes.Token).scopes;
+				this.twitch.scopes			= (userRes as TwitchDataTypes.Token).scopes || [];
 				this.twitch.expires_in		= userRes.expires_in;
+				ApiHelper.accessToken		= this.twitch.access_token;
 
 				if(Config.instance.BETA_MODE) {
 					window.setInitMessage("checking beta access permissions");
@@ -318,7 +320,7 @@ export const storeAuth = defineStore('auth', {
 				isPremiumDonor:false,
 				isPatreonMember:false,
 			}
-			const res = await ApiHelper.call("user");
+			const res = await ApiHelper.call("user", "GET");
 
 			const storeLevel	= parseInt(DataStore.get(DataStore.DONOR_LEVEL))
 			const prevLevel		= isNaN(storeLevel)? -1 : storeLevel;

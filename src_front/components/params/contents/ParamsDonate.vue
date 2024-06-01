@@ -338,13 +338,18 @@ import ParamsDonorList from './ParamsDonorList.vue';
 				onApprove: async (data, actions) => {
 					// action.restart()
 					this.loading = true;
+					//Dafuq is that?
+					//Seems pretty useless but being tired right now, and this being
+					//quite a sensitive stuff, I prefer not to remove it yet.
+					//But it seems like i could drop this and simply send "data" on
+					//the endpoint.
 					const obj:{[key:string]:string} = {};
 					type orderKeys = keyof typeof PAYPAL_ORDER;
 					for (const key in data) {
 						obj[key] = data[key as orderKeys] as string;
 					}
 					try {
-						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj);
+						const orderRes = await ApiHelper.call("paypal/complete_order", "POST", obj as typeof PAYPAL_ORDER);
 						if(orderRes.json.success === true) {
 							await this.$store.auth.loadUserState(this.$store.auth.twitch.user.id);
 							this.$store.auth.twitch.user.donor.state = true;

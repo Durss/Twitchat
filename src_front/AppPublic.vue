@@ -1,13 +1,14 @@
 <template>
-	<div class="appoverlay">
+	<div class="apppublic">
 		<router-view />
+
 		<Alert />
 	</div>
 </template>
 
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
-import Alert from "./views/AlertView.vue";
+import Alert from './views/AlertView.vue';
 
 @Component({
 	components:{
@@ -15,15 +16,15 @@ import Alert from "./views/AlertView.vue";
 	},
 	emits:[],
 })
-class AppOverlay extends Vue {
+class AppPublic extends Vue {
 
 }
-export default toNative(AppOverlay);
+export default toNative(AppPublic);
 </script>
 
 <style scoped lang="less">
-.appoverlay{
-	width: 100vw;
-	height: 100vh;
+.apppublic{
+	min-width: 100vw;
+	min-height: 100vh;
 }
 </style>

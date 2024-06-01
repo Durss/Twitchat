@@ -53,7 +53,6 @@ export default class PublicAPI extends EventDispatcher {
 		}
 
 		//Broadcast twitchat ready state
-		console.log(isMainApp);
 		if(isMainApp) this.broadcast(TwitchatEvent.TWITCHAT_READY, undefined, false);
 
 		await this.listenOBS(isMainApp);

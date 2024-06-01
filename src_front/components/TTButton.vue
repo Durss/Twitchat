@@ -30,9 +30,11 @@
 import { watch } from '@vue/runtime-core';
 import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 
 @Component({
 	components:{
+		Icon,
 	},
 	emits: ['click', 'update:modelValue', 'update:file'],
 	expose: ['value'],
@@ -73,6 +75,9 @@ export class TTButton extends Vue {
 	public premium!:boolean;
 
 	@Prop({type:Boolean, default: false})
+	public twitch!:boolean;
+
+	@Prop({type:Boolean, default: false})
 	public light!:boolean;
 
 	@Prop({type:Boolean, default: false})
@@ -108,6 +113,7 @@ export class TTButton extends Vue {
 		let list =  ["button"]
 		if(!this.$slots.default) list.push("noTitle");
 		if(this.primary !== false) list.push("primary");
+		if(this.twitch !== false) list.push("twitch");
 		if(this.secondary !== false) list.push("secondary");
 		if(this.alert !== false) list.push("alert");
 		if(this.premium !== false) list.push("premium");
@@ -356,6 +362,31 @@ export default toNative(TTButton);
 		}
 		.loadingBorder {
 			background-color: var(--color-secondary);
+		}
+	}
+
+	&.twitch {
+		color: var(--color-light);
+		.label {
+			text-shadow: 1px 1px 0 rgba(0, 0, 0, .5);
+		}
+		.background {
+			background-color: var(--color-twitch);
+		}
+		&:not(.disabled){
+			&:hover {
+				.background {
+					background-color: var(--color-twitch-light);
+				}
+			}
+			&:active {
+				.background {
+					background-color: var(--color-twitch-dark);
+				}
+			}
+		}
+		.loadingBorder {
+			background-color: var(--color-twitch);
 		}
 	}
 

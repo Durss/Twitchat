@@ -25,7 +25,7 @@ import Confirm from "./views/Confirm.vue";
 		Confirm,
 	}
 })
- class App extends Vue {
+class App extends Vue {
 
 	public node!:VNode;
 	public cursorImage:"pointer"|"arrow" = "arrow";

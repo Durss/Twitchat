@@ -50,7 +50,11 @@ export default class I18n {
 	* PUBLIC METHODS *
 	******************/
 	public initialize():void {
-		this._labels = JSON.parse(fs.readFileSync(path.join(Config.PUBLIC_ROOT, "labels.json"), "utf-8")) as typeof labels;
+		if(fs.existsSync(path.join(Config.PUBLIC_ROOT, "labels.json"))) {
+			this._labels = JSON.parse(fs.readFileSync(path.join(Config.PUBLIC_ROOT, "labels.json"), "utf-8")) as typeof labels;
+		}else{
+			this._labels = labels;
+		}
 	}
 
 	/**

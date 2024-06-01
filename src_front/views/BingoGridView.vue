@@ -6,6 +6,16 @@
 		<div v-else class="grid">
 			<h1>{{ title }}</h1>
 
+			<TTButton @click.capture.prevent="generateCSRF(true)"
+				v-if="!$store.public.authenticated"
+				type="link"
+				icon="twitch"
+				class="authBt"
+				:href="oAuthURL"
+				:loading="generatingCSRF"
+				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
+				bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
+			
 			<div class="ctas">
 				<TTButton icon="dice" @click="shuffle()" v-tooltip="$t('bingo_grid.form.shuffle_bt')" />
 				<TTButton icon="refresh" @click="uncheckAll()" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
@@ -44,9 +54,13 @@
 <script lang="ts">
 import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
+import DataStoreCommon from '@/store/DataStoreCommon';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { gsap } from 'gsap/gsap-core';
+import SSEEvent from '@/events/SSEEvent';
+import SSEHelper from '@/utils/SSEHelper';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
@@ -59,32 +73,68 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 class BingoGridView extends Vue {
 
 	public loading = true;
+	public generatingCSRF = true;
 	public cols:number = 0;
 	public rows:number = 0;
+	public checkTimeout:number = -1;
+	public oAuthURL = "";
+	public CSRFToken = "";
 	public title:string = "";
 	public entries:TwitchatDataTypes.BingoGridConfig["entries"] = [];
 
 	private starIndex:number = 0;
 	private prevGridStates:boolean[] = [];
+	private sseConnectHandler!:(e:SSEEvent) => void;
 
 	public mounted():void {
+		if(!this.$store.public.authenticated) {
+			this.generateCSRF();
+		}
 		this.loadGridInfo();
+
+		this.sseConnectHandler = (e:SSEEvent) => this.onSSEConnect(e);
+		SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
+	}
+
+	public beforeUnmount():void {
+		clearTimeout(this.checkTimeout);
+		SSEHelper.instance.removeEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
+	}
+
+	/**
+	 * Generates a CSRF token
+	 * @param redirect 
+	 */
+	public async generateCSRF(redirect:boolean = false):Promise<void> {
+		this.generatingCSRF = true;
+		try {
+			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
+			this.CSRFToken = json.token;
+		}catch(e) {
+			this.$store.common.alert(this.$t("error.csrf_failed"));
+		}
+		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, [], "/public");
+		if(redirect) {
+			DataStoreCommon.set(DataStoreCommon.REDIRECT, this.$route.fullPath);
+			document.location.href = this.oAuthURL;
+		}
+		this.generatingCSRF = false;
 	}
 
 	/**
 	 * Load bingo infos
 	 */
 	private async loadGridInfo():Promise<void> {
-		const uid = this.$route.params.uid;
-		const gridid = this.$route.params.gridId;
+		const uid = this.$route.params.uid as string;
+		const gridid = this.$route.params.gridId as string;
 		try {
-			const infos = await ApiHelper.call("user/bingogrid", "GET", {uid, gridid});
+			const infos = await ApiHelper.call("bingogrid", "GET", {uid, gridid});
 			if(infos.json.data) {
 				this.cols		= infos.json.data.cols;
 				this.rows		= infos.json.data.rows;
 				this.title		= infos.json.data.title;
 				this.entries	= infos.json.data.entries;
-				this.entries.forEach(v=>v.check = false);
+				// this.entries.forEach(v=>v.check = false);
 			}
 		}catch(error) {
 
@@ -103,7 +153,8 @@ class BingoGridView extends Vue {
 			[this.entries[i], this.entries[j]] = [this.entries[j], this.entries[i]];
 		}
 		this.prevGridStates = [];
-		setTimeout(() => {
+		clearTimeout(this.checkTimeout);
+		this.checkTimeout = setTimeout(() => {
 			this.checkBingos();
 		}, 250);
 	}
@@ -124,6 +175,10 @@ class BingoGridView extends Vue {
 		let newVerticalBingos:number[] = [];
 		let newHorizontalBingos:number[] = [];
 		let newDiagonalBingos:number[] = [];
+		
+		gsap.killTweensOf(this.$refs.cell as HTMLDivElement[]);
+		gsap.set(this.$refs.cell as HTMLDivElement[], {scale:1});
+
 		if(prevStates) {
 			let prevVerticalBingos:number[] = [];
 			let prevHorizontalBingos:number[] = [];
@@ -275,7 +330,6 @@ class BingoGridView extends Vue {
 		//Animate items from center
 		cells.forEach((cell, index) => {
 			let distance = spiralOrder.findIndex(v=>v===index);
-			gsap.killTweensOf(cell);
 			gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: .3 + distance*.05});
 		});
 	}
@@ -315,6 +369,22 @@ class BingoGridView extends Vue {
 		}
 	}
 
+	/**
+	 * Regenerates serverside cache after SSE reconnects in case
+	 * disconnect was due to a server reboot
+	 * @param e 
+	 */
+	private async onSSEConnect(e:SSEEvent):Promise<void> {
+		const gridid = this.$route.params.gridId as string;
+		const grid = {
+			cols:this.cols,
+			rows:this.rows,
+			title:this.title,
+			entries:this.entries,
+		}
+		console.log({gridid, grid});
+		await ApiHelper.call("bingogrid", "POST", {gridid, grid});
+	}
 }
 export default toNative(BingoGridView);
 </script>
@@ -322,8 +392,8 @@ export default toNative(BingoGridView);
 <style scoped lang="less">
 .bingogridview{
 	color: var(--color-text);
-	width: 100%;
-	height: 100%;
+	min-width: 100vw;
+	min-height: 100vh;
 	gap: 1em;
 	display: flex;
 	flex-direction: column;
@@ -331,8 +401,9 @@ export default toNative(BingoGridView);
 
 	.logo {
 		height: 5em;
-		margin: 2em auto 1em auto;
+		margin: 2em auto 0 auto;
 		display: block;
+		max-height: 10vh;
 	}
 
 	.loader {
@@ -414,7 +485,7 @@ export default toNative(BingoGridView);
 		svg {
 			transform-origin: center center;
 			transform: translate(-50%, -50%);
-			position: absolute;
+			position: fixed;
 			top: 200vw;
 			left: 200vh;
 		}
@@ -422,6 +493,10 @@ export default toNative(BingoGridView);
 
 	.flip-list-move {
 		transition: transform .25s;
+	}
+
+	.authBt {
+		background-color: red;
 	}
 }
 </style>

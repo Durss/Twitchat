@@ -287,22 +287,6 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
-		//This route is not actually used.
-		//It's only here for route generation, but the actual /overlay
-		//route targets the overlay/index.html page
-		path: '/overlay/:id(.*)',
-		name: 'overlay',
-		redirect:()=>{
-			return {name:"chat"}
-		},
-		meta: {
-			needAuth:false,
-			public:true,
-			noBG:true,
-			overflow:false,
-		}
-	},
-	{
 		path: '/goxlr',
 		name: 'goxlr',
 		component: GoXLRDebug,
@@ -332,9 +316,30 @@ const routes: Array<RouteRecordRaw> = [
 		}
 	},
 	{
+		//This route is not actually used.
+		//It's only here for route generation, but the actual /overlay
+		//route targets the overlay.html page
+		path: '/overlay/:id(.*)',
+		name: 'overlay',
+		redirect:()=>{
+			return {name:"chat"}
+		},
+		meta: {
+			needAuth:false,
+			public:true,
+			noBG:true,
+			overflow:false,
+		}
+	},
+	{
+		//This route is not actually used.
+		//It's only here for route generation, but the actual /overlay
+		//route targets the public.html page
 		path: '/public/bingo/:uid(.*)/:gridId(.*)',
 		name: 'bingo_grid_public',
-		component: BingoGridView,
+		redirect:()=>{
+			return {name:"chat"}
+		},
 		meta: {
 			needAdmin:false,
 			overflow:true,

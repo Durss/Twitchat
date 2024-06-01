@@ -31,6 +31,7 @@
 			}
 		},
 		"state":{
+			"auth_bt": "Me connecter",
 			"reset_bt":"Tout décocher"
 		}
 	}

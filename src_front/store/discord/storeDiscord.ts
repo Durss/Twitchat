@@ -4,8 +4,11 @@ import type { UnwrapRef } from 'vue';
 import DataStore from '../DataStore';
 import type { IDiscordActions, IDiscordGetters, IDiscordState } from '../StoreProxy';
 import Utils from '@/utils/Utils';
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
+import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import StoreProxy from '../StoreProxy';
+import SSEHelper from '@/utils/SSEHelper';
+import SSEEvent from '@/events/SSEEvent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 export const storeDiscord = defineStore('discord', {
 	state: () => ({
@@ -45,13 +48,41 @@ export const storeDiscord = defineStore('discord', {
 				this.reactionsEnabled = data.reactionsEnabled == true;
 				this.quickActions = data.quickActions || [];
 			}
+
+			SSEHelper.instance.addEventListener(SSEEvent.NOTIFICATION, (event:SSEEvent<{messageId:string, col:number[], message:string, quote:string, highlightColor:string, style:TwitchatDataTypes.MessageCustomData["style"], username:string, actions:TwitchatDataTypes.MessageCustomData["actions"]}>)=>{
+				const data = event.data!;
+				const chunksMessage = TwitchUtils.parseMessageToChunks(data.message || "", undefined, true);
+				const chunksQuote = !data.quote? [] : TwitchUtils.parseMessageToChunks(data.quote, undefined, true);
+				const message:TwitchatDataTypes.MessageCustomData = {
+					id: Utils.getUUID(),
+					channel_id:StoreProxy.auth.twitch.user.id,
+					date: Date.now(),
+					platform: "twitchat",
+					col: data.col,
+					type: TwitchatDataTypes.TwitchatMessageType.CUSTOM,
+					actions: data.actions,
+					message: data.message,
+					message_chunks: chunksMessage,
+					message_html: TwitchUtils.messageChunksToHTML(chunksMessage),
+					quote: data.quote,
+					quote_chunks: chunksQuote,
+					quote_html: TwitchUtils.messageChunksToHTML(chunksQuote),
+					highlightColor: data.highlightColor,
+					style:data.style,
+					icon:"discord",
+					user:{
+						name:data.username,
+					},
+				};
+				StoreProxy.chat.addMessage(message);
+			});
 		},
 
 		async initialize():Promise<void> {
-			const result = await ApiHelper.call("discord/link");
+			const result = await ApiHelper.call("discord/link", "GET");
 			if(result.json.linked === true) {
 				this.linkedToGuild = result.json.guildName;
-				const channels = await ApiHelper.call("discord/channels");
+				const channels = await ApiHelper.call("discord/channels", "GET");
 				this.channelList = channels.json.channelList;
 				this.discordLinked = true;
 			}

@@ -109,7 +109,7 @@ export default class SpotifyHelper {
 	 */
 	public async startAuthFlow():Promise<void> {
 		DataStore.remove(DataStore.SPOTIFY_AUTH_TOKEN);//Avoid auto reconnect attempt on redirect
-		const {json} = await ApiHelper.call("auth/CSRFToken");
+		const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 
 		const redirectURI = document.location.origin + StoreProxy.router.resolve({name:"spotify/auth"}).href;
 		const url = new URL("https://accounts.spotify.com/authorize");

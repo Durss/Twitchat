@@ -13,8 +13,6 @@ import { PatreonMember } from './PatreonController';
 */
 export default class UserController extends AbstractController {
 
-	private cachedBingoGrids:{[key:string]:{date:number, data:any}} = {}
-
 	constructor(public server:FastifyInstance, private discordController:DiscordController) {
 		super();
 	}
@@ -32,7 +30,6 @@ export default class UserController extends AbstractController {
 		this.server.get('/api/user', async (request, response) => await this.getUserState(request, response));
 		this.server.get('/api/user/all', async (request, response) => await this.getAllUsers(request, response));
 		this.server.get('/api/user/data', async (request, response) => await this.getUserData(request, response));
-		this.server.get('/api/user/bingogrid', async (request, response) => await this.getUserBingoGridData(request, response));
 		this.server.post('/api/user/data', async (request, response) => await this.postUserData(request, response));
 		this.server.post('/api/user/data/backup', async (request, response) => await this.postUserDataBackup(request, response));
 		this.server.delete('/api/user/data', async (request, response) => await this.deleteUserData(request, response));
@@ -145,46 +142,6 @@ export default class UserController extends AbstractController {
 			response.header('Content-Type', 'application/json');
 			response.status(200);
 			response.send(JSON.stringify({success:true, data:JSON.parse(data)}));
-		}
-	}
-
-	/**
-	 * Get a bingo grid definition
-	 */
-	private async getUserBingoGridData(request:FastifyRequest, response:FastifyReply) {
-		const uid:string = (request.query as any).uid;
-		const gridid:string = (request.query as any).gridid;
-
-		const cacheKey = uid+"/"+gridid;
-		const cache = this.cachedBingoGrids[cacheKey];
-		if(cache && Date.now() - cache.date < 5000) {
-			console.log("Return cache");
-			response.header('Content-Type', 'application/json');
-			response.status(200);
-			response.send(JSON.stringify({success:true, data:cache.data}));
-			return;
-		}
-
-		//Get users' data
-		const userFilePath = Config.USER_DATA_PATH + uid+".json";
-		let found = fs.existsSync(userFilePath);
-		if(found){
-			const data = JSON.parse(fs.readFileSync(userFilePath, {encoding:"utf8"}));
-			//TODO strongly type user data for safer read here
-			const grid = data.bingoGrids.gridList.find(v=>v.id == gridid);
-			found = grid != undefined;
-			if(found) {
-				const data = {title:grid.title, entries:grid.entries, rows:grid.rows, cols:grid.cols};
-				this.cachedBingoGrids[cacheKey] = {date:Date.now(), data};
-				response.header('Content-Type', 'application/json');
-				response.status(200);
-				response.send(JSON.stringify({success:true, data}));
-			}
-		}
-		if(!found) {
-			response.header('Content-Type', 'application/json');
-			response.status(404);
-			response.send(JSON.stringify({success:false, error:"Grid or user not found", errorCode:"NOT_FOUND"}));
 		}
 	}
 

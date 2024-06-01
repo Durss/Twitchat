@@ -44,7 +44,7 @@ import Icon from '../Icon.vue';
 		if(this.isDonor) {
 			//Load current anon state of the user's donation
 			try {
-				const {json} = await ApiHelper.call("user/donor/anon");
+				const {json} = await ApiHelper.call("user/donor/anon", "GET");
 				if(json.success === true) {
 					this.publicDonation = json.data.public === true;
 				}

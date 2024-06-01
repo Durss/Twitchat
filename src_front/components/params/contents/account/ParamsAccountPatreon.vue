@@ -89,7 +89,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public get isEarlyDonor():boolean { return this.$store.auth.twitch.user.donor.earlyDonor; }
 
 	public async mounted():Promise<void> {
-		const {json} = await ApiHelper.call("patreon/isApiDown");
+		const {json} = await ApiHelper.call("patreon/isApiDown", "GET");
 		this.patreonDown = json.data.isDown === true;
 
 
@@ -123,7 +123,7 @@ import {toNative,  Component, Vue } from 'vue-facing-decorator';
 	public async authenticate():Promise<void> {
 		this.redirecting = true;
 
-		const {json} = await ApiHelper.call("auth/CSRFToken");
+		const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 		this.csrfToken = json.token;
 		const url = new URL("https://www.patreon.com/oauth2/authorize");
 		url.searchParams.append("response_type", "code");

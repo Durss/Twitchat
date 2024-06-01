@@ -52,20 +52,24 @@ export default class AbstractController {
 	 * @param request
 	 * @param response
 	 */
-	protected async twitchUserGuard(request:FastifyRequest, response:FastifyReply):Promise<false|TwitchToken> {
+	protected async twitchUserGuard(request:FastifyRequest, response:FastifyReply, blockRequest:boolean = true):Promise<false|TwitchToken> {
 		//Missing auth token
 		if(!request.headers.authorization) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({errorCode:"MISSING_ACCESS_TOKEN", error:"Missing Twitch access token", success:false}));
+			if(blockRequest) {
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({errorCode:"MISSING_ACCESS_TOKEN", error:"Missing Twitch access token", success:false}));
+			}
 			return false;
 		}
 
 		const userInfo = await TwitchUtils.getUserFromToken(request.headers.authorization);
 		if(!userInfo) {
-			response.header('Content-Type', 'application/json')
-			.status(401)
-			.send(JSON.stringify({errorCode:"INVALID_ACCESS_TOKEN", error:"Invalid Twitch access token", success:false}));
+			if(blockRequest) {
+				response.header('Content-Type', 'application/json')
+				.status(401)
+				.send(JSON.stringify({errorCode:"INVALID_ACCESS_TOKEN", error:"Invalid Twitch access token", success:false}));
+			}
 			return false;
 		}
 

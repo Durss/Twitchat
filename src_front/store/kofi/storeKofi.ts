@@ -7,6 +7,8 @@ import StoreProxy from '../StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
+import SSEHelper from '@/utils/SSEHelper';
+import SSEEvent from '@/events/SSEEvent';
 
 
 export const storeKofi = defineStore('kofi', {
@@ -32,6 +34,10 @@ export const storeKofi = defineStore('kofi', {
 					this.webhooktoken = result.json.token;
 					this.connected = true;
 				}
+			});
+
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event:SSEEvent<KofiEventData>) => {
+				this.onEvent(event.data)
 			});
 		},
 

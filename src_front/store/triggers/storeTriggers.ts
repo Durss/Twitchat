@@ -11,6 +11,9 @@ import type { JsonObject } from "type-fest";
 import type { UnwrapRef } from 'vue';
 import type { ITriggersActions, ITriggersGetters, ITriggersState } from '../StoreProxy';
 import StoreProxy from '../StoreProxy';
+import SSEHelper from '@/utils/SSEHelper';
+import SSEEvent from '@/events/SSEEvent';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 
 let discordCmdUpdateDebounce:number = -1;
 
@@ -60,6 +63,46 @@ export const storeTriggers = defineStore('triggers', {
 				Utils.mergeRemoteObject(JSON.parse(triggerTree), (this.triggerTree as unknown) as JsonObject);
 				this.computeTriggerTreeEnabledStates();
 			}
+
+			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event:SSEEvent<{command:string, params:{name:string, value:string}[]}>) => {
+				const data = event.data!;
+				//Search for the matching trigger
+				const trigger = StoreProxy.triggers.triggerList.find(v=>{
+					return v.type == TriggerTypes.SLASH_COMMAND && v.chatCommand == "/"+data.command;
+				});
+				if(!trigger) return;
+				let text:string[] = [];
+				//Set params in the expected order
+				if(trigger.chatCommandParams) {
+					trigger.chatCommandParams.forEach(cmdParam => {
+						const param = (data.params||[]).find(v=>(v.name||"").toLowerCase() == cmdParam.tag.toLowerCase())
+						// if(param?.value) text.push(param.value);
+						if(param?.value) text.push("{"+param.name+"}");
+					})
+				}
+				//Send message to be executed by the triggers
+				// MessengerProxy.instance.sendMessage(message.join(" "));
+
+				const placeholders:{[key: string]: string | number} = {};
+				const message:TwitchatDataTypes.MessageChatData =  {
+					id:Utils.getUUID(),
+					date:Date.now(),
+					channel_id:StoreProxy.auth.twitch.user.id,
+					answers:[],
+					is_short:false,
+					message:text.join(" "),
+					message_chunks:[],
+					message_html:"",
+					message_size:0,
+					platform:"twitchat",
+					type:TwitchatDataTypes.TwitchatMessageType.MESSAGE,
+					user:StoreProxy.auth.twitch.user,
+				};
+				data.params.forEach(p => {
+					placeholders[p.name.toUpperCase()] = TwitchUtils.messageChunksToHTML(TwitchUtils.parseMessageToChunks(p.value, undefined, true, "twitch"));
+				})
+				TriggerActionHandler.instance.executeTrigger(trigger, message, false, undefined, undefined, placeholders);
+			});
 		},
 
 		openTriggerEdition(data:TriggerData) {

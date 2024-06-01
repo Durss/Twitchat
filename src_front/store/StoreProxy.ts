@@ -61,6 +61,7 @@ export default class StoreProxy {
 	public static lumia:ILumiaState & ILumiaGetters & ILumiaActions & {$state:ILumiaState, $reset:()=>void};
 	public static tipeee:ITipeeeState & ITipeeeGetters & ITipeeeActions & {$state:ITipeeeState, $reset:()=>void};
 	public static common:ICommonState & ICommonGetters & ICommonActions & {$state:ICommonState, $reset:()=>void};
+	public static public:IPublicState & IPublicGetters & IPublicActions & {$state:IPublicState, $reset:()=>void};
 	public static i18n:VueI18n<{}, {}, {}, string, never, string, Composer<{}, {}, {}, string, never, string>>;
 	public static router:Router;
 	public static image:(path: string) => string;
@@ -75,10 +76,6 @@ export interface IMainState {
 	 * Latest Twitchat update index
 	 */
 	latestUpdateIndex: number;
-	/**
-	 * Theme, light or dark mode
-	 */
-	theme: "light" | "dark";
 	/**
 	 * app ready ?
 	 */
@@ -2604,6 +2601,10 @@ export interface ICommonState {
 	 * Contains the name of the current OBS scene (if OBS is connected)
 	 */
 	currentOBSScene:string;
+	/**
+	 * Theme, light or dark mode
+	 */
+	theme: "light" | "dark";
 }
 
 export interface ICommonGetters {
@@ -2621,4 +2622,37 @@ export interface ICommonActions {
 	 * @param showContact defines if contact info should be displayed (discord link)
 	 */
 	alert(message:string, isCritical?:boolean, showContact?:boolean):void;
+}
+
+
+
+
+export interface IPublicState {
+	initComplete:boolean;
+	authenticated:boolean;
+	twitchAccessToken:string;
+}
+
+export interface IPublicGetters {
+}
+
+export interface IPublicActions {
+	/**
+	 * Starts "public" app
+	 */
+	startApp():void;
+	/**
+	 * Completes twitch auth flow
+	 */
+	twitchAuth(code?:string):Promise<boolean>;
+	/**
+	 * Request a twitch token refresh
+	 * @param reconnectIRC
+	 * @param callback
+	 */
+	twitchTokenRefresh(reconnectIRC:boolean):Promise<boolean>;
+	/**
+	 * Reload all labels (use CTRL+Alt+M)
+	 */
+	reloadLabels(bypassCache?:boolean):Promise<void>;
 }

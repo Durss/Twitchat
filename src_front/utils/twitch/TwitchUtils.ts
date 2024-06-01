@@ -120,10 +120,10 @@ export default class TwitchUtils {
 		}
 	}
 
-	public static getOAuthURL(csrfToken: string, scopes: string[]): string {
+	public static getOAuthURL(csrfToken: string, scopes: string[], routePrefix:string = ""): string {
 		const url = new URL("https://id.twitch.tv/oauth2/authorize");
 		url.searchParams.set("client_id", Config.instance.TWITCH_CLIENT_ID);
-		url.searchParams.set("redirect_uri", document.location.origin + "/oauth");
+		url.searchParams.set("redirect_uri", document.location.origin + routePrefix + "/oauth");
 		url.searchParams.set("response_type", "code");
 		url.searchParams.set("scope", scopes.join(" "));
 		url.searchParams.set("state", csrfToken);
@@ -2745,7 +2745,7 @@ export default class TwitchUtils {
 
 				list = list.concat(json.data.map(v => {
 					let format = v.format[v.format.length - 1];
-					let theme = v.theme_mode.indexOf(StoreProxy.main.theme) > -1 ? StoreProxy.main.theme : v.theme_mode[0];
+					let theme = v.theme_mode.indexOf(StoreProxy.common.theme) > -1 ? StoreProxy.common.theme : v.theme_mode[0];
 					return {
 						emote_set_id: v.emote_set_id,
 						emote_type: v.emote_type,

@@ -1,17 +1,19 @@
 import StoreProxy from "@/store/StoreProxy";
 import type { TenorGif } from "@/types/TenorDataTypes";
+import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { UluleTypes } from "@/types/UluleTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
 import type { YoutubeAuthToken } from "@/types/youtube/YoutubeDataTypes";
 import type { ServerConfig } from "./Config";
 import Config from "./Config";
 import Utils from "./Utils";
-import type { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 
 /**
 * Created : 13/07/2023
 */
 export default class ApiHelper {
+
+	private static _accessToken:string = "";
 
 	constructor() {
 	}
@@ -19,6 +21,9 @@ export default class ApiHelper {
 	/********************
 	* GETTER / SETTERS *
 	********************/
+
+	public static set accessToken(value:string) { this._accessToken = value; }
+	public static get accessToken():string { return this._accessToken; }
 
 
 
@@ -31,14 +36,20 @@ export default class ApiHelper {
 	 * @param data
 	 * @param method
 	 */
-	public static async call<U extends keyof ApiEndpoints, M extends HttpMethod = "GET">(endpoint:U, method?:M, data?:FormData|any, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {}):Promise<{status:number;json:ApiResponse<ApiEndpoints, U, M>}> {
+	public static async call<
+		U extends keyof ApiEndpoints,
+		M extends AvailableMethods<U>,
+		P extends ApiDefinition<ApiEndpoints, U, M>["parameters"]>
+		(endpoint:U, method:M, data?:P, retryOnFail:boolean = true, attemptIndex:number = 0, headers:{[key:string]:string} = {})
+		:Promise<{status:number; json:ApiDefinition<ApiEndpoints, U, M>["response"]}> {
+			
 		const url = new URL(Config.instance.API_PATH+"/"+endpoint);
 		if(!headers["Content-Type"] && !(data instanceof FormData)) {
 			headers["Content-Type"] = "application/json";
 		}
 		headers["App-Version"] = import.meta.env.PACKAGE_VERSION;
-		if(StoreProxy.auth && StoreProxy.auth.twitch.access_token) {
-			headers["Authorization"] = "Bearer "+StoreProxy.auth.twitch.access_token;
+		if(this._accessToken) {
+			headers["Authorization"] = "Bearer "+this._accessToken;
 		}
 		const options:RequestInit = {
 			method: method || "GET",
@@ -52,7 +63,7 @@ export default class ApiHelper {
 				options.body = JSON.stringify(data);
 			}else{
 				for (const key in data) {
-					url.searchParams.append(key, data[key]);
+					url.searchParams.append(key, data[key] + "");
 				}
 			}
 		}
@@ -93,7 +104,7 @@ export default class ApiHelper {
 }
 
 
-type ApiResponse<Endpoints, U extends keyof Endpoints, M extends HttpMethod> =
+type ApiDefinition<Endpoints, U extends keyof Endpoints, M extends HttpMethod> =
   U extends keyof Endpoints
     ? M extends keyof Endpoints[U]
       ? Endpoints[U][M]
@@ -102,441 +113,749 @@ type ApiResponse<Endpoints, U extends keyof Endpoints, M extends HttpMethod> =
 
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE";
 
+type AvailableMethods<E extends keyof ApiEndpoints> = Extract<keyof ApiEndpoints[E], HttpMethod>;
+
+
 type ApiEndpoints =  {
 	"auth/twitch": {
 		GET: {
-			access_token: string;
-			expires_in: number;
-			refresh_token: string;
-			scope: string[];
-			token_type: string;
-			expires_at: number;
+			parameters: {
+				code:string;
+			},
+			response: {
+				access_token: string;
+				expires_in: number;
+				refresh_token: string;
+				scope: string[];
+				token_type: string;
+				expires_at: number;
+			}
 		};
 	};
 	"auth/CSRFToken": {
 		GET: {
-			token:string;
+			parameters: void;
+			response: {
+				token:string;
+			}
 		};
 		POST: {
-			success:boolean;
-			message?:string;
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+			}
 		};
 	};
 	"auth/twitch/refreshtoken": {
 		GET: {
-			access_token: string;
-			expires_in: number;
-			refresh_token: string;
-			scope: string[];
-			token_type: string;
-			expires_at: number;
+			parameters: {
+				token:string;
+			},
+			response: {
+				access_token: string;
+				expires_in: number;
+				refresh_token: string;
+				scope: string[];
+				token_type: string;
+				expires_at: number;
+			}
 		};
 	};
 	"beta/user": {
 		GET: {
-			success:true;
-			data:{beta:boolean};
+			parameters: {
+				uid:string;
+			},
+			response: {
+				success:true;
+				data:{beta:boolean};
+			}
 		};
 	};
 	"beta/user/hasData": {
 		GET: {
-			success:boolean;
-			message?:string;
-			data?:{
-				betaDate?: number;
-				prodDate?: number;
-				betaVersion?: number;
-				prodVersion?: number;
+			parameters: void;
+			response: {
+				success:boolean;
+				message?:string;
+				data?:{
+					betaDate?: number;
+					prodDate?: number;
+					betaVersion?: number;
+					prodVersion?: number;
+				}
 			}
 		}
 	};
 	"beta/user/migrateToProduction": {
-		POST: { success:boolean };
+		POST: {
+			parameters: void;
+			response: {
+				success:boolean
+			};
+		};
 	};
 	"admin/beta/user": {
 		POST: {
-			success:true;
-			userList:string[];
+			parameters: {
+				uid:string;
+			},
+			response: {
+				success:true;
+				userList:string[];
+			};
 		};
 		DELETE: {
-			success:true;
-			userList:string[];
+			parameters: {
+				uid:string;
+			},
+			response: {
+				success:true;
+				userList:string[];
+			};
 		};
 	};
 	"admin/beta/user/migrateToProduction": {
-		POST: { success:boolean };
+		POST: {
+			parameters: {
+				uid:string;
+			},
+			response: {
+				success:boolean
+			};
+		};
 	};
 	"admin/beta/user/all": {
 		DELETE: {
-			success:true;
-			userList:string[];
+			parameters: void;
+			response: {
+				success:true;
+				userList:string[];
+			};
 		};
 	};
 	"user/donor/all": {
 		GET: {
-			success:true;
-			data:{
-				list:{
-					uid: string;
-					v: number;
-				}[]
+			parameters: void;
+			response: {
+				success:true;
+				data:{
+					list:{
+						uid: string;
+						v: number;
+					}[]
+				};
 			};
 		};
 	};
 	"user/donor/anon": {
 		GET: {
-			success:true;
-			data:{
-				public:boolean
+			parameters: void;
+			response: {
+				success:true;
+				data:{
+					public:boolean
+				};
 			};
 		};
 		POST: {
-			success:true;
-			message?:string;
+			parameters: {
+				public:boolean;
+			},
+			response: {
+				success:true;
+				message?:string;
+			};
 		};
 	};
 	"script": {
-		GET: string;
+		GET: {
+			parameters: void;
+			response: string;
+		};
 	};
 	"configs": {
-		GET: ServerConfig;
+		GET: {
+			parameters: void;
+			response: ServerConfig;
+		};
 	};
 	"spotify/auth": {
-		GET: {};
+		GET: {
+			parameters: void;
+			response:void;
+		};
 	};
 	"spotify/refresh_token": {
-		GET: {};
+		GET: {
+			parameters: void;
+			response:void;
+		};
 	};
 	"ulule/project" : {
-		GET: UluleTypes.Project;
+		GET: {
+			parameters: {
+				project:string;
+			};
+			response:UluleTypes.Project;
+		};
 	};
 	"user": {
 		GET: {
-			success:boolean;
-			data:{
-				isAdmin:boolean;
-				isDonor:boolean;
-				isEarlyDonor:boolean;
-				isPremiumDonor:boolean;
-				isPatreonMember:boolean;
-				discordLinked:boolean;
-				level:number;
+			parameters: void;
+			response: {
+				success:boolean;
+				data:{
+					isAdmin:boolean;
+					isDonor:boolean;
+					isEarlyDonor:boolean;
+					isPremiumDonor:boolean;
+					isPatreonMember:boolean;
+					discordLinked:boolean;
+					level:number;
+				}
 			}
 		};
-		POST: {};
+		POST: {
+			parameters: {
+
+			};
+			response: void;
+		};
 	};
 	"user/all": {
 		GET: {
-			success:boolean;
-			message:string;
-			users:{
-				id:string;
-				date:number;
-				user:TwitchDataTypes.UserInfo
-			}[];
+			parameters: void;
+			response: {
+				success:boolean;
+				message:string;
+				users:{
+					id:string;
+					date:number;
+					user:TwitchDataTypes.UserInfo
+				}[];
+			};
 		};
 	};
 	"user/data": {
 		GET: {
-			success:boolean;
-			data:any;
+			parameters: {
+				uid?:string;
+			}
+			response: {
+				success:boolean;
+				data:any;
+			};
 		};
 		POST: {
-			success:boolean;
-			message?:string;
+			parameters: unknown;
+			response: {
+				success:boolean;
+				message?:string;
+			};
 		};
 		DELETE: {
-			success:boolean;
+			parameters: void;
+			response: {
+				success:boolean;
+			};
 		};
 	};
 	"user/data/backup": {
-		GET: {
-			success:boolean;
-			data:any;
-		};
 		POST: {
-			success:boolean;
-			message?:string;
-		};
-		DELETE: {
-			success:boolean;
+			parameters: void;
+			response: {
+				success:boolean;
+				message?:string;
+			};
 		};
 	};
 	"patreon/authenticate": {
 		POST: {
-			success:boolean;
-			message?:string;
-			data: {
-				access_token: string;
-				expires_in: number;
-				token_type: string;
-				scope: string;
-				refresh_token: string;
-				version: string;
-				expires_at: number;
+			parameters: {
+				code:string;
+				redirect_uri:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+				data: {
+					access_token: string;
+					expires_in: number;
+					token_type: string;
+					scope: string;
+					refresh_token: string;
+					version: string;
+					expires_at: number;
+				}
 			}
 		}
 	};
 	"patreon/refresh_token": {
 		POST: {
-			success:boolean;
-			message?:string;
-			data: {
-				access_token: string;
-				refresh_token: string;
-				expires_in: number;
-				scope: string;
-				token_type: string;
-				expires_at: number;
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+				data: {
+					access_token: string;
+					refresh_token: string;
+					expires_in: number;
+					scope: string;
+					token_type: string;
+					expires_at: number;
+				}
 			}
 		}
 	};
 	"patreon/isMember": {
 		GET: {
-			success:boolean;
-			message?:string;
-			data: {isMember:boolean};
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+				data: {isMember:boolean};
+			}
 		}
 	};
 	"patreon/isApiDown": {
 		GET: {
-			success:boolean;
-			message?:string;
-			data: {isDown:boolean};
+			parameters: void;
+			response: {
+				success:boolean;
+				message?:string;
+				data: {isDown:boolean};
+			}
 		}
 	};
 	"tenor/search": {
 		GET: {
-			success:boolean;
-			message?:string;
-			data: TenorGif[];
+			parameters: {
+				search:string;
+			},
+			response: {
+				success:boolean;
+				message?:string;
+				data: TenorGif[];
+			}
 		}
 	};
 	"paypal/create_order": {
 		POST: {
-			success:boolean;
-			error?:string;
-			data: {orderId:string};
+			parameters: {
+				intent:string;
+				amount:number;
+				currency:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				data: {orderId:string};
+			}
 		}
 	};
 	"paypal/complete_order": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			data: {orderId:string};
+			parameters: typeof PAYPAL_ORDER;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data: {orderId:string};
+			}
 		}
 	};
 	"google/translate": {
 		GET: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			data:{translation?:string};
+			parameters: {
+				langSource:string;
+				langTarget:string;
+				text:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data:{translation?:string};
+			}
 		}
 	};
 	"youtube/oauthURL": {
 		GET: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			data:{url?:string};
+			parameters: {
+				redirectURI:string;
+				grantModerate:boolean;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data:{url?:string};
+			}
 		}
 	};
 	"youtube/authenticate": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			data:{token?:YoutubeAuthToken};
+			parameters: {
+				code:string;
+				redirectURI:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data:{token?:YoutubeAuthToken};
+			}
 		}
 	};
 	"youtube/refreshtoken": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			data:{token?:YoutubeAuthToken};
+			parameters: {
+				accessToken:string;
+				expiryDate:number;
+				refreshToken:string;
+				tokenType:string;
+				scope:string;
+				redirectURI:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				data:{token?:YoutubeAuthToken};
+			}
 		}
 	};
 	"admin/labels": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				section:string;
+				lang:string;
+				labels:unknown;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"sse/register": {
 		GET: {
+			parameters: {
+				token:string;
+			};
+			response: void
 		}
 	};
 	"discord/code": {
 		GET: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			guildName?:string;
+			parameters: {
+				code:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				guildName?:string;
+			},
 		},
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			guildName?:string;
-			channelName?:string;
+			parameters: {
+				code:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				guildName?:string;
+				channelName?:string;
+			}
 		}
 	};
 	"discord/image": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			channelName?:string;
+			parameters: FormData;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				channelName?:string;
+			}
 		}
 	};
 	"discord/link": {
 		GET: {
-			success:boolean;
-			linked:boolean;
-			guildName:string;
-			logChannel:string;
-			answerChannel:string;
-			error?:string;
-			errorCode?:string;
+			parameters: void;
+			response: {
+				success:boolean;
+				linked:boolean;
+				guildName:string;
+				logChannel:string;
+				answerChannel:string;
+				error?:string;
+				errorCode?:string;
+			};
 		};
 		DELETE: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
+			parameters: void;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"discord/answer": {
 		POST: {
-			success:boolean;
+			parameters: {
+				message:string;
+				data?:{
+					messageId:string;
+					channelId:string;
+					reaction?:string;
+				}
+			},
+			response: {
+				success:boolean;
+			}
 		}
 	};
 	"discord/channels": {
 		GET: {
-			success:boolean;
-			channelList:{id:string, name:string}[];
+			parameters: void;
+			response: {
+				success:boolean;
+				channelList:{id:string, name:string}[];
+			}
 		}
 	};
 	"discord/message": {
 		POST: {
-			success:boolean;
-			messageId:string;
-			error?:string;
-			errorCode?:string;
-			channelName?:string;
+			parameters: {
+				message:string;
+				channelId:string;
+			};
+			response: {
+				success:boolean;
+				messageId:string;
+				error?:string;
+				errorCode?:string;
+				channelName?:string;
+			}
 		}
 	};
 	"discord/thread": {
 		POST: {
-			success:boolean;
-			messageId:string;
-			error?:string;
-			errorCode?:string;
-			channelName?:string;
+			parameters: {
+				message:string;
+				channelId:string;
+				threadName:string;
+				history:string[];
+			};
+			response: {
+				success:boolean;
+				messageId:string;
+				error?:string;
+				errorCode?:string;
+				channelName?:string;
+			}
 		}
 	};
 	"discord/commands": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				commands:{
+					name: string;
+					params: {
+						name: string;
+					}[];
+				}[]
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"discord/ticket": {
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			messageLink?:string;
-			channelName?:string;
+			parameters: {
+				message:string;
+				channelId:string;
+				threadName:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				messageLink?:string;
+				channelName?:string;
+			}
 		}
 	};
 	"streamlabs/auth": {
 		POST: {
-			success:boolean;
-			accessToken?:string;
-			socketToken?:string;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				code: string;
+				csrf: string;
+			};
+			response: {
+				success:boolean;
+				accessToken?:string;
+				socketToken?:string;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"streamlabs/socketToken": {
 		GET: {
-			success:boolean;
-			socketToken?:string;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				accessToken:string;
+			},
+			response: {
+				success:boolean;
+				socketToken?:string;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"streamelements/auth": {
 		POST: {
-			success:boolean;
-			accessToken?:string;
-			refreshToken?:string;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				code: string;
+				csrf: string;
+			};
+			response: {
+				success:boolean;
+				accessToken?:string;
+				refreshToken?:string;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"streamelements/token/refresh": {
 		POST: {
-			success:boolean;
-			accessToken?:string;
-			refreshToken?:string;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				refreshToken:string;
+			},
+			response: {
+				success:boolean;
+				accessToken?:string;
+				refreshToken?:string;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"kofi/token": {
 		GET: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
-			token?:string;
+			parameters: void;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+				token?:string;
+			},
 		},
 		POST: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				token:string;
+			},
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			},
 		},
 		DELETE: {
-			success:boolean;
-			error?:string;
-			errorCode?:string;
+			parameters: void;
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"tipeee/auth": {
 		POST: {
-			success:boolean;
-			accessToken?:string;
-			refreshToken?:string;
-			expiresIn?:number;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				code: string;
+				csrf: string;
+			};
+			response: {
+				success:boolean;
+				accessToken?:string;
+				refreshToken?:string;
+				expiresIn?:number;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
 	"tipeee/refreshToken": {
 		POST: {
-			success:boolean;
-			accessToken?:string;
-			refreshToken?:string;
-			error?:string;
-			errorCode?:string;
+			parameters: {
+				refreshToken:string;
+			},
+			response: {
+				success:boolean;
+				accessToken?:string;
+				refreshToken?:string;
+				error?:string;
+				errorCode?:string;
+			}
 		}
 	};
-	"user/bingogrid": {
+	"bingogrid": {
 		GET: {
-			success:boolean;
-			data?:{
-				title:string;
-				cols:number;
-				rows:number;
-				entries:TwitchatDataTypes.BingoGridConfig["entries"];
+			parameters: {
+				uid:string;
+				gridid:string;
 			};
-			error?:string;
-			errorCode?:string;
+			response: {
+				success:boolean;
+				data?:{
+					title:string;
+					cols:number;
+					rows:number;
+					entries:TwitchatDataTypes.BingoGridConfig["entries"];
+				};
+				error?:string;
+				errorCode?:string;
+			}
 		}
-	};
+		POST: {
+			parameters: {
+				gridid:string;
+				grid:{
+					cols: number;
+					rows: number;
+					title: string;
+					entries: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
+				};
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	}
 }

@@ -42,10 +42,17 @@ export default defineConfig({
 					const url = req.url;
 					if (url.startsWith('/overlay/')) {
 						const overlayHtmlPath = path.resolve(__dirname, 'overlay.html');
-
 						if (fs.existsSync(overlayHtmlPath)) {
 							res.setHeader('Content-Type', 'text/html');
 							res.end(fs.readFileSync(overlayHtmlPath));
+							return;
+						}
+					}else
+					if (url.startsWith('/public/')) {
+						const publicHtmlPath = path.resolve(__dirname, 'public.html');
+						if (fs.existsSync(publicHtmlPath)) {
+							res.setHeader('Content-Type', 'text/html');
+							res.end(fs.readFileSync(publicHtmlPath));
 							return;
 						}
 					}
@@ -70,7 +77,8 @@ export default defineConfig({
 		rollupOptions: {
 			input: {
 				main: resolve(__dirname, 'index.html'),
-				overlay: resolve(__dirname, 'overlay.html')
+				overlay: resolve(__dirname, 'overlay.html'),
+				public: resolve(__dirname, 'public.html')
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",

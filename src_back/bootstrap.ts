@@ -22,6 +22,7 @@ import StreamlabsController from './controllers/StreamlabsController';
 import KofiController from './controllers/KofiController';
 import StreamelementsController from './controllers/StreamelementsController';
 import TipeeeController from './controllers/TipeeeController';
+import BingoGridController from './controllers/BingoGridController';
 
 // Run the server!
 async function start():Promise<void> {
@@ -82,6 +83,7 @@ server.register(import("fastify-sse-v2"))
 	new StreamelementsController(server).initialize();
 	new KofiController(server).initialize();
 	new TipeeeController(server).initialize();
+	new BingoGridController(server).initialize();
 	
 	//Start server
 	start();

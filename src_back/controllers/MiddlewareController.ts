@@ -106,6 +106,21 @@ export default class MiddlewareController extends AbstractController {
 				return;
 			}
 
+			//Redirect /public/ route to overlay's html page
+			if(/^\/public\//gi.test(request.url)) {
+				const file = path.join(Config.PUBLIC_ROOT, "public.html");
+				const stream = fs.createReadStream(file, 'utf8' );
+				const mimetype = mime.lookup(file);
+				if(mimetype == "text/html") {
+					response.header('Content-Type', mimetype+"; charset=utf-8");
+				}else{
+					response.header('Content-Type', mimetype);
+				}
+
+				response.send(stream);
+				return;
+			}
+
 			//Apply rate limits
 			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
 				//Check if user has a custom rate limit duration

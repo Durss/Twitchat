@@ -1,0 +1,156 @@
+import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
+import type { UnwrapRef } from 'vue';
+import type { IPublicActions, IPublicGetters, IPublicState } from './StoreProxy';
+import StoreProxy from './StoreProxy';
+import Utils from '@/utils/Utils';
+import Config, { type ServerConfig } from '@/utils/Config';
+import ApiHelper from '@/utils/ApiHelper';
+import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
+import SSEHelper from '@/utils/SSEHelper';
+import DataStoreCommon from './DataStoreCommon';
+
+let refreshTokenTO:number = -1;
+
+export const storePublic = defineStore('public', {
+	state: () => ({
+		initComplete:false,
+		authenticated:false,
+		twitchAccessToken:"",
+		twitchRefreshToken:"",
+	} as IPublicState),
+
+
+
+	getters: {
+	} as IPublicGetters
+	& ThisType<UnwrapRef<IPublicState> & _StoreWithGetters<IPublicGetters> & PiniaCustomProperties>
+	& _GettersTree<IPublicState>,
+
+
+
+	actions: {
+		async startApp():Promise<void> {
+			//Load app configs (cliend ID, scopes, ...)
+			window.setInitMessage("loading configs");
+			let jsonConfigs:ServerConfig;
+			try {
+				const res = await ApiHelper.call("configs", "GET");
+				jsonConfigs = res.json;
+			}catch(error) {
+				StoreProxy.common.alert("Unable to contact server :(", true, true);
+				console.log(error);
+				return;
+			}
+			Config.instance.populateServerConfigs(jsonConfigs);
+
+			//Authenticate user
+			const token = DataStoreCommon.get(DataStoreCommon.TWITCH_AUTH_TOKEN);
+			if(token) {
+				try {
+					await this.twitchAuth();
+				}catch(error) {
+					console.log(error);
+					DataStoreCommon.remove("oAuthToken");
+				}
+
+			}
+
+			this.initComplete = true;
+		},
+		
+		async twitchAuth(code?:string):Promise<boolean> {
+			const storeValue = DataStoreCommon.get(DataStoreCommon.TWITCH_AUTH_TOKEN);
+			let twitchAuthResult:TwitchDataTypes.AuthTokenResult|null = storeValue? JSON.parse(storeValue) : null;
+			if(code) {
+				//Convert oAuth code to access_token
+				const res = await ApiHelper.call("auth/twitch", "GET", {code});
+				twitchAuthResult		= res.json;
+				this.twitchAccessToken	= res.json.access_token
+				ApiHelper.accessToken	= this.twitchAccessToken;
+				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
+				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+				clearTimeout(refreshTokenTO);
+				//Schedule refresh
+				refreshTokenTO = setTimeout(()=>{
+					this.twitchTokenRefresh(true);
+				}, (res.json.expires_in || 120) * 1000 - 60000 * 5);
+				
+				SSEHelper.instance.initialize();
+				this.authenticated = true;
+			}else {
+				this.authenticated = await this.twitchTokenRefresh(false);
+				if(!this.authenticated) {
+					StoreProxy.common.alert("Unable to connect with Twitch API :(.", false, true);
+					twitchAuthResult = null;
+				}
+			}
+			if(!twitchAuthResult) {
+				console.log("Auth failed", twitchAuthResult);
+				return false;
+			}
+			return true;
+		},
+
+		async twitchTokenRefresh():Promise<boolean> {
+			let twitchAuthResult:TwitchDataTypes.AuthTokenResult = JSON.parse(DataStoreCommon.get(DataStoreCommon.TWITCH_AUTH_TOKEN));
+			//Refresh token if it's going to expire within the next 5 minutes
+			if(twitchAuthResult && twitchAuthResult.refresh_token) {
+				try {
+					const res 			= await ApiHelper.call("auth/twitch/refreshtoken", "GET", {token:twitchAuthResult.refresh_token});
+					if(res.status != 200) throw("invalid refresh result")
+					twitchAuthResult	= res.json;
+				}catch(error) {
+					return false;
+				}
+				this.twitchAccessToken		= twitchAuthResult.access_token;
+				twitchAuthResult.expires_at	= Date.now() + twitchAuthResult.expires_in * 1000;
+				ApiHelper.accessToken		= this.twitchAccessToken;
+				//Store auth data in cookies for later use
+				DataStoreCommon.set(DataStoreCommon.TWITCH_AUTH_TOKEN, twitchAuthResult, false);
+				SSEHelper.instance.initialize();
+
+				const expire	= twitchAuthResult.expires_in;
+				let delay		= Math.max(0, expire * 1000 - 60000 * 5);//Refresh 5min before it actually expires
+				delay			= Math.min(delay, 1000 * 60 * 60 * 3);//Refresh at least every 3h
+				if(isNaN(delay)) {
+					//fail safe.
+					//Refresh in 1 minute if something failed when refreshing
+					delay = 60*1000;
+				}
+
+				console.log("Refresh token in", Utils.formatDuration(delay));
+				clearTimeout(refreshTokenTO);
+				refreshTokenTO = setTimeout(()=>{
+					this.twitchTokenRefresh(true);
+				}, delay);
+				this.authenticated = true;
+				return true;
+			}
+			this.authenticated = false;
+			return false;
+		},
+
+		/**
+		 * Here for debug purpose.
+		 * Called when doing CTRL+Shift+L to reload the app labels
+		 * this makes a little easier testing labels updates to
+		 * avoid refreshing the full app
+		 */
+		async reloadLabels(bypassCache:boolean = false):Promise<void> {
+			let url = "/labels.json";
+			if(bypassCache) url += "?ck="+Utils.getUUID();
+			const labelsRes = await fetch(url);
+			const labelsJSON = await labelsRes.json();
+			for (const lang in labelsJSON) {
+				StoreProxy.i18n.setLocaleMessage(lang, labelsJSON[lang]);
+			}
+		},
+
+	} as IPublicActions
+	& ThisType<IPublicActions
+		& UnwrapRef<IPublicState>
+		& _StoreWithState<"public", IPublicState, IPublicGetters, IPublicActions>
+		& _StoreWithGetters<IPublicGetters>
+		& PiniaCustomProperties
+	>,
+})

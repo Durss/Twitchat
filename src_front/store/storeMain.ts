@@ -118,7 +118,7 @@ export const storeMain = defineStore("main", {
 				list.add("dark");
 				theme = "dark";
 			}
-			this.theme = theme!;
+			StoreProxy.common.theme = theme!;
 			DataStore.set(DataStore.THEME, theme);
 		},
 
@@ -140,17 +140,14 @@ export const storeMain = defineStore("main", {
 
 		async startApp(authenticate:boolean, callback:(value:unknown)=>void) {
 			let jsonConfigs:ServerConfig;
-			const sOBS = StoreProxy.obs;
-			const sChat = StoreProxy.chat;
 			const sAuth = StoreProxy.auth;
-			const sTimer = StoreProxy.timer;
 			const sVoice = StoreProxy.voice;
 			const sParams = StoreProxy.params;
 
 			//Load app configs (cliend ID, scopes, ...)
 			window.setInitMessage("loading configs");
 			try {
-				const res = await ApiHelper.call("configs");
+				const res = await ApiHelper.call("configs", "GET");
 				jsonConfigs = res.json;
 			}catch(error) {
 				StoreProxy.common.alert("Unable to contact server :(", true, true);
@@ -214,7 +211,6 @@ export const storeMain = defineStore("main", {
 					callback(null);
 					return;
 				}
-
 			}
 
 			this.initComplete = true;
@@ -918,7 +914,7 @@ export const storeMain = defineStore("main", {
 
 			const theme = DataStore.get(DataStore.THEME);
 			if(theme) {
-				this.theme = theme as "light" | "dark";
+				StoreProxy.common.theme = theme as "light" | "dark";
 			}
 
 			//Init alert actions

@@ -16,6 +16,7 @@ export const storeCommon = defineStore('common', {
 			showContact:false,
 		},
 		currentOBSScene:"",
+		theme:"dark",
 	} as ICommonState),
 
 

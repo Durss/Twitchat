@@ -7,7 +7,7 @@
 	:maxHeight="200"
 	interactive
 	:interactiveDebounce="1000"
-	:theme="$store.main.theme"
+	:theme="$store.common.theme"
 	:appendTo='tooltipTarget'
 	:trigger="popoutMode !== false? 'click' : 'mouseenter'"
 	:class="classes">

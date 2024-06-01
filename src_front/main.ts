@@ -91,7 +91,6 @@ const i18n = createI18n({
 	// }
 });
 
-
 //Load labels before everything else so they are available when
 //initializing stores data
 (async()=> {
@@ -110,7 +109,7 @@ const i18n = createI18n({
 		}, 1000);
 	}
 	buildApp();
-})()
+})();
 
 function buildApp() {
 	/**
@@ -144,7 +143,7 @@ function buildApp() {
 		if (!sAuth.authenticated) {
 			//Not authenticated, reroute to login
 			if(needAuth && to.name != "login" && to.name != "logout" && to.name != "oauth") {
-				next({name: 'login', params: {redirect: to.name?.toString()}});
+				next({name: 'login', params: {redirect: to.fullPath}});
 				return;
 			}
 		}
@@ -266,6 +265,8 @@ function buildApp() {
 	const keys = Object.keys(StoreProxy.default);
 	keys.forEach(k => {
 		if(!StoreProxy.default[k as keyof typeof StoreProxy.default]) {
+			//Not necessary for main app
+			if(k == "public") return;
 			console.error("ERROR !! StoreProxy \""+k+"\" not initialized !");
 		}
 	})

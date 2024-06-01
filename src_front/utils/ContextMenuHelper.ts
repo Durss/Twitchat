@@ -61,7 +61,7 @@ export default class ContextMenuHelper {
 		const px = e.type == "touchstart"? (e as TouchEvent).touches[0].clientX : (e as MouseEvent).x;
 		const py = e.type == "touchstart"? (e as TouchEvent).touches[0].clientY : (e as MouseEvent).y;
 		const menu	= reactive({
-			theme: 'mac '+StoreProxy.main.theme,
+			theme: 'mac '+StoreProxy.common.theme,
 			x: px,
 			y: py,
 			items: [],
@@ -707,8 +707,8 @@ export default class ContextMenuHelper {
 		const errorTimeout = setTimeout(()=> {
 			StoreProxy.main.messageExportState = {id:"error"};
 		}, 10000)
-		const bgcolor = StoreProxy.main.theme == "dark"? "#18181b" : "#EEEEEE";
-		const fgcolor = StoreProxy.main.theme == "dark"? "#EEEEEE" : "#18181b";
+		const bgcolor = StoreProxy.common.theme == "dark"? "#18181b" : "#EEEEEE";
+		const fgcolor = StoreProxy.common.theme == "dark"? "#EEEEEE" : "#18181b";
 		let user:TwitchatDataTypes.TwitchatUser|undefined = undefined;
 		let chanId:string = "";
 		let userName:string = "";
@@ -922,7 +922,7 @@ export default class ContextMenuHelper {
 	 */
 	private async discordQuickAction(message:TwitchatDataTypes.MessageChatData | TwitchatDataTypes.MessageWhisperData, action:TwitchatDataTypes.DiscordQuickActionData):Promise<void> {
 		const text = await TriggerUtils.parseGlobalPlaceholders(action.message || "", false, message);
-		const channelId = action.channelId;
+		const channelId = action.channelId || "";
 		await ApiHelper.call("discord/message", "POST", {message:text, channelId});
 	}
 

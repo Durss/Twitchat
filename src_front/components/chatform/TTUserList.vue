@@ -128,7 +128,7 @@ import Icon from '../Icon.vue';
 		this.users = [];
 		this.usersSpool = [];
 		try {
-			const {json} = await ApiHelper.call("user/all");
+			const {json} = await ApiHelper.call("user/all", "GET");
 			if(json.success) {
 				const users = json.users;
 				this.activeLast24h = 0;

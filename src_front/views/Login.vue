@@ -145,6 +145,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	}
 
 	public beforeMount():void {
+		//If auth got refused, check if it's because we're missing beta access rights
 		if(this.$router.currentRoute.value.params.betaReason) {
 			this.closedBeta = true;
 			this.checkIfCanMigrate();
@@ -171,7 +172,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 		if(!this.scopeOnly) {
 			if(redirect && redirect != "logout") {
-				DataStore.set("redirect", redirect, false);
+				DataStore.set(DataStore.REDIRECT, redirect, false);
 			}
 		}
 
@@ -180,7 +181,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 			const code = Utils.getQueryParameterByName("code");
 			const csrfToken = Utils.getQueryParameterByName("state");
 			if(code) {
-				const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
+				const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken!});
 				if(!res.json.success) {
 					if(res.json.message) this.$store.common.alert(res.json.message);
 					this.authenticating = false;
@@ -188,10 +189,10 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 					this.$store.auth.twitch_autenticate(code, (success:boolean, betaRefused?:boolean)=> {
 						this.authenticating = false;
 						if(success) {
-							redirect = DataStore.get("redirect");
-							DataStore.remove("redirect");
+							redirect = DataStore.get(DataStore.REDIRECT);
+							DataStore.remove(DataStore.REDIRECT);
 							if(redirect) {
-								this.$router.push({name: redirect});
+								this.$router.push(redirect);
 							}else{
 								this.$router.push({name:"chat"});
 							}
@@ -202,7 +203,6 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 							}else{
 								this.$store.common.alert(this.$t("error.invalid_credentials"));
 							}
-							this.authenticating = false;
 						}
 					});
 				}
@@ -251,11 +251,10 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		try {
 			const {json} = await ApiHelper.call("auth/CSRFToken", "GET");
 			this.CSRFToken = json.token;
-			this.onScopesUpdate
+			this.onScopesUpdate(this.scopes);
 		}catch(e) {
 			this.$store.common.alert(this.$t("error.csrf_failed"));
 		}
-		this.oAuthURL = TwitchUtils.getOAuthURL(this.CSRFToken, this.scopes);
 		if(redirect) {
 			document.location.href = this.oAuthURL;
 		}
@@ -305,7 +304,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	 * Check if the user has data on beta server that can be migrated to production
 	 */
 	public async checkIfCanMigrate():Promise<void> {
-		const res = await ApiHelper.call("beta/user/hasData");
+		const res = await ApiHelper.call("beta/user/hasData", "GET");
 		if(res.status === 200) {
 			const json = res.json;
 			if(json.success) {

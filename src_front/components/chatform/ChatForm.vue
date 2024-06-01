@@ -561,22 +561,10 @@ export class ChatForm extends Vue {
 				}
 			}
 		});
-		// try {
-		// 	await TwitchUtils.loadRewards();
-		// }catch(e) {
-		// 	//User is probably not an affiliate
-		// }
+		
 		gsap.from(this.$el, {y:50, delay:.2, duration:1, ease:"sine.out"});
 		const btns = (this.$el as HTMLDivElement).querySelectorAll(".leftForm>*,.inputForm>*");
 		gsap.from(btns, {y:50, duration:.7, delay:.5, ease:"back.out(2)", stagger:.075});
-
-		// console.log(lande("joyeux anniversaire !"));
-		// console.log(lande(" y'a rien dans le design de roucarnage qui exprime qu'il va faire un carnage non plus en soit"));
-		// const obj = {langSource:"en", langTarget:"fr", text:"this is a test !"};
-		// ApiHelper.call("google/translate", "GET", obj, false)
-		// .then(res=>{
-		// 	console.log("Translated", res.json.data.translation);
-		// });
 	}
 
 	public beforeUnmount():void {

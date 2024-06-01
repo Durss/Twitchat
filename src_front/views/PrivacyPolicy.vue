@@ -559,7 +559,7 @@ import Config from '@/utils/Config';
 		.then(result => {
 			this.auhtenticated = result !== false;
 			this.auhtenticating = false;
-			DataStore.set("redirect", this.$route.name, false);
+			DataStore.set(DataStore.REDIRECT, this.$route.fullPath, false);
 		}).catch(() => {
 			this.auhtenticated = false;
 			this.auhtenticating = false;

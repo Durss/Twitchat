@@ -4114,9 +4114,13 @@ export namespace TwitchatDataTypes {
 			 */
 			theme?:"primary"|"secondary"|"alert"|""|"default"|"light",
 			/**
-			 * Placeholder to store any data that will be sent in PSOT to the discord endpoint
+			 * Placeholder to store data that will be sent in POST to the discord endpoint
 			 */
-			data?:any,
+			data?:{
+				messageId:string;
+				channelId:string;
+				reaction?:string;
+			},
 		}[];
 	}
 

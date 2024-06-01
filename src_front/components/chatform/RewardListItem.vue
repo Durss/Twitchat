@@ -244,7 +244,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 		}
 
 		ContextMenu.showContextMenu({
-			theme: 'mac '+StoreProxy.main.theme,
+			theme: 'mac '+StoreProxy.common.theme,
 			x: e.x,
 			y: e.y,
 			items: options,

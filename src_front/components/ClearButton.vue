@@ -6,12 +6,15 @@
 
 <script lang="ts">
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import Icon from './Icon.vue';
 
 @Component({
-	components:{},
+	components:{
+		Icon,
+	},
 	emits:[],
 })
- class ClearButton extends Vue {
+class ClearButton extends Vue {
 
 	@Prop({type:String, default:""})
 	public theme!:string;
