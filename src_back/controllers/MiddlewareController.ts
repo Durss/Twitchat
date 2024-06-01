@@ -91,7 +91,6 @@ export default class MiddlewareController extends AbstractController {
 		this.server.addHook('onRequest', (request, response, done) => {
 			const ip = this.getIp(request);
 			if(/^\/overlay\//gi.test(request.url)) {
-				console.log("ok");
 				const file = path.join(Config.PUBLIC_ROOT, "overlay/index.html");
 				const stream = fs.createReadStream(file, 'utf8' );
 				const mimetype = mime.lookup(file);
