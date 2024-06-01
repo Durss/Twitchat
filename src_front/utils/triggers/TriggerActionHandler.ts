@@ -4,7 +4,7 @@ import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import * as MathJS from 'mathjs';
+import {evaluate as MathEval} from 'mathjs';
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
 import * as TriggerActionDataTypes from "../../types/TriggerActionDataTypes";
@@ -1127,30 +1127,30 @@ export default class TriggerActionHandler {
 													if(step.pos_x) {
 														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_x, subEvent);
 														text = text.replace(/,/gi, ".");
-														result.positionX = MathJS.evaluate(text);
+														result.positionX = MathEval(text);
 													}
 													if(step.pos_y) {
 														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.pos_y, subEvent);
 														text = text.replace(/,/gi, ".");
-														result.positionY = MathJS.evaluate(text);
+														result.positionY = MathEval(text);
 													}
 												}else if(action == "resize") {
 													//Resize source
 													if(step.width) {
 														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.width, subEvent);
 														text = text.replace(/,/gi, ".");
-														result.width = MathJS.evaluate(text);
+														result.width = MathEval(text);
 													}
 													if(step.height) {
 														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.height, subEvent);
 														text = text.replace(/,/gi, ".");
-														result.height = MathJS.evaluate(text);
+														result.height = MathEval(text);
 													}
 												}else if(action == "rotate" && step.angle) {
 													//Rotate source
 														let text = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.angle, subEvent);
 														text = text.replace(/,/gi, ".");
-														result.rotation = MathJS.evaluate(text);
+														result.rotation = MathEval(text);
 												}
 
 												//Handle relative transform mode
@@ -1665,7 +1665,7 @@ export default class TriggerActionHandler {
 					logStep.messages.push({date:Date.now(), value:"Executing arithmetic operation: \""+step.addValue+"\" => \""+text+"\""});
 					let value:any = "";
 					try {
-						value = MathJS.evaluate(text);
+						value = MathEval(text);
 					}catch(error) {
 						const logMessage = "❌ Invalid arithmetic operation: \""+step.addValue+"\"";
 						logStep.messages.push({date:Date.now(), value:logMessage});
@@ -2348,14 +2348,14 @@ export default class TriggerActionHandler {
 						shift = message.shift;
 					}else{
 						try {
-							x = MathJS.evaluate(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.x, subEvent));
+							x = MathEval(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.x, subEvent));
 						}catch(error){
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for X coordinate \""+step.heatClickData.x+"\""});
 							log.error = true;
 							logStep.error = true;
 						}
 						try {
-							y = MathJS.evaluate(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.y, subEvent));
+							y = MathEval(await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, step.heatClickData.y, subEvent));
 						}catch(error){
 							logStep.messages.push({date:Date.now(), value:"❌ Failed to interpret arithmetic expression for Y coordinate \""+step.heatClickData.y+"\""});
 							log.error = true;
@@ -2431,7 +2431,7 @@ export default class TriggerActionHandler {
 						if(rewardData!.cost) {
 							const cost = await this.parsePlaceholders(dynamicPlaceholders, actionPlaceholders, trigger, message, rewardData!.cost.toString(), subEvent);
 							try {
-								const num = MathJS.evaluate(cost);
+								const num = MathEval(cost);
 								if(!isNaN(num)) {
 									rewardData!.cost = num;
 								}
@@ -3203,7 +3203,7 @@ export default class TriggerActionHandler {
 				const expectation = await this.parsePlaceholders(dynamicPlaceholders, [], trigger, message, c.value, subEvent);
 				let valueNum = null;
 				try {
-					const num = MathJS.evaluate(expectation);
+					const num = MathEval(expectation);
 					if(!isNaN(num)) valueNum = num;
 				}catch(error) {
 					valueNum = value;

@@ -69,7 +69,7 @@ export default defineConfig({
 
 		rollupOptions: {
 			input: {
-				//TODO fix bundler that makes overlay bundle bigger if also comiling app
+				//TODO fix bundler that makes overlay bundle bigger if also compiling app
 				main: resolve(__dirname, 'index.html'),
 				overlay: resolve(__dirname, 'overlay/index.html')
 			},

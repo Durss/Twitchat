@@ -20,6 +20,7 @@ export default class YoutubeHelper {
 	public availableLiveBroadcasts:YoutubeLiveBroadcast["items"] = [];
 
 	private static _instance:YoutubeHelper;
+	
 	private _token:YoutubeAuthToken|null = null;
 	private _currentLiveIds:string[] = [];
 	private _lastMessagePage:{[key:string]:string} = {};

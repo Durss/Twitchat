@@ -1,11 +1,9 @@
+import OBSWebsocket from '@/utils/OBSWebsocket';
+import PublicAPI from '@/utils/PublicAPI';
+import Utils from '@/utils/Utils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import type { ICommonActions, ICommonGetters, ICommonState } from '../StoreProxy';
-import PublicAPI from '@/utils/PublicAPI';
-import TwitchatEvent from '@/events/TwitchatEvent';
-import StoreProxy from '../StoreProxy';
-import Utils from '@/utils/Utils';
-import OBSWebsocket from '@/utils/OBSWebsocket';
 
 //Contains things shared between app and overlays
 //Only keep things necessary for the overlays here !
@@ -32,27 +30,6 @@ export const storeCommon = defineStore('common', {
 	actions: {
 
 		async initialize(authenticated:boolean):Promise<void> {
-			const sOBS = StoreProxy.obs;
-			const sTimer = StoreProxy.timer;
-			const sVoice = StoreProxy.voice;
-
-			//Listen for twitchat API event
-			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
-				sTimer.broadcastStates();
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.tempText = e.data!.text;
-				sVoice.voiceText.finalText = "";
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.rawTempText = e.data!.text;
-			});
-
-			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent<{text:string}>)=> {
-				sVoice.voiceText.finalText = e.data!.text;
-			});
 
 			PublicAPI.instance.initialize(authenticated);
 
@@ -63,7 +40,7 @@ export const storeCommon = defineStore('common', {
 			const ip = Utils.getQueryParameterByName("obs_ip");
 			//If OBS params are on URL, connect
 			if(port != null && ip != null) {
-				if(sOBS) sOBS.connectionEnabled = true;
+				// if(sOBS) sOBS.connectionEnabled = true;
 				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
 		},

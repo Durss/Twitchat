@@ -1,5 +1,4 @@
 import StoreProxy from '@/store/StoreProxy';
-import { TriggerTypes } from '@/types/TriggerActionDataTypes';
 import OBSWebSocket from 'obs-websocket-js';
 import type { JsonArray, JsonObject } from 'type-fest';
 import { reactive } from 'vue';
@@ -17,6 +16,12 @@ export default class OBSWebsocket extends EventDispatcher {
 	private static _instance:OBSWebsocket;
 
 	public connected:boolean = false;
+	//This var is here to avoid using a reference to TriggerTypes.HEAT_CLICK on this class.
+	//As this class is also used on the "overlay" page, importing TriggerType would
+	//drastically enlarge its bundle size because TriggerActionDataTypes as dependencies to
+	//other parts of code useless for the overlay.
+	//Removing this ref from here allows for a proper tree shaking of deps
+	public heatClickTriggerType:string = "82";
 
 	private obs!:OBSWebSocket;
 	private reconnectTimeout!:number;
@@ -320,7 +325,7 @@ export default class OBSWebsocket extends EventDispatcher {
 		this.log(`Canvas sizes is ${videoSettings.baseWidth}x${videoSettings.baseHeight}`)
 
 		StoreProxy.triggers.triggerList.forEach(v=> {
-			if(v.type == TriggerTypes.HEAT_CLICK && v.heatObsSource && v.enabled){
+			if(v.type == this.heatClickTriggerType && v.heatObsSource && v.enabled){
 				sourcesToWatch.push(v.heatObsSource);
 			}
 		});

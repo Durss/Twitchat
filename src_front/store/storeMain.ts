@@ -140,8 +140,11 @@ export const storeMain = defineStore("main", {
 
 		async startApp(authenticate:boolean, callback:(value:unknown)=>void) {
 			let jsonConfigs:ServerConfig;
+			const sOBS = StoreProxy.obs;
 			const sChat = StoreProxy.chat;
 			const sAuth = StoreProxy.auth;
+			const sTimer = StoreProxy.timer;
+			const sVoice = StoreProxy.voice;
 			const sParams = StoreProxy.params;
 
 			//Load app configs (cliend ID, scopes, ...)
@@ -225,11 +228,19 @@ export const storeMain = defineStore("main", {
 				this.reloadLabels(true);
 			});
 
-			/**
-			 * Listen for highlighted message to show up the "close highlighted message" button
-			 */
-			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
-				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
+			//Listen for twitchat API event
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
+				sVoice.voiceText.tempText = e.data!.text;
+				sVoice.voiceText.finalText = "";
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.RAW_TEXT_UPDATE, (e:TwitchatEvent<{text:string}>)=> {
+				sVoice.voiceText.rawTempText = e.data!.text;
+			});
+
+			PublicAPI.instance.addEventListener(TwitchatEvent.SPEECH_END, (e:TwitchatEvent<{text:string}>)=> {
+				sVoice.voiceText.finalText = e.data!.text;
 			});
 
 			StoreProxy.common.initialize(authenticate);
@@ -245,6 +256,7 @@ export const storeMain = defineStore("main", {
 			const sChat = StoreProxy.chat;
 			const sUsers = StoreProxy.users;
 			const sVoice = StoreProxy.voice;
+			const sTimer = StoreProxy.timer;
 			const sStream = StoreProxy.stream;
 			const sEmergency = StoreProxy.emergency;
 			StoreProxy.discord.initialize();
@@ -567,6 +579,20 @@ export const storeMain = defineStore("main", {
 			});
 
 			/**
+			 * Called when timer overlay requests for current timers
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.GET_CURRENT_TIMERS, ()=> {
+				sTimer.broadcastStates();
+			});
+
+			/**
+			 * Listen for highlighted message to show up the "close highlighted message" button
+			 */
+			PublicAPI.instance.addEventListener(TwitchatEvent.SET_CHAT_HIGHLIGHT_OVERLAY_MESSAGE, (e:TwitchatEvent<{message:string}|undefined>)=> {
+				sChat.isChatMessageHighlighted = e.data != undefined && e.data.message != undefined;
+			});
+
+			/**
 			 * Called when bingo grid overlay request for its configs
 			 */
 			PublicAPI.instance.addEventListener(TwitchatEvent.GET_BINGO_GRID_PARAMETERS, (e:TwitchatEvent<{bid:string}>)=> {
@@ -700,12 +726,6 @@ export const storeMain = defineStore("main", {
 				}
 				TriggerActionHandler.instance.execute(m);
 			}
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
-			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
 
 			/**
 			 * Called when an OBS source is renamed.
@@ -733,6 +753,14 @@ export const storeMain = defineStore("main", {
 				const data = event.data as {sourceName: string; oldFilterName: string; filterName: string};
 				StoreProxy.triggers.renameOBSFilter(data.sourceName, data.oldFilterName, data.filterName);
 			});
+
+			OBSWebsocket.instance.heatClickTriggerType = TriggerTypes.HEAT_CLICK;//Read "heatClickTriggerType" to understand this line
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_ENDED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_STARTED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PAUSED, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_NEXT, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_PREVIOUS, (e) => onPlayBackStateChanged(e));
+			OBSWebsocket.instance.addEventListener(TwitchatEvent.OBS_PLAYBACK_RESTARTED, (e) => onPlayBackStateChanged(e));
 
 			/**
 			 * Called when a user clicks on the stream

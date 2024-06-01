@@ -7,7 +7,7 @@ import type { IValuesActions, IValuesGetters, IValuesState } from '../StoreProxy
 import StoreProxy from '../StoreProxy';
 import Utils from '@/utils/Utils';
 import Config from '@/utils/Config';
-import * as MathJS from 'mathjs';
+import {evaluate as MathEval} from 'mathjs';
 import type {JsonObject} from "type-fest";
 
 export const storeValues = defineStore('values', {
@@ -83,7 +83,7 @@ export const storeValues = defineStore('values', {
 			let prevValue = "";
 			if(value != undefined && value.trim() != "e") {//Ignore euler notation
 				try {
-					const num = MathJS.evaluate(value);
+					const num = MathEval(value);
 					if(!isNaN(num)) value = num.toString();
 				}catch(error) {}
 			}
