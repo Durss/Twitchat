@@ -143,7 +143,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import type { OBSInputItem, OBSSceneItem, OBSSourceItem } from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ParamItem from '../../ParamItem.vue';

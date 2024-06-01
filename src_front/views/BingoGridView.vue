@@ -46,7 +46,7 @@ import Icon from '@/components/Icon.vue';
 import TTButton from '@/components/TTButton.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({

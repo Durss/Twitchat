@@ -43,7 +43,7 @@
 <script lang="ts">
 import StoreProxy from '@/store/StoreProxy';
 import type { RemoveIndexSignature } from '@intlify/core-base';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import CountryFlag from 'vue-country-flag-next';

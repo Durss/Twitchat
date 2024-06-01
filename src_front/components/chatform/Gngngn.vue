@@ -21,7 +21,7 @@
 
 <script lang="ts">
 import Config from '@/utils/Config';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';

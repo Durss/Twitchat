@@ -86,7 +86,7 @@ import StoreProxy from '@/store/StoreProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import TTSUtils from '@/utils/TTSUtils';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch, type StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';

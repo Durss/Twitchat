@@ -105,7 +105,7 @@
 import DataStore from '@/store/DataStore';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { Carousel, Navigation, Pagination, Slide } from 'vue3-carousel';
 import 'vue3-carousel/dist/carousel.css';

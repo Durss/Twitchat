@@ -68,10 +68,10 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import HeatDistortParams from './heat/HeatDistortParams.vue';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{
@@ -81,7 +81,7 @@ import HeatDistortParams from './heat/HeatDistortParams.vue';
 	},
 	emits:[],
 })
- class OverlayParamsHeatDistort extends Vue {
+class OverlayParamsHeatDistort extends Vue {
 
 	public expandPremiumInfo:boolean = false;
 	public shaderstasticError:boolean = false;

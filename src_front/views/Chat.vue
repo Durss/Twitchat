@@ -201,7 +201,7 @@ import Utils from '@/utils/Utils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { JsonObject } from 'type-fest';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ChatAlertMessage from '../components/chatAlert/ChatAlertMessage.vue';

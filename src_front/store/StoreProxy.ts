@@ -2613,7 +2613,7 @@ export interface ICommonActions {
 	/**
 	 * Initialize common processes
 	 */
-	initialize(authenticated:boolean):void;
+	initialize(authenticated:boolean):Promise<void>;
 	/**
 	 * Opens up an alert at the top of the app on red bar
 	 * @param message

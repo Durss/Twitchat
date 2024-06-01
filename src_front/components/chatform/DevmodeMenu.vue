@@ -95,7 +95,7 @@ import EventSub from '@/utils/twitch/EventSub';
 import PubSub from '@/utils/twitch/PubSub';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { reactive } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';

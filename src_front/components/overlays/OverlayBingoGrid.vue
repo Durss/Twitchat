@@ -54,11 +54,13 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import SetIntervalWorker from '@/utils/SetIntervalWorker';
-import gsap, { Elastic, Sine } from 'gsap';
 import { CustomEase } from 'gsap/all';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
+import { gsap } from 'gsap/gsap-core';
+import { Sine } from 'gsap/gsap-core';
+import { Elastic } from 'gsap/gsap-core';
 
 @Component({
 	components:{

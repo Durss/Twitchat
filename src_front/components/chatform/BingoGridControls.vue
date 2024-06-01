@@ -26,7 +26,7 @@
 </template>
 
 <script lang="ts">
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
 import Checkbox from '../Checkbox.vue';

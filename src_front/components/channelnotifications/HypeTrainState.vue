@@ -94,7 +94,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ProgressBar from '../ProgressBar.vue';

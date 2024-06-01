@@ -117,7 +117,7 @@
 <script lang="ts">
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ClearButton from '../ClearButton.vue';

@@ -31,17 +31,17 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap/all';
 import type { StyleValue } from 'vue';
 import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{},
 	emits:[],
 })
- class OverlayAdBreak extends AbstractOverlay {
+class OverlayAdBreak extends AbstractOverlay {
 
 	public show:boolean = false;
 	public label:string = "";

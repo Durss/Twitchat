@@ -4,7 +4,6 @@ import StoreProxy from "@/store/StoreProxy";
 import type { GoXLRTypes } from "@/types/GoXLRTypes";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
 import type { TwitchDataTypes } from "@/types/twitch/TwitchDataTypes";
-import gsap from "gsap";
 import * as MathJS from 'mathjs';
 import type { JsonObject } from "type-fest";
 import TwitchatEvent from "../../events/TwitchatEvent";
@@ -27,6 +26,7 @@ import { TwitchScopes } from "../twitch/TwitchScopes";
 import TwitchUtils from "../twitch/TwitchUtils";
 import VoicemodWebSocket from "../voice/VoicemodWebSocket";
 import YoutubeHelper from "../youtube/YoutubeHelper";
+import { gsap } from "gsap/gsap-core";
 
 /**
 * Created : 22/04/2022

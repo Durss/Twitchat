@@ -7,9 +7,9 @@
 import heart from '@/assets/img/distortions/heart.png';
 import heartShadow from '@/assets/img/distortions/heart_shadow.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap/all';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{},

@@ -34,7 +34,7 @@
 <script lang="ts">
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import TTButton from '../TTButton.vue';
 import MessengerProxy from '@/messaging/MessengerProxy';
 import Utils from '@/utils/Utils';

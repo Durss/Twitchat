@@ -10,7 +10,7 @@
 </template>
 
 <script lang="ts">
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 

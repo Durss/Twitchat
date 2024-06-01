@@ -20,7 +20,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Slider from '../Slider.vue';
 import Icon from '../Icon.vue';
 import TwitchatEvent from '@/events/TwitchatEvent';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{

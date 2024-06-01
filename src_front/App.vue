@@ -11,7 +11,7 @@
 </template>
 
 <script lang="ts">
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch, type VNode } from 'vue';
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import Config from './utils/Config';

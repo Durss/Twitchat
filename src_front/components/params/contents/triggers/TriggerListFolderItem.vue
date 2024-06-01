@@ -88,8 +88,8 @@ import TTButton from '@/components/TTButton.vue';
 import ToggleBlock, { ToggleBlock as ToggleBlockClass } from '@/components/ToggleBlock.vue';
 import ToggleButton from '@/components/ToggleButton.vue';
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
-import gsap, { Linear } from 'gsap';
-import { RoughEase } from 'gsap/all';
+import { RoughEase } from 'gsap/EasePack';
+import { Linear, gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
@@ -109,7 +109,7 @@ import TriggerListItem from './TriggerListItem.vue';
 	},
 	emits:["update:items","change","changeState","createTrigger","delete","duplicate","testTrigger","select"],
 })
- class TriggerListFolderItem extends Vue {
+class TriggerListFolderItem extends Vue {
 
 	@Prop({default:[]})
 	public rewards!:TwitchDataTypes.Reward[];

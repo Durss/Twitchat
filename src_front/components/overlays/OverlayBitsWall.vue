@@ -22,12 +22,11 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import gsap from "gsap";
 import * as Matter from "matter-js";
 import * as PIXI from 'pixi.js';
 import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
-import { Linear } from "gsap";
+import { gsap } from "gsap/gsap-core";
 
 //Do not declare this as a class prop to avoid every props from
 //being reactive
@@ -624,7 +623,7 @@ let bodyId2Data:{[key:string]:CheermoteData} = {}
 		gsap.killTweensOf(data);
 		data.destroyed = true;
 
-		gsap.to(data, {scale:0, duration:userOrigin? .15 : .5, ease:userOrigin? Linear.easeNone : "back.in(10)", onUpdate:(a)=>{
+		gsap.to(data, {scale:0, duration:userOrigin? .15 : .5, ease:userOrigin? "none" : "back.in(10)", onUpdate:(a)=>{
 			const factor = (data.scale * this.globalScale) / data.scale_prev;
 			data.scale_prev = (data.scale * this.globalScale);
 			Matter.Body.scale(body, factor, factor);

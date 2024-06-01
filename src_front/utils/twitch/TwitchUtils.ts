@@ -1,6 +1,5 @@
 import StoreProxy from "@/store/StoreProxy";
 import { TwitchatDataTypes } from "@/types/TwitchatDataTypes";
-import type { BadgeInfo, Badges } from "tmi.js";
 import type { TwitchDataTypes } from "../../types/twitch/TwitchDataTypes";
 import Config from "../Config";
 import Logger from "../Logger";
@@ -3344,3 +3343,31 @@ export default class TwitchUtils {
 
 }
 type ExtensionReturnType<T extends boolean> = T extends true ? TwitchDataTypes.ActiveExtensions : TwitchDataTypes.Extension[];
+
+
+//Extracted from tmi.js bundle to avoid embedding tmi.js dep
+//on overlay route
+interface Badges {
+    admin?: string | undefined;
+    bits?: string | undefined;
+    broadcaster?: string | undefined;
+    partner?: string | undefined;
+    global_mod?: string | undefined;
+    moderator?: string | undefined;
+    vip?: string | undefined;
+    subscriber?: string | undefined;
+    staff?: string | undefined;
+    turbo?: string | undefined;
+    premium?: string | undefined;
+    founder?: string | undefined;
+    ["bits-leader"]?: string | undefined;
+    ["sub-gifter"]?: string | undefined;
+    [other: string]: string | undefined;
+}
+
+//Extracted from tmi.js bundle to avoid embedding tmi.js dep
+//on overlay route
+interface BadgeInfo {
+    subscriber?: string | undefined;
+    [other: string]: string | undefined;
+}

@@ -60,7 +60,7 @@
 import TTButton from '@/components/TTButton.vue';
 import Splitter from '@/components/Splitter.vue';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import ParamItem from '../ParamItem.vue';
 import type IParameterContent from './IParameterContent';

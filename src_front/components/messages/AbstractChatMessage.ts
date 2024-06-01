@@ -3,7 +3,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ContextMenuHelper from '@/utils/ContextMenuHelper';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
 

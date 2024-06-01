@@ -1,8 +1,8 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
+import { gsap } from 'gsap/gsap-core';
 import * as THREE from 'three';
 import { ComponentBase, Prop, Vue } from 'vue-facing-decorator';
-import gsap from 'gsap/all';
 
 /**
  * Following vars are declared here instead as class props

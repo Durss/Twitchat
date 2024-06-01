@@ -321,7 +321,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import CountryFlag from 'vue-country-flag-next';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import DurationForm from '../DurationForm.vue';

@@ -24,7 +24,7 @@ import Icon from '../Icon.vue';
 import TTButton from '../TTButton.vue';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{

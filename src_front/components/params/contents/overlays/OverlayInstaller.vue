@@ -38,7 +38,7 @@ import Icon from '@/components/Icon.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type SourceTransform } from '@/utils/OBSWebsocket';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import Utils from '@/utils/Utils';
 
 @Component({

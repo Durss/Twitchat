@@ -39,7 +39,7 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import { Vue3Marquee } from 'vue3-marquee'

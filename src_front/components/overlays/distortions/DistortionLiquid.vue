@@ -7,15 +7,15 @@
 import ripples from '@/assets/img/distortions/ripples.png';
 import ripplesShadow from '@/assets/img/distortions/ripples_shadow.png';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap/all';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
+import { gsap } from 'gsap/gsap-core';
 
 @Component({
 	components:{},
 	emits:[],
 })
- class DistortionLiquid extends AbstractDistortion {
+class DistortionLiquid extends AbstractDistortion {
 
 	@Prop()
 	declare params:TwitchatDataTypes.HeatDistortionData;
@@ -34,7 +34,7 @@ import AbstractDistortion, { type IDistortItem } from './AbstractDistortion';
 		item.scaleSpeed = 0;
 		item.angle = 0;//Math.random() * Math.PI * 2;
 		let scale = 20 * Math.random() + 3;
-		gsap.to(item, {scale, frame:128, ease:"linear.none", duration:Math.max(1, scale * .25), onComplete:()=>{
+		gsap.to(item, {scale, frame:128, ease:"none", duration:Math.max(1, scale * .25), onComplete:()=>{
 			this.removeItem(item);
 		}});
 		return item;

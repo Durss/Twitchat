@@ -19,7 +19,7 @@
 <script lang="ts">
 import { Component, Vue, toNative } from 'vue-facing-decorator';
 import { TTButton } from '../TTButton.vue';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import Utils from '@/utils/Utils';
 
 @Component({

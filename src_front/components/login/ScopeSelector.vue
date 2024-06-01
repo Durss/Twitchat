@@ -29,7 +29,7 @@
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import { type TwitchScopesString, TwitchScope2Icon } from '@/utils/twitch/TwitchScopes';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';

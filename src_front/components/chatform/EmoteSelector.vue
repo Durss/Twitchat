@@ -72,7 +72,7 @@ import BTTVUtils from '@/utils/emotes/BTTVUtils';
 import FFZUtils from '@/utils/emotes/FFZUtils';
 import SevenTVUtils from '@/utils/emotes/SevenTVUtils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import { useTippy } from 'vue-tippy';
 import Icon from '../Icon.vue';

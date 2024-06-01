@@ -86,7 +86,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket, { type OBSSourceItem } from '@/utils/OBSWebsocket';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch, type StyleValue } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import Splitter from '../../Splitter.vue';

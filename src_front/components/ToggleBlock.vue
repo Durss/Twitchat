@@ -48,7 +48,7 @@
 
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { StyleValue } from 'vue';
 import contenteditable from 'vue-contenteditable';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';

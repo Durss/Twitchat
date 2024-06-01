@@ -59,7 +59,7 @@
 import type { TwitchDataTypes } from '@/types/twitch/TwitchDataTypes';
 import { TwitchScopes } from "@/utils/twitch/TwitchScopes";
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';
 import Icon from '../Icon.vue';

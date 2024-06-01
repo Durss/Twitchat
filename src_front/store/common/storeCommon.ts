@@ -31,7 +31,7 @@ export const storeCommon = defineStore('common', {
 
 	actions: {
 
-		initialize(authenticated:boolean):void {
+		async initialize(authenticated:boolean):Promise<void> {
 			const sOBS = StoreProxy.obs;
 			const sTimer = StoreProxy.timer;
 			const sVoice = StoreProxy.voice;
@@ -64,7 +64,7 @@ export const storeCommon = defineStore('common', {
 			//If OBS params are on URL, connect
 			if(port != null && ip != null) {
 				if(sOBS) sOBS.connectionEnabled = true;
-				OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
+				await OBSWebsocket.instance.connect(port, pass ?? "", true, ip);
 			}
 		},
 

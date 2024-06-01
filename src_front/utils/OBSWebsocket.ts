@@ -8,7 +8,6 @@ import type { TwitchatActionType, TwitchatEventType } from '../events/TwitchatEv
 import TwitchatEvent from '../events/TwitchatEvent';
 import Logger from './Logger';
 import Utils from './Utils';
-import DataStore from '@/store/DataStore';
 
 /**
 * Created : 29/03/2022
@@ -897,9 +896,9 @@ export default class OBSWebsocket extends EventDispatcher {
 				}
 				existingSource = input as {inputKind:string, inputName:string, unversionedInputKind:string};
 				//Update OBS websocket params on URL if necessary
-				const port = DataStore.get(DataStore.OBS_PORT);
-				const pass = DataStore.get(DataStore.OBS_PASS);
-				const ip = DataStore.get(DataStore.OBS_IP);
+				const port = this.connectInfo.port;
+				const pass = this.connectInfo.pass;
+				const ip = this.connectInfo.ip;
 				if(urlParsed.searchParams.get("obs_port") != port
 				|| urlParsed.searchParams.get("obs_ip") != ip
 				|| ((urlParsed.searchParams.get("obs_pass") || "") != pass && pass)) {

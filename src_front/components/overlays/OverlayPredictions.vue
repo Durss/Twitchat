@@ -43,11 +43,11 @@ import type { PredictionOverlayParamStoreData } from '@/store/prediction/storePr
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import gsap, { Linear } from 'gsap';
 import type { StyleValue } from 'vue';
 import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
 import AbstractOverlay from './AbstractOverlay';
+import { gsap } from 'gsap/gsap-core';
 @Component({
 	components:{
 		Icon,
@@ -172,7 +172,7 @@ class OverlayPredictions extends AbstractOverlay {
 				const progressBar = this.$refs.progress as HTMLElement;
 				if(progressBar) {
 					gsap.killTweensOf(progressBar);
-					gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:Linear.easeNone, width:"0%", onComplete:()=>{
+					gsap.fromTo(progressBar, {width:"100%"}, {duration:this.parameters.resultDuration_s, ease:"none", width:"0%", onComplete:()=>{
 						this.close();
 					}});
 				}
@@ -194,7 +194,7 @@ class OverlayPredictions extends AbstractOverlay {
 						const percentRemaining = 1 - percentDone;
 						const duration = prediction.duration_s * percentRemaining;
 						gsap.killTweensOf(progressBar);
-						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:Linear.easeNone, width:"0%", onComplete:()=>{
+						gsap.fromTo(progressBar, {width:(percentRemaining * 100) +"%"}, {duration, ease:"none", width:"0%", onComplete:()=>{
 							if(this.parameters.hideUntilResolved !== false) this.close(true);
 						}});
 					}

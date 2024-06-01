@@ -104,7 +104,7 @@ import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import OBSWebsocket from '@/utils/OBSWebsocket';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { JsonObject } from 'type-fest';
 import { watch } from 'vue';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';

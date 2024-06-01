@@ -148,7 +148,7 @@ import { watch, type StyleValue } from 'vue';
 import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';
 import DOMPurify from 'isomorphic-dompurify';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import Icon from '../Icon.vue';
 
 @Component({

@@ -128,7 +128,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Utils from '@/utils/Utils';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue, Prop } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';
 import ParamItem from '../params/ParamItem.vue';

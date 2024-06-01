@@ -40,7 +40,7 @@
 import TwitchatEvent from '@/events/TwitchatEvent';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { watch, type StyleValue } from 'vue';
 import {toNative,  Component, Prop } from 'vue-facing-decorator';
 import AbstractOverlay from './AbstractOverlay';

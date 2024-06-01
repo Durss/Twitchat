@@ -28,7 +28,7 @@
 
 <script lang="ts">
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 
 @Component({

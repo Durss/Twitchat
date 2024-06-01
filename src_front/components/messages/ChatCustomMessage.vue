@@ -44,7 +44,7 @@ import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ApiHelper from '@/utils/ApiHelper';
 import TriggerUtils from '@/utils/TriggerUtils';
 import TriggerActionHandler from '@/utils/triggers/TriggerActionHandler';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { StyleValue } from 'vue';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import ClearButton from '../ClearButton.vue';

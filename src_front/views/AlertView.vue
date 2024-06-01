@@ -13,7 +13,7 @@ import TTButton from '@/components/TTButton.vue';
 import ClearButton from '@/components/ClearButton.vue';
 import Config from '@/utils/Config';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 
 @Component({

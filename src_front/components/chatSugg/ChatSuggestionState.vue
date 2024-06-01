@@ -46,7 +46,7 @@
 
 <script lang="ts">
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import TTButton from '../TTButton.vue';

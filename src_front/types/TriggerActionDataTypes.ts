@@ -1,5 +1,5 @@
 import DataStore from "@/store/DataStore";
-import StoreProxy, { type IStreamelementsState } from "@/store/StoreProxy";
+import StoreProxy from "@/store/StoreProxy";
 import Config from "@/utils/Config";
 import GoXLRSocket from "@/utils/goxlr/GoXLRSocket";
 import SpotifyHelper from "@/utils/music/SpotifyHelper";
@@ -13,8 +13,8 @@ import type { TwitchDataTypes } from "./twitch/TwitchDataTypes";
  * Util to strongly type string object paths.
  */
 type Path<T, Prefix extends string = ''> = Prefix extends ''
-  ? RecursivePath<T>
-  : `${Prefix}.${RecursivePath<T>}`;
+	? RecursivePath<T>
+	: `${Prefix}.${RecursivePath<T>}`;
 
 type RecursivePath<T> = T extends Array<infer U>
 	? U extends object

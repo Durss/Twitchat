@@ -22,7 +22,7 @@ import StoreProxy from '@/store/StoreProxy';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import { TwitchScopes } from '@/utils/twitch/TwitchScopes';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../../TTButton.vue';
 import YoutubeHelper from '@/utils/youtube/YoutubeHelper';

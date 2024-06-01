@@ -136,7 +136,7 @@ import ThemeSelector from '@/components/ThemeSelector.vue';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import Config from '@/utils/Config';
 import Utils from '@/utils/Utils';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import CountryFlag from 'vue-country-flag-next';
 import {toNative,  Component, Vue } from 'vue-facing-decorator';
 import AnchorsMenu from '../components/AnchorsMenu.vue';

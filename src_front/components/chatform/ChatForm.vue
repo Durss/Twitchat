@@ -344,7 +344,7 @@ import VoiceAction from '@/utils/voice/VoiceAction';
 import VoiceController from '@/utils/voice/VoiceController';
 import VoicemodWebSocket from '@/utils/voice/VoicemodWebSocket';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 import draggable from 'vuedraggable';
 import ButtonNotification from '../ButtonNotification.vue';

@@ -115,7 +115,7 @@ import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
 import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { watch } from '@vue/runtime-core';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import type { StyleValue } from 'vue';
 import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import TTButton from '../TTButton.vue';

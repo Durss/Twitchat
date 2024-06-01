@@ -63,7 +63,7 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import ParamItem from '../../ParamItem.vue';
 import { YoutubeScopes } from '@/utils/youtube/YoutubeScopes';
-import gsap from 'gsap';
+import { gsap } from 'gsap/gsap-core';
 import { Sine } from 'gsap';
 
 @Component({
