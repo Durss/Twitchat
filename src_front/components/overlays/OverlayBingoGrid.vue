@@ -45,7 +45,7 @@
 					c9-1.3,16.8-7,20.9-15.2L197.8,16C207.9-4.7,237.3-4.7,247.5,16z"/></svg>
 			</div>
 		</template>
-		<div v-else-if="!bingo" class="error card-item alert">{{ $t("bingo_grid.overlay.bingo_not_found") }}</div>
+		<div v-else-if="!bingo" class="error card-item alert"><Icon name="alert" />Requested bingo grid does not exist</div>
 	</div>
 </template>
 
@@ -439,6 +439,14 @@ export default toNative(OverlayBingoGrid);
 		width: 80vw;
 		left: 50vw;
 		top: 50vh;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		.icon {
+			height: 1.5em;
+			margin-right: 1em;
+		}
 	}
 
 	&.border {

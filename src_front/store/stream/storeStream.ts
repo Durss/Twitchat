@@ -448,6 +448,7 @@ export const storeStream = defineStore('stream', {
 			const channelId = StoreProxy.auth.twitch.user.id;
 			const isPremium = StoreProxy.auth.isPremium;
 			let prevDate = 0;
+			const $tm = StoreProxy.i18n.tm;
 			const result:TwitchatDataTypes.StreamSummaryData = {
 				streamDuration:0,
 				follows:[],
@@ -465,6 +466,11 @@ export const storeStream = defineStore('stream', {
 				predictions:[],
 				tips:[],
 				merch:[],
+				labels:{
+					no_entry:$tm("overlay.credits.empty_slot"),
+					train:$tm("train.ending_credits"),
+					premium_only:$tm("overlay.credits.premium_only"),
+				}
 			};
 
 			let dateOffset:number|undefined = offset;
@@ -766,7 +772,6 @@ export const storeStream = defineStore('stream', {
 
 			if(includeParams && parameters!=null) {
 				result.params = parameters;
-				result.params.lang = StoreProxy.i18n.locale;
 
 				const startDateBackup = StoreProxy.stream.currentStreamInfo[channelId]!.started_at;
 				if(simulate || !startDateBackup) {

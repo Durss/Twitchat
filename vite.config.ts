@@ -41,7 +41,7 @@ export default defineConfig({
 				server.middlewares.use((req, res, next) => {
 					const url = req.url;
 					if (url.startsWith('/overlay/')) {
-						const overlayHtmlPath = path.resolve(__dirname, 'overlay/index.html');
+						const overlayHtmlPath = path.resolve(__dirname, 'overlay.html');
 
 						if (fs.existsSync(overlayHtmlPath)) {
 							res.setHeader('Content-Type', 'text/html');
@@ -69,9 +69,8 @@ export default defineConfig({
 
 		rollupOptions: {
 			input: {
-				//TODO fix bundler that makes overlay bundle bigger if also compiling app
 				main: resolve(__dirname, 'index.html'),
-				overlay: resolve(__dirname, 'overlay/index.html')
+				overlay: resolve(__dirname, 'overlay.html')
 			},
 			output: {
 				entryFileNames: "assets/[name]-[hash]-" + process.env.npm_package_version + ".js",

@@ -90,8 +90,10 @@ export default class MiddlewareController extends AbstractController {
 		//trying to call any endpoint
 		this.server.addHook('onRequest', (request, response, done) => {
 			const ip = this.getIp(request);
+
+			//Redirect /overlay/ route to overlay's html page
 			if(/^\/overlay\//gi.test(request.url)) {
-				const file = path.join(Config.PUBLIC_ROOT, "overlay/index.html");
+				const file = path.join(Config.PUBLIC_ROOT, "overlay.html");
 				const stream = fs.createReadStream(file, 'utf8' );
 				const mimetype = mime.lookup(file);
 				if(mimetype == "text/html") {
@@ -104,7 +106,7 @@ export default class MiddlewareController extends AbstractController {
 				return;
 			}
 
-			// console.log(ip, request.headers.referer, request.url)
+			//Apply rate limits
 			if(/^\/api/gi.test(request.url) && request.url != "/api/configs") {
 				//Check if user has a custom rate limit duration
 				if(Date.now() < this.customRateLimit[ip]) {

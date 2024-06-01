@@ -1651,6 +1651,11 @@ export namespace TwitchatDataTypes {
 		chatters:{uid:string, login:string, count:number, vip:boolean, mod:boolean, sub:boolean, bans:number, tos:number, tosDuration:number}[];
 		tips:{login:string, amount:number, currency:string, platform:"kofi" | "streamlabs" | "streamelements" | "tipeee" | "patreon"}[];
 		merch:{login:string, products:string[], total:number, currency:string, platform:"kofi" | "streamlabs"}[];
+		labels:{
+			no_entry:string;
+			train:string;
+			premium_only:string;
+		}
 	}
 
 	/**
@@ -1798,7 +1803,6 @@ export namespace TwitchatDataTypes {
 	}
 
 	export interface EndingCreditsParams {
-		lang?:string;
 		scale:number;
 		padding:number;
 		paddingTitle:number;

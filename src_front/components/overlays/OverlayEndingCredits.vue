@@ -4,9 +4,9 @@
 			<div :class="item.holderClasses" :style="item.categoryStyles" ref="listItem" :id="'item_'+item.params.id">
 				<h1 data-title :style="item.titleStyles"><Icon :name="item.slot.icon" v-if="item.slot.id != 'text'" />{{ item.params.label }}</h1>
 
-				<div v-if="item.params.showPremiumWarning === true" data-list class="list premium" :style="item.entryStyles"><Icon name="premium" />{{ $t("overlay.credits.premium_only") }}</div>
+				<div v-if="item.params.showPremiumWarning === true" data-list class="list premium" :style="item.entryStyles"><Icon name="premium" />{{ data.labels.premium_only }}</div>
 
-				<div v-else-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ $t("overlay.credits.empty_slot") }}</div>
+				<div v-else-if="item.entryCount == 0" data-list class="list empty" :style="item.entryStyles">{{ data.labels.no_entry }}</div>
 
 				<div v-else data-list class="list" :style="item.entryStyles">
 					<div v-if="item.params.slotType == 'hypechats'" v-for="entry in makeUnique(item.params, data.hypeChats || []).concat().sort((a,b)=>b.amount-a.amount).splice(0, item.params.maxEntries)" class="item">
@@ -48,14 +48,7 @@
 					</div>
 
 					<div v-if="item.params.slotType == 'hypetrains'" v-for="entry in (data.hypeTrains || []).concat().splice(0, item.params.maxEntries)" class="item">
-						<i18n-t scope="global" keypath="train.ending_credits" tag="span">
-							<template #LEVEL>
-								<strong>{{ entry.level }}</strong>
-							</template>
-							<template #PERCENT>
-								<strong>{{ entry.percent }}</strong>
-							</template>
-						</i18n-t>
+						<span v-html="data.labels.train.replace(/\{LEVEL\}/gi, `<strong>${parseInt(entry.level+'')}</strong>`).replace(/\{PERCENT\}/gi, `<strong>${parseFloat(entry.percent+'')}</strong>`)"></span>
 						<template v-if="item.params.showTrainConductors && (entry.conductorBits || entry.conductorSubs)">
 							<div v-if="entry.conductorSubs" class="conductor">
 								<span>{{entry.conductorSubs.login}}</span>
@@ -144,12 +137,12 @@ import TwitchatEvent from '@/events/TwitchatEvent';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 import PublicAPI from '@/utils/PublicAPI';
 import Utils from '@/utils/Utils';
-import { watch, type StyleValue } from 'vue';
-import {toNative,  Component } from 'vue-facing-decorator';
-import AbstractOverlay from './AbstractOverlay';
-import DOMPurify from 'isomorphic-dompurify';
 import { gsap } from 'gsap/gsap-core';
+import DOMPurify from 'isomorphic-dompurify';
+import { watch, type StyleValue } from 'vue';
+import { Component, toNative } from 'vue-facing-decorator';
 import Icon from '../Icon.vue';
+import AbstractOverlay from './AbstractOverlay';
 
 @Component({
 	components:{
@@ -621,7 +614,6 @@ import Icon from '../Icon.vue';
 				|| this.prevParams.timing != this.data.params.timing
 				|| this.prevParams.loop != this.data.params.loop
 			)) resetScroll = true;
-			if(this.data.params.lang) this.$i18n.locale = this.data.params.lang;
 
 			this.prevParams = this.data.params;
 
@@ -658,7 +650,6 @@ import Icon from '../Icon.vue';
 			}
 
 			if(!this.data?.params) return;//No params?!
-			if(this.data.params.lang) this.$i18n.locale = this.data.params.lang;
 			this.display = true;
 
 			if(resetScroll) {

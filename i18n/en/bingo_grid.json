@@ -32,9 +32,6 @@
 		},
 		"state": {
 			"reset_bt": "Untick all"
-		},
-		"overlay": {
-			"bingo_not_found": "Requested bingo grid does not exist."
 		}
 	}
 }

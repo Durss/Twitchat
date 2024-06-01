@@ -55,6 +55,11 @@ import { gsap } from 'gsap/gsap-core';
 			chatters:[],
 			merch:[],
 			tips:[],
+			labels:{
+				no_entry:"",
+				premium_only:"",
+				train:"",
+			}
 		}
 		PublicAPI.instance.broadcast("SUMMARY_DATA", (summary as unknown) as JsonObject);
 	}

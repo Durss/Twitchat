@@ -32,9 +32,6 @@
 		},
 		"state":{
 			"reset_bt":"Tout décocher"
-		},
-		"overlay":{
-			"bingo_not_found":"La grille de bingo demandée n'existe pas."
 		}
 	}
 }
