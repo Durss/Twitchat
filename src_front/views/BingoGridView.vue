@@ -335,7 +335,7 @@ class BingoGridView extends Vue {
 
 		this.prevGridStates = newStates;
 
-		if(this.bingoCount != bingoCount) {
+		if(this.bingoCount != bingoCount && this.$store.public.authenticated) {
 			this.bingoCount = bingoCount;
 			const uid = this.$route.params.uid as string;
 			const gridid = this.$route.params.gridId as string;
