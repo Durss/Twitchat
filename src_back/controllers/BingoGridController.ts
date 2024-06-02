@@ -179,7 +179,7 @@ export default class BingoGridController extends AbstractController {
 				viewers.forEach(uid => {
 					//Enable cell on users cache
 					const userCell = this.viewerGridStates[gridid][uid].entries.find(cell => cell.id == cellid);
-					if(userCell) userCell.check = true;
+					if(userCell) userCell.check = state;
 					SSEController.sendToUser(uid, SSECode.TICK_BINGO_GRID_CELL, {cell:cell.id, state});
 				})
 			}

@@ -218,9 +218,6 @@ class BingoGridView extends Vue {
 		let newHorizontalBingos:number[] = [];
 		let newDiagonalBingos:number[] = [];
 		let bingoCount = 0;
-		
-		gsap.killTweensOf(this.$refs.cell as HTMLDivElement[]);
-		gsap.set(this.$refs.cell as HTMLDivElement[], {scale:1});
 
 		if(prevStates) {
 			let prevVerticalBingos:number[] = [];
@@ -292,9 +289,13 @@ class BingoGridView extends Vue {
 			newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
 
 			let delay = 0;
-			const animateCell = (holder:HTMLElement)=>{
-				gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", clearProps:"all", onStart:()=>{
-					this.popStars(holder);
+			let animating:{[key:string]:boolean} = {};
+			const animateCell = (cell:{data:TwitchatDataTypes.BingoGridConfig["entries"][number], holder:HTMLElement})=>{
+				if(animating[cell.data.id] !== true) {
+					gsap.killTweensOf(cell.holder);
+				}
+				gsap.fromTo(cell.holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", clearProps:"all", onStart:()=>{
+					this.popStars(cell.holder);
 				}});
 			}
 
@@ -303,7 +304,7 @@ class BingoGridView extends Vue {
 					const cell = this.getCellByCoords(x, y);
 					cell.holder.classList.add("bingo");
 					delay += .05;
-					animateCell(cell.holder);
+					animateCell(cell);
 				}
 				delay += .1;
 			});
@@ -313,7 +314,7 @@ class BingoGridView extends Vue {
 					const cell = this.getCellByCoords(x, y);
 					cell.holder.classList.add("bingo");
 					delay += .05;
-					animateCell(cell.holder);
+					animateCell(cell);
 				}
 
 				delay += .1;
@@ -326,7 +327,7 @@ class BingoGridView extends Vue {
 					const cell = this.getCellByCoords(px, y);
 					cell.holder.classList.add("bingo");
 					delay += .05;
-					animateCell(cell.holder);
+					animateCell(cell);
 				}
 				delay += .1;
 			});
