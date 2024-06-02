@@ -3,7 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 import Config from "./Config";
 //@ts-ignore avoid compile error I couldn't manage to fix properly
-import labels from "../../static/labels.json";
+import {type labels as Labels} from "../../static/labels.json";
 
 /**
 * Created : 24/02/2024 
@@ -11,7 +11,7 @@ import labels from "../../static/labels.json";
 export default class I18n {
 
 	private static _instance:I18n;
-	private _labels:typeof labels;
+	private _labels:Labels;
 	
 	constructor() {
 	
@@ -51,16 +51,18 @@ export default class I18n {
 	******************/
 	public initialize():void {
 		if(fs.existsSync(path.join(Config.PUBLIC_ROOT, "labels.json"))) {
-			this._labels = JSON.parse(fs.readFileSync(path.join(Config.PUBLIC_ROOT, "labels.json"), "utf-8")) as typeof labels;
+			this._labels = JSON.parse(fs.readFileSync(path.join(Config.PUBLIC_ROOT, "labels.json"), "utf-8")) as Labels;
 		}else{
-			this._labels = labels;
+			if(fs.existsSync(path.join("../../static/", "labels.json"))) {
+				this._labels = JSON.parse(fs.readFileSync(path.join("../../static/", "labels.json"), "utf-8")) as Labels;
+			}
 		}
 	}
 
 	/**
 	 * Get given label from given language
 	 */
-	public get(lang:string | keyof typeof labels, path:Path<typeof labels.en>, replaces?:{[key:string]:string}):string {
+	public get(lang:string | keyof typeof Labels, path:Path<Labels.en>, replaces?:{[key:string]:string}):string {
 		const keys = path.split(".");
 		let root:any = this._labels[lang];
 		try {
@@ -88,7 +90,7 @@ export default class I18n {
 	/**
 	 * Get if given label exists for given language
 	 */
-	public exists(lang:string | keyof typeof labels, path:Path<typeof labels.en>, replaces?:{[key:string]:string}):boolean {
+	public exists(lang:string | keyof typeof Labels, path:Path<typeof Labels.en>, replaces?:{[key:string]:string}):boolean {
 		const keys = path.split(".");
 		let root:any = this._labels[lang];
 		try {
