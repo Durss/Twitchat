@@ -145,8 +145,9 @@ class BingoGridView extends Vue {
 		if(redirect) {
 			DataStoreCommon.set(DataStoreCommon.REDIRECT, this.$route.fullPath);
 			document.location.href = this.oAuthURL;
+		}else{
+			this.generatingCSRF = false;
 		}
-		this.generatingCSRF = false;
 	}
 
 	/**
