@@ -293,6 +293,7 @@ class BingoGridView extends Vue {
 			const animateCell = (cell:{data:TwitchatDataTypes.BingoGridConfig["entries"][number], holder:HTMLElement})=>{
 				if(animating[cell.data.id] !== true) {
 					gsap.killTweensOf(cell.holder);
+					animating[cell.data.id] = true;
 				}
 				gsap.fromTo(cell.holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", clearProps:"all", onStart:()=>{
 					this.popStars(cell.holder);
