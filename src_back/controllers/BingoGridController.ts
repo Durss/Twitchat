@@ -146,8 +146,44 @@ export default class BingoGridController extends AbstractController {
 		if(!this.viewerGridStates[gridid]) this.viewerGridStates[gridid] = {};
 		const uids = Object.keys(this.viewerGridStates[gridid]);
 		uids.forEach(uid => {
-			this.viewerGridStates[gridid][uid] = grid;
-			SSEController.sendToUser(uid, SSECode.BINGO_GRID_UPDATE, grid);
+			const prevGrid = this.viewerGridStates[gridid][uid];
+			const sortedKeysPrev = prevGrid.entries.concat().map(v=> v.id)
+			.sort((a,b) => {
+				if(a < b) return -1;
+				if(a > b) return 1;
+				return 0
+			}).join(",");
+			
+			const sortedKeysNew = grid.entries.concat().map(v=> v.id)
+			.sort((a,b) => {
+				if(a < b) return -1;
+				if(a > b) return 1;
+				return 0
+			}).join(",");
+
+			//If cells mismatch, replace the grid after shuffling entries
+			if(sortedKeysNew != sortedKeysPrev) {
+				console.log("mismatch");
+				//Shuffle entries
+				for (let i = grid.entries.length - 1; i > 0; i--) {
+					const j = Math.floor(Math.random() * (i + 1));
+					if(grid.entries[i].lock || grid.entries[j].lock) continue;
+					[grid.entries[i], grid.entries[j]] = [grid.entries[j], grid.entries[i]];
+				}
+				this.viewerGridStates[gridid][uid] = grid;
+			}else{
+				//Only update labels
+				prevGrid.title = grid.title;
+				prevGrid.entries.forEach(cell=>{
+					const newCell = grid.entries.find(v=>v.id == cell.id);
+					if(newCell) {
+						cell.label = newCell.label;
+						cell.lock = newCell.lock;
+						cell.check = newCell.check;
+					}
+				})
+			}
+			SSEController.sendToUser(uid, SSECode.BINGO_GRID_UPDATE, this.viewerGridStates[gridid][uid]);
 		})
 
 		response.header('Content-Type', 'application/json');
