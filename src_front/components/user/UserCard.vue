@@ -2,7 +2,7 @@
 	<div class="usercard sidePanel" v-if="user">
 		<div class="content">
 			<template v-if="loading">
-				<ClearButton aria-label="close" @click="close()" />
+				<ClearButton aria-label="close" @click="closeCard()" />
 				<div class="header">
 					<div class="title">
 						<span class="label">{{user.displayName}}</span>
@@ -12,7 +12,7 @@
 			</template>
 
 			<template v-else-if="error">
-				<ClearButton aria-label="close" @click="close()" />
+				<ClearButton aria-label="close" @click="closeCard()" />
 				<div class="header">
 					<div class="title">
 						<span class="label">{{user.displayName}}</span>
@@ -24,7 +24,7 @@
 
 			
 			<template v-else-if="!loading && !error">
-				<ClearButton aria-label="close" @click="close()" v-show="!manageBadges && !manageUserNames" />
+				<ClearButton aria-label="close" @click="closeCard()" v-show="!manageBadges && !manageUserNames" />
 				<div class="header" v-show="!manageBadges && !manageUserNames">
 					<a :href="profilePage" target="_blank">
 						<img v-if="user!.avatarPath" :src="user!.avatarPath" alt="avatar" class="avatar" ref="avatar" referrerpolicy="no-referrer">
@@ -186,6 +186,7 @@ import CustomBadgeSelector from './CustomBadgeSelector.vue';
 import CustomBadgesManager from './CustomBadgesManager.vue';
 import CustomUserBadges from './CustomUserBadges.vue';
 import CustomUserNameManager from './CustomUserNameManager.vue';
+import AbstractSidePanel from '../AbstractSidePanel';
 
 @Component({
 	components:{
@@ -197,9 +198,10 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 		CustomBadgeSelector,
 		CustomBadgesManager,
 		CustomUserNameManager,
-	}
+	},
+	emits:["close"],
 })
- class UserCard extends Vue {
+class UserCard extends AbstractSidePanel {
 
 	public error:boolean = false;
 	public loading:boolean = true;
@@ -338,7 +340,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 	}
 
 	public mounted():void {
-		watch(() => this.$store.users.userCard, () => {
+		watch(() => this.$store.users.userCard, async () => {
 			const card = this.$store.users.userCard;
 			if(card && card.user) {
 				this.user = this.$store.users.getUserFrom(card.platform || "twitch", card.channelId, card.user.id);
@@ -347,9 +349,15 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 				this.dateOffsetTimeout = setInterval(() => {
 					this.dateOffset += 1000;
 				}, 1000);
+				this.$nextTick(()=>{
+					this.open();
+				})
 			}else{
-				this.user = null;
 				clearInterval(this.dateOffsetTimeout);
+				if(this.user){
+					await super.close();
+				}
+				this.user = null;
 			}
 		});
 
@@ -362,7 +370,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 		document.body.removeEventListener("keyup", this.keyUpHandler);
 	}
 
-	public close():void {
+	public async closeCard():Promise<void> {
 		this.$store.users.openUserCard(null);
 	}
 
@@ -575,7 +583,7 @@ import CustomUserNameManager from './CustomUserNameManager.vue';
 			if(this.edittingLogin) {
 				this.edittingLogin = false;
 			}else{
-				this.close();
+				this.closeCard();
 			}
 			e.preventDefault();
 			e.stopPropagation();

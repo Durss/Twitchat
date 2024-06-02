@@ -1,5 +1,5 @@
 <template>
-	<div class="bingogridcontrols blured-background-window">
+	<div class="bingogridcontrols blured-background-window" v-if="!leaderBoardID">
 		<div v-for="grid in $store.bingoGrid.availableOverlayList"
 		class="card-item entry"
 		:title="grid.title"
@@ -20,8 +20,26 @@
 			<div class="ctas">
 				<TTButton icon="dice" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
 				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
+				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id]"
+				icon="leaderboard"
+				small
+				v-tooltip="$t('bingo_grid.form.leaderBoard.open_bt_tt')"
+				@click="openLeaderBoard(grid)">{{ $tc("bingo_grid.form.leaderBoard.open_bt", Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length, {COUNT:Object.keys($store.bingoGrid.viewersBingoCount[grid.id]).length}) }}</TTButton>
 			</div>
 		</div>
+	</div>
+	<div class="bingogridcontrols blured-background-window leaderboard" v-else>
+		<Icon name="leaderboard" />
+		<div class="list">
+			<div class="entry"
+			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>a.count-b.count)"
+			:key="entry.user.id">
+				<img class="avatar" :src="entry.user.avatarPath" alt="avatar">
+				<a class="name" @click="openUserCard(entry.user)">{{ entry.user.displayName }}</a>
+				<strong class="count">x{{ entry.count }}</strong>
+			</div>
+		</div>
+		<TTButton class="backBt" icon="back" @click="leaderBoardID=''">{{ $t("global.back") }}</TTButton>
 	</div>
 </template>
 
@@ -31,6 +49,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 import ToggleBlock from '../ToggleBlock.vue';
 import Checkbox from '../Checkbox.vue';
 import TTButton from '../TTButton.vue';
+import type { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
 
 @Component({
 	components:{
@@ -42,12 +61,30 @@ import TTButton from '../TTButton.vue';
 })
 class BingoGridControls extends Vue {
 
+	public leaderBoardID:string = "";
+
 	private clickHandler!:(e:MouseEvent) => void;
 
 	public mounted():void {
 		this.clickHandler = (e:MouseEvent) => this.onClick(e);
 		document.addEventListener("mousedown", this.clickHandler);
 		this.open();
+	}
+
+	/**
+	 * Open grid's leaderboard
+	 * @param gridId 
+	 */
+	public openLeaderBoard(grid:TwitchatDataTypes.BingoGridConfig):void {
+		this.leaderBoardID = grid.id;
+	}
+
+	/**
+	 * Opens up a user card
+	 * @param user 
+	 */
+	public openUserCard(user:TwitchatDataTypes.TwitchatUser, chanId?:string):void {
+		this.$store.users.openUserCard(user, chanId, "twitch");
 	}
 
 	/**
@@ -123,6 +160,7 @@ export default toNative(BingoGridControls);
 	}
 
 	.ctas {
+		gap: .25em;
 		margin-top: .5em;
 		display: flex;
 		flex-direction: row;
@@ -132,5 +170,43 @@ export default toNative(BingoGridControls);
 	.flip-list-move {
 		transition: transform .25s;
 	}
+
+	&.leaderboard {
+		gap: 1em;
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		.icon {
+			height: 2em;
+			flex-shrink: 0;
+		}
+		.list {
+			gap: .5em;
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			max-height: 50vh;
+			overflow: auto;
+			padding: .5em;
+			.entry {
+				gap: .5em;
+				display: flex;
+				flex-direction: row;
+				align-items: center;
+				.avatar {
+					border-radius: 50%;
+					width: 2em;
+					height: 2em;
+				}
+				.count {
+					font-weight: 1.5em;
+				}
+			}
+		}
+		.backBt {
+			flex-shrink: 0;
+		}
+	}
+	;
 }
 </style>

@@ -1,7 +1,7 @@
 
 import { FastifyInstance, FastifyReply, FastifyRequest } from "fastify";
 import AbstractController from "./AbstractController";
-import SSEController from "./SSEController";
+import SSEController, { SSECode } from "./SSEController";
 import Config from "../utils/Config";
 import * as fs from "fs";
 import Logger from "../utils/Logger";
@@ -137,7 +137,7 @@ export default class KofiController extends AbstractController {
 				}
 			}
 
-			SSEController.sendToUser(user.twitch, "KO_FI_EVENT", data);
+			SSEController.sendToUser(user.twitch, SSECode.KO_FI_EVENT, data);
 		}catch(error) {
 			Logger.error("Failed parsing kofi event");
 			console.log(error);

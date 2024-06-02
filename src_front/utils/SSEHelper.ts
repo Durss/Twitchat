@@ -63,20 +63,8 @@ export default class SSEHelper extends EventDispatcher {
 			if(json.code == "AUTHENTICATION_FAILED") {
 				//Avoid autoreconnect
 				this._sse.close();
-				this.dispatchEvent(new SSEEvent(SSEEvent.AUTHENTICATION_FAILED));
-			}else
-
-			if(json.code == "TRIGGER_SLASH_COMMAND") {
-				this.dispatchEvent(new SSEEvent(SSEEvent.TRIGGER_SLASH_COMMAND, json.data));
-			}else
-
-			if(json.code == "NOTIFICATION") {
-				this.dispatchEvent(new SSEEvent(SSEEvent.NOTIFICATION, json.data));
-			}else
-
-			if(json.code == "KO_FI_EVENT") {
-				this.dispatchEvent(new SSEEvent(SSEEvent.KO_FI_EVENT, json.data));
 			}
+			this.dispatchEvent(new SSEEvent(json.code, json.data));
 		}catch(error) {
 			//ignore
 		}

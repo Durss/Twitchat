@@ -857,5 +857,68 @@ type ApiEndpoints =  {
 				errorCode?:string;
 			}
 		}
-	}
+	};
+	"bingogrid/streamer": {
+		POST: {
+			parameters: {
+				gridid:string;
+				grid:{
+					cols: number;
+					rows: number;
+					title: string;
+					entries: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
+				};
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"bingogrid/tickCell": {
+		POST: {
+			parameters: {
+				gridid:string;
+				cellid:string;
+				state:boolean;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"bingogrid/untickAll": {
+		POST: {
+			parameters: {
+				gridid:string;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"bingogrid/bingo": {
+		POST: {
+			parameters: {
+				uid:string;
+				gridid:string;
+				count:number;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
 }

@@ -6,6 +6,9 @@ import Utils from '@/utils/Utils';
 import DataStore from '../DataStore';
 import PublicAPI from '@/utils/PublicAPI';
 import TwitchatEvent from '@/events/TwitchatEvent';
+import ApiHelper from '@/utils/ApiHelper';
+import SSEHelper from '@/utils/SSEHelper';
+import SSEEvent from '@/events/SSEEvent';
 
 let overlayCheckInterval:{[key:string]:number} = {};
 //Keeps old check stats of gridd to be able to diff on save
@@ -15,6 +18,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 	state: () => ({
 		gridList: [] as TwitchatDataTypes.BingoGridConfig[],
 		availableOverlayList: [],
+		viewersBingoCount:{},
 	} as IBingoGridState),
 
 
@@ -111,6 +115,23 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					if(!entry) return;
 					this.toggleCell(grid.id, entry.id);
 				}
+			});
+
+			/**
+			 * Called when a user's bingo count changes on a grid
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_BINGO_COUNT, async (event:SSEEvent<{gridId:string, uid:string, login:string, count:number}>)=>{
+				if(!event.data) return;
+				const user = await StoreProxy.users.getUserFrom("twitch", StoreProxy.auth.twitch.user.id, event.data.uid, event.data.login, event.data.login);
+				if(!this.viewersBingoCount[event.data.gridId]) this.viewersBingoCount[event.data.gridId] = [];
+				const list = this.viewersBingoCount[event.data.gridId];
+				let entry = list.find(v=>v.user.id === user.id);
+				if(!entry) {
+					entry = { count:event.data.count, user };
+					this.viewersBingoCount[event.data.gridId].push(entry);
+				}
+
+				entry.count = event.data.count;
 			});
 		},
 
@@ -220,6 +241,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				reset:true,
 			}
 			StoreProxy.chat.addMessage(message);
+			ApiHelper.call("bingogrid/untickAll", "POST", {gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {
@@ -414,7 +436,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			if(!grid || !grid.enabled) return;
 			const cell = grid.entries.find(e => e.id === cellId);
 			if(!cell) return;
+			let prevState = cell.check;
 			cell.check = forcedState == undefined? !cell.check : forcedState;
+			if(cell.check != prevState) {
+				ApiHelper.call("bingogrid/tickCell", "POST", {cellid:cell.id, state:cell.check, gridid:grid.id});
+			}
 			if(cell.check) {
 				let x = -1;
 				let y = -1;

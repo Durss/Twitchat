@@ -1,6 +1,8 @@
 <template>
 	<div class="bingogridview">
-		<img src="@/assets/logo.svg" alt="logo" class="logo">
+		
+		<a href="/"><img src="@/assets/logo.svg" alt="logo" class="logo"></a>
+
 		<Icon v-if="loading" name="loader" class="loader" />
 
 		<div v-else class="grid">
@@ -16,7 +18,7 @@
 				v-tooltip="generatingCSRF? $t('login.generatingCSRF') : ''"
 				bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
 			
-			<div class="ctas">
+			<div class="ctas" v-if="!$store.public.authenticated">
 				<TTButton icon="dice" @click="shuffle()" v-tooltip="$t('bingo_grid.form.shuffle_bt')" />
 				<TTButton icon="refresh" @click="uncheckAll()" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
 			</div>
@@ -26,12 +28,13 @@
 			:style="{aspectRatio: cols/rows,
 			gridTemplateColumns: 'repeat('+cols+', 1fr)'}">
 				<TransitionGroup name="flip-list">
-					<div class="cell"
-					v-for="entry in entries"
+					<div v-for="entry in entries"
+					:class="cellClasses(entry)"
 					ref="cell"
 					:key="entry.id"
 					:data-cellid="entry.id"
-					@click="entry.check = !entry.check; checkBingos();">
+					v-tooltip="cellClasses(entry).includes('disabled')? $t('bingo_grid.state.cell_disabled') : ''"
+					@click="tickCell(entry)">
 						<span class="label">{{ entry.label }}</span>
 						<Icon class="check" name="checkmark" v-show="entry.check" :ref="'check_'+entry.id" />
 					</div>
@@ -76,15 +79,31 @@ class BingoGridView extends Vue {
 	public generatingCSRF = true;
 	public cols:number = 0;
 	public rows:number = 0;
+	public bingoCount:number = 0;
 	public checkTimeout:number = -1;
 	public oAuthURL = "";
 	public CSRFToken = "";
 	public title:string = "";
-	public entries:TwitchatDataTypes.BingoGridConfig["entries"] = [];
+	public entries:(TwitchatDataTypes.BingoGridConfig["entries"][number] & {enabled?:boolean})[] = [];
 
 	private starIndex:number = 0;
+	private bingoCountDebounce:number = -1;
 	private prevGridStates:boolean[] = [];
 	private sseConnectHandler!:(e:SSEEvent) => void;
+	private sseUntickAllHandler!:(e:SSEEvent) => void;
+	private sseTickCellHandler!:(e:SSEEvent<{cell:string, state:boolean}>) => void;
+	private sseGridUpdateHandler!:(e:SSEEvent<{
+					title:string;
+					cols:number;
+					rows:number;
+					entries:TwitchatDataTypes.BingoGridConfig["entries"];
+				}>) => void;
+
+	public cellClasses(entry:typeof this.entries[number]):string[] {
+		let res:string[] = ["cell"];
+		if(entry.enabled !== true && this.$store.public.authenticated) res.push("disabled")
+		return res;
+	}
 
 	public mounted():void {
 		if(!this.$store.public.authenticated) {
@@ -93,12 +112,21 @@ class BingoGridView extends Vue {
 		this.loadGridInfo();
 
 		this.sseConnectHandler = (e:SSEEvent) => this.onSSEConnect(e);
+		this.sseTickCellHandler = (e:SSEEvent<Parameters<typeof this.sseTickCellHandler>[0]["data"]>) => this.onTickCell(e);
+		this.sseUntickAllHandler = (e:SSEEvent) => this.onUntickAll();
+		this.sseGridUpdateHandler = (e:SSEEvent<Parameters<typeof this.sseGridUpdateHandler>[0]["data"]>) => this.onGridUpdate(e.data);
 		SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
+		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
+		SSEHelper.instance.addEventListener(SSEEvent.TICK_BINGO_GRID_CELL, this.sseTickCellHandler);
+		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
 	}
 
 	public beforeUnmount():void {
 		clearTimeout(this.checkTimeout);
 		SSEHelper.instance.removeEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
+		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
+		SSEHelper.instance.removeEventListener(SSEEvent.TICK_BINGO_GRID_CELL, this.sseTickCellHandler);
+		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
 	}
 
 	/**
@@ -134,7 +162,10 @@ class BingoGridView extends Vue {
 				this.rows		= infos.json.data.rows;
 				this.title		= infos.json.data.title;
 				this.entries	= infos.json.data.entries;
-				// this.entries.forEach(v=>v.check = false);
+				this.entries.forEach(v=>{
+					v.enabled = v.check;
+				});
+				this.onGridUpdate(infos.json.data);
 			}
 		}catch(error) {
 
@@ -167,6 +198,17 @@ class BingoGridView extends Vue {
 	}
 
 	/**
+	 * Uncheck all entries
+	 */
+	public tickCell(entry:typeof this.entries[number]):void {
+		const authenticated = this.$store.public.authenticated;
+		//Do not allow to tick cell if logged in and not enabled
+		if(authenticated && entry.enabled != true) return;
+		entry.check = !entry.check;
+		this.checkBingos();
+	}
+
+	/**
 	 * Check if rows/cols/diagonals are filled
 	 */
 	public checkBingos():void {
@@ -175,6 +217,7 @@ class BingoGridView extends Vue {
 		let newVerticalBingos:number[] = [];
 		let newHorizontalBingos:number[] = [];
 		let newDiagonalBingos:number[] = [];
+		let bingoCount = 0;
 		
 		gsap.killTweensOf(this.$refs.cell as HTMLDivElement[]);
 		gsap.set(this.$refs.cell as HTMLDivElement[], {scale:1});
@@ -224,16 +267,16 @@ class BingoGridView extends Vue {
 				if(allTicked) newDiagonalBingos.push(0);
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= newStates[x + (this.cols - 1 - x)*this.cols];
+					allTicked &&= prevStates[x + x*this.cols];
 				}
-				if(allTicked) newDiagonalBingos.push(1);
+				if(allTicked) prevDiagonalBingos.push(0);
 
 				//Bottom left to top right
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
-					allTicked &&= prevStates[x + x*this.cols];
+					allTicked &&= newStates[x + (this.cols - 1 - x)*this.cols];
 				}
-				if(allTicked) prevDiagonalBingos.push(0);
+				if(allTicked) newDiagonalBingos.push(1);
 				allTicked = true;
 				for (let x = 0; x < this.cols; x++) {
 					allTicked &&= prevStates[x + (this.cols - 1 - x)*this.cols];
@@ -241,13 +284,16 @@ class BingoGridView extends Vue {
 				if(allTicked) prevDiagonalBingos.push(1);
 			}
 
+			bingoCount = newVerticalBingos.length + newHorizontalBingos.length + newDiagonalBingos.length;
+
+			//Remove previous bingo from the list
 			newVerticalBingos = newVerticalBingos.filter(index => prevVerticalBingos.indexOf(index) == -1);
 			newHorizontalBingos = newHorizontalBingos.filter(index => prevHorizontalBingos.indexOf(index) == -1);
 			newDiagonalBingos = newDiagonalBingos.filter(index => prevDiagonalBingos.indexOf(index) == -1);
 
 			let delay = 0;
 			const animateCell = (holder:HTMLElement)=>{
-				gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", onStart:()=>{
+				gsap.fromTo(holder, {scale:2}, {scale:1, delay, duration:.5, immediateRender:false, ease:"back.out", clearProps:"all", onStart:()=>{
 					this.popStars(holder);
 				}});
 			}
@@ -287,6 +333,16 @@ class BingoGridView extends Vue {
 		}
 
 		this.prevGridStates = newStates;
+
+		if(this.bingoCount != bingoCount) {
+			this.bingoCount = bingoCount;
+			const uid = this.$route.params.uid as string;
+			const gridid = this.$route.params.gridId as string;
+			clearTimeout(this.bingoCountDebounce);
+			this.bingoCountDebounce = setTimeout(() => {
+				ApiHelper.call("bingogrid/bingo", "POST", {count:bingoCount, gridid, uid});
+			}, 1000);
+		}
 	}
 
 	/**
@@ -295,42 +351,50 @@ class BingoGridView extends Vue {
 	private async animateOpen():Promise<void> {
 		await this.$nextTick();
 
-		const spiralOrder: number[] = [];
-
-		let x = 0;
-		let y = 0;
-		let delta = [0, -1];
-		const width = this.cols;
-		const height = this.rows;
-		const cx = Math.ceil(this.cols/2)-1;
-		const cy = Math.ceil(this.rows/2)-1;
-
-		//Spiral algorithm from:
-		//https://stackoverflow.com/a/13413224/3813220
-		for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
-			if ((-width/2 < x && x <= width/2) 
-			&& (-height/2 < y && y <= height/2)) {
-				let index = (x+cx) + (y+cy) * this.cols;
-				spiralOrder.push(index);
-			}	
-
-			if (x === y 
-			|| (x < 0 && x === -y) 
-			|| (x > 0 && x === 1-y)){
-				// change direction
-				delta = [-delta[1], delta[0]]            
+		return new Promise((resolve)=> {
+			const spiralOrder: number[] = [];
+	
+			let x = 0;
+			let y = 0;
+			let delta = [0, -1];
+			const width = this.cols;
+			const height = this.rows;
+			const cx = Math.ceil(this.cols/2)-1;
+			const cy = Math.ceil(this.rows/2)-1;
+	
+			//Spiral algorithm from:
+			//https://stackoverflow.com/a/13413224/3813220
+			for (let i = Math.pow(Math.max(width, height), 2); i>0; i--) {
+				if ((-width/2 < x && x <= width/2) 
+				&& (-height/2 < y && y <= height/2)) {
+					let index = (x+cx) + (y+cy) * this.cols;
+					spiralOrder.push(index);
+				}	
+	
+				if (x === y 
+				|| (x < 0 && x === -y) 
+				|| (x > 0 && x === 1-y)){
+					// change direction
+					delta = [-delta[1], delta[0]]            
+				}
+	
+				x += delta[0];
+				y += delta[1];        
 			}
-
-			x += delta[0];
-			y += delta[1];        
-		}
-
-		const cells = this.$refs.cell as HTMLElement[];
-		gsap.from(this.$refs.cellsHolder as HTMLElement, {scale:0, ease:"sine.out", duration:.35, clearProps:"transform"});
-		//Animate items from center
-		cells.forEach((cell, index) => {
-			let distance = spiralOrder.findIndex(v=>v===index);
-			gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: .3 + distance*.05});
+	
+			const cells = this.$refs.cell as HTMLElement[];
+			gsap.from(this.$refs.cellsHolder as HTMLElement, {scale:0, ease:"sine.out", duration:.35, clearProps:"transform"});
+			//Animate items from center
+			cells.forEach((cell, index) => {
+				let distance = spiralOrder.findIndex(v=>v===index);
+				gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: .3 + distance*.05, clearProps:"all",
+					onComplete:()=>{
+						if(distance == Math.max(0,cells.length-10)) {
+							this.checkBingos();
+						}
+					}
+				});
+			});
 		});
 	}
 
@@ -375,15 +439,62 @@ class BingoGridView extends Vue {
 	 * @param e 
 	 */
 	private async onSSEConnect(e:SSEEvent):Promise<void> {
+		if(this.entries.length === 0) return;
+
 		const gridid = this.$route.params.gridId as string;
+		const entries:TwitchatDataTypes.BingoGridConfig["entries"][number][] = this.entries.map(e => {
+			return  {
+				id:e.id,
+				lock:e.lock,
+				label:e.label,
+				check:e.enabled === true,
+			}
+		})
 		const grid = {
 			cols:this.cols,
 			rows:this.rows,
 			title:this.title,
-			entries:this.entries,
-		}
-		console.log({gridid, grid});
+			entries,
+		};
 		await ApiHelper.call("bingogrid", "POST", {gridid, grid});
+	}
+
+	/**
+	 * Called when streamer updates grid params and on first loading
+	 * @param e 
+	 */
+	private async onUntickAll():Promise<void> {
+		this.entries.forEach(cell => cell.enabled = cell.check = false);
+		this.checkBingos();
+	}
+
+	/**
+	 * Called when streamer updates grid params and on first loading
+	 * @param e 
+	 */
+	private async onGridUpdate(data:Parameters<typeof this.sseGridUpdateHandler>[0]["data"]):Promise<void> {
+		if(!data) return;
+		this.rows = data.rows;
+		this.cols = data.cols;
+		this.title = data.title;
+		this.entries = data.entries;
+		this.entries.forEach(v=>{
+			v.enabled = v.check;
+		});
+	}
+
+	/**
+	 * Called when streamer un/ticks a cell
+	 * @param e 
+	 */
+	private async onTickCell(e:SSEEvent<Parameters<typeof this.sseTickCellHandler>[0]["data"]>):Promise<void> {
+		if(!e.data) return;
+		const cell = this.entries.find(cell => cell.id == e.data!.cell);
+		if(cell) {
+			cell.enabled = e.data.state;
+			if(!cell.enabled) cell.check = false;
+			this.checkBingos();
+		}
 	}
 }
 export default toNative(BingoGridView);
@@ -448,12 +559,18 @@ export default toNative(BingoGridView);
 				box-shadow:0 0 0 1px currentColor;
 				border-radius: var(--border-radius);
 				background-color: var(--background-color-fadest);
+				min-width: 70px;
 				// transition: background-color .25s,  box-shadow .25s, transform .25s;
-				&:hover {
+				&:not(.disabled):hover {
 					background-color: var(--background-color-fader);
 					z-index: 1;
 					// font-size: 1.1em;
 					box-shadow:0 0 0 5px currentColor;
+				}
+
+				&.disabled {
+					opacity: .25;
+					cursor: default;
 				}
 
 				.check {
@@ -467,7 +584,7 @@ export default toNative(BingoGridView);
 					transform-origin: center center;
 					margin-left: -35%;
 					margin-top: -35%;
-					z-index: 10000;
+					z-index: 101;
 					filter: drop-shadow(2px 2px 5px rgba(0,0,0,.5));
 				}
 

@@ -25,14 +25,19 @@
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",
 			"non_premium_limit": "@:bingo_grid.form.premium_limit \nDevenez membre premium pour créer jusqu'à {MAX} grilles de bingo.",
 			"share": "Partagez cette grille à vos viewers",
+			"leaderBoard": {
+				"open_bt": "{COUNT} viewer|{COUNT} viewers",
+				"open_bt_tt": "Classement viewers"
+			},
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
 			}
 		},
 		"state":{
-			"auth_bt": "Me connecter",
-			"reset_bt":"Tout décocher"
+			"auth_bt": "Me connecter pour jouer",
+			"reset_bt":"Tout décocher",
+			"cell_disabled": "La/le streamer doit\ncocher cette case\npour l'activer"
 		}
 	}
 }

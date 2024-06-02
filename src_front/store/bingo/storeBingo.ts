@@ -1,7 +1,7 @@
 import MessengerProxy from '@/messaging/MessengerProxy';
 import { TwitchatDataTypes } from '@/types/TwitchatDataTypes';
-import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import Utils from '@/utils/Utils';
+import TwitchUtils from '@/utils/twitch/TwitchUtils';
 import { defineStore, type PiniaCustomProperties, type _GettersTree, type _StoreWithGetters, type _StoreWithState } from 'pinia';
 import type { UnwrapRef } from 'vue';
 import StoreProxy, { type IBingoActions, type IBingoGetters, type IBingoState } from '../StoreProxy';

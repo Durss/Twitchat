@@ -169,6 +169,7 @@ import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
 import PermissionsForm from '../PermissionsForm.vue';
+import ApiHelper from '@/utils/ApiHelper';
 
 @Component({
 	components:{
@@ -255,6 +256,15 @@ import PermissionsForm from '../PermissionsForm.vue';
 			grid.chatCmd = "!bingo";
 		}
 		this.$store.bingoGrid.saveData(grid.id);
+		ApiHelper.call("bingogrid/streamer", "POST", {
+			gridid:grid.id,
+			grid:{
+				cols:grid.cols,
+				rows:grid.rows,
+				title:grid.title,
+				entries:grid.entries,
+			}
+		})
 	}
 
 	/**

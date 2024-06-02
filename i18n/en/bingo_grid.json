@@ -25,14 +25,19 @@
 			"premium_limit": "You reached the maximum bingo grid count you can create.",
 			"non_premium_limit": "@:bingo_grid.premium_limit.\nBecome a premium member to create up to {MAX} bingo grids.",
 			"share": "Share this grid with your viewers",
+			"leaderBoard": {
+				"open_bt": "{COUNT} viewer|{COUNT} viewers",
+				"open_bt_tt": "Viewers leaderboard"
+			},
 			"delete_confirm": {
 				"description": "Bingo grid will be deleted\nThis cannot be undone.",
 				"title": "Delete grid?"
 			}
 		},
 		"state": {
-			"auth_bt": "Authenticate",
-			"reset_bt": "Untick all"
+			"auth_bt": "Authenticate to play",
+			"reset_bt": "Untick all",
+			"cell_disabled": "The streamer must\ntick this cell\nto enable it"
 		}
 	}
 }

@@ -406,6 +406,10 @@ export interface IBingoGridState {
 	 * List of bingo grid overlays available.
 	 */
 	availableOverlayList:TwitchatDataTypes.BingoGridConfig[];
+	/**
+	 * Stores the number of bingos of the viewers
+	 */
+	viewersBingoCount:{[gridId:string]:{user:TwitchatDataTypes.TwitchatUser, count:number}[]};
 }
 
 export interface IBingoGridGetters {

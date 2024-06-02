@@ -117,7 +117,8 @@ export default class PatreonHelper {
 	 * Refreshes access token
 	 */
 	private async refreshToken():Promise<void> {
-		const res = await ApiHelper.call("patreon/refresh_token", "POST", {token:this._token?.refresh_token});
+		if(!this._token) return;
+		const res = await ApiHelper.call("patreon/refresh_token", "POST", {token:this._token.refresh_token});
 		if(res.status == 200 && res.json) {
 			this._token = {
 				access_token: res.json.data.access_token,

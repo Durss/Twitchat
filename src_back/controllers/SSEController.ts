@@ -34,7 +34,7 @@ export default class SSEController extends AbstractController {
 	 * @param data 
 	 * @returns 
 	 */
-	public static sendToUser(uid:string, code:keyof typeof SSECode, data:unknown):boolean {
+	public static sendToUser(uid:string, code:keyof typeof SSECode, data?:unknown):boolean {
 		const responses = this.uidToResponse[uid];
 		if(!responses) return false;
 		responses.forEach(response => {
@@ -89,4 +89,8 @@ export const SSECode = {
 	NOTIFICATION:"NOTIFICATION" as const,
 	TRIGGER_SLASH_COMMAND:"TRIGGER_SLASH_COMMAND" as const,
 	AUTHENTICATION_FAILED:"AUTHENTICATION_FAILED" as const,
+	TICK_BINGO_GRID_CELL:"TICK_BINGO_GRID_CELL" as const,
+	BINGO_GRID_BINGO_COUNT:"BINGO_GRID_BINGO_COUNT" as const,
+	BINGO_GRID_UPDATE:"BINGO_GRID_UPDATE" as const,
+	BINGO_GRID_UNTICK_ALL:"BINGO_GRID_UNTICK_ALL" as const,
 }

@@ -3,7 +3,7 @@
 		<div class="dimmer"></div>
 		<div class="holder">
 			<div class="head">
-				<span class="title">Auth</span>
+				<span class="title">Authenticating</span>
 			</div>
 			<div class="content">
 				<Icon name="loader" class="spinner" v-if="authenticating" />
@@ -43,7 +43,7 @@ class LightAuthView extends Vue {
 		const code		= Utils.getQueryParameterByName("code");
 		const csrfToken	= Utils.getQueryParameterByName("state");
 		if(code) {
-			const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken});
+			const res = await ApiHelper.call("auth/CSRFToken", "POST", {token:csrfToken!});
 			if(!res.json.success) {
 				if(res.json.message) this.$store.common.alert(res.json.message);
 				this.authenticating = false;
