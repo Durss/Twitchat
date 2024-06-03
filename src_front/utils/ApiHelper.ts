@@ -831,6 +831,12 @@ type ApiEndpoints =  {
 					cols:number;
 					rows:number;
 					entries:TwitchatDataTypes.BingoGridConfig["entries"];
+					additionalEntries?: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
 				};
 				error?:string;
 				errorCode?:string;
@@ -867,6 +873,12 @@ type ApiEndpoints =  {
 					rows: number;
 					title: string;
 					entries: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
+					additionalEntries?: {
 						id: string;
 						label: string;
 						lock: boolean;

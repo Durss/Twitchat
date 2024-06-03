@@ -52,7 +52,7 @@ import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 	},
 	emits:["update:modelValue", "change"],
 })
- class DurationForm extends Vue {
+class DurationForm extends Vue {
 
 	@Prop({default:"", type:String})
 	public id!:string;

@@ -454,8 +454,9 @@ export interface IBingoGridActions {
 	 * Saves data to server
 	 * @param gridId grid ID. This will broadcast update to overlay
 	 * @param cellId [optional] cell ID that's been clicked
+	 * @param broadcastViewers [optional] tells the viewers the grid got edited. Don't set this "true" when only ticking a cell
 	 */
-	saveData(gridId:string, cellId?:string):Promise<void>
+	saveData(gridId:string, cellId?:string, broadcastViewers?:boolean):Promise<void>
 	/**
 	 * Inverse the check state of the given cell ID.
 	 * @param gridId
@@ -469,6 +470,14 @@ export interface IBingoGridActions {
 	 * @param cmd
 	 */
 	handleChatCommand(message:TwitchatDataTypes.TranslatableMessage, cmd:string):Promise<void>;
+	/**
+	 * Adds a custom cell to the given grid
+	 */
+	addCustomCell(gridId:string):void;
+	/**
+	 * Remove given custom cell from the given grid
+	 */
+	removeCustomCell(gridId:string, cellId:string):void;
 }
 
 

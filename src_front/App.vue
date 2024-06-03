@@ -152,6 +152,7 @@ class App extends Vue {
 			// console.log(target.computedStyleMap().get("cursor"));
 			if(target.tagName == "BUTTON"
 			|| target.tagName == "A"
+			|| target.classList.contains("checkbox")
 			|| target.classList.contains("buttonnotification")
 			|| target.classList.contains("switchbutton")
 			|| target.classList.contains("ToggleButton.vue")

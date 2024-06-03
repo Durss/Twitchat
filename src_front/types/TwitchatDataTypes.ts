@@ -407,7 +407,7 @@ export namespace TwitchatDataTypes {
 		/**
 		 * Parameter type
 		 */
-		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime"|"time"|"imagelist"|"duration";
+		type:"boolean"|"number"|"string"|"slider"|"password"|"list"|"browse"|"editablelist"|"color"|"date"|"datetime"|"time"|"imagelist"|"duration"|"custom";
 		/**
 		 * Parameter value
 		 */
@@ -655,6 +655,7 @@ export namespace TwitchatDataTypes {
 			lock:boolean;
 			check:boolean;
 		}[];
+		additionalEntries?:BingoGridConfig["entries"],
 		cols:number;
 		rows:number;
 		textColor:string;

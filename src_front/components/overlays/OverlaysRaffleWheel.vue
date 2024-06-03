@@ -106,7 +106,7 @@ import type { StyleValue } from 'vue';
 		PublicAPI.instance.addEventListener(TwitchatEvent.GET_WHEEL_OVERLAY_PRESENCE, this.wheelPresenceHandler);
 
 		//Populate with fake data
-		//*
+		/*
 		let list:TwitchatDataTypes.EntryItem[] = [];
 		for (let i = 0; i < 90000; i++) {
 			let id = i.toString();

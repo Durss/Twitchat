@@ -10,6 +10,8 @@ import ApiHelper from '@/utils/ApiHelper';
 import SSEHelper from '@/utils/SSEHelper';
 import SSEEvent from '@/events/SSEEvent';
 
+let saveDebounce:number = -1;
+let tickDebounce:{[key:string]:number} = {};
 let overlayCheckInterval:{[key:string]:number} = {};
 //Keeps old check stats of gridd to be able to diff on save
 let prevGridStates:{[key:string]:boolean[]} = {};
@@ -197,12 +199,28 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		shuffleGrid(id:string):void {
 			const grid = this.gridList.find(g => g.id === id);
 			if(!grid) return;
+			if(grid.additionalEntries) {
+				//Randomly switch main entries with additional entries
+				for (let i = 0; i < grid.entries.length; i++) {
+					const entry = grid.entries[i];
+					//Don't switch locked cells
+					if(entry.lock) continue;
+					if(Math.random() > .4) {
+						const index = Math.floor(Math.random() * grid.additionalEntries.length);
+						grid.entries.splice(i, 1, grid.additionalEntries[index]);
+						grid.additionalEntries[index] = entry;
+						entry.check = false;
+					}
+				}
+			}
+
 			const entries = grid.entries;
 			for (let i = entries.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
 				if(entries[i].lock || entries[j].lock) continue;
 				[entries[i], entries[j]] = [entries[j], entries[i]];
 			}
+			
 			prevGridStates[grid.id] = [];
 			this.saveData(id);
 		},
@@ -247,22 +265,23 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 		duplicateGrid(id:string):void {
 			const source = this.gridList.find(g => g.id === id);
 			if(!source) return;
-			const target = this.addGrid();
-			target.title = source.title;
-			target.cols = source.cols;
-			target.rows = source.rows;
-			target.entries = source.entries.map(item => {
-				return {
-					id:Utils.getUUID(),
-					label:item.label,
-					lock:item.lock,
-					check:false,
-				}
+			const clone = JSON.parse(JSON.stringify(source)) as typeof source;
+			clone.id = Utils.getUUID();
+			clone.entries.forEach(v=> {
+				v.id = Utils.getUUID();
+				v.check = false;
 			});
+			if(clone.additionalEntries) {
+				clone.additionalEntries.forEach(v=> {
+					v.id = Utils.getUUID();
+					v.check = false;
+				});
+			}
+			this.gridList.push(clone)
 			this.saveData(id);
 		},
 
-		async saveData(gridId:string, cellId?:string):Promise<void> {
+		async saveData(gridId:string, cellId?:string, broadcastViewers:boolean = false):Promise<void> {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid) return;
 
@@ -429,6 +448,23 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				gridList:this.gridList,
 			};
 			DataStore.set(DataStore.BINGO_GRIDS, data);
+
+			if(broadcastViewers) {
+				clearTimeout(saveDebounce);
+				saveDebounce = setTimeout(() => {
+					//Debounce this call is it will fire an event to every connected viewer
+					ApiHelper.call("bingogrid/streamer", "POST", {
+						gridid:grid.id,
+						grid:{
+							cols:grid.cols,
+							rows:grid.rows,
+							title:grid.title,
+							entries:grid.entries,
+							additionalEntries:grid.additionalEntries,
+						}
+					});
+				}, 2000);
+			}
 		},
 
 		toggleCell(gridId:string, cellId:string, forcedState?:boolean):void {
@@ -439,7 +475,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			let prevState = cell.check;
 			cell.check = forcedState == undefined? !cell.check : forcedState;
 			if(cell.check != prevState) {
-				ApiHelper.call("bingogrid/tickCell", "POST", {cellid:cell.id, state:cell.check, gridid:grid.id});
+				//Debounce avoids spamming viewers
+				clearTimeout(tickDebounce[cellId]);
+				tickDebounce[cellId] = setTimeout(() => {
+					ApiHelper.call("bingogrid/tickCell", "POST", {cellid:cell.id, state:cell.check, gridid:grid.id});
+				}, 500);
 			}
 			if(cell.check) {
 				let x = -1;
@@ -491,7 +531,28 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 					}
 				}
 			}
-		}
+		},
+
+		addCustomCell(gridId:string):void {
+			const grid = this.gridList.find(g => g.id === gridId);
+			if(!grid || !grid.enabled) return;
+			if(!grid.additionalEntries) grid.additionalEntries = [];
+
+			grid.additionalEntries.push({
+				id:Utils.getUUID(),
+				check:false,
+				label:"",
+				lock:false,
+			})
+		},
+
+		removeCustomCell(gridId:string, cellId:string):void {
+			const grid = this.gridList.find(g => g.id === gridId);
+			if(!grid || !grid.enabled || !grid.additionalEntries) return;
+			grid.additionalEntries = grid.additionalEntries.filter(e => e.id != cellId);
+			
+		},
+
 	} as IBingoGridActions
 	& ThisType<IBingoGridActions
 		& UnwrapRef<IBingoGridState>

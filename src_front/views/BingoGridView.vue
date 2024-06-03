@@ -5,6 +5,8 @@
 
 		<Icon v-if="loading" name="loader" class="loader" />
 
+		<div v-else-if="error" class="card-item alert">{{ $t("error.bingo_grid_404") }}</div>
+
 		<div v-else class="grid">
 			<h1>{{ title }}</h1>
 
@@ -76,6 +78,7 @@ import { Component, Vue, toNative } from 'vue-facing-decorator';
 class BingoGridView extends Vue {
 
 	public loading = true;
+	public error = false;
 	public generatingCSRF = true;
 	public cols:number = 0;
 	public rows:number = 0;
@@ -88,6 +91,7 @@ class BingoGridView extends Vue {
 
 	private starIndex:number = 0;
 	private bingoCountDebounce:number = -1;
+	private notificationDebounce:number = -1;
 	private prevGridStates:boolean[] = [];
 	private sseConnectHandler!:(e:SSEEvent) => void;
 	private sseUntickAllHandler!:(e:SSEEvent) => void;
@@ -97,6 +101,7 @@ class BingoGridView extends Vue {
 					cols:number;
 					rows:number;
 					entries:TwitchatDataTypes.BingoGridConfig["entries"];
+					additionalEntries?:TwitchatDataTypes.BingoGridConfig["entries"];
 				}>) => void;
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
@@ -157,7 +162,7 @@ class BingoGridView extends Vue {
 		const uid = this.$route.params.uid as string;
 		const gridid = this.$route.params.gridId as string;
 		try {
-			const infos = await ApiHelper.call("bingogrid", "GET", {uid, gridid});
+			const infos = await ApiHelper.call("bingogrid", "GET", {uid, gridid}, false);
 			if(infos.json.data) {
 				this.cols		= infos.json.data.cols;
 				this.rows		= infos.json.data.rows;
@@ -167,12 +172,15 @@ class BingoGridView extends Vue {
 					v.enabled = v.check;
 				});
 				this.onGridUpdate(infos.json.data);
+				this.loading = false;
+				this.animateOpen();
+			}else{
+				this.error = true;
 			}
 		}catch(error) {
-
+			this.error = true;
 		}
 		this.loading = false;
-		this.animateOpen();
 	}
 
 	/**
@@ -480,10 +488,22 @@ class BingoGridView extends Vue {
 		this.rows = data.rows;
 		this.cols = data.cols;
 		this.title = data.title;
-		this.entries = data.entries;
-		this.entries.forEach(v=>{
-			v.enabled = v.check;
-		});
+		let allExisting = true;
+		//Check if one of the current entries is missing from the new grid
+		for (let i = 0; i < this.entries.length; i++) {
+			const entry = this.entries[i];
+			const source1 = data.entries.find(w => w.id == entry.id);
+			const source2 = (data.additionalEntries || []).find(w => w.id == entry.id);
+			if(!source1 && !source2){
+				allExisting = false;
+			}
+			if(source1) entry.label = source1.label;
+			if(source2) entry.label = source2.label;
+		}
+		//An entry is missing, generate a new grid
+		if(!allExisting) {
+			this.loadGridInfo()
+		}
 	}
 
 	/**
@@ -495,9 +515,21 @@ class BingoGridView extends Vue {
 		const cell = this.entries.find(cell => cell.id == e.data!.cell);
 		if(cell) {
 			cell.enabled = e.data.state;
-			if(!cell.enabled) cell.check = false;
+			if(cell.enabled) this.playNotification();
+			else cell.check = false;
 			this.checkBingos();
 		}
+	}
+
+	/**
+	 * Plays a notification sound
+	 */
+	private playNotification():void {
+		clearTimeout(this.notificationDebounce);
+		this.notificationDebounce = setTimeout(() => {
+			console.log("PLAY");
+			new Audio(this.$image("sounds/notification.mp3")).play();
+		}, 100);
 	}
 }
 export default toNative(BingoGridView);
@@ -613,6 +645,9 @@ export default toNative(BingoGridView);
 
 	.flip-list-move {
 		transition: transform .25s;
+	}
+	.flip-list-leave-to {
+		display: none !important;
 	}
 
 	.authBt {

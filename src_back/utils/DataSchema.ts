@@ -1612,6 +1612,21 @@ import Ajv from "ajv";
 										label: {type:"string", maxLength:60},
 									}
 								}
+							},
+							additionalEntries: {
+								type:"array",
+								minItems:0,
+								maxItems:100,
+								items:{
+									type:"object",
+									additionalProperties: false,
+									properties: {
+										id: {type:"string", maxLength:40},
+										lock: {type:"boolean"},
+										check: {type:"boolean"},
+										label: {type:"string", maxLength:60},
+									}
+								}
 							}
 						}
 					},

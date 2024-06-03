@@ -107,6 +107,8 @@ export class OverlayBingoGrid extends AbstractOverlay {
 		this.broadcastPresenceInterval = SetIntervalWorker.instance.create(()=>{
 			this.broadcastPresence();
 		}, 20000);
+
+		this.broadcastPresence();
 	}
 
 	public beforeUnmount(): void {
@@ -158,7 +160,6 @@ export class OverlayBingoGrid extends AbstractOverlay {
 			if(!this.bingo) return;
 
 			this.broadcastPresence();
-
 			await this.$nextTick();
 
 			if(animate) {
@@ -192,13 +193,17 @@ export class OverlayBingoGrid extends AbstractOverlay {
 				}
 
 				const cells = this.$refs.cell as HTMLElement[];
+				const stagger = 9/Math.sqrt(cells.length*2) * .05;
+				console.log(stagger);
 				gsap.from([this.$refs.cellsHolder, this.$refs.gridHolder], {scale:0, ease:Sine.easeOut, duration:.35, clearProps:"transform"});
 				//Animate items from center
 				cells.forEach((cell, index) => {
 					let distance = spiralOrder.findIndex(v=>v===index);
 					if(distance < 0) distance = spiralOrder.length;
-					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + distance*.05});
+					// console.log(data.bingo.entries[index].label, distance);
+					gsap.from(cell, {scale:0, ease:Elastic.easeOut, duration:1.3, delay: .3 + distance*stagger});
 				});
+				return;
 			}
 
 
@@ -208,17 +213,15 @@ export class OverlayBingoGrid extends AbstractOverlay {
 					if(this.prevCheckStates[entry.id] != entry.check && entry.check) {
 						const checks = this.$refs["check_"+entry.id] as Vue[];
 						const cell = document.querySelector("[data-cellid=\""+entry.id+"\"]") as HTMLElement;
-						if(checks?.length > 0) {
-							if(checks[0].$el.nodeName != "#comment") {
-								gsap.killTweensOf(checks[0].$el);
-								gsap.fromTo(checks[0].$el, {opacity:0}, {opacity:1, duration:.25});
-								const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
-								const angle = (Math.random()-Math.random()) * 25;
-								gsap.fromTo(checks[0].$el, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
-								setTimeout(() => {
-									this.popClouds(cell);
-								}, 150);
-							}
+						if(checks?.length > 0 && checks[0].$el.nodeName != "#comment") {
+							gsap.killTweensOf(checks[0].$el);
+							gsap.fromTo(checks[0].$el, {opacity:0}, {opacity:1, duration:.25});
+							const ease = CustomEase.create("custom", "M0,0 C0,0 0.325,0.605 0.582,0.977 0.647,0.839 0.817,0.874 0.854,0.996 0.975,0.9 1,1 1,1 ");
+							const angle = (Math.random()-Math.random()) * 25;
+							gsap.fromTo(checks[0].$el, {transform:"scale(3)", rotation:"0deg"}, {transform:"scale(1)", rotation:angle+"deg", ease, duration:.25});
+							setTimeout(() => {
+								this.popClouds(cell);
+							}, 150);
 						}
 					}
 					this.prevCheckStates[entry.id] = entry.check;
@@ -390,6 +393,7 @@ export default toNative(OverlayBingoGrid);
 			.label {
 				display: block;
 				width: 100%;
+				// text-shadow: 5px 10px 10px rgba(0,0,0,1);
 			}
 		}
 	}

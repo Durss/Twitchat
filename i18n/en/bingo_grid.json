@@ -20,6 +20,8 @@
 			"param_chat_cmd": "Command",
 			"param_chat_cmd_enabled": "Tick cells from chat command",
 			"param_heat_enabled": "Tick cells from Heat extension",
+			"param_additional_cells": "Additional cells\n(will be used when shuffling the grid)",
+			"add_cellBt": "Add cell",
 			"chat_cmd_usage": "Use command {CMD}",
 			"heat_usage": "@:heat.header",
 			"premium_limit": "You reached the maximum bingo grid count you can create.",

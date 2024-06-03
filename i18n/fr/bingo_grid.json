@@ -20,6 +20,8 @@
 			"param_chat_cmd":"Commande",
 			"param_chat_cmd_enabled":"Cocher des cases depuis le tchat",
 			"param_heat_enabled":"Cocher des cases via l'extension Heat",
+			"param_additional_cells": "Cases additionelles\n(seront utilisée lors du mélange de la grille)",
+			"add_cellBt": "Ajouter",
 			"chat_cmd_usage":"Utilisez la commande {CMD}",
 			"heat_usage":"@:heat.header",
 			"premium_limit": "Vous avez atteint le maximum de grilles de bingo que vous pouvez créer.",

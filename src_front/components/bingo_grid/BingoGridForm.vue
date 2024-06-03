@@ -29,7 +29,7 @@
 			:titleMaxLengh="30"
 			:open="false"
 			:key="bingo.id"
-			@update:title="save(bingo)">
+			@update:title="save(bingo, true)">
 
 				<template #left_actions>
 					<div class="leftActions">
@@ -64,9 +64,9 @@
 							<span>{{ $t("bingo_grid.form.param_size") }}</span>
 						</label>
 						<div class="forms">
-							<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo)" noBackground />
+							<ParamItem :paramData="param_cols[bingo.id]" v-model="bingo.cols" @change="save(bingo, true)" noBackground />
 							<Icon name="cross"/>
-							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo)" noBackground />
+							<ParamItem :paramData="param_rows[bingo.id]" v-model="bingo.rows" @change="save(bingo, true)" noBackground />
 						</div>
 					</div>
 
@@ -86,7 +86,7 @@
 					filter=".locked"
 					@start="onSortStart(bingo)"
 					@end="onSortEnd(bingo)"
-					:animation="250">
+					animation="250">
 						<TransitionGroup name="flip-list">
 							<div v-for="element in bingo.entries"
 							:key="element.id"
@@ -99,7 +99,7 @@
 									:no-html="true"
 									:no-nl="false"
 									:ref="'label_'+element.id"
-									@blur="save(bingo)"
+									@blur="save(bingo, true)"
 									@input="limitLabelSize(element)" />
 
 								<ClearButton class="lockBt"
@@ -116,6 +116,25 @@
 							<TTButton @click="$store.bingoGrid.resetLabels(bingo.id)" icon="trash">{{ $t("bingo_grid.form.reset_bt") }}</TTButton>
 						</div>
 					</VueDraggable>
+
+					<ParamItem :paramData="param_additional_cells[bingo.id]">
+						<template #custom><TTButton @click="$store.bingoGrid.addCustomCell(bingo.id)">{{ $t("bingo_grid.form.add_cellBt") }}</TTButton></template>
+						<div class="additionalItemList">
+							<div class="additionalItem" v-for="item in (bingo.additionalEntries || [])" :key="item.id">
+								
+								<TTButton @click="$store.bingoGrid.removeCustomCell(bingo.id, item.id)" alert icon="trash" />
+								
+								<contenteditable class="label" tag="div"
+									v-model="item.label"
+									:contenteditable="true"
+									:no-html="true"
+									:no-nl="false"
+									:ref="'additionallabel_'+item.id"
+									@blur="save(bingo, true)"
+									@input="limitLabelSize(item)" />
+							</div>
+						</div>
+					</ParamItem>
 
 					<ParamItem :paramData="param_chatCmd_toggle[bingo.id]" @change="save(bingo)">
 						<div class="parameter-child">
@@ -162,14 +181,13 @@ import { VueDraggable } from 'vue-draggable-plus';
 import { Component, Prop, toNative } from 'vue-facing-decorator';
 import AbstractSidePanel from '../AbstractSidePanel';
 import ClearButton from '../ClearButton.vue';
+import PermissionsForm from '../PermissionsForm.vue';
 import TTButton from '../TTButton.vue';
 import ToggleBlock from '../ToggleBlock.vue';
 import ToggleButton from '../ToggleButton.vue';
 import ParamItem from '../params/ParamItem.vue';
 import PostOnChatParam from '../params/PostOnChatParam.vue';
 import OverlayInstaller from '../params/contents/overlays/OverlayInstaller.vue';
-import PermissionsForm from '../PermissionsForm.vue';
-import ApiHelper from '@/utils/ApiHelper';
 
 @Component({
 	components:{
@@ -186,7 +204,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	},
 	emits:["close"]
 })
- class BingoGridForm extends AbstractSidePanel {
+class BingoGridForm extends AbstractSidePanel {
 
 	//This is used by the trigger action form.
 	@Prop({type: Object, default:{}})
@@ -208,6 +226,7 @@ import ApiHelper from '@/utils/ApiHelper';
 	public param_chatCmd:{[key:string]:TwitchatDataTypes.ParameterData<string>} = {};
 	public param_chatCmd_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public param_heat_toggle:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
+	public param_additional_cells:{[key:string]:TwitchatDataTypes.ParameterData<boolean>} = {};
 	public isDragging:boolean = false;
 
 	private lockedItems:{[key:string]:{index:number, data:TwitchatDataTypes.BingoGridConfig["entries"][number]}[]} = {};
@@ -251,20 +270,12 @@ import ApiHelper from '@/utils/ApiHelper';
 	/**
 	 * Save
 	 */
-	public save(grid:TwitchatDataTypes.BingoGridConfig):void {
+	public save(grid:TwitchatDataTypes.BingoGridConfig, brodacastUpdate:boolean = false):void {
 		if(this.param_chatCmd_toggle[grid.id].value && !grid.chatCmd) {
 			grid.chatCmd = "!bingo";
 		}
-		this.$store.bingoGrid.saveData(grid.id);
-		ApiHelper.call("bingogrid/streamer", "POST", {
-			gridid:grid.id,
-			grid:{
-				cols:grid.cols,
-				rows:grid.rows,
-				title:grid.title,
-				entries:grid.entries,
-			}
-		})
+		console.log("SAVE", brodacastUpdate);
+		this.$store.bingoGrid.saveData(grid.id, undefined, brodacastUpdate);
 	}
 
 	/**
@@ -380,6 +391,7 @@ import ApiHelper from '@/utils/ApiHelper';
 			this.param_chatCmd[id] = {type:"string", value:"", maxLength:20, labelKey:"bingo_grid.form.param_chat_cmd", icon:"chatCommand"};
 			this.param_chatCmd_toggle[id] = {type:"boolean", value:entry.chatCmd != undefined, labelKey:"bingo_grid.form.param_chat_cmd_enabled", icon:"show"};
 			this.param_heat_toggle[id] = {type:"boolean", value:false, labelKey:"bingo_grid.form.param_heat_enabled", icon:"heat"};
+			this.param_additional_cells[id] = {type:"custom", value:true, labelKey:"bingo_grid.form.param_additional_cells", icon:"add"};
 		});
 	}
 }
@@ -507,7 +519,10 @@ export default toNative(BingoGridForm);
 	}
 
 	.flip-list-move {
-		transition: transform .25s;
+		transition: all .25s;
+	}
+	.flip-list-leave-to {
+		display: none !important;
 	}
 
 	.leftActions {
@@ -547,6 +562,30 @@ export default toNative(BingoGridForm);
 
 	.heatButton {
 		margin: auto;
+	}
+
+	.additionalItemList {
+		margin-top: .5em;
+		gap: .25em;
+		display: flex;
+		flex-direction: column;
+		.additionalItem {
+			display: flex;
+			flex-direction: row;
+			.label {
+				padding: .25em;
+				width: 100%;
+				background-color: var(--grayout);
+				border-top-right-radius: var(--border-radius);
+				border-bottom-right-radius: var(--border-radius);
+				text-align: center;
+			}
+			.button{
+				flex-shrink: 0;
+				border-top-right-radius: 0;
+				border-bottom-right-radius: 0;
+			}
+		}
 	}
 }
 </style>

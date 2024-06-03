@@ -32,7 +32,7 @@
 		<Icon name="leaderboard" />
 		<div class="list">
 			<div class="entry"
-			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>a.count-b.count)"
+			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>b.count-a.count)"
 			:key="entry.user.id">
 				<img class="avatar" :src="entry.user.avatarPath" alt="avatar">
 				<a class="name" @click="openUserCard(entry.user)">{{ entry.user.displayName }}</a>

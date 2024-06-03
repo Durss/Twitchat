@@ -6,6 +6,15 @@
 		<div class="content">
 			<Icon :theme="paramData.iconTheme" :name="paramData.icon" v-if="paramData.icon" class="paramIcon" />
 			<img :src="paramData.iconURL" v-if="paramData.iconURL" class="paramIcon">
+			
+			<div v-if="paramData.type == 'custom'" class="holder custom">
+
+			<label :for="'custom'+key"
+				v-if="label"
+				v-html="label"
+				v-tooltip="{content:tooltip, followCursor:'horizontal'}"></label>
+				<div><slot name="custom" :id="'custom'+key"></slot></div>
+			</div>
 
 			<div v-if="paramData.type == 'boolean'" class="holder toggle"
 			:aria-label="label+': '+(paramData.value? 'anabled' : 'disabled')"
@@ -1000,7 +1009,7 @@ export default toNative(ParamItem);
 				width: 100%;
 				height: 1em;
 				background: transparent;
-  				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fadest) 50%);
+				background: linear-gradient(90deg, var(--color-dark-light) 50%, var(--color-dark-fadest) 50%);
 				&::-webkit-slider-thumb {
 					.emboss();
 					appearance: none;
@@ -1179,6 +1188,10 @@ export default toNative(ParamItem);
 				}
 			}
 		}
+	}
+
+	.custom {
+		justify-content: space-between;
 	}
 }
 </style>
