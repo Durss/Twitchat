@@ -31,7 +31,7 @@ export default class MiddlewareController extends AbstractController {
 	public async initialize():Promise<void> {
 		//Rate limiter
 		await this.server.register(require('@fastify/rate-limit'), {
-			max: 5,
+			max: 10,
 			ban: 5,
 			global: true,
 			timeWindow: 2000,
@@ -43,9 +43,7 @@ export default class MiddlewareController extends AbstractController {
 			},
 			allowList: (request, key) => {
 				//Apply rate limit only to API endpoints except config and SSE
-				return !/\/api\//.test(request.url)
-						|| request.url == "/api/configs"
-						|| request.url == "/api/sse/register";
+				return request.url == "/api/configs";
 			},
 			onBanReach: (request, key) => {
 				this.expandCustomRateLimitDuration(request);

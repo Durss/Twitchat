@@ -62,11 +62,11 @@ server.register(import("fastify-sse-v2"))
 })
 .register(import("fastify-raw-body"), {
   runFirst: true, // get the body before any preParsing hook change/uncompress it. **Default false**
-}).then(()=> {
+}).then(async ()=> {
 	//Create controllers
 	const discord = new DiscordController(server).initialize();
+	await new MiddlewareController(server).initialize();
 	new UserController(server,discord).initialize();
-	new MiddlewareController(server).initialize();
 	new FileServeController(server).initialize();
 	new AuthController(server).initialize();
 	new DonorController(server).initialize();
