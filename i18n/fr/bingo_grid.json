@@ -34,7 +34,8 @@
 			"delete_confirm":{
 				"title":"Supprimer grille ?",
 				"description":"La grille de bingo sera supprimée.\nCette action est irréversible."
-			}
+			},
+			"additional_cells":"Cases additionnelles"
 		},
 		"state":{
 			"auth_bt": "Me connecter pour jouer",

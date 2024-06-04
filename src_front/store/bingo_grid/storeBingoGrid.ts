@@ -13,7 +13,7 @@ import SSEEvent from '@/events/SSEEvent';
 let saveDebounce:number = -1;
 let tickDebounce:{[key:string]:number} = {};
 let overlayCheckInterval:{[key:string]:number} = {};
-//Keeps old check stats of gridd to be able to diff on save
+//Keeps old check states of grid to be able to diff on save
 let prevGridStates:{[key:string]:boolean[]} = {};
 
 export const storeBingoGrid = defineStore('bingoGrid', {
@@ -130,10 +130,12 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				let entry = list.find(v=>v.user.id === user.id);
 				if(!entry) {
 					entry = { count:event.data.count, user };
-					this.viewersBingoCount[event.data.gridId].push(entry);
+					list.push(entry);
+				}else{
+					entry.count = event.data.count;
 				}
 
-				entry.count = event.data.count;
+				this.viewersBingoCount[event.data.gridId] = list.filter(v=>v.count > 0);
 			});
 		},
 
@@ -214,6 +216,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				}
 			}
 
+			//Shuffle entries
 			const entries = grid.entries;
 			for (let i = entries.length - 1; i > 0; i--) {
 				const j = Math.floor(Math.random() * (i + 1));
@@ -222,7 +225,9 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			}
 			
 			prevGridStates[grid.id] = [];
-			this.saveData(id);
+			this.saveData(id, undefined, true);
+			
+			ApiHelper.call("bingogrid/shuffle", "POST", {gridid:grid.id, grid, uid:StoreProxy.auth.twitch.user.id});
 		},
 
 		resetLabels(id:string):void {
@@ -241,6 +246,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			if(!grid) return;
 			prevGridStates[grid.id] = [];
 			grid.entries.forEach(entry => entry.check = forcedState == undefined? false : forcedState);
+			if(grid.additionalEntries) grid.additionalEntries.forEach(entry => entry.check = forcedState == undefined? false : forcedState);
 			this.saveData(id);
 
 			const message:TwitchatDataTypes.MessageBingoGridData = {
@@ -259,7 +265,10 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 				reset:true,
 			}
 			StoreProxy.chat.addMessage(message);
-			ApiHelper.call("bingogrid/untickAll", "POST", {gridid:grid.id});
+			const states:{[cellId:string]:boolean} = {};
+			grid.entries.forEach(v=> states[v.id] = v.check);
+			if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
+			ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
 		},
 
 		duplicateGrid(id:string):void {
@@ -281,7 +290,7 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			this.saveData(id);
 		},
 
-		async saveData(gridId:string, cellId?:string, broadcastViewers:boolean = false):Promise<void> {
+		async saveData(gridId:string, cellId?:string, broadcastToViewers:boolean = false):Promise<void> {
 			const grid = this.gridList.find(g => g.id === gridId);
 			if(!grid) return;
 
@@ -449,11 +458,11 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			};
 			DataStore.set(DataStore.BINGO_GRIDS, data);
 
-			if(broadcastViewers) {
+			if(broadcastToViewers) {
 				clearTimeout(saveDebounce);
 				saveDebounce = setTimeout(() => {
-					//Debounce this call is it will fire an event to every connected viewer
-					ApiHelper.call("bingogrid/streamer", "POST", {
+					//Debounce this call as it will fire an event to every connected viewer
+					ApiHelper.call("bingogrid", "PUT", {
 						gridid:grid.id,
 						grid:{
 							cols:grid.cols,
@@ -476,10 +485,13 @@ export const storeBingoGrid = defineStore('bingoGrid', {
 			cell.check = forcedState == undefined? !cell.check : forcedState;
 			if(cell.check != prevState) {
 				//Debounce avoids spamming viewers
-				clearTimeout(tickDebounce[cellId]);
-				tickDebounce[cellId] = setTimeout(() => {
-					ApiHelper.call("bingogrid/tickCell", "POST", {cellid:cell.id, state:cell.check, gridid:grid.id});
-				}, 500);
+				clearTimeout(tickDebounce[gridId]);
+				tickDebounce[gridId] = setTimeout(() => {
+					const states:{[cellId:string]:boolean} = {};
+					grid.entries.forEach(v=> states[v.id] = v.check);
+					if(grid.additionalEntries) grid.additionalEntries.forEach(v=> states[v.id] = v.check);
+					ApiHelper.call("bingogrid/tickStates", "POST", {states, gridid:grid.id});
+				}, 1000);
 			}
 			if(cell.check) {
 				let x = -1;

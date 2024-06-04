@@ -1,5 +1,5 @@
 <template>
-	<div class="bingogridcontrols blured-background-window" v-if="!leaderBoardID">
+	<div class="bingogridcontrols blured-background-window" v-if="!leaderBoardID || $store.bingoGrid.viewersBingoCount[leaderBoardID]?.length === 0">
 		<div v-for="grid in $store.bingoGrid.availableOverlayList"
 		class="card-item entry"
 		:title="grid.title"
@@ -17,10 +17,23 @@
 						@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)" />
 				</TransitionGroup>
 			</div>
+
+			<ToggleBlock v-if="grid.additionalEntries" small :title="$t('bingo_grid.form.additional_cells')">
+				<div v-for="entry in grid.additionalEntries" class="additionalEntry">
+					<Checkbox class="entry"
+						:key="entry.id"
+						v-model="entry.check"
+						v-tooltip="entry.label"
+						@click.capture.stop="$store.bingoGrid.toggleCell(grid.id, entry.id)">
+						<span class="label">{{ entry.label }}</span>
+					</Checkbox>
+				</div>
+			</ToggleBlock>
+
 			<div class="ctas">
-				<TTButton icon="dice" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
+				<TTButton icon="shuffle" @click="$store.bingoGrid.shuffleGrid(grid.id)" v-tooltip="$t('bingo_grid.form.shuffle_bt')"></TTButton>
 				<TTButton icon="refresh" @click="$store.bingoGrid.resetCheckStates(grid.id)" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
-				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id]"
+				<TTButton v-if="$store.bingoGrid.viewersBingoCount[grid.id] && $store.bingoGrid.viewersBingoCount[grid.id].length > 0"
 				icon="leaderboard"
 				small
 				v-tooltip="$t('bingo_grid.form.leaderBoard.open_bt_tt')"
@@ -30,6 +43,7 @@
 	</div>
 	<div class="bingogridcontrols blured-background-window leaderboard" v-else>
 		<Icon name="leaderboard" />
+
 		<div class="list">
 			<div class="entry"
 			v-for="entry in $store.bingoGrid.viewersBingoCount[leaderBoardID].sort((a,b)=>b.count-a.count)"
@@ -39,7 +53,7 @@
 				<strong class="count">x{{ entry.count }}</strong>
 			</div>
 		</div>
-		<TTButton class="backBt" icon="back" @click="leaderBoardID=''">{{ $t("global.back") }}</TTButton>
+		<TTButton class="backBt" icon="back" @click="leaderBoardID=''" transparent />
 	</div>
 </template>
 
@@ -170,6 +184,9 @@ export default toNative(BingoGridControls);
 	.flip-list-move {
 		transition: transform .25s;
 	}
+	.flip-list-leave-to {
+		display: none !important;
+	}
 
 	&.leaderboard {
 		gap: 1em;
@@ -204,9 +221,25 @@ export default toNative(BingoGridControls);
 			}
 		}
 		.backBt {
-			flex-shrink: 0;
+			position: absolute;
+			top: 0;
+			left: 0;
+			padding: 1em
 		}
 	}
-	;
+
+	.additionalEntry {
+		&:not(:first-child) {
+			margin-top: .25em;
+		}
+		.label {
+			display: inline-block;
+			max-width: 200px;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			line-height: 1.25em;
+		}
+	}
 }
 </style>

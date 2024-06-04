@@ -34,7 +34,8 @@
 			"delete_confirm": {
 				"description": "Bingo grid will be deleted\nThis cannot be undone.",
 				"title": "Delete grid?"
-			}
+			},
+			"additional_cells":"Additional cells"
 		},
 		"state": {
 			"auth_bt": "Authenticate to play",

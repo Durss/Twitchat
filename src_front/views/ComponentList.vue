@@ -369,7 +369,8 @@ import DurationForm from '@/components/DurationForm.vue';
 		this.iconList = keys;
 		const emotes = staticEmotes as TwitchDataTypes.Emote[];
 		TwitchUtils.loadEmoteSets("", [], emotes).then(()=> {
-			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss sit amet google.fr DinoDance", undefined, true);
+			this.messageChunks = TwitchUtils.parseMessageToChunks("Lorem ipsum @durss sit amet LUL consectetur google.fr DinoDance", undefined, true);
+			// this.messageChunks = TwitchUtils.parseMessageToChunks("/announcepurple Are you a Twitch streamer? I'm using GivePLZ twitchat.fr TakeNRG, a full featured chat alternative for streamers. Take a look at it if you wish KomodoHype", undefined, true);
 		})
 	}
 	

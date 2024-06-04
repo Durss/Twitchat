@@ -21,7 +21,7 @@
 				bounce twitch>{{ $t("bingo_grid.state.auth_bt") }}</TTButton>
 			
 			<div class="ctas" v-if="!$store.public.authenticated">
-				<TTButton icon="dice" @click="shuffle()" v-tooltip="$t('bingo_grid.form.shuffle_bt')" />
+				<TTButton icon="shuffle" @click="shuffle()" v-tooltip="$t('bingo_grid.form.shuffle_bt')" />
 				<TTButton icon="refresh" @click="uncheckAll()" v-tooltip="$t('bingo_grid.state.reset_bt')"></TTButton>
 			</div>
 
@@ -95,14 +95,16 @@ class BingoGridView extends Vue {
 	private prevGridStates:boolean[] = [];
 	private sseConnectHandler!:(e:SSEEvent) => void;
 	private sseUntickAllHandler!:(e:SSEEvent) => void;
-	private sseTickCellHandler!:(e:SSEEvent<{cell:string, state:boolean}>) => void;
+	private sseTickCellHandler!:(e:SSEEvent<{gridId:string, states:{[cellId:string]:boolean}}>) => void;
 	private sseGridUpdateHandler!:(e:SSEEvent<{
+				force?:boolean;
+				grid:{
 					title:string;
 					cols:number;
 					rows:number;
 					entries:TwitchatDataTypes.BingoGridConfig["entries"];
 					additionalEntries?:TwitchatDataTypes.BingoGridConfig["entries"];
-				}>) => void;
+				}}>) => void;
 
 	public cellClasses(entry:typeof this.entries[number]):string[] {
 		let res:string[] = ["cell"];
@@ -122,7 +124,7 @@ class BingoGridView extends Vue {
 		this.sseGridUpdateHandler = (e:SSEEvent<Parameters<typeof this.sseGridUpdateHandler>[0]["data"]>) => this.onGridUpdate(e.data);
 		SSEHelper.instance.addEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
-		SSEHelper.instance.addEventListener(SSEEvent.TICK_BINGO_GRID_CELL, this.sseTickCellHandler);
+		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseTickCellHandler);
 		SSEHelper.instance.addEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
 	}
 
@@ -130,7 +132,7 @@ class BingoGridView extends Vue {
 		clearTimeout(this.checkTimeout);
 		SSEHelper.instance.removeEventListener(SSEEvent.ON_CONNECT, this.sseConnectHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UPDATE, this.sseGridUpdateHandler);
-		SSEHelper.instance.removeEventListener(SSEEvent.TICK_BINGO_GRID_CELL, this.sseTickCellHandler);
+		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_CELL_STATES, this.sseTickCellHandler);
 		SSEHelper.instance.removeEventListener(SSEEvent.BINGO_GRID_UNTICK_ALL, this.sseUntickAllHandler);
 	}
 
@@ -170,8 +172,9 @@ class BingoGridView extends Vue {
 				this.entries	= infos.json.data.entries;
 				this.entries.forEach(v=>{
 					v.enabled = v.check;
+					v.check = false;
 				});
-				this.onGridUpdate(infos.json.data);
+				this.onGridUpdate({grid:infos.json.data});
 				this.loading = false;
 				this.animateOpen();
 			}else{
@@ -394,11 +397,10 @@ class BingoGridView extends Vue {
 			}
 	
 			const cells = this.$refs.cell as HTMLElement[];
-			gsap.from(this.$refs.cellsHolder as HTMLElement, {scale:0, ease:"sine.out", duration:.35, clearProps:"transform"});
 			//Animate items from center
 			cells.forEach((cell, index) => {
 				let distance = spiralOrder.findIndex(v=>v===index);
-				gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: .3 + distance*.05, clearProps:"all",
+				gsap.fromTo(cell, {scale:0}, {scale:1, ease:"elastic.out", duration:1.3, delay: distance*.05, clearProps:"all",
 					onComplete:()=>{
 						if(distance == Math.max(0,cells.length-10)) {
 							this.checkBingos();
@@ -452,6 +454,7 @@ class BingoGridView extends Vue {
 	private async onSSEConnect(e:SSEEvent):Promise<void> {
 		if(this.entries.length === 0) return;
 
+		const uid = this.$route.params.uid as string;
 		const gridid = this.$route.params.gridId as string;
 		const entries:TwitchatDataTypes.BingoGridConfig["entries"][number][] = this.entries.map(e => {
 			return  {
@@ -467,7 +470,7 @@ class BingoGridView extends Vue {
 			title:this.title,
 			entries,
 		};
-		await ApiHelper.call("bingogrid", "POST", {gridid, grid});
+		await ApiHelper.call("bingogrid", "POST", {gridid, grid, uid});
 	}
 
 	/**
@@ -485,15 +488,19 @@ class BingoGridView extends Vue {
 	 */
 	private async onGridUpdate(data:Parameters<typeof this.sseGridUpdateHandler>[0]["data"]):Promise<void> {
 		if(!data) return;
-		this.rows = data.rows;
-		this.cols = data.cols;
-		this.title = data.title;
+		if(data.force === true) {
+			this.loadGridInfo();
+			return;
+		}
+		this.rows = data.grid.rows;
+		this.cols = data.grid.cols;
+		this.title = data.grid.title;
 		let allExisting = true;
 		//Check if one of the current entries is missing from the new grid
 		for (let i = 0; i < this.entries.length; i++) {
 			const entry = this.entries[i];
-			const source1 = data.entries.find(w => w.id == entry.id);
-			const source2 = (data.additionalEntries || []).find(w => w.id == entry.id);
+			const source1 = data.grid.entries.find(w => w.id == entry.id);
+			const source2 = (data.grid.additionalEntries || []).find(w => w.id == entry.id);
 			if(!source1 && !source2){
 				allExisting = false;
 			}
@@ -502,7 +509,7 @@ class BingoGridView extends Vue {
 		}
 		//An entry is missing, generate a new grid
 		if(!allExisting) {
-			this.loadGridInfo()
+			this.loadGridInfo();
 		}
 	}
 
@@ -512,13 +519,16 @@ class BingoGridView extends Vue {
 	 */
 	private async onTickCell(e:SSEEvent<Parameters<typeof this.sseTickCellHandler>[0]["data"]>):Promise<void> {
 		if(!e.data) return;
-		const cell = this.entries.find(cell => cell.id == e.data!.cell);
-		if(cell) {
-			cell.enabled = e.data.state;
-			if(cell.enabled) this.playNotification();
-			else cell.check = false;
-			this.checkBingos();
+		const states = e.data.states;
+		for (const cellId in states) {
+			const cell = this.entries.find(cell => cell.id == cellId);
+			if(cell && cell.enabled != states[cellId]) {
+				cell.enabled = states[cellId];
+				if(cell.enabled) this.playNotification();
+				else cell.check = false;
+			}
 		}
+		this.checkBingos();
 	}
 
 	/**
@@ -527,8 +537,9 @@ class BingoGridView extends Vue {
 	private playNotification():void {
 		clearTimeout(this.notificationDebounce);
 		this.notificationDebounce = setTimeout(() => {
-			console.log("PLAY");
-			new Audio(this.$image("sounds/notification.mp3")).play();
+			const audio = new Audio(this.$image("sounds/notification.mp3"));
+			audio.volume = .25;
+			audio.play();
 		}, 100);
 	}
 }
@@ -644,7 +655,7 @@ export default toNative(BingoGridView);
 	}
 
 	.flip-list-move {
-		transition: transform .25s;
+		transition: transform 0s;
 	}
 	.flip-list-leave-to {
 		display: none !important;

@@ -3080,21 +3080,19 @@ export default class TwitchUtils {
 				res.forEach(v => {
 					//Add sub chunks to original resulting chunks
 					let islink = /(?:(?:http|ftp|https):\/\/)?((?:[\w_-]+(?:(?:\.[\w_-]+)+))(?:[\w.,@?^=%&:/~+#-]*[\w@?^=%&/~+#-]))/gi.test(v);
+					//Avoid floating numbers to be parsed as links
 					if (/[0-9]+\.[0-9]+$/.test(v)) islink = false;
 					const node: TwitchatDataTypes.ParseMessageChunk = {
 						type: islink ? "url" : "text",
 						value: v,
 					};
 
+					if (islink) {
+						node.href = !/^https?/gi.test(v) ? "https://" + v : v;
+					}
+
 					result.splice(i + subIndex, 0, node);
 					subIndex++;
-
-					if (islink) {
-						const href = !/^https?/gi.test(v) ? "https://" + v : v;
-						node.href = href;
-					} else {
-						i++;
-					}
 				})
 			}
 			if (result.length > 1000) {

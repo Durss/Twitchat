@@ -59,7 +59,7 @@ export default class ApiHelper {
 			if(data instanceof FormData) {
 				options.body = data;
 			}else
-			if(method === "POST") {
+			if(method === "POST" || method === "PUT") {
 				options.body = JSON.stringify(data);
 			}else{
 				for (const key in data) {
@@ -844,6 +844,7 @@ type ApiEndpoints =  {
 		}
 		POST: {
 			parameters: {
+				uid:string;
 				gridid:string;
 				grid:{
 					cols: number;
@@ -862,10 +863,8 @@ type ApiEndpoints =  {
 				error?:string;
 				errorCode?:string;
 			}
-		}
-	};
-	"bingogrid/streamer": {
-		POST: {
+		},
+		PUT: {
 			parameters: {
 				gridid:string;
 				grid:{
@@ -893,24 +892,11 @@ type ApiEndpoints =  {
 			}
 		}
 	};
-	"bingogrid/tickCell": {
+	"bingogrid/tickStates": {
 		POST: {
 			parameters: {
 				gridid:string;
-				cellid:string;
-				state:boolean;
-			};
-			response: {
-				success:boolean;
-				error?:string;
-				errorCode?:string;
-			}
-		}
-	};
-	"bingogrid/untickAll": {
-		POST: {
-			parameters: {
-				gridid:string;
+				states:{[cellId:string]:boolean};
 			};
 			response: {
 				success:boolean;
@@ -925,6 +911,36 @@ type ApiEndpoints =  {
 				uid:string;
 				gridid:string;
 				count:number;
+			};
+			response: {
+				success:boolean;
+				error?:string;
+				errorCode?:string;
+			}
+		}
+	};
+	"bingogrid/shuffle": {
+		POST: {
+			parameters: {
+				uid:string;
+				gridid:string;
+				grid:{
+					cols: number;
+					rows: number;
+					title: string;
+					entries: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
+					additionalEntries?: {
+						id: string;
+						label: string;
+						lock: boolean;
+						check: boolean;
+					}[];
+				};
 			};
 			response: {
 				success:boolean;

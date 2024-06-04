@@ -10,13 +10,13 @@
 
 <script lang="ts">
 import { watch } from 'vue';
-import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
+import { Component, Prop, Vue, toNative } from 'vue-facing-decorator';
 
 @Component({
 	components:{},
 	emits:["update:modelValue"],
 })
- class Checkbox extends Vue {
+class Checkbox extends Vue {
 
 	@Prop({default: false})
 	public modelValue!:unknown;
@@ -27,7 +27,14 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 	@Prop({type:Boolean, default: false})
 	public secondary!:boolean;
 
-	public checked:boolean = false;
+	public checked = false;
+
+	public mounted():void {
+		this.checked = this.modelValue === this.values[0];
+		watch(()=>this.modelValue, ()=>{
+			this.checked = this.modelValue === this.values[0];
+		});
+	}
 
 	public get classes():string[] {
 		const res:string[] = ["checkbox"];
@@ -35,15 +42,8 @@ import {toNative,  Component, Prop, Vue } from 'vue-facing-decorator';
 		return res;
 	}
 
-	public mounted():void {
-		this.checked = this.modelValue === true;
-		watch(()=>this.modelValue, ()=>{
-			this.checked = this.modelValue === true;
-		});
-	}
-
 	public onChange():void {
-		this.$emit("update:modelValue", this.checked? this.values[0] || true : this.values[1] || false);
+		this.$emit("update:modelValue", this.checked? this.values[0] : this.values[1]);
 	}
 
 }
@@ -55,11 +55,8 @@ export default toNative(Checkbox);
 	cursor: pointer;
 	display: flex;
 	flex-direction: row;
-	width: 100%;
-	height: 100%;
 	align-items: center;
 	position: relative;
-	width: 1em;
 	height: 1em;
 
 	.checkmark {
@@ -67,8 +64,9 @@ export default toNative(Checkbox);
 		border: 1px solid var(--color-text);
 		border-radius: .25em;
 		padding: 0;
-		width: 100%;
+		aspect-ratio: 1;
 		height: 100%;
+		min-height: 1em;
 		box-sizing: border-box;
 		display: flex;
 		align-items: center;
