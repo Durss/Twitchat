@@ -64,7 +64,10 @@ export const storeTriggers = defineStore('triggers', {
 				this.computeTriggerTreeEnabledStates();
 			}
 
-			SSEHelper.instance.addEventListener(SSEEvent.KO_FI_EVENT, (event:SSEEvent<{command:string, params:{name:string, value:string}[]}>) => {
+			/**
+			 * Listen for triggers executed from Discord
+			 */
+			SSEHelper.instance.addEventListener(SSEEvent.TRIGGER_SLASH_COMMAND, (event) => {
 				const data = event.data!;
 				//Search for the matching trigger
 				const trigger = StoreProxy.triggers.triggerList.find(v=>{
